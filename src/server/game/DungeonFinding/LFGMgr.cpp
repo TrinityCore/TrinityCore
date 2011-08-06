@@ -539,14 +539,18 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
             }
         }
 
-        // Expand random dungeons and check restrictions
-        if (rDungeonId)
-            dungeons = GetDungeonsByRandom(rDungeonId);
+        // it could be changed
+        if (joinData.result == LFG_JOIN_OK)
+        {
+            // Expand random dungeons and check restrictions
+            if (rDungeonId)
+                dungeons = GetDungeonsByRandom(rDungeonId);
 
-        // if we have lockmap then there are no compatible dungeons
-        GetCompatibleDungeons(dungeons, players, joinData.lockmap);
-        if (dungeons.empty())
-            joinData.result = grp ? LFG_JOIN_PARTY_NOT_MEET_REQS : LFG_JOIN_NOT_MEET_REQS;
+            // if we have lockmap then there are no compatible dungeons
+            GetCompatibleDungeons(dungeons, players, joinData.lockmap);
+            if (dungeons.empty())
+                joinData.result = grp ? LFG_JOIN_PARTY_NOT_MEET_REQS : LFG_JOIN_NOT_MEET_REQS;
+        }
     }
 
     // Can't join. Send result
@@ -931,9 +935,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
     // Select a random dungeon from the compatible list
     // TODO - Select the dungeon based on group item Level, not just random
     LfgDungeonSet::const_iterator itDungeon = compatibleDungeons.begin();
-    uint8 rand = urand(0, compatibleDungeons.size() - 1);
-    for (uint8 i = 0; i < rand; ++i)
-        ++itDungeon;
+    std::advance(itDungeon, urand(0, compatibleDungeons.size() - 1));
 
     // Create a new proposal
     pProposal = new LfgProposal(*itDungeon);

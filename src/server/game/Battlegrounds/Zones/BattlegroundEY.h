@@ -23,8 +23,11 @@
 
 class Battleground;
 
-#define BG_EY_FLAG_RESPAWN_TIME         (8*IN_MILLISECONDS) //8 seconds
-#define BG_EY_FPOINTS_TICK_TIME         (2*IN_MILLISECONDS)  //2 seconds
+enum BG_EY_Misc
+{
+    BG_EY_FLAG_RESPAWN_TIME         = (8*IN_MILLISECONDS),
+    BG_EY_FPOINTS_TICK_TIME         = (2*IN_MILLISECONDS),
+};
 
 enum BG_EY_WorldStates
 {
@@ -328,12 +331,9 @@ class BattlegroundEYScore : public BattlegroundScore
 
 class BattlegroundEY : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundEY();
         ~BattlegroundEY();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);
@@ -349,7 +349,7 @@ class BattlegroundEY : public Battleground
         void RespawnFlagAfterDrop();
 
         void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleBuffUse(uint64 const buff_guid);
+        void HandleBuffUse(uint64 buff_guid);
         void HandleAreaTrigger(Player *Source, uint32 Trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
@@ -369,8 +369,9 @@ class BattlegroundEY : public Battleground
         /* achievement req. */
         bool IsAllNodesConrolledByTeam(uint32 team) const;
     private:
+        virtual void PostUpdateImpl(uint32 diff);
+
         void EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType);
-        void EventPlayerCapturedFlag(Player* /*Source*/) {}
         void EventTeamCapturedPoint(Player *Source, uint32 Point);
         void EventTeamLostPoint(Player *Source, uint32 Point);
         void UpdatePointsCount(uint32 Team);
