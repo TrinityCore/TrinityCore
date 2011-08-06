@@ -575,7 +575,7 @@ class npc_halion_controller : public CreatureScript
                         break;
                     }
                     case ACTION_PHASE_TWO:
-                    {
+                    {                    
                         _events.Reset();
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
@@ -594,7 +594,6 @@ class npc_halion_controller : public CreatureScript
                             }
                             me->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
                         }
-                        // NYI
                         me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
                         me->setActive(false);
                         break;
@@ -776,6 +775,38 @@ class npc_halion_controller : public CreatureScript
                         break;
                     }
             }
+            
+            /*void UpdateEncounterUnit()
+            {
+                // Remove any frame before
+                Unit* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION));
+                if (tHalion)
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, tHalion);
+                
+                Unit* pHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION));
+                if (pHalion)
+                    _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, pHalion);
+                
+                if (Map* sanctum = me->GetMap())
+                {
+                    Map::PlayerList const &PlList = sanctum->GetPlayers();
+                    if (!PlList.isEmpty())
+                    {
+                        // size of this packet is at most 15 (usually less)
+                        WorldPacket data(SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT, 15);
+                        data << uint32(ENCOUNTER_FRAME_ADD);
+                        for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                        {
+                            if (Player* player = i->getSource())
+                                data.append(player->HasAura(SPELL_TWILIGHT_AURA) ? tHalion->GetPackGUID() : pHalion->GetPackGUID());
+                        }
+                        
+                        _instance->SendToPlayers(&data);
+                    }
+                }
+                else
+                    sLog->OutDebug(LOG_FILTER_TSCR, "RubySanctum::UpdateEncounterUnit() tried to update encounter frames, but map is not available.");
+            }*/
 
         private:
             EventMap _events;
