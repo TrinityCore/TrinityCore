@@ -23,7 +23,6 @@
 
 BattlegroundAA::BattlegroundAA()
 {
-
     m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
     m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
@@ -38,11 +37,6 @@ BattlegroundAA::BattlegroundAA()
 BattlegroundAA::~BattlegroundAA()
 {
 
-}
-
-void BattlegroundAA::Update(uint32 diff)
-{
-    Battleground::Update(diff);
 }
 
 void BattlegroundAA::StartingEventCloseDoors()
