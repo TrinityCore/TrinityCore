@@ -230,6 +230,9 @@ Battleground::~Battleground()
 
 void Battleground::Update(uint32 diff)
 {
+    if (!PreUpdateImpl(diff))
+        return;
+
     if (!GetPlayersSize())
     {
         //BG is empty
@@ -286,6 +289,9 @@ void Battleground::Update(uint32 diff)
     // Update start time and reset stats timer
     m_StartTime += diff;
     m_ResetStatTimer += diff;
+
+    PostUpdateImpl(diff);
+}
 }
 
 inline void Battleground::_ProcessOfflineQueue()
@@ -734,7 +740,7 @@ void Battleground::EndBattleground(uint32 winner)
                 SetArenaTeamRatingChangeForTeam(GetOtherTeam(winner), loser_change);
                 sLog->outArena("Arena match Type: %u for Team1Id: %u - Team2Id: %u ended. WinnerTeamId: %u. Winner rating: +%d, Loser rating: %d", m_ArenaType, m_ArenaTeamIds[BG_TEAM_ALLIANCE], m_ArenaTeamIds[BG_TEAM_HORDE], winner_arena_team->GetId(), winner_change, loser_change);
                 if (sWorld->getBoolConfig(CONFIG_ARENA_LOG_EXTENDED_INFO))
-                    for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); itr++)
+                    for (Battleground::BattlegroundScoreMap::const_iterator itr = GetPlayerScoresBegin(); itr != GetPlayerScoresEnd(); ++itr)
                         if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                             sLog->outArena("Statistics for %s (GUID: " UI64FMTD ", Team: %d, IP: %s): %u damage, %u healing, %u killing blows", player->GetName(), itr->first, player->GetArenaTeamId(m_ArenaType == 5 ? 2 : m_ArenaType == 3), player->GetSession()->GetRemoteAddress().c_str(), itr->second->DamageDone, itr->second->HealingDone, itr->second->KillingBlows);
             }
