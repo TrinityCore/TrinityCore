@@ -22,7 +22,7 @@
 /*
 DELETE FROM `spell_dbc` WHERE `id`=70507;
 INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`CastingTimeIndex`,`ProcChance`,`DurationIndex`,`RangeIndex`,`StackAmount`,`Effect1`,`EffectBasePoints1`,`EffectImplicitTargetA1`,`EffectApplyAuraName1`,`DmgMultiplier1`,`Comment`) VALUES
-(70507,0x00000100,0x00000400,0x0,1,101,21,1,99,6,2,1,61,1, 'Halion - Combustion & Consumption Scale Aura');
+(70507,0x00000100,0x00000400,0x0,1,101,21,1,99,6,4,1,61,1, 'Halion - Combustion & Consumption Scale Aura');
 
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
 UPDATE `gameobject` SET `phaseMask`=`phaseMask`|0x20 WHERE `id`=203007; -- Ruby Sanctum Halion Flame Ring
@@ -795,14 +795,13 @@ class npc_halion_controller : public CreatureScript
                                 uint32 pValue = corporealityValue;
                                 uint32 tSpell, pSpell;
                                 for (uint8 i = 0; i < 12; i++)
-                                {
                                     if (corporealityReference[i].physicalPercentage == pValue && corporealityReference[i].twilightPercentage == tValue)
                                     {
                                         tSpell = corporealityReference[i].twilightRealmSpellId;
                                         pSpell = corporealityReference[i].physicalRealmSpellId;
                                         break;
                                     }
-                                }
+
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                                 {
                                     RemoveAnyCorporealityBuff(halion);
@@ -821,7 +820,6 @@ class npc_halion_controller : public CreatureScript
                                 if (Map* sanctum = me->GetMap())
                                 {
                                     Map::PlayerList const &PlList = sanctum->GetPlayers();
-                                    
                                     for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
                                         if (Player* player = i->getSource())
                                             Talk((pValue > tValue ? (player->HasAura(SPELL_TWILIGHT_REALM) ? EMOTE_T_OUT_T : EMOTE_P_IN_P) : (player->HasAura(SPELL_TWILIGHT_REALM) ? EMOTE_T_IN_T : EMOTE_P_OUT_P)), player->GetGUID());
@@ -852,11 +850,12 @@ class npc_halion_controller : public CreatureScript
             void RemoveAnyCorporealityBuff(Creature* who)
             {
                 who->RemoveAurasDueToSpell(74286); // 50% / 50%
-                uint8 i = 0;
-                for (; i < 10; i++)
+                for (uint8 i = 0; i < 10; i++)
                     if (who->HasAura(74827 + i))
+                    {
+                        who->RemoveAurasDueToSpell(74827 + i);
                         break;
-                who->RemoveAurasDueToSpell(74827 + i);
+                    }
             }
 
         private:
@@ -1033,9 +1032,7 @@ class npc_combustion : public CreatureScript
             npc_combustionAI(Creature* creature) : Scripted_NoMovementAI(creature),
                 _instance(creature->GetInstanceScript())
             {
-                me->SetPhaseMask(0x1, true);
-                if (me->GetMap()->IsHeroic())
-                    me->SetPhaseMask(creature->GetPhaseMask() | 0x20, true);
+                me->SetPhaseMask((me->GetMap()->IsHeroic() ? 0x01 : 0x21), true);
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
@@ -1051,7 +1048,7 @@ class npc_combustion : public CreatureScript
                 {
                     me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
-                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
+                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, NULL, true);
                     DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
 
                     _scale = data;
@@ -1092,9 +1089,7 @@ class npc_consumption : public CreatureScript
             npc_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
                    _instance(creature->GetInstanceScript())
             {
-                me->SetPhaseMask(0x20, true);
-                if (me->GetMap()->IsHeroic())
-                    me->SetPhaseMask(creature->GetPhaseMask() | 0x1, true);
+                me->SetPhaseMask((me->GetMap()->IsHeroic() ? 0x21 : 0x20), true);
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
