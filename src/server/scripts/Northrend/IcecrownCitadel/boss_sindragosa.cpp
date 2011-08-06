@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1361,11 +1362,8 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                     unitList.remove_if(OrderWhelpTargetSelector(creature));
 
                 std::list<Creature*>::iterator itr = unitList.begin();
-                if ((*itr) && itr != unitList.end() && unitList.size() > 1)
-                {
-                    std::advance(itr, urand(0, unitList.size()-1));
-                    (*itr)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
-                }
+                std::advance(itr, urand(0, unitList.size()-1));
+                (*itr)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 
             void Register()

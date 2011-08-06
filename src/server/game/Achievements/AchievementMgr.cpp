@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -734,8 +735,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 {
     sLog->outDebug(LOG_FILTER_ACHIEVEMENTSYS, "AchievementMgr::UpdateAchievementCriteria(%u, %u, %u)", type, miscValue1, miscValue2);
 
-    // disable for gamemasters with GM-mode enabled
-    if (m_player->isGameMaster())
+    // GMs mit GM an, oder die unsichtbar sind, keine Achievements geben (z.B. beim zuschauen in einer User-Instanz)
+    if (GetPlayer()->isGameMaster() || !GetPlayer()->isGMVisible())
         return;
 
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
@@ -745,13 +746,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         AchievementEntry const *achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
         if (!achievement)
             continue;
- 
-        // GMs mit GM an, oder die unsichtbar sind, keine Achievements geben (z.B. beim zuschauen in einer User-Instanz)
-        if (GetPlayer()->isGameMaster() || !GetPlayer()->isGMVisible())
-            continue;
 
         // GMs nicht erlauben Achievements der Art "Erster des Realms..." zu bekommen
-        if (achievement->categoryId == 81 && achievement->flags & 256 && GetPlayer()->GetSession()->GetSecurity() > SEC_PLAYER)
+        if (GetPlayer()->GetSession()->GetSecurity() > SEC_PLAYER && achievement->categoryId == 81 && achievement->flags & 256)
             continue;
 
         if (!CanUpdateCriteria(achievementCriteria, achievement))

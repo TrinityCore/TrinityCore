@@ -107,7 +107,7 @@ class UnitAI
         virtual ~UnitAI() {}
 
         virtual bool CanAIAttack(Unit const* /*target*/) const { return true; }
-        virtual void AttackStart(Unit* /*target*/);
+        virtual void AttackStart(Unit * /*target*/, float /*dist*/ = 0);
         virtual void UpdateAI(uint32 const diff) = 0;
 
         virtual void InitializeAI() { if (!me->isDead()) Reset(); }
@@ -216,7 +216,8 @@ class UnitAI
         // Called when the unit heals
         virtual void HealDone(Unit* /*done_to*/, uint32& /*addhealth*/) {}
 
-        void AttackStartCaster(Unit* victim, float dist);
+        // TODO: Dies wird später überflüssig sein (durch creature_template_caster), muss aber erst einmal wegen der Kompatibilität bleiben.
+        void AttackStartCaster(Unit* victim, float dist) { AttackStart(victim, dist); }
 
         void DoAddAuraToAllHostilePlayers(uint32 spellid);
         void DoCast(uint32 spellId, bool alive = true);

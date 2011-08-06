@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -127,6 +128,9 @@ public:
             if (!UpdateVictim())
                 return;
 
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
             // Without he comes up through the air to players on the bridge after krikthir if players crossing this bridge!
             CheckDistance(fMaxDistance, diff);
 
@@ -172,9 +176,8 @@ public:
             } else uiGrabTimer -= diff;
 
             if (uiDoorsTimer <= diff)
-            {
                 uiDoorsTimer = urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS);
-            } else uiDoorsTimer -= diff;
+            else uiDoorsTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

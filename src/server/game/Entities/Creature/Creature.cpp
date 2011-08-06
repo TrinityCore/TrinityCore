@@ -2115,8 +2115,8 @@ bool Creature::LoadCreatureCaster()
     CreatureCaster const * ccinfo = GetCreatureCaster();
     if (!ccinfo)
         return false;
-    else
-        m_isCaster = true;
+
+    m_isCaster = true;
 
     if (ccinfo->maxRange != 0)
         m_CasterDefaultMaxCombatRange = ccinfo->maxRange;

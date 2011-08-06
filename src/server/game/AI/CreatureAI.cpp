@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -95,13 +96,7 @@ void CreatureAI::DoZoneInCombat(Creature * creature, bool outdoor, float range)
                 if (pPlayer->isGameMaster())
                     continue;
 
-                if (outdoor && creature->IsWithinDistInMap(pPlayer, range))
-                {
-                    creature->SetInCombatWith(pPlayer);
-                    pPlayer->SetInCombatWith(creature);
-                    creature->AddThreat(pPlayer, 0.0f);
-                }
-                else if (!outdoor)
+                if ((outdoor && creature->IsWithinDistInMap(pPlayer, range)) || !outdoor)
                 {
                     creature->SetInCombatWith(pPlayer);
                     pPlayer->SetInCombatWith(creature);

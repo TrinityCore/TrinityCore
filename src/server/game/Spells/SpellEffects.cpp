@@ -1163,9 +1163,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     m_caster->SendMessageToSet(&data, true);
                     return;
                 }
-                case 70961: // Zerschmetterte Knochen
-                    m_caster->CastSpell(m_caster, 70963, true);
-                    return;
                 case 53808:                                 // Pygmy Oil
                 {
                     Aura *pAura = m_caster->GetAura(53806);

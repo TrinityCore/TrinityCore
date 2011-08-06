@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2008-2010 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -297,17 +298,12 @@ public:
                     }
 
                     me->SetFlying(false);
-
                     me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveIdle();
+                    me->GetMotionMaster()->Initialize();
                     me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
 
-                    Unit *target = SelectTarget(SELECT_TARGET_RANDOM);
-                    if (target)
-                    {
-                        me->GetMotionMaster()->MoveChase(target);
-                        me->Attack(target, true);
-                    }
+                    if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM))
+                        me->AI()->AttackStart(target);
 
                     m_uiCrushTimer = 8000;
                     m_uiPoisonedSpearTimer = 10000;
