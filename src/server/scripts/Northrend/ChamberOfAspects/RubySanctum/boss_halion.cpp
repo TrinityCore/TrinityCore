@@ -1027,7 +1027,9 @@ class npc_combustion : public CreatureScript
             npc_combustionAI(Creature* creature) : Scripted_NoMovementAI(creature),
                 _instance(creature->GetInstanceScript())
             {
-                me->SetPhaseMask((me->GetMap()->IsHeroic() ? 0x01 : 0x21), true);
+                me->SetPhaseMask(0x1, true);
+                if (me->GetMap()->IsHeroic())
+                    me->SetPhaseMask(0x21, true);
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
@@ -1084,7 +1086,9 @@ class npc_consumption : public CreatureScript
             npc_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
                    _instance(creature->GetInstanceScript())
             {
-                me->SetPhaseMask((me->GetMap()->IsHeroic() ? 0x21 : 0x20), true);
+                me->SetPhaseMask(0x20, true);
+                if (me->GetMap()->IsHeroic())
+                    me->SetPhaseMask(0x21, true);
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
