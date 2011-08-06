@@ -1092,8 +1092,13 @@ class npc_shadow_orb : public CreatureScript
 
                 float destinationX = HalionSpawnPos.GetPositionX() + 40 * cos(_angle);
                 float destinationY = HalionSpawnPos.GetPositionY() + 40 * sin(_angle);
-                me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 73.24f); // Find the correct Z coordinate
+                me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 73.24f); // Find the correct Z coordinate - are the orbs hovering ?
                 _angle = (_angle >= 2 * M_PI) ? 0 : _angle + M_PI / 32;
+                
+                // Distance between each point : x = 2 * 40 * sin(_angle/2) = 3.93f;
+                // OK, they are going way too fast.
+                // 1) Could Blizzard possibly implement a method like MoveAroundPoint(pointId, x, y, diameter) ?
+                // 2) Wrong speeds ? speed_walk is greater than speed_run ...
             }
 
         private:
