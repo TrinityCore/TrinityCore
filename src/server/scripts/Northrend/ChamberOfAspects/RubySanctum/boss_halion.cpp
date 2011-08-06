@@ -127,8 +127,6 @@ enum Actions
     ACTION_DESPAWN_ADDS         = 6,
     ACTION_BERSERK              = 7,
     ACTION_REMOVE_EXIT_PORTALS  = 8,
-
-    ACTION_SHOOT                = 9, // Shadow Orbs
 };
 
 enum Phases
@@ -681,7 +679,10 @@ class npc_halion_controller : public CreatureScript
                                 uint8 max = (me->GetMap()->IsHeroic()) ? 2 : 4;
                                 for (uint8 i = 0; i < max; i++)
                                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _shadowOrbsGUIDs[i]))
+                                    {
+                                        orb->AI()->DoCast(orb, SPELL_TWILIGHT_PULSE_PERIODIC);
                                         orb->AI()->DoCast(focus, SPELL_TWILIGHT_CUTTER);
+                                    }
                             }
 
                             if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
