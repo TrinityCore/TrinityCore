@@ -44,7 +44,7 @@ enum Spells
     SPELL_FLAME_BREATH                  = 74525,
     SPELL_CLEAVE                        = 74524,
     SPELL_METEOR_STRIKE                 = 74637,
-    SPELL_TAIL_LASH                     = 0, // Find this one asap.
+    SPELL_TAIL_LASH                     = 74531,
 
     SPELL_FIERY_COMBUSTION              = 74562,
     SPELL_MARK_OF_COMBUSTION            = 74567,
@@ -224,6 +224,7 @@ class boss_halion : public CreatureScript
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetMaxHealth());
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
             }
 
             // This is triggered by the TwilightHalionAI::JustDied, but can of course be triggered on its own.
@@ -436,6 +437,7 @@ class boss_twilight_halion : public CreatureScript
                     events.SetPhase(PHASE_THREE);
 
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
+                    DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
                     DoCast(me, 74826); // 50% corporeality
                     Talk(SAY_PHASE_THREE);
 
@@ -556,6 +558,9 @@ class npc_halion_controller : public CreatureScript
                         break;
                     case NPC_SHADOW_ORB_W:
                         _shadowOrbsGUIDs[3] = who->GetGUID();
+                    case NPC_COMBUSTION:
+                    case NPC_CONSUMPTION:
+
                 }
             }
 
@@ -594,8 +599,6 @@ class npc_halion_controller : public CreatureScript
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 10000);
 
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
-                        DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
-
                         me->SummonCreature(NPC_SHADOW_ORB_E, ShadowOrbsSpawnPos[2]);
                         me->SummonCreature(NPC_SHADOW_ORB_W, ShadowOrbsSpawnPos[3]);
                         if (me->GetMap()->IsHeroic())
@@ -695,8 +698,7 @@ class npc_halion_controller : public CreatureScript
                                 {
                                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _shadowOrbsGUIDs[i]))
                                     {
-                                        if (me->GetMap()->IsHeroic())
-                                            orb->AI()->DoCast(orb, SPELL_TWILIGHT_PULSE_PERIODIC);
+                                        orb->AI()->DoCast(orb, SPELL_TWILIGHT_PULSE_PERIODIC);
                                         orb->AI()->DoCast(focus, SPELL_TWILIGHT_CUTTER);
                                     }
                                 }
@@ -717,14 +719,14 @@ class npc_halion_controller : public CreatureScript
                                 {
                                     TwilightDamageTaken = 0;
                                     MaterialDamageTaken = 0;
-                                    corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
+                                    corporealityValue = (corporealityValue == 0 ? 0 : corporealityValue - 10);
                                     canUpdate = true;
                                 }
                                 else if (TwilightDamageTaken >= 1.02 * MaterialDamageTaken)
                                 {
                                     TwilightDamageTaken = 0;
                                     MaterialDamageTaken = 0;
-                                    corporealityValue = (corporealityValue == 0 ? 0 : corporealityValue - 10);
+                                    corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
                                     canUpdate = true;
                                 }
                             }
@@ -740,12 +742,14 @@ class npc_halion_controller : public CreatureScript
                                 uint32 pValue = corporealityValue;
                                 uint32 tSpell, pSpell;
                                 for (uint8 i = 0; i < 12; i++)
+                                {
                                     if (corporealityReference[i].physicalPercentage == pValue && corporealityReference[i].twilightPercentage == tValue)
                                     {
                                         tSpell = corporealityReference[i].twilightRealmSpellId;
                                         pSpell = corporealityReference[i].physicalRealmSpellId;
                                         break;
                                     }
+                                }
 
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                                 {
@@ -1123,7 +1127,7 @@ class npc_shadow_orb : public CreatureScript
                 float destinationX = HalionSpawnPos.GetPositionX() + 40 * cos(_angle);
                 float destinationY = HalionSpawnPos.GetPositionY() + 40 * sin(_angle);
                 me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 74.6f);
-                _angle = (_angle >= 2 * M_PI) ? 0 : _angle + M_PI / 32;
+                _angle = (_angle >= 2 * M_PI) ? 0 : _angle - M_PI / 32;
 
                 // Distance between each point : x = 2 * 40 * sin(_angle/2) = 3.93f;
                 // OK, they are going way too fast.
@@ -1308,6 +1312,7 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
+                sLog->outString("STACKAMOUNT of mark of combustion is %u", aurEff->GetBase()->GetStackAmount());
                 GetTarget()->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, SPELLVALUE_BASE_POINT0, aurEff->GetBase()->GetStackAmount(), GetTarget(), true);
             }
 
