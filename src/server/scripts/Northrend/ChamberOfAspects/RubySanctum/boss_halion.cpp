@@ -156,10 +156,10 @@ Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
 
 Position const ShadowOrbsSpawnPos[4] =
 {
-    {3196.67f, 533.8108f, 73.24f, 3.160787f}, // North - On Heroic
-    {3116.67f, 533.8108f, 72.91f, 6.264683f}, // South - On Heroic
-    {3156.67f, 493.8108f, 72.58f, 1.593135f}, // East
-    {3156.67f, 573.8108f, 72.89f, 4.659930f} //  West
+    {3203.67f, 533.8108f, 74.6f, 3.160787f}, // North - On Heroic
+    {3109.67f, 533.8108f, 74.6f, 6.264683f}, // South - On Heroic
+    {3156.67f, 486.8108f, 74.6f, 1.593135f}, // East
+    {3156.67f, 580.8108f, 74.6f, 4.659930f} //  West
 };
 
 Position const PortalsSpawnPos[2] =
@@ -255,6 +255,7 @@ class boss_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, FAIL);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
+
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                 {
                     controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
@@ -437,6 +438,8 @@ class boss_twilight_halion : public CreatureScript
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
                     DoCast(me, 74826); // 50% corporeality
                     Talk(SAY_PHASE_THREE);
+
+                    _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
 
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_THREE);
@@ -755,7 +758,6 @@ class npc_halion_controller : public CreatureScript
                                     halion->AI()->DoCast(halion, tSpell, true);
                                 }
 
-                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, uint32(true));
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, pValue);
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, tValue);
 
@@ -989,12 +991,14 @@ class npc_combustion : public CreatureScript
             {
                 if (type == MARK_STACKAMOUNT)
                 {
-                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
+                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_BASE_POINT0, data * 2, me, false);
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
-                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, NULL, true);
+                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                     DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
 
                     _scale = data;
+
+                    sLog->outString("MY STACKAMOUNT IS %u", _scale);
                 }
             }
 
@@ -1002,10 +1006,8 @@ class npc_combustion : public CreatureScript
             {
                 switch (type)
                 {
-                    case MARK_STACKAMOUNT:
-                        return _scale;
-                    default:
-                        return 0;
+                    case MARK_STACKAMOUNT:            return _scale;
+                    default:                          return 0;
                 }
             }
 
@@ -1048,9 +1050,9 @@ class npc_consumption : public CreatureScript
             {
                 if (type == MARK_STACKAMOUNT)
                 {
-                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, true);
+                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_BASE_POINT0, data * 2, me, true);
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
-                    me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
+                    me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
 
                     DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA);
 
@@ -1062,10 +1064,8 @@ class npc_consumption : public CreatureScript
             {
                 switch (type)
                 {
-                    case MARK_STACKAMOUNT:
-                        return _scale;
-                    default:
-                        return 0;
+                    case MARK_STACKAMOUNT:            return _scale;
+                    default:                          return 0;
                 }
             }
 
@@ -1092,7 +1092,22 @@ class npc_shadow_orb : public CreatureScript
             npc_shadow_orbAI(Creature* creature) : ScriptedAI(creature),
                 _instance(creature->GetInstanceScript())
             {
-                _angle = 0.0f;
+                switch (creature->GetEntry())
+                {
+                    case NPC_SHADOW_ORB_N:
+                        _angle = 0.0f;
+                        break;
+                    case NPC_SHADOW_ORB_S:
+                        _angle = M_PI;
+                        break;
+                    case NPC_SHADOW_ORB_E:
+                        _angle = M_PI / 2;
+                        break;
+                    case NPC_SHADOW_ORB_W:
+                        _angle = 3 * M_PI / 2;
+                        break;
+                }
+
                 me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->SetPhaseMask(0x20, true);
                 MovementInform(POINT_MOTION_TYPE, 0); // Start movement
@@ -1107,7 +1122,7 @@ class npc_shadow_orb : public CreatureScript
 
                 float destinationX = HalionSpawnPos.GetPositionX() + 40 * cos(_angle);
                 float destinationY = HalionSpawnPos.GetPositionY() + 40 * sin(_angle);
-                me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 73.24f); // Find the correct Z coordinate - are the orbs hovering ?
+                me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 74.6f);
                 _angle = (_angle >= 2 * M_PI) ? 0 : _angle + M_PI / 32;
 
                 // Distance between each point : x = 2 * 40 * sin(_angle/2) = 3.93f;
