@@ -1381,6 +1381,8 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
                 SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->Effects[effIndex].MiscValueB));
                 uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
+                sLog->outString("Combustion/Consumption's stackamount is %u", GetSpellInfo()->Effects[effIndex].BasePoints);
+
                 Position pos;
                 caster->GetPosition(&pos);
                 if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
