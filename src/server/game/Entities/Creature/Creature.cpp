@@ -2477,7 +2477,11 @@ void Creature::HandleCaster()
                 GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultMinCombatRange);
             // Außer Reichweite -> Nur in Reichweite bleiben
             else if (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) && MType != TARGETED_MOTION_TYPE)
-                GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultMaxCombatRange);
+            {
+                // Auf die Hälfte von m_CasterDefaultMaxCombatRange + m_CasterDefaultMinCombatRange heran laufen
+                if (dist > m_CasterDefaultMaxCombatRange)
+                    GetMotionMaster()->MoveChase(getVictim(), (m_CasterDefaultMaxCombatRange+m_CasterDefaultMinCombatRange)/2);
+            }
             // Nicht in LoS
             else if (!IsWithinLOSInMap(getVictim()) && MType != TARGETED_MOTION_TYPE)
                 GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultLoSRange, float(urand(0,359)));
