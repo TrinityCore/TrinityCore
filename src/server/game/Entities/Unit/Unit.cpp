@@ -11761,6 +11761,7 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
     // ..done
     AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+    {
         if (spellProto)
         {
             if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
@@ -11778,28 +11779,15 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
                 }
         }
-        else if (player)
+        else
         {
-            if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
+            if ((*i)->GetMiscValue() & GetMeleeDamageSchoolMask() &&
+                (*i)->GetSpellInfo()->EquippedItemClass == -1)
             {
-                EquipmentSlots slot;
-
-                switch (attType)
-                {
-                    case BASE_ATTACK:   slot = EQUIPMENT_SLOT_MAINHAND; break;
-                    case OFF_ATTACK:    slot = EQUIPMENT_SLOT_OFFHAND;  break;
-                    case RANGED_ATTACK: slot = EQUIPMENT_SLOT_RANGED;   break;
-                    default: return;
-                }
-
-                Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
-
-                if (item && !item->IsBroken() && item->IsFitToSpellRequirements((*i)->GetSpellInfo()))
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
-            }
-            else if (player->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
                 AddPctN(DoneTotalMod, (*i)->GetAmount());
+            }
         }
+    }
 
     AuraEffectList const& mDamageDoneVersus = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_DONE_VERSUS);
     for (AuraEffectList::const_iterator i = mDamageDoneVersus.begin(); i != mDamageDoneVersus.end(); ++i)
