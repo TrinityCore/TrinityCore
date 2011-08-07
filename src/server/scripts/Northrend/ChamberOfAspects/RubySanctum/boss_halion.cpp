@@ -803,6 +803,32 @@ class npc_halion_controller : public CreatureScript
                     }
             }
 
+            void PushStacksForPlayer(uint64 plrGUID, uint32 stackamount)
+            {
+                _voidZonesStacks[plrGUID] = stackamount;
+            }
+
+            void RemoveStacksForPlayer(uint64 plrGUID)
+            {
+                for (std::map<uint64, uint32>::iterator itr = _voidZonesStacks.begin(); itr != _voidZonesStacks.end(); ++itr)
+                {
+                    if ((*itr).first == plrGUID)
+                    {
+                        std::map<uint64, uint32>::iterator next = itr;
+                        next++;
+                        _voidZonesStacks.erase(itr);
+                        itr = next;
+                    }
+                }
+            }
+
+            uint32 GetStacksForPlayer(uint64 plrGUID)
+            {
+                for (std::map<uint64, uint32>::iterator itr = _voidZonesStacks.begin(); itr != _voidZonesStacks.end(); ++itr)
+                    if ((*itr).first == plrGUID)
+                        return (*itr).second;
+            }
+
         private:
             EventMap _events;
             InstanceScript* _instance;
@@ -812,6 +838,7 @@ class npc_halion_controller : public CreatureScript
             uint8 corporealityValue; // We always refer to the PHYSICAL VALUE.
             uint64 _orbRotationFocusGUID;
             uint64 _shadowOrbsGUIDs[4];
+            std::map<uint64, uint32> _voidZonesStacks;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -993,14 +1020,12 @@ class npc_combustion : public CreatureScript
             {
                 if (type == MARK_STACKAMOUNT)
                 {
-                    //me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
-                    //int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
-                    //me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
+                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, true);
+                    int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
+                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
                     DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
 
                     _scale = data;
-
-                    sLog->outString("MY STACKAMOUNT IS %u", _scale);
                 }
             }
 
@@ -1052,9 +1077,9 @@ class npc_consumption : public CreatureScript
             {
                 if (type == MARK_STACKAMOUNT)
                 {
-                    //me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_BASE_POINT0, data * 2, me, true);
-                    //int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
-                    //me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
+                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_BASE_POINT0, data * 2, me, true);
+                    int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
+                    me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                     DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA);
 
                     _scale = data;
@@ -1121,8 +1146,8 @@ class npc_shadow_orb : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                float destinationX = HalionSpawnPos.GetPositionX() + 47 * cos(_angle);
-                float destinationY = HalionSpawnPos.GetPositionY() + 47 * sin(_angle);
+                float destinationX = HalionSpawnPos.GetPositionX() + 47 * cosf(_angle);
+                float destinationY = HalionSpawnPos.GetPositionY() + 47 * sinf(_angle);
                 me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 74.6f);
                 _angle = (_angle >= 2 * M_PI) ? 0 : _angle - M_PI / 32;
 
@@ -1309,8 +1334,18 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
+                InstanceScript* instance = GetTarget()->GetInstanceScript();
+                if (!instance)
+                    return;
+
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
-                GetTarget()->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, SPELLVALUE_BASE_POINT0, stacks, GetTarget(), true);
+
+                if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
+                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
+
+                if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(SPELL_FIERY_COMBUSTION_SUMMON))
+                    GetTarget()->CastSpell(GetTarget(), spell, true);
+                //GetTarget()->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, SPELLVALUE_BASE_POINT0, stacks, GetTarget(), true);
             }
 
             void Register()
@@ -1338,6 +1373,7 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_SUMMON))
                     return false;
+
                 if (!sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_EXPLOSION))
                     return false;
                 return true;
@@ -1348,8 +1384,18 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
+                InstanceScript* instance = GetTarget()->GetInstanceScript();
+                if (!instance)
+                    return;
+
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
-                GetTarget()->CastCustomSpell(SPELL_SOUL_CONSUMPTION_SUMMON, SPELLVALUE_BASE_POINT0, stacks, GetTarget(), true);
+
+                if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
+                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
+
+                //GetTarget()->CastCustomSpell(SPELL_SOUL_CONSUMPTION_SUMMON, SPELLVALUE_BASE_POINT0, stacks, GetTarget(), true);
+                if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_SUMMON))
+                    GetTarget()->CastSpell(GetTarget(), spell, true);
             }
 
             void Register()
@@ -1381,12 +1427,24 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
                 SummonPropertiesEntry const* properties = sSummonPropertiesStore.LookupEntry(uint32(GetSpellInfo()->Effects[effIndex].MiscValueB));
                 uint32 duration = uint32(GetSpellInfo()->GetDuration());
 
-                sLog->outString("Combustion/Consumption's stackamount is %u", GetSpellInfo()->Effects[effIndex].BasePoints);
+                if (!GetCaster())
+                    return;
+
+                InstanceScript* instance = caster->GetInstanceScript();
+                if (!instance)
+                    return;
+
+                uint32 stacks = 1;
+                if (Creature* controller = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HALION_CONTROLLER)))
+                {
+                    stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(caster->GetGUIDLow());
+                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(caster->GetGUIDLow());
+                }
 
                 Position pos;
                 caster->GetPosition(&pos);
                 if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
-                    summon->AI()->SetData(MARK_STACKAMOUNT, uint32(GetSpellInfo()->Effects[effIndex].BasePoints));
+                    summon->AI()->SetData(MARK_STACKAMOUNT, stacks);
             }
 
             void Register()
