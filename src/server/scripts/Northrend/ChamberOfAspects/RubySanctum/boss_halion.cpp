@@ -1124,8 +1124,8 @@ class npc_shadow_orb : public CreatureScript
                 if (type != POINT_MOTION_TYPE)
                     return;
 
-                float destinationX = HalionSpawnPos.GetPositionX() + 40 * cos(_angle);
-                float destinationY = HalionSpawnPos.GetPositionY() + 40 * sin(_angle);
+                float destinationX = HalionSpawnPos.GetPositionX() + 47 * cos(_angle);
+                float destinationY = HalionSpawnPos.GetPositionY() + 47 * sin(_angle);
                 me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 74.6f);
                 _angle = (_angle >= 2 * M_PI) ? 0 : _angle - M_PI / 32;
 
@@ -1312,7 +1312,6 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
-                sLog->outString("STACKAMOUNT of mark of combustion is %u", aurEff->GetBase()->GetStackAmount());
                 GetTarget()->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, SPELLVALUE_BASE_POINT0, aurEff->GetBase()->GetStackAmount(), GetTarget(), true);
             }
 
