@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -620,6 +620,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                         {
                             if (GetBossState(DATA_ROTFACE) == DONE)
                             {
+                                // So lange das Kanonenschiff nicht funktioniert, die Truhe beim Tot von Fauldarm und Modermiene beim Prof. spawnen lassen!
+                                if (TeamInInstance && TeamInInstance == ALLIANCE)
+                                    DoRespawnGameObject(KanonenschiffTruheAllyGUID, 7*DAY);
+                                else
+                                    DoRespawnGameObject(KanonenschiffTruheHordeGUID, 7*DAY);
+
                                 HandleGameObject(PutricideCollisionGUID, true);
                                 if (GameObject* go = instance->GetGameObject(PutricideGateGUIDs[0]))
                                     go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
@@ -636,6 +642,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                         {
                             if (GetBossState(DATA_FESTERGUT) == DONE)
                             {
+                                // So lange das Kanonenschiff nicht funktioniert, die Truhe beim Tot von Fauldarm und Modermiene beim Prof. spawnen lassen!
+                                if (TeamInInstance && TeamInInstance == ALLIANCE)
+                                    DoRespawnGameObject(KanonenschiffTruheAllyGUID, 7*DAY);
+                                else
+                                    DoRespawnGameObject(KanonenschiffTruheHordeGUID, 7*DAY);
+
                                 HandleGameObject(PutricideCollisionGUID, true);
                                 if (GameObject* go = instance->GetGameObject(PutricideGateGUIDs[0]))
                                     go->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
@@ -650,14 +662,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_PROFESSOR_PUTRICIDE:
                         HandleGameObject(PlagueSigilGUID, state != DONE);
 
-                        if (state == DONE)
-                        {
-                            // So lange das Kanonenschiff nicht funktioniert, die Truhe beim Tot vom Prof. bei ihm spawnen lassen!
-                            if (TeamInInstance && TeamInInstance == ALLIANCE)
-                                DoRespawnGameObject(KanonenschiffTruheAllyGUID, 7*DAY);
-                            else
-                                DoRespawnGameObject(KanonenschiffTruheHordeGUID, 7*DAY);
-                        }
                         if (instance->IsHeroic())
                         {
                             if (state == FAIL && HeroicAttempts)
