@@ -1067,8 +1067,9 @@ class npc_shadow_orb : public CreatureScript
                                 if (Creature* focus = ObjectAccessor::GetCreature(*me, controller->AI()->GetGUID(NPC_ORB_ROTATION_FOCUS)))
                                 {
                                     DoCast(focus, SPELL_TWILIGHT_CUTTER);
-                                    if (me->GetMap()->IsHeroic())
-                                        DoCast(me, SPELL_TWILIGHT_PULSE_PERIODIC);
+                                    if (me->GetMap())
+                                        if (me->GetMap()->IsHeroic())
+                                            DoCast(me, SPELL_TWILIGHT_PULSE_PERIODIC);
                                 }
                             }
 
