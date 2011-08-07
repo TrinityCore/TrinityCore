@@ -1046,10 +1046,6 @@ class npc_shadow_orb : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/)
             {
-                // Let Halion Controller count as summoner
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                    controller->AI()->JustSummoned(me);
-
                 _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
             }
 
