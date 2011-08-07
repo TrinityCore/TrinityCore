@@ -677,6 +677,7 @@ class npc_halion_controller : public CreatureScript
                             else
                             {
                                 _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
+                                break;
                             }
 
                             if (canUpdate)
