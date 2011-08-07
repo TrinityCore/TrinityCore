@@ -3957,6 +3957,51 @@ bool ChatHandler::HandleCastTargetCommand(const char *args)
     return true;
 }
 
+bool ChatHandler::HandleCastDestCommand(const char *args)
+{
+    Unit* caster = getSelectedUnit();
+    if (!caster)
+    {
+        SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+    uint32 spell = extractSpellIdFromLink((char*)args);
+    if (!spell || !sSpellMgr->GetSpellInfo(spell))
+    {
+        PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    char* px = strtok(NULL, " ");
+    char* py = strtok(NULL, " ");
+    char* pz = strtok(NULL, " ");
+
+    if (!px || !py || !pz)
+        return false;
+
+    float x = (float)atof(px);
+    float y = (float)atof(py);
+    float z = (float)atof(pz);
+
+    char* trig_str = strtok(NULL, " ");
+    if (trig_str)
+    {
+        int l = strlen(trig_str);
+        if (strncmp(trig_str, "triggered", l) != 0)
+            return false;
+    }
+
+    bool triggered = (trig_str != NULL);
+
+    caster->CastSpell(x, y, z, spell, triggered);
+
+    return true;
+}
+
 /*
 ComeToMe command REQUIRED for 3rd party scripting library to have access to PointMovementGenerator
 Without this function 3rd party scripting library will get linking errors (unresolved external)
