@@ -435,14 +435,18 @@ class boss_twilight_halion : public CreatureScript
                     events.SetPhase(PHASE_THREE);
 
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
+                    DoCast(me, 74826); // 50% corporeality
                     Talk(SAY_PHASE_THREE);
 
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_THREE);
 
                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                    {
+                        halion->AI()->DoCast(halion, 74826); // 50% corporeality
                         if (HalionAI* halionAI = CAST_AI(HalionAI, halion->AI()))
                            halionAI->setEventsPhase(PHASE_THREE);
+                    }
                 }
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
@@ -559,17 +563,13 @@ class npc_halion_controller : public CreatureScript
                     case NPC_ORB_ROTATION_FOCUS:
                         return _orbRotationFocusGUID;
                     case NPC_SHADOW_ORB_N:
-                        return _shadowOrbsGUIDs[1];
-                        break;
+                        return _shadowOrbsGUIDs[0];
                     case NPC_SHADOW_ORB_S:
                         return _shadowOrbsGUIDs[1];
-                        break;
                     case NPC_SHADOW_ORB_E:
                         return _shadowOrbsGUIDs[2];
-                        break;
                     case NPC_SHADOW_ORB_W:
                         return _shadowOrbsGUIDs[3];
-                        break;
                 }
             }
 
@@ -588,8 +588,7 @@ class npc_halion_controller : public CreatureScript
                     }
                     case ACTION_PHASE_TWO:
                     {
-                        _events.Reset();
-                        _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000, 1); // Never cancel this one
+                        _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 10000);
 
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
@@ -607,7 +606,6 @@ class npc_halion_controller : public CreatureScript
                     }
                     case ACTION_PHASE_THREE:
                     {
-                        _events.CancelEventGroup(0); // Won't cancel shadow pulsars
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 20000);
 
                         for (uint8 i = 0; i < 2; i++)
@@ -645,12 +643,14 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_REMOVE_EXIT_PORTALS:
                     {
                         for (uint8 i = 0; i < 2; i++)
+                        {
                             if (GameObject* portal = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_EXIT_PORTAL_1 + i)))
                             {
                                 me->RemoveGameObject(portal, false);
                                 portal->SetRespawnTime(0);
                                 portal->Delete();
                                 portal->DeleteFromDB();
+                            }
                             }
                         break;
                     }
@@ -687,8 +687,8 @@ class npc_halion_controller : public CreatureScript
                         {
                             if (Unit* focus = ObjectAccessor::GetCreature(*me, _orbRotationFocusGUID))
                             {
-                                uint8 max = me->GetMap()->IsHeroic() ? 2 : 4;
-                                for (uint8 i = 0; i < max; i++)
+                                uint8 begin = me->GetMap()->IsHeroic() ? 0 : 2;
+                                for (uint8 i = begin; i < 4; i++)
                                 {
                                     if (Creature* orb = ObjectAccessor::GetCreature(*me, _shadowOrbsGUIDs[i]))
                                     {
@@ -708,19 +708,22 @@ class npc_halion_controller : public CreatureScript
                         case EVENT_CHECK_CORPOREALITY:
                         {
                             bool canUpdate = false;
-                            if (MaterialDamageTaken >= 1.02f * TwilightDamageTaken)
+                            if (MaterialDamageTaken != 0 && TwilightDamageTaken != 0)
                             {
-                                TwilightDamageTaken = 0;
-                                MaterialDamageTaken = 0;
-                                corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
-                                canUpdate = true;
-                            }
-                            else if (TwilightDamageTaken >= 1.02 * MaterialDamageTaken)
-                            {
-                                TwilightDamageTaken = 0;
-                                MaterialDamageTaken = 0;
-                                corporealityValue = (corporealityValue == 0 ? 0 : corporealityValue - 10);
-                                canUpdate = true;
+                                if (MaterialDamageTaken >= 1.02f * TwilightDamageTaken)
+                                {
+                                    TwilightDamageTaken = 0;
+                                    MaterialDamageTaken = 0;
+                                    corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
+                                    canUpdate = true;
+                                }
+                                else if (TwilightDamageTaken >= 1.02 * MaterialDamageTaken)
+                                {
+                                    TwilightDamageTaken = 0;
+                                    MaterialDamageTaken = 0;
+                                    corporealityValue = (corporealityValue == 0 ? 0 : corporealityValue - 10);
+                                    canUpdate = true;
+                                }
                             }
                             else
                             {
