@@ -568,19 +568,12 @@ class npc_halion_controller : public CreatureScript
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
 
-                        uint8 max = me->GetMap()->IsHeroic() ? 2 : 4;
-                        for (uint8 i = 0; i < max; i++)
+                        me->SummonCreature(NPC_SHADOW_ORB_E, ShadowOrbsSpawnPos[2]);
+                        me->SummonCreature(NPC_SHADOW_ORB_W, ShadowOrbsSpawnPos[3]);
+                        if (me->GetMap()->IsHeroic())
                         {
-                            uint32 npcId;
-                            switch (i)
-                            {
-                                default:
-                                case 0: npcId = NPC_SHADOW_ORB_N; break;
-                                case 1: npcId = NPC_SHADOW_ORB_S; break;
-                                case 2: npcId = NPC_SHADOW_ORB_E; break;
-                                case 3: npcId = NPC_SHADOW_ORB_W; break;
-                            }
-                            me->SummonCreature(npcId, ShadowOrbsSpawnPos[i]);
+                            me->SummonCreature(NPC_SHADOW_ORB_N, ShadowOrbsSpawnPos[0]);
+                            me->SummonCreature(NPC_SHADOW_ORB_S, ShadowOrbsSpawnPos[1]);
                         }
                         me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
                         break;
@@ -1089,6 +1082,8 @@ class npc_shadow_orb : public CreatureScript
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                             break;
                         }
+                        default:
+                            break;
                     }
                 }
             }
