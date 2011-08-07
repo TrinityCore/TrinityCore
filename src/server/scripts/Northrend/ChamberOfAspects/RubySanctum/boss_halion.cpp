@@ -558,9 +558,7 @@ class npc_halion_controller : public CreatureScript
                         break;
                     case NPC_SHADOW_ORB_W:
                         _shadowOrbsGUIDs[3] = who->GetGUID();
-                    case NPC_COMBUSTION:
-                    case NPC_CONSUMPTION:
-
+                        break;
                 }
             }
 
@@ -995,9 +993,9 @@ class npc_combustion : public CreatureScript
             {
                 if (type == MARK_STACKAMOUNT)
                 {
-                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_BASE_POINT0, data * 2, me, false);
-                    int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
-                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
+                    //me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, false);
+                    //int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
+                    //me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                     DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
 
                     _scale = data;
@@ -1054,10 +1052,9 @@ class npc_consumption : public CreatureScript
             {
                 if (type == MARK_STACKAMOUNT)
                 {
-                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_BASE_POINT0, data * 2, me, true);
-                    int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
-                    me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
-
+                    //me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_BASE_POINT0, data * 2, me, true);
+                    //int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
+                    //me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                     DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA);
 
                     _scale = data;
@@ -1129,7 +1126,7 @@ class npc_shadow_orb : public CreatureScript
                 me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 74.6f);
                 _angle = (_angle >= 2 * M_PI) ? 0 : _angle - M_PI / 32;
 
-                // Distance between each point : x = 2 * 40 * sin(_angle/2) = 3.93f;
+                // Distance between each point : x = 2 * 47 * sin(_angle/2);
                 // OK, they are going way too fast.
                 // 1) Could Blizzard possibly implement a method like MoveAroundPoint(pointId, x, y, diameter) ?
                 // 2) Wrong speeds ? speed_walk is greater than speed_run ...
@@ -1312,7 +1309,8 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
-                GetTarget()->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, SPELLVALUE_BASE_POINT0, aurEff->GetBase()->GetStackAmount(), GetTarget(), true);
+                uint8 stacks = aurEff->GetBase()->GetStackAmount();
+                GetTarget()->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, SPELLVALUE_BASE_POINT0, stacks, GetTarget(), true);
             }
 
             void Register()
@@ -1350,7 +1348,8 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
                 if (!GetTarget())
                     return;
 
-                GetTarget()->CastCustomSpell(SPELL_SOUL_CONSUMPTION_SUMMON, SPELLVALUE_BASE_POINT0, aurEff->GetBase()->GetStackAmount(), GetTarget(), true);
+                uint8 stacks = aurEff->GetBase()->GetStackAmount();
+                GetTarget()->CastCustomSpell(SPELL_SOUL_CONSUMPTION_SUMMON, SPELLVALUE_BASE_POINT0, stacks, GetTarget(), true);
             }
 
             void Register()
