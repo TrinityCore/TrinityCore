@@ -107,13 +107,14 @@ enum Events
     EVENT_INTRO_PROGRESS_3      = 11,
     EVENT_CHECK_CORPOREALITY    = 12,
     EVENT_SHADOW_PULSARS_SHOOT  = 13,
+    EVENT_HEAL_HALIONS          = 14,
 
     // Meteor Strike
-    EVENT_SPAWN_METEOR_FLAME    = 14,
+    EVENT_SPAWN_METEOR_FLAME    = 15,
 
     // Twilight Halion
-    EVENT_DARK_BREATH           = 15,
-    EVENT_SOUL_CONSUMPTION      = 16,
+    EVENT_DARK_BREATH           = 16,
+    EVENT_SOUL_CONSUMPTION      = 17,
 };
 
 enum Actions
@@ -708,6 +709,9 @@ class npc_halion_controller : public CreatureScript
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000, 1);
                             break;
                         }
+                        case EVENT_HEAL_HALIONS:
+                            if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                                halion->SetHealth(halion->GetHealth() < halion->GetMaxHealth() ? halion->GetHealth() * 1.75f : halion->MaxGetHealth());
                         case EVENT_CHECK_CORPOREALITY:
                         {
                             bool canUpdate = false;
@@ -727,9 +731,12 @@ class npc_halion_controller : public CreatureScript
                                     corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
                                     canUpdate = true;
                                 }
+                                
+                                _events.CancelEvent(EVENT_HEAL_HALIONS);
                             }
                             else
                             {
+                                _events.ScheduleEvent(EVENT_HEAL_HALIONS, 3000);
                                 _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
                                 break;
                             }
@@ -796,11 +803,13 @@ class npc_halion_controller : public CreatureScript
             void RemoveAnyCorporealityBuff(Creature* who)
             {
                 for (uint8 i = 0; i < 11; i++)
+                {
                     if (who->HasAura(74826 + i))
                     {
                         who->RemoveAurasDueToSpell(74826 + i);
                         break;
                     }
+                }
             }
 
             void PushStacksForPlayer(uint64 plrGUID, uint32 stackamount)
