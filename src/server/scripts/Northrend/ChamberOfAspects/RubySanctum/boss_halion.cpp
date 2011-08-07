@@ -524,6 +524,7 @@ class npc_halion_controller : public CreatureScript
                 _instance(creature->GetInstanceScript()), _summons(me)
             {
                 me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
+                memset(_shadowOrbsGUIDs, 0, 4 * sizeof(uint64));
             }
 
             void Reset() { me->SetReactState(REACT_PASSIVE); }
@@ -537,6 +538,17 @@ class npc_halion_controller : public CreatureScript
                     case NPC_ORB_ROTATION_FOCUS:
                         _orbRotationFocusGUID = who->GetGUID();
                         break;
+                    case NPC_SHADOW_ORB_N:
+                        _shadowOrbsGUIDs[0] = who->GetGUID();
+                        break;
+                    case NPC_SHADOW_ORB_S:
+                        _shadowOrbsGUIDs[1] = who->GetGUID();
+                        break;
+                    case NPC_SHADOW_ORB_E:
+                        _shadowOrbsGUIDs[2] = who->GetGUID();
+                        break;
+                    case NPC_SHADOW_ORB_W:
+                        _shadowOrbsGUIDs[3] = who->GetGUID();
                 }
             }
 
@@ -546,6 +558,18 @@ class npc_halion_controller : public CreatureScript
                 {
                     case NPC_ORB_ROTATION_FOCUS:
                         return _orbRotationFocusGUID;
+                    case NPC_SHADOW_ORB_N:
+                        return _shadowOrbsGUIDs[1];
+                        break;
+                    case NPC_SHADOW_ORB_S:
+                        return _shadowOrbsGUIDs[1];
+                        break;
+                    case NPC_SHADOW_ORB_E:
+                        return _shadowOrbsGUIDs[2];
+                        break;
+                    case NPC_SHADOW_ORB_W:
+                        return _shadowOrbsGUIDs[3];
+                        break;
                 }
             }
 
@@ -565,6 +589,8 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_TWO:
                     {
                         _events.Reset();
+                        _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000, 1); // Never cancel this one
+
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
                         DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
 
@@ -576,11 +602,12 @@ class npc_halion_controller : public CreatureScript
                             me->SummonCreature(NPC_SHADOW_ORB_S, ShadowOrbsSpawnPos[1]);
                         }
                         me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
+                        me->setActive(false);
                         break;
                     }
                     case ACTION_PHASE_THREE:
                     {
-                        _events.Reset();
+                        _events.CancelEventGroup(0); // Won't cancel shadow pulsars
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 20000);
 
                         for (uint8 i = 0; i < 2; i++)
@@ -595,7 +622,6 @@ class npc_halion_controller : public CreatureScript
                         TwilightDamageTaken = 0;
                         MaterialDamageTaken = 0;
                         corporealityValue = 50;
-                        // Force instance to show the corporeality counter
                         _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
                         break;
                     }
@@ -657,6 +683,28 @@ class npc_halion_controller : public CreatureScript
                             if (Creature* halion = me->GetMap()->SummonCreature(NPC_HALION, HalionSpawnPos))
                                 halion->AI()->Talk(SAY_INTRO);
                             break;
+                        case EVENT_SHADOW_PULSARS_SHOOT:
+                        {
+                            if (Unit* focus = ObjectAccessor::GetCreature(*me, _orbRotationFocusGUID))
+                            {
+                                uint8 max = me->GetMap()->IsHeroic() ? 2 : 4;
+                                for (uint8 i = 0; i < max; i++)
+                                {
+                                    if (Creature* orb = ObjectAccessor::GetCreature(*me, _shadowOrbsGUIDs[i]))
+                                    {
+                                        if (me->GetMap()->IsHeroic())
+                                            orb->AI()->DoCast(orb, SPELL_TWILIGHT_PULSE_PERIODIC);
+                                        orb->AI()->DoCast(focus, SPELL_TWILIGHT_CUTTER);
+                                    }
+                                }
+                            }
+
+                            if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                                tHalion->AI()->Talk(SAY_SPHERE_PULSE);
+
+                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000, 1);
+                            break;
+                        }
                         case EVENT_CHECK_CORPOREALITY:
                         {
                             bool canUpdate = false;
@@ -686,26 +734,25 @@ class npc_halion_controller : public CreatureScript
                                 uint32 pValue = corporealityValue;
                                 uint32 tSpell, pSpell;
                                 for (uint8 i = 0; i < 12; i++)
-                                {
                                     if (corporealityReference[i].physicalPercentage == pValue && corporealityReference[i].twilightPercentage == tValue)
                                     {
                                         tSpell = corporealityReference[i].twilightRealmSpellId;
                                         pSpell = corporealityReference[i].physicalRealmSpellId;
                                         break;
                                     }
-                                }
 
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                                 {
                                     RemoveAnyCorporealityBuff(halion);
                                     halion->AI()->DoCast(halion, pSpell, true);
                                 }
-                                if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                 {
-                                    RemoveAnyCorporealityBuff(tHalion);
-                                    tHalion->AI()->DoCast(tHalion, tSpell, true);
+                                    RemoveAnyCorporealityBuff(halion);
+                                    halion->AI()->DoCast(halion, tSpell, true);
                                 }
 
+                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, uint32(true));
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, pValue);
                                 _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, tValue);
 
@@ -742,13 +789,11 @@ class npc_halion_controller : public CreatureScript
             void RemoveAnyCorporealityBuff(Creature* who)
             {
                 for (uint8 i = 0; i < 11; i++)
-                {
                     if (who->HasAura(74826 + i))
                     {
                         who->RemoveAurasDueToSpell(74826 + i);
                         break;
                     }
-                }
             }
 
         private:
@@ -759,6 +804,7 @@ class npc_halion_controller : public CreatureScript
             uint32 MaterialDamageTaken;
             uint8 corporealityValue; // We always refer to the PHYSICAL VALUE.
             uint64 _orbRotationFocusGUID;
+            uint64 _shadowOrbsGUIDs[4];
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1049,46 +1095,7 @@ class npc_shadow_orb : public CreatureScript
                 MovementInform(POINT_MOTION_TYPE, 0); // Start movement
             }
 
-            void IsSummonedBy(Unit* /*summoner*/)
-            {
-                _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
-            }
-
-            void UpdateAI(uint32 const diff)
-            {
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
-
-                _events.Update(diff);
-
-                while (uint32 eventId = _events.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_SHADOW_PULSARS_SHOOT:
-                        {
-                            if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                            {
-                                if (Creature* focus = ObjectAccessor::GetCreature(*me, controller->AI()->GetGUID(NPC_ORB_ROTATION_FOCUS)))
-                                {
-                                    DoCast(focus, SPELL_TWILIGHT_CUTTER);
-                                    if (Map* map = me->GetMap())
-                                        if (map->IsHeroic())
-                                            DoCast(me, SPELL_TWILIGHT_PULSE_PERIODIC);
-                                }
-                            }
-
-                            if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
-                                tHalion->AI()->Talk(SAY_SPHERE_PULSE);
-
-                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            }
+            void UpdateAI(uint32 const /*diff*/) { }
 
             void MovementInform(uint32 type, uint32 /*id*/)
             {
