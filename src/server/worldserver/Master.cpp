@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -15,10 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/** \file
-    \ingroup Trinityd
-*/
 
 #include <ace/Sig_Handler.h>
 
@@ -49,7 +46,7 @@
 extern int m_ServiceStatus;
 #endif
 
-/// Handle worldservers's termination signals
+// Handle worldservers's termination signals
 class WorldServerSignalHandler : public Trinity::SignalHandler
 {
     public:
@@ -117,7 +114,7 @@ Master::~Master()
 {
 }
 
-/// Main function
+// Main function
 int Master::Run()
 {
     BigNumber seed1;
@@ -125,15 +122,15 @@ int Master::Run()
 
     sLog->outString("%s (worldserver-daemon)", _FULLVERSION);
     sLog->outString("<Ctrl-C> to stop.\n");
-
+/*
 #ifdef USE_SFMT_FOR_RNG
     sLog->outString("\n");
     sLog->outString("SFMT has been enabled as the random number generator, if worldserver");
     sLog->outString("freezes or crashes randomly, first, try disabling SFMT in CMAKE configuration");
     sLog->outString("\n");
 #endif //USE_SFMT_FOR_RNG
-
-    /// worldserver PID file creation
+*/
+    // worldserver PID file creation
     std::string pidfile = sConfig->GetStringDefault("PidFile", "");
     if (!pidfile.empty())
     {
@@ -147,14 +144,14 @@ int Master::Run()
         sLog->outString("Daemon PID: %u\n", pid);
     }
 
-    ///- Start the databases
+    //- Start the databases
     if (!_StartDB())
         return 1;
 
     // set server offline (not connectable)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET color = (color & ~%u) | %u WHERE id = '%d'", REALM_FLAG_OFFLINE, REALM_FLAG_INVALID, realmID);
 
-    ///- Initialize the World
+    //- Initialize the World
     sWorld->SetInitialWorldSettings();
 
     // Initialise the signal handlers
@@ -171,7 +168,7 @@ int Master::Run()
     Handler.register_handler(SIGBREAK, &SignalBREAK);
     #endif /* _WIN32 */
 
-    ///- Launch WorldRunnable thread
+    //- Launch WorldRunnable thread
     ACE_Based::Thread world_thread(new WorldRunnable);
     world_thread.setPriority(ACE_Based::Highest);
 
@@ -183,13 +180,13 @@ int Master::Run()
     if (sConfig->GetBoolDefault("Console.Enable", true))
 #endif
     {
-        ///- Launch CliRunnable thread
+        //- Launch CliRunnable thread
         cliThread = new ACE_Based::Thread(new CliRunnable);
     }
 
     ACE_Based::Thread rar_thread(new RARunnable);
 
-    ///- Handle affinity for multiple processors and process priority on Windows
+    //- Handle affinity for multiple processors and process priority on Windows
     #ifdef _WIN32
     {
         HANDLE hProcess = GetCurrentProcess();
@@ -242,7 +239,7 @@ int Master::Run()
         soap_thread = new ACE_Based::Thread(runnable);
     }
 
-    ///- Start up freeze catcher thread
+    //- Start up freeze catcher thread
     if (uint32 freeze_delay = sConfig->GetIntDefault("MaxCoreStuckTime", 0))
     {
         FreezeDetectorRunnable *fdr = new FreezeDetectorRunnable();
@@ -251,7 +248,7 @@ int Master::Run()
         freeze_thread.setPriority(ACE_Based::Highest);
     }
 
-    ///- Launch the world listener socket
+    //- Launch the world listener socket
     uint16 wsport = sWorld->getIntConfig(CONFIG_PORT_WORLD);
     std::string bind_ip = sConfig->GetStringDefault("BindIP", "0.0.0.0");
 
@@ -265,7 +262,7 @@ int Master::Run()
     // set server online (allow connecting now)
     LoginDatabase.DirectPExecute("UPDATE realmlist SET color = color & ~%u, population = 0 WHERE id = '%u'", REALM_FLAG_INVALID, realmID);
 
-    sLog->outString("%s (worldserver-daemon) ready...", _FULLVERSION);
+    sLog->outString("%s ist bereit...", _FULLVERSION);
     sWorldSocketMgr->Wait();
 
     if (soap_thread)
@@ -283,12 +280,12 @@ int Master::Run()
     world_thread.wait();
     rar_thread.wait();
 
-    ///- Clean database before leaving
+    //- Clean database before leaving
     clearOnlineAccounts();
 
     _StopDB();
 
-    sLog->outString("Halting process...");
+    sLog->outString("Beende den Prozess...");
 
     if (cliThread)
     {
@@ -348,7 +345,7 @@ int Master::Run()
     return World::GetExitCode();
 }
 
-/// Initialize connection to the databases
+// Initialize connection to the databases
 bool Master::_StartDB()
 {
     MySQL::Library_Init();
@@ -373,14 +370,14 @@ bool Master::_StartDB()
     }
 
     synch_threads = sConfig->GetIntDefault("WorldDatabase.SynchThreads", 1);
-    ///- Initialise the world database
+    //- Initialise the world database
     if (!WorldDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError("Cannot connect to world database %s", dbstring.c_str());
         return false;
     }
 
-    ///- Get character database info from configuration file
+    //- Get character database info from configuration file
     dbstring = sConfig->GetStringDefault("CharacterDatabaseInfo", "");
     if (dbstring.empty())
     {
@@ -398,14 +395,14 @@ bool Master::_StartDB()
 
     synch_threads = sConfig->GetIntDefault("CharacterDatabase.SynchThreads", 2);
 
-    ///- Initialise the Character database
+    //- Initialise the Character database
     if (!CharacterDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError("Cannot connect to Character database %s", dbstring.c_str());
         return false;
     }
 
-    ///- Get login database info from configuration file
+    //- Get login database info from configuration file
     dbstring = sConfig->GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
@@ -422,14 +419,14 @@ bool Master::_StartDB()
     }
 
     synch_threads = sConfig->GetIntDefault("LoginDatabase.SynchThreads", 1);
-    ///- Initialise the login database
+    //- Initialise the login database
     if (!LoginDatabase.Open(dbstring, async_threads, synch_threads))
     {
         sLog->outError("Cannot connect to login database %s", dbstring.c_str());
         return false;
     }
 
-    ///- Get the realm Id from the configuration file
+    //- Get the realm Id from the configuration file
     realmID = sConfig->GetIntDefault("RealmID", 0);
     if (!realmID)
     {
@@ -438,15 +435,15 @@ bool Master::_StartDB()
     }
     sLog->outString("Realm running as realm ID %d", realmID);
 
-    ///- Initialize the DB logging system
+    //- Initialize the DB logging system
     sLog->SetLogDBLater(sConfig->GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
     sLog->SetLogDB(false);
     sLog->SetRealmID(realmID);
 
-    ///- Clean the database before starting
+    //- Clean the database before starting
     clearOnlineAccounts();
 
-    ///- Insert version info into DB
+    //- Insert version info into DB
     WorldDatabase.PExecute("UPDATE version SET core_version = '%s', core_revision = '%s'", _FULLVERSION, _HASH);
 
     sWorld->LoadDBVersion();
@@ -465,11 +462,11 @@ void Master::_StopDB()
     MySQL::Library_End();
 }
 
-/// Clear 'online' status for all accounts with characters in this realm
+// Clear 'online' status for all accounts with characters in this realm
 void Master::clearOnlineAccounts()
 {
     // Cleanup online status for characters hosted at current realm
-    /// \todo Only accounts with characters logged on *this* realm should have online status reset. Move the online column from 'account' to 'realmcharacters'?
+    // TODO: Only accounts with characters logged on *this* realm should have online status reset. Move the online column from 'account' to 'realmcharacters'?
     LoginDatabase.DirectPExecute(
         "UPDATE account SET online = 0 WHERE online > 0 "
         "AND id IN (SELECT acctid FROM realmcharacters WHERE realmid = '%d')", realmID);

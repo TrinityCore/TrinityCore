@@ -1,7 +1,7 @@
 # output generic information about the core and buildtype chosen
 message("")
-message("* UWoM-Server rev. hash  : ${rev_hash}")
-message("* UWoM-Server rev. date  : ${rev_date}")
+message("* UWoM-Server Rev. hash  : ${rev_hash}")
+message("* UWoM-Server Rev. date  : ${rev_date}")
 if( UNIX )
   message("* UWoM-Server buildtype  : ${CMAKE_BUILD_TYPE}")
 endif()

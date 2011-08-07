@@ -1,4 +1,5 @@
-# Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
+# Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+# Copyright (C) 2008-2011 Trinity <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -41,7 +42,7 @@ if(_GIT_VERSION_OK)
     ERROR_QUIET
   )
   execute_process(
-    COMMAND "${_GIT_EXEC}" show -s --format=%ci
+    COMMAND "${_GIT_EXEC}" show -s --format=%cD
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE rev_date
     OUTPUT_STRIP_TRAILING_WHITESPACE
