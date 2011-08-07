@@ -8470,6 +8470,27 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         target = victim;
                         break;
                     }
+                    // Soul Preserver Trinket
+                    case 60510:
+                    {
+                        switch (GetClass())
+                        {
+                            case CLASS_DRUID:
+                                trigger_spell_id = 60512;
+                                break;
+                            case CLASS_PALADIN:
+                                trigger_spell_id = 60513;
+                                break;
+                            case CLASS_PRIEST:
+                                trigger_spell_id = 60514;
+                                break;
+                            case CLASS_SHAMAN:
+                                trigger_spell_id = 60515;
+                                break;
+                        }
+
+                        target = this;
+                    }
                     default:
                         // Illumination
                         if (auraSpellInfo->SpellIconID == 241)
@@ -8536,6 +8557,23 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         basepoints0 = int32(CalculatePctN(procSpell->ManaCost, 35));
                         trigger_spell_id = 23571;
                         target = this;
+                        break;
+                    }
+                    case 30881: // Nature's Guardian Rank 1
+                    case 30883: // Nature's Guardian Rank 2
+                    case 30884: // Nature's Guardian Rank 3
+                    case 30885: // Nature's Guardian Rank 4
+                    case 30886: // Nature's Guardian Rank 5
+                    {
+                        if (GetHealthPct() < 30)
+                        {
+                            basepoints0 = int32(auraSpellInfo->Effects[EFFECT_0].CalcValue() * GetMaxHealth() / 100.0f);
+                            target = this;
+                            trigger_spell_id = 31616;
+                            // TODO: Threat part
+                        }
+                        else
+                            return false;
                         break;
                     }
                     default:
