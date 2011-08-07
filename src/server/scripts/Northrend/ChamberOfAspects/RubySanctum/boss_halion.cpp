@@ -44,6 +44,7 @@ enum Spells
     SPELL_FLAME_BREATH                  = 74525,
     SPELL_CLEAVE                        = 74524,
     SPELL_METEOR_STRIKE                 = 74637,
+    SPELL_TAIL_LASH                     = 0, // Find this one asap.
 
     SPELL_FIERY_COMBUSTION              = 74562,
     SPELL_MARK_OF_COMBUSTION            = 74567,
@@ -68,9 +69,6 @@ enum Spells
     SPELL_TWILIGHT_PHASING              = 74808,    // Phase spell from phase 1 to phase 2
     SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794
 
-    // Shadow Orb
-    SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,
-
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
 
@@ -88,6 +86,7 @@ enum Spells
     // Shadow Orb
     SPELL_TWILIGHT_CUTTER               = 74768, // Unknown dummy effect (EFFECT_0)
     SPELL_TWILIGHT_CUTTER_TRIGGERED     = 74769,
+SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,
 };
 
 enum Events
@@ -99,21 +98,22 @@ enum Events
     EVENT_METEOR_STRIKE         = 4,
     EVENT_FIERY_COMBUSTION      = 5,
     EVENT_BERSERK               = 6,
+    EVENT_TAIL_LASH             = 7,
 
     // Halion Controller
-    EVENT_START_INTRO           = 7,
-    EVENT_INTRO_PROGRESS_1      = 8,
-    EVENT_INTRO_PROGRESS_2      = 9,
-    EVENT_INTRO_PROGRESS_3      = 10,
-    EVENT_CHECK_CORPOREALITY    = 11,
-    EVENT_SHADOW_PULSARS_SHOOT  = 12,
+    EVENT_START_INTRO           = 8,
+    EVENT_INTRO_PROGRESS_1      = 9,
+    EVENT_INTRO_PROGRESS_2      = 10,
+    EVENT_INTRO_PROGRESS_3      = 11,
+    EVENT_CHECK_CORPOREALITY    = 12,
+    EVENT_SHADOW_PULSARS_SHOOT  = 13,
 
     // Meteor Strike
-    EVENT_SPAWN_METEOR_FLAME    = 13,
+    EVENT_SPAWN_METEOR_FLAME    = 14,
 
     // Twilight Halion
-    EVENT_DARK_BREATH           = 14,
-    EVENT_SOUL_CONSUMPTION      = 15,
+    EVENT_DARK_BREATH           = 15,
+    EVENT_SOUL_CONSUMPTION      = 16,
 };
 
 enum Actions
@@ -123,10 +123,9 @@ enum Actions
 
     ACTION_PHASE_TWO            = 3, // Halion Controller
     ACTION_PHASE_THREE          = 4,
-    ACTION_SHADOW_PULSARS_SHOOT = 5,
-    ACTION_DESPAWN_ADDS         = 6,
-    ACTION_BERSERK              = 7,
-    ACTION_REMOVE_EXIT_PORTALS  = 8,
+    ACTION_DESPAWN_ADDS         = 5,
+    ACTION_BERSERK              = 6,
+    ACTION_REMOVE_EXIT_PORTALS  = 7,
 };
 
 enum Phases
@@ -252,9 +251,10 @@ class boss_halion : public CreatureScript
 
             void JustReachedHome()
             {
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, FAIL);
-
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                 {
                     controller->AI()->DoAction(ACTION_DESPAWN_ADDS);
@@ -293,7 +293,7 @@ class boss_halion : public CreatureScript
             {
                 me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
-                if (!UpdateVictim())
+                if (!UpdateVictim() && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)))
                     return;
 
                 // Events won't be updated under phase two.
@@ -321,7 +321,7 @@ class boss_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
                             break;
                         case EVENT_METEOR_STRIKE:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_TWILIGHT_REALM))
                             {
                                 target->GetPosition(&_meteorStrikePos);
                                 me->CastSpell(_meteorStrikePos.GetPositionX(), _meteorStrikePos.GetPositionY(), _meteorStrikePos.GetPositionZ(), SPELL_METEOR_STRIKE, true, NULL, NULL, me->GetGUID());
@@ -331,8 +331,8 @@ class boss_halion : public CreatureScript
                             break;
                         case EVENT_FIERY_COMBUSTION:
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
-                            if (!target) target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_TWILIGHT_REALM);
+                            if (!target) target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_TWILIGHT_REALM);
                             if (target)  DoCast(target, SPELL_FIERY_COMBUSTION);
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, 25000);
                             break;
@@ -482,8 +482,8 @@ class boss_twilight_halion : public CreatureScript
                             break;
                         case EVENT_SOUL_CONSUMPTION:
                         {
-                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);
-                            if (!target)  target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true);
+                            Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, SPELL_TWILIGHT_REALM);
+                            if (!target)  target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, SPELL_TWILIGHT_REALM);
                             if (target)   DoCast(target, SPELL_SOUL_CONSUMPTION);
                             events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
                             break;
