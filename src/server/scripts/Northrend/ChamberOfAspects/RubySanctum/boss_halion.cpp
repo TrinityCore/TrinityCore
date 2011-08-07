@@ -581,7 +581,7 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_THREE:
                     {
                         _events.Reset();
-                        _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
+                        _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 20000);
 
                         for (uint8 i = 0; i < 2; i++)
                         {
@@ -673,6 +673,10 @@ class npc_halion_controller : public CreatureScript
                                 MaterialDamageTaken = 0;
                                 corporealityValue = (corporealityValue == 0 ? 0 : corporealityValue - 10);
                                 canUpdate = true;
+                            }
+                            else
+                            {
+                                _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
                             }
 
                             if (canUpdate)
