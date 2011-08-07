@@ -98,6 +98,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "dist",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastDistCommand>,            "", NULL },
         { "self",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastSelfCommand>,            "", NULL },
         { "target",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastTargetCommand>,          "", NULL },
+        { "dest",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastDestCommand>,          "", NULL },
         { "",               SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleCastCommand>,                "", NULL },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };

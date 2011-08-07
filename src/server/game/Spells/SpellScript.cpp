@@ -455,6 +455,11 @@ void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
     m_spell->DoCreateItem(effIndex, itemId);
 }
 
+SpellInfo const* SpellScript::GetTriggeringSpell()
+{
+    return m_spell->m_triggeredByAuraSpell;
+}
+
 void SpellScript::FinishCast(SpellCastResult result)
 {
     m_spell->SendCastResult(result);

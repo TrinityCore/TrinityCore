@@ -1130,12 +1130,13 @@ void Item::SaveRefundDataToDB()
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void Item::DeleteRefundDataFromDB()
+void Item::DeleteRefundDataFromDB(SQLTransaction* trans)
 {
-    CharacterDatabase.PExecute("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
+    if (trans && !trans->null())
+        (*trans)->PAppend("DELETE FROM item_refund_instance WHERE item_guid = '%u'", GetGUIDLow());
 }
 
-void Item::SetNotRefundable(Player *owner, bool changestate)
+void Item::SetNotRefundable(Player *owner, bool changestate /*=true*/, SQLTransaction* trans /*=NULL*/)
 {
     if (!HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_REFUNDABLE))
         return;
@@ -1144,11 +1145,11 @@ void Item::SetNotRefundable(Player *owner, bool changestate)
     // Following is not applicable in the trading procedure
     if (changestate)
         SetState(ITEM_CHANGED, owner);
-
+     
     SetRefundRecipient(0);
     SetPaidMoney(0);
     SetPaidExtendedCost(0);
-    DeleteRefundDataFromDB();
+    DeleteRefundDataFromDB(trans);
 
     owner->DeleteRefundReference(GetGUIDLow());
 }

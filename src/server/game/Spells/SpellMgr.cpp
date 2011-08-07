@@ -3263,6 +3263,12 @@ void SpellMgr::LoadDbcDataCorrections()
         case 72675: // Mutated Strength (Professor Putricide)
             spellInfo->Effect[1] = 0;
             break;
+        case 72454: // Mutated Plague (Professor Putricide)
+        case 72464: // Mutated Plague (Professor Putricide)
+        case 72506: // Mutated Plague (Professor Putricide)
+        case 72507: // Mutated Plague (Professor Putricide)
+            spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
+            break;
         case 70911: // Unbound Plague (Professor Putricide)
         case 72854: // Unbound Plague (Professor Putricide)
         case 72855: // Unbound Plague (Professor Putricide)
