@@ -1206,70 +1206,6 @@ class spell_gen_launch : public SpellScriptLoader
         }
 };
 
-class spell_gen_soul_preserver : public SpellScriptLoader
-{
-    enum Spells
-    {
-        SOUL_PRESERVER          = 60510,
-        HEALING_TRANCE_DRUID    = 60512,
-        HEALING_TRANCE_PALADIN  = 60513,
-        HEALING_TRANCE_PRIEST   = 60514,
-        HEALING_TRANCE_SHAMAN   = 60515,
-    };
-
-    public:
-        spell_gen_soul_preserver() : SpellScriptLoader("spell_gen_soul_preserver") { }
-
-        class spell_gen_soul_preserver_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_soul_preserver_SpellScript);
-
-            bool Load()
-            {
-                // 18350 is a common placeholder for trigered spells
-                // this script only applies to 60510
-                return GetTriggeringSpell()->Id == SOUL_PRESERVER;
-            }
-
-            void HandleScript(SpellEffIndex /*effIndex*/)
-            {
-                uint32 triggeredSpell = 0;
-                Player* caster = GetCaster()->ToPlayer();
-                if (!caster)
-                    return;
-
-                switch (caster->getClass())
-                {
-                    case CLASS_DRUID:
-                        triggeredSpell = HEALING_TRANCE_DRUID;
-                        break;
-                    case CLASS_PALADIN:
-                        triggeredSpell = HEALING_TRANCE_PALADIN;
-                        break;
-                    case CLASS_PRIEST:
-                        triggeredSpell = HEALING_TRANCE_PRIEST;
-                        break;
-                    case CLASS_SHAMAN:
-                        triggeredSpell = HEALING_TRANCE_SHAMAN;
-                        break;
-                }
-
-                if (triggeredSpell)
-                    caster->CastSpell(caster, triggeredSpell, true);
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_gen_soul_preserver_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_gen_soul_preserver_SpellScript();
-        }    
-};
-
 class spell_gen_vehicle_scaling : public SpellScriptLoader
 {
     public:
@@ -1350,6 +1286,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_magic_rooster();
     new spell_gen_allow_cast_from_item_only();
     new spell_gen_launch();
-    new spell_gen_soul_preserver();
     new spell_gen_vehicle_scaling();
 }
