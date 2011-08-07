@@ -251,7 +251,7 @@ class Item : public Object
         static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
         void DeleteFromInventoryDB(SQLTransaction& trans);
         void SaveRefundDataToDB();
-        void DeleteRefundDataFromDB();
+        void DeleteRefundDataFromDB(SQLTransaction* trans);
 
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
@@ -339,7 +339,7 @@ class Item : public Object
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
 
         // Item Refund system
-        void SetNotRefundable(Player *owner, bool changestate = true);
+        void SetNotRefundable(Player *owner, bool changestate = true, SQLTransaction* trans = NULL);
         void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
