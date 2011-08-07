@@ -279,7 +279,7 @@ class boss_halion : public CreatureScript
                     Talk(SAY_PHASE_TWO);
                     DoCast(me, SPELL_TWILIGHT_PHASING);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    
+
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->DoAction(ACTION_PHASE_TWO);
                 }
@@ -337,7 +337,7 @@ class boss_halion : public CreatureScript
                             events.ScheduleEvent(EVENT_FIERY_COMBUSTION, 25000);
                             break;
                         }
-                        case EVENT_BERSERK: // This event can't be in the Controller because it has phases
+                        case EVENT_BERSERK: // This event can't be in the Controller because its events get reset.
                             if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                                 controller->AI()->DoAction(ACTION_BERSERK);
                             break;
@@ -539,7 +539,7 @@ class npc_halion_controller : public CreatureScript
                         break;
                 }
             }
-            
+
             uint32 GetGUID(uint32 npcId)
             {
                 switch (npcId)
@@ -1040,8 +1040,8 @@ class npc_shadow_orb : public CreatureScript
             {
                 _angle = 0.0f;
                 me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                MovementInform(POINT_MOTION_TYPE, 0); // Start movement
                 me->SetPhaseMask(0x20, true);
+                MovementInform(POINT_MOTION_TYPE, 0); // Start movement
             }
 
             void IsSummonedBy(Unit* /*summoner*/)
@@ -1050,10 +1050,10 @@ class npc_shadow_orb : public CreatureScript
             }
 
             void UpdateAI(uint32 const diff)
-            { 
+            {
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
-                
+
                 _events.Update(diff);
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -1067,8 +1067,8 @@ class npc_shadow_orb : public CreatureScript
                                 if (Creature* focus = ObjectAccessor::GetCreature(*me, controller->AI()->GetGUID(NPC_ORB_ROTATION_FOCUS)))
                                 {
                                     DoCast(focus, SPELL_TWILIGHT_CUTTER);
-                                    if (me->GetMap())
-                                        if (me->GetMap()->IsHeroic())
+                                    if (Map* map = me->GetMap())
+                                        if (map->IsHeroic())
                                             DoCast(me, SPELL_TWILIGHT_PULSE_PERIODIC);
                                 }
                             }
