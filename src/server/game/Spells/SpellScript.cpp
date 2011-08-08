@@ -455,7 +455,6 @@ void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
     m_spell->DoCreateItem(effIndex, itemId);
 }
 
-<<<<<<< HEAD
 int32 SpellScript::GetTrueDamage()
 {
     if (!IsInAfterHitPhase())
@@ -464,11 +463,11 @@ int32 SpellScript::GetTrueDamage()
         return NULL;
     }
     return m_spell->m_true_damage;
-=======
+}
+
 SpellInfo const* SpellScript::GetTriggeringSpell()
 {
     return m_spell->m_triggeredByAuraSpell;
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 }
 
 void SpellScript::FinishCast(SpellCastResult result)

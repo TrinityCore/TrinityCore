@@ -1428,11 +1428,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
                 }
                 // Improved Fear
-<<<<<<< HEAD
-                if (GetSpellProto()->SpellFamilyFlags[1] & 0x00000400)
-=======
                 else if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000400)
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
                 {
                     if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_WARLOCK, 98, 0))
                     {
@@ -1447,7 +1443,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (spellId)
                             caster->CastSpell(target, spellId, true);
                     }
-                    break;
                 }
                 switch(GetId())
                 {

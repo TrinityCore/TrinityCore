@@ -874,18 +874,10 @@ uint32 GetCreatureModelRace(uint32 model_id)
 }
 
 // script support functions
-<<<<<<< HEAD
- DBCStorage <SoundEntriesEntry>        const* GetSoundEntriesStore()    { return &sSoundEntriesStore;        }
- DBCStorage <SpellEntry>               const* GetSpellStore()           { return &sSpellStore;               }
- DBCStorage <SpellRangeEntry>          const* GetSpellRangeStore()      { return &sSpellRangeStore;          }
- DBCStorage <FactionEntry>             const* GetFactionStore()         { return &sFactionStore;             }
- DBCStorage <ItemEntry>                const* GetItemDisplayStore()     { return &sItemStore;                }
-=======
  DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
  DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
  DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
  DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
  DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
  DBCStorage <EmotesEntry>              const* GetEmotesStore()          { return &sEmotesStore;              }
  DBCStorage <EmotesTextEntry>          const* GetEmotesTextStore()      { return &sEmotesTextStore;          }

@@ -270,7 +270,6 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
     if (!unitTarget || !unitTarget->isAlive())
         return;
 
-<<<<<<< HEAD
     // Demonic Sacrifice
     if (m_spellInfo->Id == 18788 && unitTarget->GetTypeId() == TYPEID_UNIT)
     {
@@ -299,8 +298,7 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
         if (unitTarget->GetOwnerGUID() != m_caster->GetGUID())
             return;
     }
-=======
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
+
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
 
@@ -466,23 +464,6 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                         damage = (m_caster->getLevel() - 60) * 4 + 60;
                         break;
                     }
-<<<<<<< HEAD
-
-                    // Loken Pulsing Shockwave
-                    case 59837:
-                    case 52942:
-                    {
-                        // don't damage self and only players
-                        if (unitTarget->GetGUID() == m_caster->GetGUID() || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                            return;
-
-                        float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[0]));
-                        if (!radius)
-                            return;
-                        float distance = m_caster->GetDistance2d(unitTarget);
-                        damage = (distance > radius) ? 0 : int32(SpellMgr::CalculateSpellEffectAmount(m_spellInfo, 0) * distance);
-                        break;
-                    }
                     // Lightning Nova
                     case 65279:
                     {
@@ -497,8 +478,6 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                             damage *= pow(1.0f - distance / radius, 2);
                         break; 
                     }
-=======
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
                 }
                 break;
             }
@@ -1372,15 +1351,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 if (AuraEffect * aurEff = m_caster->GetAuraEffect(58367, EFFECT_0))
                     rageUsed += aurEff->GetAmount() * 10;
 
-<<<<<<< HEAD
-                bp = damage + int32(rageUsed * m_spellInfo->EffectDamageMultiplier[effIndex] + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
+                bp = damage + int32(rageUsed * m_spellInfo->Effects[effIndex].DamageMultiplier + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
 
                 // Item - Warrior T10 Melee 4P Bonus
                 if (Aura * aura = m_caster->GetAura(52437))
                     aura->DropCharge();
-=======
-                bp = damage + int32(rageUsed * m_spellInfo->Effects[effIndex].DamageMultiplier + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
                 break;
             }
             // Concussion Blow
@@ -7292,40 +7267,18 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!spellInfo)
             continue;
 
-<<<<<<< HEAD
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(spell_id);
-        if (!spellInfo)
-            continue;
-
-        uint32 cost = CalculatePowerCost(spellInfo, m_caster, GetSpellSchoolMask(spellInfo));
-=======
         if (!p_caster->HasSpell(spell_id) || p_caster->HasSpellCooldown(spell_id))
             continue;
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 
         if (!(spellInfo->AttributesEx7 & SPELL_ATTR7_SUMMON_PLAYER_TOTEM))
             continue;
         
         uint32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
         if (m_caster->GetPower(POWER_MANA) < cost)
-<<<<<<< HEAD
-            break;
-        if (!m_caster->HasSpell(spell_id) || IsPassiveSpell(spellInfo))
-            continue;
-
-        if (spellInfo->TotemCategory[0] < 2 || spellInfo->TotemCategory[0] > 5)
-            continue;
-
-        m_caster->CastSpell(unitTarget, spell_id, true);
-
-        m_caster->ModifyPower(POWER_MANA, -(int32)cost);
-        p_caster->AddSpellAndCategoryCooldowns(spellInfo, 0);
-=======
             continue;
 
         TriggerCastFlags triggerFlags = TriggerCastFlags(TRIGGERED_IGNORE_GCD | TRIGGERED_IGNORE_CAST_IN_PROGRESS | TRIGGERED_CAST_DIRECTLY);
         m_caster->CastSpell(unitTarget, spell_id, triggerFlags);
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
     }
 }
 

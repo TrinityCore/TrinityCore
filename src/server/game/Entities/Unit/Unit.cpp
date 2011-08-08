@@ -11835,16 +11835,9 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
         // Check for immune to application of harmful magical effects
         AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
         for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
-<<<<<<< HEAD
-            if ((spellInfo->Dispel == DISPEL_MAGIC || spellInfo->Dispel == DISPEL_CURSE ||                          // Magical debuff
-                spellInfo->Dispel == DISPEL_DISEASE || spellInfo->Dispel == DISPEL_POISON) &&
-                ((*iter)->GetMiscValue() & GetSpellSchoolMask(spellInfo)) &&                                        // Check school
-                !IsPositiveEffect(spellInfo->Id, index))         
-=======
             if (spellInfo->Dispel == DISPEL_MAGIC &&                                      // Magic debuff
                 ((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&  // Check school
                 !spellInfo->IsPositiveEffect(index))                                  // Harmful
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
                 return true;
     }
 
@@ -11994,14 +11987,8 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
 
                 Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 
-<<<<<<< HEAD
-                if (item && !item->IsBroken() && item->IsFitToSpellRequirements((*i)->GetSpellProto()))
-                    if ((*i)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL)
-                        AddPctN(DoneTotalMod, (*i)->GetAmount());
-=======
                 if (item && !item->IsBroken() && item->IsFitToSpellRequirements((*i)->GetSpellInfo()))
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
             }
             else if (player->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
                 AddPctN(DoneTotalMod, (*i)->GetAmount());

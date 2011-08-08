@@ -26,9 +26,7 @@
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
 #include "Transport.h"
-<<<<<<< HEAD
 #include "sc_npc_teleport.h"
-=======
 #include "Vehicle.h"
 
 // This is the global static registry of scripts.
@@ -124,7 +122,6 @@ public:
         return NULL;
     }
 };
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 
 // Utility macros to refer to the script registry.
 #define SCR_REG_MAP(T) ScriptRegistry<T>::ScriptMap

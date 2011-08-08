@@ -251,54 +251,11 @@ int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellInfo const
     // Explicit diminishing duration
     switch (spellproto->SpellFamilyName)
     {
-<<<<<<< HEAD
-        case SPELLFAMILY_GENERIC:
-            switch (spellId)
-            {
-                case 34700: // Allergic Reaction
-                case 61716: // Rabbit Costume
-                case 61734: // Noblegarden Bunny
-                case 61987: // Avenging Wrath Marker
-                case 61988: // Divine Shield exclude aura
-                case 62532: // Conservator's Grip
-                    return false;
-                case 30877: // Tag Murloc
-                case 62344: // Fists of Stone
-                    return true;
-                default:
-                    break;
-            }
-            break;
-        case SPELLFAMILY_MAGE:
-            // Amplify Magic, Dampen Magic
-            if (spellproto->SpellFamilyFlags[0] == 0x00002000)
-                return true;
-            // Ignite
-            if (spellproto->SpellIconID == 45)
-                return true;
-            break;
-        case SPELLFAMILY_WARRIOR:
-	     // Shockwave
-            if (spellId == 46968)
-                return false;
-            break;
-        case SPELLFAMILY_PRIEST:
-            switch (spellId)
-            {
-                case 64844: // Divine Hymn
-                case 64904: // Hymn of Hope
-                case 47585: // Dispersion
-                    return true;
-                default:
-                    break;
-            }
-=======
         case SPELLFAMILY_DRUID:
         {
             // Faerie Fire - limit to 40 seconds in PvP (3.1)
             if (spellproto->SpellFamilyFlags[0] & 0x400)
                 return 40 * IN_MILLISECONDS;
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
             break;
         }
         case SPELLFAMILY_HUNTER:
@@ -1114,6 +1071,26 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
             break;
         }
+        case 58730: // No fly Zone - Wintergrasp
+            {
+                if (!player)
+                    return false;
+
+                if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+                {
+                    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                    if ((pvpWG->isWarTime()==false) || player->isDead() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)) || player->HasAura(45472) || player->HasAura(44795) || player->GetPositionZ() > 619.2f || player->isInFlight())
+                        return false;
+                }
+                break;
+            }
+        case 58045: // Essence of Wintergrasp - Wintergrasp
+        case 57940: // Essence of Wintergrasp - Northrend
+            {
+                if (!player || player->GetTeamId() != sWorld->getWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
+                    return false;
+                break;
+            }
         case 68719: // Oil Refinery - Isle of Conquest.
         case 68720: // Quarry - Isle of Conquest.
         {
@@ -2224,18 +2201,8 @@ void SpellMgr::LoadPetLevelupSpellMap()
 
     mPetLevelupSpellMap.clear();                                   // need for reload case
 
-<<<<<<< HEAD
-bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32 newArea) const
-{
-    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
-
-    if (gender != GENDER_NONE)                   // not in expected gender
-        if (!player || gender != player->getGender())
-            return false;
-=======
     uint32 count = 0;
     uint32 family_count = 0;
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 
     for (uint32 i = 0; i < sCreatureFamilyStore.GetNumRows(); ++i)
     {
@@ -2264,44 +2231,9 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 if (skillLine->learnOnGetSkill != ABILITY_LEARNED_ON_GET_RACE_OR_CLASS_SKILL)
                     continue;
 
-<<<<<<< HEAD
-            AreaTableEntry const* pArea = GetAreaEntryByAreaID(player->GetAreaId());
-            if (!(pArea && pArea->flags & AREA_FLAG_NO_FLY_ZONE))
-                return false;
-            if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
-                return false;
-            break;
-        }
-        case 58730: // No fly Zone - Wintergrasp
-            {
-                if (!player)
-                    return false;
-
-                if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
-                {
-                    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
-                    if ((pvpWG->isWarTime()==false) || player->isDead() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)) || player->HasAura(45472) || player->HasAura(44795) || player->GetPositionZ() > 619.2f || player->isInFlight())
-                        return false;
-                }
-                break;
-            }
-        case 58045: // Essence of Wintergrasp - Wintergrasp
-        case 57940: // Essence of Wintergrasp - Northrend
-            {
-                if (!player || player->GetTeamId() != sWorld->getWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
-                    return false;
-                break;
-            }
-        case 68719: // Oil Refinery - Isle of Conquest.
-        case 68720: // Quarry - Isle of Conquest.
-        {
-            if (player->GetBattlegroundTypeId() != BATTLEGROUND_IC || !player->GetBattleground())
-                return false;
-=======
                 SpellInfo const* spell = GetSpellInfo(skillLine->spellId);
                 if (!spell) // not exist or triggered or talent
                     continue;
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 
                 if (!spell->SpellLevel)
                     continue;
@@ -2977,55 +2909,6 @@ void SpellMgr::LoadDbcDataCorrections()
         case 42835: // Spout
             spellInfo->Effect[0] = 0; // remove damage effect, only anim is needed
             break;
-<<<<<<< HEAD
-        case 53: // Backstab
-        case 2589:
-        case 2590:
-        case 2591:
-        case 8721:
-        case 11279:
-        case 11280:
-        case 11281:
-        case 25300:
-        case 26863:
-        case 48656:
-        case 48657:
-        case 703: // Garrote
-        case 8631:
-        case 8632:
-        case 8633:
-        case 11289:
-        case 11290:
-        case 26839:
-        case 26884:
-        case 48675:
-        case 48676:
-        case 5221: // Shred
-        case 6800:
-        case 8992:
-        case 9829:
-        case 9830:
-        case 27001:
-        case 27002:
-        case 48571:
-        case 48572:
-        case 8676: // Ambush
-        case 8724:
-        case 8725:
-        case 11267:
-        case 11268:
-        case 11269:
-        case 27441:
-        case 48689:
-        case 48690:
-        case 48691:
-        case 21987: // Lash of Pain
-        case 23959: // Test Stab R50
-        case 24825: // Test Backstab
-        case 58563: // Assassinate Restless Lookout
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
-            ++count;
-=======
         case 30657: // Quake
             spellInfo->EffectTriggerSpell[0] = 30571;
             break;
@@ -3044,7 +2927,6 @@ void SpellMgr::LoadDbcDataCorrections()
         case 42818: // Headless Horseman - Wisp Flight Port
         case 42821: // Headless Horseman - Wisp Flight Missile
             spellInfo->rangeIndex = 6; // 100 yards
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
             break;
         case 36350: //They Must Burn Bomb Aura (self)
             spellInfo->EffectTriggerSpell[0] = 36325; // They Must Burn Bomb Drop (DND)
@@ -3098,58 +2980,11 @@ void SpellMgr::LoadDbcDataCorrections()
             // was 46, but effect is aura effect
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
             spellInfo->EffectImplicitTargetB[0] = TARGET_DST_NEARBY_ENTRY;
-<<<<<<< HEAD
-            ++count;
-            break;
-        case 24131:                             // Wyvern Sting (rank 1)
-        case 24134:                             // Wyvern Sting (rank 2)
-        case 24135:                             // Wyvern Sting (rank 3)
-            // something wrong and it applied as positive buff
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
-            ++count;
-            break;
-        case 26029: // Dark Glare
-        case 37433: // Spout
-        case 43140: // Flame Breath
-        case 43215: // Flame Breath
-        case 70461: // Coldflame Trap
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_CONE_LINE;
-            ++count;
-            break;
-        case 24340: // Meteor
-        case 26558: // Meteor
-        case 28884: // Meteor
-        case 36837: // Meteor
-        case 38903: // Meteor
-        case 41276: // Meteor
-        case 57467: // Meteor
-        case 26789: // Shard of the Fallen Star
-        case 31436: // Malevolent Cleave
-        case 35181: // Dive Bomb
-        case 40810: // Saber Lash
-        case 43267: // Saber Lash
-        case 43268: // Saber Lash
-        case 42384: // Brutal Swipe
-        case 45150: // Meteor Slash
-        case 64688: // Sonic Screech
-        case 72373: // Shared Suffering
-        case 71904: // Chaos Bane
-        case 70492: // Ooze Eruption
-        case 72505: // Ooze Eruption
-        case 72624: // Ooze Eruption
-        case 72625: // Ooze Eruption
-            // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_SHARE_DAMAGE;
-            ++count;
-=======
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
             break;
         case 59725: // Improved Spell Reflection - aoe aura
             // Target entry seems to be wrong for this spell :/
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_PARTY_CASTER;
             spellInfo->EffectRadiusIndex[0] = 45;
-<<<<<<< HEAD
-            ++count;
             break;
         case 63944:                             // Renewed Hope hack
             spellInfo->EffectApplyAuraName[0] = 87;
@@ -3169,24 +3004,6 @@ void SpellMgr::LoadDbcDataCorrections()
             spellInfo->EffectImplicitTargetA[1] = TARGET_SRC_CASTER;
             spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_AREA_ENEMY_SRC;
             ++count;
-            break;
-        case 27820: // Mana Detonation
-        case 69782: // Ooze Flood
-        case 69796: // Ooze Flood
-        case 69798: // Ooze Flood
-        case 69801: // Ooze Flood
-        case 69538: // Ooze Combine
-        case 69553: // Ooze Combine
-        case 69610: // Ooze Combine
-        case 71447: // Bloodbolt Splash
-        case 71481: // Bloodbolt Splash
-        case 71482: // Bloodbolt Splash
-        case 71483: // Bloodbolt Splash
-        case 71390: // Pact of the Darkfallen
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_EXCLUDE_SELF;
-            ++count;
-=======
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
             break;
         case 44978: case 45001: case 45002: // Wild Magic
         case 45004: case 45006: case 45010: // Wild Magic
@@ -3372,7 +3189,6 @@ void SpellMgr::LoadDbcDataCorrections()
             // 322-330 switch - effect changed to dummy, target entry not changed in client:(
             spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
             break;
-<<<<<<< HEAD
         case 12051: // Evocation - now we can interrupt this
             spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
             ++count;
@@ -3381,28 +3197,9 @@ void SpellMgr::LoadDbcDataCorrections()
             spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
             ++count;
             break;
-        case 18500: // Wing Buffet
-        case 33086: // Wild Bite
-        case 49749: // Piercing Blow
-        case 52890: // Penetrating Strike
-        case 53454: // Impale
-        case 59446: // Impale
-        case 62383: // Shatter
-        case 64777: // Machine Gun
-        case 65239: // Machine Gun
-        case 65919: // Impale
-        case 67858: // Impale
-        case 67859: // Impale
-        case 67860: // Impale
-        case 69293: // Wing Buffet
-        case 74439: // Machine Gun
-            mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
-            ++count;
-=======
         case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
             spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
             spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5%
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
             break;
         case 20224: // Seals of the Pure (Rank 1)
         case 20225: // Seals of the Pure (Rank 2)
@@ -3668,15 +3465,12 @@ void SpellMgr::LoadDbcDataCorrections()
                 // Starfall Target Selection
                 if (spellInfo->SpellFamilyFlags[2] & 0x100)
                     spellInfo->MaxAffectedTargets = 2;
-<<<<<<< HEAD
                 // Roar
                 else if (spellInfo->SpellFamilyFlags[0] & 0x8)
                     mSpellCustomAttr[i] |= SPELL_ATTR0_CU_AURA_CC;
                 // Rake
                 else if (spellInfo->SpellFamilyFlags[0] & 0x1000)
                     mSpellCustomAttr[i] |= SPELL_ATTR0_CU_IGNORE_ARMOR;
-=======
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
                 else
                     break;
                 break;

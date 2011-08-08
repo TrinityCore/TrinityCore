@@ -23,11 +23,7 @@
 #include "VehicleDefines.h"
 
 struct VehicleEntry;
-<<<<<<< HEAD
-struct VehicleSeatEntry;
 struct Position;
-=======
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 class Unit;
 
 class Vehicle

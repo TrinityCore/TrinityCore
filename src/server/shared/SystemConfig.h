@@ -24,11 +24,7 @@
 #include "Define.h"
 #include "revision.h"
 
-<<<<<<< HEAD
-#define _PACKAGENAME "FaceCore "
-=======
-#define _PACKAGENAME "TrinityCore"
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
+#define _PACKAGENAME "FaceCore"
 
 #if TRINITY_ENDIAN == TRINITY_BIGENDIAN
 # define _ENDIAN_STRING "big-endian"

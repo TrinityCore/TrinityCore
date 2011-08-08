@@ -646,72 +646,111 @@ enum eBrunnhildarPrisoner
 class npc_brunnhildar_prisoner : public CreatureScript
 {
 public:
-    npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") {}
+    npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") { }
 
     struct npc_brunnhildar_prisonerAI : public ScriptedAI
     {
-        npc_brunnhildar_prisonerAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 uiCheckTimer;
+        Unit* drake;
+        uint16 enter_timer;
+        bool hasEmptySeats;
 
         void Reset()
         {
-            uiCheckTimer = 10*IN_MILLISECONDS;
-            DoCast(me, SPELL_ICE_BLOCK, true);
-        }
-
-<<<<<<< HEAD
-        void DoAction(const int32 /*param*/)
-=======
-        void SpellHit(Unit* hitter, const SpellInfo* spell)
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
-        {
-            me->Kill(me);
-            me->Respawn();
-        }
-
-        void SpellHit(Unit* caster, const SpellEntry* spell) 
-        {
-            if (spell->Id == SPELL_ICE_SHARD)
-            {
-                DoCast(me, SPELL_ICE_SHARD_IMPACT, true);
-
-                if (caster->IsVehicle())
-                {
-                    uint8 seat = caster->GetVehicleKit()->GetNextEmptySeat(0, true);
-                    if (seat <= 0)
-                        return;
-
-                    me->EnterVehicle(caster);
-                    me->RemoveAurasDueToSpell(SPELL_ICE_BLOCK);
-                    caster->SetSpeed(MOVE_FLIGHT, 3.0f);
-                }
-            }
+            me->CastSpell(me, SPELL_ICE_PRISON, true);
+            enter_timer = 0;
+            drake = NULL;
+            hasEmptySeats = false;
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (uiCheckTimer < diff)
+            // drake unsummoned, passengers dropped
+            if (drake && !me->IsOnVehicle(drake) && !hasEmptySeats)
+                me->ForcedDespawn(3000);
+
+            if (enter_timer <= 0)
+                return;
+
+            if (enter_timer < diff)
             {
-                if (!me->HasUnitState(UNIT_STAT_ONVEHICLE))
-                {
-                    // return home
-                    if (me->GetDistance(me->GetHomePosition()) > 30.0f)
-                        DoAction(0);
-                }
+                enter_timer = 0;
+                if (hasEmptySeats)
+                    me->JumpTo(drake, 25.0f);
                 else
+                    Reset();
+            }
+            else
+                enter_timer -= diff;
+        }
+
+        void MoveInLineOfSight(Unit* unit)
+        {
+            if (!unit || !drake)
+                return;
+
+            if (!me->IsOnVehicle(drake) && !me->HasAura(SPELL_ICE_PRISON))
+            {
+                if (unit->IsVehicle() && me->IsWithinDist(unit, 25.0f, true) && unit->ToCreature() && unit->ToCreature()->GetEntry() == 29709)
                 {
-                    if (me->GetPositionY() > -2595.0f)
+                    uint8 seat = unit->GetVehicleKit()->GetNextEmptySeat(0, true);
+                    if (seat <= 0)
+                        return;
+
+                    me->EnterVehicle(unit, seat);
+                    me->SendMovementFlagUpdate();
+                    hasEmptySeats = false;
+                }
+            }
+
+            if (unit->ToCreature() && me->IsOnVehicle(drake))
+            {
+                if (unit->ToCreature()->GetEntry() == NPC_QUEST_GIVER && me->IsWithinDist(unit, 15.0f, false))
+                {
+                    Unit* rider = drake->GetVehicleKit()->GetPassenger(0);
+                    if (!rider)
+                        return;
+
+                    rider->CastSpell(rider, SPELL_KILL_CREDIT_PRISONER, true);
+
+                    me->ExitVehicle();
+                    me->CastSpell(me, SPELL_SUMMON_LIBERATED, true);
+                    me->ForcedDespawn(500);
+
+                    // drake is empty now, deliver credit for drake and despawn him
+                    if (drake->GetVehicleKit()->HasEmptySeat(1) &&
+                        drake->GetVehicleKit()->HasEmptySeat(2) &&
+                        drake->GetVehicleKit()->HasEmptySeat(3))
                     {
-                        // remove player control
-                        if (Unit* base = me->GetVehicleBase())
-                            if (base->isCharmed())
-                                base->RemoveCharmedBy(base->GetCharmer());
+                        // not working rider->CastSpell(rider, SPELL_KILL_CREDIT_DRAKE, true);
+                        if (rider->ToPlayer())
+                            rider->ToPlayer()->KilledMonsterCredit(29709, 0);
+
+                        drake->ToCreature()->ForcedDespawn(0);
                     }
                 }
+            }
+        }
 
-                uiCheckTimer = 10*IN_MILLISECONDS;
-            }else uiCheckTimer -= diff;
+        void SpellHit(Unit* hitter, const SpellInfo* spell)
+        {
+            if (!hitter || !spell)
+                return;
+
+            if (spell->Id != SPELL_ICE_LANCE)
+                return;
+
+            me->RemoveAura(SPELL_ICE_PRISON);
+            enter_timer = 500;
+
+            if (hitter->IsVehicle())
+                drake = hitter;
+            else
+                return;
+
+            if (hitter->GetVehicleKit()->GetNextEmptySeat(0, true))
+                hasEmptySeats = true;
         }
     };
 

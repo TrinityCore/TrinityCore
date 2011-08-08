@@ -54,11 +54,8 @@
 #include "OutdoorPvPWG.h"
 #include "OutdoorPvPMgr.h"
 #include "InstanceScript.h"
-<<<<<<< HEAD
 #include "InstanceSaveMgr.h" 
-=======
 #include "SpellInfo.h"
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -1348,19 +1345,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         }
     }
 
-<<<<<<< HEAD
-    // Drop charge of magnet auras on hit
-    if (m_magnetingAura)
-    {
-        if (!m_magnetingAura->IsRemoved() && m_magnetingAura->GetCharges()>0)
-            m_magnetingAura->DropCharge();
-        m_magnetingAura = NULL;
-    }
-
-    if (missInfo != SPELL_MISS_EVADE && m_caster && !m_caster->IsFriendlyTo(unit) && !IsPositiveSpell(m_spellInfo->Id))
-=======
     if (missInfo != SPELL_MISS_EVADE && m_caster && !m_caster->IsFriendlyTo(unit) && !m_spellInfo->IsPositive())
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
     {
         m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
 
@@ -1564,22 +1549,11 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
                 ((UnitAura*)m_spellAura)->SetDiminishGroup(m_diminishGroup);
 
-<<<<<<< HEAD
-                bool positive = true;
-=======
                 bool positive = m_spellAura->GetSpellInfo()->IsPositive();
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
                 AuraApplication * aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID());
                 if (aurApp)
                     positive = aurApp->IsPositive();
-                else
-                    for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-                        if (effectMask & (1 << effIndex))
-                            if (!IsPositiveEffect(aurSpellInfo->Id, effIndex))
-                            {
-                                positive = false;
-                                break;
-                            }
+
                 duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive);
 
                 // Haste modifies duration of channeled spells
@@ -5598,19 +5572,15 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (AreaTableEntry const* pArea = GetAreaEntryByAreaID(m_originalCaster->GetAreaId()))
                     {
                         if (pArea->flags & AREA_FLAG_NO_FLY_ZONE)
-<<<<<<< HEAD
-                            return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                            return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                         // Wintergrasp Antifly check
                         if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
                         {
                             OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
                             if (m_originalCaster->GetZoneId() == 4197 && pvpWG && pvpWG != 0  && pvpWG->isWarTime())
-                                return m_IsTriggeredSpell ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
+                                return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
                         }
                     }
-=======
-                            return (_triggeredCastFlags & TRIGGERED_DONT_REPORT_CAST_ERROR) ? SPELL_FAILED_DONT_REPORT : SPELL_FAILED_NOT_HERE;
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
                 }
                 break;
             }
@@ -6601,12 +6571,7 @@ bool Spell::CheckTargetCreatureType(Unit* target) const
         spellCreatureTargetMask =  0;
 
     // Polymorph and Grounding Totem
-<<<<<<< HEAD
-    if (target->GetTypeId() != TYPEID_PLAYER && target->GetEntry() == 5925  && m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (m_spellInfo->SpellFamilyFlags[0] & 0x1000000) && m_spellInfo->EffectApplyAuraName[0] == SPELL_AURA_MOD_CONFUSE)
-
-=======
     if (target->GetEntry() == 5925 && m_spellInfo->SpellFamilyName == SPELLFAMILY_MAGE && (m_spellInfo->SpellFamilyFlags[0] & 0x1000000) && m_spellInfo->Effects[0].ApplyAuraName == SPELL_AURA_MOD_CONFUSE)
->>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
         return true;
 
     if (spellCreatureTargetMask)
