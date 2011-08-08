@@ -32,6 +32,7 @@
 
 Warden::Warden() : _inputCrypto(16), _outputCrypto(16), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0), _dataSent(false), _initialized(false)
 {
+    _clientRespExceedCounter = 0;       // DEBUG CODE
 }
 
 Warden::~Warden()
@@ -149,6 +150,7 @@ void Warden::Update()
                     if (sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION) == 0)
                     {
                         _clientResponseTimer = 0;
+                        _clientRespExceedCounter++; // DEBUG CODE
                     }
                 }
                 else

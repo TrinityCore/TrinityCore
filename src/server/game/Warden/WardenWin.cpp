@@ -346,6 +346,14 @@ void WardenWin::HandleData(ByteBuffer &buff)
     _dataSent = false;
     _clientResponseTimer = 0;
 
+    // DEBUG CODE
+    if (_clientRespExceedCounter > 0)
+    {
+        _clientRespExceedCounter = 0;
+        sLog->outError("WARDEN: Player %s (guid: %u, account: %u) exceeded max check delay %u times before reporting back",
+            _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), _clientRespExceedCounter);
+    }
+
     uint16 Length;
     buff >> Length;
     uint32 Checksum;
