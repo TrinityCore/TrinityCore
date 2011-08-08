@@ -19,14 +19,8 @@
 #include "soapH.h"
 #include "soapStub.h"
 
-#define POOL_SIZE   5
-
 void TCSoapRunnable::run()
 {
-    // create pool
-    SOAPWorkingThread pool;
-    pool.activate (THR_NEW_LWP | THR_JOINABLE, POOL_SIZE);
-
     struct soap soap;
     soap_init(&soap);
     soap_set_imode(&soap, SOAP_C_UTFSTRING);
@@ -44,7 +38,7 @@ void TCSoapRunnable::run()
 
     sLog->outString("TCSoap: bound to http://%s:%d", m_host.c_str(), m_port);
 
-    while(!World::IsStopped())
+    while (!World::IsStopped())
     {
         if (!soap_valid_socket(soap_accept(&soap)))
             continue;   // ran into an accept timeout
@@ -53,22 +47,19 @@ void TCSoapRunnable::run()
         struct soap* thread_soap = soap_copy(&soap);// make a safe copy
 
         ACE_Message_Block *mb = new ACE_Message_Block(sizeof(struct soap*));
-        ACE_OS::memcpy (mb->wr_ptr(), &thread_soap, sizeof(struct soap*));
-        pool.putq(mb);
+        ACE_OS::memcpy(mb->wr_ptr(), &thread_soap, sizeof(struct soap*));
+        process_message(mb);
     }
-
-    pool.msg_queue()->deactivate();
-    pool.wait();
 
     soap_done(&soap);
 }
 
-void SOAPWorkingThread::process_message (ACE_Message_Block *mb)
+void TCSoapRunnable::process_message(ACE_Message_Block *mb)
 {
     ACE_TRACE (ACE_TEXT ("SOAPWorkingThread::process_message"));
 
     struct soap* soap;
-    ACE_OS::memcpy (&soap, mb->rd_ptr (), sizeof(struct soap*));
+    ACE_OS::memcpy(&soap, mb->rd_ptr (), sizeof(struct soap*));
     mb->release();
 
     soap_serve(soap);
