@@ -452,13 +452,6 @@ public:
         handler->PSendSysMessage("loot recipient: %s", target->hasLootRecipient()?(target->GetLootRecipient()?target->GetLootRecipient()->GetName():"offline"):"no loot recipient");
         return true;
     }
-    
-    static bool HandleDebugSetLootRecipient(ChatHandler* handler, const char* args)
-    {
-        Creature target = hnalder->getSelectedCreature();
-        if (!target)
-            return false;
-    }
 
     static bool HandleDebugSendQuestInvalidMsgCommand(ChatHandler* handler, const char* args)
     {
@@ -584,7 +577,7 @@ public:
 
                     if (updateQueue[qp] != item)
                     {
-                        handler->PSendSysMessage("item at slot: %d guid: %d has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", item->GetSlot(), item->GetGUIDLow(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUIDLow());
+                        handler->PSendSysMessage("item at slot: %d guid: %d has has a queuepos (%d) that points to another item in the queue (bag: %d, slot: %d, guid: %d)", item->GetSlot(), item->GetGUIDLow(), qp, updateQueue[qp]->GetBagSlot(), updateQueue[qp]->GetSlot(), updateQueue[qp]->GetGUIDLow());
                         error = true; continue;
                     }
                 }
