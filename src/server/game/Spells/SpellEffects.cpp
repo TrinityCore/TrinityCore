@@ -6051,7 +6051,7 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
         else
             return;
     }
-    else //if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_KNOCK_BACK)
+    else// if (m_spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_KNOCK_BACK)
     {
         m_caster->GetPosition(x, y);
     }

@@ -217,6 +217,7 @@ class boss_halion : public CreatureScript
                 events.ScheduleEvent(EVENT_FLAME_BREATH, urand(10000, 12000));
                 events.ScheduleEvent(EVENT_METEOR_STRIKE, urand(20000, 25000));
                 events.ScheduleEvent(EVENT_FIERY_COMBUSTION, urand(15000, 18000));
+                events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
                 events.ScheduleEvent(EVENT_BERSERK, 8 * MINUTE * IN_MILLISECONDS);
             }
 
@@ -335,6 +336,10 @@ class boss_halion : public CreatureScript
                             DoCastVictim(SPELL_CLEAVE);
                             events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
                             break;
+                        case EVENT_TAIL_LASH:
+                            DoCastAOE(SPELL_TAIL_LASH);
+                            events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
+                            break;
                         case EVENT_METEOR_STRIKE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_TWILIGHT_REALM))
                             {
@@ -403,6 +408,7 @@ class boss_twilight_halion : public CreatureScript
                 events.ScheduleEvent(EVENT_DARK_BREATH, urand(10000, 15000));
                 events.ScheduleEvent(EVENT_SOUL_CONSUMPTION, 20000);
                 events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
+                events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
             }
 
             void KilledUnit(Unit* victim)
@@ -514,6 +520,10 @@ class boss_twilight_halion : public CreatureScript
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
                             events.ScheduleEvent(EVENT_CLEAVE, urand(8000, 10000));
+                            break;
+                        case EVENT_TAIL_LASH:
+                            DoCastAOE(SPELL_TAIL_LASH);
+                            events.ScheduleEvent(EVENT_TAIL_LASH, 10000);
                             break;
                         default:
                             break;
@@ -1042,17 +1052,6 @@ class npc_combustion : public CreatureScript
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
                     me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
                     DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
-
-                    _scale = data;
-                }
-            }
-
-            uint32 GetData(uint32 type)
-            {
-                switch (type)
-                {
-                    case MARK_STACKAMOUNT:            return _scale;
-                    default:                          return 0;
                 }
             }
 
@@ -1060,7 +1059,6 @@ class npc_combustion : public CreatureScript
 
         private:
             InstanceScript* _instance;
-            uint32 _scale;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1099,17 +1097,6 @@ class npc_consumption : public CreatureScript
                     int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
                     me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                     DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA);
-
-                    _scale = data;
-                }
-            }
-
-            uint32 GetData(uint32 type)
-            {
-                switch (type)
-                {
-                    case MARK_STACKAMOUNT:            return _scale;
-                    default:                          return 0;
                 }
             }
 
@@ -1117,7 +1104,6 @@ class npc_consumption : public CreatureScript
 
         private:
             InstanceScript* _instance;
-            uint32 _scale;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1180,7 +1166,6 @@ class npc_shadow_orb : public CreatureScript
 
         private:
             InstanceScript* _instance;
-            EventMap _events;
             float _angle;
         };
 
@@ -1366,7 +1351,6 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
 
                 if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(SPELL_FIERY_COMBUSTION_SUMMON))
                     GetTarget()->CastSpell(GetTarget(), spell, true);
-                //GetTarget()->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, SPELLVALUE_BASE_POINT0, stacks, GetTarget(), true);
             }
 
             void Register()
@@ -1414,7 +1398,6 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
                 if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
                     CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
 
-                //GetTarget()->CastCustomSpell(SPELL_SOUL_CONSUMPTION_SUMMON, SPELLVALUE_BASE_POINT0, stacks, GetTarget(), true);
                 if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_SUMMON))
                     GetTarget()->CastSpell(GetTarget(), spell, true);
             }
