@@ -165,7 +165,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index d5f45ef..2cf57e2 100755
+index 949fdf8..69aa89d 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -294,7 +294,7 @@ index d5f45ef..2cf57e2 100755
              trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
                                          "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
                                          "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements
-@@ -17023,6 +17100,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+@@ -17029,6 +17106,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
  
      _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
  
@@ -304,7 +304,7 @@ index d5f45ef..2cf57e2 100755
      return true;
  }
  
-@@ -18363,7 +18443,13 @@ void Player::SaveToDB()
+@@ -18369,7 +18449,13 @@ void Player::SaveToDB()
      // check if stats should only be saved on logout
      // save stats can be out of transaction
      if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
@@ -319,7 +319,7 @@ index d5f45ef..2cf57e2 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 17f43cc..c97e6d6 100755
+index 881aade..0fd0879 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
