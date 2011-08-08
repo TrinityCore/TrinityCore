@@ -172,7 +172,7 @@ struct PeriodicTimer
         {
         }
 
-        bool Update(const uint32 &diff)
+        bool Update(const uint32 diff)
         {
             if ((i_expireTime -= diff) > 0)
                 return false;

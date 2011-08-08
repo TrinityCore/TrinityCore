@@ -1,8 +1,14 @@
 # output generic information about the core and buildtype chosen
+<<<<<<< HEAD
 
 message("* FaceCore revision   : ${rev_id_str} (${rev_hash_str})")
+=======
+message("")
+message("* TrinityCore rev. hash  : ${rev_hash}")
+message("* TrinityCore rev. date  : ${rev_date}")
+>>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 if( UNIX )
-  message("* Build binaries in      : ${CMAKE_BUILD_TYPE} mode")
+  message("* TrinityCore buildtype  : ${CMAKE_BUILD_TYPE}")
 endif()
 message("")
 

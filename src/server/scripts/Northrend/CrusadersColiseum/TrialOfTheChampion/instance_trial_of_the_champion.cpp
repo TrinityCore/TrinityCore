@@ -454,12 +454,21 @@ public:
 
         std::ostringstream saveStream;
 
+<<<<<<< HEAD
         saveStream << "T C" << m_auiEncounter[0]
             << " " << m_auiEncounter[1]
             << " " << m_auiEncounter[2]
             << " " << m_auiEncounter[3]
             << " " << uiGrandChampionsDeaths
             << " " << uiMovementDone;
+=======
+            saveStream << "T C " << m_auiEncounter[0]
+                << ' ' << m_auiEncounter[1]
+                << ' ' << m_auiEncounter[2]
+                << ' ' << m_auiEncounter[3]
+                << ' ' << uiGrandChampionsDeaths
+                << ' ' << uiMovementDone;
+>>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
 
         str_data = saveStream.str();
 

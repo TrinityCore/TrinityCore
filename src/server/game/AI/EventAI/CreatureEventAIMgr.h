@@ -25,10 +25,12 @@
 class CreatureEventAIMgr
 {
     friend class ACE_Singleton<CreatureEventAIMgr, ACE_Null_Mutex>;
-    CreatureEventAIMgr(){};
-    public:
+
+    private:
+        CreatureEventAIMgr(){};
         ~CreatureEventAIMgr(){};
 
+    public:
         void LoadCreatureEventAI_Texts();
         void LoadCreatureEventAI_Summons();
         void LoadCreatureEventAI_Scripts();

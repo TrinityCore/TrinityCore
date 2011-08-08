@@ -61,12 +61,9 @@ class BattlegroundDSScore : public BattlegroundScore
 
 class BattlegroundDS : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundDS();
         ~BattlegroundDS();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);
@@ -83,9 +80,14 @@ class BattlegroundDS : public Battleground
     private:
         uint32 m_waterTimer;
         bool m_waterfallActive;
+<<<<<<< HEAD
         bool m_knockbackCheck;
         uint32 m_knockback;
         void KnockBackPlayer(Unit *pPlayer, float angle, float horizontalSpeed, float verticalSpeed);
+=======
+
+        virtual void PostUpdateImpl(uint32 diff);
+>>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
     protected:
         bool isWaterFallActive() { return m_waterfallActive; };
         void setWaterFallActive(bool active) { m_waterfallActive = active; };

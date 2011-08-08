@@ -371,7 +371,7 @@ public:
         std::string GetSaveData()
         {
             std::ostringstream saveStream;
-            saveStream << GetBossSaveData() << " " << gothikDoorState;
+            saveStream << GetBossSaveData() << ' ' << gothikDoorState;
             return saveStream.str();
         }
 

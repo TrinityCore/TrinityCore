@@ -162,7 +162,7 @@ RandomMovementGenerator<Creature>::Finalize(Creature & /*creature*/){}
 
 template<>
 bool
-RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 &diff)
+RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 diff)
 {
     if (creature.HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
     {

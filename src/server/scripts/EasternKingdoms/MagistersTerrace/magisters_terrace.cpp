@@ -138,14 +138,14 @@ public:
             if (lList.isEmpty())
                 return;
 
-            SpellEntry const* pSpell = GetSpellStore()->LookupEntry(SPELL_ORB_KILL_CREDIT);
+            SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(SPELL_ORB_KILL_CREDIT);
 
             for (Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
             {
                 if (Player* player = i->getSource())
                 {
-                    if (pSpell && pSpell->EffectMiscValue[0])
-                        player->KilledMonsterCredit(pSpell->EffectMiscValue[0], 0);
+                    if (pSpell && pSpell->Effects[0].MiscValue)
+                        player->KilledMonsterCredit(pSpell->Effects[0].MiscValue, 0);
                 }
             }
         }

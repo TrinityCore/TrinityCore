@@ -50,12 +50,9 @@ class BattlegroundBEScore : public BattlegroundScore
 
 class BattlegroundBE : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundBE();
         ~BattlegroundBE();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);

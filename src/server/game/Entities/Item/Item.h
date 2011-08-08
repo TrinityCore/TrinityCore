@@ -25,7 +25,7 @@
 #include "ItemPrototype.h"
 #include "DatabaseEnv.h"
 
-struct SpellEntry;
+class SpellInfo;
 class Bag;
 class Unit;
 
@@ -33,7 +33,7 @@ struct ItemSetEffect
 {
     uint32 setid;
     uint32 item_count;
-    SpellEntry const *spells[8];
+    SpellInfo const *spells[8];
 };
 
 enum InventoryResult
@@ -235,7 +235,7 @@ class Item : public Object
 
         ItemTemplate const* GetTemplate() const;
 
-        uint64 const& GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
+        uint64 GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
@@ -251,7 +251,7 @@ class Item : public Object
         static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
         void DeleteFromInventoryDB(SQLTransaction& trans);
         void SaveRefundDataToDB();
-        void DeleteRefundDataFromDB();
+        void DeleteRefundDataFromDB(SQLTransaction* trans);
 
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
@@ -267,7 +267,7 @@ class Item : public Object
         bool HasEnchantRequiredSkill(const Player *pPlayer) const;
         uint32 GetEnchantRequiredLevel() const;
 
-        bool IsFitToSpellRequirements(SpellEntry const* spellInfo) const;
+        bool IsFitToSpellRequirements(SpellInfo const* spellInfo) const;
         bool IsTargetValidForItemUse(Unit* pUnitTarget);
         bool IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const;
         bool GemsFitSockets() const;
@@ -339,7 +339,7 @@ class Item : public Object
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
 
         // Item Refund system
-        void SetNotRefundable(Player *owner, bool changestate = true);
+        void SetNotRefundable(Player *owner, bool changestate = true, SQLTransaction* trans = NULL);
         void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }

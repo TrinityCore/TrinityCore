@@ -225,7 +225,11 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
             if (!(availableDbcLocales & (1 << i)))
                 continue;
 
-            std::string localizedName = dbcPath + localeNames[i] + "/" + filename;
+            std::string localizedName(dbcPath);
+            localizedName.append(localeNames[i]);
+            localizedName.push_back('/');
+            localizedName.append(filename);
+
             if (!storage.LoadStringsFrom(localizedName.c_str()))
                 availableDbcLocales &= ~(1<<i);             // mark as not available for speedup next checks
         }
@@ -402,7 +406,7 @@ void LoadDBCStores(const std::string& dataPath)
 
         SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
 
-        if (spellInfo && IsPassiveSpell(spellInfo->Id))
+        if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         {
             for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
             {
@@ -870,11 +874,18 @@ uint32 GetCreatureModelRace(uint32 model_id)
 }
 
 // script support functions
+<<<<<<< HEAD
  DBCStorage <SoundEntriesEntry>        const* GetSoundEntriesStore()    { return &sSoundEntriesStore;        }
  DBCStorage <SpellEntry>               const* GetSpellStore()           { return &sSpellStore;               }
  DBCStorage <SpellRangeEntry>          const* GetSpellRangeStore()      { return &sSpellRangeStore;          }
  DBCStorage <FactionEntry>             const* GetFactionStore()         { return &sFactionStore;             }
  DBCStorage <ItemEntry>                const* GetItemDisplayStore()     { return &sItemStore;                }
+=======
+ DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
+ DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
+ DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
+ DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
+>>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
  DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
  DBCStorage <EmotesEntry>              const* GetEmotesStore()          { return &sEmotesStore;              }
  DBCStorage <EmotesTextEntry>          const* GetEmotesTextStore()      { return &sEmotesTextStore;          }

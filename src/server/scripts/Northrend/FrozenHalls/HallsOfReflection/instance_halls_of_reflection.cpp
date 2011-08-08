@@ -325,6 +325,7 @@ public:
 
         uint64 GetData64(uint32 uiData)
         {
+<<<<<<< HEAD
             switch(uiData)
             {
                 case GO_IMPENETRABLE_DOOR: return m_uiMainGateGUID;
@@ -344,6 +345,15 @@ public:
                 case GO_CAVE:              return m_uiGoCaveGUID;
             }
             return 0;
+=======
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << "H R 1 " << uiEncounter[0] << ' ' << uiEncounter[1] << ' ' << uiEncounter[2];
+
+            OUT_SAVE_INST_DATA_COMPLETE;
+            return saveStream.str();
+>>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
         }
 
         void Load(const char* chrIn)

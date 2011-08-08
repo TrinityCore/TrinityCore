@@ -33,7 +33,7 @@ class FleeingMovementGenerator
         void Initialize(T &);
         void Finalize(T &);
         void Reset(T &);
-        bool Update(T &, const uint32 &);
+        bool Update(T &, const uint32);
         bool GetDestination(float &x, float &y, float &z) const;
 
         MovementGeneratorType GetMovementGeneratorType() { return FLEEING_MOTION_TYPE; }
@@ -69,7 +69,7 @@ class TimedFleeingMovementGenerator
             i_totalFleeTime(time) {}
 
         MovementGeneratorType GetMovementGeneratorType() { return TIMED_FLEEING_MOTION_TYPE; }
-        bool Update(Unit &, const uint32 &);
+        bool Update(Unit &, const uint32);
         void Finalize(Unit &);
 
     private:

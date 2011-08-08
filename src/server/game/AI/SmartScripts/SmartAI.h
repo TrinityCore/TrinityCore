@@ -100,10 +100,10 @@ class SmartAI : public CreatureAI
         void MoveInLineOfSight(Unit *who);
 
         // Called when hit by a spell
-        void SpellHit(Unit* pUnit, const SpellEntry* pSpell);
+        void SpellHit(Unit* pUnit, const SpellInfo* pSpell);
 
         // Called when spell hits a target
-        void SpellHitTarget(Unit* target, const SpellEntry* pSpell);
+        void SpellHitTarget(Unit* target, const SpellInfo* pSpell);
 
         // Called at any Damage from any attacker (before damage apply)
         void DamageTaken(Unit* done_by, uint32& damage);
@@ -157,7 +157,7 @@ class SmartAI : public CreatureAI
         void SetData(uint32 id, uint32 value);
 
         // Used in scripts to share variables
-        void SetGUID(const uint64 &guid, int32 id = 0);
+        void SetGUID(const uint64 guid, int32 id = 0);
 
         // Used in scripts to share variables
         uint64 GetGUID(int32 id = 0);

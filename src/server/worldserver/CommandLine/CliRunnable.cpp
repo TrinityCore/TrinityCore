@@ -104,9 +104,7 @@ void utf8print(void* /*arg*/, const char* str)
     printf(temp_buf);
 #else
 {
-    va_list v;
-    vprintf(str, v);
-    va_end(v);
+    printf(str);
     fflush(stdout);
 }
 #endif
@@ -447,7 +445,7 @@ bool ChatHandler::HandleCharacterEraseCommand(const char* args){
     uint64 character_guid;
     uint32 account_id;
 
-    Player* player = sObjectMgr->GetPlayer(character_name.c_str());
+    Player* player = sObjectAccessor->FindPlayerByName(character_name.c_str());
     if (player)
     {
         character_guid = player->GetGUID();

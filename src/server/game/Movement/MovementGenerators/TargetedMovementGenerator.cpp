@@ -173,7 +173,7 @@ TargetedMovementGenerator<T>::Reset(T &owner)
 
 template<class T>
 bool
-TargetedMovementGenerator<T>::Update(T &owner, const uint32 & time_diff)
+TargetedMovementGenerator<T>::Update(T &owner, const uint32 time_diff)
 {
     if (!i_target.isValid() || !i_target->IsInWorld())
         return false;
@@ -270,8 +270,8 @@ template void TargetedMovementGenerator<Player>::Finalize(Player &);
 template void TargetedMovementGenerator<Creature>::Finalize(Creature &);
 template void TargetedMovementGenerator<Player>::Reset(Player &);
 template void TargetedMovementGenerator<Creature>::Reset(Creature &);
-template bool TargetedMovementGenerator<Player>::Update(Player &, const uint32 &);
-template bool TargetedMovementGenerator<Creature>::Update(Creature &, const uint32 &);
+template bool TargetedMovementGenerator<Player>::Update(Player &, const uint32);
+template bool TargetedMovementGenerator<Creature>::Update(Creature &, const uint32);
 template Unit* TargetedMovementGenerator<Player>::GetTarget() const;
 template Unit* TargetedMovementGenerator<Creature>::GetTarget() const;
 

@@ -63,7 +63,7 @@ bool BattlegroundSA::ResetObjs()
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player *plr = sObjectMgr->GetPlayer(itr->first))
+            if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
                 SendTransportsRemove(plr);
 
     uint32 atF = BG_SA_Factions[Attackers];
@@ -246,7 +246,7 @@ bool BattlegroundSA::ResetObjs()
 
     for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player *plr = sObjectMgr->GetPlayer(itr->first))
+            if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
                 SendTransportInit(plr);
 
     TeleportPlayers();
@@ -265,7 +265,7 @@ void BattlegroundSA::StartShips()
     {
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
         {
-            if (Player* p = sObjectMgr->GetPlayer(itr->first))
+            if (Player* p = ObjectAccessor::FindPlayer(itr->first))
             {
                 UpdateData data;
                 WorldPacket pkt;
@@ -278,7 +278,7 @@ void BattlegroundSA::StartShips()
     ShipsStarted = true;
 }
 
-void BattlegroundSA::Update(uint32 diff)
+void BattlegroundSA::PostUpdateImpl(uint32 diff)
 {
     if (InitSecondRound)
     {
@@ -494,7 +494,7 @@ void BattlegroundSA::TeleportPlayers()
 {
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
     {
-        if (Player *plr = sObjectMgr->GetPlayer(itr->first))
+        if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
         {
             // should remove spirit of redemption
             if (plr->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
@@ -598,15 +598,15 @@ void BattlegroundSA::DemolisherStartState(bool start)
     }
 }
 
-void BattlegroundSA::DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent)
+void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
 {
-    uint32 i = GetGateIDFromDestroyEventID(destroyedEvent);
+    uint32 i = GetGateIDFromDestroyEventID(go->GetGOInfo()->building.destroyedEvent);
     if (!GateStatus[i])
         return;
 
     if (GameObject* g = GetBGObject(i))
     {
-        if (g->GetGOValue()->building.health == 0)
+        if (g->GetGOValue()->Building.Health == 0)
         {
             GateStatus[i] = BG_SA_GATE_DESTROYED;
             uint32 uws = GetWorldStateFromGateID(i);
@@ -635,9 +635,9 @@ void BattlegroundSA::DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroye
 
             if (i < 5)
                 DelObject(i+9);
-            UpdatePlayerScore(pl, SCORE_DESTROYED_WALL, 1);
+            UpdatePlayerScore(player, SCORE_DESTROYED_WALL, 1);
             if (rewardHonor)
-                UpdatePlayerScore(pl, SCORE_BONUS_HONOR, (GetBonusHonorFromKill(1)));
+                UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(1));
         }
     }
 }
@@ -799,7 +799,7 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 //Achievement Storm the Beach (1310)
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
-                    if (Player *plr = sObjectMgr->GetPlayer(itr->first))
+                    if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
                         if (plr->GetTeamId() == Attackers)
                             plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65246);
                 }
@@ -823,7 +823,7 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
                 //Achievement Storm the Beach (1310)
                 for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
                 {
-                    if (Player *plr = sObjectMgr->GetPlayer(itr->first))
+                    if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
                         if (plr->GetTeamId() == Attackers && RoundScores[1].winner == Attackers)
                             plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 65246);
                 }

@@ -17,6 +17,7 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Vehicle.h"
 
 /*######
 ## npc_agnetta_tyrsdottar
@@ -659,7 +660,11 @@ public:
             DoCast(me, SPELL_ICE_BLOCK, true);
         }
 
+<<<<<<< HEAD
         void DoAction(const int32 /*param*/)
+=======
+        void SpellHit(Unit* hitter, const SpellInfo* spell)
+>>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
         {
             me->Kill(me);
             me->Respawn();

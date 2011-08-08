@@ -47,8 +47,9 @@ BattlegroundDS::~BattlegroundDS()
 
 }
 
-void BattlegroundDS::Update(uint32 diff)
+void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
+<<<<<<< HEAD
     Battleground::Update(diff);
 
     if (GetStatus() == STATUS_IN_PROGRESS)
@@ -60,6 +61,11 @@ void BattlegroundDS::Update(uint32 diff)
         }
 
         if (GetStartTime() >= 75*IN_MILLISECONDS)
+=======
+    if (getWaterFallTimer() < diff)
+    {
+        if (isWaterFallActive())
+>>>>>>> beaca1bd348a4702ecfe91c5ae8cb7edf68cb5b4
         {
             for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
             {
@@ -165,7 +171,7 @@ void BattlegroundDS::HandleAreaTrigger(Player *Source, uint32 Trigger)
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
 
-    switch(Trigger)
+    switch (Trigger)
     {
         case 5347:
         case 5348:

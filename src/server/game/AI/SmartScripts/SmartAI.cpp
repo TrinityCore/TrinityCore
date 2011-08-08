@@ -606,12 +606,12 @@ void SmartAI::AttackStart(Unit* who)
     }
 }
 
-void SmartAI::SpellHit(Unit* pUnit, const SpellEntry* pSpell)
+void SmartAI::SpellHit(Unit* pUnit, const SpellInfo* pSpell)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, pUnit, 0, 0, false, pSpell);
 }
 
-void SmartAI::SpellHitTarget(Unit* target, const SpellEntry* pSpell)
+void SmartAI::SpellHitTarget(Unit* target, const SpellInfo* pSpell)
 {
     GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, pSpell);
 }
@@ -687,7 +687,7 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
 }
 
-void SmartAI::SetGUID(const uint64& /*guid*/, int32 /*id*/)
+void SmartAI::SetGUID(const uint64 /*guid*/, int32 /*id*/)
 {
 }
 
