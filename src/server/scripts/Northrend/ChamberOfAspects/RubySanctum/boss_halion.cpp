@@ -107,14 +107,13 @@ enum Events
     EVENT_INTRO_PROGRESS_3      = 11,
     EVENT_CHECK_CORPOREALITY    = 12,
     EVENT_SHADOW_PULSARS_SHOOT  = 13,
-    EVENT_HEAL_HALIONS          = 14,
 
     // Meteor Strike
-    EVENT_SPAWN_METEOR_FLAME    = 15,
+    EVENT_SPAWN_METEOR_FLAME    = 14,
 
     // Twilight Halion
-    EVENT_DARK_BREATH           = 16,
-    EVENT_SOUL_CONSUMPTION      = 17,
+    EVENT_DARK_BREATH           = 15,
+    EVENT_SOUL_CONSUMPTION      = 16,
 };
 
 enum Actions
@@ -157,10 +156,10 @@ Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
 
 Position const ShadowOrbsSpawnPos[4] =
 {
-    {3203.67f, 533.8108f, 74.6f, 3.160787f}, // North - On Heroic
-    {3109.67f, 533.8108f, 74.6f, 6.264683f}, // South - On Heroic
-    {3156.67f, 486.8108f, 74.6f, 1.593135f}, // East
-    {3156.67f, 580.8108f, 74.6f, 4.659930f} //  West
+    {3203.67f, 533.8108f, 74.6f, 3.159046f}, // North - On Heroic
+    {3109.67f, 533.8108f, 74.6f, 3.159046f}, // South - On Heroic
+    {3156.67f, 486.8108f, 74.6f, 3.159046f}, // East
+    {3156.67f, 580.8108f, 74.6f, 3.159046f} //  West
 };
 
 Position const PortalsSpawnPos[2] =
@@ -278,8 +277,11 @@ class boss_halion : public CreatureScript
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
                     events.SetPhase(PHASE_TWO);
+                    events.DelayEvents(2600); // 2.5 sec + 0.5 sec lag
 
                     Talk(SAY_PHASE_TWO);
+
+                    me->CastStop();
                     DoCast(me, SPELL_TWILIGHT_PHASING);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
@@ -290,6 +292,16 @@ class boss_halion : public CreatureScript
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->SetData(MATERIAL_DAMAGE_TAKEN, damage);
+            }
+
+            void SpellHitTarget(Unit* /*who*/, const SpellInfo* spell)
+            {
+                switch (spell->Id)
+                {
+                    case SPELL_TWILIGHT_PHASING:
+                        DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
+                        break;
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -436,23 +448,11 @@ class boss_twilight_halion : public CreatureScript
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
                 {
                     events.SetPhase(PHASE_THREE);
+                    events.DelayEvents(2600); // 2.5 sec + 0.5sec lag
 
+                    me->CastStop();
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
-                    DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
-                    DoCast(me, 74826); // 50% corporeality
                     Talk(SAY_PHASE_THREE);
-
-                    _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
-
-                    if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                        controller->AI()->DoAction(ACTION_PHASE_THREE);
-
-                    if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                    {
-                        halion->AI()->DoCast(halion, 74826); // 50% corporeality
-                        if (HalionAI* halionAI = CAST_AI(HalionAI, halion->AI()))
-                           halionAI->setEventsPhase(PHASE_THREE);
-                    }
                 }
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
@@ -462,13 +462,26 @@ class boss_twilight_halion : public CreatureScript
 
             void SpellHitTarget(Unit* /*who*/, const SpellInfo* spell)
             {
-                if (spell->Id != SPELL_TWILIGHT_DIVISION)
-                    return;
-
-                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                switch (spell->Id)
                 {
-                    halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
-                    halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    case SPELL_TWILIGHT_DIVISION:
+                    {
+                        DoCast(me, 74826); // 50% corporeality
+                        if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                        {
+                            halion->AI()->DoCast(halion, 74826); // 50% corporeality
+                            halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
+                            halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                            if (HalionAI* halionAI = CAST_AI(HalionAI, halion->AI()))
+                                halionAI->setEventsPhase(PHASE_THREE);
+                        }
+
+                        _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
+
+                        if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
+                            controller->AI()->DoAction(ACTION_PHASE_THREE);
+                        break;
+                    }
                 }
             }
 
@@ -656,7 +669,7 @@ class npc_halion_controller : public CreatureScript
                                 portal->Delete();
                                 portal->DeleteFromDB();
                             }
-                            }
+                        }
                         break;
                     }
                 }
@@ -709,9 +722,6 @@ class npc_halion_controller : public CreatureScript
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000, 1);
                             break;
                         }
-                        case EVENT_HEAL_HALIONS:
-                            if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                                halion->SetHealth(halion->GetHealth() < halion->GetMaxHealth() ? halion->GetHealth() * 1.75f : halion->MaxGetHealth());
                         case EVENT_CHECK_CORPOREALITY:
                         {
                             bool canUpdate = false;
@@ -731,12 +741,9 @@ class npc_halion_controller : public CreatureScript
                                     corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
                                     canUpdate = true;
                                 }
-                                
-                                _events.CancelEvent(EVENT_HEAL_HALIONS);
                             }
                             else
                             {
-                                _events.ScheduleEvent(EVENT_HEAL_HALIONS, 3000);
                                 _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
                                 break;
                             }
@@ -834,8 +841,10 @@ class npc_halion_controller : public CreatureScript
             uint32 GetStacksForPlayer(uint64 plrGUID)
             {
                 for (std::map<uint64, uint32>::iterator itr = _voidZonesStacks.begin(); itr != _voidZonesStacks.end(); ++itr)
+                {
                     if ((*itr).first == plrGUID)
                         return (*itr).second;
+                }
             }
 
         private:
@@ -1157,11 +1166,14 @@ class npc_shadow_orb : public CreatureScript
 
                 float destinationX = HalionSpawnPos.GetPositionX() + 47 * cosf(_angle);
                 float destinationY = HalionSpawnPos.GetPositionY() + 47 * sinf(_angle);
-                me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 74.6f);
-                _angle = (_angle >= 2 * M_PI) ? 0 : _angle - M_PI / 32;
+                //if (id == 1)
+                    me->GetMotionMaster()->MovePoint(1, destinationX, destinationY, 74.6f);
+                /*else
+                    me->NearTeleportTo(destinationX, destinationY, 74.6f, 3.14f);*/
+                _angle = (_angle >= 2 * M_PI) ? 0 : _angle - M_PI / 30;
 
                 // Distance between each point : x = 2 * 47 * sin(_angle/2);
-                // OK, they are going way too fast.
+                // Animation is not fluid at all.
                 // 1) Could Blizzard possibly implement a method like MoveAroundPoint(pointId, x, y, diameter) ?
                 // 2) Wrong speeds ? speed_walk is greater than speed_run ...
             }
