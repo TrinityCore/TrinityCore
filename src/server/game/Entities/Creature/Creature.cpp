@@ -144,7 +144,7 @@ m_AlreadyCallAssistance(false), m_AlreadySearchedAssistance(false), m_regenHealt
 m_isCaster(false),                              // Ist dieser NPC ein Caster?
 m_CasterDefaultMinCombatRange(10),              // Standard minimum Castrange für Caster
 m_CasterDefaultMaxCombatRange(30),              // Standard maximum Castrange für Caster
-m_CasterDefaultLoSRange(12),                    // Standard Distanz um LoS zu erreichen
+m_CasterDefaultLoSRange(10),                    // Standard Distanz um LoS zu erreichen
 m_CasterDefaultMelee(true),                     // Soll er Meleeattacken machen?
 m_formation(NULL)
 {
@@ -2451,14 +2451,12 @@ void Creature::HandleCaster()
     uint32 percent5 = 0;
     uint32 curmana = 0;
 
-    // Caster haben immer Mana, und müssen ein Minimum haben, damit sie nicht nur dumm in der Ecke herum stehen
+    // Caster haben immer Mana, und müssen ein Minimum haben, damit sie nicht nur dumm in der Ecke herum stehen (Ausnahme: Jäger)
     if (getPowerType() == POWER_MANA)
     {
         percent5 = (GetMaxPower(POWER_MANA)/100)*5;
         curmana = GetPower(POWER_MANA);
     }
-    else
-        return; // Kein Mana = kein Caster!
 
     float dist = GetDistance(getVictim());
     MovementGeneratorType MType = GetMotionMaster()->GetCurrentMovementGeneratorType();
@@ -2466,36 +2464,20 @@ void Creature::HandleCaster()
     // Nur bewegen, wenn nicht gecastet wird
     if (!IsNonMeleeSpellCasted(false))
     {
-        // Nicht genug Mana, oder nicht in Reichweite / LoS
-        if (curmana < percent5 || (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) || !IsWithinLOSInMap(getVictim())))
-        {
-            // Melee erlaubt und kein ausreichendes Mana
-            if (m_CasterDefaultMelee && curmana < percent5 && MType != TARGETED_MOTION_TYPE)
-                GetMotionMaster()->MoveChase(getVictim());
-            // Melee nicht erlaubt und kein ausreichendes Mana -> Nur in Reichweite bleiben
-            else if (!m_CasterDefaultMelee && curmana < percent5 && MType != TARGETED_MOTION_TYPE)
-                GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultMinCombatRange);
-            // Außer Reichweite -> Nur in Reichweite bleiben
-            else if (!IsInRange(getVictim(), m_CasterDefaultMinCombatRange, m_CasterDefaultMaxCombatRange) && MType != TARGETED_MOTION_TYPE)
-            {
-                // Auf die Hälfte von m_CasterDefaultMaxCombatRange + m_CasterDefaultMinCombatRange heran laufen
-                if (dist > m_CasterDefaultMaxCombatRange)
-                    GetMotionMaster()->MoveChase(getVictim(), (m_CasterDefaultMaxCombatRange+m_CasterDefaultMinCombatRange)/2);
-            }
-            // Nicht in LoS
-            else if (!IsWithinLOSInMap(getVictim()) && MType != TARGETED_MOTION_TYPE)
-                GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultLoSRange, float(urand(0,359)));
-
-            return;
-        }
+        // Nicht in LoS
+        if (!IsWithinLOSInMap(getVictim()))
+            GetMotionMaster()->MoveChase(getVictim(), m_CasterDefaultLoSRange, float(urand(0,359)));
+        // Nicht in Reichweite
+        else if (dist >= m_CasterDefaultMaxCombatRange)
+            GetMotionMaster()->MoveChase(getVictim(), (m_CasterDefaultMaxCombatRange+m_CasterDefaultMinCombatRange)/2);
+        // Melee erlaubt, und nicht genug Mana
+        else if (m_CasterDefaultMelee && curmana < percent5 && MType != TARGETED_MOTION_TYPE)
+            GetMotionMaster()->MoveChase(getVictim());
+        // Melee verboten, und nicht genug Mana
+        else if (!m_CasterDefaultMelee && curmana < percent5 && MType != TARGETED_MOTION_TYPE)
+            GetMotionMaster()->MoveChase(getVictim(), (m_CasterDefaultMaxCombatRange+m_CasterDefaultMinCombatRange)/2);
         // In Melee Reichweite, aber kein Melee erlaubt -> Fliehen!
         else if (!m_CasterDefaultMelee && dist <= ATTACK_DISTANCE && MType != FLEEING_MOTION_TYPE)
-        {
-            GetMotionMaster()->MoveFleeing(getVictim(), 3 * IN_MILLISECONDS);
-            return;
-        }
+            GetMotionMaster()->MoveFleeing(getVictim(), 2 * IN_MILLISECONDS);
     }
-    // Ansonsten nicht laufen als Caster
-    if (!IsNonMeleeSpellCasted(false) && MType != IDLE_MOTION_TYPE)
-        GetMotionMaster()->MoveIdle();
 }

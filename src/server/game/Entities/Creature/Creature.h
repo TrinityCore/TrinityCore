@@ -756,7 +756,7 @@ class Creature : public Unit, public GridObject<Creature>
         float m_CasterDefaultMinCombatRange;
         // Standard maximum Castrange für Caster = 30.
         float m_CasterDefaultMaxCombatRange;
-        // Standard Distanz für das erreichen von LoS = 12.
+        // Standard Distanz für das erreichen von LoS = 10.
         float m_CasterDefaultLoSRange;
         // Soll er Meleeattacken machen? Standard = true.
         bool m_CasterDefaultMelee;
