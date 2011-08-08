@@ -1107,17 +1107,6 @@ class spell_sindragosa_frost_beacon : public SpellScriptLoader
         }
 };
 
-class IsNotPlayerSelector
-{
-    public:
-        IsNotPlayerSelector() { }
-
-        bool operator()(Unit* unit)
-        {
-            return unit->GetTypeId() != TYPEID_PLAYER;
-        }
-};
-
 class spell_sindragosa_ice_tomb : public SpellScriptLoader
 {
     public:
@@ -1134,11 +1123,6 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
                 if (!sObjectMgr->GetGameObjectTemplate(GO_ICE_BLOCK))
                     return false;
                 return true;
-            }
-
-            void FilterTargets(std::list<Unit*>& unitList)
-            {
-                unitList.remove_if(IsNotPlayerSelector());
             }
 
             void SummonTomb()
@@ -1159,7 +1143,6 @@ class spell_sindragosa_ice_tomb : public SpellScriptLoader
             void Register()
             {
                 AfterHit += SpellHitFn(spell_sindragosa_ice_tomb_SpellScript::SummonTomb);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_sindragosa_ice_tomb_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
             }
         };
 
