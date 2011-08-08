@@ -2001,7 +2001,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
  (66666, 'spell_gen_vehicle_scaling'),
  (66667, 'spell_gen_vehicle_scaling'),
  (66668, 'spell_gen_vehicle_scaling'),
- (18350, 'spell_gen_soul_preserver'),
 -- instances
 -- Black Temple
 ( 41475, 'spell_boss_lady_malande_shield'),
