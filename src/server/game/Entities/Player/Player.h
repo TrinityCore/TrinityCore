@@ -2745,6 +2745,8 @@ class Player : public Unit, public GridObject<Player>
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
 
+        bool IsImmuneToEnvironmentalDamage();
+
         void ScheduleDelayedOperation(uint32 operation)
         {
             if (operation < DELAYED_END)
