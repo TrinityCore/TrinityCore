@@ -536,111 +536,17 @@ public:
 };
 
 /*######
-## Quest: Cold Hearted (12856)
-######*/
-
-enum eColdHearted
-{
-    SPELL_KILL_CREDIT_PRISONER          = 55144,
-    SPELL_KILL_CREDIT_DRAKE             = 55143,
-    SPELL_SUMMON_LIBERATED              = 55073
-};
-
-const Position FreedDrakeWaypoints[6] =
-{
-    {7250.15f, -2327.22f, 869.03f, 0.0f},
-    {7118.79f, -2122.05f, 841.32f, 0.0f},
-    {7052.86f, -1905.99f, 888.59f, 0.0f},
-    {7038.24f, -1822.77f, 857.94f, 0.0f},
-    {7044.09f, -1792.25f, 841.69f, 0.0f},
-    {7071.20f, -1780.73f, 822.42f, 0.0f}
-};
-
-class npc_freed_protodrake : public CreatureScript
-{
-public:
-    npc_freed_protodrake() : CreatureScript("npc_freed_protodrake") { }
-
-    struct npc_freed_protodrakeAI : public ScriptedAI
-    {
-        npc_freed_protodrakeAI(Creature* pCreature) : ScriptedAI(pCreature) { }
-
-        uint8 count;
-        bool wp_reached;
-        bool movementStarted;
-
-        void Reset()
-        {
-            count = 0;
-            wp_reached = false;
-            movementStarted = false;
-        }
-
-        void MovementInform(uint32 type, uint32 id)
-        {
-            if (type != POINT_MOTION_TYPE || id != count)
-                return;
-
-            if (id < 5)
-            {
-                ++count;
-                wp_reached = true;
-            }
-            else // reached village, give credits
-            {
-                Unit* player = me->GetVehicleKit()->GetPassenger(0); // get player
-                if (player && player->GetTypeId() == TYPEID_PLAYER)
-                {
-                    for (uint8 i = 1; i < 4; ++i) // try to get prisoners
-                        if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
-                        {
-                            if (prisoner->GetTypeId() != TYPEID_UNIT)
-                                return;
-
-                            DoCast(player, SPELL_KILL_CREDIT_PRISONER, true);
-                            //DoCast(player, SPELL_SUMMON_LIBERATED, true);
-                            prisoner->ExitVehicle();
-                            prisoner->ToCreature()->AI()->DoAction(0);
-                        }
-
-                    DoCast(player, SPELL_KILL_CREDIT_DRAKE, true);
-                    player->ExitVehicle();
-                }
-            }
-        }
-
-        void UpdateAI(const uint32 /*diff*/)
-        {
-            if (!me->isCharmed() && !movementStarted)
-            {
-                me->SetSpeed(MOVE_FLIGHT, 5.0f);
-                movementStarted = true;
-                wp_reached = true;
-            }
-
-            if (wp_reached)
-            {
-                wp_reached = false;
-                me->GetMotionMaster()->MovePoint(count, FreedDrakeWaypoints[count]);
-            }
-        }
-    };
-
-    CreatureAI* GetAI(Creature* pCreature) const
-    {
-        return new npc_freed_protodrakeAI(pCreature);
-    }
-};
-
-/*######
 ## npc_brunnhildar_prisoner
 ######*/
 
-enum eBrunnhildarPrisoner
-{
-    SPELL_ICE_BLOCK                   = 54894,
-    SPELL_ICE_SHARD                   = 55046,
-    SPELL_ICE_SHARD_IMPACT            = 55047
+enum brunhildar {
+    NPC_QUEST_GIVER            = 29592,
+
+    SPELL_ICE_PRISON           = 54894,
+    SPELL_KILL_CREDIT_PRISONER = 55144,
+    SPELL_KILL_CREDIT_DRAKE    = 55143,
+    SPELL_SUMMON_LIBERATED     = 55073,
+    SPELL_ICE_LANCE            = 55046
 };
 
 class npc_brunnhildar_prisoner : public CreatureScript

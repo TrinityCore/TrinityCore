@@ -464,20 +464,6 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                         damage = (m_caster->getLevel() - 60) * 4 + 60;
                         break;
                     }
-                    // Lightning Nova
-                    case 65279:
-                    {
-                        // Guessed: exponential diminution until max range of spell (100yd)
-                        float radius = GetSpellRadiusForHostile(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[0]));
-                        if (!radius)
-                            return;
-                        float distance = m_caster->GetDistance2d(unitTarget);
-                        if (distance > radius)
-                            damage = 0; 
-                        else
-                            damage *= pow(1.0f - distance / radius, 2);
-                        break; 
-                    }
                 }
                 break;
             }
@@ -813,7 +799,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 {
                     if (effIndex==0)
                     {
-                            unitTarget->ToPlayer()->SetReputation(m_spellInfo->EffectBasePoints[0]+1,21000);
+                            unitTarget->ToPlayer()->SetReputation(m_spellInfo->Effects[0].BasePoints+1,21000);
                     }
                     return;
                 }
@@ -1194,8 +1180,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                     if (m_UniqueTargetInfo.size())
                     {
-                        SpellEntry const * spellInfo = sSpellStore.LookupEntry(53385);
-                        int32 heal = SpellMgr::CalculateSpellEffectAmount(spellInfo, EFFECT_1) * damage / m_UniqueTargetInfo.size() / 100;
+                        SpellInfo const * spellInfo = sSpellMgr->GetSpellInfo(53385);
+                        int32 heal = spellInfo->Effects[EFFECT_1].CalcValue() * damage / m_UniqueTargetInfo.size() / 100;
 
                         m_caster->CastCustomSpell(unitTarget, 54172, &heal, NULL, NULL, true);
                     }
@@ -1561,12 +1547,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 return;
             }
-            // Hungering Cold 
-            if (m_spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_DK_HUNGERING_COLD) 
-            { 
-                unitTarget->CastSpell(m_caster, 51209, true); 
-                return; 
-            }
             switch (m_spellInfo->Id)
             {
             case 49560: // Death Grip
@@ -1616,7 +1596,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 45176: // Master Poisoner Proc Trigger (SERVERSIDE)
                 {
                     uint32 spellId = damage;
-                    uint32 value = SpellMgr::CalculateSpellEffectAmount(m_triggeredByAuraSpell, EFFECT_0);
+                    //uint32 value = SpellMgr::CalculateSpellEffectAmount(m_triggeredByAuraSpell, EFFECT_0);
+                    uint32 value = m_triggeredByAuraSpell->GetSpellInfo()->Effects[EFFECT_0].CalcValue();
 
                     if (AuraEffect * aurEff = unitTarget->GetAuraEffect(spellId, EFFECT_2, m_caster->GetGUID()))
                         aurEff->SetAmount(value);
@@ -1625,7 +1606,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 default:
                     break;
             }
-            break;
+            break; 
         default:
             break;
     }

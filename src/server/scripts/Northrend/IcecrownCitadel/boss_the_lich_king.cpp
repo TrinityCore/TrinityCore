@@ -24,6 +24,7 @@
 #include "icecrown_citadel.h"
 #include "Group.h"
 #include "MapManager.h"
+#include "Vehicle.h"
 
 #define GOSSIP_MENU 10600
 //#define GOSSIP_MENU "Long have I waited for this day, hero. Are you and your allies prepared to bring the Lich King to justice? We charge on your command!"
@@ -369,8 +370,8 @@ class boss_the_lich_king : public CreatureScript
                 if(me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                     me->GetMotionMaster()->MovementExpired();
 
-                if(SpellEntry* spellDefile = GET_SPELL(SPELL_SUMMON_DEFILE))
-                    spellDefile->DurationIndex = 3;
+                if(SpellEntry* lock = GET_SPELL(SPELL_SUMMON_DEFILE))
+		    spellDefile->DurationIndex = 3;
 
                 if(SpellEntry* lock = GET_SPELL(SPELL_ICEBLOCK_TRIGGER))
                     lock->Targets = 6; //target chain damage
@@ -428,7 +429,7 @@ class boss_the_lich_king : public CreatureScript
                 if(SpellEntry* spellInFrostMourne = GET_SPELL(SPELL_IN_FROSTMOURNE_ROOM))
                 {
                     spellInFrostMourne->AttributesEx3 = SPELL_ATTR3_DEATH_PERSISTENT;
-                }
+                }  
             }
 
             void EnterEvadeMode()
@@ -1611,7 +1612,7 @@ static const float Z_FLY;
                             //me->GetMotionMaster()->MovePoint(POINT_PLATFORM_END, MovePos[4]);
                         }
                     }
-                ScriptedAI::SpellHit(attacker, spellEntry);
+                ScriptedAI::SpellHit(attacker, spellInfo*);
             }
 
             void MovementInform(uint32 type, uint32 id)
@@ -2013,7 +2014,7 @@ class spell_lich_king_necrotic_plague : public SpellScriptLoader
                 }
                 if (stacksTransferred < 1)
                     stacksTransferred = 1;
-                uint32 spellId = aurEff->GetSpellProto()->Id;
+                uint32 spellId = aurEff->GetSpellInfo()->Id;
                 InstanceScript *_instance = target->GetInstanceScript();
                 if (_instance)
                 {
@@ -2104,10 +2105,10 @@ class spell_lich_king_defile : public SpellScriptLoader
                     return;
                 uint32 triggeredSpellId = SPELL_DEFILE_DAMAGE;
                 int32 triggeredSpellBaseDamage = 3000;
-                if (SpellEntry const* defileDamage = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(SPELL_DEFILE_DAMAGE), caster))
+                if (SpellInfo const* defileDamage = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellMgr->GetSpellInfo(SPELL_DEFILE_DAMAGE), caster))
                 {
                     triggeredSpellId = defileDamage->Id;
-                    triggeredSpellBaseDamage = (int32)(defileDamage->EffectBasePoints[EFFECT_0] * (1.0f + (pMap->IsHeroic() ? 0.1f : 0.05f) * m_hitCount));
+                    triggeredSpellBaseDamage = (int32)(defileDamage->Effects[EFFECT_0].BasePoints * (1.0f + (pMap->IsHeroic() ? 0.1f : 0.05f) * m_hitCount));
                 }
 
                 values.AddSpellMod(SPELLVALUE_BASE_POINT0, ((int32)(triggeredSpellBaseDamage)));
@@ -2132,7 +2133,7 @@ class spell_lich_king_defile : public SpellScriptLoader
                 if (!increaseRadius)
                     return;
 
-                if (SpellEntry const* defileIncrease = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(SPELL_DEFILE_INCREASE), caster))
+                if (SpellInfo const* defileIncrease = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellMgr->GetSpellInfo(SPELL_DEFILE_INCREASE), caster))
                 {
                     caster->CastSpell(caster, defileIncrease->Id, true);
                     if (Aura *defileIncreaseAura = caster->GetAura(defileIncrease->Id))
@@ -2179,7 +2180,7 @@ class spell_lich_king_infection : public SpellScriptLoader
                     //if (it != appMap.end())
                     //    appMap.erase(it);
                     PreventDefaultAction();
-                    GetTarget()->RemoveAurasDueToSpell(aurEff->GetSpellProto()->Id);
+                    GetTarget()->RemoveAurasDueToSpell(aurEff->GetSpellInfo()->Id);
                 }
             }
             void OnCalcAmount(AuraEffect const* aurEff, int32 & amount, bool & canBeRecalculated)
@@ -2227,7 +2228,7 @@ class spell_lich_king_valkyr_summon : public SpellScriptLoader
                     Position randomPos;
                     caster->GetRandomNearPosition(randomPos, 10.0f);
                     randomPos.m_positionZ = caster->GetPositionZ() + 6.0f;
-                    uint32 triggerSpellId = GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
+                    uint32 triggerSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
                     caster->CastSpell(randomPos.GetPositionX(), randomPos.GetPositionY(), randomPos.GetPositionZ(), triggerSpellId, true, NULL, NULL, GetCasterGUID(), caster);
                 }
             }
@@ -2276,7 +2277,7 @@ class spell_lich_king_vile_spirit_summon : public SpellScriptLoader
                 Position pos;
                 caster->GetRandomNearPosition(pos, 13.0f);
                 pos.m_positionZ = npc_vile_spirit_icc::Z_VILE_SPIRIT;
-                uint32 triggeredSpell = aurEff->GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
+                uint32 triggeredSpell = aurEff->GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
                 caster->CastSpell(pos.m_positionX, pos.m_positionY, pos.m_positionZ, triggeredSpell, true);
             }
 
@@ -2312,7 +2313,7 @@ class spell_lich_king_vile_spirit_summon_visual : public SpellScriptLoader
                 Position pos;
                 caster->GetRandomNearPosition(pos, 13.0f);
                 pos.m_positionZ = npc_vile_spirit_icc::Z_VILE_SPIRIT;
-                uint32 triggeredSpell = aurEff->GetSpellProto()->EffectTriggerSpell[aurEff->GetEffIndex()];
+                uint32 triggeredSpell = aurEff->GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
                 caster->CastSpell(pos.m_positionX, pos.m_positionY, pos.m_positionZ, triggeredSpell, true);
             }
 
@@ -3042,7 +3043,7 @@ public:
         {
             if (!alreadyReset)
             {
-                if (SpellEntry const* defileAuraSpellEntry = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellStore.LookupEntry(SPELL_DEFILE), me))
+                if (SpellInfo const* defileAuraSpellEntry = sSpellMgr->GetSpellForDifficultyFromSpell(sSpellMgr->GetSpellInfo(SPELL_DEFILE), me))
                     DoCast(me, defileAuraSpellEntry->Id, true);
                 //UpdateDefileAura();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);

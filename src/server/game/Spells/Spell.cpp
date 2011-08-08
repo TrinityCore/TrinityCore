@@ -1487,12 +1487,12 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
         // Chance resist debuff
         bool auraResist = false;
-        if (!IsPositiveSpell(m_spellInfo->Id))
+        if (!m_spellInfo->IsPositive())
         {
             bool bNegativeAura = false;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (m_spellInfo->EffectApplyAuraName[i] != 0)
+                if (m_spellInfo->Effects[i].ApplyAuraName != 0)
                 {
                     bNegativeAura = true;
                     break;
@@ -1502,7 +1502,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
             bool bDirectDamage = false;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (m_spellInfo->Effect[i] == SPELL_EFFECT_SCHOOL_DAMAGE || m_spellInfo->Effect[i] == SPELL_EFFECT_HEALTH_LEECH)
+                if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_SCHOOL_DAMAGE || m_spellInfo->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
                 {
                     bDirectDamage = true;
                     break;

@@ -213,6 +213,7 @@ class boss_sindragosa : public CreatureScript
                 events.ScheduleEvent(EVENT_ICY_GRIP, 33500, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_AIR_PHASE, 50000);
                 _mysticBuffetStack = 0;
+                _firstAirPhaseDone = false;
                 _isInAirPhase = false;
                 _isThirdPhase = false;
                 _bCanLand = true;
@@ -605,6 +606,7 @@ class boss_sindragosa : public CreatureScript
 
         private:
             uint8 _mysticBuffetStack;
+            bool _firstAirPhaseDone;
             bool _isInAirPhase;
             bool _isThirdPhase;
             bool _bCanLand;

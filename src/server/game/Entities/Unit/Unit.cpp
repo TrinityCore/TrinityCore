@@ -2597,7 +2597,7 @@ SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
         bool bDirectDamage = false;
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
-            if (spell->Effect[i] == SPELL_EFFECT_SCHOOL_DAMAGE || spell->Effect[i] == SPELL_EFFECT_HEALTH_LEECH)
+            if (spell->Effects[i].Effect == SPELL_EFFECT_SCHOOL_DAMAGE || spell->Effects[i].Effect == SPELL_EFFECT_HEALTH_LEECH)
             {
                 bDirectDamage = true;
                 break;
@@ -3752,7 +3752,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                     break;
             }
             // Wyvern Sting
-            if (aura->GetSpellProto()->SpellFamilyName == SPELLFAMILY_HUNTER && (aura->GetSpellProto()->SpellFamilyFlags[1] & 0x1000))
+            if (aura->GetSpellInfo()->SpellFamilyName == SPELLFAMILY_HUNTER && (aura->GetSpellInfo()->SpellFamilyFlags[1] & 0x1000))
             {
                 Unit * caster = aura->GetCaster();
                 if (caster && !(dispeller->GetTypeId() == TYPEID_UNIT && dispeller->ToCreature()->isTotem()))
@@ -8045,7 +8045,7 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                 {
                     if (this->GetHealth() <= ((this->GetMaxHealth()) * 0.35))
                     {
-                        int32 bp0 = (triggeredByAura->GetStackAmount()) * (dummySpell->EffectBasePoints[0]);
+                        int32 bp0 = (triggeredByAura->GetStackAmount()) * (dummySpell->Effects[0].BasePoints);
                         CastCustomSpell(this, 64569, &bp0, NULL, NULL, true);
                         *handled = true;
                     }

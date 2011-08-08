@@ -33,6 +33,7 @@ spell_motivate_a_tron
 EndContentData */
 
 #include "ScriptPCH.h"
+#include "Vehicle.h"
 
 /*######
 ## npc_royal_historian_archesonus
@@ -634,7 +635,7 @@ class npc_shoot_bunny : public CreatureScript
         {
             npc_shoot_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
 
-            void Reset()
+        void Reset()
             {
                 if (me->FindNearestCreature(NPC_TARGET, 3.0f, true))
                     if (Unit* vehSummoner = me->ToTempSummon()->GetSummoner())

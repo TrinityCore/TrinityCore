@@ -1530,8 +1530,8 @@ class npc_og_mekkatorque : public CreatureScript
                                 pPlayer->SendUpdateWorldState(WorldStates[n], 0);
                     }
                 }
-            }
-            */
+            }*/
+
             bool ValidateEscortState()
             {
                 if (!bControlWP_1 || !bControlWP_2)
@@ -1739,7 +1739,7 @@ class npc_og_cannon : public CreatureScript
                 uiRocket_timer = urand(1000, 5000);
             }
 
-            void SpellHit(Unit* pHitter, const SpellEntry* pSpell)
+            void SpellHit(Unit* pHitter, const SpellInfo* pSpell)
             {
                 if (pSpell->Id == SPELL_ROCKET)
                 {
@@ -1822,7 +1822,7 @@ class npc_og_bomber : public CreatureScript
                 if (who->GetEntry() != NPC_CANNON || !bAction || !who->HasAura(SPELL_CANNON_SHIELD))
                     return;
 
-                SpellEntry const* sEntry = sSpellStore.LookupEntry(SPELL_ROCKET);
+                SpellInfo const* sEntry = sSpellMgr->GetSpellInfo(SPELL_ROCKET);
                 me->CastSpell(who, sEntry, true);
                 CAST_AI(npc_og_cannon::npc_og_cannonAI, who->ToCreature()->AI())->SpellHit(me, sEntry);
                 bAction = false;

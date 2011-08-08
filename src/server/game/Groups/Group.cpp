@@ -519,7 +519,7 @@ void Group::ChangeLeader(const uint64 guid)
 
         for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
         {
-            Player *groupplayer = sObjectMgr->GetPlayer(citr->guid);
+            Player *groupplayer = ObjectAccessor::FindPlayer(citr->guid);
             if (!groupplayer)
                 continue;
 

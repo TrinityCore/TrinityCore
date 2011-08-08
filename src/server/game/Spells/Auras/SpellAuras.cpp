@@ -359,10 +359,10 @@ void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount)
     }
 
     // Mixology
-    if (m_spellProto->SpellFamilyName == SPELLFAMILY_POTION && caster /*&& caster->IsPlayer()*/ && caster->HasAura(53042))
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_POTION && caster /*&& caster->IsPlayer()*/ && caster->HasAura(53042))
     {
-        if (sSpellMgr->IsSpellMemberOfSpellGroup(m_spellProto->Id, SPELL_GROUP_ELIXIR_BATTLE) ||
-            sSpellMgr->IsSpellMemberOfSpellGroup(m_spellProto->Id, SPELL_GROUP_ELIXIR_GUARDIAN))
+        if (sSpellMgr->IsSpellMemberOfSpellGroup(m_spellInfo->Id, SPELL_GROUP_ELIXIR_BATTLE) ||
+            sSpellMgr->IsSpellMemberOfSpellGroup(m_spellInfo->Id, SPELL_GROUP_ELIXIR_GUARDIAN))
         {
             m_maxDuration *= 2;
             m_duration = m_maxDuration;
@@ -1596,7 +1596,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 // Wyvern Sting
                 // If implemented through spell_linked_spell it can't proc from breaking by damage
                 if (removeMode != AURA_REMOVE_BY_DEATH &&
-                    GetSpellProto()->SpellFamilyFlags[1] & 0x1000 && caster)
+                    GetSpellInfo()->SpellFamilyFlags[1] & 0x1000 && caster)
                 {
                     uint32 spell_id = 0;
                     switch(GetId())
@@ -1635,7 +1635,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
             break;
         case SPELLFAMILY_DRUID:
             // Enrage
-            if (GetSpellProto()->SpellFamilyFlags[0] & 0x80000)
+            if (GetSpellInfo()->SpellFamilyFlags[0] & 0x80000)
             {
                 if (target->HasAura(70726)) // Druid T10 Feral 4P Bonus
                 {
