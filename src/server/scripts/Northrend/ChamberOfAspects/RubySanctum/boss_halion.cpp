@@ -52,7 +52,7 @@ enum Spells
     SPELL_FIERY_COMBUSTION_SUMMON       = 74610,
     SPELL_COMBUSTION_DAMAGE_AURA        = 74629,
 
-    SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA = 70507, // Aura created in spell_dbc since missing in client dbc. Value based on 74567 & 74795 stackamount.
+    SPELL_SCALE_AURA                    = 70507, // Aura created in spell_dbc.
 
     // Twilight Halion
     SPELL_DARK_BREATH                   = 74806,
@@ -86,7 +86,7 @@ enum Spells
     // Shadow Orb
     SPELL_TWILIGHT_CUTTER               = 74768, // Unknown dummy effect (EFFECT_0)
     SPELL_TWILIGHT_CUTTER_TRIGGERED     = 74769,
-SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,
+    SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,
 };
 
 enum Events
@@ -142,9 +142,8 @@ enum Phases
 
 enum Misc
 {
-    MARK_STACKAMOUNT        = 1,
-    TWILIGHT_DAMAGE_TAKEN   = 2,
-    MATERIAL_DAMAGE_TAKEN   = 3,
+    TWILIGHT_DAMAGE_TAKEN   = 1,
+    MATERIAL_DAMAGE_TAKEN   = 2,
 };
 
 enum GUIDs
@@ -851,10 +850,9 @@ class npc_halion_controller : public CreatureScript
             uint32 GetStacksForPlayer(uint64 plrGUID)
             {
                 for (std::map<uint64, uint32>::iterator itr = _voidZonesStacks.begin(); itr != _voidZonesStacks.end(); ++itr)
-                {
                     if ((*itr).first == plrGUID)
                         return (*itr).second;
-                }
+                return 0;
             }
 
         private:
@@ -1037,23 +1035,24 @@ class npc_combustion : public CreatureScript
                     me->SetPhaseMask(0x21, true);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/)
+            void IsSummonedBy(Unit* summoner)
             {
                 // Let Halion Controller count as summoner
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                    controller->AI()->JustSummoned(me);
-            }
-
-            void SetData(uint32 type, uint32 data)
-            {
-                if (type == MARK_STACKAMOUNT)
                 {
-                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_AURA_STACK, data, me, true);
-                    int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
-                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me, true);
-                    DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA);
+                    controller->AI()->JustSummoned(me);
+
+                    // Get stacks of Marks of Combustion that were on the caster
+                    uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
+                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
+
+                    me->CastCustomSpell(SPELL_SCALE_AURA, SPELLVALUE_AURA_STACK, stacks, me, true);
+                    DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA); // Void zone visual
+                    int32 damage = 1200 + (stacks * 1290);
+                    me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                 }
             }
+
 
             void UpdateAI(uint32 const /*diff*/) { }
 
@@ -1082,21 +1081,21 @@ class npc_consumption : public CreatureScript
                     me->SetPhaseMask(0x21, true);
             }
 
-            void IsSummonedBy(Unit* /*summoner*/)
+            void IsSummonedBy(Unit* summoner)
             {
                 // Let Halion Controller count as summoner
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                    controller->AI()->JustSummoned(me);
-            }
-
-            void SetData(uint32 type, uint32 data)
-            {
-                if (type == MARK_STACKAMOUNT)
                 {
-                    me->CastCustomSpell(SPELL_COMBUSTION_CONSUMPTION_SCALE_AURA, SPELLVALUE_BASE_POINT0, data * 2, me, true);
-                    int32 damage = 1200 + (data * 1290); // Hardcoded values from guessing. Need some more research.
+                    controller->AI()->JustSummoned(me);
+                   
+                    // Get stacks of Marks of Consumption that were on the caster
+                    uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
+                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
+
+                    me->CastCustomSpell(SPELL_SCALE_AURA, SPELLVALUE_AURA_STACK, stacks, me, true);
+                    DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA); // Void zone visual
+                    int32 damage = 1200 + (stacks * 1290);
                     me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
-                    DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA);
                 }
             }
 
@@ -1438,17 +1437,9 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
                 if (!instance)
                     return;
 
-                uint32 stacks = 1;
-                if (Creature* controller = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_HALION_CONTROLLER)))
-                {
-                    stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(caster->GetGUIDLow());
-                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(caster->GetGUIDLow());
-                }
-
                 Position pos;
                 caster->GetPosition(&pos);
-                if (TempSummon* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
-                    summon->AI()->SetData(MARK_STACKAMOUNT, stacks);
+                caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id);
             }
 
             void Register()
