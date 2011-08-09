@@ -1196,7 +1196,7 @@ public:
         WorldDatabase.PExecute("INSERT INTO creature_formations (leaderGUID, memberGUID, dist, angle, groupAI) VALUES ('%u', '%u', '%f', '%f', '%u')",
             leaderGUID, lowguid, group_member->follow_dist, group_member->follow_angle, group_member->groupAI);
 
-        handler->PSendSysMessage("Creature %u added to formation with leader %u", lowguid, leaderGUID);
+        handler->PSendSysMessage("Creature %u was added to formation with leader %u", lowguid, leaderGUID);
 
         return true;
     }
@@ -1226,7 +1226,7 @@ public:
 
         if (!sObjectMgr->SetCreatureLinkedRespawn(creature->GetDBTableGUIDLow(), linkguid))
         {
-            handler->PSendSysMessage("Selected creature can't link with guid '%u'", linkguid);
+            handler->PSendSysMessage("Selected creature can't be linked with guid '%u'", linkguid);
             handler->SetSentErrorMessage(true);
             return false;
         }
