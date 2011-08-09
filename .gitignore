@@ -8,3 +8,4 @@ build/
 *.kdev*
 *.bak
 log/
+diff/tausendwinter.patch
