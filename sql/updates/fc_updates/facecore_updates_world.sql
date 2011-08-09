@@ -347,10 +347,6 @@ UPDATE `spell_bonus_data` SET `direct_bonus` = 0, `dot_bonus` = 0 WHERE `entry` 
 -- Fixed shaman's talent Elemental Focus
 UPDATE `spell_proc_event` SET `SpellFamilyMask0` = `SpellFamilyMask0` &~ 192 WHERE `entry` = 16164;
 
--- Blood reserve proc
-DELETE FROM `spell_proc_event` WHERE `entry` IN (64568);
-INSERT INTO `spell_proc_event` VALUES (64568, 0x00, 0x00, 0x00000000, 0x00000000, 0x00000000, 0x001A22A8, 0x00000000, 0, 100, 3);
-
 -- Fix bug with cannons movement in Strange of Ancients
 UPDATE `creature_template` SET `speed_run` = 0  WHERE `entry` in (27894, 32795);
 
