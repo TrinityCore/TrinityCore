@@ -1244,8 +1244,7 @@ void Player::StopMirrorTimer(MirrorTimerType Type)
 
 bool Player::IsImmuneToEnvironmentalDamage()
 {
-    // also check for spirit of redemption aura
-    return (!isAlive() || isGameMaster() || HasAura(27827));
+    return (!isAlive() || isGameMaster() || !isAttackableByAOE());
 }
 
 uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
