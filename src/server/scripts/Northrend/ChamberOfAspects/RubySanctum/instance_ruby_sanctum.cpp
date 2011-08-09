@@ -235,6 +235,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                         {
                             case DONE:
                             case FAIL:
+                            case NOT_STARTED:
                                 DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
                                 HandleGameObject(FlameRingGUID, true);
                                 break;

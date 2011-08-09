@@ -306,6 +306,13 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                // Evade if the targets are out of the fire circle.
+                if (me->GetPositionZ() > 76.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 if (!UpdateVictim() && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)))
@@ -492,6 +499,13 @@ class boss_twilight_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                // Evade if the targets are out of the fire circle.
+                if (me->GetPositionZ() > 76.0f)
+                {
+                    EnterEvadeMode();
+                    return;
+                }
+
                 // Twilight Halion's health is influenced by the Physical one's only on phase 3.
                 me->SetHealth(_instance->GetData(DATA_HALION_SHARED_HEALTH));
 
