@@ -8040,17 +8040,6 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
         case SPELLFAMILY_GENERIC:
             switch (dummySpell->Id)
             {
-                //Blood Reserve
-                case 64568:
-                {
-                    if (this->GetHealth() <= ((this->GetMaxHealth()) * 0.35))
-                    {
-                        int32 bp0 = (triggeredByAura->GetStackAmount()) * (dummySpell->Effects[0].BasePoints);
-                        CastCustomSpell(this, 64569, &bp0, NULL, NULL, true);
-                        *handled = true;
-                    }
-                    break;
-                }
                 // Nevermelting Ice Crystal
                 case 71564:
                     RemoveAuraFromStack(71564);
