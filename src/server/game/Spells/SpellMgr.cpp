@@ -3455,6 +3455,58 @@ void SpellMgr::LoadDbcDataCorrections()
             spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
             //++count;
             break;
+        //Lich King custom script spells
+        case 72762:
+            spellInfo->DurationIndex = 3;
+            break;
+        case 71614:
+            spellInfo->Targets = 6;
+            break;
+        case 69410:
+            spellInfo->Targets = 1;
+            break;
+        case 74074:
+            spellInfo->Targets = 18;
+            break;
+        case 73529:
+            spellInfo->EffectRadiusIndex[1] = 13;
+            break;
+        case 69200:
+            spellInfo->DurationIndex = 28;
+            spellInfo->Effect[0] = 6;
+            break;
+        case 72350:
+            spellInfo->Effect[1] = SPELL_EFFECT_INSTAKILL;
+            spellInfo->EffectRadiusIndex[0] = 22;
+            spellInfo->EffectRadiusIndex[1] = 22;
+            spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENEMY_SRC;
+            spellInfo->EffectAmplitude[0] = 50000;
+            break;
+        case 72351:
+            spellInfo->EffectRadiusIndex[0] = 22;
+            break;
+        case 72429:
+            spellInfo->EffectRadiusIndex[0] = 4;
+            spellInfo->AttributesEx3 |= SPELL_ATTR3_REQUIRE_DEAD_TARGET;
+            break;
+        case 72754:
+            spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
+            spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
+            break;
+        case 68981:
+            spellInfo->Effect[2] = 0;
+            break;
+        case 73159:
+            spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_AREA_ENEMY_SRC;
+            spellInfo->EffectRadiusIndex[0] = 22;
+            break;
+        case 72376:
+            spellInfo->EffectRadiusIndex[0] = 22;
+            break;
+        case 74276:
+            spellInfo->AttributesEx3 = SPELL_ATTR3_DEATH_PERSISTENT;
+        // End Lich King spells
         default:
             break;
         }
