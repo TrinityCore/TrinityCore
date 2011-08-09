@@ -278,7 +278,7 @@ class boss_halion : public CreatureScript
                 if (me->HealthBelowPctDamaged(75, damage) && (events.GetPhaseMask() & PHASE_ONE_MASK))
                 {
                     events.SetPhase(PHASE_TWO);
-                    events.DelayEvents(2600); // 2.5 sec + 0.5 sec lag
+                    events.DelayEvents(2600); // 2.5 sec + 0.1 sec lag
 
                     Talk(SAY_PHASE_TWO);
 
@@ -454,7 +454,7 @@ class boss_twilight_halion : public CreatureScript
                 if (me->HealthBelowPctDamaged(50, damage) && (events.GetPhaseMask() & PHASE_TWO_MASK))
                 {
                     events.SetPhase(PHASE_THREE);
-                    events.DelayEvents(2600); // 2.5 sec + 0.5sec lag
+                    events.DelayEvents(2600); // 2.5 sec + 0.1sec lag
 
                     me->CastStop();
                     DoCast(me, SPELL_TWILIGHT_DIVISION);
