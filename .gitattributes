@@ -14,3 +14,4 @@
 
 # special files which must ignore whitespace
 *.patch      whitespace=-trailing-space
+*.diff       whitespace=-trailing-space
