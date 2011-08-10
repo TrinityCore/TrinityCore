@@ -1,17 +1,20 @@
+-- Missing spell
 DELETE FROM `spell_dbc` WHERE `id`=70507;
 INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`CastingTimeIndex`,`ProcChance`,`DurationIndex`,`RangeIndex`,`StackAmount`,`Effect1`,`EffectBasePoints1`,`EffectImplicitTargetA1`,`EffectApplyAuraName1`,`DmgMultiplier1`,`Comment`) VALUES
 (70507,0x00000100,0x00000400,0x0,1,101,21,1,99,6,10,1,61,1, 'Halion - Combustion & Consumption Scale Aura');
 
+-- Creatures respawn time (bosses)
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
 UPDATE `gameobject` SET `phaseMask`=`phaseMask`|0x20 WHERE `id`=203007; -- Ruby Sanctum Halion Flame Ring
 
-UPDATE `creature_template` SET `scale`=1,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_consumption' WHERE `entry`=40135; -- Consumption
+-- Creature Templates updates
+UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_consumption' WHERE `entry`=40135; -- Consumption
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 ,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=2,`unit_flags`=33554432 WHERE `entry`=40091; -- Orb Rotation Focus
 UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
-UPDATE `creature_template` SET `ScriptName`= 'boss_halion' WHERE `entry`=39863;
-UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion' WHERE `entry`=40142;
-UPDATE `creature_template` SET `ScriptName`= 'npc_halion_controller' WHERE `entry`=40146;
+UPDATE `creature_template` SET `ScriptName`= 'boss_halion' WHERE `entry`=39863; -- Halion
+UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion' WHERE `entry`=40142; -- Twilight Halion
+UPDATE `creature_template` SET `flags_extra`=130,`ScriptName`= 'npc_halion_controller' WHERE `entry`=40146; -- Halion Controller
 UPDATE `creature_template` SET `flags_extra`=2,`unit_flags`=33554432,`baseattacktime`=2000,`speed_walk`=2.4,`speed_run`=0.85714,`faction_A`=14,`faction_H`=14,`exp`=2,`maxlevel`=80,`minlevel`=80, `ScriptName`= 'npc_shadow_orb' WHERE `entry` IN (40083, 40100, 40469, 40468);
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029; -- Meteor Strike Initial
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
@@ -19,12 +22,14 @@ UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor 
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (39863, 40142);
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
-(40142,0,0,0,0,0, '75476 78243'),
-(39863,0,0,0,0,0, '78243');
+(40142,0,0,0,0,0, '75476 78243'), -- Twilight Halion: Twilight precision + Dusk Shroud
+(39863,0,0,0,0,0, '78243'); -- Halion: Twilight Precision
 
 -- This is INCORRECT and BREAKS TC STANDARDS by editing WDB field data10
+-- Best would be to create the sniffed spell in the spell_dbc table.
 UPDATE gameobject_template SET data10=74807 WHERE entry IN (202794, 202795);
 
+-- Spell scripts
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_fiery_combustion';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_soul_consumption';

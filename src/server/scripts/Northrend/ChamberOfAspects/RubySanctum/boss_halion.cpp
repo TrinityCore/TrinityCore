@@ -67,7 +67,7 @@ enum Spells
     SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 2 to phase 3
     SPELL_LEAVE_TWILIGHT_REALM          = 74812,
     SPELL_TWILIGHT_PHASING              = 74808,    // Phase spell from phase 1 to phase 2
-    SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794
+    SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794 - Bugged with Shauren's patch, will despawn as soon as used - Use workaround
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
@@ -224,7 +224,7 @@ class boss_halion : public CreatureScript
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetMaxHealth());
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
+                instance->DoCastSpellOnPlayers(SPELL_LEAVE_TWILIGHT_REALM);
             }
 
             // This is triggered by the TwilightHalionAI::JustDied, but can of course be triggered on its own.
@@ -235,7 +235,7 @@ class boss_halion : public CreatureScript
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, DONE);
 
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
+                instance->DoCastSpellOnPlayers(SPELL_LEAVE_TWILIGHT_REALM);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FIERY_COMBUSTION);
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SOUL_CONSUMPTION);
 
@@ -255,7 +255,7 @@ class boss_halion : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetBossState(DATA_HALION, FAIL);
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
+                instance->DoCastSpellOnPlayers(SPELL_LEAVE_TWILIGHT_REALM);
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                 {
@@ -282,6 +282,7 @@ class boss_halion : public CreatureScript
                     Talk(SAY_PHASE_TWO);
 
                     me->CastStop();
+                    
                     DoCast(me, SPELL_TWILIGHT_PHASING);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
@@ -294,15 +295,15 @@ class boss_halion : public CreatureScript
                         controller->AI()->SetData(MATERIAL_DAMAGE_TAKEN, damage);
             }
 
-            void SpellHitTarget(Unit* /*who*/, const SpellInfo* spell)
-            {
-                switch (spell->Id)
-                {
-                    case SPELL_TWILIGHT_PHASING:
-                        DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
-                        break;
-                }
-            }
+            // void SpellHitTarget(Unit* /*who*/, const SpellInfo* spell)
+            // {
+            //     switch (spell->Id)
+            //     {
+            //         case SPELL_TWILIGHT_PHASING:
+            //             DoCast(me, SPELL_SUMMON_TWILIGHT_PORTAL);
+            //             break;
+            //     }
+            // }
 
             void UpdateAI(uint32 const diff)
             {
@@ -423,7 +424,7 @@ class boss_twilight_halion : public CreatureScript
                     Talk(SAY_KILL);
 
                 // Victims should not be in the Twilight Realm
-                victim->RemoveAurasDueToSpell(SPELL_TWILIGHT_REALM);
+                me->CastSpell(victim, SPELL_LEAVE_TWILIGHT_REALM, true);
             }
 
             void JustDied(Unit* killer)
@@ -438,7 +439,7 @@ class boss_twilight_halion : public CreatureScript
                         killer->Kill(halion);
                 }
 
-                _instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_TWILIGHT_REALM);
+                _instance->DoCastSpellOnPlayers(SPELL_LEAVE_TWILIGHT_REALM);
             }
 
             void JustReachedHome()
@@ -642,7 +643,15 @@ class npc_halion_controller : public CreatureScript
                             me->SummonCreature(NPC_SHADOW_ORB_S, ShadowOrbsSpawnPos[1]);
                         }
                         me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
-                        me->setActive(false);
+
+                        if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                        {
+                            if (GameObject* portal = me->SummonGameObject(GO_HALION_PORTAL_1, halion->GetPositionX(), halion->GetPositionY(), halion->GetPositionZ(), 0, 0, 0, 0, 0, 8 * MINUTE * IN_MILLISECONDS))
+                            {
+                                portal->SetPhaseMask(0x1, true);
+                                _instance->OnGameObjectCreate(portal);
+                            }
+                        }
                         break;
                     }
                     case ACTION_PHASE_THREE:
@@ -692,6 +701,14 @@ class npc_halion_controller : public CreatureScript
                                 portal->Delete();
                                 portal->DeleteFromDB();
                             }
+                        }
+
+                        if (GameObject* portal = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_ENTER_PORTAL)))
+                        {
+                            me->RemoveGameObject(portal, false);
+                            portal->SetRespawnTime(0);
+                            portal->Delete();
+                            portal->DeleteFromDB();
                         }
                         break;
                     }
@@ -878,7 +895,7 @@ class npc_halion_controller : public CreatureScript
             uint8 corporealityValue; // We always refer to the PHYSICAL VALUE.
             uint64 _orbRotationFocusGUID;
             uint64 _shadowOrbsGUIDs[4];
-            std::map<uint64, uint32> _voidZonesStacks;
+            std::map<uint64 /*plrGuid*/, uint32 /*stacks*/> _voidZonesStacks;
         };
 
         CreatureAI* GetAI(Creature* creature) const

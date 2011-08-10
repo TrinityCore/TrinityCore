@@ -51,6 +51,7 @@ enum DataTypes
     DATA_TWILIGHT_HALION                    = 16,
     DATA_EXIT_PORTAL_1                      = 17,
     DATA_EXIT_PORTAL_2                      = 18,
+    DATA_ENTER_PORTAL                       = 19,
 };
 
 enum SharedActions

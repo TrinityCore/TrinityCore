@@ -51,6 +51,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                 memset(ZarithianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
                 memset(ExitPortalsGUID, 0, 2 * sizeof(uint64));
+                EnterPortalGUID = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -133,6 +134,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                         else
                             ExitPortalsGUID[1] = go->GetGUID();
                         break;
+                    case GO_HALION_PORTAL_1:
+                        EnterPortalGUID = go->GetGUID();
+                        break;
                     default:
                         break;
                 }
@@ -165,9 +169,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_GENERAL_ZARITHRIAN:
                         return GeneralZarithrianGUID;
                     case DATA_ZARITHIAN_SPAWN_STALKER_1:
-                        return ZarithianSpawnStalkerGUID[0];
                     case DATA_ZARITHIAN_SPAWN_STALKER_2:
-                        return ZarithianSpawnStalkerGUID[1];
+                        return ZarithianSpawnStalkerGUID[type - DATA_ZARITHIAN_SPAWN_STALKER_1];
                     case DATA_HALION:
                         return HalionGUID;
                     case DATA_HALION_CONTROLLER:
@@ -175,19 +178,17 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_TWILIGHT_HALION:
                         return TwilightHalionGUID;
                     case DATA_BURNING_TREE_1:
-                        return BurningTreeGUID[0];
                     case DATA_BURNING_TREE_2:
-                        return BurningTreeGUID[1];
                     case DATA_BURNING_TREE_3:
-                        return BurningTreeGUID[2];
                     case DATA_BURNING_TREE_4:
-                        return BurningTreeGUID[3];
+                        return BurningTreeGUID[type - DATA_BURNING_TREE_1];
                     case DATA_FLAME_RING:
                         return FlameRingGUID;
                     case DATA_EXIT_PORTAL_1:
-                        return ExitPortalsGUID[0];
                     case DATA_EXIT_PORTAL_2:
-                        return ExitPortalsGUID[1];
+                        return ExitPortalsGUID[type - DATA_EXIT_PORTAL_1];
+                    case DATA_ENTER_PORTAL:
+                        return EnterPortalGUID;
                     default:
                         break;
                 }
@@ -346,7 +347,9 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 ZarithianSpawnStalkerGUID[2];
             uint64 BurningTreeGUID[4];
             uint64 ExitPortalsGUID[2];
+            uint64 EnterPortalGUID;
             uint64 FlameRingGUID;
+
             uint32 BaltharusSharedHealth;
             uint32 HalionSharedHealth;
         };
