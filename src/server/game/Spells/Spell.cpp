@@ -515,6 +515,7 @@ m_caster(caster), m_spellValue(new SpellValue(m_spellInfo))
         _triggeredCastFlags = TRIGGERED_FULL_MASK;
 
     m_CastItem = NULL;
+    m_castItemGUID = 0;
 
     unitTarget = NULL;
     itemTarget = NULL;
