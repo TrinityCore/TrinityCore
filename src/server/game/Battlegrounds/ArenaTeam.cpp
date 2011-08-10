@@ -794,6 +794,37 @@ void ArenaTeam::MemberWon(Player* plr, uint32 againstMatchmakerRating, int32 Mat
             // update unit fields
             plr->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK, itr->WeekGames);
             plr->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, itr->SeasonGames);
+
+            // Pach titres arènes ( Original © Diabu )
+            QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*), (SELECT COUNT(*) FROM `arena_team_member` WHERE `personal_rating` > %u) FROM `arena_team_member`", plr->GetArenaPersonalRating(GetSlot()));
+            if (Field* data = result->Fetch())
+            {
+                uint32 count = data[0].GetUInt32();
+                uint32 pos = data[1].GetUInt32();
+                if (pos <= count * 0.35)
+                {
+                    const AchievementEntry* AE = sAchievementStore.LookupEntry(2090);
+                    plr->GetAchievementMgr().CompletedAchievement(AE);
+                }
+
+                if (pos <= count * 0.10)
+                {
+                    const AchievementEntry* AE = sAchievementStore.LookupEntry(2093);
+                    plr->GetAchievementMgr().CompletedAchievement(AE);
+                }
+
+                if (pos <= count * 0.03)
+                {
+                    const AchievementEntry* AE = sAchievementStore.LookupEntry(2092);
+                    plr->GetAchievementMgr().CompletedAchievement(AE);
+                }
+
+                if (pos <= count * 0.005)
+                {
+                    const AchievementEntry* AE = sAchievementStore.LookupEntry(2091);
+                    plr->GetAchievementMgr().CompletedAchievement(AE);
+                }
+            }
             return;
         }
     }
