@@ -771,15 +771,15 @@ class npc_halion_controller : public CreatureScript
                                 {
                                     TwilightDamageTaken = 0;
                                     MaterialDamageTaken = 0;
-                                    corporealityValue = (corporealityValue == 0 ? 0 : corporealityValue - 10);
                                     canUpdate = (corporealityValue != 0);
+                                    if (canUpdate) { corporealityValue -= 10; }
                                 }
                                 else if (TwilightDamageTaken >= 1.02 * MaterialDamageTaken)
                                 {
                                     TwilightDamageTaken = 0;
                                     MaterialDamageTaken = 0;
-                                    corporealityValue = (corporealityValue == 100 ? 100 : corporealityValue + 10);
                                     canUpdate = (corporealityValue != 100);
+                                    if (canUpdate) { corporealityValue += 10; }
                                 }
                             }
                             else
