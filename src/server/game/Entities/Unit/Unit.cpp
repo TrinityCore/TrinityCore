@@ -12459,6 +12459,14 @@ bool Unit::isAlwaysVisibleFor(WorldObject const* seer) const
         if (seer->GetGUID() == guid)
             return true;
 
+    // Pets are always seen for group members
+    if (const Player* seerPlayer = seer->ToPlayer())
+        if (const Unit* owner =  GetOwner())
+            if (const Player* ownerPlayer = owner->ToPlayer())
+                if (ownerPlayer->IsGroupVisibleFor(seerPlayer))
+                    return true;
+
+
     return false;
 }
 
