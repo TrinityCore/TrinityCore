@@ -41,35 +41,10 @@ class TCSoapRunnable: public ACE_Based::Runnable
             m_port = port;
         }
     private:
+        void process_message(ACE_Message_Block *mb);
+
         std::string m_host;
         uint16 m_port;
-};
-
-class SOAPWorkingThread : public ACE_Task<ACE_MT_SYNCH>
-{
-    public:
-        SOAPWorkingThread() { }
-
-        virtual int svc(void)
-        {
-            while(1)
-            {
-                ACE_Message_Block *mb = 0;
-                if (this->getq(mb) == -1)
-                {
-                    ACE_DEBUG((LM_INFO,
-                        ACE_TEXT("(%t) Shutting down\n")));
-                    break;
-                }
-
-                // Process the message.
-                process_message(mb);
-            }
-
-            return 0;
-        }
-    private:
-        void process_message(ACE_Message_Block *mb);
 };
 
 class SOAPCommand

@@ -8559,7 +8559,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                     case 30885: // Nature's Guardian Rank 4
                     case 30886: // Nature's Guardian Rank 5
                     {
-                        if (GetHealthPct() < 30)
+                        if (HealthBelowPct(30))
                         {
                             basepoints0 = int32(auraSpellInfo->Effects[EFFECT_0].CalcValue() * GetMaxHealth() / 100.0f);
                             target = this;
