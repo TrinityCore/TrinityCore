@@ -4489,7 +4489,8 @@ int32 Unit::GetTotalAuraModifierByMiscValue(AuraType auratype, int32 misc_value,
     {
         if (spellProto)
         {
-            if (!(spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && spellProto->SpellIconID == 548 && (*i)->GetId() == 58943)) // Mind Flay & Da Voodoo Shuffle
+            // Mind Flay & Da Voodoo Shuffle
+            if (!(spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && spellProto->SpellIconID == 548 && (*i)->GetId() == 58943))
             {
                 if ((*i)->GetMiscValue() == misc_value)
                     modifier += (*i)->GetAmount();
@@ -11659,9 +11660,9 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
         // Check for immune to application of harmful magical effects
         AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
         for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
-            if (spellInfo->Dispel == DISPEL_MAGIC &&                                      // Magic debuff
-                ((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&  // Check school
-                !spellInfo->IsPositiveEffect(index))                                  // Harmful
+            if ((spellInfo->Dispel == DISPEL_MAGIC || spellInfo->Dispel == DISPEL_CURSE)    // Magic or curse debuff
+                && ((*iter)->GetMiscValue() & spellInfo->GetSchoolMask())                   // Check school
+                && !spellInfo->IsPositiveEffect(index))                                     // Harmful
                 return true;
     }
 
