@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -76,8 +76,7 @@ enum Phases
 
 enum Diverse
 {
-    BALTHARUS_CLONE_OUTDOOR = 60006,
-    BALTHARUS_EVENT_TIME = STUNDE
+    BALTHARUS_CLONE_OUTDOOR = 60006
 };
 
 class boss_baltharus_the_warborn_outdoor : public CreatureScript
@@ -89,8 +88,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
         {
             boss_baltharus_the_warborn_outdoorAI(Creature * creature) : WorldBossAI(creature)
             {
-                eventTimer = BALTHARUS_EVENT_TIME;
-                eventsOOC.ScheduleEvent(EVENT_TIMER, MINUTEN_10);
+                me->SetHomePosition(4458.606f,-168.933f,86.58399f,0.0f); // Dies entspricht nicht dem Spawnpunkt (DB), deshalb hier setzen!
 
                 _introDone = false;
                 _random = false;
@@ -98,35 +96,8 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
 
             void Reset()
             {
-                me->SetHomePosition(4458.606f,-168.933f,86.58399f,0.0f); // Dies entspricht nicht dem Spawnpunkt (DB), deshalb hier setzen!
-
                 _Reset();
                 _cloneCount = 2;
-            }
-
-            void SendeRestlicheEventZeit()
-            {
-                if (eventTimer > MINUTEN_10)
-                    eventTimer = eventTimer - MINUTEN_10;
-                else
-                    return;
-
-                eventsOOC.RescheduleEvent(EVENT_TIMER, MINUTEN_10);
-
-                std::string str = "ACHTUNG: ";
-                str.append(me->GetName());
-                str.append(" wird in ");
-
-                switch(eventTimer)
-                {
-                    case 3000000: str.append("50"); break;
-                    case 2400000: str.append("40"); break;
-                    case 1800000: str.append("30"); break;
-                    case 1200000: str.append("20"); break;
-                    case 600000:  str.append("10"); break;
-                }
-                str.append(" Minuten verschwinden!");
-                sWorld->SendServerMessage(SERVER_MSG_STRING, str.c_str());
             }
 
             void DoAction(int32 const action)
@@ -243,18 +214,6 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                     _random = true;
                 }
 
-                eventsOOC.Update(diff);
-
-                while (uint32 eventId = eventsOOC.ExecuteEvent())
-                {
-                    switch (eventId)
-                    {
-                        case EVENT_TIMER:
-                            SendeRestlicheEventZeit();
-                            break;
-                    }
-                }
-
                 if (!UpdateVictim() && !(events.GetPhaseMask() & PHASE_INTRO_MASK))
                     return;
 
@@ -306,8 +265,6 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                 uint8 _cloneCount;
                 bool _introDone;
                 bool _random;
-                EventMap eventsOOC;
-                uint32 eventTimer;
         };
 
         CreatureAI * GetAI(Creature * creature) const
