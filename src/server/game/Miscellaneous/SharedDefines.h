@@ -401,7 +401,7 @@ enum SpellAttr3
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
     SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // 29 Ignore caster spellpower and done damage mods?
-    SPELL_ATTR3_UNK30                            = 0x40000000, // 30 Shaman's Fire Nova 3.3.0, Sweeping Strikes 3.3.0
+    SPELL_ATTR3_DONT_DISPLAY_RANGE               = 0x40000000, // 30 client doesn't display range in tooltip for those spells
     SPELL_ATTR3_UNK31                            = 0x80000000  // 31
 };
 
@@ -425,7 +425,7 @@ enum SpellAttr4
     SPELL_ATTR4_UNK15                            = 0x00008000, // 15
     SPELL_ATTR4_NOT_USABLE_IN_ARENA              = 0x00010000, // 16
     SPELL_ATTR4_USABLE_IN_ARENA                  = 0x00020000, // 17
-    SPELL_ATTR4_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR4_AREA_TARGET_CHAIN                = 0x00040000, // 18 (NYI)hits area targets one after another instead of all at once
     SPELL_ATTR4_UNK19                            = 0x00080000, // 19
     SPELL_ATTR4_NOT_CHECK_SELFCAST_POWER         = 0x00100000, // 20 supersedes message "More powerful spell applied" for self casts.
     SPELL_ATTR4_UNK21                            = 0x00200000, // 21
@@ -454,7 +454,7 @@ enum SpellAttr5
     SPELL_ATTR5_UNK8                             = 0x00000100, //  8
     SPELL_ATTR5_START_PERIODIC_AT_APPLY          = 0x00000200, //  9 begin periodic tick at aura apply
     SPELL_ATTR5_HIDE_DURATION                    = 0x00000400, // 10 do not send duration to client
-    SPELL_ATTR5_UNK11                            = 0x00000800, // 11
+    SPELL_ATTR5_ALLOW_TARGET_OF_TARGET_AS_TARGET = 0x00000800, // 11 (NYI) uses target's target as target if original target not valid (intervene for example)
     SPELL_ATTR5_UNK12                            = 0x00001000, // 12
     SPELL_ATTR5_HASTE_AFFECT_DURATION            = 0x00002000, // 13 haste effects decrease duration of this
     SPELL_ATTR5_UNK14                            = 0x00004000, // 14
@@ -479,7 +479,7 @@ enum SpellAttr5
 
 enum SpellAttr6
 {
-    SPELL_ATTR6_UNK0                             = 0x00000001, //  0 Only Move spell have this flag
+    SPELL_ATTR6_DONT_DISPLAY_COOLDOWN            = 0x00000001, //  0 client doesn't display cooldown in tooltip for these spells
     SPELL_ATTR6_ONLY_IN_ARENA                    = 0x00000002, //  1 only usable in arena
     SPELL_ATTR6_IGNORE_CASTER_AURAS              = 0x00000004, //  2
     SPELL_ATTR6_UNK3                             = 0x00000008, //  3
@@ -497,7 +497,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK15                            = 0x00008000, // 15 not set in 3.0.3
     SPELL_ATTR6_UNK16                            = 0x00010000, // 16
     SPELL_ATTR6_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR6_UNK18                            = 0x00040000, // 18
+    SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED        = 0x00040000, // 18 (NYI) client won't allow to cast these spells when unit does not have possessor
     SPELL_ATTR6_UNK19                            = 0x00080000, // 19
     SPELL_ATTR6_UNK20                            = 0x00100000, // 20
     SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS         = 0x00200000, // 21 it's only client-side attribute
