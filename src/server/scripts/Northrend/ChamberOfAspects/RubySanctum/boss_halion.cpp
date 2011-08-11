@@ -743,7 +743,7 @@ class npc_halion_controller : public CreatureScript
                             break;
                         case EVENT_SHADOW_PULSARS_SHOOT:
                         {
-                            if (Unit* focus = ObjectAccessor::GetCreature(*me, _orbRotationFocusGUID))
+                            if (Creature* focus = ObjectAccessor::GetCreature(*me, _orbRotationFocusGUID))
                             {
                                 uint8 begin = me->GetMap()->IsHeroic() ? 0 : 2;
                                 for (uint8 i = begin; i < 4; i++)
@@ -1164,7 +1164,7 @@ class npc_shadow_orb : public CreatureScript
                         _angle = M_PI / 2;
                         break;
                     case NPC_SHADOW_ORB_W:
-                        _angle = 3 * M_PI / 2;
+                        _angle = - M_PI / 2;
                         break;
                 }
 
@@ -1376,6 +1376,7 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
+                // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
                 if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
                     CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
 
@@ -1425,6 +1426,7 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
+                // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
                 if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
                     CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
 
@@ -1507,6 +1509,12 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
                 if (Player* plr = GetHitPlayer())
                     if (plr->HasAura(SPELL_SOUL_CONSUMPTION))
                         plr->RemoveAurasDueToSpell(SPELL_SOUL_CONSUMPTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+
+                // Drop threat so that Twilight Halion doesn't attack players in the other realm.
+                if (Player* plr = GetHitPlayer())
+                    if (InstanceScript* instance = plr->GetInstanceScript())
+                        if (Creature* halion = ObjectAccessor::GetCreature(*plr, instance->GetData64(DATA_TWILIGHT_HALION)))
+                            halion->getThreatManager().modifyThreatPercent(plr, -100);
             }
 
             void Register()
@@ -1537,6 +1545,12 @@ class spell_halion_enter_twilight_realm : public SpellScriptLoader
                 if (Player* plr = GetHitPlayer())
                     if (plr->HasAura(SPELL_FIERY_COMBUSTION))
                         plr->RemoveAurasDueToSpell(SPELL_FIERY_COMBUSTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
+
+                // Drop threat so that Halion doesn't attack players in the other realm.
+                if (Player* plr = GetHitPlayer())
+                    if (InstanceScript* instance = plr->GetInstanceScript())
+                        if (Creature* halion = ObjectAccessor::GetCreature(*plr, instance->GetData64(DATA_HALION)))
+                            halion->getThreatManager().modifyThreatPercent(plr, -100);
             }
 
             void Register()
