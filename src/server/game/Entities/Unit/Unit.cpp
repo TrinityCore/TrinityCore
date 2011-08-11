@@ -4480,15 +4480,26 @@ int32 Unit::GetMaxNegativeAuraModifierByMiscMask(AuraType auratype, uint32 misc_
     return modifier;
 }
 
-int32 Unit::GetTotalAuraModifierByMiscValue(AuraType auratype, int32 misc_value) const
+int32 Unit::GetTotalAuraModifierByMiscValue(AuraType auratype, int32 misc_value, SpellInfo const* spellProto) const
 {
     int32 modifier = 0;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->GetMiscValue() == misc_value)
-            modifier += (*i)->GetAmount();
+        if (spellProto)
+        {
+            if (!(spellProto->SpellFamilyName == SPELLFAMILY_PRIEST && spellProto->SpellIconID == 548 && (*i)->GetId() == 58943)) // Mind Flay & Da Voodoo Shuffle
+            {
+                if ((*i)->GetMiscValue() == misc_value)
+                    modifier += (*i)->GetAmount();
+            }
+        }
+        else
+        {
+            if ((*i)->GetMiscValue() == misc_value)
+                modifier += (*i)->GetAmount();
+        }
     }
     return modifier;
 }
