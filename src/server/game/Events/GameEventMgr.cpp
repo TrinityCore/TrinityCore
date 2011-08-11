@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -1159,25 +1159,24 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventCreatureGuids.size()))
     {
         sLog->outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventCreatureGuids element %i (size: " SIZEFMTD ")",
-            internal_event_id, mGameEventCreatureGuids.size());
-        return;
+                       internal_event_id, mGameEventCreatureGuids.size());
+                       return;
     }
 
     for (GuidList::iterator itr = mGameEventCreatureGuids[internal_event_id].begin(); itr != mGameEventCreatureGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
-        if (CreatureData const * data = sObjectMgr->GetCreatureData(*itr))
+        if (CreatureData const* data = sObjectMgr->GetCreatureData(*itr))
         {
             sObjectMgr->AddCreatureToGrid(*itr, data);
 
-            // Spawn if necessary - Grid laden wenn nötig, damit Eventobjekte auf jeden Fall sofort beim Start des Events gespawnt / initialisiert werden!
-            Map * map = const_cast<Map *>(sMapMgr->CreateBaseMap(data->mapid));
-            if (map && !map->Instanceable() && !map->IsLoaded(data->posX, data->posY))
-                map->LoadGrid(data->posX, data->posY);
+            // Spawn if necessary (loaded grids only)
+            Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
             // We use spawn coords to spawn
             if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
             {
-                Creature * pCreature = new Creature;
+                Creature* pCreature = new Creature;
+                //sLog->outDebug("Spawning creature %u", *itr);
                 if (!pCreature->LoadFromDB(*itr, map))
                     delete pCreature;
                 else
@@ -1189,24 +1188,24 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventGameobjectGuids.size()))
     {
         sLog->outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventGameobjectGuids element %i (size: " SIZEFMTD ")",
-            internal_event_id, mGameEventGameobjectGuids.size());
-        return;
+                       internal_event_id, mGameEventGameobjectGuids.size());
+                       return;
     }
 
     for (GuidList::iterator itr = mGameEventGameobjectGuids[internal_event_id].begin(); itr != mGameEventGameobjectGuids[internal_event_id].end(); ++itr)
     {
         // Add to correct cell
-        if (GameObjectData const * data = sObjectMgr->GetGOData(*itr))
+        if (GameObjectData const* data = sObjectMgr->GetGOData(*itr))
         {
             sObjectMgr->AddGameobjectToGrid(*itr, data);
-            // Spawn if necessary - Grid laden wenn nötig, damit Eventobjekte auf jeden Fall sofort beim Start des Events gespawnt / initialisiert werden!
-            Map * map = const_cast<Map *>(sMapMgr->CreateBaseMap(data->mapid));
-            if (map && !map->Instanceable() && !map->IsLoaded(data->posX, data->posY))
-                map->LoadGrid(data->posX, data->posY);
-            // We use spawn coords to spawn
+            // Spawn if necessary (loaded grids only)
+            // this base map checked as non-instanced and then only existed
+            Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(data->mapid));
+            // We use current coords to unspawn, not spawn coords since creature can have changed grid
             if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
             {
-                GameObject * pGameobject = new GameObject;
+                GameObject* pGameobject = new GameObject;
+                //sLog->outDebug("Spawning gameobject %u", *itr);
                 if (!pGameobject->LoadFromDB(*itr, map))
                     delete pGameobject;
                 else
@@ -1221,8 +1220,8 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
     if (internal_event_id < 0 || internal_event_id >= int32(mGameEventPoolIds.size()))
     {
         sLog->outError("GameEventMgr::GameEventSpawn attempt access to out of range mGameEventPoolIds element %u (size: " SIZEFMTD ")",
-            internal_event_id, mGameEventPoolIds.size());
-        return;
+                       internal_event_id, mGameEventPoolIds.size());
+                       return;
     }
 
     for (IdList::iterator itr = mGameEventPoolIds[internal_event_id].begin(); itr != mGameEventPoolIds[internal_event_id].end(); ++itr)
