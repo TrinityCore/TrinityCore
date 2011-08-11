@@ -2019,11 +2019,15 @@ void Map::RemoveAllObjectsInRemoveList()
         bool on = itr->second;
         i_objectsToSwitch.erase(itr);
 
+        if (!obj)
+            continue;
+        
         switch(obj->GetTypeId())
         {
             case TYPEID_UNIT:
-                if (!obj->ToCreature()->isPet())
-                    SwitchGridContainers(obj->ToCreature(), on);
+                if (Creature *creature = obj->ToCreature())
+                    if (!creature->isPet())
+                        SwitchGridContainers(creature, on);
                 break;
             default:
                 break;
