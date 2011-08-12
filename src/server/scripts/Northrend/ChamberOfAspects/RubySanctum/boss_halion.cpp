@@ -224,7 +224,6 @@ class boss_halion : public CreatureScript
             {
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 instance->SetData(DATA_HALION_SHARED_HEALTH, me->GetMaxHealth());
-                instance->DoCastSpellOnPlayers(SPELL_LEAVE_TWILIGHT_REALM);
             }
 
             // This is triggered by the TwilightHalionAI::JustDied, but can of course be triggered on its own.
