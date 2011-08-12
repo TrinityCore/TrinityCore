@@ -8772,7 +8772,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
         case 72256:
             // this should be handled by targetAuraSpell, but because 72408 is not passive
             // one failed proc will remove the entire aura
-            CastSpell(NULL, trigger_spell_id, true, NULL, triggeredByAura);
+            CastSpell((Unit*)NULL, trigger_spell_id, true, NULL, triggeredByAura);
             return true;
         case 15337: // Improved Spirit Tap (Rank 1)
         case 15338: // Improved Spirit Tap (Rank 2)
