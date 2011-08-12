@@ -14631,7 +14631,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                 return false;
 
             uint32 repFacId2 = qInfo->GetRepObjectiveFaction2();
-            if (repFacId2 && GetReputationMgr().GetReputation(repFacId) < qInfo->GetRepObjectiveValue2())
+            if (repFacId2 && GetReputationMgr().GetReputation(repFacId2) < qInfo->GetRepObjectiveValue2())
                 return false;
 
             return true;
