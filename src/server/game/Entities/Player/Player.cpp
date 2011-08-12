@@ -831,6 +831,8 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_lastFallTime = 0;
     m_lastFallZ = 0;
+    
+    m_grantableLevels = 0;
 
     m_ControlledByPlayer = true;
     m_isWorldObject = true;
@@ -3068,7 +3070,7 @@ void Player::GiveLevel(uint8 level)
     if (GetSession()->GetRecruiterId())
         if (level < sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
             if (level % 2 == 0) {
-                m_grantableLevels++;
+                ++m_grantableLevels;
 
                 if (!HasByteFlag(PLAYER_FIELD_BYTES, 1, 0x01))
                     SetByteFlag(PLAYER_FIELD_BYTES, 1, 0x01);
