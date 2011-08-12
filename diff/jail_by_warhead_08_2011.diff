@@ -165,7 +165,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 949fdf8..69aa89d 100755
+index 04784e1..733a218 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -198,7 +198,7 @@ index 949fdf8..69aa89d 100755
      // group is initialized in the reference constructor
      SetGroupInvite(NULL);
      m_groupUpdateMask = 0;
-@@ -1181,6 +1192,50 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
+@@ -1183,6 +1194,50 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
      return true;
  }
  
@@ -249,7 +249,7 @@ index 949fdf8..69aa89d 100755
  bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
  {
      sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: Creating initial item, itemId = %u, count = %u", titem_id, titem_amount);
-@@ -1495,6 +1550,19 @@ void Player::Update(uint32 p_time)
+@@ -1497,6 +1552,19 @@ void Player::Update(uint32 p_time)
      if (!IsInWorld())
          return;
  
@@ -269,7 +269,7 @@ index 949fdf8..69aa89d 100755
      // undelivered mail
      if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
      {
-@@ -1701,7 +1769,15 @@ void Player::Update(uint32 p_time)
+@@ -1703,7 +1771,15 @@ void Player::Update(uint32 p_time)
      }
  
      if (m_deathState == JUST_DIED)
@@ -286,7 +286,7 @@ index 949fdf8..69aa89d 100755
  
      if (m_nextSave > 0)
      {
-@@ -4906,6 +4982,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
+@@ -4908,6 +4984,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
              trans->PAppend("DELETE FROM mail_items WHERE receiver = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet WHERE owner = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet_declinedname WHERE owner = '%u'", guid);
@@ -294,7 +294,7 @@ index 949fdf8..69aa89d 100755
              trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
                                          "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
                                          "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements
-@@ -17029,6 +17106,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+@@ -17031,6 +17108,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
  
      _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
  
@@ -304,7 +304,7 @@ index 949fdf8..69aa89d 100755
      return true;
  }
  
-@@ -18369,7 +18449,13 @@ void Player::SaveToDB()
+@@ -18371,7 +18451,13 @@ void Player::SaveToDB()
      // check if stats should only be saved on logout
      // save stats can be out of transaction
      if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
