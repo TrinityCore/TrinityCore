@@ -488,8 +488,6 @@ class boss_twilight_halion : public CreatureScript
                                 halionAI->setEventsPhase(PHASE_THREE);
                         }
 
-                        _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 1);
-
                         if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                             controller->AI()->DoAction(ACTION_PHASE_THREE);
                         break;
