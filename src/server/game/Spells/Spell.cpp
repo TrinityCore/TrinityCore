@@ -2935,11 +2935,12 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     SpellCastResult result = CheckCast(true);
     if (result != SPELL_CAST_OK && !IsAutoRepeat())          //always cast autorepeat dummy for triggering
     {
-        if (triggeredByAura && !triggeredByAura->GetBase()->IsPassive())
+        if (triggeredByAura && triggeredByAura->GetSpellInfo()->IsChanneled())
         {
             SendChannelUpdate(0);
             triggeredByAura->GetBase()->SetDuration(0);
         }
+
         SendCastResult(result);
 
         finish(false);
@@ -4193,37 +4194,13 @@ void Spell::SendChannelUpdate(uint32 time)
 
 void Spell::SendChannelStart(uint32 duration)
 {
-    WorldObject* target = NULL;
-
-    // select first not resisted target from target list for first available effect
-    if (!m_UniqueTargetInfo.empty())
-    {
-        for (std::list<TargetInfo>::const_iterator itr = m_UniqueTargetInfo.begin(); itr != m_UniqueTargetInfo.end(); ++itr)
-        {
-            for (uint8 effIndex = EFFECT_0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-            {
-                if ((itr->effectMask & (1 << effIndex)) && itr->reflectResult == SPELL_MISS_NONE && itr->targetGUID != m_caster->GetGUID())
-                {
-                    target = ObjectAccessor::GetUnit(*m_caster, itr->targetGUID);
-                    break;
-                }
-            }
-        }
-    }
-    else if (!m_UniqueGOTargetInfo.empty())
-    {
-        for (std::list<GOTargetInfo>::const_iterator itr = m_UniqueGOTargetInfo.begin(); itr != m_UniqueGOTargetInfo.end(); ++itr)
-        {
-            for (uint8 effIndex = EFFECT_0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
-            {
-                if (itr->effectMask & (1 << effIndex))
-                {
-                    target = m_caster->GetMap()->GetGameObject(itr->targetGUID);
-                    break;
-                }
-            }
-        }
-    }
+    uint64 channelTarget = 0;
+    if (m_targets.GetUnitTargetGUID())
+        channelTarget = m_targets.GetUnitTargetGUID();
+    else if (m_targets.GetGOTargetGUID())
+        channelTarget = m_targets.GetGOTargetGUID();
+    else if (m_targets.GetCorpseTargetGUID())
+        channelTarget = m_targets.GetCorpseTargetGUID();
 
     WorldPacket data(MSG_CHANNEL_START, (8+4+4));
     data.append(m_caster->GetPackGUID());
@@ -4233,8 +4210,9 @@ void Spell::SendChannelStart(uint32 duration)
     m_caster->SendMessageToSet(&data, true);
 
     m_timer = duration;
-    if (target)
-        m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, target->GetGUID());
+    if (channelTarget)
+        m_caster->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, channelTarget);
+
     m_caster->SetUInt32Value(UNIT_CHANNEL_SPELL, m_spellInfo->Id);
 }
 
@@ -5307,7 +5285,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                     return SPELL_FAILED_BAD_TARGETS;
 
                 Player* playerCaster = m_caster->ToPlayer();
-                    // 
+                    //
                 if(!(playerCaster->GetSelection()))
                     return SPELL_FAILED_BAD_TARGETS;
 
