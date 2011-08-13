@@ -178,6 +178,34 @@ enum ICC_RAID_TRASH_NPCS_UND_SPELLS
         BASTIONSFROSTWYRM_SPALTEN                                       = 70361,
 #define BASTIONSFROSTWYRM_BLIZZARD                                      RAID_MODE(70362,71118,70362,71118)
 #define BASTIONSFROSTWYRM_FROSTATEM                                     RAID_MODE(70116,72641,70116,72641)
+
+        FROSTBINDER_DER_YMIRJAR                                         = 37127,
+        FROSTBINDER_DER_YMIRJAR_ARKTISCHE_KUEHLE                        = 71270, // Aggro
+        FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL                         = 71274, // Random Target - Ohne Funktion im Moment! Cast Funzt, aber kein Effekt!
+        FROSTBINDER_DER_YMIRJAR_GEISTERFLUSS                            = 69929, // Außerhalb des Kampfes casten...
+        FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE                         = 71306, // Random Target - Kein Effekt im Moment!
+
+        KRIEGSMAID_DER_YMIRJAR                                          = 37132,
+        KRIEGSMAID_DER_YMIRJAR_BARBARISCHER_STOSS                       = 71257, // Victim
+        KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH                          = 71258, // Aura!
+
+        KRIEGSFUERST_DER_YMIRJAR                                        = 37133,
+        KRIEGSFUERST_DER_YMIRJAR_WIRBELWIND                             = 41056, // Selbst
+
+        JAEGERIN_DER_YMIRJAR                                            = 37134,
+        JAEGERIN_DER_YMIRJAR_FLINKSCHUSS                                = 71251, // Selbst
+        JAEGERIN_DER_YMIRJAR_FROSTFALLE                                 = 71249, // 20 Meter
+        JAEGERIN_DER_YMIRJAR_KRIEGSFALKEN_BESCHWOEREN                   = 71705, // Nach Spawn
+        JAEGERIN_DER_YMIRJAR_SALVE                                      = 71252, // Random Target - 10 - 40 Meter
+        JAEGERIN_DER_YMIRJAR_SCHIESSEN                                  = 71253, // Target - 5 - 30 Meter
+
+        TODESBRINGER_DER_YMIRJAR                                        = 38125,
+        TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS                           = 69929, // Außerhalb des Kampfes casten...
+#define TODESBRINGER_DER_YMIRJAR_SCHATTENBLITZ                          RAID_MODE(71296,71297,71296,71297) // Target - 40 Meter
+#define TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES                     RAID_MODE(71299,71300,71299,71300) // Selbst - Dauer 10 Sek.
+        TODESBRINGER_DER_YMIRJAR_VERBANNEN                              = 71298, // Random Target - 20 Meter
+        TODESBRINGER_DER_YMIRJAR_YMIRJAR_BESCHWOEREN_VISUAL             = 71303, // Selbst - Visual
+        TODESBRINGER_DER_YMIRJAR_YMIRJAR_BESCHWOEREN_EFFEKT             = 71302  // Effekt - Spawnt jeweils 1 NPC!
 };
 
 enum eICC_Raid_Events
@@ -234,8 +262,24 @@ enum eICC_Raid_Events
     EVENT_BASTIONSDIENER_GHOULSCHLITZEN,
     EVENT_BASTIONSFROSTWYRM_SPALTEN,
     EVENT_BASTIONSFROSTWYRM_BLIZZARD,
-    EVENT_BASTIONSFROSTWYRM_FROSTATEM
+    EVENT_BASTIONSFROSTWYRM_FROSTATEM,
+    EVENT_FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL,
+    EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE,
+    EVENT_FROSTBINDER_DER_YMIRJAR_GEISTERFLUSS,
+    EVENT_KRIEGSMAID_DER_YMIRJAR_BARBARISCHER_STOSS,
+    EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH,
+    EVENT_KRIEGSFUERST_DER_YMIRJAR_WIRBELWIND,
+    EVENT_JAEGERIN_DER_YMIRJAR_FLINKSCHUSS,
+    EVENT_JAEGERIN_DER_YMIRJAR_FROSTFALLE,
+    EVENT_JAEGERIN_DER_YMIRJAR_SALVE,
+    EVENT_JAEGERIN_DER_YMIRJAR_SCHIESSEN,
+    EVENT_TODESBRINGER_DER_YMIRJAR_SCHATTENBLITZ,
+    EVENT_TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES,
+    EVENT_TODESBRINGER_DER_YMIRJAR_VERBANNEN,
+    EVENT_TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS
 };
+
+#define NUM_YMIRJAR RAID_MODE(10,20,10,20)
 
 class mob_icc_raid_trash : public CreatureScript
 {
@@ -244,7 +288,7 @@ public:
 
     struct mob_icc_raid_trashAI: public ScriptedAI
     {
-        mob_icc_raid_trashAI(Creature * c) : ScriptedAI(c)
+        mob_icc_raid_trashAI(Creature * c) : ScriptedAI(c), _summons(me)
         {
             switch(me->GetEntry())
             {
@@ -260,6 +304,8 @@ public:
         }
 
         EventMap events;
+        EventMap OOCevents;
+        SummonList _summons;
 
         bool DieVerdammtenKnochenwirbel,
             DieVerdammtenZerschmKnochen,
@@ -276,11 +322,15 @@ public:
             BastionsdienerKannibalismus = false;
 
             events.Reset();
+            OOCevents.Reset();
 
-            events.ScheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM, urand(5000,10000));
+            _summons.DespawnAll();
 
             switch(me->GetEntry())
             {
+                case SEUCHENWISSENSCHAFTLER:
+                    OOCevents.ScheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM, urand(5000,10000));
+                    break;
                 case SINISTRER_ERZMAGIER:
                 case SINISTRER_ADLIGER:
                 case SINISTRER_BLUTRITTER:
@@ -290,7 +340,29 @@ public:
                     if (!me->GetMap()->IsDungeon())
                         me->RemoveAurasDueToSpell(TODESGEWEIHTER_WAECHTER_STEINGESTALT);
                     break;
+                case FROSTBINDER_DER_YMIRJAR:
+                    me->RemoveAurasDueToSpell(FROSTBINDER_DER_YMIRJAR_ARKTISCHE_KUEHLE);
+                    OOCevents.ScheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_GEISTERFLUSS, urand(SEKUNDEN_10, SEKUNDEN_20));
+                    break;
+                case TODESBRINGER_DER_YMIRJAR:
+                    OOCevents.ScheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS, urand(SEKUNDEN_10, SEKUNDEN_20));
+                    break;
+                case JAEGERIN_DER_YMIRJAR:
+                    DoCast(JAEGERIN_DER_YMIRJAR_KRIEGSFALKEN_BESCHWOEREN);
+                    break;
             }
+        }
+
+        void JustSummoned(Creature * summon)
+        {
+            _summons.Summon(summon);
+            if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                summon->AI()->AttackStart(target);
+        }
+
+        void SummonedCreatureDespawn(Creature * summon)
+        {
+            _summons.Despawn(summon);
         }
 
         void JustReachedHome()
@@ -367,7 +439,7 @@ public:
 
         void JustDied(Unit * /*killer*/)
         {
-            if (InstanceScript* pInstance = me->GetInstanceScript())
+            if (InstanceScript * pInstance = me->GetInstanceScript())
                 pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
         }
 
@@ -427,13 +499,41 @@ public:
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_SPALTEN, urand(3000,5000));
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_BLIZZARD, urand(8000,12000));
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_FROSTATEM, urand(5000,8000));
+            events.ScheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL, urand(15 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE, urand(SEKUNDEN_10, SEKUNDEN_20));
+            events.ScheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_BARBARISCHER_STOSS, urand(SEKUNDEN_10, SEKUNDEN_20));
+            events.ScheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH, urand(SEKUNDEN_10, SEKUNDEN_20));
+            events.ScheduleEvent(EVENT_KRIEGSFUERST_DER_YMIRJAR_WIRBELWIND, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
+            events.ScheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_FLINKSCHUSS, urand(SEKUNDEN_10, SEKUNDEN_20));
+            events.ScheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_FROSTFALLE, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
+            events.ScheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SALVE, urand(SEKUNDEN_20, SEKUNDEN_30));
+            events.ScheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SCHIESSEN, 1 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_SCHATTENBLITZ, urand(SEKUNDEN_10, SEKUNDEN_20));
+            events.ScheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
+            events.ScheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_VERBANNEN, urand(SEKUNDEN_10, SEKUNDEN_20));
 
             switch(me->GetEntry())
             {
-                case HOHEPRIESTER_DER_TODESSPRECHER: DoCast(HOHEPRIESTER_DER_TODESSPRECHER_AURA_DER_DUNKELHEIT); break;
-                case SINISTRER_BLUTRITTER: DoCast(SINISTRER_BLUTRITTER_VAMPIRAURA); break;
-                case SINISTRER_KOMMANDANT: DoCast(SINISTRER_KOMMANDANT_SCHLACHTRUF); break;
-                case TODESGEWEIHTER_WAECHTER: me->RemoveAurasDueToSpell(TODESGEWEIHTER_WAECHTER_STEINGESTALT); break;
+                case HOHEPRIESTER_DER_TODESSPRECHER:
+                    DoCast(HOHEPRIESTER_DER_TODESSPRECHER_AURA_DER_DUNKELHEIT);
+                    break;
+                case SINISTRER_BLUTRITTER:
+                    DoCast(SINISTRER_BLUTRITTER_VAMPIRAURA);
+                    break;
+                case SINISTRER_KOMMANDANT:
+                    DoCast(SINISTRER_KOMMANDANT_SCHLACHTRUF);
+                    break;
+                case TODESGEWEIHTER_WAECHTER:
+                    me->RemoveAurasDueToSpell(TODESGEWEIHTER_WAECHTER_STEINGESTALT);
+                    break;
+                case FROSTBINDER_DER_YMIRJAR:
+                    DoCast(FROSTBINDER_DER_YMIRJAR_ARKTISCHE_KUEHLE);
+                    break;
+                case TODESBRINGER_DER_YMIRJAR:
+                    DoCast(me, TODESBRINGER_DER_YMIRJAR_YMIRJAR_BESCHWOEREN_VISUAL, true);
+                    for (uint8 i=0; i<NUM_YMIRJAR; ++i)
+                        DoCast(me, TODESBRINGER_DER_YMIRJAR_YMIRJAR_BESCHWOEREN_EFFEKT, true);
+                    break;
             }
         }
 
@@ -441,16 +541,16 @@ public:
         {
             if (!UpdateVictim())
             {
-                switch(me->GetEntry())
+                OOCevents.Update(diff);
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
+                    return;
+
+                while (uint32 eventId = OOCevents.ExecuteEvent())
                 {
-                    case SEUCHENWISSENSCHAFTLER:
-                        events.Update(diff);
-
-                        if (me->HasUnitState(UNIT_STAT_CASTING))
-                            return;
-
-                        while (uint32 eventId = events.ExecuteEvent())
-                        {
+                    switch(me->GetEntry())
+                    {
+                        case SEUCHENWISSENSCHAFTLER:
                             if (eventId == EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM)
                             {
                                 // Wird nur auf die Eiternden Schrecken gecastet dieser Spell, und auch nur außerhalb des Kampfes!
@@ -459,10 +559,24 @@ public:
                                     me->SetFacing(0, Schrecken);
                                     DoCast(Schrecken->ToUnit(), SEUCHENWISSENSCHAFTLER_SEUCHENSTROM);
                                 }
-                                events.RescheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM, urand(35000,45000));
+                                OOCevents.RescheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_SEUCHENSTROM, urand(35000,45000));
                             }
-                        }
-                        break;
+                            break;
+                        case FROSTBINDER_DER_YMIRJAR:
+                            if (eventId == EVENT_FROSTBINDER_DER_YMIRJAR_GEISTERFLUSS)
+                            {
+                                DoCast(FROSTBINDER_DER_YMIRJAR_GEISTERFLUSS);
+                                OOCevents.RescheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_GEISTERFLUSS, urand(SEKUNDEN_40, SEKUNDEN_60));
+                            }
+                            break;
+                        case TODESBRINGER_DER_YMIRJAR:
+                            if (eventId == EVENT_TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS)
+                            {
+                                DoCast(TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS);
+                                OOCevents.RescheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS, urand(SEKUNDEN_40, SEKUNDEN_60));
+                            }
+                            break;
+                    }
                 }
                 return;
             }
@@ -835,6 +949,79 @@ public:
                                 break;
                         }
                         break;
+                    case FROSTBINDER_DER_YMIRJAR:
+                        switch(eventId)
+                        {
+                            case EVENT_FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL:
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    DoCast(pTarget, FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL, false);
+                                events.RescheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                break;
+                            case EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE:
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    DoCast(pTarget, FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE, false);
+                                events.RescheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                break;
+                        }
+                    case KRIEGSMAID_DER_YMIRJAR:
+                        switch(eventId)
+                        {
+                            case EVENT_KRIEGSMAID_DER_YMIRJAR_BARBARISCHER_STOSS:
+                                DoCastVictim(KRIEGSMAID_DER_YMIRJAR_BARBARISCHER_STOSS);
+                                events.RescheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_BARBARISCHER_STOSS, urand(SEKUNDEN_10, SEKUNDEN_20));
+                                break;
+                            case EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH:
+                                me->AddAura(KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH, me);
+                                events.RescheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                break;
+                        }
+                    case KRIEGSFUERST_DER_YMIRJAR:
+                        if (eventId == EVENT_KRIEGSFUERST_DER_YMIRJAR_WIRBELWIND)
+                        {
+                            DoCast(KRIEGSFUERST_DER_YMIRJAR_WIRBELWIND);
+                            events.RescheduleEvent(EVENT_KRIEGSFUERST_DER_YMIRJAR_WIRBELWIND, urand(SEKUNDEN_10, SEKUNDEN_20));
+                        }
+                        break;
+                    case JAEGERIN_DER_YMIRJAR:
+                        switch(eventId)
+                        {
+                            case EVENT_JAEGERIN_DER_YMIRJAR_FLINKSCHUSS:
+                                DoCast(JAEGERIN_DER_YMIRJAR_FLINKSCHUSS);
+                                events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_FLINKSCHUSS, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                break;
+                            case EVENT_JAEGERIN_DER_YMIRJAR_FROSTFALLE:
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f))
+                                    DoCast(pTarget, JAEGERIN_DER_YMIRJAR_FROSTFALLE, false);
+                                events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_FROSTFALLE, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                break;
+                            case EVENT_JAEGERIN_DER_YMIRJAR_SALVE:
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f))
+                                    DoCast(pTarget, JAEGERIN_DER_YMIRJAR_SALVE, false);
+                                events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SALVE, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                break;
+                            case EVENT_JAEGERIN_DER_YMIRJAR_SCHIESSEN:
+                                DoCastVictim(JAEGERIN_DER_YMIRJAR_SCHIESSEN);
+                                events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SCHIESSEN, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
+                                break;
+                        }
+                    case TODESBRINGER_DER_YMIRJAR:
+                        switch(eventId)
+                        {
+                            case EVENT_TODESBRINGER_DER_YMIRJAR_SCHATTENBLITZ:
+                                DoCastVictim(TODESBRINGER_DER_YMIRJAR_SCHATTENBLITZ);
+                                events.RescheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_SCHATTENBLITZ, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
+                                break;
+                            case EVENT_TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES:
+                                DoCast(TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES);
+                                events.RescheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                break;
+                            case EVENT_TODESBRINGER_DER_YMIRJAR_VERBANNEN:
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f))
+                                    DoCast(pTarget, TODESBRINGER_DER_YMIRJAR_VERBANNEN, false);
+                                events.RescheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_VERBANNEN, urand(SEKUNDEN_10, SEKUNDEN_20));
+                                break;
+                        }
+                    default: break;
                 }
             }
             DoMeleeAttackIfReady();
