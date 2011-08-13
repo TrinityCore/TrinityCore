@@ -425,6 +425,7 @@ class boss_hodir : public CreatureScript
                         case EVENT_RARE_CACHE:
                             DoScriptText(SAY_HARD_MODE_FAILED, me);
                             iCouldSayThatThisCacheWasRare = false;
+                            instance->SetData(DATA_HODIR_RARE_CACHE, 0);
                             events.CancelEvent(EVENT_RARE_CACHE);
                             break;
                         case EVENT_BERSERK:
@@ -881,7 +882,7 @@ class npc_toasty_fire : public CreatureScript
                 DoCast(me, SPELL_SINGED, true);
             }
 
-            void SpellHit(Unit* /*who*/, const SpellEntry* spell)
+            void SpellHit(Unit* /*who*/, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_BLOCK_OF_ICE || spell->Id == SPELL_ICE_SHARD || spell->Id == SPELL_ICE_SHARD_HIT)
                 {

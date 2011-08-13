@@ -81,7 +81,7 @@ bool ChatHandler::HandleGMTicketGetByNameCommand(const char* args)
 
     // Detect target's GUID
     uint64 guid = 0;
-    if (Player* player = sObjectMgr->GetPlayer(name.c_str()))
+    if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
         guid = player->GetGUID();
     else
         guid = sObjectMgr->GetPlayerGUIDByName(name);

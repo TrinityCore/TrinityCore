@@ -198,7 +198,7 @@ bool ChatHandler::HandleCooldownCommand(const char *args)
         if (!spell_id)
             return false;
 
-        if (!sSpellStore.LookupEntry(spell_id))
+        if (!sSpellMgr->GetSpellInfo(spell_id))
         {
             PSendSysMessage(LANG_UNKNOWN_SPELL, target == m_session->GetPlayer() ? GetTrinityString(LANG_YOU) : tNameLink.c_str());
             SetSentErrorMessage(true);
@@ -1000,9 +1000,9 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in Spell.dbc
-    for (uint32 id = 0; id < sSpellStore.GetNumRows(); id++)
+    for (uint32 id = 0; id < sSpellMgr->GetSpellInfoStoreSize(); id++)
     {
-        SpellEntry const *spellInfo = sSpellStore.LookupEntry(id);
+        SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(id);
         if (spellInfo)
         {
             int loc = GetSessionDbcLocale();
@@ -1036,17 +1036,19 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
                 }
 
                 bool known = target && target->HasSpell(id);
-                bool learn = (spellInfo->Effect[0] == SPELL_EFFECT_LEARN_SPELL);
+                bool learn = (spellInfo->Effects[0].Effect == SPELL_EFFECT_LEARN_SPELL);
+
+                SpellInfo const* learnSpellInfo = sSpellMgr->GetSpellInfo(spellInfo->Effects[0].TriggerSpell);
 
                 uint32 talentCost = GetTalentSpellCost(id);
 
                 bool talent = (talentCost > 0);
-                bool passive = IsPassiveSpell(id);
+                bool passive = spellInfo->IsPassive();
                 bool active = target && target->HasAura(id);
 
                 // unit32 used to prevent interpreting uint8 as char at output
                 // find rank of learned spell for learning spell, or talent rank
-                uint32 rank = talentCost ? talentCost : sSpellMgr->GetSpellRank(learn ? spellInfo->EffectTriggerSpell[0] : id);
+                uint32 rank = talentCost ? talentCost : learn && learnSpellInfo ? learnSpellInfo->GetRank() : spellInfo->GetRank();
 
                 // send spell in "id - [name, rank N] [talent] [passive] [learn] [known]" format
                 std::ostringstream ss;
@@ -1060,9 +1062,9 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
                     ss << GetTrinityString(LANG_SPELL_RANK) << rank;
 
                 if (m_session)
-                    ss << " " << localeNames[loc] << "]|h|r";
+                    ss << ' ' << localeNames[loc] << "]|h|r";
                 else
-                    ss << " " << localeNames[loc];
+                    ss << ' ' << localeNames[loc];
 
                 if (talent)
                     ss << GetTrinityString(LANG_TALENT);
@@ -1424,16 +1426,16 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
                 // or              "id - [faction] [no reputation]" format
                 std::ostringstream ss;
                 if (m_session)
-                    ss << id << " - |cffffffff|Hfaction:" << id << "|h[" << name << " " << localeNames[loc] << "]|h|r";
+                    ss << id << " - |cffffffff|Hfaction:" << id << "|h[" << name << ' ' << localeNames[loc] << "]|h|r";
                 else
-                    ss << id << " - " << name << " " << localeNames[loc];
+                    ss << id << " - " << name << ' ' << localeNames[loc];
 
                 if (repState)                               // and then target != NULL also
                 {
                     uint32 index = target->GetReputationMgr().GetReputationRankStrIndex(factionEntry);
                     std::string rankName = GetTrinityString(index);
 
-                    ss << " " << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
+                    ss << ' ' << rankName << "|h|r (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
                     if (repState->Flags & FACTION_FLAG_VISIBLE)
                         ss << GetTrinityString(LANG_FACTION_VISIBLE);
@@ -1587,9 +1589,9 @@ bool ChatHandler::HandleLookupMapCommand(const char *args)
                 std::ostringstream ss;
 
                 if (m_session)
-                    ss << id << " - |cffffffff|Hmap:" << id << "|h[" << name << "]";
+                    ss << id << " - |cffffffff|Hmap:" << id << "|h[" << name << ']';
                 else // console
-                    ss << id << " - [" << name << "]";
+                    ss << id << " - [" << name << ']';
 
                 if (MapInfo->IsContinent())
                     ss << GetTrinityString(LANG_CONTINENT);
@@ -1915,7 +1917,7 @@ bool ChatHandler::HandleDamageCommand(const char * args)
 
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
     uint32 spellid = extractSpellIdFromLink((char*)args);
-    if (!spellid || !sSpellStore.LookupEntry(spellid))
+    if (!spellid || !sSpellMgr->GetSpellInfo(spellid))
         return false;
 
     m_session->GetPlayer()->SpellNonMeleeDamageLog(target, spellid, damage);
@@ -1955,7 +1957,7 @@ bool ChatHandler::HandleAuraCommand(const char *args)
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
     uint32 spellID = extractSpellIdFromLink((char*)args);
 
-    if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(spellID))
+    if (SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(spellID))
         Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
 
     return true;
@@ -2407,7 +2409,7 @@ bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
 
         AuraApplication const* aurApp = itr->second;
         Aura const* aura = aurApp->GetBase();
-        char const* name = aura->GetSpellProto()->SpellName[GetSessionDbcLocale()];
+        char const* name = aura->GetSpellInfo()->SpellName[GetSessionDbcLocale()];
 
         std::ostringstream ss_name;
         ss_name << "|cffffffff|Hspell:" << aura->GetId() << "|h[" << name << "]|h|r";
@@ -3078,7 +3080,7 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     if (!*args)
         return false;
 
-    Player* target = sObjectMgr->GetPlayer(args);
+    Player* target = sObjectAccessor->FindPlayerByName(args);
     uint32 target_guid = 0;
     std::string name(args);
 
@@ -3833,7 +3835,7 @@ bool ChatHandler::HandleCastCommand(const char *args)
     if (!spell)
         return false;
 
-    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
     if (!spellInfo)
     {
         PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
@@ -3877,7 +3879,7 @@ bool ChatHandler::HandleCastBackCommand(const char *args)
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
     uint32 spell = extractSpellIdFromLink((char*)args);
-    if (!spell || !sSpellStore.LookupEntry(spell))
+    if (!spell || !sSpellMgr->GetSpellInfo(spell))
     {
         PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
         SetSentErrorMessage(true);
@@ -3911,7 +3913,7 @@ bool ChatHandler::HandleCastDistCommand(const char *args)
     if (!spell)
         return false;
 
-    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
     if (!spellInfo)
     {
         PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
@@ -3970,7 +3972,7 @@ bool ChatHandler::HandleCastTargetCommand(const char *args)
 
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
     uint32 spell = extractSpellIdFromLink((char*)args);
-    if (!spell || !sSpellStore.LookupEntry(spell))
+    if (!spell || !sSpellMgr->GetSpellInfo(spell))
     {
         PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
         SetSentErrorMessage(true);
@@ -3990,6 +3992,51 @@ bool ChatHandler::HandleCastTargetCommand(const char *args)
     caster->SetFacingToObject(m_session->GetPlayer());
 
     caster->CastSpell(caster->getVictim(), spell, triggered);
+
+    return true;
+}
+
+bool ChatHandler::HandleCastDestCommand(const char *args)
+{
+    Unit* caster = getSelectedUnit();
+    if (!caster)
+    {
+        SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
+    uint32 spell = extractSpellIdFromLink((char*)args);
+    if (!spell || !sSpellMgr->GetSpellInfo(spell))
+    {
+        PSendSysMessage(LANG_COMMAND_NOSPELLFOUND);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    char* px = strtok(NULL, " ");
+    char* py = strtok(NULL, " ");
+    char* pz = strtok(NULL, " ");
+
+    if (!px || !py || !pz)
+        return false;
+
+    float x = (float)atof(px);
+    float y = (float)atof(py);
+    float z = (float)atof(pz);
+
+    char* trig_str = strtok(NULL, " ");
+    if (trig_str)
+    {
+        int l = strlen(trig_str);
+        if (strncmp(trig_str, "triggered", l) != 0)
+            return false;
+    }
+
+    bool triggered = (trig_str != NULL);
+
+    caster->CastSpell(x, y, z, spell, triggered);
 
     return true;
 }
@@ -4044,7 +4091,7 @@ bool ChatHandler::HandleCastSelfCommand(const char *args)
     if (!spell)
         return false;
 
-    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spell);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell);
     if (!spellInfo)
         return false;
 
@@ -4066,7 +4113,7 @@ std::string GetTimeString(uint64 time)
     std::ostringstream ss;
     if (days) ss << days << "d ";
     if (hours) ss << hours << "h ";
-    ss << minute << "m";
+    ss << minute << 'm';
     return ss.str();
 }
 
@@ -4501,7 +4548,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
     {
         name = TargetName;
         normalizePlayerName(name);
-        player = sObjectMgr->GetPlayer(name.c_str()); //get player by name
+        player = sObjectAccessor->FindPlayerByName(name.c_str());
     }
 
     if (!player)
@@ -4541,7 +4588,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
         }
 
         //m_session->GetPlayer()->CastSpell(player, spellID, false);
-        if (SpellEntry const *spellInfo = sSpellStore.LookupEntry(9454))
+        if (SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(9454))
             Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
 
         //save player
@@ -4566,7 +4613,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
     {
         name = TargetName;
         normalizePlayerName(name);
-        player = sObjectMgr->GetPlayer(name.c_str()); //get player by name
+        player = sObjectAccessor->FindPlayerByName(name.c_str());
     }
 
     //effect

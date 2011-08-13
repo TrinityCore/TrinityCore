@@ -35,7 +35,7 @@ class PointMovementGenerator
         void Initialize(T &);
         void Finalize(T &unit);
         void Reset(T &unit){unit.StopMoving();}
-        bool Update(T &, const uint32 &diff);
+        bool Update(T &, const uint32 diff);
 
         void MovementInform(T &);
 

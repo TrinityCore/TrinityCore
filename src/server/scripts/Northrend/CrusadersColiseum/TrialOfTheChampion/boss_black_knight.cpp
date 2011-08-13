@@ -18,6 +18,7 @@
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "trial_of_the_champion.h"
+#include "Vehicle.h"
 
 enum eEnums
 {

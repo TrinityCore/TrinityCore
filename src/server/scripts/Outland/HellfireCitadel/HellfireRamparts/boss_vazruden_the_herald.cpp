@@ -95,7 +95,7 @@ class boss_nazan : public CreatureScript
             uint32 Turn_Timer;
             bool flight;
             uint64 VazrudenGUID;
-            SpellEntry *liquid_fire;
+            SpellInfo *liquid_fire;
 
             void Reset()
             {
@@ -117,7 +117,7 @@ class boss_nazan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellEntry* entry)
+            void SpellHitTarget(Unit* target, const SpellInfo* entry)
             {
                 if (target && entry->Id == uint32(SPELL_FIREBALL))
                     me->SummonCreature(ENTRY_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);

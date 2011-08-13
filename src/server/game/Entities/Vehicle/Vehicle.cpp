@@ -26,6 +26,8 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "ZoneScript.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) : _me(unit), _vehicleInfo(vehInfo), _usableSeatNum(0), _creatureEntry(creatureEntry)
 {
@@ -73,11 +75,11 @@ void Vehicle::Install()
                     if (!creature->m_spells[i])
                         continue;
 
-                    SpellEntry const* spellInfo = sSpellStore.LookupEntry(creature->m_spells[i]);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[i]);
                     if (!spellInfo)
                         continue;
 
-                    if (spellInfo->powerType == POWER_ENERGY)
+                    if (spellInfo->PowerType == POWER_ENERGY)
                     {
                         _me->setPowerType(POWER_ENERGY);
                         _me->SetMaxPower(POWER_ENERGY, 100);
@@ -185,13 +187,13 @@ void Vehicle::RemoveAllPassengers()
 
     // Passengers always cast an aura with SPELL_AURA_CONTROL_VEHICLE on the vehicle
     // We just remove the aura and the unapply handler will make the target leave the vehicle.
-    // We don't need to iterate over m_Seats
+    // We don't need to iterate over Seats
     _me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
     // Following the above logic, this assertion should NEVER fail.
     // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
     // SeatMap::const_iterator itr;
-    // for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    // for (itr = Seats.begin(); itr != Seats.end(); ++itr)
     //    ASSERT(!itr->second.passenger);
 }
 

@@ -661,7 +661,7 @@ public:
         return (part[el]);
     };
 
-    inline const uint32 & operator[](uint8 el) const
+    inline uint32 operator[](uint8 el) const
     {
         return (part[el]);
     };

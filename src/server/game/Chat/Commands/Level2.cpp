@@ -77,19 +77,24 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if (HasLowerSecurity (target, target_guid, true))
         return false;
 
-    time_t mutetime = time(NULL) + notspeaktime*60;
-
     if (target)
+    {
+        //! Target is online, mute will be in effect right away.
+        int64 mutetime = time(NULL) + notspeaktime * MINUTE;
         target->GetSession()->m_muteTime = mutetime;
-
-    LoginDatabase.PExecute("UPDATE account SET mutetime = " UI64FMTD " WHERE id = '%u'", uint64(mutetime), account_id);
-
-    if (target)
+        LoginDatabase.PExecute("UPDATE account SET mutetime = " SI64FMTD " WHERE id = '%u'", mutetime, account_id);
         ChatHandler(target).PSendSysMessage(LANG_YOUR_CHAT_DISABLED, notspeaktime, mutereasonstr.c_str());
+    }
+    else
+    {
+        //! Target is offline, mute will be in effect starting from the next login.
+        int32 muteTime = -int32(notspeaktime * MINUTE);
+        LoginDatabase.PExecute("UPDATE account SET mutetime = %d WHERE id = %u", muteTime, account_id);
+    }
 
     std::string nameLink = playerLink(target_name);
 
-    PSendSysMessage(LANG_YOU_DISABLE_CHAT, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
+    PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
 
     return true;
 }
@@ -502,29 +507,30 @@ bool ChatHandler::HandleCharacterReputationCommand(const char* args)
     FactionStateList const& targetFSL = target->GetReputationMgr().GetStateList();
     for (FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
     {
-        FactionEntry const *factionEntry = sFactionStore.LookupEntry(itr->second.ID);
+        const FactionState& faction = itr->second;
+        FactionEntry const *factionEntry = sFactionStore.LookupEntry(faction.ID);
         char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
         ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
         std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
         std::ostringstream ss;
         if (m_session)
-            ss << itr->second.ID << " - |cffffffff|Hfaction:" << itr->second.ID << "|h[" << factionName << " " << localeNames[loc] << "]|h|r";
+            ss << faction.ID << " - |cffffffff|Hfaction:" << faction.ID << "|h[" << factionName << ' ' << localeNames[loc] << "]|h|r";
         else
-            ss << itr->second.ID << " - " << factionName << " " << localeNames[loc];
+            ss << faction.ID << " - " << factionName << ' ' << localeNames[loc];
 
-        ss << " " << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ")";
+        ss << ' ' << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
-        if (itr->second.Flags & FACTION_FLAG_VISIBLE)
+        if (faction.Flags & FACTION_FLAG_VISIBLE)
             ss << GetTrinityString(LANG_FACTION_VISIBLE);
-        if (itr->second.Flags & FACTION_FLAG_AT_WAR)
+        if (faction.Flags & FACTION_FLAG_AT_WAR)
             ss << GetTrinityString(LANG_FACTION_ATWAR);
-        if (itr->second.Flags & FACTION_FLAG_PEACE_FORCED)
+        if (faction.Flags & FACTION_FLAG_PEACE_FORCED)
             ss << GetTrinityString(LANG_FACTION_PEACE_FORCED);
-        if (itr->second.Flags & FACTION_FLAG_HIDDEN)
+        if (faction.Flags & FACTION_FLAG_HIDDEN)
             ss << GetTrinityString(LANG_FACTION_HIDDEN);
-        if (itr->second.Flags & FACTION_FLAG_INVISIBLE_FORCED)
+        if (faction.Flags & FACTION_FLAG_INVISIBLE_FORCED)
             ss << GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
-        if (itr->second.Flags & FACTION_FLAG_INACTIVE)
+        if (faction.Flags & FACTION_FLAG_INACTIVE)
             ss << GetTrinityString(LANG_FACTION_INACTIVE);
 
         SendSysMessage(ss.str().c_str());
@@ -863,7 +869,7 @@ bool ChatHandler::HandlePetLearnCommand(const char* args)
 
     uint32 spellId = extractSpellIdFromLink((char*)args);
 
-    if (!spellId || !sSpellStore.LookupEntry(spellId))
+    if (!spellId || !sSpellMgr->GetSpellInfo(spellId))
         return false;
 
     // Check if pet already has it
@@ -875,7 +881,7 @@ bool ChatHandler::HandlePetLearnCommand(const char* args)
     }
 
     // Check if spell is valid
-    SpellEntry const* spellInfo = sSpellStore.LookupEntry(spellId);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo || !SpellMgr::IsSpellValid(spellInfo))
     {
         PSendSysMessage(LANG_COMMAND_SPELL_BROKEN, spellId);

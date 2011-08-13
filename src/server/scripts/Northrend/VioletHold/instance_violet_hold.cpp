@@ -617,10 +617,10 @@ public:
 
             std::ostringstream saveStream;
             saveStream << "V H " << (uint16)m_auiEncounter[0]
-                << " " << (uint16)m_auiEncounter[1]
-                << " " << (uint16)m_auiEncounter[2]
-                << " " << (uint16)uiFirstBoss
-                << " " << (uint16)uiSecondBoss;
+                << ' ' << (uint16)m_auiEncounter[1]
+                << ' ' << (uint16)m_auiEncounter[2]
+                << ' ' << (uint16)uiFirstBoss
+                << ' ' << (uint16)uiSecondBoss;
 
             str_data = saveStream.str();
 
@@ -795,7 +795,7 @@ public:
             }
         }
 
-        void ProcessEvent(GameObject* /*pGO*/, uint32 uiEventId)
+        void ProcessEvent(WorldObject* /*pGO*/, uint32 uiEventId)
         {
             switch (uiEventId)
             {
@@ -804,10 +804,6 @@ public:
                     ActivateCrystal();
                     break;
             }
-        }
-
-        void ProcessEvent(Unit* /*unit*/, uint32 /*eventId*/)
-        {
         }
     };
 };

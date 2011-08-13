@@ -191,8 +191,8 @@ public:
             std::string str_data;
 
             std::ostringstream saveStream;
-            saveStream << "D K " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-                << m_auiEncounter[2] << " " << m_auiEncounter[3];
+            saveStream << "D K " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
+                << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
 
             str_data = saveStream.str();
 

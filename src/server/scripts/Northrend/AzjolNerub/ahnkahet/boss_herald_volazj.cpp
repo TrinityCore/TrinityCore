@@ -102,7 +102,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo *spell)
         {
             if (spell->Id == SPELL_INSANITY)
             {
@@ -172,6 +172,7 @@ public:
             // Cleanup
             Summons.DespawnAll();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            me->SetControlled(false, UNIT_STAT_STUNNED);
         }
 
         void EnterCombat(Unit* /*who*/)

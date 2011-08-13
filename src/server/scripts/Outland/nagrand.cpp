@@ -65,7 +65,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void SpellHit(Unit* Hitter, const SpellEntry *Spellkind)
+        void SpellHit(Unit* Hitter, const SpellInfo *Spellkind)
         {
             if (Spellkind->Id == 32001 && !Spawn)
             {
@@ -269,7 +269,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
         {
             if (spell->Id == 32146)
             {
@@ -690,7 +690,7 @@ public:
 
         }
 
-        void SpellHitTarget(Unit* /*pTarget*/, const SpellEntry* pSpell)
+        void SpellHitTarget(Unit* /*pTarget*/, const SpellInfo* pSpell)
         {
             if (pSpell->Id == SPELL_CHAIN_LIGHTNING)
             {
@@ -877,7 +877,7 @@ public:
             ScriptedAI::UpdateAI(diff);
         }
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo *spell)
         {
             if (caster->GetTypeId() == TYPEID_PLAYER)
             {

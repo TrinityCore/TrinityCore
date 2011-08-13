@@ -47,12 +47,9 @@ class BattlegroundRLScore : public BattlegroundScore
 
 class BattlegroundRL : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundRL();
         ~BattlegroundRL();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
         virtual void AddPlayer(Player *plr);

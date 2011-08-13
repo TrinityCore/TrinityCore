@@ -112,7 +112,7 @@ namespace VMAP
 
             // write map tree file
             std::stringstream mapfilename;
-            mapfilename << iDestDir << "/" << std::setfill('0') << std::setw(3) << map_iter->first << ".vmtree";
+            mapfilename << iDestDir << '/' << std::setfill('0') << std::setw(3) << map_iter->first << ".vmtree";
             FILE *mapfile = fopen(mapfilename.str().c_str(), "wb");
             if (!mapfile)
             {
@@ -153,10 +153,10 @@ namespace VMAP
                 uint32 nSpawns = tileEntries.count(tile->first);
                 std::stringstream tilefilename;
                 tilefilename.fill('0');
-                tilefilename << iDestDir << "/" << std::setw(3) << map_iter->first << "_";
+                tilefilename << iDestDir << '/' << std::setw(3) << map_iter->first << '_';
                 uint32 x, y;
                 StaticMapTree::unpackTileID(tile->first, x, y);
-                tilefilename << std::setw(2) << x << "_" << std::setw(2) << y << ".vmtile";
+                tilefilename << std::setw(2) << x << '_' << std::setw(2) << y << ".vmtile";
                 FILE *tilefile = fopen(tilefilename.str().c_str(), "wb");
                 // file header
                 if (success && fwrite(VMAP_MAGIC, 1, 8, tilefile) != 8) success = false;
@@ -242,7 +242,10 @@ namespace VMAP
 
     bool TileAssembler::calculateTransformedBound(ModelSpawn &spawn)
     {
-        std::string modelFilename = iSrcDir + "/" + spawn.name;
+        std::string modelFilename(iSrcDir);
+        modelFilename.push_back('/');
+        modelFilename.append(spawn.name);
+
         ModelPosition modelPosition;
         modelPosition.iDir = spawn.iRot;
         modelPosition.iScale = spawn.iScale;
@@ -358,7 +361,7 @@ namespace VMAP
         bool success = true;
         std::string filename = iSrcDir;
         if (filename.length() >0)
-            filename.append("/");
+            filename.push_back('/');
         filename.append(pModelFilename);
         FILE *rf = fopen(filename.c_str(), "rb");
 
@@ -496,7 +499,11 @@ namespace VMAP
         if (!groupsArray.empty())
         {
             model.setGroupModels(groupsArray);
-            success = model.writeFile(iDestDir + "/" + pModelFilename + ".vmo");
+
+            std::string filename(iSrcDir);
+            filename.push_back('/');
+            filename.append(pModelFilename).append(".vmo");
+            success = model.writeFile(filename);
         }
 
         //std::cout << "readRawFile2: '" << pModelFilename << "' tris: " << nElements << " nodes: " << nNodes << std::endl;

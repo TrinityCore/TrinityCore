@@ -121,24 +121,24 @@ void GameEventMgr::StartInternalEvent(uint16 event_id)
 
 bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 {
-    if (mGameEvent[event_id].state == GAMEEVENT_NORMAL
-        || mGameEvent[event_id].state == GAMEEVENT_INTERNAL)
+    GameEventData &data = mGameEvent[event_id];
+    if (data.state == GAMEEVENT_NORMAL || data.state == GAMEEVENT_INTERNAL)
     {
         AddActiveEvent(event_id);
         ApplyNewEvent(event_id);
         if (overwrite)
         {
             mGameEvent[event_id].start = time(NULL);
-            if (mGameEvent[event_id].end <= mGameEvent[event_id].start)
-                mGameEvent[event_id].end = mGameEvent[event_id].start+mGameEvent[event_id].length;
+            if (data.end <= data.start)
+                data.end = data.start + data.length;
         }
         return false;
     }
     else
     {
-        if (mGameEvent[event_id].state == GAMEEVENT_WORLD_INACTIVE)
+        if (data.state == GAMEEVENT_WORLD_INACTIVE)
             // set to conditions phase
-            mGameEvent[event_id].state = GAMEEVENT_WORLD_CONDITIONS;
+            data.state = GAMEEVENT_WORLD_CONDITIONS;
 
         // add to active events
         AddActiveEvent(event_id);
@@ -161,27 +161,28 @@ bool GameEventMgr::StartEvent(uint16 event_id, bool overwrite)
 
 void GameEventMgr::StopEvent(uint16 event_id, bool overwrite)
 {
-    bool serverwide_evt = mGameEvent[event_id].state != GAMEEVENT_NORMAL && mGameEvent[event_id].state != GAMEEVENT_INTERNAL;
+    GameEventData &data = mGameEvent[event_id];
+    bool serverwide_evt = data.state != GAMEEVENT_NORMAL && data.state != GAMEEVENT_INTERNAL;
 
     RemoveActiveEvent(event_id);
     UnApplyEvent(event_id);
 
     if (overwrite && !serverwide_evt)
     {
-        mGameEvent[event_id].start = time(NULL) - mGameEvent[event_id].length * MINUTE;
-        if (mGameEvent[event_id].end <= mGameEvent[event_id].start)
-            mGameEvent[event_id].end = mGameEvent[event_id].start+mGameEvent[event_id].length;
+        data.start = time(NULL) - data.length * MINUTE;
+        if (data.end <= data.start)
+            data.end = data.start + data.length;
     }
     else if (serverwide_evt)
     {
         // if finished world event, then only gm command can stop it
-        if (overwrite || mGameEvent[event_id].state != GAMEEVENT_WORLD_FINISHED)
+        if (overwrite || data.state != GAMEEVENT_WORLD_FINISHED)
         {
             // reset conditions
-            mGameEvent[event_id].nextstart = 0;
-            mGameEvent[event_id].state = GAMEEVENT_WORLD_INACTIVE;
-            std::map<uint32 /*condition id*/, GameEventFinishCondition>::iterator itr;
-            for (itr = mGameEvent[event_id].conditions.begin(); itr != mGameEvent[event_id].conditions.end(); ++itr)
+            data.nextstart = 0;
+            data.state = GAMEEVENT_WORLD_INACTIVE;
+            GameEventConditionMap::iterator itr;
+            for (itr = data.conditions.begin(); itr != data.conditions.end(); ++itr)
                 itr->second.done = 0;
 
             SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -696,7 +697,7 @@ void GameEventMgr::LoadFromDB()
                     continue;
                 }
 
-                std::map<uint32, GameEventFinishCondition>::iterator itr = mGameEvent[event_id].conditions.find(condition);
+                GameEventConditionMap::iterator itr = mGameEvent[event_id].conditions.find(condition);
                 if (itr != mGameEvent[event_id].conditions.end())
                 {
                     itr->second.done = fields[2].GetFloat();
@@ -962,20 +963,26 @@ uint32 GameEventMgr::StartSystem()                           // return the next 
 
 void GameEventMgr::StartArenaSeason()
 {
-    QueryResult result = WorldDatabase.PQuery("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '%i'", sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+    uint8 season = sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID);
+    QueryResult result = WorldDatabase.PQuery("SELECT eventEntry FROM game_event_arena_seasons WHERE season = '%i'", season);
 
     if (!result)
     {
-        sLog->outError("ArenaSeason (%i) must be an existant Arena Season", sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+        sLog->outError("ArenaSeason (%u) must be an existant Arena Season", season);
         return;
     }
 
     Field *fields = result->Fetch();
-
     uint16 eventId = fields[0].GetUInt16();
 
+    if (eventId >= mGameEvent.size())
+    {
+        sLog->outError("EventEntry %u for ArenaSeason (%u) does not exists", eventId, season);
+        return;
+    }
+
     StartEvent(eventId, true);
-    sLog->outString("Arena Season %i started...", sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+    sLog->outString("Arena Season %u started...", season);
     sLog->outString();
 }
 
@@ -1512,7 +1519,7 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
         // not in correct phase, return
         if (mGameEvent[event_id].state != GAMEEVENT_WORLD_CONDITIONS)
             return;
-        std::map<uint32, GameEventFinishCondition>::iterator citr = mGameEvent[event_id].conditions.find(condition);
+        GameEventConditionMap::iterator citr = mGameEvent[event_id].conditions.find(condition);
         // condition is registered
         if (citr != mGameEvent[event_id].conditions.end())
         {
@@ -1552,7 +1559,7 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
 
 bool GameEventMgr::CheckOneGameEventConditions(uint16 event_id)
 {
-    for (std::map<uint32, GameEventFinishCondition>::iterator itr = mGameEvent[event_id].conditions.begin(); itr != mGameEvent[event_id].conditions.end(); ++itr)
+    for (GameEventConditionMap::const_iterator itr = mGameEvent[event_id].conditions.begin(); itr != mGameEvent[event_id].conditions.end(); ++itr)
         if (itr->second.done < itr->second.reqNum)
             // return false if a condition doesn't match
             return false;
@@ -1585,7 +1592,7 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
 
 void GameEventMgr::SendWorldStateUpdate(Player* plr, uint16 event_id)
 {
-    std::map<uint32, GameEventFinishCondition>::iterator itr;
+    GameEventConditionMap::const_iterator itr;
     for (itr = mGameEvent[event_id].conditions.begin(); itr !=mGameEvent[event_id].conditions.end(); ++itr)
     {
         if (itr->second.done_world_state)

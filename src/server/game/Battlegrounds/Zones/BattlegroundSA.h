@@ -410,12 +410,8 @@ struct BG_SA_RoundScore
 /// Class for manage Strand of Ancient battleground
 class BattlegroundSA : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
-        /// Constructor
         BattlegroundSA();
-        /// Destructor
         ~BattlegroundSA();
 
         /**
@@ -423,7 +419,7 @@ class BattlegroundSA : public Battleground
          * -Update timer
          * -Round switch
          */
-        void Update(uint32 diff);
+        void PostUpdateImpl(uint32 diff);
 
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
@@ -516,7 +512,7 @@ class BattlegroundSA : public Battleground
          * -Update worldstate
          * -Delete gameobject in front of door (lighting object, with different colours for each door)
          */
-        void DestroyGate(Player* pl, GameObject* /*go*/, uint32 destroyedEvent);
+        void DestroyGate(Player* player, GameObject* go);
         /// Update timer worldstate
         void SendTime();
         /**

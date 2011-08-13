@@ -241,13 +241,10 @@ class BattlegroundABScore : public BattlegroundScore
 
 class BattlegroundAB : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundAB();
         ~BattlegroundAB();
 
-        void Update(uint32 diff);
         void AddPlayer(Player *plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
@@ -270,6 +267,7 @@ class BattlegroundAB : public Battleground
         bool IsAllNodesConrolledByTeam(uint32 team) const;  // overwrited
         bool IsTeamScores500Disadvantage(uint32 team) const { return m_TeamScores500Disadvantage[GetTeamIndexByTeamId(team)]; }
     private:
+        virtual void PostUpdateImpl(uint32 diff);
         /* Gameobject spawning/despawning */
         void _CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay);
         void _DelBanner(uint8 node, uint8 type, uint8 teamIndex);

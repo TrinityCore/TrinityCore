@@ -73,7 +73,7 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
         return;
     }
 
-    Player* player = sObjectMgr->GetPlayer(membername.c_str());
+    Player* player = sObjectAccessor->FindPlayerByName(membername.c_str());
 
     // no player
     if (!player)
@@ -218,7 +218,7 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Player* leader = sObjectMgr->GetPlayer(group->GetLeaderGUID());
+    Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
 
     // Forming a new group, create it
     if (!group->IsCreated())
@@ -252,7 +252,7 @@ void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
     if (!group) return;
 
     // Remember leader if online (group pointer will be invalid if group gets disbanded)
-    Player *leader = sObjectMgr->GetPlayer(group->GetLeaderGUID());
+    Player *leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
 
     // uninvite, group can be deleted
     GetPlayer()->UninviteFromGroup();
@@ -370,7 +370,7 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket & recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    Player* player = sObjectMgr->GetPlayer(guid);
+    Player* player = ObjectAccessor::FindPlayer(guid);
 
     /** error handling **/
     if (!player || !group->IsLeader(GetPlayer()->GetGUID()) || player->GetGroup() != group)
@@ -591,7 +591,7 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
     if (!group->HasFreeSlotSubGroup(groupNr))
         return;
 
-    Player *movedPlayer = sObjectMgr->GetPlayer(name.c_str());
+    Player* movedPlayer = sObjectAccessor->FindPlayerByName(name.c_str());
     uint64 guid;
     if (movedPlayer)
     {
@@ -770,7 +770,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
 
     if (mask & GROUP_UPDATE_FLAG_AURAS)
     {
-        const uint64& auramask = player->GetAuraUpdateMaskForRaid();
+        const uint64 auramask = player->GetAuraUpdateMaskForRaid();
         *data << uint64(auramask);
         for (uint32 i = 0; i < MAX_AURAS; ++i)
         {
@@ -860,7 +860,7 @@ void WorldSession::BuildPartyMemberStatsChangedPacket(Player* player, WorldPacke
     {
         if (pet)
         {
-            const uint64& auramask = pet->GetAuraUpdateMaskForRaid();
+            const uint64 auramask = pet->GetAuraUpdateMaskForRaid();
             *data << uint64(auramask);
             for (uint32 i = 0; i < MAX_AURAS; ++i)
             {

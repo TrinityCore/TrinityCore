@@ -512,9 +512,9 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
                 // send area in "id - [name]" format
                 std::ostringstream ss;
                 if (m_session)
-                    ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << " " << localeNames[loc]<< "]|h|r";
+                    ss << areaEntry->ID << " - |cffffffff|Harea:" << areaEntry->ID << "|h[" << name << ' ' << localeNames[loc]<< "]|h|r";
                 else
-                    ss << areaEntry->ID << " - " << name << " " << localeNames[loc];
+                    ss << areaEntry->ID << " - " << name << ' ' << localeNames[loc];
 
                 SendSysMessage (ss.str ().c_str());
 
@@ -575,7 +575,7 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
         if (m_session)
             reply << "  |cffffffff|Htele:" << itr->first << "|h[" << tele->name << "]|h|r\n";
         else
-            reply << "  " << itr->first << " " << tele->name << "\n";
+            reply << "  " << itr->first << ' ' << tele->name << "\n";
     }
 
     if (reply.str().empty())
