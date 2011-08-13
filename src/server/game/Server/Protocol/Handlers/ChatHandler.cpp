@@ -267,7 +267,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             Player* receiver = sObjectAccessor->FindPlayerByName(to.c_str());
             uint32 senderSecurity = GetSecurity();
             uint32 receiverSecurity = receiver ? receiver->GetSession()->GetSecurity() : SEC_PLAYER;
-            if (!receiver || (senderSecurity == SEC_PLAYER && receiverSecurity > SEC_PLAYER && !receiver->isAcceptWhispers() && !receiver->IsInWhipserWhiteList(sender->GetGUID())))
+            if (!receiver || (senderSecurity == SEC_PLAYER && receiverSecurity > SEC_PLAYER && !receiver->isAcceptWhispers() && !receiver->IsInWhisperWhiteList(sender->GetGUID())))
             {
                 SendPlayerNotFoundNotice(to);
                 return;
@@ -291,10 +291,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             }
 
             // If player is a Gamemaster and doesn't accept whisper, we auto-whitelist every player that the Gamemaster is talking to
-            if (sender->GetSession()->GetSecurity() > SEC_PLAYER && !sender->isAcceptWhispers() && !sender->IsInWhipserWhiteList(receiver->GetGUID()))
-            {
+            if (senderSecurity > SEC_PLAYER && !sender->isAcceptWhispers() && !sender->IsInWhisperWhiteList(receiver->GetGUID()))
                 sender->AddWhisperWhiteList(receiver->GetGUID());
-            }
 
             GetPlayer()->Whisper(msg, lang, receiver->GetGUID());
         } break;
@@ -310,7 +308,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                     return;
             }
 
-            if ((type == CHAT_MSG_PARTY_LEADER) && !group->IsLeader(_player->GetGUID()))
+            if (type == CHAT_MSG_PARTY_LEADER && !group->IsLeader(_player->GetGUID()))
                 return;
 
             sScriptMgr->OnPlayerChat(GetPlayer(), type, lang, msg, group);
@@ -427,7 +425,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
             if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
             {
 
-                if (Channel *chn = cMgr->GetChannel(channel, _player))
+                if (Channel* chn = cMgr->GetChannel(channel, _player))
                 {
                     sScriptMgr->OnPlayerChat(_player, type, lang, msg, chn);
 
@@ -460,7 +458,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
                 if (!_player->isDND())
                 {
                     if (msg.empty())
-                        msg  = GetTrinityString(LANG_PLAYER_DND_DEFAULT);
+                        msg = GetTrinityString(LANG_PLAYER_DND_DEFAULT);
                     _player->dndMsg = msg;
                 }
 
