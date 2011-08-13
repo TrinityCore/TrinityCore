@@ -1246,7 +1246,7 @@ void Player::StopMirrorTimer(MirrorTimerType Type)
 
 bool Player::IsImmuneToEnvironmentalDamage()
 {
-	// check for GM and death state included in isAttackableByAOE
+    // check for GM and death state included in isAttackableByAOE
     return (!isAttackableByAOE());
 }
 
