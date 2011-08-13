@@ -24663,3 +24663,13 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
         trans->Append(stmt);
     }
 }
+
+bool Player::IsInWhipserWhiteList(uint64 guid)
+{
+    for (WhisperListContainer::const_iterator itr = WhisperList.begin(); itr != WhisperList.end(); ++itr)
+    {
+        if (*itr == guid)
+            return true;
+    }
+    return false;
+}
