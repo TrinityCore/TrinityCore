@@ -715,6 +715,45 @@ public:
     }
 };
 
+class npc_hyldsmeet_protodrake : public CreatureScript
+{
+    enum NPCs
+    {
+        NPC_HYLDSMEET_DRAKERIDER = 29694
+    };
+
+    public:
+        npc_hyldsmeet_protodrake() : CreatureScript("npc_hyldsmeet_protodrake") { }
+
+        class npc_hyldsmeet_protodrakeAI : public CreatureAI
+        {
+            npc_hyldsmeet_protodrakeAI(Creature* c) : CreatureAI(c), _accessoryRespawnTimer(0), _vehicleKit(NULL) {}
+
+            void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply)
+            {
+                if (apply)
+                    return;
+
+                if (who->GetEntry() == NPC_HYLDSMEET_DRAKERIDER)
+                    _accessoryRespawnTimer = who->ToCreature()->GetRespawnDelay();
+            }
+
+            void Update(uint32 const diff)
+            {
+                //! We need to manually reinstall accessories because the vehicle itself is friendly to players,
+                //! so EnterEvadeMode is never triggered. The accessory on the other hand is hostile and killable.
+                if (_accessoryRespawnTimer && _accessoryRespawnTimer <= diff && _vehicleKit)
+                    _vehicleKit->InstallAllAccessories(false);
+                else
+                    _accessoryRespawnTimer -= diff;
+            }
+            
+            uint32 _accessoryRespawnTimer;
+            Vehicle* _vehicleKit;
+        };
+
+};
+
 void AddSC_storm_peaks()
 {
     new npc_agnetta_tyrsdottar;
@@ -727,4 +766,5 @@ void AddSC_storm_peaks()
     new npc_roxi_ramrocket;
     new npc_brunnhildar_prisoner;
     new npc_icefang;
+    new npc_hyldsmeet_protodrake;
 }
