@@ -1076,7 +1076,7 @@ enum Opcodes
     MSG_GM_CHANGE_ARENA_RATING                      = 0x40F,
     CMSG_DECLINE_CHANNEL_INVITE                     = 0x410,
     SMSG_GROUPACTION_THROTTLED                      = 0x411, // SMSG?
-    SMSG_OVERRIDE_LIGHT                             = 0x412,
+    SMSG_OVERRIDE_LIGHT                             = 0x412, // uint32 defaultMapLight, uint32 overrideLight, uint32 transitionTimeMs
     SMSG_TOTEM_CREATED                              = 0x413,
     CMSG_TOTEM_DESTROYED                            = 0x414,
     CMSG_EXPIRE_RAID_INSTANCE                       = 0x415,
