@@ -2471,7 +2471,7 @@ class Player : public Unit, public GridObject<Player>
 
         void ClearWhisperWhiteList() { WhisperList.clear(); }
         void AddWhisperWhiteList(uint64 guid) { WhisperList.push_back(guid); }
-        bool IsInWhipserWhiteList(uint64 guid);
+        bool IsInWhisperWhiteList(uint64 guid);
 
     protected:
         // Gamemaster whisper whitelist
