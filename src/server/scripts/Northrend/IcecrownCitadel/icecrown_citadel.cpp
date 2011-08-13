@@ -2416,6 +2416,7 @@ class npc_captain_rupert : public CreatureScript
         }
 };
 
+/*
 class npc_frostwing_vrykul : public CreatureScript
 {
     public:
@@ -2439,6 +2440,7 @@ class npc_frostwing_vrykul : public CreatureScript
             return new npc_frostwing_vrykulAI(creature);
         }
 };
+*/
 
 class npc_impaling_spear : public CreatureScript
 {
@@ -2955,7 +2957,7 @@ void AddSC_icecrown_citadel()
     new npc_captain_brandon();
     new npc_captain_grondel();
     new npc_captain_rupert();
-    new npc_frostwing_vrykul();
+    //new npc_frostwing_vrykul();
     new npc_impaling_spear();
     new spell_icc_stoneform();
     new spell_icc_sprit_alarm();
