@@ -14645,7 +14645,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                 return false;
 
             uint32 repFacId2 = qInfo->GetRepObjectiveFaction2();
-            if (repFacId2 && GetReputationMgr().GetReputation(repFacId) < qInfo->GetRepObjectiveValue2())
+            if (repFacId2 && GetReputationMgr().GetReputation(repFacId2) < qInfo->GetRepObjectiveValue2())
                 return false;
 
             return true;
@@ -24676,4 +24676,14 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
         stmt->setUInt64(2, itr->second);
         trans->Append(stmt);
     }
+}
+
+bool Player::IsInWhisperWhiteList(uint64 guid)
+{
+    for (WhisperListContainer::const_iterator itr = WhisperList.begin(); itr != WhisperList.end(); ++itr)
+    {
+        if (*itr == guid)
+            return true;
+    }
+    return false;
 }
