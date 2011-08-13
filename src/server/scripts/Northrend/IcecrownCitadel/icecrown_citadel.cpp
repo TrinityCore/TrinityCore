@@ -963,6 +963,7 @@ public:
                                 events.RescheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE, urand(SEKUNDEN_20, SEKUNDEN_30));
                                 break;
                         }
+                        break;
                     case KRIEGSMAID_DER_YMIRJAR:
                         switch(eventId)
                         {
@@ -975,6 +976,7 @@ public:
                                 events.RescheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH, urand(SEKUNDEN_20, SEKUNDEN_30));
                                 break;
                         }
+                        break;
                     case KRIEGSFUERST_DER_YMIRJAR:
                         if (eventId == EVENT_KRIEGSFUERST_DER_YMIRJAR_WIRBELWIND)
                         {
@@ -1004,6 +1006,7 @@ public:
                                 events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SCHIESSEN, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
                                 break;
                         }
+                        break;
                     case TODESBRINGER_DER_YMIRJAR:
                         switch(eventId)
                         {
@@ -1021,7 +1024,9 @@ public:
                                 events.RescheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_VERBANNEN, urand(SEKUNDEN_10, SEKUNDEN_20));
                                 break;
                         }
-                    default: break;
+                        break;
+                    default:
+                        break;
                 }
             }
             DoMeleeAttackIfReady();
