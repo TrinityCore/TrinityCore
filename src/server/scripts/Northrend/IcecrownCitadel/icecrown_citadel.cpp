@@ -178,10 +178,6 @@ enum ICC_RAID_TRASH_NPCS_UND_SPELLS
         BASTIONSFROSTWYRM_SPALTEN                                       = 70361,
 #define BASTIONSFROSTWYRM_BLIZZARD                                      RAID_MODE(70362,71118,70362,71118)
 #define BASTIONSFROSTWYRM_FROSTATEM                                     RAID_MODE(70116,72641,70116,72641)
-
-        TIERFUEHRER_DER_FROSTWAECHTER                                   = 37531,
-        TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN                 = 71357,
-#define TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK             RAID_MODE(71337,71338,71337,71338)
 };
 
 enum eICC_Raid_Events
@@ -238,9 +234,7 @@ enum eICC_Raid_Events
     EVENT_BASTIONSDIENER_GHOULSCHLITZEN,
     EVENT_BASTIONSFROSTWYRM_SPALTEN,
     EVENT_BASTIONSFROSTWYRM_BLIZZARD,
-    EVENT_BASTIONSFROSTWYRM_FROSTATEM,
-    EVENT_TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN,
-    EVENT_TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK
+    EVENT_BASTIONSFROSTWYRM_FROSTATEM
 };
 
 class mob_icc_raid_trash : public CreatureScript
@@ -250,7 +244,7 @@ public:
 
     struct mob_icc_raid_trashAI: public ScriptedAI
     {
-        mob_icc_raid_trashAI(Creature *c) : ScriptedAI(c)
+        mob_icc_raid_trashAI(Creature * c) : ScriptedAI(c)
         {
             switch(me->GetEntry())
             {
@@ -371,13 +365,13 @@ public:
             }
         }
 
-        void JustDied(Unit* /*killer*/)
+        void JustDied(Unit * /*killer*/)
         {
             if (InstanceScript* pInstance = me->GetInstanceScript())
                 pInstance->SetData(DATA_KILL_CREDIT, Quest_A_Feast_of_Souls);
         }
 
-        void EnterCombat(Unit* who)
+        void EnterCombat(Unit * who)
         {
             if (!who)
                 return;
@@ -433,8 +427,6 @@ public:
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_SPALTEN, urand(3000,5000));
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_BLIZZARD, urand(8000,12000));
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_FROSTATEM, urand(5000,8000));
-            events.ScheduleEvent(EVENT_TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN, urand(5000,10000));
-            events.ScheduleEvent(EVENT_TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK, urand(3000,5000));
 
             switch(me->GetEntry())
             {
@@ -530,19 +522,19 @@ public:
                         switch(eventId)
                         {
                             case EVENT_BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG:
-                                if (Unit* pTarget = DoSelectLowestHpFriendly(40, 50000))
+                                if (Unit * pTarget = DoSelectLowestHpFriendly(40, 50000))
                                     DoCast(pTarget, BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, true);
                                 else
                                     DoCast(me, BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, true);
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, urand(10000,20000));
                                 break;
                             case EVENT_BRUTHUETER_DER_NERUBAR_FANGNETZ:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, BRUTHUETER_DER_NERUBAR_FANGNETZ, true);
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_FANGNETZ, 10000);
                                 break;
                             case EVENT_BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN, true);
                                 events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN, urand(10000,15000));
                                 break;
@@ -593,7 +585,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_JUENGER_DER_TODESSPRECHER_DUNKLER_SEGEN:
-                                if (Unit* pTarget = DoSelectLowestHpFriendly(30, 1))
+                                if (Unit * pTarget = DoSelectLowestHpFriendly(30, 1))
                                     DoCast(pTarget, JUENGER_DER_TODESSPRECHER_DUNKLER_SEGEN, true);
                                 else
                                     DoCast(me, JUENGER_DER_TODESSPRECHER_DUNKLER_SEGEN, true);
@@ -604,7 +596,7 @@ public:
                                 events.RescheduleEvent(EVENT_JUENGER_DER_TODESSPRECHER_SCHATTENBLITZ, urand(6000,8000));
                                 break;
                             case EVENT_JUENGER_DER_TODESSPRECHER_SCHATTENHEILUNG:
-                                if (Unit* pTarget = DoSelectLowestHpFriendly(30, 90000))
+                                if (Unit * pTarget = DoSelectLowestHpFriendly(30, 90000))
                                     DoCast(pTarget, JUENGER_DER_TODESSPRECHER_SCHATTENHEILUNG, true);
                                 else
                                     DoCast(me, JUENGER_DER_TODESSPRECHER_SCHATTENHEILUNG, true);
@@ -628,7 +620,7 @@ public:
                     case HOHEPRIESTER_DER_TODESSPRECHER:
                         if (eventId == EVENT_HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
+                            if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
                                 DoCast(pTarget, HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG, true);
                             events.RescheduleEvent(EVENT_HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG, 15000);
                         }
@@ -636,7 +628,7 @@ public:
                     case BOTIN_DER_VALKYR:
                         if (eventId == EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                            if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(pTarget, BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ, true);
                             events.RescheduleEvent(EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ, 6000);
                         }
@@ -645,7 +637,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_VERSEUCHTE_MONSTROSITAET_GEISSELHAKEN:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     DoCast(pTarget, VERSEUCHTE_MONSTROSITAET_GEISSELHAKEN, true);
                                 events.RescheduleEvent(EVENT_VERSEUCHTE_MONSTROSITAET_GEISSELHAKEN, urand(10000,15000));
                                 break;
@@ -670,7 +662,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY);
                                 events.RescheduleEvent(EVENT_SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY, urand(8000,10000));
                                 break;
@@ -683,7 +675,7 @@ public:
                     case RACHSUECHTIGER_FLEISCHERNTER:
                         if (eventId == EVENT_RACHSUECHTIGER_FLEISCHERNTER_EINGESPRUNGENER_GESICHTSZERMALMER)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(pTarget, RACHSUECHTIGER_FLEISCHERNTER_EINGESPRUNGENER_GESICHTSZERMALMER, true);
                             events.RescheduleEvent(EVENT_RACHSUECHTIGER_FLEISCHERNTER_EINGESPRUNGENER_GESICHTSZERMALMER, urand(10000,20000));
                         }
@@ -699,7 +691,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->GetMaxCastRange(), true))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE, urand(10000,15000));
                                 break;
@@ -712,7 +704,7 @@ public:
                                 events.RescheduleEvent(EVENT_SINISTRER_ERZMAGIER_FEUERBALL, urand(8000,13000));
                                 break;
                             case EVENT_SINISTRER_ERZMAGIER_MAGIE_VERSTAERKEN:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     DoCast(pTarget, SINISTRER_ERZMAGIER_MAGIE_VERSTAERKEN, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_ERZMAGIER_MAGIE_VERSTAERKEN, urand(10000,15000));
                                 break;
@@ -722,7 +714,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->GetMaxCastRange(), true))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, me->GetMaxCastRange(), true))
                                     DoCast(pTarget, SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS, urand(10000,20000));
                                 break;
@@ -749,14 +741,14 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SINISTRER_BERATER_UMHUELLUNG_DES_SCHUTZES:
-                                if (Unit* pTarget = DoSelectLowestHpFriendly(40, 1))
+                                if (Unit * pTarget = DoSelectLowestHpFriendly(40, 1))
                                     DoCast(pTarget, SINISTRER_BERATER_UMHUELLUNG_DES_SCHUTZES, true);
                                 else
                                     DoCast(me, SINISTRER_BERATER_UMHUELLUNG_DES_SCHUTZES, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_BERATER_UMHUELLUNG_DES_SCHUTZES, urand(5000,10000));
                                 break;
                             case EVENT_SINISTRER_BERATER_UMHUELLUNG_DES_ZAUBERSCHUTZES:
-                                if (Unit* pTarget = DoSelectLowestHpFriendly(40, 1))
+                                if (Unit * pTarget = DoSelectLowestHpFriendly(40, 1))
                                     DoCast(pTarget, SINISTRER_BERATER_UMHUELLUNG_DES_ZAUBERSCHUTZES, true);
                                 else
                                     DoCast(me, SINISTRER_BERATER_UMHUELLUNG_DES_ZAUBERSCHUTZES, true);
@@ -785,7 +777,7 @@ public:
                         switch(eventId)
                         {
                             case EVENT_SINISTRER_TAKTIKER_BLUTENTZUG:
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                     DoCast(pTarget, SINISTRER_TAKTIKER_BLUTENTZUG, true);
                                 events.RescheduleEvent(EVENT_SINISTRER_TAKTIKER_BLUTENTZUG, urand(5000,20000));
                                 break;
@@ -798,7 +790,7 @@ public:
                     case SINISTRER_KOMMANDANT:
                         if (eventId == EVENT_SINISTRER_KOMMANDANT_VAMPIRANSTURM)
                         {
-                            if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                            if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                 DoCast(pTarget, SINISTRER_KOMMANDANT_VAMPIRANSTURM, true);
                             events.RescheduleEvent(EVENT_SINISTRER_KOMMANDANT_VAMPIRANSTURM, urand(8000,12000));
                         }
@@ -830,29 +822,16 @@ public:
                             case EVENT_BASTIONSFROSTWYRM_BLIZZARD:
                                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);
                                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, false);
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     DoCast(pTarget, BASTIONSFROSTWYRM_BLIZZARD, true);
                                 events.RescheduleEvent(EVENT_BASTIONSFROSTWYRM_BLIZZARD, urand(8000,12000));
                                 break;
                             case EVENT_BASTIONSFROSTWYRM_FROSTATEM:
                                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
                                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                                if (Unit* pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1))
                                     DoCast(pTarget, BASTIONSFROSTWYRM_FROSTATEM, true);
                                 events.RescheduleEvent(EVENT_BASTIONSFROSTWYRM_FROSTATEM, urand(8000,12000));
-                                break;
-                        }
-                        break;
-                    case TIERFUEHRER_DER_FROSTWAECHTER:
-                        switch(eventId)
-                        {
-                            case EVENT_TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN:
-                                DoCast(TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN);
-                                events.RescheduleEvent(EVENT_TIERFUEHRER_DER_FROSTWAECHTER_WELPEN_BEFEHLIGEN, urand(8000,12000));
-                                break;
-                            case EVENT_TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK:
-                                DoCast(TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK);
-                                events.RescheduleEvent(EVENT_TIERFUEHRER_DER_FROSTWAECHTER_ERSCHUETTENDER_SCHOCK, urand(8000,12000));
                                 break;
                         }
                         break;
@@ -862,7 +841,7 @@ public:
         }
     };
 
-    CreatureAI* GetAI(Creature* pCreature) const
+    CreatureAI * GetAI(Creature * pCreature) const
     {
         return new mob_icc_raid_trashAI(pCreature);
     }
