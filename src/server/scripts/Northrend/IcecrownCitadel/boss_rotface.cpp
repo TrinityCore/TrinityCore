@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -66,6 +67,8 @@ enum Spells
 };
 
 #define MUTATED_INFECTION RAID_MODE<int32>(69674, 71224, 73022, 73023)
+
+#define NUM_ZOMBIES RAID_MODE(10,25,10,25)
 
 enum Events
 {
@@ -408,7 +411,7 @@ class npc_precious_icc : public CreatureScript
                             break;
                         case EVENT_SUMMON_ZOMBIES:
                             Talk(EMOTE_PRECIOUS_ZOMBIES);
-                            for (uint32 i = 0; i < 11; ++i)
+                            for (uint8 i=0; i<NUM_ZOMBIES; ++i) // 10 im 10er und 25 im 25er!
                                 DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, false);
                             _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
                             break;
@@ -416,10 +419,8 @@ class npc_precious_icc : public CreatureScript
                             break;
                     }
                 }
-
                 DoMeleeAttackIfReady();
             }
-
         private:
             EventMap _events;
             SummonList _summons;
