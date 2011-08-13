@@ -412,7 +412,6 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     MapEntry const* map = sMapStore.LookupEntry(mapId);
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
-    AreaTableEntry const* zone = NULL;
 
     if (target)
     {
