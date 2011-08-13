@@ -14736,7 +14736,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                 return false;
 
             uint32 repFacId2 = qInfo->GetRepObjectiveFaction2();
-            if (repFacId2 && GetReputationMgr().GetReputation(repFacId) < qInfo->GetRepObjectiveValue2())
+            if (repFacId2 && GetReputationMgr().GetReputation(repFacId2) < qInfo->GetRepObjectiveValue2())
                 return false;
 
             return true;
@@ -24859,3 +24859,13 @@ void Player::CreateWowarmoryFeed(uint32 type, uint32 data, uint32 item_guid, uin
     m_wowarmory_feeds.push_back(feed);
 }
 /** World of Warcraft Armory **/
+
+bool Player::IsInWhisperWhiteList(uint64 guid)
+{
+    for (WhisperListContainer::const_iterator itr = WhisperList.begin(); itr != WhisperList.end(); ++itr)
+    {
+        if (*itr == guid)
+            return true;
+    }
+    return false;
+}

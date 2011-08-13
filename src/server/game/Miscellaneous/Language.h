@@ -399,7 +399,7 @@ enum TrinityStrings
     LANG_COMMAND_GRAVEYARDALRLINKED     = 450,
     LANG_COMMAND_GRAVEYARDLINKED        = 451,
     LANG_COMMAND_GRAVEYARDWRONGZONE     = 452,
-    //                                  = 453,
+    //                                  = 453, see LANG_PINFO_BAN
     LANG_COMMAND_GRAVEYARDERROR         = 454,
     LANG_COMMAND_GRAVEYARD_NOTEAM       = 455,
     LANG_COMMAND_GRAVEYARD_ANY          = 456,
@@ -512,7 +512,10 @@ enum TrinityStrings
 
     LANG_PINFO_ACCOUNT                  = 548,
     LANG_PINFO_LEVEL                    = 549,
-    LANG_PINFO_MUTE_BAN                 = 550,
+    LANG_PINFO_MUTE                     = 550,
+    LANG_PINFO_BAN                      = 453,
+    LANG_PINFO_MAP_ONLINE               = 714,
+    LANG_PINFO_MAP_OFFLINE              = 716,
 
     LANG_YOU_SET_EXPLORE_ALL            = 551,
     LANG_YOU_SET_EXPLORE_NOTHING        = 552,
@@ -570,6 +573,7 @@ enum TrinityStrings
     LANG_GMLIST                         = 597,
     LANG_GMLIST_HEADER                  = 598,
     LANG_GMLIST_EMPTY                   = 599,
+
     // End Level 3 list, continued at 1100
 
     // Battleground
@@ -656,9 +660,9 @@ enum TrinityStrings
     LANG_BG_QUEUE_ANNOUNCE_SELF         = 711,
     LANG_BG_QUEUE_ANNOUNCE_WORLD        = 712,
     LANG_YOUR_ARENA_LEVEL_REQ_ERROR     = 713,
-//                                      = 714, not used
+//                                      = 714, see LANG_PINFO_MAP_ONLINE
     LANG_YOUR_BG_LEVEL_REQ_ERROR        = 715,
-//                                      = 716, not used
+//                                      = 716, see LANG_PINFO_MAP_OFFLINE
     LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
