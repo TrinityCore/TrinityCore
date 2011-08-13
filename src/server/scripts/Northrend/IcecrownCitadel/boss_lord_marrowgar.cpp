@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -138,13 +139,17 @@ class boss_lord_marrowgar : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit * who)
             {
+                if (!who)
+                    return;
+
                 if (!_introDone && me->IsWithinDistInMap(who, 70.0f))
                 {
                     Talk(SAY_ENTER_ZONE);
                     _introDone = true;
                 }
+                BossAI::MoveInLineOfSight(who);
             }
 
             void UpdateAI(uint32 const diff)

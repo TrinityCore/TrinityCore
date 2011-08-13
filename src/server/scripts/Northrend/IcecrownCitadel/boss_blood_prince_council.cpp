@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -633,10 +634,6 @@ class boss_prince_taldaram_icc : public CreatureScript
                     DoCast(me, SPELL_SHADOW_PRISON);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/)
-            {
-            }
-
             void EnterCombat(Unit* /*who*/)
             {
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_BLOOD_PRINCES_CONTROL)))
@@ -851,10 +848,6 @@ class boss_prince_valanar_icc : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
                 if (IsHeroic())
                     DoCast(me, SPELL_SHADOW_PRISON);
-            }
-
-            void MoveInLineOfSight(Unit* /*who*/)
-            {
             }
 
             void EnterCombat(Unit* /*who*/)

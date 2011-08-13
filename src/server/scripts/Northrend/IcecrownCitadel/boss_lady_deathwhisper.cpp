@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -235,8 +236,11 @@ class boss_lady_deathwhisper : public CreatureScript
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
             }
 
-            void MoveInLineOfSight(Unit* who)
+            void MoveInLineOfSight(Unit * who)
             {
+                if (!who)
+                    return;
+
                 if (!me->isInCombat() && !me->HasAura(SPELL_MANA_BARRIER))
                     DoCast(me, SPELL_MANA_BARRIER, true);
 
@@ -252,6 +256,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     events.ScheduleEvent(EVENT_INTRO_6, 48500, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_7, 58000, 0, PHASE_INTRO);
                 }
+                BossAI::MoveInLineOfSight(who);
             }
 
             void AttackStart(Unit* victim)

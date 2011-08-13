@@ -158,11 +158,6 @@ class boss_rotface : public CreatureScript
                     Talk(SAY_SLIME_SPRAY);
             }
 
-            void MoveInLineOfSight(Unit* /*who*/)
-            {
-                // don't enter combat
-            }
-
             void UpdateAI(const uint32 diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
