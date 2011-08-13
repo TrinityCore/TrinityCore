@@ -452,7 +452,7 @@ public:
         }
 
         // Check and abort if the target gm has a higher rank on one of the realms and the new realm is -1
-        if (gmRealmID == -1)
+        if (gmRealmID == -1 && plSecurity != SEC_CONSOLE)
         {
             QueryResult result = LoginDatabase.PQuery("SELECT * FROM account_access WHERE id = '%u' AND gmlevel > '%d'", targetAccountId, gm);
             if (result)
