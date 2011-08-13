@@ -610,6 +610,8 @@ bool ChatHandler::HandleWhispersCommand(const char* args)
     // whisper off
     if (argstr == "off")
     {
+        // Remove all players from the Gamemaster's whisper whitelist
+        m_session->GetPlayer()->ClearWhisperWhiteList();
         m_session->GetPlayer()->SetAcceptWhispers(false);
         SendSysMessage(LANG_COMMAND_WHISPEROFF);
         return true;
