@@ -613,7 +613,7 @@ void Scripted_NoMovementAI::AttackStart(Unit* target)
     if (!target)
         return;
 
-    if (me->Attack(target, true))
+    if (me->Attack(target, false))
         DoStartNoMovement(target);
 }
 
