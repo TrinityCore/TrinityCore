@@ -274,8 +274,9 @@ struct Scripted_NoMovementAI : public ScriptedAI
     Scripted_NoMovementAI(Creature* creature) : ScriptedAI(creature) {}
     virtual ~Scripted_NoMovementAI() {}
 
-    //Called at each attack of me by any victim
-    void AttackStart(Unit* target);
+    // Called at each attack of me by any victim
+    // dist ist nur aus Kompatibílität vorhanden, und hat keine Wirkung!
+    void AttackStart(Unit * target, float dist = 0);
 };
 
 class BossAI : public ScriptedAI
