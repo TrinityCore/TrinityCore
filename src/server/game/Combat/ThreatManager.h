@@ -150,8 +150,8 @@ class ThreatContainer
     protected:
         friend class ThreatManager;
 
-        void remove(HostileReference* hostileRef) { iThreatList.remove(hostileRef); }
-        void addReference(HostileReference* hostileRef) { iThreatList.push_back(hostileRef); }
+        void remove(HostileReference* hostileRef) { m_ThreatListMutex.acquire(); iThreatList.remove(hostileRef); m_ThreatListMutex.release(); }
+        void addReference(HostileReference* hostileRef) { m_ThreatListMutex.acquire(); iThreatList.push_back(hostileRef); m_ThreatListMutex.release(); }
         void clearReferences();
 
         // Sort the list if necessary
