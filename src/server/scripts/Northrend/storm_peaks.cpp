@@ -738,7 +738,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
                     _accessoryRespawnTimer = who->ToCreature()->GetRespawnDelay();
             }
 
-            void Update(uint32 const diff)
+            void UpdateAI(uint32 const diff)
             {
                 //! We need to manually reinstall accessories because the vehicle itself is friendly to players,
                 //! so EnterEvadeMode is never triggered. The accessory on the other hand is hostile and killable.
