@@ -237,12 +237,14 @@ Unit* HostileReference::getSourceUnit()
 
 void ThreatContainer::clearReferences()
 {
+    m_ThreatListMutex.acquire();
     for (std::list<HostileReference*>::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
     {
         (*i)->unlink();
         delete (*i);
     }
     iThreatList.clear();
+    m_ThreatListMutex.release();
 }
 
 //============================================================
@@ -253,11 +255,16 @@ HostileReference* ThreatContainer::getReferenceByTarget(Unit* victim)
         return NULL;
 
     uint64 guid = victim->GetGUID();
+    m_ThreatListMutex.acquire();
+    HostileReference* reference = NULL;
     for (std::list<HostileReference*>::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
         if ((*i) && (*i)->getUnitGuid() == guid)
-            return (*i);
-
-    return NULL;
+        {
+            reference = (*i);
+            break;
+        }
+    m_ThreatListMutex.release();
+    return reference;
 }
 
 //============================================================
@@ -284,9 +291,10 @@ void ThreatContainer::modifyThreatPercent(Unit *victim, int32 percent)
 
 void ThreatContainer::update()
 {
+    m_ThreatListMutex.acquire();
     if (iDirty && iThreatList.size() > 1)
         iThreatList.sort(Trinity::ThreatOrderPred());
-
+    m_ThreatListMutex.release();
     iDirty = false;
 }
 
@@ -300,6 +308,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* attacker, HostileR
     bool found = false;
     bool noPriorityTargetFound = false;
 
+    m_ThreatListMutex.acquire();
     std::list<HostileReference*>::const_iterator lastRef = iThreatList.end();
     lastRef--;
 
@@ -360,7 +369,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* attacker, HostileR
     }
     if (!found)
         currentRef = NULL;
-
+    m_ThreatListMutex.release();
     return currentRef;
 }
 

@@ -25,6 +25,7 @@
 #include "UnitEvents.h"
 
 #include <list>
+#include <ace/Mutex.h>
 
 //==============================================================
 
@@ -144,6 +145,7 @@ class ThreatContainer
 {
     private:
         std::list<HostileReference*> iThreatList;
+        ACE_Thread_Mutex m_ThreatListMutex;
         bool iDirty;
     protected:
         friend class ThreatManager;
