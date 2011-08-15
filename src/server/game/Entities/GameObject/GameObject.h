@@ -816,6 +816,13 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
     private:
         void SwitchDoorOrButton(bool activate, bool alternative = false);
+
+        //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
+        bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/) const
+        {
+            //! Following check does check 3d distance
+            return IsInRange(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), dist2compare);
+        }
         GameObjectAI* m_AI;
 };
 #endif
