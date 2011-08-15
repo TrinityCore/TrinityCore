@@ -42,19 +42,19 @@ class AccountMgr
         ~AccountMgr();
 
         AccountOpResult CreateAccount(std::string username, std::string password);
-        AccountOpResult DeleteAccount(uint32 accid);
-        AccountOpResult ChangeUsername(uint32 accid, std::string new_uname, std::string new_passwd);
-        AccountOpResult ChangePassword(uint32 accid, std::string new_passwd);
-        bool CheckPassword(uint32 accid, std::string passwd);
+        AccountOpResult DeleteAccount(uint32 accountId);
+        AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword);
+        AccountOpResult ChangePassword(uint32 accountId, std::string newPassword);
+        bool CheckPassword(uint32 accountId, std::string password);
 
         uint32 GetId(std::string username);
-        uint32 GetSecurity(uint32 acc_id);
-        uint32 GetSecurity(uint64 acc_id, int32 realm_id);
-        bool GetName(uint32 acc_id, std::string &name);
-        uint32 GetCharactersCount(uint32 acc_id);
+        uint32 GetSecurity(uint32 accountId);
+        uint32 GetSecurity(uint64 accountId, int32 realmId);
+        bool GetName(uint32 accountId, std::string& name);
+        uint32 GetCharactersCount(uint32 accountId);
         std::string CalculateShaPassHash(std::string& name, std::string& password);
 
-        static bool normalizeString(std::string& utf8str);
+        static bool normalizeString(std::string& utf8String);
 };
 
 #define sAccountMgr ACE_Singleton<AccountMgr, ACE_Null_Mutex>::instance()
