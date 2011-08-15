@@ -138,14 +138,14 @@ enum HodirActions
     ACTION_CHEESE_THE_FREEZE                     = 2,
 };
 
-#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE(2961, 2962)
-#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE(2967, 2968)
-#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE(3182, 3184)
-#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE(2963, 2965)
-#define FRIENDS_COUNT                            RAID_MODE(4, 8)
+#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
+#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
+#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint8>(3182, 3184)
+#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
+#define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
 #define DATA_GETTING_COLD_IN_HERE                29672968 // 2967, 2968 are achievement IDs
 
-const Position SummonPositions[8] =
+Position const SummonPositions[8] =
 {
     { 1983.75f, -243.36f, 432.767f, 1.57f }, // Field Medic Penny    &&  Battle-Priest Eliza
     { 1999.90f, -230.49f, 432.767f, 1.57f }, // Eivi Nightfeather    &&  Tor Greycloud
@@ -157,9 +157,16 @@ const Position SummonPositions[8] =
     { 1976.60f, -233.53f, 432.767f, 1.57f }, // Sissy Flamecuffs     &&  Veesha Blazeweaver
 };
 
-uint32 Entry[8] =
+uint32 const Entry[8] =
 {
-    32897, 33325, 33328, 32893, 33326, 32901, 32900, 33327,
+    NPC_FIELD_MEDIC_PENNY,
+    NPC_EIVI_NIGHTFEATHER,
+    NPC_ELEMENTALIST_MAHFUUN,
+    NPC_MISSY_FLAMECUFFS,
+    NPC_FIELD_MEDIC_JESSI,
+    NPC_ELLIE_NIGHTFEATHER,
+    NPC_ELEMENTALIST_AVUUN,
+    NPC_SISSY_FLAMECUFFS,
 };
 
 class npc_flash_freeze : public CreatureScript
@@ -452,7 +459,7 @@ class boss_hodir : public CreatureScript
                 DoMeleeAttackIfReady();
             }
 
-            void DoAction(const int32 action)
+            void DoAction(int32 const action)
             {
                 switch (action)
                 {
@@ -540,7 +547,7 @@ class npc_icicle : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_icicleAI(creature);
+            return GetUlduarAI<npc_icicleAI>(creature);
         };
 };
 
@@ -580,7 +587,7 @@ class npc_snowpacked_icicle : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_snowpacked_icicleAI(creature);
+            return GetUlduarAI<npc_snowpacked_icicleAI>(creature);
         };
 };
 
@@ -657,7 +664,7 @@ class npc_hodir_priest : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_hodir_priestAI(creature);
+            return GetUlduarAI<npc_hodir_priestAI>(creature);
         };
 };
 
@@ -719,7 +726,7 @@ class npc_hodir_shaman : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_hodir_shamanAI(creature);
+            return GetUlduarAI<npc_hodir_shamanAI>(creature);
         };
 };
 
@@ -780,7 +787,7 @@ class npc_hodir_druid : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_hodir_druidAI(creature);
+            return GetUlduarAI<npc_hodir_druidAI>(creature);
         };
 };
 
@@ -861,7 +868,7 @@ class npc_hodir_mage : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_hodir_mageAI(creature);
+            return GetUlduarAI<npc_hodir_mageAI>(creature);
         };
 };
 
@@ -895,7 +902,7 @@ class npc_toasty_fire : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_toasty_fireAI(creature);
+            return GetUlduarAI<npc_toasty_fireAI>(creature);
         };
 };
 
