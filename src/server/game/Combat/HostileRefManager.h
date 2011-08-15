@@ -32,9 +32,9 @@ class SpellInfo;
 class HostileRefManager : public RefManager<Unit, ThreatManager>
 {
     private:
-        Unit *iOwner;
+        Unit* iOwner;
     public:
-        explicit HostileRefManager(Unit *owner) { iOwner = owner; }
+        explicit HostileRefManager(Unit* owner) { iOwner = owner; }
         ~HostileRefManager();
 
         Unit* getOwner() { return iOwner; }
@@ -62,10 +62,10 @@ class HostileRefManager : public RefManager<Unit, ThreatManager>
         void setOnlineOfflineState(bool isOnline);
 
         // set state for one reference, defined by Unit
-        void setOnlineOfflineState(Unit *creature, bool isOnline);
+        void setOnlineOfflineState(Unit* creature, bool isOnline);
 
         // delete one reference, defined by Unit
-        void deleteReference(Unit *creature);
+        void deleteReference(Unit* creature);
 
         void UpdateVisibility();
 };
