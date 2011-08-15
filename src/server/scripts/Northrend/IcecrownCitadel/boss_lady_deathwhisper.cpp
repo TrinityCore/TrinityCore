@@ -261,11 +261,13 @@ class boss_lady_deathwhisper : public CreatureScript
 
             void AttackStart(Unit* victim)
             {
-                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+                if (!victim || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
 
-                if (victim && me->Attack(victim, true) && !(events.GetPhaseMask() & PHASE_ONE_MASK))
-                    me->GetMotionMaster()->MoveChase(victim);
+                if (me->HasAura(SPELL_MANA_BARRIER) && me->Attack(victim, false))
+                    me->GetMotionMaster()->MoveIdle();
+                else if (!me->HasAura(SPELL_MANA_BARRIER) && (!events.GetPhaseMask() & PHASE_ONE_MASK))
+                    BossAI::AttackStart(victim);
             }
 
             void EnterCombat(Unit* who)
