@@ -21,11 +21,13 @@
 #include "SharedDefines.h"
 
 class Unit;
+class Player;
 class Spell;
 class SpellInfo;
 struct SpellChainNode;
 struct SpellTargetPosition;
 struct SpellDurationEntry;
+struct SpellModifier;
 struct SpellRangeEntry;
 struct SpellRadiusEntry;
 struct SpellEntry;
