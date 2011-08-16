@@ -281,7 +281,7 @@ class boss_halion : public CreatureScript
                     Talk(SAY_PHASE_TWO);
 
                     me->CastStop();
-                    
+
                     DoCast(me, SPELL_TWILIGHT_PHASING);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
@@ -700,6 +700,10 @@ class npc_halion_controller : public CreatureScript
                             }
                         }
 
+                        // This gob is supposed to be summoned by a spell.
+                        // However, gameobjects summonded by spells are assessed to be temporary
+                        // This means that when this gob is used, it despawns when using the spell
+                        // Remove this and make Halion cast the correct spell asap.
                         if (GameObject* portal = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_ENTER_PORTAL)))
                         {
                             me->RemoveGameObject(portal, false);
@@ -818,8 +822,25 @@ class npc_halion_controller : public CreatureScript
                                 {
                                     Map::PlayerList const &PlList = sanctum->GetPlayers();
                                     for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                                    {
                                         if (Player* player = i->getSource())
-                                            Talk((pValue > tValue ? (player->HasAura(SPELL_TWILIGHT_REALM) ? EMOTE_T_OUT_T : EMOTE_P_IN_P) : (player->HasAura(SPELL_TWILIGHT_REALM) ? EMOTE_T_IN_T : EMOTE_P_OUT_P)), player->GetGUID());
+                                        {
+                                            if (pValue > tValue)
+                                            {
+                                                if (player->HasAura(SPELL_TWILIGHT_REALM))
+                                                    Talk(EMOTE_T_OUT_T, player->GetGUID());
+                                                else
+                                                    Talk(EMOTE_T_IN_P, player->GetGUID());
+                                            }
+                                            else
+                                            {
+                                                if (player->HasAura(SPELL_TWILIGHT_REALM))
+                                                    Talk(EMOTE_T_IN_T, player->GetGUID());
+                                                else
+                                                    Talk(EMOTE_P_OUT_P, player->GetGUID());
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 20000);
@@ -1115,7 +1136,7 @@ class npc_consumption : public CreatureScript
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                 {
                     controller->AI()->JustSummoned(me);
-                   
+
                     // Get stacks of Marks of Consumption that were on the caster
                     uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
                     CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
