@@ -641,6 +641,10 @@ class npc_halion_controller : public CreatureScript
                         }
                         me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
 
+                        // This gob is supposed to be summoned by a spell.
+                        // However, gameobjects summonded by spells are assessed to be temporary
+                        // This means that when this gob is used, it despawns when using the spell
+                        // Remove this and make Halion cast the correct spell asap.
                         if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                         {
                             if (GameObject* portal = me->SummonGameObject(GO_HALION_PORTAL_1, halion->GetPositionX(), halion->GetPositionY(), halion->GetPositionZ(), 0, 0, 0, 0, 0, 8 * MINUTE * IN_MILLISECONDS))
@@ -689,6 +693,7 @@ class npc_halion_controller : public CreatureScript
                     }
                     case ACTION_REMOVE_EXIT_PORTALS:
                     {
+                        // Could not find any spell. DBC missing data ?
                         for (uint8 i = 0; i < 2; i++)
                         {
                             if (GameObject* portal = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_EXIT_PORTAL_1 + i)))
