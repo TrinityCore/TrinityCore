@@ -1006,7 +1006,7 @@ class spell_putricide_ooze_summon : public SpellScriptLoader
                     z = GetTarget()->GetMap()->GetHeight(x, y, z, true, 25.0f);
                     x += 10.0f * cosf(caster->GetOrientation());
                     y += 10.0f * sinf(caster->GetOrientation());
-                    caster->CastSpell(x, y, z, triggerSpellId, true, NULL, NULL, GetCasterGUID(), caster);
+                    caster->CastSpell(x, y, z, triggerSpellId, true, NULL, NULL, GetCasterGUID());
                 }
             }
 
