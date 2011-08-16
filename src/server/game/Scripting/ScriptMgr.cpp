@@ -32,94 +32,97 @@
 template<class TScript>
 class ScriptRegistry
 {
-    // Counter used for code-only scripts.
-    static uint32 _scriptIdCounter;
+    public:
 
-public:
-    typedef std::map<uint32, TScript*> ScriptMap;
-    typedef typename ScriptMap::iterator ScriptMapIterator;
+        typedef std::map<uint32, TScript*> ScriptMap;
+        typedef typename ScriptMap::iterator ScriptMapIterator;
 
-    // The actual list of scripts. This will be accessed concurrently, so it must not be modified
-    // after server startup.
-    static ScriptMap ScriptPointerList;
+        // The actual list of scripts. This will be accessed concurrently, so it must not be modified
+        // after server startup.
+        static ScriptMap ScriptPointerList;
 
-    static void AddScript(TScript* const script)
-    {
-        ASSERT(script);
-
-        // See if the script is using the same memory as another script. If this happens, it means that
-        // someone forgot to allocate new memory for a script.
-        for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
+        static void AddScript(TScript* const script)
         {
-            if (it->second == script)
-            {
-                sLog->outError("Script '%s' has same memory pointer as '%s'.",
-                    script->GetName().c_str(), it->second->GetName().c_str());
+            ASSERT(script);
 
-                return;
-            }
-        }
-
-        if (script->IsDatabaseBound())
-        {
-            // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
-            // through a script name (or similar).
-            uint32 id = sObjectMgr->GetScriptId(script->GetName().c_str());
-            if (id)
+            // See if the script is using the same memory as another script. If this happens, it means that
+            // someone forgot to allocate new memory for a script.
+            for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
             {
-                // Try to find an existing script.
-                bool existing = false;
-                for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
+                if (it->second == script)
                 {
-                    // If the script names match...
-                    if (it->second->GetName() == script->GetName())
-                    {
-                        // ... It exists.
-                        existing = true;
-                        break;
-                    }
+                    sLog->outError("Script '%s' has same memory pointer as '%s'.",
+                        script->GetName().c_str(), it->second->GetName().c_str());
+
+                    return;
                 }
+            }
 
-                // If the script isn't assigned -> assign it!
-                if (!existing)
+            if (script->IsDatabaseBound())
+            {
+                // Get an ID for the script. An ID only exists if it's a script that is assigned in the database
+                // through a script name (or similar).
+                uint32 id = sObjectMgr->GetScriptId(script->GetName().c_str());
+                if (id)
                 {
-                    ScriptPointerList[id] = script;
-                    sScriptMgr->IncrementScriptCount();
+                    // Try to find an existing script.
+                    bool existing = false;
+                    for (ScriptMapIterator it = ScriptPointerList.begin(); it != ScriptPointerList.end(); ++it)
+                    {
+                        // If the script names match...
+                        if (it->second->GetName() == script->GetName())
+                        {
+                            // ... It exists.
+                            existing = true;
+                            break;
+                        }
+                    }
+
+                    // If the script isn't assigned -> assign it!
+                    if (!existing)
+                    {
+                        ScriptPointerList[id] = script;
+                        sScriptMgr->IncrementScriptCount();
+                    }
+                    else
+                    {
+                        // If the script is already assigned -> delete it!
+                        sLog->outError("Script '%s' already assigned with the same script name, so the script can't work.",
+                            script->GetName().c_str());
+
+                        ASSERT(false); // Error that should be fixed ASAP.
+                    }
                 }
                 else
                 {
-                    // If the script is already assigned -> delete it!
-                    sLog->outError("Script '%s' already assigned with the same script name, so the script can't work.",
-                        script->GetName().c_str());
-
-                    ASSERT(false); // Error that should be fixed ASAP.
+                    // The script uses a script name from database, but isn't assigned to anything.
+                    if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
+                        sLog->outErrorDb("Script named '%s' does not have a script name assigned in database.",
+                            script->GetName().c_str());
                 }
             }
             else
             {
-                // The script uses a script name from database, but isn't assigned to anything.
-                if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
-                    sLog->outErrorDb("Script named '%s' does not have a script name assigned in database.",
-                        script->GetName().c_str());
+                // We're dealing with a code-only script; just add it.
+                ScriptPointerList[_scriptIdCounter++] = script;
+                sScriptMgr->IncrementScriptCount();
             }
         }
-        else
+
+        // Gets a script by its ID (assigned by ObjectMgr).
+        static TScript* GetScriptById(uint32 id)
         {
-            // We're dealing with a code-only script; just add it.
-            ScriptPointerList[_scriptIdCounter++] = script;
-            sScriptMgr->IncrementScriptCount();
+            ScriptMapIterator it = ScriptPointerList.find(id);
+            if (it != ScriptPointerList.end())
+                return it->second;
+
+            return NULL;
         }
-    }
 
-    // Gets a script by its ID (assigned by ObjectMgr).
-    static TScript* GetScriptById(uint32 id)
-    {
-        ScriptMapIterator it = ScriptPointerList.find(id);
-        if (it != ScriptPointerList.end())
-            return it->second;
+    private:
 
-        return NULL;
-    }
+        // Counter used for code-only scripts.
+        static uint32 _scriptIdCounter;
 };
 
 // Utility macros to refer to the script registry.
@@ -316,29 +319,29 @@ void ScriptMgr::FillSpellSummary()
         SpellSummary[i].Targets = 0;
 
         pTempSpell = sSpellMgr->GetSpellInfo(i);
-        //This spell doesn't exist
+        // This spell doesn't exist.
         if (!pTempSpell)
             continue;
 
         for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
-            //Spell targets self
+            // Spell targets self.
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SELF-1);
 
-            //Spell targets a single enemy
+            // Spell targets a single enemy.
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_DST_TARGET_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SINGLE_ENEMY-1);
 
-            //Spell targets AoE at enemy
+            // Spell targets AoE at enemy.
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY_SRC ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY_DST ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_SRC_CASTER ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_ENEMY-1);
 
-            //Spell targets an enemy
+            // Spell targets an enemy.
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_DST_TARGET_ENEMY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY_SRC ||
@@ -347,19 +350,19 @@ void ScriptMgr::FillSpellSummary()
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_ENEMY-1);
 
-            //Spell targets a single friend(or self)
+            // Spell targets a single friend (or self).
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_CASTER ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_PARTY)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_SINGLE_FRIEND-1);
 
-            //Spell targets aoe friends
+            // Spell targets AoE friends.
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PARTY_CASTER ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY_PARTY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_SRC_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_AOE_FRIEND-1);
 
-            //Spell targets any friend(or self)
+            // Spell targets any friend (or self).
             if (pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_CASTER ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ALLY ||
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_PARTY ||
@@ -368,30 +371,30 @@ void ScriptMgr::FillSpellSummary()
                 pTempSpell->Effects[j].TargetA.GetTarget() == TARGET_SRC_CASTER)
                 SpellSummary[i].Targets |= 1 << (SELECT_TARGET_ANY_FRIEND-1);
 
-            //Make sure that this spell includes a damage effect
+            // Make sure that this spell includes a damage effect.
             if (pTempSpell->Effects[j].Effect == SPELL_EFFECT_SCHOOL_DAMAGE ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_INSTAKILL ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_ENVIRONMENTAL_DAMAGE ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEALTH_LEECH)
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_DAMAGE-1);
 
-            //Make sure that this spell includes a healing effect (or an apply aura with a periodic heal)
+            // Make sure that this spell includes a healing effect (or an apply aura with a periodic heal).
             if (pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL_MAX_HEALTH ||
                 pTempSpell->Effects[j].Effect == SPELL_EFFECT_HEAL_MECHANICAL ||
                 (pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA  && pTempSpell->Effects[j].ApplyAuraName == 8))
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_HEALING-1);
 
-            //Make sure that this spell applies an aura
+            // Make sure that this spell applies an aura.
             if (pTempSpell->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA)
                 SpellSummary[i].Effects |= 1 << (SELECT_EFFECT_AURA-1);
         }
     }
 }
 
-void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::list<SpellScript *> & script_vector)
+void ScriptMgr::CreateSpellScripts(uint32 spellId, std::list<SpellScript*>& scriptVector)
 {
-    SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spell_id);
+    SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
 
     for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
@@ -404,15 +407,15 @@ void ScriptMgr::CreateSpellScripts(uint32 spell_id, std::list<SpellScript *> & s
         if (!script)
             continue;
 
-        script->_Init(&tmpscript->GetName(), spell_id);
+        script->_Init(&tmpscript->GetName(), spellId);
 
-        script_vector.push_back(script);
+        scriptVector.push_back(script);
     }
 }
 
-void ScriptMgr::CreateAuraScripts(uint32 spell_id, std::list<AuraScript *> & script_vector)
+void ScriptMgr::CreateAuraScripts(uint32 spellId, std::list<AuraScript*>& scriptVector)
 {
-    SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spell_id);
+    SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
 
     for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
@@ -425,16 +428,16 @@ void ScriptMgr::CreateAuraScripts(uint32 spell_id, std::list<AuraScript *> & scr
         if (!script)
             continue;
 
-        script->_Init(&tmpscript->GetName(), spell_id);
+        script->_Init(&tmpscript->GetName(), spellId);
 
-        script_vector.push_back(script);
+        scriptVector.push_back(script);
     }
 }
 
-void ScriptMgr::CreateSpellScriptLoaders(uint32 spell_id, std::vector<std::pair<SpellScriptLoader *, SpellScriptsMap::iterator> > & script_vector)
+void ScriptMgr::CreateSpellScriptLoaders(uint32 spellId, std::vector<std::pair<SpellScriptLoader*, SpellScriptsMap::iterator> >& scriptVector)
 {
-    SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spell_id);
-    script_vector.reserve(std::distance(bounds.first, bounds.second));
+    SpellScriptsBounds bounds = sObjectMgr->GetSpellScriptsBounds(spellId);
+    scriptVector.reserve(std::distance(bounds.first, bounds.second));
 
     for (SpellScriptsMap::iterator itr = bounds.first; itr != bounds.second; ++itr)
     {
@@ -442,7 +445,7 @@ void ScriptMgr::CreateSpellScriptLoaders(uint32 spell_id, std::vector<std::pair<
         if (!tmpscript)
             continue;
 
-        script_vector.push_back(std::make_pair(tmpscript, itr));
+        scriptVector.push_back(std::make_pair(tmpscript, itr));
     }
 }
 
@@ -1195,9 +1198,9 @@ void ScriptMgr::OnPlayerFreeTalentPointsChanged(Player* player, uint32 points)
     FOREACH_SCRIPT(PlayerScript)->OnFreeTalentPointsChanged(player, points);
 }
 
-void ScriptMgr::OnPlayerTalentsReset(Player* player, bool no_cost)
+void ScriptMgr::OnPlayerTalentsReset(Player* player, bool noCost)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, no_cost);
+    FOREACH_SCRIPT(PlayerScript)->OnTalentsReset(player, noCost);
 }
 
 void ScriptMgr::OnPlayerMoneyChanged(Player* player, int32& amount)
@@ -1260,9 +1263,9 @@ void ScriptMgr::OnPlayerEmote(Player* player, uint32 emote)
     FOREACH_SCRIPT(PlayerScript)->OnEmote(player, emote);
 }
 
-void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 text_emote, uint32 emoteNum, uint64 guid)
+void ScriptMgr::OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, text_emote, emoteNum, guid);
+    FOREACH_SCRIPT(PlayerScript)->OnTextEmote(player, textEmote, emoteNum, guid);
 }
 
 void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)

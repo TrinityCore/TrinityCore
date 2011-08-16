@@ -699,7 +699,7 @@ class WorldObject : public Object, public WorldLocation
             { return IsInDist2d(x, y, dist + GetObjectSize()); }
         bool IsWithinDist2d(const Position *pos, float dist) const
             { return IsInDist2d(pos, dist + GetObjectSize()); }
-        bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
+        virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
         // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const
         {
