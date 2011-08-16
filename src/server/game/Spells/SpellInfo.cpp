@@ -783,12 +783,12 @@ bool SpellInfo::IsDeathPersistent() const
 
 bool SpellInfo::IsRequiringDeadTarget() const
 {
-    return AttributesEx3 & SPELL_ATTR3_REQUIRE_DEAD_TARGET;
+    return AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS;
 }
 
 bool SpellInfo::IsAllowingDeadTarget() const
 {
-    return AttributesEx2 & SPELL_ATTR2_ALLOW_DEAD_TARGET;
+    return AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD;
 }
 
 bool SpellInfo::CanBeUsedInCombat() const
