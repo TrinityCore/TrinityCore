@@ -1991,7 +1991,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                 case TARGET_UNIT_CASTER:
                     AddUnitTarget(m_caster, i);
                     break;
-                case TARGET_UNIT_CASTER_FISHING:
+                case TARGET_DEST_CASTER_FISHING:
                 {
                     float min_dis = m_spellInfo->GetMinRange(true);
                     float max_dis = m_spellInfo->GetMaxRange(true);
@@ -2014,8 +2014,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         if (Unit* unit = m_caster->ToTempSummon()->GetSummoner())
                             AddUnitTarget(unit, i);
                     break;
-                case TARGET_UNIT_PARTY_CASTER:
-                case TARGET_UNIT_RAID_CASTER:
+                case TARGET_UNIT_CASTER_AREA_PARTY:
+                case TARGET_UNIT_CASTER_AREA_RAID:
                     pushType = PUSH_CASTER_CENTER;
                     break;
                 case TARGET_UNIT_VEHICLE:
@@ -2064,7 +2064,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                                 m_targets.SetUnitTarget(magnet);
                     pushType = PUSH_CHAIN;
                     break;
-                case TARGET_UNIT_CHAINHEAL:
+                case TARGET_UNIT_TARGET_CHAINHEAL_ALLY:
                     pushType = PUSH_CHAIN;
                     break;
                 case TARGET_UNIT_TARGET_ALLY:
@@ -2080,8 +2080,8 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     if (target->IsOnVehicle(m_caster))
                         AddUnitTarget(target, i);
                     break;
-                case TARGET_UNIT_TARGET_ALLY_PARTY:
-                case TARGET_UNIT_TARGET_CLASS_RAID:
+                case TARGET_UNIT_LASTTARGET_AREA_PARTY:
+                case TARGET_UNIT_TARGET_AREA_RAID_CLASS:
                     pushType = PUSH_CASTER_CENTER; // not real
                     break;
                 default:
@@ -2158,7 +2158,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                 m_targets.SetSrc(*m_caster);
                 break;
             }
-            else if (cur.GetTarget() == TARGET_DST_CASTER)
+            else if (cur.GetTarget() == TARGET_DEST_CASTER)
             {
                 m_targets.SetDst(*m_caster);
                 break;
@@ -2167,7 +2167,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             float angle, dist;
 
             float objSize = m_caster->GetObjectSize();
-            if (cur.GetTarget() == TARGET_MINION)
+            if (cur.GetTarget() == TARGET_DEST_CASTER_SUMMON)
                 dist = 0.0f;
             else
                 dist = m_spellInfo->Effects[i].CalcRadius(m_caster);
@@ -2183,7 +2183,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                 case TARGET_DEST_CASTER_BACK_LEFT:  angle = static_cast<float>(-3*M_PI/4);                 break;
                 case TARGET_DEST_CASTER_BACK_RIGHT: angle = static_cast<float>(3*M_PI/4);                  break;
                 case TARGET_DEST_CASTER_FRONT_RIGHT:angle = static_cast<float>(M_PI/4);                    break;
-                case TARGET_MINION:
+                case TARGET_DEST_CASTER_SUMMON:
                 case TARGET_DEST_CASTER_FRONT_LEAP:
                 case TARGET_DEST_CASTER_FRONT:      angle = 0.0f;                                          break;
                 case TARGET_DEST_CASTER_BACK:       angle = static_cast<float>(M_PI);                      break;
@@ -2211,7 +2211,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                 break;
             }
 
-            if (cur.GetTarget() == TARGET_DST_TARGET_ENEMY || cur.GetTarget() == TARGET_DEST_TARGET_ANY)
+            if (cur.GetTarget() == TARGET_DEST_TARGET_ENEMY || cur.GetTarget() == TARGET_DEST_TARGET_ANY)
             {
                 m_targets.SetDst(*target);
                 break;
@@ -2277,7 +2277,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             }
 
             float dist = m_spellInfo->Effects[i].CalcRadius(m_caster);
-            if (cur.GetTarget() == TARGET_DEST_DEST_RANDOM || cur.GetTarget() == TARGET_DEST_DEST_RANDOM_DIR_DIST)
+            if (cur.GetTarget() == TARGET_DEST_DEST_RANDOM || cur.GetTarget() == TARGET_DEST_DEST_RADIUS)
                 dist *= (float)rand_norm();
 
             // must has dst, no need to set flag
@@ -2291,7 +2291,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
         {
             switch(cur.GetTarget())
             {
-                case TARGET_DST_DB:
+                case TARGET_DEST_DB:
                     if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
                     {
                         //TODO: fix this check
@@ -2309,11 +2309,11 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         m_targets.SetDst(target ? *target : *m_caster);
                     }
                     break;
-                case TARGET_DST_HOME:
+                case TARGET_DEST_HOME:
                     if (m_caster->GetTypeId() == TYPEID_PLAYER)
                         m_targets.SetDst(m_caster->ToPlayer()->m_homebindX, m_caster->ToPlayer()->m_homebindY, m_caster->ToPlayer()->m_homebindZ, m_caster->ToPlayer()->GetOrientation(), m_caster->ToPlayer()->m_homebindMapId);
                     break;
-                case TARGET_DST_NEARBY_ENTRY:
+                case TARGET_DEST_NEARBY_ENTRY:
                 {
                     float range = m_spellInfo->GetMaxRange(m_spellInfo->IsPositive());
                     if (modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
@@ -2366,11 +2366,11 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
         {
             switch (cur.GetTarget())
             {
-                case TARGET_GAMEOBJECT:
+                case TARGET_GAMEOBJECT_TARGET:
                     if (m_targets.GetGOTarget())
                         AddGOTarget(m_targets.GetGOTarget(), i);
                     break;
-                case TARGET_GAMEOBJECT_ITEM:
+                case TARGET_GAMEOBJECT_ITEM_TARGET:
                     if (m_targets.GetGOTargetGUID())
                         AddGOTarget(m_targets.GetGOTarget(), i);
                     else if (m_targets.GetItemTarget())
@@ -2417,7 +2417,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     if (modOwner) modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_RANGE, range, this);
                     SearchChainTarget(unitList, range, maxTargets, SPELL_TARGETS_ENEMY);
                     break;
-                case TARGET_UNIT_CHAINHEAL:
+                case TARGET_UNIT_TARGET_CHAINHEAL_ALLY:
                 case TARGET_UNIT_NEARBY_ALLY:  // fix me
                 case TARGET_UNIT_NEARBY_PARTY:
                 case TARGET_UNIT_NEARBY_RAID:
@@ -2447,29 +2447,29 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
         SpellTargets targetType;
         switch(cur.GetTarget())
         {
-            case TARGET_UNIT_AREA_ENEMY_SRC:
-            case TARGET_UNIT_AREA_ENEMY_DST:
-            case TARGET_UNIT_CONE_ENEMY:
-            case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
-            case TARGET_UNIT_AREA_PATH:
+            case TARGET_UNIT_SRC_AREA_ENEMY:
+            case TARGET_UNIT_DEST_AREA_ENEMY:
+            case TARGET_UNIT_CONE_ENEMY_24:
+            case TARGET_UNIT_CONE_ENEMY_54:
+            case TARGET_UNIT_CONE_ENEMY_104:
                 radius = m_spellInfo->Effects[i].CalcRadius();
                 targetType = SPELL_TARGETS_ENEMY;
                 break;
-            case TARGET_UNIT_AREA_ALLY_SRC:
-            case TARGET_UNIT_AREA_ALLY_DST:
+            case TARGET_UNIT_SRC_AREA_ALLY:
+            case TARGET_UNIT_DEST_AREA_ALLY:
             case TARGET_UNIT_CONE_ALLY:
                 radius = m_spellInfo->Effects[i].CalcRadius();
                 targetType = SPELL_TARGETS_ALLY;
                 break;
-            case TARGET_UNIT_AREA_ENTRY_DST:
-            case TARGET_UNIT_AREA_ENTRY_SRC:
+            case TARGET_UNIT_DEST_AREA_ENTRY:
+            case TARGET_UNIT_SRC_AREA_ENTRY:
             case TARGET_UNIT_CONE_ENTRY: // fix me
                 radius = m_spellInfo->Effects[i].CalcRadius();
                 targetType = SPELL_TARGETS_ENTRY;
                 break;
-            case TARGET_GAMEOBJECT_AREA_SRC:
-            case TARGET_GAMEOBJECT_AREA_DST:
-            case TARGET_GAMEOBJECT_AREA_PATH:
+            case TARGET_GAMEOBJECT_SRC_AREA:
+            case TARGET_GAMEOBJECT_DEST_AREA:
+            case TARGET_GAMEOBJECT_CONE:
                 radius = m_spellInfo->Effects[i].CalcRadius();
                 targetType = SPELL_TARGETS_GO;
                 break;
@@ -2615,20 +2615,20 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             default:
                 switch (cur.GetTarget())
                 {
-                    case TARGET_UNIT_AREA_PARTY_SRC:
-                    case TARGET_UNIT_AREA_PARTY_DST:
+                    case TARGET_UNIT_SRC_AREA_PARTY:
+                    case TARGET_UNIT_DEST_AREA_PARTY:
                         m_caster->GetPartyMemberInDist(unitList, radius); //fix me
                         break;
-                    case TARGET_UNIT_TARGET_ALLY_PARTY:
+                    case TARGET_UNIT_LASTTARGET_AREA_PARTY:
                         m_targets.GetUnitTarget()->GetPartyMemberInDist(unitList, radius);
                         break;
-                    case TARGET_UNIT_PARTY_CASTER:
+                    case TARGET_UNIT_CASTER_AREA_PARTY:
                         m_caster->GetPartyMemberInDist(unitList, radius);
                         break;
-                    case TARGET_UNIT_RAID_CASTER:
+                    case TARGET_UNIT_CASTER_AREA_RAID:
                         m_caster->GetRaidMember(unitList, radius);
                         break;
-                    case TARGET_UNIT_TARGET_CLASS_RAID:
+                    case TARGET_UNIT_TARGET_AREA_RAID_CLASS:
                     {
                         Player* targetPlayer = m_targets.GetUnitTarget() && m_targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER
                             ? (Player*)m_targets.GetUnitTarget() : NULL;
@@ -5127,13 +5127,13 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_EFFECT_OPEN_LOCK:
             {
-                if (m_spellInfo->Effects[i].TargetA.GetTarget() != TARGET_GAMEOBJECT &&
-                    m_spellInfo->Effects[i].TargetA.GetTarget() != TARGET_GAMEOBJECT_ITEM)
+                if (m_spellInfo->Effects[i].TargetA.GetTarget() != TARGET_GAMEOBJECT_TARGET &&
+                    m_spellInfo->Effects[i].TargetA.GetTarget() != TARGET_GAMEOBJECT_ITEM_TARGET)
                     break;
 
                 if (m_caster->GetTypeId() != TYPEID_PLAYER  // only players can open locks, gather etc.
-                    // we need a go target in case of TARGET_GAMEOBJECT
-                    || (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT && !m_targets.GetGOTarget()))
+                    // we need a go target in case of TARGET_GAMEOBJECT_TARGET
+                    || (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_TARGET && !m_targets.GetGOTarget()))
                     return SPELL_FAILED_BAD_TARGETS;
 
                 Item *pTempItem = NULL;
@@ -5145,8 +5145,8 @@ SpellCastResult Spell::CheckCast(bool strict)
                 else if (m_targets.GetTargetMask() & TARGET_FLAG_ITEM)
                     pTempItem = m_caster->ToPlayer()->GetItemByGuid(m_targets.GetItemTargetGUID());
 
-                // we need a go target, or an openable item target in case of TARGET_GAMEOBJECT_ITEM
-                if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM &&
+                // we need a go target, or an openable item target in case of TARGET_GAMEOBJECT_ITEM_TARGET
+                if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET &&
                     !m_targets.GetGOTarget() &&
                     (!pTempItem || !pTempItem->GetTemplate()->LockID || !pTempItem->IsLocked()))
                     return SPELL_FAILED_BAD_TARGETS;
@@ -6776,7 +6776,7 @@ bool Spell::IsValidSingleTargetEffect(Unit const* target, Targets type) const
         case TARGET_UNIT_TARGET_ENEMY:
             return !m_caster->IsFriendlyTo(target);
         case TARGET_UNIT_TARGET_ALLY:
-        case TARGET_UNIT_TARGET_ALLY_PARTY:
+        case TARGET_UNIT_LASTTARGET_AREA_PARTY:
             return m_caster->IsFriendlyTo(target);
         case TARGET_UNIT_TARGET_PARTY:
             return m_caster != target && m_caster->IsInPartyWith(target);
@@ -6983,7 +6983,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
                     // skill bonus provided by casting spell (mostly item spells)
                     // add the damage modifier from the spell casted (cheat lock / skeleton key etc.)
-                    if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_GAMEOBJECT_ITEM)
+                    if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_GAMEOBJECT_ITEM_TARGET)
                         skillValue += uint32(CalculateDamage(effIndex, NULL));
 
                     if (skillValue < reqSkillValue)

@@ -67,22 +67,22 @@ void SpellImplicitTargetInfo::InitAreaData()
     {
         switch (i)
         {
-            case TARGET_UNIT_AREA_ENEMY_DST:
-            case TARGET_UNIT_AREA_ENEMY_SRC:
-            case TARGET_UNIT_AREA_ALLY_DST:
-            case TARGET_UNIT_AREA_ALLY_SRC:
-            case TARGET_UNIT_AREA_ENTRY_DST:
-            case TARGET_UNIT_AREA_ENTRY_SRC:
-            case TARGET_UNIT_AREA_PARTY_DST:
-            case TARGET_UNIT_AREA_PARTY_SRC:
-            case TARGET_UNIT_TARGET_ALLY_PARTY:
-            case TARGET_UNIT_PARTY_CASTER:
-            case TARGET_UNIT_CONE_ENEMY:
+            case TARGET_UNIT_DEST_AREA_ENEMY:
+            case TARGET_UNIT_SRC_AREA_ENEMY:
+            case TARGET_UNIT_DEST_AREA_ALLY:
+            case TARGET_UNIT_SRC_AREA_ALLY:
+            case TARGET_UNIT_DEST_AREA_ENTRY:
+            case TARGET_UNIT_SRC_AREA_ENTRY:
+            case TARGET_UNIT_DEST_AREA_PARTY:
+            case TARGET_UNIT_SRC_AREA_PARTY:
+            case TARGET_UNIT_LASTTARGET_AREA_PARTY:
+            case TARGET_UNIT_CASTER_AREA_PARTY:
+            case TARGET_UNIT_CONE_ENEMY_24:
             case TARGET_UNIT_CONE_ALLY:
-            case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
-            case TARGET_UNIT_AREA_PATH:
-            case TARGET_GAMEOBJECT_AREA_PATH:
-            case TARGET_UNIT_RAID_CASTER:
+            case TARGET_UNIT_CONE_ENEMY_54:
+            case TARGET_UNIT_CONE_ENEMY_104:
+            case TARGET_GAMEOBJECT_CONE:
+            case TARGET_UNIT_CASTER_AREA_RAID:
                 Area[i] = true;
                 break;
             default:
@@ -99,11 +99,11 @@ void SpellImplicitTargetInfo::InitTypeData()
         switch (i)
         {
             case TARGET_UNIT_CASTER:
-            case TARGET_UNIT_CASTER_FISHING:
+            case TARGET_DEST_CASTER_FISHING:
             case TARGET_UNIT_MASTER:
             case TARGET_UNIT_PET:
-            case TARGET_UNIT_PARTY_CASTER:
-            case TARGET_UNIT_RAID_CASTER:
+            case TARGET_UNIT_CASTER_AREA_PARTY:
+            case TARGET_UNIT_CASTER_AREA_RAID:
             case TARGET_UNIT_VEHICLE:
             case TARGET_UNIT_PASSENGER_0:
             case TARGET_UNIT_PASSENGER_1:
@@ -123,9 +123,9 @@ void SpellImplicitTargetInfo::InitTypeData()
             case TARGET_UNIT_TARGET_ENEMY:
             case TARGET_UNIT_TARGET_PARTY:
             case TARGET_UNIT_TARGET_PASSENGER:
-            case TARGET_UNIT_TARGET_ALLY_PARTY:
-            case TARGET_UNIT_TARGET_CLASS_RAID:
-            case TARGET_UNIT_CHAINHEAL:
+            case TARGET_UNIT_LASTTARGET_AREA_PARTY:
+            case TARGET_UNIT_TARGET_AREA_RAID_CLASS:
+            case TARGET_UNIT_TARGET_CHAINHEAL_ALLY:
                 Type[i] = TARGET_TYPE_UNIT_TARGET;
                 break;
             case TARGET_UNIT_NEARBY_ENEMY:
@@ -136,31 +136,31 @@ void SpellImplicitTargetInfo::InitTypeData()
             case TARGET_GAMEOBJECT_NEARBY_ENTRY:
                 Type[i] = TARGET_TYPE_UNIT_NEARBY;
                 break;
-            case TARGET_UNIT_AREA_ENEMY_SRC:
-            case TARGET_UNIT_AREA_ALLY_SRC:
-            case TARGET_UNIT_AREA_ENTRY_SRC:
-            case TARGET_UNIT_AREA_PARTY_SRC:
-            case TARGET_GAMEOBJECT_AREA_SRC:
+            case TARGET_UNIT_SRC_AREA_ENEMY:
+            case TARGET_UNIT_SRC_AREA_ALLY:
+            case TARGET_UNIT_SRC_AREA_ENTRY:
+            case TARGET_UNIT_SRC_AREA_PARTY:
+            case TARGET_GAMEOBJECT_SRC_AREA:
                 Type[i] = TARGET_TYPE_AREA_SRC;
                 break;
-            case TARGET_UNIT_AREA_ENEMY_DST:
-            case TARGET_UNIT_AREA_ALLY_DST:
-            case TARGET_UNIT_AREA_ENTRY_DST:
-            case TARGET_UNIT_AREA_PARTY_DST:
-            case TARGET_GAMEOBJECT_AREA_DST:
+            case TARGET_UNIT_DEST_AREA_ENEMY:
+            case TARGET_UNIT_DEST_AREA_ALLY:
+            case TARGET_UNIT_DEST_AREA_ENTRY:
+            case TARGET_UNIT_DEST_AREA_PARTY:
+            case TARGET_GAMEOBJECT_DEST_AREA:
                 Type[i] = TARGET_TYPE_AREA_DST;
                 break;
-            case TARGET_UNIT_CONE_ENEMY:
+            case TARGET_UNIT_CONE_ENEMY_24:
             case TARGET_UNIT_CONE_ALLY:
             case TARGET_UNIT_CONE_ENTRY:
-            case TARGET_UNIT_CONE_ENEMY_UNKNOWN:
-            case TARGET_UNIT_AREA_PATH:
-            case TARGET_GAMEOBJECT_AREA_PATH:
+            case TARGET_UNIT_CONE_ENEMY_54:
+            case TARGET_UNIT_CONE_ENEMY_104:
+            case TARGET_GAMEOBJECT_CONE:
                 Type[i] = TARGET_TYPE_AREA_CONE;
                 break;
-            case TARGET_DST_CASTER:
+            case TARGET_DEST_CASTER:
             case TARGET_SRC_CASTER:
-            case TARGET_MINION:
+            case TARGET_DEST_CASTER_SUMMON:
             case TARGET_DEST_CASTER_FRONT_LEAP:
             case TARGET_DEST_CASTER_FRONT:
             case TARGET_DEST_CASTER_BACK:
@@ -174,7 +174,7 @@ void SpellImplicitTargetInfo::InitTypeData()
             case TARGET_DEST_CASTER_RADIUS:
                 Type[i] = TARGET_TYPE_DEST_CASTER;
                 break;
-            case TARGET_DST_TARGET_ENEMY:
+            case TARGET_DEST_TARGET_ENEMY:
             case TARGET_DEST_TARGET_ANY:
             case TARGET_DEST_TARGET_FRONT:
             case TARGET_DEST_TARGET_BACK:
@@ -202,12 +202,12 @@ void SpellImplicitTargetInfo::InitTypeData()
             case TARGET_DEST_DEST_RIGHT:
             case TARGET_DEST_DEST_LEFT:
             case TARGET_DEST_DEST_RANDOM:
-            case TARGET_DEST_DEST_RANDOM_DIR_DIST:
+            case TARGET_DEST_DEST_RADIUS:
                 Type[i] = TARGET_TYPE_DEST_DEST;
                 break;
-            case TARGET_DST_DB:
-            case TARGET_DST_HOME:
-            case TARGET_DST_NEARBY_ENTRY:
+            case TARGET_DEST_DB:
+            case TARGET_DEST_HOME:
+            case TARGET_DEST_NEARBY_ENTRY:
                 Type[i] = TARGET_TYPE_DEST_SPECIAL;
                 break;
             case TARGET_UNIT_CHANNEL_TARGET:
@@ -1926,12 +1926,12 @@ bool SpellInfo::_IsPositiveTarget(uint32 targetA, uint32 targetB)
     {
         case TARGET_UNIT_NEARBY_ENEMY:
         case TARGET_UNIT_TARGET_ENEMY:
-        case TARGET_UNIT_AREA_ENEMY_SRC:
-        case TARGET_UNIT_AREA_ENEMY_DST:
-        case TARGET_UNIT_CONE_ENEMY:
-        case TARGET_UNIT_AREA_PATH:
+        case TARGET_UNIT_SRC_AREA_ENEMY:
+        case TARGET_UNIT_DEST_AREA_ENEMY:
+        case TARGET_UNIT_CONE_ENEMY_24:
+        case TARGET_UNIT_CONE_ENEMY_104:
         case TARGET_DEST_DYNOBJ_ENEMY:
-        case TARGET_DST_TARGET_ENEMY:
+        case TARGET_DEST_TARGET_ENEMY:
             return false;
         default:
             break;
