@@ -913,20 +913,7 @@ bool SpellMgr::CanSpellTriggerProcOnEvent(SpellProcEntry const& procEntry, ProcE
         {
             // for taken procs allow normal + critical hits by default
             if (eventInfo.GetTypeMask() & TAKEN_HIT_PROC_FLAG_MASK)
-            {
-                bool canProc = true;
-                // spells with this flag seem to proc only on full absorb
-                if (eventInfo.GetSpellInfo()->AttributesEx4 & SPELL_ATTR4_UNK19)
-                {
-                    if (eventInfo.GetDamageInfo()->GetDamage() == 0 // if damage is null
-                        && (eventInfo.GetDamageInfo()->GetBlock() > 0  // if damage was blocked
-                            || eventInfo.GetDamageInfo()->GetResist() > 0) // or if damage was resisted
-                       ) // then don't proc
-                        canProc = false;
-                }
-                if (canProc)
-                    hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL;
-            }
+                hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL;
             // for done procs allow normal + critical + absorbs by default
             else
                 hitMask |= PROC_HIT_NORMAL | PROC_HIT_CRITICAL | PROC_HIT_ABSORB;
@@ -1553,7 +1540,7 @@ void SpellMgr::LoadSpellGroups()
 
     uint32 count = 0;
 
-    //                                               0   1
+    //                                                       0   1
     QueryResult result = WorldDatabase.Query("SELECT id, spell_id FROM spell_group");
     if (!result)
     {
