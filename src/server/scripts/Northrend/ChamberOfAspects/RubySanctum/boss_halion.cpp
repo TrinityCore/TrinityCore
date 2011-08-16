@@ -835,7 +835,7 @@ class npc_halion_controller : public CreatureScript
                                                 if (player->HasAura(SPELL_TWILIGHT_REALM))
                                                     Talk(EMOTE_T_OUT_T, player->GetGUID());
                                                 else
-                                                    Talk(EMOTE_T_IN_P, player->GetGUID());
+                                                    Talk(EMOTE_P_IN_P, player->GetGUID());
                                             }
                                             else
                                             {
@@ -1627,7 +1627,7 @@ class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_halion_twilight_cutter_triggered_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_halion_twilight_cutter_triggered_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
