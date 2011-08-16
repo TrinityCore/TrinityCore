@@ -337,7 +337,7 @@ enum SpellAttr2
 {
     SPELL_ATTR2_ALLOW_DEAD_TARGET                = 0x00000001, //  0
     SPELL_ATTR2_UNK1                             = 0x00000002, //  1 ? many triggered spells have this flag
-    SPELL_ATTR2_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS            = 0x00000004, //  2 26368 4.0.1 dbc change (NYI)
     SPELL_ATTR2_UNK3                             = 0x00000008, //  3
     SPELL_ATTR2_DISPLAY_IN_STANCE_BAR            = 0x00000010, //  4 client displays icon in stance bar when learned, even if not shapeshift
     SPELL_ATTR2_AUTOREPEAT_FLAG                  = 0x00000020, //  5
@@ -482,7 +482,7 @@ enum SpellAttr6
     SPELL_ATTR6_DONT_DISPLAY_COOLDOWN            = 0x00000001, //  0 client doesn't display cooldown in tooltip for these spells
     SPELL_ATTR6_ONLY_IN_ARENA                    = 0x00000002, //  1 only usable in arena
     SPELL_ATTR6_IGNORE_CASTER_AURAS              = 0x00000004, //  2
-    SPELL_ATTR6_UNK3                             = 0x00000008, //  3
+    SPELL_ATTR6_CAN_TARGET_INVISIBLE             = 0x00000008, //  3 ignore visibility requirement for spell target (phases, invisibility, etc.)
     SPELL_ATTR6_UNK4                             = 0x00000010, //  4
     SPELL_ATTR6_UNK5                             = 0x00000020, //  5
     SPELL_ATTR6_UNK6                             = 0x00000040, //  6
