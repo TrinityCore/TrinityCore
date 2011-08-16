@@ -1793,7 +1793,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
                 && !m_caster->isInFrontInMap(*next, max_range))
                 || !m_caster->canSeeOrDetect(*next)
                 || !cur->IsWithinLOSInMap(*next)
-                || ((GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_IGNORE_CROWD_CONTROL_TARGETS) && !(*next)->CanFreeMove()))
+                || ((GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED) && !(*next)->CanFreeMove()))
             {
                 ++next;
                 if (next == tempUnitMap.end() || cur->GetDistance(*next) > CHAIN_SPELL_JUMP_RADIUS) // Don't search beyond the max jump radius
@@ -1839,7 +1839,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNo
     }
 
     Trinity::SpellNotifierCreatureAndPlayer notifier(m_caster, TagUnitMap, radius, type, TargetType, pos, entry, m_spellInfo);
-    if ((m_spellInfo->AttributesEx3 & SPELL_ATTR3_PLAYERS_ONLY) || (TargetType == SPELL_TARGETS_ENTRY && !entry))
+    if ((m_spellInfo->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS) || (TargetType == SPELL_TARGETS_ENTRY && !entry))
     {
         m_caster->GetMap()->VisitWorld(pos->m_positionX, pos->m_positionY, radius, notifier);
         TagUnitMap.remove_if(Trinity::ObjectTypeIdCheck(TYPEID_PLAYER, false)); // above line will select also pets and totems, remove them
@@ -4866,7 +4866,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 return SPELL_FAILED_NOT_INFRONT;
 
             // Target must not be in combat
-            if (m_spellInfo->AttributesEx & SPELL_ATTR1_NOT_IN_COMBAT_TARGET && target->isInCombat())
+            if (m_spellInfo->AttributesEx & SPELL_ATTR1_CANT_TARGET_IN_COMBAT && target->isInCombat())
                 return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
         }
 
