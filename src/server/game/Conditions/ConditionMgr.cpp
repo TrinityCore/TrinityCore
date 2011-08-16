@@ -864,20 +864,20 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             bool targetfound = false;
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_AREA_ENTRY_SRC ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_AREA_ENTRY_SRC ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_AREA_ENTRY_DST ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_AREA_ENTRY_DST ||
+                if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENTRY ||
+                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_SRC_AREA_ENTRY ||
+                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENTRY ||
+                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_DEST_AREA_ENTRY ||
                     spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_NEARBY_ENTRY ||
                     spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_NEARBY_ENTRY ||
                     spellProto->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_NEARBY_ENTRY ||
                     spellProto->Effects[i].TargetB.GetTarget() == TARGET_GAMEOBJECT_NEARBY_ENTRY ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_AREA_SRC ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_GAMEOBJECT_AREA_SRC ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_AREA_DST ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_GAMEOBJECT_AREA_DST ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_DST_NEARBY_ENTRY ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_DST_NEARBY_ENTRY ||
+                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_SRC_AREA ||
+                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_GAMEOBJECT_SRC_AREA ||
+                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_DEST_AREA ||
+                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_GAMEOBJECT_DEST_AREA ||
+                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_DEST_NEARBY_ENTRY ||
+                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_DEST_NEARBY_ENTRY ||
                     spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CONE_ENTRY ||
                     spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_CONE_ENTRY)
                 {
@@ -887,16 +887,16 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 else if (cond->mConditionValue3 & (1 << i))
                 {
                     cond->mConditionValue3 &= ~(1 << i);
-                    sLog->outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46)"
-                                    ", TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
-                                    "TARGET_GAMEOBJECT_AREA_SRC(51), TARGET_GAMEOBJECT_AREA_DST(52) in effect %u", cond->mSourceEntry, uint32(i));
+                    sLog->outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DEST_NEARBY_ENTRY (46)"
+                                    ", TARGET_UNIT_SRC_AREA_ENTRY(7), TARGET_UNIT_DEST_AREA_ENTRY(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
+                                    "TARGET_GAMEOBJECT_SRC_AREA(51), TARGET_GAMEOBJECT_DEST_AREA(52) in effect %u", cond->mSourceEntry, uint32(i));
                 }
             }
             if (!targetfound && !cond->mConditionValue3) // cond->mConditionValue3 already errored up there
             {
-                sLog->outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DST_NEARBY_ENTRY (46)"
-                                ", TARGET_UNIT_AREA_ENTRY_SRC(7), TARGET_UNIT_AREA_ENTRY_DST(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
-                                "TARGET_GAMEOBJECT_AREA_SRC(51), TARGET_GAMEOBJECT_AREA_DST(52)", cond->mSourceEntry);
+                sLog->outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DEST_NEARBY_ENTRY (46)"
+                                ", TARGET_UNIT_SRC_AREA_ENTRY(7), TARGET_UNIT_DEST_AREA_ENTRY(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
+                                "TARGET_GAMEOBJECT_SRC_AREA(51), TARGET_GAMEOBJECT_DEST_AREA(52)", cond->mSourceEntry);
                 return false;
             }
             if ((cond->mConditionValue1 == SPELL_TARGET_TYPE_DEAD) && !spellProto->IsAllowingDeadTarget())

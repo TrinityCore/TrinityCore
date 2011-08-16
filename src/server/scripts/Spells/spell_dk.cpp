@@ -354,7 +354,7 @@ class spell_dk_death_pact : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_dk_death_pact_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ALLY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dk_death_pact_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
 
