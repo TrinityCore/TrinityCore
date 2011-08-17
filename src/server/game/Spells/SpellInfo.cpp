@@ -54,7 +54,7 @@ SpellTargetSelectionCheckTypes SpellImplicitTargetInfo::GetSelectionCheckType() 
     return _data[_target].SelectionCheckType;
 }
 
-SpellTargetSelectionCheckTypes SpellImplicitTargetInfo::GetDirectionType() const
+SpellTargetDirectionTypes SpellImplicitTargetInfo::GetDirectionType() const
 {
     return _data[_target].DirectionType;
 }
