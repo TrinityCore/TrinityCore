@@ -165,7 +165,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 04784e1..733a218 100755
+index c200edd..4e536af 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -319,7 +319,7 @@ index 04784e1..733a218 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index 881aade..0fd0879 100755
+index ead732d..481f286 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -328,7 +328,7 @@ index 881aade..0fd0879 100755
   * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
   * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
   *
-@@ -1151,6 +1152,23 @@ class Player : public Unit, public GridObject<Player>
+@@ -1153,6 +1154,23 @@ class Player : public Unit, public GridObject<Player>
  
          void InitStatsForLevel(bool reapplyMods = false);
  
@@ -354,10 +354,10 @@ index 881aade..0fd0879 100755
          time_t m_Last_tick;
 diff --git a/src/server/game/Jail/Jail.cpp b/src/server/game/Jail/Jail.cpp
 new file mode 100644
-index 0000000..e6cdb70
+index 0000000..324532d
 --- /dev/null
 +++ b/src/server/game/Jail/Jail.cpp
-@@ -0,0 +1,906 @@
+@@ -0,0 +1,908 @@
 +// Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 +
 +#include <Jail.h>
@@ -709,7 +709,7 @@ index 0000000..e6cdb70
 +        return false;
 +    }
 +
-+    uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname.c_str());
++    uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname);
 +    std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
 +
 +    if (Player * chr = sObjectMgr->GetPlayerByLowGUID(guid))
@@ -758,6 +758,7 @@ index 0000000..e6cdb70
 +        {
 +            target->m_Jailed = false;
 +            target->m_JailRelease = 0;
++
 +            if (target->m_JailAnzahl)
 +                --target->m_JailAnzahl;
 +
@@ -768,7 +769,7 @@ index 0000000..e6cdb70
 +                m_JailMap.erase(itr);
 +            }
 +            else
-+                target->JailDatenSpeichern();
++                target->JailDatenSpeichern(); // Spieler wurde mehr als 1x gejailt, also neue Daten speichern!
 +
 +            handler->PSendSysMessage(LANG_JAIL_WAS_UNJAILED, target_name.c_str());
 +            ChatHandler(target).PSendSysMessage(LANG_JAIL_YOURE_UNJAILED, handler->GetSession()->GetPlayerName());
@@ -1052,7 +1053,7 @@ index 0000000..e6cdb70
 +        JES.Time        = fields[7].GetUInt32();
 +        JES.Duration    = fields[8].GetUInt32();
 +        JES.BTimes      = fields[9].GetUInt32();
-+        JES.account     = sObjectMgr->GetPlayerAccountIdByPlayerName(JES.CharName.c_str());
++        JES.account     = sObjectMgr->GetPlayerAccountIdByPlayerName(JES.CharName);
 +
 +        if (JES.Release)
 +            ++cntaktiv;
@@ -1099,7 +1100,7 @@ index 0000000..e6cdb70
 +    time_t localtime = time(NULL);
 +    uint32 release = uint32(localtime + (jailtime * HOUR));
 +
-+    if (!chr)
++    if (!chr || !chr->isValid())
 +        return false;
 +
 +    chr->SaveToDB();
@@ -1110,6 +1111,7 @@ index 0000000..e6cdb70
 +    chr->m_JailGMAcc = handler->GetSession()->GetAccountId();
 +    chr->m_JailGMChar = handler->GetSession()->GetPlayerName();
 +    chr->m_JailDauer = jailtime;
++    chr->m_JailZeit = uint32(localtime);
 +
 +    ++chr->m_JailAnzahl;
 +
@@ -1375,7 +1377,7 @@ index 0000000..ba652c1
 +
 +#endif
 diff --git a/src/server/game/Miscellaneous/Language.h b/src/server/game/Miscellaneous/Language.h
-index d160d42..389994a 100755
+index 2846efe..fba4e9e 100755
 --- a/src/server/game/Miscellaneous/Language.h
 +++ b/src/server/game/Miscellaneous/Language.h
 @@ -1,4 +1,5 @@
@@ -1384,7 +1386,7 @@ index d160d42..389994a 100755
   * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
   * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
   *
-@@ -1048,9 +1049,61 @@ enum TrinityStrings
+@@ -1052,9 +1053,61 @@ enum TrinityStrings
      LANG_AUTO_BROADCAST                 = 11000,
      LANG_INVALID_REALMID                = 11001,
  
@@ -1673,7 +1675,7 @@ index 0000000..0fc3008
 +    new jail_commandscript();
 +}
 diff --git a/src/server/shared/Utilities/Util.cpp b/src/server/shared/Utilities/Util.cpp
-index 47e1894..8db127c 100755
+index 6a78897..dfe72c5 100755
 --- a/src/server/shared/Utilities/Util.cpp
 +++ b/src/server/shared/Utilities/Util.cpp
 @@ -208,7 +208,7 @@ uint32 TimeStringToSecs(const std::string& timestring)
