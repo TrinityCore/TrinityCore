@@ -1797,8 +1797,6 @@ void Player::setDeathState(DeathState s)
 
     bool cur = isAlive();
 
-    sLog->outString("PLAYER DEATH STATE IS NOW :: %u !!!!!!!!!!!!!!!", s);
-
     if (s == JUST_DIED)
     {
         if (!cur)
