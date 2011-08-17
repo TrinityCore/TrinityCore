@@ -159,3 +159,6 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 
 -- Fix ICC blood princes loot
 UPDATE creature_template set dynamicflags = 8 where entry in (37970, 38401, 38784, 38785);
+
+-- fix spawn for NPC 6090
+UPDATE `creature` SET position_x = "8603.88", position_y = "390.43" WHERE id = 6090;
