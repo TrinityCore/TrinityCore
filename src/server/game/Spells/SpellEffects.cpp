@@ -1949,7 +1949,7 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
     else if (unitTarget->GetTypeId() == TYPEID_PLAYER)
         unitTarget->ToPlayer()->TeleportTo(mapid, x, y, z, orientation, unitTarget == m_caster ? TELE_TO_SPELL : 0);
 
-    // post effects for TARGET_DST_DB
+    // post effects for TARGET_DEST_DB
     switch (m_spellInfo->Id)
     {
         // Dimensional Ripper - Everlook
@@ -6857,7 +6857,7 @@ void Spell::GetSummonPosition(uint32 i, Position &pos, float radius, uint32 coun
             //This is a workaround. Do not have time to write much about it
             switch (m_spellInfo->Effects[i].TargetA.GetTarget())
             {
-                case TARGET_MINION:
+                case TARGET_DEST_CASTER_SUMMON:
                 case TARGET_DEST_CASTER_RANDOM:
                     m_caster->GetNearPosition(pos, radius * (float)rand_norm(), (float)rand_norm()*static_cast<float>(2*M_PI));
                     break;
@@ -7033,7 +7033,7 @@ void Spell::EffectBind(SpellEffIndex effIndex)
 
     uint32 area_id;
     WorldLocation loc;
-    if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DST_DB || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_DST_DB)
+    if (m_spellInfo->Effects[effIndex].TargetA.GetTarget() == TARGET_DEST_DB || m_spellInfo->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_DB)
     {
         SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id);
         if (!st)

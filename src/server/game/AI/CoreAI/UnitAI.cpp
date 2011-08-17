@@ -206,9 +206,9 @@ void UnitAI::FillAISpellInfo()
                 uint32 targetType = spellInfo->Effects[j].TargetA.GetTarget();
 
                 if (targetType == TARGET_UNIT_TARGET_ENEMY
-                    || targetType == TARGET_DST_TARGET_ENEMY)
+                    || targetType == TARGET_DEST_TARGET_ENEMY)
                     UPDATE_TARGET(AITARGET_VICTIM)
-                else if (targetType == TARGET_UNIT_AREA_ENEMY_DST)
+                else if (targetType == TARGET_UNIT_DEST_AREA_ENEMY)
                     UPDATE_TARGET(AITARGET_ENEMY)
 
                 if (spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA)
