@@ -49,10 +49,10 @@ enum SpellCastTargetFlags
     TARGET_FLAG_UNIT_ALLY       = 0x00000100,               // not sent, used to validate target (if ally)
     TARGET_FLAG_CORPSE_ENEMY    = 0x00000200,               // pguid
     TARGET_FLAG_UNIT_DEAD       = 0x00000400,               // not sent, used to validate target (if dead creature)
-    TARGET_FLAG_GAMEOBJECT      = 0x00000800,               // pguid, used with TARGET_GAMEOBJECT
+    TARGET_FLAG_GAMEOBJECT      = 0x00000800,               // pguid, used with TARGET_GAMEOBJECT_TARGET
     TARGET_FLAG_TRADE_ITEM      = 0x00001000,               // pguid
     TARGET_FLAG_STRING          = 0x00002000,               // string
-    TARGET_FLAG_GAMEOBJECT_ITEM = 0x00004000,               // not sent, used with TARGET_GAMEOBJECT_ITEM
+    TARGET_FLAG_GAMEOBJECT_ITEM = 0x00004000,               // not sent, used with TARGET_GAMEOBJECT_ITEM_TARGET
     TARGET_FLAG_CORPSE_ALLY     = 0x00008000,               // pguid
     TARGET_FLAG_UNIT_MINIPET    = 0x00010000,               // pguid, used to validate target (if non combat pet)
     TARGET_FLAG_GLYPH_SLOT      = 0x00020000,               // used in glyph spells

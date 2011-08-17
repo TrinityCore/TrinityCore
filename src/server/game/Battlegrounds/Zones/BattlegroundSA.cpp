@@ -60,11 +60,9 @@ bool BattlegroundSA::SetupBattleground()
 
 bool BattlegroundSA::ResetObjs()
 {
-
-    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
-        for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-            if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
-                SendTransportsRemove(plr);
+    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        if (Player *plr = ObjectAccessor::FindPlayer(itr->first))
+            SendTransportsRemove(plr);
 
     uint32 atF = BG_SA_Factions[Attackers];
     uint32 defF = BG_SA_Factions[Attackers ? TEAM_ALLIANCE : TEAM_HORDE];
