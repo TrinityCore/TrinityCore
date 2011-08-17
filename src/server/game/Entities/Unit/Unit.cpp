@@ -10393,17 +10393,12 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellInfo const* spellProto, uint32 
 
     AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
-        if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
+        if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
         {
             if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
                 AddPctN(DoneTotalMod, (*i)->GetAmount());
-            else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
-            {
-                if ((*i)->GetSpellInfo()->EquippedItemClass & spellProto->EquippedItemClass)
-                    if (((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0) ||
-                        ((*i)->GetSpellInfo()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask))
-                        AddPctN(DoneTotalMod, (*i)->GetAmount());
-            }
+            else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                AddPctN(DoneTotalMod, (*i)->GetAmount());
             else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
                 AddPctN(DoneTotalMod, (*i)->GetAmount());
         }
@@ -11762,27 +11757,14 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
     {
         if (spellProto)
         {
-            if ((*i)->GetMiscValue() & spellProto->GetSchoolMask())
+            if ((*i)->GetMiscValue() & spellProto->GetSchoolMask() && !(spellProto->GetSchoolMask() & SPELL_SCHOOL_MASK_NORMAL))
             {
                 if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
-                else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK))
-                {
-                    if ((*i)->GetSpellInfo()->EquippedItemClass & spellProto->EquippedItemClass)
-                        if (((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0) ||
-                            ((*i)->GetSpellInfo()->EquippedItemSubClassMask & spellProto->EquippedItemSubClassMask))
-                            AddPctN(DoneTotalMod, (*i)->GetAmount());
-                }
+                else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                    AddPctN(DoneTotalMod, (*i)->GetAmount());
                 else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
                     AddPctN(DoneTotalMod, (*i)->GetAmount());
-                }
-        }
-        else
-        {
-            if ((*i)->GetMiscValue() & GetMeleeDamageSchoolMask() &&
-                (*i)->GetSpellInfo()->EquippedItemClass == -1)
-            {
-                AddPctN(DoneTotalMod, (*i)->GetAmount());
             }
         }
     }
