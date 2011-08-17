@@ -4500,13 +4500,30 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
 
-    Player* target = aurApp->GetTarget()->ToPlayer();
+    Unit* target = aurApp->GetTarget();
     if (!target)
         return;
 
-    for(int i = 0; i < MAX_ATTACK; ++i)
-        if(Item* item = target->GetWeaponForAttack(WeaponAttackType(i),false))
-            target->_ApplyWeaponDependentAuraDamageMod(item, WeaponAttackType(i), this, apply);
+    if (target->GetTypeId() == TYPEID_PLAYER)
+    {
+        for(int i = 0; i < MAX_ATTACK; ++i)
+            if(Item* item = target->ToPlayer()->GetWeaponForAttack(WeaponAttackType(i),false))
+                target->ToPlayer()->_ApplyWeaponDependentAuraDamageMod(item, WeaponAttackType(i), this, apply);
+    }
+
+    if ((GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL) && (GetSpellInfo()->EquippedItemClass == -1 || target->GetTypeId() != TYPEID_PLAYER))
+    {
+        target->HandleStatModifier(UNIT_MOD_DAMAGE_MAINHAND,         TOTAL_PCT, float (GetAmount()), apply);
+        target->HandleStatModifier(UNIT_MOD_DAMAGE_OFFHAND,          TOTAL_PCT, float (GetAmount()), apply);
+        target->HandleStatModifier(UNIT_MOD_DAMAGE_RANGED,           TOTAL_PCT, float (GetAmount()), apply);
+
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            target->ToPlayer()->ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, GetAmount() / 100.0f, apply);
+    }
+    else
+    {
+        // done in Player::_ApplyWeaponDependentAuraMods for !SPELL_SCHOOL_MASK_NORMAL and also for wand case
+    }
 }
 
 void AuraEffect::HandleModOffhandDamagePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
