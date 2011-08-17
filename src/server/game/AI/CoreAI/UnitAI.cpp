@@ -144,7 +144,7 @@ void UnitAI::DoCast(uint32 spellId)
         case AITARGET_ENEMY:
         {
             const SpellInfo * spellInfo = sSpellMgr->GetSpellInfo(spellId);
-            bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_PLAYERS_ONLY;
+            bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS;
             //float range = GetSpellMaxRange(spellInfo, false);
             target = SelectTarget(SELECT_TARGET_RANDOM, 0, spellInfo->GetMaxRange(false), playerOnly);
             break;
@@ -154,7 +154,7 @@ void UnitAI::DoCast(uint32 spellId)
         case AITARGET_DEBUFF:
         {
             const SpellInfo * spellInfo = sSpellMgr->GetSpellInfo(spellId);
-            bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_PLAYERS_ONLY;
+            bool playerOnly = spellInfo->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS;
             float range = spellInfo->GetMaxRange(false);
 
             DefaultTargetSelector targetSelector(me, range, playerOnly, -(int32)spellId);
@@ -206,9 +206,9 @@ void UnitAI::FillAISpellInfo()
                 uint32 targetType = spellInfo->Effects[j].TargetA.GetTarget();
 
                 if (targetType == TARGET_UNIT_TARGET_ENEMY
-                    || targetType == TARGET_DST_TARGET_ENEMY)
+                    || targetType == TARGET_DEST_TARGET_ENEMY)
                     UPDATE_TARGET(AITARGET_VICTIM)
-                else if (targetType == TARGET_UNIT_AREA_ENEMY_DST)
+                else if (targetType == TARGET_UNIT_DEST_AREA_ENEMY)
                     UPDATE_TARGET(AITARGET_ENEMY)
 
                 if (spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA)
