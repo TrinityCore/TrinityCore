@@ -349,7 +349,7 @@ bool Jail::ArrestKommando(ChatHandler * handler, const char * args)
         return false;
     }
 
-    uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname.c_str());
+    uint32 acc_id = sObjectMgr->GetPlayerAccountIdByPlayerName(cname);
     std::string announce = fmtstring(sObjectMgr->GetTrinityStringForDBCLocale(LANG_JAIL_ANNOUNCE), cname.c_str(), jailtime, handler->GetSession()->GetPlayerName(), jailreason.c_str());
 
     if (Player * chr = sObjectMgr->GetPlayerByLowGUID(guid))
@@ -398,6 +398,7 @@ bool Jail::ReleaseKommando(ChatHandler * handler, const char * args, bool reset)
         {
             target->m_Jailed = false;
             target->m_JailRelease = 0;
+
             if (target->m_JailAnzahl)
                 --target->m_JailAnzahl;
 
@@ -408,7 +409,7 @@ bool Jail::ReleaseKommando(ChatHandler * handler, const char * args, bool reset)
                 m_JailMap.erase(itr);
             }
             else
-                target->JailDatenSpeichern();
+                target->JailDatenSpeichern(); // Spieler wurde mehr als 1x gejailt, also neue Daten speichern!
 
             handler->PSendSysMessage(LANG_JAIL_WAS_UNJAILED, target_name.c_str());
             ChatHandler(target).PSendSysMessage(LANG_JAIL_YOURE_UNJAILED, handler->GetSession()->GetPlayerName());
@@ -693,7 +694,7 @@ bool Jail::Init(bool reload)
         JES.Time        = fields[7].GetUInt32();
         JES.Duration    = fields[8].GetUInt32();
         JES.BTimes      = fields[9].GetUInt32();
-        JES.account     = sObjectMgr->GetPlayerAccountIdByPlayerName(JES.CharName.c_str());
+        JES.account     = sObjectMgr->GetPlayerAccountIdByPlayerName(JES.CharName);
 
         if (JES.Release)
             ++cntaktiv;
@@ -740,7 +741,7 @@ bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, 
     time_t localtime = time(NULL);
     uint32 release = uint32(localtime + (jailtime * HOUR));
 
-    if (!chr)
+    if (!chr || !chr->isValid())
         return false;
 
     chr->SaveToDB();
@@ -751,6 +752,7 @@ bool Jail::Inhaftierung(ChatHandler * handler, Player * chr, std::string cname, 
     chr->m_JailGMAcc = handler->GetSession()->GetAccountId();
     chr->m_JailGMChar = handler->GetSession()->GetPlayerName();
     chr->m_JailDauer = jailtime;
+    chr->m_JailZeit = uint32(localtime);
 
     ++chr->m_JailAnzahl;
 
