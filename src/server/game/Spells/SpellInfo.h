@@ -69,6 +69,7 @@ enum SpellTargetObjectTypes
     TARGET_OBJECT_TYPE_SRC,
     TARGET_OBJECT_TYPE_DEST,
     TARGET_OBJECT_TYPE_UNIT,
+    TARGET_OBJECT_TYPE_UNIT_AND_DEST,
     TARGET_OBJECT_TYPE_GOBJ,
     TARGET_OBJECT_TYPE_GOBJ_ITEM,
     TARGET_OBJECT_TYPE_ITEM,
@@ -200,11 +201,11 @@ private:
 
     struct StaticData
     {
-        SpellTargetObjectTypes ObjectType;
-        SpellTargetReferenceTypes ReferenceType;
+        SpellTargetObjectTypes ObjectType;    // type of object returned by target type
+        SpellTargetReferenceTypes ReferenceType; // defines which object is used as a reference when selecting target
         SpellTargetSelectionCategories SelectionCategory;
-        SpellTargetSelectionCheckTypes SelectionCheckType;
-        SpellTargetDirectionTypes DirectionType;
+        SpellTargetSelectionCheckTypes SelectionCheckType; // defines selection criteria
+        SpellTargetDirectionTypes DirectionType; // direction for cone and dest targets
     };
     static StaticData _data[TOTAL_SPELL_TARGETS];
 };
@@ -258,12 +259,22 @@ public:
 
     SpellEffectTargetTypes GetRequiredTargetType() const;
 
+    SpellTargetObjectTypes GetImplicitTargetObjectType() const;
+    SpellTargetObjectTypes GetRequiredTargetObjectType() const;
+
 private:
     static bool InitStaticData();
     static void InitRequiredTargetTypeData();
 
     static bool Init;
     static SpellEffectTargetTypes RequiredTargetType[TOTAL_SPELL_EFFECTS];
+
+    struct StaticData
+    {
+        SpellTargetObjectTypes ImplicitObjectType; // defines if explicit target can be added to effect target list if there's no valid target type provided for effect
+        SpellTargetObjectTypes RequiredObjectType; // defines valid target object type for spell effect
+    };
+    static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
 
 class SpellInfo
