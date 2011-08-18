@@ -28,9 +28,9 @@
 
 namespace FactorySelector
 {
-    CreatureAI* selectAI(Creature *creature)
+    CreatureAI* selectAI(Creature* creature)
     {
-        const CreatureAICreator *ai_factory = NULL;
+        const CreatureAICreator* ai_factory = NULL;
         CreatureAIRegistry& ai_registry(*CreatureAIRepository::instance());
 
         if (creature->isPet())
@@ -77,11 +77,11 @@ namespace FactorySelector
         {
             int best_val = -1;
             typedef CreatureAIRegistry::RegistryMapType RMT;
-            RMT const &l = ai_registry.GetRegisteredItems();
+            RMT const& l = ai_registry.GetRegisteredItems();
             for (RMT::const_iterator iter = l.begin(); iter != l.end(); ++iter)
             {
-                const CreatureAICreator *factory = iter->second;
-                const SelectableAI *p = dynamic_cast<const SelectableAI *>(factory);
+                const CreatureAICreator* factory = iter->second;
+                const SelectableAI* p = dynamic_cast<const SelectableAI*>(factory);
                 ASSERT(p != NULL);
                 int val = p->Permit(creature);
                 if (val > best_val)
@@ -99,11 +99,11 @@ namespace FactorySelector
         return (ai_factory == NULL ? new NullCreatureAI(creature) : ai_factory->Create(creature));
     }
 
-    MovementGenerator* selectMovementGenerator(Creature *creature)
+    MovementGenerator* selectMovementGenerator(Creature* creature)
     {
         MovementGeneratorRegistry& mv_registry(*MovementGeneratorRepository::instance());
         ASSERT(creature->GetCreatureInfo() != NULL);
-        const MovementGeneratorCreator *mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
+        const MovementGeneratorCreator* mv_factory = mv_registry.GetRegistryItem(creature->GetDefaultMovementType());
 
         /* if (mv_factory == NULL)
         {
@@ -128,9 +128,9 @@ namespace FactorySelector
 
     }
 
-    GameObjectAI* SelectGameObjectAI(GameObject *go)
+    GameObjectAI* SelectGameObjectAI(GameObject* go)
     {
-        const GameObjectAICreator *ai_factory = NULL;
+        const GameObjectAICreator* ai_factory = NULL;
         GameObjectAIRegistry& ai_registry(*GameObjectAIRepository::instance());
 
         ai_factory = ai_registry.GetRegistryItem(go->GetAIName());

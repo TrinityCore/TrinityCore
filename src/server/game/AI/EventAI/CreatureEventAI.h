@@ -591,7 +591,7 @@ class CreatureEventAI : public CreatureAI
 {
 
     public:
-        explicit CreatureEventAI(Creature *c);
+        explicit CreatureEventAI(Creature* c);
         ~CreatureEventAI()
         {
             m_CreatureEventAIList.clear();
@@ -599,32 +599,32 @@ class CreatureEventAI : public CreatureAI
         void JustRespawned();
         void Reset();
         void JustReachedHome();
-        void EnterCombat(Unit *enemy);
+        void EnterCombat(Unit* enemy);
         void EnterEvadeMode();
         void JustDied(Unit* /*killer*/);
         void KilledUnit(Unit* victim);
-        void JustSummoned(Creature* pUnit);
-        void AttackStart(Unit *who);
-        void MoveInLineOfSight(Unit *who);
-        void SpellHit(Unit* pUnit, const SpellInfo* pSpell);
+        void JustSummoned(Creature* unit);
+        void AttackStart(Unit* who);
+        void MoveInLineOfSight(Unit* who);
+        void SpellHit(Unit* unit, const SpellInfo* spell);
         void DamageTaken(Unit* done_by, uint32& damage);
         void HealReceived(Unit* /*done_by*/, uint32& /*addhealth*/) {}
         void UpdateAI(const uint32 diff);
-        void ReceiveEmote(Player* pPlayer, uint32 text_emote);
-        static int Permissible(const Creature *);
+        void ReceiveEmote(Player* player, uint32 textEmote);
+        static int Permissible(const Creature*);
 
-        bool ProcessEvent(CreatureEventAIHolder& pHolder, Unit* pActionInvoker = NULL);
-        void ProcessAction(CreatureEventAI_Action const& action, uint32 rnd, uint32 EventId, Unit* pActionInvoker);
+        bool ProcessEvent(CreatureEventAIHolder& holder, Unit* actionInvoker = NULL);
+        void ProcessAction(CreatureEventAI_Action const& action, uint32 rnd, uint32 eventId, Unit* actionInvoker);
         inline uint32 GetRandActionParam(uint32 rnd, uint32 param1, uint32 param2, uint32 param3);
         inline int32 GetRandActionParam(uint32 rnd, int32 param1, int32 param2, int32 param3);
-        inline Unit* GetTargetByType(uint32 Target, Unit* pActionInvoker);
+        inline Unit* GetTargetByType(uint32 target, Unit* actionInvoker);
 
-        void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target);
-        bool CanCast(Unit* Target, SpellInfo const *Spell, bool Triggered);
+        void DoScriptText(int32 textEntry, WorldObject* source, Unit* target);
+        bool CanCast(Unit* target, SpellInfo const* spell, bool triggered);
 
         bool SpawnedEventConditionsCheck(CreatureEventAI_Event const& event);
 
-        Unit* DoSelectLowestHpFriendly(float range, uint32 MinHPDiff);
+        Unit* DoSelectLowestHpFriendly(float range, uint32 minHPDiff);
         void DoFindFriendlyMissingBuff(std::list<Creature*>& _list, float range, uint32 spellid);
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
 

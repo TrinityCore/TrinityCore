@@ -20,9 +20,9 @@
 #include "Creature.h"
 #include "TemporarySummon.h"
 
-PassiveAI::PassiveAI(Creature *c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
-PossessedAI::PossessedAI(Creature *c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
-NullCreatureAI::NullCreatureAI(Creature *c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+PassiveAI::PassiveAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+PossessedAI::PossessedAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
+NullCreatureAI::NullCreatureAI(Creature* c) : CreatureAI(c) { me->SetReactState(REACT_PASSIVE); }
 
 void PassiveAI::UpdateAI(const uint32)
 {
@@ -59,7 +59,7 @@ void PossessedAI::KilledUnit(Unit* victim)
         victim->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 }
 
-void CritterAI::DamageTaken(Unit* /*done_by*/, uint32 &)
+void CritterAI::DamageTaken(Unit* /*done_by*/, uint32&)
 {
     if (!me->HasUnitState(UNIT_STAT_FLEEING))
         me->SetControlled(true, UNIT_STAT_FLEEING);
@@ -72,7 +72,7 @@ void CritterAI::EnterEvadeMode()
     CreatureAI::EnterEvadeMode();
 }
 
-void TriggerAI::IsSummonedBy(Unit *summoner)
+void TriggerAI::IsSummonedBy(Unit* summoner)
 {
     if (me->m_spells[0])
         me->CastSpell(me, me->m_spells[0], false, 0, 0, summoner->GetGUID());

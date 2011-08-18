@@ -22,7 +22,7 @@
 #include "Vehicle.h"
 #include "ObjectAccessor.h"
 
-int AggressorAI::Permissible(const Creature *creature)
+int AggressorAI::Permissible(const Creature* creature)
 {
     // have some hostile factions, it will be selected by IsHostileTo check at MoveInLineOfSight
     if (!creature->isCivilian() && !creature->IsNeutralToAll())
@@ -81,7 +81,7 @@ void CombatAI::JustDied(Unit* killer)
             me->CastSpell(killer, *i, true);
 }
 
-void CombatAI::EnterCombat(Unit *who)
+void CombatAI::EnterCombat(Unit* who)
 {
     for (SpellVct::iterator i = spells.begin(); i != spells.end(); ++i)
     {
@@ -127,7 +127,7 @@ void CasterAI::InitializeAI()
         m_attackDist = MELEE_RANGE;
 }
 
-void CasterAI::EnterCombat(Unit *who)
+void CasterAI::EnterCombat(Unit* who)
 {
     if (spells.empty())
         return;
@@ -173,7 +173,7 @@ void CasterAI::UpdateAI(const uint32 diff)
 //ArcherAI
 //////////////
 
-ArcherAI::ArcherAI(Creature *c) : CreatureAI(c)
+ArcherAI::ArcherAI(Creature* c) : CreatureAI(c)
 {
     if (!me->m_spells[0])
         sLog->outError("ArcherAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
@@ -187,7 +187,7 @@ ArcherAI::ArcherAI(Creature *c) : CreatureAI(c)
     me->m_SightDistance = me->m_CombatDistance;
 }
 
-void ArcherAI::AttackStart(Unit *who)
+void ArcherAI::AttackStart(Unit* who)
 {
     if (!who)
         return;
@@ -222,7 +222,7 @@ void ArcherAI::UpdateAI(const uint32 /*diff*/)
 //TurretAI
 //////////////
 
-TurretAI::TurretAI(Creature *c) : CreatureAI(c)
+TurretAI::TurretAI(Creature* c) : CreatureAI(c)
 {
     if (!me->m_spells[0])
         sLog->outError("TurretAI set for creature (entry = %u) with spell1=0. AI will do nothing", me->GetEntry());
@@ -242,7 +242,7 @@ bool TurretAI::CanAIAttack(const Unit* /*who*/) const
     return true;
 }
 
-void TurretAI::AttackStart(Unit *who)
+void TurretAI::AttackStart(Unit* who)
 {
     if (who)
         me->Attack(who, false);
@@ -260,7 +260,7 @@ void TurretAI::UpdateAI(const uint32 /*diff*/)
 //VehicleAI
 //////////////
 
-VehicleAI::VehicleAI(Creature *c) : CreatureAI(c), m_vehicle(c->GetVehicleKit()), m_IsVehicleInUse(false), m_ConditionsTimer(VEHICLE_CONDITION_CHECK_TIME)
+VehicleAI::VehicleAI(Creature* c) : CreatureAI(c), m_vehicle(c->GetVehicleKit()), m_IsVehicleInUse(false), m_ConditionsTimer(VEHICLE_CONDITION_CHECK_TIME)
 {
     LoadConditions();
     m_DoDismiss = false;
@@ -318,11 +318,11 @@ void VehicleAI::CheckConditions(const uint32 diff)
             for (SeatMap::iterator itr = m_vehicle->Seats.begin(); itr != m_vehicle->Seats.end(); ++itr)
                 if (Unit* passenger = ObjectAccessor::GetUnit(*m_vehicle->GetBase(), itr->second.Passenger))
                 {
-                    if (Player* plr = passenger->ToPlayer())
+                    if (Player* player = passenger->ToPlayer())
                     {
-                        if (!sConditionMgr->IsPlayerMeetToConditions(plr, conditions))
+                        if (!sConditionMgr->IsPlayerMeetToConditions(player, conditions))
                         {
-                            plr->ExitVehicle();
+                            player->ExitVehicle();
                             return;//check other pessanger in next tick
                         }
                     }
