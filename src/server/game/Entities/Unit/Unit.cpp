@@ -13360,7 +13360,10 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
             break;
         case BASE_PCT:
         case TOTAL_PCT:
-            m_auraModifiersGroup[unitMod][modifierType] += (apply ? amount : -amount) / 100.0f;
+            if(apply)
+                AddPctF(m_auraModifiersGroup[unitMod][modifierType], amount);
+            else
+                SubPctF(m_auraModifiersGroup[unitMod][modifierType], amount);
             break;
         default:
             break;

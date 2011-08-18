@@ -129,6 +129,60 @@ inline T CalculatePctU(T base, uint32 pct)
 }
 
 template <class T>
+inline T CalculateSubPctF(T base, float pct)
+{
+    return T(base - (base * 100 / (100.0f + pct)));
+}
+
+template <class T>
+inline T CalculateSubPctN(T base, int32 pct)
+{
+    return T(base - (base * 100 / (100.0f + float(pct))));
+}
+
+template <class T>
+inline T CalculateSubPctU(T base, uint32 pct)
+{
+    return T(base - (base * 100 / (100.0f + float(pct))));
+}
+
+template <class T>
+inline T SubPctF(T& base, float pct)
+{
+    return base -= CalculateSubPctF(base, pct);
+}
+
+template <class T>
+inline T SubPctN(T& base, int32 pct)
+{
+    return base -= CalculateSubPctN(base, pct);
+}
+
+template <class T>
+inline T SubPctU(T& base, uint32 pct)
+{
+    return base -= CalculateSubPctU(base, pct);
+}
+
+template <class T>
+inline T ApplySubPctF(T& base, float pct)
+{
+    return base = CalculateSubPctF(base, pct);
+}
+
+template <class T>
+inline T ApplySubPctN(T& base, int32 pct)
+{
+    return base = CalculateSubPctN(base, pct);
+}
+
+template <class T>
+inline T ApplySubPctU(T& base, uint32 pct)
+{
+    return base = CalculateSubPctU(base, pct);
+}
+
+template <class T>
 inline T AddPctF(T& base, float pct)
 {
     return base += CalculatePctF(base, pct);

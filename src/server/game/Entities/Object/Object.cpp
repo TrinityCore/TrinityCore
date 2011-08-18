@@ -1016,6 +1016,29 @@ void Object::ApplyModSignedFloatValue(uint16 index, float  val, bool apply)
     SetFloatValue(index, cur);
 }
 
+void Object::ApplyPctModUInt32Value(uint16 index, int32 val, bool apply)
+{
+    int32 cur = GetUInt32Value(index);
+    apply ? AddPctU(cur, val) : SubPctU(cur, val);
+    if (cur < 0)
+        cur = 0;
+    SetUInt32Value(index, cur);
+}
+
+void Object::ApplyPctModInt32Value(uint16 index, int32 val, bool apply)
+{
+    int32 cur = GetInt32Value(index);
+    apply ? AddPctN(cur, val) : SubPctN(cur, val);
+    SetInt32Value(index, cur);
+}
+
+void Object::ApplyPctModSignedFloatValue(uint16 index, float  val, bool apply)
+{
+    float cur = GetFloatValue(index);
+    apply ? AddPctF(cur, val) : SubPctF(cur, val);
+    SetFloatValue(index, cur);
+}
+
 void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
 {
     float cur = GetFloatValue(index);
