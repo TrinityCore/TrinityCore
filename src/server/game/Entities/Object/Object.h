@@ -224,6 +224,9 @@ class Object
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModUInt64Value(uint16 index, int32 val, bool apply);
+        void ApplyPctModUInt32Value(uint16 index, int32 val, bool apply);
+        void ApplyPctModInt32Value(uint16 index, int32 val, bool apply);
+        void ApplyPctModSignedFloatValue(uint16 index, float  val, bool apply);
         void ApplyModPositiveFloatValue(uint16 index, float val, bool apply);
         void ApplyModSignedFloatValue(uint16 index, float val, bool apply);
 
