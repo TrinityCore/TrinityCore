@@ -21,11 +21,13 @@
 #include "SharedDefines.h"
 
 class Unit;
+class Player;
 class Spell;
 class SpellInfo;
 struct SpellChainNode;
 struct SpellTargetPosition;
 struct SpellDurationEntry;
+struct SpellModifier;
 struct SpellRangeEntry;
 struct SpellRadiusEntry;
 struct SpellEntry;
@@ -39,6 +41,65 @@ enum SpellEffectTargetTypes
     SPELL_REQUIRE_ITEM,
     SPELL_REQUIRE_CASTER,
     SPELL_REQUIRE_GOBJECT,
+};
+
+enum SpellTargetSelectionCategories
+{
+    TARGET_SELECT_CATEGORY_NYI,
+    TARGET_SELECT_CATEGORY_DEFAULT,
+    TARGET_SELECT_CATEGORY_CHANNEL,
+    TARGET_SELECT_CATEGORY_NEARBY,
+    TARGET_SELECT_CATEGORY_CONE,
+    TARGET_SELECT_CATEGORY_AREA,
+};
+
+enum SpellTargetReferenceTypes
+{
+    TARGET_REFERENCE_TYPE_NONE,
+    TARGET_REFERENCE_TYPE_CASTER,
+    TARGET_REFERENCE_TYPE_TARGET,
+    TARGET_REFERENCE_TYPE_LAST,
+    TARGET_REFERENCE_TYPE_SRC,
+    TARGET_REFERENCE_TYPE_DEST,
+};
+
+enum SpellTargetObjectTypes
+{
+    TARGET_OBJECT_TYPE_NONE,
+    TARGET_OBJECT_TYPE_SRC,
+    TARGET_OBJECT_TYPE_DEST,
+    TARGET_OBJECT_TYPE_UNIT,
+    TARGET_OBJECT_TYPE_UNIT_AND_DEST,
+    TARGET_OBJECT_TYPE_GOBJ,
+    TARGET_OBJECT_TYPE_GOBJ_ITEM,
+    TARGET_OBJECT_TYPE_ITEM,
+    TARGET_OBJECT_TYPE_CORPSE,
+};
+
+enum SpellTargetSelectionCheckTypes
+{
+    TARGET_SELECT_CHECK_DEFAULT,
+    TARGET_SELECT_CHECK_ENTRY,
+    TARGET_SELECT_CHECK_ENEMY,
+    TARGET_SELECT_CHECK_ALLY,
+    TARGET_SELECT_CHECK_PARTY,
+    TARGET_SELECT_CHECK_RAID,
+    TARGET_SELECT_CHECK_PASSENGER,
+};
+
+enum SpellTargetDirectionTypes
+{
+    TARGET_DIR_NONE,
+    TARGET_DIR_FRONT,
+    TARGET_DIR_BACK,
+    TARGET_DIR_RIGHT,
+    TARGET_DIR_LEFT,
+    TARGET_DIR_FRONT_RIGHT,
+    TARGET_DIR_BACK_RIGHT,
+    TARGET_DIR_BACK_LEFT,
+    TARGET_DIR_FRONT_LEFT,
+    TARGET_DIR_RANDOM,
+    TARGET_DIR_ENTRY,
 };
 
 enum SpellSelectTargetTypes
@@ -60,53 +121,53 @@ enum SpellSelectTargetTypes
 // Spell clasification
 enum SpellSpecificType
 {
-    SPELL_SPECIFIC_NORMAL            = 0,
-    SPELL_SPECIFIC_SEAL              = 1,
-    SPELL_SPECIFIC_AURA              = 3,
-    SPELL_SPECIFIC_STING             = 4,
-    SPELL_SPECIFIC_CURSE             = 5,
-    SPELL_SPECIFIC_ASPECT            = 6,
-    SPELL_SPECIFIC_TRACKER           = 7,
-    SPELL_SPECIFIC_WARLOCK_ARMOR     = 8,
-    SPELL_SPECIFIC_MAGE_ARMOR        = 9,
-    SPELL_SPECIFIC_ELEMENTAL_SHIELD  = 10,
-    SPELL_SPECIFIC_MAGE_POLYMORPH    = 11,
-    SPELL_SPECIFIC_JUDGEMENT         = 13,
-    SPELL_SPECIFIC_WARLOCK_CORRUPTION= 17,
-    SPELL_SPECIFIC_FOOD              = 19,
-    SPELL_SPECIFIC_DRINK             = 20,
-    SPELL_SPECIFIC_FOOD_AND_DRINK    = 21,
-    SPELL_SPECIFIC_PRESENCE          = 22,
-    SPELL_SPECIFIC_CHARM             = 23,
-    SPELL_SPECIFIC_SCROLL            = 24,
-    SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE = 25,
-    SPELL_SPECIFIC_WARRIOR_ENRAGE    = 26,
-    SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT = 27,
-    SPELL_SPECIFIC_HAND              = 28,
-    SPELL_SPECIFIC_PHASE             = 29,
+    SPELL_SPECIFIC_NORMAL                        = 0,
+    SPELL_SPECIFIC_SEAL                          = 1,
+    SPELL_SPECIFIC_AURA                          = 3,
+    SPELL_SPECIFIC_STING                         = 4,
+    SPELL_SPECIFIC_CURSE                         = 5,
+    SPELL_SPECIFIC_ASPECT                        = 6,
+    SPELL_SPECIFIC_TRACKER                       = 7,
+    SPELL_SPECIFIC_WARLOCK_ARMOR                 = 8,
+    SPELL_SPECIFIC_MAGE_ARMOR                    = 9,
+    SPELL_SPECIFIC_ELEMENTAL_SHIELD              = 10,
+    SPELL_SPECIFIC_MAGE_POLYMORPH                = 11,
+    SPELL_SPECIFIC_JUDGEMENT                     = 13,
+    SPELL_SPECIFIC_WARLOCK_CORRUPTION            = 17,
+    SPELL_SPECIFIC_FOOD                          = 19,
+    SPELL_SPECIFIC_DRINK                         = 20,
+    SPELL_SPECIFIC_FOOD_AND_DRINK                = 21,
+    SPELL_SPECIFIC_PRESENCE                      = 22,
+    SPELL_SPECIFIC_CHARM                         = 23,
+    SPELL_SPECIFIC_SCROLL                        = 24,
+    SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE         = 25,
+    SPELL_SPECIFIC_WARRIOR_ENRAGE                = 26,
+    SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT          = 27,
+    SPELL_SPECIFIC_HAND                          = 28,
+    SPELL_SPECIFIC_PHASE                         = 29,
 };
 
 enum SpellCustomAttributes
 {
-    SPELL_ATTR0_CU_ENCHANT_PROC     = 0x00000001,
-    SPELL_ATTR0_CU_CONE_BACK        = 0x00000002,
-    SPELL_ATTR0_CU_CONE_LINE        = 0x00000004,
-    SPELL_ATTR0_CU_SHARE_DAMAGE     = 0x00000008,
-    SPELL_ATTR0_CU_NONE1            = 0x00000010,   // UNUSED
-    SPELL_ATTR0_CU_NONE2            = 0x00000020,   // UNUSED
-    SPELL_ATTR0_CU_AURA_CC          = 0x00000040,
-    SPELL_ATTR0_CU_DIRECT_DAMAGE    = 0x00000100,
-    SPELL_ATTR0_CU_CHARGE           = 0x00000200,
-    SPELL_ATTR0_CU_PICKPOCKET       = 0x00000400,
-    SPELL_ATTR0_CU_EXCLUDE_SELF     = 0x00000800,
-    SPELL_ATTR0_CU_NEGATIVE_EFF0    = 0x00001000,
-    SPELL_ATTR0_CU_NEGATIVE_EFF1    = 0x00002000,
-    SPELL_ATTR0_CU_NEGATIVE_EFF2    = 0x00004000,
-    SPELL_ATTR0_CU_IGNORE_ARMOR     = 0x00008000,
-    SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER = 0x00010000,
-    SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET = 0x00020000,
+    SPELL_ATTR0_CU_ENCHANT_PROC                  = 0x00000001,
+    SPELL_ATTR0_CU_CONE_BACK                     = 0x00000002,
+    SPELL_ATTR0_CU_CONE_LINE                     = 0x00000004,
+    SPELL_ATTR0_CU_SHARE_DAMAGE                  = 0x00000008,
+    SPELL_ATTR0_CU_NONE1                         = 0x00000010,   // UNUSED
+    SPELL_ATTR0_CU_NONE2                         = 0x00000020,   // UNUSED
+    SPELL_ATTR0_CU_AURA_CC                       = 0x00000040,
+    SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
+    SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
+    SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
+    SPELL_ATTR0_CU_EXCLUDE_SELF                  = 0x00000800,
+    SPELL_ATTR0_CU_NEGATIVE_EFF0                 = 0x00001000,
+    SPELL_ATTR0_CU_NEGATIVE_EFF1                 = 0x00002000,
+    SPELL_ATTR0_CU_NEGATIVE_EFF2                 = 0x00004000,
+    SPELL_ATTR0_CU_IGNORE_ARMOR                  = 0x00008000,
+    SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER      = 0x00010000,
+    SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET      = 0x00020000,
 
-    SPELL_ATTR0_CU_NEGATIVE         = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
+    SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
 };
 
 class SpellImplicitTargetInfo
@@ -119,6 +180,12 @@ public:
 
     bool IsArea() const;
     SpellSelectTargetTypes GetType() const;
+    SpellTargetSelectionCategories GetSelectionCategory() const;
+    SpellTargetReferenceTypes GetReferenceType() const;
+    SpellTargetObjectTypes GetObjectType() const;
+    SpellTargetSelectionCheckTypes GetSelectionCheckType() const;
+    SpellTargetDirectionTypes GetDirectionType() const;
+    float CalcDirectionAngle() const;
 
     Targets GetTarget() const;
 
@@ -128,11 +195,19 @@ public:
 
 private:
     static bool InitStaticData();
-    static void InitAreaData();
     static void InitTypeData();
 
     static bool Init;
-    static bool Area[TOTAL_SPELL_TARGETS];
+
+    struct StaticData
+    {
+        SpellTargetObjectTypes ObjectType;    // type of object returned by target type
+        SpellTargetReferenceTypes ReferenceType; // defines which object is used as a reference when selecting target
+        SpellTargetSelectionCategories SelectionCategory;
+        SpellTargetSelectionCheckTypes SelectionCheckType; // defines selection criteria
+        SpellTargetDirectionTypes DirectionType; // direction for cone and dest targets
+    };
+    static StaticData _data[TOTAL_SPELL_TARGETS];
 };
 
 class SpellEffectInfo
@@ -184,12 +259,22 @@ public:
 
     SpellEffectTargetTypes GetRequiredTargetType() const;
 
+    SpellTargetObjectTypes GetImplicitTargetObjectType() const;
+    SpellTargetObjectTypes GetRequiredTargetObjectType() const;
+
 private:
     static bool InitStaticData();
     static void InitRequiredTargetTypeData();
 
     static bool Init;
     static SpellEffectTargetTypes RequiredTargetType[TOTAL_SPELL_EFFECTS];
+
+    struct StaticData
+    {
+        SpellTargetObjectTypes ImplicitObjectType; // defines if explicit target can be added to effect target list if there's no valid target type provided for effect
+        SpellTargetObjectTypes RequiredObjectType; // defines valid target object type for spell effect
+    };
+    static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
 
 class SpellInfo

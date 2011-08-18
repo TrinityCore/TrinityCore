@@ -727,31 +727,40 @@ class npc_hyldsmeet_protodrake : public CreatureScript
 
         class npc_hyldsmeet_protodrakeAI : public CreatureAI
         {
-            npc_hyldsmeet_protodrakeAI(Creature* c) : CreatureAI(c), _accessoryRespawnTimer(0), _vehicleKit(NULL) {}
+            public:
+                npc_hyldsmeet_protodrakeAI(Creature* c) : CreatureAI(c), _accessoryRespawnTimer(0), _vehicleKit(c->GetVehicleKit()) {}
 
-            void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply)
-            {
-                if (apply)
-                    return;
+                void PassengerBoarded(Unit* who, int8 /*seat*/, bool apply)
+                {
+                    if (apply)
+                        return;
 
-                if (who->GetEntry() == NPC_HYLDSMEET_DRAKERIDER)
-                    _accessoryRespawnTimer = who->ToCreature()->GetRespawnDelay();
-            }
+                    if (who->GetEntry() == NPC_HYLDSMEET_DRAKERIDER)
+                        _accessoryRespawnTimer = 5 * MINUTE * IN_MILLISECONDS;
+                }
 
-            void UpdateAI(uint32 const diff)
-            {
-                //! We need to manually reinstall accessories because the vehicle itself is friendly to players,
-                //! so EnterEvadeMode is never triggered. The accessory on the other hand is hostile and killable.
-                if (_accessoryRespawnTimer && _accessoryRespawnTimer <= diff && _vehicleKit)
-                    _vehicleKit->InstallAllAccessories(false);
-                else
-                    _accessoryRespawnTimer -= diff;
-            }
+                void UpdateAI(uint32 const diff)
+                {
+                    //! We need to manually reinstall accessories because the vehicle itself is friendly to players,
+                    //! so EnterEvadeMode is never triggered. The accessory on the other hand is hostile and killable.
+                    if (_accessoryRespawnTimer && _accessoryRespawnTimer <= diff && _vehicleKit)
+                    {
+                        _vehicleKit->InstallAllAccessories(true);
+                        _accessoryRespawnTimer = 0;
+                    }
+                    else
+                        _accessoryRespawnTimer -= diff;
+                }
             
-            uint32 _accessoryRespawnTimer;
-            Vehicle* _vehicleKit;
+            private:
+                uint32 _accessoryRespawnTimer;
+                Vehicle* _vehicleKit;
         };
 
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_hyldsmeet_protodrakeAI (creature);
+        }
 };
 
 void AddSC_storm_peaks()
