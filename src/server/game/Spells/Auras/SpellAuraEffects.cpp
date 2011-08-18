@@ -5609,20 +5609,17 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             {
                 case 54798: // FLAMING Arrow Triggered Effect
                 {
-                    if (!caster || !target || !target->ToCreature() || !caster->IsVehicle() || target->HasAura(54683))
+                    if (!caster || !target || !target->ToCreature() || !caster->GetVehicle() || target->HasAura(54683))
                         break;
 
-                    if (Unit* rider = caster->GetVehicleKit()->GetPassenger(0))
-                    {
-                        target->CastSpell(target, 54683, true);
+                    target->CastSpell(target, 54683, true);
 
-                        // Credit Frostworgs
-                        if (target->GetEntry() == 29358)
-                            rider->CastSpell(rider, 54896, true);
-                        // Credit Frost Giants
-                        else if (target->GetEntry() == 29351)
-                            rider->CastSpell(rider, 54893, true);
-                    }
+                    // Credit Frostworgs
+                    if (target->GetEntry() == 29358)
+                        caster->CastSpell(caster, 54896, true);
+                    // Credit Frost Giants
+                    else if (target->GetEntry() == 29351)
+                        caster->CastSpell(caster, 54893, true);
                     break;
                 }
                 case 62292: // Blaze (Pool of Tar)

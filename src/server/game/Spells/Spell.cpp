@@ -498,6 +498,8 @@ m_caster(caster), m_spellValue(new SpellValue(m_spellInfo))
 
     if (originalCasterGUID)
         m_originalCasterGUID = originalCasterGUID;
+    else if (info->AttributesEx6 & SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED)
+        m_originalCasterGUID = m_caster->GetCharmerOrOwnerGUID();
     else
         m_originalCasterGUID = m_caster->GetGUID();
 
@@ -506,7 +508,8 @@ m_caster(caster), m_spellValue(new SpellValue(m_spellInfo))
     else
     {
         m_originalCaster = ObjectAccessor::GetUnit(*m_caster, m_originalCasterGUID);
-        if (m_originalCaster && !m_originalCaster->IsInWorld()) m_originalCaster = NULL;
+        if (m_originalCaster && !m_originalCaster->IsInWorld())
+            m_originalCaster = NULL;
     }
 
     m_spellState = SPELL_STATE_NULL;
@@ -4742,6 +4745,11 @@ SpellCastResult Spell::CheckCast(bool strict)
             && (vehicleSeat->m_flags & checkMask) != checkMask)
             return SPELL_FAILED_DONT_REPORT;
     }
+
+    //! Client checks this already
+    if (m_spellInfo->AttributesEx6 & SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED && !m_caster->GetCharmerOrOwnerGUID())
+        return SPELL_FAILED_DONT_REPORT;
+        
 
     Unit* target = m_targets.GetUnitTarget();
     // In pure self-cast spells, the client won't send any unit target
