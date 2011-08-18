@@ -318,6 +318,19 @@ class boss_halion : public CreatureScript
                 if (!UpdateVictim() && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)))
                     return;
 
+                // Drop threat on corrent victim and find another one if the current one is in the Twilight Realm
+                if (!(events.GetPhaseMask() & PHASE_TWO_MASK))
+                {
+                    if (UpdateVictim())
+                    {
+                        if (me->getVictim()->HasAura(SPELL_TWILIGHT_REALM))
+                        {
+                            me->getThreatManager().modifyThreatPercent(me->getVictim(), -100.0f);
+                            me->Attack(SelectTarget(SELECT_TARGET_TOPAGGRO, 1, 50.0f, true, -SPELL_TWILIGHT_REALM), true);
+                        }
+                    }
+                }
+
                 // Events won't be updated under phase two.
                 if (!(events.GetPhaseMask() & PHASE_TWO_MASK))
                     events.Update(diff);
@@ -502,6 +515,16 @@ class boss_twilight_halion : public CreatureScript
                 {
                     EnterEvadeMode();
                     return;
+                }
+
+                // Drop threat on corrent victim and find another one if the current one is not in the Twilight Realm
+                if (UpdateVictim())
+                {
+                    if (!me->getVictim()->HasAura(SPELL_TWILIGHT_REALM))
+                    {
+                        me->getThreatManager().modifyThreatPercent(me->getVictim(), -100.0f);
+                        me->Attack(SelectTarget(SELECT_TARGET_TOPAGGRO, 1, 50.0f, true, SPELL_TWILIGHT_REALM), true);
+                    }
                 }
 
                 // Twilight Halion's health is influenced by the Physical one's only on phase 3.
@@ -882,10 +905,7 @@ class npc_halion_controller : public CreatureScript
                 }
             }
 
-            void PushStacksForPlayer(uint64 plrGUID, uint32 stackamount)
-            {
-                _voidZonesStacks[plrGUID] = stackamount;
-            }
+            void PushStacksForPlayer(uint64 plrGUID, uint32 stackamount) { _voidZonesStacks[plrGUID] = stackamount; }
 
             void RemoveStacksForPlayer(uint64 plrGUID)
             {
@@ -1399,7 +1419,7 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
-                // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
+                // Save stacks in the controller, we can't get back stacks that were custom set with a SpellScript.
                 if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
                     CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
 
@@ -1449,7 +1469,7 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
-                // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
+                // Save stacks in the controller, we can't get back stacks that were custom set with a SpellScript.
                 if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
                     CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
 
@@ -1532,12 +1552,6 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
                 if (Player* plr = GetHitPlayer())
                     if (plr->HasAura(SPELL_SOUL_CONSUMPTION))
                         plr->RemoveAurasDueToSpell(SPELL_SOUL_CONSUMPTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
-
-                // Drop threat so that Twilight Halion doesn't attack players in the other realm.
-                if (Player* plr = GetHitPlayer())
-                    if (InstanceScript* instance = plr->GetInstanceScript())
-                        if (Creature* halion = ObjectAccessor::GetCreature(*plr, instance->GetData64(DATA_TWILIGHT_HALION)))
-                            halion->getThreatManager().modifyThreatPercent(plr, -100);
             }
 
             void Register()
@@ -1568,12 +1582,6 @@ class spell_halion_enter_twilight_realm : public SpellScriptLoader
                 if (Player* plr = GetHitPlayer())
                     if (plr->HasAura(SPELL_FIERY_COMBUSTION))
                         plr->RemoveAurasDueToSpell(SPELL_FIERY_COMBUSTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
-
-                // Drop threat so that Halion doesn't attack players in the other realm.
-                if (Player* plr = GetHitPlayer())
-                    if (InstanceScript* instance = plr->GetInstanceScript())
-                        if (Creature* halion = ObjectAccessor::GetCreature(*plr, instance->GetData64(DATA_HALION)))
-                            halion->getThreatManager().modifyThreatPercent(plr, -100);
             }
 
             void Register()
