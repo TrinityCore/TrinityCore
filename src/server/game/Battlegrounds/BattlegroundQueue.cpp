@@ -626,7 +626,7 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
         itr_team[i] = m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].begin();
         for (; itr_team[i] != m_QueuedGroups[bracket_id][BG_QUEUE_NORMAL_ALLIANCE + i].end(); ++(itr_team[i]))
         {
-            if (!(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
+            if ((*(itr_team[i])) && !(*(itr_team[i]))->IsInvitedToBGInstanceGUID)
             {
                 m_SelectionPools[i].AddGroup(*(itr_team[i]), maxPlayers);
                 if (m_SelectionPools[i].GetPlayerCount() >= minPlayers)
