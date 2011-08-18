@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "ScriptedSimpleAI.h"
 
-SimpleAI::SimpleAI(Creature *c) : ScriptedAI(c)
+SimpleAI::SimpleAI(Creature* c) : ScriptedAI(c)
 {
     //Clear all data
     Aggro_TextId[0] = 0;
@@ -63,7 +63,7 @@ void SimpleAI::Reset()
 {
 }
 
-void SimpleAI::EnterCombat(Unit *who)
+void SimpleAI::EnterCombat(Unit* who)
 {
             //Reset cast timers
             if (Spell[0].First_Cast >= 0)
@@ -123,36 +123,36 @@ void SimpleAI::KilledUnit(Unit* victim)
     if (!Kill_Spell)
         return;
 
-    Unit *pTarget = NULL;
+    Unit* target = NULL;
 
     switch (Kill_Target_Type)
     {
     case CAST_SELF:
-        pTarget = me;
+        target = me;
         break;
     case CAST_HOSTILE_TARGET:
-        pTarget = me->getVictim();
+        target = me->getVictim();
         break;
     case CAST_HOSTILE_SECOND_AGGRO:
-        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+        target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
         break;
     case CAST_HOSTILE_LAST_AGGRO:
-        pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
+        target = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
         break;
     case CAST_HOSTILE_RANDOM:
-        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
         break;
     case CAST_KILLEDUNIT_VICTIM:
-        pTarget = victim;
+        target = victim;
         break;
     }
 
     //Target is ok, cast a spell on it
-    if (pTarget)
-        DoCast(pTarget, Kill_Spell);
+    if (target)
+        DoCast(target, Kill_Spell);
 }
 
-void SimpleAI::DamageTaken(Unit* killer, uint32 &damage)
+void SimpleAI::DamageTaken(Unit* killer, uint32& damage)
 {
     //Return if damage taken won't kill us
     if (me->GetHealth() > damage)
@@ -171,33 +171,33 @@ void SimpleAI::DamageTaken(Unit* killer, uint32 &damage)
     if (!Death_Spell)
         return;
 
-    Unit *pTarget = NULL;
+    Unit* target = NULL;
 
     switch (Death_Target_Type)
     {
     case CAST_SELF:
-        pTarget = me;
+        target = me;
         break;
     case CAST_HOSTILE_TARGET:
-        pTarget = me->getVictim();
+        target = me->getVictim();
         break;
     case CAST_HOSTILE_SECOND_AGGRO:
-        pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+        target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
         break;
     case CAST_HOSTILE_LAST_AGGRO:
-        pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
+        target = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
         break;
     case CAST_HOSTILE_RANDOM:
-        pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+        target = SelectTarget(SELECT_TARGET_RANDOM, 0);
         break;
     case CAST_JUSTDIED_KILLER:
-        pTarget = killer;
+        target = killer;
         break;
     }
 
     //Target is ok, cast a spell on it
-    if (pTarget)
-        DoCast(pTarget, Death_Spell);
+    if (target)
+        DoCast(target, Death_Spell);
 }
 
 void SimpleAI::UpdateAI(const uint32 diff)
@@ -222,34 +222,34 @@ void SimpleAI::UpdateAI(const uint32 diff)
             //Check Current spell
             if (!(Spell[i].InterruptPreviousCast && me->IsNonMeleeSpellCasted(false)))
             {
-                Unit *pTarget = NULL;
+                Unit* target = NULL;
 
                 switch (Spell[i].Cast_Target_Type)
                 {
                 case CAST_SELF:
-                    pTarget = me;
+                    target = me;
                     break;
                 case CAST_HOSTILE_TARGET:
-                    pTarget = me->getVictim();
+                    target = me->getVictim();
                     break;
                 case CAST_HOSTILE_SECOND_AGGRO:
-                    pTarget = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
+                    target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
                     break;
                 case CAST_HOSTILE_LAST_AGGRO:
-                    pTarget = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
+                    target = SelectTarget(SELECT_TARGET_BOTTOMAGGRO, 0);
                     break;
                 case CAST_HOSTILE_RANDOM:
-                    pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                    target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     break;
                 }
 
                 //Target is ok, cast a spell on it and then do our random yell
-                if (pTarget)
+                if (target)
                 {
                     if (me->IsNonMeleeSpellCasted(false))
                         me->InterruptNonMeleeSpells(false);
 
-                    DoCast(pTarget, Spell[i].Spell_Id);
+                    DoCast(target, Spell[i].Spell_Id);
 
                     //Yell and sound use the same number so that you can make
                     //the Creature yell with the correct sound effect attached
@@ -257,7 +257,7 @@ void SimpleAI::UpdateAI(const uint32 diff)
 
                     //Random yell
                     if (Spell[i].TextId[random_text])
-                        DoScriptText(Spell[i].TextId[random_text], me, pTarget);
+                        DoScriptText(Spell[i].TextId[random_text], me, target);
 
                     //Random sound
                     if (Spell[i].Text_Sound[random_text])

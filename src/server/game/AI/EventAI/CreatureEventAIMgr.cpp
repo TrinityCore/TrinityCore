@@ -124,7 +124,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Summons()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         CreatureEventAI_Summon temp;
 
@@ -178,7 +178,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         CreatureEventAI_Event temp;
         temp.event_id = EventAI_Type(fields[0].GetUInt32());
@@ -250,14 +250,14 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             case EVENT_T_SPELLHIT:
                 if (temp.spell_hit.spellId)
                 {
-                    SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(temp.spell_hit.spellId);
-                    if (!pSpell)
+                    SpellInfo const* spell = sSpellMgr->GetSpellInfo(temp.spell_hit.spellId);
+                    if (!spell)
                     {
                         sLog->outErrorDb("CreatureEventAI:  Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
                         continue;
                     }
 
-                    if ((temp.spell_hit.schoolMask & pSpell->SchoolMask) != pSpell->SchoolMask)
+                    if ((temp.spell_hit.schoolMask & spell->SchoolMask) != spell->SchoolMask)
                         sLog->outErrorDb("CreatureEventAI:  Creature %u has param1(spellId %u) but param2 is not -1 and not equal to spell's school mask. Event %u can never trigger.", temp.creature_id, temp.spell_hit.schoolMask, i);
                 }
 
@@ -304,8 +304,8 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 break;
             case EVENT_T_FRIENDLY_MISSING_BUFF:
             {
-                SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(temp.spell_hit.spellId);
-                if (!pSpell)
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(temp.spell_hit.spellId);
+                if (!spell)
                 {
                     sLog->outErrorDb("CreatureEventAI:  Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
                     continue;
@@ -381,8 +381,8 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
             case EVENT_T_BUFFED:
             case EVENT_T_TARGET_BUFFED:
             {
-                SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(temp.buffed.spellId);
-                if (!pSpell)
+                SpellInfo const* spell = sSpellMgr->GetSpellInfo(temp.buffed.spellId);
+                if (!spell)
                 {
                     sLog->outErrorDb("CreatureEventAI:  Creature %u has non-existant SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
                     continue;
@@ -501,7 +501,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     break;
                 case ACTION_T_CAST:
                 {
-                    const SpellInfo *spell = sSpellMgr->GetSpellInfo(action.cast.spellId);
+                    const SpellInfo* spell = sSpellMgr->GetSpellInfo(action.cast.spellId);
                     if (!spell)
                         sLog->outErrorDb("CreatureEventAI:  Event %u Action %u uses non-existent SpellID %u.", i, j+1, action.cast.spellId);
                     /* FIXME: temp.raw.param3 not have event tipes with recovery time in it....
