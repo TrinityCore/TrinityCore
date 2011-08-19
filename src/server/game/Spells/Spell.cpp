@@ -496,10 +496,11 @@ m_caster(caster), m_spellValue(new SpellValue(m_spellInfo))
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->Damage[0].DamageType);
 
+    if (info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER) 
+        const_cast<Unit*>(m_caster) = caster->GetCharmerOrOwner();
+
     if (originalCasterGUID)
         m_originalCasterGUID = originalCasterGUID;
-    else if (info->AttributesEx6 & SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED)
-        m_originalCasterGUID = m_caster->GetCharmerOrOwnerGUID();
     else
         m_originalCasterGUID = m_caster->GetGUID();
 
@@ -4747,7 +4748,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     //! Client checks this already
-    if (m_spellInfo->AttributesEx6 & SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED && !m_caster->GetCharmerOrOwnerGUID())
+    if (m_spellInfo->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && !m_caster->GetCharmerOrOwnerGUID())
         return SPELL_FAILED_DONT_REPORT;
 
     Unit* target = m_targets.GetUnitTarget();
