@@ -3139,7 +3139,7 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         if (aura->IsPassive())
             continue;
 
-        if ((aura->GetSpellInfo()->GetDispelMask()) & dispelMask)
+        if (aura->GetSpellInfo()->GetDispelMask() & dispelMask)
         {
             if (aura->GetSpellInfo()->Dispel == DISPEL_MAGIC)
             {

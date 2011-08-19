@@ -423,17 +423,17 @@ bool SpellEffectInfo::IsAreaAuraEffect() const
 
 bool SpellEffectInfo::IsFarUnitTargetEffect() const
 {
-    return (Effect == SPELL_EFFECT_SUMMON_PLAYER);
+    return Effect == SPELL_EFFECT_SUMMON_PLAYER;
 }
 
 bool SpellEffectInfo::IsFarDestTargetEffect() const
 {
-    return (Effect == SPELL_EFFECT_TELEPORT_UNITS);
+    return Effect == SPELL_EFFECT_TELEPORT_UNITS;
 }
 
 bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
 {
-    return (IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA);
+    return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
 int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* /*target*/) const
@@ -1162,7 +1162,7 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
         return false;
 
     // true
-    if (mod->mask  & SpellFamilyFlags)
+    if (mod->mask & SpellFamilyFlags)
         return true;
 
     return false;
@@ -1616,10 +1616,10 @@ uint32 SpellInfo::GetAllEffectsMechanicMask() const
 {
     uint32 mask = 0;
     if (Mechanic)
-        mask |= 1<< Mechanic;
+        mask |= 1 << Mechanic;
     for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (Effects[i].Mechanic)
-            mask |= 1<< Effects[i].Mechanic;
+            mask |= 1 << Effects[i].Mechanic;
     return mask;
 }
 
@@ -1644,7 +1644,7 @@ Mechanics SpellInfo::GetEffectMechanic(uint8 effIndex) const
 
 uint32 SpellInfo::GetDispelMask() const
 {
-    return SpellInfo::GetDispelMask(DispelType(Dispel));
+    return GetDispelMask(DispelType(Dispel));
 }
 
 uint32 SpellInfo::GetDispelMask(DispelType type)
