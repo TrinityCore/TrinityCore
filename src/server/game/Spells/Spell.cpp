@@ -4749,7 +4749,6 @@ SpellCastResult Spell::CheckCast(bool strict)
     //! Client checks this already
     if (m_spellInfo->AttributesEx6 & SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED && !m_caster->GetCharmerOrOwnerGUID())
         return SPELL_FAILED_DONT_REPORT;
-        
 
     Unit* target = m_targets.GetUnitTarget();
     // In pure self-cast spells, the client won't send any unit target
