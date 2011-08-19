@@ -1239,6 +1239,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
         int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth, crit);
         unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
+        m_healing = gain;
     }
     // Do damage and triggers
     else if (m_damage > 0)
@@ -1273,6 +1274,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
             AuraEffect* aurEff = m_spellAura->GetEffect(1);
             aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
         }
+        m_damage = damageInfo.damage;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
