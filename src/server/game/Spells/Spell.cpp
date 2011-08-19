@@ -652,51 +652,10 @@ void Spell::SelectSpellTargets()
             {
                 case SPELL_EFFECT_DUMMY:
                 {
-                    switch(m_spellInfo->Id)
-                    {
-                        case 20577:                         // Cannibalize
-                        case 54044:                         // Carrion Feeder
-                        {
-                            WorldObject* result = NULL;
-                            if (m_spellInfo->Id == 20577)
-                                result = FindCorpseUsing<Trinity::CannibalizeObjectCheck>();
-                            else
-                                result = FindCorpseUsing<Trinity::CarrionFeederObjectCheck>();
-
-                            if (result)
-                            {
-                                switch(result->GetTypeId())
-                                {
-                                    case TYPEID_UNIT:
-                                    case TYPEID_PLAYER:
-                                        AddUnitTarget((Unit*)result, i);
-                                        break;
-                                    case TYPEID_CORPSE:
-                                        m_targets.SetCorpseTarget((Corpse*)result);
-                                        if (Player* owner = ObjectAccessor::FindPlayer(((Corpse*)result)->GetOwnerGUID()))
-                                            AddUnitTarget(owner, i);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                // clear cooldown at fail
-                                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                                    m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                                SendCastResult(SPELL_FAILED_NO_EDIBLE_CORPSES);
-                                finish(false);
-                            }
-                            break;
-                        }
-                        default:
-                            if (m_targets.GetUnitTarget())
-                                AddUnitTarget(m_targets.GetUnitTarget(), i, false);
-                            else
-                                AddUnitTarget(m_caster, i, false);
-                            break;
-                    }
+                    if (m_targets.GetUnitTarget())
+                        AddUnitTarget(m_targets.GetUnitTarget(), i, false);
+                    else
+                        AddUnitTarget(m_caster, i, false);
                     break;
                 }
                 case SPELL_EFFECT_BIND:
