@@ -780,12 +780,8 @@ class spell_assembly_meltdown : public SpellScriptLoader
 
             void HandleInstaKill(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-
-                if (InstanceScript* instance = caster->GetInstanceScript())
-                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_STEELBREAKER)))
+                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(BOSS_STEELBREAKER)))
                         Steelbreaker->AI()->DoAction(ACTION_ADD_CHARGE);
             }
 
