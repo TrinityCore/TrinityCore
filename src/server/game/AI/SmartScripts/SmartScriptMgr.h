@@ -1234,7 +1234,7 @@ class SmartAIMgr
         //event stores
         SmartAIEventMap mEventMap[SMART_SCRIPT_TYPE_MAX];
 
-        bool IsEventValid(SmartScriptHolder &e);
+        bool IsEventValid(SmartScriptHolder& e);
         bool IsTargetValid(SmartScriptHolder const& e);
 
         /*inline bool IsTargetValid(SmartScriptHolder e, int32 target)
