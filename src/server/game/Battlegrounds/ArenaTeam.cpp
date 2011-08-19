@@ -796,7 +796,7 @@ void ArenaTeam::MemberWon(Player* plr, uint32 againstMatchmakerRating, int32 Mat
             plr->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, itr->SeasonGames);
 
             // Pach titres arènes ( Original © Diabu )
-            QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*), (SELECT COUNT(*) FROM `arena_team_member` WHERE `personal_rating` > %u) FROM `arena_team_member`", plr->GetArenaPersonalRating(GetSlot()));
+           /* QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(*), (SELECT COUNT(*) FROM `arena_team_member` WHERE `personal_rating` > %u) FROM `arena_team_member`", plr->GetArenaPersonalRating(GetSlot()));
             if (Field* data = result->Fetch())
             {
                 uint32 count = data[0].GetUInt32();
@@ -824,7 +824,7 @@ void ArenaTeam::MemberWon(Player* plr, uint32 againstMatchmakerRating, int32 Mat
                     const AchievementEntry* AE = sAchievementStore.LookupEntry(2091);
                     plr->GetAchievementMgr().CompletedAchievement(AE);
                 }
-            }
+            }*/
             return;
         }
     }
