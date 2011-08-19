@@ -510,7 +510,7 @@ class Spell
 
         void SendLoot(uint64 guid, LootType loottype);
 
-        Unit* const m_caster;
+        Unit* m_caster;
 
         SpellValue * const m_spellValue;
 

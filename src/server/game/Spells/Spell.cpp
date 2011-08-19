@@ -496,8 +496,8 @@ m_caster(caster), m_spellValue(new SpellValue(m_spellInfo))
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->Damage[0].DamageType);
 
-    if (info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER) 
-        const_cast<Unit*>(m_caster) = caster->GetCharmerOrOwner();
+    if (info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER)
+        m_caster = const_cast<Unit*>(caster->GetCharmerOrOwner());
 
     if (originalCasterGUID)
         m_originalCasterGUID = originalCasterGUID;
