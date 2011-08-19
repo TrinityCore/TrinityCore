@@ -497,7 +497,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK15                            = 0x00008000, // 15 not set in 3.0.3
     SPELL_ATTR6_UNK16                            = 0x00010000, // 16
     SPELL_ATTR6_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED        = 0x00040000, // 18 client won't allow to cast these spells when unit is not possessed && charmer of caster will be original caster
+    SPELL_ATTR6_CAST_BY_CHARMER                  = 0x00040000, // 18 client won't allow to cast these spells when unit is not possessed && charmer of caster will be original caster
     SPELL_ATTR6_UNK19                            = 0x00080000, // 19
     SPELL_ATTR6_UNK20                            = 0x00100000, // 20
     SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS         = 0x00200000, // 21 it's only client-side attribute
@@ -1474,13 +1474,13 @@ enum GameobjectTypes
 
 enum GameObjectFlags
 {
-    GO_FLAG_IN_USE          = 0x00000001,                   //disables interaction while animated
-    GO_FLAG_LOCKED          = 0x00000002,                   //require key, spell, event, etc to be opened. Makes "Locked" appear in tooltip
-    GO_FLAG_INTERACT_COND   = 0x00000004,                   //cannot interact (condition to interact)
-    GO_FLAG_TRANSPORT       = 0x00000008,                   //any kind of transport? Object can transport (elevator, boat, car)
-    GO_FLAG_UNK1            = 0x00000010,                   //
-    GO_FLAG_NODESPAWN       = 0x00000020,                   //never despawn, typically for doors, they just change state
-    GO_FLAG_TRIGGERED       = 0x00000040,                   //typically, summoned objects. Triggered by spell or other events
+    GO_FLAG_IN_USE          = 0x00000001,                   // disables interaction while animated
+    GO_FLAG_LOCKED          = 0x00000002,                   // require key, spell, event, etc to be opened. Makes "Locked" appear in tooltip
+    GO_FLAG_INTERACT_COND   = 0x00000004,                   // cannot interact (condition to interact)
+    GO_FLAG_TRANSPORT       = 0x00000008,                   // any kind of transport? Object can transport (elevator, boat, car)
+    GO_FLAG_NOT_SELECTABLE  = 0x00000010,                   // not selectable even in GM mode
+    GO_FLAG_NODESPAWN       = 0x00000020,                   // never despawn, typically for doors, they just change state
+    GO_FLAG_TRIGGERED       = 0x00000040,                   // typically, summoned objects. Triggered by spell or other events
     GO_FLAG_DAMAGED         = 0x00000200,
     GO_FLAG_DESTROYED       = 0x00000400,
 };
