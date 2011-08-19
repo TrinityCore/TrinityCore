@@ -905,7 +905,7 @@ class npc_halion_controller : public CreatureScript
                 }
             }
 
-            void PushStacksForPlayer(uint64 plrGUID, uint32 stackamount) { _voidZonesStacks.insert(plrGUID, stackamount); }
+            void PushStacksForPlayer(uint64 plrGUID, uint32 stackamount) { _voidZonesStacks[plrGUID] = stackamount; }
 
             void RemoveStacksForPlayer(uint64 plrGUID)
             {
