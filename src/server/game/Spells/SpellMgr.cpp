@@ -430,7 +430,7 @@ void SpellMgr::SetSpellDifficultyId(uint32 spellId, uint32 id)
     mSpellDifficultySearcherMap[spellId] = id;
 }
 
-uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit* caster) const
+uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const
 {
     if (!GetSpellInfo(spellId))
         return spellId;
@@ -472,7 +472,7 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit* caster) const
     return uint32(difficultyEntry->SpellID[mode]);
 }
 
-SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit* caster) const
+SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const
 {
     uint32 newSpellId = GetSpellIdForDifficulty(spell->Id, caster);
     SpellInfo const* newSpell = GetSpellInfo(newSpellId);
@@ -2774,21 +2774,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
-            case 27820: // Mana Detonation
-            case 69782: // Ooze Flood
-            case 69796: // Ooze Flood
-            case 69798: // Ooze Flood
-            case 69801: // Ooze Flood
-            case 69538: // Ooze Combine
-            case 69553: // Ooze Combine
-            case 69610: // Ooze Combine
-            case 71447: // Bloodbolt Splash
-            case 71481: // Bloodbolt Splash
-            case 71482: // Bloodbolt Splash
-            case 71483: // Bloodbolt Splash
-            case 71390: // Pact of the Darkfallen
-                spellInfo->AttributesCu |= SPELL_ATTR0_CU_EXCLUDE_SELF;
-                break;
             case 18500: // Wing Buffet
             case 33086: // Wild Bite
             case 49749: // Piercing Blow
@@ -3104,9 +3089,6 @@ void SpellMgr::LoadDbcDataCorrections()
         case 27931: // Anchor to Skulls
         case 27937: // Anchor to Skulls
             spellInfo->rangeIndex = 13;
-            break;
-        case 48743: // Death Pact
-            spellInfo->AttributesEx &= ~SPELL_ATTR1_CANT_TARGET_SELF;
             break;
         // target allys instead of enemies, target A is src_caster, spells with effect like that have ally target
         // this is the only known exception, probably just wrong data

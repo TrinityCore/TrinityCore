@@ -395,10 +395,7 @@ enum TriggerCastFlags
     TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //! Will not adjust facing to target (if any)
     TRIGGERED_IGNORE_SHAPESHIFT                     = 0x00000400,   //! Will ignore shapeshift checks
     TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00000800,   //! Will ignore caster aura states including combat requirements and death state
-    TRIGGERED_IGNORE_TARGET_AURASTATE               = 0x00001000,   //! Will ignore target aura states
     TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE   = 0x00002000,   //! Will ignore mounted/on vehicle restrictions
-    TRIGGERED_IGNORE_TARGET_DETECTABILITY           = 0x00004000,   //! Will ignore canSeeOrDetect
-    TRIGGERED_IGNORE_LOS                            = 0x00008000,   //! Will ignore LOS to target
     TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
     TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00020000,   //! Disallows proc events from triggered spell (default)
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
@@ -471,7 +468,7 @@ enum DeathState
 
 enum UnitState
 {
-    UNIT_STAT_DIED            = 0x00000001,
+    UNIT_STAT_DIED            = 0x00000001,                     // player has fake death aura
     UNIT_STAT_MELEE_ATTACKING = 0x00000002,                     // player is melee attacking someone
     //UNIT_STAT_MELEE_ATTACK_BY = 0x00000004,                     // player is melee attack by someone
     UNIT_STAT_STUNNED         = 0x00000008,
@@ -1547,7 +1544,7 @@ class Unit : public WorldObject
 
         bool isFrozen() const;
 
-        bool isTargetableForAttack() const;
+        bool isTargetableForAttack(bool checkFakeDeath = true) const;
         bool isAttackableByAOE(SpellInfo const* spellProto = NULL) const;
         bool canAttack(Unit const* target, bool force = true) const;
         virtual bool IsInWater() const;
