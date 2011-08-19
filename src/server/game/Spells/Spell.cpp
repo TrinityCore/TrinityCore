@@ -2545,8 +2545,16 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         case 51326:
                         case 51327:
                         case 51328:
+                            // Search for ghoul if ghoul or dead body are not valid
+                            // Condition WIP.
+                            /*if (!(m_targets.GetUnitTarget()
+                                && ((m_targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT && m_targets.GetUnitTarget()->GetOwnerGUID() == m_caster->GetGUID() && m_targets.GetUnitTarget()->GetEntry() == 26125) // Ghoul
+                                    || (m_targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER)) // Player
+                                && m_targets.GetUnitTarget()->GetDisplayId() == m_targets.GetUnitTarget()->GetNativeDisplayId() // Not already exploded
+                                && !(m_targets.GetUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) // Not elemental nor mechanical unit
+                                && m_targets.GetUnitTarget()->getDeathState() == CORPSE))*/
                             // Search for ghoul if our ghoul or dead body not valid unit target
-                            if (!(m_targets.GetUnitTarget() && ((m_targets.GetUnitTarget()->GetEntry() == 26125 && m_targets.GetUnitTarget()->GetOwnerGUID() == m_caster->GetGUID())
+                            if (!(m_targets.GetUnitTarget() && ((m_targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT && m_targets.GetUnitTarget()->GetEntry() == 26125 && m_targets.GetUnitTarget()->GetOwnerGUID() == m_caster->GetGUID())
                                 || (m_targets.GetUnitTarget()->getDeathState() == CORPSE
                                     && (m_targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT || m_targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER)
                                     && !(m_targets.GetUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL)
