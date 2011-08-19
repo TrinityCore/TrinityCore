@@ -95,6 +95,7 @@ enum AssemblyActions
     ACTION_STEELBREAKER                          = 0,
     ACTION_MOLGEIM                               = 1,
     ACTION_BRUNDIR                               = 2,
+    ACTION_ADD_CHARGE                            = 3,
 };
 
 enum AssemblyYells
@@ -243,7 +244,10 @@ class boss_steelbreaker : public CreatureScript
                             events.RescheduleEvent(EVENT_STATIC_DISRUPTION, 30000);
                         if (phase >= 3)
                             events.RescheduleEvent(EVENT_OVERWHELMING_POWER, urand(2000, 5000));
-                    break;
+                        break;
+                    case ACTION_ADD_CHARGE:
+                        DoCast(me, SPELL_ELECTRICAL_CHARGE, true);
+                        break;
                 }
             }
 
@@ -413,7 +417,7 @@ class boss_runemaster_molgeim : public CreatureScript
                             DoCast(SPELL_BERSERK);
                             events.CancelEvent(EVENT_BERSERK);
                             break;
-                        case EVENT_RUNE_OF_POWER: // Improve target selection; random alive friendly
+                        case EVENT_RUNE_OF_POWER:
                         {
                             Unit* target = NULL;
                             switch (urand(0, 2))
@@ -628,7 +632,7 @@ class boss_stormcaller_brundir : public CreatureScript
                     Steelbreaker->AI()->DoAction(ACTION_STEELBREAKER);
 
                 // Prevent to have Brundir somewhere in the air when he die in Air phase
-                if (me->GetPositionZ() > FLOOR_Z/* + 5.0f*/)
+                if (me->GetPositionZ() > FLOOR_Z)
                     me->GetMotionMaster()->MoveFall(FLOOR_Z);
             }
 
@@ -765,6 +769,38 @@ class spell_shield_of_runes : public SpellScriptLoader
         }
 };
 
+class spell_assembly_meltdown : public SpellScriptLoader
+{
+    public:
+        spell_assembly_meltdown() : SpellScriptLoader("spell_assembly_meltdown") { }
+
+        class spell_assembly_meltdown_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_assembly_meltdown_SpellScript);
+
+            void HandleInstaKill(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster)
+                    return;
+
+                if (InstanceScript* instance = caster->GetInstanceScript())
+                    if (Creature* Steelbreaker = ObjectAccessor::GetCreature(*caster, instance->GetData64(BOSS_STEELBREAKER)))
+                        Steelbreaker->AI()->DoAction(ACTION_ADD_CHARGE);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_assembly_meltdown_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_assembly_meltdown_SpellScript();
+        }
+};
+
 void AddSC_boss_assembly_of_iron()
 {
     new boss_steelbreaker();
@@ -774,4 +810,5 @@ void AddSC_boss_assembly_of_iron()
     new mob_rune_of_summoning();
     new mob_rune_of_power();
     new spell_shield_of_runes();
+    new spell_assembly_meltdown();
 }
