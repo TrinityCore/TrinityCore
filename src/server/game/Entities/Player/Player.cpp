@@ -843,7 +843,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_lastFallTime = 0;
     m_lastFallZ = 0;
-    
+
     m_grantableLevels = 0;
 
     m_ControlledByPlayer = true;
@@ -17507,7 +17507,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                 GameEventMgr::ActiveEvents const& activeEventsList = sGameEventMgr->GetActiveEventList();
                 for (GameEventMgr::ActiveEvents::const_iterator itr = activeEventsList.begin(); itr != activeEventsList.end(); ++itr)
                 {
-                    if (events[*itr].holiday_id == proto->HolidayId)
+                    if (uint32(events[*itr].holiday_id) == proto->HolidayId)
                     {
                         remove = false;
                         break;
