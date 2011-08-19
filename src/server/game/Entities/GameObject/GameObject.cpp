@@ -147,7 +147,7 @@ void GameObject::RemoveFromWorld()
             if (Unit* owner = GetOwner())
                 owner->RemoveGameObject(this, false);
             else
-                sLog->outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.", GetGUIDLow(), GetGOInfo()->entry, GUID_LOPART(owner_guid));
+                sLog->outError("Delete GameObject (GUID: %u Entry: %u, Name: %s) that have references in not found creature %u GO list. Crash possible later.", GetGUIDLow(), GetGOInfo()->entry, GetGOInfo()->name, GUID_LOPART(owner_guid));
         }
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
