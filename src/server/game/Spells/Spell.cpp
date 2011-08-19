@@ -767,7 +767,7 @@ void Spell::SelectSpellTargets()
                     break;
                 case SPELL_EFFECT_SKIN_PLAYER_CORPSE:
                     if (m_targets.GetUnitTarget())
-                        AddUnitTarget(m_targets.GetUnitTarget(), i), false;
+                        AddUnitTarget(m_targets.GetUnitTarget(), i, false);
                     else if (m_targets.GetCorpseTargetGUID())
                     {
                         Corpse *corpse = ObjectAccessor::GetCorpse(*m_caster, m_targets.GetCorpseTargetGUID());
