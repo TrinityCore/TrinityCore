@@ -26,6 +26,7 @@
 #include "Transport.h"
 #include "ObjectAccessor.h"
 #include "CellImpl.h"
+#include "SpellInfo.h"
 
 using namespace Trinity;
 
@@ -330,38 +331,41 @@ ObjectUpdater::Visit(GridRefManager<T> &m)
     }
 }
 
-bool CannibalizeObjectCheck::operator()(Corpse* u)
+bool AnyDeadUnitObjectInRangeCheck::operator()(Player* u)
 {
-    // ignore bones
-    if (u->GetType() == CORPSE_BONES)
-        return false;
-
-    Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGUID());
-
-    if (!owner || i_funit->IsFriendlyTo(owner))
-        return false;
-
-    if (i_funit->IsWithinDistInMap(u, i_range))
-        return true;
-
-    return false;
+    return !u->isAlive() && !u->HasAuraType(SPELL_AURA_GHOST) && i_searchObj->IsWithinDistInMap(u, i_range);
 }
 
-bool CarrionFeederObjectCheck::operator()(Corpse* u)
+bool AnyDeadUnitObjectInRangeCheck::operator()(Corpse* u)
 {
-    // ignore bones
-    if (u->GetType() == CORPSE_BONES)
-        return false;
+    return u->GetType() != CORPSE_BONES && i_searchObj->IsWithinDistInMap(u, i_range);
+}
 
+bool AnyDeadUnitObjectInRangeCheck::operator()(Creature* u)
+{
+    return !u->isAlive() && i_searchObj->IsWithinDistInMap(u, i_range);
+}
+
+bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Player* u)
+{
+    return AnyDeadUnitObjectInRangeCheck::operator()(u)
+        && i_spellInfo->CheckTarget(i_searchObj, u, true)
+        && i_searchObj->IsTargetMatchingCheck(u, i_check);
+}
+
+bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Corpse* u)
+{
     Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGUID());
+    return owner && AnyDeadUnitObjectInRangeCheck::operator()(u)
+        && i_spellInfo->CheckTarget(i_searchObj, owner, true)
+        && i_searchObj->IsTargetMatchingCheck(owner, i_check);
+}
 
-    if (!owner || i_funit->IsFriendlyTo(owner))
-        return false;
-
-    if (i_funit->IsWithinDistInMap(u, i_range))
-        return true;
-
-    return false;
+bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Creature* u)
+{
+    return AnyDeadUnitObjectInRangeCheck::operator()(u)
+        && i_spellInfo->CheckTarget(i_searchObj, u, true)
+        && i_searchObj->IsTargetMatchingCheck(u, i_check);
 }
 
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
