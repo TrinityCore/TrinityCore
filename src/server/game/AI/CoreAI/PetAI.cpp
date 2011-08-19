@@ -30,7 +30,7 @@
 #include "Group.h"
 #include "SpellInfo.h"
 
-int PetAI::Permissible(const Creature *creature)
+int PetAI::Permissible(const Creature* creature)
 {
     if (creature->isPet())
         return PERMIT_BASE_SPECIAL;
@@ -38,7 +38,7 @@ int PetAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-PetAI::PetAI(Creature *c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
+PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
     m_AllySet.clear();
     UpdateAllies();
@@ -107,7 +107,7 @@ void PetAI::UpdateAI(const uint32 diff)
     }
     else if (owner && me->GetCharmInfo()) //no victim
     {
-        Unit *nextTarget = SelectNextTarget();
+        Unit* nextTarget = SelectNextTarget();
 
         if (me->HasReactState(REACT_PASSIVE))
             _stopAttack();
@@ -134,7 +134,7 @@ void PetAI::UpdateAI(const uint32 diff)
             if (!spellID)
                 continue;
 
-            SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(spellID);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID);
             if (!spellInfo)
                 continue;
 
@@ -239,30 +239,30 @@ void PetAI::UpdateAI(const uint32 diff)
 void PetAI::UpdateAllies()
 {
     Unit* owner = me->GetCharmerOrOwner();
-    Group *pGroup = NULL;
+    Group* group = NULL;
 
     m_updateAlliesTimer = 10*IN_MILLISECONDS;                //update friendly targets every 10 seconds, lesser checks increase performance
 
     if (!owner)
         return;
     else if (owner->GetTypeId() == TYPEID_PLAYER)
-        pGroup = owner->ToPlayer()->GetGroup();
+        group = owner->ToPlayer()->GetGroup();
 
     //only pet and owner/not in group->ok
-    if (m_AllySet.size() == 2 && !pGroup)
+    if (m_AllySet.size() == 2 && !group)
         return;
     //owner is in group; group members filled in already (no raid -> subgroupcount = whole count)
-    if (pGroup && !pGroup->isRaidGroup() && m_AllySet.size() == (pGroup->GetMembersCount() + 2))
+    if (group && !group->isRaidGroup() && m_AllySet.size() == (group->GetMembersCount() + 2))
         return;
 
     m_AllySet.clear();
     m_AllySet.insert(me->GetGUID());
-    if (pGroup)                                              //add group
+    if (group)                                              //add group
     {
-        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->getSource();
-            if (!Target || !pGroup->SameSubGroup((Player*)owner, Target))
+            if (!Target || !group->SameSubGroup((Player*)owner, Target))
                 continue;
 
             if (Target->GetGUID() == owner->GetGUID())
@@ -289,7 +289,7 @@ void PetAI::KilledUnit(Unit* victim)
     me->AttackStop();
     me->GetCharmInfo()->SetIsCommandAttack(false);
 
-    Unit *nextTarget = SelectNextTarget();
+    Unit* nextTarget = SelectNextTarget();
 
     if (nextTarget)
         AttackStart(nextTarget);
@@ -310,7 +310,7 @@ void PetAI::AttackStart(Unit* target)
     DoAttack(target, true);
 }
 
-Unit *PetAI::SelectNextTarget()
+Unit* PetAI::SelectNextTarget()
 {
     // Provides next target selection after current target death
 

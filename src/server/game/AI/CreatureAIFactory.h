@@ -25,24 +25,24 @@
 
 struct SelectableAI : public FactoryHolder<CreatureAI>, public Permissible<Creature>
 {
-    SelectableAI(const char *id) : FactoryHolder<CreatureAI>(id) {}
+    SelectableAI(const char* id) : FactoryHolder<CreatureAI>(id) {}
 };
 
 template<class REAL_AI>
 struct CreatureAIFactory : public SelectableAI
 {
-    CreatureAIFactory(const char *name) : SelectableAI(name) {}
+    CreatureAIFactory(const char* name) : SelectableAI(name) {}
 
-    CreatureAI* Create(void *) const;
+    CreatureAI* Create(void*) const;
 
-    int Permit(const Creature *c) const { return REAL_AI::Permissible(c); }
+    int Permit(const Creature* c) const { return REAL_AI::Permissible(c); }
 };
 
 template<class REAL_AI>
 inline CreatureAI*
-CreatureAIFactory<REAL_AI>::Create(void *data) const
+CreatureAIFactory<REAL_AI>::Create(void* data) const
 {
-    Creature* creature = reinterpret_cast<Creature *>(data);
+    Creature* creature = reinterpret_cast<Creature*>(data);
     return (new REAL_AI(creature));
 }
 
@@ -53,24 +53,24 @@ typedef FactoryHolder<CreatureAI>::FactoryHolderRepository CreatureAIRepository;
 //GO
 struct SelectableGameObjectAI : public FactoryHolder<GameObjectAI>, public Permissible<GameObject>
 {
-    SelectableGameObjectAI(const char *id) : FactoryHolder<GameObjectAI>(id) {}
+    SelectableGameObjectAI(const char* id) : FactoryHolder<GameObjectAI>(id) {}
 };
 
 template<class REAL_GO_AI>
 struct GameObjectAIFactory : public SelectableGameObjectAI
 {
-    GameObjectAIFactory(const char *name) : SelectableGameObjectAI(name) {}
+    GameObjectAIFactory(const char* name) : SelectableGameObjectAI(name) {}
 
-    GameObjectAI* Create(void *) const;
+    GameObjectAI* Create(void*) const;
 
-    int Permit(const GameObject *g) const { return REAL_GO_AI::Permissible(g); }
+    int Permit(const GameObject* g) const { return REAL_GO_AI::Permissible(g); }
 };
 
 template<class REAL_GO_AI>
 inline GameObjectAI*
-GameObjectAIFactory<REAL_GO_AI>::Create(void *data) const
+GameObjectAIFactory<REAL_GO_AI>::Create(void* data) const
 {
-    GameObject* go = reinterpret_cast<GameObject *>(data);
+    GameObject* go = reinterpret_cast<GameObject*>(data);
     return (new REAL_GO_AI(go));
 }
 
