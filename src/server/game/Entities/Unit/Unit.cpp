@@ -16180,6 +16180,26 @@ bool Unit::IsInRaidWith(Unit const* unit) const
         return false;
 }
 
+bool Unit::IsTargetMatchingCheck(Unit const* target, SpellTargetSelectionCheckTypes check) const
+{
+    switch (check)
+    {
+        case TARGET_SELECT_CHECK_ENEMY:
+            if (IsControlledByPlayer())
+                return !IsFriendlyTo(target);
+            else
+                return IsHostileTo(target);
+        case TARGET_SELECT_CHECK_ALLY:
+            return IsFriendlyTo(target);
+        case TARGET_SELECT_CHECK_PARTY:
+            return IsInPartyWith(target);
+        case TARGET_SELECT_CHECK_RAID:
+            return IsInRaidWith(target);
+        default:
+            return true;
+    }
+}
+
 void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
 {
     Player* owner = GetCharmerOrOwnerPlayerOrPlayerItself();
