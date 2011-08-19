@@ -429,7 +429,7 @@ class Spell
 
         template<typename T> WorldObject* FindCorpseUsing();
 
-        bool CheckTarget(Unit* target, uint32 eff);
+        bool CheckEffectTarget(Unit const* target, uint32 eff) const;
         bool CanAutoCast(Unit* target);
         void CheckSrc() { if (!m_targets.HasSrc()) m_targets.SetSrc(*m_caster); }
         void CheckDst() { if (!m_targets.HasDst()) m_targets.SetDst(*m_caster); }
@@ -497,8 +497,6 @@ class Spell
         int32 GetPowerCost() const { return m_powerCost; }
 
         void UpdatePointers();                              // must be used at call Spell code after time delay (non triggered spell cast/update spell call/etc)
-
-        bool CheckTargetCreatureType(Unit* target) const;
 
         void CleanupTargetList();
 
@@ -614,8 +612,7 @@ class Spell
         };
         std::list<ItemTargetInfo> m_UniqueItemInfo;
 
-        void AddUnitTarget(Unit* target, uint32 effIndex);
-        void AddUnitTarget(uint64 unitGUID, uint32 effIndex);
+        void AddUnitTarget(Unit* target, uint32 effIndex, bool checkIfValid = true);
         void AddGOTarget(GameObject* target, uint32 effIndex);
         void AddGOTarget(uint64 goGUID, uint32 effIndex);
         void AddItemTarget(Item* target, uint32 effIndex);
@@ -706,7 +703,6 @@ namespace Trinity
         const Unit* const i_source;
         uint32 i_entry;
         const Position * const i_pos;
-        bool i_requireDeadTarget;
         SpellInfo const* i_spellProto;
 
         SpellNotifierCreatureAndPlayer(Unit *source, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
@@ -719,21 +715,17 @@ namespace Trinity
 
         template<class T> inline void Visit(GridRefManager<T>& m)
         {
-            i_requireDeadTarget = i_spellProto ? bool(i_spellProto->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS) : false;
-
             for (typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
             {
                 Unit* target = (Unit*)itr->getSource();
 
-                if (!i_source->canSeeOrDetect(target, true))
+                if (i_spellProto->CheckTarget(i_source, target, true) != SPELL_CAST_OK)
                     continue;
 
                 switch (i_TargetType)
                 {
                     case SPELL_TARGETS_ENEMY:
                         if (target->isTotem())
-                            continue;
-                        if (!target->isAttackableByAOE(i_spellProto))
                             continue;
                         if (i_source->IsControlledByPlayer())
                         {
@@ -750,12 +742,6 @@ namespace Trinity
                         if (target->isTotem())
                             continue;
                         if (!i_source->IsFriendlyTo(target))
-                            continue;
-                        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
-                            continue;
-                        if (target->GetTypeId() == TYPEID_PLAYER && target->ToPlayer()->isGameMaster())
-                            continue;
-                        if (target->isAlive() == i_requireDeadTarget)
                             continue;
                         break;
                     case SPELL_TARGETS_ENTRY:

@@ -337,7 +337,7 @@ enum SpellAttr2
 {
     SPELL_ATTR2_CAN_TARGET_DEAD                  = 0x00000001, //  0 can target dead unit or corpse
     SPELL_ATTR2_UNK1                             = 0x00000002, //  1 ? many triggered spells have this flag
-    SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS            = 0x00000004, //  2 26368 4.0.1 dbc change (NYI)
+    SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS            = 0x00000004, //  2 26368 4.0.1 dbc change
     SPELL_ATTR2_UNK3                             = 0x00000008, //  3
     SPELL_ATTR2_DISPLAY_IN_STANCE_BAR            = 0x00000010, //  4 client displays icon in stance bar when learned, even if not shapeshift
     SPELL_ATTR2_AUTOREPEAT_FLAG                  = 0x00000020, //  5
@@ -383,7 +383,7 @@ enum SpellAttr3
     SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2     = 0x00000200, //  9 triggered from effect?
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // 10 Main hand weapon required
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
-    SPELL_ATTR3_ONLY_TARGET_GHOSTS              = 0x00001000, // 12
+    SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
     SPELL_ATTR3_UNK13                            = 0x00002000, // 13
     SPELL_ATTR3_UNK14                            = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
@@ -482,7 +482,7 @@ enum SpellAttr6
     SPELL_ATTR6_DONT_DISPLAY_COOLDOWN            = 0x00000001, //  0 client doesn't display cooldown in tooltip for these spells
     SPELL_ATTR6_ONLY_IN_ARENA                    = 0x00000002, //  1 only usable in arena
     SPELL_ATTR6_IGNORE_CASTER_AURAS              = 0x00000004, //  2
-    SPELL_ATTR6_CAN_TARGET_INVISIBLE             = 0x00000008, //  3 (NYI) ignore visibility requirement for spell target (phases, invisibility, etc.)
+    SPELL_ATTR6_UNK3                             = 0x00000008, //  3
     SPELL_ATTR6_UNK4                             = 0x00000010, //  4
     SPELL_ATTR6_UNK5                             = 0x00000020, //  5
     SPELL_ATTR6_UNK6                             = 0x00000040, //  6
@@ -492,7 +492,7 @@ enum SpellAttr6
     SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS     = 0x00000400, // 10 NYI!
     SPELL_ATTR6_NOT_IN_RAID_INSTANCE             = 0x00000800, // 11 not usable in raid instance
     SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE        = 0x00001000, // 12 castable while caster is on vehicle
-    SPELL_ATTR6_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR6_CAN_TARGET_INVISIBLE             = 0x00002000, // 13 ignore visibility requirement for spell target (phases, invisibility, etc.)
     SPELL_ATTR6_UNK14                            = 0x00004000, // 14
     SPELL_ATTR6_UNK15                            = 0x00008000, // 15 not set in 3.0.3
     SPELL_ATTR6_UNK16                            = 0x00010000, // 16
@@ -503,7 +503,7 @@ enum SpellAttr6
     SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS         = 0x00200000, // 21 it's only client-side attribute
     SPELL_ATTR6_UNK22                            = 0x00400000, // 22
     SPELL_ATTR6_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24 NYI!
+    SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24
     SPELL_ATTR6_UNK25                            = 0x02000000, // 25
     SPELL_ATTR6_UNK26                            = 0x04000000, // 26
     SPELL_ATTR6_UNK27                            = 0x08000000, // 27
