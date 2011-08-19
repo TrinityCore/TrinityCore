@@ -43,6 +43,65 @@ enum SpellEffectTargetTypes
     SPELL_REQUIRE_GOBJECT,
 };
 
+enum SpellTargetSelectionCategories
+{
+    TARGET_SELECT_CATEGORY_NYI,
+    TARGET_SELECT_CATEGORY_DEFAULT,
+    TARGET_SELECT_CATEGORY_CHANNEL,
+    TARGET_SELECT_CATEGORY_NEARBY,
+    TARGET_SELECT_CATEGORY_CONE,
+    TARGET_SELECT_CATEGORY_AREA,
+};
+
+enum SpellTargetReferenceTypes
+{
+    TARGET_REFERENCE_TYPE_NONE,
+    TARGET_REFERENCE_TYPE_CASTER,
+    TARGET_REFERENCE_TYPE_TARGET,
+    TARGET_REFERENCE_TYPE_LAST,
+    TARGET_REFERENCE_TYPE_SRC,
+    TARGET_REFERENCE_TYPE_DEST,
+};
+
+enum SpellTargetObjectTypes
+{
+    TARGET_OBJECT_TYPE_NONE,
+    TARGET_OBJECT_TYPE_SRC,
+    TARGET_OBJECT_TYPE_DEST,
+    TARGET_OBJECT_TYPE_UNIT,
+    TARGET_OBJECT_TYPE_UNIT_AND_DEST,
+    TARGET_OBJECT_TYPE_GOBJ,
+    TARGET_OBJECT_TYPE_GOBJ_ITEM,
+    TARGET_OBJECT_TYPE_ITEM,
+    TARGET_OBJECT_TYPE_CORPSE,
+};
+
+enum SpellTargetSelectionCheckTypes
+{
+    TARGET_SELECT_CHECK_DEFAULT,
+    TARGET_SELECT_CHECK_ENTRY,
+    TARGET_SELECT_CHECK_ENEMY,
+    TARGET_SELECT_CHECK_ALLY,
+    TARGET_SELECT_CHECK_PARTY,
+    TARGET_SELECT_CHECK_RAID,
+    TARGET_SELECT_CHECK_PASSENGER,
+};
+
+enum SpellTargetDirectionTypes
+{
+    TARGET_DIR_NONE,
+    TARGET_DIR_FRONT,
+    TARGET_DIR_BACK,
+    TARGET_DIR_RIGHT,
+    TARGET_DIR_LEFT,
+    TARGET_DIR_FRONT_RIGHT,
+    TARGET_DIR_BACK_RIGHT,
+    TARGET_DIR_BACK_LEFT,
+    TARGET_DIR_FRONT_LEFT,
+    TARGET_DIR_RANDOM,
+    TARGET_DIR_ENTRY,
+};
+
 enum SpellSelectTargetTypes
 {
     TARGET_TYPE_DEFAULT,
@@ -121,6 +180,12 @@ public:
 
     bool IsArea() const;
     SpellSelectTargetTypes GetType() const;
+    SpellTargetSelectionCategories GetSelectionCategory() const;
+    SpellTargetReferenceTypes GetReferenceType() const;
+    SpellTargetObjectTypes GetObjectType() const;
+    SpellTargetSelectionCheckTypes GetSelectionCheckType() const;
+    SpellTargetDirectionTypes GetDirectionType() const;
+    float CalcDirectionAngle() const;
 
     Targets GetTarget() const;
 
@@ -130,11 +195,19 @@ public:
 
 private:
     static bool InitStaticData();
-    static void InitAreaData();
     static void InitTypeData();
 
     static bool Init;
-    static bool Area[TOTAL_SPELL_TARGETS];
+
+    struct StaticData
+    {
+        SpellTargetObjectTypes ObjectType;    // type of object returned by target type
+        SpellTargetReferenceTypes ReferenceType; // defines which object is used as a reference when selecting target
+        SpellTargetSelectionCategories SelectionCategory;
+        SpellTargetSelectionCheckTypes SelectionCheckType; // defines selection criteria
+        SpellTargetDirectionTypes DirectionType; // direction for cone and dest targets
+    };
+    static StaticData _data[TOTAL_SPELL_TARGETS];
 };
 
 class SpellEffectInfo
@@ -186,12 +259,22 @@ public:
 
     SpellEffectTargetTypes GetRequiredTargetType() const;
 
+    SpellTargetObjectTypes GetImplicitTargetObjectType() const;
+    SpellTargetObjectTypes GetRequiredTargetObjectType() const;
+
 private:
     static bool InitStaticData();
     static void InitRequiredTargetTypeData();
 
     static bool Init;
     static SpellEffectTargetTypes RequiredTargetType[TOTAL_SPELL_EFFECTS];
+
+    struct StaticData
+    {
+        SpellTargetObjectTypes ImplicitObjectType; // defines if explicit target can be added to effect target list if there's no valid target type provided for effect
+        SpellTargetObjectTypes RequiredObjectType; // defines valid target object type for spell effect
+    };
+    static StaticData _data[TOTAL_SPELL_EFFECTS];
 };
 
 class SpellInfo

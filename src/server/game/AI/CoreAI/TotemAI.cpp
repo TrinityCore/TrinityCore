@@ -28,7 +28,7 @@
 #include "CellImpl.h"
 
 int
-TotemAI::Permissible(const Creature *creature)
+TotemAI::Permissible(const Creature* creature)
 {
     if (creature->isTotem())
         return PERMIT_BASE_PROACTIVE;
@@ -36,13 +36,13 @@ TotemAI::Permissible(const Creature *creature)
     return PERMIT_BASE_NO;
 }
 
-TotemAI::TotemAI(Creature *c) : CreatureAI(c), i_victimGuid(0)
+TotemAI::TotemAI(Creature* c) : CreatureAI(c), i_victimGuid(0)
 {
     ASSERT(c->isTotem());
 }
 
 void
-TotemAI::MoveInLineOfSight(Unit *)
+TotemAI::MoveInLineOfSight(Unit*)
 {
 }
 
@@ -61,7 +61,7 @@ TotemAI::UpdateAI(const uint32 /*diff*/)
         return;
 
     // Search spell
-    SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(me->ToTotem()->GetSpell());
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(me->ToTotem()->GetSpell());
     if (!spellInfo)
         return;
 
@@ -99,7 +99,7 @@ TotemAI::UpdateAI(const uint32 /*diff*/)
 }
 
 void
-TotemAI::AttackStart(Unit *)
+TotemAI::AttackStart(Unit*)
 {
     // Sentry totem sends ping on attack
     if (me->GetEntry() == SENTRY_TOTEM_ENTRY && me->GetOwner()->GetTypeId() == TYPEID_PLAYER)

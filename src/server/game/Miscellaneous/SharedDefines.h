@@ -497,7 +497,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK15                            = 0x00008000, // 15 not set in 3.0.3
     SPELL_ATTR6_UNK16                            = 0x00010000, // 16
     SPELL_ATTR6_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED        = 0x00040000, // 18 (NYI) client won't allow to cast these spells when unit does not have possessor
+    SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED        = 0x00040000, // 18 client won't allow to cast these spells when unit is not possessed && charmer of caster will be original caster
     SPELL_ATTR6_UNK19                            = 0x00080000, // 19
     SPELL_ATTR6_UNK20                            = 0x00100000, // 20
     SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS         = 0x00200000, // 21 it's only client-side attribute
@@ -1290,7 +1290,7 @@ enum Targets
     TARGET_UNIT_SRC_AREA_ENTRY         = 7,
     TARGET_UNIT_DEST_AREA_ENTRY        = 8,
     TARGET_DEST_HOME                   = 9,
-    TARGET_UNIT_TARGET_DEST_CASTER     = 11, // teleport target to caster
+    TARGET_UNIT_SRC_AREA_UNK_11        = 11,
     TARGET_UNIT_SRC_AREA_ENEMY         = 15,
     TARGET_UNIT_DEST_AREA_ENEMY        = 16,
     TARGET_DEST_DB                     = 17,
@@ -1382,7 +1382,7 @@ enum Targets
     TARGET_UNIT_CONE_ENEMY_104         = 104,
     TARGET_UNIT_UNK_105                = 105, // 1 spell
     TARGET_DEST_CHANNEL_CASTER         = 106,
-    TARGET_UNK_AREA_UNK_DST_107        = 107, // not enough info - only generic spells avalible
+    TARGET_UNK_DEST_AREA_UNK_107       = 107, // not enough info - only generic spells avalible
     TARGET_GAMEOBJECT_CONE             = 108,
     TARGET_DEST_UNK_110                = 110, // 1 spell
     TOTAL_SPELL_TARGETS
@@ -2763,7 +2763,7 @@ enum PetDiet
 
 #define MAX_PET_DIET 9
 
-#define CHAIN_SPELL_JUMP_RADIUS 10
+#define CHAIN_SPELL_JUMP_RADIUS 8
 
 #define GUILD_BANKLOG_MAX_RECORDS   25
 #define GUILD_EVENTLOG_MAX_RECORDS  100

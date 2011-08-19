@@ -524,7 +524,7 @@ struct AISpellInfoType
     float maxRange;
 };
 
- AISpellInfoType * GetAISpellInfo(uint32 i);
+AISpellInfoType* GetAISpellInfo(uint32 i);
 
 inline void CreatureAI::SetGazeOn(Unit* target)
 {
@@ -615,7 +615,7 @@ inline void UnitAI::DoCastAOE(uint32 spellId, bool triggered)
     me->CastSpell((Unit*)NULL, spellId, triggered);
 }
 
-inline Creature* CreatureAI::DoSummon(uint32 entry, const Position &pos, uint32 despawnTime, TempSummonType summonType)
+inline Creature* CreatureAI::DoSummon(uint32 entry, const Position& pos, uint32 despawnTime, TempSummonType summonType)
 {
     return me->SummonCreature(entry, pos, summonType, despawnTime);
 }
