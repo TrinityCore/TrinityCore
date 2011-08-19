@@ -159,7 +159,6 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_DIRECT_DAMAGE                 = 0x00000100,
     SPELL_ATTR0_CU_CHARGE                        = 0x00000200,
     SPELL_ATTR0_CU_PICKPOCKET                    = 0x00000400,
-    SPELL_ATTR0_CU_EXCLUDE_SELF                  = 0x00000800,
     SPELL_ATTR0_CU_NEGATIVE_EFF0                 = 0x00001000,
     SPELL_ATTR0_CU_NEGATIVE_EFF1                 = 0x00002000,
     SPELL_ATTR0_CU_NEGATIVE_EFF2                 = 0x00004000,
@@ -403,6 +402,8 @@ public:
 
     SpellCastResult CheckShapeshift(uint32 form) const;
     SpellCastResult CheckLocation(uint32 map_id, uint32 zone_id, uint32 area_id, Player const* player = NULL) const;
+    SpellCastResult CheckTarget(Unit const* caster, Unit const* target, bool implicit = true) const;
+    bool CheckTargetCreatureType(Unit const* target) const;
 
     SpellSchoolMask GetSchoolMask() const;
     uint32 GetAllEffectsMechanicMask() const;

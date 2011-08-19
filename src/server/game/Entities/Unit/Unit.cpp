@@ -12255,10 +12255,16 @@ void Unit::ClearInCombat()
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
-// TODO: remove this function
-bool Unit::isTargetableForAttack() const
+bool Unit::isTargetableForAttack(bool checkFakeDeath) const
 {
-    return isAttackableByAOE() && !HasUnitState(UNIT_STAT_DIED);
+    if (HasFlag(UNIT_FIELD_FLAGS,
+        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE))
+        return false;
+
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->isGameMaster())
+        return false;
+
+    return !HasUnitState(UNIT_STAT_UNATTACKABLE) && (!checkFakeDeath || !HasUnitState(UNIT_STAT_DIED));
 }
 
 bool Unit::canAttack(Unit const* target, bool force) const
@@ -12285,7 +12291,7 @@ bool Unit::canAttack(Unit const* target, bool force) const
     else if (!IsHostileTo(target))
         return false;
 
-    if (!target->isAttackableByAOE())
+    if (!target->isTargetableForAttack(false))
         return false;
 
     if (target->HasUnitState(UNIT_STAT_DIED))
@@ -12306,27 +12312,6 @@ bool Unit::canAttack(Unit const* target, bool force) const
         return false;
 
     return true;
-}
-
-bool Unit::isAttackableByAOE(SpellInfo const* spellProto) const
-{
-    bool targetMustBeDead = spellProto ? bool(spellProto->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS) : false;
-    bool targetCanBeDead = spellProto ? bool(spellProto->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD) : false;
-
-    if (targetMustBeDead && isAlive())
-        return false;
-
-    if (!targetMustBeDead && !targetCanBeDead && !isAlive())
-        return false;
-
-    if (HasFlag(UNIT_FIELD_FLAGS,
-        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE))
-        return false;
-
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->isGameMaster())
-        return false;
-
-    return !HasUnitState(UNIT_STAT_UNATTACKABLE);
 }
 
 int32 Unit::ModifyHealth(int32 dVal)
