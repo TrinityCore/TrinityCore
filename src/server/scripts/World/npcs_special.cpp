@@ -343,12 +343,12 @@ public:
                         itr = SpielerGUIDSet.begin();
 
                 Player * chr = sObjectAccessor->FindPlayer(*itr);
-                if (!chr)
+                if (!chr || !chr->isValid())
                 {
                     SpielerGUIDSet.erase(itr);
                     continue;
                 }
-                if (chr->isValid() && chr->isAlive() && !chr->IsMounted() && me->IsWithinDistInMap(chr, range))
+                if (chr->isValid() && chr->isAlive() && !chr->IsMounted() && me->IsWithinDistInMap(chr, range) && chr->isMoving() && !chr->isAFK())
                     return chr;
             }
             return NULL;
