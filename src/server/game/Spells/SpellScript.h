@@ -256,6 +256,7 @@ class SpellScript : public _SpellScript
         Unit* GetCaster();
         Unit* GetOriginalCaster();
         SpellInfo const* GetSpellInfo();
+        SpellValue const* GetSpellValue();
 
         // methods useable after spell targets are set
         // accessors to the "focus" targets of the spell
