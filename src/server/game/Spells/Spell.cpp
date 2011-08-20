@@ -5434,13 +5434,8 @@ SpellCastResult Spell::CheckCast(bool strict)
 
 SpellCastResult Spell::CheckPetCast(Unit* target)
 {
-    if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
-        return SPELL_FAILED_CASTER_DEAD;
-
     if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))              //prevent spellcast interruption by another spellcast
         return SPELL_FAILED_SPELL_IN_PROGRESS;
-    if (m_caster->isInCombat() && !m_spellInfo->CanBeUsedInCombat())
-        return SPELL_FAILED_AFFECTING_COMBAT;
 
     // dead owner (pets still alive when owners ressed?)
     if (Unit *owner = m_caster->GetCharmerOrOwner())
@@ -5467,9 +5462,6 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     // for target dead/target not valid
     if (_target)
     {
-        if (!_target->isAlive())
-            return SPELL_FAILED_BAD_TARGETS;
-
         if (!IsValidSingleTargetSpell(_target))
             return SPELL_FAILED_BAD_TARGETS;
     }
