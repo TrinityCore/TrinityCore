@@ -2742,6 +2742,10 @@ void SpellMgr::LoadSpellCustomAttr()
             case 58563: // Assassinate Restless Lookout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                 break;
+            case 20066: // Repentance
+            case 66008:
+                spellInfo->Mechanic = MECHANIC_STUN;
+                break;
             case 26029: // Dark Glare
             case 37433: // Spout
             case 43140: // Flame Breath
