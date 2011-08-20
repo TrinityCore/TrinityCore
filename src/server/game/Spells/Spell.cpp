@@ -5475,8 +5475,8 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     }
 
     // cooldown
-    if (Unit const* creatureCaster = m_caster->ToCreature())
-        creatureCaster->HasSpellCooldown(m_spellInfo->Id))
+    if (Creature const* creatureCaster = m_caster->ToCreature())
+        if (creatureCaster->HasSpellCooldown(m_spellInfo->Id))
             return SPELL_FAILED_NOT_READY;
 
     return CheckCast(true);
