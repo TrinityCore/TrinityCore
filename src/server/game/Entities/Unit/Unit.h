@@ -32,6 +32,7 @@
 #include "EventProcessor.h"
 #include "MotionMaster.h"
 #include "DBCStructure.h"
+#include "SpellInfo.h"
 #include "Path.h"
 #include "WorldPacket.h"
 #include "Timer.h"
@@ -1391,6 +1392,7 @@ class Unit : public WorldObject
         bool IsNeutralToAll() const;
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
+        bool IsTargetMatchingCheck(Unit const* target, SpellTargetSelectionCheckTypes check) const;
         void GetPartyMemberInDist(std::list<Unit*> &units, float dist);
         void GetPartyMembers(std::list<Unit*> &units);
         void GetRaidMember(std::list<Unit*> &units, float dist);
@@ -1545,7 +1547,6 @@ class Unit : public WorldObject
         bool isFrozen() const;
 
         bool isTargetableForAttack(bool checkFakeDeath = true) const;
-        bool isAttackableByAOE(SpellInfo const* spellProto = NULL) const;
         bool canAttack(Unit const* target, bool force = true) const;
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;

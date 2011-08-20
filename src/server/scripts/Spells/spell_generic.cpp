@@ -25,6 +25,7 @@
 #include "ScriptPCH.h"
 #include "SpellAuraEffects.h"
 #include "SkillDiscovery.h"
+#include "GridNotifiers.h"
 
 class spell_gen_absorb0_hitlimit1 : public SpellScriptLoader
 {
@@ -158,6 +159,60 @@ class spell_gen_burn_brutallus : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_gen_burn_brutallus_AuraScript();
+        }
+};
+
+enum eCannibalizeSpells
+{
+    SPELL_CANNIBALIZE_TRIGGERED = 20578,
+};
+
+class spell_gen_cannibalize : public SpellScriptLoader
+{
+    public:
+        spell_gen_cannibalize() : SpellScriptLoader("spell_gen_cannibalize") { }
+
+        class spell_gen_cannibalize_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_cannibalize_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CANNIBALIZE_TRIGGERED))
+                    return false;
+                return true;
+            }
+
+            SpellCastResult CheckIfCorpseNear()
+            {
+                Unit* caster = GetCaster();
+                float max_range = GetSpellInfo()->GetMaxRange(false);
+                WorldObject* result = NULL;
+                // search for nearby enemy corpse in range
+                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_SELECT_CHECK_ENEMY);
+                Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
+                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                if (!result)
+                    return SPELL_FAILED_NO_EDIBLE_CORPSES;
+                return SPELL_CAST_OK;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+                caster->CastSpell(caster, SPELL_CANNIBALIZE_TRIGGERED, false);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_gen_cannibalize_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_gen_cannibalize_SpellScript::CheckIfCorpseNear);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_cannibalize_SpellScript();
         }
 };
 
@@ -1264,6 +1319,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_aura_of_anger();
     new spell_gen_av_drekthar_presence();
     new spell_gen_burn_brutallus();
+    new spell_gen_cannibalize();
     new spell_gen_leeching_swarm();
     new spell_gen_parachute();
     new spell_gen_pet_summoned();

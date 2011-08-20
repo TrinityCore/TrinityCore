@@ -17,6 +17,7 @@
 
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "Spell.h"
 #include "DBCStores.h"
 
 SpellImplicitTargetInfo::SpellImplicitTargetInfo(uint32 target)
@@ -423,17 +424,17 @@ bool SpellEffectInfo::IsAreaAuraEffect() const
 
 bool SpellEffectInfo::IsFarUnitTargetEffect() const
 {
-    return (Effect == SPELL_EFFECT_SUMMON_PLAYER);
+    return Effect == SPELL_EFFECT_SUMMON_PLAYER;
 }
 
 bool SpellEffectInfo::IsFarDestTargetEffect() const
 {
-    return (Effect == SPELL_EFFECT_TELEPORT_UNITS);
+    return Effect == SPELL_EFFECT_TELEPORT_UNITS;
 }
 
 bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
 {
-    return (IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA);
+    return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
 int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* /*target*/) const
@@ -1101,7 +1102,7 @@ bool SpellInfo::IsRequiringDeadTarget() const
 
 bool SpellInfo::IsAllowingDeadTarget() const
 {
-    return AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD;
+    return AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD);
 }
 
 bool SpellInfo::CanBeUsedInCombat() const
@@ -1162,7 +1163,7 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
         return false;
 
     // true
-    if (mod->mask  & SpellFamilyFlags)
+    if (mod->mask & SpellFamilyFlags)
         return true;
 
     return false;
@@ -1497,13 +1498,14 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS && !target->ToPlayer())
        return SPELL_FAILED_TARGET_NOT_PLAYER;
 
-    if (!(AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD) && !target->isAlive())
+    if (!IsAllowingDeadTarget() && !target->isAlive())
        return SPELL_FAILED_TARGETS_DEAD;
 
-    if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS && !(target->ToPlayer() && !target->isAlive()))
+    if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS && !(!target->isAlive() && target->HasAuraType(SPELL_AURA_GHOST)))
        return SPELL_FAILED_TARGET_NOT_GHOST;
 
-    if (AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED && !target->CanFreeMove())
+    // check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
+    if (implicit && AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED && !target->CanFreeMove())
        return SPELL_FAILED_BAD_TARGETS;
 
     // check visibility - ignore stealth for implicit (area) targets
@@ -1527,7 +1529,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     if (target != caster && target->GetCharmerOrOwnerGUID() != caster->GetGUID())
     {
         // any unattackable target skipped
-        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE))
+        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return SPELL_FAILED_BAD_TARGETS;
     }
 
@@ -1616,10 +1618,10 @@ uint32 SpellInfo::GetAllEffectsMechanicMask() const
 {
     uint32 mask = 0;
     if (Mechanic)
-        mask |= 1<< Mechanic;
+        mask |= 1 << Mechanic;
     for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (Effects[i].Mechanic)
-            mask |= 1<< Effects[i].Mechanic;
+            mask |= 1 << Effects[i].Mechanic;
     return mask;
 }
 
@@ -1644,7 +1646,7 @@ Mechanics SpellInfo::GetEffectMechanic(uint8 effIndex) const
 
 uint32 SpellInfo::GetDispelMask() const
 {
-    return SpellInfo::GetDispelMask(DispelType(Dispel));
+    return GetDispelMask(DispelType(Dispel));
 }
 
 uint32 SpellInfo::GetDispelMask(DispelType type)
