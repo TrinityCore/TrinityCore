@@ -17,6 +17,7 @@
 
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "Spell.h"
 #include "DBCStores.h"
 
 SpellImplicitTargetInfo::SpellImplicitTargetInfo(uint32 target)
@@ -1101,7 +1102,7 @@ bool SpellInfo::IsRequiringDeadTarget() const
 
 bool SpellInfo::IsAllowingDeadTarget() const
 {
-    return AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD;
+    return AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD);
 }
 
 bool SpellInfo::CanBeUsedInCombat() const
@@ -1497,10 +1498,10 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS && !target->ToPlayer())
        return SPELL_FAILED_TARGET_NOT_PLAYER;
 
-    if (!(AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD) && !target->isAlive())
+    if (!IsAllowingDeadTarget() && !target->isAlive())
        return SPELL_FAILED_TARGETS_DEAD;
 
-    if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS && !(target->ToPlayer() && !target->isAlive()))
+    if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS && !(!target->isAlive() && target->HasAuraType(SPELL_AURA_GHOST)))
        return SPELL_FAILED_TARGET_NOT_GHOST;
 
     if (AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED && !target->CanFreeMove())
