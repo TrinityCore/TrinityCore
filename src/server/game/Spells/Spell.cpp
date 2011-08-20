@@ -5517,7 +5517,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
                 return SPELL_FAILED_BAD_TARGETS;
         }
                                                             //cooldown
-        if (m_caster->ToCreature()->HasSpellCooldown(m_spellInfo->Id))
+        if (m_caster->ToCreature() && m_caster->ToCreature()->HasSpellCooldown(m_spellInfo->Id))
             return SPELL_FAILED_NOT_READY;
 
     return CheckCast(true);
