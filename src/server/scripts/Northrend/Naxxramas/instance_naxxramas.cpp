@@ -140,6 +140,8 @@ public:
         uint64 uiKelthuzadTrigger;
         uint64 uiPortals[4];
 
+        uint32 AbominationCount;
+
         GOState gothikDoorState;
 
         time_t minHorsemenDiedTime;
@@ -273,7 +275,23 @@ public:
                         maxHorsemenDiedTime = now;
                     }
                     break;
+                case DATA_ABOMINATION_KILLED:
+                    AbominationCount = value;
+                    break;
             }
+        }
+
+        uint32 GetData(uint32 id)
+        {
+            switch (id)
+            {
+                case DATA_ABOMINATION_KILLED:
+                    return AbominationCount;
+                default:
+                    break;
+            }
+
+            return 0;
         }
 
         uint64 GetData64(uint32 id)
