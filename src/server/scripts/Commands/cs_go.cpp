@@ -487,8 +487,8 @@ public:
         char* px = strtok((char*)args, " ");
         char* py = strtok(NULL, " ");
         char* pz = strtok(NULL, " ");
-        char* pmapid = strtok(NULL, " ");
         char* port = strtok(NULL, " ");
+        char* pmapid = strtok(NULL, " ");
 
         if (!px || !py)
             return false;
