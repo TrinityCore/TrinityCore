@@ -74,6 +74,7 @@ enum Event
     EVENT_TRIGGER,
 
     EVENT_PHASE,
+    EVENT_MORTAL_WOUND,
 };
 
 enum Spells
@@ -121,6 +122,10 @@ enum Spells
     //death knight
     SPELL_PLAGUE_STRIKE                                    = 49921,
     SPELL_HOWLING_BLAST                                    = 51411,
+
+    // Abomination spells
+    SPELL_FRENZY                                           = 28468,
+    SPELL_MORTAL_WOUND                                     = 28467,
 };
 
 enum Creatures
@@ -709,8 +714,86 @@ public:
 
 };
 
+class npc_kelthuzad_abomination : public CreatureScript
+{
+    public:
+        npc_kelthuzad_abomination() : CreatureScript("npc_kelthuzad_abomination") { }
+
+        struct npc_kelthuzad_abominationAI : public ScriptedAI
+        {
+            npc_kelthuzad_abominationAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = me->GetInstanceScript();
+            }
+
+            InstanceScript* instance;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
+                DoCast(me, SPELL_FRENZY, true);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MORTAL_WOUND:
+                            DoCastVictim(SPELL_MORTAL_WOUND, true);
+                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 15000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void JustDied(Unit* /*who*/)
+            {
+                if (instance)
+                    instance->SetData(DATA_ABOMINATION_KILLED, instance->GetData(DATA_ABOMINATION_KILLED) + 1);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_kelthuzad_abominationAI(creature);
+        }
+};
+
+class achievement_just_cant_get_enough : public AchievementCriteriaScript
+{
+   public:
+       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough")
+       {
+       }
+
+       bool OnCheck(Player* /*player*/, Unit* target)
+       {
+           if (!target)
+               return false;
+
+           if (InstanceScript* instance = target->GetInstanceScript())
+               if (instance->GetData(DATA_ABOMINATION_KILLED) >= 18)
+                   return true;
+
+           return false;
+       }
+};
+
 void AddSC_boss_kelthuzad()
 {
     new boss_kelthuzad();
     new at_kelthuzad_center();
+    new npc_kelthuzad_abomination();
+    new achievement_just_cant_get_enough();
 }
