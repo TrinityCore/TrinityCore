@@ -451,7 +451,8 @@ SpellValue::SpellValue(SpellInfo const* proto)
 
 Spell::Spell(Unit* caster, SpellInfo const *info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID, bool skipCheck) :
 m_spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(info, caster)),
-m_caster(caster), m_spellValue(new SpellValue(m_spellInfo))
+m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharmerOrOwner()) ? caster->GetCharmerOrOwner() : caster)
+, m_spellValue(new SpellValue(m_spellInfo))
 {
     m_customError = SPELL_CUSTOM_ERROR_NONE;
     m_skipCheck = skipCheck;
@@ -495,9 +496,6 @@ m_caster(caster), m_spellValue(new SpellValue(m_spellInfo))
         if ((m_caster->getClassMask() & CLASSMASK_WAND_USERS) != 0 && m_caster->GetTypeId() == TYPEID_PLAYER)
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
                 m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->Damage[0].DamageType);
-
-    if (info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER) 
-        const_cast<Unit*>(m_caster) = caster->GetCharmerOrOwner();
 
     if (originalCasterGUID)
         m_originalCasterGUID = originalCasterGUID;
