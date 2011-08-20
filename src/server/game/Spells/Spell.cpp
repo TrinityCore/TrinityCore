@@ -5442,38 +5442,41 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     if (m_caster->isInCombat() && !m_spellInfo->CanBeUsedInCombat())
         return SPELL_FAILED_AFFECTING_COMBAT;
 
-                                                            //dead owner (pets still alive when owners ressed?)
-        if (Unit *owner = m_caster->GetCharmerOrOwner())
-            if (!owner->isAlive())
-                return SPELL_FAILED_CASTER_DEAD;
+    // dead owner (pets still alive when owners ressed?)
+    if (Unit *owner = m_caster->GetCharmerOrOwner())
+        if (!owner->isAlive())
+            return SPELL_FAILED_CASTER_DEAD;
 
-        if (!target && m_targets.GetUnitTarget())
-            target = m_targets.GetUnitTarget();
+    if (!target && m_targets.GetUnitTarget())
+        target = m_targets.GetUnitTarget();
 
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_UNIT_TARGET
+            || m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_DEST_TARGET)
         {
-            if (m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_UNIT_TARGET
-                || m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_DEST_TARGET)
-            {
-                if (!target)
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-                m_targets.SetUnitTarget(target);
-                break;
-            }
+            if (!target)
+                return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+            m_targets.SetUnitTarget(target);
+            break;
         }
+    }
 
-        Unit* _target = m_targets.GetUnitTarget();
+    Unit* _target = m_targets.GetUnitTarget();
 
-        if (_target)                                         //for target dead/target not valid
-        {
-            if (!_target->isAlive())
-                return SPELL_FAILED_BAD_TARGETS;
+    // for target dead/target not valid
+    if (_target)
+    {
+        if (!_target->isAlive())
+            return SPELL_FAILED_BAD_TARGETS;
 
-            if (!IsValidSingleTargetSpell(_target))
-                return SPELL_FAILED_BAD_TARGETS;
-        }
-                                                            //cooldown
-        if (m_caster->ToCreature()->HasSpellCooldown(m_spellInfo->Id))
+        if (!IsValidSingleTargetSpell(_target))
+            return SPELL_FAILED_BAD_TARGETS;
+    }
+
+    // cooldown
+    if (Unit const* creatureCaster = m_caster->ToCreature())
+        creatureCaster->HasSpellCooldown(m_spellInfo->Id))
             return SPELL_FAILED_NOT_READY;
 
     return CheckCast(true);
