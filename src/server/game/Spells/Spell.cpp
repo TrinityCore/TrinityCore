@@ -650,51 +650,10 @@ void Spell::SelectSpellTargets()
             {
                 case SPELL_EFFECT_DUMMY:
                 {
-                    switch(m_spellInfo->Id)
-                    {
-                        case 20577:                         // Cannibalize
-                        case 54044:                         // Carrion Feeder
-                        {
-                            WorldObject* result = NULL;
-                            if (m_spellInfo->Id == 20577)
-                                result = FindCorpseUsing<Trinity::CannibalizeObjectCheck>();
-                            else
-                                result = FindCorpseUsing<Trinity::CarrionFeederObjectCheck>();
-
-                            if (result)
-                            {
-                                switch(result->GetTypeId())
-                                {
-                                    case TYPEID_UNIT:
-                                    case TYPEID_PLAYER:
-                                        AddUnitTarget((Unit*)result, i);
-                                        break;
-                                    case TYPEID_CORPSE:
-                                        m_targets.SetCorpseTarget((Corpse*)result);
-                                        if (Player* owner = ObjectAccessor::FindPlayer(((Corpse*)result)->GetOwnerGUID()))
-                                            AddUnitTarget(owner, i);
-                                        break;
-                                    default:
-                                        break;
-                                }
-                            }
-                            else
-                            {
-                                // clear cooldown at fail
-                                if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                                    m_caster->ToPlayer()->RemoveSpellCooldown(m_spellInfo->Id, true);
-                                SendCastResult(SPELL_FAILED_NO_EDIBLE_CORPSES);
-                                finish(false);
-                            }
-                            break;
-                        }
-                        default:
-                            if (m_targets.GetUnitTarget())
-                                AddUnitTarget(m_targets.GetUnitTarget(), i, false);
-                            else
-                                AddUnitTarget(m_caster, i, false);
-                            break;
-                    }
+                    if (m_targets.GetUnitTarget())
+                        AddUnitTarget(m_targets.GetUnitTarget(), i, false);
+                    else
+                        AddUnitTarget(m_caster, i, false);
                     break;
                 }
                 case SPELL_EFFECT_BIND:
@@ -1228,7 +1187,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
                     break;
                 }
         }
-        switch(m_spellInfo->DmgClass)
+        switch (m_spellInfo->DmgClass)
         {
             case SPELL_DAMAGE_CLASS_MAGIC:
                 if (positive)
@@ -1278,6 +1237,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
         int32 gain = caster->HealBySpell(unitTarget, m_spellInfo, addhealth, crit);
         unitTarget->getHostileRefManager().threatAssist(caster, float(gain) * 0.5f, m_spellInfo);
+        m_healing = gain;
     }
     // Do damage and triggers
     else if (m_damage > 0)
@@ -1309,9 +1269,10 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
         // Haunt
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_WARLOCK && m_spellInfo->SpellFamilyFlags[1] & 0x40000 && m_spellAura && m_spellAura->GetEffect(1))
         {
-            AuraEffect * aurEff = m_spellAura->GetEffect(1);
+            AuraEffect* aurEff = m_spellAura->GetEffect(1);
             aurEff->SetAmount(CalculatePctU(aurEff->GetAmount(), damageInfo.damage));
         }
+        m_damage = damageInfo.damage;
     }
     // Passive spell hits/misses or active spells only misses (only triggers)
     else
@@ -1356,18 +1317,15 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
                     p->CastedCreatureOrGO(spellHitTarget->GetEntry(), spellHitTarget->GetGUID(), m_spellInfo->Id);
         }
 
-        if (m_caster && m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
+        if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsAIEnabled)
             m_caster->ToCreature()->AI()->SpellHitTarget(spellHitTarget, m_spellInfo);
 
         // Needs to be called after dealing damage/healing to not remove breaking on damage auras
         DoTriggersOnSpellHit(spellHitTarget, mask);
 
         // if target is fallged for pvp also flag caster if a player
-        if (unit->IsPvP())
-        {
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (unit->IsPvP() && m_caster->GetTypeId() == TYPEID_PLAYER)
             m_caster->ToPlayer()->UpdatePvP(true);
-        }
 
         CallScriptAfterHitHandlers();
     }
@@ -1448,7 +1406,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
 
     uint8 aura_effmask = 0;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (effectMask & (1 << i ) && m_spellInfo->Effects[i].IsUnitOwnedAuraEffect())
+        if (effectMask & (1 << i) && m_spellInfo->Effects[i].IsUnitOwnedAuraEffect())
             aura_effmask |= 1 << i;
 
     if (aura_effmask)
@@ -4736,10 +4694,6 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_DONT_REPORT;
     }
 
-    //! Client checks this already
-    if (m_spellInfo->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && !m_caster->GetCharmerOrOwnerGUID())
-        return SPELL_FAILED_DONT_REPORT;
-
     Unit* target = m_targets.GetUnitTarget();
     // In pure self-cast spells, the client won't send any unit target
     if (!target && (m_targets.GetTargetMask() == TARGET_FLAG_SELF || m_targets.GetTargetMask() & TARGET_FLAG_UNIT_ALLY)) // TARGET_FLAG_SELF == 0, remember!
@@ -5476,45 +5430,39 @@ SpellCastResult Spell::CheckCast(bool strict)
 
 SpellCastResult Spell::CheckPetCast(Unit* target)
 {
-    if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
-        return SPELL_FAILED_CASTER_DEAD;
-
     if (m_caster->HasUnitState(UNIT_STAT_CASTING) && !(_triggeredCastFlags & TRIGGERED_IGNORE_CAST_IN_PROGRESS))              //prevent spellcast interruption by another spellcast
         return SPELL_FAILED_SPELL_IN_PROGRESS;
-    if (m_caster->isInCombat() && !m_spellInfo->CanBeUsedInCombat())
-        return SPELL_FAILED_AFFECTING_COMBAT;
 
-                                                            //dead owner (pets still alive when owners ressed?)
-        if (Unit *owner = m_caster->GetCharmerOrOwner())
-            if (!owner->isAlive())
-                return SPELL_FAILED_CASTER_DEAD;
+    // dead owner (pets still alive when owners ressed?)
+    if (Unit *owner = m_caster->GetCharmerOrOwner())
+        if (!owner->isAlive())
+            return SPELL_FAILED_CASTER_DEAD;
 
-        if (!target && m_targets.GetUnitTarget())
-            target = m_targets.GetUnitTarget();
+    if (!target && m_targets.GetUnitTarget())
+        target = m_targets.GetUnitTarget();
 
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_UNIT_TARGET
+            || m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_DEST_TARGET)
         {
-            if (m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_UNIT_TARGET
-                || m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_DEST_TARGET)
-            {
-                if (!target)
-                    return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-                m_targets.SetUnitTarget(target);
-                break;
-            }
+            if (!target)
+                return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+            m_targets.SetUnitTarget(target);
+            break;
         }
+    }
 
-        Unit* _target = m_targets.GetUnitTarget();
+    Unit* _target = m_targets.GetUnitTarget();
 
-        if (_target)                                         //for target dead/target not valid
-        {
-            if (!_target->isAlive())
-                return SPELL_FAILED_BAD_TARGETS;
+    // for target dead/target not valid
+    if (_target)
+    {
+        if (!IsValidSingleTargetSpell(_target))
+            return SPELL_FAILED_BAD_TARGETS;
+    }
 
-            if (!IsValidSingleTargetSpell(_target))
-                return SPELL_FAILED_BAD_TARGETS;
-        }
-                                                            //cooldown
+    // cooldown
         if (m_caster->ToCreature() && m_caster->ToCreature()->HasSpellCooldown(m_spellInfo->Id))
             return SPELL_FAILED_NOT_READY;
 

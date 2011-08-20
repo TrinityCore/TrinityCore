@@ -23,6 +23,7 @@
 
 #include "ScriptPCH.h"
 #include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
 
 enum HunterSpells
 {
@@ -468,10 +469,22 @@ public:
             return true;
         }
 
+        SpellCastResult CheckIfCorpseNear()
+        {
+            Unit* caster = GetCaster();
+            float max_range = GetSpellInfo()->GetMaxRange(false);
+            WorldObject* result = NULL;
+            // search for nearby enemy corpse in range
+            Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_SELECT_CHECK_ENEMY);
+            Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
+            caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
+            if (!result)
+                return SPELL_FAILED_NO_EDIBLE_CORPSES;
+            return SPELL_CAST_OK;
+        }
+
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (!GetHitUnit())
-                return;
             Unit* caster = GetCaster();
             caster->CastSpell(caster, HUNTER_PET_SPELL_CARRION_FEEDER_TRIGGERED, false);
         }
@@ -480,6 +493,7 @@ public:
         {
             // add dummy effect spell handler to pet's Last Stand
             OnEffect += SpellEffectFn(spell_hun_pet_carrion_feeder_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnCheckCast += SpellCheckCastFn(spell_hun_pet_carrion_feeder_SpellScript::CheckIfCorpseNear);
         }
 
         bool Load()

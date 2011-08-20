@@ -416,6 +416,7 @@ class Map : public GridRefManager<NGridType>
 
         template<class T> void SwitchGridContainers(T* obj, bool active);
         template<class NOTIFIER> void VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier);
+        template<class NOTIFIER> void VisitFirstFound(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier);
         CreatureGroupHolderType CreatureGroupHolder;
@@ -648,6 +649,25 @@ Map::VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier)
     cell.Visit(p, world_object_notifier, *this, radius, x, y);
     TypeContainerVisitor<NOTIFIER, GridTypeMapContainer >  grid_object_notifier(notifier);
     cell.Visit(p, grid_object_notifier, *this, radius, x, y);
+}
+
+// should be used with Searcher notifiers, tries to search world if nothing found in grid
+template<class NOTIFIER>
+inline void
+Map::VisitFirstFound(const float &x, const float &y, float radius, NOTIFIER &notifier)
+{
+    CellPair p(Trinity::ComputeCellPair(x, y));
+    Cell cell(p);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    TypeContainerVisitor<NOTIFIER, WorldTypeMapContainer> world_object_notifier(notifier);
+    cell.Visit(p, world_object_notifier, *this, radius, x, y);
+    if (!notifier.i_object)
+    {
+        TypeContainerVisitor<NOTIFIER, GridTypeMapContainer >  grid_object_notifier(notifier);
+        cell.Visit(p, grid_object_notifier, *this, radius, x, y);
+    }
 }
 
 template<class NOTIFIER>

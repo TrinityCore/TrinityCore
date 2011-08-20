@@ -48,6 +48,7 @@ enum Data
     DATA_HORSEMEN1,
     DATA_HORSEMEN2,
     DATA_HORSEMEN3,
+    DATA_ABOMINATION_KILLED,
 };
 
 enum Data64

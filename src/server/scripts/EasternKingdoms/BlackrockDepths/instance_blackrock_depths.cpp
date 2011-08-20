@@ -42,6 +42,7 @@ enum eEnums
     NPC_GLOOMREL            = 9037,
     NPC_DOOMREL             = 9039,
     NPC_MAGMUS              = 9938,
+    NPC_MOIRA               = 8929,
 
     GO_ARENA1               = 161525,
     GO_ARENA2               = 161522,
@@ -87,6 +88,7 @@ public:
         uint64 EmperorGUID;
         uint64 PhalanxGUID;
         uint64 MagmusGUID;
+        uint64 MoiraGUID;
 
         uint64 GoArena1GUID;
         uint64 GoArena2GUID;
@@ -124,6 +126,7 @@ public:
             EmperorGUID = 0;
             PhalanxGUID = 0;
             MagmusGUID = 0;
+            MoiraGUID = 0;
 
             GoArena1GUID = 0;
             GoArena2GUID = 0;
@@ -163,6 +166,7 @@ public:
             {
             case NPC_EMPEROR: EmperorGUID = creature->GetGUID(); break;
             case NPC_PHALANX: PhalanxGUID = creature->GetGUID(); break;
+            case NPC_MOIRA: MoiraGUID = creature->GetGUID(); break;
             case NPC_DOOMREL: TombBossGUIDs[0] = creature->GetGUID(); break;
             case NPC_DOPEREL: TombBossGUIDs[1] = creature->GetGUID(); break;
             case NPC_HATEREL: TombBossGUIDs[2] = creature->GetGUID(); break;
@@ -308,6 +312,8 @@ public:
                 return EmperorGUID;
             case DATA_PHALANX:
                 return PhalanxGUID;
+            case DATA_MOIRA:
+                return MoiraGUID;
             case DATA_ARENA1:
                 return GoArena1GUID;
             case DATA_ARENA2:
