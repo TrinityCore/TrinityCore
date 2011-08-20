@@ -334,13 +334,13 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_SPELLHIT_TARGET:
                 if (e.event.spellHit.spell)
                 {
-                    SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(e.event.spellHit.spell);
-                    if (!pSpell)
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(e.event.spellHit.spell);
+                    if (!spellInfo)
                     {
                         sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Spell entry %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.spellHit.spell);
                         return false;
                     }
-                    if (e.event.spellHit.school && (e.event.spellHit.school & pSpell->SchoolMask) != pSpell->SchoolMask)
+                    if (e.event.spellHit.school && (e.event.spellHit.school & spellInfo->SchoolMask) != spellInfo->SchoolMask)
                     {
                         sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses Spell entry %u with invalid school mask, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.event.spellHit.spell);
                         return false;

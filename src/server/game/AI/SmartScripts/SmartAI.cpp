@@ -214,23 +214,23 @@ void SmartAI::EndPath(bool fail)
     {
         if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
         {
-            Player* plr = (*targets->begin())->ToPlayer();
-            if (!fail && plr->IsAtGroupRewardDistance(me) && !plr->GetCorpse())
-                plr->GroupEventHappens(mEscortQuestID, me);
+            Player* player = (*targets->begin())->ToPlayer();
+            if (!fail && player->IsAtGroupRewardDistance(me) && !player->GetCorpse())
+                player->GroupEventHappens(mEscortQuestID, me);
 
-            if (fail && plr->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
-                plr->FailQuest(mEscortQuestID);
+            if (fail && player->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
+                player->FailQuest(mEscortQuestID);
 
-            if (Group* pGroup = plr->GetGroup())
+            if (Group* group = player->GetGroup())
             {
-                for (GroupReference* gr = pGroup->GetFirstMember(); gr != NULL; gr = gr->next())
+                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
                 {
-                    Player* pGroupGuy = gr->getSource();
+                    Player* groupGuy = groupRef->getSource();
 
-                    if (!fail && pGroupGuy->IsAtGroupRewardDistance(me) && !pGroupGuy->GetCorpse())
-                        pGroupGuy->AreaExploredOrEventHappens(mEscortQuestID);
-                    if (fail && pGroupGuy->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
-                        pGroupGuy->FailQuest(mEscortQuestID);
+                    if (!fail && groupGuy->IsAtGroupRewardDistance(me) && !groupGuy->GetCorpse())
+                        groupGuy->AreaExploredOrEventHappens(mEscortQuestID);
+                    if (fail && groupGuy->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
+                        groupGuy->FailQuest(mEscortQuestID);
                 }
             }
         }else
@@ -239,11 +239,11 @@ void SmartAI::EndPath(bool fail)
             {
                 if (GetScript()->IsPlayer((*iter)))
                 {
-                    Player* plr = (*iter)->ToPlayer();
-                    if (!fail && plr->IsAtGroupRewardDistance(me) && !plr->GetCorpse())
-                        plr->AreaExploredOrEventHappens(mEscortQuestID);
-                    if (fail && plr->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
-                        plr->FailQuest(mEscortQuestID);
+                    Player* player = (*iter)->ToPlayer();
+                    if (!fail && player->IsAtGroupRewardDistance(me) && !player->GetCorpse())
+                        player->AreaExploredOrEventHappens(mEscortQuestID);
+                    if (fail && player->GetQuestStatus(mEscortQuestID) == QUEST_STATUS_INCOMPLETE)
+                        player->FailQuest(mEscortQuestID);
                 }
             }
         }
@@ -346,12 +346,12 @@ void SmartAI::UpdateAI(const uint32 diff)
         {
             if (me->FindNearestCreature(mFollowArrivedEntry, INTERACTION_DISTANCE, true))
             {
-                if (Player* plr = me->GetPlayer(*me, mFollowGuid))
+                if (Player* player = me->GetPlayer(*me, mFollowGuid))
                 {
                     if (!mFollowCreditType)
-                        plr->RewardPlayerAndGroupAtEvent(mFollowCredit, me);
+                        player->RewardPlayerAndGroupAtEvent(mFollowCredit, me);
                     else
-                        plr->GroupEventHappens(mFollowCredit, me);
+                        player->GroupEventHappens(mFollowCredit, me);
                 }
                 mFollowGuid = 0;
                 mFollowDist = 0;
@@ -385,17 +385,17 @@ bool SmartAI::IsEscortInvokerInRange()
     {
         if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
         {
-            Player* plr = (*targets->begin())->ToPlayer();
-            if (me->GetDistance(plr) <= SMART_ESCORT_MAX_PLAYER_DIST)
+            Player* player = (*targets->begin())->ToPlayer();
+            if (me->GetDistance(player) <= SMART_ESCORT_MAX_PLAYER_DIST)
                         return true;
 
-            if (Group* pGroup = plr->GetGroup())
+            if (Group* group = player->GetGroup())
             {
-                for (GroupReference* gr = pGroup->GetFirstMember(); gr != NULL; gr = gr->next())
+                for (GroupReference* groupRef = group->GetFirstMember(); groupRef != NULL; groupRef = groupRef->next())
                 {
-                    Player* pGroupGuy = gr->getSource();
+                    Player* groupGuy = groupRef->getSource();
 
-                    if (me->GetDistance(pGroupGuy) <= SMART_ESCORT_MAX_PLAYER_DIST)
+                    if (me->GetDistance(groupGuy) <= SMART_ESCORT_MAX_PLAYER_DIST)
                         return true;
                 }
             }
@@ -499,9 +499,9 @@ bool SmartAI::CanAIAttack(const Unit* /*who*/) const
     return true;
 }
 
-bool SmartAI::AssistPlayerInCombat(Unit* pWho)
+bool SmartAI::AssistPlayerInCombat(Unit* who)
 {
-    if (!pWho || !pWho->getVictim())
+    if (!who || !who->getVictim())
         return false;
 
     //experimental (unknown) flag not present
@@ -509,26 +509,26 @@ bool SmartAI::AssistPlayerInCombat(Unit* pWho)
         return false;
 
     //not a player
-    if (!pWho->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
+    if (!who->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
     //never attack friendly
-    if (me->IsFriendlyTo(pWho))
+    if (me->IsFriendlyTo(who))
         return false;
 
     //too far away and no free sight?
-    if (me->IsWithinDistInMap(pWho, SMART_MAX_AID_DIST) && me->IsWithinLOSInMap(pWho))
+    if (me->IsWithinDistInMap(who, SMART_MAX_AID_DIST) && me->IsWithinLOSInMap(who))
     {
         //already fighting someone?
         if (!me->getVictim())
         {
-            AttackStart(pWho);
+            AttackStart(who);
             return true;
         }
         else
         {
-            pWho->SetInCombatWith(me);
-            me->AddThreat(pWho, 0.0f);
+            who->SetInCombatWith(me);
+            me->AddThreat(who, 0.0f);
             return true;
         }
     }
@@ -606,29 +606,29 @@ void SmartAI::AttackStart(Unit* who)
     }
 }
 
-void SmartAI::SpellHit(Unit* pUnit, const SpellInfo* pSpell)
+void SmartAI::SpellHit(Unit* unit, const SpellInfo* spellInfo)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, pUnit, 0, 0, false, pSpell);
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT, unit, 0, 0, false, spellInfo);
 }
 
-void SmartAI::SpellHitTarget(Unit* target, const SpellInfo* pSpell)
+void SmartAI::SpellHitTarget(Unit* target, const SpellInfo* spellInfo)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, pSpell);
+    GetScript()->ProcessEventsFor(SMART_EVENT_SPELLHIT_TARGET, target, 0, 0, false, spellInfo);
 }
 
-void SmartAI::DamageTaken(Unit* done_by, uint32& damage)
+void SmartAI::DamageTaken(Unit* doneBy, uint32& damage)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, done_by, damage);
+    GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED, doneBy, damage);
 }
 
-void SmartAI::HealReceived(Unit* done_by, uint32& addhealth)
+void SmartAI::HealReceived(Unit* doneBy, uint32& addhealth)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_RECEIVE_HEAL, done_by, addhealth);
+    GetScript()->ProcessEventsFor(SMART_EVENT_RECEIVE_HEAL, doneBy, addhealth);
 }
 
-void SmartAI::ReceiveEmote(Player* pPlayer, uint32 text_emote)
+void SmartAI::ReceiveEmote(Player* player, uint32 textEmote)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_RECEIVE_EMOTE, pPlayer, text_emote);
+    GetScript()->ProcessEventsFor(SMART_EVENT_RECEIVE_EMOTE, player, textEmote);
 }
 
 void SmartAI::IsSummonedBy(Unit* summoner)
@@ -636,9 +636,9 @@ void SmartAI::IsSummonedBy(Unit* summoner)
     GetScript()->ProcessEventsFor(SMART_EVENT_JUST_SUMMONED, summoner);
 }
 
-void SmartAI::DamageDealt(Unit* done_to, uint32& damage, DamageEffectType /*damagetype*/)
+void SmartAI::DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damagetype*/)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED_TARGET, done_to, damage);
+    GetScript()->ProcessEventsFor(SMART_EVENT_DAMAGED_TARGET, doneTo, damage);
 }
 
 void SmartAI::SummonedCreatureDespawn(Creature* unit)
@@ -705,14 +705,14 @@ void SmartAI::SetRun(bool run)
     mRun = run;
 }
 
-void SmartAI::SetFly(bool bFly)
+void SmartAI::SetFly(bool fly)
 {
-    me->SetFlying(bFly);
+    me->SetFlying(fly);
 }
 
-void SmartAI::SetSwimm(bool bSwimm)
+void SmartAI::SetSwimm(bool swimm)
 {
-    if (bSwimm)
+    if (swimm)
         me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     else
         me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
