@@ -147,6 +147,26 @@ public:
         time_t minHorsemenDiedTime;
         time_t maxHorsemenDiedTime;
 
+        void Initialize()
+        {
+            GothikGateGUID      = 0;
+            HorsemenChestGUID   = 0;
+            SapphironGUID       = 0;
+            uiFaerlina          = 0;
+            uiThane             = 0;
+            uiLady              = 0;
+            uiBaron             = 0;
+            uiSir               = 0;
+            uiThaddius          = 0;
+            uiHeigan            = 0;
+            uiFeugen            = 0;
+            uiStalagg           = 0;
+            uiKelthuzad         = 0;
+            uiKelthuzadTrigger  = 0;
+
+            memset(uiPortals, 0, sizeof(uiPortals));
+        }
+
         void OnCreatureCreate(Creature* creature)
         {
             switch(creature->GetEntry())
