@@ -17,6 +17,7 @@
 
 #include "SpellInfo.h"
 #include "SpellMgr.h"
+#include "Spell.h"
 #include "DBCStores.h"
 
 SpellImplicitTargetInfo::SpellImplicitTargetInfo(uint32 target)
@@ -423,17 +424,17 @@ bool SpellEffectInfo::IsAreaAuraEffect() const
 
 bool SpellEffectInfo::IsFarUnitTargetEffect() const
 {
-    return (Effect == SPELL_EFFECT_SUMMON_PLAYER);
+    return Effect == SPELL_EFFECT_SUMMON_PLAYER;
 }
 
 bool SpellEffectInfo::IsFarDestTargetEffect() const
 {
-    return (Effect == SPELL_EFFECT_TELEPORT_UNITS);
+    return Effect == SPELL_EFFECT_TELEPORT_UNITS;
 }
 
 bool SpellEffectInfo::IsUnitOwnedAuraEffect() const
 {
-    return (IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA);
+    return IsAreaAuraEffect() || Effect == SPELL_EFFECT_APPLY_AURA;
 }
 
 int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const* /*target*/) const
@@ -1101,7 +1102,7 @@ bool SpellInfo::IsRequiringDeadTarget() const
 
 bool SpellInfo::IsAllowingDeadTarget() const
 {
-    return AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD;
+    return AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD || Targets & (TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_UNIT_DEAD);
 }
 
 bool SpellInfo::CanBeUsedInCombat() const
@@ -1162,7 +1163,7 @@ bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
         return false;
 
     // true
-    if (mod->mask  & SpellFamilyFlags)
+    if (mod->mask & SpellFamilyFlags)
         return true;
 
     return false;
@@ -1486,6 +1487,128 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     return SPELL_CAST_OK;
 }
 
+SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, bool implicit) const
+{
+    if (AttributesEx & SPELL_ATTR1_CANT_TARGET_SELF && caster == target)
+        return SPELL_FAILED_BAD_TARGETS;
+
+    if (AttributesEx & SPELL_ATTR1_CANT_TARGET_IN_COMBAT && target->isInCombat())
+        return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
+
+    if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_PLAYERS && !target->ToPlayer())
+       return SPELL_FAILED_TARGET_NOT_PLAYER;
+
+    if (!IsAllowingDeadTarget() && !target->isAlive())
+       return SPELL_FAILED_TARGETS_DEAD;
+
+    if (AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS && !(!target->isAlive() && target->HasAuraType(SPELL_AURA_GHOST)))
+       return SPELL_FAILED_TARGET_NOT_GHOST;
+
+    // check this flag only for implicit targets (chain and area), allow to explicitly target units for spells like Shield of Righteousness
+    if (implicit && AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED && !target->CanFreeMove())
+       return SPELL_FAILED_BAD_TARGETS;
+
+    // check visibility - ignore stealth for implicit (area) targets
+    if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE) && !caster->canSeeOrDetect(target, implicit))
+        return SPELL_FAILED_BAD_TARGETS;
+
+    if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+        return SPELL_FAILED_BAD_TARGETS;
+    
+    //if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS)
+
+    if (!CheckTargetCreatureType(target))
+    {
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            return SPELL_FAILED_TARGET_IS_PLAYER;
+        else
+            return SPELL_FAILED_BAD_TARGETS;
+    }
+
+    // check UNIT_FLAG_NON_ATTACKABLE flag - a player can cast spells on his pet (or other controlled unit) though in any state
+    if (target != caster && target->GetCharmerOrOwnerGUID() != caster->GetGUID())
+    {
+        // any unattackable target skipped
+        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            return SPELL_FAILED_BAD_TARGETS;
+    }
+
+    // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI)
+    if (target != caster && caster->IsControlledByPlayer() && target->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (!target->ToPlayer()->IsVisible())
+            return SPELL_FAILED_BAD_TARGETS;
+
+        if (target->ToPlayer()->isGameMaster())
+            return SPELL_FAILED_BAD_TARGETS;
+    }
+
+    // not allow casting on flying player
+    if (target->HasUnitState(UNIT_STAT_IN_FLIGHT))
+        return SPELL_FAILED_BAD_TARGETS;
+
+    if (TargetAuraState && !target->HasAuraState(AuraStateType(TargetAuraState), this, caster))
+        return SPELL_FAILED_TARGET_AURASTATE;
+
+    if (TargetAuraStateNot && target->HasAuraState(AuraStateType(TargetAuraStateNot), this, caster))
+        return SPELL_FAILED_TARGET_AURASTATE;
+
+    if (TargetAuraSpell && !target->HasAura(sSpellMgr->GetSpellIdForDifficulty(TargetAuraSpell, caster)))
+        return SPELL_FAILED_TARGET_AURASTATE;
+
+    if (ExcludeTargetAuraSpell && target->HasAura(sSpellMgr->GetSpellIdForDifficulty(ExcludeTargetAuraSpell, caster)))
+        return SPELL_FAILED_TARGET_AURASTATE;
+
+    if (caster != target)
+    {
+        if (caster->GetTypeId() == TYPEID_PLAYER)
+        {
+            // Do not allow these spells to target creatures not tapped by us (Banish, Polymorph, many quest spells)
+            if (AttributesEx2 & SPELL_ATTR2_CANT_TARGET_TAPPED)
+                if (Creature const* targetCreature = target->ToCreature())
+                    if (targetCreature->hasLootRecipient() && !targetCreature->isTappedBy(caster->ToPlayer()))
+                        return SPELL_FAILED_CANT_CAST_ON_TAPPED;
+
+            if (AttributesCu & SPELL_ATTR0_CU_PICKPOCKET)
+            {
+                 if (target->GetTypeId() == TYPEID_PLAYER)
+                     return SPELL_FAILED_BAD_TARGETS;
+                 else if ((target->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
+                     return SPELL_FAILED_TARGET_NO_POCKETS;
+            }
+
+            // Not allow disarm unarmed player
+            if (Mechanic == MECHANIC_DISARM)
+            {
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                {
+                    Player const* player = target->ToPlayer();
+                    if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
+                        return SPELL_FAILED_TARGET_NO_WEAPONS;
+                }
+                else if (!target->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID))
+                    return SPELL_FAILED_TARGET_NO_WEAPONS;
+            }
+        }
+    }
+    return SPELL_CAST_OK;
+}
+
+bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
+{
+    // Curse of Doom & Exorcism: not find another way to fix spell target check :/
+    if (SpellFamilyName == SPELLFAMILY_WARLOCK && Category == 1179)
+    {
+        // not allow cast at player
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            return false;
+        else
+            return true;
+    }
+    uint32 creatureType = target->GetCreatureTypeMask();
+    return !TargetCreatureType || !creatureType || (creatureType & TargetCreatureType);
+}
+
 SpellSchoolMask SpellInfo::GetSchoolMask() const
 {
     return SpellSchoolMask(SchoolMask);
@@ -1495,10 +1618,10 @@ uint32 SpellInfo::GetAllEffectsMechanicMask() const
 {
     uint32 mask = 0;
     if (Mechanic)
-        mask |= 1<< Mechanic;
+        mask |= 1 << Mechanic;
     for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (Effects[i].Mechanic)
-            mask |= 1<< Effects[i].Mechanic;
+            mask |= 1 << Effects[i].Mechanic;
     return mask;
 }
 
@@ -1523,7 +1646,7 @@ Mechanics SpellInfo::GetEffectMechanic(uint8 effIndex) const
 
 uint32 SpellInfo::GetDispelMask() const
 {
-    return SpellInfo::GetDispelMask(DispelType(Dispel));
+    return GetDispelMask(DispelType(Dispel));
 }
 
 uint32 SpellInfo::GetDispelMask(DispelType type)

@@ -11018,16 +11018,16 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellInfo const* spellProto, uint32 
                 coeff = DotFactor;
         }
 
-        float coeff2 = CalculateLevelPenalty(spellProto) * stack;
-        if (spellProto->SpellFamilyName) // TODO: fix this
-            TakenTotal+= int32(TakenAdvertisedBenefit * coeff * coeff2);
+        float factorMod = CalculateLevelPenalty(spellProto) * stack;
+        // level penalty still applied on Taken bonus - is it blizzlike?
+        TakenTotal+= int32(TakenAdvertisedBenefit * factorMod);
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
             modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_BONUS_MULTIPLIER, coeff);
             coeff /= 100.0f;
         }
-        DoneTotal += int32(DoneAdvertisedBenefit * coeff * coeff2);
+        DoneTotal += int32(DoneAdvertisedBenefit * coeff * factorMod);
     }
 
     // Some spells don't benefit from done mods
@@ -11587,7 +11587,8 @@ uint32 Unit::SpellHealingBonus(Unit* victim, SpellInfo const* spellProto, uint32
         }
 
         factorMod *= CalculateLevelPenalty(spellProto) * stack;
-        TakenTotal += int32(TakenAdvertisedBenefit * coeff * factorMod);
+        // level penalty still applied on Taken bonus - is it blizzlike?
+        TakenTotal += int32(TakenAdvertisedBenefit * factorMod);
         if (Player* modOwner = GetSpellModOwner())
         {
             coeff *= 100.0f;
@@ -12434,10 +12435,16 @@ void Unit::ClearInCombat()
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PET_IN_COMBAT);
 }
 
-// TODO: remove this function
-bool Unit::isTargetableForAttack() const
+bool Unit::isTargetableForAttack(bool checkFakeDeath) const
 {
-    return isAttackableByAOE() && !HasUnitState(UNIT_STAT_DIED);
+    if (HasFlag(UNIT_FIELD_FLAGS,
+        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE))
+        return false;
+
+    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->isGameMaster())
+        return false;
+
+    return !HasUnitState(UNIT_STAT_UNATTACKABLE) && (!checkFakeDeath || !HasUnitState(UNIT_STAT_DIED));
 }
 
 bool Unit::canAttack(Unit const* target, bool force) const
@@ -12464,7 +12471,7 @@ bool Unit::canAttack(Unit const* target, bool force) const
     else if (!IsHostileTo(target))
         return false;
 
-    if (!target->isAttackableByAOE())
+    if (!target->isTargetableForAttack(false))
         return false;
 
     if (target->HasUnitState(UNIT_STAT_DIED))
@@ -12485,27 +12492,6 @@ bool Unit::canAttack(Unit const* target, bool force) const
         return false;
 
     return true;
-}
-
-bool Unit::isAttackableByAOE(SpellInfo const* spellProto) const
-{
-    bool targetMustBeDead = spellProto ? bool(spellProto->AttributesEx3 & SPELL_ATTR3_ONLY_TARGET_GHOSTS) : false;
-    bool targetCanBeDead = spellProto ? bool(spellProto->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD) : false;
-
-    if (targetMustBeDead && isAlive())
-        return false;
-
-    if (!targetMustBeDead && !targetCanBeDead && !isAlive())
-        return false;
-
-    if (HasFlag(UNIT_FIELD_FLAGS,
-        UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE))
-        return false;
-
-    if (GetTypeId() == TYPEID_PLAYER && ToPlayer()->isGameMaster())
-        return false;
-
-    return !HasUnitState(UNIT_STAT_UNATTACKABLE);
 }
 
 int32 Unit::ModifyHealth(int32 dVal)
@@ -16384,6 +16370,26 @@ bool Unit::IsInRaidWith(Unit const* unit) const
       return u1->ToPlayer()->IsInSameRaidWith(u2->ToPlayer());
     else
         return false;
+}
+
+bool Unit::IsTargetMatchingCheck(Unit const* target, SpellTargetSelectionCheckTypes check) const
+{
+    switch (check)
+    {
+        case TARGET_SELECT_CHECK_ENEMY:
+            if (IsControlledByPlayer())
+                return !IsFriendlyTo(target);
+            else
+                return IsHostileTo(target);
+        case TARGET_SELECT_CHECK_ALLY:
+            return IsFriendlyTo(target);
+        case TARGET_SELECT_CHECK_PARTY:
+            return IsInPartyWith(target);
+        case TARGET_SELECT_CHECK_RAID:
+            return IsInRaidWith(target);
+        default:
+            return true;
+    }
 }
 
 void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)

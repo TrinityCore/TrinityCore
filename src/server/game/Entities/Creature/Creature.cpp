@@ -996,12 +996,12 @@ void Creature::SetLootRecipient(Unit *unit)
 }
 
 // return true if this creature is tapped by the player or by a member of his group.
-bool Creature::isTappedBy(Player* player) const
+bool Creature::isTappedBy(Player const* player) const
 {
     if (player->GetGUID() == m_lootRecipient)
         return true;
 
-    Group* playerGroup = player->GetGroup();
+    Group const* playerGroup = player->GetGroup();
     if (!playerGroup || playerGroup != GetLootRecipientGroup()) // if we dont have a group we arent the recipient
         return false;                                           // if creature doesnt have group bound it means it was solo killed by someone else
 
@@ -1947,7 +1947,7 @@ bool Creature::_IsTargetAcceptable(const Unit* target) const
 
     // if the target cannot be attacked, the target is not acceptable
     if (IsFriendlyTo(target)
-        || !target->isAttackableByAOE()
+        || !target->isTargetableForAttack(false)
         || (m_vehicle && (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))))
         return false;
 
