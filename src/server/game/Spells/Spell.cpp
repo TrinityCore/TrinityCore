@@ -6340,7 +6340,7 @@ void Spell::UpdatePointers()
     m_targets.Update(m_caster);
 }
 
-CurrentSpellTypes Spell::GetCurrentContainer()
+CurrentSpellTypes Spell::GetCurrentContainer() const
 {
     if (IsNextMeleeSwingSpell())
         return(CURRENT_MELEE_SPELL);
@@ -7194,7 +7194,7 @@ enum GCDLimits
     MAX_GCD = 1500
 };
 
-bool Spell::HasGlobalCooldown()
+bool Spell::HasGlobalCooldown() const
 {
     // Only player or controlled units have global cooldown
     if (m_caster->GetCharmInfo())
