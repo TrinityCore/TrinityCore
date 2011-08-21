@@ -36,8 +36,14 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
 {
     if (threatSpell)
     {
-        if (threatSpell->AttributesEx & SPELL_ATTR1_NO_THREAT)
-            return 0.0f;
+        if (SpellThreatEntry const*  threatEntry = sSpellMgr->GetSpellThreatEntry(threatSpell->Id))
+            if (threatEntry->pctMod != 1.0f)
+                threat *= threatEntry->pctMod;
+
+        // Energize is not affected by Mods
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
+            if (threatSpell->Effects[i].Effect == SPELL_EFFECT_ENERGIZE || threatSpell->Effects[i].ApplyAuraName == SPELL_AURA_PERIODIC_ENERGIZE)
+                return threat;
 
         if (Player* modOwner = hatedUnit->GetSpellModOwner())
             modOwner->ApplySpellMod(threatSpell->Id, SPELLMOD_THREAT, threat);
@@ -46,7 +52,7 @@ float ThreatCalcHelper::calcThreat(Unit* hatedUnit, Unit* /*hatingUnit*/, float 
     return hatedUnit->ApplyTotalThreatModifier(threat, schoolMask);
 }
 
-bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* /*threatSpell*/)
+bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellInfo const* threatSpell)
 {
     //function deals with adding threat and adding players and pets into ThreatList
     //mobs, NPCs, guards have ThreatList and HateOfflineList
@@ -66,6 +72,10 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
 
     // not to dead and not for dead
     if (!hatedUnit->isAlive() || !hatingUnit->isAlive())
+        return false;
+
+    // spell not causing threat
+    if (threatSpell && threatSpell->AttributesEx & SPELL_ATTR1_NO_THREAT)
         return false;
 
     ASSERT(hatingUnit->GetTypeId() == TYPEID_UNIT);
