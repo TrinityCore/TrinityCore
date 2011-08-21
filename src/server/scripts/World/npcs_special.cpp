@@ -258,7 +258,7 @@ enum FirecallerEvents
     EVENT_JOKE
 };
 
-class npc_uwom_firecaller : public CreatureScript
+class npc_uwom_firecaller : public CreatureScript // TODO: Doppelte Einträge im Feuerrufer.log verhindern!
 {
 public:
     npc_uwom_firecaller() : CreatureScript("npc_uwom_firecaller") { }
@@ -296,7 +296,7 @@ public:
                 }
             } while (result->NextRow());
 
-            sLog->outString("FEUERRUFER: Habe %u gültige Pets gefunden und geladen.", cnt);
+            SchreibeBericht(fmtstring("Habe %u gültige Pets gefunden und geladen (NPC-GUID %u).", cnt, me->GetGUIDLow()));
         }
 
         void MoveInLineOfSight(Unit * who)
@@ -318,17 +318,44 @@ public:
             std::string tmpfile = sWorld->GetDataPath().c_str();
             tmpfile.append("log/feuerrufer.log");
 
-            if (FILE * reportfile = fopen(tmpfile.c_str(), "w"))
+            if (FILE * reportfile = fopen(tmpfile.c_str(), "a"))
             {
-                sLog->outString("FEUERUFER: %s", str.c_str());
+                sLog->outString("FEUERUFER: (NPC-GUID %u) %s", me->GetGUIDLow(), str.c_str());
                 fputs(str.c_str(), reportfile);
                 fclose(reportfile);
             }
             else
             {
-                sLog->outError("FEUERUFER: KANN %s NICHT ERSTELLEN!", tmpfile.c_str());
+                sLog->outError("FEUERUFER: KANN %s NICHT SCHREIBEN!", tmpfile.c_str());
                 sLog->outError("FEUERUFER: %s", str.c_str());
             }
+        }
+
+        // Anzahl der bereits vergebenen Geschenke ermitteln.
+        uint8 BereitsVergeben()
+        {
+            std::string tmpfile = sWorld->GetDataPath().c_str();
+            tmpfile.append("log/feuerrufer.log");
+
+            if (FILE * reportfile = fopen(tmpfile.c_str(), "r+t"))
+            {
+                uint8 cnt = 0;
+
+                while (!feof(reportfile))
+                {
+                    std::string tmpstr;
+                    char tmpchar[255];
+                    tmpstr = fgets(tmpchar, 255, reportfile);
+                    if (tmpstr.find("http://de.wowhead.com/item="))
+                        ++cnt;
+                }
+                fclose(reportfile);
+                return cnt;
+            }
+            else
+                sLog->outError("FEUERUFER: KANN %s NICHT LESEN!", tmpfile.c_str());
+
+            return 0;
         }
 
         Player * FindeSpieler(float range = 50.0f)
@@ -348,7 +375,7 @@ public:
                     SpielerGUIDSet.erase(itr);
                     continue;
                 }
-                if (chr->isValid() && chr->isAlive() && !chr->IsMounted() && me->IsWithinDistInMap(chr, range) && chr->isMoving() && !chr->isAFK())
+                if (chr->isAlive() && !chr->IsMounted() && me->IsWithinDistInMap(chr, range) && chr->isMoving() && !chr->isAFK())
                     return chr;
             }
             return NULL;
@@ -358,6 +385,9 @@ public:
         {
             if (!chr || chr->GetSession()->GetSecurity() >= SEC_ANWAERTER)
                 return false;
+
+            if (BereitsVergeben() >= 3) // Es wurde bereits die max. Anzahl an Geschenken vergeben!
+                return true;
 
             for (std::map<uint32, uint32>::const_iterator itr = PetListe.begin(); itr != PetListe.end(); ++itr)
             {
@@ -370,14 +400,8 @@ public:
                     if (addItem(chr, itr->first))
                     {
                         // Bericht erstellen, damit wir wissen, wer welches Geschenk bekommen hat. ;)
-                        bericht.append(chr->GetName());
-                        bericht.append(" hat das Item http://de.wowhead.com/item=");
-                        bericht.append(buffer);
-                        bericht.append(" am ");
-                        bericht.append(TimeToTimestampStr(localtime, GERMAN).c_str());
-                        bericht.append(" Uhr erhalten.");
-                        bericht.append("\n");
-
+                        SchreibeBericht(fmtstring("%s hat das Item http://de.wowhead.com/item=%s am %s Uhr von NPC-GUID %u erhalten.\n",
+                                                  chr->GetName(), buffer, TimeToTimestampStr(localtime, GERMAN).c_str(), me->GetGUIDLow()));
                         return true;
                     }
                 }
@@ -436,8 +460,7 @@ public:
 
         void StartEvent()
         {
-            bericht.append("Feuerrufer-Bericht über die verschenkten Items. ;)");
-            bericht.append("\n\n");
+            SchreibeBericht(fmtstring("Feuerrufer-Bericht (für NPC-GUID %u) über die verschenkten Items. ;)\n\n", me->GetGUIDLow()));
 
             LadePetListe();
 
@@ -462,10 +485,8 @@ public:
             DoPlaySoundToSet(me, FirecallerSounds[ABSCHIED][0]);
             DoCast(FirecallerSpells[EXPLOSION]);
 
-            if (bericht.size() < 60)
-                bericht.append("Leider war diesmal niemand zum Event erschienen! :-(");
-
-            SchreibeBericht(bericht);
+            if (BereitsVergeben() == 0)
+                SchreibeBericht("Leider war diesmal niemand zum Event erschienen! :-(");
 
             me->ForcedDespawn(8 * IN_MILLISECONDS);
         }
@@ -554,7 +575,6 @@ public:
         }
         private:
             EventMap events;
-            std::string bericht;
             std::set<uint64> SpielerGUIDSet;
             std::map<uint32, uint32> PetListe;
     };
