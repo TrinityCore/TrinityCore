@@ -5677,8 +5677,6 @@ void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, floa
             m_auraBaseMod[modGroup][modType] += apply ? amount : -amount;
             break;
         case PCT_MOD:
-            if (amount <= -100.0f)
-                amount = -200.0f;
             ApplyPercentModFloatVar(m_auraBaseMod[modGroup][modType], amount, apply);
             break;
     }
@@ -8094,7 +8092,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
         if (unitModType == TOTAL_VALUE)
             ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
         else
-            ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, aura->GetAmount() / 100.0f, apply);
+            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, aura->GetAmount(), apply);
     }
 }
 
