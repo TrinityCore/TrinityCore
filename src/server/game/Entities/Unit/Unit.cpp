@@ -2016,7 +2016,7 @@ MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType att
 
     // Miss chance based on melee
     //float miss_chance = MeleeMissChanceCalc(victim, attType);
-    float miss_chance = MeleeSpellMissChance(victim, attType, int32(GetWeaponSkillValue(attType, victim)) - int32(victim->GetMaxSkillValueForLevel(this)), 0);
+    float miss_chance = MeleeSpellMissChance(victim, attType, int32(GetWeaponSkillValue(attType, victim)) - int32(victim->GetDefenseSkillValue(this, false)), 0);
 
     // Critical hit chance
     float crit_chance = GetUnitCriticalChance(attType, victim);
@@ -2345,10 +2345,11 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         attackerWeaponSkill = int32(GetWeaponSkillValue(attType, victim));
 
     int32 skillDiff = attackerWeaponSkill - int32(victim->GetMaxSkillValueForLevel(this));
+    int32 fullSkillDiff = attackerWeaponSkill - int32(victim->GetDefenseSkillValue(this, false));
 
     uint32 roll = urand (0, 10000);
 
-    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, skillDiff, spell->Id) * 100.0f);
+    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, fullSkillDiff, spell->Id) * 100.0f);
     // Roll miss
     uint32 tmp = missChance;
     if (roll < tmp)
@@ -2650,7 +2651,7 @@ SpellMissInfo Unit::SpellHitResult(Unit* victim, SpellInfo const* spell, bool Ca
     return SPELL_MISS_NONE;
 }
 
-uint32 Unit::GetDefenseSkillValue(Unit const* target) const
+uint32 Unit::GetDefenseSkillValue(Unit const* target, bool withBonusDefRating) const
 {
     if (GetTypeId() == TYPEID_PLAYER)
     {
@@ -2658,7 +2659,8 @@ uint32 Unit::GetDefenseSkillValue(Unit const* target) const
         uint32 value = (target && target->GetTypeId() == TYPEID_PLAYER)
             ? ToPlayer()->GetMaxSkillValue(SKILL_DEFENSE)
             : ToPlayer()->GetSkillValue(SKILL_DEFENSE);
-        value += uint32(ToPlayer()->GetRatingBonusValue(CR_DEFENSE_SKILL));
+        if(withBonusDefRating)
+            value += uint32(ToPlayer()->GetRatingBonusValue(CR_DEFENSE_SKILL));
         return value;
     }
     else
