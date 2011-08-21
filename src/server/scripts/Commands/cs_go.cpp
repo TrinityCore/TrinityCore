@@ -44,7 +44,6 @@ public:
             { "taxinode",       SEC_MODERATOR,      false, &HandleGoTaxinodeCommand,          "", NULL },
             { "trigger",        SEC_MODERATOR,      false, &HandleGoTriggerCommand,           "", NULL },
             { "zonexy",         SEC_MODERATOR,      false, &HandleGoZoneXYCommand,            "", NULL },
-            { "xy",             SEC_MODERATOR,      false, &HandleGoXYCommand,                "", NULL },
             { "xyz",            SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
             { "ticket",         SEC_MODERATOR,      false, &HandleGoTicketCommand,            "", NULL },
             { "",               SEC_MODERATOR,      false, &HandleGoXYZCommand,               "", NULL },
@@ -477,54 +476,7 @@ public:
 
         return true;
     }
-    //teleport at coordinates
-    static bool HandleGoXYCommand(ChatHandler* handler, const char* args)
-    {
-        if (!*args)
-            return false;
-
-        Player* _player = handler->GetSession()->GetPlayer();
-
-        char* px = strtok((char*)args, " ");
-        char* py = strtok(NULL, " ");
-        char* pmapid = strtok(NULL, " ");
-
-        if (!px || !py)
-            return false;
-
-        float x = (float)atof(px);
-        float y = (float)atof(py);
-        uint32 mapid;
-        if (pmapid)
-            mapid = (uint32)atoi(pmapid);
-        else
-            mapid = _player->GetMapId();
-
-        if (!MapManager::IsValidMapCoord(mapid, x, y))
-        {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapid);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        // stop flight if need
-        if (_player->isInFlight())
-        {
-            _player->GetMotionMaster()->MovementExpired();
-            _player->CleanupAfterTaxiFlight();
-        }
-        // save only in non-flight case
-        else
-            _player->SaveRecallPosition();
-
-        Map const *map = sMapMgr->CreateBaseMap(mapid);
-        float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
-
-        _player->TeleportTo(mapid, x, y, z, _player->GetOrientation());
-
-        return true;
-    }
-    //teleport at coordinates, including Z
+    //teleport at coordinates, including Z and orientation
     static bool HandleGoXYZCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
@@ -536,26 +488,49 @@ public:
         char* py = strtok(NULL, " ");
         char* pz = strtok(NULL, " ");
         char* pmapid = strtok(NULL, " ");
+        char* port = strtok(NULL, " ");
 
-        if (!px || !py || !pz)
+        if (!px || !py)
             return false;
 
         float x = (float)atof(px);
         float y = (float)atof(py);
-        float z = (float)atof(pz);
+        float z;
+        float ort;
         uint32 mapid;
+        
         if (pmapid)
             mapid = (uint32)atoi(pmapid);
         else
             mapid = _player->GetMapId();
-
-        if (!MapManager::IsValidMapCoord(mapid, x, y, z))
+            
+        if( port )
+            ort = (float)atof(port);
+        else
+            ort = _player->GetOrientation();
+        
+        if( pz )
         {
-            handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapid);
-            handler->SetSentErrorMessage(true);
-            return false;
+            if (!MapManager::IsValidMapCoord(mapid, x, y, z))
+            {
+                handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapid);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            z = (float)atof(pz);
         }
-
+        else
+        {
+            if (!MapManager::IsValidMapCoord(mapid, x, y))
+            {
+                handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapid);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            Map const *map = sMapMgr->CreateBaseMap(mapid);
+            z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
+        }
+        
         // stop flight if need
         if (_player->isInFlight())
         {
@@ -566,7 +541,7 @@ public:
         else
             _player->SaveRecallPosition();
 
-        _player->TeleportTo(mapid, x, y, z, _player->GetOrientation());
+        _player->TeleportTo(mapid, x, y, z, ort);
 
         return true;
     }
