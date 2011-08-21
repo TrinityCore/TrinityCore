@@ -25,9 +25,13 @@ void SummonList::DoZoneInCombat(uint32 entry)
     {
         Creature* summon = Unit::GetCreature(*me, *i);
         ++i;
-        if (summon && summon->IsAIEnabled
-            && (!entry || summon->GetEntry() == entry))
-            summon->AI()->DoZoneInCombat();
+        if (summon && summon->IsAIEnabled && (!entry || summon->GetEntry() == entry))
+        {
+            if (!me->GetMap()->IsDungeon())
+                summon->AI()->DoZoneInCombat(summon, true);
+            else
+                summon->AI()->DoZoneInCombat();
+        }
     }
 }
 
