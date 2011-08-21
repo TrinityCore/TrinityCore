@@ -411,7 +411,7 @@ class Spell
         SpellCastResult CheckRuneCost(uint32 runeCostID);
         SpellCastResult CheckCasterAuras() const;
 
-        int32 CalculateDamage(uint8 i, Unit* target) { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i]); }
+        int32 CalculateDamage(uint8 i, Unit const* target) const { return m_caster->CalculateSpellDamage(target, m_spellInfo, i, &m_spellValue->EffectBasePoints[i]); }
 
         bool HaveTargetsForEffect(uint8 effect) const;
         void Delayed();
@@ -489,7 +489,7 @@ class Spell
 
         bool IsNeedSendToClient() const;
 
-        CurrentSpellTypes GetCurrentContainer();
+        CurrentSpellTypes GetCurrentContainer() const;
 
         Unit* GetCaster() const { return m_caster; }
         Unit* GetOriginalCaster() const { return m_originalCaster; }
@@ -502,7 +502,7 @@ class Spell
 
         void SetSpellValue(SpellValueMod mod, int32 value);
     protected:
-        bool HasGlobalCooldown();
+        bool HasGlobalCooldown() const;
         void TriggerGlobalCooldown();
         void CancelGlobalCooldown();
 

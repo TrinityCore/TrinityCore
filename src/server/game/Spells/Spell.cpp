@@ -4552,7 +4552,7 @@ void Spell::HandleEffects(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGOT
 SpellCastResult Spell::CheckCast(bool strict)
 {
     // check death state
-    if (!(_triggeredCastFlags & TRIGGERED_IGNORE_CASTER_AURASTATE) && !m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
+    if (!m_caster->isAlive() && !(m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !(m_spellInfo->Attributes & SPELL_ATTR0_CASTABLE_WHILE_DEAD))
         return SPELL_FAILED_CASTER_DEAD;
 
     // check cooldowns to prevent cheating
@@ -6340,7 +6340,7 @@ void Spell::UpdatePointers()
     m_targets.Update(m_caster);
 }
 
-CurrentSpellTypes Spell::GetCurrentContainer()
+CurrentSpellTypes Spell::GetCurrentContainer() const
 {
     if (IsNextMeleeSwingSpell())
         return(CURRENT_MELEE_SPELL);
@@ -6366,7 +6366,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
                 return false;
             if (target->GetCharmerGUID())
                 return false;
-            if (int32 damage = m_spellInfo->Effects[eff].CalcValue())
+            if (int32 damage = CalculateDamage(eff, target))
                 if ((int32)target->getLevel() > damage)
                     return false;
             break;
@@ -7194,7 +7194,7 @@ enum GCDLimits
     MAX_GCD = 1500
 };
 
-bool Spell::HasGlobalCooldown()
+bool Spell::HasGlobalCooldown() const
 {
     // Only player or controlled units have global cooldown
     if (m_caster->GetCharmInfo())
