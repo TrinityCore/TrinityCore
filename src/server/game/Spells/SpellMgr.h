@@ -349,7 +349,14 @@ enum SpellGroupStackRule
 
 typedef std::map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
 
-typedef std::map<uint32, uint16> SpellThreatMap;
+struct SpellThreatEntry
+{
+    int32       flatMod;                                    // flat threat-value for this Spell  - default: 0
+    float       pctMod;                                     // threat-multiplier for this Spell  - default: 1.0f
+    float       apPctMod;                                   // Pct of AP that is added as Threat - default: 0.0f
+};
+
+typedef std::map<uint32, SpellThreatEntry> SpellThreatMap;
 
 // Spell script target related declarations (accessed using SpellMgr functions)
 enum SpellScriptTargetType
@@ -603,7 +610,7 @@ class SpellMgr
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;
 
         // Spell threat table
-        uint16 GetSpellThreat(uint32 spellid) const;
+        SpellThreatEntry const* GetSpellThreatEntry(uint32 spellID) const;
 
         SkillLineAbilityMapBounds GetSkillLineAbilityMapBounds(uint32 spell_id) const;
 
