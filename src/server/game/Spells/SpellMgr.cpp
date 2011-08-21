@@ -965,13 +965,19 @@ SpellBonusEntry const* SpellMgr::GetSpellBonusData(uint32 spellId) const
     return NULL;
 }
 
-uint16 SpellMgr::GetSpellThreat(uint32 spellid) const
+SpellThreatEntry const* SpellMgr::GetSpellThreatEntry(uint32 spellID) const
 {
-    SpellThreatMap::const_iterator itr = mSpellThreatMap.find(spellid);
-    if (itr == mSpellThreatMap.end())
-        return 0;
-
-    return itr->second;
+    SpellThreatMap::const_iterator itr = mSpellThreatMap.find(spellID);
+    if (itr != mSpellThreatMap.end())
+        return &itr->second;
+    else
+    {
+        uint32 firstSpell = GetFirstSpellInChain(spellID);
+        SpellThreatMap::const_iterator itr = mSpellThreatMap.find(firstSpell);
+        if (itr != mSpellThreatMap.end())
+            return &itr->second;
+    }
+    return NULL;
 }
 
 SkillLineAbilityMapBounds SpellMgr::GetSkillLineAbilityMapBounds(uint32 spell_id) const
@@ -1940,8 +1946,8 @@ void SpellMgr::LoadSpellThreats()
 
     uint32 count = 0;
 
-    //                                                0      1
-    QueryResult result = WorldDatabase.Query("SELECT entry, Threat FROM spell_threat");
+    //                                                0      1        2       3
+    QueryResult result = WorldDatabase.Query("SELECT entry, flatMod, pctMod, apPctMod FROM spell_threat");
     if (!result)
     {
         sLog->outString(">> Loaded 0 aggro generating spells");
@@ -1954,7 +1960,6 @@ void SpellMgr::LoadSpellThreats()
         Field *fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
-        uint16 Threat = fields[1].GetUInt16();
 
         if (!GetSpellInfo(entry))
         {
@@ -1962,12 +1967,16 @@ void SpellMgr::LoadSpellThreats()
             continue;
         }
 
-        mSpellThreatMap[entry] = Threat;
+        SpellThreatEntry ste;
+        ste.flatMod  = fields[1].GetInt16();
+        ste.pctMod   = fields[2].GetFloat();
+        ste.apPctMod = fields[3].GetFloat();
 
-        ++count;
+        mSpellThreatMap[entry] = ste;
+        count++;
     } while (result->NextRow());
 
-    sLog->outString(">> Loaded %u aggro generating spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(">> Loaded %u SpellThreatEntries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
@@ -2634,6 +2643,18 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_AURA_MOD_STUN:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
                     break;
+                case SPELL_AURA_PERIODIC_HEAL:
+                case SPELL_AURA_PERIODIC_DAMAGE:
+                case SPELL_AURA_PERIODIC_DAMAGE_PERCENT:
+                case SPELL_AURA_PERIODIC_LEECH:
+                case SPELL_AURA_PERIODIC_MANA_LEECH:
+                case SPELL_AURA_PERIODIC_HEALTH_FUNNEL:
+                case SPELL_AURA_PERIODIC_ENERGIZE:
+                case SPELL_AURA_OBS_MOD_HEALTH:
+                case SPELL_AURA_OBS_MOD_POWER:
+                case SPELL_AURA_POWER_BURN_MANA:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
+                    break;
             }
 
             switch (spellInfo->Effects[j].Effect)
@@ -2645,6 +2666,16 @@ void SpellMgr::LoadSpellCustomAttr()
                 case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
                 case SPELL_EFFECT_HEAL:
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_DIRECT_DAMAGE;
+                    break;
+                case SPELL_EFFECT_POWER_DRAIN:
+                case SPELL_EFFECT_POWER_BURN:
+                case SPELL_EFFECT_HEAL_MAX_HEALTH:
+                case SPELL_EFFECT_HEALTH_LEECH:
+                case SPELL_EFFECT_HEAL_PCT:
+                case SPELL_EFFECT_ENERGIZE_PCT:
+                case SPELL_EFFECT_ENERGIZE:
+                case SPELL_EFFECT_HEAL_MECHANICAL:
+                    spellInfo->AttributesCu |= SPELL_ATTR0_CU_NO_INITIAL_THREAT;
                     break;
                 case SPELL_EFFECT_CHARGE:
                 case SPELL_EFFECT_CHARGE_DEST:
