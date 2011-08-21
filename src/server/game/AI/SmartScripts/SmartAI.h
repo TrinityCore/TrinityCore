@@ -173,7 +173,7 @@ class SmartAI : public CreatureAI
 
         void SetFly(bool fly = true);
 
-        void SetSwimm(bool swimm = true);
+        void SetSwim(bool swim = true);
 
         void sGossipHello(Player* player);
         void sGossipSelect(Player* player, uint32 sender, uint32 action);

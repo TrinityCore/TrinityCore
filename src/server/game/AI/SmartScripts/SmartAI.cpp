@@ -710,9 +710,9 @@ void SmartAI::SetFly(bool fly)
     me->SetFlying(fly);
 }
 
-void SmartAI::SetSwimm(bool swimm)
+void SmartAI::SetSwim(bool swim)
 {
-    if (swimm)
+    if (swim)
         me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     else
         me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
