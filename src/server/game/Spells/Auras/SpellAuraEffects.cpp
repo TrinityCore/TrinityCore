@@ -4518,7 +4518,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8
         target->HandleStatModifier(UNIT_MOD_DAMAGE_RANGED,           TOTAL_PCT, float (GetAmount()), apply);
 
         if (target->GetTypeId() == TYPEID_PLAYER)
-            target->ToPlayer()->ApplyPercentModFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, GetAmount(), apply);
+            target->ToPlayer()->ApplyPercentModFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, float (GetAmount()), apply);
     }
     else
     {

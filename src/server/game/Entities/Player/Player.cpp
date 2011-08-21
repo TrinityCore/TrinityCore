@@ -8092,7 +8092,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
         if (unitModType == TOTAL_VALUE)
             ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
         else
-            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, aura->GetAmount(), apply);
+            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, float (aura->GetAmount()), apply);
     }
 }
 

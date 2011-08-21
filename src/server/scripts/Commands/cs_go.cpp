@@ -511,13 +511,13 @@ public:
         
         if( pz )
         {
+            z = (float)atof(pz);
             if (!MapManager::IsValidMapCoord(mapid, x, y, z))
             {
                 handler->PSendSysMessage(LANG_INVALID_TARGET_COORD, x, y, mapid);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            z = (float)atof(pz);
         }
         else
         {
