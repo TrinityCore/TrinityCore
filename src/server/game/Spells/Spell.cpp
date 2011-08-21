@@ -6366,7 +6366,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
                 return false;
             if (target->GetCharmerGUID())
                 return false;
-            if (int32 damage = m_spellInfo->Effects[eff].CalcValue())
+            if (int32 damage = CalculateDamage(eff, target))
                 if ((int32)target->getLevel() > damage)
                     return false;
             break;
