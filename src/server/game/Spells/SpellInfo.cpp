@@ -1515,7 +1515,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
 
     if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
         return SPELL_FAILED_BAD_TARGETS;
-    
+
     //if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS)
 
     if (!CheckTargetCreatureType(target))
@@ -1592,6 +1592,11 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
             }
         }
     }
+
+    if (target->HasAuraType(SPELL_AURA_PREVENT_RESSURECTION))
+        if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
+            return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
+
     return SPELL_CAST_OK;
 }
 
