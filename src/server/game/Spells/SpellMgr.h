@@ -24,6 +24,7 @@
 #include <ace/Singleton.h>
 #include "Common.h"
 #include "SharedDefines.h"
+#include "Unit.h"
 
 class SpellInfo;
 class Player;
