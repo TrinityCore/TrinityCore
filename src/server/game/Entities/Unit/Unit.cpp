@@ -2010,13 +2010,13 @@ void Unit::AttackerStateUpdate (Unit* victim, WeaponAttackType attType, bool ext
     }
 }
 
-MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(const Unit* victim, WeaponAttackType attType) const
+MeleeHitOutcome Unit::RollMeleeOutcomeAgainst(Unit* victim, WeaponAttackType attType) const
 {
     // This is only wrapper
 
     // Miss chance based on melee
     //float miss_chance = MeleeMissChanceCalc(victim, attType);
-    float miss_chance = MeleeSpellMissChance(victim, attType, int32(GetWeaponSkillValue(attType, victim)) - int32(victim->GetDefenseSkillValue(this)), 0);
+    float miss_chance = MeleeSpellMissChance(victim, attType, int32(GetWeaponSkillValue(attType, victim)) - int32(victim->GetMaxSkillValueForLevel(this)), 0);
 
     // Critical hit chance
     float crit_chance = GetUnitCriticalChance(attType, victim);
@@ -2345,11 +2345,10 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
         attackerWeaponSkill = int32(GetWeaponSkillValue(attType, victim));
 
     int32 skillDiff = attackerWeaponSkill - int32(victim->GetMaxSkillValueForLevel(this));
-    int32 fullSkillDiff = attackerWeaponSkill - int32(victim->GetDefenseSkillValue(this));
 
     uint32 roll = urand (0, 10000);
 
-    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, fullSkillDiff, spell->Id) * 100.0f);
+    uint32 missChance = uint32(MeleeSpellMissChance(victim, attType, skillDiff, spell->Id) * 100.0f);
     // Roll miss
     uint32 tmp = missChance;
     if (roll < tmp)
@@ -16435,7 +16434,7 @@ void Unit::ApplyResilience(Unit const* victim, float* crit, int32* damage, bool 
 
 // Melee based spells can be miss, parry or dodge on this step
 // Crit or block - determined on damage calculation phase! (and can be both in some time)
-float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const
+float Unit::MeleeSpellMissChance(Unit* victim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const
 {
     // Calculate hit chance (more correct for chance mod)
     int32 HitChance;
@@ -16462,11 +16461,18 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, i
     // Miss = 100 - hit
     float miss_chance = 100.0f - HitChance;
 
+    if(victim->GetTypeId() == TYPEID_PLAYER)
+    {
+        miss_chance += victim->ToPlayer()->GetDRMissPercent(attType);
+        miss_chance -= (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
+    }
+
     // Bonuses from attacker aura and ratings
-    if (attType == RANGED_ATTACK)
-        miss_chance -= m_modRangedHitChance;
-    else
-        miss_chance -= m_modMeleeHitChance;
+    if(victim->GetTypeId() != TYPEID_PLAYER)
+        if (attType == RANGED_ATTACK)
+            miss_chance -= m_modRangedHitChance;
+        else
+            miss_chance -= m_modMeleeHitChance;
 
     // bonus from skills is 0.04%
     //miss_chance -= skillDiff * 0.04f;
@@ -16481,6 +16487,7 @@ float Unit::MeleeSpellMissChance(const Unit* victim, WeaponAttackType attType, i
         return 0.0f;
     if (miss_chance > 60.0f)
         return 60.0f;
+
     return miss_chance;
 }
 
