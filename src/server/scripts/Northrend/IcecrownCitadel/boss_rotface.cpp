@@ -101,9 +101,6 @@ class boss_rotface : public CreatureScript
             void Reset()
             {
                 _Reset();
-                events.ScheduleEvent(EVENT_SLIME_SPRAY, 20000);
-                events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90000);
-                events.ScheduleEvent(EVENT_MUTATED_INFECTION, 14000);
                 infectionStage = 0;
                 infectionCooldown = 14000;
             }
@@ -122,6 +119,10 @@ class boss_rotface : public CreatureScript
                 if (Creature* professor = Unit::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_ROTFACE_COMBAT);
                 DoZoneInCombat();
+
+                events.ScheduleEvent(EVENT_SLIME_SPRAY, 20000);
+                events.ScheduleEvent(EVENT_HASTEN_INFECTIONS, 90000);
+                events.ScheduleEvent(EVENT_MUTATED_INFECTION, 14000);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -356,10 +357,14 @@ class npc_precious_icc : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
-                _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
                 _summons.DespawnAll();
+            }
+
+            void EnterCombat(Unit * /*who*/)
+            {
+                _events.ScheduleEvent(EVENT_DECIMATE, SEKUNDEN_10);
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, 5 * IN_MILLISECONDS);
+                _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, SEKUNDEN_20);
             }
 
             void JustSummoned(Creature* summon)
@@ -376,7 +381,6 @@ class npc_precious_icc : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                _summons.DespawnAll();
                 if (Creature* rotface = Unit::GetCreature(*me, _instance->GetData64(DATA_ROTFACE)))
                     if (rotface->isAlive())
                         rotface->AI()->Talk(SAY_PRECIOUS_DIES);
@@ -398,17 +402,17 @@ class npc_precious_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_DECIMATE, SEKUNDEN_20);
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, SEKUNDEN_10);
                             break;
                         case EVENT_SUMMON_ZOMBIES:
                             Talk(EMOTE_PRECIOUS_ZOMBIES);
                             for (uint8 i=0; i<NUM_ZOMBIES; ++i) // 10 im 10er und 25 im 25er!
                                 DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, false);
-                            _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
+                            _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, SEKUNDEN_30);
                             break;
                         default:
                             break;

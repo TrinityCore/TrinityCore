@@ -92,10 +92,6 @@ class boss_festergut : public CreatureScript
             {
                 _Reset();
                 me->SetReactState(REACT_DEFENSIVE);
-                events.ScheduleEvent(EVENT_BERSERK, 300000);
-                events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
-                events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
-                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12500, 15000));
                 _maxInoculatedStack = 0;
                 _inhaleCounter = 0;
                 me->RemoveAurasDueToSpell(SPELL_BERSERK2);
@@ -126,6 +122,11 @@ class boss_festergut : public CreatureScript
                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                     professor->AI()->DoAction(ACTION_FESTERGUT_COMBAT);
                 DoZoneInCombat();
+
+                events.ScheduleEvent(EVENT_BERSERK, 300000);
+                events.ScheduleEvent(EVENT_INHALE_BLIGHT, urand(25000, 30000));
+                events.ScheduleEvent(EVENT_GAS_SPORE, urand(20000, 25000));
+                events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(12500, 15000));
             }
 
             void JustDied(Unit* /*killer*/)
@@ -290,8 +291,8 @@ class npc_stinky_icc : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+                _events.ScheduleEvent(EVENT_DECIMATE, SEKUNDEN_10);
+                _events.ScheduleEvent(EVENT_MORTAL_WOUND, 5 * IN_MILLISECONDS);
 
                 me->RemoveAurasDueToSpell(SPELL_PLAGUE_STENCH);
             }
@@ -317,17 +318,16 @@ class npc_stinky_icc : public CreatureScript
                     {
                         case EVENT_DECIMATE:
                             DoCastVictim(SPELL_DECIMATE);
-                            _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
+                            _events.ScheduleEvent(EVENT_DECIMATE, SEKUNDEN_20);
                             break;
                         case EVENT_MORTAL_WOUND:
                             DoCastVictim(SPELL_MORTAL_WOUND);
-                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 12500));
+                            _events.ScheduleEvent(EVENT_MORTAL_WOUND, SEKUNDEN_10);
                             break;
                         default:
                             break;
                     }
                 }
-
                 DoMeleeAttackIfReady();
             }
 

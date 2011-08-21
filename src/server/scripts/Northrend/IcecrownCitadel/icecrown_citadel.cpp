@@ -279,7 +279,7 @@ enum eICC_Raid_Events
     EVENT_TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS
 };
 
-#define NUM_YMIRJAR RAID_MODE(10,20,10,20)
+#define NUM_YMIRJAR RAID_MODE(10,25,10,25)
 
 class mob_icc_raid_trash : public CreatureScript
 {
