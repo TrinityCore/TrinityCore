@@ -13348,7 +13348,7 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
             break;
         case BASE_PCT:
         case TOTAL_PCT:
-            m_auraModifiersGroup[unitMod][modifierType] += (apply ? amount : -amount) / 100.0f;
+            ApplyPercentModFloatVar(m_auraModifiersGroup[unitMod][modifierType], amount, apply);
             break;
         default:
             break;
