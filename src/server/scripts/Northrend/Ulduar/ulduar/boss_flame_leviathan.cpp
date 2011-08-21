@@ -25,13 +25,14 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
+#include "ScriptedEscortAI.h"
 #include "CombatAI.h"
 #include "PassiveAI.h"
-#include "ScriptedEscortAI.h"
 #include "ObjectMgr.h"
-#include "ulduar.h"
 #include "SpellInfo.h"
+#include "SpellScript.h"
 #include "Vehicle.h"
+#include "ulduar.h"
 
 enum Spells
 {
