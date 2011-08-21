@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -2346,6 +2347,10 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
 
     // non-positive targets
     if (!_IsPositiveTarget(Effects[effIndex].TargetA.GetTarget(), Effects[effIndex].TargetB.GetTarget()))
+        return false;
+
+    // AttributesEx check - TODO: Temp Fix für den Prof im ICC Raid!
+    if (AttributesEx & SPELL_ATTR1_CANT_BE_REFLECTED)
         return false;
 
     // negative spell if triggered spell is negative
