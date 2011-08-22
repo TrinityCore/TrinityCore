@@ -927,7 +927,6 @@ class npc_halion_controller : public CreatureScript
         }
 };
 
-
 typedef npc_halion_controller::npc_halion_controllerAI controllerAI;
 
 class npc_meteor_strike_initial : public CreatureScript
@@ -1097,15 +1096,17 @@ class npc_combustion : public CreatureScript
                     controller->AI()->JustSummoned(me);
 
                     // Get stacks of Marks of Combustion that were on the caster
-                    uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
-                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
+                    uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUID());
+                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUID());
 
                     me->CastCustomSpell(SPELL_SCALE_AURA, SPELLVALUE_AURA_STACK, stacks, me, true);
                     DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA); // Void zone visual
                     int32 damage = 1200 + (stacks * 1290);
-                    me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
+                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                 }
             }
+
+            void UpdateAI(const uint32 /*diff*/) { }
         private:
             InstanceScript* _instance;
         };
@@ -1139,8 +1140,8 @@ class npc_consumption : public CreatureScript
                     controller->AI()->JustSummoned(me);
 
                     // Get stacks of Marks of Consumption that were on the caster
-                    uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
-                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUIDLow());
+                    uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUID());
+                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUID());
 
                     me->CastCustomSpell(SPELL_SCALE_AURA, SPELLVALUE_AURA_STACK, stacks, me, true);
                     DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA); // Void zone visual
@@ -1148,6 +1149,8 @@ class npc_consumption : public CreatureScript
                     me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                 }
             }
+
+            void UpdateAI(const uint32 /*diff*/) { }
         private:
             InstanceScript* _instance;
         };
@@ -1394,7 +1397,7 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
 
                 // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
                 if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
-                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
+                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUID(), stacks);
 
                 if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(SPELL_FIERY_COMBUSTION_SUMMON))
                     GetTarget()->CastSpell(GetTarget(), spell, true);
@@ -1444,7 +1447,7 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
 
                 // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
                 if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
-                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUIDLow(), stacks);
+                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUID(), stacks);
 
                 if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_SUMMON))
                     GetTarget()->CastSpell(GetTarget(), spell, true);
