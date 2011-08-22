@@ -606,11 +606,11 @@ class npc_spinestalker : public CreatureScript
                 _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(8000, 12000));
                 me->SetReactState(REACT_DEFENSIVE);
 
-                if (_instance->GetData(DATA_SPINESTALKER) != 255)
+                /* if (_instance->GetData(DATA_SPINESTALKER) != 255)
                 {
                     me->SetFlying(true);
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                }
+                }*/
             }
 
             void JustRespawned()
@@ -625,7 +625,7 @@ class npc_spinestalker : public CreatureScript
                 _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
-            void DoAction(int32 const action)
+            /* void DoAction(int32 const action)
             {
                 if (action == ACTION_START_FROSTWYRM)
                 {
@@ -655,7 +655,7 @@ class npc_spinestalker : public CreatureScript
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->SetHomePosition(SpinestalkerLandPos);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            }
+            } */
 
             void UpdateAI(uint32 const diff)
             {
@@ -721,11 +721,11 @@ class npc_rimefang : public CreatureScript
                 me->SetReactState(REACT_DEFENSIVE);
                 _icyBlastCounter = 0;
 
-                if (_instance->GetData(DATA_RIMEFANG) != 255)
+                /* if (_instance->GetData(DATA_RIMEFANG) != 255)
                 {
                     me->SetFlying(true);
                     me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                }
+                } */
             }
 
             void JustRespawned()
@@ -740,7 +740,7 @@ class npc_rimefang : public CreatureScript
                 _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
-            void DoAction(int32 const action)
+            /* void DoAction(int32 const action)
             {
                 if (action == ACTION_START_FROSTWYRM)
                 {
@@ -770,7 +770,7 @@ class npc_rimefang : public CreatureScript
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                 me->SetHomePosition(RimefangLandPos);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            }
+            } */
 
             void EnterCombat(Unit* /*victim*/)
             {
@@ -1441,13 +1441,13 @@ class at_sindragosa_lair : public AreaTriggerScript
         {
             if (InstanceScript* instance = player->GetInstanceScript())
             {
-                if (!instance->GetData(DATA_SPINESTALKER))
+                /* if (!instance->GetData(DATA_SPINESTALKER))
                     if (Creature* spinestalker = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_SPINESTALKER)))
-                        spinestalker->AI()->DoAction(ACTION_START_FROSTWYRM);
+                        spinestalker->AI()->DoAction(ACTION_START_FROSTWYRM); */
 
-                if (!instance->GetData(DATA_RIMEFANG))
+                /* if (!instance->GetData(DATA_RIMEFANG))
                     if (Creature* rimefang = ObjectAccessor::GetCreature(*player, instance->GetData64(DATA_RIMEFANG)))
-                        rimefang->AI()->DoAction(ACTION_START_FROSTWYRM);
+                        rimefang->AI()->DoAction(ACTION_START_FROSTWYRM); */
 
                 if (!instance->GetData(DATA_SINDRAGOSA_FROSTWYRMS) && instance->GetBossState(DATA_SINDRAGOSA) != DONE)
                 {
