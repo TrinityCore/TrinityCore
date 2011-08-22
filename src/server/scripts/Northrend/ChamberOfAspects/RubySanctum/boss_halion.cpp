@@ -1106,10 +1106,6 @@ class npc_combustion : public CreatureScript
                     me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                 }
             }
-
-
-            void UpdateAI(uint32 const /*diff*/) { }
-
         private:
             InstanceScript* _instance;
         };
@@ -1152,9 +1148,6 @@ class npc_consumption : public CreatureScript
                     me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
                 }
             }
-
-            void UpdateAI(uint32 const /*diff*/) { }
-
         private:
             InstanceScript* _instance;
         };
