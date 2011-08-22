@@ -831,7 +831,7 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
 
     m_lastFallTime = 0;
     m_lastFallZ = 0;
-    
+
     m_grantableLevels = 0;
 
     m_ControlledByPlayer = true;
@@ -1751,7 +1751,7 @@ void Player::Update(uint32 p_time)
     }
 
     // not auto-free ghost from body in instances
-    if (m_deathTimer > 0 && !GetBaseMap()->Instanceable())
+    if (m_deathTimer > 0 && !GetBaseMap()->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESSURECTION))
     {
         if (p_time >= m_deathTimer)
         {
@@ -5165,7 +5165,8 @@ bool Player::FallGround(uint8 FallMode)
 
 void Player::KillPlayer()
 {
-    if (IsFlying() && !GetTransport()) FallGround();
+    if (IsFlying() && !GetTransport())
+        FallGround();
 
     SetMovement(MOVE_ROOT);
 
@@ -5175,10 +5176,10 @@ void Player::KillPlayer()
     //SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_IN_PVP);
 
     SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_NONE);
-    ApplyModFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTE_RELEASE_TIMER, !sMapStore.LookupEntry(GetMapId())->Instanceable());
+    ApplyModFlag(PLAYER_FIELD_BYTES, PLAYER_FIELD_BYTE_RELEASE_TIMER, !sMapStore.LookupEntry(GetMapId())->Instanceable() && !HasAuraType(SPELL_AURA_PREVENT_RESSURECTION));
 
     // 6 minutes until repop at graveyard
-    m_deathTimer = 6*MINUTE*IN_MILLISECONDS;
+    m_deathTimer = 6 * MINUTE * IN_MILLISECONDS;
 
     UpdateCorpseReclaimDelay();                             // dependent at use SetDeathPvP() call before kill
     SendCorpseReclaimDelay();
@@ -5677,8 +5678,6 @@ void Player::HandleBaseModValue(BaseModGroup modGroup, BaseModType modType, floa
             m_auraBaseMod[modGroup][modType] += apply ? amount : -amount;
             break;
         case PCT_MOD:
-            if (amount <= -100.0f)
-                amount = -200.0f;
             ApplyPercentModFloatVar(m_auraBaseMod[modGroup][modType], amount, apply);
             break;
     }
@@ -8094,7 +8093,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
         if (unitModType == TOTAL_VALUE)
             ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS, aura->GetAmount(), apply);
         else
-            ApplyModSignedFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, aura->GetAmount() / 100.0f, apply);
+            ApplyPercentModFloatValue(PLAYER_FIELD_MOD_DAMAGE_DONE_PCT, float (aura->GetAmount()), apply);
     }
 }
 
@@ -14227,7 +14226,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GOSSIP_OPTION_SPIRITHEALER:
             if (isDead())
-                source->ToCreature()->CastSpell((source->ToCreature()), 17251, true, NULL, NULL, GetGUID());
+                source->ToCreature()->CastSpell(source->ToCreature(), 17251, true, NULL, NULL, GetGUID());
             break;
         case GOSSIP_OPTION_QUESTGIVER:
             PrepareQuestMenu(guid);
@@ -14264,7 +14263,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             ResetPetTalents();
             break;
         case GOSSIP_OPTION_TAXIVENDOR:
-            GetSession()->SendTaxiMenu((source->ToCreature()));
+            GetSession()->SendTaxiMenu(source->ToCreature());
             break;
         case GOSSIP_OPTION_INNKEEPER:
             PlayerTalkClass->SendCloseGossip();
@@ -14282,7 +14281,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             GetSession()->SendTabardVendorActivate(guid);
             break;
         case GOSSIP_OPTION_AUCTIONEER:
-            GetSession()->SendAuctionHello(guid, (source->ToCreature()));
+            GetSession()->SendAuctionHello(guid, source->ToCreature());
             break;
         case GOSSIP_OPTION_SPIRITGUIDE:
             PrepareGossipMenu(source);

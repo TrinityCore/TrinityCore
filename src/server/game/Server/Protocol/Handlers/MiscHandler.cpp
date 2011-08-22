@@ -57,8 +57,11 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 
     recv_data.read_skip<uint8>();
 
-    if (GetPlayer()->isAlive()||GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (GetPlayer()->isAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
+
+    if (GetPlayer()->HasAuraType(SPELL_AURA_PREVENT_RESSURECTION))
+        return; // silently return, client should display the error by itself
 
     // the world update order is sessions, players, creatures
     // the netcode runs in parallel with all of these
@@ -1502,7 +1505,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
     Map *map = _player->GetMap();
     if (map && map->IsDungeon())
     {
-        sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+        sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player (Name: %s, GUID: %u) tried to reset the instance while player is inside!", _player->GetName(), _player->GetGUIDLow());
         return;
     }
 
@@ -1523,7 +1526,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
                 map = pGroupGuy->GetMap();
                 if (map && map->IsNonRaidDungeon())
                 {
-                    sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+                    sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while group member (Name: %s, GUID: %u) is inside!", _player->GetGUIDLow(), pGroupGuy->GetName(), pGroupGuy->GetGUIDLow());
                     return;
                 }
             }

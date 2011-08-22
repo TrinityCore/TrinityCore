@@ -355,12 +355,19 @@ void InstanceScript::DoStopTimedAchievement(AchievementCriteriaTimedTypes type, 
 // Remove Auras due to Spell on all players in instance
 void InstanceScript::DoRemoveAurasDueToSpellOnPlayers(uint32 spell)
 {
-    Map::PlayerList const &PlayerList = instance->GetPlayers();
-
+    Map::PlayerList const& PlayerList = instance->GetPlayers();
     if (!PlayerList.isEmpty())
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player* pPlayer = i->getSource())
-                pPlayer->RemoveAurasDueToSpell(spell);
+    {
+        for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+        {
+            if (Player* player = itr->getSource())
+            {
+                player->RemoveAurasDueToSpell(spell);
+                if (Pet* pet = player->GetPet())
+                    pet->RemoveAurasDueToSpell(spell);
+            }
+        }
+    }
 }
 
 // Cast spell on all players in instance

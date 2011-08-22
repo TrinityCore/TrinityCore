@@ -147,7 +147,7 @@ public:
                 if (pGo)
                 {
                     pGo->SetGoState(GO_STATE_READY);
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
             }
         }
@@ -841,7 +841,7 @@ public:
         Creature* pPalehoof = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
         if (pPalehoof && pPalehoof->isAlive())
         {
-            pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+            pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             pGO->SetGoState(GO_STATE_ACTIVE);
 
             CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();

@@ -54,6 +54,7 @@ enum eTypes
     DATA_THRONE_DOOR        = 24,
 
     DATA_SF_BRAZIER_N       = 25,
-    DATA_SF_BRAZIER_S       = 26
+    DATA_SF_BRAZIER_S       = 26,
+    DATA_MOIRA              = 27,
 };
 #endif

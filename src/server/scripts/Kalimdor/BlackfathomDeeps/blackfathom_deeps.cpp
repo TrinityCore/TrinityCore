@@ -58,7 +58,7 @@ public:
         if (pInstance)
         {
             pGo->SetGoState(GO_STATE_ACTIVE);
-            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             pInstance->SetData(DATA_FIRE, pInstance->GetData(DATA_FIRE) + 1);
             return true;
         }
