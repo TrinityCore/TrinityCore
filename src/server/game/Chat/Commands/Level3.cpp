@@ -3106,7 +3106,7 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {
-        PSendSysMessage("Character %s has never been banned!", name.c_str());
+        PSendSysMessage(LANG_CHAR_NOT_BANNED, name.c_str());
         return true;
     }
 
