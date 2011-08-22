@@ -13530,7 +13530,7 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
             break;
         case BASE_PCT:
         case TOTAL_PCT:
-            m_auraModifiersGroup[unitMod][modifierType] += (apply ? amount : -amount) / 100.0f;
+            ApplyPercentModFloatVar(m_auraModifiersGroup[unitMod][modifierType], amount, apply);
             break;
         default:
             break;
@@ -17573,7 +17573,7 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
     AuraEffectList const& periodicAuras = GetAuraEffectsByType(auraType);
     for (AuraEffectList::const_iterator i = periodicAuras.begin(); i != periodicAuras.end(); ++i)
     {
-        if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex)
+        if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex || (*i)->GetTotalTicks() == 0)
             continue;
         amount += uint32(((*i)->GetAmount() * std::max<int32>(int32((*i)->GetTotalTicks() - (*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
         break;

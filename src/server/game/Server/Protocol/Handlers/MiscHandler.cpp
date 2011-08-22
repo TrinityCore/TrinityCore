@@ -57,8 +57,11 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 
     recv_data.read_skip<uint8>();
 
-    if (GetPlayer()->isAlive()||GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (GetPlayer()->isAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
+
+    if (GetPlayer()->HasAuraType(SPELL_AURA_PREVENT_RESSURECTION))
+        return; // silently return, client should display the error by itself
 
     // the world update order is sessions, players, creatures
     // the netcode runs in parallel with all of these
