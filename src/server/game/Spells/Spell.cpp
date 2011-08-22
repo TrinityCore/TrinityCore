@@ -3002,6 +3002,7 @@ void Spell::cancel()
             SendInterrupted(0);
             SendCastResult(SPELL_FAILED_INTERRUPTED);
             break;
+
         case SPELL_STATE_CASTING:
             for (std::list<TargetInfo>::const_iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                 if ((*ihit).missCondition == SPELL_MISS_NONE)
@@ -3585,15 +3586,6 @@ void Spell::finish(bool ok)
 
     if (m_spellState == SPELL_STATE_FINISHED)
         return;
-
-    if (Player* modOwner = m_caster->GetSpellModOwner())
-    {
-        if (ok || m_spellState != SPELL_STATE_PREPARING)
-            modOwner->RemoveSpellMods(this);
-        else
-            modOwner->RestoreSpellMods(this);
-    }
-
     m_spellState = SPELL_STATE_FINISHED;
 
     if (m_spellInfo->IsChanneled())
