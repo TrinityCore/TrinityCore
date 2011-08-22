@@ -1180,6 +1180,62 @@ class spell_gen_magic_rooster : public SpellScriptLoader
         }
 };
 
+enum eDefendVisual
+{
+    SPELL_VISUAL_SHIELD_1 = 63130,
+    SPELL_VISUAL_SHIELD_2 = 63131,
+    SPELL_VISUAL_SHIELD_3 = 63132,
+};
+
+class spell_gen_defend : public SpellScriptLoader
+{
+    public:
+        spell_toc5_defend() : SpellScriptLoader("spell_gen_defend") { }
+
+        class spell_gen_defendAuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_gen_defendAuraScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_1))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_2))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_VISUAL_SHIELD_3))
+                    return false;
+                return true;
+            }
+
+            void RefreshVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* caster = GetCaster();
+
+                if(!caster)
+                    return;
+
+                uint32 shieldVisual[3] = {SPELL_VISUAL_SHIELD_1, SPELL_VISUAL_SHIELD_2, SPELL_VISUAL_SHIELD_3};
+
+                for(uint8 i=0; i < 3; ++i)
+                    caster->RemoveAurasDueToSpell(shieldVisual[i]);
+
+                if(Aura* defend = caster->GetAura(GetId()))
+                    caster->CastSpell(caster, shieldVisual[defend->GetStackAmount()-1], true);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_FIRST_FOUND, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_defendAuraScript::RefreshVisualShields, EFFECT_FIRST_FOUND, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_CHANGE_AMOUNT_SEND_FOR_CLIENT_MASK);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_gen_defendAuraScript();
+        }
+};
+
 class spell_gen_allow_cast_from_item_only : public SpellScriptLoader
 {
 public:
@@ -1340,6 +1396,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_turkey_marker();
     new spell_gen_lifeblood();
     new spell_gen_magic_rooster();
+    new spell_gen_defend();
     new spell_gen_allow_cast_from_item_only();
     new spell_gen_launch();
     new spell_gen_vehicle_scaling();
