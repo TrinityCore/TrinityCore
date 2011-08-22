@@ -5405,7 +5405,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     triggered_spell_id = 48503;
                     basepoints0 = triggerAmount;
-                    target = this;
                     break;
                 }
                 // Kill command
