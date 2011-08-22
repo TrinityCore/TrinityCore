@@ -218,9 +218,10 @@ class boss_lady_deathwhisper : public CreatureScript
 
         struct boss_lady_deathwhisperAI : public BossAI
         {
-            boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER),
-                _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3)), _introDone(false)
+            boss_lady_deathwhisperAI(Creature* creature) : BossAI(creature, DATA_LADY_DEATHWHISPER), _dominateMindCount(RAID_MODE<uint8>(0, 1, 1, 3)), _introDone(false)
             {
+                me->StopMoving();
+                me->GetMotionMaster()->Clear();
             }
 
             void Reset()
@@ -256,18 +257,29 @@ class boss_lady_deathwhisper : public CreatureScript
                     events.ScheduleEvent(EVENT_INTRO_6, 48500, 0, PHASE_INTRO);
                     events.ScheduleEvent(EVENT_INTRO_7, 58000, 0, PHASE_INTRO);
                 }
-                BossAI::MoveInLineOfSight(who);
+
+                if (me->getVictim())
+                    return;
+
+                if (me->canStartAttack(who, false))
+                    AttackStart(who, 0);
             }
 
-            void AttackStart(Unit* victim)
+            void AttackStart(Unit * victim, float /*dist*/)
             {
                 if (!victim || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
 
-                if (me->HasAura(SPELL_MANA_BARRIER) && me->Attack(victim, false))
-                    me->GetMotionMaster()->MoveIdle();
-                else if (!me->HasAura(SPELL_MANA_BARRIER) && (!events.GetPhaseMask() & PHASE_ONE_MASK))
-                    BossAI::AttackStart(victim);
+                if (!me->HasAura(SPELL_MANA_BARRIER) && !(events.GetPhaseMask() & PHASE_ONE_MASK))
+                {
+                    if (me->Attack(victim, true))
+                        me->GetMotionMaster()->MoveChase(victim);
+                }
+                else
+                {
+                    if (me->Attack(victim, false))
+                        me->GetMotionMaster()->MoveIdle();
+                }
             }
 
             void EnterCombat(Unit* who)
@@ -356,6 +368,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     darnavan->DespawnOrUnsummon();
                     _darnavanGUID = 0;
                 }
+                me->GetMotionMaster()->MoveIdle();
             }
 
             void KilledUnit(Unit* victim)
@@ -411,6 +424,8 @@ class boss_lady_deathwhisper : public CreatureScript
                     summon->CastSpell(summon, SPELL_FANATIC_S_DETERMINATION, true);
                 else if (summon->GetEntry() == NPC_REANIMATED_ADHERENT)
                     summon->CastSpell(summon, SPELL_ADHERENT_S_DETERMINATION, true);
+
+                DoZoneInCombat(summon);
             }
 
             void UpdateAI(uint32 const diff)
