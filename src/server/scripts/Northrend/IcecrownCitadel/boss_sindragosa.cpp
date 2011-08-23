@@ -109,10 +109,11 @@ enum Events
     EVENT_FROST_BREATH_RIMEFANG     = 16,
     EVENT_ICY_BLAST                 = 17,
     EVENT_ICY_BLAST_CAST            = 18,
+    EVENT_ICY_BLAST_LAND            = 19,
 
     // Trash
-    EVENT_FROSTWARDEN_ORDER_WHELP   = 19,
-    EVENT_CONCUSSIVE_SHOCK          = 20,
+    EVENT_FROSTWARDEN_ORDER_WHELP   = 20,
+    EVENT_CONCUSSIVE_SHOCK          = 21,
 
     // event groups
     EVENT_GROUP_LAND_PHASE          = 1,
@@ -594,23 +595,23 @@ class npc_spinestalker : public CreatureScript
 
         struct npc_spinestalkerAI : public ScriptedAI
         {
-            npc_spinestalkerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            npc_spinestalkerAI(Creature * creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
+                me->SetFlying(false);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             }
 
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 25000));
-                _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
-                _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(8000, 12000));
-                me->SetReactState(REACT_DEFENSIVE);
+                me->SetReactState(REACT_AGGRESSIVE);
+            }
 
-                /* if (_instance->GetData(DATA_SPINESTALKER) != 255)
-                {
-                    me->SetFlying(true);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                }*/
+            void EnterCombat(Unit * /*victim*/)
+            {
+                _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(SEKUNDEN_20, SEKUNDEN_30));
+                _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(SEKUNDEN_10, SEKUNDEN_20));
+                _events.ScheduleEvent(EVENT_TAIL_SWEEP, 5 * IN_MILLISECONDS);
             }
 
             void JustRespawned()
@@ -619,43 +620,11 @@ class npc_spinestalker : public CreatureScript
                 _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit * /*killer*/)
             {
                 _events.Reset();
                 _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
-
-            /* void DoAction(int32 const action)
-            {
-                if (action == ACTION_START_FROSTWYRM)
-                {
-                    _instance->SetData(DATA_SPINESTALKER, 255);
-                    if (me->isDead())
-                        return;
-
-                    me->setActive(true);
-                    me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    float moveTime = me->GetExactDist(&SpinestalkerFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
-                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
-                    me->SetDefaultMovementType(IDLE_MOTION_TYPE);
-                    me->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
-                    me->StopMoving();
-                    me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SpinestalkerFlyPos);
-                }
-            }
-
-            void MovementInform(uint32 type, uint32 point)
-            {
-                if (type != POINT_MOTION_TYPE || point != POINT_FROSTWYRM_LAND)
-                    return;
-
-                me->setActive(false);
-                me->SetFlying(false);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                me->SetHomePosition(SpinestalkerLandPos);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            } */
 
             void UpdateAI(uint32 const diff)
             {
@@ -673,30 +642,29 @@ class npc_spinestalker : public CreatureScript
                     {
                         case EVENT_BELLOWING_ROAR:
                             DoCast(me, SPELL_BELLOWING_ROAR);
-                            _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(25000, 30000));
+                            _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(SEKUNDEN_20, SEKUNDEN_30));
                             break;
                         case EVENT_CLEAVE_SPINESTALKER:
                             DoCastVictim(SPELL_CLEAVE_SPINESTALKER);
-                            _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
+                            _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(SEKUNDEN_10, SEKUNDEN_20));
                             break;
                         case EVENT_TAIL_SWEEP:
                             DoCast(me, SPELL_TAIL_SWEEP);
-                            _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(22000, 25000));
+                            _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(SEKUNDEN_10, SEKUNDEN_20));
                             break;
                         default:
                             break;
                     }
                 }
-
                 DoMeleeAttackIfReady();
             }
 
         private:
             EventMap _events;
-            InstanceScript* _instance;
+            InstanceScript * _instance;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI * GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_spinestalkerAI>(creature);
         }
@@ -709,23 +677,30 @@ class npc_rimefang : public CreatureScript
 
         struct npc_rimefangAI : public ScriptedAI
         {
-            npc_rimefangAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
+            npc_rimefangAI(Creature * creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
+                me->SetFlying(false);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             }
 
             void Reset()
             {
                 _events.Reset();
-                _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(12000, 15000));
-                _events.ScheduleEvent(EVENT_ICY_BLAST, urand(30000, 35000));
-                me->SetReactState(REACT_DEFENSIVE);
                 _icyBlastCounter = 0;
+                me->SetReactState(REACT_AGGRESSIVE);
+            }
 
-                /* if (_instance->GetData(DATA_RIMEFANG) != 255)
-                {
-                    me->SetFlying(true);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                } */
+            void EnterCombat(Unit * /*victim*/)
+            {
+                DoCast(me, SPELL_FROST_AURA_RIMEFANG, true);
+                _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(SEKUNDEN_10, SEKUNDEN_20));
+                _events.ScheduleEvent(EVENT_ICY_BLAST, urand(SEKUNDEN_20, SEKUNDEN_40));
+            }
+
+            void JustReachedHome()
+            {
+                me->SetFlying(false);
+                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             }
 
             void JustRespawned()
@@ -734,47 +709,32 @@ class npc_rimefang : public CreatureScript
                 _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
             }
 
-            void JustDied(Unit* /*killer*/)
+            void JustDied(Unit * /*killer*/)
             {
                 _events.Reset();
                 _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 0);
             }
 
-            /* void DoAction(int32 const action)
-            {
-                if (action == ACTION_START_FROSTWYRM)
-                {
-                    _instance->SetData(DATA_RIMEFANG, 255);
-                    if (me->isDead())
-                        return;
-
-                    me->setActive(true);
-                    me->SetSpeed(MOVE_FLIGHT, 2.0f);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                    float moveTime = me->GetExactDist(&RimefangFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
-                    me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, RimefangLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
-                    me->SetDefaultMovementType(IDLE_MOTION_TYPE);
-                    me->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
-                    me->StopMoving();
-                    me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, RimefangFlyPos);
-                }
-            }
-
             void MovementInform(uint32 type, uint32 point)
             {
-                if (type != POINT_MOTION_TYPE || point != POINT_FROSTWYRM_LAND)
+                if (type != POINT_MOTION_TYPE)
                     return;
 
-                me->setActive(false);
-                me->SetFlying(false);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                me->SetHomePosition(RimefangLandPos);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            } */
-
-            void EnterCombat(Unit* /*victim*/)
-            {
-                DoCast(me, SPELL_FROST_AURA_RIMEFANG, true);
+                switch (point)
+                {
+                    case POINT_TAKEOFF:
+                        _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 1 * IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_ICY_BLAST_LAND, 1 * IN_MILLISECONDS * 3 * RAID_MODE<uint8>(5, 7, 6, 8)); // 1 Sek. * 3 (Castpause) * Casts
+                        break;
+                    case POINT_LAND:
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->SetFlying(false);
+                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        AttackStart(me->getVictim());
+                        break;
+                    default:
+                        break;
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -791,38 +751,46 @@ class npc_rimefang : public CreatureScript
                 {
                     switch (eventId)
                     {
-                        case EVENT_FROST_BREATH_RIMEFANG:
-                            DoCast(me, SPELL_FROST_BREATH);
-                            _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(35000, 40000));
-                            break;
-                        case EVENT_ICY_BLAST:
-                        {
-                            _icyBlastCounter = RAID_MODE<uint8>(5, 7, 6, 8);
-                            me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
-                            me->SetFlying(true);
-                            me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, RimefangFlyPos);
-                            float moveTime = me->GetExactDist(&RimefangFlyPos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
-                            _events.ScheduleEvent(EVENT_ICY_BLAST, uint64(moveTime) + urand(60000, 70000));
-                            _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, uint64(moveTime) + 250);
-                            break;
-                        }
                         case EVENT_ICY_BLAST_CAST:
                             if (--_icyBlastCounter)
                             {
-                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 {
                                     me->SetFacingToObject(target);
                                     DoCast(target, SPELL_ICY_BLAST);
                                 }
-                                _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 3000);
+                                _events.RescheduleEvent(EVENT_ICY_BLAST_CAST, 3 * IN_MILLISECONDS);
                             }
-                            else if (Unit* victim = me->SelectVictim())
+                            else
                             {
-                                me->SetReactState(REACT_DEFENSIVE);
-                                AttackStart(victim);
-                                me->SetFlying(false);
+                                Position pos;
+                                pos.Relocate(me);
+                                pos.m_positionZ -= 17.0f;
+                                me->GetMotionMaster()->MoveLand(POINT_LAND, pos, 8.30078125f);
                             }
+                            break;
+                        case EVENT_ICY_BLAST:
+                        {
+                            _icyBlastCounter = RAID_MODE<uint8>(5, 7, 6, 8);
+
+                            me->SetReactState(REACT_PASSIVE);
+                            me->AttackStop();
+                            me->SetFlying(true);
+                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+
+                            Position pos;
+                            pos.Relocate(me);
+                            pos.m_positionZ += 17.0f;
+                            me->GetMotionMaster()->MoveTakeoff(POINT_TAKEOFF, pos, 8.30078125f);
+
+                            float moveTime = me->GetExactDist(&pos)/(me->GetSpeed(MOVE_FLIGHT)*0.001f);
+                            _events.RescheduleEvent(EVENT_ICY_BLAST, uint64(moveTime) + urand(SEKUNDEN_50, SEKUNDEN_60));
+                            _events.RescheduleEvent(EVENT_ICY_BLAST_CAST, uint64(moveTime) + 250);
+                            break;
+                        }
+                        case EVENT_FROST_BREATH_RIMEFANG:
+                            DoCast(me, SPELL_FROST_BREATH);
+                            _events.RescheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(SEKUNDEN_20, SEKUNDEN_40));
                             break;
                         default:
                             break;
@@ -834,11 +802,11 @@ class npc_rimefang : public CreatureScript
 
         private:
             EventMap _events;
-            InstanceScript* _instance;
+            InstanceScript * _instance;
             uint8 _icyBlastCounter;
         };
 
-        CreatureAI* GetAI(Creature* creature) const
+        CreatureAI * GetAI(Creature* creature) const
         {
             return GetIcecrownCitadelAI<npc_rimefangAI>(creature);
         }
