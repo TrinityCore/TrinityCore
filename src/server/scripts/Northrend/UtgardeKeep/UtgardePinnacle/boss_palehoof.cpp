@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -157,7 +158,7 @@ public:
             DoScriptText(SAY_AGGRO, me);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who)
                 return;
@@ -165,13 +166,7 @@ public:
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
+            ScriptedAI::AttackStart(who);
         }
 
         void UpdateAI(const uint32 diff)
@@ -352,7 +347,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who)
                 return;
@@ -360,13 +355,7 @@ public:
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
+            ScriptedAI::AttackStart(who);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -465,7 +454,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who)
                 return;
@@ -473,15 +462,10 @@ public:
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
             if (pInstance)
                 pInstance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
+
+            ScriptedAI::AttackStart(who);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -582,7 +566,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who)
                 return;
@@ -590,13 +574,7 @@ public:
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
+            ScriptedAI::AttackStart(who);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -703,7 +681,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who)
                 return;
@@ -711,13 +689,7 @@ public:
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 return;
 
-            if (me->Attack(who, true))
-            {
-                me->AddThreat(who, 0.0f);
-                me->SetInCombatWith(who);
-                who->SetInCombatWith(me);
-                DoStartMovement(who);
-            }
+            ScriptedAI::AttackStart(who);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -768,7 +740,7 @@ public:
             SummonTimer = 5000;
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->RemoveAurasDueToSpell(SPELL_ORB_VISUAL);
-            me->SetSpeed(MOVE_FLIGHT, 0.5f);
+            me->SetSpeed(MOVE_FLIGHT, 0.75f);
         }
 
         void UpdateAI(const uint32 diff)
@@ -797,8 +769,7 @@ public:
                         pNext->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         pNext->SetStandState(UNIT_STAND_STATE_STAND);
                         pNext->SetInCombatWithZone();
-                        pNext->Attack(pNext->SelectNearestTarget(100), true);
-
+                        AttackStart(pNext->SelectNearestTarget(100));
                    }
                    currentPhase = PHASE_NONE;
                 }

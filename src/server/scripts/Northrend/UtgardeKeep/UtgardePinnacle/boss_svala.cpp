@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -142,7 +143,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
 
         void UpdateAI(const uint32 diff)
         {

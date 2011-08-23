@@ -214,6 +214,13 @@ public:
                 m_pInstance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, NOT_STARTED);
                 m_pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
+            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        }
+
+        void DamageTaken(Unit * /*attacker*/, uint32 & damage)
+        {
+            if (!me->isInCombat() || Phase != SKADI)
+                damage = 0;
         }
 
         void JustReachedHome()
@@ -281,7 +288,8 @@ public:
         {
             if (spell->Id == SPELL_HARPOON_DAMAGE)
             {
-                m_uiSpellHitCount++;
+                ++m_uiSpellHitCount;
+
                 if (m_uiSpellHitCount >= 3)
                 {
                     Phase = SKADI;
@@ -303,7 +311,7 @@ public:
                     me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
 
                     if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM))
-                        me->AI()->AttackStart(target);
+                        AttackStart(target);
 
                     m_uiCrushTimer = 8000;
                     m_uiPoisonedSpearTimer = 10000;
@@ -486,10 +494,10 @@ public:
         if (Creature* pSkadi = Unit::GetCreature((*pGO), m_pInstance->GetData64(DATA_SKADI_THE_RUTHLESS)))
         {
             player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
+            player->CastSpell(pSkadi, SPELL_HARPOON_DAMAGE, true);
         }
         return false;
     }
-
 };
 
 void AddSC_boss_skadi()
