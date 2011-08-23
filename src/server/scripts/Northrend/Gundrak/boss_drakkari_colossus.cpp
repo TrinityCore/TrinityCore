@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -129,6 +130,17 @@ class boss_drakkari_colossus : public CreatureScript
                 // Note: This should not be called, but before use SetBossState function we should use BossAI
                 //        in all the bosses of the instance
                 instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, DONE);
+
+                Map::PlayerList const & PlList = me->GetMap()->GetPlayers();
+
+                if (PlList.isEmpty())
+                    return;
+
+                for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                {
+                    if (Player * chr = i->getSource())
+                        chr->RemoveAurasDueToSpell(SPELL_SURGE);
+                }
             }
 
             void JustReachedHome()
@@ -279,6 +291,17 @@ class boss_drakkari_elemental : public CreatureScript
                 {
                     if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
                         killer->Kill(colossus);
+                }
+
+                Map::PlayerList const & PlList = me->GetMap()->GetPlayers();
+
+                if (PlList.isEmpty())
+                    return;
+
+                for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                {
+                    if (Player * chr = i->getSource())
+                        chr->RemoveAurasDueToSpell(SPELL_SURGE);
                 }
             }
 
@@ -437,7 +460,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* attacker)
+        void AttackStart(Unit* attacker, float /*dist*/ = 0)
         {
             if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
                 return;
