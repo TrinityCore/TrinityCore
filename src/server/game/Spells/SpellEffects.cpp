@@ -999,7 +999,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 case 47170:                                 // Impale Leviroth
                 {
-                    if (!unitTarget && unitTarget->GetEntry() != 26452 && unitTarget->HealthAbovePct(95))
+                    if (!unitTarget || (unitTarget->GetEntry() != 26452 && unitTarget->HealthAbovePct(95)))
                         return;
 
                         m_caster->DealDamage(unitTarget, unitTarget->CountPctFromMaxHealth(93));
