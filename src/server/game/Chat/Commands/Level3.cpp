@@ -3105,7 +3105,10 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     stmt->setUInt32(0, target_guid);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
+    {
+        PSendSysMessage(LANG_CHAR_NOT_BANNED, name.c_str());
         return true;
+    }
 
     PSendSysMessage(LANG_BANINFO_BANHISTORY, name.c_str());
     do
