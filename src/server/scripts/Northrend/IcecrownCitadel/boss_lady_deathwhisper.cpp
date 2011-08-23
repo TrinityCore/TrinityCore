@@ -262,10 +262,10 @@ class boss_lady_deathwhisper : public CreatureScript
                     return;
 
                 if (me->canStartAttack(who, false))
-                    AttackStart(who, 0);
+                    AttackStart(who);
             }
 
-            void AttackStart(Unit * victim, float /*dist*/)
+            void AttackStart(Unit * victim, float /*dist*/ = 0)
             {
                 if (!victim || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
