@@ -612,6 +612,7 @@ class npc_spinestalker : public CreatureScript
                 _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(SEKUNDEN_20, SEKUNDEN_30));
                 _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(SEKUNDEN_10, SEKUNDEN_20));
                 _events.ScheduleEvent(EVENT_TAIL_SWEEP, 5 * IN_MILLISECONDS);
+                DoZoneInCombat();
             }
 
             void JustRespawned()
@@ -695,6 +696,7 @@ class npc_rimefang : public CreatureScript
                 DoCast(me, SPELL_FROST_AURA_RIMEFANG, true);
                 _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(SEKUNDEN_10, SEKUNDEN_20));
                 _events.ScheduleEvent(EVENT_ICY_BLAST, urand(SEKUNDEN_20, SEKUNDEN_40));
+                DoZoneInCombat();
             }
 
             void JustReachedHome()
@@ -842,6 +844,11 @@ class npc_sindragosa_trash : public CreatureScript
                 }
 
                 _isTaunted = false;
+            }
+
+            void EnterCombat(Unit * /*victim*/)
+            {
+                DoZoneInCombat();
             }
 
             void JustRespawned()
