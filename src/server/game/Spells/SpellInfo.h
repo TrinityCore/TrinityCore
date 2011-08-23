@@ -392,6 +392,7 @@ public:
     bool IsRangedWeaponSpell() const;
     bool IsAutoRepeatRangedSpell() const;
 
+    bool IsAffectedBySpellMods() const;
     bool IsAffectedBySpellMod(SpellModifier* mod) const;
 
     bool CanPierceImmuneAura(SpellInfo const* aura) const;
