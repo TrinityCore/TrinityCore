@@ -1156,8 +1156,16 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG;
 }
 
+bool SpellInfo::IsAffectedBySpellMods() const
+{
+    return !(AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS);
+}
+
 bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
 {
+    if (!IsAffectedBySpellMods())
+        return false;
+
     SpellInfo const* affectSpell = sSpellMgr->GetSpellInfo(mod->spellId);
     // False if affect_spell == NULL or spellFamily not equal
     if (!affectSpell || affectSpell->SpellFamilyName != SpellFamilyName)
