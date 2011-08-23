@@ -1180,7 +1180,7 @@ class spell_gen_magic_rooster : public SpellScriptLoader
         }
 };
 
-enum eDefendVisual
+enum DefendVisualSpells
 {
     SPELL_VISUAL_SHIELD_1 = 63130,
     SPELL_VISUAL_SHIELD_2 = 63131,
