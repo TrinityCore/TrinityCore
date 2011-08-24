@@ -857,6 +857,47 @@ public:
     };
 };
 
+enum StoppingTheSpread
+{
+    NPC_KILL_CREDIT                              = 18240,
+    SPELL_FLAMES                                 = 39199,
+};
+
+class spell_q9874_liquid_fire : public SpellScriptLoader
+{
+    public:
+        spell_q9874_liquid_fire() : SpellScriptLoader("spell_q9874_liquid_fire")
+        {
+        }
+
+        class spell_q9874_liquid_fire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q9874_liquid_fire_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                Creature* target = GetHitUnit()->ToCreature();
+                if (!caster || !target || (target && target->HasAura(SPELL_FLAMES)))
+                    return;
+
+                caster->KilledMonsterCredit(NPC_KILL_CREDIT, 0);
+                target->CastSpell(target, SPELL_FLAMES, true);
+                target->DespawnOrUnsummon(60000);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_q9874_liquid_fire_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q9874_liquid_fire_SpellScript();
+        };
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -877,4 +918,5 @@ void AddSC_quest_spell_scripts()
     new spell_q10041_q10040_who_are_they();
     new spell_symbol_of_life_dummy();
     new spell_q12659_ahunaes_knife();
+    new spell_q9874_liquid_fire();
 }
