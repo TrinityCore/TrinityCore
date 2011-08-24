@@ -3289,6 +3289,11 @@ void Spell::handle_immediate()
     // Remove used for cast item if need (it can be already NULL after TakeReagents call
     TakeCastItem();
 
+	// handle ammo consumption for Hunter's volley spell
+	if (IsRangedWeaponSpell(m_spellInfo) && IsChanneledSpell(m_spellInfo))
+		TakeAmmo();
+
+
     if (m_spellState != SPELL_STATE_CASTING)
         finish(true);                                       // successfully finish spell cast (not last in case autorepeat or channel spell)
 }
@@ -6638,6 +6643,10 @@ void Spell::CalculateDamageDoneForAllTargets()
         Unit* unit = m_caster->GetGUID() == target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID);
         if (!unit) // || !unit->isAlive()) do we need to check alive here?
             continue;
+
+		// do not consume ammo anymore for Hunter's volley spell
+		if (IsTriggered() && m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && IsAreaOfEffectSpell(m_spellInfo))
+			usesAmmo = false;
 
         if (usesAmmo)
         {
