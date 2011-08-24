@@ -50,6 +50,7 @@ void BattlegroundSA::Reset()
     for (uint8 i = 0; i <= 5; i++)
         GateStatus[i] = BG_SA_GATE_OK;
     ShipsStarted = false;
+    gateDestroyed = false;
     Status = BG_SA_WARMUP;
 }
 
@@ -610,6 +611,7 @@ void BattlegroundSA::DestroyGate(Player* player, GameObject* go)
             if (uws)
                 UpdateWorldState(uws, GateStatus[i]);
             bool rewardHonor = true;
+            gateDestroyed = true;
             switch(i)
             {
                 case BG_SA_GREEN_GATE:
