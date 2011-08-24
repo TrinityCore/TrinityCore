@@ -25,8 +25,7 @@ EndScriptData */
 
 // Known bugs:
 //    - They should be floating but they aren't respecting the floor =(
-//    - Lacks the powering up effect that leads to Empowering
-//    - There's a workaround for the shared life effect
+//    - Hardcoded bullets spawner
 
 #include "ScriptPCH.h"
 #include "trial_of_the_crusader.h"
@@ -64,10 +63,18 @@ enum Summons
 
     NPC_UNLEASHED_DARK   = 34628,
     NPC_UNLEASHED_LIGHT  = 34630,
+
+    // Future Development
+    NPC_BULLET_CONTROLLER        = 34743, // Npc controller for all bullets
+
+    NPC_BULLET_STALKER_DARK      = 34704, // Npc spawner for dark bullets
+    NPC_BULLET_STALKER_LIGHT     = 34720, // Npc spawner for light bullets
 };
 
 enum BossSpells
 {
+    SPELL_CONTROLLER_PERIODIC    = 66149, // Future Development
+
     SPELL_LIGHT_TWIN_SPIKE      = 66075,
     SPELL_LIGHT_SURGE           = 65766,
     SPELL_LIGHT_SHIELD          = 65858,
@@ -96,11 +103,15 @@ enum BossSpells
 
     SPELL_TWIN_EMPATHY_1        = 66132,
     SPELL_TWIN_EMPATHY_2        = 66133,
-    //PowerUp 67604
+
+    SPELL_POWERING_UP           = 67590,
+    SPELL_SURGE_OF_SPEED        = 65828,
 };
 
 #define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
 #define SPELL_LIGHT_ESSENCE_HELPER RAID_MODE<uint32>(65686, 67222, 67223, 67224)
+
+#define SPELL_POWERING_UP_HELPER RAID_MODE(67590, 67602, 67603, 67604)
 
 #define SPELL_EMPOWERED_DARK_HELPER RAID_MODE<uint32>(65724,67213,67214,67215)
 #define SPELL_EMPOWERED_LIGHT_HELPER RAID_MODE<uint32>(65748, 67216, 67217, 67218)
@@ -229,9 +240,11 @@ struct boss_twin_baseAI : public ScriptedAI
         {
             case NPC_LIGHT_ESSENCE:
                 m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_LIGHT_ESSENCE_HELPER);
+                m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
                 break;
             case NPC_DARK_ESSENCE:
                 m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_DARK_ESSENCE_HELPER);
+                m_pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POWERING_UP_HELPER);
                 break;
         }
         Summons.Despawn(summoned);
@@ -641,6 +654,12 @@ public:
             }
             else m_uiRangeCheckTimer -= uiDiff;
         }
+
+        void SpellHitTarget(Unit* who, const SpellInfo* spell)
+        {
+            if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
+                who->CastSpell(who, SPELL_POWERING_UP, true);
+        }
     };
 
 };
@@ -674,8 +693,125 @@ public:
             }
             else m_uiRangeCheckTimer -= uiDiff;
         }
+
+        void SpellHitTarget(Unit* who, const SpellInfo* spell)
+        {
+            if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
+                who->CastSpell(who, SPELL_POWERING_UP, true);
+        }
     };
 
+};
+
+class spell_powering_up : public SpellScriptLoader
+{
+    public:
+        spell_powering_up() : SpellScriptLoader("spell_powering_up") { }
+
+        class spell_powering_up_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_powering_up_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (Unit* target = GetTarget())
+                {
+                    if (Aura* pAura = target->GetAura(GetId()))
+                    {
+                        if (pAura->GetStackAmount() == 100)
+                        {
+                            if(target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1))
+                                target->CastSpell(target, SPELL_EMPOWERED_DARK, true);
+
+                            if(target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1))
+                                target->CastSpell(target, SPELL_EMPOWERED_LIGHT, true);
+
+                            target->RemoveAurasDueToSpell(GetId());
+                        }
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_powering_up_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_powering_up_AuraScript();
+        }
+
+        class spell_powering_up_SpellScript : public SpellScript
+        {
+            public:
+                PrepareSpellScript(spell_powering_up_SpellScript)
+
+            uint32 spellId;
+
+            bool Validate(SpellEntry const * /*spellEntry*/)
+            {
+                spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SURGE_OF_SPEED, GetCaster());
+                if (!sSpellMgr->GetSpellInfo(spellId))
+                    return false;
+                return true;
+            }
+
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* target = GetTargetUnit())
+                    if (urand(0, 99) < 15)
+                        target->CastSpell(target, spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_powering_up_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_powering_up_SpellScript();
+        }
+};
+
+class spell_valkyr_essences : public SpellScriptLoader
+{
+    public:
+        spell_valkyr_essences() : SpellScriptLoader("spell_valkyr_essences") { }
+
+        class spell_valkyr_essences_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_valkyr_essences_AuraScript);
+
+            uint32 spellId;
+
+            bool Load()
+            {
+                spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SURGE_OF_SPEED, GetCaster());
+                if (!sSpellMgr->GetSpellInfo(spellId))
+                    return false;
+                return true;
+            }
+
+            void Absorb(AuraEffect * /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & /*absorbAmount*/)
+            {
+                if (urand(0, 99) < 5)
+                    GetTarget()->CastSpell(GetTarget(), spellId, true);
+            }
+
+            void Register()
+            {
+                OnEffectAbsorb += AuraEffectAbsorbFn(spell_valkyr_essences_AuraScript::Absorb, EFFECT_0);
+            }
+        };
+
+        AuraScript *GetAuraScript() const
+        {
+            return new spell_valkyr_essences_AuraScript();
+        }
 };
 
 void AddSC_boss_twin_valkyr()
@@ -685,4 +821,6 @@ void AddSC_boss_twin_valkyr()
     new mob_unleashed_light();
     new mob_unleashed_dark();
     new mob_essence_of_twin();
+    new spell_powering_up();
+    new spell_valkyr_essences();
 }
