@@ -86,6 +86,7 @@ enum BossSpells
     SPELL_DARK_SURGE            = 65768,
     SPELL_DARK_SHIELD           = 65874,
     SPELL_DARK_TWIN_PACT        = 65875,
+    SPELL_POWER_TWINS           = 65879,
     SPELL_DARK_VORTEX           = 66058,
     SPELL_DARK_TOUCH            = 67282,
 
@@ -360,10 +361,13 @@ struct boss_twin_baseAI : public ScriptedAI
             case 2: // Shield+Pact
                 if (m_uiSpecialAbilityTimer <= uiDiff)
                 {
-                    if (Creature* pSister = GetSister())
-                        pSister->AI()->DoAction(ACTION_PACT);
                     DoScriptText(EMOTE_SHIELD, me);
                     DoScriptText(SAY_SHIELD, me);
+                    if (Creature* pSister = GetSister())
+                    {
+                        pSister->AI()->DoAction(ACTION_PACT);
+                        pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
+                    }
                     DoCast(me, m_uiShieldSpellId);
                     DoCast(me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
