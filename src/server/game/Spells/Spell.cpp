@@ -3290,7 +3290,7 @@ void Spell::handle_immediate()
     TakeCastItem();
 
     // handle ammo consumption for Hunter's volley spell
-	if (m_spellInfo->IsRangedWeaponSpell() && m_spellInfo->IsChanneled())
+    if (m_spellInfo->IsRangedWeaponSpell() && m_spellInfo->IsChanneled())
         TakeAmmo();
 
 
