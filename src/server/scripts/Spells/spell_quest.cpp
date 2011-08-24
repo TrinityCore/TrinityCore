@@ -859,7 +859,7 @@ public:
 
 enum StoppingTheSpread
 {
-    NPC_KILL_CREDIT                              = 18240,
+    NPC_VILLAGER_KILL_CREDIT                     = 18240,
     SPELL_FLAMES                                 = 39199,
 };
 
@@ -881,7 +881,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
                 if (!caster || !target || (target && target->HasAura(SPELL_FLAMES)))
                     return;
 
-                caster->KilledMonsterCredit(NPC_KILL_CREDIT, 0);
+                caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT, 0);
                 target->CastSpell(target, SPELL_FLAMES, true);
                 target->DespawnOrUnsummon(60000);
             }
@@ -895,6 +895,47 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_q9874_liquid_fire_SpellScript();
+        };
+};
+
+
+enum SalvagingLifesStength
+{
+    NPC_SHARD_KILL_CREDIT                        = 29303,
+};
+
+class spell_q12805_lifeblood_dummy : public SpellScriptLoader
+{
+    public:
+        spell_q12805_lifeblood_dummy() : SpellScriptLoader("spell_q12805_lifeblood_dummy")
+        {
+        }
+
+        class spell_q12805_lifeblood_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12805_lifeblood_dummy_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                Creature* target = GetHitUnit()->ToCreature();
+                if (!caster || !target)
+                    return;
+
+                caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT, 0);
+                target->CastSpell(target, uint32(GetEffectValue()), true);
+                target->DespawnOrUnsummon(2000);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_q12805_lifeblood_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12805_lifeblood_dummy_SpellScript();
         };
 };
 
@@ -919,4 +960,5 @@ void AddSC_quest_spell_scripts()
     new spell_symbol_of_life_dummy();
     new spell_q12659_ahunaes_knife();
     new spell_q9874_liquid_fire();
+    new spell_q12805_lifeblood_dummy();
 }
