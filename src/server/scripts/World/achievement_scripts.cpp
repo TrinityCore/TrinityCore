@@ -247,6 +247,9 @@ class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
             if (!battleground)
                 return false;
 
+            if (player->GetTeamId() == static_cast<BattlegroundSA*>(battleground)->Attackers)
+                return false;
+
             if (!static_cast<BattlegroundSA*>(battleground)->gateDestroyed);
                 return true;
 

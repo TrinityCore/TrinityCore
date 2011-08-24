@@ -487,6 +487,9 @@ class BattlegroundSA : public Battleground
         // Achievement Defense of the Ancients
         bool gateDestroyed;
 
+        /// Id of attacker team
+        TeamId Attackers;
+
     private:
 
         /**
@@ -539,8 +542,6 @@ class BattlegroundSA : public Battleground
         /// Send packet to player for destroy boats (client part)
         void SendTransportsRemove(Player* player);
 
-        /// Id of attacker team
-        TeamId Attackers;
         /// Totale elapsed time of current round
         uint32 TotalTime;
         /// Max time of round
