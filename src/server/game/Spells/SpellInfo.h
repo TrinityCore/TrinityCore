@@ -35,6 +35,37 @@ struct SpellRadiusEntry;
 struct SpellEntry;
 struct SpellCastTimesEntry;
 
+enum SpellCastTargetFlags
+{
+    TARGET_FLAG_NONE            = 0x00000000,
+    TARGET_FLAG_UNUSED_1        = 0x00000001,               // not used
+    TARGET_FLAG_UNIT            = 0x00000002,               // pguid
+    TARGET_FLAG_UNIT_RAID       = 0x00000004,               // not sent, used to validate target (if raid member)
+    TARGET_FLAG_UNIT_PARTY      = 0x00000008,               // not sent, used to validate target (if party member)
+    TARGET_FLAG_ITEM            = 0x00000010,               // pguid
+    TARGET_FLAG_SOURCE_LOCATION = 0x00000020,               // pguid, 3 float
+    TARGET_FLAG_DEST_LOCATION   = 0x00000040,               // pguid, 3 float
+    TARGET_FLAG_UNIT_ENEMY      = 0x00000080,               // not sent, used to validate target (if enemy)
+    TARGET_FLAG_UNIT_ALLY       = 0x00000100,               // not sent, used to validate target (if ally)
+    TARGET_FLAG_CORPSE_ENEMY    = 0x00000200,               // pguid
+    TARGET_FLAG_UNIT_DEAD       = 0x00000400,               // not sent, used to validate target (if dead creature)
+    TARGET_FLAG_GAMEOBJECT      = 0x00000800,               // pguid, used with TARGET_GAMEOBJECT_TARGET
+    TARGET_FLAG_TRADE_ITEM      = 0x00001000,               // pguid
+    TARGET_FLAG_STRING          = 0x00002000,               // string
+    TARGET_FLAG_GAMEOBJECT_ITEM = 0x00004000,               // not sent, used with TARGET_GAMEOBJECT_ITEM_TARGET
+    TARGET_FLAG_CORPSE_ALLY     = 0x00008000,               // pguid
+    TARGET_FLAG_UNIT_MINIPET    = 0x00010000,               // pguid, used to validate target (if non combat pet)
+    TARGET_FLAG_GLYPH_SLOT      = 0x00020000,               // used in glyph spells
+    TARGET_FLAG_DEST_TARGET     = 0x00040000,               // sometimes appears with DEST_TARGET spells (may appear or not for a given spell)
+    TARGET_FLAG_UNUSED20        = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
+    TARGET_FLAG_UNIT_PASSENGER  = 0x00100000,               // guessed, used to validate target (if vehicle passenger)
+
+    TARGET_FLAG_UNIT_MASK = TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY 
+        | TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_DEAD | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER,
+    TARGET_FLAG_GAMEOBJECT_MASK = TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_GAMEOBJECT_ITEM,
+    TARGET_FLAG_CORPSE_MASK = TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY,
+};
+
 enum SpellEffectTargetTypes
 {
     SPELL_REQUIRE_NONE,
@@ -171,6 +202,8 @@ enum SpellCustomAttributes
     SPELL_ATTR0_CU_NEGATIVE                      = SPELL_ATTR0_CU_NEGATIVE_EFF0 | SPELL_ATTR0_CU_NEGATIVE_EFF1 | SPELL_ATTR0_CU_NEGATIVE_EFF2,
 };
 
+uint32 GetTargetFlagMask(SpellTargetObjectTypes objType);
+
 class SpellImplicitTargetInfo
 {
 private:
@@ -189,6 +222,7 @@ public:
     float CalcDirectionAngle() const;
 
     Targets GetTarget() const;
+    uint32 GetExplicitTargetMask(bool& srcSet, bool& dstSet) const;
 
     // temporarily avalible to public
     static bool IsPosition(uint32 targetType);
@@ -354,6 +388,7 @@ public:
     int32  AreaGroupId;
     uint32 SchoolMask;
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
+    uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
 
     SpellInfo(SpellEntry const* spellEntry);
@@ -414,6 +449,7 @@ public:
     Mechanics GetEffectMechanic(uint8 effIndex) const;
     uint32 GetDispelMask() const;
     static uint32 GetDispelMask(DispelType type);
+    uint32 GetExplicitTargetMask() const;
 
     AuraStateType GetAuraState() const;
     SpellSpecificType GetSpellSpecific() const;
@@ -441,6 +477,7 @@ public:
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
 
     // loading helpers
+    uint32 _GetExplicitTargetMask() const;
     bool _IsPositiveEffect(uint8 effIndex, bool deep) const;
     bool _IsPositiveSpell() const;
     static bool _IsPositiveTarget(uint32 targetA, uint32 targetB);
