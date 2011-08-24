@@ -93,6 +93,9 @@ enum BossSpells
 
     SPELL_UNLEASHED_DARK        = 65808,
     SPELL_UNLEASHED_LIGHT       = 65795,
+
+    SPELL_TWIN_EMPATHY_1        = 66132,
+    SPELL_TWIN_EMPATHY_2        = 66133,
     //PowerUp 67604
 };
 
@@ -122,6 +125,8 @@ struct boss_twin_baseAI : public ScriptedAI
     InstanceScript* m_pInstance;
     SummonList Summons;
 
+    AuraStateType  m_uiAuraState;
+
     uint8  m_uiStage;
     bool   m_bIsBerserk;
     uint8  m_uiWaveCount;
@@ -135,6 +140,7 @@ struct boss_twin_baseAI : public ScriptedAI
     int32 m_uiVortexEmote;
     uint32 m_uiSisterNpcId;
     uint32 m_uiColorballNpcId;
+    uint32 m_uiMyEmphatySpellId;
     uint32 m_uiEssenceNpcId;
     uint32 m_uiMyEssenceSpellId;
     uint32 m_uiOtherEssenceSpellId;
@@ -152,6 +158,7 @@ struct boss_twin_baseAI : public ScriptedAI
     void Reset() {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
+        me->ModifyAuraState(m_uiAuraState, true);
         /* Uncomment this once that they are flying above the ground
         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         me->SetFlying(true); */
@@ -172,7 +179,6 @@ struct boss_twin_baseAI : public ScriptedAI
         if (m_pInstance)
         {
             m_pInstance->SetData(TYPE_VALKIRIES, FAIL);
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         me->DespawnOrUnsummon();
     }
@@ -231,35 +237,16 @@ struct boss_twin_baseAI : public ScriptedAI
         Summons.Despawn(summoned);
     }
 
-    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    void HealReceived(Unit* healer, uint32& heal)
     {
-        if (!me || !me->isAlive())
-            return;
-
-        if (pDoneBy->GetGUID() == me->GetGUID())
-            return;
-
-        if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
+        if(healer->GetEntry() == me->GetEntry())
         {
-            if (pDoneBy->HasAura(m_uiOtherEssenceSpellId))
-                uiDamage += uiDamage/2;
-            if (pDoneBy->HasAura(m_uiEmpoweredWeaknessSpellId))
-                uiDamage += uiDamage;
-            else
-                if (pDoneBy->HasAura(m_uiMyEssenceSpellId))
-                    uiDamage /= 2;
+            if (Creature* pSister = GetSister())
+            {
+                heal = uint32(heal/2);
+                healer->DealHeal(pSister, heal);
+            }
         }
-
-        if (m_pInstance)
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() >= uiDamage ? me->GetHealth() - uiDamage : 0);
-    }
-
-    void SpellHit(Unit* caster, const SpellInfo* spell)
-    {
-        if (caster->ToCreature() == me)
-            if (spell->Effects[0].Effect == 136) //Effect Heal
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetHealth() + me->CountPctFromMaxHealth(spell->Effects[EFFECT_0].CalcValue()));
     }
 
     void SummonColorballs(uint8 quantity)
@@ -282,7 +269,6 @@ struct boss_twin_baseAI : public ScriptedAI
         DoScriptText(SAY_DEATH, me);
         if (m_pInstance)
         {
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, 0);
             if (Creature* pSister = GetSister())
             {
                 if (!pSister->isAlive())
@@ -307,8 +293,10 @@ struct boss_twin_baseAI : public ScriptedAI
         me->SetInCombatWithZone();
         if (m_pInstance)
         {
+            if (Creature* pSister = GetSister())
+                me->AddAura(m_uiMyEmphatySpellId, pSister);
+
             m_pInstance->SetData(TYPE_VALKIRIES, IN_PROGRESS);
-            m_pInstance->SetData(DATA_HEALTH_TWIN_SHARED, me->GetMaxHealth());
         }
         if (me->isAlive())
         {
@@ -337,11 +325,6 @@ struct boss_twin_baseAI : public ScriptedAI
     {
         if (!m_pInstance || !UpdateVictim())
             return;
-
-        if (m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED) != 0)
-            me->SetHealth(m_pInstance->GetData(DATA_HEALTH_TWIN_SHARED));
-        else
-            me->SetHealth(1);
 
         switch (m_uiStage)
         {
@@ -449,11 +432,13 @@ public:
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_RANGED_1);
             m_uiStage = 0;
+            m_uiAuraState = AURA_STATE_UNKNOWN22;
             m_uiVortexEmote = EMOTE_LIGHT_VORTEX;
             m_uiVortexSay = SAY_LIGHT_VORTEX;
             m_uiSisterNpcId = NPC_DARKBANE;
             m_uiColorballNpcId = NPC_UNLEASHED_LIGHT;
             m_uiEssenceNpcId = NPC_LIGHT_ESSENCE;
+            m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_1;
             m_uiMyEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
             m_uiOtherEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
             m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_DARK_HELPER;
@@ -508,11 +493,13 @@ public:
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_OFFHAND_2, EQUIP_RANGED_2);
             m_uiStage = 1;
+            m_uiAuraState = AURA_STATE_UNKNOWN19;
             m_uiVortexEmote = EMOTE_DARK_VORTEX;
             m_uiVortexSay = SAY_DARK_VORTEX;
             m_uiSisterNpcId = NPC_LIGHTBANE;
             m_uiColorballNpcId = NPC_UNLEASHED_DARK;
             m_uiEssenceNpcId = NPC_DARK_ESSENCE;
+            m_uiMyEmphatySpellId = SPELL_TWIN_EMPATHY_2;
             m_uiMyEssenceSpellId = SPELL_DARK_ESSENCE_HELPER;
             m_uiOtherEssenceSpellId = SPELL_LIGHT_ESSENCE_HELPER;
             m_uiEmpoweredWeaknessSpellId = SPELL_EMPOWERED_LIGHT_HELPER;

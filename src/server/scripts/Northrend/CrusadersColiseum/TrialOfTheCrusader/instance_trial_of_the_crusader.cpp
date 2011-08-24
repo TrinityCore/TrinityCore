@@ -44,10 +44,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
             std::string SaveDataBuffer;
             bool   NeedSave;
 
-            uint32 DataDamageTwin;
-            uint32 FjolaCasting;
-            uint32 EydisCasting;
-
             uint64 BarrentGUID;
             uint64 TirionGUID;
             uint64 FizzlebangGUID;
@@ -368,11 +364,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                         }
                         break;
-                    case DATA_HEALTH_TWIN_SHARED:
-                        DataDamageTwin = data;
-                        data = NOT_STARTED;
-                        break;
-
                     //Achievements
                     case DATA_SNOBOLD_COUNT:
                         if (data == INCREASE)
@@ -584,8 +575,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 break;
                         };
                         return EventNPCId;
-                    case DATA_HEALTH_TWIN_SHARED:
-                        return DataDamageTwin;
                     default:
                         break;
                 }
