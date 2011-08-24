@@ -231,6 +231,29 @@ public:
     }
 };
 
+class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
+{
+    public:
+        achievement_bg_sa_defense_of_ancients() : AchievementCriteriaScript("achievement_bg_sa_defense_of_ancients")
+        {
+        }
+
+        bool OnCheck(Player* player, Unit* /*target*/)
+        {
+            if (!player)
+                return false;
+
+            Battleground* battleground = player->GetBattleground();
+            if (!battleground)
+                return false;
+
+            if (!static_cast<BattlegroundSA*>(battleground)->gateDestroyed);
+                return true;
+
+            return false;
+        }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_storm_glory();
@@ -246,4 +269,5 @@ void AddSC_achievement_scripts()
     new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);
     new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
     new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);
+    new achievement_bg_sa_defense_of_ancients();
 }
