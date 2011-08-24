@@ -1471,7 +1471,7 @@ class Unit : public WorldObject
 
         void ApplyResilience(const Unit* pVictim, float * crit, int32 * damage, bool isCrit, CombatRating type) const;
 
-        float MeleeSpellMissChance(const Unit *pVictim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const;
+        float MeleeSpellMissChance(Unit *pVictim, WeaponAttackType attType, int32 skillDiff, uint32 spellId) const;
         SpellMissInfo MeleeSpellHitResult(Unit *pVictim, SpellInfo const *spell);
         SpellMissInfo MagicSpellHitResult(Unit *pVictim, SpellInfo const *spell);
         SpellMissInfo SpellHitResult(Unit *pVictim, SpellInfo const *spell, bool canReflect = false);
@@ -1494,12 +1494,12 @@ class Unit : public WorldObject
 
         virtual uint32 GetShieldBlockValue() const =0;
         uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
-        uint32 GetDefenseSkillValue(Unit const* target = NULL) const;
+        uint32 GetDefenseSkillValue(Unit const* target = NULL, bool withBonusDefRating = true) const;
         uint32 GetWeaponSkillValue(WeaponAttackType attType, Unit const* target = NULL) const;
         float GetWeaponProcChance() const;
         float GetPPMProcChance(uint32 WeaponSpeed, float PPM,  const SpellInfo * spellProto) const;
 
-        MeleeHitOutcome RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttackType attType) const;
+        MeleeHitOutcome RollMeleeOutcomeAgainst (Unit *pVictim, WeaponAttackType attType) const;
         MeleeHitOutcome RollMeleeOutcomeAgainst (const Unit *pVictim, WeaponAttackType attType, int32 crit_chance, int32 miss_chance, int32 dodge_chance, int32 parry_chance, int32 block_chance) const;
 
         bool isVendor()       const { return HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_VENDOR); }
