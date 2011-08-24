@@ -152,6 +152,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
                         break;
                     case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
                     case TARGET_OBJECT_TYPE_UNIT:
+                    case TARGET_OBJECT_TYPE_DEST:
                         switch (GetSelectionCheckType())
                         {
                             case TARGET_SELECT_CHECK_ENEMY:
