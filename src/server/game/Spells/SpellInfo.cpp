@@ -119,6 +119,70 @@ Targets SpellImplicitTargetInfo::GetTarget() const
 
 uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet) const
 {
+    uint32 targetMask = 0;
+    if (GetTarget() == TARGET_DEST_TRAJ)
+    {
+        if (!srcSet)
+            targetMask = TARGET_FLAG_SOURCE_LOCATION;
+        if (!dstSet)
+            targetMask |= TARGET_FLAG_DEST_LOCATION;
+    }
+    else
+    {
+        switch (GetReferenceType())
+        {
+            case TARGET_REFERENCE_TYPE_SRC:
+                if (srcSet)
+                    break;
+                targetMask = TARGET_FLAG_SOURCE_LOCATION;
+                break;
+            case TARGET_REFERENCE_TYPE_DEST:
+                if (dstSet)
+                    break;
+                targetMask = TARGET_FLAG_DEST_LOCATION;
+                break;
+            case TARGET_REFERENCE_TYPE_TARGET:
+                switch (GetObjectType())
+                {
+                    case TARGET_OBJECT_TYPE_GOBJ:
+                        targetMask = TARGET_FLAG_GAMEOBJECT;
+                        break;
+                    case TARGET_OBJECT_TYPE_GOBJ_ITEM:
+                        targetMask = TARGET_FLAG_GAMEOBJECT_ITEM;
+                        break;
+                    case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
+                    case TARGET_OBJECT_TYPE_UNIT:
+                        switch (GetSelectionCheckType())
+                        {
+                            case TARGET_SELECT_CHECK_ENEMY:
+                                targetMask = TARGET_FLAG_UNIT_ENEMY;
+                                break;
+                            case TARGET_SELECT_CHECK_ALLY:
+                                targetMask = TARGET_FLAG_UNIT_ALLY;
+                                break;
+                            case TARGET_SELECT_CHECK_PARTY:
+                                targetMask = TARGET_FLAG_UNIT_PARTY;
+                                break;
+                            case TARGET_SELECT_CHECK_RAID:
+                                targetMask = TARGET_FLAG_UNIT_RAID;
+                                break;
+                            case TARGET_SELECT_CHECK_PASSENGER:
+                                targetMask = TARGET_FLAG_UNIT_PASSENGER;
+                                break;
+                            default:
+                                targetMask = TARGET_FLAG_UNIT;
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
     switch (GetObjectType())
     {
         case TARGET_OBJECT_TYPE_SRC:
@@ -131,50 +195,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
         default:
             break;
     }
-
-    switch (GetReferenceType())
-    {
-        case TARGET_REFERENCE_TYPE_SRC:
-            if (srcSet)
-                break;
-            return TARGET_FLAG_SOURCE_LOCATION;
-        case TARGET_REFERENCE_TYPE_DEST:
-            if (dstSet)
-                break;
-            return TARGET_FLAG_DEST_LOCATION;
-        case TARGET_REFERENCE_TYPE_TARGET:
-            switch (GetObjectType())
-            {
-                case TARGET_OBJECT_TYPE_GOBJ:
-                    return TARGET_FLAG_GAMEOBJECT;
-                case TARGET_OBJECT_TYPE_GOBJ_ITEM:
-                    return TARGET_FLAG_GAMEOBJECT_ITEM;
-                case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
-                case TARGET_OBJECT_TYPE_UNIT:
-                    switch (GetSelectionCheckType())
-                    {
-                        case TARGET_SELECT_CHECK_ENEMY:
-                            return TARGET_FLAG_UNIT_ENEMY;
-                        case TARGET_SELECT_CHECK_ALLY:
-                            return TARGET_FLAG_UNIT_ALLY;
-                        case TARGET_SELECT_CHECK_PARTY:
-                            return TARGET_FLAG_UNIT_PARTY;
-                        case TARGET_SELECT_CHECK_RAID:
-                            return TARGET_FLAG_UNIT_RAID;
-                        case TARGET_SELECT_CHECK_PASSENGER:
-                            return TARGET_FLAG_UNIT_PASSENGER;
-                        default:
-                            return TARGET_FLAG_UNIT;
-                    }
-                    break;
-                default:
-                    break;
-            }
-            break;
-        default:
-            break;
-    }
-    return TARGET_FLAG_NONE;
+    return targetMask;
 }
 
 bool SpellImplicitTargetInfo::IsPosition(uint32 targetType)

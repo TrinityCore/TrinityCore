@@ -648,7 +648,7 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
         if (!targets.GetDst())
         {
             // try to use unit target if provided
-            if (Unit* target = m_targets.GetUnitTarget())
+            if (Unit* target = targets.GetUnitTarget())
                 m_targets.SetDst(*target);
             // or use self if not available
             else
