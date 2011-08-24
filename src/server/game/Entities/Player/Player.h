@@ -2247,6 +2247,7 @@ class Player : public Unit, public GridObject<Player>
         /***              ENVIROMENTAL SYSTEM                  ***/
         /*********************************************************/
 
+        bool IsImmuneToEnvironmentalDamage();
         uint32 EnvironmentalDamage(EnviromentalDamage type, uint32 damage);
 
         /*********************************************************/
@@ -2752,8 +2753,6 @@ class Player : public Unit, public GridObject<Player>
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }
         bool IsHasDelayedTeleport() const { return m_bHasDelayedTeleport; }
         void SetDelayedTeleportFlag(bool setting) { m_bHasDelayedTeleport = setting; }
-
-        bool IsImmuneToEnvironmentalDamage();
 
         void ScheduleDelayedOperation(uint32 operation)
         {
