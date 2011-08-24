@@ -82,42 +82,11 @@ SpellCastTargets::~SpellCastTargets()
 {
 }
 
-SpellCastTargets& SpellCastTargets::operator=(const SpellCastTargets &target)
-{
-    m_unitTarget = target.m_unitTarget;
-    m_itemTarget = target.m_itemTarget;
-    m_GOTarget   = target.m_GOTarget;
-
-    m_unitTargetGUID   = target.m_unitTargetGUID;
-    m_GOTargetGUID     = target.m_GOTargetGUID;
-    m_CorpseTargetGUID = target.m_CorpseTargetGUID;
-    m_itemTargetGUID   = target.m_itemTargetGUID;
-
-    m_itemTargetEntry  = target.m_itemTargetEntry;
-
-    m_srcTransGUID = target.m_srcTransGUID;
-    m_srcTransOffset = target.m_srcTransOffset;
-    m_srcPos = target.m_srcPos;
-
-    m_dstTransGUID = target.m_dstTransGUID;
-    m_dstTransOffset = target.m_dstTransOffset;
-    m_dstPos = target.m_dstPos;
-
-    m_elevation = target.m_elevation;
-    m_speed = target.m_speed;
-
-    m_strTarget = target.m_strTarget;
-
-    m_targetMask = target.m_targetMask;
-
-    return *this;
-}
-
 void SpellCastTargets::Read(ByteBuffer& data, Unit* caster)
 {
     data >> m_targetMask;
 
-    if (m_targetMask == TARGET_FLAG_SELF)
+    if (m_targetMask == TARGET_FLAG_NONE)
         return;
 
     if (m_targetMask & (TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET))
@@ -238,6 +207,65 @@ void SpellCastTargets::SetUnitTarget(Unit* target)
     m_targetMask |= TARGET_FLAG_UNIT;
 }
 
+void SpellCastTargets::RemoveUnitTarget()
+{
+    m_unitTarget = NULL;
+    m_unitTargetGUID = 0LL;
+    m_targetMask &= ~(TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_MINIPET);
+}
+
+void SpellCastTargets::SetGOTarget(GameObject* target)
+{
+    if (!target)
+        return;
+
+    m_GOTarget = target;
+    m_GOTargetGUID = target->GetGUID();
+    m_targetMask |= TARGET_FLAG_GAMEOBJECT;
+}
+
+void SpellCastTargets::RemoveGOTarget()
+{
+    m_GOTarget = NULL;
+    m_GOTargetGUID = 0LL;
+    m_targetMask &= ~(TARGET_FLAG_GAMEOBJECT);
+}
+
+void SpellCastTargets::RemoveCorpseTarget()
+{
+    m_CorpseTargetGUID = 0;
+    m_targetMask &= ~(TARGET_FLAG_CORPSE_ENEMY | TARGET_FLAG_CORPSE_ALLY);
+}
+
+void SpellCastTargets::SetItemTarget(Item* item)
+{
+    if (!item)
+        return;
+
+    m_itemTarget = item;
+    m_itemTargetGUID = item->GetGUID();
+    m_itemTargetEntry = item->GetEntry();
+    m_targetMask |= TARGET_FLAG_ITEM;
+}
+
+void SpellCastTargets::SetTradeItemTarget(Player* caster)
+{
+    m_itemTargetGUID = uint64(TRADE_SLOT_NONTRADED);
+    m_itemTargetEntry = 0;
+    m_targetMask |= TARGET_FLAG_TRADE_ITEM;
+
+    Update(caster);
+}
+
+void SpellCastTargets::UpdateTradeSlotItem()
+{
+    if (m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
+    {
+        m_itemTargetGUID = m_itemTarget->GetGUID();
+        m_itemTargetEntry = m_itemTarget->GetEntry();
+    }
+}
+
 Position const* SpellCastTargets::GetSrc() const
 {
     return &m_srcPos;
@@ -279,6 +307,11 @@ void SpellCastTargets::ModSrc(Position const& pos)
     m_srcPos.Relocate(pos);
 }
 
+void SpellCastTargets::RemoveSrc()
+{
+    m_targetMask &= ~(TARGET_FLAG_SOURCE_LOCATION);
+}
+
 WorldLocation const* SpellCastTargets::GetDst() const
 {
     return &m_dstPos;
@@ -311,10 +344,10 @@ void SpellCastTargets::SetDst(WorldObject const& wObj)
 
 void SpellCastTargets::SetDst(SpellCastTargets const& spellTargets)
 {
-    m_dstTransGUID = spellTargets.m_dstTransGUID;
-    m_dstTransOffset.Relocate(spellTargets.m_dstTransOffset);
-    m_dstPos.Relocate(spellTargets.m_dstPos);
-    m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+   m_dstTransGUID = spellTargets.m_dstTransGUID;
+   m_dstTransOffset.Relocate(spellTargets.m_dstTransOffset);
+   m_dstPos.Relocate(spellTargets.m_dstPos);
+   m_targetMask |= TARGET_FLAG_DEST_LOCATION;
 }
 
 void SpellCastTargets::ModDst(Position const& pos)
@@ -330,45 +363,9 @@ void SpellCastTargets::ModDst(Position const& pos)
     m_dstPos.Relocate(pos);
 }
 
-void SpellCastTargets::SetGOTarget(GameObject* target)
+void SpellCastTargets::RemoveDst()
 {
-    m_GOTarget = target;
-    m_GOTargetGUID = target->GetGUID();
-    m_targetMask |= TARGET_FLAG_GAMEOBJECT;
-}
-
-void SpellCastTargets::SetItemTarget(Item* item)
-{
-    if (!item)
-        return;
-
-    m_itemTarget = item;
-    m_itemTargetGUID = item->GetGUID();
-    m_itemTargetEntry = item->GetEntry();
-    m_targetMask |= TARGET_FLAG_ITEM;
-}
-
-void SpellCastTargets::SetTradeItemTarget(Player* caster)
-{
-    m_itemTargetGUID = uint64(TRADE_SLOT_NONTRADED);
-    m_itemTargetEntry = 0;
-    m_targetMask |= TARGET_FLAG_TRADE_ITEM;
-
-    Update(caster);
-}
-
-void SpellCastTargets::UpdateTradeSlotItem()
-{
-    if (m_itemTarget && (m_targetMask & TARGET_FLAG_TRADE_ITEM))
-    {
-        m_itemTargetGUID = m_itemTarget->GetGUID();
-        m_itemTargetEntry = m_itemTarget->GetEntry();
-    }
-}
-
-void SpellCastTargets::SetCorpseTarget(Corpse* corpse)
-{
-    m_CorpseTargetGUID = corpse->GetGUID();
+    m_targetMask &= ~(TARGET_FLAG_DEST_LOCATION);
 }
 
 void SpellCastTargets::Update(Unit* caster)
@@ -414,7 +411,7 @@ void SpellCastTargets::Update(Unit* caster)
 void SpellCastTargets::OutDebug() const
 {
     if (!m_targetMask)
-        sLog->outString("TARGET_FLAG_SELF");
+        sLog->outString("TARGET_FLAG_NONE");
 
     if (m_targetMask & TARGET_FLAG_UNIT)
         sLog->outString("TARGET_FLAG_UNIT: " UI64FMTD, m_unitTargetGUID);
@@ -601,6 +598,73 @@ WorldObject* Spell::FindCorpseUsing()
     }
 
     return result;
+}
+
+void Spell::InitExplicitTargets(SpellCastTargets const& targets)
+{
+    m_targets = targets;
+    // this function tries to correct spell explicit targets for spell
+    // client doesn't send explicit targets correctly sometimes - we need to fix such spells serverside
+    // this also makes sure that we correctly send explicit targets to client (removes redundant data)
+    uint32 neededTargets = m_spellInfo->GetExplicitTargetMask();
+
+    // check if spell needs unit target
+    if (neededTargets & TARGET_FLAG_UNIT_MASK)
+    {
+        Unit* target = targets.GetUnitTarget();
+
+        if (!target)
+        {
+            // try to use player selection as a target
+            if (Player* playerCaster = m_caster->ToPlayer())
+            {
+                // selection has to be found and to be valid target for the spell
+                if (Unit* selectedUnit = ObjectAccessor::GetUnit(*m_caster, playerCaster->GetSelection()))
+                    if (IsValidSingleTargetSpell(selectedUnit))
+                        target = selectedUnit;
+            }
+            // try to use attacked unit as a target
+            else if ((m_caster->GetTypeId() == TYPEID_UNIT) && neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT))
+                target = m_caster->getVictim();
+            // didn't find anything - let's use self as target
+            if (!target && neededTargets & (TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT))
+                target = m_caster;
+        }
+        m_targets.SetUnitTarget(target);
+    }
+    else
+        m_targets.RemoveUnitTarget();
+
+    if (!(neededTargets & TARGET_FLAG_GAMEOBJECT_MASK))
+        m_targets.RemoveGOTarget();
+
+    if (!(neededTargets & TARGET_FLAG_CORPSE_MASK))
+        m_targets.RemoveCorpseTarget();
+
+    // check if spell needs dst target
+    if (neededTargets & TARGET_FLAG_DEST_LOCATION)
+    {
+        // and target isn't set
+        if (!targets.GetDst())
+        {
+            // try to use unit target if provided
+            if (Unit* target = m_targets.GetUnitTarget())
+                m_targets.SetDst(*target);
+            // or use self if not available
+            else
+                m_targets.SetDst(*m_caster);
+        }
+    }
+    else
+        m_targets.RemoveDst();
+
+    if (neededTargets & TARGET_FLAG_SOURCE_LOCATION)
+    {
+        if (!targets.GetSrc())
+            m_targets.SetSrc(*m_caster);
+    }
+    else
+        m_targets.RemoveSrc();
 }
 
 void Spell::SelectSpellTargets()
@@ -2776,25 +2840,8 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     else
         m_castItemGUID = 0;
 
-    m_targets = *targets;
+    InitExplicitTargets(*targets);
 
-    if (!m_targets.GetUnitTargetGUID() && m_spellInfo->Targets & TARGET_FLAG_UNIT)
-    {
-        Unit* target = NULL;
-        if (m_caster->GetTypeId() == TYPEID_UNIT)
-            target = m_caster->getVictim();
-        else
-            target = ObjectAccessor::GetUnit(*m_caster, m_caster->ToPlayer()->GetSelection());
-
-        if (target && IsValidSingleTargetSpell(target))
-            m_targets.SetUnitTarget(target);
-        else
-        {
-            SendCastResult(SPELL_FAILED_BAD_TARGETS);
-            finish(false);
-            return;
-        }
-    }
     if (Player* plrCaster = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
     {
         //check for special spell conditions
@@ -2807,29 +2854,6 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
                 finish(false);
                 return;
             }
-    }
-    if (!m_targets.HasSrc() && m_spellInfo->Targets & TARGET_FLAG_SOURCE_LOCATION)
-        m_targets.SetSrc(*m_caster);
-
-    if (!m_targets.HasDst() && m_spellInfo->Targets & TARGET_FLAG_DEST_LOCATION)
-    {
-        Unit* target = m_targets.GetUnitTarget();
-        if (!target)
-        {
-            if (m_caster->GetTypeId() == TYPEID_UNIT)
-                target = m_caster->getVictim();
-            else
-                target = ObjectAccessor::GetUnit(*m_caster, m_caster->ToPlayer()->GetSelection());
-        }
-
-        if (target)
-            m_targets.SetDst(*target);
-        else
-        {
-            SendCastResult(SPELL_FAILED_BAD_TARGETS);
-            finish(false);
-            return;
-        }
     }
 
     // Fill aura scaling information
@@ -3834,15 +3858,6 @@ void Spell::SendSpellGo()
     data << uint32(castFlags);                              // cast flags
     data << uint32(getMSTime());                            // timestamp
 
-    /*
-    // statement below seems to be wrong - i've seen spells with both unit and dest target
-    // Can't have TARGET_FLAG_UNIT when *_LOCATION is present - it breaks missile visuals
-    if (m_targets.GetTargetMask() & (TARGET_FLAG_SOURCE_LOCATION | TARGET_FLAG_DEST_LOCATION))
-        m_targets.setTargetMask(m_targets.GetTargetMask() & ~TARGET_FLAG_UNIT);
-    else if (m_targets.getIntTargetFlags() & FLAG_INT_UNIT)
-        m_targets.setTargetMask(m_targets.GetTargetMask() | TARGET_FLAG_UNIT);
-    */
-
     WriteSpellGoTargets(&data);
 
     m_targets.Write(data);
@@ -4693,19 +4708,11 @@ SpellCastResult Spell::CheckCast(bool strict)
             return SPELL_FAILED_DONT_REPORT;
     }
 
-    Unit* target = m_targets.GetUnitTarget();
-    // In pure self-cast spells, the client won't send any unit target
-    if (!target && (m_targets.GetTargetMask() == TARGET_FLAG_SELF || m_targets.GetTargetMask() & TARGET_FLAG_UNIT_ALLY)) // TARGET_FLAG_SELF == 0, remember!
-        target = m_caster;
-
-    if (target)
+    if (Unit* target = m_targets.GetUnitTarget())
     {
-        if (target != m_caster && m_spellInfo->IsRequiringSelectedTarget())
-        {
-            SpellCastResult castResult = m_spellInfo->CheckTarget(m_caster, target, false);
-            if (castResult != SPELL_CAST_OK)
-                return castResult;
-        }
+        SpellCastResult castResult = m_spellInfo->CheckTarget(m_caster, target, false);
+        if (castResult != SPELL_CAST_OK)
+            return castResult;
 
         if (target != m_caster)
         {
@@ -4724,18 +4731,6 @@ SpellCastResult Spell::CheckCast(bool strict)
         {
             if (m_caster->GetTypeId() == TYPEID_PLAYER) // Target - is player caster
             {
-                // Additional check for some spells
-                // If 0 spell effect empty - client not send target data (need use selection)
-                // TODO: check it on next client version
-                if (m_targets.GetTargetMask() == TARGET_FLAG_SELF &&
-                    m_spellInfo->Effects[1].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY)
-                {
-                    target = m_caster->GetUnit(*m_caster, m_caster->ToPlayer()->GetSelection());
-                    if (target)
-                        m_targets.SetUnitTarget(target);
-                    else
-                        return SPELL_FAILED_BAD_TARGETS;
-                }
                 // Lay on Hands - cannot be self-cast on paladin with Forbearance or after using Avenging Wrath
                 if (m_spellInfo->SpellFamilyName == SPELLFAMILY_PALADIN && m_spellInfo->SpellFamilyFlags[0] & 0x0008000)
                     if (target->HasAura(61988)) // Immunity shield marker

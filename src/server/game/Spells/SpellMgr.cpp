@@ -2876,16 +2876,6 @@ void SpellMgr::LoadDbcDataCorrections()
                         spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
                     break;
             }
-
-            switch (SpellImplicitTargetInfo::Type[spellInfo->EffectImplicitTargetA[j]])
-            {
-                case TARGET_TYPE_UNIT_TARGET:
-                case TARGET_TYPE_DEST_TARGET:
-                    spellInfo->Targets |= TARGET_FLAG_UNIT;
-                    break;
-                default:
-                    break;
-            }
         }
 
         if (spellInfo->activeIconID == 2158)  // flight
