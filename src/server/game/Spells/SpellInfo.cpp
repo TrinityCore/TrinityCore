@@ -497,6 +497,7 @@ int32 SpellEffectInfo::CalcValue(Unit const* caster, int32 const* bp, Unit const
             //value = int32(value * (int32)getLevel() / (int32)(_spellInfo->spellLevel ? _spellInfo->spellLevel : 1));
     }
 
+    sLog->outString("Computed value is %u", value);
     return int32(value);
 }
 
