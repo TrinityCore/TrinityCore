@@ -1600,14 +1600,6 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
                 break;
         }
     }
-
-    // temphack
-    if (m_spellInfo->Id == 51888)
-    {
-        unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
-        return;
-    }
-
     unitTarget->CastSpell(m_caster, spellInfo, true);
 }
 
