@@ -35,33 +35,6 @@ class ByteBuffer;
 
 #define SPELL_CHANNEL_UPDATE_INTERVAL (1 * IN_MILLISECONDS)
 
-enum SpellCastTargetFlags
-{
-    TARGET_FLAG_SELF            = 0x00000000,
-    TARGET_FLAG_UNUSED_1        = 0x00000001,               // not used
-    TARGET_FLAG_UNIT            = 0x00000002,               // pguid
-    TARGET_FLAG_UNIT_RAID       = 0x00000004,               // not sent, used to validate target (if raid member)
-    TARGET_FLAG_UNIT_PARTY      = 0x00000008,               // not sent, used to validate target (if party member)
-    TARGET_FLAG_ITEM            = 0x00000010,               // pguid
-    TARGET_FLAG_SOURCE_LOCATION = 0x00000020,               // pguid, 3 float
-    TARGET_FLAG_DEST_LOCATION   = 0x00000040,               // pguid, 3 float
-    TARGET_FLAG_UNIT_ENEMY      = 0x00000080,               // not sent, used to validate target (if enemy)
-    TARGET_FLAG_UNIT_ALLY       = 0x00000100,               // not sent, used to validate target (if ally)
-    TARGET_FLAG_CORPSE_ENEMY    = 0x00000200,               // pguid
-    TARGET_FLAG_UNIT_DEAD       = 0x00000400,               // not sent, used to validate target (if dead creature)
-    TARGET_FLAG_GAMEOBJECT      = 0x00000800,               // pguid, used with TARGET_GAMEOBJECT_TARGET
-    TARGET_FLAG_TRADE_ITEM      = 0x00001000,               // pguid
-    TARGET_FLAG_STRING          = 0x00002000,               // string
-    TARGET_FLAG_GAMEOBJECT_ITEM = 0x00004000,               // not sent, used with TARGET_GAMEOBJECT_ITEM_TARGET
-    TARGET_FLAG_CORPSE_ALLY     = 0x00008000,               // pguid
-    TARGET_FLAG_UNIT_MINIPET    = 0x00010000,               // pguid, used to validate target (if non combat pet)
-    TARGET_FLAG_GLYPH_SLOT      = 0x00020000,               // used in glyph spells
-    TARGET_FLAG_UNK19           = 0x00040000,               // sometimes appears with DEST_TARGET spells (may appear or not for a given spell)
-    TARGET_FLAG_UNUSED20        = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
-    TARGET_FLAG_UNIT_PASSENGER  = 0x00100000,               // guessed, used to validate target (if vehicle passenger)
-};
-#define MAX_TARGET_FLAGS 21
-
 enum SpellCastFlags
 {
     CAST_FLAG_NONE               = 0x00000000,
@@ -125,8 +98,6 @@ class SpellCastTargets
         SpellCastTargets();
         ~SpellCastTargets();
 
-        SpellCastTargets& operator=(const SpellCastTargets &target);
-
         void Read(ByteBuffer& data, Unit* caster);
         void Write(ByteBuffer& data);
 
@@ -136,26 +107,15 @@ class SpellCastTargets
         uint64 GetUnitTargetGUID() const { return m_unitTargetGUID; }
         Unit* GetUnitTarget() const { return m_unitTarget; }
         void SetUnitTarget(Unit* target);
-
-        Position const* GetSrc() const;
-        void SetSrc(float x, float y, float z);
-        void SetSrc(Position const& pos);
-        void SetSrc(WorldObject const& wObj);
-        void ModSrc(Position const& pos);
-
-        WorldLocation const* GetDst() const;
-        void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
-        void SetDst(Position const& pos);
-        void SetDst(WorldObject const& wObj);
-        void SetDst(SpellCastTargets const& spellTargets);
-        void ModDst(Position const& pos);
+        void RemoveUnitTarget();
 
         uint64 GetGOTargetGUID() const { return m_GOTargetGUID; }
         GameObject* GetGOTarget() const { return m_GOTarget; }
         void SetGOTarget(GameObject* target);
+        void RemoveGOTarget();
 
         uint64 GetCorpseTargetGUID() const { return m_CorpseTargetGUID; }
-        void SetCorpseTarget(Corpse* corpse);
+        void RemoveCorpseTarget();
 
         uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
         Item* GetItemTarget() const { return m_itemTarget; }
@@ -163,6 +123,21 @@ class SpellCastTargets
         void SetItemTarget(Item* item);
         void SetTradeItemTarget(Player* caster);
         void UpdateTradeSlotItem();
+
+        Position const* GetSrc() const;
+        void SetSrc(float x, float y, float z);
+        void SetSrc(Position const& pos);
+        void SetSrc(WorldObject const& wObj);
+        void ModSrc(Position const& pos);
+        void RemoveSrc();
+
+        WorldLocation const* GetDst() const;
+        void SetDst(float x, float y, float z, float orientation, uint32 mapId = MAPID_INVALID);
+        void SetDst(Position const& pos);
+        void SetDst(WorldObject const& wObj);
+        void SetDst(SpellCastTargets const& spellTargets);
+        void ModDst(Position const& pos);
+        void RemoveDst();
 
         bool IsEmpty() const { return m_GOTargetGUID == 0 && m_unitTargetGUID == 0 && m_itemTarget == 0 && m_CorpseTargetGUID == 0; }
         bool HasSrc() const { return GetTargetMask() & TARGET_FLAG_SOURCE_LOCATION; }
@@ -423,6 +398,7 @@ class Spell
         void WriteSpellGoTargets(WorldPacket * data);
         void WriteAmmoToPacket(WorldPacket * data);
 
+        void InitExplicitTargets(SpellCastTargets const& targets);
         void SelectSpellTargets();
         void SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur);
         void SelectTrajTargets();
