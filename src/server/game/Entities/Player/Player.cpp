@@ -918,7 +918,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(createInfo->Race, createInfo->Class);
     if (!info)
     {
-        sLog->outError("Player (Name %s) have incorrect race/class pair (Race %u, Class %u). Can't be loaded.", m_name.c_str(), createInfo->Race, createInfo->Class);
+        sLog->outError("Player (Name %s) have incorrect race/class pair. Can't be loaded.", m_name.c_str());
         return false;
     }
 
