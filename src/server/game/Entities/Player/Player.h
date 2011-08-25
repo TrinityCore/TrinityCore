@@ -2299,6 +2299,7 @@ class Player : public Unit, public GridObject<Player>
         /***              ENVIROMENTAL SYSTEM                  ***/
         /*********************************************************/
 
+        bool IsImmuneToEnvironmentalDamage();
         uint32 EnvironmentalDamage(EnviromentalDamage type, uint32 damage);
 
         /*********************************************************/
