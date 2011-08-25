@@ -608,8 +608,8 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
     // this also makes sure that we correctly send explicit targets to client (removes redundant data)
     uint32 neededTargets = m_spellInfo->GetExplicitTargetMask();
 
-    // check if spell needs unit target
-    if (neededTargets & TARGET_FLAG_UNIT_MASK)
+    // check if spell needs unit target (allow spells with corpse flag to accept unit targets - unit target is sent by client when corpse not yet released)
+    if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK))
     {
         Unit* target = targets.GetUnitTarget();
 
