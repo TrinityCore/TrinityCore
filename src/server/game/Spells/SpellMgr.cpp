@@ -3093,7 +3093,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->SpellFamilyFlags[2] = 0x10;
                 break;
-            case 41013: // Parasitic Shadowfiend Passive
+            case 41913: // Parasitic Shadowfiend Passive
                 spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
                 break;
             case 27892: // To Anchor 1
