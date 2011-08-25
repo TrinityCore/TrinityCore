@@ -852,7 +852,7 @@ public:
 
         void MoveInLineOfSight(Unit * /*who*/) { return; }
 
-        void AttackStart(Unit * who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!done)
                 SpawnHelper();
@@ -3925,7 +3925,7 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
