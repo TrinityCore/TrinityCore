@@ -83,6 +83,7 @@ public:
         boss_taldaramAI(Creature* c) : ScriptedAI(c)
         {
             pInstance = c->GetInstanceScript();
+            me->AddAura(SPELL_BEAM_VISUAL, me);
         }
 
         uint32 uiBloodthirstTimer;
@@ -126,6 +127,8 @@ public:
                 pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, IN_PROGRESS);
 
             DoScriptText(SAY_AGGRO, me);
+
+            DoZoneInCombat();
         }
 
         void UpdateAI(const uint32 diff)
