@@ -109,7 +109,11 @@ class boss_drakkari_colossus : public CreatureScript
 
                 // Note: This should not be called, but before use SetBossState function we should use BossAI
                 //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
+                if (instance)
+                {
+                    instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, NOT_STARTED);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SURGE);
+                }
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -120,7 +124,8 @@ class boss_drakkari_colossus : public CreatureScript
 
                 // Note: This should not be called, but before use SetBossState function we should use BossAI
                 //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, IN_PROGRESS);
             }
 
             void JustDied(Unit* /*killer*/)
@@ -129,17 +134,10 @@ class boss_drakkari_colossus : public CreatureScript
 
                 // Note: This should not be called, but before use SetBossState function we should use BossAI
                 //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, DONE);
-
-                Map::PlayerList const & PlList = me->GetMap()->GetPlayers();
-
-                if (PlList.isEmpty())
-                    return;
-
-                for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                if (instance)
                 {
-                    if (Player * chr = i->getSource())
-                        chr->RemoveAurasDueToSpell(SPELL_SURGE);
+                    instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, DONE);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SURGE);
                 }
             }
 
@@ -147,7 +145,8 @@ class boss_drakkari_colossus : public CreatureScript
             {
                 // Note: This should not be called, but before use SetBossState function we should use BossAI
                 //        in all the bosses of the instance
-                instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, FAIL);
+                if (instance)
+                    instance->SetData(DATA_DRAKKARI_COLOSSUS_EVENT, FAIL);
             }
 
             void DoAction(const int32 action)
@@ -280,6 +279,9 @@ class boss_drakkari_elemental : public CreatureScript
                 events.ScheduleEvent(EVENT_SURGE, urand(5000, 15000));
 
                 me->AddAura(SPELL_MOJO_VOLLEY, me);
+
+                if (instance)
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SURGE);
             }
 
             void JustDied(Unit* killer)
@@ -291,17 +293,7 @@ class boss_drakkari_elemental : public CreatureScript
                 {
                     if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
                         killer->Kill(colossus);
-                }
-
-                Map::PlayerList const & PlList = me->GetMap()->GetPlayers();
-
-                if (PlList.isEmpty())
-                    return;
-
-                for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-                {
-                    if (Player * chr = i->getSource())
-                        chr->RemoveAurasDueToSpell(SPELL_SURGE);
+                    instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SURGE);
                 }
             }
 
@@ -350,9 +342,7 @@ class boss_drakkari_elemental : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 if (HealthBelowPct(50) && instance)
-                {
                     if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
-                    {
                         if (colossus->AI()->GetData(DATA_COLOSSUS_PHASE) ==  COLOSSUS_PHASE_FIRST_ELEMENTAL_SUMMON)
                         {
                             damage = 0;
@@ -373,8 +363,6 @@ class boss_drakkari_elemental : public CreatureScript
                             }*/
                             DoAction(ACTION_RETURN_TO_COLOSSUS);
                         }
-                    }
-                }
             }
 
             void EnterEvadeMode()
@@ -385,13 +373,11 @@ class boss_drakkari_elemental : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_MERGE)
-                {
                     if (Creature* colossus = target->ToCreature())
                     {
                         colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
                         me->DespawnOrUnsummon();
                     }
-                }
             }
 
         private:
@@ -433,13 +419,9 @@ public:
             std::list<Creature*> mojosList;
             boss->GetCreatureListWithEntryInGrid(mojosList, me->GetEntry(), 12.0f);
             if (!mojosList.empty())
-            {
                 for (std::list<Creature*>::const_iterator itr = mojosList.begin(); itr != mojosList.end(); ++itr)
-                {
                     if (Creature* mojo = *itr)
                         mojo->GetMotionMaster()->MovePoint(1, boss->GetHomePosition().GetPositionX(), boss->GetHomePosition().GetPositionY(), boss->GetHomePosition().GetPositionZ());
-                }
-            }
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -448,7 +430,6 @@ public:
                 return;
 
             if (id == 1)
-            {
                 if (Creature* colossus = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DRAKKARI_COLOSSUS) : 0))
                 {
                     colossus->AI()->DoAction(ACTION_UNFREEZE_COLOSSUS);
@@ -457,7 +438,6 @@ public:
                     colossus->SetInCombatWithZone();
                     me->DespawnOrUnsummon();
                 }
-            }
         }
 
         void AttackStart(Unit* attacker, float /*dist*/ = 0)
@@ -490,6 +470,9 @@ public:
         {
             //Return since we have no target
             if (!UpdateVictim())
+                return;
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
 
             if (mojoWaveTimer <= diff)
