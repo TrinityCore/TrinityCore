@@ -401,18 +401,18 @@ public:
     {
         npc_vereth_the_cunningAI(Creature* pCreature) : ScriptedAI(pCreature) {}
 
-        void MoveInLineOfSight(Unit* pWho)
+        void MoveInLineOfSight(Unit* who)
         {
-            ScriptedAI::MoveInLineOfSight(pWho);
+            ScriptedAI::MoveInLineOfSight(who);
 
-            if (pWho->GetEntry() == NPC_LITHE_STALKER && me->IsWithinDistInMap(pWho, 10.0f))
+            if (who->GetEntry() == NPC_LITHE_STALKER && me->IsWithinDistInMap(who, 10.0f))
             {
-                if (Unit* pOwner = pWho->GetCharmer())
+                if (Unit* owner = who->GetCharmer())
                 {
-                    if (pWho->HasAura(SPELL_SUBDUED_LITHE_STALKER))
+                    if (who->HasAura(SPELL_SUBDUED_LITHE_STALKER))
                         {
-                            CAST_PLR(pOwner)->CompleteQuest(QUEST_NEW_RECRUIT);
-                            CAST_CRE(pWho)->DisappearAndDie();
+                            owner->ToPlayer()->CompleteQuest(QUEST_NEW_RECRUIT);
+                            who->ToCreature()->DisappearAndDie();
                         
                     }
                 }

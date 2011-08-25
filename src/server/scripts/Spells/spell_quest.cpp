@@ -955,15 +955,15 @@ class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
 public:
     spell_q13280_13283_plant_battle_standard() : SpellScriptLoader("spell_q13280_13283_plant_battle_standard") { }
 
-    class spell_q13280_13283_plant_battle_standard_SpellScript : public SpellScript
+    class sspell_q13280_13283_plant_battle_standard_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_plant_battle_standard_SpellScript)
+        PrepareSpellScript(sspell_q13280_13283_plant_battle_standard_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {                 
-            Unit* pCaster = GetCaster();
-            if (pCaster && pCaster->IsVehicle())
-                if (Unit* pPlayer = pCaster->GetVehicleKit()->GetPassenger(0))
-                     pPlayer->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC,0);
+            Unit* Caster = GetCaster();
+            if (Caster && Caster->IsVehicle())
+                if (Unit* Player = Caster->GetVehicleKit()->GetPassenger(0))
+                     Player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC,0);
         }
 
         void Register()
