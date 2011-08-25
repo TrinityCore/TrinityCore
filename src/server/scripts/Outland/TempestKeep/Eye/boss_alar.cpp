@@ -160,7 +160,7 @@ class boss_alar : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) {}
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit * who, float /*dist*/ = 0)
             {
                 if (Phase1)
                     AttackStartNoMove(who);
@@ -549,7 +549,7 @@ class mob_flame_patch_alar : public CreatureScript
             mob_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
             void Reset() {}
             void EnterCombat(Unit* /*who*/) {}
-            void AttackStart(Unit* /*who*/) {}
+            void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
             void MoveInLineOfSight(Unit* /*who*/) {}
             void UpdateAI(const uint32 /*diff*/) {}
         };

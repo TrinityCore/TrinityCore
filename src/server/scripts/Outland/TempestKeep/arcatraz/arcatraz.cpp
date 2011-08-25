@@ -111,7 +111,7 @@ class npc_millhouse_manastorm : public CreatureScript
                 }
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit * who, float /*dist*/ = 0)
             {
                 if (me->Attack(who, true))
                 {
@@ -308,7 +308,7 @@ class npc_warden_mellichar : public CreatureScript
                     pInstance->SetData(TYPE_HARBINGERSKYRISS, NOT_STARTED);
             }
 
-            void AttackStart(Unit* /*who*/) {}
+            void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
 
             void MoveInLineOfSight(Unit* who)
             {

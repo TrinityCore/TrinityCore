@@ -151,7 +151,7 @@ class mob_abyssal : public CreatureScript
             {
                 DoZoneInCombat();
             }
-            void AttackStart(Unit* who)
+            void AttackStart(Unit * who, float /*dist*/ = 0)
             {
                 if (!trigger)
                     ScriptedAI::AttackStart(who);
@@ -332,7 +332,7 @@ class boss_magtheridon : public CreatureScript
 
             void MoveInLineOfSight(Unit* /*who*/) {}
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit * who, float /*dist*/ = 0)
             {
                 if (!me->HasUnitState(UNIT_STAT_STUNNED))
                     ScriptedAI::AttackStart(who);

@@ -130,7 +130,7 @@ public:
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
 
         void EnterCombat(Unit* /*who*/) {}
 

@@ -168,7 +168,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit * who, float /*dist*/ = 0)
             {
                 if (IsIntroEvent || !IsMainEvent)
                     return;
@@ -405,7 +405,7 @@ class mob_lesser_shadow_fissure : public CreatureScript
 
             void Reset() { }
             void MoveInLineOfSight(Unit* /*who*/) {}
-            void AttackStart(Unit* /*who*/) {}
+            void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
             void EnterCombat(Unit* /*who*/) {}
         };
 

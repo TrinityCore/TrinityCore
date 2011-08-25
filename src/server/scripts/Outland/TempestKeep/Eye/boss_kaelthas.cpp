@@ -187,7 +187,7 @@ struct advisorbase_ai : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(who);
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit * who, float /*dist*/ = 0)
     {
         if (!who || FakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return;
@@ -1206,7 +1206,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     DoScriptText(SAY_CAPERNIAN_DEATH, me);
             }
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit * who, float /*dist*/ = 0)
             {
                 if (!who || FakeDeath || me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;
@@ -1539,7 +1539,7 @@ class mob_phoenix_egg_tk : public CreatureScript
             //ignore any
             void MoveInLineOfSight(Unit* /*who*/) {}
 
-            void AttackStart(Unit* who)
+            void AttackStart(Unit * who, float /*dist*/ = 0)
             {
                 if (me->Attack(who, false))
                 {

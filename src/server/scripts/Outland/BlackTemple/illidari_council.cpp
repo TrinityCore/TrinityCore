@@ -161,7 +161,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
@@ -272,7 +272,7 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
         void StartEvent(Unit* target)

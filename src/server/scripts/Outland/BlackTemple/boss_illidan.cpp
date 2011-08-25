@@ -534,7 +534,7 @@ public:
             DoZoneInCombat();
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who || Phase >= PHASE_TALK_SEQUENCE)
                 return;
@@ -1193,7 +1193,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who || Timer[EVENT_MAIEV_STEALTH])
                 return;

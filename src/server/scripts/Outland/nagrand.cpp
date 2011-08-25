@@ -779,7 +779,7 @@ public:
             PlayerGUID = 0;
             fleeing = false;
         }
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (PlayerGUID)
                 return;

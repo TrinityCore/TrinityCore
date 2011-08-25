@@ -128,7 +128,7 @@ public:
         void Reset() {}
         void JustDied(Unit* /*killer*/);
         void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void UpdateAI(const uint32 /*diff*/) {}
     };
@@ -161,7 +161,7 @@ public:
 
         void JustDied(Unit* /*killer*/);
         void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void UpdateAI(const uint32 diff)
         {
@@ -318,7 +318,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who || IsBanished) return;
 
