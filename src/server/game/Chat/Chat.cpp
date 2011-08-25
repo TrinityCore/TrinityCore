@@ -653,7 +653,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
             continue;
 
         bool match = false;
-        if (strlen(table[i].Name) > strlen(cmd.c_str()))
+        if (strlen(table[i].Name) > cmd.length())
         {
             for (uint32 j = 0; table[j].Name != NULL; ++j)
             {
@@ -694,7 +694,7 @@ bool ChatHandler::ExecuteCommandInTable(ChatCommand *table, const char* text, co
 
         SetSentErrorMessage(false);
         // table[i].Name == "" is special case: send original command to handler
-        if ((table[i].Handler)(this, strlen(table[i].Name) != 0 ? text : oldtext))
+        if ((table[i].Handler)(this, table[i].Name[0] != '\0' ? text : oldtext))
         {
             if (table[i].SecurityLevel > SEC_PLAYER)
             {

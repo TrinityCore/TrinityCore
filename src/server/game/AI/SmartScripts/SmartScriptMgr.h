@@ -1151,7 +1151,6 @@ struct SmartScriptHolder
         runOnce = false;
         link = 0;
         entryOrGuid = 0;
-        link = 0;
         event_id = 0;
         enableTimed = false;
     }

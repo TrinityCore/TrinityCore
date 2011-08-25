@@ -400,7 +400,7 @@ enum SpellAttr3
     SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // 29 Ignore caster spellpower and done damage mods?
+    SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // 29 Ignore caster spellpower and done damage mods?  client doesn't apply spellmods for those spells
     SPELL_ATTR3_DONT_DISPLAY_RANGE               = 0x40000000, // 30 client doesn't display range in tooltip for those spells
     SPELL_ATTR3_UNK31                            = 0x80000000  // 31
 };
@@ -510,7 +510,7 @@ enum SpellAttr6
     SPELL_ATTR6_UNK28                            = 0x10000000, // 28
     SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS          = 0x20000000, // 29 ignores done percent damage mods?
     SPELL_ATTR6_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR6_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR6_UNK31                            = 0x80000000  // 31 some special cooldown calc?
 };
 
 enum SpellAttr7

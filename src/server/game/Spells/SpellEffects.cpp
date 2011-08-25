@@ -1000,7 +1000,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 case 47170:                                 // Impale Leviroth
                 {
-                    if (!unitTarget && unitTarget->GetEntry() != 26452 && unitTarget->HealthAbovePct(95))
+                    if (!unitTarget || (unitTarget->GetEntry() != 26452 && unitTarget->HealthAbovePct(95)))
                         return;
 
                         m_caster->DealDamage(unitTarget, unitTarget->CountPctFromMaxHealth(93));
@@ -1601,14 +1601,6 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
                 break;
         }
     }
-
-    // temphack
-    if (m_spellInfo->Id == 51888)
-    {
-        unitTarget->CastSpell(unitTarget, spellInfo->Id, true, NULL, NULL, m_originalCasterGUID);
-        return;
-    }
-
     unitTarget->CastSpell(m_caster, spellInfo, true);
 }
 
