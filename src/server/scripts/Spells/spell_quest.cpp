@@ -961,8 +961,8 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {                 
             Unit* caster = GetCaster();
-            if (caster && caster->IsVehicle())
-                if (Unit* player = Caster->GetVehicleKit()->GetPassenger(0))
+            if (caster->IsVehicle())
+                if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
                      player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC,0);
         }
 

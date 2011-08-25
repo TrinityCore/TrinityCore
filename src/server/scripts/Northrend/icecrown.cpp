@@ -387,7 +387,7 @@ public:
 
 enum eVerethTheCunning
 {
-    QUEST_NEW_RECRUIT           = 13143,
+    NPC_GEIST_RETURN_BUNNY_KC   = 31049,
     NPC_LITHE_STALKER           = 30894,
     SPELL_SUBDUED_LITHE_STALKER = 58151,
 };
@@ -411,7 +411,7 @@ public:
                 {
                     if (who->HasAura(SPELL_SUBDUED_LITHE_STALKER))
                         {
-                            owner->ToPlayer()->CompleteQuest(QUEST_NEW_RECRUIT);
+                            owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, 0);
                             who->ToCreature()->DisappearAndDie();
                         
                     }
