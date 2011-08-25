@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1541,7 +1542,7 @@ public:
                 m_uiHatchEggTimer -= uiDiff;
         }
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
     };
 

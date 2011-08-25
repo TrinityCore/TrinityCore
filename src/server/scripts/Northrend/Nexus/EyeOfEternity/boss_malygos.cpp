@@ -977,7 +977,7 @@ public:
     {
         npc_arcane_overloadAI(Creature* creature) : ScriptedAI(creature) {}
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             DoStartNoMovement(who);
         }
@@ -1049,7 +1049,7 @@ public:
                 {
                     MakePlayerEnter();
                     _entered = true;
-                } else 
+                } else
                     _timer -= diff;
             }
         }

@@ -675,7 +675,7 @@ public:
     {
         npc_icefangAI(Creature* creature) : npc_escortAI(creature) {}
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void EnterCombat(Unit* /*who*/) {}
         void EnterEvadeMode() {}
 
@@ -751,7 +751,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
                     else
                         _accessoryRespawnTimer -= diff;
                 }
-            
+
             private:
                 uint32 _accessoryRespawnTimer;
                 Vehicle* _vehicleKit;

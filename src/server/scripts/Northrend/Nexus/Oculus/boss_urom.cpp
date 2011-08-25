@@ -139,7 +139,7 @@ public:
                 instance->SetData(DATA_UROM_PLATAFORM, instance->GetData(DATA_UROM_PLATAFORM)+1);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!who)
                 return;

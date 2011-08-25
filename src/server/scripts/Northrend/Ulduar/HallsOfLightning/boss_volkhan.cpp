@@ -133,7 +133,7 @@ public:
                 m_pInstance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (me->Attack(who, true))
             {
@@ -395,7 +395,7 @@ public:
             m_uiImmolation_Timer = 5000;
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (me->Attack(who, true))
             {

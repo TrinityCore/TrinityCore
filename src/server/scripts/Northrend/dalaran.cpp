@@ -59,15 +59,8 @@ public:
             me->SetOrientation(me->GetHomePosition().GetOrientation());
         }
 
-        void EnterCombat(Unit * /*who*/)
-        {
-            return;
-        }
-
-        void AttackStart(Unit * /*who*/)
-        {
-            return;
-        }
+        void EnterCombat(Unit * /*who*/) { }
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) { }
 
         void MoveInLineOfSight(Unit * who)
         {
@@ -102,8 +95,6 @@ public:
                     }
                     break;
             }
-            EnterEvadeMode();
-            return;
         }
 
         void UpdateAI(const uint32 /*diff*/) {}

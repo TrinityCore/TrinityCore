@@ -315,7 +315,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                     creature->AI()->DoAction(ACTION_START_OUTRO);
             }
 
-            void AttackStart(Unit* victim)
+            void AttackStart(Unit * victim, float /*dist*/ = 0)
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
                     return;

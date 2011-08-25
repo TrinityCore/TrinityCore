@@ -323,7 +323,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 _done = false;
             }
 
-            void AttackStart(Unit* /*target*/)
+            void AttackStart(Unit * /*target*/, float /*dist*/ = 0)
             {
             }
 
@@ -523,7 +523,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                     valithria->AI()->DoAction(ACTION_ENTER_COMBAT);
             }
 
-            void AttackStart(Unit* target)
+            void AttackStart(Unit * target, float /*dist*/ = 0)
             {
                 if (target->GetTypeId() == TYPEID_PLAYER)
                     BossAI::AttackStart(target);

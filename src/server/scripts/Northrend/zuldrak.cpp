@@ -1323,7 +1323,7 @@ public:
             uiMissleTimer = urand(2000, 7000);
         }
 
-        void AttackStart(Unit* pWho)
+        void AttackStart(Unit * pWho, float /*dist*/ = 0)
         {
             if (!pWho)
                 return;

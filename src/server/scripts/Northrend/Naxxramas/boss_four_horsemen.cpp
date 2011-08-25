@@ -264,7 +264,7 @@ public:
                 SelectNearestTarget(who);
         }
 
-        void AttackStart(Unit* who)
+        void AttackStart(Unit * who, float /*dist*/ = 0)
         {
             if (!movementCompleted && !movementStarted)
             {

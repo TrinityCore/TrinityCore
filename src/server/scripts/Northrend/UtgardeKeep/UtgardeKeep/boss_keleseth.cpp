@@ -86,7 +86,7 @@ public:
 
         void Reset(){ FrostTombGUID = 0; }
         void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
         void JustDied(Unit* killer)

@@ -155,7 +155,7 @@ class boss_tyrannus : public CreatureScript
                 DoScriptText(SAY_AGGRO, me);
             }
 
-            void AttackStart(Unit* victim)
+            void AttackStart(Unit * victim, float /*idst*/ = 0)
             {
                 if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                     return;

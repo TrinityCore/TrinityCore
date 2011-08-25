@@ -406,7 +406,7 @@ struct boss_faction_championsAI : public ScriptedAI
         return count;
     }
 
-    void AttackStart(Unit* who)
+    void AttackStart(Unit * who, float /*dist*/ = 0)
     {
         if (!who) return;
 

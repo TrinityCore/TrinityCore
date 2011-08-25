@@ -351,7 +351,7 @@ public:
             }
         }
 
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
         void UpdateAI(const uint32 diff)
@@ -427,7 +427,7 @@ public:
             }
             uiDespawnTimer = 7000;
         }
-        void AttackStart(Unit* /*who*/) {}
+        void AttackStart(Unit * /*who*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterCombat(Unit* /*who*/) {}
         void UpdateAI(const uint32 diff)
