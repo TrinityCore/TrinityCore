@@ -235,7 +235,7 @@ void SmartAI::EndPath(bool fail)
             }
         }else
         {
-            for (ObjectList::iterator iter = targets->begin(); iter != targets->end(); iter++)
+            for (ObjectList::iterator iter = targets->begin(); iter != targets->end(); ++iter)
             {
                 if (GetScript()->IsPlayer((*iter)))
                 {
@@ -401,7 +401,7 @@ bool SmartAI::IsEscortInvokerInRange()
             }
         }else
         {
-            for (ObjectList::iterator iter = targets->begin(); iter != targets->end(); iter++)
+            for (ObjectList::iterator iter = targets->begin(); iter != targets->end(); ++iter)
             {
                 if (GetScript()->IsPlayer((*iter)))
                 {

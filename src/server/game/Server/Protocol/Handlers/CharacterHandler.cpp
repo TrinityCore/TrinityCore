@@ -1057,13 +1057,6 @@ void WorldSession::HandleSetFactionCheat(WorldPacket & /*recv_data*/)
     GetPlayer()->GetReputationMgr().SendStates();
 }
 
-void WorldSession::HandleMeetingStoneInfo(WorldPacket & /*recv_data*/)
-{
-    sLog->outStaticDebug("WORLD: Received CMSG_MEETING_STONE_INFO");
-
-    //SendLfgUpdate(0, 0, 0);
-}
-
 void WorldSession::HandleTutorialFlag(WorldPacket & recv_data)
 {
     uint32 data;

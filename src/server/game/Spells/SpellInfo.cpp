@@ -21,6 +21,30 @@
 #include "Spell.h"
 #include "DBCStores.h"
 
+uint32 GetTargetFlagMask(SpellTargetObjectTypes objType)
+{
+    switch (objType)
+    {
+        case TARGET_OBJECT_TYPE_DEST:
+            return TARGET_FLAG_DEST_LOCATION;
+        case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
+            return TARGET_FLAG_DEST_LOCATION | TARGET_FLAG_UNIT;
+        case TARGET_OBJECT_TYPE_CORPSE:
+        case TARGET_OBJECT_TYPE_UNIT:
+            return TARGET_FLAG_UNIT;
+        case TARGET_OBJECT_TYPE_GOBJ:
+            return TARGET_FLAG_GAMEOBJECT;
+        case TARGET_OBJECT_TYPE_GOBJ_ITEM:
+            return TARGET_FLAG_GAMEOBJECT_ITEM;
+        case TARGET_OBJECT_TYPE_ITEM:
+            return TARGET_FLAG_ITEM;
+        case TARGET_OBJECT_TYPE_SRC:
+            return TARGET_FLAG_SOURCE_LOCATION;
+        default:
+            return TARGET_FLAG_NONE;
+    }
+}
+
 SpellImplicitTargetInfo::SpellImplicitTargetInfo(uint32 target)
 {
     _target = Targets(target);
@@ -91,6 +115,88 @@ float SpellImplicitTargetInfo::CalcDirectionAngle() const
 Targets SpellImplicitTargetInfo::GetTarget() const
 {
     return _target;
+}
+
+uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet) const
+{
+    uint32 targetMask = 0;
+    if (GetTarget() == TARGET_DEST_TRAJ)
+    {
+        if (!srcSet)
+            targetMask = TARGET_FLAG_SOURCE_LOCATION;
+        if (!dstSet)
+            targetMask |= TARGET_FLAG_DEST_LOCATION;
+    }
+    else
+    {
+        switch (GetReferenceType())
+        {
+            case TARGET_REFERENCE_TYPE_SRC:
+                if (srcSet)
+                    break;
+                targetMask = TARGET_FLAG_SOURCE_LOCATION;
+                break;
+            case TARGET_REFERENCE_TYPE_DEST:
+                if (dstSet)
+                    break;
+                targetMask = TARGET_FLAG_DEST_LOCATION;
+                break;
+            case TARGET_REFERENCE_TYPE_TARGET:
+                switch (GetObjectType())
+                {
+                    case TARGET_OBJECT_TYPE_GOBJ:
+                        targetMask = TARGET_FLAG_GAMEOBJECT;
+                        break;
+                    case TARGET_OBJECT_TYPE_GOBJ_ITEM:
+                        targetMask = TARGET_FLAG_GAMEOBJECT_ITEM;
+                        break;
+                    case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
+                    case TARGET_OBJECT_TYPE_UNIT:
+                    case TARGET_OBJECT_TYPE_DEST:
+                        switch (GetSelectionCheckType())
+                        {
+                            case TARGET_SELECT_CHECK_ENEMY:
+                                targetMask = TARGET_FLAG_UNIT_ENEMY;
+                                break;
+                            case TARGET_SELECT_CHECK_ALLY:
+                                targetMask = TARGET_FLAG_UNIT_ALLY;
+                                break;
+                            case TARGET_SELECT_CHECK_PARTY:
+                                targetMask = TARGET_FLAG_UNIT_PARTY;
+                                break;
+                            case TARGET_SELECT_CHECK_RAID:
+                                targetMask = TARGET_FLAG_UNIT_RAID;
+                                break;
+                            case TARGET_SELECT_CHECK_PASSENGER:
+                                targetMask = TARGET_FLAG_UNIT_PASSENGER;
+                                break;
+                            default:
+                                targetMask = TARGET_FLAG_UNIT;
+                                break;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    switch (GetObjectType())
+    {
+        case TARGET_OBJECT_TYPE_SRC:
+            srcSet = true;
+            break;
+        case TARGET_OBJECT_TYPE_DEST:
+        case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
+            dstSet = true;
+            break;
+        default:
+            break;
+    }
+    return targetMask;
 }
 
 bool SpellImplicitTargetInfo::IsPosition(uint32 targetType)
@@ -885,6 +991,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SchoolMask = spellEntry->SchoolMask;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         Effects[i] = SpellEffectInfo(spellEntry, this, i);
+    ExplicitTargetMask = _GetExplicitTargetMask();
     ChainEntry = NULL;
 }
 
@@ -1021,17 +1128,7 @@ bool SpellInfo::IsAOE() const
 
 bool SpellInfo::IsRequiringSelectedTarget() const
 {
-    for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        if (Effects[i].TargetA.GetType() == TARGET_TYPE_UNIT_TARGET
-            || Effects[i].TargetB.GetType() == TARGET_TYPE_UNIT_TARGET
-            || Effects[i].TargetA.GetType() == TARGET_TYPE_CHANNEL
-            || Effects[i].TargetB.GetType() == TARGET_TYPE_CHANNEL
-            || Effects[i].TargetA.GetType() == TARGET_TYPE_DEST_TARGET
-            || Effects[i].TargetB.GetType() == TARGET_TYPE_DEST_TARGET)
-            return true;
-    }
-    return false;
+    return (GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK) != 0;
 }
 
 bool SpellInfo::IsPassive() const
@@ -1156,8 +1253,16 @@ bool SpellInfo::IsAutoRepeatRangedSpell() const
     return AttributesEx2 & SPELL_ATTR2_AUTOREPEAT_FLAG;
 }
 
+bool SpellInfo::IsAffectedBySpellMods() const
+{
+    return !(AttributesEx3 & SPELL_ATTR3_NO_DONE_BONUS);
+}
+
 bool SpellInfo::IsAffectedBySpellMod(SpellModifier* mod) const
 {
+    if (!IsAffectedBySpellMods())
+        return false;
+
     SpellInfo const* affectSpell = sSpellMgr->GetSpellInfo(mod->spellId);
     // False if affect_spell == NULL or spellFamily not equal
     if (!affectSpell || affectSpell->SpellFamilyName != SpellFamilyName)
@@ -1534,8 +1639,8 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
             return SPELL_FAILED_BAD_TARGETS;
     }
 
-    // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI)
-    if (target != caster && caster->IsControlledByPlayer() && target->GetTypeId() == TYPEID_PLAYER)
+    // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
+    if (target != caster && (caster->IsControlledByPlayer() || !IsPositive()) && target->GetTypeId() == TYPEID_PLAYER)
     {
         if (!target->ToPlayer()->IsVisible())
             return SPELL_FAILED_BAD_TARGETS;
@@ -1662,6 +1767,11 @@ uint32 SpellInfo::GetDispelMask(DispelType type)
         return DISPEL_ALL_MASK;
     else
         return uint32(1 << type);
+}
+
+uint32 SpellInfo::GetExplicitTargetMask() const
+{
+    return ExplicitTargetMask;
 }
 
 AuraStateType SpellInfo::GetAuraState() const
@@ -2109,6 +2219,81 @@ bool SpellInfo::IsHighRankOf(SpellInfo const* spellInfo) const
                 return true;
     }
     return false;
+}
+
+uint32 SpellInfo::_GetExplicitTargetMask() const
+{
+    bool srcSet = false;
+    bool dstSet = false;
+    uint32 targetMask = Targets;
+    // prepare target mask using effect target entries
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (!Effects[i].IsEffect())
+            continue;
+        targetMask |= Effects[i].TargetA.GetExplicitTargetMask(srcSet, dstSet);
+        targetMask |= Effects[i].TargetB.GetExplicitTargetMask(srcSet, dstSet);
+    }
+    // spells with range may need explicit targets, even if target entries not set
+    // for example many SPELL_EFFECT_LEARN_SPELL spells need to have unit target
+    if (GetMaxRange(true) > 0.0f || GetMaxRange(false) > 0.0f)
+    {
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        {
+            if (!Effects[i].IsEffect())
+                continue;
+
+            uint32 effImplicitTargetMask = GetTargetFlagMask(Effects[i].GetImplicitTargetObjectType());
+            uint32 providedTargetMask = GetTargetFlagMask(Effects[i].TargetA.GetObjectType()) | GetTargetFlagMask(Effects[i].TargetB.GetObjectType()) | targetMask;
+
+            // check if valid targets already present, prevent adding redundant flags
+            switch (Effects[i].GetImplicitTargetObjectType())
+            {
+                case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
+                    if (providedTargetMask & TARGET_FLAG_UNIT_MASK)
+                        effImplicitTargetMask &= ~(TARGET_FLAG_UNIT_MASK);
+                    if (dstSet || providedTargetMask & TARGET_FLAG_DEST_LOCATION)
+                        effImplicitTargetMask &= ~(TARGET_FLAG_DEST_LOCATION);
+                    if (!effImplicitTargetMask)
+                        continue;
+                    break;
+                case TARGET_OBJECT_TYPE_SRC:
+                    if (srcSet || providedTargetMask & TARGET_FLAG_SOURCE_LOCATION)
+                        continue;
+                    break;
+                case TARGET_OBJECT_TYPE_DEST:
+                    if (dstSet || providedTargetMask & TARGET_FLAG_DEST_LOCATION)
+                        continue;
+                    break;
+                case TARGET_OBJECT_TYPE_UNIT:
+                    if (providedTargetMask & TARGET_FLAG_UNIT_MASK)
+                        continue;
+                    break;
+                case TARGET_OBJECT_TYPE_CORPSE:
+                    if (providedTargetMask & (TARGET_FLAG_CORPSE_MASK | TARGET_FLAG_UNIT_MASK))
+                        continue;
+                    break;
+                case TARGET_OBJECT_TYPE_ITEM:
+                    if (providedTargetMask & (TARGET_FLAG_GAMEOBJECT_ITEM | TARGET_FLAG_ITEM))
+                        continue;
+                    break;
+                case TARGET_OBJECT_TYPE_GOBJ:
+                    if (providedTargetMask & TARGET_FLAG_GAMEOBJECT_MASK)
+                        continue;
+                    break;
+                case TARGET_OBJECT_TYPE_GOBJ_ITEM:
+                    if (providedTargetMask & (TARGET_FLAG_GAMEOBJECT_ITEM | TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_ITEM))
+                        continue;
+                    break;
+                default:
+                    continue;
+            }
+
+            // extend explicit target mask only if valid targets for effect could not be provided by target types
+            targetMask |= effImplicitTargetMask &~(providedTargetMask);
+        }
+    }
+    return targetMask;
 }
 
 bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
