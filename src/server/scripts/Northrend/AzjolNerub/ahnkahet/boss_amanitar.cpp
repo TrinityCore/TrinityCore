@@ -55,14 +55,6 @@ public:
             FirstTime = true;
         }
 
-        InstanceScript* pInstance;
-
-        uint32 uiRootTimer;
-        uint32 uiBashTimer;
-        uint32 uiBoltTimer;
-        uint32 uiSpawnTimer;
-        SummonList summons;
-
         void Reset()
         {
             uiRootTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
@@ -116,7 +108,7 @@ public:
 
         void SpawnAdds()
         {
-            for (uint8 i=0; i<30; ++i)
+            for (uint8 i=0; i<20; ++i)
             {
                 if (Unit * victim = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
@@ -141,34 +133,42 @@ public:
             if (uiSpawnTimer <= diff)
             {
                 SpawnAdds();
-                uiSpawnTimer = urand(35*IN_MILLISECONDS, SEKUNDEN_40);
+                uiSpawnTimer = urand(35 * IN_MILLISECONDS, SEKUNDEN_40);
             } else uiSpawnTimer -= diff;
 
             if (uiRootTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_ENTANGLING_ROOTS);
-                uiRootTimer = urand(15*IN_MILLISECONDS, SEKUNDEN_30);
+                uiRootTimer = urand(15 * IN_MILLISECONDS, SEKUNDEN_30);
             } else uiRootTimer -= diff;
 
             if (uiBashTimer <= diff)
             {
                 DoCastVictim(SPELL_BASH);
-                uiBashTimer = urand(15*IN_MILLISECONDS, SEKUNDEN_30);
+                uiBashTimer = urand(15 * IN_MILLISECONDS, SEKUNDEN_30);
             } else uiBashTimer -= diff;
 
             if (uiBoltTimer <= diff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
+                if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_VENOM_BOLT_VOLLEY);
-                uiBoltTimer = urand(15*IN_MILLISECONDS, SEKUNDEN_30);
+                uiBoltTimer = urand(15 * IN_MILLISECONDS, SEKUNDEN_30);
             } else uiBoltTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
+    private:
+        InstanceScript * pInstance;
+        SummonList summons;
+
+        uint32 uiRootTimer;
+        uint32 uiBashTimer;
+        uint32 uiBoltTimer;
+        uint32 uiSpawnTimer;
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI * GetAI(Creature * creature) const
     {
         return new boss_amanitarAI(creature);
     }
@@ -181,7 +181,7 @@ public:
 
     struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
     {
-        mob_amanitar_mushroomsAI(Creature* c) : Scripted_NoMovementAI(c)
+        mob_amanitar_mushroomsAI(Creature * c) : Scripted_NoMovementAI(c)
         {
             me->SetDisplayId(26981); // Korrekte Anzeige erzwingen!
         }
@@ -200,20 +200,17 @@ public:
             uiDeathTimer = SEKUNDEN_30;
         }
 
-        void JustDied(Unit * killer)
+        void DamageTaken(Unit * done_by, uint32 & damage)
         {
-            if (!killer)
-                return;
-
-            if (me->GetEntry() == NPC_HEALTHY_MUSHROOM && killer->GetTypeId() == TYPEID_PLAYER)
+            if (damage >= me->GetHealth() && me->GetEntry() == NPC_HEALTHY_MUSHROOM && done_by->GetTypeId() == TYPEID_PLAYER)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(killer, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, false);
+                DoCast(done_by, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, true);
             }
         }
 
-        void EnterCombat(Unit * /*who*/) {}
-        void AttackStart(Unit * /*victim*/, float /*dist*/ = 0) {}
+        void EnterCombat(Unit * /*who*/) { }
+        void AttackStart(Unit * /*victim*/, float /*dist*/ = 0) { }
 
         void UpdateAI(const uint32 diff)
         {
