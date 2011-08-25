@@ -99,6 +99,8 @@ class boss_elder_nadox : public CreatureScript
 
                 if (instance)
                     instance->SetData(DATA_ELDER_NADOX_EVENT, IN_PROGRESS);
+
+                DoZoneInCombat();
             }
 
             void KilledUnit(Unit* /*who*/)

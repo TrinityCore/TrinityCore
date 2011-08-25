@@ -110,6 +110,8 @@ public:
                 pInstance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
 
             DoCast(me, SPELL_MINI, false);
+
+            DoZoneInCombat();
         }
 
         void SpawnAdds()

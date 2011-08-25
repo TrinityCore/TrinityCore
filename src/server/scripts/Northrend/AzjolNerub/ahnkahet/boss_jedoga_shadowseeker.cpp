@@ -132,6 +132,8 @@ public:
             DoScriptText(TEXT_AGGRO, me);
             me->SetInCombatWithZone();
             pInstance->SetData(DATA_JEDOGA_SHADOWSEEKER_EVENT, IN_PROGRESS);
+
+            DoZoneInCombat();
         }
 
         void AttackStart(Unit* who, float /*dist*/ = 0)
