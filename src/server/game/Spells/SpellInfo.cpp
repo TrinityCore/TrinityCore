@@ -152,6 +152,7 @@ uint32 SpellImplicitTargetInfo::GetExplicitTargetMask(bool& srcSet, bool& dstSet
                         break;
                     case TARGET_OBJECT_TYPE_UNIT_AND_DEST:
                     case TARGET_OBJECT_TYPE_UNIT:
+                    case TARGET_OBJECT_TYPE_DEST:
                         switch (GetSelectionCheckType())
                         {
                             case TARGET_SELECT_CHECK_ENEMY:
@@ -1638,8 +1639,8 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
             return SPELL_FAILED_BAD_TARGETS;
     }
 
-    // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI)
-    if (target != caster && caster->IsControlledByPlayer() && target->GetTypeId() == TYPEID_PLAYER)
+    // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
+    if (target != caster && (caster->IsControlledByPlayer() || !IsPositive()) && target->GetTypeId() == TYPEID_PLAYER)
     {
         if (!target->ToPlayer()->IsVisible())
             return SPELL_FAILED_BAD_TARGETS;

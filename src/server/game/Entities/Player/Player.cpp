@@ -918,7 +918,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
     PlayerInfo const* info = sObjectMgr->GetPlayerInfo(createInfo->Race, createInfo->Class);
     if (!info)
     {
-        sLog->outError("Player have incorrect race/class pair. Can't be loaded.");
+        sLog->outError("Player (Name %s) have incorrect race/class pair (Race %u, Class %u). Can't be loaded.", m_name.c_str(), createInfo->Race, createInfo->Class);
         return false;
     }
 
@@ -1244,9 +1244,15 @@ void Player::StopMirrorTimer(MirrorTimerType Type)
     GetSession()->SendPacket(&data);
 }
 
+bool Player::IsImmuneToEnvironmentalDamage()
+{
+    // check for GM and death state included in isAttackableByAOE
+    return (!isTargetableForAttack(false));
+}
+
 uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
 {
-    if (!isAlive() || isGameMaster())
+    if (IsImmuneToEnvironmentalDamage())
         return 0;
 
     // Absorb, resist some environmental damage type
@@ -18155,7 +18161,7 @@ bool Player::_LoadHomeBind(PreparedQueryResult result)
     PlayerInfo const *info = sObjectMgr->GetPlayerInfo(getRace(), getClass());
     if (!info)
     {
-        sLog->outError("Player have incorrect race/class pair. Can't be loaded.");
+        sLog->outError("Player (Name %s) have incorrect race/class pair (Race: %u, Class %u). Can't be loaded.", GetName(), getRace(), getClass());
         return false;
     }
 
