@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -285,7 +286,7 @@ public:
         }
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
-        void AttackStart(Unit* /*victim*/) {}
+        void AttackStart(Unit* /*victim*/, float /*dist*/ = 0) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void UpdateAI(const uint32 /*diff*/) {}
     };
