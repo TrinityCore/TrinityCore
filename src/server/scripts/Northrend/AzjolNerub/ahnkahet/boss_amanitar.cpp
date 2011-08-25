@@ -25,21 +25,21 @@
 
 enum Spells
 {
-    SPELL_BASH                                    = 57094, // Victim
-    SPELL_ENTANGLING_ROOTS                        = 57095, // Random Victim 100Y
-    SPELL_MINI                                    = 57055, // Self
-    SPELL_VENOM_BOLT_VOLLEY                       = 57088, // Random Victim 100Y
-    SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS          = 56648, // Killer 3Y
-    SPELL_POISONOUS_MUSHROOM_POISON_CLOUD         = 57061, // Self - Duration 8 Sec
-    SPELL_POISONOUS_MUSHROOM_VISUAL_AREA          = 61566, // Self
-    SPELL_POISONOUS_MUSHROOM_VISUAL_AURA          = 56741, // Self
-    SPELL_PUTRID_MUSHROOM                         = 31690, // To make the mushrooms visible
+    SPELL_BASH                              = 57094, // Victim
+    SPELL_ENTANGLING_ROOTS                  = 57095, // Random Victim 100Y
+    SPELL_MINI                              = 57055, // Self
+    SPELL_VENOM_BOLT_VOLLEY                 = 57088, // Random Victim 100Y
+    SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS    = 56648, // Killer 3Y
+    SPELL_POISONOUS_MUSHROOM_POISON_CLOUD   = 57061, // Self - Duration 8 Sec
+    SPELL_POISONOUS_MUSHROOM_VISUAL_AREA    = 61566, // Self
+    SPELL_POISONOUS_MUSHROOM_VISUAL_AURA    = 56741, // Self
+    SPELL_PUTRID_MUSHROOM                   = 31690  // To make the mushrooms visible
 };
 
 enum Creatures
 {
-    NPC_HEALTHY_MUSHROOM                          = 30391,
-    NPC_POISONOUS_MUSHROOM                        = 30435
+    NPC_HEALTHY_MUSHROOM    = 30391,
+    NPC_POISONOUS_MUSHROOM  = 30435
 };
 
 class boss_amanitar : public CreatureScript
@@ -49,10 +49,10 @@ public:
 
     struct boss_amanitarAI : public ScriptedAI
     {
-        boss_amanitarAI(Creature* c) : ScriptedAI(c)
+        boss_amanitarAI(Creature * c) : ScriptedAI(c), summons(c)
         {
             pInstance = c->GetInstanceScript();
-            bFirstTime = true;
+            FirstTime = true;
         }
 
         InstanceScript* pInstance;
@@ -61,14 +61,13 @@ public:
         uint32 uiBashTimer;
         uint32 uiBoltTimer;
         uint32 uiSpawnTimer;
-
-        bool bFirstTime;
+        SummonList summons;
 
         void Reset()
         {
-            uiRootTimer = urand(5*IN_MILLISECONDS, 9*IN_MILLISECONDS);
-            uiBashTimer = urand(10*IN_MILLISECONDS, 14*IN_MILLISECONDS);
-            uiBoltTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+            uiRootTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
+            uiBashTimer = urand(10 * IN_MILLISECONDS, 14 * IN_MILLISECONDS);
+            uiBoltTimer = urand(15 * IN_MILLISECONDS, SEKUNDEN_30);
             uiSpawnTimer = 0;
 
             me->SetMeleeDamageSchool(SPELL_SCHOOL_NATURE);
@@ -77,23 +76,35 @@ public:
             if (pInstance)
             {
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
-                if (!bFirstTime)
+                if (!FirstTime)
                     pInstance->SetData(DATA_AMANITAR_EVENT, FAIL);
                 else
-                    bFirstTime = false;
+                    FirstTime = false;
             }
+            summons.DespawnAll();
         }
 
-        void JustDied(Unit* /*Killer*/)
+        void JustSummoned(Creature * summon)
+        {
+            summons.Summon(summon);
+        }
+
+        void SummonedCreatureDespawn(Creature * summon)
+        {
+            summons.Despawn(summon);
+        }
+
+        void JustDied(Unit * /*Killer*/)
         {
             if (pInstance)
             {
                 pInstance->SetData(DATA_AMANITAR_EVENT, DONE);
                 pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MINI);
             }
+            summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* /*who*/)
+        void EnterCombat(Unit * /*who*/)
         {
             if (pInstance)
                 pInstance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
@@ -103,52 +114,52 @@ public:
 
         void SpawnAdds()
         {
-            for (uint8 i = 0; i < 30; ++i)
+            for (uint8 i=0; i<30; ++i)
             {
-                Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0);
-
-                if (victim)
+                if (Unit * victim = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     Position pos;
                     victim->GetPosition(&pos);
                     me->GetRandomNearPosition(pos, float(urand(5, 80)));
-                    me->SummonCreature(NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILLISECONDS);
+                    me->SummonCreature(NPC_POISONOUS_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, SEKUNDEN_30);
                     me->GetRandomNearPosition(pos, float(urand(5, 80)));
-                    me->SummonCreature(NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30*IN_MILLISECONDS);
+                    me->SummonCreature(NPC_HEALTHY_MUSHROOM, pos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, SEKUNDEN_30);
                 }
             }
         }
 
         void UpdateAI(const uint32 diff)
         {
-            //Return since we have no target
             if (!UpdateVictim())
+                return;
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
                 return;
 
             if (uiSpawnTimer <= diff)
             {
                 SpawnAdds();
-                uiSpawnTimer = urand(35*IN_MILLISECONDS, 40*IN_MILLISECONDS);
+                uiSpawnTimer = urand(35*IN_MILLISECONDS, SEKUNDEN_40);
             } else uiSpawnTimer -= diff;
 
             if (uiRootTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_ENTANGLING_ROOTS);
-                uiRootTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+                uiRootTimer = urand(15*IN_MILLISECONDS, SEKUNDEN_30);
             } else uiRootTimer -= diff;
 
             if (uiBashTimer <= diff)
             {
                 DoCastVictim(SPELL_BASH);
-                uiBashTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+                uiBashTimer = urand(15*IN_MILLISECONDS, SEKUNDEN_30);
             } else uiBashTimer -= diff;
 
             if (uiBoltTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_VENOM_BOLT_VOLLEY);
-                uiBoltTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+                uiBoltTimer = urand(15*IN_MILLISECONDS, SEKUNDEN_30);
             } else uiBoltTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -168,7 +179,10 @@ public:
 
     struct mob_amanitar_mushroomsAI : public Scripted_NoMovementAI
     {
-        mob_amanitar_mushroomsAI(Creature* c) : Scripted_NoMovementAI(c) {}
+        mob_amanitar_mushroomsAI(Creature* c) : Scripted_NoMovementAI(c)
+        {
+            me->SetDisplayId(26981); // Korrekte Anzeige erzwingen!
+        }
 
         uint32 uiAuraTimer;
         uint32 uiDeathTimer;
@@ -181,10 +195,10 @@ public:
                 DoCast(me, SPELL_POISONOUS_MUSHROOM_VISUAL_AURA, true);
 
             uiAuraTimer = 0;
-            uiDeathTimer = 30*IN_MILLISECONDS;
+            uiDeathTimer = SEKUNDEN_30;
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit * killer)
         {
             if (!killer)
                 return;
@@ -196,7 +210,7 @@ public:
             }
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit * /*who*/) {}
         void AttackStart(Unit * /*victim*/, float /*dist*/ = 0) {}
 
         void UpdateAI(const uint32 diff)
@@ -207,7 +221,7 @@ public:
                 {
                     DoCast(me, SPELL_POISONOUS_MUSHROOM_VISUAL_AREA, true);
                     DoCast(me, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD, false);
-                    uiAuraTimer = 7*IN_MILLISECONDS;
+                    uiAuraTimer = 7 * IN_MILLISECONDS;
                 } else uiAuraTimer -= diff;
             }
             if (uiDeathTimer <= diff)
@@ -216,7 +230,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI * GetAI(Creature * creature) const
     {
         return new mob_amanitar_mushroomsAI(creature);
     }
