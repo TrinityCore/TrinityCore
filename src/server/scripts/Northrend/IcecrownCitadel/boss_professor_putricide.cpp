@@ -1384,11 +1384,11 @@ class spell_putricide_mutated_transformation : public SpellScriptLoader
                 if (!caster)
                     return;
 
-                InstanceScript* instance = GetTargetUnit()->GetInstanceScript();
+                InstanceScript* instance = caster->GetInstanceScript();
                 if (!instance)
                     return;
 
-                Creature* putricide = ObjectAccessor::GetCreature(*GetTargetUnit(), instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
+                Creature* putricide = ObjectAccessor::GetCreature(*caster, instance->GetData64(DATA_PROFESSOR_PUTRICIDE));
                 if (!putricide)
                     return;
 
