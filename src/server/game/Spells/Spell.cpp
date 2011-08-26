@@ -667,10 +667,10 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
     if (neededTargets & TARGET_FLAG_DEST_LOCATION)
     {
         // and target isn't set
-        if (!targets.GetDst())
+        if (!m_targets.HasDst())
         {
             // try to use unit target if provided
-            if (Unit* target = targets.GetUnitTarget())
+            if (WorldObject* target = targets.GetObjectTarget())
                 m_targets.SetDst(*target);
             // or use self if not available
             else
@@ -682,7 +682,7 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
 
     if (neededTargets & TARGET_FLAG_SOURCE_LOCATION)
     {
-        if (!targets.GetSrc())
+        if (!targets.HasSrc())
             m_targets.SetSrc(*m_caster);
     }
     else
