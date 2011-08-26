@@ -3084,7 +3084,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 16834: // Natural shapeshifter
             case 16835:
-            case 71159: // Awaken Plagued Zombies
                 spellInfo->DurationIndex = 21;
                 break;
             case 51735: // Ebon Plague
@@ -3248,6 +3247,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 71413: // Green Ooze Summon (Professor Putricide)
             case 71414: // Orange Ooze Summon (Professor Putricide)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
+                break;
+            case 71159: // Awaken Plagued Zombies
+                spellInfo->DurationIndex = 21;
                 break;
             // THIS IS HERE BECAUSE COOLDOWN ON CREATURE PROCS IS NOT IMPLEMENTED
             case 71604: // Mutated Strength (Professor Putricide)
