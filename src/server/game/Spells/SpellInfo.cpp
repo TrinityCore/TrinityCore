@@ -1126,9 +1126,25 @@ bool SpellInfo::IsAOE() const
     return false;
 }
 
-bool SpellInfo::IsRequiringSelectedTarget() const
+bool SpellInfo::NeedsExplicitUnitTarget() const
 {
-    return (GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK) != 0;
+    return GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK;
+}
+
+bool SpellInfo::NeedsToBeTriggeredByCaster() const
+{
+    if (NeedsExplicitUnitTarget())
+        return true;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (Effects[i].IsEffect())
+        {
+            if (Effects[i].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL
+                || Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL)
+                return true;
+        }
+    }
+    return false;
 }
 
 bool SpellInfo::IsPassive() const
