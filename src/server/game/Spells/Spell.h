@@ -104,18 +104,20 @@ class SpellCastTargets
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
 
-        uint64 GetUnitTargetGUID() const { return m_unitTargetGUID; }
-        Unit* GetUnitTarget() const { return m_unitTarget; }
+        uint64 GetUnitTargetGUID() const;
+        Unit* GetUnitTarget() const;
         void SetUnitTarget(Unit* target);
-        void RemoveUnitTarget();
 
-        uint64 GetGOTargetGUID() const { return m_GOTargetGUID; }
-        GameObject* GetGOTarget() const { return m_GOTarget; }
+        uint64 GetGOTargetGUID() const;
+        GameObject* GetGOTarget() const;
         void SetGOTarget(GameObject* target);
-        void RemoveGOTarget();
 
-        uint64 GetCorpseTargetGUID() const { return m_CorpseTargetGUID; }
-        void RemoveCorpseTarget();
+        uint64 GetCorpseTargetGUID() const;
+        Corpse* GetCorpseTarget() const;
+
+        WorldObject* GetObjectTarget() const;
+        uint64 GetObjectTargetGUID() const;
+        void RemoveObjectTarget();
 
         uint64 GetItemTargetGUID() const { return m_itemTargetGUID; }
         Item* GetItemTarget() const { return m_itemTarget; }
@@ -139,7 +141,6 @@ class SpellCastTargets
         void ModDst(Position const& pos);
         void RemoveDst();
 
-        bool IsEmpty() const { return m_GOTargetGUID == 0 && m_unitTargetGUID == 0 && m_itemTarget == 0 && m_CorpseTargetGUID == 0; }
         bool HasSrc() const { return GetTargetMask() & TARGET_FLAG_SOURCE_LOCATION; }
         bool HasDst() const { return GetTargetMask() & TARGET_FLAG_DEST_LOCATION; }
         bool HasTraj() const { return m_speed != 0; }
@@ -159,15 +160,12 @@ class SpellCastTargets
     private:
         uint32 m_targetMask;
 
-        // objects (can be used at spell creating and after Update at casting
-        Unit* m_unitTarget;
-        GameObject* m_GOTarget;
+        // objects (can be used at spell creating and after Update at casting)
+        WorldObject* m_objectTarget;
         Item* m_itemTarget;
 
         // object GUID/etc, can be used always
-        uint64 m_unitTargetGUID;
-        uint64 m_GOTargetGUID;
-        uint64 m_CorpseTargetGUID;
+        uint64 m_objectTargetGUID;
         uint64 m_itemTargetGUID;
         uint32 m_itemTargetEntry;
 
@@ -602,8 +600,6 @@ class Spell
         void SearchGOAreaTarget(std::list<GameObject*> &gobjectList, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry = 0);
         void SearchChainTarget(std::list<Unit*> &unitList, float radius, uint32 unMaxTargets, SpellTargets TargetType);
         WorldObject* SearchNearbyTarget(float range, SpellTargets TargetType, SpellEffIndex effIndex);
-        bool IsValidSingleTargetEffect(Unit const* target, Targets type) const;
-        bool IsValidSingleTargetSpell(Unit const* target) const;
         bool IsValidDeadOrAliveTarget(Unit const* target) const;
         void CalculateDamageDoneForAllTargets();
         int32 CalculateDamageDone(Unit *unit, const uint32 effectMask, float *multiplier);

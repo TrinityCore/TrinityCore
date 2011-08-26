@@ -9,3 +9,4 @@ build/
 *.bak
 *.patch
 log/
+*.diff
