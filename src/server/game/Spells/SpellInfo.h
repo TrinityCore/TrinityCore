@@ -408,7 +408,8 @@ public:
     bool IsAbilityOfSkillType(uint32 skillType) const;
 
     bool IsAOE() const;
-    bool IsRequiringSelectedTarget() const;
+    bool NeedsExplicitUnitTarget() const;
+    bool NeedsToBeTriggeredByCaster() const;
 
     bool IsPassive() const;
     bool IsAutocastable() const;
