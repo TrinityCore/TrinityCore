@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -126,7 +127,8 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player* player)
         if (!NewInstanceId) return NULL;
         map = _FindMap(NewInstanceId);
         if (!map)
-            map = CreateBattleground(NewInstanceId, player->GetBattleground());
+            if (Battleground* NewBattleground = player->GetBattleground())
+                map = CreateBattleground(NewInstanceId, NewBattleground);
     }
     else
     {
