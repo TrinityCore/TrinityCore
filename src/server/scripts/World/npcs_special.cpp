@@ -344,8 +344,8 @@ public:
                 while (!feof(reportfile))
                 {
                     std::string tmpstr;
-                    char tmpchar[255];
-                    tmpstr = fgets(tmpchar, 255, reportfile);
+                    char tmpchar[150];
+                    tmpstr = fgets(tmpchar, 149, reportfile);
                     if (tmpstr.find("http://de.wowhead.com/item="))
                         ++cnt;
                 }
