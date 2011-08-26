@@ -893,10 +893,8 @@ class npc_halion_controller : public CreatureScript
                 {
                     if ((*itr).first == plrGUID)
                     {
-                        std::map<uint64, uint32>::iterator next = itr;
-                        ++next;
                         _voidZonesStacks.erase(itr);
-                        itr = next;
+                        break;
                     }
                 }
             }
