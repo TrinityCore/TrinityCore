@@ -667,10 +667,10 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
     if (neededTargets & TARGET_FLAG_DEST_LOCATION)
     {
         // and target isn't set
-        if (!targets.GetDst())
+        if (!m_targets.HasDst())
         {
             // try to use unit target if provided
-            if (Unit* target = targets.GetUnitTarget())
+            if (WorldObject* target = targets.GetObjectTarget())
                 m_targets.SetDst(*target);
             // or use self if not available
             else
@@ -682,7 +682,7 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
 
     if (neededTargets & TARGET_FLAG_SOURCE_LOCATION)
     {
-        if (!targets.GetSrc())
+        if (!targets.HasSrc())
             m_targets.SetSrc(*m_caster);
     }
     else
@@ -2926,7 +2926,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         // for example bladestorm aura should be removed on disarm as of patch 3.3.5
         // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
         // a possible alternative sollution for those would be validating aura target on unit state change
-        if (triggeredByAura && triggeredByAura->IsPeriodic())
+        if (triggeredByAura && triggeredByAura->IsPeriodic() && !triggeredByAura->GetBase()->IsPassive())
         {
             SendChannelUpdate(0);
             triggeredByAura->GetBase()->SetDuration(0);
