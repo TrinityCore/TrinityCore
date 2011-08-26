@@ -2916,6 +2916,8 @@ void SpellMgr::LoadDbcDataCorrections()
             case 62136: // Energize Cores
             case 54069: // Energize Cores
             case 56251: // Energize Cores
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENTRY;
+                break;
             case 50785: // Energize Cores
             case 59372: // Energize Cores
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
