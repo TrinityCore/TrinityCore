@@ -987,7 +987,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SpellFamilyFlags = spellEntry->SpellFamilyFlags;
     DmgClass = spellEntry->DmgClass;
     PreventionType = spellEntry->PreventionType;
-    AreaGroupId  = spellEntry->AreaGroupId;
+    AreaGroupId = spellEntry->AreaGroupId;
     SchoolMask = spellEntry->SchoolMask;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         Effects[i] = SpellEffectInfo(spellEntry, this, i);
