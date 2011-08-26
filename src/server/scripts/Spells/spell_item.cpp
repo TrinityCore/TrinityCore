@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1088,7 +1089,7 @@ class spell_magic_eater_food : public SpellScriptLoader
         {
             PrepareAuraScript(spell_magic_eater_food_AuraScript);
 
-            void HandleTriggerSpell(AuraEffect const* aurEff)
+            void HandleTriggerSpell(AuraEffect const * /*aurEff*/)
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
@@ -1108,7 +1109,7 @@ class spell_magic_eater_food : public SpellScriptLoader
                         target->CastSpell(target, SPELL_WELL_FED_3, true);
                         break;
                     case 4:
-                        target->CastSpell(target, SPELL_WELL_FED_4, true); 
+                        target->CastSpell(target, SPELL_WELL_FED_4, true);
                         break;
                     case 5:
                         target->CastSpell(target, SPELL_WELL_FED_5, true);
