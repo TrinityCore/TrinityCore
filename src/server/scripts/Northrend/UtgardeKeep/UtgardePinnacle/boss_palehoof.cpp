@@ -769,7 +769,7 @@ public:
                         pNext->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         pNext->SetStandState(UNIT_STAND_STATE_STAND);
                         pNext->SetInCombatWithZone();
-                        AttackStart(pNext->SelectNearestTarget(100));
+                        pNext->AI()->AttackStart(pNext->SelectNearestTarget(100));
                    }
                    currentPhase = PHASE_NONE;
                 }
