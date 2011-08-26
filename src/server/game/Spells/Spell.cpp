@@ -2922,7 +2922,11 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
     SpellCastResult result = CheckCast(true);
     if (result != SPELL_CAST_OK && !IsAutoRepeat())          //always cast autorepeat dummy for triggering
     {
-        if (triggeredByAura && triggeredByAura->GetSpellInfo()->IsChanneled())
+        // Periodic auras should be interrupted when aura triggers a spell which can't be cast
+        // for example bladestorm aura should be removed on disarm as of patch 3.3.5
+        // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
+        // a possible alternative sollution for those would be validating aura target on unit state change
+        if (triggeredByAura && triggeredByAura->IsPeriodic())
         {
             SendChannelUpdate(0);
             triggeredByAura->GetBase()->SetDuration(0);
