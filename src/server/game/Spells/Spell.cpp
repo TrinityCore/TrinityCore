@@ -2926,7 +2926,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         // for example bladestorm aura should be removed on disarm as of patch 3.3.5
         // channeled periodic spells should be affected by this (arcane missiles, penance, etc)
         // a possible alternative sollution for those would be validating aura target on unit state change
-        if (triggeredByAura && triggeredByAura->IsPeriodic() && !triggeredByAura->IsPassive())
+        if (triggeredByAura && triggeredByAura->IsPeriodic() && !triggeredByAura->GetBase()->IsPassive())
         {
             SendChannelUpdate(0);
             triggeredByAura->GetBase()->SetDuration(0);
