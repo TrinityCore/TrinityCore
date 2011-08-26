@@ -126,13 +126,17 @@ void GuardAI::UpdateAI(const uint32 /*diff*/)
     if (!UpdateVictim())
         return;
 
-    i_victimGuid = me->getVictim()->GetGUID();
+    Unit* const victim = me->getVictim();
+    if (!victim)
+        return;
+
+    i_victimGuid = victim->GetGUID();
 
     if (me->isAttackReady())
     {
-        if (me->IsWithinMeleeRange(me->getVictim()))
+        if (me->IsWithinMeleeRange(victim))
         {
-            me->AttackerStateUpdate(me->getVictim());
+            me->AttackerStateUpdate(victim);
             me->resetAttackTimer();
         }
     }
