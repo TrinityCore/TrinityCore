@@ -13,3 +13,4 @@ push_*
 update_*
 commit
 *.patch
+*.diff
