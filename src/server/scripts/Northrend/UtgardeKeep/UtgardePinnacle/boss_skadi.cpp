@@ -311,7 +311,7 @@ public:
                     me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
 
                     if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM))
-                        AttackStart(target);
+                        me->AI()->AttackStart(target);
 
                     m_uiCrushTimer = 8000;
                     m_uiPoisonedSpearTimer = 10000;
