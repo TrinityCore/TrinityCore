@@ -965,7 +965,7 @@ public:
                             case EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE:
                                 if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                     DoCast(pTarget, FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE, false);
-                                events.RescheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                events.RescheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE, urand(SEKUNDEN_10, SEKUNDEN_20));
                                 break;
                         }
                         break;
@@ -978,7 +978,7 @@ public:
                                 break;
                             case EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH:
                                 me->AddAura(KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH, me);
-                                events.RescheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                events.RescheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH, urand(SEKUNDEN_10, SEKUNDEN_20));
                                 break;
                         }
                         break;
@@ -1004,11 +1004,11 @@ public:
                             case EVENT_JAEGERIN_DER_YMIRJAR_SALVE:
                                 if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f))
                                     DoCast(pTarget, JAEGERIN_DER_YMIRJAR_SALVE, false);
-                                events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SALVE, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SALVE, urand(SEKUNDEN_10, SEKUNDEN_20));
                                 break;
                             case EVENT_JAEGERIN_DER_YMIRJAR_SCHIESSEN:
                                 DoCastVictim(JAEGERIN_DER_YMIRJAR_SCHIESSEN);
-                                events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SCHIESSEN, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
+                                events.RescheduleEvent(EVENT_JAEGERIN_DER_YMIRJAR_SCHIESSEN, 2 * IN_MILLISECONDS);
                                 break;
                         }
                         break;
@@ -1021,7 +1021,7 @@ public:
                                 break;
                             case EVENT_TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES:
                                 DoCast(TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES);
-                                events.RescheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES, urand(SEKUNDEN_20, SEKUNDEN_30));
+                                events.RescheduleEvent(EVENT_TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES, urand(SEKUNDEN_10, SEKUNDEN_20));
                                 break;
                             case EVENT_TODESBRINGER_DER_YMIRJAR_VERBANNEN:
                                 if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 20.0f))
