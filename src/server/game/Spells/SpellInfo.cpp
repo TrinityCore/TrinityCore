@@ -1705,6 +1705,44 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     return SPELL_CAST_OK;
 }
 
+SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject const* target) const
+{
+    uint32 neededTargets = GetExplicitTargetMask();
+    if (!target)
+    {
+        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
+            return SPELL_FAILED_BAD_TARGETS;
+        return SPELL_CAST_OK;
+    }
+
+    if (Unit const* unitTarget = target->ToUnit())
+    {
+        if (neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER))
+        {
+            if (neededTargets & TARGET_FLAG_UNIT_ENEMY)
+                if (!caster->IsFriendlyTo(unitTarget))
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_ALLY)
+                if (caster->IsFriendlyTo(unitTarget))
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_PARTY)
+                if (caster->IsInPartyWith(unitTarget))
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_RAID)
+                if (caster->IsInRaidWith(unitTarget))
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_MINIPET)
+                if (unitTarget->GetGUID() == caster->GetCritterGUID())
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_PASSENGER)
+                if (unitTarget->IsOnVehicle(caster))
+                    return SPELL_CAST_OK;
+            return SPELL_FAILED_BAD_TARGETS;
+        }
+    }
+    return SPELL_CAST_OK;
+}
+
 bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
 {
     // Curse of Doom & Exorcism: not find another way to fix spell target check :/
