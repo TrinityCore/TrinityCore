@@ -387,8 +387,8 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
             i_owner->GetEntry(), i_owner->GetGUIDLow(), x, y, z);
         Mutate(new PointMovementGenerator<Creature>(0, x, y, z), MOTION_SLOT_CONTROLLED);
     }
-
     i_owner->SendMonsterMove(x, y, z, moveFlag, time, speedZ);
+    i_owner->Relocate(x, y, z);
 }
 
 void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id)
