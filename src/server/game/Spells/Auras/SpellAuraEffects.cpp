@@ -4364,17 +4364,9 @@ void AuraEffect::HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, 
         return;
 
     Unit* target = aurApp->GetTarget();
-    
 
     //UNIT_FIELD_ATTACK_POWER_MULTIPLIER = multiplier - 1
     target->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, float(GetAmount()), apply);
-    if (Unit* pet = target->ToPlayer()->GetPet())
-    {
-        if (aurApp->GetBase()->GetSpellInfo()->SpellFamilyFlags[2] == 0x10)
-        {
-            pet->HandleStatModifier(UNIT_MOD_ATTACK_POWER, TOTAL_PCT, float(GetAmount()), apply);
-        }
-    }
 }
 
 void AuraEffect::HandleAuraModRangedAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
