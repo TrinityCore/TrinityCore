@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,6 +49,7 @@ enum eCreatures
     BOSS_GORTOK_PALEHOOF     = 26687,
     BOSS_SKADI_RUTHLESS      = 26693,
     BOSS_KING_YMIRON         = 26861,
+    MOB_GRAUF                = 26893,
     MOB_FRENZIED_WORGEN      = 26683,
     MOB_RAVENOUS_FURBOLG     = 26684,
     MOB_MASSIVE_JORMUNGAR    = 26685,

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,9 +30,9 @@
 
 enum GameObjects
 {
-    ENTRY_SKADI_THE_RUTHLESS_DOOR                 = 192173,
-    ENTRY_KING_YMIRON_DOOR                        = 192174,
-    ENTRY_GORK_PALEHOOF_SPHERE                    = 188593
+    ENTRY_SKADI_THE_RUTHLESS_DOOR   = 192173,
+    ENTRY_KING_YMIRON_DOOR          = 192174,
+    ENTRY_GORK_PALEHOOF_SPHERE      = 188593
 };
 
 class instance_utgarde_pinnacle : public InstanceMapScript
@@ -54,6 +55,7 @@ public:
         uint64 uiKingYmiron;
 
         uint64 uiSkadiTheRuthlessDoor;
+        uint64 Grauf;
         uint64 uiKingYmironDoor;
         uint64 uiGortokPalehoofSphere;
 
@@ -106,16 +108,17 @@ public:
         {
             switch(creature->GetEntry())
             {
-                case BOSS_SVALA_SORROWGRAVE:  uiSvalaSorrowgrave = creature->GetGUID();  break;
-                case BOSS_GORTOK_PALEHOOF:    uiGortokPalehoof = creature->GetGUID();    break;
-                case BOSS_SKADI_RUTHLESS:     uiSkadiTheRuthless = creature->GetGUID();  break;
-                case BOSS_KING_YMIRON:        uiKingYmiron = creature->GetGUID();        break;
-                case MOB_FRENZIED_WORGEN:     uiFrenziedWorgen = creature->GetGUID();    break;
-                case MOB_RAVENOUS_FURBOLG:    uiRavenousFurbolg = creature->GetGUID();   break;
-                case MOB_MASSIVE_JORMUNGAR:   uiMassiveJormungar = creature->GetGUID();  break;
-                case MOB_FEROCIOUS_RHINO:     uiFerociousRhino = creature->GetGUID();    break;
-                case MOB_SVALA:               uiSvala = creature->GetGUID();             break;
-                case MOB_PALEHOOF_ORB:        uiPalehoofOrb = creature->GetGUID();       break;
+                case BOSS_SVALA_SORROWGRAVE:    uiSvalaSorrowgrave = creature->GetGUID();   break;
+                case BOSS_GORTOK_PALEHOOF:      uiGortokPalehoof = creature->GetGUID();     break;
+                case BOSS_SKADI_RUTHLESS:       uiSkadiTheRuthless = creature->GetGUID();   break;
+                case BOSS_KING_YMIRON:          uiKingYmiron = creature->GetGUID();         break;
+                case MOB_GRAUF:                 Grauf = creature->GetGUID();                break;
+                case MOB_FRENZIED_WORGEN:       uiFrenziedWorgen = creature->GetGUID();     break;
+                case MOB_RAVENOUS_FURBOLG:      uiRavenousFurbolg = creature->GetGUID();    break;
+                case MOB_MASSIVE_JORMUNGAR:     uiMassiveJormungar = creature->GetGUID();   break;
+                case MOB_FEROCIOUS_RHINO:       uiFerociousRhino = creature->GetGUID();     break;
+                case MOB_SVALA:                 uiSvala = creature->GetGUID();              break;
+                case MOB_PALEHOOF_ORB:          uiPalehoofOrb = creature->GetGUID();        break;
             }
         }
 
@@ -190,19 +193,19 @@ public:
         {
             switch(identifier)
             {
-                case DATA_SVALA_SORROWGRAVE:      return uiSvalaSorrowgrave;
-                case DATA_GORTOK_PALEHOOF:        return uiGortokPalehoof;
-                case DATA_SKADI_THE_RUTHLESS:     return uiSkadiTheRuthless;
-                case DATA_KING_YMIRON:            return uiKingYmiron;
-                case DATA_MOB_FRENZIED_WORGEN:    return uiFrenziedWorgen;
-                case DATA_MOB_RAVENOUS_FURBOLG:   return uiRavenousFurbolg;
-                case DATA_MOB_MASSIVE_JORMUNGAR:  return uiMassiveJormungar;
-                case DATA_MOB_FEROCIOUS_RHINO:    return uiFerociousRhino;
-                case DATA_MOB_ORB:                return uiPalehoofOrb;
-                case DATA_SVALA:                  return uiSvala;
-                case DATA_GORTOK_PALEHOOF_SPHERE: return uiGortokPalehoofSphere;
+                case DATA_SVALA_SORROWGRAVE:        return uiSvalaSorrowgrave;
+                case DATA_GORTOK_PALEHOOF:          return uiGortokPalehoof;
+                case DATA_SKADI_THE_RUTHLESS:       return uiSkadiTheRuthless;
+                case DATA_MOB_GRAUF:                return Grauf;
+                case DATA_KING_YMIRON:              return uiKingYmiron;
+                case DATA_MOB_FRENZIED_WORGEN:      return uiFrenziedWorgen;
+                case DATA_MOB_RAVENOUS_FURBOLG:     return uiRavenousFurbolg;
+                case DATA_MOB_MASSIVE_JORMUNGAR:    return uiMassiveJormungar;
+                case DATA_MOB_FEROCIOUS_RHINO:      return uiFerociousRhino;
+                case DATA_MOB_ORB:                  return uiPalehoofOrb;
+                case DATA_SVALA:                    return uiSvala;
+                case DATA_GORTOK_PALEHOOF_SPHERE:   return uiGortokPalehoofSphere;
             }
-
             return 0;
         }
 
