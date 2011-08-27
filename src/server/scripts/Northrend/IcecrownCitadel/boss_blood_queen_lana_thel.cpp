@@ -655,7 +655,7 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& targets)
             {
-                uint32 targetCount = targets.size() / 3 + 1;
+                uint32 targetCount = (targets.size() + 2) / 3;
                 targets.remove_if(BloodboltHitCheck(static_cast<LanaThelAI*>(GetCaster()->GetAI())));
                 Trinity::RandomResizeList(targets, targetCount);
             }

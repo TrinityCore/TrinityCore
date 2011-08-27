@@ -659,15 +659,17 @@ class spell_rotface_unstable_ooze_explosion : public SpellScriptLoader
             void CheckTarget(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(EFFECT_0);
-                if (!GetTargetUnit())
+                if (!GetTargetDest())
                     return;
 
                 uint32 triggered_spell_id = GetSpellInfo()->Effects[effIndex].TriggerSpell;
 
+                float x, y, z;
+                GetTargetDest()->GetPosition(x, y, z);
                 // let Rotface handle the cast - caster dies before this executes
-                if (InstanceScript* script = GetTargetUnit()->GetInstanceScript())
+                if (InstanceScript* script = GetCaster()->GetInstanceScript())
                     if (Creature* rotface = script->instance->GetCreature(script->GetData64(DATA_ROTFACE)))
-                        rotface->CastSpell(GetTargetUnit(), triggered_spell_id, true, NULL, NULL, GetCaster()->GetGUID());
+                        rotface->CastSpell(x, y, z, triggered_spell_id, true, NULL, NULL, GetCaster()->GetGUID());
             }
 
             void Register()
