@@ -213,8 +213,10 @@ public:
             if (instance)
             {
                 if (Creature * grauf = me->GetMap()->GetCreature(instance->GetData64(DATA_MOB_GRAUF)))
+                {
                     if (!grauf->isAlive())
                         grauf->Respawn(true);
+                }
                 else
                     me->SummonCreature(MOB_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
             }
