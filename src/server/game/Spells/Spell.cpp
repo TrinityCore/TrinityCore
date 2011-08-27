@@ -698,6 +698,13 @@ void Spell::SelectSpellTargets()
         if (!m_spellInfo->Effects[i].Effect)
             continue;
 
+        // set expected type of implicit targets to be sent to client
+        uint32 implicitTargetMask = GetTargetFlagMask(m_spellInfo->Effects[i].TargetA.GetObjectType()) | GetTargetFlagMask(m_spellInfo->Effects[i].TargetB.GetObjectType());
+        if (implicitTargetMask & TARGET_FLAG_UNIT)
+            m_targets.SetTargetFlag(TARGET_FLAG_UNIT);
+        if (implicitTargetMask & (TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_GAMEOBJECT_ITEM))
+            m_targets.SetTargetFlag(TARGET_FLAG_GAMEOBJECT);
+
         uint32 effectTargetType = m_spellInfo->Effects[i].GetRequiredTargetType();
 
         // is it possible that areaaura is not applied to caster?
