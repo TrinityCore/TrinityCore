@@ -1085,13 +1085,6 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                     }
                 }
             }
-            if (Player* player = target->ToPlayer())
-            {
-                if (Pet* pet = player->GetPet())
-                {
-                    pet->CastPetAuras(true);
-                }
-            }
         }
         default:
             break;
@@ -2579,10 +2572,10 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
         }
     }
 
-    // if disarm in progress, wait to set flag until damage mods are applied
+    // if disarm effects should be applied, wait to set flag until damage mods are unapplied
     if (apply)
         target->SetFlag(field, flag);
-    
+
     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->GetCurrentEquipmentId())
         target->UpdateDamagePhysical(attType);
 }
