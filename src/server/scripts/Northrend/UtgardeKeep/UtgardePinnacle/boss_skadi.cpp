@@ -309,6 +309,7 @@ public:
                     me->GetMotionMaster()->Clear();
                     me->GetMotionMaster()->Initialize();
                     me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
+                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
                     if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM))
                         me->AI()->AttackStart(target);
@@ -489,13 +490,12 @@ public:
     bool OnGossipHello(Player* player, GameObject* pGO)
     {
         InstanceScript* m_pInstance = pGO->GetInstanceScript();
-        if (!m_pInstance) return false;
+        if (!m_pInstance)
+            return false;
 
         if (Creature* pSkadi = Unit::GetCreature((*pGO), m_pInstance->GetData64(DATA_SKADI_THE_RUTHLESS)))
-        {
             player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
-            player->CastSpell(pSkadi, SPELL_HARPOON_DAMAGE, true);
-        }
+
         return false;
     }
 };
