@@ -840,6 +840,13 @@ class spell_putricide_expunged_gas : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->GetInstanceScript();
             }
 
+            SpellCastResult CheckCast()
+            {
+                if (!GetCaster()->getVictim())
+                    return SPELL_FAILED_NO_VALID_TARGETS;
+                return SPELL_CAST_OK;
+            }
+
             void CalcDamage(SpellEffIndex /*effIndex*/)
             {
                 // checked in script loading, cant be NULL here
@@ -850,7 +857,7 @@ class spell_putricide_expunged_gas : public SpellScriptLoader
 
                 int32 dmg = 0;
                 uint32 bloatId = sSpellMgr->GetSpellIdForDifficulty(SPELL_GASEOUS_BLOAT, GetCaster());
-                if (Aura* gasBloat = GetTargetUnit()->GetAura(bloatId))
+                if (Aura* gasBloat = GetCaster()->getVictim()->GetAura(bloatId))
                 {
                     uint32 stack = gasBloat->GetStackAmount();
                     int32 const mod = (GetCaster()->GetMap()->GetSpawnMode() & 1) ? 1500 : 1250;
