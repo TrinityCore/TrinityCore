@@ -1392,8 +1392,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                 if (Unit* owner = m_caster->GetOwner())
                 {
-                    if (m_triggeredByAuraSpell)
-                        damage = int32(owner->SpellHealingBonus(unitTarget, m_triggeredByAuraSpell, damage, HEAL));
                     // Restorative Totems
                     if (AuraEffect* dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, 338, 1))
                         AddPctN(damage, dummy->GetAmount());
@@ -1402,7 +1400,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                         AddPctN(damage, aur->GetAmount());
                 }
 
-                m_caster->CastCustomSpell(unitTarget, 52042, &damage, 0, 0, true, 0, 0, m_originalCasterGUID);
+                m_caster->CastCustomSpell(unitTarget, 52042, &damage, NULL, NULL, true, NULL, NULL, m_originalCasterGUID);
                 return;
             }
             // Mana Spring Totem
@@ -1553,7 +1551,7 @@ void Spell::EffectTriggerSpellWithValue(SpellEffIndex effIndex)
 
     int32 bp = damage;
 
-    Unit* caster = spellInfo->IsRequiringSelectedTarget() ? m_caster : unitTarget;
+    Unit* caster = spellInfo->NeedsToBeTriggeredByCaster() ? m_caster : unitTarget;
 
     caster->CastCustomSpell(unitTarget, triggered_spell_id, &bp, &bp, &bp, true);
 }
@@ -1778,7 +1776,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
     // Note: not exist spells with weapon req. and IsSpellHaveCasterSourceTargets == true
     // so this just for speedup places in else
-    Unit* caster = spellInfo->IsRequiringSelectedTarget() ? m_caster : unitTarget;
+    Unit* caster = spellInfo->NeedsToBeTriggeredByCaster() ? m_caster : unitTarget;
 
     caster->CastSpell(unitTarget, spellInfo, true, 0, 0, (originalCaster ? originalCaster->GetGUID() : 0));
 }

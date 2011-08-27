@@ -506,8 +506,15 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
             }
 
-            void EnterCombat(Unit* /*target*/)
+            void EnterCombat(Unit* target)
             {
+                if (!instance->CheckRequiredBosses(DATA_VALITHRIA_DREAMWALKER, target->ToPlayer()))
+                {
+                    EnterEvadeMode();
+                    instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
+                    return;
+                }
+
                 me->setActive(true);
                 DoZoneInCombat();
                 instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, IN_PROGRESS);
