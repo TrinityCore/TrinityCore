@@ -6605,6 +6605,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 victim->CastSpell(victim, 57894, true, NULL, NULL, GetGUID());
                 return true;
             }
+            // Misdirection
+            if (dummySpell->Id == 34477)
+            {
+                triggered_spell_id = 35079; // 4 sec buff on self
+                target = this;
+                break;
+            }
             break;
         }
         case SPELLFAMILY_PALADIN:

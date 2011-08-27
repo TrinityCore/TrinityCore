@@ -1085,6 +1085,13 @@ void AuraEffect::ApplySpellMod(Unit* target, bool apply)
                     }
                 }
             }
+            if (Player* player = target->ToPlayer())
+            {
+                if (Pet* pet = player->GetPet())
+                {
+                    pet->CastPetAuras(true);
+                }
+            }
         }
         default:
             break;
@@ -2572,10 +2579,10 @@ void AuraEffect::HandleAuraModDisarm(AuraApplication const* aurApp, uint8 mode, 
         }
     }
 
-    // if disarm effects should be applied, wait to set flag until damage mods are unapplied
+    // if disarm in progress, wait to set flag until damage mods are applied
     if (apply)
         target->SetFlag(field, flag);
-
+    
     if (target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->GetCurrentEquipmentId())
         target->UpdateDamagePhysical(attType);
 }
@@ -4966,7 +4973,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     break;
                 case SPELLFAMILY_HUNTER:
                     // Misdirection
-                    if (GetId() == 34477)
+                    if (GetId() == 35079)
                         target->SetReducedThreatPercent(0, 0);
                     break;
                 case SPELLFAMILY_DEATHKNIGHT:
