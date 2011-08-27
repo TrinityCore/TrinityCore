@@ -70,7 +70,7 @@ public:
                 if (Pet* pet = caster->ToPlayer()->GetPet())
                 {
                     const SpellInfo* spell = sSpellMgr->GetSpellInfo(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET);
-                    caster->CastSpell(caster, spell, true);
+                    pet->RemoveAurasDueToSpell(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET, caster->GetGUIDLow());
                 }
             }
         }
@@ -86,7 +86,7 @@ public:
                 if (Pet* pet = caster->ToPlayer()->GetPet())
                 {
                     const SpellInfo* spell = sSpellMgr->GetSpellInfo(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET);
-                    pet->RemoveAurasDueToSpell(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET, caster->GetGUIDLow());
+                    caster->CastSpell(caster, spell, true);
                 }
             }
         }
