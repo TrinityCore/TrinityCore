@@ -51,10 +51,13 @@ public:
     class spell_hun_aspect_of_the_beast_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_hun_aspect_of_the_beast_AuraScript)
+        
+        const SpellInfo* spell;
 
         bool Validate(SpellInfo const* /*entry*/)
         {
-            if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET))
+            spell = sSpellMgr->GetSpellInfo(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET);
+            if (!spell)
                 return false;
             return true;
         }
@@ -66,13 +69,8 @@ public:
 
             Unit* caster = GetCaster();
             if (caster->ToPlayer())
-            {
                 if (Pet* pet = caster->ToPlayer()->GetPet())
-                {
-                    const SpellInfo* spell = sSpellMgr->GetSpellInfo(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET);
                     pet->RemoveAurasDueToSpell(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET, caster->GetGUIDLow());
-                }
-            }
         }
 
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
@@ -82,13 +80,8 @@ public:
 
             Unit* caster = GetCaster();
             if (caster->ToPlayer())
-            {
                 if (Pet* pet = caster->ToPlayer()->GetPet())
-                {
-                    const SpellInfo* spell = sSpellMgr->GetSpellInfo(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET);
                     caster->CastSpell(caster, spell, true);
-                }
-            }
         }
 
         void Register()
