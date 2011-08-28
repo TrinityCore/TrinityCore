@@ -5258,20 +5258,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 33494;
                     break;
                 }
-		//Item - Icecrown 25 Normal Tank Weapon Proc
-		case 71871:
-                {
-                    triggered_spell_id = 71870;
-                    target = this;
-                    break;
-                }
-		//Item - Icecrown 25 Heroic Tank Weapon Proc
-		case 71873:
-                {
-                    triggered_spell_id = 71872;
-                    target = this;
-                    break;
-                }
                 // Twisted Reflection (boss spell)
                 case 21063:
                     triggered_spell_id = 21064;
