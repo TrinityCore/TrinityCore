@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -125,10 +126,7 @@ public:
                     break;
                 case GO_BRANN_DOOR:
                     uiBrannDoor = go->GetGUID();
-                    if (m_auiEncounter[1] == DONE)
-                        go->SetGoState(GO_STATE_ACTIVE);
-                    else
-                        go->SetGoState(GO_STATE_READY);
+                    go->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case GO_SJONNIR_DOOR:
                     uiSjonnirDoor = go->GetGUID();
