@@ -328,7 +328,7 @@ int RASocket::subnegotiate()
 
     //! Just send back end of subnegotiation packet
     uint8 const reply[2] = {0xFF, 0xF0};
-    return peer().send(reply, 2);
+    return int32(peer().send(reply, 2));
 }
 
 int RASocket::svc(void)

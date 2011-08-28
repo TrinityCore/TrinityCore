@@ -5864,7 +5864,7 @@ void Spell::EffectReputation(SpellEffIndex effIndex)
     }
     
     // Bonus from spells that increase reputation gain
-    float bonus = rep_change * _player->GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN) / 100.0; // 10%
+    float bonus = float(rep_change * _player->GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN) / 100.0); // 10%
     rep_change += (int32)bonus;
 
     _player->GetReputationMgr().ModifyReputation(factionEntry, rep_change);
