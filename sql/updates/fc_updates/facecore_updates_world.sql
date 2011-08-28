@@ -819,3 +819,6 @@ insert into `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionType
 -- Fixed spells 71871 & 71873
 replace into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('71873','1','0','0','0','0','20','3','0','37','10');
 replace into `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) values('71871','1','10','0','0','0','20','3','0','37','10');
+
+-- Fix spell 44525
+replace into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) values (44525,0,0,0,0,'Enchant - Icebreaker');
