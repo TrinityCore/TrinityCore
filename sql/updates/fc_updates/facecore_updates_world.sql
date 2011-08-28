@@ -811,4 +811,7 @@ INSERT INTO `spell_script_names` VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`= 47496;
 INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (47496, 'spell_dk_ghoul_explode');
- 
+
+-- Scripts/UtgardePinnacle: Fixed harpoon
+delete from `conditions` where `SourceEntry` = 56578 and `ConditionValue2` = 26693;
+insert into `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`) values (13, 56578, 18, 1, 26693);
