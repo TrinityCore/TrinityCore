@@ -166,6 +166,7 @@ public:
             m_uiBellowingRoarTimer = 30000;
 
             Summons.DespawnAll();
+            DespawnCreatures(NPC_WHELP, 150.0f);
             m_uiSummonWhelpCount = 0;
             m_bIsMoving = false;
 
@@ -195,6 +196,7 @@ public:
                 m_pInstance->SetData(DATA_ONYXIA, DONE);
 
             Summons.DespawnAll();
+            DespawnCreatures(NPC_WHELP, 150.0f);
         }
 
         void JustSummoned(Creature* summoned)
@@ -489,6 +491,18 @@ public:
                 else
                     m_uiWhelpTimer -= uiDiff;
             }
+        }
+
+        void DespawnCreatures(uint32 entry, float distance)
+        {
+            std::list<Creature*> m_pCreatures;
+            GetCreatureListWithEntryInGrid(m_pCreatures, me, entry, distance);
+     
+            if (m_pCreatures.empty())
+                return;
+     
+            for(std::list<Creature*>::iterator iter = m_pCreatures.begin(); iter != m_pCreatures.end(); ++iter)
+                (*iter)->DespawnOrUnsummon();
         }
     };
 

@@ -51,6 +51,7 @@
 #include "CreatureAIRegistry.h"
 #include "BattlegroundMgr.h"
 #include "OutdoorPvPMgr.h"
+#include "OutdoorPvPWG.h"
 #include "TemporarySummon.h"
 #include "WaypointMovementGenerator.h"
 #include "VMapFactory.h"
@@ -74,6 +75,7 @@
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "Channel.h"
+#include "AnticheatMgr.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -847,6 +849,19 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_MIN_PETITION_SIGNS] = 9;
     }
 
+    rate_values[RATE_PVP_RANK_EXTRA_HONOR] = sConfig->GetFloatDefault("PvPRank.Rate.ExtraHonor", 1);
+    std::string s_pvp_ranks = sConfig->GetStringDefault("PvPRank.HKPerRank", "10,50,100,200,450,750,1300,2000,3500,6000,9500,15000,21000,30000");
+    char *c_pvp_ranks = const_cast<char*>(s_pvp_ranks.c_str());
+    for (int i = 0; i !=HKRANKMAX; i++)
+    {
+        if (i==0)
+            pvp_ranks[0] = 0;
+        else if (i==1)
+            pvp_ranks[1] = atoi(strtok (c_pvp_ranks, ","));
+        else
+            pvp_ranks[i] = atoi(strtok (NULL, ","));
+    }
+
     m_int_configs[CONFIG_GM_LOGIN_STATE]        = sConfig->GetIntDefault("GM.LoginState", 2);
     m_int_configs[CONFIG_GM_VISIBLE_STATE]      = sConfig->GetIntDefault("GM.Visible", 2);
     m_int_configs[CONFIG_GM_CHAT]               = sConfig->GetIntDefault("GM.Chat", 2);
@@ -1182,6 +1197,28 @@ void World::LoadConfigSettings(bool reload)
 
     // MySQL ping time interval
     m_int_configs[CONFIG_DB_PING_INTERVAL] = sConfig->GetIntDefault("MaxPingTime", 30);
+	
+    //Wintergrasp
+    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED]         = sConfig->GetBoolDefault("OutdoorPvP.Wintergrasp.Enabled", true);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD] = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.SaveState.Period", 10000);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME]       = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.StartTime", 30);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME]      = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.BattleTime", 30);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL]         = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.Interval", 150);
+    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR]    = sConfig->GetBoolDefault("OutdoorPvP.Wintergrasp.CustomHonorRewards", false);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE]       = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleWin", 3000);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE]      = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleLose", 1250);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER]    = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamageTower", 750);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower", 750);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING] = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding", 750);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding", 1500);
+    m_bool_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE]  = sConfig->GetBoolDefault("OutdoorPvP.Wintergrasp.Antifarm.Enable", false);
+    m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Atk", 5);
+    m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Def", 5);
+
+    m_bool_configs[CONFIG_ANTICHEAT_ENABLE] = sConfig->GetBoolDefault("Anticheat.Enable", true);
+    m_int_configs[CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION] = sConfig->GetIntDefault("Anticheat.ReportsForIngameWarnings", 70);
+    m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = sConfig->GetIntDefault("Anticheat.DetectionsEnabled",31);
+    m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = sConfig->GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
 
     sScriptMgr->OnConfigLoad(reload);
 }
@@ -2037,7 +2074,7 @@ void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 
             itr->second->GetPlayer() &&
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second != self &&
-            itr->second->GetSecurity() > SEC_PLAYER &&
+            itr->second->GetSecurity() > SEC_MODERATOR &&
             (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
         {
             itr->second->SendPacket(packet);
@@ -2134,7 +2171,7 @@ void World::SendGMText(int32 string_id, ...)
         if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
             continue;
 
-        if (itr->second->GetSecurity() < SEC_MODERATOR)
+        if (itr->second->GetSecurity() < SEC_GAMEMASTER)
             continue;
 
         wt_do(itr->second->GetPlayer());
@@ -2689,6 +2726,8 @@ void World::ResetDailyQuests()
 
     // change available dailies
     sPoolMgr->ChangeDailyQuests();
+
+    sAnticheatMgr->ResetDailyReportStates();
 }
 
 void World::LoadDBAllowedSecurityLevel()
@@ -2840,6 +2879,29 @@ void World::ProcessQueryCallbacks()
             lResult.get(result);
             _UpdateRealmCharCount(result);
             lResult.cancel();
+        }
+    }
+}
+
+void World::SendWintergraspState()
+{
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+    if (!pvpWG)
+        return;
+
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+    {
+        if (!itr->second || !itr->second->GetPlayer() || !itr->second->GetPlayer()->IsInWorld())
+            continue;
+
+        if (pvpWG->isWarTime())
+            itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
+        else
+        {
+            pvpWG->SendInitWorldStatesTo(itr->second->GetPlayer());
+            itr->second->GetPlayer()->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
+            // Hide unneeded info which in center of screen
+            itr->second->GetPlayer()->SendInitWorldStates(itr->second->GetPlayer()->GetZoneId(), itr->second->GetPlayer()->GetAreaId());
         }
     }
 }

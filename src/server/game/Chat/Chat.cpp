@@ -156,13 +156,20 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 
+    static ChatCommand instanceUnbindCommandTable[] =
+    {
+        { "self",       SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceUnbindSelfCommand>,       "", NULL },
+        { "",           SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceUnbindCommand>,           "", NULL },
+        { NULL,             0,                  false, NULL,                                                "", NULL }
+    };
+
     static ChatCommand instanceCommandTable[] =
     {
         { "listbinds",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceListBindsCommand>,   "", NULL },
-        { "unbind",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceUnbindCommand>,      "", NULL },
+        { "unbind",         SEC_ADMINISTRATOR,  false, NULL,                                                       "", instanceUnbindCommandTable },
         { "stats",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleInstanceStatsCommand>,       "", NULL },
         { "savedata",       SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleInstanceSaveDataCommand>,    "", NULL },
-        { NULL,             0,                  false, NULL,                                           "", NULL }
+        { NULL,             0,                  false, NULL,                                                       "", NULL }
     };
 
     static ChatCommand listCommandTable[] =
@@ -301,6 +308,17 @@ ChatCommand * ChatHandler::getCommandTable()
         { NULL,             0,                  false, NULL,                                          "", NULL }
     };
 
+    static ChatCommand wintergraspCommandTable[] =
+    {
+        { "status",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspStatusCommand>,       "", NULL },
+        { "enable",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspEnableCommand>,       "", NULL },
+        { "start",          SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspStartCommand>,        "", NULL },
+        { "stop",           SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspStopCommand>,         "", NULL },
+        { "switch",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspSwitchTeamCommand>,   "", NULL },
+        { "timer",          SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleWintergraspTimerCommand>,        "", NULL },
+        { NULL,             0,                  false, NULL,                                               "", NULL }
+    };
+
     static ChatCommand ticketResponseCommandTable[] =
     {
         { "append",         SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketResponseAppendCommand>,   "", NULL },
@@ -413,6 +431,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "bindsight",      SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleBindSightCommand>,           "", NULL },
         { "unbindsight",    SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleUnbindSightCommand>,         "", NULL },
         { "playall",        SEC_GAMEMASTER,  false, OldHandler<&ChatHandler::HandlePlayAllCommand>,             "", NULL },
+        { "wg",             SEC_ADMINISTRATOR,  false, NULL,                                 "", wintergraspCommandTable },
         { NULL,             0,                  false, NULL,                                           "", NULL }
     };
 

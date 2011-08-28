@@ -30,6 +30,8 @@
 #include "CreatureAI.h"
 #include "MapManager.h"
 #include "BattlegroundIC.h"
+#include "OutdoorPvPMgr.h"
+#include "OutdoorPvPWG.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -1093,6 +1095,24 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
             break;
         }
+        case 58730: // No fly Zone - Wintergrasp
+            if (!player)
+                return false;
+
+            if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+            {
+                OutdoorPvPWG* pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                if (!pvpWG->isWarTime() || player->isDead() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)) || player->HasAura(45472) || player->HasAura(44795) || player->GetPositionZ() > 619.2f || player->isInFlight())
+                    return false;
+            }
+            break;
+        case 58045: // Essence of Wintergrasp - Wintergrasp
+        case 57940: // Essence of Wintergrasp - Northrend
+            {
+                if (!player || player->GetTeamId() != sWorld->getWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
+                    return false;
+                break;
+            }
         case 68719: // Oil Refinery - Isle of Conquest.
         case 68720: // Quarry - Isle of Conquest.
         {
@@ -3116,6 +3136,12 @@ void SpellMgr::LoadDbcDataCorrections()
                 // 322-330 switch - effect changed to dummy, target entry not changed in client:(
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 break;
+            case 12051: // Evocation - now we can interrupt this
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
+            case 42650: // Army of the Dead - now we can interrupt this
+                spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
             case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
                 spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
                 spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5%
@@ -3308,11 +3334,64 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_CASTER;
                 break;
             case 69846: // Frost Bomb
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
                 spellInfo->speed = 10;
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_TARGET_ANY;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effect[1] = 0;
                 break;
+            //Lich King custom script spells
+            case 72762:
+                spellInfo->DurationIndex = 3;
+                break;
+            case 71614:
+                spellInfo->Targets = 6;
+                break;
+            case 69410:
+                spellInfo->Targets = 1;
+                break;
+            case 74074:
+                spellInfo->Targets = 18;
+                break;
+            case 73529:
+                spellInfo->EffectRadiusIndex[1] = 13;
+                break;
+            case 69200:
+                spellInfo->DurationIndex = 28;
+                spellInfo->Effect[0] = 6;
+                break;
+            case 72350:
+                spellInfo->Effect[1] = SPELL_EFFECT_INSTAKILL;
+                spellInfo->EffectRadiusIndex[0] = 22;
+                spellInfo->EffectRadiusIndex[1] = 22;
+                spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->EffectAmplitude[0] = 50000;
+                break;
+            case 72351:
+                spellInfo->EffectRadiusIndex[0] = 22;
+                break;
+            case 72429:
+                spellInfo->EffectRadiusIndex[0] = 4;
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_GHOSTS;
+                break;
+            case 72754:
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
+                spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 68981:
+                spellInfo->Effect[2] = 0;
+                break;
+            case 73159:
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ENEMY;
+                spellInfo->EffectRadiusIndex[0] = 22;
+                break;
+            case 72376:
+                spellInfo->EffectRadiusIndex[0] = 22;
+                break;
+            case 74276:
+                spellInfo->AttributesEx3 = SPELL_ATTR3_DEATH_PERSISTENT;
+            // End Lich King spells
             default:
                 break;
         }

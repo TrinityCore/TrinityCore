@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "Language.h"
 #include "DatabaseEnv.h"
@@ -634,6 +635,9 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
     m_speakTime = 0;
     m_speakCount = 0;
 
+    // VISTAWOW ANTICHEAT
+    m_anticheat = new AntiCheat(this);
+
     m_objectType |= TYPEMASK_PLAYER;
     m_objectTypeId = TYPEID_PLAYER;
 
@@ -881,6 +885,9 @@ Player::~Player ()
 
     for (size_t x = 0; x < ItemSetEff.size(); x++)
         delete ItemSetEff[x];
+
+    // VISTAWOW ANTICHEAT
+    delete m_anticheat;
 
     delete m_declinedname;
     delete m_runes;
@@ -1425,7 +1432,7 @@ void Player::HandleDrowning(uint32 time_diff)
                     EnvironmentalDamage(DAMAGE_LAVA, damage);
                 // need to skip Slime damage in Undercity,
                 // maybe someone can find better way to handle environmental damage
-                else if (m_zoneUpdateId != 1497)
+                else if (m_zoneUpdateId != 1497 && m_zoneUpdateId != 3968)
                     EnvironmentalDamage(DAMAGE_SLIME, damage);
             }
         }
@@ -2073,6 +2080,9 @@ void Player::TeleportOutOfMap(Map *oldMap)
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
+    // VISTAWOW ANTICHEAT
+    GetAntiCheat()->SetSleep(7000);
+
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))
     {
         sLog->outError("TeleportTo: invalid map (%d) or invalid coordinates (X: %f, Y: %f, Z: %f, O: %f) given when teleporting player (GUID: %u, name: %s, map: %d, X: %f, Y: %f, Z: %f, O: %f).",
@@ -2142,7 +2152,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     if (duel && GetMapId() != mapid && GetMap()->GetGameObject(GetUInt64Value(PLAYER_DUEL_ARBITER)))
         DuelComplete(DUEL_FLED);
 
-    if ((GetMapId() == mapid && !m_transport) || (GetTransport() && GetMapId() == 628))
+    if (GetMapId() == mapid) // ((GetMapId() == mapid && !m_transport) || (GetTransport() && GetMapId() == 628))
     {
         //lets reset far teleport flag if it wasn't reset during chained teleports
         SetSemaphoreTeleportFar(false);
@@ -7115,6 +7125,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
 
     uint64 victim_guid = 0;
     uint32 victim_rank = 0;
+    uint32 rank_diff = 0;
 
     // need call before fields update to have chance move yesterday data to appropriate fields before today data change.
     UpdateHonorFields();
@@ -7153,20 +7164,49 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
             //  [15..28] Horde honor titles and player name
             //  [29..38] Other title and player name
             //  [39+]    Nothing
-            uint32 victim_title = pVictim->GetUInt32Value(PLAYER_CHOSEN_TITLE);
-                                                        // Get Killer titles, CharTitlesEntry::bit_index
+            // PLAYER__FIELD_KNOWN_TITLES describe which titles player can use,
+            // so we must find biggest pvp title , even for killer to find extra honor value
+            uint32 vtitle = pVictim->GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES);
+            uint32 victim_title = 0;
+            uint32 ktitle = GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES);
+            uint32 killer_title = 0;
+            if (PLAYER_TITLE_MASK_ALL_PVP & ktitle)
+            {
+                for (int i = ((GetTeam() == ALLIANCE) ? 1:HKRANKMAX);i!=((GetTeam() == ALLIANCE) ? HKRANKMAX : (2*HKRANKMAX-1));i++)
+                {
+                    if (ktitle & (1<<i))
+                        killer_title = i;
+                }
+            }
+            if (PLAYER_TITLE_MASK_ALL_PVP & vtitle)
+            {
+                for (int i = ((pVictim->GetTeam() == ALLIANCE) ? 1:HKRANKMAX);i!=((pVictim->GetTeam() == ALLIANCE) ? HKRANKMAX : (2*HKRANKMAX-1));i++)
+                {
+                    if (vtitle & (1<<i))
+                        victim_title = i;
+                }
+            }
+            // Get Killer titles, CharTitlesEntry::bit_index
             // Ranks:
             //  title[1..14]  -> rank[5..18]
             //  title[15..28] -> rank[5..18]
             //  title[other]  -> 0
             if (victim_title == 0)
-                victim_guid = 0;                        // Don't show HK: <rank> message, only log.
-            else if (victim_title < 15)
+                victim_guid = 0;                        // Don't show HK: <rank> message, only log.]
+            else if (victim_title < HKRANKMAX)
                 victim_rank = victim_title + 4;
-            else if (victim_title < 29)
-                victim_rank = victim_title - 14 + 4;
+            else if (victim_title < (2*HKRANKMAX-1))
+                victim_rank = victim_title - (HKRANKMAX-1) + 4;
             else
                 victim_guid = 0;                        // Don't show HK: <rank> message, only log.
+ 
+            // now find rank difference
+            if (killer_title == 0 && victim_rank>4)
+                rank_diff = victim_rank - 4;
+            else if (killer_title < HKRANKMAX)
+                rank_diff = (victim_rank>(killer_title + 4))? (victim_rank - (killer_title + 4)) : 0;
+            else if (killer_title < (2*HKRANKMAX-1))
+                rank_diff = (victim_rank>(killer_title - (HKRANKMAX-1) +4))? (victim_rank - (killer_title - (HKRANKMAX-1) + 4)) : 0;
 
             honor_f = ceil(Trinity::Honor::hk_honor_at_level_f(k_level) * (v_level - k_grey) / (k_level - k_grey));
 
@@ -7179,6 +7219,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HK_RACE, pVictim->getRace());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA, GetAreaId());
             UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL, 1, 0, pVictim);
+            UpdateKnownTitles();
         }
         else
         {
@@ -7250,6 +7291,30 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, int32 honor, bool pvpt
     }
 
     return true;
+}
+
+void Player::UpdateKnownTitles()
+{
+    uint32 new_title = 0;
+    uint32 honor_kills = GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORABLE_KILLS);
+    uint32 old_title = GetUInt32Value(PLAYER_CHOSEN_TITLE);
+    RemoveFlag64(PLAYER__FIELD_KNOWN_TITLES,PLAYER_TITLE_MASK_ALL_PVP);
+    if (honor_kills < 0)
+        return;
+    bool max_rank = ((honor_kills >= sWorld->pvp_ranks[HKRANKMAX-1]) ? true : false);
+    for (int i = HKRANK01; i != HKRANKMAX; ++i)
+    {
+        if (honor_kills < sWorld->pvp_ranks[i] || (max_rank))
+        {
+            new_title = ((max_rank) ? (HKRANKMAX-1) : (i-1));
+            if (new_title > 0)
+                new_title += ((GetTeam() == ALLIANCE) ? 0 : (HKRANKMAX-1));
+            break;
+        }
+    }
+    SetFlag64(PLAYER__FIELD_KNOWN_TITLES,uint64(1) << new_title);
+    if (old_title > 0 && old_title < (2*HKRANKMAX-1) && new_title > old_title)
+        SetUInt32Value(PLAYER_CHOSEN_TITLE,new_title);
 }
 
 void Player::SetHonorPoints(uint32 value)
@@ -9091,6 +9156,13 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
     data << uint32(0xC77) << uint32(sWorld->getBoolConfig(CONFIG_ARENA_SEASON_IN_PROGRESS));
                                                             // 8 Arena season id
     data << uint32(0xF3D) << uint32(sWorld->getIntConfig(CONFIG_ARENA_SEASON_ID));
+
+    // May be send timer to start Wintergrasp
+    if(sWorld->GetWintergrapsState()==4354)
+        data << uint32(0x1102) << sWorld->GetWintergrapsTimer();
+    else
+        data << uint32(0xEC5) << sWorld->GetWintergrapsTimer();
+    // ---
 
     if (mapid == 530)                                       // Outland
     {
@@ -19122,7 +19194,7 @@ void Player::UpdateContestedPvP(uint32 diff)
 
 void Player::UpdatePvPFlag(time_t currTime)
 {
-    if (!IsPvP())
+    if (!IsPvP() || InBattleground() || InArena()) 
         return;
     if (pvpInfo.endTimer == 0 || currTime < (pvpInfo.endTimer + 300) || pvpInfo.inHostileArea)
         return;
@@ -22101,7 +22173,7 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
         {
             for (uint8 i= EQUIPMENT_SLOT_MAINHAND; i < EQUIPMENT_SLOT_TABARD; ++i)
                 if (Item *item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
-                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
                         return true;
             break;
         }
@@ -22110,17 +22182,17 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
             // tabard not have dependent spells
             for (uint8 i= EQUIPMENT_SLOT_START; i< EQUIPMENT_SLOT_MAINHAND; ++i)
                 if (Item *item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
-                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
                         return true;
 
             // shields can be equipped to offhand slot
             if (Item *item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
                     return true;
 
             // ranged slot can have some armor subclasses
             if (Item *item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
                     return true;
 
             break;
@@ -24689,6 +24761,65 @@ void Player::_SaveInstanceTimeRestrictions(SQLTransaction& trans)
         stmt->setUInt64(2, itr->second);
         trans->Append(stmt);
     }
+}
+
+// VISTAWOW ANTICHEAT
+bool AntiCheat::BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode)
+{
+    int32 MSTime_delta = 1500;
+    if (LastClientTime != 0)
+        MSTime_delta = getMSTimeDiff(LastClientTime, movementInfo->time);
+    LastClientTime = movementInfo->time;
+
+    if (WakeUpTime > getMSTime())
+        return false;
+
+    if (MSTime_delta < 0)
+        MSTime_delta = 0;
+
+    // if not in a transport
+    // if not riding a taxi
+    // if not in SOTA (causing false positive)
+    if (!plMover->GetVehicle() && !plMover->GetTransport() && !plMover->m_taxi.GetTaxiDestination() && (plMover->GetMapId() != 607)) {
+        UnitMoveType move_type;
+
+        if (movementInfo->flags & MOVEMENTFLAG_FLYING)
+            move_type = movementInfo->flags & MOVEMENTFLAG_BACKWARD ? MOVE_FLIGHT_BACK : MOVE_FLIGHT;
+        else if (movementInfo->flags & MOVEMENTFLAG_SWIMMING)
+            move_type = movementInfo->flags & MOVEMENTFLAG_BACKWARD ? MOVE_SWIM_BACK : MOVE_SWIM;
+        else if (movementInfo->flags & MOVEMENTFLAG_WALKING)
+            move_type = MOVE_WALK;
+        else
+            move_type = movementInfo->flags & MOVEMENTFLAG_BACKWARD ? MOVE_SWIM_BACK : MOVE_RUN;
+
+        const float current_speed = plMover->GetSpeed(move_type);
+
+        const float delta_x    = plMover->GetPositionX() - movementInfo->pos.GetPositionX();
+        const float delta_y    = plMover->GetPositionY() - movementInfo->pos.GetPositionY();
+        const float delta_z    = plMover->GetPositionZ() - movementInfo->pos.GetPositionZ();
+        const float real_delta = delta_x * delta_x + delta_y * delta_y;
+
+        const float time_delta = MSTime_delta < 1500 ? float(MSTime_delta) / 1000.0f : 1.5f;
+
+        const bool no_fly_auras = !(plMover->HasAuraType(SPELL_AURA_FLY) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_INCREASE_FLIGHT_SPEED) || plMover->HasAuraType(SPELL_AURA_MOD_MOUNTED_FLIGHT_SPEED_ALWAYS) || plMover->HasAuraType(SPELL_AURA_MOD_FLIGHT_SPEED_NOT_STACK));
+        const bool no_swim_flags = (movementInfo->flags & MOVEMENTFLAG_SWIMMING) == 0;
+        const float tg_z = (real_delta != 0 && no_fly_auras && no_swim_flags) ? (pow(delta_z, 2) / real_delta) : -99999.9f;
+
+        const float allowed_delta = pow(current_speed * time_delta, 2) + (tg_z > 2.2f ? pow(delta_z, 2) / 2.37f : 0.0f) + 2.0f;
+
+        if (real_delta > allowed_delta) {
+            if ((++TriggerCount >= 5) || ((real_delta > 400.0f) && (real_delta > (allowed_delta * 3.0f)))) {
+                WorldPacket data;
+                plMover->SetUnitMovementFlags(0);
+                plMover->SendTeleportAckPacket();
+                plMover->BuildHeartBeatMsg(&data);
+                plMover->SendMessageToSet(&data, true);
+                return true;
+            }
+        } else
+            TriggerCount = 0;
+    }
+    return false;
 }
 
 bool Player::IsInWhisperWhiteList(uint64 guid)

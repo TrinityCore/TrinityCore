@@ -120,7 +120,7 @@ public:
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itr_sec = itr->second->GetSession()->GetSecurity();
-            if ((itr->second->isGameMaster() || (itr_sec > SEC_PLAYER && itr_sec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+            if ((itr->second->isGameMaster() || (itr_sec > SEC_MODERATOR && itr_sec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
                 (!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
@@ -152,8 +152,8 @@ public:
     /// Display the list of GMs
     static bool HandleGMListFullCommand(ChatHandler* handler, const char* /*args*/)
     {
-        ///- Get the accounts with GM Level >0
-        QueryResult result = LoginDatabase.Query("SELECT a.username, aa.gmlevel FROM account a, account_access aa WHERE a.id=aa.id AND aa.gmlevel > 0");
+        ///- Get the accounts with GM Level > 1
+        QueryResult result = LoginDatabase.Query("SELECT a.username, aa.gmlevel FROM account a, account_access aa WHERE a.id=aa.id AND aa.gmlevel > 1");
         if (result)
         {
             handler->SendSysMessage(LANG_GMLIST);

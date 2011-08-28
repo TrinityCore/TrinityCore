@@ -43,6 +43,9 @@
 #include "ScriptMgr.h"
 #include "Battleground.h"
 
+#include "OutdoorPvPWG.h"
+#include "OutdoorPvPMgr.h"
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -930,6 +933,20 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     sObjectAccessor->AddObject(pCurrChar);
     //sLog->outDebug("Player %s added to Map.", pCurrChar->GetName());
+
+    //Send WG timer to player at login 
+	if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+	{
+	    if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+            if (pvpWG->isWarTime())
+                pCurrChar->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
+            else
+            {
+                pvpWG->SendInitWorldStatesTo(pCurrChar);
+                pCurrChar->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
+            }
+	}
+
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 

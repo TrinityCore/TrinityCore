@@ -681,6 +681,9 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 // Bonus from Glyph of Lightwell
                 if (AuraEffect* modHealing = caster->GetAuraEffect(55673, 0))
                     AddPctN(amount, modHealing->GetAmount());
+                // Bonus from talent Spiritual Healing
+                if (AuraEffect* modHealing = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_PRIEST, 46, 1))
+                    AddPctN(amount, modHealing->GetAmount());
             }
             break;
         case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
@@ -2103,6 +2106,14 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                     target->SetPower(POWER_RAGE, Rage_val);
                 break;
             }
+            case FORM_FLIGHT_EPIC:
+            case FORM_FLIGHT:
+            {
+                // VISTAWOW ANTICHEAT
+                if (target->GetTypeId() == TYPEID_PLAYER)
+                    target->ToPlayer()->GetAntiCheat()->SetSleep(1500);
+                break;
+            }
             default:
                 break;
         }
@@ -2845,6 +2856,10 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
     }
     else
     {
+        // VISTAWOW ANTICHEAT
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            target->ToPlayer()->GetAntiCheat()->SetSleep(1500);
+
         target->Unmount();
         //some mounts like Headless Horseman's Mount or broom stick are skill based spell
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
@@ -4910,6 +4925,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             target->CastSpell((Unit*)NULL, GetAmount(), true, NULL, this);
                             break;
                         case 58600: // Restricted Flight Area
+                        case 58730: // Restricted Flight Area
                             if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE)
                                 target->CastSpell(target, 58601, true);
                             break;

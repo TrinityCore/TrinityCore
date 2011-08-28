@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "WorldPacket.h"
 #include "WorldSession.h"
@@ -338,6 +339,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         plMover->SetInWater(!plMover->IsInWater() || plMover->GetBaseMap()->IsUnderWater(movementInfo.pos.GetPositionX(), movementInfo.pos.GetPositionY(), movementInfo.pos.GetPositionZ()));
     }
 
+    if (plMover)
+        sAnticheatMgr->StartHackDetection(plMover, movementInfo, opcode);
+
+    // VISTAWOW ANTICHEAT
+    if (plMover)
+        if (plMover->GetAntiCheat()->BlockMovementOperation(&movementInfo, opcode))
+            return;
+
     /*----------------------*/
 
     /* process position-change */
@@ -387,6 +396,13 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
                 // cancel the death timer here if started
                 plMover->RepopAtGraveyard();
             }
+        }
+        else if (movementInfo.pos.GetPositionZ() < -50.0f)
+        {
+            if (plMover->InBattleground())
+                if (Battleground* bg = plMover->GetBattleground())
+                    if (bg->isArena())
+                        bg->HandlePlayerUnderMap(_player);
         }
     }
 }

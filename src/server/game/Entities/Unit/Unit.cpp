@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "CreatureAIImpl.h"
 #include "Log.h"
@@ -1672,6 +1673,10 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         for (AuraEffectList::const_iterator j = ResIgnoreAuras.begin(); j != ResIgnoreAuras.end(); ++j)
             if ((*j)->GetMiscValue() & schoolMask)
                 AddPctN(damageResisted, -(*j)->GetAmount());
+
+        // Chaos Bolt should not be resisted
+        if (spellInfo && spellInfo->SpellIconID == 3178)
+            damageResisted = 0;
 
         dmgInfo.ResistDamage(uint32(damageResisted));
     }
@@ -9053,6 +9058,8 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                 return false;
             break;
         }
+        default:
+            break;
     }
 
     if (cooldown && GetTypeId() == TYPEID_PLAYER && ToPlayer()->HasSpellCooldown(trigger_spell_id))
@@ -11655,6 +11662,12 @@ bool Unit::IsDamageToThreatSpell(SpellInfo const* spellInfo) const
         case SPELLFAMILY_DEATHKNIGHT:
             if (spellInfo->SpellFamilyFlags[1] == 0x20000000) // Rune Strike
                 return true;
+            if (spellInfo->SpellFamilyFlags[2] == 0x8) // Death and Decay
+                return true;
+            break;
+        case SPELLFAMILY_WARRIOR:
+            if (spellInfo->SpellFamilyFlags[0] == 0x80) // Thunder Clap
+                return true;
             break;
     }
 
@@ -12428,6 +12441,10 @@ void Unit::SetVisible(bool x)
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
 {
+    // VISTAWOW ANTICHEAT
+    if (GetTypeId() == TYPEID_PLAYER)
+        this->ToPlayer()->GetAntiCheat()->SetSleep(1500);
+
     int32 main_speed_mod  = 0;
     float stack_bonus     = 1.0f;
     float non_stack_bonus = 1.0f;
@@ -16510,6 +16527,10 @@ void Unit::UpdateObjectVisibility(bool forced)
 
 void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 {
+    // VISTAWOW ANTICHEAT
+    if (GetTypeId() == TYPEID_PLAYER)
+        this->ToPlayer()->GetAntiCheat()->SetSleep(4000);
+
     Player* player = NULL;
     if (GetTypeId() == TYPEID_PLAYER)
         player = (Player*)this;

@@ -4164,6 +4164,49 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
     return true;
 }
 
+bool ChatHandler::HandleInstanceUnbindSelfCommand(const char *args)
+{
+    if (!*args)
+        return false;
+
+    Player* player = m_session->GetPlayer();
+
+    char* pMap = strtok((char*)args, " ");
+    char* pDiff = strtok(NULL, " ");
+    int8 diff = -1;
+    if (pDiff)
+        diff = atoi(pDiff);
+    uint16 counter = 0;
+    uint16 MapId = 0;
+
+    if (strcmp(pMap, "all"))
+    {
+        MapId = uint16(atoi(pMap));
+        if (!MapId)
+            return false;
+    }
+
+    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
+    {
+        Player::BoundInstancesMap &binds = player->GetBoundInstances(Difficulty(i));
+        for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
+        {
+            InstanceSave *save = itr->second.save;
+            if (itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
+            {
+                std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
+                PSendSysMessage("unbinding map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
+                player->UnbindInstance(itr, Difficulty(i));
+                counter++;
+            }
+            else
+                ++itr;
+        }
+    }
+    PSendSysMessage("instances unbound: %d", counter);
+    return true;
+}
+
 bool ChatHandler::HandleInstanceStatsCommand(const char* /*args*/)
 {
     PSendSysMessage("instances loaded: %d", sMapMgr->GetNumInstances());

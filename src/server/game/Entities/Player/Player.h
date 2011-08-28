@@ -396,6 +396,27 @@ enum PlayerFlags
     PLAYER_FLAGS_NO_XP_GAIN        = 0x02000000
 };
 
+#define PLAYER_TITLE_MASK_ALLIANCE_PVP             \
+    (PLAYER_TITLE_PRIVATE | PLAYER_TITLE_CORPORAL |  \
+      PLAYER_TITLE_SERGEANT_A | PLAYER_TITLE_MASTER_SERGEANT | \
+      PLAYER_TITLE_SERGEANT_MAJOR | PLAYER_TITLE_KNIGHT | \
+      PLAYER_TITLE_KNIGHT_LIEUTENANT | PLAYER_TITLE_KNIGHT_CAPTAIN | \
+      PLAYER_TITLE_KNIGHT_CHAMPION | PLAYER_TITLE_LIEUTENANT_COMMANDER | \
+      PLAYER_TITLE_COMMANDER | PLAYER_TITLE_MARSHAL | \
+      PLAYER_TITLE_FIELD_MARSHAL | PLAYER_TITLE_GRAND_MARSHAL)
+
+#define PLAYER_TITLE_MASK_HORDE_PVP                           \
+    (PLAYER_TITLE_SCOUT | PLAYER_TITLE_GRUNT |  \
+      PLAYER_TITLE_SERGEANT_H | PLAYER_TITLE_SENIOR_SERGEANT | \
+      PLAYER_TITLE_FIRST_SERGEANT | PLAYER_TITLE_STONE_GUARD | \
+      PLAYER_TITLE_BLOOD_GUARD | PLAYER_TITLE_LEGIONNAIRE | \
+      PLAYER_TITLE_CENTURION | PLAYER_TITLE_CHAMPION | \
+      PLAYER_TITLE_LIEUTENANT_GENERAL | PLAYER_TITLE_GENERAL | \
+      PLAYER_TITLE_WARLORD | PLAYER_TITLE_HIGH_WARLORD)
+
+#define PLAYER_TITLE_MASK_ALL_PVP  \
+    (PLAYER_TITLE_MASK_ALLIANCE_PVP | PLAYER_TITLE_MASK_HORDE_PVP)
+
 // used for PLAYER__FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
 // can't use enum for uint64 values
 #define PLAYER_TITLE_DISABLED              UI64LIT(0x0000000000000000)
@@ -868,6 +889,27 @@ enum CurrencyItems
     ITEM_ARENA_POINTS_ID    = 43307
 };
 
+// VISTAWOW ANTICHEAT
+class AntiCheat
+{
+    private:
+        Player* plMover;
+        time_t WakeUpTime;
+        time_t LastClientTime;
+        uint32 TriggerCount;
+    public:
+        AntiCheat(Player *player) {
+            plMover = player;
+            WakeUpTime = LastClientTime = 0;
+            TriggerCount = 0;
+        };
+        ~AntiCheat() { };
+        void SetSleep(uint32 delta) {
+            WakeUpTime = getMSTime() + delta;
+        };
+        bool BlockMovementOperation(MovementInfo* movementInfo, uint16 opcode);
+};
+
 enum ReferAFriendError
 {
     ERR_REFER_A_FRIEND_NONE                          = 0x00,
@@ -1081,6 +1123,9 @@ class Player : public Unit, public GridObject<Player>
         {
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
         }
+
+        // VISTAWOW ANTICHEAT
+        AntiCheat* GetAntiCheat() { return m_anticheat; };
 
         bool TeleportToBGEntryPoint();
 
@@ -2041,6 +2086,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
         void SetHonorPoints(uint32 value);
         void SetArenaPoints(uint32 value);
+        void UpdateKnownTitles();
 
         //End of PvP System
 
@@ -2759,6 +2805,9 @@ class Player : public Unit, public GridObject<Player>
             if (operation < DELAYED_END)
                 m_DelayedOperations |= operation;
         }
+
+        // VISTAWOW ANTICHEAT
+        AntiCheat* m_anticheat;
 
         MapReference m_mapRef;
 

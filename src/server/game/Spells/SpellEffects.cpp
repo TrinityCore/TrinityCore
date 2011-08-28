@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
@@ -48,6 +49,7 @@
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
 #include "OutdoorPvPMgr.h"
+#include "OutdoorPvPWG.h"
 #include "Language.h"
 #include "SocialMgr.h"
 #include "Util.h"
@@ -748,6 +750,13 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
+                case 54015: //Set Oracle Faction Honored
+                case 53487: //Set Wolvar Faction Honored
+                {
+                    if (effIndex == 0)
+                            unitTarget->ToPlayer()->SetReputation(m_spellInfo->Effects[0].BasePoints, 21000);
+                    return;
+                }
                 case 31225:                                 // Shimmering Vessel (restore creature to life)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
@@ -1490,6 +1499,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 break;
             }
             break;
+        default:
+            break;
     }
 
     //spells triggered by dummy effect should not miss
@@ -1808,6 +1819,10 @@ void Spell::EffectJump(SpellEffIndex effIndex)
     if (m_caster->isInFlight())
         return;
 
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(1500);
+
     float x, y, z;
     if (m_targets.GetUnitTarget())
         m_targets.GetUnitTarget()->GetContactPoint(m_caster, x, y, z, CONTACT_DISTANCE);
@@ -1828,6 +1843,10 @@ void Spell::EffectJumpDest(SpellEffIndex effIndex)
 {
     if (m_caster->isInFlight())
         return;
+
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(1500);
 
     // Init dest coordinates
     float x, y, z;
@@ -5961,6 +5980,10 @@ void Spell::EffectCharge(SpellEffIndex /*effIndex*/)
     if (!target)
         return;
 
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
+
     float x, y, z;
     target->GetContactPoint(m_caster, x, y, z);
     m_caster->GetMotionMaster()->MoveCharge(x, y, z);
@@ -5974,6 +5997,10 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
 {
     if (m_targets.HasDst())
     {
+        // VISTAWOW ANTICHEAT
+        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+            m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
+
         float x, y, z;
         m_targets.GetDst()->GetPosition(x, y, z);
         m_caster->GetMotionMaster()->MoveCharge(x, y, z);
@@ -6037,6 +6064,10 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
 
 void Spell::EffectLeapBack(SpellEffIndex effIndex)
 {
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(4000);
+
     float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue)/10;
     float speedz = float(damage/10);
     if (!speedxy)
@@ -6102,6 +6133,10 @@ void Spell::EffectPullTowards(SpellEffIndex effIndex)
 {
     if (!unitTarget)
         return;
+
+    // VISTAWOW ANTICHEAT
+    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        m_caster->ToPlayer()->GetAntiCheat()->SetSleep(3000);
 
     float speedZ = (float)(m_spellInfo->Effects[effIndex].CalcValue() / 10);
     float speedXY = (float)(m_spellInfo->Effects[effIndex].MiscValue/10);
@@ -6907,9 +6942,21 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    OutdoorPvPWG* pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
     switch(m_spellInfo->Id)
     {
         case 58730: // Restricted Flight Area
+        {
+            if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+            {
+                if (pvpWG->isWarTime())
+                    unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+                else
+                    unitTarget->RemoveAura(58730);
+            }
+            break;
+        }
         case 58600: // Restricted Flight Area
             unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
             break;

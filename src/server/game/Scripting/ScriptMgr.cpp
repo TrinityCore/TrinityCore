@@ -26,6 +26,7 @@
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
 #include "Transport.h"
+#include "sc_npc_teleport.h"
 #include "Vehicle.h"
 
 // This is the global static registry of scripts.
@@ -247,6 +248,8 @@ void ScriptMgr::Initialize()
     uint32 oldMSTime = getMSTime();
 
     LoadDatabase();
+	// Load TeleNPC2 - maybe not the best place to load it ...
+	LoadNpcTele();
 
     sLog->outString("Loading C++ scripts");
 

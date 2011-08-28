@@ -158,6 +158,10 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_TICKETS,
     CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES,
     CONFIG_PRESERVE_CUSTOM_CHANNELS,
+    CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED,
+    CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR,
+    CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE,
+    CONFIG_ANTICHEAT_ENABLE,
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -304,7 +308,22 @@ enum WorldIntConfigs
     CONFIG_DB_PING_INTERVAL,
     CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION,
     CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS,
+    CONFIG_ANTICHEAT_REPORTS_INGAME_NOTIFICATION,
+    CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME,
+    CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME,
+    CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL,
+    CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE,
+    CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE,
+    CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER,
+    CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER,
+    CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING,
+    CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING,
+    CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD,
+    CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK,
+    CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF,
+    CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT,
     CONFIG_MAX_INSTANCES_PER_HOUR,
+    CONFIG_ANTICHEAT_DETECTIONS_ENABLED,
     INT_CONFIG_VALUE_COUNT
 };
 
@@ -373,8 +392,29 @@ enum Rates
     RATE_DURABILITY_LOSS_PARRY,
     RATE_DURABILITY_LOSS_ABSORB,
     RATE_DURABILITY_LOSS_BLOCK,
+    RATE_PVP_RANK_EXTRA_HONOR,   
     RATE_MOVESPEED,
     MAX_RATES
+};
+	
+enum HonorKillPvPRank
+{
+    HKRANK00,
+    HKRANK01,
+    HKRANK02,
+    HKRANK03,
+    HKRANK04,
+    HKRANK05,
+    HKRANK06,
+    HKRANK07,
+    HKRANK08,
+    HKRANK09,
+    HKRANK10,
+    HKRANK11,
+    HKRANK12,
+    HKRANK13,
+    HKRANK14,
+    HKRANKMAX
 };
 
 /// Can be used in SMSG_AUTH_RESPONSE packet
@@ -623,6 +663,8 @@ class World
         void SendZoneText(uint32 zone, const char *text, WorldSession* self = 0, uint32 team = 0);
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
 
+        uint32 pvp_ranks[HKRANKMAX];
+
         /// Are we in the middle of a shutdown?
         bool IsShutdowning() const { return m_ShutdownTimer > 0; }
         void ShutdownServ(uint32 time, uint32 options, uint8 exitcode);
@@ -731,6 +773,18 @@ class World
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+		
+        uint32 GetWintergrapsTimer() { return m_WintergrapsTimer; }
+        uint32 GetWintergrapsState() { return m_WintergrapsState; }
+        uint32 m_WintergrapsTimer;
+        uint32 m_WintergrapsState;
+        void SendWintergraspState();
+        void SetWintergrapsTimer(uint32 timer, uint32 state)
+        {
+            m_WintergrapsTimer = timer;
+            m_WintergrapsState = state;
+        }
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
