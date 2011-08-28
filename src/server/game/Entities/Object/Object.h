@@ -172,54 +172,54 @@ class Object
         int32 GetInt32Value(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
-            return m_int32Values[ index ];
+            return m_int32Values[index];
         }
 
         uint32 GetUInt32Value(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
-            return m_uint32Values[ index ];
+            return m_uint32Values[index];
         }
 
         uint64 GetUInt64Value(uint16 index) const
         {
             ASSERT(index + 1 < m_valuesCount || PrintIndexError(index , false));
-            return *((uint64*)&(m_uint32Values[ index ]));
+            return *((uint64*)&(m_uint32Values[index]));
         }
 
         float GetFloatValue(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
-            return m_floatValues[ index ];
+            return m_floatValues[index];
         }
 
         uint8 GetByteValue(uint16 index, uint8 offset) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             ASSERT(offset < 4);
-            return *(((uint8*)&m_uint32Values[ index ])+offset);
+            return *(((uint8*)&m_uint32Values[index])+offset);
         }
 
         uint16 GetUInt16Value(uint16 index, uint8 offset) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             ASSERT(offset < 2);
-            return *(((uint16*)&m_uint32Values[ index ])+offset);
+            return *(((uint16*)&m_uint32Values[index])+offset);
         }
 
-        void SetInt32Value(uint16 index,        int32  value);
-        void SetUInt32Value(uint16 index,       uint32  value);
-        void UpdateUInt32Value(uint16 index,       uint32  value);
-        void SetUInt64Value(uint16 index, const uint64 value);
-        void SetFloatValue(uint16 index,       float   value);
+        void SetInt32Value(uint16 index, int32 value);
+        void SetUInt32Value(uint16 index, uint32 value);
+        void UpdateUInt32Value(uint16 index, uint32 value);
+        void SetUInt64Value(uint16 index, uint64 const value);
+        void SetFloatValue(uint16 index, float value);
         void SetByteValue(uint16 index, uint8 offset, uint8 value);
         void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
         void SetInt16Value(uint16 index, uint8 offset, int16 value) { SetUInt16Value(index, offset, (uint16)value); }
         void SetStatFloatValue(uint16 index, float value);
         void SetStatInt32Value(uint16 index, int32 value);
 
-        bool AddUInt64Value(uint16 index, const uint64 value);
-        bool RemoveUInt64Value(uint16 index, const uint64 value);
+        bool AddUInt64Value(uint16 index, uint64 const value);
+        bool RemoveUInt64Value(uint16 index, uint64 const value);
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
@@ -248,7 +248,7 @@ class Object
         bool HasFlag(uint16 index, uint32 flag) const
         {
             if (index >= m_valuesCount && !PrintIndexError(index , false)) return false;
-            return (m_uint32Values[ index ] & flag) != 0;
+            return (m_uint32Values[index] & flag) != 0;
         }
 
         void SetByteFlag(uint16 index, uint8 offset, uint8 newFlag);
@@ -471,13 +471,13 @@ struct Position
     bool IsInDist(const Position *pos, float dist) const
         { return GetExactDistSq(pos) < dist * dist; }
     bool HasInArc(float arcangle, const Position *pos) const;
-    bool HasInLine(const Unit* target, float distance, float width) const;
+    bool HasInLine(Unit const* target, float distance, float width) const;
     std::string ToString() const;
 };
-ByteBuffer &operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const & streamer);
-ByteBuffer & operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const & streamer);
-ByteBuffer &operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const & streamer);
-ByteBuffer & operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const & streamer);
+ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
+ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
+ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
+ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
 
 struct MovementInfo
 {
