@@ -220,6 +220,7 @@ public:
                 else
                     me->SummonCreature(MOB_GRAUF, Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 3.0f);
             }
+            me->UpdateObjectVisibility(true);
         }
 
         void EnterCombat(Unit * /*who*/)
@@ -232,13 +233,15 @@ public:
 
             MovementTimer = 1000;
             SummonTimer = 10000;
-            me->SetInCombatWithZone();
+
+            DoZoneInCombat();
+
             if (instance)
             {
                 instance->SetData(DATA_SKADI_THE_RUTHLESS_EVENT, IN_PROGRESS);
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+
                 me->GetMotionMaster()->MoveJump(Location[0].GetPositionX(), Location[0].GetPositionY(), Location[0].GetPositionZ(), 5.0f, 10.0f);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                 MountTimer = 1000;
                 Summons.DespawnEntry(MOB_GRAUF);
             }
@@ -291,16 +294,13 @@ public:
                         DoScriptText(SAY_DRAKE_DEATH, me);
                     }
                     me->SetFlying(false);
-                    me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->Initialize();
                     me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+                    me->GetMotionMaster()->MoveJump(Location[4].GetPositionX(), Location[4].GetPositionY(), Location[4].GetPositionZ(), 5.0f, 10.0f);
                     me->SetHealth(me->GetMaxHealth());
                     me->UpdateObjectVisibility(true);
 
                     if (Unit * target = me->SelectNearestPlayer())
-                        if (me->Attack(target, true))
-                            me->GetMotionMaster()->MoveChase(target);
+                        AttackStart(target);
 
                     CrushTimer = 8000;
                     PoisonedSpearTimer = 10000;
@@ -387,7 +387,6 @@ public:
                     if (MountTimer && MountTimer <= diff)
                     {
                         me->Mount(CREATURE_GRAUF_DISPLAY_ID);
-                        me->SetFlying(true);
                         MountTimer = 0;
                     } else MountTimer -= diff;
 
@@ -455,13 +454,13 @@ public:
                         if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM))
                             DoCast(target, SPELL_POISONED_SPEAR);
 
-                        PoisonedSpearTimer = 10000;
+                        PoisonedSpearTimer = SEKUNDEN_10;
                     } else PoisonedSpearTimer -= diff;
 
                     if (WhirlwindTimer <= diff)
                     {
                         DoCastAOE(SPELL_WHIRLWIND);
-                        WhirlwindTimer = 20000;
+                        WhirlwindTimer = SEKUNDEN_20;
                     } else WhirlwindTimer -= diff;
 
                     DoMeleeAttackIfReady();
@@ -502,8 +501,8 @@ public:
         if (!instance)
             return false;
 
-        if (Creature * pSkadi = Unit::GetCreature((*pGO), instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
-            player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
+        if (Creature * skadi = pGO->GetMap()->GetCreature(instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
+            player->CastSpell(skadi, SPELL_RAPID_FIRE, true);
 
         return false;
     }
