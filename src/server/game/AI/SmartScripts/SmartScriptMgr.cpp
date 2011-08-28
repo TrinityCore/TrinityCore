@@ -494,7 +494,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
     switch (e.GetActionType())
     {
         case SMART_ACTION_SET_FACTION:
-            if (e.action.faction.factionID && !sFactionStore.LookupEntry(e.action.faction.factionID))
+            if (e.action.faction.factionID && !sFactionTemplateStore.LookupEntry(e.action.faction.factionID))
             {
                 sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Faction %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.faction.factionID);
                 return false;

@@ -104,6 +104,8 @@ class SpellCastTargets
         uint32 GetTargetMask() const { return m_targetMask; }
         void SetTargetMask(uint32 newMask) { m_targetMask = newMask; }
 
+        void SetTargetFlag(SpellCastTargetFlags flag) { m_targetMask |= flag; }
+
         uint64 GetUnitTargetGUID() const;
         Unit* GetUnitTarget() const;
         void SetUnitTarget(Unit* target);

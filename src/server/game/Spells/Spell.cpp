@@ -672,10 +672,10 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
     if (neededTargets & TARGET_FLAG_DEST_LOCATION)
     {
         // and target isn't set
-        if (!targets.GetDst())
+        if (!m_targets.HasDst())
         {
             // try to use unit target if provided
-            if (Unit* target = targets.GetUnitTarget())
+            if (WorldObject* target = targets.GetObjectTarget())
                 m_targets.SetDst(*target);
             // or use self if not available
             else
@@ -687,7 +687,7 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
 
     if (neededTargets & TARGET_FLAG_SOURCE_LOCATION)
     {
-        if (!targets.GetSrc())
+        if (!targets.HasSrc())
             m_targets.SetSrc(*m_caster);
     }
     else
@@ -702,6 +702,13 @@ void Spell::SelectSpellTargets()
         // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
         if (!m_spellInfo->Effects[i].Effect)
             continue;
+
+        // set expected type of implicit targets to be sent to client
+        uint32 implicitTargetMask = GetTargetFlagMask(m_spellInfo->Effects[i].TargetA.GetObjectType()) | GetTargetFlagMask(m_spellInfo->Effects[i].TargetB.GetObjectType());
+        if (implicitTargetMask & TARGET_FLAG_UNIT)
+            m_targets.SetTargetFlag(TARGET_FLAG_UNIT);
+        if (implicitTargetMask & (TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_GAMEOBJECT_ITEM))
+            m_targets.SetTargetFlag(TARGET_FLAG_GAMEOBJECT);
 
         uint32 effectTargetType = m_spellInfo->Effects[i].GetRequiredTargetType();
 
