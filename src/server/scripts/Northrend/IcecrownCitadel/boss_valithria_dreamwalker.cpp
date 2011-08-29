@@ -309,6 +309,11 @@ class boss_valithria_dreamwalker : public CreatureScript
                 me->SetHealth(me->GetMaxHealth() / 2);
                 me->SetReactState(REACT_PASSIVE);
                 me->LoadCreaturesAddon(true);
+                // immune to percent heals
+                me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_OBS_MOD_HEALTH, true);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL_PCT, true);
+                // Glyph of Dispel Magic - not a percent heal by effect, its cast with custom basepoints
+                me->ApplySpellImmune(0, IMMUNITY_ID, 56131, true);
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                 _missedPortals = 0;
                 _under25PercentTalkDone = false;
