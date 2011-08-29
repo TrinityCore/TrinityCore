@@ -432,8 +432,8 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     if (spellInfo->Attributes & SPELL_ATTR0_CANT_CANCEL)
         return;
 
-    // not allow remove non positive spells but allow spells with SPELL_AURA_MOD_POSSESS
-    if (!spellInfo->IsPositive() && !spellInfo->HasAura(SPELL_AURA_MOD_POSSESS))
+    // not allow remove non positive spells but allow currently channelled spells
+    if (!spellInfo->IsPositive() && !spellInfo->IsChanneled())
         return;
 
     // don't allow cancelling passive auras (some of them are visible)
