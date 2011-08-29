@@ -32,10 +32,12 @@ enum Texts
     SAY_SPHERE_PULSE                 = 0, // Beware the shadow!
     SAY_PHASE_THREE                  = 1, // I am the light and the darkness! Cower, mortals, before the herald of Deathwing!
 
-    EMOTE_T_OUT_T                    = 0, // Your companion's efforts have forced Halion further out of the Twilight realm!
-    EMOTE_T_IN_T                     = 1, // Your efforts have forced Halion further into the Twilight realm!
-    EMOTE_P_OUT_P                    = 2, // Your companion's efforts have forced Halion further out of the Physical realm!
-    EMOTE_P_IN_P                     = 3, // Your efforts have forced Halion further into the Physical realm!
+    EMOTE_TWILIGHT_OUT_TWILIGHT      = 0, // Your companion's efforts have forced Halion further out of the Twilight realm!
+    EMOTE_TWILIGHT_IN_TWILIGHT       = 1, // Your efforts have forced Halion further into the Twilight realm!
+    EMOTE_PHYSICAL_OUT_P             = 2, // Your companion's efforts have forced Halion further out of the Physical realm!
+    EMOTE_PHYSICAL_IN_PHYSICAL       = 3, // Your efforts have forced Halion further into the Physical realm!
+    EMOTE_REGENERATE                 = 4, // Without pressure in both realms, Halion begins to regenerate.
+    EMOTE_WARN_LASER                 = 5, // The orbiting spheres pulse with dark energy!
 };
 
 enum Spells
@@ -68,6 +70,7 @@ enum Spells
     SPELL_LEAVE_TWILIGHT_REALM          = 74812,
     SPELL_TWILIGHT_PHASING              = 74808,    // Phase spell from phase 1 to phase 2
     SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794 - Bugged with Shauren's patch, will despawn as soon as used - Use workaround
+    SPELL_TWILIGHT_MENDING              = 75509,
 
     // Living Inferno
     SPELL_BLAZING_AURA                  = 75885,
@@ -107,13 +110,14 @@ enum Events
     EVENT_INTRO_PROGRESS_3      = 11,
     EVENT_CHECK_CORPOREALITY    = 12,
     EVENT_SHADOW_PULSARS_SHOOT  = 13,
+    EVENT_WARN_LASERS           = 14,
 
     // Meteor Strike
-    EVENT_SPAWN_METEOR_FLAME    = 14,
+    EVENT_SPAWN_METEOR_FLAME    = 15,
 
     // Twilight Halion
-    EVENT_DARK_BREATH           = 15,
-    EVENT_SOUL_CONSUMPTION      = 16,
+    EVENT_DARK_BREATH           = 16,
+    EVENT_SOUL_CONSUMPTION      = 17,
 };
 
 enum Actions
@@ -647,7 +651,7 @@ class npc_halion_controller : public CreatureScript
                         // Remove this and make Halion cast the correct spell asap.
                         if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                         {
-                            if (GameObject* portal = me->SummonGameObject(GO_HALION_PORTAL_1, halion->GetPositionX(), halion->GetPositionY(), halion->GetPositionZ(), 0, 0, 0, 0, 0, 8 * MINUTE * IN_MILLISECONDS))
+                            if (GameObject* portal = halion->SummonGameObject(GO_HALION_PORTAL_1, halion->GetPositionX(), halion->GetPositionY(), halion->GetPositionZ(), 0, 0, 0, 0, 0, 8 * MINUTE * IN_MILLISECONDS))
                             {
                                 portal->SetPhaseMask(0x1, true);
                                 _instance->OnGameObjectCreate(portal);
@@ -658,13 +662,15 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_THREE:
                     {
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 20000);
-
-                        for (uint8 i = 0; i < 2; i++)
+                        if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                         {
-                            if (GameObject* portal = me->SummonGameObject(GO_HALION_PORTAL_EXIT, PortalsSpawnPos[i].GetPositionX(), PortalsSpawnPos[i].GetPositionY(), PortalsSpawnPos[i].GetPositionZ(), PortalsSpawnPos[i].GetOrientation(), 0, 0, 0, 0, 99999999))
+                            for (uint8 i = 0; i < 2; i++)
                             {
-                                portal->SetPhaseMask(0x20, true);
-                                _instance->OnGameObjectCreate(portal);
+                                if (GameObject* portal = halion->SummonGameObject(GO_HALION_PORTAL_EXIT, PortalsSpawnPos[i].GetPositionX(), PortalsSpawnPos[i].GetPositionY(), PortalsSpawnPos[i].GetPositionZ(), PortalsSpawnPos[i].GetOrientation(), 0, 0, 0, 0, 99999999))
+                                {
+                                    portal->SetPhaseMask(0x20, true);
+                                    _instance->OnGameObjectCreate(portal);
+                                }
                             }
                         }
 
@@ -765,7 +771,20 @@ class npc_halion_controller : public CreatureScript
                             if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                 tHalion->AI()->Talk(SAY_SPHERE_PULSE);
 
-                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000, 1);
+                            _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
+                            _events.ScheduleEvent(EVENT_WARN_LASERS, 25000);
+                            break;
+                        }
+                        case EVENT_WARN_LASERS:
+                        {
+                            if (Map* sanctum = me->GetMap())
+                            {
+                                Map::PlayerList const &PlList = sanctum->GetPlayers();
+                                for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                                    if (Player* player = i->getSource())
+                                        if (player->HasAura(SPELL_TWILIGHT_REALM))
+                                            Talk(EMOTE_WARN_LASER, player->GetGUID());
+                            }
                             break;
                         }
                         case EVENT_CHECK_CORPOREALITY:
@@ -790,7 +809,9 @@ class npc_halion_controller : public CreatureScript
                             }
                             else
                             {
-                                _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 5000);
+                                Talk(EMOTE_REGENERATE);
+                                DoCast(me, SPELL_TWILIGHT_MENDING);
+                                _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
                                 break;
                             }
 
@@ -833,22 +854,22 @@ class npc_halion_controller : public CreatureScript
                                             if (pValue > tValue)
                                             {
                                                 if (player->HasAura(SPELL_TWILIGHT_REALM))
-                                                    Talk(EMOTE_T_OUT_T, player->GetGUID());
+                                                    Talk(EMOTE_TWILIGHT_OUT_TWILIGHT, player->GetGUID());
                                                 else
-                                                    Talk(EMOTE_P_IN_P, player->GetGUID());
+                                                    Talk(EMOTE_PHYSICAL_IN_PHYSICAL, player->GetGUID());
                                             }
                                             else
                                             {
                                                 if (player->HasAura(SPELL_TWILIGHT_REALM))
-                                                    Talk(EMOTE_T_IN_T, player->GetGUID());
+                                                    Talk(EMOTE_TWILIGHT_IN_TWILIGHT, player->GetGUID());
                                                 else
-                                                    Talk(EMOTE_P_OUT_P, player->GetGUID());
+                                                    Talk(EMOTE_PHYSICAL_OUT_PHYSICAL, player->GetGUID());
                                             }
                                         }
                                     }
                                 }
                             }
-                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 20000);
+                            _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
                             break;
                         }
                         default:
