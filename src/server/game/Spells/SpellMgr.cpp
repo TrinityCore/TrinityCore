@@ -3317,7 +3317,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 53484:
             case 53648:
                 spellInfo->EffectSpellClassMask[0] = flag96(0x00000000, 0x00000000, 0x00000020);
-                ++count;
                 break;
             default:
                 break;
