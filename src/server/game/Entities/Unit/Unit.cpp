@@ -5601,6 +5601,16 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         triggered_spell_id = 71203;
                     break;
                 }
+                // Gaseous Bloat (Professor Putricide add)
+                case 70215:
+                case 72858:
+                case 72859:
+                case 72860:
+                {
+                    target = getVictim();
+                    triggered_spell_id = 70701;
+                    break;
+                }
                 // Essence of the Blood Queen
                 case 70871:
                 {
@@ -5618,6 +5628,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     instance->DoCastSpellOnPlayers(65037);  // Achievement criteria marker
+                    break;
+                }
+                // Meteor Fists
+                case 66725:
+                {
+                    target = getVictim();
+                    triggered_spell_id = 66765;
                     break;
                 }
             }
@@ -8938,6 +8955,19 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         CastCustomSpell(this, trigger_spell_id, &basepoints0, &basepoints0, NULL, true, castItem, triggeredByAura);
                         return true;
                     }
+                }
+            break;
+        }
+        case 46916:  // Slam!
+        case 52437:  // Sudden Death
+        {
+            // Item - Warrior T10 Melee 4P Bonus
+            if (AuraEffect const* aurEff = GetAuraEffect(70847, EFFECT_0))
+                if (roll_chance_i(aurEff->GetAmount()))
+                {
+                    CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
+                    CastSpell(this, 71072, true, castItem, triggeredByAura); // Slam GCD Reduced
+                    CastSpell(this, 71069, true, castItem, triggeredByAura); // Execute GCD Reduced
                 }
             break;
         }
