@@ -3313,6 +3313,12 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
                 spellInfo->Effect[1] = 0;
                 break;
+            case 53379: // Swift Retribution
+            case 53484:
+            case 53648:
+                spellInfo->EffectSpellClassMask[0] = flag96(0x00000000, 0x00000000, 0x00000020);
+                ++count;
+                break;
             default:
                 break;
         }
