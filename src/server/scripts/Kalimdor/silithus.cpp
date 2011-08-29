@@ -100,9 +100,15 @@ public:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_DEMITRIAN1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         player->SEND_GOSSIP_MENU(6812, creature->GetGUID());
-            return true;
+        return true;
     }
 
+    bool OnQuestComplete(Player* player, Creature* creature, Quest const* quest)
+    {
+        if (quest->GetQuestId() == 7787)
+            creature->SummonCreature(14435, -6247.22f, 1710.88f, 4.43f, 0.71f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+        return false;
+    }
 };
 
 /*###
