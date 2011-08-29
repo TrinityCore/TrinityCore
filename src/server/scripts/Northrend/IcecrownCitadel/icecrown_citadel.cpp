@@ -192,7 +192,7 @@ enum ICC_RAID_TRASH_SPELLS
 
         FROSTBINDER_DER_YMIRJAR_ARKTISCHE_KUEHLE                        = 71270, // Aggro
         FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_CAST                    = 71274, // Cast
-#define FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_MISSILE                 = 71285, // Missile / Schaden für FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL / Random Target
+        FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_MISSILE                 = 71285, // Missile / Schaden für FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_CAST / Random Target
 
         FROSTBINDER_DER_YMIRJAR_GEISTERFLUSS                            = 69929, // Außerhalb des Kampfes casten...
         FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE                         = 71306, // Random Target - Kein Effekt im Moment!
@@ -287,7 +287,8 @@ enum eICC_Raid_Events
     EVENT_TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS
 };
 
-#define NUM_YMIRJAR RAID_MODE(10,25,10,25)
+#define NUM_YMIRJAR     RAID_MODE(10,25,10,25)
+#define MAX_ESSENZEN    RAID_MODE(10,25,10,25)
 
 class mob_icc_raid_trash : public CreatureScript
 {
@@ -314,6 +315,7 @@ public:
         EventMap events;
         EventMap OOCevents;
         SummonList _summons;
+        uint8 EssenzenCnt;
 
         bool DieVerdammtenKnochenwirbel,
             DieVerdammtenZerschmKnochen,
@@ -328,6 +330,7 @@ public:
             EiternderSchreckenBombe = false;
             RasendeMonstrositaetWut = false;
             BastionsdienerKannibalismus = false;
+            EssenzenCnt = 0;
 
             events.Reset();
             OOCevents.Reset();
@@ -364,8 +367,12 @@ public:
         void JustSummoned(Creature * summon)
         {
             _summons.Summon(summon);
+
             if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summon->AI()->AttackStart(target);
+
+            if (summon->GetEntry() == ABGETRENNTE_ESSENZ)
+                ++EssenzenCnt;
         }
 
         void SummonedCreatureDespawn(Creature * summon)
@@ -507,7 +514,7 @@ public:
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_SPALTEN, urand(3000,5000));
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_BLIZZARD, urand(8000,12000));
             events.ScheduleEvent(EVENT_BASTIONSFROSTWYRM_FROSTATEM, urand(5000,8000));
-            events.ScheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL, urand(15 * IN_MILLISECONDS, 25 * IN_MILLISECONDS));
+            events.ScheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
             events.ScheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE, urand(SEKUNDEN_10, SEKUNDEN_20));
             events.ScheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_BARBARISCHER_STOSS, urand(SEKUNDEN_10, SEKUNDEN_20));
             events.ScheduleEvent(EVENT_KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH, urand(SEKUNDEN_10, SEKUNDEN_20));
@@ -759,6 +766,11 @@ public:
                         {
                             if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
                             {
+                                if (EssenzenCnt >= MAX_ESSENZEN)
+                                {
+                                    events.CancelEvent(EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ);
+                                    break;
+                                }
                                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
                                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
 
@@ -772,7 +784,7 @@ public:
                                     if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                         summon->AI()->AttackStart(pTarget);
 
-                                events.RescheduleEvent(EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ, urand(6 * IN_MILLISECONDS, SEKUNDEN_10));
+                                events.RescheduleEvent(EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ, urand(8 * IN_MILLISECONDS, SEKUNDEN_10));
                             }
                             else
                                 events.RescheduleEvent(EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ, 1 * IN_MILLISECONDS);
@@ -988,7 +1000,9 @@ public:
                                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
                                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
                                 if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
-                                    DoCast(pTarget, FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_CAST);
+                                    // TODO: FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_CAST muss automatisch FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_MISSILE auf das selbe Ziel casten,
+                                    //       nachdem FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_CAST beendet wurde! Wie?
+                                    DoCast(pTarget, FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_MISSILE);
                                 events.RescheduleEvent(EVENT_FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL, urand(SEKUNDEN_10, SEKUNDEN_20));
                                 break;
                             case EVENT_FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE:
