@@ -57,149 +57,152 @@ const Position FallenAddsWegPunkte[2] =
     { 4357.551758f, 3023.074463f, 360.518707f, 1.539818f },
 };
 
-enum ICC_RAID_TRASH_NPCS_UND_SPELLS
+enum ICC_RAID_TRASH_NPCS
 {
-        DIE_VERDAMMTEN                                                  = 37011,
+    DIE_VERDAMMTEN                          = 37011,
+    DIENER_DES_THRONS                       = 36724,
+    TODESGEWEIHTER_WAECHTER                 = 37007,
+    URALTER_SKELETT_SOLDAT                  = 37012,
+    BRUTHUETER_DER_NERUBAR                  = 36725,
+    AUFERSTANDENER_DIENER_DER_TODESSPRECHER = 36844,
+    ZELOT_DER_TODESSPRECHER                 = 36808,
+    DIENER_DER_TODESSPRECHER                = 36805,
+    JUENGER_DER_TODESSPRECHER               = 36807,
+    KNECHT_DER_TODESSPRECHER                = 36811,
+    HOHEPRIESTER_DER_TODESSPRECHER          = 36829,
+    BOTIN_DER_VALKYR                        = 37098,
+    VERSEUCHTE_MONSTROSITAET                = 37022,
+    EITERNDER_SCHRECKEN                     = 10404,
+    SEUCHENWISSENSCHAFTLER                  = 37023,
+    RACHSUECHTIGER_FLEISCHERNTER            = 37038,
+    VERWESENDER_KOLOSS                      = 36880,
+    SINISTRER_ERZMAGIER                     = 37664,
+    SINISTRER_ADLIGER                       = 37663,
+    SINISTRER_BLUTRITTER                    = 37595,
+    SINISTRER_BERATER                       = 37571,
+    SINISTRER_LEUTNANT                      = 37665,
+    SINISTRER_TAKTIKER                      = 37666,
+    SINISTRER_KOMMANDANT                    = 37662,
+    RASENDE_MONSTROSITAET                   = 37546,
+    BASTIONSGARGOYLE                        = 37544,
+    BASTIONSDIENER                          = 37545,
+    BASTIONSFROSTWYRM                       = 37230,
+    FROSTBINDER_DER_YMIRJAR                 = 37127,
+    KRIEGSMAID_DER_YMIRJAR                  = 37132,
+    KRIEGSFUERST_DER_YMIRJAR                = 37133,
+    JAEGERIN_DER_YMIRJAR                    = 37134,
+    TODESBRINGER_DER_YMIRJAR                = 38125
+};
+
+enum ICC_RAID_TRASH_SPELLS
+{
         DIE_VERDAMMTEN_KNOCHENWIRBEL                                    = 70960,
         DIE_VERDAMMTEN_ZERSCHMETTERTE_KNOCHEN                           = 70961,
 
-        DIENER_DES_THRONS                                               = 36724,
         DIENER_DES_THRONS_GLETSCHEREXPLOSION                            = 71029,
 
-        TODESGEWEIHTER_WAECHTER                                         = 37007,
         TODESGEWEIHTER_WAECHTER_SAEBELHIEB                              = 71021,
         TODESGEWEIHTER_WAECHTER_UNTERBRECHENDER_SCHREI                  = 71022,
         TODESGEWEIHTER_WAECHTER_STEINGESTALT                            = 70733,
 
-        URALTER_SKELETT_SOLDAT                                          = 37012,
         URALTER_SKELETT_SOLDAT_SCHILDHIEB                               = 70964,
 
-        BRUTHUETER_DER_NERUBAR                                          = 36725,
         BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG                         = 71020,
         BRUTHUETER_DER_NERUBAR_FANGNETZ                                 = 70980,
         BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN                          = 70965,
 
-        AUFERSTANDENER_DIENER_DER_TODESSPRECHER                         = 36844,
         AUFERSTANDENER_DIENER_DER_TODESSPRECHER_VERZEHRENDE_SCHATTEN    = 69405,
 #define AUFERSTANDENER_DIENER_DER_TODESSPRECHER_CHAOSBLITZ              RAID_MODE(69576,71108,69576,71108)
 #define AUFERSTANDENER_DIENER_DER_TODESSPRECHER_FLUCH_DER_PEIN          RAID_MODE(69404,71112,69404,71112)
 
-        ZELOT_DER_TODESSPRECHER                                         = 36808,
         ZELOT_DER_TODESSPRECHER_SCHATTENSPALTEN                         = 69492,
 
-        DIENER_DER_TODESSPRECHER                                        = 36805,
         DIENER_DER_TODESSPRECHER_VERZEHRENDE_SCHATTEN                   = 69405,
 #define DIENER_DER_TODESSPRECHER_CHAOSBLITZ                             RAID_MODE(69576,71108,69576,71108)
 #define DIENER_DER_TODESSPRECHER_FLUCH_DER_PEIN                         RAID_MODE(69404,71112,69404,71112)
 
-        JUENGER_DER_TODESSPRECHER                                       = 36807,
         JUENGER_DER_TODESSPRECHER_DUNKLER_SEGEN                         = 69391,
         JUENGER_DER_TODESSPRECHER_SCHATTENBLITZ                         = 69387,
 #define JUENGER_DER_TODESSPRECHER_SCHATTENHEILUNG                       RAID_MODE(69389,71107,69389,71107)
 
-        KNECHT_DER_TODESSPRECHER                                        = 36811,
         KNECHT_DER_TODESSPRECHER_SCHATTENBLITZ                          = 69387,
 #define KNECHT_DER_TODESSPRECHER_SCHATTENNOVA                           RAID_MODE(69355,71106,69355,71106)
 
-        HOHEPRIESTER_DER_TODESSPRECHER                                  = 36829,
         HOHEPRIESTER_DER_TODESSPRECHER_AURA_DER_DUNKELHEIT              = 69491,
         HOHEPRIESTER_DER_TODESSPRECHER_DUNKLE_ABRECHNUNG                = 69483,
 
-        BOTIN_DER_VALKYR                                                = 37098,
 #define BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ                             RAID_MODE(71906,71942,71906,71942)
 
-        VERSEUCHTE_MONSTROSITAET                                        = 37022,
         VERSEUCHTE_MONSTROSITAET_GEISSELHAKEN                           = 71140,
         VERSEUCHTE_MONSTROSITAET_SEUCHENWOLKE                           = 71150,
         VERSEUCHTE_MONSTROSITAET_SPALTEN                                = 40504,
 
-        EITERNDER_SCHRECKEN                                             = 10404,
         EITERNDER_SCHRECKEN_SEUCHENBOMBE                                = 71088,
 #define EITERNDER_SCHRECKEN_SPRUDELNDER_EITER                           RAID_MODE(71089,71090,71089,71090)
 
-        SEUCHENWISSENSCHAFTLER                                          = 37023,
         SEUCHENWISSENSCHAFTLER_MUTATIONSAUSLOESENDES_SPRAY              = 71103,
         SEUCHENWISSENSCHAFTLER_SEUCHENSCHLAG                            = 73079,
         SEUCHENWISSENSCHAFTLER_SEUCHENSTROM                             = 69871,
 
-        RACHSUECHTIGER_FLEISCHERNTER                                    = 37038,
         RACHSUECHTIGER_FLEISCHERNTER_EINGESPRUNGENER_GESICHTSZERMALMER  = 71164,
 
-        VERWESENDER_KOLOSS                                              = 36880,
 #define VERWESENDER_KOLOSS_MASSIVES_STAMPFEN                            RAID_MODE(71114,71115,71114,71115)
 
-        SINISTRER_ERZMAGIER                                             = 37664,
         SINISTRER_ERZMAGIER_ESSENZ_ENTZIEHEN                            = 70299,
         SINISTRER_ERZMAGIER_VERWANDLUNG_SPINNE                          = 70410,
 #define SINISTRER_ERZMAGIER_DRUCKWELLE                                  RAID_MODE(70407,71151,70407,71151)
 #define SINISTRER_ERZMAGIER_FEUERBALL                                   RAID_MODE(70409,71153,70409,71153)
 #define SINISTRER_ERZMAGIER_MAGIE_VERSTAERKEN                           RAID_MODE(70408,72336,70408,72336)
 
-        SINISTRER_ADLIGER                                               = 37663,
         SINISTRER_ADLIGER_ESSENZ_ENTZIEHEN                              = 70299,
         SINISTRER_ADLIGER_KETTEN_DES_SCHATTENS                          = 70645,
 #define SINISTRER_ADLIGER_SCHATTENBLITZ                                 RAID_MODE(72960,72961,72960,72961)
 
-        SINISTRER_BLUTRITTER                                            = 37595,
         SINISTRER_BLUTRITTER_ESSENZ_ENTZIEHEN                           = 70299,
         SINISTRER_BLUTRITTER_BLUTSPIEGEL                                = 70450,
         SINISTRER_BLUTRITTER_UNHEILIGER_STOSS                           = 70437,
         SINISTRER_BLUTRITTER_VAMPIRAURA                                 = 71736,
 
-        SINISTRER_BERATER                                               = 37571,
         SINISTRER_BERATER_UMHUELLUNG_DES_SCHUTZES                       = 72065,
         SINISTRER_BERATER_UMHUELLUNG_DES_ZAUBERSCHUTZES                 = 72066,
 #define SINISTRER_BERATER_LICHKLATSCHER                                 RAID_MODE(72057,72421,72057,72421)
 
-        SINISTRER_LEUTNANT                                              = 37665,
         SINISTRER_LEUTNANT_VAMPIRFLUCH                                  = 70423,
 #define SINISTRER_LEUTNANT_FLEISCHZERREISSEN                            RAID_MODE(70435,71154,70435,71154)
 
-        SINISTRER_TAKTIKER                                              = 37666,
         SINISTRER_TAKTIKER_BLUTENTZUG                                   = 70432,
         SINISTRER_TAKTIKER_UNHEILIGER_STOSS                             = 70437,
 
-        SINISTRER_KOMMANDANT                                            = 37662,
         SINISTRER_KOMMANDANT_SCHLACHTRUF                                = 70750,
 #define SINISTRER_KOMMANDANT_VAMPIRANSTURM                              RAID_MODE(70449,71155,70449,71155)
 
-        RASENDE_MONSTROSITAET                                           = 37546,
         RASENDE_MONSTROSITAET_SPALTEN                                   = 70191,
         RASENDE_MONSTROSITAET_WUTANFALL                                 = 70371,
 
-        BASTIONSGARGOYLE                                                = 37544,
         BASTIONSGARGOYLE_GIFT_SPUCKEN                                   = 70189,
-
-        BASTIONSDIENER                                                  = 37545,
         BASTIONSDIENER_GHOULSCHLITZEN                                   = 70396,
         BASTIONSDIENER_KANNIBALISMUS                                    = 70363,
 
-        BASTIONSFROSTWYRM                                               = 37230,
         BASTIONSFROSTWYRM_SPALTEN                                       = 70361,
 #define BASTIONSFROSTWYRM_BLIZZARD                                      RAID_MODE(70362,71118,70362,71118)
 #define BASTIONSFROSTWYRM_FROSTATEM                                     RAID_MODE(70116,72641,70116,72641)
 
-        FROSTBINDER_DER_YMIRJAR                                         = 37127,
         FROSTBINDER_DER_YMIRJAR_ARKTISCHE_KUEHLE                        = 71270, // Aggro
         FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL                         = 71274, // Random Target - Ohne Funktion im Moment! Cast Funzt, aber kein Effekt!
         FROSTBINDER_DER_YMIRJAR_GEISTERFLUSS                            = 69929, // Außerhalb des Kampfes casten...
         FROSTBINDER_DER_YMIRJAR_VERDREHTE_WINDE                         = 71306, // Random Target - Kein Effekt im Moment!
 
-        KRIEGSMAID_DER_YMIRJAR                                          = 37132,
         KRIEGSMAID_DER_YMIRJAR_BARBARISCHER_STOSS                       = 71257, // Victim
         KRIEGSMAID_DER_YMIRJAR_ADRENALINRAUSCH                          = 71258, // Aura!
 
-        KRIEGSFUERST_DER_YMIRJAR                                        = 37133,
         KRIEGSFUERST_DER_YMIRJAR_WIRBELWIND                             = 41056, // Selbst
 
-        JAEGERIN_DER_YMIRJAR                                            = 37134,
         JAEGERIN_DER_YMIRJAR_FLINKSCHUSS                                = 71251, // Selbst
         JAEGERIN_DER_YMIRJAR_FROSTFALLE                                 = 71249, // 20 Meter
         JAEGERIN_DER_YMIRJAR_KRIEGSFALKEN_BESCHWOEREN                   = 71705, // Nach Spawn
         JAEGERIN_DER_YMIRJAR_SALVE                                      = 71252, // Random Target - 10 - 40 Meter
         JAEGERIN_DER_YMIRJAR_SCHIESSEN                                  = 71253, // Target - 5 - 30 Meter
 
-        TODESBRINGER_DER_YMIRJAR                                        = 38125,
         TODESBRINGER_DER_YMIRJAR_GEISTERFLUSS                           = 69929, // Außerhalb des Kampfes casten...
 #define TODESBRINGER_DER_YMIRJAR_SCHATTENBLITZ                          RAID_MODE(71296,71297,71296,71297) // Target - 40 Meter
 #define TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES                     RAID_MODE(71299,71300,71299,71300) // Selbst - Dauer 10 Sek.
