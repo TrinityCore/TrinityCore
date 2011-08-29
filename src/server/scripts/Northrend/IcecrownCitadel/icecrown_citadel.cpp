@@ -999,7 +999,7 @@ public:
                             case EVENT_FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL:
                                 me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, true);
                                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_INTERRUPT_CAST, true);
-                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f))
+                                if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 40.0f))
                                     // TODO: FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_CAST muss automatisch FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_MISSILE auf das selbe Ziel casten,
                                     //       nachdem FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_CAST beendet wurde! Wie?
                                     DoCast(pTarget, FROSTBINDER_DER_YMIRJAR_GEFRORENE_KUGEL_MISSILE);
