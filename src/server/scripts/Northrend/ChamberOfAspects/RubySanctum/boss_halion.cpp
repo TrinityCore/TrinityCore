@@ -34,7 +34,7 @@ enum Texts
 
     EMOTE_TWILIGHT_OUT_TWILIGHT      = 0, // Your companion's efforts have forced Halion further out of the Twilight realm!
     EMOTE_TWILIGHT_IN_TWILIGHT       = 1, // Your efforts have forced Halion further into the Twilight realm!
-    EMOTE_PHYSICAL_OUT_P             = 2, // Your companion's efforts have forced Halion further out of the Physical realm!
+    EMOTE_PHYSICAL_OUT_PHYSICAL      = 2, // Your companion's efforts have forced Halion further out of the Physical realm!
     EMOTE_PHYSICAL_IN_PHYSICAL       = 3, // Your efforts have forced Halion further into the Physical realm!
     EMOTE_REGENERATE                 = 4, // Without pressure in both realms, Halion begins to regenerate.
     EMOTE_WARN_LASER                 = 5, // The orbiting spheres pulse with dark energy!
