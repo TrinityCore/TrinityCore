@@ -5596,16 +5596,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         triggered_spell_id = 71203;
                     break;
                 }
-                // Gaseous Bloat (Professor Putricide add)
-                case 70215:
-                case 72858:
-                case 72859:
-                case 72860:
-                {
-                    target = getVictim();
-                    triggered_spell_id = 70701;
-                    break;
-                }
                 // Essence of the Blood Queen
                 case 70871:
                 {
@@ -7906,6 +7896,27 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     RemoveAuraFromStack(71564);
                     *handled = true;
                     break;
+                // Gaseous Bloat
+                case 70672:
+                case 72455:
+                case 72832:
+                case 72833:
+                {
+                    *handled = true;
+                    uint32 stack = triggeredByAura->GetStackAmount();
+                    int32 const mod = (GetMap()->GetSpawnMode() & 1) ? 1500 : 1250;
+                    int32 dmg = 0;
+                    for (uint8 i = 1; i < stack; ++i)
+                        dmg += mod * stack;
+                    if (Unit* caster = triggeredByAura->GetCaster())
+                    {
+                        caster->CastCustomSpell(70701, SPELLVALUE_BASE_POINT0, dmg);
+                        if (Creature* creature = caster->ToCreature())
+                            creature->DespawnOrUnsummon(1);
+                    }
+                    break;
+                }
+                // Ball of Flames Proc
                 case 71756:
                 case 72782:
                 case 72783:
