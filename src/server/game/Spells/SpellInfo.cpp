@@ -1648,7 +1648,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     }
 
     // check UNIT_FLAG_NON_ATTACKABLE flag - a player can cast spells on his pet (or other controlled unit) though in any state
-    if (target != caster && target->GetCharmerOrOwnerGUID() != caster->GetGUID())
+    if (!IsPositive() && target != caster && target->GetCharmerOrOwnerGUID() != caster->GetGUID())
     {
         // any unattackable target skipped
         if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
