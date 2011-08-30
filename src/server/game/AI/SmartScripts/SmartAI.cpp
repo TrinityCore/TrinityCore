@@ -687,7 +687,7 @@ void SmartAI::SetData(uint32 id, uint32 value)
     GetScript()->ProcessEventsFor(SMART_EVENT_DATA_SET, NULL, id, value);
 }
 
-void SmartAI::SetGUID(const uint64 /*guid*/, int32 /*id*/)
+void SmartAI::SetGUID(uint64 /*guid*/, int32 /*id*/)
 {
 }
 
