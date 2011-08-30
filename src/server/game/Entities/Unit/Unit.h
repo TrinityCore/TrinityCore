@@ -2051,7 +2051,8 @@ class Unit : public WorldObject
         static Player* GetPlayer(WorldObject& object, uint64 guid);
         static Creature* GetCreature(WorldObject& object, uint64 guid);
 
-        MotionMaster* GetMotionMaster(){ return &i_motionMaster; }
+        MotionMaster* GetMotionMaster() { return &i_motionMaster; }
+        const MotionMaster* GetMotionMaster() const { return &i_motionMaster; }
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STAT_MOVING)); }
         void StopMoving();
