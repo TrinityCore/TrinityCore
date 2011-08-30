@@ -1601,7 +1601,8 @@ void Spell::EffectForceCast(SpellEffIndex effIndex)
                 break;
         }
     }
-    unitTarget->CastSpell(m_caster, spellInfo, true);
+    //unitTarget->CastSpell(m_caster, spellInfo, true);
+    unitTarget->CastSpell(m_caster, spellInfo, true, NULL, NULL, m_originalCasterGUID);
 }
 
 void Spell::EffectForceCastWithValue(SpellEffIndex effIndex)
@@ -5862,7 +5863,7 @@ void Spell::EffectReputation(SpellEffIndex effIndex)
     {
         rep_change = int32((float)rep_change * repData->spell_rate);
     }
-    
+
     // Bonus from spells that increase reputation gain
     float bonus = float(rep_change * _player->GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN) / 100.0); // 10%
     rep_change += (int32)bonus;
