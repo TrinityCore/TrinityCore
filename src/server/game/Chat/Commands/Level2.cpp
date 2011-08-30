@@ -408,21 +408,31 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
 
     // Add map, zone, subzone and phase to output
     int locale = GetSessionDbcLocale();
+    std::string areaName = "<unknown>";
+    std::string zoneName = "";
 
     MapEntry const* map = sMapStore.LookupEntry(mapId);
 
     AreaTableEntry const* area = GetAreaEntryByAreaID(areaId);
-    AreaTableEntry const* zone = NULL;
+    if (area)
+    {
+        areaName = area->area_name[locale];
+
+        AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone);
+
+        if (zone)
+            zoneName = zone->area_name[locale];
+    }
 
     if (target)
     {
-        if (AreaTableEntry const* zone = GetAreaEntryByAreaID(area->zone))
-            PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name[locale], zone->area_name[locale], area->area_name[locale], phase);
+        if (!zoneName.empty())
+            PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name[locale], zoneName.c_str(), areaName.c_str(), phase);
         else
-            PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name[locale], area->area_name[locale], "--", phase);
+            PSendSysMessage(LANG_PINFO_MAP_ONLINE, map->name[locale], areaName.c_str(), "<unknown>", phase);
     }
     else
-        PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name[locale], area->area_name[locale]);
+        PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name[locale], areaName.c_str());
 
     return true;
 }
