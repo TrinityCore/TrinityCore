@@ -53,7 +53,7 @@ ArenaTeam* ArenaTeamMgr::GetArenaTeamByName(const std::string& arenaTeamName) co
     return NULL;
 }
 
-ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(uint64 const guid) const
+ArenaTeam* ArenaTeamMgr::GetArenaTeamByCaptain(uint64 guid) const
 {
     for (ArenaTeamContainer::const_iterator itr = ArenaTeamStore.begin(); itr != ArenaTeamStore.end(); ++itr)
         if (itr->second->GetCaptain() == guid)

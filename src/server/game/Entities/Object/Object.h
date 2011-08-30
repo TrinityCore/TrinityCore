@@ -125,29 +125,9 @@ class Object
         virtual ~Object ();
 
         bool IsInWorld() const { return m_inWorld; }
-        virtual void AddToWorld()
-        {
-            if (m_inWorld)
-                return;
 
-            ASSERT(m_uint32Values);
-
-            m_inWorld = true;
-
-            // synchronize values mirror with values array (changes will send in updatecreate opcode any way
-            ClearUpdateMask(true);
-        }
-
-        virtual void RemoveFromWorld()
-        {
-            if (!m_inWorld)
-                return;
-
-            m_inWorld = false;
-
-            // if we remove from world then sending changes not required
-            ClearUpdateMask(true);
-        }
+        virtual void AddToWorld();
+        virtual void RemoveFromWorld();
 
         uint64 GetGUID() const { return GetUInt64Value(0); }
         uint32 GetGUIDLow() const { return GUID_LOPART(GetUInt64Value(0)); }
@@ -210,7 +190,7 @@ class Object
         void SetInt32Value(uint16 index, int32 value);
         void SetUInt32Value(uint16 index, uint32 value);
         void UpdateUInt32Value(uint16 index, uint32 value);
-        void SetUInt64Value(uint16 index, uint64 const value);
+        void SetUInt64Value(uint16 index, uint64 value);
         void SetFloatValue(uint16 index, float value);
         void SetByteValue(uint16 index, uint8 offset, uint8 value);
         void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
@@ -218,8 +198,8 @@ class Object
         void SetStatFloatValue(uint16 index, float value);
         void SetStatInt32Value(uint16 index, int32 value);
 
-        bool AddUInt64Value(uint16 index, uint64 const value);
-        bool RemoveUInt64Value(uint16 index, uint64 const value);
+        bool AddUInt64Value(uint16 index, uint64 value);
+        bool RemoveUInt64Value(uint16 index, uint64 value);
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
@@ -725,7 +705,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
-        virtual void SendMessageToSet(WorldPacket *data, bool self) { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
+        virtual void SendMessageToSet(WorldPacket *data, bool self);
         virtual void SendMessageToSetInRange(WorldPacket *data, float dist, bool self);
         virtual void SendMessageToSet(WorldPacket *data, Player const* skipped_rcvr);
 
@@ -806,11 +786,11 @@ class WorldObject : public Object, public WorldLocation
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
 
-        Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true);
-        GameObject* FindNearestGameObject(uint32 entry, float range);
+        Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+        GameObject* FindNearestGameObject(uint32 entry, float range) const;
 
-        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange);
-        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange);
+        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
+        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
@@ -884,11 +864,14 @@ namespace Trinity
     template<class T>
     void RandomResizeList(std::list<T> &_list, uint32 _size)
     {
-        while (_list.size() > _size)
+        size_t list_size = _list.size();
+
+        while (list_size > _size)
         {
             typename std::list<T>::iterator itr = _list.begin();
-            advance(itr, urand(0, _list.size() - 1));
+            std::advance(itr, urand(0, list_size - 1));
             _list.erase(itr);
+            --list_size;
         }
     }
 
