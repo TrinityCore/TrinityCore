@@ -23,13 +23,14 @@
 class GuildMgr
 {
     friend class ACE_Singleton<GuildMgr, ACE_Null_Mutex>;
+private:
     GuildMgr();
     ~GuildMgr();
 
 public:
     typedef UNORDERED_MAP<uint32, Guild*> GuildContainer;
 
-    Guild* GetGuildByLeader(uint64 const guid) const;
+    Guild* GetGuildByLeader(uint64 guid) const;
     Guild* GetGuildById(uint32 guildId) const;
     Guild* GetGuildByName(const std::string& guildName) const;
     std::string GetGuildNameById(uint32 guildId) const;

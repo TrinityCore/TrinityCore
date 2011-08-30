@@ -295,12 +295,8 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recv_data)
     if (_player->m_mover != _player)
         return;
 
-    GameObject *obj = GetPlayer()->GetMap()->GetGameObject(guid);
-
-    if (!obj)
-        return;
-
-    obj->Use(_player);
+    if (GameObject *obj = GetPlayer()->GetMap()->GetGameObject(guid))
+        obj->Use(_player);
 }
 
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
