@@ -361,7 +361,7 @@ public:
             bRemoveFlag = false;
         }
 
-        void SetGUID(const uint64 guid, int32 /*id*/)
+        void SetGUID(uint64 guid, int32 /*id*/)
         {
             uiPlayerGUID = guid;
         }

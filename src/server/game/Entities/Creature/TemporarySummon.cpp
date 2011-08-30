@@ -203,7 +203,7 @@ void TempSummon::InitStats(uint32 duration)
 
     if (m_Properties->Faction)
         setFaction(m_Properties->Faction);
-    else if (IsVehicle()) // properties should be vehicle
+    else if (IsVehicle() && owner) // properties should be vehicle
         setFaction(owner->getFaction());
 }
 
