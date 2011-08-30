@@ -107,10 +107,11 @@ public:
                 pInstance->SetData(DATA_PRINCE_TALDARAM_EVENT, NOT_STARTED);
 
             if (!CheckSpheres())
-            {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            }
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE);
+            else
+                me->RemoveAllAuras();
+
+            // TODO: Taldaram geht bei einem Reset() nicht nach Hause! :-(
         }
 
         void EnterCombat(Unit * /*who*/)
@@ -125,11 +126,10 @@ public:
 
         void DamageTaken(Unit * /*done_by*/, uint32 & damage)
         {
-            Unit * pEmbraceTarget = GetEmbraceTarget();
-
-            if (Phase == FEEDING && pEmbraceTarget && pEmbraceTarget->isAlive())
+            if (Phase == FEEDING && GetEmbraceTarget() && GetEmbraceTarget()->isAlive())
             {
                 uiEmbraceTakenDamage += damage;
+
                 if (uiEmbraceTakenDamage > uint32(DUNGEON_MODE(DATA_EMBRACE_DMG, H_DATA_EMBRACE_DMG)))
                 {
                     Phase = NORMAL;
@@ -150,17 +150,14 @@ public:
 
         void KilledUnit(Unit * victim)
         {
-            if (victim == me)
-                return;
-
-            Unit * pEmbraceTarget = GetEmbraceTarget();
-            if (Phase == FEEDING && pEmbraceTarget && victim == pEmbraceTarget)
+            if (Phase == FEEDING && GetEmbraceTarget() && victim == GetEmbraceTarget())
             {
                 Phase = NORMAL;
                 uiPhaseTimer = 0;
                 uiEmbraceTarget = 0;
             }
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            if (victim && victim->GetTypeId() == TYPEID_PLAYER)
+                DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
         }
 
         bool CheckSpheres()
@@ -181,32 +178,31 @@ public:
                 if (pSpheres->GetGoState() != GO_STATE_ACTIVE)
                     return false;
             }
-            RemovePrison();
-            return true;
+            return RemovePrison();
         }
 
         Unit * GetEmbraceTarget()
         {
-            if (!uiEmbraceTarget)
-                return NULL;
-
-            return Unit::GetUnit(*me, uiEmbraceTarget);
+            return me->GetMap()->GetCreature(uiEmbraceTarget);
         }
 
-        void RemovePrison()
+        bool RemovePrison()
         {
             if (!pInstance)
-                return;
+                return false;
 
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->RemoveAurasDueToSpell(SPELL_BEAM_VISUAL);
-            me->SetUnitMovementFlags(MOVEMENTFLAG_WALKING);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+            me->RemoveAllAuras();
+
             me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), DATA_GROUND_POSITION_Z, me->GetOrientation());
+
+            me->GetMotionMaster()->Clear();
+            me->GetMotionMaster()->Initialize();
             me->GetMotionMaster()->MoveTargetedHome();
-            uint64 prison_GUID = pInstance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM);
-            pInstance->HandleGameObject(prison_GUID, true);
+
+            pInstance->HandleGameObject(pInstance->GetData64(DATA_PRINCE_TALDARAM_PLATFORM), true);
+
+            return true;
         }
 
         void UpdateAI(const uint32 diff)
@@ -271,11 +267,11 @@ public:
                         if (me->HasUnitState(UNIT_STAT_CASTING))
                             return;
 
-                        if (Unit * pEmbraceTarget = GetEmbraceTarget())
+                        if (GetEmbraceTarget())
                         {
                             me->AttackStop();
                             me->SetSpeed(MOVE_WALK, 2.0f, true);
-                            me->GetMotionMaster()->MoveChase(pEmbraceTarget);
+                            me->GetMotionMaster()->MoveChase(GetEmbraceTarget());
                         }
                         Phase = VANISHED;
                         uiPhaseTimer = 1300;
@@ -286,8 +282,8 @@ public:
 
                         me->SetHealth(health);
 
-                        if (Unit * pEmbraceTarget = GetEmbraceTarget())
-                            DoCast(pEmbraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
+                        if (GetEmbraceTarget())
+                            DoCast(GetEmbraceTarget(), SPELL_EMBRACE_OF_THE_VAMPYR);
 
                         me->AttackStop();
                         me->SetSpeed(MOVE_WALK, 1.0f, true);
@@ -307,8 +303,8 @@ public:
 
                         if (uiBloodthirstTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_BLOODTHIRST);
-                            uiBloodthirstTimer = SEKUNDEN_10;
+                            DoCast(me, SPELL_BLOODTHIRST);
+                            uiBloodthirstTimer = urand(SEKUNDEN_10, SEKUNDEN_20);
                         } else uiBloodthirstTimer -= diff;
 
                         if (uiFlamesphereTimer <= diff)
