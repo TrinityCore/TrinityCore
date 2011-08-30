@@ -19610,8 +19610,8 @@ void Player::SendRemoveControlBar()
 
 bool Player::IsAffectedBySpellmod(SpellInfo const *spellInfo, SpellModifier *mod, Spell* spell)
 {
-     if (!mod || !spellInfo)
-         return false;
+    if (!mod || !spellInfo)
+        return false;
 
     // Mod out of charges
     if (spell && mod->charges == -1 && spell->m_appliedMods.find(mod->ownerAura) == spell->m_appliedMods.end())

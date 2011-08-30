@@ -551,8 +551,8 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_autoRepeat = m_spellInfo->IsAutoRepeatRangedSpell();
 
     m_runesState = 0;
-    m_powerCost = 0;                                        // setup to correct value in Spell::prepare, don't must be used before.
-    m_casttime = 0;                                         // setup to correct value in Spell::prepare, don't must be used before.
+    m_powerCost = 0;                                        // setup to correct value in Spell::prepare, must not be used before.
+    m_casttime = 0;                                         // setup to correct value in Spell::prepare, must not be used before.
     m_timer = 0;                                            // will set to castime in prepare
 
     m_channelTargetEffectMask = 0;
@@ -1237,18 +1237,16 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
     }
 
     // Do not take combo points on dodge and miss
-    if (m_needComboPoints && m_targets.GetUnitTargetGUID() == target->targetGUID)
-        if (missInfo != SPELL_MISS_NONE)
-        {
-            m_needComboPoints = false;
-            // Restore spell mods for a miss/dodge/parry Cold Blood
-            // TODO: check how broad this rule should be
-            if (m_caster->GetTypeId() == TYPEID_PLAYER)
-                if ((missInfo == SPELL_MISS_MISS) ||
-                    (missInfo == SPELL_MISS_DODGE) ||
-                    (missInfo == SPELL_MISS_PARRY))
-                    m_caster->ToPlayer()->RestoreSpellMods(this, 14177);
-        }
+    if (missInfo != SPELL_MISS_NONE && m_needComboPoints &&
+            m_targets.GetUnitTargetGUID() == target->targetGUID)
+    {
+        m_needComboPoints = false;
+        // Restore spell mods for a miss/dodge/parry Cold Blood
+        // TODO: check how broad this rule should be
+        if (m_caster->GetTypeId() == TYPEID_PLAYER && (missInfo == SPELL_MISS_MISS ||
+                missInfo == SPELL_MISS_DODGE || missInfo == SPELL_MISS_PARRY))
+            m_caster->ToPlayer()->RestoreSpellMods(this, 14177);
+    }
 
     // Trigger info was not filled in spell::preparedatafortriggersystem - we do it now
     if (canEffectTrigger && !procAttacker && !procVictim)
@@ -1546,8 +1544,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask, bool 
                     ((UnitAura*)m_spellAura)->SetDiminishGroup(m_diminishGroup);
 
                     bool positive = m_spellAura->GetSpellInfo()->IsPositive();
-                    AuraApplication* aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID());
-                    if (aurApp)
+                    if (AuraApplication* aurApp = m_spellAura->GetApplicationOfTarget(m_originalCaster->GetGUID()))
                         positive = aurApp->IsPositive();
 
                     duration = m_originalCaster->ModSpellDuration(aurSpellInfo, unit, duration, positive);

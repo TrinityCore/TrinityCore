@@ -6457,16 +6457,14 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         }
         case SPELLFAMILY_ROGUE:
         {
-            switch(dummySpell->Id)
+            switch (dummySpell->Id)
             {
-                // Glyph of Backstab
-                case 56800:
+                case 56800: // Glyph of Backstab
                 {
                     triggered_spell_id = 63975;
                     break;
                 }
-                // Deadly Throw Interrupt
-                case 32748:
+                case 32748: // Deadly Throw Interrupt
                 {
                     // Prevent cast Deadly Throw Interrupt on self from last effect (apply dummy) of Deadly Throw
                     if (this == victim)
@@ -6476,124 +6474,126 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     break;
                 }
             }
-            // Cut to the Chase
-            if (dummySpell->SpellIconID == 2909)
+
+            switch (dummySpell->SpellIconID)
             {
-                // "refresh your Slice and Dice duration to its 5 combo point maximum"
-                // lookup Slice and Dice
-                if (AuraEffect const* aur = GetAuraEffect(SPELL_AURA_MOD_MELEE_HASTE, SPELLFAMILY_ROGUE, 0x40000, 0, 0))
+                case 2116: // Quick Recovery
                 {
-                    aur->GetBase()->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
-                    return true;
+                    if (!procSpell)
+                        return false;
+
+                    // energy cost save
+                    basepoints0 = CalculatePctN(int32(procSpell->ManaCost), triggerAmount);
+                    if (basepoints0 <= 0)
+                        return false;
+
+                    target = this;
+                    triggered_spell_id = 31663;
+                    break;
                 }
-                return false;
-            }
-            // Deadly Brew
-            else if (dummySpell->SpellIconID == 2963)
-            {
-                triggered_spell_id = 3409;
-                break;
-            }
-            // Quick Recovery
-            else if (dummySpell->SpellIconID == 2116)
-            {
-                if (!procSpell)
+                case 2909: // Cut to the Chase
+                {
+                    // "refresh your Slice and Dice duration to its 5 combo point maximum"
+                    // lookup Slice and Dice
+                    if (AuraEffect const* aur = GetAuraEffect(SPELL_AURA_MOD_MELEE_HASTE, SPELLFAMILY_ROGUE, 0x40000, 0, 0))
+                    {
+                        aur->GetBase()->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
+                        return true;
+                    }
                     return false;
-
-                // energy cost save
-                basepoints0 = CalculatePctN(int32(procSpell->ManaCost), triggerAmount);
-                if (basepoints0 <= 0)
-                    return false;
-
-                target = this;
-                triggered_spell_id = 31663;
-                break;
+                }
+                case 2963: // Deadly Brew
+                {
+                    triggered_spell_id = 3409;
+                    break;
+                }
             }
             break;
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Thrill of the Hunt
-            if (dummySpell->SpellIconID == 2236)
+            switch (dummySpell->SpellIconID)
             {
-                if (!procSpell)
-                    return false;
-
-                Spell* spell = ToPlayer()->m_spellModTakingSpell;
-
-                // Disable charge drop because of Lock and Load
-                ToPlayer()->SetSpellModTakingSpell(spell, false);
-
-                // Explosive Shot
-                if (procSpell->SpellFamilyFlags[2] & 0x200)
+                case 267: // Improved Mend Pet
                 {
-                    if (AuraEffect const* pEff = victim->GetAuraEffect(SPELL_AURA_PERIODIC_DUMMY, SPELLFAMILY_HUNTER, 0x0, 0x80000000, 0x0, GetGUID()))
-                        basepoints0 = pEff->GetSpellInfo()->CalcPowerCost(this, SpellSchoolMask(pEff->GetSpellInfo()->SchoolMask)) * 4/10/3;
+                    int32 chance = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcValue();
+                    if (!roll_chance_i(chance))
+                        return false;
+
+                    triggered_spell_id = 24406;
+                    break;
                 }
-                else
-                    basepoints0 = procSpell->CalcPowerCost(this, SpellSchoolMask(procSpell->SchoolMask)) * 4/10;
-
-                ToPlayer()->SetSpellModTakingSpell(spell, true);
-
-                if (basepoints0 <= 0)
-                    return false;
-
-                target = this;
-                triggered_spell_id = 34720;
-                break;
-            }
-            // Hunting Party
-            if (dummySpell->SpellIconID == 3406)
-            {
-                triggered_spell_id = 57669;
-                target = this;
-                break;
-            }
-            // Improved Mend Pet
-            if (dummySpell->SpellIconID == 267)
-            {
-                int32 chance = triggeredByAura->GetSpellInfo()->Effects[triggeredByAura->GetEffIndex()].CalcValue();
-                if (!roll_chance_i(chance))
-                    return false;
-
-                triggered_spell_id = 24406;
-                break;
-            }
-            // Lock and Load
-            if (dummySpell->SpellIconID == 3579)
-            {
-                // Proc only from periodic (from trap activation proc another aura of this spell)
-                if (!(procFlag & PROC_FLAG_DONE_PERIODIC) || !roll_chance_i(triggerAmount))
-                    return false;
-                triggered_spell_id = 56453;
-                target = this;
-                break;
-            }
-            // Rapid Recuperation
-            if (dummySpell->SpellIconID == 3560)
-            {
-                // This effect only from Rapid Killing (mana regen)
-                if (!(procSpell->SpellFamilyFlags[1] & 0x01000000))
-                    return false;
-
-                target = this;
-
-                switch(dummySpell->Id)
+                case 2236: // Thrill of the Hunt
                 {
-                    case 53228:                             // Rank 1
-                        triggered_spell_id = 56654;
-                        break;
-                    case 53232:                             // Rank 2
-                        triggered_spell_id = 58882;
-                        break;
+                    if (!procSpell)
+                        return false;
+
+                    Spell* spell = ToPlayer()->m_spellModTakingSpell;
+
+                    // Disable charge drop because of Lock and Load
+                    ToPlayer()->SetSpellModTakingSpell(spell, false);
+
+                    // Explosive Shot
+                    if (procSpell->SpellFamilyFlags[2] & 0x200)
+                    {
+                        if (AuraEffect const* pEff = victim->GetAuraEffect(SPELL_AURA_PERIODIC_DUMMY, SPELLFAMILY_HUNTER, 0x0, 0x80000000, 0x0, GetGUID()))
+                            basepoints0 = pEff->GetSpellInfo()->CalcPowerCost(this, SpellSchoolMask(pEff->GetSpellInfo()->SchoolMask)) * 4/10/3;
+                    }
+                    else
+                        basepoints0 = procSpell->CalcPowerCost(this, SpellSchoolMask(procSpell->SchoolMask)) * 4/10;
+
+                    ToPlayer()->SetSpellModTakingSpell(spell, true);
+
+                    if (basepoints0 <= 0)
+                        return false;
+
+                    target = this;
+                    triggered_spell_id = 34720;
+                    break;
                 }
-                break;
+                case 3406: // Hunting Party
+                {
+                    triggered_spell_id = 57669;
+                    target = this;
+                    break;
+                }
+                case 3560: // Rapid Recuperation
+                {
+                    // This effect only from Rapid Killing (mana regen)
+                    if (!(procSpell->SpellFamilyFlags[1] & 0x01000000))
+                        return false;
+
+                    target = this;
+
+                    switch (dummySpell->Id)
+                    {
+                        case 53228:                             // Rank 1
+                            triggered_spell_id = 56654;
+                            break;
+                        case 53232:                             // Rank 2
+                            triggered_spell_id = 58882;
+                            break;
+                    }
+                    break;
+                }
+                case 3579: // Lock and Load
+                {
+                    // Proc only from periodic (from trap activation proc another aura of this spell)
+                    if (!(procFlag & PROC_FLAG_DONE_PERIODIC) || !roll_chance_i(triggerAmount))
+                        return false;
+                    triggered_spell_id = 56453;
+                    target = this;
+                    break;
+                }
             }
-            // Glyph of Mend Pet
-            if (dummySpell->Id == 57870)
+
+            switch (dummySpell->Id)
             {
-                victim->CastSpell(victim, 57894, true, NULL, NULL, GetGUID());
-                return true;
+                case 57870: // Glyph of Mend Pet
+                {
+                    victim->CastSpell(victim, 57894, true, NULL, NULL, GetGUID());
+                    return true;
+                }
             }
             break;
         }
@@ -8411,76 +8411,42 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         target = this;
                         break;
                     }
-                    // Lightning Capacitor
-                    case 37657:
+                    case 37657: // Lightning Capacitor
+                    case 54841: // Thunder Capacitor
+                    case 67712: // Item - Coliseum 25 Normal Caster Trinket
+                    case 67758: // Item - Coliseum 25 Heroic Caster Trinket
                     {
-                        if (!victim || !victim->isAlive())
+                        if (!victim || !victim->isAlive() || GetTypeId() != TYPEID_PLAYER)
                             return false;
-                        // stacking
-                        CastSpell(this, 37658, true, NULL, triggeredByAura);
 
-                        Aura* dummy = GetAura(37658);
-                        // release at 3 aura in stack (cont contain in basepoint of trigger aura)
+                        uint32 stack_spell_id = 0;
+                        switch (auraSpellInfo->Id)
+                        {
+                            case 37657:
+                                stack_spell_id = 37658;
+                                trigger_spell_id = 37661;
+                                break;
+                            case 54841:
+                                stack_spell_id = 54842;
+                                trigger_spell_id = 54843;
+                                break;
+                            case 67712:
+                                stack_spell_id = 67713;
+                                trigger_spell_id = 67714;
+                                break;
+                            case 67758:
+                                stack_spell_id = 67759;
+                                trigger_spell_id = 67760;
+                                break;
+                        }
+
+                        CastSpell(this, stack_spell_id, true, NULL, triggeredByAura);
+
+                        Aura* dummy = GetAura(stack_spell_id);
                         if (!dummy || dummy->GetStackAmount() < triggerAmount)
                             return false;
 
-                        RemoveAurasDueToSpell(37658);
-                        trigger_spell_id = 37661;
-                        target = victim;
-                        break;
-                    }
-                    // Thunder Capacitor
-                    case 54841:
-                    {
-                        if (!victim || !victim->isAlive())
-                            return false;
-                        // stacking
-                        CastSpell(this, 54842, true, NULL, triggeredByAura);
-
-                        // counting
-                        Aura* dummy = GetAura(54842);
-                        // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
-                            return false;
-
-                        RemoveAurasDueToSpell(54842);
-                        trigger_spell_id = 54843;
-                        target = victim;
-                        break;
-                    }
-                    //Item - Coliseum 25 Normal Caster Trinket
-                    case 67712:
-                    {
-                        if (!victim || !victim->isAlive())
-                            return false;
-                        // stacking
-                        CastSpell(this, 67713, true, NULL, triggeredByAura);
-
-                        Aura* dummy = GetAura(67713);
-                        // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
-                            return false;
-
-                        RemoveAurasDueToSpell(67713);
-                        trigger_spell_id = 67714;
-                        target = victim;
-                        break;
-                    }
-                    //Item - Coliseum 25 Heroic Caster Trinket
-                    case 67758:
-                    {
-                        if (!victim || !victim->isAlive())
-                            return false;
-                        // stacking
-                        CastSpell(this, 67759, true, NULL, triggeredByAura);
-
-                        Aura* dummy = GetAura(67759);
-                        // release at 3 aura in stack (cont contain in basepoint of trigger aura)
-                        if (!dummy || dummy->GetStackAmount() < triggerAmount)
-                            return false;
-
-                        RemoveAurasDueToSpell(67759);
-                        trigger_spell_id = 67760;
+                        RemoveAurasDueToSpell(stack_spell_id);
                         target = victim;
                         break;
                     }
@@ -11742,8 +11708,6 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
         TakenFlatBenefit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_MELEE_DAMAGE_TAKEN);
     else
         TakenFlatBenefit += victim->GetTotalAuraModifier(SPELL_AURA_MOD_RANGED_DAMAGE_TAKEN);
-
-    Player* player = ToPlayer();
 
     // Done/Taken total percent damage auras
     float DoneTotalMod = 1.0f;
