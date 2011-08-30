@@ -2402,14 +2402,22 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     }
 
     // Check for attack from behind
-    if (!victim->HasInArc(M_PI, this) && !victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+    if (!victim->HasInArc(M_PI, this))
     {
-        // Can`t dodge from behind in PvP (but its possible in PvE)
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-            canDodge = false;
-        // Can`t parry or block
-        canParry = false;
-        canBlock = false;
+        if (!victim->HasAuraType(SPELL_AURA_IGNORE_HIT_DIRECTION))
+        {
+            // Can`t dodge from behind in PvP (but its possible in PvE)
+            if (victim->GetTypeId() == TYPEID_PLAYER)
+                canDodge = false;
+            // Can`t parry or block
+            canParry = false;
+            canBlock = false;
+        }
+        else // Only deterrence as of 3.3.5
+        {
+            if (spell->AttributesCu & SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET)
+                canParry = false;
+        }
     }
     // Check creatures flags_extra for disable parry
     if (victim->GetTypeId() == TYPEID_UNIT)
@@ -5616,16 +5624,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         triggered_spell_id = 71203;
                     break;
                 }
-                // Gaseous Bloat (Professor Putricide add)
-                case 70215:
-                case 72858:
-                case 72859:
-                case 72860:
-                {
-                    target = getVictim();
-                    triggered_spell_id = 70701;
-                    break;
-                }
                 // Essence of the Blood Queen
                 case 70871:
                 {
@@ -7926,6 +7924,27 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     RemoveAuraFromStack(71564);
                     *handled = true;
                     break;
+                // Gaseous Bloat
+                case 70672:
+                case 72455:
+                case 72832:
+                case 72833:
+                {
+                    *handled = true;
+                    uint32 stack = triggeredByAura->GetStackAmount();
+                    int32 const mod = (GetMap()->GetSpawnMode() & 1) ? 1500 : 1250;
+                    int32 dmg = 0;
+                    for (uint8 i = 1; i < stack; ++i)
+                        dmg += mod * stack;
+                    if (Unit* caster = triggeredByAura->GetCaster())
+                    {
+                        caster->CastCustomSpell(70701, SPELLVALUE_BASE_POINT0, dmg);
+                        if (Creature* creature = caster->ToCreature())
+                            creature->DespawnOrUnsummon(1);
+                    }
+                    break;
+                }
+                // Ball of Flames Proc
                 case 71756:
                 case 72782:
                 case 72783:
@@ -11648,7 +11667,8 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
         // Check for immune to application of harmful magical effects
         AuraEffectList const& immuneAuraApply = GetAuraEffectsByType(SPELL_AURA_MOD_IMMUNE_AURA_APPLY_SCHOOL);
         for (AuraEffectList::const_iterator iter = immuneAuraApply.begin(); iter != immuneAuraApply.end(); ++iter)
-            if ((spellInfo->Dispel == DISPEL_MAGIC || spellInfo->Dispel == DISPEL_CURSE)    // Magic or curse debuff
+            if ((spellInfo->Dispel == DISPEL_MAGIC || spellInfo->Dispel == DISPEL_CURSE     // Magic, poison, disease or curse debuff
+                || spellInfo->Dispel == DISPEL_POISON || spellInfo->Dispel == DISPEL_DISEASE)
                 && ((*iter)->GetMiscValue() & spellInfo->GetSchoolMask())                   // Check school
                 && !spellInfo->IsPositiveEffect(index))                                     // Harmful
                 return true;
@@ -14270,14 +14290,14 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* pTarget, uint32 procFlag, 
         if (isVictim)
             procExtra &= ~PROC_EX_INTERNAL_REQ_FAMILY;
         SpellInfo const* spellProto = itr->second->GetBase()->GetSpellInfo();
-        
+
         // Spells with this flag should proc only if damages are not fully absorbed
         if (procExtra & PROC_EX_ABSORB && isVictim)
-            if (damage || spellProto->Effects[0].Effect == SPELL_EFFECT_TRIGGER_SPELL || 
-                spellProto->Effects[1].Effect == SPELL_EFFECT_TRIGGER_SPELL || 
+            if (damage || spellProto->Effects[0].Effect == SPELL_EFFECT_TRIGGER_SPELL ||
+                spellProto->Effects[1].Effect == SPELL_EFFECT_TRIGGER_SPELL ||
                 spellProto->Effects[2].Effect == SPELL_EFFECT_TRIGGER_SPELL /*(spellProto->AttributesEx4 & SPELL_ATTR4_UNK19) != 0*/)
                 active = true;
-        
+
         if (!IsTriggeredAtSpellProcEvent(pTarget, triggerData.aura, procSpell, procFlag, procExtra, attType, isVictim, active, triggerData.spellProcEvent))
             continue;
 
