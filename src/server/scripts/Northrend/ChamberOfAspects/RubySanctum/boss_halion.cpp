@@ -451,9 +451,6 @@ class boss_twilight_halion : public CreatureScript
                 // As a consequence, the Twilight Halion entering evade mode does not end the encounter.
                 if (events.GetPhaseMask() & PHASE_TWO_MASK)
                     return;
-
-                // However, on phase 3, if one halion is not engaged, he begins to heal by big chunks.
-                ScriptedAI::JustReachedHome();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)

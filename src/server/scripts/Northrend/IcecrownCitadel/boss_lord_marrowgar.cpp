@@ -252,7 +252,7 @@ class boss_lord_marrowgar : public CreatureScript
                 return 0LL;
             }
 
-            void SetGUID(uint64 const guid, int32 type/* = 0 */)
+            void SetGUID(uint64 guid, int32 type/* = 0 */)
             {
                 if (type != DATA_COLDFLAME_GUID)
                     return;

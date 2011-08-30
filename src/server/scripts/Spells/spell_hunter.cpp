@@ -57,7 +57,7 @@ public:
                 return false;
             return true;
         }
-        
+
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             if (!GetCaster())
