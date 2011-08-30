@@ -257,7 +257,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     Talk(SAY_KILL);
             }
 
-            void SetGUID(uint64 const guid, int32 type = 0)
+            void SetGUID(uint64 guid, int32 type = 0)
             {
                 switch (type)
                 {
