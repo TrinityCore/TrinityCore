@@ -189,7 +189,7 @@ public:
             std::vector<Unit*> targets;
             std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
 
-            if (!t_list.size())
+            if (t_list.empty())
                 return;
 
             //store the threat list in a different container
