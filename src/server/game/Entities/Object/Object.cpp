@@ -122,7 +122,7 @@ void Object::_InitValues()
     memset(m_uint32Values, 0, m_valuesCount*sizeof(uint32));
 
     _changedFields = new bool[m_valuesCount];
-    memset(_changedFields, 0, sizeof(_changedFields));
+    memset(_changedFields, 0, m_valuesCount*sizeof(bool));
 
     m_objectUpdated = false;
 }
@@ -750,7 +750,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask 
 
 void Object::ClearUpdateMask(bool remove)
 {
-    memset(_changedFields, 0, sizeof(_changedFields));
+    memset(_changedFields, 0, m_valuesCount*sizeof(bool));
 
     if (m_objectUpdated)
     {
