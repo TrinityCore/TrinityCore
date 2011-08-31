@@ -195,7 +195,7 @@ public:
                     case NORMAL:
                         if (uiBloodthirstTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_BLOODTHIRST);
+                            DoCast(me, SPELL_BLOODTHIRST);
                             uiBloodthirstTimer = 10*IN_MILLISECONDS;
                         } else uiBloodthirstTimer -= diff;
 
