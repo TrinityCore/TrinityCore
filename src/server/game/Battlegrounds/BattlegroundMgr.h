@@ -122,7 +122,7 @@ class BattlegroundMgr
         bool isTesting() const { return m_Testing; }
 
         static bool IsArenaType(BattlegroundTypeId bgTypeId);
-        static bool IsBattlegroundType(BattlegroundTypeId bgTypeId) { return !BattlegroundMgr::IsArenaType(bgTypeId); }
+        static bool IsBattlegroundType(BattlegroundTypeId bgTypeId) { return !IsArenaType(bgTypeId); }
         static BattlegroundQueueTypeId BGQueueTypeId(BattlegroundTypeId bgTypeId, uint8 arenaType);
         static BattlegroundTypeId BGTemplateId(BattlegroundQueueTypeId bgQueueTypeId);
         static uint8 BGArenaType(BattlegroundQueueTypeId bgQueueTypeId);
