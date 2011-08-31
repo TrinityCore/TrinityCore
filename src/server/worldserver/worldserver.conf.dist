@@ -2157,9 +2157,10 @@ Rate.MoveSpeed = 1
 
 #
 #    Rate.InstanceResetTime
-#        Description: Multiplier for the number of days in between global raid/heroic instance
+#        Description: Multiplier for the rate value (in dbc) in between global raid/heroic instance
 #                     resets.
-#        Default:     1
+#        Need to clear the table `instance_reset` after changing the value to changes are applied
+#        Default:     1 (1=~7 days for top instances)
 
 Rate.InstanceResetTime = 1
 
