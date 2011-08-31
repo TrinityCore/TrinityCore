@@ -22,15 +22,15 @@
 
 enum AURA_FLAGS
 {
-    AFLAG_NONE              = 0x00,
-    AFLAG_EFF_INDEX_0       = 0x01,
-    AFLAG_EFF_INDEX_1       = 0x02,
-    AFLAG_EFF_INDEX_2       = 0x04,
-    AFLAG_CASTER            = 0x08,
-    AFLAG_POSITIVE          = 0x10,
-    AFLAG_DURATION          = 0x20,
-    AFLAG_UNK2              = 0x40,
-    AFLAG_NEGATIVE          = 0x80
+    AFLAG_NONE                   = 0x00,
+    AFLAG_EFF_INDEX_0            = 0x01,
+    AFLAG_EFF_INDEX_1            = 0x02,
+    AFLAG_EFF_INDEX_2            = 0x04,
+    AFLAG_CASTER                 = 0x08,
+    AFLAG_POSITIVE               = 0x10,
+    AFLAG_DURATION               = 0x20,
+    AFLAG_ANY_EFFECT_AMOUNT_SENT = 0x40, // used with AFLAG_EFF_INDEX_0/1/2
+    AFLAG_NEGATIVE               = 0x80
 };
 
 // these are modes, in which aura effect handler may be called
@@ -276,7 +276,7 @@ enum AuraType
     SPELL_AURA_214 = 214,
     SPELL_AURA_ARENA_PREPARATION = 215,
     SPELL_AURA_HASTE_SPELLS = 216,
-    SPELL_AURA_217 = 217,
+    SPELL_AURA_MOD_MELEE_HASTE_2 = 217,                     // NYI
     SPELL_AURA_HASTE_RANGED = 218,
     SPELL_AURA_MOD_MANA_REGEN_FROM_STAT = 219,
     SPELL_AURA_MOD_RATING_FROM_STAT = 220,
@@ -292,7 +292,7 @@ enum AuraType
     SPELL_AURA_230 = 230,
     SPELL_AURA_PROC_TRIGGER_SPELL_WITH_VALUE = 231,
     SPELL_AURA_MECHANIC_DURATION_MOD = 232,
-    SPELL_AURA_233 = 233,
+    SPELL_AURA_CHANGE_MODEL_FOR_ALL_HUMANOIDS = 233,        // client-side only
     SPELL_AURA_MECHANIC_DURATION_MOD_NOT_STACK = 234,
     SPELL_AURA_MOD_DISPEL_RESIST = 235,
     SPELL_AURA_CONTROL_VEHICLE = 236,
@@ -335,7 +335,7 @@ enum AuraType
     SPELL_AURA_X_RAY = 273,
     SPELL_AURA_ABILITY_CONSUME_NO_AMMO = 274,
     SPELL_AURA_MOD_IGNORE_SHAPESHIFT = 275,
-    SPELL_AURA_276 = 276,                                   // Only "Test Mod Damage % Mechanic" spell, possible mod damage done
+    SPELL_AURA_MOD_DAMAGE_DONE_FOR_MECHANIC = 276,          // NYI
     SPELL_AURA_MOD_MAX_AFFECTED_TARGETS = 277,
     SPELL_AURA_MOD_DISARM_RANGED = 278,
     SPELL_AURA_INITIALIZE_IMAGES = 279,
@@ -367,7 +367,7 @@ enum AuraType
     SPELL_AURA_MOD_MINIMUM_SPEED = 305,
     SPELL_AURA_306 = 306,
     SPELL_AURA_HEAL_ABSORB_TEST = 307,
-    SPELL_AURA_308 = 308,
+    SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER = 308,            // NYI
     SPELL_AURA_309 = 309,
     SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE = 310,
     SPELL_AURA_311 = 311,
