@@ -377,7 +377,6 @@ void Channel::UnBan(uint64 good, const char *badname)
 
 void Channel::Password(uint64 p, const char *pass)
 {
-    std::string plName;
     uint32 sec = 0;
     Player *plr = ObjectAccessor::FindPlayer(p);
     if (plr)
