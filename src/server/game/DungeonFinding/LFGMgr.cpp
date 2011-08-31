@@ -743,7 +743,7 @@ LfgProposal* LFGMgr::FindNewGroups(LfgGuidList& check, LfgGuidList& all)
         return NULL;
 
     // Try to match with queued groups
-    while (!pProposal && all.size() > 0)
+    while (!pProposal && !all.empty())
     {
         check.push_back(all.front());
         all.pop_front();
