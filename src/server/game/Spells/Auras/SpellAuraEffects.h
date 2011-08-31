@@ -290,7 +290,7 @@ class AuraEffect
         void HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const;
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicPowerBurnManaAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
 
         // aura effect proc handlers
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
