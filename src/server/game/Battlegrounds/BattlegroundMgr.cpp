@@ -520,7 +520,7 @@ Battleground* BattlegroundMgr::CreateNewBattleground(BattlegroundTypeId bgTypeId
 
     if (selectionWeights)
     {
-        if (!selectionWeights->size())
+        if (selectionWeights->empty())
            return NULL;
         uint32 Weight = 0;
         uint32 selectedWeight = 0;

@@ -199,7 +199,7 @@ public:
     }
     static bool HandleWpUnLoadCommand(ChatHandler* handler, const char* /*args*/)
     {
-        uint32 guidlow = 0;
+
         Creature* target = handler->getSelectedCreature();
 
         if (!target)
@@ -208,11 +208,13 @@ public:
             return true;
         }
 
+        uint32 guidlow = target->GetDBTableGUIDLow();
+
         if (target->GetCreatureAddon())
         {
             if (target->GetCreatureAddon()->path_id != 0)
             {
-                WorldDatabase.PExecute("DELETE FROM creature_addon WHERE guid = %u", target->GetGUIDLow());
+                WorldDatabase.PExecute("DELETE FROM creature_addon WHERE guid = %u", guidlow);
                 target->UpdateWaypointID(0);
                 WorldDatabase.PExecute("UPDATE creature SET MovementType = '%u' WHERE guid = '%u'", IDLE_MOTION_TYPE, guidlow);
                 target->LoadPath(0);
@@ -373,8 +375,6 @@ public:
                 return true;
             }
 
-            float coord;
-
             if (arg_str_2 == "setid")
             {
                 uint32 newid = atoi(arg_3);
@@ -394,33 +394,29 @@ public:
 
                 if (arg_str_2 == "posx")
                 {
-                    coord = (float)(atof(arg_3));
                     WorldDatabase.PExecute("UPDATE waypoint_scripts SET x='%f' WHERE guid='%u'",
-                        coord, id);
+                        (float)(atof(arg_3)), id);
                     handler->PSendSysMessage("|cff00ff00Waypoint script:|r|cff00ffff %u|r|cff00ff00 position_x updated.|r", id);
                     return true;
                 }
                 else if (arg_str_2 == "posy")
                 {
-                    coord = (float)(atof(arg_3));
                     WorldDatabase.PExecute("UPDATE waypoint_scripts SET y='%f' WHERE guid='%u'",
-                        coord, id);
+                        (float)(atof(arg_3)), id);
                     handler->PSendSysMessage("|cff00ff00Waypoint script: %u position_y updated.|r", id);
                     return true;
                 }
                 else if (arg_str_2 == "posz")
                 {
-                    coord = (float)(atof(arg_3));
                     WorldDatabase.PExecute("UPDATE waypoint_scripts SET z='%f' WHERE guid='%u'",
-                        coord, id);
+                        (float)(atof(arg_3)), id);
                     handler->PSendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff%u|r|cff00ff00 position_z updated.|r", id);
                     return true;
                 }
                 else if (arg_str_2 == "orientation")
                 {
-                    coord = (float)(atof(arg_3));
                     WorldDatabase.PExecute("UPDATE waypoint_scripts SET o='%f' WHERE guid='%u'",
-                        coord, id);
+                        (float)(atof(arg_3)), id);
                     handler->PSendSysMessage("|cff00ff00Waypoint script: |r|cff00ffff%u|r|cff00ff00 orientation updated.|r", id);
                     return true;
                 }
