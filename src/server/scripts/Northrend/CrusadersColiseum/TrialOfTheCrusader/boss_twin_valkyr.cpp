@@ -251,18 +251,6 @@ struct boss_twin_baseAI : public ScriptedAI
         Summons.Despawn(summoned);
     }
 
-    void HealReceived(Unit* healer, uint32& heal)
-    {
-        if(healer->GetEntry() == me->GetEntry())
-        {
-            if (Creature* pSister = GetSister())
-            {
-                heal = uint32(heal/2);
-                healer->DealHeal(pSister, heal);
-            }
-        }
-    }
-
     void SummonColorballs(uint8 quantity)
     {
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
