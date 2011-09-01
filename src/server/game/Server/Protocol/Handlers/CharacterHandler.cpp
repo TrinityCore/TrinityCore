@@ -939,19 +939,17 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 	{
 	    if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
 	    {
-            if (pvpWG->isWarTime())
+            if (pvpWG->isWarTime()) // "Battle in progress"
             {
-                // "Battle in progress"
                 pCurrChar->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL)));
-            } else
-                // Time to next battle
+            } 
+            else // Time to next battle
             {
                 pvpWG->SendInitWorldStatesTo(pCurrChar);
                 pCurrChar->SendUpdateWorldState(ClockWorldState[1], uint32(time(NULL) + pvpWG->GetTimer()));
             }
 	    }
 	}
-
 
     pCurrChar->SendInitialPacketsAfterAddToMap();
 

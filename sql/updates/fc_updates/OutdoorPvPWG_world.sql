@@ -41,8 +41,6 @@ DELETE FROM `outdoorpvp_template` WHERE TypeId=7;
 INSERT INTO `outdoorpvp_template` (`TypeId`, `ScriptName`, `comment`) VALUES 
 ('7', 'outdoorpvp_wg', 'Wintergrasp');
 
-UPDATE `creature_template` SET `ScriptName` = 'npc_demolisher_engineerer' WHERE `entry` IN (30400,30499);
-
 /* Teleport WG SPELLs*/
 DELETE FROM `spell_target_position` WHERE id IN ('59096', '58632', '58633');
 INSERT INTO `spell_target_position` (`id`, `target_map`, `target_position_x`, `target_position_y`, `target_position_z`, `target_orientation`) VALUES
@@ -55,24 +53,53 @@ DELETE FROM `spell_linked_spell` WHERE spell_trigger=54640;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES 
 ('54640','54643','0','Defender\'s Portal Activate Proper Spell');
 
-/* Temp removed gameobject stopping you getting to the relic
-* 194323 - [Wintergrasp Keep Collision Wall X:5396.209961 Y:2840.010010 Z:432.268005 MapId:571
-* 194162 - [Doodad_WG_Keep_Door01_collision01 X:5397.109863 Y:2841.540039 Z:425.901001 MapId:571]*/
-DELETE FROM gameobject WHERE id IN ('194323', '194162');
+/* Protect players from catching by Druid Cyclone at graveyard which removes immunity after disappear */
+DELETE FROM `spell_linked_spell` WHERE spell_trigger=58729;
+INSERT INTO `spell_linked_spell` VALUES (58729, -33786, 2, 'Spiritual Immunity: Protect From Cyclone (now Immune always)');
 
-/* Titan Relic remove */
-DELETE FROM `gameobject` WHERE `id`=192829;
-
-/* Towers */
-UPDATE `gameobject_template` SET `faction` = 0, `flags` = 6553632 WHERE `entry` IN (190356,190357,190358);
-
-/*Spirit healer FIX */
+/*Spirit healer add spiritguide flag FIX for ressurection*/
 UPDATE creature_template SET npcflag=npcflag|32768 WHERE entry IN (31841,31842);
 
 /* Creature template */
 UPDATE creature_template SET faction_A = '1802', faction_H = '1802' WHERE entry IN (30499,28312,28319);
 UPDATE creature_template SET faction_A = '1801', faction_H = '1801' WHERE entry IN (30400,32629,32627);
-UPDATE creature_template SET npcflag=npcflag|32768 WHERE entry   IN (31841,31842);
+
+/* Demolisher Engineer script */
+UPDATE `creature_template` SET `ScriptName` = 'npc_demolisher_engineerer' WHERE `entry` IN (30400,30499);
+
+/* Wintergrasp Battle-Mage */
+DELETE FROM `creature` WHERE `id` IN (32170, 32169);
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
+(NULL, 32170, 571, 1, 65535, 27801, 0, 5917.69, 584.167, 660.49, 5.17983, 300, 0, 0, 504000, 440700, 0, 0, 0, 0),
+(NULL, 32170, 571, 1, 65535, 0, 2796, 5939.59, 556.516, 640.001, 2.70112, 300, 0, 0, 504000, 440700, 0, 0, 0, 0),
+(NULL, 32169, 571, 1, 65535, 0, 0, 5698.38, 777.562, 647.852, 5.56938, 900, 0, 0, 504000, 440700, 0, 0, 0, 0);
+
+UPDATE `creature_template` SET `ScriptName`='npc_wg_ally_battle_mage' WHERE `entry`=32169;
+UPDATE `creature_template` SET `ScriptName`='npc_wg_horde_battle_mage' WHERE `entry`=32170;
+
+/* Portal Dalaran->WG */
+DELETE FROM `gameobject` WHERE `id`=193772;
+INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
+(NULL, 193772, 571, 1, 64, 5924.11, 573.387, 661.087, 4.43208, 0, 0, 0.798953, -0.601393, 300, 0, 1),
+(NULL, 193772, 571, 1, 65535, 5686.57, 772.921, 647.754, 5.62225, 0, 0, 0.324484, -0.945891, 600, 0, 1),
+(NULL, 193772, 571, 1, 65535, 5930.82, 548.961, 640.632, 1.88506, 0, 0, 0.809047, 0.587744, 300, 0, 1);
+
+/* Vehicle Teleporter */
+UPDATE `gameobject_template` SET `type` = 6, `faction` = 0, `data2` = 10, `data3` = 54643, `ScriptName` = 'go_wg_veh_teleporter' WHERE `entry` = 192951;
+
+/* Workshop */
+UPDATE `gameobject_template` SET `faction` = 35 WHERE `entry` IN (192028,192029,192030,192031,192032,192033);
+
+/* Towers */
+UPDATE `gameobject_template` SET `faction` = 0, `flags` = 6553632 WHERE `entry` IN (190356,190357,190358);
+
+/* Titan Relic remove */
+DELETE FROM `gameobject` WHERE `id`=192829;
+
+/* Temp removed gameobject stopping you getting to the relic
+* 194323 - [Wintergrasp Keep Collision Wall X:5396.209961 Y:2840.010010 Z:432.268005 MapId:571
+* 194162 - [Doodad_WG_Keep_Door01_collision01 X:5397.109863 Y:2841.540039 Z:425.901001 MapId:571]*/
+DELETE FROM gameobject WHERE id IN ('194323', '194162');
 
 /* spell target for build vehicles */
 DELETE FROM `conditions` WHERE ConditionValue2=27852;
@@ -86,11 +113,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry
 (13, 0, 56669, 0, 18, 1, 27852, 0, 0, '', NULL),
 (13, 0, 61408, 0, 18, 1, 27852, 0, 0, '', NULL);
 
-/* Workshop */
-UPDATE `gameobject_template` SET `faction` = 35 WHERE `entry` IN (192028,192029,192030,192031,192032,192033);
-
-/*WG Spell area Data */
-/*For wg antifly */
+/*WG Spell area Data For wg antifly */
 DELETE FROM `spell_area` WHERE spell IN (58730, 57940, 58045);
 INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_start_active`, `quest_end`, `aura_spell`, `racemask`, `gender`, `autocast`) VALUES
 (58730, 4197, 0, 0, 0, 0, 0, 2, 1),
@@ -130,21 +153,3 @@ INSERT INTO `spell_area` (`spell`, `area`, `quest_start`, `quest_start_active`, 
 (57940, 4494, 0, 0, 0, 0, 0, 2, 1),
 (57940, 4603, 0, 0, 0, 0, 0, 2, 1),
 (58045, 4197, 0, 0, 0, 0, 0, 2, 1);
-
-/* Portal Dalaran->WG */
-DELETE FROM `gameobject` WHERE `id`=193772;
-INSERT INTO `gameobject` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`position_x`,`position_y`,`position_z`,`orientation`,`rotation0`,`rotation1`,`rotation2`,`rotation3`,`spawntimesecs`,`animprogress`,`state`) VALUES
-(null, 193772, 571, 1, 64, 5924.11, 573.387, 661.087, 4.43208, 0, 0, 0.798953, -0.601393, 300, 0, 1),
-(null, 193772, 571, 1, 65535, 5686.57, 772.921, 647.754, 5.62225, 0, 0, 0.324484, -0.945891, 600, 0, 1),
-(null, 193772, 571, 1, 65535, 5930.82, 548.961, 640.632, 1.88506, 0, 0, 0.809047, 0.587744, 300, 0, 1);
-
-
-/* Wintergrasp Battle-Mage */
-DELETE FROM `creature` WHERE `id`=32170;
-INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
-(null, 32170, 571, 1, 65535, 27801, 0, 5925.34, 573.71, 661.087, 4.06662, 300, 0, 0, 504000, 440700, 0, 0, 0, 0),
-(null, 32170, 571, 1, 64, 0, 918, 5932.96, 549.906, 641.595, 2.09189, 300, 0, 0, 504000, 440700, 0, 0, 0, 0);
-UPDATE `creature_template` SET `ScriptName`='npc_wg_ally_battle_mage' WHERE `entry`=32169;
-UPDATE `creature_template` SET `ScriptName`='npc_wg_horde_battle_mage' WHERE `entry`=32170;
-
-UPDATE `gameobject_template` SET `type` = 6, `faction` = 0, `data2` = 10, `data3` = 54643, `ScriptName` = 'go_wg_veh_teleporter' WHERE `entry` = 192951;

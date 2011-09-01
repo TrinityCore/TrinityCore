@@ -1,6 +1,7 @@
-/* Copyright (C) 2008 - 2009 Trinity <http://www.trinitycore.org/>
-*
- * Patch supported by ChaosUA & TCRU community http://trinity-core.ru/
+/*
+ * Copyright (C) 2008 - 2011 Trinity <http://www.trinitycore.org/>
+ *
+ * Copyright (C) 2011 Patch supported by ChaosUA & TCRU community http://trinity-core.ru/
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -414,17 +415,18 @@ class go_wg_veh_teleporter : public GameObjectScript
 public:
     go_wg_veh_teleporter() : GameObjectScript("go_wg_veh_teleporter") { }
 
-    bool OnGossipHello(Player *pPlayer, GameObject * pGO)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (GameObject* trigger = pGO->FindNearestGameObject(190375, 500)) // Wintergrasp Fortress Gate
-            if (Vehicle * veh = pPlayer->GetVehicle())
+        if (GameObject* trigger = go->FindNearestGameObject(190375, 500)) // Wintergrasp Fortress Gate
+        {
+            if (Vehicle* vehicle = player->GetVehicle())
             {
                 Position triggerPos;
                 trigger->GetPosition(&triggerPos);
                 triggerPos.m_positionX -= 30;
-                veh->Relocate(triggerPos);
+                vehicle->Relocate(triggerPos);
             }
-        
+        }
         return true;
     }
 };
