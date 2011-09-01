@@ -1012,20 +1012,19 @@ public:
             handler->PSendSysMessage(LANG_TOO_BIG_INDEX, Opcode, GUID_LOPART(guid), target->GetValuesCount());
             return false;
         }
-        uint32 iValue;
-        float fValue;
+
         bool isint32 = true;
         if (pz)
             isint32 = (bool)atoi(pz);
         if (isint32)
         {
-            iValue = (uint32)atoi(py);
+            uint32 iValue = (uint32)atoi(py);
             target->SetUInt32Value(Opcode , iValue);
             handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), Opcode, iValue);
         }
         else
         {
-            fValue = (float)atof(py);
+            float fValue = (float)atof(py);
             target->SetFloatValue(Opcode , fValue);
             handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), Opcode, fValue);
         }
@@ -1060,20 +1059,19 @@ public:
             handler->PSendSysMessage(LANG_TOO_BIG_INDEX, Opcode, GUID_LOPART(guid), target->GetValuesCount());
             return false;
         }
-        uint32 iValue;
-        float fValue;
+
         bool isint32 = true;
         if (pz)
             isint32 = (bool)atoi(pz);
 
         if (isint32)
         {
-            iValue = target->GetUInt32Value(Opcode);
+            uint32 iValue = target->GetUInt32Value(Opcode);
             handler->PSendSysMessage(LANG_GET_UINT_FIELD, GUID_LOPART(guid), Opcode,    iValue);
         }
         else
         {
-            fValue = target->GetFloatValue(Opcode);
+            float fValue = target->GetFloatValue(Opcode);
             handler->PSendSysMessage(LANG_GET_FLOAT_FIELD, GUID_LOPART(guid), Opcode, fValue);
         }
 
