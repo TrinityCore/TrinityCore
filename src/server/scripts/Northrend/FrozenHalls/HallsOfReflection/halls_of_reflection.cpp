@@ -1695,25 +1695,25 @@ class at_hor_waves_restarter : public AreaTriggerScript
             if (pInstance->GetData(DATA_WAVE_COUNT) == SPECIAL)
                 return true;
 
-            if (pInstance->GetData(DATA_INTRO_EVENT) == DONE && pInstance->GetData(DATA_MARWYN_EVENT) != DONE)
+            if (pInstance->GetData(DATA_MARWYN_EVENT) != DONE)
             {
                 pInstance->SetData(DATA_WAVE_COUNT, SPECIAL);
 
                 if (Creature* pFalric = player->GetCreature(*player, pInstance->GetData64(DATA_FALRIC)))
                 {
-                    pFalric->CastSpell(pFalric, SPELL_BOSS_SPAWN_AURA, true);
+                    pFalric->CastSpell(pFalric, SPELL_FALRIC_MARWYN_SPAWN_AURA, true);
                     pFalric->SetVisible(true);
                 }
                 if (Creature* pMarwyn = player->GetCreature(*player, pInstance->GetData64(DATA_MARWYN)))
                 {
-                    pMarwyn->CastSpell(pMarwyn, SPELL_BOSS_SPAWN_AURA, true);
+                    pMarwyn->CastSpell(pMarwyn, SPELL_FALRIC_MARWYN_SPAWN_AURA, true);
                     pMarwyn->SetVisible(true);
                 }
             }
             return true;
         }
 };
-
+/*
 class npc_queldelar : public CreatureScript
 {
 public:
@@ -1739,7 +1739,7 @@ public:
             }
         }
     };
-};
+};*/
 
 class spell_hor_equip_frostmourne : public SpellScriptLoader
 {
