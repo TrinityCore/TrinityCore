@@ -47,13 +47,8 @@ enum Yells
 
 enum Equipment
 {
-    EQUIP_MAIN_1         = 49303,
-    EQUIP_OFFHAND_1      = 47146,
-    EQUIP_RANGED_1       = 47267,
-    EQUIP_MAIN_2         = 45990,
-    EQUIP_OFFHAND_2      = 47470,
-    EQUIP_RANGED_2       = 47267,
-    EQUIP_DONE           = EQUIP_NO_CHANGE,
+    EQUIP_MAIN_1         = 9423,
+    EQUIP_MAIN_2         = 37377,
 };
 
 enum Summons
@@ -142,6 +137,7 @@ struct boss_twin_baseAI : public ScriptedAI
     uint8  m_uiStage;
     bool   m_bIsBerserk;
     uint8  m_uiWaveCount;
+    uint32 m_uiWeapon;
     uint32 m_uiColorballsTimer;
     uint32 m_uiSpecialAbilityTimer;
     uint32 m_uiSpikeTimer;
@@ -323,6 +319,13 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
+    void EnableDualWield(bool mode)
+    {
+        SetEquipmentSlots(false, m_uiWeapon, mode ? m_uiWeapon : EQUIP_UNEQUIP, EQUIP_UNEQUIP);
+        me->SetCanDualWield(mode);
+        me->UpdateDamagePhysical(mode ? OFF_ATTACK : BASE_ATTACK);
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_pInstance || !UpdateVictim())
@@ -435,8 +438,9 @@ public:
 
         void Reset() {
             boss_twin_baseAI::Reset();
-            SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_RANGED_1);
+            SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             m_uiStage = 0;
+            m_uiWeapon = EQUIP_MAIN_1;
             m_uiAuraState = AURA_STATE_UNKNOWN22;
             m_uiVortexEmote = EMOTE_LIGHT_VORTEX;
             m_uiVortexSay = SAY_LIGHT_VORTEX;
@@ -496,8 +500,9 @@ public:
 
         void Reset() {
             boss_twin_baseAI::Reset();
-            SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_OFFHAND_2, EQUIP_RANGED_2);
+            SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             m_uiStage = 1;
+            m_uiWeapon = EQUIP_MAIN_2;
             m_uiAuraState = AURA_STATE_UNKNOWN19;
             m_uiVortexEmote = EMOTE_DARK_VORTEX;
             m_uiVortexSay = SAY_DARK_VORTEX;
@@ -806,6 +811,52 @@ class spell_valkyr_essences : public SpellScriptLoader
         }
 };
 
+class spell_power_of_the_twins : public SpellScriptLoader
+{
+    public:
+        spell_power_of_the_twins() : SpellScriptLoader("spell_power_of_the_twins") { }
+
+        class spell_power_of_the_twins_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_power_of_the_twins_AuraScript);
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
+            void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            {
+                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                {
+                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GetCaster()->GetEntry())))
+                        Valk->AI()->EnableDualWield(true);
+                }
+            }
+
+            void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                {
+                    if (Creature* Valk = ObjectAccessor::GetCreature(*GetCaster(), instance->GetData64(GetCaster()->GetEntry())))
+                        Valk->AI()->EnableDualWield(false);
+                }
+            }
+
+            void Register()
+            {
+                AfterEffectApply += AuraEffectApplyFn(spell_power_of_the_twins_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+                AfterEffectRemove += AuraEffectRemoveFn(spell_power_of_the_twins_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+
+            }
+        };
+
+        AuraScript *GetAuraScript() const
+        {
+            return new spell_power_of_the_twins_AuraScript();
+        }
+};
+
 void AddSC_boss_twin_valkyr()
 {
     new boss_fjola();
@@ -815,4 +866,5 @@ void AddSC_boss_twin_valkyr()
     new mob_essence_of_twin();
     new spell_powering_up();
     new spell_valkyr_essences();
+    new spell_power_of_the_twins();
 }
