@@ -5289,7 +5289,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Pestilence
-            if (m_spellInfo->SpellFamilyFlags[1]&0x10000)
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x10000)
             {
                 // Get diseases on target of spell
                 if (m_targets.GetUnitTarget() &&  // Glyph of Disease - cast on unit target too to refresh aura
