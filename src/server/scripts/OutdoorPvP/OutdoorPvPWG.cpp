@@ -1569,7 +1569,7 @@ bool OutdoorPvPWG::Update(uint32 diff)
             {
                 for (std::vector<uint64>::const_iterator itr = m_ResurrectQueue.begin(); itr != m_ResurrectQueue.end(); ++itr)
                 {
-                    Player *plr = ObjectAccessor::FindPlayer(*itr); 
+                    Player *plr = ObjectAccessor::FindPlayer(*itr);
                     if (!plr)
                         continue;
                     plr->ResurrectPlayer(1.0f);
@@ -2014,7 +2014,7 @@ void OutdoorPvPWG::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid
 {
     m_ReviveQueue[npc_guid].push_back(player_guid);
 
-    Player *plr = ObjectAccessor::FindPlayer(player_guid); 
+    Player *plr = ObjectAccessor::FindPlayer(player_guid);
     if (!plr)
         return;
 
@@ -2031,7 +2031,7 @@ void OutdoorPvPWG::RemovePlayerFromResurrectQueue(uint64 player_guid)
             {
                 (itr->second).erase(itr2);
 
-                Player *plr = ObjectAccessor::FindPlayer(player_guid); 
+                Player *plr = ObjectAccessor::FindPlayer(player_guid);
                 if (!plr)
                     return;
 
