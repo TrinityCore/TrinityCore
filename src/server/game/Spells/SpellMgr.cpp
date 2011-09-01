@@ -2910,6 +2910,20 @@ void SpellMgr::LoadDbcDataCorrections()
             case 30657: // Quake
                 spellInfo->EffectTriggerSpell[0] = 30571;
                 break;
+            case 12289: // Improved Hamstring (Rank 1)
+            case 12668: // Improved Hamstring (Rank 2)
+            case 23695: // Improved Hamstring (Rank 3)
+            case 48532: // Improved Mangle (Rank 1)
+            case 48489: // Improved Mangle (Rank 2)
+            case 48491: // Improved Mangle (Rank 3)
+            case 14156: // Ruthlessness (Rank 1)
+            case 14160: // Ruthlessness (Rank 2)
+            // case 14161: // Ruthlessness (Rank 3) -- already ok
+            case 15257: // Shadow Weaving (Rank 1)
+            case 15331: // Shadow Weaving (Rank 2)
+            case 15332: // Shadow Weaving (Rank 3)
+                spellInfo->EffectImplicitTargetA[EFFECT_0] = TARGET_UNIT_CASTER;
+                break;
             case 30541: // Blaze (needs conditions entry)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->EffectImplicitTargetB[0] = 0;
