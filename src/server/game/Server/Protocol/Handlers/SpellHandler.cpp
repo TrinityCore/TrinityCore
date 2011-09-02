@@ -432,14 +432,6 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     if (spellInfo->Attributes & SPELL_ATTR0_CANT_CANCEL)
         return;
 
-    // not allow remove non positive spells but allow currently channelled spells
-    if (!spellInfo->IsPositive() && !spellInfo->IsChanneled())
-        return;
-
-    // don't allow cancelling passive auras (some of them are visible)
-    if (spellInfo->IsPassive())
-        return;
-
     // channeled spell case (it currently casted then)
     if (spellInfo->IsChanneled())
     {
@@ -449,7 +441,12 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    // non channeled case
+    // non channeled case:
+    // don't allow remove non positive spells
+    // don't allow cancelling passive auras (some of them are visible)
+    if (!spellInfo->IsPositive() || spellInfo->IsPassive())
+        return;
+
     // maybe should only remove one buff when there are multiple?
     _player->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
 }
