@@ -807,15 +807,18 @@ INSERT INTO `spell_script_names` (`spell_id`, `ScriptName`) VALUES
 (47496, 'spell_dk_ghoul_explode');
 
 -- Scripts/UtgardePinnacle: Fixed harpoon
-delete from `conditions` where `SourceEntry` = 56578 and `ConditionValue2` = 26693;
-insert into `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`) values (13, 56578, 18, 1, 26693);
+DELETE FROM `conditions` WHERE `SourceEntry` = 56578 AND `ConditionValue2` = 26693;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`) VALUES 
+(13, 56578, 18, 1, 26693);
 
 -- Fix spell 44525
-replace into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) values (44525,0,0,0,0,'Enchant - Icebreaker');
+REPLACE INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+(44525,0,0,0,0,'Enchant - Icebreaker');
 
 -- Fixed spells 71871 & 71873
 DELETE FROM `spell_proc_event` WHERE `entry` IN (71871); 
 DELETE FROM `spell_proc_event` WHERE `entry` IN (71873); 
 
 -- Fix spell 23922
-replace into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) values (23922,0,0,0,0,'Warrior - Shield Slam');
+REPLACE INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
+(23922,0,0,0,0,'Warrior - Shield Slam');
