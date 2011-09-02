@@ -204,7 +204,6 @@ struct boss_twin_baseAI : public ScriptedAI
             case 1:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
-                me->SetInCombatWithZone();
                 break;
         }
     }
