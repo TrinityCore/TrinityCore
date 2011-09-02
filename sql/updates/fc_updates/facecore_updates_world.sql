@@ -822,3 +822,8 @@ DELETE FROM `spell_proc_event` WHERE `entry` IN (71873);
 -- Fix spell 23922
 REPLACE INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
 (23922,0,0,0,0,'Warrior - Shield Slam');
+
+-- prevent bagouse +300spd for players from this mob http://www.wowhead.com/npc=26828
+DELETE FROM `disables` WHERE `sourceType`=0 and `entry` = 51804;
+INSERT INTO `disables` (`sourceType` , `entry` , `flags` , `comment`) VALUES 
+('0', '51804', '8', 'Power Siphon'); 
