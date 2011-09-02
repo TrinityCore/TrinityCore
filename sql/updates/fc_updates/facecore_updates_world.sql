@@ -816,3 +816,6 @@ replace into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus
 -- Fixed spells 71871 & 71873
 DELETE FROM `spell_proc_event` WHERE `entry` IN (71871); 
 DELETE FROM `spell_proc_event` WHERE `entry` IN (71873); 
+
+-- Fix spell 23922
+replace into `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) values (23922,0,0,0,0,'Warrior - Shield Slam');
