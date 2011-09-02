@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +19,330 @@
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "Vehicle.h"
+
+// ------------------------------------------------------------------------------------------
+// Skripte für Gefangene Brunnhildar + Befreiter Protodrache und die Quest 12856 (Kaltherzig)
+// ------------------------------------------------------------------------------------------
+const Position KoordsBefreiterProtodrache[8] =
+{
+    { 7332.145f, -2438.706f, 843.39642f, 0.0f },
+    { 7227.096f, -2312.145f, 828.94330f, 0.0f },
+    { 7143.731f, -2196.052f, 821.44989f, 0.0f },
+    { 7105.639f, -2086.571f, 833.62183f, 0.0f },
+    { 7076.477f, -1965.428f, 844.88654f, 0.0f },
+    { 7053.544f, -1829.283f, 850.52417f, 0.0f },
+    { 7050.993f, -1769.351f, 847.84186f, 0.0f },
+    { 7048.844727f, -1701.853271f, 830.052246f, 1.787752f }
+};
+
+enum KoordsBefreiterProtodracheIdx
+{
+    WP1 = 0,    // Wegpunkt 1
+    WP2,        // Wegpunkt 2
+    WP3,        // Wegpunkt 3
+    WP4,        // Wegpunkt 4
+    WP5,        // Wegpunkt 5
+    WP6,        // Wegpunkt 6
+    WP7,        // Wegpunkt 7
+    Ziel        // Ziel / Abwurfpunkt
+};
+
+enum KaltherzigDivers
+{
+    Quest_Kaltherzig                    = 12856,    // Quest ID
+    Befreiter_Protodrache               = 29709,    // NPC ID
+    Liberated_Brunnhildar_PH_Texture    = 29734,    // NPC ID
+    Befreiter_Protodrache_Vehicle_ID    = 194,      // Vehicle ID
+    Dun_Niffelem                        = 4438      // Dun Niffelem Area
+};
+
+enum KaltherzigSpells
+{
+    Spell_Protodrachen_Kettenkanal              = 55244,    // Visuelle Kette für den Gefangener Protodrache
+
+    Spell_Befreiter_Protodrache_beschwoeren     = 55028,    // Spell klick für den Gefangener Protodrache auf den Spieler casten
+    Spell_Befreiter_Protodrache_reiten          = 55029,    // Wenn der Befreiter Protodrache gespawnt wird auf den Spieler casten!
+
+    Spell_Eisgefaengnis                         = 54894,    // Gefängnis der Brunnhildar
+    Spell_Eissplitter                           = 55046,    // Spell des Befreiter Protodrache um die Brunnhildar zu befreien
+    Spell_Gefangenen_von_Brunnhildar_befreien   = 55048,    // Effekt für das Befreien einer Gefangener von Brunnhildar
+
+    Spell_Befreite_von_Brunnhildar_beschwoeren  = 55073,    // Spawnt Liberated Brunnhildar <PH Texture> (29734)
+    Spell_Protodrachen_reiten                   = 55074,    // Reiten für Liberated Brunnhildar <PH Texture>
+    Spell_Ping_Protodrachen                     = 55075,    // ??? Dummy - Server-side script
+
+    Spell_Brunnhildar_Vorauswurf                = 55141,    // Absetzen von Liberated Brunnhildar <PH Texture> !?
+    Spell_ProtoDrakeKill_Credit                 = 55143,    // Kill Credit für den Drachen
+    Spell_Liberated_Vrykul_Kill_Credit          = 55144     // Kill Credit für Liberated Brunnhildar <PH Texture>
+};
+
+class npc_brunnhildar_prisoner : public CreatureScript
+{
+    public:
+        npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") { }
+
+        struct npc_brunnhildar_prisonerAI : public ScriptedAI
+        {
+            npc_brunnhildar_prisonerAI(Creature * creature) : ScriptedAI(creature), summons(me)
+            {
+            }
+
+            void Reset()
+            {
+                me->SetVisible(true);
+                me->CastSpell(me, Spell_Eisgefaengnis, true);
+
+                drake = NULL;
+
+                enter_timer = 0;
+                visible_timer = 0;
+
+                hasEmptySeats = false;
+            }
+
+            void DamageTaken(Unit * attacker, uint32 & damage)
+            {
+                if (attacker && attacker->GetTypeId() == TYPEID_UNIT) // Darf nicht von NPCs getötet werden können!
+                    damage = 0;
+            }
+
+            void JustSummoned(Creature * summon)
+            {
+                summons.Summon(summon);
+
+                if (drake && summon->GetEntry() == Liberated_Brunnhildar_PH_Texture)
+                {
+                    summon->setFaction(35);
+                    summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
+                    summon->JumpTo(drake, 35.0f);
+
+                    uint8 seat = drake->GetVehicleKit()->GetNextEmptySeat(0, true);
+                    if (seat <= 0)
+                    {
+                        summon->DespawnOrUnsummon();
+                        return;
+                    }
+                    summon->EnterVehicle(drake, seat);
+                    summon->SendMovementFlagUpdate();
+
+                    hasEmptySeats = false;
+                }
+            }
+
+            void SummonedCreatureDespawn(Creature * summon)
+            {
+                summons.Despawn(summon);
+            }
+
+            void SpellHit(Unit * hitter, const SpellInfo * spell)
+            {
+                if (!hitter || !spell)
+                    return;
+
+                if (spell->Id == Spell_Eissplitter)
+                {
+                    me->CastSpell(me, Spell_Gefangenen_von_Brunnhildar_befreien, true);
+                    me->RemoveAura(Spell_Eisgefaengnis);
+
+                    if (hitter->IsVehicle())
+                    {
+                        drake = hitter;
+
+                        if (drake->GetVehicleKit()->GetNextEmptySeat(0, true))
+                            hasEmptySeats = true;
+                    }
+                    enter_timer = 1 * IN_MILLISECONDS;
+                }
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                if (enter_timer && enter_timer <= diff)
+                {
+                    if (hasEmptySeats)
+                    {
+                        me->SetVisible(false);
+                        me->CastSpell(me, Spell_Befreite_von_Brunnhildar_beschwoeren, true);
+                        visible_timer = SEKUNDEN_20;
+                    }
+                    else
+                        Reset();
+
+                    enter_timer = 0;
+                }
+                else
+                    enter_timer -= diff;
+
+                if (visible_timer && visible_timer <= diff)
+                {
+                    me->SetVisible(true);
+                    Reset();
+                    visible_timer = 0;
+                }
+                else
+                    visible_timer -= diff;
+            }
+        private:
+            Unit * drake;
+            uint16 enter_timer;
+            bool hasEmptySeats;
+            uint32 visible_timer;
+            SummonList summons;
+        };
+
+        CreatureAI * GetAI(Creature * creature) const
+        {
+            return new npc_brunnhildar_prisonerAI(creature);
+        }
+};
+
+class npc_befreiter_protodrache : public CreatureScript
+{
+public:
+    npc_befreiter_protodrache() : CreatureScript("npc_befreiter_protodrache") { }
+
+    struct npc_befreiter_protodracheAI : public VehicleAI
+    {
+        npc_befreiter_protodracheAI(Creature * creature) : VehicleAI(creature)
+        {
+            me->SetFlying(true);
+            me->SetSpeed(MOVE_FLIGHT, 3.0f, true);
+            kontrolle = false;
+            exit_timer = 0;
+            rider = NULL;
+        }
+
+        void Reset()
+        {
+        }
+
+        void AttackStart(Unit * /*target*/, float /*dist*/ = 0)
+        {
+        }
+
+        void MoveInLineOfSight(Unit * /*who*/)
+        {
+        }
+
+        void MovementInform(uint32 type, uint32 id)
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            switch (id)
+            {
+                case WP1: me->GetMotionMaster()->MovePoint(WP2, KoordsBefreiterProtodrache[WP2]); break;
+                case WP2: me->GetMotionMaster()->MovePoint(WP3, KoordsBefreiterProtodrache[WP3]); break;
+                case WP3: me->GetMotionMaster()->MovePoint(WP4, KoordsBefreiterProtodrache[WP4]); break;
+                case WP4: me->GetMotionMaster()->MovePoint(WP5, KoordsBefreiterProtodrache[WP5]); break;
+                case WP5: me->GetMotionMaster()->MovePoint(WP6, KoordsBefreiterProtodrache[WP6]); break;
+                case WP6: me->GetMotionMaster()->MovePoint(WP7, KoordsBefreiterProtodrache[WP7]); break;
+                case WP7: me->GetMotionMaster()->MovePoint(Ziel, KoordsBefreiterProtodrache[Ziel]); break;
+                case Ziel:
+                {
+                    for (uint8 i=0; i<4; ++i)
+                        if (Unit * passenger = me->GetVehicleKit()->GetPassenger(i))
+                            if (!passenger->ToPlayer()) // Den Spieler erst später auswerfen!
+                            {
+                                passenger->ExitVehicle();
+                                passenger->CastSpell(passenger, Spell_Brunnhildar_Vorauswurf, true);
+                                passenger->SetTimeUntilDisappear(5 * IN_MILLISECONDS);
+                                rider->CastSpell(rider, Spell_Liberated_Vrykul_Kill_Credit, true);
+                            }
+
+                    exit_timer = 3 * IN_MILLISECONDS;
+                }
+                break;
+            }
+        }
+
+        bool CheckRider()
+        {
+            if (me->GetVehicleKit()->GetAvailableSeatCount() == 0)
+                return true;
+
+            for (uint8 i=0; i<4; ++i)
+                if (Unit * passenger = me->GetVehicleKit()->GetPassenger(i))
+                    if (passenger->ToPlayer() && passenger->ToPlayer()->isValid())
+                        return true;
+
+            return false;
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!rider || !rider->isValid())
+            {
+                for (uint8 i=0; i<4; ++i)
+                    if (Unit * passenger = me->GetVehicleKit()->GetPassenger(i))
+                        if (passenger->ToPlayer() && passenger->ToPlayer()->isValid())
+                        {
+                            rider = passenger->ToPlayer();
+                            rider->CastSpell(rider, Spell_Befreiter_Protodrache_reiten, true);
+                            check_timer = SEKUNDEN_10;
+                        }
+
+                if (!rider || !rider->isValid())
+                    rider = NULL;
+            }
+
+            if (rider)
+            {
+                if (exit_timer && exit_timer <= diff)
+                {
+                    rider->ExitVehicle();
+                    rider->CastSpell(rider, Spell_ProtoDrakeKill_Credit, true);
+                    rider->SetMover(rider);
+                    rider->SendMovementFlagUpdate();
+                    rider->KilledMonsterCredit(29709, me->GetGUID());
+                    me->SetTimeUntilDisappear(5 * IN_MILLISECONDS);
+                    exit_timer = 0;
+                }
+                else
+                    exit_timer -= diff;
+
+                if (!kontrolle && rider->GetAreaId() != Dun_Niffelem)
+                {
+                    rider->SetMover(me);
+                    rider->SendMovementFlagUpdate();
+                    me->GetMotionMaster()->MovePoint(WP1, KoordsBefreiterProtodrache[WP1]);
+                    kontrolle = true;
+                }
+
+                if (check_timer && check_timer <= diff)
+                {
+                    if (!CheckRider())
+                    {
+                        for (uint8 i=0; i<4; ++i)
+                            if (Unit * passenger = me->GetVehicleKit()->GetPassenger(i))
+                            {
+                                passenger->ExitVehicle();
+                                passenger->SetTimeUntilDisappear(5 * IN_MILLISECONDS);
+                            }
+
+                        me->GetVehicleKit()->Dismiss();
+
+                        check_timer = 0;
+                    }
+                    else
+                        check_timer = SEKUNDEN_10;
+                }
+                else
+                    check_timer -= diff;
+            }
+        }
+    private:
+        bool kontrolle;
+        uint32 exit_timer;
+        uint32 check_timer;
+        Player * rider;
+    };
+
+    CreatureAI * GetAI(Creature * creature) const
+    {
+        return new npc_befreiter_protodracheAI(creature);
+    }
+};
 
 /*######
 ## npc_agnetta_tyrsdottar
@@ -535,137 +860,6 @@ public:
     }
 };
 
-/*######
-## npc_brunnhildar_prisoner
-######*/
-
-enum brunhildar {
-    NPC_QUEST_GIVER            = 29592,
-
-    SPELL_ICE_PRISON           = 54894,
-    SPELL_KILL_CREDIT_PRISONER = 55144,
-    SPELL_KILL_CREDIT_DRAKE    = 55143,
-    SPELL_SUMMON_LIBERATED     = 55073,
-    SPELL_ICE_LANCE            = 55046
-};
-
-class npc_brunnhildar_prisoner : public CreatureScript
-{
-public:
-    npc_brunnhildar_prisoner() : CreatureScript("npc_brunnhildar_prisoner") { }
-
-    struct npc_brunnhildar_prisonerAI : public ScriptedAI
-    {
-        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
-
-        Unit* drake;
-        uint16 enter_timer;
-        bool hasEmptySeats;
-
-        void Reset()
-        {
-            me->CastSpell(me, SPELL_ICE_PRISON, true);
-            enter_timer = 0;
-            drake = NULL;
-            hasEmptySeats = false;
-        }
-
-        void UpdateAI(const uint32 diff)
-        {
-            // drake unsummoned, passengers dropped
-            if (drake && !me->IsOnVehicle(drake) && !hasEmptySeats)
-                me->ForcedDespawn(3000);
-
-            if (enter_timer <= 0)
-                return;
-
-            if (enter_timer < diff)
-            {
-                enter_timer = 0;
-                if (hasEmptySeats)
-                    me->JumpTo(drake, 25.0f);
-                else
-                    Reset();
-            }
-            else
-                enter_timer -= diff;
-        }
-
-        void MoveInLineOfSight(Unit* unit)
-        {
-            if (!unit || !drake)
-                return;
-
-            if (!me->IsOnVehicle(drake) && !me->HasAura(SPELL_ICE_PRISON))
-            {
-                if (unit->IsVehicle() && me->IsWithinDist(unit, 25.0f, true) && unit->ToCreature() && unit->ToCreature()->GetEntry() == 29709)
-                {
-                    uint8 seat = unit->GetVehicleKit()->GetNextEmptySeat(0, true);
-                    if (seat <= 0)
-                        return;
-
-                    me->EnterVehicle(unit, seat);
-                    me->SendMovementFlagUpdate();
-                    hasEmptySeats = false;
-                }
-            }
-
-            if (unit->ToCreature() && me->IsOnVehicle(drake))
-            {
-                if (unit->ToCreature()->GetEntry() == NPC_QUEST_GIVER && me->IsWithinDist(unit, 15.0f, false))
-                {
-                    Unit* rider = drake->GetVehicleKit()->GetPassenger(0);
-                    if (!rider)
-                        return;
-
-                    rider->CastSpell(rider, SPELL_KILL_CREDIT_PRISONER, true);
-
-                    me->ExitVehicle();
-                    me->CastSpell(me, SPELL_SUMMON_LIBERATED, true);
-                    me->ForcedDespawn(500);
-
-                    // drake is empty now, deliver credit for drake and despawn him
-                    if (drake->GetVehicleKit()->HasEmptySeat(1) &&
-                        drake->GetVehicleKit()->HasEmptySeat(2) &&
-                        drake->GetVehicleKit()->HasEmptySeat(3))
-                    {
-                        // not working rider->CastSpell(rider, SPELL_KILL_CREDIT_DRAKE, true);
-                        if (rider->ToPlayer())
-                            rider->ToPlayer()->KilledMonsterCredit(29709, 0);
-
-                        drake->ToCreature()->ForcedDespawn(0);
-                    }
-                }
-            }
-        }
-
-        void SpellHit(Unit* hitter, const SpellInfo* spell)
-        {
-            if (!hitter || !spell)
-                return;
-
-            if (spell->Id != SPELL_ICE_LANCE)
-                return;
-
-            me->RemoveAura(SPELL_ICE_PRISON);
-            enter_timer = 500;
-
-            if (hitter->IsVehicle())
-                drake = hitter;
-            else
-                return;
-
-            if (hitter->GetVehicleKit()->GetNextEmptySeat(0, true))
-                hasEmptySeats = true;
-        }
-    };
-
-    CreatureAI *GetAI(Creature* creature) const
-    {
-        return new npc_brunnhildar_prisonerAI(creature);
-    }
-};
-
 class npc_icefang : public CreatureScript
 {
 public:
@@ -774,6 +968,7 @@ void AddSC_storm_peaks()
     new npc_injured_goblin;
     new npc_roxi_ramrocket;
     new npc_brunnhildar_prisoner;
+    new npc_befreiter_protodrache;
     new npc_icefang;
     new npc_hyldsmeet_protodrake;
 }
