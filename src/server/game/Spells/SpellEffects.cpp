@@ -1430,6 +1430,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             // Death strike
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
+                // Exclude Death Strike proccing from Threat of Thassarian
+                // Else, the player gets healed for like 10K when having good gear.
+                // Since this can be used twice in a row, this is really overpowered in PvP
+                if (m_spellInfo->Id == 66188 || m_spellInfo->Id == 66950 || m_spellInfo->Id == 66951 || m_spellInfo->Id == 66952 || m_spellInfo->Id == 66953)
+                    return;
                 uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
                 int32 bp = int32(count * m_caster->CountPctFromMaxHealth(int32(m_spellInfo->Effects[EFFECT_0].DamageMultiplier)));
                 // Improved Death Strike
