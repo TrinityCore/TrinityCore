@@ -130,13 +130,13 @@ class boss_hakkar : public CreatureScript
                 } else CorruptedBlood_Timer -= diff;
 
                 //CauseInsanity_Timer
-                /*if (CauseInsanity_Timer <= diff)
+                if (CauseInsanity_Timer <= diff)
                 {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0))
-                DoCast(target, SPELL_CAUSEINSANITY);
+                    if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
+                        DoCast(target, SPELL_CAUSEINSANITY);
 
-                CauseInsanity_Timer = 35000 + rand()%8000;
-                } else CauseInsanity_Timer -= diff;*/
+                    CauseInsanity_Timer = 10000 + rand()%5000;
+                } else CauseInsanity_Timer -= diff;
 
                 //WillOfHakkar_Timer
                 if (WillOfHakkar_Timer <= diff)
