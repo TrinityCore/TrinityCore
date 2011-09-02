@@ -490,6 +490,9 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
                 // remove targets with this aura already
                 // tank is not on this list
                 targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
+                if (targets.empty())
+                    return;
+
                 std::list<Unit*>::iterator itr = targets.begin();
                 std::advance(itr, urand(0, targets.size() - 1));
                 Unit* target = *itr;
