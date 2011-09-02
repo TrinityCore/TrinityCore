@@ -212,15 +212,6 @@ class AuraRemoveEvent : public BasicEvent
         uint32 _spellId;
 };
 
-class SummonTargetSelector
-{
-    public:
-        bool operator()(Unit* unit) const
-        {
-            return unit->HasAura(SPELL_RECENTLY_SPAWNED);
-        }
-};
-
 class ValithriaDespawner : public BasicEvent
 {
     public:
@@ -1227,7 +1218,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
                 std::list<Creature*> summoners;
                 GetCreatureListWithEntryInGrid(summoners, caster, 22515, 100.0f);
-                summoners.remove_if(SummonTargetSelector());
+                summoners.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 Trinity::RandomResizeList(summoners, 2);
                 if (summoners.empty())
                     return;
