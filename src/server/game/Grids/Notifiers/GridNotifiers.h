@@ -1274,6 +1274,34 @@ namespace Trinity
             bool _equals;
     };
 
+    class ObjectGUIDCheck
+    {
+        public:
+            ObjectGUIDCheck(uint64 GUID) : _GUID(GUID) {}
+            bool operator()(WorldObject* object)
+            {
+                return object->GetGUID() == _GUID;
+            }
+
+        private:
+            uint64 _GUID;
+    };
+
+    class UnitAuraCheck
+    {
+        public:
+            UnitAuraCheck(bool present, uint32 spellId, uint64 casterGUID = 0) : _present(present), _spellId(spellId), _casterGUID(casterGUID) {}
+            bool operator()(Unit* unit)
+            {
+                return unit->HasAura(_spellId, _casterGUID) == _present;
+            }
+
+        private:
+            bool _present;
+            uint32 _spellId;
+            uint64 _casterGUID;
+    };
+
     // Player checks and do
 
     // Prepare using Builder localized packets with caching and send to player
