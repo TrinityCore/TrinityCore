@@ -53,9 +53,6 @@ enum Equipment
 
 enum Summons
 {
-    NPC_DARK_ESSENCE     = 34567,
-    NPC_LIGHT_ESSENCE    = 34568,
-
     NPC_UNLEASHED_DARK   = 34628,
     NPC_UNLEASHED_LIGHT  = 34630,
 
