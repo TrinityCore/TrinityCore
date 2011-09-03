@@ -1741,7 +1741,7 @@ public:
     };
 };*/
 
-class spell_hor_equip_frostmourne : public SpellScriptLoader
+/*class spell_hor_equip_frostmourne : public SpellScriptLoader
 {
     public:
         spell_hor_equip_frostmourne() : SpellScriptLoader("spell_hor_equip_frostmourne") { }
@@ -1750,7 +1750,7 @@ class spell_hor_equip_frostmourne : public SpellScriptLoader
         {
             PrepareAuraScript(spell_hor_equip_frostmourne_AuraScript);
 
-            void Remove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            void Remove(AuraEffect const* /*aurEff*//*, AuraEffectHandleModes /*mode*//*)
             {
                 if (Unit* caster = GetCaster())
                 {
@@ -1773,7 +1773,7 @@ class spell_hor_equip_frostmourne : public SpellScriptLoader
         {
             return new spell_hor_equip_frostmourne_AuraScript();
         }
-};
+};*/
 
 void AddSC_halls_of_reflection()
 {
