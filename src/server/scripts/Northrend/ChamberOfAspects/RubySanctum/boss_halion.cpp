@@ -295,7 +295,6 @@ class boss_halion : public CreatureScript
                     Talk(SAY_PHASE_TWO);
 
                     me->CastStop();
-
                     DoCast(me, SPELL_TWILIGHT_PHASING);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
 
@@ -629,7 +628,7 @@ class npc_halion_controller : public CreatureScript
                         me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
 
                         if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                            halion->CastSpell(halion, SPELL_SUMMON_TWILIGHT_PORTAL, true);
+                            me->CastSpell(halion->GetPositionX(), halion->GetPositionY(), halion->GetPositionZ(), SPELL_SUMMON_TWILIGHT_PORTAL, true);
                         break;
                     }
                     case ACTION_PHASE_THREE:
@@ -676,16 +675,7 @@ class npc_halion_controller : public CreatureScript
                             }
                         }
 
-                        if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                        {
-                            if (GameObject* object = halion->GetGameObject(SPELL_SUMMON_TWILIGHT_PORTAL))
-                            {
-                                halion->RemoveGameObject(SPELL_SUMMON_TWILIGHT_PORTAL, false);
-                                object->SetRespawnTime(0);
-                                object->Delete();
-                                object->DeleteFromDB();
-                            }
-                        }
+                        me->RemoveGameObject(SPELL_SUMMON_TWILIGHT_PORTAL, true);
                         break;
                     }
                 }
