@@ -1610,4 +1610,6 @@ void AddSC_boss_halion()
     new spell_halion_leave_twilight_realm();
     new spell_halion_enter_twilight_realm();
     new spell_halion_twilight_cutter_triggered();
+
+    new go_exit_twilight_realm();
 }
