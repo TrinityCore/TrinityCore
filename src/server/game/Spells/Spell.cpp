@@ -2030,8 +2030,9 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     float min_dis = m_spellInfo->GetMinRange(true);
                     float max_dis = m_spellInfo->GetMaxRange(true);
                     float dis = (float)rand_norm() * (max_dis - min_dis) + min_dis;
-                    float x, y, z;
-                    m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis);
+                    float x, y, z, angle;
+                    angle = (float)rand_norm() * static_cast<float>(M_PI * 70.0f / 180.0f) - static_cast<float>(M_PI * 35.0f / 180.0f);
+                    m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis, angle);
                     m_targets.SetDst(x, y, z, m_caster->GetOrientation());
                     break;
                 }
@@ -3303,6 +3304,11 @@ void Spell::handle_immediate()
     // Remove used for cast item if need (it can be already NULL after TakeReagents call
     TakeCastItem();
 
+    // handle ammo consumption for Hunter's volley spell
+    if (m_spellInfo->IsRangedWeaponSpell() && m_spellInfo->IsChanneled())
+        TakeAmmo();
+
+
     if (m_spellState != SPELL_STATE_CASTING)
         finish(true);                                       // successfully finish spell cast (not last in case autorepeat or channel spell)
 }
@@ -4530,20 +4536,53 @@ void Spell::TakeReagents()
 
 void Spell::HandleThreatSpells()
 {
-    if (!m_targets.GetUnitTarget())
+    if (m_UniqueTargetInfo.empty())
         return;
 
-    if (!m_targets.GetUnitTarget()->CanHaveThreatList())
+    if ((m_spellInfo->AttributesEx  & SPELL_ATTR1_NO_THREAT) ||
+        (m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO))
         return;
 
-    uint16 threat = sSpellMgr->GetSpellThreat(m_spellInfo->Id);
+    float threat = 0.0f;
+    if (SpellThreatEntry const* threatEntry = sSpellMgr->GetSpellThreatEntry(m_spellInfo->Id))
+    {
+        if (threatEntry->apPctMod != 0.0f)
+            threat += threatEntry->apPctMod * m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
 
-    if (!threat)
+        threat += threatEntry->flatMod;
+    }
+    else if ((m_spellInfo->AttributesCu & SPELL_ATTR0_CU_NO_INITIAL_THREAT) == 0)
+        threat += m_spellInfo->SpellLevel;
+
+    // past this point only multiplicative effects occur
+    if (threat == 0.0f)
         return;
 
-    m_targets.GetUnitTarget()->AddThreat(m_caster, float(threat));
+    // since 2.0.1 threat from positive effects also is distributed among all targets, so the overall caused threat is at most the defined bonus
+    threat /= m_UniqueTargetInfo.size();
 
-    sLog->outStaticDebug("Spell %u, rank %u, added an additional %i threat", m_spellInfo->Id, m_spellInfo->GetRank(), threat);
+    for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
+    {
+        if (ihit->missCondition != SPELL_MISS_NONE)
+            continue;
+
+        Unit* target = ObjectAccessor::GetUnit(*m_caster, ihit->targetGUID);
+        if (!target)
+            continue;
+
+        // positive spells distribute threat among all units that are in combat with target, like healing
+        if (m_spellInfo->_IsPositiveSpell())
+            target->getHostileRefManager().threatAssist(m_caster, threat, m_spellInfo);
+        // for negative spells threat gets distributed among affected targets
+        else
+        {
+            if (!target->CanHaveThreatList())
+                continue;
+
+            target->AddThreat(m_caster, threat, m_spellInfo->GetSchoolMask(), m_spellInfo);
+        }
+    }
+    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell %u, added an additional %f threat for %s %u target(s)", m_spellInfo->Id, threat, m_spellInfo->_IsPositiveSpell() ? "assisting" : "harming", uint32(m_UniqueTargetInfo.size()));
 }
 
 void Spell::HandleEffects(Unit *pUnitTarget, Item *pItemTarget, GameObject *pGOTarget, uint32 i)
@@ -6604,6 +6643,10 @@ void Spell::CalculateDamageDoneForAllTargets()
         Unit* unit = m_caster->GetGUID() == target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID);
         if (!unit) // || !unit->isAlive()) do we need to check alive here?
             continue;
+
+        // do not consume ammo anymore for Hunter's volley spell
+        if (IsTriggered() && m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->IsAOE())
+            usesAmmo = false;
 
         if (usesAmmo)
         {

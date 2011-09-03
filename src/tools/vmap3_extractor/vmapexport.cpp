@@ -379,17 +379,16 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 {
     bool result = true;
     hasInputPathParam = false;
-    bool preciseVectorData = false;
 
-    for(int i=1; i< argc; ++i)
+    for (int i=1; i < argc; ++i)
     {
-        if(strcmp("-s",argv[i]) == 0)
+        if (strcmp("-s", argv[i]) == 0)
         {
             preciseVectorData = false;
         }
-        else if(strcmp("-d",argv[i]) == 0)
+        else if (strcmp("-d", argv[i]) == 0)
         {
-            if((i+1)<argc)
+            if ((i + 1) < argc)
             {
                 hasInputPathParam = true;
                 strcpy(input_path, argv[i+1]);
@@ -402,11 +401,11 @@ bool processArgv(int argc, char ** argv, const char *versionString)
                 result = false;
             }
         }
-        else if(strcmp("-?",argv[1]) == 0)
+        else if (strcmp("-?", argv[1]) == 0)
         {
             result = false;
         }
-        else if(strcmp("-l",argv[i]) == 0)
+        else if (strcmp("-l", argv[i]) == 0)
         {
             preciseVectorData = true;
         }
