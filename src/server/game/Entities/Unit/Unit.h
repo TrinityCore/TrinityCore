@@ -1573,8 +1573,6 @@ class Unit : public WorldObject
         void SendPlaySpellVisual(uint32 id);
         void SendPlaySpellImpact(uint64 guid, uint32 id);
 
-        bool IsDamageToThreatSpell(SpellInfo const* spellInfo) const;
-
         void DeMorph();
 
         void SendAttackStateUpdate(CalcDamageInfo *damageInfo);
