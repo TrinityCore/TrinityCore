@@ -1470,44 +1470,6 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
         }
 };
 
-class spell_halion_summon_twilight_portal : public SpellScriptLoader
-{
-    public:
-        spell_halion_summon_twilight_portal() : SpellScriptLoader("spell_halion_summon_twilight_portal") { }
-
-        class spell_halion_summon_twilight_portal_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_halion_summon_twilight_portal_SpellScript);
-
-            void HandleSummon(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                Unit* caster = GetCaster();
-                uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
-                uint32 duration = uint32(GetSpellInfo()->GetDuration());
-
-                InstanceScript* instance = caster->GetInstanceScript();
-                if (!instance)
-                    return;
-
-                Position pos;
-                caster->GetPosition(&pos);
-                if (GameObject* portal = caster->SummonGameObject(entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 999999))
-                    portal->SetPhaseMask(0x1, true);
-            }
-
-            void Register()
-            {
-                OnEffect += SpellEffectFn(spell_halion_summon_twilight_portal_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
-            }
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_halion_summon_twilight_portal_SpellScript();
-        }
-};
-
 class spell_halion_leave_twilight_realm : public SpellScriptLoader
 {
     public:
