@@ -1492,7 +1492,7 @@ class spell_halion_summon_twilight_portal : public SpellScriptLoader
 
                 Position pos;
                 caster->GetPosition(&pos);
-                if (GameObject* portal = caster->SummonGameObject(entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 9999999999))
+                if (GameObject* portal = caster->SummonGameObject(entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 999999))
                     portal->SetPhaseMask(0x1, true);
             }
 
