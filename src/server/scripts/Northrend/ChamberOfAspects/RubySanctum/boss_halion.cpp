@@ -765,7 +765,7 @@ class npc_halion_controller : public CreatureScript
                             else
                             {
                                 Talk(EMOTE_REGENERATE);
-                                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION + i)))
+                                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                                     DoCast(halion, SPELL_TWILIGHT_MENDING);
                                 _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
                                 break;
