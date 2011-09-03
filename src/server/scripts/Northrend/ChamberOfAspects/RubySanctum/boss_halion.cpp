@@ -675,7 +675,19 @@ class npc_halion_controller : public CreatureScript
                             }
                         }
 
-                        me->RemoveGameObject(SPELL_SUMMON_TWILIGHT_PORTAL, true);
+                        if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                        {
+                            std::list<GameObject*> list;
+                            halion->GetGameObjectListWithEntryInGrid(list, GO_HALION_PORTAL_1, 100.0f);
+                            for (std::list<GameObject*>::const_iterator i = list.begin() ; i != list.end() ; ++i)
+                            {
+                                if ((*i)->GetSpellId() == SPELL_SUMMON_TWILIGHT_PORTAL)
+                                {
+                                    (*i)->SetRespawnTime(0);
+                                    (*i)->Delete();
+                                }
+                            }
+                        }
                         break;
                     }
                 }
