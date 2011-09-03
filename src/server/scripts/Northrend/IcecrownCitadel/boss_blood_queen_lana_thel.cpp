@@ -698,20 +698,6 @@ class spell_blood_queen_bloodbolt : public SpellScriptLoader
         }
 };
 
-class PactOfTheDarkfallenCheck
-{
-    public:
-        PactOfTheDarkfallenCheck(bool hasPact) : _hasPact(hasPact) { }
-
-        bool operator() (Unit* unit)
-        {
-            return unit->HasAura(SPELL_PACT_OF_THE_DARKFALLEN) == _hasPact;
-        }
-
-    private:
-        bool _hasPact;
-};
-
 class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
 {
     public:
@@ -723,7 +709,7 @@ class spell_blood_queen_pact_of_the_darkfallen : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(PactOfTheDarkfallenCheck(false));
+                unitList.remove_if(Trinity::UnitAuraCheck(false, SPELL_PACT_OF_THE_DARKFALLEN));
 
                 bool remove = true;
                 std::list<Unit*>::const_iterator itrEnd = unitList.end(), itr, itr2;
@@ -809,7 +795,7 @@ class spell_blood_queen_pact_of_the_darkfallen_dmg_target : public SpellScriptLo
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(PactOfTheDarkfallenCheck(true));
+                unitList.remove_if(Trinity::UnitAuraCheck(true, SPELL_PACT_OF_THE_DARKFALLEN));
                 unitList.push_back(GetCaster());
             }
 
