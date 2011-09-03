@@ -240,6 +240,7 @@ class ValithriaDespawner : public BasicEvent
                 case NPC_GLUTTONOUS_ABOMINATION:
                 case NPC_MANA_VOID:
                 case NPC_COLUMN_OF_FROST:
+                case NPC_ROT_WORM:
                     creature->DespawnOrUnsummon();
                     return;
                 case NPC_RISEN_ARCHMAGE:
