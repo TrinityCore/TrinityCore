@@ -791,12 +791,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
             victim->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_DIRECT_DAMAGE, spellProto ? spellProto->Id : 0);
 
         if (victim->GetTypeId() != TYPEID_PLAYER)
-        {
-            if (spellProto && IsDamageToThreatSpell(spellProto))
-                victim->AddThreat(this, damage * 2.0f, damageSchoolMask, spellProto);
-            else
                 victim->AddThreat(this, (float)damage, damageSchoolMask, spellProto);
-        }
         else                                                // victim is a player
         {
             // random durability for items (HIT TAKEN)
@@ -10334,6 +10329,9 @@ void Unit::EnergizeBySpell(Unit* victim, uint32 spellID, uint32 damage, Powers p
     SendEnergizeSpellLog(victim, spellID, damage, powerType);
     // needs to be called after sending spell log
     victim->ModifyPower(powerType, damage);
+
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID);
+    victim->getHostileRefManager().threatAssist(this, float(damage) * 0.5f, spellInfo);
 }
 
 uint32 Unit::SpellDamageBonus(Unit* victim, SpellInfo const* spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
@@ -11617,30 +11615,6 @@ bool Unit::IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) cons
                 ((*iter)->GetMiscValue() & spellInfo->GetSchoolMask()) &&  // Check school
                 !spellInfo->IsPositiveEffect(index))                                  // Harmful
                 return true;
-    }
-
-    return false;
-}
-
-bool Unit::IsDamageToThreatSpell(SpellInfo const* spellInfo) const
-{
-    if (!spellInfo)
-        return false;
-
-    switch(spellInfo->SpellFamilyName)
-    {
-        case SPELLFAMILY_WARLOCK:
-            if (spellInfo->SpellFamilyFlags[0] == 0x100) // Searing Pain
-                return true;
-            break;
-        case SPELLFAMILY_SHAMAN:
-            if (spellInfo->SpellFamilyFlags[0] == SPELLFAMILYFLAG_SHAMAN_FROST_SHOCK)
-                return true;
-            break;
-        case SPELLFAMILY_DEATHKNIGHT:
-            if (spellInfo->SpellFamilyFlags[1] == 0x20000000) // Rune Strike
-                return true;
-            break;
     }
 
     return false;
