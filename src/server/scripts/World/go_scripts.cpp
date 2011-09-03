@@ -1139,12 +1139,14 @@ public:
             if (pPrisoner)
             {
                 pGO->UseDoorOrButton();
-                pGO->SetResetTime(65*IN_MILLISECONDS);
+                pGO->SetResetTime(SEKUNDEN_60);
 
                 pPrisoner->HandleEmoteCommand(EMOTE_ONESHOT_YES);
                 pPrisoner->Whisper(TEXT_ID, pPlayer->GetGUID());
-                pPrisoner->SetTimeUntilDisappear(5*IN_MILLISECONDS);
-                pPrisoner->GetMotionMaster()->MoveFleeing(pPlayer, 5*IN_MILLISECONDS);
+                pPrisoner->SetTimeUntilDisappear(3 * IN_MILLISECONDS);
+                pPrisoner->SetRespawnDelay(SEKUNDEN_60);
+                pPrisoner->GetMotionMaster()->MoveFleeing(pPlayer, 3 * IN_MILLISECONDS);
+                pPlayer->KilledMonsterCredit(pPrisoner->GetEntry(), pPrisoner->GetGUID());
             }
         }
         return true;
