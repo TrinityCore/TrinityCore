@@ -310,13 +310,6 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                // Evade if the target is out of the fire circle.
-                if (me->GetPositionZ() > 76.0f)
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-
                 me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 if (!UpdateVictim() && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)))
@@ -498,13 +491,6 @@ class boss_twilight_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                // Evade if the target is out of the fire circle.
-                if (me->GetPositionZ() > 76.0f)
-                {
-                    EnterEvadeMode();
-                    return;
-                }
-
                 // Twilight Halion's health is influenced by the Physical one's only on phase 3.
                 me->SetHealth(_instance->GetData(DATA_HALION_SHARED_HEALTH));
 
@@ -642,14 +628,8 @@ class npc_halion_controller : public CreatureScript
                         }
                         me->SummonCreature(NPC_ORB_ROTATION_FOCUS, HalionSpawnPos);
 
-                        // This gob is supposed to be summoned by a spell.
-                        // However, gameobjects summonded by spells are assessed to be temporary
-                        // This means that when this gob is used, it despawns when using the spell
-                        // Remove this and make Halion cast the correct spell asap.
-                        // This is here only because Shauren's patch makes the gameobject despawn when used once.
                         if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                            if (GameObject* portal = halion->SummonGameObject(GO_HALION_PORTAL_1, halion->GetPositionX(), halion->GetPositionY(), halion->GetPositionZ(), 0, 0, 0, 0, 0, 8 * MINUTE * IN_MILLISECONDS))
-                                portal->SetPhaseMask(0x1, true);
+                            halion->CastSpell(halion, SPELL_SUMMON_TWILIGHT_PORTAL, true);
                         break;
                     }
                     case ACTION_PHASE_THREE:
@@ -695,19 +675,6 @@ class npc_halion_controller : public CreatureScript
                                 portal->Delete();
                                 portal->DeleteFromDB();
                             }
-                        }
-
-                        // This gob is supposed to be summoned by a spell.
-                        // However, gameobjects summonded by spells are assessed to be temporary
-                        // This means that when this gob is used, it despawns when using the spell
-                        // Remove this and make Halion cast the correct spell asap.
-                        // This is here because Shauren's patch makes the gameobject despawn as soon as used.
-                        if (GameObject* portal = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_ENTER_PORTAL)))
-                        {
-                            me->RemoveGameObject(portal, false);
-                            portal->SetRespawnTime(0);
-                            portal->Delete();
-                            portal->DeleteFromDB();
                         }
                         break;
                     }
@@ -798,8 +765,8 @@ class npc_halion_controller : public CreatureScript
                             else
                             {
                                 Talk(EMOTE_REGENERATE);
-                                // This will work only if the controller shares the health pool of both Halions.
-                                DoCast(me, SPELL_TWILIGHT_MENDING);
+                                if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION + i)))
+                                    DoCast(halion, SPELL_TWILIGHT_MENDING);
                                 _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
                                 break;
                             }
@@ -1500,6 +1467,44 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_halion_combustion_consumption_summon_SpellScript();
+        }
+};
+
+class spell_halion_summon_twilight_portal : public SpellScriptLoader
+{
+    public:
+        spell_halion_summon_twilight_portal() : SpellScriptLoader("spell_halion_summon_twilight_portal") { }
+
+        class spell_halion_summon_twilight_portal_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_halion_summon_twilight_portal_SpellScript);
+
+            void HandleSummon(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                Unit* caster = GetCaster();
+                uint32 entry = uint32(GetSpellInfo()->Effects[effIndex].MiscValue);
+                uint32 duration = uint32(GetSpellInfo()->GetDuration());
+
+                InstanceScript* instance = caster->GetInstanceScript();
+                if (!instance)
+                    return;
+
+                Position pos;
+                caster->GetPosition(&pos);
+                if (GameObject* portal = caster->SummonGameObject(entry, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 9999999999))
+                    portal->SetPhaseMask(0x1, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_halion_summon_twilight_portal_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_halion_summon_twilight_portal_SpellScript();
         }
 };
 
