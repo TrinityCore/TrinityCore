@@ -22,6 +22,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "Vehicle.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
@@ -939,6 +940,44 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
         };
 };
 
+/*
+ http://www.wowhead.com/quest=13283 King of the Mountain
+ http://www.wowhead.com/quest=13280 King of the Mountain
+ 59643 Plant Horde Battle Standard
+ 4338 Plant Alliance Battle Standard
+ */
+enum eBattleStandard
+{
+    NPC_KING_OF_THE_MOUNTAINT_KC					= 31766,
+};
+class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
+{
+public:
+    spell_q13280_13283_plant_battle_standard() : SpellScriptLoader("spell_q13280_13283_plant_battle_standard") { }
+
+    class spell_q13280_13283_plant_battle_standard_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q13280_13283_plant_battle_standard_SpellScript)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {                 
+            Unit* caster = GetCaster();
+            if (caster->IsVehicle())
+                if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
+                     player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC,0);
+        }
+
+        void Register()
+        {
+        OnEffect += SpellEffectFn(spell_q13280_13283_plant_battle_standard_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q13280_13283_plant_battle_standard_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -961,4 +1000,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12659_ahunaes_knife();
     new spell_q9874_liquid_fire();
     new spell_q12805_lifeblood_dummy();
+    new spell_q13280_13283_plant_battle_standard();
 }
