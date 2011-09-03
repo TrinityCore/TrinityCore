@@ -217,15 +217,6 @@ class AuraRemoveEvent : public BasicEvent
         uint32 _spellId;
 };
 
-class SummonTargetSelector
-{
-    public:
-        bool operator()(Unit* unit) const
-        {
-            return unit->HasAura(SPELL_RECENTLY_SPAWNED);
-        }
-};
-
 class ValithriaDespawner : public BasicEvent
 {
     public:
@@ -254,6 +245,7 @@ class ValithriaDespawner : public BasicEvent
                 case NPC_GLUTTONOUS_ABOMINATION:
                 case NPC_MANA_VOID:
                 case NPC_COLUMN_OF_FROST:
+                case NPC_ROT_WORM:
                     creature->DespawnOrUnsummon();
                     return;
                 case NPC_RISEN_ARCHMAGE:
@@ -1194,7 +1186,7 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& targets)
             {
-                targets.remove_if(SummonTargetSelector());
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 if (targets.empty())
                     return;
 
@@ -1235,7 +1227,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
                 std::list<Creature*> summoners;
                 GetCreatureListWithEntryInGrid(summoners, caster, 22515, 100.0f);
-                summoners.remove_if(SummonTargetSelector());
+                summoners.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 Trinity::RandomResizeList(summoners, 2);
                 if (summoners.empty())
                     return;
