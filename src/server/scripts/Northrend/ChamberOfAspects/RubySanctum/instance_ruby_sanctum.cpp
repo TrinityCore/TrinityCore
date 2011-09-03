@@ -108,6 +108,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case GO_FLAME_RING:
                         FlameRingGUID = go->GetGUID();
                         break;
+                    case GO_TWILIGHT_FLAME_RING:
+                        TwilightFlameRingGUID = go->GetGUID();
+                        break;
                     case GO_BURNING_TREE_1:
                         BurningTreeGUID[0] = go->GetGUID();
                         if (GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
@@ -184,6 +187,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return BurningTreeGUID[type - DATA_BURNING_TREE_1];
                     case DATA_FLAME_RING:
                         return FlameRingGUID;
+                    case DATA_TWILIGHT_FLAME_RING:
+                        return TwilightFlameRingGUID;
                     case DATA_EXIT_PORTAL_1:
                     case DATA_EXIT_PORTAL_2:
                         return ExitPortalsGUID[type - DATA_EXIT_PORTAL_1];
@@ -344,6 +349,7 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 CrystalChannelTargetGUID;
             uint64 XerestraszaGUID;
             uint64 FlameWallsGUID;
+            uint64 TwilightFlameRingGUID;
             uint64 ZarithianSpawnStalkerGUID[2];
             uint64 BurningTreeGUID[4];
             uint64 ExitPortalsGUID[2];

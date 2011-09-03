@@ -49,9 +49,10 @@ enum DataTypes
     DATA_BURNING_TREE_3                     = 14,
     DATA_BURNING_TREE_4                     = 15,
     DATA_FLAME_RING                         = 16,
-    DATA_EXIT_PORTAL_1                      = 17,
-    DATA_EXIT_PORTAL_2                      = 18,
-    DATA_ENTER_PORTAL                       = 19,
+    DATA_TWILIGHT_FLAME_RING                = 17,
+    DATA_EXIT_PORTAL_1                      = 18,
+    DATA_EXIT_PORTAL_2                      = 19,
+    DATA_ENTER_PORTAL                       = 20,
 };
 
 enum SharedActions
@@ -108,6 +109,7 @@ enum GameObjectsIds
     GO_FIRE_FIELD                           = 203005,
     GO_FLAME_WALLS                          = 203006,
     GO_FLAME_RING                           = 203007,
+    GO_TWILIGHT_FLAME_RING                  = 203624,
     GO_BURNING_TREE_1                       = 203034,
     GO_BURNING_TREE_2                       = 203035,
     GO_BURNING_TREE_3                       = 203036,
