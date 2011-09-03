@@ -635,10 +635,9 @@ class npc_halion_controller : public CreatureScript
                     case ACTION_PHASE_THREE:
                     {
                         _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 20000);
-                        if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                            for (uint8 i = 0; i < 2; i++)
-                                if (GameObject* portal = halion->SummonGameObject(GO_HALION_PORTAL_EXIT, PortalsSpawnPos[i].GetPositionX(), PortalsSpawnPos[i].GetPositionY(), PortalsSpawnPos[i].GetPositionZ(), PortalsSpawnPos[i].GetOrientation(), 0, 0, 0, 0, 99999999))
-                                    portal->SetPhaseMask(0x20, true);
+                        for (uint8 i = 0; i < 2; i++)
+                            if (GameObject* portal = me->SummonGameObject(GO_HALION_PORTAL_EXIT, PortalsSpawnPos[i].GetPositionX(), PortalsSpawnPos[i].GetPositionY(), PortalsSpawnPos[i].GetPositionZ(), PortalsSpawnPos[i].GetOrientation(), 0, 0, 0, 0, 99999999))
+                                portal->SetPhaseMask(0x20, true);
 
                         TwilightDamageTaken = 0;
                         MaterialDamageTaken = 0;
@@ -678,7 +677,15 @@ class npc_halion_controller : public CreatureScript
                         }
 
                         if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                            halion->RemoveGameObject(SPELL_SUMMON_TWILIGHT_PORTAL, true);
+                        {
+                            if (GameObject* object = halion->GetGameObject(SPELL_SUMMON_TWILIGHT_PORTAL))
+                            {
+                                halion->RemoveGameObject(SPELL_SUMMON_TWILIGHT_PORTAL, false);
+                                object->SetRespawnTime(0);
+                                object->Delete();
+                                object->DeleteFromDB();
+                            }
+                        }
                         break;
                     }
                 }
