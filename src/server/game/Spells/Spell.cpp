@@ -4756,7 +4756,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     {
-        SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(m_caster, m_targets.GetObjectTarget());
+        SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(m_caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());
         if (castResult != SPELL_CAST_OK)
             return castResult;
     }
