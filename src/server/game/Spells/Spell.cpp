@@ -4756,7 +4756,8 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     {
-        SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(m_caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());
+        // Check explicit target for m_originalCaster - todo: get rid of such workarounds
+        SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(m_originalCaster ? m_originalCaster : m_caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());
         if (castResult != SPELL_CAST_OK)
             return castResult;
     }
