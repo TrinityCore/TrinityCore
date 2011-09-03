@@ -85,7 +85,6 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 EventStage = 0;
 
                 TributeChestGUID = 0;
-                DataDamageTwin = 0;
 
                 MainGateDoorGUID = 0;
                 EastPortcullisGUID = 0;
