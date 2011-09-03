@@ -79,7 +79,7 @@ enum Spells
     SPELL_TWILIGHT_DIVISION             = 75063,    // Phase spell from phase 2 to phase 3
     SPELL_LEAVE_TWILIGHT_REALM          = 74812,
     SPELL_TWILIGHT_PHASING              = 74808,    // Phase spell from phase 1 to phase 2
-    SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794 - Bugged with Shauren's patch, will despawn as soon as used - Use workaround
+    SPELL_SUMMON_TWILIGHT_PORTAL        = 74809,    // Summons go 202794
     SPELL_TWILIGHT_MENDING              = 75509,
 
     // Living Inferno
@@ -329,6 +329,8 @@ class boss_halion : public CreatureScript
                             // Firewall is activated 10 seconds after starting encounter, DOOR_TYPE_ROOM is only instant.
                             if (GameObject* firewall = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_FLAME_RING)))
                                 instance->HandleGameObject(instance->GetData64(DATA_FLAME_RING), false, firewall);
+                            if (GameObject* firewall = ObjectAccessor::GetGameObject(*me, instance->GetData64(DATA_TWILIGHT_FLAME_RING)))
+                                instance->HandleGameObject(instance->GetData64(DATA_TWILIGHT_FLAME_RING), false, firewall);
                             break;
                         case EVENT_FLAME_BREATH:
                             DoCast(me, SPELL_FLAME_BREATH);
