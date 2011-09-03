@@ -75,7 +75,7 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (40146,1,0, 'Your efforts have forced Halion further into the Physical realm!',42,0,100,0,0,0, 'Halion'),
 (40146,2,0, 'Your companion''s efforts have forced Halion further out of the Twilight realm!',42,0,100,0,0,0, 'Halion'),
 (40146,3,0, 'Your efforts have forced Halion further into the Twilight realm!',42,0,100,0,0,0, 'Halion'),
-(40146,4,0, 'Without pressure in both realms, Halion begins to regenerate.',41,0,100,0,0,0, 'Halion'),
+(40146,4,0, 'Without pressure in both realms, Halion begins to regenerate.',42,0,100,0,0,0, 'Halion'),
 (40146,5,0, 'The orbiting spheres pulse with dark energy!',42,0,100,0,0,0, 'Halion');
 
 -- Conditions
