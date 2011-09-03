@@ -676,6 +676,9 @@ class npc_halion_controller : public CreatureScript
                                 portal->DeleteFromDB();
                             }
                         }
+
+                        if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
+                            halion->RemoveGameObject(SPELL_SUMMON_TWILIGHT_PORTAL, true);
                         break;
                     }
                 }
@@ -732,14 +735,11 @@ class npc_halion_controller : public CreatureScript
                         }
                         case EVENT_WARN_LASERS:
                         {
-                            if (Map* sanctum = me->GetMap())
-                            {
-                                Map::PlayerList const &PlList = sanctum->GetPlayers();
-                                for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-                                    if (Player* player = i->getSource())
-                                        if (player->HasAura(SPELL_TWILIGHT_REALM))
-                                            Talk(EMOTE_WARN_LASER, player->GetGUID());
-                            }
+                            Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
+                            for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                                if (Player* player = i->getSource())
+                                    if (player->HasAura(SPELL_TWILIGHT_REALM))
+                                        Talk(EMOTE_WARN_LASER, player->GetGUID());
                             break;
                         }
                         case EVENT_CHECK_CORPOREALITY:
@@ -764,9 +764,14 @@ class npc_halion_controller : public CreatureScript
                             }
                             else
                             {
-                                Talk(EMOTE_REGENERATE);
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
-                                    DoCast(halion, SPELL_TWILIGHT_MENDING);
+                                {
+                                    Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
+                                    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
+                                        if (Player* player = i->getSource())
+                                            Talk(EMOTE_REGENERATE, player->GetGUID());
+                                    DoCast(halion, SPELL_TWILIGHT_MENDING);            
+                                }
                                 _events.ScheduleEvent(EVENT_CHECK_CORPOREALITY, 15000);
                                 break;
                             }

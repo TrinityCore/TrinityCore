@@ -29,6 +29,7 @@ INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes
 -- This is INCORRECT and BREAKS TC STANDARDS by editing WDB field data10
 -- Best would be to create the sniffed spell in the spell_dbc table.
 UPDATE `gameobject_template` SET `data10`=74807,`flags`=`flags`|32 WHERE `entry` IN (202794, 202795);
+UPDATE `gameobject_template` SET `ScriptName`="go_exit_twilight_realm" WHERE `entry`=202796;
 
 -- Spell scripts
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
