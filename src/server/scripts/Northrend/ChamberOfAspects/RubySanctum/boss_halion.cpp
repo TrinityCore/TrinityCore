@@ -1534,6 +1534,18 @@ class spell_halion_enter_twilight_realm : public SpellScriptLoader
         }
 };
 
+class go_exit_twilight_realm : public GameObjectScript
+{
+public:
+    go_exit_twilight_realm() : GameObjectScript("go_exit_twilight_realm") { }
+
+    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
+    {
+        player->CastSpell(player, SPELL_LEAVE_TWILIGHT_REALM, true);
+        return true;
+    }
+};
+
 class IsNotBetweenSelector
 {
     public:
