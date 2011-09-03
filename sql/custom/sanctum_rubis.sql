@@ -5,14 +5,20 @@ INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`Casti
 
 -- Creatures respawn time (bosses)
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
-UPDATE `gameobject` SET `phaseMask`=`phaseMask`|0x20 WHERE `id`=203007; -- Ruby Sanctum Halion Flame Ring
+
+UPDATE `gameobject` SET `phaseMask`=0x1 WHERE `id`=203007; -- Ruby Sanctum Halion Flame Ring
+-- Halion Twilight Ring
+SET @GUID := 600000;
+DELETE FROM `gameobject` WHERE `id`=203624;
+INSERT INTO `gameobject` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(@GUID,203624,724,15,0x20,3154.99,535.637,72.887,3.14159,0,0,0,0,120,0,0);
 
 -- Creature Templates updates
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_consumption' WHERE `entry`=40135; -- Consumption
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 ,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=2,`unit_flags`=33554432 WHERE `entry`=40091; -- Orb Rotation Focus
 UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
-UPDATE `creature_template` SET `ScriptName`= 'boss_halion' WHERE `entry`=39863; -- Halion
+UPDATE `creature_template` SET `ScriptName`= 'boss_halion',`flags_extra`=`flags_extra`|0x1 WHERE `entry`=39863; -- Halion
 UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion' WHERE `entry`=40142; -- Twilight Halion
 UPDATE `creature_template` SET `flags_extra`=130,`ScriptName`= 'npc_halion_controller' WHERE `entry`=40146; -- Halion Controller
 UPDATE `creature_template` SET `flags_extra`=2,`unit_flags`=33554432,`baseattacktime`=2000,`speed_walk`=2.4,`speed_run`=0.85714,`faction_A`=14,`faction_H`=14,`exp`=2,`maxlevel`=80,`minlevel`=80, `ScriptName`= 'npc_shadow_orb' WHERE `entry` IN (40083, 40100, 40469, 40468);
