@@ -25,6 +25,9 @@ enum Data
     DATA_LICHKING_EVENT,
     DATA_WAVE_COUNT,
     DATA_TEAM_IN_INSTANCE,
+
+    // Misc
+    DATA_ESCAPE_LEADER,
 };
 
 enum Data64
@@ -33,6 +36,15 @@ enum Data64
     DATA_MARWYN,
     DATA_LICHKING,
     DATA_FROSTMOURNE,
+
+    // Misc
+    DATA_FROSWORN_EVENT,
+    DATA_PHASE,
+    DATA_SUMMONS,
+    DATA_ICE_WALL_1,
+    DATA_ICE_WALL_2,
+    DATA_ICE_WALL_3,
+    DATA_ICE_WALL_4,
 };
 
 enum Creatures
@@ -47,12 +59,18 @@ enum Creatures
     NPC_JAINA_PART2                               = 36955,
     NPC_SYLVANAS_PART1                            = 37223,
     NPC_SYLVANAS_PART2                            = 37554,
+    NPC_KORELN                                    = 37582,
+    NPC_LORALEN                                   = 37779,
+    NPC_BARTLETT                                  = 37182,
+    NPC_KORM                                      = 37833,
 
     NPC_WAVE_MERCENARY                            = 38177,
     NPC_WAVE_FOOTMAN                              = 38173,
     NPC_WAVE_RIFLEMAN                             = 38176,
     NPC_WAVE_PRIEST                               = 38175,
     NPC_WAVE_MAGE                                 = 38172,
+
+    NPC_ICE_WALL_TARGET                           = 37014,
 };
 
 enum GameObjects
@@ -61,6 +79,22 @@ enum GameObjects
     GO_FROSTMOURNE_ALTAR                          = 202236,
     GO_FRONT_DOOR                                 = 201976,
     GO_ARTHAS_DOOR                                = 197341,
+
+    GO_ICE_WALL_1                                 = 201385,
+    GO_ICE_WALL_2                                 = 201885,
+    GO_ICE_WALL_3                                 = 201911,
+    GO_ICE_WALL_4                                 = 202396,
+    GO_CAVE                                       = 201596,
+
+    GO_STAIRS_SKYBREAKER         = 201709,
+    GO_SKYBREAKER                = 500002,
+    GO_STAIRS_ORGRIM_HAMMER      = 202211,
+    GO_ORGRIM_HAMMER             = 500003,
+    GO_PORTAL                    = 202079,
+    GO_CAPTAIN_CHEST_1           = 202212, //3145
+    GO_CAPTAIN_CHEST_2           = 201710, //30357
+    GO_CAPTAIN_CHEST_3           = 202337, //3246
+    GO_CAPTAIN_CHEST_4           = 202336, //3333
 };
 
 enum HorWorldStates

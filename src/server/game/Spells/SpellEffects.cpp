@@ -1430,6 +1430,11 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             // Death strike
             if (m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_DK_DEATH_STRIKE)
             {
+                // Exclude Death Strike proccing from Threat of Thassarian
+                // Else, the player gets healed for like 10K when having good gear.
+                // Since this can be used twice in a row, this is really overpowered in PvP
+                if (m_spellInfo->Id == 66188 || m_spellInfo->Id == 66950 || m_spellInfo->Id == 66951 || m_spellInfo->Id == 66952 || m_spellInfo->Id == 66953)
+                    return;
                 uint32 count = unitTarget->GetDiseasesByCaster(m_caster->GetGUID());
                 int32 bp = int32(count * m_caster->CountPctFromMaxHealth(int32(m_spellInfo->Effects[EFFECT_0].DamageMultiplier)));
                 // Improved Death Strike
@@ -4037,7 +4042,7 @@ void Spell::SpellDamageWeaponDmg(SpellEffIndex effIndex)
             // Blood-Caked Strike - Blood-Caked Blade
             if (m_spellInfo->SpellIconID == 1736)
             {
-                AddPctF(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 12.5f);
+                AddPctF(totalDamagePercentMod, unitTarget->GetDiseasesByCaster(m_caster->GetGUID()) * 50.0f);
                 break;
             }
             // Heart Strike
@@ -5289,7 +5294,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         case SPELLFAMILY_DEATHKNIGHT:
         {
             // Pestilence
-            if (m_spellInfo->SpellFamilyFlags[1]&0x10000)
+            if (m_spellInfo->SpellFamilyFlags[1] & 0x10000)
             {
                 // Get diseases on target of spell
                 if (m_targets.GetUnitTarget() &&  // Glyph of Disease - cast on unit target too to refresh aura
