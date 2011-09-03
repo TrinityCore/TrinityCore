@@ -55,8 +55,8 @@ class InstanceSave
            or when the instance is reset */
         ~InstanceSave();
 
-        uint8 GetPlayerCount() { return m_playerList.size(); }
-        uint8 GetGroupCount() { return m_groupList.size(); }
+        uint8 GetPlayerCount() const { return m_playerList.size(); }
+        uint8 GetGroupCount() const { return m_groupList.size(); }
 
         /* A map corresponding to the InstanceId/MapId does not always exist.
         InstanceSave objects may be created on player logon but the maps are
@@ -136,7 +136,7 @@ class InstanceSaveManager
             InstResetEvent() : type(0), difficulty(DUNGEON_DIFFICULTY_NORMAL), mapid(0), instanceId(0) {}
             InstResetEvent(uint8 t, uint32 _mapid, Difficulty d, uint16 _instanceid)
                 : type(t), difficulty(d), mapid(_mapid), instanceId(_instanceid) {}
-            bool operator == (const InstResetEvent& e) { return e.instanceId == instanceId; }
+            bool operator == (const InstResetEvent& e) const { return e.instanceId == instanceId; }
         };
         typedef std::multimap<time_t /*resetTime*/, InstResetEvent> ResetTimeQueue;
 

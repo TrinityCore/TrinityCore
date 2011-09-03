@@ -2299,10 +2299,6 @@ void UnitAura::Remove(AuraRemoveMode removeMode)
 
 void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* caster)
 {
-    Player* modOwner = NULL;
-    if (caster)
-        modOwner = caster->GetSpellModOwner();
-
     for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS ; ++effIndex)
     {
         if (!HasEffect(effIndex))
