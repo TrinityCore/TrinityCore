@@ -50,43 +50,11 @@ EndContentData */
 #include "ReputationMgr.h"
 #include "Config.h"
 
-void LearnAllSkillRecipes(Player * player, uint32 skill_id)
-{
-    uint32 classmask = player->getClassMask();
-
-    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
-    {
-        SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
-        if (!skillLine)
-            continue;
-
-        // wrong skill
-        if (skillLine->skillId != skill_id)
-            continue;
-
-        // not high rank
-        if (skillLine->forward_spellid)
-            continue;
-
-        // skip racial skills
-        if (skillLine->racemask != 0)
-            continue;
-
-        // skip wrong class skills
-        if (skillLine->classmask && (skillLine->classmask & classmask) == 0)
-            continue;
-
-        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
-        if (!spellInfo)
-            continue;
-
-        player->learnSpell(skillLine->spellId, false);
-    }
-}
 // ------------------------------------------------------------------------------------------------------------
 // Feuerrufer 60000
 // ------------------------------------------------------------------------------------------------------------
 #define SPELL_RAKETENBUENDEL_ZUENDER    26299   // Zünder für Raketenbündel herstellen - 2 Secs. cast - NUR EINMAL BEIM START CASTEN!!!
+#define MAX_GESCHENKE                   3       // Maximale Anzahl der zu vergebenden Geschenke
 
 #define FirecallerSpellsCnt 15
 const uint32 FirecallerSpells[FirecallerSpellsCnt] =
@@ -258,7 +226,7 @@ enum FirecallerEvents
     EVENT_JOKE
 };
 
-class npc_uwom_firecaller : public CreatureScript // TODO: Doppelte Einträge im Feuerrufer.log verhindern!
+class npc_uwom_firecaller : public CreatureScript
 {
 public:
     npc_uwom_firecaller() : CreatureScript("npc_uwom_firecaller") { }
@@ -268,11 +236,26 @@ public:
         npc_uwom_firecallerAI(Creature * creature) : ScriptedAI(creature)
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_START, 60 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_START, SEKUNDEN_60);
+            logfile = sWorld->GetDataPath().c_str();
+            logfile.append("log/feuerrufer.log");
         }
 
         void Reset()
         {
+        }
+
+        void MoveInLineOfSight(Unit * who)
+        {
+            if (!who || !who->isValid() || who->GetTypeId() != TYPEID_PLAYER)
+                return;
+
+            Player * chr = who->ToPlayer();
+            if (!chr || !chr->isValid())
+                return;
+
+            if (SpielerGUIDSet.find(chr->GetGUID()) == SpielerGUIDSet.end())
+                SpielerGUIDSet.insert(chr->GetGUID());
         }
 
         void LadePetListe()
@@ -296,29 +279,14 @@ public:
                 }
             } while (result->NextRow());
 
-            SchreibeBericht(fmtstring("Habe %u gültige Pets gefunden und geladen (NPC-GUID %u).", cnt, me->GetGUIDLow()));
-        }
-
-        void MoveInLineOfSight(Unit * who)
-        {
-            if (!who || !who->isValid() || who->GetTypeId() != TYPEID_PLAYER)
-                return;
-
-            Player * chr = who->ToPlayer();
-            if (!chr || !chr->isValid())
-                return;
-
-            if (SpielerGUIDSet.find(chr->GetGUID()) == SpielerGUIDSet.end())
-                SpielerGUIDSet.insert(chr->GetGUID());
+            if (!EintragVorhanden("gültige Pets"))
+                SchreibeBericht(fmtstring("Es stehen zur Zeit %u gültige Pets zur Verfügung.\n\n", cnt));
         }
 
         // Bericht schreiben, damit wir wissen, wer welches Geschenk bekommen hat. ;)
         void SchreibeBericht(std::string str)
         {
-            std::string tmpfile = sWorld->GetDataPath().c_str();
-            tmpfile.append("log/feuerrufer.log");
-
-            if (FILE * reportfile = fopen(tmpfile.c_str(), "a"))
+            if (FILE * reportfile = fopen(logfile.c_str(), "a"))
             {
                 sLog->outString("FEUERUFER: (NPC-GUID %u) %s", me->GetGUIDLow(), str.c_str());
                 fputs(str.c_str(), reportfile);
@@ -326,26 +294,40 @@ public:
             }
             else
             {
-                sLog->outError("FEUERUFER: KANN %s NICHT SCHREIBEN!", tmpfile.c_str());
+                sLog->outError("FEUERUFER: KANN %s NICHT SCHREIBEN!", logfile.c_str());
                 sLog->outError("FEUERUFER: %s", str.c_str());
             }
+        }
+
+        bool EintragVorhanden(const char * eintrag)
+        {
+            if (FILE * reportfile = fopen(logfile.c_str(), "r+t"))
+            {
+                std::string tmpstr;
+
+                while (!feof(reportfile))
+                {
+                    char tmpchar[tmpstr.max_size()];
+                    tmpstr = fgets(tmpchar, tmpstr.max_size(), reportfile);
+                    if (tmpstr.find(eintrag))
+                        return true;
+                }
+            }
+            return false;
         }
 
         // Anzahl der bereits vergebenen Geschenke ermitteln.
         uint8 BereitsVergeben()
         {
-            std::string tmpfile = sWorld->GetDataPath().c_str();
-            tmpfile.append("log/feuerrufer.log");
-
-            if (FILE * reportfile = fopen(tmpfile.c_str(), "r+t"))
+            if (FILE * reportfile = fopen(logfile.c_str(), "r+t"))
             {
                 uint8 cnt = 0;
+                std::string tmpstr;
 
                 while (!feof(reportfile))
                 {
-                    std::string tmpstr;
-                    char tmpchar[150];
-                    tmpstr = fgets(tmpchar, 149, reportfile);
+                    char tmpchar[tmpstr.max_size()];
+                    tmpstr = fgets(tmpchar, tmpstr.max_size(), reportfile);
                     if (tmpstr.find("http://de.wowhead.com/item="))
                         ++cnt;
                 }
@@ -353,9 +335,56 @@ public:
                 return cnt;
             }
             else
-                sLog->outError("FEUERUFER: KANN %s NICHT LESEN!", tmpfile.c_str());
+                sLog->outError("FEUERUFER: KANN %s NICHT LESEN!", logfile.c_str());
 
             return 0;
+        }
+
+        void ErstelleSema(uint8 num = 0)
+        {
+            std::string tmpfile = sWorld->GetDataPath().c_str();
+
+            if (!num)
+                tmpfile.append("event.run");
+            else
+            {
+                char buffer[2];
+                sprintf(buffer, "%u", num);
+                tmpfile.append("geschenk.").append(buffer);
+            }
+            if (FILE * semafile = fopen(tmpfile.c_str(), "a"))
+                fclose(semafile);
+        }
+
+        void LoescheSema(uint8 num)
+        {
+            std::string tmpfile = sWorld->GetDataPath().c_str();
+
+            if (!num)
+                tmpfile.append("event.run");
+            else
+            {
+                char buffer[2];
+                sprintf(buffer, "%u", num);
+                tmpfile.append("geschenk.").append(buffer);
+            }
+            remove(tmpfile.c_str());
+        }
+
+        bool SemaVorhanden(uint8 num)
+        {
+            std::string tmpfile = sWorld->GetDataPath().c_str();
+            char buffer[2];
+
+            sprintf(buffer, "%u", num);
+            tmpfile.append("geschenk.").append(buffer);
+
+            if (FILE * semafile = fopen(tmpfile.c_str(), "r"))
+            {
+                fclose(semafile);
+                return true;
+            }
+            return false;
         }
 
         Player * FindeSpieler(float range = 50.0f)
@@ -381,13 +410,13 @@ public:
             return NULL;
         }
 
-        bool BeschenkeZiel(Player * chr)
+        bool BeschenkeZiel(Player * chr, uint8 num)
         {
-            if (!chr || chr->GetSession()->GetSecurity() >= SEC_ANWAERTER)
+            if (!chr || !chr->isValid() || chr->GetSession()->GetSecurity() >= SEC_ANWAERTER)
                 return false;
 
-            if (BereitsVergeben() >= 3) // Es wurde bereits die max. Anzahl an Geschenken vergeben!
-                return true;
+            if (BereitsVergeben() >= MAX_GESCHENKE || SemaVorhanden(num))
+                return true; // Es wurde bereits alle Geschenke, oder diese Geschenknummer schon vergeben!
 
             for (std::map<uint32, uint32>::const_iterator itr = PetListe.begin(); itr != PetListe.end(); ++itr)
             {
@@ -460,7 +489,10 @@ public:
 
         void StartEvent()
         {
-            SchreibeBericht(fmtstring("Feuerrufer-Bericht (für NPC-GUID %u) über die verschenkten Items. ;)\n\n", me->GetGUIDLow()));
+            ErstelleSema();
+
+            if (!EintragVorhanden("Feuerrufer-Bericht"))
+                SchreibeBericht("Feuerrufer-Bericht über die verschenkten Items. ;)\n\n");
 
             LadePetListe();
 
@@ -485,10 +517,13 @@ public:
             DoPlaySoundToSet(me, FirecallerSounds[ABSCHIED][0]);
             DoCast(FirecallerSpells[EXPLOSION]);
 
-            if (BereitsVergeben() == 0)
+            if (BereitsVergeben() == 0 && !EintragVorhanden("Leider war diesmal"))
                 SchreibeBericht("Leider war diesmal niemand zum Event erschienen! :-(");
 
-            me->ForcedDespawn(8 * IN_MILLISECONDS);
+            me->SetTimeUntilDisappear(8 * IN_MILLISECONDS);
+
+            for (uint8 i=0; i<4; ++i)
+                LoescheSema(i);
         }
 
         uint32 ZufallsZauberHolen()
@@ -516,28 +551,33 @@ public:
                         StartEvent();
                         break;
                     case EVENT_PRESENT_1:
-                        if (!BeschenkeZiel(FindeSpieler()))
+                        if (!BeschenkeZiel(FindeSpieler(), 1))
                             events.RescheduleEvent(EVENT_PRESENT_1, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
                         {
+                            ErstelleSema(1);
                             events.CancelEvent(EVENT_PRESENT_1);
                             events.ScheduleEvent(EVENT_PRESENT_2, urand(MINUTEN_05, MINUTEN_10));
                         }
                         break;
                     case EVENT_PRESENT_2:
-                        if (!BeschenkeZiel(FindeSpieler()))
+                        if (!BeschenkeZiel(FindeSpieler(), 2))
                             events.RescheduleEvent(EVENT_PRESENT_2, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
                         {
+                            ErstelleSema(2);
                             events.CancelEvent(EVENT_PRESENT_2);
                             events.ScheduleEvent(EVENT_PRESENT_3, urand(MINUTEN_05, MINUTEN_10));
                         }
                         break;
                     case EVENT_PRESENT_3:
-                        if (!BeschenkeZiel(FindeSpieler()))
+                        if (!BeschenkeZiel(FindeSpieler(), 3))
                             events.RescheduleEvent(EVENT_PRESENT_3, urand(SEKUNDEN_10, SEKUNDEN_30));
                         else
+                        {
+                            ErstelleSema(3);
                             events.CancelEvent(EVENT_PRESENT_3);
+                        }
                         break;
                     case EVENT_SOUND:
                         DoPlaySoundToSet(me, FirecallerSounds[ZUFAELLIG][urand(0,4)]);
@@ -551,7 +591,7 @@ public:
                         if (Player * chr = FindeSpieler())
                         {
                             me->setFaction(14);
-                            if (chr->GetSession()->GetSecurity() > SEC_VETERAN)
+                            if (chr->GetSession()->GetSecurity() >= SEC_ANWAERTER)
                                 DoCast(chr, FirecallerTargetSpells[VERSENGEN]);
                             else
                                 DoCast(chr, FirecallerTargetSpells[urand(BODENBLUETE, RAKETENSCHUSS)]);
@@ -577,6 +617,7 @@ public:
             EventMap events;
             std::set<uint64> SpielerGUIDSet;
             std::map<uint32, uint32> PetListe;
+            std::string logfile;
     };
 
     CreatureAI * GetAI(Creature * creature) const
@@ -999,6 +1040,40 @@ public:
         return new npc_flugmeister_addsAI(creature);
     }
 };
+
+void LearnAllSkillRecipes(Player * player, uint32 skill_id)
+{
+    uint32 classmask = player->getClassMask();
+
+    for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
+    {
+        SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
+        if (!skillLine)
+            continue;
+
+        // wrong skill
+        if (skillLine->skillId != skill_id)
+            continue;
+
+        // not high rank
+        if (skillLine->forward_spellid)
+            continue;
+
+        // skip racial skills
+        if (skillLine->racemask != 0)
+            continue;
+
+        // skip wrong class skills
+        if (skillLine->classmask && (skillLine->classmask & classmask) == 0)
+            continue;
+
+        SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
+        if (!spellInfo)
+            continue;
+
+        player->learnSpell(skillLine->spellId, false);
+    }
+}
 
 // ------------------------------------------------------------------------------------------------------------
 // UWoM's GM-Pimper 60001
