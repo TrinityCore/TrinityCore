@@ -228,6 +228,7 @@ enum CreaturesIds
     NPC_GLUTTONOUS_ABOMINATION                  = 37886,
     NPC_MANA_VOID                               = 38068,
     NPC_COLUMN_OF_FROST                         = 37918,
+    NPC_ROT_WORM                                = 37907,
     NPC_THE_LICH_KING_VALITHRIA                 = 16980,
     NPC_DREAM_PORTAL_PRE_EFFECT                 = 38186,
     NPC_NIGHTMARE_PORTAL_PRE_EFFECT             = 38429,

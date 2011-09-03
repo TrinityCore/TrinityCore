@@ -1545,7 +1545,7 @@ void Spell::EffectTriggerSpellWithValue(SpellEffIndex effIndex)
 
     int32 bp = damage;
 
-    Unit* caster = spellInfo->IsRequiringSelectedTarget() ? m_caster : unitTarget;
+    Unit* caster = spellInfo->NeedsToBeTriggeredByCaster() ? m_caster : unitTarget;
 
     caster->CastCustomSpell(unitTarget, triggered_spell_id, &bp, &bp, &bp, true);
 }
@@ -1770,7 +1770,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
     // Note: not exist spells with weapon req. and IsSpellHaveCasterSourceTargets == true
     // so this just for speedup places in else
-    Unit* caster = spellInfo->IsRequiringSelectedTarget() ? m_caster : unitTarget;
+    Unit* caster = spellInfo->NeedsToBeTriggeredByCaster() ? m_caster : unitTarget;
 
     caster->CastSpell(unitTarget, spellInfo, true, 0, 0, (originalCaster ? originalCaster->GetGUID() : 0));
 }

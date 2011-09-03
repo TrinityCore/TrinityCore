@@ -1831,7 +1831,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
                 case SPELL_AURA_PERIODIC_ENERGIZE:
                 case SPELL_AURA_PERIODIC_MANA_LEECH:
                 case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_POWER_BURN_MANA:
+                case SPELL_AURA_POWER_BURN:
                 case SPELL_AURA_OBS_MOD_POWER:
                 case SPELL_AURA_OBS_MOD_HEALTH:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
@@ -2319,7 +2319,7 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* caster)
 
             if (!GetUnitOwner()->HasUnitState(UNIT_STAT_ISOLATED))
             {
-                switch(GetSpellInfo()->Effects[effIndex].Effect)
+                switch (GetSpellInfo()->Effects[effIndex].Effect)
                 {
                     case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
                         targetList.push_back(GetUnitOwner());

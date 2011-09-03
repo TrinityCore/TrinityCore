@@ -490,7 +490,7 @@ public:
 
                     if (Wave_Timer <= diff)
                     {
-                        if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill)
+                        if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
                         {
                             DoScriptText(SAY_TWIGGY_FLATHEAD_FRAY, me);
                             Creature* creature = Unit::GetCreature((*me), AffrayChallenger[Wave]);

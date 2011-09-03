@@ -1035,33 +1035,7 @@ void WorldSession::HandleSetFactionAtWar(WorldPacket & recv_data)
 void WorldSession::HandleSetFactionCheat(WorldPacket & /*recv_data*/)
 {
     sLog->outError("WORLD SESSION: HandleSetFactionCheat, not expected call, please report.");
-    /*
-        uint32 FactionID;
-        uint32 Standing;
-
-        recv_data >> FactionID;
-        recv_data >> Standing;
-
-        std::list<struct Factions>::iterator itr;
-
-        for (itr = GetPlayer()->factions.begin(); itr != GetPlayer()->factions.end(); ++itr)
-        {
-            if (itr->ReputationListID == FactionID)
-            {
-                itr->Standing += Standing;
-                itr->Flags = (itr->Flags | 1);
-                break;
-            }
-        }
-    */
     GetPlayer()->GetReputationMgr().SendStates();
-}
-
-void WorldSession::HandleMeetingStoneInfo(WorldPacket & /*recv_data*/)
-{
-    sLog->outStaticDebug("WORLD: Received CMSG_MEETING_STONE_INFO");
-
-    //SendLfgUpdate(0, 0, 0);
 }
 
 void WorldSession::HandleTutorialFlag(WorldPacket & recv_data)

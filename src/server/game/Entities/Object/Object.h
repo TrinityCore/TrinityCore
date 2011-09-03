@@ -125,29 +125,9 @@ class Object
         virtual ~Object ();
 
         bool IsInWorld() const { return m_inWorld; }
-        virtual void AddToWorld()
-        {
-            if (m_inWorld)
-                return;
 
-            ASSERT(m_uint32Values);
-
-            m_inWorld = true;
-
-            // synchronize values mirror with values array (changes will send in updatecreate opcode any way
-            ClearUpdateMask(true);
-        }
-
-        virtual void RemoveFromWorld()
-        {
-            if (!m_inWorld)
-                return;
-
-            m_inWorld = false;
-
-            // if we remove from world then sending changes not required
-            ClearUpdateMask(true);
-        }
+        virtual void AddToWorld();
+        virtual void RemoveFromWorld();
 
         uint64 GetGUID() const { return GetUInt64Value(0); }
         uint32 GetGUIDLow() const { return GUID_LOPART(GetUInt64Value(0)); }
@@ -172,54 +152,54 @@ class Object
         int32 GetInt32Value(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
-            return m_int32Values[ index ];
+            return m_int32Values[index];
         }
 
         uint32 GetUInt32Value(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
-            return m_uint32Values[ index ];
+            return m_uint32Values[index];
         }
 
         uint64 GetUInt64Value(uint16 index) const
         {
             ASSERT(index + 1 < m_valuesCount || PrintIndexError(index , false));
-            return *((uint64*)&(m_uint32Values[ index ]));
+            return *((uint64*)&(m_uint32Values[index]));
         }
 
         float GetFloatValue(uint16 index) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
-            return m_floatValues[ index ];
+            return m_floatValues[index];
         }
 
         uint8 GetByteValue(uint16 index, uint8 offset) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             ASSERT(offset < 4);
-            return *(((uint8*)&m_uint32Values[ index ])+offset);
+            return *(((uint8*)&m_uint32Values[index])+offset);
         }
 
         uint16 GetUInt16Value(uint16 index, uint8 offset) const
         {
             ASSERT(index < m_valuesCount || PrintIndexError(index , false));
             ASSERT(offset < 2);
-            return *(((uint16*)&m_uint32Values[ index ])+offset);
+            return *(((uint16*)&m_uint32Values[index])+offset);
         }
 
-        void SetInt32Value(uint16 index,        int32  value);
-        void SetUInt32Value(uint16 index,       uint32  value);
-        void UpdateUInt32Value(uint16 index,       uint32  value);
-        void SetUInt64Value(uint16 index, const uint64 value);
-        void SetFloatValue(uint16 index,       float   value);
+        void SetInt32Value(uint16 index, int32 value);
+        void SetUInt32Value(uint16 index, uint32 value);
+        void UpdateUInt32Value(uint16 index, uint32 value);
+        void SetUInt64Value(uint16 index, uint64 value);
+        void SetFloatValue(uint16 index, float value);
         void SetByteValue(uint16 index, uint8 offset, uint8 value);
         void SetUInt16Value(uint16 index, uint8 offset, uint16 value);
         void SetInt16Value(uint16 index, uint8 offset, int16 value) { SetUInt16Value(index, offset, (uint16)value); }
         void SetStatFloatValue(uint16 index, float value);
         void SetStatInt32Value(uint16 index, int32 value);
 
-        bool AddUInt64Value(uint16 index, const uint64 value);
-        bool RemoveUInt64Value(uint16 index, const uint64 value);
+        bool AddUInt64Value(uint16 index, uint64 value);
+        bool RemoveUInt64Value(uint16 index, uint64 value);
 
         void ApplyModUInt32Value(uint16 index, int32 val, bool apply);
         void ApplyModInt32Value(uint16 index, int32 val, bool apply);
@@ -248,7 +228,7 @@ class Object
         bool HasFlag(uint16 index, uint32 flag) const
         {
             if (index >= m_valuesCount && !PrintIndexError(index , false)) return false;
-            return (m_uint32Values[ index ] & flag) != 0;
+            return (m_uint32Values[index] & flag) != 0;
         }
 
         void SetByteFlag(uint16 index, uint8 offset, uint8 newFlag);
@@ -328,6 +308,9 @@ class Object
         const Unit* ToUnit() const {if (GetTypeId() == TYPEID_UNIT || GetTypeId() == TYPEID_PLAYER) return (const Unit*)((Unit*)this); else return NULL; }
         GameObject* ToGameObject(){ if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject*>(this); else return NULL; }
         const GameObject* ToGameObject() const {if (GetTypeId() == TYPEID_GAMEOBJECT) return (const GameObject*)((GameObject*)this); else return NULL; }
+
+        Corpse* ToCorpse(){ if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse*>(this); else return NULL; }
+        const Corpse* ToCorpse() const {if (GetTypeId() == TYPEID_CORPSE) return (const Corpse*)((Corpse*)this); else return NULL; }
     protected:
 
         Object ();
@@ -355,7 +338,7 @@ class Object
             float  *m_floatValues;
         };
 
-        uint32 *m_uint32Values_mirror;
+        bool* _changedFields;
 
         uint16 m_valuesCount;
 
@@ -468,13 +451,13 @@ struct Position
     bool IsInDist(const Position *pos, float dist) const
         { return GetExactDistSq(pos) < dist * dist; }
     bool HasInArc(float arcangle, const Position *pos) const;
-    bool HasInLine(const Unit* target, float distance, float width) const;
+    bool HasInLine(Unit const* target, float distance, float width) const;
     std::string ToString() const;
 };
-ByteBuffer &operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const & streamer);
-ByteBuffer & operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const & streamer);
-ByteBuffer &operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const & streamer);
-ByteBuffer & operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const & streamer);
+ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
+ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
+ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZStreamer const& streamer);
+ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
 
 struct MovementInfo
 {
@@ -722,7 +705,7 @@ class WorldObject : public Object, public WorldLocation
 
         virtual void CleanupsBeforeDelete(bool finalCleanup = true);  // used in destructor or explicitly before mass creature delete to remove cross-references to already deleted units
 
-        virtual void SendMessageToSet(WorldPacket *data, bool self) { SendMessageToSetInRange(data, GetVisibilityRange(), self); }
+        virtual void SendMessageToSet(WorldPacket *data, bool self);
         virtual void SendMessageToSetInRange(WorldPacket *data, float dist, bool self);
         virtual void SendMessageToSet(WorldPacket *data, Player const* skipped_rcvr);
 
@@ -803,11 +786,11 @@ class WorldObject : public Object, public WorldLocation
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
 
-        Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true);
-        GameObject* FindNearestGameObject(uint32 entry, float range);
+        Creature*   FindNearestCreature(uint32 entry, float range, bool alive = true) const;
+        GameObject* FindNearestGameObject(uint32 entry, float range) const;
 
-        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange);
-        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange);
+        void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
+        void GetCreatureListWithEntryInGrid(std::list<Creature*>& lList, uint32 uiEntry, float fMaxSearchRange) const;
 
         void DestroyForNearbyPlayers();
         virtual void UpdateObjectVisibility(bool forced = true);
@@ -881,11 +864,14 @@ namespace Trinity
     template<class T>
     void RandomResizeList(std::list<T> &_list, uint32 _size)
     {
-        while (_list.size() > _size)
+        size_t list_size = _list.size();
+
+        while (list_size > _size)
         {
             typename std::list<T>::iterator itr = _list.begin();
-            advance(itr, urand(0, _list.size() - 1));
+            std::advance(itr, urand(0, list_size - 1));
             _list.erase(itr);
+            --list_size;
         }
     }
 

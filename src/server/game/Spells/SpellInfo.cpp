@@ -987,7 +987,7 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry)
     SpellFamilyFlags = spellEntry->SpellFamilyFlags;
     DmgClass = spellEntry->DmgClass;
     PreventionType = spellEntry->PreventionType;
-    AreaGroupId  = spellEntry->AreaGroupId;
+    AreaGroupId = spellEntry->AreaGroupId;
     SchoolMask = spellEntry->SchoolMask;
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         Effects[i] = SpellEffectInfo(spellEntry, this, i);
@@ -1126,9 +1126,25 @@ bool SpellInfo::IsAOE() const
     return false;
 }
 
-bool SpellInfo::IsRequiringSelectedTarget() const
+bool SpellInfo::NeedsExplicitUnitTarget() const
 {
-    return (GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK) != 0;
+    return GetExplicitTargetMask() & TARGET_FLAG_UNIT_MASK;
+}
+
+bool SpellInfo::NeedsToBeTriggeredByCaster() const
+{
+    if (NeedsExplicitUnitTarget())
+        return true;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (Effects[i].IsEffect())
+        {
+            if (Effects[i].TargetA.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL
+                || Effects[i].TargetB.GetSelectionCategory() == TARGET_SELECT_CATEGORY_CHANNEL)
+                return true;
+        }
+    }
+    return false;
 }
 
 bool SpellInfo::IsPassive() const
@@ -1632,7 +1648,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     }
 
     // check UNIT_FLAG_NON_ATTACKABLE flag - a player can cast spells on his pet (or other controlled unit) though in any state
-    if (target != caster && target->GetCharmerOrOwnerGUID() != caster->GetGUID())
+    if (!IsPositive() && target != caster && target->GetCharmerOrOwnerGUID() != caster->GetGUID())
     {
         // any unattackable target skipped
         if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
@@ -1702,6 +1718,44 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
         if (HasEffect(SPELL_EFFECT_SELF_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT) || HasEffect(SPELL_EFFECT_RESURRECT_NEW))
             return SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED;
 
+    return SPELL_CAST_OK;
+}
+
+SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject const* target) const
+{
+    uint32 neededTargets = GetExplicitTargetMask();
+    if (!target)
+    {
+        if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
+            return SPELL_FAILED_BAD_TARGETS;
+        return SPELL_CAST_OK;
+    }
+
+    if (Unit const* unitTarget = target->ToUnit())
+    {
+        if (neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER))
+        {
+            if (neededTargets & TARGET_FLAG_UNIT_ENEMY)
+                if (!caster->IsFriendlyTo(unitTarget))
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_ALLY)
+                if (caster->IsFriendlyTo(unitTarget))
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_PARTY)
+                if (caster->IsInPartyWith(unitTarget))
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_RAID)
+                if (caster->IsInRaidWith(unitTarget))
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_MINIPET)
+                if (unitTarget->GetGUID() == caster->GetCritterGUID())
+                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_PASSENGER)
+                if (unitTarget->IsOnVehicle(caster))
+                    return SPELL_CAST_OK;
+            return SPELL_FAILED_BAD_TARGETS;
+        }
+    }
     return SPELL_CAST_OK;
 }
 
