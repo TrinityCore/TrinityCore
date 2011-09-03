@@ -1177,7 +1177,7 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& targets)
             {
-                targets.remove_if(SummonTargetSelector());
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 if (targets.empty())
                     return;
 
