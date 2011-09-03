@@ -214,7 +214,7 @@ class Group
         uint64 GetLooterGuid() const;
         ItemQualities GetLootThreshold() const;
 
-        uint32 GetDbStoreId() { return m_dbStoreId; };
+        uint32 GetDbStoreId() const { return m_dbStoreId; };
 
         // member manipulation methods
         bool IsMember(uint64 guid) const;

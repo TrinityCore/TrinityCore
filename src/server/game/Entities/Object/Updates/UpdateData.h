@@ -56,7 +56,7 @@ class UpdateData
         void AddOutOfRangeGUID(uint64 guid);
         void AddUpdateBlock(const ByteBuffer &block);
         bool BuildPacket(WorldPacket* packet);
-        bool HasData() { return m_blockCount > 0 || !m_outOfRangeGUIDs.empty(); }
+        bool HasData() const { return m_blockCount > 0 || !m_outOfRangeGUIDs.empty(); }
         void Clear();
 
         std::set<uint64> const& GetOutOfRangeGUIDs() const { return m_outOfRangeGUIDs; }
