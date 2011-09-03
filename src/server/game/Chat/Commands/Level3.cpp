@@ -4208,8 +4208,6 @@ bool ChatHandler::HandleServerSetMotdCommand(const char *args)
 /// Set whether we accept new clients
 bool ChatHandler::HandleServerSetClosedCommand(const char *args)
 {
-    std::string arg = args;
-
     if (strncmp(args, "on", 3) == 0)
     {
         SendSysMessage(LANG_WORLD_CLOSED);

@@ -313,10 +313,10 @@ public:
         {
             if (!creature->IsHostileTo(player))
             {
-                uint32 Spell = 0;
-
                 if (FactionTemplateEntry const* pFaction = creature->getFactionTemplateEntry())
                 {
+                    uint32 Spell = 0;
+
                     switch(pFaction->faction)
                     {
                         case 1011: Spell = SPELL_REP_LC; break;
