@@ -95,7 +95,7 @@ enum BossSpells
     SPELL_BURNING_SPRAY     = 66902,
     SPELL_SWEEP_1           = 67646,
     SPELL_EMERGE_0          = 66947,
-    SPELL_SUBMERGE_0        = 53421,
+    SPELL_SUBMERGE_0        = 66948,
     SPELL_ENRAGE            = 68335,
     SPELL_SLIME_POOL_EFFECT = 66882, //In 60s it diameter grows from 10y to 40y (r=r+0.25 per second)
 
@@ -149,6 +149,27 @@ public:
             Summons.DespawnAll();
         }
 
+        void EnterEvadeMode()
+        {
+            m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
+            ScriptedAI::EnterEvadeMode();
+        }
+
+        void MovementInform(uint32 uiType, uint32 uiId)
+        {
+            if (uiType != POINT_MOTION_TYPE) return;
+            
+            switch (uiId)
+            {
+                case 0:
+                    m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->SetInCombatWithZone();
+                    break;
+            }
+        }
+
         void JustDied(Unit* /*killer*/)
         {
             if (m_pInstance)
@@ -158,7 +179,10 @@ public:
         void JustReachedHome()
         {
             if (m_pInstance)
+            {
+                m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
+            }
             me->DespawnOrUnsummon();
         }
 
@@ -263,6 +287,12 @@ public:
                 m_uiBossGUID = m_pInstance->GetData64(NPC_GORMOK);
             //Workaround for Snobold
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        }
+
+        void EnterEvadeMode()
+        {
+            m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
+            ScriptedAI::EnterEvadeMode();
         }
 
         void EnterCombat(Unit* who)
@@ -397,7 +427,9 @@ struct boss_jormungarAI : public ScriptedAI
     void JustReachedHome()
     {
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
+        {
             instanceScript->SetData(TYPE_NORTHREND_BEASTS, FAIL);
+        }
 
         me->DespawnOrUnsummon();
     }
@@ -608,7 +640,12 @@ public:
 
     struct boss_dreadscaleAI : public boss_jormungarAI
     {
-        boss_dreadscaleAI(Creature* creature) : boss_jormungarAI(creature) { }
+        boss_dreadscaleAI(Creature* creature) : boss_jormungarAI(creature)
+        {
+            instanceScript = creature->GetInstanceScript();
+        }
+
+        InstanceScript* instanceScript;
 
         void Reset()
         {
@@ -623,6 +660,40 @@ public:
 
             submergeTimer = 45 * IN_MILLISECONDS;
             stage = 0;
+        }
+        
+        void MovementInform(uint32 uiType, uint32 uiId)
+        {
+            if (uiType != POINT_MOTION_TYPE) return;
+            
+            switch (uiId)
+            {
+                case 0:
+                    instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->SetInCombatWithZone();
+                    if (Creature* otherWorm = Unit::GetCreature(*me, instanceScript->GetData64(otherWormEntry)))
+                    {
+                        otherWorm->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        otherWorm->SetReactState(REACT_AGGRESSIVE);
+                        otherWorm->SetVisible(true);
+                        otherWorm->SetInCombatWithZone();
+                    }
+                    break;
+            }
+        }
+
+        void EnterEvadeMode()
+        {
+            instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+            ScriptedAI::EnterEvadeMode();
+        }
+        
+        void JustReachedHome()
+        {
+            if (instanceScript)
+                instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
         }
     };
 
@@ -746,13 +817,28 @@ public:
                 case 1: // Finish trample
                     m_bMovementFinish = true;
                     break;
+                case 2:
+                    m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->SetReactState(REACT_AGGRESSIVE);
+                    me->SetInCombatWithZone();
+                    break;
             }
+        }
+
+        void EnterEvadeMode()
+        {
+            m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
+            ScriptedAI::EnterEvadeMode();
         }
 
         void JustReachedHome()
         {
             if (m_pInstance)
+            {
+                m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
                 m_pInstance->SetData(TYPE_NORTHREND_BEASTS, FAIL);
+            }
             me->DespawnOrUnsummon();
         }
 
