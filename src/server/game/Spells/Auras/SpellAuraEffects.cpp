@@ -5624,6 +5624,13 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
         case SPELLFAMILY_GENERIC:
             switch (GetId())
             {
+                case 66149: // Bullet Controller Periodic - 10 Man
+                case 68396: // Bullet Controller Periodic - 25 Man
+                {
+                    caster->CastCustomSpell(66152, SPELLVALUE_MAX_TARGETS, urand(1,6), target, true);
+					caster->CastCustomSpell(66153, SPELLVALUE_MAX_TARGETS, urand(1,6), target, true);
+                    break;
+                }
                 case 54798: // FLAMING Arrow Triggered Effect
                 {
                     if (!caster || !target || !target->ToCreature() || !caster->GetVehicle() || target->HasAura(54683))
