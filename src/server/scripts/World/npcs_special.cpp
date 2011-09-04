@@ -307,8 +307,8 @@ public:
 
                 while (!feof(reportfile))
                 {
-                    char tmpchar[tmpstr.max_size()];
-                    tmpstr = fgets(tmpchar, tmpstr.max_size(), reportfile);
+                    char tmpchar[256];
+                    tmpstr = fgets(tmpchar, sizeof(tmpchar), reportfile);
                     if (tmpstr.find(eintrag))
                         return true;
                 }
