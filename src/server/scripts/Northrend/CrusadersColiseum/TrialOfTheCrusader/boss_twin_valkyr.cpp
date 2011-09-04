@@ -104,7 +104,10 @@ enum BossSpells
 #define SPELL_DARK_ESSENCE_HELPER RAID_MODE<uint32>(65684, 67176, 67177, 67178)
 #define SPELL_LIGHT_ESSENCE_HELPER RAID_MODE<uint32>(65686, 67222, 67223, 67224)
 
-#define SPELL_POWERING_UP_HELPER RAID_MODE(67590, 67602, 67603, 67604)
+#define SPELL_POWERING_UP_HELPER RAID_MODE<uint32>(67590, 67602, 67603, 67604)
+
+#define SPELL_UNLEASHED_DARK_HELPER RAID_MODE<uint32>(65808, 67172, 67173, 67174)
+#define SPELL_UNLEASHED_LIGHT_HELPER RAID_MODE<uint32>(65795, 67238, 67239, 67240)
 
 #define SPELL_EMPOWERED_DARK_HELPER RAID_MODE<uint32>(65724,67213,67214,67215)
 #define SPELL_EMPOWERED_LIGHT_HELPER RAID_MODE<uint32>(65748, 67216, 67217, 67218)
@@ -315,7 +318,7 @@ struct boss_twin_baseAI : public ScriptedAI
         }
     }
 
-    void EnableDualWield(bool mode)
+    void EnableDualWield(bool mode = true)
     {
         SetEquipmentSlots(false, m_uiWeapon, mode ? m_uiWeapon : EQUIP_UNEQUIP, EQUIP_UNEQUIP);
         me->SetCanDualWield(mode);
@@ -650,8 +653,11 @@ public:
 
         void SpellHitTarget(Unit* who, const SpellInfo* spell)
         {
-            if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
-                who->CastSpell(who, SPELL_POWERING_UP, true);
+			if(spell->Id == SPELL_UNLEASHED_DARK_HELPER)
+			{
+				if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
+					who->CastSpell(who, SPELL_POWERING_UP, true);
+			}
         }
     };
 
@@ -689,8 +695,11 @@ public:
 
         void SpellHitTarget(Unit* who, const SpellInfo* spell)
         {
-            if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
-                who->CastSpell(who, SPELL_POWERING_UP, true);
+			if(spell->Id == SPELL_UNLEASHED_LIGHT_HELPER)
+			{
+				if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
+					who->CastSpell(who, SPELL_POWERING_UP, true);
+			}
         }
     };
 
@@ -821,7 +830,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
                 return GetCaster()->GetTypeId() == TYPEID_UNIT;
             }
 
-            void HandleEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (InstanceScript* instance = GetCaster()->GetInstanceScript())
                 {
