@@ -54,7 +54,7 @@ EndContentData */
 // Feuerrufer 60000
 // ------------------------------------------------------------------------------------------------------------
 #define SPELL_RAKETENBUENDEL_ZUENDER    26299   // Zünder für Raketenbündel herstellen - 2 Secs. cast - NUR EINMAL BEIM START CASTEN!!!
-#define MAX_GESCHENKE                   3       // Maximale Anzahl der zu vergebenden Geschenke
+#define MAX_GESCHENKE                   4       // Maximale Anzahl der zu vergebenden Geschenke
 
 #define FirecallerSpellsCnt 15
 const uint32 FirecallerSpells[FirecallerSpellsCnt] =
@@ -223,6 +223,7 @@ enum FirecallerEvents
     EVENT_PRESENT_1,
     EVENT_PRESENT_2,
     EVENT_PRESENT_3,
+    EVENT_PRESENT_4,
     EVENT_JOKE
 };
 
@@ -266,7 +267,6 @@ public:
                 sLog->outErrorDb("FEUERRUFER: Kann die Pets nicht laden!");
                 return;
             }
-
             uint32 cnt = 0;
 
             do
@@ -279,8 +279,8 @@ public:
                 }
             } while (result->NextRow());
 
-            if (!EintragVorhanden("gültige Pets"))
-                SchreibeBericht(fmtstring("Es stehen zur Zeit %u gültige Pets zur Verfügung.\n\n", cnt));
+            if (!EintragVorhanden("gültige Minipets"))
+                SchreibeBericht(fmtstring("Es stehen zur Zeit %u gültige Minipets zur Verfügung.\n\n", cnt));
         }
 
         // Bericht schreiben, damit wir wissen, wer welches Geschenk bekommen hat. ;)
@@ -308,9 +308,12 @@ public:
                 while (!feof(reportfile))
                 {
                     char tmpchar[256];
-                    tmpstr = fgets(tmpchar, sizeof(tmpchar), reportfile);
-                    if (tmpstr.find(eintrag))
-                        return true;
+                    if (fgets(tmpchar, sizeof(tmpchar), reportfile))
+                    {
+                        tmpstr = tmpchar;
+                        if (tmpstr.find(eintrag) != std::string::npos)
+                            return true;
+                    }
                 }
             }
             return false;
@@ -326,10 +329,13 @@ public:
 
                 while (!feof(reportfile))
                 {
-                    char tmpchar[tmpstr.max_size()];
-                    tmpstr = fgets(tmpchar, tmpstr.max_size(), reportfile);
-                    if (tmpstr.find("http://de.wowhead.com/item="))
-                        ++cnt;
+                    char tmpchar[256];
+                    if (fgets(tmpchar, sizeof(tmpchar), reportfile))
+                    {
+                        tmpstr = tmpchar;
+                        if (tmpstr.find("http://de.wowhead.com/item=") != std::string::npos)
+                            ++cnt;
+                    }
                 }
                 fclose(reportfile);
                 return cnt;
@@ -508,7 +514,7 @@ public:
             events.ScheduleEvent(EVENT_CAST, 3 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_TARGET, urand(SEKUNDEN_10, SEKUNDEN_60));
             events.ScheduleEvent(EVENT_CLUSTER, urand(SEKUNDEN_10, SEKUNDEN_60));
-            events.ScheduleEvent(EVENT_PRESENT_1, urand(MINUTEN_10, MINUTEN_15));
+            events.ScheduleEvent(EVENT_PRESENT_1, urand(5 * SEKUNDEN_60, MINUTEN_10));
             events.ScheduleEvent(EVENT_JOKE, urand(SEKUNDEN_10, SEKUNDEN_60));
         }
 
@@ -517,12 +523,12 @@ public:
             DoPlaySoundToSet(me, FirecallerSounds[ABSCHIED][0]);
             DoCast(FirecallerSpells[EXPLOSION]);
 
-            if (BereitsVergeben() == 0 && !EintragVorhanden("Leider war diesmal"))
+            if (!BereitsVergeben() && !EintragVorhanden("Leider war diesmal"))
                 SchreibeBericht("Leider war diesmal niemand zum Event erschienen! :-(");
 
             me->SetTimeUntilDisappear(8 * IN_MILLISECONDS);
 
-            for (uint8 i=0; i<4; ++i)
+            for (uint8 i=0; i<=MAX_GESCHENKE; ++i)
                 LoescheSema(i);
         }
 
@@ -552,7 +558,7 @@ public:
                         break;
                     case EVENT_PRESENT_1:
                         if (!BeschenkeZiel(FindeSpieler(), 1))
-                            events.RescheduleEvent(EVENT_PRESENT_1, urand(SEKUNDEN_10, SEKUNDEN_30));
+                            events.RescheduleEvent(EVENT_PRESENT_1, urand(SEKUNDEN_10, SEKUNDEN_20));
                         else
                         {
                             ErstelleSema(1);
@@ -562,7 +568,7 @@ public:
                         break;
                     case EVENT_PRESENT_2:
                         if (!BeschenkeZiel(FindeSpieler(), 2))
-                            events.RescheduleEvent(EVENT_PRESENT_2, urand(SEKUNDEN_10, SEKUNDEN_30));
+                            events.RescheduleEvent(EVENT_PRESENT_2, urand(SEKUNDEN_10, SEKUNDEN_20));
                         else
                         {
                             ErstelleSema(2);
@@ -572,11 +578,21 @@ public:
                         break;
                     case EVENT_PRESENT_3:
                         if (!BeschenkeZiel(FindeSpieler(), 3))
-                            events.RescheduleEvent(EVENT_PRESENT_3, urand(SEKUNDEN_10, SEKUNDEN_30));
+                            events.RescheduleEvent(EVENT_PRESENT_3, urand(SEKUNDEN_10, SEKUNDEN_20));
                         else
                         {
                             ErstelleSema(3);
                             events.CancelEvent(EVENT_PRESENT_3);
+                            events.ScheduleEvent(EVENT_PRESENT_4, urand(MINUTEN_05, MINUTEN_10));
+                        }
+                        break;
+                    case EVENT_PRESENT_4:
+                        if (!BeschenkeZiel(FindeSpieler(), 4))
+                            events.RescheduleEvent(EVENT_PRESENT_4, urand(SEKUNDEN_10, SEKUNDEN_20));
+                        else
+                        {
+                            ErstelleSema(4);
+                            events.CancelEvent(EVENT_PRESENT_4);
                         }
                         break;
                     case EVENT_SOUND:
