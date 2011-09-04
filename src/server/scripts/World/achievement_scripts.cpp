@@ -21,6 +21,7 @@
 #include "BattlegroundWS.h"
 #include "BattlegroundIC.h"
 #include "BattlegroundSA.h"
+#include "BattlegroundAV.h"
 #include "Vehicle.h"
 
 class achievement_storm_glory : public AchievementCriteriaScript
@@ -207,6 +208,48 @@ public:
     }
 };
 
+class achievement_everything_counts : public AchievementCriteriaScript
+{
+    public:
+        achievement_everything_counts() : AchievementCriteriaScript("achievement_everything_counts") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            Battleground* bg = source->GetBattleground();
+            if (!bg)
+                return false;
+
+            if (source->GetBattlegroundTypeId() != BATTLEGROUND_AV)
+                return false;
+
+            if (static_cast<BattlegroundAV*>(bg)->IsBothMinesControlledByTeam(source->GetTeam()))
+                return true;
+
+            return false;
+        }
+};
+
+class achievement_bg_av_perfection : public AchievementCriteriaScript
+{
+    public:
+        achievement_bg_av_perfection() : AchievementCriteriaScript("achievement_bg_av_perfection") { }
+
+        bool OnCheck(Player* source, Unit* /*target*/)
+        {
+            Battleground* bg = source->GetBattleground();
+            if (!bg)
+                return false;
+
+            if (source->GetBattlegroundTypeId() != BATTLEGROUND_AV)
+                return false;
+
+            if (static_cast<BattlegroundAV*>(bg)->IsAllTowersControlledAndCaptainAlive(source->GetTeam()))
+                return true;
+
+            return false;
+        }
+};
+
 class achievement_wg_didnt_stand_a_chance : public AchievementCriteriaScript
 {
 public:
@@ -269,6 +312,8 @@ void AddSC_achievement_scripts()
     new achievement_bg_sa_artillery();
     new achievement_sickly_gazelle();
     new achievement_wg_didnt_stand_a_chance();
+    new achievement_everything_counts();
+    new achievement_bg_av_perfection();
     new achievement_arena_kills("achievement_arena_2v2_kills", ARENA_TYPE_2v2);
     new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
     new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);

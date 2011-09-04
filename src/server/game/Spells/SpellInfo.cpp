@@ -1721,13 +1721,14 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     return SPELL_CAST_OK;
 }
 
-SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject const* target) const
+SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject const* target, Item const* itemTarget) const
 {
     uint32 neededTargets = GetExplicitTargetMask();
     if (!target)
     {
         if (neededTargets & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK | TARGET_FLAG_CORPSE_MASK))
-            return SPELL_FAILED_BAD_TARGETS;
+            if (!(neededTargets & TARGET_FLAG_GAMEOBJECT_ITEM) || !itemTarget)
+                return SPELL_FAILED_BAD_TARGETS;
         return SPELL_CAST_OK;
     }
 
