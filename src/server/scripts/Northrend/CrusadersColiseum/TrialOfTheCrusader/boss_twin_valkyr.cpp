@@ -653,11 +653,11 @@ public:
 
         void SpellHitTarget(Unit* who, const SpellInfo* spell)
         {
-			if(spell->Id == SPELL_UNLEASHED_DARK_HELPER)
-			{
-				if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
-					who->CastSpell(who, SPELL_POWERING_UP, true);
-			}
+            if(spell->Id == SPELL_UNLEASHED_DARK_HELPER)
+            {
+                if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
+                    who->CastSpell(who, SPELL_POWERING_UP, true);
+            }
         }
     };
 
@@ -695,11 +695,11 @@ public:
 
         void SpellHitTarget(Unit* who, const SpellInfo* spell)
         {
-			if(spell->Id == SPELL_UNLEASHED_LIGHT_HELPER)
-			{
-				if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
-					who->CastSpell(who, SPELL_POWERING_UP, true);
-			}
+            if(spell->Id == SPELL_UNLEASHED_LIGHT_HELPER)
+            {
+                if (who->HasAura(SPELL_LIGHT_ESSENCE_HELPER))
+                    who->CastSpell(who, SPELL_POWERING_UP, true);
+            }
         }
     };
 
