@@ -43,4 +43,15 @@ enum Data64
     DATA_TORAVON
 };
 
+enum AchievementCriteriaIds
+{
+    CRITERIA_EARTH_WIND_FIRE_10 = 12018,
+    CRITERIA_EARTH_WIND_FIRE_25 = 12019,
+};
+
+enum AchievementSpells
+{
+    SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308,
+};
+
 #endif

@@ -3277,6 +3277,7 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
         unitTarget->SetOrientation(angle);
         unitTarget->StopMoving();
         unitTarget->GetMotionMaster()->MoveDistract(damage * IN_MILLISECONDS);
+        unitTarget->SendMovementFlagUpdate();
     }
 }
 
