@@ -1347,7 +1347,16 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);
-    return(IsWithinLOS(ox, oy, oz));
+    if (IsWithinLOS(ox, oy, oz))
+    {
+        std::set<WorldObject*> objs = GetMap()->GetObjectList();
+        for (std::set<WorldObject*>::const_iterator i = objs.begin(); i != objs.end(); ++i)
+            if ((*i)->IsInBetween(this, obj) && (*i)->ToGameObject())
+                if ((*i)->ToGameObject()->GetGoState() == GO_STATE_READY && (*i)->ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_DOOR)
+                    return false;
+        return true;
+    }
+    return false;
 }
 
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
