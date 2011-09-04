@@ -2335,7 +2335,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     }
                     else
                     {
-                        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SPELL: unknown target coordinates for spell ID %u", m_spellInfo->Id);
+                        sLog->outError("SPELL: unknown target coordinates for spell ID %u", m_spellInfo->Id);
                         Unit* target = NULL;
                         if (uint64 guid = m_caster->GetUInt64Value(UNIT_FIELD_TARGET))
                             target = ObjectAccessor::GetUnit(*m_caster, guid);
