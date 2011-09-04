@@ -3931,28 +3931,28 @@ void ObjectMgr::LoadQuests()
             // no changes, quest can't be done for this requirement
         }
 
-        if (!qinfo->RepObjectiveFaction && qinfo->RepObjectiveValue > 0)
+        if (!qinfo->RepObjectiveFaction && qinfo->RepObjectiveValue != 0)
         {
             sLog->outErrorDb("Quest %u has `RepObjectiveValue` = %d but `RepObjectiveFaction` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RepObjectiveValue);
             // warning
         }
 
-        if (!qinfo->RepObjectiveFaction2 && qinfo->RepObjectiveValue2 > 0)
+        if (!qinfo->RepObjectiveFaction2 && qinfo->RepObjectiveValue2 != 0)
         {
             sLog->outErrorDb("Quest %u has `RepObjectiveValue2` = %d but `RepObjectiveFaction2` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RepObjectiveValue2);
             // warning
         }
 
-        if (!qinfo->RequiredMinRepFaction && qinfo->RequiredMinRepValue > 0)
+        if (!qinfo->RequiredMinRepFaction && qinfo->RequiredMinRepValue != 0)
         {
             sLog->outErrorDb("Quest %u has `RequiredMinRepValue` = %d but `RequiredMinRepFaction` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RequiredMinRepValue);
             // warning
         }
 
-        if (!qinfo->RequiredMaxRepFaction && qinfo->RequiredMaxRepValue > 0)
+        if (!qinfo->RequiredMaxRepFaction && qinfo->RequiredMaxRepValue != 0)
         {
             sLog->outErrorDb("Quest %u has `RequiredMaxRepValue` = %d but `RequiredMaxRepFaction` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RequiredMaxRepValue);
