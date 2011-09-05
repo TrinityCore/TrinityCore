@@ -5219,12 +5219,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
             {
                 if (apply)
                 {
-                    uint64 guid = caster->m_SummonSlot[3];
-                    if (guid)
+                    if (uint64 guid = caster->m_SummonSlot[4])
                     {
-                        Creature* totem = caster->GetMap()->GetCreature(guid);
-                        if (totem && totem->isTotem())
-                            caster->ToPlayer()->CastSpell(totem, 6277, true);
+                        if (Creature* totem = caster->GetMap()->GetCreature(guid))
+                            if (totem->isTotem())
+                                caster->ToPlayer()->CastSpell(totem, 6277, true);
                     }
                 }
                 else
