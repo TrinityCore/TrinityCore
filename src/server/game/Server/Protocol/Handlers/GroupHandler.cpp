@@ -363,23 +363,20 @@ void WorldSession::HandleGroupSetLeaderOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SET_LEADER");
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
-        return;
-
     uint64 guid;
     recv_data >> guid;
 
     Player* player = ObjectAccessor::FindPlayer(guid);
+    Group* group = GetPlayer()->GetGroup();
 
-    /** error handling **/
-    if (!player || !group->IsLeader(GetPlayer()->GetGUID()) || player->GetGroup() != group)
+    if (!group || !player)
         return;
-    /********************/
 
-    // Everything's fine, do it
+    if (!group->IsLeader(GetPlayer()->GetGUID()) || player->GetGroup() != group)
+        return;
+
+    // Everything's fine, accepted.
     group->ChangeLeader(guid);
-
     group->SendUpdate();
 }
 
@@ -410,14 +407,14 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LOOT_METHOD");
 
-    Group* group = GetPlayer()->GetGroup();
-    if (!group)
-        return;
-
     uint32 lootMethod;
     uint64 lootMaster;
     uint32 lootThreshold;
     recv_data >> lootMethod >> lootMaster >> lootThreshold;
+
+    Group* group = GetPlayer()->GetGroup();
+    if (!group)
+        return;
 
     /** error handling **/
     if (!group->IsLeader(GetPlayer()->GetGUID()))
@@ -434,7 +431,10 @@ void WorldSession::HandleLootMethodOpcode(WorldPacket & recv_data)
 void WorldSession::HandleLootRoll(WorldPacket &recv_data)
 {
     if (!GetPlayer()->GetGroup())
+    {
+        recv_data.rfinish();
         return;
+    }
 
     uint64 Guid;
     uint32 NumberOfPlayers;
