@@ -1462,6 +1462,7 @@ class Player : public Unit, public GridObject<Player>
         void ItemRemovedQuestCheck(uint32 entry, uint32 count);
         void KilledMonster(CreatureTemplate const* cInfo, uint64 guid);
         void KilledMonsterCredit(uint32 entry, uint64 guid);
+        void KilledPlayerCredit();
         void CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id);
         void TalkedToCreature(uint32 entry, uint64 guid);
         void MoneyChanged(uint32 value);
@@ -1481,6 +1482,7 @@ class Player : public Unit, public GridObject<Player>
         void SendPushToPartyResponse(Player *pPlayer, uint32 msg);
         void SendQuestUpdateAddItem(Quest const* pQuest, uint32 item_idx, uint16 count);
         void SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
+        void SendQuestUpdateAddPlayer(Quest const* pQuest, uint16 old_count, uint16 add_count);
 
         uint64 GetDivider() { return m_divider; }
         void SetDivider(uint64 guid) { m_divider = guid; }

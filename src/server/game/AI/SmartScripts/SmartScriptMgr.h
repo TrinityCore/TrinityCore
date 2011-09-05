@@ -383,7 +383,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_EVENT_PHASE                    = 22,     // Phase
     SMART_ACTION_INC_EVENT_PHASE                    = 23,     // Value (may be negative to decrement phase, should not be 0)
     SMART_ACTION_EVADE                              = 24,     // No Params
-    SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // No Params
+    SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // With Emote
     SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // QuestID
     SMART_ACTION_CALL_CASTEDCREATUREORGO            = 27,     // CreatureId, SpellId
     SMART_ACTION_REMOVEAURASFROMSPELL               = 28,     // Spellid
@@ -851,6 +851,11 @@ struct SmartAction
             uint32 speedxy;
             uint32 speedz;
         } jump;
+
+        struct
+        {
+            uint32 withEmote;
+        } flee;
 
         struct
         {

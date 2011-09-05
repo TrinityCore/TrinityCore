@@ -50,7 +50,7 @@ void WorldSession::HandleSendMail(WorldPacket & recv_data)
     if (items_count > MAX_MAIL_ITEMS)                       // client limit
     {
         GetPlayer()->SendMailResult(0, MAIL_SEND, MAIL_ERR_TOO_MANY_ATTACHMENTS);
-        recv_data.rpos(recv_data.wpos());                   // set to end to avoid warnings spam
+        recv_data.rfinish();                   // set to end to avoid warnings spam
         return;
     }
 

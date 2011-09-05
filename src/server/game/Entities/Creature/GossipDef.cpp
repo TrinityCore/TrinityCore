@@ -441,7 +441,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << uint32(quest->GetRepObjectiveFaction());        // shown in quest log as part of quest objective
     data << uint32(quest->GetRepObjectiveValue());          // shown in quest log as part of quest objective
 
-    data << uint32(quest->GetRepObjectiveFaction2());       // shown in quest log as part of quest objective OPOSITE faction
+    data << uint32(quest->GetRepObjectiveFaction2());       // shown in quest log as part of quest objective OPPOSITE faction
     data << uint32(quest->GetRepObjectiveValue2());         // shown in quest log as part of quest objective OPPOSITE faction
 
     data << uint32(quest->GetNextQuestInChain());           // client will request this quest from NPC, if not 0
