@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -84,7 +84,7 @@ enum Spells
 
     // Blazing Skeleton
     SPELL_FIREBALL                      = 70754,
-    SPELL_LEY_WASTE                     = 69325,
+    SPELL_LAY_WASTE                     = 69325,
 
     // Suppresser
     SPELL_SUPPRESSION                   = 70588,
@@ -131,7 +131,7 @@ enum Events
 
     // Blazing Skeleton
     EVENT_FIREBALL                          = 13,
-    EVENT_LEY_WASTE                         = 14,
+    EVENT_LAY_WASTE                         = 14,
 
     // Suppresser
     EVENT_SUPPRESSION                       = 15,
@@ -152,7 +152,8 @@ enum Actions
     ACTION_DEATH        = 3,
 };
 
-Position const ValithriaSpawnPos = {4210.813f, 2484.443f, 364.9558f, 0.01745329f};
+const Position ValithriaSpawnPos    = { 4210.813f, 2484.443f, 364.9558f, 0.01745329f };
+const Position Ziel                 = { 4205.066895f, 2484.696533f, 364.871521f, 0.0f };
 
 class RisenArchmageCheck
 {
@@ -625,7 +626,14 @@ class npc_the_lich_king_controller : public CreatureScript
                 // must not be in dream phase
                 summon->SetPhaseMask((summon->GetPhaseMask() & ~0x10), true);
                 if (summon->GetEntry() != NPC_SUPPRESSER)
+                {
+                    if (Unit * target = summon->AI()->SelectTarget(SELECT_TARGET_NEAREST, 0, 0.0f, true))
+                        summon->AI()->AttackStart(target);
+                    else
+                        summon->GetMotionMaster()->MovePoint(0, Ziel);
+
                     summon->AI()->DoZoneInCombat();
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -806,7 +814,17 @@ class npc_blazing_skeleton : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_FIREBALL, urand(2000, 4000));
-                _events.ScheduleEvent(EVENT_LEY_WASTE, urand(15000, 20000));
+                _events.ScheduleEvent(EVENT_LAY_WASTE, SEKUNDEN_20);
+                done = false;
+            }
+
+            void DamageTaken(Unit * /*attacker*/, uint32 & /*damage*/)
+            {
+                if (!done)
+                {   // Muss sofort beim ersten Schaden auf den NPC gecastet werden!
+                    DoCast(me, SPELL_LAY_WASTE);
+                    done = true;
+                }
             }
 
             void UpdateAI(uint32 const diff)
@@ -828,9 +846,9 @@ class npc_blazing_skeleton : public CreatureScript
                                 DoCastVictim(SPELL_FIREBALL);
                             _events.ScheduleEvent(EVENT_FIREBALL, urand(2000, 4000));
                             break;
-                        case EVENT_LEY_WASTE:
-                            DoCast(me, SPELL_LEY_WASTE);
-                            _events.ScheduleEvent(EVENT_LEY_WASTE, urand(15000, 20000));
+                        case EVENT_LAY_WASTE:
+                            DoCast(me, SPELL_LAY_WASTE);
+                            _events.ScheduleEvent(EVENT_LAY_WASTE, SEKUNDEN_10);
                             break;
                         default:
                             break;
@@ -842,6 +860,7 @@ class npc_blazing_skeleton : public CreatureScript
 
         private:
             EventMap _events;
+            bool done;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -924,9 +943,10 @@ class npc_blistering_zombie : public CreatureScript
             {
             }
 
-            void JustDied(Unit* /*killer*/)
+            void DamageTaken(Unit * /*attacker*/, uint32 & damage)
             {
-                DoCast(me, SPELL_ACID_BURST, true);
+                if (damage >= me->GetHealth())
+                    DoCast(me, SPELL_ACID_BURST, true);
             }
 
             void UpdateAI(uint32 const /*diff*/)
@@ -961,9 +981,10 @@ class npc_gluttonous_abomination : public CreatureScript
                 _events.ScheduleEvent(EVENT_GUT_SPRAY, urand(10000, 13000));
             }
 
-            void JustDied(Unit* /*killer*/)
+            void DamageTaken(Unit * /*attacker*/, uint32 & damage)
             {
-                DoCast(me, SPELL_ROT_WORM_SPAWNER, true);
+                if (damage >= me->GetHealth())
+                    DoCast(me, SPELL_ROT_WORM_SPAWNER, true);
             }
 
             void UpdateAI(uint32 const diff)

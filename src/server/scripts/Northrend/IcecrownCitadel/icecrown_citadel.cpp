@@ -784,7 +784,7 @@ public:
                                     if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                         summon->AI()->AttackStart(pTarget);
 
-                                events.RescheduleEvent(EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ, urand(8 * IN_MILLISECONDS, SEKUNDEN_10));
+                                    events.RescheduleEvent(EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ, urand(5 * IN_MILLISECONDS, 8 * IN_MILLISECONDS));
                             }
                             else
                                 events.RescheduleEvent(EVENT_BOTIN_DER_VALKYR_ABGETRENNTE_ESSENZ, 1 * IN_MILLISECONDS);
