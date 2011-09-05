@@ -162,3 +162,7 @@ UPDATE creature_template set dynamicflags = 8 where entry in (37970, 38401, 3878
 
 -- fix spawn for NPC 6090
 UPDATE `creature` SET position_x = "8603.88", position_y = "390.43" WHERE id = 6090;
+
+-- Increased drop chance for some cook recipes
+UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 15 WHERE `item` IN (33873, 33870); 
+UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 10 WHERE `item` IN (33875, 33869);
