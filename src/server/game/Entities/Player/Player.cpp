@@ -542,8 +542,13 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
 {
     // 4. Reward player.
     if (!_isBattleGround)
+    {
         // 4.1. Give honor (player must be alive and not on BG).
         _RewardHonor(player);
+        // 4.1.1 Send player killcredit for quests with PlayerSlain
+        if (_victim->GetTypeId() == TYPEID_PLAYER)
+            player->KilledPlayerCredit();
+    }
     // Give XP only in PvE or in battlegrounds.
     // Give reputation and kill credit only in PvE.
     if (!_isPvP || _isBattleGround)
@@ -5603,14 +5608,14 @@ void Player::RepopAtGraveyard()
 
 bool Player::CanJoinConstantChannelInZone(ChatChannelsEntry const* channel, AreaTableEntry const* zone)
 {
-    if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP)
-    {
-        if (zone->flags & AREA_FLAG_ARENA_INSTANCE)
-            return false;
+    if (channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP && zone->flags & AREA_FLAG_ARENA_INSTANCE)
+        return false;
 
-        if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && !(zone->flags & AREA_FLAG_CAPITAL))
-            return false;
-    }
+    if ((channel->flags & CHANNEL_DBC_FLAG_CITY_ONLY) && (!(zone->flags & AREA_FLAG_SLAVE_CAPITAL)))
+        return false;
+
+    if ((channel->flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
+        return false;
 
     return true;
 }
@@ -5658,12 +5663,6 @@ void Player::UpdateLocalChannels(uint32 newZone)
     {
         if (ChatChannelsEntry const* channel = sChatChannelsStore.LookupEntry(i))
         {
-            if (!(channel->flags & CHANNEL_DBC_FLAG_ZONE_DEP))
-                continue;                                    // Not zone dependent, don't handle it here
-
-            if ((channel->flags & CHANNEL_DBC_FLAG_GUILD_REQ) && GetGuildId())
-                continue;                                    // Should not join to these channels automatically
-
             Channel* usedChannel = NULL;
 
             for (JoinedChannelsList::iterator itr = m_channels.begin(); itr != m_channels.end(); ++itr)
@@ -12180,11 +12179,7 @@ Item* Player::EquipItem(uint16 pos, Item *pItem, bool update)
 
             if (pProto && isInCombat() && (pProto->Class == ITEM_CLASS_WEAPON || pProto->InventoryType == INVTYPE_RELIC) && m_weaponChangeTimer == 0)
             {
-                uint32 cooldownSpell = 6119;
-
-                if (getClass() == CLASS_ROGUE)
-                    cooldownSpell = 6123;
-
+                uint32 cooldownSpell = getClass() == CLASS_ROGUE ? 6123 : 6119;
                 SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cooldownSpell);
 
                 if (!spellProto)
@@ -14701,6 +14696,10 @@ bool Player::CanCompleteQuest(uint32 quest_id)
                 }
             }
 
+            if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_PLAYER_KILL))
+                if (qInfo->GetPlayersSlain() != 0 && q_status.m_playercount < qInfo->GetPlayersSlain())
+                    return false;
+
             if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT) && !q_status.m_explored)
                 return false;
 
@@ -14715,10 +14714,6 @@ bool Player::CanCompleteQuest(uint32 quest_id)
 
             uint32 repFacId = qInfo->GetRepObjectiveFaction();
             if (repFacId && GetReputationMgr().GetReputation(repFacId) < qInfo->GetRepObjectiveValue())
-                return false;
-
-            uint32 repFacId2 = qInfo->GetRepObjectiveFaction2();
-            if (repFacId2 && GetReputationMgr().GetReputation(repFacId2) < qInfo->GetRepObjectiveValue2())
                 return false;
 
             return true;
@@ -14847,6 +14842,9 @@ void Player::AddQuest(Quest const *pQuest, Object *questGiver)
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
             questStatusData.m_creatureOrGOcount[i] = 0;
     }
+
+    if (pQuest->HasFlag(QUEST_TRINITY_FLAGS_PLAYER_KILL))
+        questStatusData.m_playercount = 0;
 
     GiveQuestSourceItem(pQuest);
     AdjustQuestReqItemCount(pQuest, questStatusData);
@@ -15348,6 +15346,16 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
 
     uint32 fIdMax = qInfo->GetRequiredMaxRepFaction();      //Max required rep
     if (fIdMax && GetReputationMgr().GetReputation(fIdMax) >= qInfo->GetRequiredMaxRepValue())
+    {
+        if (msg)
+            SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
+        return false;
+    }
+    
+    // ReputationObjective2 does not seem to be an objective requirement but a requirement
+    // to be able to accept the quest
+    uint32 fIdObj = qInfo->GetRepObjectiveFaction2();
+    if (fIdObj && GetReputationMgr().GetReputation(fIdObj) >= qInfo->GetRepObjectiveValue2())
     {
         if (msg)
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -15901,6 +15909,46 @@ void Player::KilledMonsterCredit(uint32 entry, uint64 guid)
     }
 }
 
+void Player::KilledPlayerCredit()
+{
+    uint16 addkillcount = 1;
+
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i)
+    {
+        uint32 questid = GetQuestSlotQuestId(i);
+        if (!questid)
+            continue;
+
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questid);
+        if (!qInfo)
+            continue;
+        // just if !ingroup || !noraidgroup || raidgroup
+        QuestStatusData& q_status = m_QuestStatus[questid];
+        if (q_status.m_status == QUEST_STATUS_INCOMPLETE && (!GetGroup() || !GetGroup()->isRaidGroup() || qInfo->IsAllowedInRaid()))
+        {
+            if (qInfo->HasFlag(QUEST_TRINITY_FLAGS_PLAYER_KILL))
+            {
+                uint32 reqkill = qInfo->GetPlayersSlain();
+                uint16 curkill = q_status.m_playercount;
+                
+                if (curkill < reqkill)
+                {
+                    q_status.m_playercount = curkill + addkillcount;
+
+                    m_QuestStatusSave[questid] = true;
+
+                    SendQuestUpdateAddPlayer(qInfo, curkill, addkillcount);
+                }
+
+                if (CanCompleteQuest(questid))
+                    CompleteQuest(questid);
+
+                break;
+            }
+        }
+    }
+}
+
 void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
 {
     bool isCreature = IS_CRE_OR_VEH_GUID(guid);
@@ -16314,6 +16362,22 @@ void Player::SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, uint64 guid, ui
     uint16 log_slot = FindQuestSlot(pQuest->GetQuestId());
     if (log_slot < MAX_QUEST_LOG_SIZE)
         SetQuestSlotCounter(log_slot, creatureOrGO_idx, GetQuestSlotCounter(log_slot, creatureOrGO_idx)+add_count);
+}
+
+void Player::SendQuestUpdateAddPlayer(Quest const* pQuest, uint16 old_count, uint16 add_count)
+{
+    ASSERT(old_count + add_count < 65536 && "player count store in 16 bits");
+
+    WorldPacket data(SMSG_QUESTUPDATE_ADD_PVP_KILL, (3*4));
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_ADD_PVP_KILL");
+    data << uint32(pQuest->GetQuestId());
+    data << uint32(old_count + add_count);
+    data << uint32(pQuest->GetPlayersSlain());
+    GetSession()->SendPacket(&data);
+
+    uint16 log_slot = FindQuestSlot(pQuest->GetQuestId());
+    if (log_slot < MAX_QUEST_LOG_SIZE)
+        SetQuestSlotCounter(log_slot, QUEST_PVP_KILL_SLOT, GetQuestSlotCounter(log_slot, QUEST_PVP_KILL_SLOT) + add_count);
 }
 
 /*********************************************************/
@@ -17662,8 +17726,8 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
 
     ////                                                       0      1       2        3        4           5          6         7           8           9           10
     //QueryResult *result = CharacterDatabase.PQuery("SELECT quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3,
-    //                                                    11
-    //                                                itemcount4 FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
+    //                                                    11           12
+    //                                                itemcount4, playercount FROM character_queststatus WHERE guid = '%u'", GetGUIDLow());
 
     if (result)
     {
@@ -17712,6 +17776,7 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                 questStatusData.m_itemcount[1] = fields[9].GetUInt16();
                 questStatusData.m_itemcount[2] = fields[10].GetUInt16();
                 questStatusData.m_itemcount[3] = fields[11].GetUInt16();
+                questStatusData.m_playercount = fields[12].GetUInt16();
 
                 // add to quest log
                 if (slot < MAX_QUEST_LOG_SIZE && questStatusData.m_status != QUEST_STATUS_NONE)
@@ -17726,6 +17791,9 @@ void Player::_LoadQuestStatus(PreparedQueryResult result)
                     for (uint8 idx = 0; idx < QUEST_OBJECTIVES_COUNT; ++idx)
                         if (questStatusData.m_creatureOrGOcount[idx])
                             SetQuestSlotCounter(slot, idx, questStatusData.m_creatureOrGOcount[idx]);
+
+                    if (questStatusData.m_playercount)
+                        SetQuestSlotCounter(slot, QUEST_PVP_KILL_SLOT, questStatusData.m_playercount);
 
                     ++slot;
                 }
@@ -18770,11 +18838,9 @@ void Player::_SaveQuestStatus(SQLTransaction& trans)
         {
             statusItr = m_QuestStatus.find(saveItr->first);
             if (statusItr != m_QuestStatus.end() && (keepAbandoned || statusItr->second.m_status != QUEST_STATUS_NONE))
-            {
-                trans->PAppend("REPLACE INTO character_queststatus (guid, quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, itemcount4) "
-                    "VALUES ('%u', '%u', '%u', '%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')",
-                    GetGUIDLow(), statusItr->first, statusItr->second.m_status, statusItr->second.m_explored, uint64(statusItr->second.m_timer / IN_MILLISECONDS+ sWorld->GetGameTime()), statusItr->second.m_creatureOrGOcount[0], statusItr->second.m_creatureOrGOcount[1], statusItr->second.m_creatureOrGOcount[2], statusItr->second.m_creatureOrGOcount[3], statusItr->second.m_itemcount[0], statusItr->second.m_itemcount[1], statusItr->second.m_itemcount[2], statusItr->second.m_itemcount[3]);
-            }
+                trans->PAppend("REPLACE INTO character_queststatus (guid, quest, status, explored, timer, mobcount1, mobcount2, mobcount3, mobcount4, itemcount1, itemcount2, itemcount3, itemcount4, playercount) "
+                    "VALUES ('%u', '%u', '%u', '%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u', '%u')",
+                    GetGUIDLow(), statusItr->first, statusItr->second.m_status, statusItr->second.m_explored, uint64(statusItr->second.m_timer / IN_MILLISECONDS+ sWorld->GetGameTime()), statusItr->second.m_creatureOrGOcount[0], statusItr->second.m_creatureOrGOcount[1], statusItr->second.m_creatureOrGOcount[2], statusItr->second.m_creatureOrGOcount[3], statusItr->second.m_itemcount[0], statusItr->second.m_itemcount[1], statusItr->second.m_itemcount[2], statusItr->second.m_itemcount[3], statusItr->second.m_playercount);
         }
         else
             trans->PAppend("DELETE FROM character_queststatus WHERE guid = %u AND quest = %u", GetGUIDLow(), saveItr->first);

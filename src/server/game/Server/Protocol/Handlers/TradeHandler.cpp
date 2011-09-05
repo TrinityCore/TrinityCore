@@ -546,9 +546,13 @@ void WorldSession::HandleCancelTradeOpcode(WorldPacket& /*recvPacket*/)
 void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
 {
     if (GetPlayer()->m_trade)
+    {
+        recvPacket.rfinish();
         return;
+    }
 
     uint64 ID;
+    recvPacket >> ID;
 
     if (!GetPlayer()->isAlive())
     {
@@ -579,8 +583,6 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         SendNotification(GetTrinityString(LANG_TRADE_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
         return;
     }
-
-    recvPacket >> ID;
 
     Player* pOther = ObjectAccessor::FindPlayer(ID);
 

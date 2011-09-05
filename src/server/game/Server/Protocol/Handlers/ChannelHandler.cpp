@@ -28,6 +28,9 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
     std::string channelname, pass;
 
     recvPacket >> channel_id;
+    recvPacket >> unknown1 >> unknown2;
+    recvPacket >> channelname;
+    recvPacket >> pass;
 
     if (channel_id)
     {
@@ -43,17 +46,13 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
             return;
     }
 
-    recvPacket >> unknown1 >> unknown2;
-    recvPacket >> channelname;
-
     if (channelname.empty())
         return;
 
-    recvPacket >> pass;
     if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
     {
         cMgr->team = _player->GetTeam();
-        if (Channel *chn = cMgr->GetJoinChannel(channelname, channel_id))
+        if (Channel* chn = cMgr->GetJoinChannel(channelname, channel_id))
             chn->Join(_player->GetGUID(), pass.c_str());
     }
 }

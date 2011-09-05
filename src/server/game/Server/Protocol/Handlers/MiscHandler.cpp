@@ -954,7 +954,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
 
     if (decompressedSize > 0xFFFF)
     {
-        recv_data.rpos(recv_data.wpos());                   // unnneded warning spam in this case
+        recv_data.rfinish();                   // unnneded warning spam in this case
         sLog->outError("UAD: Account data packet too big, size %u", decompressedSize);
         return;
     }
@@ -965,12 +965,12 @@ void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
     uLongf realSize = decompressedSize;
     if (uncompress(const_cast<uint8*>(dest.contents()), &realSize, const_cast<uint8*>(recv_data.contents() + recv_data.rpos()), recv_data.size() - recv_data.rpos()) != Z_OK)
     {
-        recv_data.rpos(recv_data.wpos());                   // unnneded warning spam in this case
+        recv_data.rfinish();                   // unnneded warning spam in this case
         sLog->outError("UAD: Failed to decompress account data");
         return;
     }
 
-    recv_data.rpos(recv_data.wpos());                       // uncompress read (recv_data.size() - recv_data.rpos())
+    recv_data.rfinish();                       // uncompress read (recv_data.size() - recv_data.rpos())
 
     std::string adata;
     dest >> adata;
@@ -1100,13 +1100,13 @@ void WorldSession::HandleFeatherFallAck(WorldPacket &recv_data)
     sLog->outStaticDebug("WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
 
     // no used
-    recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
+    recv_data.rfinish();                       // prevent warnings spam
 }
 
 void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
 {
     // no used
-    recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
+    recv_data.rfinish();                       // prevent warnings spam
 /*
     uint64 guid;
     recv_data >> guid;
@@ -1114,7 +1114,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
     // now can skip not our packet
     if (_player->GetGUID() != guid)
     {
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 
@@ -1132,7 +1132,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
 void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
 {
     // no used
-    recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
+    recv_data.rfinish();                       // prevent warnings spam
 /*
     uint64 guid;
     recv_data >> guid;
@@ -1140,7 +1140,7 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
     // now can skip not our packet
     if (_player->GetGUID() != guid)
     {
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 

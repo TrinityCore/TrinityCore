@@ -1832,6 +1832,7 @@ public:
                 creature->setFaction(FACTION_ESCORTEE_H);
                 break;
             }
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
             DoScriptText(SAY_1, creature);
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
