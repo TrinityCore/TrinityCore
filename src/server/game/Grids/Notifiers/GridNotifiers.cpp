@@ -267,44 +267,44 @@ MessageDistDeliverer::Visit(PlayerMapType &m)
     }
 }
 
-void
-MessageDistDeliverer::Visit(CreatureMapType &m)
+void MessageDistDeliverer::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if (!iter->getSource()->InSamePhase(i_phaseMask))
+        Creature* target = iter->getSource();
+        if (!target->InSamePhase(i_phaseMask))
             continue;
 
-        if (iter->getSource()->GetExactDist2dSq(i_source) > i_distSq)
+        if (target->GetExactDist2dSq(i_source) > i_distSq)
             continue;
 
         // Send packet to all who are sharing the creature's vision
-        if (!iter->getSource()->GetSharedVisionList().empty())
+        if (!target->GetSharedVisionList().empty())
         {
-            SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
-            for (; i != iter->getSource()->GetSharedVisionList().end(); ++i)
-                if ((*i)->m_seer == iter->getSource())
+            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
+            for (; i != target->GetSharedVisionList().end(); ++i)
+                if ((*i)->m_seer == target)
                     SendPacket(*i);
         }
     }
 }
 
-void
-MessageDistDeliverer::Visit(DynamicObjectMapType &m)
+void MessageDistDeliverer::Visit(DynamicObjectMapType &m)
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if (!iter->getSource()->InSamePhase(i_phaseMask))
+        DynamicObject *target = iter->getSource();
+        if (!target->InSamePhase(i_phaseMask))
             continue;
 
-        if (iter->getSource()->GetExactDist2dSq(i_source) > i_distSq)
+        if (target->GetExactDist2dSq(i_source) > i_distSq)
             continue;
 
-        if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
+        if (IS_PLAYER_GUID(target->GetCasterGUID()))
         {
             // Send packet back to the caster if the caster has vision of dynamic object
-            Player* caster = (Player*)iter->getSource()->GetCaster();
-            if (caster && caster->m_seer == iter->getSource())
+            Player* caster = (Player*)target->GetCaster();
+            if (caster && caster->m_seer == target)
                 SendPacket(caster);
         }
     }

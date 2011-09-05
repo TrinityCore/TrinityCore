@@ -1241,7 +1241,7 @@ enum Mechanics
     (1<<MECHANIC_TURN)|(1<<MECHANIC_HORROR)|(1<<MECHANIC_DAZE)| \
     (1<<MECHANIC_SAPPED))
 
-// Spell dispell type
+// Spell dispel type
 enum DispelType
 {
     DISPEL_NONE         = 0,
