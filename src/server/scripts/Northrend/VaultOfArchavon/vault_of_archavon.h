@@ -36,4 +36,15 @@ enum Data
 
 #define MAX_ENCOUNTER 4
 
+enum AchievementCriteriaIds
+{
+    CRITERIA_EARTH_WIND_FIRE_10 = 12018,
+    CRITERIA_EARTH_WIND_FIRE_25 = 12019,
+};
+
+enum AchievementSpells
+{
+    SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308,
+};
+
 #endif
