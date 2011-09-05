@@ -559,8 +559,8 @@ class npc_tirion_toc : public CreatureScript
                             if (m_pInstance->GetData(TYPE_BEASTS) != DONE)
                             {
                                 m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
-                                me->SummonCreature(NPC_GORMOK, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS);
-                                if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_GORMOK)))
+                                
+                                if (Creature* pTemp = me->SummonCreature(NPC_GORMOK, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30*IN_MILLISECONDS))
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(0, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
                                     pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -620,8 +620,7 @@ class npc_tirion_toc : public CreatureScript
                             if (m_pInstance->GetData(TYPE_BEASTS) != DONE)
                             {
                                 m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
-                                me->SummonCreature(NPC_ICEHOWL, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5, TEMPSUMMON_DEAD_DESPAWN);
-                                if (Creature* pTemp = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_ICEHOWL)))
+                                if (Creature* pTemp = me->SummonCreature(NPC_ICEHOWL, ToCSpawnLoc[0].GetPositionX(), ToCSpawnLoc[0].GetPositionY(), ToCSpawnLoc[0].GetPositionZ(), 5, TEMPSUMMON_DEAD_DESPAWN))
                                 {
                                     pTemp->GetMotionMaster()->MovePoint(2, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
@@ -689,16 +688,14 @@ class npc_tirion_toc : public CreatureScript
                             break;
                         //Summoning crusaders
                         case 3091:
-                            me->SummonCreature(NPC_CHAMPIONS_CONTROLLER, ToCCommonLoc[1]);
-                            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+                            if (Creature* pChampionController = me->SummonCreature(NPC_CHAMPIONS_CONTROLLER, ToCCommonLoc[1]))
                                 pChampionController->AI()->SetData(0, HORDE);
                             m_uiUpdateTimer = 3000;
                             m_pInstance->SetData(TYPE_EVENT, 3092);
                             break;
                         //Summoning crusaders
                         case 3090:
-                            me->SummonCreature(NPC_CHAMPIONS_CONTROLLER, ToCCommonLoc[1]);
-                            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+                            if (Creature* pChampionController = me->SummonCreature(NPC_CHAMPIONS_CONTROLLER, ToCCommonLoc[1]))
                                 pChampionController->AI()->SetData(0, ALLIANCE);
                             m_uiUpdateTimer = 3000;
                             m_pInstance->SetData(TYPE_EVENT, 3092);
