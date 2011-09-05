@@ -5856,7 +5856,7 @@ void Spell::EffectReputation(SpellEffIndex effIndex)
     {
         rep_change = int32((float)rep_change * repData->spell_rate);
     }
-    
+
     // Bonus from spells that increase reputation gain
     float bonus = rep_change * _player->GetTotalAuraModifier(SPELL_AURA_MOD_REPUTATION_GAIN) / 100.0f; // 10%
     rep_change += (int32)bonus;
@@ -6952,7 +6952,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!ab || ab->GetType() != ACTION_BUTTON_SPELL)
             continue;
 
-        //! Action button data is unverified when it's set so it can be "hacked" 
+        //! Action button data is unverified when it's set so it can be "hacked"
         //! to contain invalid spells, so filter here.
         uint32 spell_id = ab->GetAction();
         if (!spell_id)

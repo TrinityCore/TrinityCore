@@ -182,7 +182,7 @@ struct ScriptedAI : public CreatureAI
     Difficulty GetDifficulty() { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() { return _difficulty & 1; }
+    bool Is25ManRaid() { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10)
