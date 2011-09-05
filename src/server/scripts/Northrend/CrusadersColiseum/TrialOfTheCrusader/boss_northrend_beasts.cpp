@@ -687,13 +687,15 @@ public:
         void EnterEvadeMode()
         {
             instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
-            ScriptedAI::EnterEvadeMode();
+            boss_jormungarAI::EnterEvadeMode();
         }
         
         void JustReachedHome()
         {
             if (instanceScript)
                 instanceScript->DoUseDoorOrButton(instanceScript->GetData64(GO_MAIN_GATE_DOOR));
+
+            boss_jormungarAI::JustReachedHome();
         }
     };
 
