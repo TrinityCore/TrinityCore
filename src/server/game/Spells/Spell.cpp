@@ -373,10 +373,10 @@ void SpellCastTargets::SetDst(WorldObject const& wObj)
 
 void SpellCastTargets::SetDst(SpellCastTargets const& spellTargets)
 {
-   m_dstTransGUID = spellTargets.m_dstTransGUID;
-   m_dstTransOffset.Relocate(spellTargets.m_dstTransOffset);
-   m_dstPos.Relocate(spellTargets.m_dstPos);
-   m_targetMask |= TARGET_FLAG_DEST_LOCATION;
+    m_dstTransGUID = spellTargets.m_dstTransGUID;
+    m_dstTransOffset.Relocate(spellTargets.m_dstTransOffset);
+    m_dstPos.Relocate(spellTargets.m_dstPos);
+    m_targetMask |= TARGET_FLAG_DEST_LOCATION;
 }
 
 void SpellCastTargets::ModDst(Position const& pos)
@@ -739,7 +739,7 @@ void Spell::SelectSpellTargets()
 
             // add here custom effects that need default target.
             // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
-            switch(m_spellInfo->Effects[i].Effect)
+            switch (m_spellInfo->Effects[i].Effect)
             {
                 case SPELL_EFFECT_DUMMY:
                 {
@@ -803,7 +803,7 @@ void Spell::SelectSpellTargets()
                         AddUnitTarget(pet, i);
                     break;
                 case SPELL_EFFECT_APPLY_AURA:
-                    switch(m_spellInfo->Effects[i].ApplyAuraName)
+                    switch (m_spellInfo->Effects[i].ApplyAuraName)
                     {
                         case SPELL_AURA_ADD_FLAT_MODIFIER:  // some spell mods auras have 0 target modes instead expected TARGET_UNIT_CASTER(1) (and present for other ranks for same spell for example)
                         case SPELL_AURA_ADD_PCT_MODIFIER:
@@ -949,9 +949,7 @@ void Spell::prepareDataForTriggerSystem(AuraEffect const* /*triggeredByAura*/)
     }
     // Totem casts require spellfamilymask defined in spell_proc_event to proc
     if (m_originalCaster && m_caster != m_originalCaster && m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isTotem() && m_caster->IsControlledByPlayer())
-    {
         m_procEx |= PROC_EX_INTERNAL_REQ_FAMILY;
-    }
 }
 
 void Spell::CleanupTargetList()
@@ -1852,7 +1850,7 @@ void Spell::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNo
         return;
 
     Position const* pos;
-    switch(type)
+    switch (type)
     {
         case PUSH_DST_CENTER:
             CheckDst();
@@ -1913,7 +1911,7 @@ void Spell::SearchGOAreaTarget(std::list<GameObject*> &TagGOMap, float radius, S
 
 WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType, SpellEffIndex effIndex)
 {
-    switch(TargetType)
+    switch (TargetType)
     {
         case SPELL_TARGETS_ENTRY:
         {
@@ -1936,7 +1934,7 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType, Spe
                     continue;
                 if ((*i_spellST)->mConditionValue3 && !((*i_spellST)->mConditionValue3 & (1 << uint32(effIndex))))
                     continue;
-                switch((*i_spellST)->mConditionValue1)
+                switch ((*i_spellST)->mConditionValue1)
                 {
                     case SPELL_TARGET_TYPE_CONTROLLED:
                         for (Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
@@ -2016,11 +2014,11 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
     if (m_originalCaster)
         modOwner = m_originalCaster->GetSpellModOwner();
 
-    switch(cur.GetType())
+    switch (cur.GetType())
     {
         case TARGET_TYPE_UNIT_CASTER:
         {
-            switch(cur.GetTarget())
+            switch (cur.GetTarget())
             {
                 case TARGET_UNIT_CASTER:
                     AddUnitTarget(m_caster, i, false);
@@ -2084,7 +2082,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                 break;
             }
 
-            switch(cur.GetTarget())
+            switch (cur.GetTarget())
             {
                 case TARGET_UNIT_TARGET_ENEMY:
                     if (Unit *magnet = m_caster->SelectMagnetTarget(target, m_spellInfo))
@@ -2128,7 +2126,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             WorldObject *target = NULL;
             float range;
 
-            switch(cur.GetTarget())
+            switch (cur.GetTarget())
             {
                 case TARGET_UNIT_NEARBY_ENEMY:
                     range = m_spellInfo->GetMaxRange(false);
@@ -2210,7 +2208,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             else if (cur.GetTarget() == TARGET_DEST_CASTER_RANDOM)
                 dist = objSize + (dist - objSize) * (float)rand_norm();
 
-            switch(cur.GetTarget())
+            switch (cur.GetTarget())
             {
                 case TARGET_DEST_CASTER_FRONT_LEFT: angle = static_cast<float>(-M_PI/4);                   break;
                 case TARGET_DEST_CASTER_BACK_LEFT:  angle = static_cast<float>(-3*M_PI/4);                 break;
@@ -2259,7 +2257,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             else if (cur.GetTarget() == TARGET_DEST_TARGET_RANDOM)
                 dist = objSize + (dist - objSize) * (float)rand_norm();
 
-            switch(cur.GetTarget())
+            switch (cur.GetTarget())
             {
                 case TARGET_DEST_TARGET_FRONT:      angle = 0.0f;                                          break;
                 case TARGET_DEST_TARGET_BACK:       angle = static_cast<float>(M_PI);                      break;
@@ -2288,7 +2286,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             }
 
             float angle;
-            switch(cur.GetTarget())
+            switch (cur.GetTarget())
             {
                 case TARGET_DEST_DYNOBJ_ENEMY:
                 case TARGET_DEST_DYNOBJ_ALLY:
@@ -2322,7 +2320,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
 
         case TARGET_TYPE_DEST_SPECIAL:
         {
-            switch(cur.GetTarget())
+            switch (cur.GetTarget())
             {
                 case TARGET_DEST_DB:
                     if (SpellTargetPosition const* st = sSpellMgr->GetSpellTargetPosition(m_spellInfo->Id))
@@ -2478,7 +2476,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
 
         float radius;
         SpellTargets targetType;
-        switch(cur.GetTarget())
+        switch (cur.GetTarget())
         {
             case TARGET_UNIT_SRC_AREA_ENEMY:
             case TARGET_UNIT_DEST_AREA_ENEMY:
@@ -2552,7 +2550,7 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         {
                             if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
                             {
-                                switch(result->GetTypeId())
+                                switch (result->GetTypeId())
                                 {
                                     case TYPEID_UNIT:
                                         m_targets.SetDst(*result);
@@ -3210,7 +3208,7 @@ void Spell::cast(bool skipCheck)
 
     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        switch(m_spellInfo->Effects[i].Effect)
+        switch (m_spellInfo->Effects[i].Effect)
         {
             case SPELL_EFFECT_CHARGE:
             case SPELL_EFFECT_CHARGE_DEST:
@@ -3446,7 +3444,7 @@ void Spell::_handle_immediate_phase()
                     positive = false;
                     break;
                 }
-            switch(m_spellInfo->DmgClass)
+            switch (m_spellInfo->DmgClass)
             {
                 case SPELL_DAMAGE_CLASS_MAGIC:
                     if (positive)
@@ -3526,7 +3524,7 @@ void Spell::update(uint32 difftime)
             cancel();
     }
 
-    switch(m_spellState)
+    switch (m_spellState)
     {
         case SPELL_STATE_PREPARING:
         {
@@ -3722,7 +3720,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             break;
         case SPELL_FAILED_REQUIRES_AREA:
             // hardcode areas limitation case
-            switch(spellInfo->Id)
+            switch (spellInfo->Id)
             {
                 case 41617:                                 // Cenarion Mana Salve
                 case 41619:                                 // Cenarion Healing Salve
@@ -3970,7 +3968,7 @@ void Spell::WriteAmmoToPacket(WorldPacket * data)
                 {
                     if (itemEntry->Class == ITEM_CLASS_WEAPON)
                     {
-                        switch(itemEntry->SubClass)
+                        switch (itemEntry->SubClass)
                         {
                             case ITEM_SUBCLASS_WEAPON_THROWN:
                                 ammoDisplayID = itemEntry->DisplayId;
@@ -4289,10 +4287,11 @@ void Spell::TakePower()
     if (m_CastItem || m_triggeredByAuraSpell)
         return;
 
+    Powers powerType = Powers(m_spellInfo->PowerType);
     bool hit = true;
     if (m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        if (m_spellInfo->PowerType == POWER_RAGE || m_spellInfo->PowerType == POWER_ENERGY || m_spellInfo->PowerType == POWER_RUNE)
+        if (powerType == POWER_RAGE || powerType == POWER_ENERGY || powerType == POWER_RUNE)
             if (uint64 targetGUID = m_targets.GetUnitTargetGUID())
                 for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
                     if (ihit->targetGUID == targetGUID)
@@ -4309,8 +4308,6 @@ void Spell::TakePower()
                     }
     }
 
-    Powers powerType = Powers(m_spellInfo->PowerType);
-
     if (powerType == POWER_RUNE)
     {
         TakeRunePower(hit);
@@ -4321,15 +4318,15 @@ void Spell::TakePower()
         return;
 
     // health as power used
-    if (m_spellInfo->PowerType == POWER_HEALTH)
+    if (powerType == POWER_HEALTH)
     {
         m_caster->ModifyHealth(-(int32)m_powerCost);
         return;
     }
 
-    if (m_spellInfo->PowerType >= MAX_POWERS)
+    if (powerType >= MAX_POWERS)
     {
-        sLog->outError("Spell::TakePower: Unknown power type '%d'", m_spellInfo->PowerType);
+        sLog->outError("Spell::TakePower: Unknown power type '%d'", powerType);
         return;
     }
 
@@ -4489,11 +4486,15 @@ void Spell::TakeReagents()
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    ItemTemplate const* castItemTemplate = m_CastItem
+            ? m_CastItem->GetTemplate()
+            : NULL;
+
     // do not take reagents for these item casts
-    if (m_CastItem && m_CastItem->GetTemplate()->Flags & ITEM_PROTO_FLAG_TRIGGERED_CAST)
+    if (castItemTemplate && castItemTemplate->Flags & ITEM_PROTO_FLAG_TRIGGERED_CAST)
         return;
 
-    Player* p_caster = (Player*)m_caster;
+    Player* p_caster = m_caster->ToPlayer();
     if (p_caster->CanNoReagentCast(m_spellInfo))
         return;
 
@@ -4506,24 +4507,20 @@ void Spell::TakeReagents()
         uint32 itemcount = m_spellInfo->ReagentCount[x];
 
         // if CastItem is also spell reagent
-        if (m_CastItem)
+        if (castItemTemplate && castItemTemplate->ItemId == itemid)
         {
-            ItemTemplate const *proto = m_CastItem->GetTemplate();
-            if (proto && proto->ItemId == itemid)
+            for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
             {
-                for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+                // CastItem will be used up and does not count as reagent
+                int32 charges = m_CastItem->GetSpellCharges(s);
+                if (castItemTemplate->Spells[s].SpellCharges < 0 && abs(charges) < 2)
                 {
-                    // CastItem will be used up and does not count as reagent
-                    int32 charges = m_CastItem->GetSpellCharges(s);
-                    if (proto->Spells[s].SpellCharges < 0 && abs(charges) < 2)
-                    {
-                        ++itemcount;
-                        break;
-                    }
+                    ++itemcount;
+                    break;
                 }
-
-                m_CastItem = NULL;
             }
+
+            m_CastItem = NULL;
         }
 
         // if GetItemTarget is also spell reagent
@@ -4884,7 +4881,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
         // for effects of spells that have only one target
-        switch(m_spellInfo->Effects[i].Effect)
+        switch (m_spellInfo->Effects[i].Effect)
         {
             case SPELL_EFFECT_DUMMY:
             {
@@ -5140,7 +5137,7 @@ SpellCastResult Spell::CheckCast(bool strict)
                 SummonPropertiesEntry const *SummonProperties = sSummonPropertiesStore.LookupEntry(m_spellInfo->Effects[i].MiscValueB);
                 if (!SummonProperties)
                     break;
-                switch(SummonProperties->Category)
+                switch (SummonProperties->Category)
                 {
                     case SUMMON_CATEGORY_PET:
                         if (m_caster->GetPetGUID())
@@ -5277,12 +5274,12 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
-        switch(m_spellInfo->Effects[i].ApplyAuraName)
+        switch (m_spellInfo->Effects[i].ApplyAuraName)
         {
             case SPELL_AURA_DUMMY:
             {
                 //custom check
-                switch(m_spellInfo->Id)
+                switch (m_spellInfo->Id)
                 {
                     // Tag Murloc
                     case 30877:
@@ -6166,7 +6163,7 @@ SpellCastResult Spell::CheckItems()
                 if (!pItem || pItem->IsBroken())
                     return SPELL_FAILED_EQUIPPED_ITEM;
 
-                switch(pItem->GetTemplate()->SubClass)
+                switch (pItem->GetTemplate()->SubClass)
                 {
                     case ITEM_SUBCLASS_WEAPON_THROWN:
                     {
@@ -6196,7 +6193,7 @@ SpellCastResult Spell::CheckItems()
                             return SPELL_FAILED_NO_AMMO;
 
                         // check ammo ws. weapon compatibility
-                        switch(pItem->GetTemplate()->SubClass)
+                        switch (pItem->GetTemplate()->SubClass)
                         {
                             case ITEM_SUBCLASS_WEAPON_BOW:
                             case ITEM_SUBCLASS_WEAPON_CROSSBOW:
@@ -6393,7 +6390,7 @@ CurrentSpellTypes Spell::GetCurrentContainer() const
 
 bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
 {
-    switch(m_spellInfo->Effects[eff].ApplyAuraName)
+    switch (m_spellInfo->Effects[eff].ApplyAuraName)
     {
         case SPELL_AURA_MOD_POSSESS:
         case SPELL_AURA_MOD_CHARM:
@@ -6418,7 +6415,7 @@ bool Spell::CheckEffectTarget(Unit const* target, uint32 eff) const
 
     // todo: shit below shouldn't be here, but it's temporary
     //Check targets for LOS visibility (except spells without range limitations)
-    switch(m_spellInfo->Effects[eff].Effect)
+    switch (m_spellInfo->Effects[eff].Effect)
     {
         case SPELL_EFFECT_RESURRECT_NEW:
             // player far away, maybe his corpse near?
@@ -6698,7 +6695,7 @@ int32 Spell::CalculateDamageDone(Unit *unit, const uint32 effectMask, float * mu
             m_damage = 0;
             damage = CalculateDamage(i, NULL);
 
-            switch(m_spellInfo->Effects[i].Effect)
+            switch (m_spellInfo->Effects[i].Effect)
             {
                 case SPELL_EFFECT_SCHOOL_DAMAGE:
                     SpellDamageSchoolDmg((SpellEffIndex)i);
@@ -6759,7 +6756,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
     for (int j = 0; j < MAX_LOCK_CASE; ++j)
     {
-        switch(lockInfo->Type[j])
+        switch (lockInfo->Type[j])
         {
             // check key item (many fit cases can be)
             case LOCK_KEY_ITEM:
