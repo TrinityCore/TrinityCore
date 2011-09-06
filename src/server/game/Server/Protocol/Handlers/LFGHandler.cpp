@@ -50,7 +50,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recv_data)
     if (!sWorld->getBoolConfig(CONFIG_DUNGEON_FINDER_ENABLE) ||
         (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->GetLeaderGUID() != GetPlayer()->GetGUID()))
     {
-        recv_data.rpos(recv_data.wpos());
+        recv_data.rfinish();
         return;
     }
 
@@ -64,7 +64,7 @@ void WorldSession::HandleLfgJoinOpcode(WorldPacket& recv_data)
     if (!numDungeons)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LFG_JOIN [" UI64FMTD "] no dungeons selected", GetPlayer()->GetGUID());
-        recv_data.rpos(recv_data.wpos());
+        recv_data.rfinish();
         return;
     }
 

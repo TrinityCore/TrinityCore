@@ -424,14 +424,14 @@ void WorldSession::HandleGuildBankSwapItems(WorldPacket & recv_data)
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(GoGuid, GAMEOBJECT_TYPE_GUILD_BANK))
     {
-        recv_data.rpos(recv_data.wpos());                   // Prevent additional spam at rejected packet
+        recv_data.rfinish();                   // Prevent additional spam at rejected packet
         return;
     }
 
     Guild* pGuild = _GetPlayerGuild(this);
     if (!pGuild)
     {
-        recv_data.rpos(recv_data.wpos());                   // Prevent additional spam at rejected packet
+        recv_data.rfinish();                   // Prevent additional spam at rejected packet
         return;
     }
 

@@ -73,6 +73,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
     if (type >= MAX_CHAT_MSG_TYPE)
     {
         sLog->outError("CHAT: Wrong message type received: %u", type);
+        recv_data.rfinish();
         return;
     }
 
@@ -85,6 +86,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
     if (!langDesc)
     {
         SendNotification(LANG_UNKNOWN_LANGUAGE);
+        recv_data.rfinish();
         return;
     }
     if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
@@ -103,6 +105,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         if (!foundAura)
         {
             SendNotification(LANG_NOT_LEARNED_LANGUAGE);
+            recv_data.rfinish();
             return;
         }
     }
@@ -167,6 +170,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
             SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+            recv_data.rfinish(); // Prevent warnings
             return;
         }
 
