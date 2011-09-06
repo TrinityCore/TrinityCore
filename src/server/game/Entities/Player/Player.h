@@ -1875,7 +1875,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateDefenseBonusesMod();
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float GetMeleeCritFromAgility();
-        float GetDodgeFromAgility();
+        void GetDodgeFromAgility(float &diminishing, float &nondiminishing);
+        float GetMissPercentageFromDefence(WeaponAttackType attType) const;
         float GetSpellCritFromIntellect();
         float OCTRegenHPPerSpirit();
         float OCTRegenMPPerSpirit();
