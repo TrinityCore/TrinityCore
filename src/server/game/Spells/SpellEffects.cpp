@@ -722,6 +722,14 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                 }
                 break;
             }
+            case SPELLFAMILY_MAGE:
+            {
+                // Deep Freeze should deal damage to permanently stun-immune targets.
+                if (m_spellInfo->Id == 71757)
+                    if (unitTarget->GetTypeId() != TYPEID_UNIT || !(unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(24932), 0)))
+                        return;
+                break;
+            }
         }
 
         if (m_originalCaster && damage > 0 && apply_direct_bonus)
