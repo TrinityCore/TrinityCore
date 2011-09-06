@@ -311,8 +311,11 @@ void BattlegroundIC::AddPlayer(Player *plr)
 
 void BattlegroundIC::RemovePlayer(Player* plr, uint64 /*guid*/, uint32 /*team*/)
 {
-    plr->RemoveAura(SPELL_QUARRY);
-    plr->RemoveAura(SPELL_OIL_REFINERY);
+    if (plr)
+    {
+        plr->RemoveAura(SPELL_QUARRY);
+        plr->RemoveAura(SPELL_OIL_REFINERY);
+    }
 }
 
 void BattlegroundIC::HandleAreaTrigger(Player* /*Source*/, uint32 /*Trigger*/)
