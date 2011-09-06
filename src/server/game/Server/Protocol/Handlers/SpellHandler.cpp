@@ -537,7 +537,7 @@ void WorldSession::HandleSelfResOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SELF_RES");                  // empty opcode
 
-    if (_player->HasAuraType(SPELL_AURA_PREVENT_RESSURECTION))
+    if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
         return; // silent return, client should display error by itself and not send this opcode
 
     if (_player->GetUInt32Value(PLAYER_SELF_RES_SPELL))
