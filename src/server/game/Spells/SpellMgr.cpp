@@ -3448,6 +3448,10 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
                 spellInfo->EffectBasePoints[0] = 20*1000;
             break;
+            case 51678: //WintergraspSiegeEngine Ram set damage radius to 5 yards
+                spellInfo->EffectRadiusIndex[0] = 52;
+                spellInfo->EffectRadiusIndex[1] = 52;
+                break;
             case 51590: // Toss Ice Boulder
                 spellInfo->MaxAffectedTargets = 1;
                 break;
