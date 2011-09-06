@@ -801,16 +801,25 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
 
     //scale
     CreatureFamilyEntry const* cFamily = sCreatureFamilyStore.LookupEntry(cinfo->family);
-    if (cFamily && cFamily->minScale > 0.0f && petType == HUNTER_PET)
+    if (cFamily && petType == HUNTER_PET)
     {
-        float scale;
-        if (getLevel() >= cFamily->maxScaleLevel)
-            scale = cFamily->maxScale;
-        else if (getLevel() <= cFamily->minScaleLevel)
-            scale = cFamily->minScale;
+        float scale, minscale, maxscale, maxlevel;
+        minscale = 0.8f;
+        maxscale = 1.2f;
+        if (getLevel() > 70)
+        {
+            if (cinfo->type_flags & CREATURE_TYPEFLAGS_EXOTIC)
+                if (getLevel() > 80)
+                    maxlevel = 80; //for gms and fun servers
+                else
+                    maxlevel = getLevel();
+            else
+                maxlevel = 70;
+        }
         else
-            scale = cFamily->minScale + float(getLevel() - cFamily->minScaleLevel) / cFamily->maxScaleLevel * (cFamily->maxScale - cFamily->minScale);
+            maxlevel = getLevel();
 
+        scale = minscale + (maxlevel * ((maxscale - minscale) / 80));
         SetFloatValue(OBJECT_FIELD_SCALE_X, scale);
     }
 
