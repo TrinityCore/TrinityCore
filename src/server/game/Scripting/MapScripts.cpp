@@ -306,6 +306,7 @@ void Map::ScriptsProcess()
                         source = player->GetItemByGuid(step.sourceGUID);
                     break;
                 case HIGHGUID_UNIT:
+                case HIGHGUID_VEHICLE:
                     source = HashMapHolder<Creature>::Find(step.sourceGUID);
                     break;
                 case HIGHGUID_PET:
