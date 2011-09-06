@@ -2979,6 +2979,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_DEST_NEARBY_ENTRY;
                 break;
+            case 19465: // Improved Stings, only rank 2 of this spell has target for effect 2 = TARGET_DST_DB
+                spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_CASTER;
+                break;
             case 59725: // Improved Spell Reflection - aoe aura
                 // Target entry seems to be wrong for this spell :/
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER_AREA_PARTY;
