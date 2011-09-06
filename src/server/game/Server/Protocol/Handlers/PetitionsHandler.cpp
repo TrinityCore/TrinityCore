@@ -59,7 +59,6 @@ enum CharterCosts
 void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_BUY");
-    recv_data.hexlike();
 
     uint64 guidNPC;
     uint32 clientIndex;                                     // 1 for guild and arenaslot+1 for arenas in client
@@ -246,7 +245,6 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
 {
                                                             // ok
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
-    //recv_data.hexlike();
 
     uint8 signs = 0;
     uint64 petitionguid;
@@ -298,7 +296,6 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
 void WorldSession::HandlePetitionQueryOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_QUERY");   // ok
-    //recv_data.hexlike();
 
     uint32 guildguid;
     uint64 petitionguid;
@@ -378,7 +375,6 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
 void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_RENAME");   // ok
-    //recv_data.hexlike();
 
     uint64 petitionguid;
     uint32 type;
@@ -446,7 +442,6 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
 void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SIGN");    // ok
-    //recv_data.hexlike();
 
     Field *fields;
     uint64 petitionguid;
@@ -571,7 +566,6 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode MSG_PETITION_DECLINE");  // ok
-    //recv_data.hexlike();
 
     uint64 petitionguid;
     uint64 ownerguid;
@@ -597,7 +591,6 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
 void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_OFFER_PETITION");   // ok
-    //recv_data.hexlike();
 
     uint8 signs = 0;
     uint64 petitionguid, plguid;

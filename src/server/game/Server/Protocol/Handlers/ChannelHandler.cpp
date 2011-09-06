@@ -60,7 +60,6 @@ void WorldSession::HandleJoinChannel(WorldPacket& recvPacket)
 void WorldSession::HandleLeaveChannel(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
 
     uint32 unk;
     std::string channelname;
@@ -81,7 +80,6 @@ void WorldSession::HandleLeaveChannel(WorldPacket& recvPacket)
 void WorldSession::HandleChannelList(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname;
     recvPacket >> channelname;
 
@@ -93,7 +91,6 @@ void WorldSession::HandleChannelList(WorldPacket& recvPacket)
 void WorldSession::HandleChannelPassword(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname, pass;
     recvPacket >> channelname;
 
@@ -107,7 +104,6 @@ void WorldSession::HandleChannelPassword(WorldPacket& recvPacket)
 void WorldSession::HandleChannelSetOwner(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname, newp;
     recvPacket >> channelname;
 
@@ -124,7 +120,6 @@ void WorldSession::HandleChannelSetOwner(WorldPacket& recvPacket)
 void WorldSession::HandleChannelOwner(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname;
     recvPacket >> channelname;
     if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
@@ -135,7 +130,6 @@ void WorldSession::HandleChannelOwner(WorldPacket& recvPacket)
 void WorldSession::HandleChannelModerator(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname, otp;
     recvPacket >> channelname;
 
@@ -152,7 +146,6 @@ void WorldSession::HandleChannelModerator(WorldPacket& recvPacket)
 void WorldSession::HandleChannelUnmoderator(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname, otp;
     recvPacket >> channelname;
 
@@ -169,7 +162,6 @@ void WorldSession::HandleChannelUnmoderator(WorldPacket& recvPacket)
 void WorldSession::HandleChannelMute(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname, otp;
     recvPacket >> channelname;
 
@@ -186,7 +178,6 @@ void WorldSession::HandleChannelMute(WorldPacket& recvPacket)
 void WorldSession::HandleChannelUnmute(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
 
     std::string channelname, otp;
     recvPacket >> channelname;
@@ -204,7 +195,6 @@ void WorldSession::HandleChannelUnmute(WorldPacket& recvPacket)
 void WorldSession::HandleChannelInvite(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname, otp;
     recvPacket >> channelname;
 
@@ -221,7 +211,6 @@ void WorldSession::HandleChannelInvite(WorldPacket& recvPacket)
 void WorldSession::HandleChannelKick(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname, otp;
     recvPacket >> channelname;
 
@@ -237,7 +226,6 @@ void WorldSession::HandleChannelKick(WorldPacket& recvPacket)
 void WorldSession::HandleChannelBan(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname, otp;
     recvPacket >> channelname;
 
@@ -254,7 +242,6 @@ void WorldSession::HandleChannelBan(WorldPacket& recvPacket)
 void WorldSession::HandleChannelUnban(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
 
     std::string channelname, otp;
     recvPacket >> channelname;
@@ -272,7 +259,6 @@ void WorldSession::HandleChannelUnban(WorldPacket& recvPacket)
 void WorldSession::HandleChannelAnnouncements(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname;
     recvPacket >> channelname;
     if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
@@ -289,7 +275,6 @@ void WorldSession::HandleChannelDisplayListQuery(WorldPacket &recvPacket)
 void WorldSession::HandleGetChannelMemberCount(WorldPacket &recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname;
     recvPacket >> channelname;
     if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
@@ -308,7 +293,6 @@ void WorldSession::HandleGetChannelMemberCount(WorldPacket &recvPacket)
 void WorldSession::HandleSetChannelWatch(WorldPacket &recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Opcode %u", recvPacket.GetOpcode());
-    //recvPacket.hexlike();
     std::string channelname;
     recvPacket >> channelname;
     /*if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
