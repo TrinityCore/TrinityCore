@@ -165,7 +165,7 @@ index 65ba160..7fc9f80 100644
    ${CMAKE_CURRENT_SOURCE_DIR}/Mails
    ${CMAKE_CURRENT_SOURCE_DIR}/Maps
 diff --git a/src/server/game/Entities/Player/Player.cpp b/src/server/game/Entities/Player/Player.cpp
-index 4c67624..d6b3515 100755
+index f1bfb3e..bfafae3 100755
 --- a/src/server/game/Entities/Player/Player.cpp
 +++ b/src/server/game/Entities/Player/Player.cpp
 @@ -1,4 +1,5 @@
@@ -182,7 +182,7 @@ index 4c67624..d6b3515 100755
  #include "Transport.h"
  #include "Weather.h"
  #include "Battleground.h"
-@@ -678,6 +680,15 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
+@@ -683,6 +685,15 @@ Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputa
  
      m_social = NULL;
  
@@ -198,7 +198,7 @@ index 4c67624..d6b3515 100755
      // group is initialized in the reference constructor
      SetGroupInvite(NULL);
      m_groupUpdateMask = 0;
-@@ -1183,6 +1194,50 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
+@@ -1188,6 +1199,50 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
      return true;
  }
  
@@ -249,7 +249,7 @@ index 4c67624..d6b3515 100755
  bool Player::StoreNewItemInBestSlots(uint32 titem_id, uint32 titem_amount)
  {
      sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE: Creating initial item, itemId = %u, count = %u", titem_id, titem_amount);
-@@ -1503,6 +1558,19 @@ void Player::Update(uint32 p_time)
+@@ -1508,6 +1563,19 @@ void Player::Update(uint32 p_time)
      if (!IsInWorld())
          return;
  
@@ -269,7 +269,7 @@ index 4c67624..d6b3515 100755
      // undelivered mail
      if (m_nextMailDelivereTime && m_nextMailDelivereTime <= time(NULL))
      {
-@@ -1709,7 +1777,15 @@ void Player::Update(uint32 p_time)
+@@ -1714,7 +1782,15 @@ void Player::Update(uint32 p_time)
      }
  
      if (m_deathState == JUST_DIED)
@@ -286,7 +286,7 @@ index 4c67624..d6b3515 100755
  
      if (m_nextSave > 0)
      {
-@@ -4914,6 +4990,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
+@@ -4919,6 +4995,7 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
              trans->PAppend("DELETE FROM mail_items WHERE receiver = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet WHERE owner = '%u'", guid);
              trans->PAppend("DELETE FROM character_pet_declinedname WHERE owner = '%u'", guid);
@@ -294,7 +294,7 @@ index 4c67624..d6b3515 100755
              trans->PAppend("DELETE FROM character_achievement WHERE guid = '%u' "   // NOTE: These achievements have flags & 256 in DBC.
                                          "AND achievement NOT BETWEEN '456' AND '467' "          // Realm First Level 80
                                          "AND achievement NOT BETWEEN '1400' AND '1427' "        // Realm First Raid Achievements
-@@ -17044,6 +17121,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
+@@ -17099,6 +17176,9 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
  
      _LoadEquipmentSets(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
  
@@ -304,7 +304,7 @@ index 4c67624..d6b3515 100755
      return true;
  }
  
-@@ -18398,7 +18478,13 @@ void Player::SaveToDB()
+@@ -18457,7 +18537,13 @@ void Player::SaveToDB()
      // check if stats should only be saved on logout
      // save stats can be out of transaction
      if (m_session->isLogingOut() || !sWorld->getBoolConfig(CONFIG_STATS_SAVE_ONLY_ON_LOGOUT))
@@ -319,7 +319,7 @@ index 4c67624..d6b3515 100755
      CharacterDatabase.CommitTransaction(trans);
  
 diff --git a/src/server/game/Entities/Player/Player.h b/src/server/game/Entities/Player/Player.h
-index fbfa533..efc24c5 100755
+index 3d19fe6..21b8bbf 100755
 --- a/src/server/game/Entities/Player/Player.h
 +++ b/src/server/game/Entities/Player/Player.h
 @@ -1,4 +1,5 @@
@@ -1377,7 +1377,7 @@ index 0000000..ba652c1
 +
 +#endif
 diff --git a/src/server/game/Miscellaneous/Language.h b/src/server/game/Miscellaneous/Language.h
-index e824a3c..40d53ae 100755
+index 9e8a4b1..bea0342 100755
 --- a/src/server/game/Miscellaneous/Language.h
 +++ b/src/server/game/Miscellaneous/Language.h
 @@ -1,4 +1,5 @@
@@ -1386,7 +1386,7 @@ index e824a3c..40d53ae 100755
   * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
   * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
   *
-@@ -1053,9 +1054,61 @@ enum TrinityStrings
+@@ -1054,9 +1055,61 @@ enum TrinityStrings
      LANG_AUTO_BROADCAST                 = 11000,
      LANG_INVALID_REALMID                = 11001,
  
