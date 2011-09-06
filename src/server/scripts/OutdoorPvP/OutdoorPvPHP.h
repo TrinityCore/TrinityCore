@@ -108,8 +108,6 @@ class OPvPCapturePointHP : public OPvPCapturePoint
 
 class OutdoorPvPHP : public OutdoorPvP
 {
-    friend class OPvPCapturePointHP;
-
     public:
 
         OutdoorPvPHP();
@@ -126,6 +124,12 @@ class OutdoorPvPHP : public OutdoorPvP
         void SendRemoveWorldStates(Player* player);
 
         void HandleKillImpl(Player* player, Unit* killed);
+
+        uint32 GetAllianceTowersControlled() const;
+        void SetAllianceTowersControlled(uint32 count);
+
+        uint32 GetHordeTowersControlled() const;
+        void SetHordeTowersControlled(uint32 count);
 
     private:
 
