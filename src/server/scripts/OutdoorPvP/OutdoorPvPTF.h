@@ -150,8 +150,6 @@ class OPvPCapturePointTF : public OPvPCapturePoint
 
 class OutdoorPvPTF : public OutdoorPvP
 {
-    friend class OPvPCapturePointTF;
-
     public:
 
         OutdoorPvPTF();
@@ -166,6 +164,14 @@ class OutdoorPvPTF : public OutdoorPvP
         void FillInitialWorldStates(WorldPacket &data);
 
         void SendRemoveWorldStates(Player* player);
+
+        uint32 GetAllianceTowersControlled() const;
+        void SetAllianceTowersControlled(uint32 count);
+
+        uint32 GetHordeTowersControlled() const;
+        void SetHordeTowersControlled(uint32 count);
+
+        bool IsLocked() const;
 
     private:
 
