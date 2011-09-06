@@ -636,12 +636,11 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 sLog->outDebug(LOG_FILTER_NETWORKIO, "Character creation %s (account %u) has unhandled tail data: [%u]", createInfo->Name.c_str(), GetAccountId(), unk);
             }
 
-            Player* pNewChar = new Player(this);
-            if (!pNewChar->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), createInfo))
+            Player newChar(this);
+            if (!newChar.Create(sObjectMgr->GenerateLowGuid(HIGHGUID_PLAYER), createInfo))
             {
                 // Player not create (race/class/etc problem?)
-                pNewChar->CleanupsBeforeDelete();
-                delete pNewChar;
+                newChar.CleanupsBeforeDelete();
 
                 WorldPacket data(SMSG_CHAR_CREATE, 1);
                 data << uint8(CHAR_CREATE_ERROR);
@@ -653,12 +652,12 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             }
 
             if ((haveSameRace && skipCinematics == 1) || skipCinematics == 2)
-                pNewChar->setCinematic(1);                          // not show intro
+                newChar.setCinematic(1);                          // not show intro
 
-            pNewChar->SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
+            newChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
 
             // Player created, save it now
-            pNewChar->SaveToDB();
+            newChar.SaveToDB();
             createInfo->CharCount += 1;
 
             SQLTransaction trans = LoginDatabase.BeginTransaction();
@@ -676,18 +675,17 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             LoginDatabase.CommitTransaction(trans);
 
-            pNewChar->CleanupsBeforeDelete();
+            newChar.CleanupsBeforeDelete();
 
             WorldPacket data(SMSG_CHAR_CREATE, 1);
             data << uint8(CHAR_CREATE_SUCCESS);
             SendPacket(&data);
 
             std::string IP_str = GetRemoteAddress();
-            sLog->outDetail("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), pNewChar->GetGUIDLow());
-            sLog->outChar("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), pNewChar->GetGUIDLow());
-            sScriptMgr->OnPlayerCreate(pNewChar);
+            sLog->outDetail("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
+            sLog->outChar("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
+            sScriptMgr->OnPlayerCreate(&newChar);
 
-            delete pNewChar;                                        // created only to call SaveToDB()
             delete createInfo;
             _charCreateCallback.SetParam(NULL);
             _charCreateCallback.FreeResult();
