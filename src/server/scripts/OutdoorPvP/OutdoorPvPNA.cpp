@@ -63,19 +63,20 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
         case NA_NPC_GUARD_13:
         case NA_NPC_GUARD_14:
         case NA_NPC_GUARD_15:
-        {
-            if (Creature* cr = HashMapHolder<Creature>::Find(itr->second))
-            {
+            if (Creature const * const cr = HashMapHolder<Creature>::Find(itr->second))
                 if (cr->isAlive())
                     ++cnt;
-            }
-        }
-        break;
+            break;
         default:
             break;
         }
     }
     return cnt;
+}
+
+uint32 OPvPCapturePointNA::GetControllingFaction() const
+{
+    return m_ControllingFaction;
 }
 
 void OPvPCapturePointNA::SpawnNPCsForTeam(uint32 team)
@@ -223,7 +224,7 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
 void OutdoorPvPNA::HandlePlayerEnterZone(Player* player, uint32 zone)
 {
     // add buffs
-    if (player->GetTeam() == m_obj->m_ControllingFaction)
+    if (player->GetTeam() == m_obj->GetControllingFaction())
         player->CastSpell(player, NA_CAPTURE_BUFF, true);
     OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }

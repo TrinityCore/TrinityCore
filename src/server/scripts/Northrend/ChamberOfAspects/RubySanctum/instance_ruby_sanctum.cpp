@@ -206,9 +206,17 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_GENERAL_ZARITHRIAN:
                         if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                             HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
+                        /*
                         if (state == DONE)
                             if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
                                 halionController->AI()->DoAction(ACTION_INTRO_HALION);
+                        */
+                        break;
+                    case DATA_HALION:
+                        /*
+                        if (state != IN_PROGRESS)
+                            HandleGameObject(FlameRingGUID, true);
+                        */
                         break;
                     default:
                         break;

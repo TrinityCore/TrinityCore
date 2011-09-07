@@ -1487,7 +1487,6 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
         return;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");
-    recv_data.hexlike();
 
     for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
