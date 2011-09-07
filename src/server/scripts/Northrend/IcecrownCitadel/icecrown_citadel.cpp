@@ -92,7 +92,8 @@ enum ICC_RAID_TRASH_NPCS
     KRIEGSMAID_DER_YMIRJAR                  = 37132,
     KRIEGSFUERST_DER_YMIRJAR                = 37133,
     JAEGERIN_DER_YMIRJAR                    = 37134,
-    TODESBRINGER_DER_YMIRJAR                = 38125
+    TODESBRINGER_DER_YMIRJAR                = 38125,
+    VERDERBTER_YMIRJAR                      = 38184
 };
 
 enum ICC_RAID_TRASH_SPELLS
@@ -213,7 +214,7 @@ enum ICC_RAID_TRASH_SPELLS
 #define TODESBRINGER_DER_YMIRJAR_UMARMUNG_DES_TODES                     RAID_MODE(71299,71300,71299,71300) // Selbst - Dauer 10 Sek.
         TODESBRINGER_DER_YMIRJAR_VERBANNEN                              = 71298, // Random Target - 20 Meter
         TODESBRINGER_DER_YMIRJAR_YMIRJAR_BESCHWOEREN_VISUAL             = 71303, // Selbst - Visual
-        TODESBRINGER_DER_YMIRJAR_YMIRJAR_BESCHWOEREN_EFFEKT             = 71302  // Effekt - Spawnt jeweils 1 NPC!
+        TODESBRINGER_DER_YMIRJAR_YMIRJAR_BESCHWOEREN_EFFEKT             = 71302  // Effekt - Spawnt jeweils 1 Verderbter Ymirjar (38184) !
 };
 
 enum eICC_Raid_Events
@@ -368,8 +369,10 @@ public:
         {
             _summons.Summon(summon);
 
-            if (Unit * target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+            if (Unit * target = summon->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0))
                 summon->AI()->AttackStart(target);
+            else
+                summon->GetMotionMaster()->MoveRandom(10.0f);
 
             if (summon->GetEntry() == ABGETRENNTE_ESSENZ)
                 ++EssenzenCnt;
@@ -463,11 +466,13 @@ public:
             if (!who)
                 return;
 
+            me->InterruptNonMeleeSpells(false);
+
             events.ScheduleEvent(EVENT_DIENER_DES_THRONS_GLETSCHEREXPLOSION, urand(1000,3000));
             events.ScheduleEvent(EVENT_TODESGEWEIHTER_WAECHTER_SAEBELHIEB, urand(3000,5000));
             events.ScheduleEvent(EVENT_TODESGEWEIHTER_WAECHTER_UNTERBRECHENDER_SCHREI, SEKUNDEN_10);
             events.ScheduleEvent(EVENT_URALTER_SKELETT_SOLDAT_SCHILDHIEB, urand(1000,5000));
-            events.ScheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, urand(SEKUNDEN_10, SEKUNDEN_20));
+            events.ScheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
             events.ScheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_FANGNETZ, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
             events.ScheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_GRUFTSKARABAEEN, 1000);
             events.ScheduleEvent(EVENT_AUFERSTANDENER_DIENER_DER_TODESSPRECHER_VERZEHRENDE_SCHATTEN, 1000);
@@ -660,7 +665,7 @@ public:
                                     DoCast(pTarget, BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG);
                                 else
                                     DoCast(me, BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, true);
-                                events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, urand(SEKUNDEN_10, SEKUNDEN_20));
+                                events.RescheduleEvent(EVENT_BRUTHUETER_DER_NERUBAR_DUNKLE_BESSERUNG, urand(5 * IN_MILLISECONDS, SEKUNDEN_10));
                                 break;
                             case EVENT_BRUTHUETER_DER_NERUBAR_FANGNETZ:
                                 if (Unit * pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, me->GetMaxCastRange(), true))
