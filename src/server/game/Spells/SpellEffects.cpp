@@ -722,6 +722,14 @@ void Spell::SpellDamageSchoolDmg(SpellEffIndex effIndex)
                 }
                 break;
             }
+            case SPELLFAMILY_MAGE:
+            {
+                // Deep Freeze should deal damage to permanently stun-immune targets.
+                if (m_spellInfo->Id == 71757)
+                    if (unitTarget->GetTypeId() != TYPEID_UNIT || !(unitTarget->IsImmunedToSpellEffect(sSpellMgr->GetSpellInfo(44572), 0)))
+                        return;
+                break;
+            }
         }
 
         if (m_originalCaster && damage > 0 && apply_direct_bonus)
@@ -2725,17 +2733,17 @@ void Spell::EffectOpenLock(SpellEffIndex effIndex)
     if (gameObjTarget)
     {
         GameObjectTemplate const* goInfo = gameObjTarget->GetGOInfo();
-        // Arathi Basin banner opening !
+        // Arathi Basin banner opening. // TODO: Verify correctness of this check
         if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
             (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK))
         {
             //CanUseBattlegroundObject() already called in CheckCast()
             // in battleground check
             if (Battleground *bg = player->GetBattleground())
-          {
-        bg->EventPlayerClickedOnFlag(player, gameObjTarget);
-        return;
-          }
+            {
+                bg->EventPlayerClickedOnFlag(player, gameObjTarget);
+                return;
+            }
         }
         else if (goInfo->type == GAMEOBJECT_TYPE_FLAGSTAND)
         {

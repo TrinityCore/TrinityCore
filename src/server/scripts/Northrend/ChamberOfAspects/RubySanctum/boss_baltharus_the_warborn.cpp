@@ -116,6 +116,7 @@ class boss_baltharus_the_warborn : public CreatureScript
             {
                 me->InterruptNonMeleeSpells(false);
                 _EnterCombat();
+                events.Reset();
                 events.SetPhase(PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_CLEAVE, 11000, 0, PHASE_COMBAT);
                 events.ScheduleEvent(EVENT_ENERVATING_BRAND, 13000, 0, PHASE_COMBAT);
@@ -228,16 +229,18 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
 
         struct npc_baltharus_the_warborn_cloneAI : public ScriptedAI
         {
-            npc_baltharus_the_warborn_cloneAI(Creature* creature) : ScriptedAI(creature)
+            npc_baltharus_the_warborn_cloneAI(Creature* creature) : ScriptedAI(creature),
+                _instance(creature->GetInstanceScript())
             {
-                _instance = (InstanceScript*)creature->GetInstanceScript();
             }
 
             void EnterCombat(Unit* /*who*/)
             {
                 DoZoneInCombat();
+                _events.Reset();
                 _events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
                 _events.ScheduleEvent(EVENT_BLADE_TEMPEST, urand(18000, 25000));
+                _events.ScheduleEvent(EVENT_ENERVATING_BRAND, urand(10000, 15000));
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
@@ -280,6 +283,12 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                             DoCastVictim(SPELL_BLADE_TEMPEST);
                             _events.ScheduleEvent(EVENT_BLADE_TEMPEST, 24000);
                            break;
+                        case EVENT_ENERVATING_BRAND:
+                            for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
+                                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
+                                    DoCast(target, SPELL_ENERVATING_BRAND);
+                            _events.ScheduleEvent(EVENT_ENERVATING_BRAND, 26000);
+                            break;
                         default:
                             break;
                     }
@@ -299,59 +308,6 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
         }
 };
 
-class spell_baltharus_enervating_brand : public SpellScriptLoader
-{
-    public:
-        spell_baltharus_enervating_brand() : SpellScriptLoader("spell_baltharus_enervating_brand") { }
-
-        class spell_baltharus_enervating_brand_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_baltharus_enervating_brand_AuraScript);
-
-            void HandleTriggerSpell(AuraEffect const* aurEff)
-            {
-                PreventDefaultAction();
-                Unit* target = GetTarget();
-                uint32 triggerSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                target->CastSpell(target, triggerSpellId, true);
-
-                if (Unit* caster = GetCaster())
-                    if (target->GetDistance(caster) <= 12.0f)
-                        target->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
-            }
-
-            void Register()
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_baltharus_enervating_brand_AuraScript::HandleTriggerSpell, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const
-        {
-            return new spell_baltharus_enervating_brand_AuraScript();
-        }
-};
-
-class EnervatingBrandSelector
-{
-    public:
-        explicit EnervatingBrandSelector(Unit* caster) : _caster(caster) {}
-
-        bool operator()(Unit* unit)
-        {
-            if (_caster->GetDistance(unit) > 12.0f)
-                return true;
-
-            if (unit->GetTypeId() != TYPEID_PLAYER)
-                return true;
-
-            return false;
-        }
-
-    private:
-        Unit* _caster;
-};
-
 class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
 {
     public:
@@ -361,16 +317,18 @@ class spell_baltharus_enervating_brand_trigger : public SpellScriptLoader
         {
             PrepareSpellScript(spell_baltharus_enervating_brand_trigger_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void CheckDistance()
             {
-                unitList.remove_if(EnervatingBrandSelector(GetCaster()));
-                unitList.push_back(GetCaster());
+                if (Unit* caster = GetOriginalCaster())
+                {
+                    if (Unit* target = GetHitUnit())
+                        target->CastSpell(caster, SPELL_SIPHONED_MIGHT, true);
+                }
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_baltharus_enervating_brand_trigger_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_baltharus_enervating_brand_trigger_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                OnHit += SpellHitFn(spell_baltharus_enervating_brand_trigger_SpellScript::CheckDistance);
             }
         };
 
@@ -384,6 +342,5 @@ void AddSC_boss_baltharus_the_warborn()
 {
     new boss_baltharus_the_warborn();
     new npc_baltharus_the_warborn_clone();
-    new spell_baltharus_enervating_brand();
     new spell_baltharus_enervating_brand_trigger();
 }
