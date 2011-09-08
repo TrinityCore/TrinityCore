@@ -3065,7 +3065,7 @@ bool ChatHandler::HandleBanInfoAccountCommand(const char *args)
         return false;
     }
 
-    uint32 accountid = sAccountMgr->GetId(account_name);
+    uint32 accountid = AccountMgr::GetId(account_name);
     if (!accountid)
     {
         PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, account_name.c_str());
@@ -3342,7 +3342,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult result)
                 account_name = fields[1].GetString();
             // "character" case, name need extract from another DB
             else
-                sAccountMgr->GetName (account_id, account_name);
+                AccountMgr::GetName (account_id, account_name);
 
             // No SQL injection. id is uint32.
             QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = %u ORDER BY unbandate", account_id);
@@ -3505,7 +3505,7 @@ bool ChatHandler::HandlePDumpLoadCommand(const char *args)
         return false;
     }
 
-    uint32 account_id = sAccountMgr->GetId(account_name);
+    uint32 account_id = AccountMgr::GetId(account_name);
     if (!account_id)
     {
         account_id = atoi(account);                             // use original string
@@ -3517,7 +3517,7 @@ bool ChatHandler::HandlePDumpLoadCommand(const char *args)
         }
     }
 
-    if (!sAccountMgr->GetName(account_id, account_name))
+    if (!AccountMgr::GetName(account_id, account_name))
     {
         PSendSysMessage(LANG_ACCOUNT_NOT_EXIST, account_name.c_str());
         SetSentErrorMessage(true);
