@@ -42,7 +42,7 @@ enum eSpells
     SPELL_RESURRECT           = 24173,                    //We will not use this spell.
 
 //Zealot Lor'Khan Spells
-    SPELL_SHIELD              = 25045,
+    SPELL_SHIELD              = 20545,
     SPELL_BLOODLUST           = 24185,
     SPELL_GREATERHEAL         = 24208,
     SPELL_DISARM              = 6713,
