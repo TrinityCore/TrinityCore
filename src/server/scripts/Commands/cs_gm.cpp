@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Chat.h"
+#include "AccountMgr.h"
 
 class gm_commandscript : public CommandScript
 {
@@ -56,10 +57,11 @@ public:
     {
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->isGMChat())
-                handler->GetSession()->SendNotification(LANG_GM_CHAT_ON);
+            WorldSession* session = handler->GetSession();
+            if (!AccountMgr::IsPlayerAccount(session->GetSecurity()) && session->GetPlayer()->isGMChat())
+                session->SendNotification(LANG_GM_CHAT_ON);
             else
-                handler->GetSession()->SendNotification(LANG_GM_CHAT_OFF);
+                session->SendNotification(LANG_GM_CHAT_OFF);
             return true;
         }
 
@@ -120,7 +122,7 @@ public:
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itr_sec = itr->second->GetSession()->GetSecurity();
-            if ((itr->second->isGameMaster() || (itr_sec > SEC_PLAYER && itr_sec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+            if ((itr->second->isGameMaster() || !AccountMgr::IsPlayerAccount((itr_sec) && itr_sec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
                 (!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
