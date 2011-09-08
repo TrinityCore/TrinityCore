@@ -267,8 +267,6 @@ bool IsAdminAccount(uint32 gmlevel)
     {
         case SEC_CONSOLE:
         case SEC_ADMINISTRATOR:
-        case SEC_MODERATOR:
-        case SEC_PLAYER:
             return true;
         default:
             return false;
