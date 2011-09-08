@@ -25,6 +25,7 @@ EndScriptData */
 #include "ScriptMgr.h"
 #include "ObjectMgr.h"
 #include "Chat.h"
+#include "AccountMgr.h"
 
 class gm_commandscript : public CommandScript
 {
@@ -56,10 +57,11 @@ public:
     {
         if (!*args)
         {
-            if (handler->GetSession()->GetPlayer()->isGMChat())
-                handler->GetSession()->SendNotification(LANG_GM_CHAT_ON);
+            WorldSession* session = handler->GetSession();
+            if (!AccountMgr::IsPlayerAccount(session->GetSecurity()) && session->GetPlayer()->isGMChat())
+                session->SendNotification(LANG_GM_CHAT_ON);
             else
-                handler->GetSession()->SendNotification(LANG_GM_CHAT_OFF);
+                session->SendNotification(LANG_GM_CHAT_OFF);
             return true;
         }
 

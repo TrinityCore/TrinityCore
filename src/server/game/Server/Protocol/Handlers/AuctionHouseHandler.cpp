@@ -27,6 +27,7 @@
 #include "Opcodes.h"
 #include "UpdateMask.h"
 #include "Util.h"
+#include "AccountMgr.h"
 
 //please DO NOT use iterator++, because it is slower than ++iterator!!!
 //post-incrementation is always slower than pre-incrementation !
@@ -204,7 +205,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
         return;
     }
 
-    if (GetSecurity() > SEC_PLAYER && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
+    if (AccountMgr::IsGMAccount(GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog->outCommand(GetAccountId(), "GM %s (Account: %u) create auction: %s (Entry: %u Count: %u)",
             GetPlayerName(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), count);
