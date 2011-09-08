@@ -1933,7 +1933,7 @@ bool ChatHandler::HandleReviveCommand(const char *args)
 
     if (target)
     {
-        target->ResurrectPlayer(target->GetSession()->GetSecurity() > SEC_PLAYER ? 1.0f : 0.5f);
+        target->ResurrectPlayer(!AccountMgr::IsPlayerAccount(target->GetSession()->GetSecurity()) ? 1.0f : 0.5f);
         target->SpawnCorpseBones();
         target->SaveToDB();
     }
