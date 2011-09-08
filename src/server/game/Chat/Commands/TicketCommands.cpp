@@ -171,7 +171,7 @@ bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
     uint64 targetAccId = sObjectMgr->GetPlayerAccountIdByGUID(targetGuid);
     uint32 targetGmLevel = AccountMgr::GetSecurity(targetAccId, realmID);
     // Target must exist and have administrative rights
-    if (!targetGuid || targetGmLevel == SEC_PLAYER)
+    if (!targetGuid || AccountMgr::IsPlayerAccount(targetGmLevel))
     {
         SendSysMessage(LANG_COMMAND_TICKETASSIGNERROR_A);
         return true;
@@ -191,7 +191,7 @@ bool ChatHandler::HandleGMTicketAssignToCommand(const char* args)
     }
     // Assign ticket
     SQLTransaction trans = SQLTransaction(NULL);
-    ticket->SetAssignedTo(targetGuid, targetGmLevel == SEC_ADMINISTRATOR);
+    ticket->SetAssignedTo(targetGuid, AccountMgr::IsAdminAccount(targetGmLevel));
     ticket->SaveToDB(trans);
     sTicketMgr->UpdateLastChange();
 

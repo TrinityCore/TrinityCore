@@ -220,4 +220,70 @@ std::string CalculateShaPassHash(std::string& name, std::string& password)
     return encoded;
 }
 
+bool IsPlayerAccount(uint32 gmlevel)
+{
+    switch (gmlevel)
+    {
+        case SEC_CONSOLE:
+        case SEC_ADMINISTRATOR:
+        case SEC_GAMEMASTER:
+        case SEC_MODERATOR:
+            return false;
+        default:
+            return true;
+    }
+}
+
+bool IsModeratorAccount(uint32 gmlevel)
+{
+    switch (gmlevel)
+    {
+        case SEC_CONSOLE:
+        case SEC_ADMINISTRATOR:
+        case SEC_GAMEMASTER:
+        case SEC_MODERATOR:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool IsGMAccount(uint32 gmlevel)
+{
+    switch (gmlevel)
+    {
+        case SEC_CONSOLE:
+        case SEC_ADMINISTRATOR:
+        case SEC_GAMEMASTER:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool IsAdminAccount(uint32 gmlevel)
+{
+    switch (gmlevel)
+    {
+        case SEC_CONSOLE:
+        case SEC_ADMINISTRATOR:
+        case SEC_MODERATOR:
+        case SEC_PLAYER:
+            return true;
+        default:
+            return false;
+    }
+}
+
+bool IsConsoleAccount(uint32 gmlevel)
+{
+    switch (gmlevel)
+    {
+        case SEC_CONSOLE:
+            return true;
+        default:
+            return false;
+    }
+}
+
 } // Namespace AccountMgr
