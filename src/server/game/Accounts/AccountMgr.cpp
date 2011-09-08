@@ -23,10 +23,10 @@
 #include "Util.h"
 #include "SHA1.h"
 
-AccountMgr::AccountMgr() {}
-AccountMgr::~AccountMgr() {}
+namespace AccountMgr
+{
 
-AccountOpResult AccountMgr::CreateAccount(std::string username, std::string password)
+AccountOpResult CreateAccount(std::string username, std::string password)
 {
     if (utf8length(username) > MAX_ACCOUNT_STR)
         return AOR_NAME_TOO_LONG;                           // username's too long
@@ -43,7 +43,7 @@ AccountOpResult AccountMgr::CreateAccount(std::string username, std::string pass
     return AOR_OK;                                          // everything's fine
 }
 
-AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
+AccountOpResult DeleteAccount(uint32 accountId)
 {
     QueryResult result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accountId);
     if (!result)
@@ -89,7 +89,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accountId)
     return AOR_OK;
 }
 
-AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
+AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
 {
     QueryResult result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accountId);
     if (!result)
@@ -113,7 +113,7 @@ AccountOpResult AccountMgr::ChangeUsername(uint32 accountId, std::string newUser
     return AOR_OK;
 }
 
-AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPassword)
+AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
 {
     std::string username;
 
@@ -133,20 +133,20 @@ AccountOpResult AccountMgr::ChangePassword(uint32 accountId, std::string newPass
     return AOR_OK;
 }
 
-uint32 AccountMgr::GetId(std::string username)
+uint32 GetId(std::string username)
 {
     LoginDatabase.EscapeString(username);
     QueryResult result = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", username.c_str());
     return (result) ? (*result)[0].GetUInt32() : 0;
 }
 
-uint32 AccountMgr::GetSecurity(uint32 accountId)
+uint32 GetSecurity(uint32 accountId)
 {
     QueryResult result = LoginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u'", accountId);
     return (result) ? (*result)[0].GetUInt32() : 0;
 }
 
-uint32 AccountMgr::GetSecurity(uint64 accountId, int32 realmId)
+uint32 GetSecurity(uint64 accountId, int32 realmId)
 {
     QueryResult result = (realmId == -1)
         ? LoginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u' AND RealmID = '%d'", accountId, realmId)
@@ -154,7 +154,7 @@ uint32 AccountMgr::GetSecurity(uint64 accountId, int32 realmId)
     return (result) ? (*result)[0].GetUInt32() : 0;
 }
 
-bool AccountMgr::GetName(uint32 accountId, std::string& name)
+bool GetName(uint32 accountId, std::string& name)
 {
     QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", accountId);
     if (result)
@@ -166,7 +166,7 @@ bool AccountMgr::GetName(uint32 accountId, std::string& name)
     return false;
 }
 
-bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
+bool CheckPassword(uint32 accountId, std::string password)
 {
     std::string username;
 
@@ -180,14 +180,14 @@ bool AccountMgr::CheckPassword(uint32 accountId, std::string password)
     return (result) ? true : false;
 }
 
-uint32 AccountMgr::GetCharactersCount(uint32 accountId)
+uint32 GetCharactersCount(uint32 accountId)
 {
     // check character count
     QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM characters WHERE account = '%d'", accountId);
     return (result) ? (*result)[0].GetUInt32() : 0;
 }
 
-bool AccountMgr::normalizeString(std::string& utf8String)
+bool normalizeString(std::string& utf8String)
 {
     wchar_t buffer[MAX_ACCOUNT_STR+1];
 
@@ -205,7 +205,7 @@ bool AccountMgr::normalizeString(std::string& utf8String)
     return WStrToUtf8(buffer, maxLength, utf8String);
 }
 
-std::string AccountMgr::CalculateShaPassHash(std::string& name, std::string& password)
+std::string CalculateShaPassHash(std::string& name, std::string& password)
 {
     SHA1Hash sha;
     sha.Initialize();
@@ -220,3 +220,4 @@ std::string AccountMgr::CalculateShaPassHash(std::string& name, std::string& pas
     return encoded;
 }
 
+} // Namespace AccountMgr
