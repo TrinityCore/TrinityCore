@@ -1222,6 +1222,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_ANTICHEAT_DETECTIONS_ENABLED] = sConfig->GetIntDefault("Anticheat.DetectionsEnabled",31);
     m_int_configs[CONFIG_ANTICHEAT_MAX_REPORTS_FOR_DAILY_REPORT] = sConfig->GetIntDefault("Anticheat.MaxReportsForDailyReport",70);
 
+    // Management for channels with flag CHANNEL_DBC_FLAG_CITY_ONLY.
+    m_bool_configs[CONFIG_CHANNEL_ON_CITY_ONLY_FLAG]  = sConfig->GetBoolDefault("Channel.CityOnlyFlag", true);
+
     /** World of Warcraft Armory **/
     m_bool_configs[CONFIG_ARMORY_ENABLE] = sConfig->GetBoolDefault("Armory.Enable", true);
     /** World of Warcraft Armory **/
