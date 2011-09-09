@@ -50,6 +50,7 @@
 #include "InstanceScript.h"
 #include "GameObjectAI.h"
 #include "Group.h"
+#include "AccountMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 {
@@ -242,7 +243,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
     HashMapHolder<Player>::MapType& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
-        if (security == SEC_PLAYER)
+        if (AccountMgr::IsPlayerAccount(security))
         {
             // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
             if (itr->second->GetTeam() != team && !allowTwoSideWhoList)
@@ -1274,7 +1275,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
 
     sLog->outStaticDebug("Time %u sec, map=%u, x=%f, y=%f, z=%f, orient=%f", time/1000, mapid, PositionX, PositionY, PositionZ, Orientation);
 
-    if (GetSecurity() >= SEC_ADMINISTRATOR)
+    if (AccountMgr::IsAdminAccount(GetSecurity()))
         GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
@@ -1287,7 +1288,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
     std::string charname;
     recv_data >> charname;
 
-    if (GetSecurity() < SEC_ADMINISTRATOR)
+    if (!AccountMgr::IsAdminAccount(GetSecurity()))
     {
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
         return;

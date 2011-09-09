@@ -259,7 +259,7 @@ World::AddSession_(WorldSession* s)
     if (decrease_session)
         --Sessions;
 
-    if (pLimit > 0 && Sessions >= pLimit && s->GetSecurity() == SEC_PLAYER && !HasRecentlyDisconnected(s))
+    if (pLimit > 0 && Sessions >= pLimit && AccountMgr::IsPlayerAccount(s->GetSecurity()) && !HasRecentlyDisconnected(s))
     {
         AddQueuedPlayer (s);
         UpdateMaxSessionCounters();
@@ -2086,7 +2086,7 @@ void World::SendGlobalGMMessage(WorldPacket* packet, WorldSession* self, uint32 
             itr->second->GetPlayer() &&
             itr->second->GetPlayer()->IsInWorld() &&
             itr->second != self &&
-            itr->second->GetSecurity() > SEC_PLAYER &&
+            !AccountMgr::IsPlayerAccount(itr->second->GetSecurity()) &&
             (team == 0 || itr->second->GetPlayer()->GetTeam() == team))
         {
             itr->second->SendPacket(packet);
@@ -2347,7 +2347,7 @@ bool World::RemoveBanAccount(BanMode mode, std::string nameOrIP)
     {
         uint32 account = 0;
         if (mode == BAN_ACCOUNT)
-            account = sAccountMgr->GetId(nameOrIP);
+            account = AccountMgr::GetId(nameOrIP);
         else if (mode == BAN_CHARACTER)
             account = sObjectMgr->GetPlayerAccountIdByPlayerName(nameOrIP);
 
