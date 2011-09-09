@@ -835,7 +835,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
         // Create arena team
         ArenaTeam* arenaTeam = new ArenaTeam();
 
-        if (!arenaTeam->Create(GUID_LOPART(_player->GetGUID()), type, name, background, icon, iconcolor, border, bordercolor))
+        if (!arenaTeam->Create(_player->GetGUID(), type, name, background, icon, iconcolor, border, bordercolor))
         {
             delete arenaTeam;
             return;

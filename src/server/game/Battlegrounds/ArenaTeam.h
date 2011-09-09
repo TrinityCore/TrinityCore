@@ -20,10 +20,14 @@
 #define TRINITYCORE_ARENATEAM_H
 
 #include "QueryResult.h"
-#include "Player.h"
-#include "ObjectMgr.h"
+#include <ace/Singleton.h>
+#include <list>
+#include <map>
 
 class WorldSession;
+class WorldPacket;
+class Player;
+class Group;
 
 enum ArenaTeamCommandTypes
 {
@@ -115,7 +119,7 @@ class ArenaTeam
         ArenaTeam();
         ~ArenaTeam();
 
-        bool Create(uint32 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
+        bool Create(uint64 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
         void Disband(WorldSession* session);
 
         typedef std::list<ArenaTeamMember> MemberList;
