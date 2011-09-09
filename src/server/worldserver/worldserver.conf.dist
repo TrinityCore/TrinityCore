@@ -1802,6 +1802,14 @@ PreserveCustomChannels = 1
 PreserveCustomChannelDuration = 14
 
 #
+# Channel.CityOnlyFlag
+# Description: Management for channels with flag CHANNEL_DBC_FLAG_CITY_ONLY.
+# Default: 1 - (Enabled, Channels with flag CHANNEL_DBC_FLAG_CITY_ONLY will be activated in the cities only (blizzlike))
+# 0 - (Disabled, Channels with flag CHANNEL_DBC_FLAG_CITY_ONLY will connected at any place)
+
+Channel.CityOnlyFlag = 1
+
+#
 ###################################################################################################
 
 ###################################################################################################

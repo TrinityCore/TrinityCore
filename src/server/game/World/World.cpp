@@ -1216,6 +1216,9 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Atk", 5);
     m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Def", 5);
 
+    // Management for channels with flag CHANNEL_DBC_FLAG_CITY_ONLY.
+    m_bool_configs[CONFIG_CHANNEL_ON_CITY_ONLY_FLAG]  = sConfig->GetBoolDefault("Channel.CityOnlyFlag", true);
+
     /** World of Warcraft Armory **/
     m_bool_configs[CONFIG_ARMORY_ENABLE] = sConfig->GetBoolDefault("Armory.Enable", true);
     /** World of Warcraft Armory **/
