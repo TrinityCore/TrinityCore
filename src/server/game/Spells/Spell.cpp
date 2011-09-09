@@ -2903,7 +2903,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         return;
     }
 
-    if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, m_caster))
+    if (DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, m_spellInfo->Id, m_caster))
     {
         SendCastResult(SPELL_FAILED_SPELL_UNAVAILABLE);
         finish(false);

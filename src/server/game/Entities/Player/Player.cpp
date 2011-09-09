@@ -2086,7 +2086,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         return false;
     }
 
-    if (AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()) && sDisableMgr->IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
+    if (AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()) && DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, mapid, this))
     {
         sLog->outError("Player (GUID: %u, name: %s) tried to enter a forbidden map %u", GetGUIDLow(), GetName(), mapid);
         SendTransferAborted(mapid, TRANSFER_ABORT_MAP_NOT_ALLOWED);
@@ -14531,7 +14531,7 @@ bool Player::CanSeeStartQuest(Quest const *pQuest)
         SatisfyQuestExclusiveGroup(pQuest, false) && SatisfyQuestReputation(pQuest, false) &&
         SatisfyQuestPreviousQuest(pQuest, false) && SatisfyQuestNextChain(pQuest, false) &&
         SatisfyQuestPrevChain(pQuest, false) && SatisfyQuestDay(pQuest, false) && SatisfyQuestWeek(pQuest, false) &&
-        !sDisableMgr->IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this))
+        !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this))
     {
         return getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= pQuest->GetMinLevel();
     }
@@ -14547,7 +14547,7 @@ bool Player::CanTakeQuest(Quest const *pQuest, bool msg)
         && SatisfyQuestPreviousQuest(pQuest, msg) && SatisfyQuestTimed(pQuest, msg)
         && SatisfyQuestNextChain(pQuest, msg) && SatisfyQuestPrevChain(pQuest, msg)
         && SatisfyQuestDay(pQuest, msg) && SatisfyQuestWeek(pQuest, msg)
-        && !sDisableMgr->IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this)
+        && !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, pQuest->GetQuestId(), this)
         && SatisfyQuestConditions(pQuest, msg);
 }
 
@@ -18147,7 +18147,7 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
         else if (ar->item2 && !HasItemCount(ar->item2, 1))
             missingItem = ar->item2;
 
-        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_MAP, target_map, this))
         {
             GetSession()->SendAreaTriggerMessage("%s", GetSession()->GetTrinityString(LANG_INSTANCE_CLOSED));
             return false;
