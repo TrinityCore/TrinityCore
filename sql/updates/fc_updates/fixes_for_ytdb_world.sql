@@ -166,3 +166,8 @@ UPDATE `creature` SET position_x = "8603.88", position_y = "390.43" WHERE id = 6
 -- Increased drop chance for some cook recipes
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 15 WHERE `item` IN (33873, 33870); 
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 10 WHERE `item` IN (33875, 33869);
+
+-- Fix Gossips for Archivum Console in Ulduar
+DELETE FROM `gossip_menu_option` WHERE `menu_id` = 10368 AND `option_id` = 2;
+INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) 
+ VALUES (10368, 0, 0, 'GOSSIP_OPTION_QUESTGIVER', 2, 2, 0, 0, 0, 0, NULL);
