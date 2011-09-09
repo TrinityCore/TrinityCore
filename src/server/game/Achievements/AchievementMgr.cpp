@@ -2133,7 +2133,7 @@ bool AchievementMgr::HasAchieved(AchievementEntry const* achievement) const
 
 bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement)
 {
-    if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))
+    if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))
         return false;
 
     if (achievement->mapID != -1 && GetPlayer()->GetMapId() != uint32(achievement->mapID))
@@ -2366,7 +2366,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
                 continue;
         }
 
-        if (!GetCriteriaDataSet(criteria) && !sDisableMgr->IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, entryId, NULL))
+        if (!GetCriteriaDataSet(criteria) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, entryId, NULL))
             sLog->outErrorDb("Table `achievement_criteria_data` does not have expected data for criteria (Entry: %u Type: %u) for achievement %u.", criteria->ID, criteria->requiredType, criteria->referredAchievement);
     }
 

@@ -691,7 +691,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
         Field *fields = result->Fetch();
 
         uint32 bgTypeID_ = fields[0].GetUInt32();
-        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, bgTypeID_, NULL))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_BATTLEGROUND, bgTypeID_, NULL))
             continue;
 
         // can be overwrite by values from DB
