@@ -398,6 +398,8 @@ void World::LoadConfigSettings(bool reload)
             sLog->outError("World settings reload fail: can't read settings from %s.", sConfig->GetFilename().c_str());
             return;
         }
+
+        sLog->ReloadConfig(); // Reload log levels and filters
     }
 
     ///- Read the player limit and the Message of the day from the config file
