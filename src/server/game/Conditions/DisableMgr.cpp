@@ -16,25 +16,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "DisableMgr.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvP.h"
 #include "SpellMgr.h"
 #include "VMapManager2.h"
-#include "DisableMgr.h"
 
-DisableMgr::DisableMgr()
+namespace DisableMgr
 {
+
+namespace
+{
+    struct DisableData
+    {
+        uint8 flags;
+        std::set<uint32> params[2];                             // params0, params1
+    };
+
+    // single disables here with optional data
+    typedef std::map<uint32, DisableData> DisableTypeMap;
+    // global disable map by source
+    typedef std::map<DisableType, DisableTypeMap> DisableMap;
+
+    DisableMap m_DisableMap;
+
+    uint8 MAX_DISABLE_TYPES = 7;
 }
 
-DisableMgr::~DisableMgr()
-{
-    for (DisableMap::iterator itr = m_DisableMap.begin(); itr != m_DisableMap.end(); ++itr)
-        itr->second.clear();
-
-    m_DisableMap.clear();
-}
-
-void DisableMgr::LoadDisables()
+void LoadDisables()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -223,7 +232,7 @@ void DisableMgr::LoadDisables()
     sLog->outString();
 }
 
-void DisableMgr::CheckQuestDisables()
+void CheckQuestDisables()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -254,7 +263,7 @@ void DisableMgr::CheckQuestDisables()
     sLog->outString();
 }
 
-bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)
+bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)
 {
     ASSERT(type < MAX_DISABLE_TYPES);
     if (m_DisableMap[type].empty())
@@ -345,3 +354,5 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit,
 
     return false;
 }
+
+} // Namespace
