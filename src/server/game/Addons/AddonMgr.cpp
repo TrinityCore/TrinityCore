@@ -16,27 +16,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DatabaseEnv.h"
 #include "AddonMgr.h"
-#include "ObjectAccessor.h"
-#include "Player.h"
-#include "Util.h"
-#include "SHA1.h"
+#include "DatabaseEnv.h"
+#include "Log.h"
+#include "Timer.h"
 
-AddonMgr::AddonMgr()
+#include <list>
+
+namespace AddonMgr
 {
+
+// Anonymous namespace ensures file scope of all the stuff inside it, even
+// if you add something more to this namespace somewhere else.
+namespace
+{
+    // List of saved addons (in DB).
+    typedef std::list<SavedAddon> SavedAddonsList;
+
+    SavedAddonsList m_knownAddons;
 }
 
-AddonMgr::~AddonMgr()
-{
-}
-
-void AddonMgr::LoadFromDB()
+void LoadFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
     QueryResult result = CharacterDatabase.Query("SELECT name, crc FROM addons");
-
     if (!result)
     {
         sLog->outString(">> Loaded 0 known addons. DB table `addons` is empty!");
@@ -53,8 +57,7 @@ void AddonMgr::LoadFromDB()
         std::string name = fields[0].GetString();
         uint32 crc = fields[1].GetUInt32();
 
-        SavedAddon addon(name, crc);
-        m_knownAddons.push_back(addon);
+        m_knownAddons.push_back(SavedAddon(name, crc));
 
         ++count;
     }
@@ -64,17 +67,16 @@ void AddonMgr::LoadFromDB()
     sLog->outString();
 }
 
-void AddonMgr::SaveAddon(AddonInfo const& addon)
+void SaveAddon(AddonInfo const& addon)
 {
     std::string name = addon.Name;
     CharacterDatabase.EscapeString(name);
     CharacterDatabase.PExecute("INSERT INTO addons (name, crc) VALUES ('%s', %u)", name.c_str(), addon.CRC);
 
-    SavedAddon newAddon(addon.Name, addon.CRC);
-    m_knownAddons.push_back(newAddon);
+    m_knownAddons.push_back(SavedAddon(addon.Name, addon.CRC));
 }
 
-SavedAddon const* AddonMgr::GetAddonInfo(const std::string& name) const
+SavedAddon const* GetAddonInfo(const std::string& name)
 {
     for (SavedAddonsList::const_iterator it = m_knownAddons.begin(); it != m_knownAddons.end(); ++it)
     {
@@ -85,3 +87,5 @@ SavedAddon const* AddonMgr::GetAddonInfo(const std::string& name) const
 
     return NULL;
 }
+
+} // Namespace

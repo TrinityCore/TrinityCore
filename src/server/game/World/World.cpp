@@ -1337,7 +1337,7 @@ void World::SetInitialWorldSettings()
     LoadRandomEnchantmentsTable();
 
     sLog->outString("Loading Disables");
-    DisableMgr::LoadDisables();                                 // must be before loading quests and items
+    DisableMgr::LoadDisables();                                  // must be before loading quests and items
 
     sLog->outString("Loading Items...");                         // must be after LoadRandomEnchantmentsTable and LoadPageTexts
     sObjectMgr->LoadItemTemplates();
@@ -1586,7 +1586,7 @@ void World::SetInitialWorldSettings()
     sTicketMgr->LoadSurveys();
 
     sLog->outString("Loading client addons...");
-    sAddonMgr->LoadFromDB();
+    AddonMgr::LoadFromDB();
 
     ///- Handle outdated emails (delete/return)
     sLog->outString("Returning old mails...");
