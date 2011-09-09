@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -53,6 +54,8 @@ namespace AccountMgr
         bool IsPlayerAccount(uint32 gmlevel);
         bool IsModeratorAccount(uint32 gmlevel);
         bool IsGMAccount(uint32 gmlevel);
+        bool IsHGMAccount(uint32 gmlevel);
+        bool IsOGMAccount(uint32 gmlevel);
         bool IsAdminAccount(uint32 gmlevel);
         bool IsConsoleAccount(uint32 gmlevel);
 };

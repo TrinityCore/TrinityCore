@@ -1,6 +1,7 @@
 // Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
 
 #include <Jail.h>
+#include <AccountMgr.h>
 
 Jail::Jail()
 {
@@ -884,7 +885,7 @@ void Jail::GildenhausWache(Player * chr)
     if (!m_JailKonf.Enabled)
         return;
 
-    if (!chr || !chr->isValid() || !chr->IsInWorld() || chr->GetSession()->GetSecurity() > SEC_VETERAN)
+    if (!chr || !chr->isValid() || !AccountMgr::IsPlayerAccount(chr->GetSession()->GetSecurity()))
         return;
 
     if (chr->GetMapId() != 1)

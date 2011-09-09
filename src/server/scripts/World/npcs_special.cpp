@@ -49,6 +49,7 @@ EndContentData */
 #include "World.h"
 #include "ReputationMgr.h"
 #include "Config.h"
+#include <AccountMgr.h>
 
 // ------------------------------------------------------------------------------------------------------------
 // Feuerrufer 60000
@@ -418,7 +419,7 @@ public:
 
         bool BeschenkeZiel(Player * chr, uint8 num)
         {
-            if (!chr || !chr->isValid() || chr->GetSession()->GetSecurity() >= SEC_ANWAERTER)
+            if (!chr || !chr->isValid() || !AccountMgr::IsPlayerAccount(chr->GetSession()->GetSecurity()))
                 return false;
 
             if (BereitsVergeben() >= MAX_GESCHENKE || SemaVorhanden(num))
@@ -607,7 +608,7 @@ public:
                         if (Player * chr = FindeSpieler())
                         {
                             me->setFaction(14);
-                            if (chr->GetSession()->GetSecurity() >= SEC_ANWAERTER)
+                            if (!AccountMgr::IsPlayerAccount(chr->GetSession()->GetSecurity()))
                                 DoCast(chr, FirecallerTargetSpells[VERSENGEN]);
                             else
                                 DoCast(chr, FirecallerTargetSpells[urand(BODENBLUETE, RAKETENSCHUSS)]);
@@ -1201,7 +1202,7 @@ public:
 
     bool OnGossipHello(Player *pPlayer, Creature *pCreature)
     {
-        if (pPlayer->GetSession()->GetSecurity() < SEC_ANWAERTER)
+        if (AccountMgr::IsPlayerAccount(pPlayer->GetSession()->GetSecurity()))
         {
             pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_GM_PIMPER_01, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
             pPlayer->SEND_GOSSIP_MENU(13674, pCreature->GetGUID());
@@ -1259,7 +1260,7 @@ public:
 
             // Ein paar Jobs
             case GOSSIP_ACTION_INFO_DEF + 3:
-                if ((pPlayer->GetFreePrimaryProfessionPoints() == 0 && pPlayer->GetSession()->GetSecurity() >= SEC_HGM) || (pPlayer->GetFreePrimaryProfessionPoints() > 0))
+                if ((pPlayer->GetFreePrimaryProfessionPoints() == 0 && AccountMgr::IsHGMAccount(pPlayer->GetSession()->GetSecurity())) || pPlayer->GetFreePrimaryProfessionPoints() > 0)
                 {
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ALCHEMY,        GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 11);
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_BLACKSMITHING,  GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 12);
@@ -1277,12 +1278,12 @@ public:
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_SKINNING,       GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 24);
                     pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_RIDING,         GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 25);
 
-                    if (pPlayer->GetSession()->GetSecurity() >= SEC_OGM)
+                    if (AccountMgr::IsOGMAccount(pPlayer->GetSession()->GetSecurity()))
                         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER,   GOSSIP_TEXT_ALL_PROFS,      GOSSIP_SENDER_SEC_PROFTRAIN,    GOSSIP_ACTION_INFO_DEF + 26);
 
                     pPlayer->SEND_GOSSIP_MENU(9331, pCreature->GetGUID());
                 }
-                else if (pPlayer->GetFreePrimaryProfessionPoints() == 0 && pPlayer->GetSession()->GetSecurity() < SEC_HGM)
+                else if (pPlayer->GetFreePrimaryProfessionPoints() == 0 && !AccountMgr::IsHGMAccount(pPlayer->GetSession()->GetSecurity()))
                 {
                     pPlayer->GetSession()->SendNotification("Dein GM-Level erlaubt nicht mehr primäre Berufe.");
 
@@ -1339,7 +1340,7 @@ public:
         {
             // Gold
             case GOSSIP_ACTION_INFO_DEF + 4:
-                if (pPlayer->GetSession()->GetSecurity() < SEC_HGM && pPlayer->GetMoney() >= MAX_GM_GOLD_ADD)
+                if (!AccountMgr::IsHGMAccount(pPlayer->GetSession()->GetSecurity()) && pPlayer->GetMoney() >= MAX_GM_GOLD_ADD)
                     pPlayer->GetSession()->SendNotification("Mit deinem GM-Level bekommst du nicht mehr Gold.");
                 else
                     pPlayer->ModifyMoney(+MAX_GM_GOLD_ADD); // 100K Gold
@@ -1600,7 +1601,7 @@ public:
                 break;
             // Alle Berufe
             case GOSSIP_ACTION_INFO_DEF + 26:
-                if (pPlayer->GetSession()->GetSecurity() >= SEC_OGM)
+                if (AccountMgr::IsOGMAccount(pPlayer->GetSession()->GetSecurity()))
                 {
                     // Alchimie
                     if (!pPlayer->HasSpell(SPELL_ALCHEMY_GRAND_MASTER))
@@ -1741,7 +1742,7 @@ public:
         switch(uiSender)
         {
             case GOSSIP_SENDER_MAIN:
-                if (pPlayer->GetSession()->GetSecurity() < SEC_ANWAERTER)
+                if (AccountMgr::IsPlayerAccount(pPlayer->GetSession()->GetSecurity()))
                     pCreature->CastSpell(pPlayer, SPELL_TURKEY_FEATHERS, true); // Truthahnfedern
                 SendDefaultMenu(pPlayer, pCreature, uiAction);
                 break;
@@ -2516,7 +2517,7 @@ public:
                 return;
 
             if (pTarget->GetTypeId() == TYPEID_PLAYER)
-                if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN) // Nur Spieler angreifen, die keine GMs sind!
+                if (!AccountMgr::IsPlayerAccount(pTarget->ToPlayer()->GetSession()->GetSecurity())) // Nur Spieler angreifen, die keine GMs sind!
                     return;
 
             ScriptedAI::MoveInLineOfSight(pTarget);

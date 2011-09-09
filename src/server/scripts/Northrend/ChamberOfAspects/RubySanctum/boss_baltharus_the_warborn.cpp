@@ -21,6 +21,7 @@
 #include "ScriptedCreature.h"
 #include "SpellAuraEffects.h"
 #include "ruby_sanctum.h"
+#include <AccountMgr.h>
 
 enum Texts
 {
@@ -147,7 +148,7 @@ class boss_baltharus_the_warborn_outdoor : public CreatureScript
                     return;
                 // Nur Spieler angreifen, die keine GMs sind!
                 if (pTarget->GetTypeId() == TYPEID_PLAYER)
-                    if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN)
+                    if (!AccountMgr::IsPlayerAccount(pTarget->ToPlayer()->GetSession()->GetSecurity()))
                         return;
 
                 if (me->canStartAttack(pTarget, true))

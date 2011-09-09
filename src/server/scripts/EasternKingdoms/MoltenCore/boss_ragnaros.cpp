@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
@@ -26,6 +26,7 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 #include "molten_core.h"
+#include <AccountMgr.h>
 
 enum Texts
 {
@@ -117,7 +118,7 @@ class boss_ragnaros_outdoor : public CreatureScript
                     return;
 
                 if (pTarget->GetTypeId() == TYPEID_PLAYER)
-                    if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN) // Nur Spieler angreifen, die keine GMs sind!
+                    if (!AccountMgr::IsPlayerAccount(pTarget->ToPlayer()->GetSession()->GetSecurity())) // Nur Spieler angreifen, die keine GMs sind!
                         return;
 
                 if (me->canStartAttack(pTarget, true))

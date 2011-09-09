@@ -35,6 +35,7 @@
 #include "SmartAI.h"
 #include "icecrown_citadel.h"
 #include "CreatureGroups.h"
+#include <AccountMgr.h>
 
 enum TODESGEWEIHTER_WAECHTER_POS
 {
@@ -409,7 +410,7 @@ public:
                     return;
 
                 if (pTarget->GetTypeId() == TYPEID_PLAYER)
-                    if (pTarget->ToPlayer()->GetSession()->GetSecurity() > SEC_VETERAN) // Nur Spieler angreifen, die keine GMs sind!
+                    if (!AccountMgr::IsPlayerAccount(pTarget->ToPlayer()->GetSession()->GetSecurity())) // Nur Spieler angreifen, die keine GMs sind!
                         return;
             }
             ScriptedAI::MoveInLineOfSight(who);

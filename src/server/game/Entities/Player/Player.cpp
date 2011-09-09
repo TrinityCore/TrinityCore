@@ -1009,7 +1009,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
         : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
 
-    if (GetSession()->GetSecurity() >= SEC_ANWAERTER)
+    if (!AccountMgr::IsPlayerAccount(GetSession()->GetSecurity()))
     {
         uint32 gm_level = sWorld->getIntConfig(CONFIG_START_GM_LEVEL);
         if (gm_level > start_level)
@@ -3197,7 +3197,7 @@ void Player::InitTalentForLevel()
         // if used more that have then reset
         if (m_usedTalentCount > talentPointsForLevel)
         {
-            if (GetSession()->GetSecurity() < SEC_OGM)
+            if (!AccountMgr::IsOGMAccount(GetSession()->GetSecurity()))
                 resetTalents(true);
             else
                 SetFreeTalentPoints(0);
@@ -15357,7 +15357,7 @@ bool Player::SatisfyQuestReputation(Quest const* qInfo, bool msg)
             SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
         return false;
     }
-    
+
     // ReputationObjective2 does not seem to be an objective requirement but a requirement
     // to be able to accept the quest
     uint32 fIdObj = qInfo->GetRepObjectiveFaction2();
@@ -15936,7 +15936,7 @@ void Player::KilledPlayerCredit()
             {
                 uint32 reqkill = qInfo->GetPlayersSlain();
                 uint16 curkill = q_status.m_playercount;
-                
+
                 if (curkill < reqkill)
                 {
                     q_status.m_playercount = curkill + addkillcount;

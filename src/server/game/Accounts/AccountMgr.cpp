@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -222,17 +223,27 @@ std::string CalculateShaPassHash(std::string& name, std::string& password)
 
 bool IsPlayerAccount(uint32 gmlevel)
 {
-    return gmlevel == SEC_PLAYER;
+    return gmlevel < SEC_ANWAERTER;
 }
 
 bool IsModeratorAccount(uint32 gmlevel)
 {
-    return gmlevel >= SEC_MODERATOR && gmlevel <= SEC_CONSOLE;
+    return IsGMAccount(gmlevel);
 }
 
 bool IsGMAccount(uint32 gmlevel)
 {
-    return gmlevel >= SEC_GAMEMASTER && gmlevel <= SEC_CONSOLE;
+    return gmlevel >= SEC_ANWAERTER && gmlevel <= SEC_CONSOLE;
+}
+
+bool IsHGMAccount(uint32 gmlevel)
+{
+    return gmlevel >= SEC_HGM && gmlevel <= SEC_CONSOLE;
+}
+
+bool IsOGMAccount(uint32 gmlevel)
+{
+    return gmlevel >= SEC_OGM && gmlevel <= SEC_CONSOLE;
 }
 
 bool IsAdminAccount(uint32 gmlevel)
