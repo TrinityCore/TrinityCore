@@ -120,6 +120,20 @@ class instance_icecrown_citadel : public InstanceMapScript
                 SpinestalkerGUID = 0;
                 RimefangGUID = 0;
                 TheLichKingGUID = 0;
+                Tirion = 0;
+                TerenasFighter = 0;
+                SpiritWarden = 0;
+                IceShard1 = 0;
+                IceShard2 = 0;
+                IceShard3 = 0;
+                IceShard4 = 0;
+                FrostyEdgeInner = 0;
+                FrostyEdgeOuter = 0;
+                EdgeDestroyWarning = 0;
+                lavaman = 0;
+                hangingman = 0;
+                IsNeckDeep = true;
+                IsNecroticStack = true;
                 FrostwyrmCount = 0;
                 SpinestalkerTrashCount = 0;
                 RimefangTrashCount = 0;
@@ -275,6 +289,15 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_THE_LICH_KING:
                         TheLichKingGUID = creature->GetGUID();
+                        break;
+                    case NPC_TIRION_ICC:
+                        Tirion = creature->GetGUID();
+                        break;
+                    case NPC_TERENAS_FIGHTER:
+                        TerenasFighter = creature->GetGUID();
+                        break;
+                    case NPC_SPIRIT_WARDEN:
+                        SpiritWarden = creature->GetGUID();
                         break;
                     default:
                         break;
@@ -457,6 +480,43 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case GO_DRINK_ME:
                         PutricideTableGUID = go->GetGUID();
                         break;
+                    // Lich King
+                    case GO_LAVAMAN:
+                        lavaman = go->GetGUID();
+                        if (GetBossState(DATA_THE_LICH_KING) == DONE)
+                            go->SetRespawnTime(5*DAY);
+                        break;
+                    case GO_HANGINGMAN:
+                        hangingman = go->GetGUID();
+                        break;
+                    case GO_ICE_SHARD_1:
+                        IceShard1 = go->GetGUID();
+                        go->SetGoState(GetBossState(DATA_THE_LICH_KING) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    case GO_ICE_SHARD_2:
+                        IceShard2 = go->GetGUID();
+                        go->SetGoState(GetBossState(DATA_THE_LICH_KING) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    case GO_ICE_SHARD_3:
+                        IceShard3 = go->GetGUID();
+                        go->SetGoState(GetBossState(DATA_THE_LICH_KING) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    case GO_ICE_SHARD_4:
+                        IceShard4 = go->GetGUID();
+                        go->SetGoState(GetBossState(DATA_THE_LICH_KING) == DONE ? GO_STATE_ACTIVE : GO_STATE_READY);
+                        break;
+                    case GO_FROSTY_EDGE_OUTER:
+                        FrostyEdgeOuter = go->GetGUID();
+                        go->SetGoState(GO_STATE_ACTIVE);
+                        break;
+                    case GO_FROSTY_EDGE_INNER:
+                        FrostyEdgeInner = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                        break;
+                    case GO_EDGE_DESTROY_WARNING:
+                        EdgeDestroyWarning = go->GetGUID();
+                        go->SetGoState(GO_STATE_READY);
+                        break;
                     default:
                         break;
                 }
@@ -525,59 +585,46 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_DEATHBRINGER_SAURFANG:
-                        return DeathbringerSaurfangGUID;
-                    case DATA_SAURFANG_EVENT_NPC:
-                        return DeathbringerSaurfangEventGUID;
-                    case GO_SAURFANG_S_DOOR:
-                        return DeathbringerSaurfangDoorGUID;
-                    case GO_SCOURGE_TRANSPORTER_SAURFANG:
-                        return SaurfangTeleportGUID;
-                    case DATA_FESTERGUT:
-                        return FestergutGUID;
-                    case DATA_ROTFACE:
-                        return RotfaceGUID;
-                    case DATA_PROFESSOR_PUTRICIDE:
-                        return ProfessorPutricideGUID;
-                    case DATA_PUTRICIDE_TABLE:
-                        return PutricideTableGUID;
-                    case DATA_PRINCE_KELESETH_GUID:
-                        return BloodCouncilGUIDs[0];
-                    case DATA_PRINCE_TALDARAM_GUID:
-                        return BloodCouncilGUIDs[1];
-                    case DATA_PRINCE_VALANAR_GUID:
-                        return BloodCouncilGUIDs[2];
-                    case DATA_BLOOD_PRINCES_CONTROL:
-                        return BloodCouncilControllerGUID;
-                    case DATA_BLOOD_QUEEN_LANA_THEL:
-                        return BloodQueenLanaThelGUID;
-                    case DATA_CROK_SCOURGEBANE:
-                        return CrokScourgebaneGUID;
+                    case DATA_DEATHBRINGER_SAURFANG: return DeathbringerSaurfangGUID;
+                    case DATA_SAURFANG_EVENT_NPC: return DeathbringerSaurfangEventGUID;
+                    case GO_SAURFANG_S_DOOR: return DeathbringerSaurfangDoorGUID;
+                    case GO_SCOURGE_TRANSPORTER_SAURFANG: return SaurfangTeleportGUID;
+                    case DATA_FESTERGUT: return FestergutGUID;
+                    case DATA_ROTFACE: return RotfaceGUID;
+                    case DATA_PROFESSOR_PUTRICIDE: return ProfessorPutricideGUID;
+                    case DATA_PUTRICIDE_TABLE: return PutricideTableGUID;
+                    case DATA_PRINCE_KELESETH_GUID: return BloodCouncilGUIDs[0];
+                    case DATA_PRINCE_TALDARAM_GUID: return BloodCouncilGUIDs[1];
+                    case DATA_PRINCE_VALANAR_GUID: return BloodCouncilGUIDs[2];
+                    case DATA_BLOOD_PRINCES_CONTROL: return BloodCouncilControllerGUID;
+                    case DATA_BLOOD_QUEEN_LANA_THEL: return BloodQueenLanaThelGUID;
+                    case DATA_CROK_SCOURGEBANE: return CrokScourgebaneGUID;
                     case DATA_CAPTAIN_ARNATH:
                     case DATA_CAPTAIN_BRANDON:
                     case DATA_CAPTAIN_GRONDEL:
-                    case DATA_CAPTAIN_RUPERT:
-                        return CrokCaptainGUIDs[type - DATA_CAPTAIN_ARNATH];
-                    case DATA_SISTER_SVALNA:
-                        return SisterSvalnaGUID;
-                    case DATA_VALITHRIA_DREAMWALKER:
-                        return ValithriaDreamwalkerGUID;
-                    case DATA_VALITHRIA_LICH_KING:
-                        return ValithriaLichKingGUID;
-                    case DATA_VALITHRIA_TRIGGER:
-                        return ValithriaTriggerGUID;
-                    case DATA_SINDRAGOSA:
-                        return SindragosaGUID;
-                    case DATA_SPINESTALKER:
-                        return SpinestalkerGUID;
-                    case DATA_RIMEFANG:
-                        return RimefangGUID;
-                    case DATA_THE_LICH_KING:
-                        return TheLichKingGUID;
-                    default:
-                        break;
+                    case DATA_CAPTAIN_RUPERT: return CrokCaptainGUIDs[type - DATA_CAPTAIN_ARNATH];
+                    case DATA_SISTER_SVALNA: return SisterSvalnaGUID;
+                    case DATA_VALITHRIA_DREAMWALKER: return ValithriaDreamwalkerGUID;
+                    case DATA_VALITHRIA_LICH_KING: return ValithriaLichKingGUID;
+                    case DATA_VALITHRIA_TRIGGER: return ValithriaTriggerGUID;
+                    case DATA_SINDRAGOSA: return SindragosaGUID;
+                    case DATA_SPINESTALKER: return SpinestalkerGUID;
+                    case DATA_RIMEFANG: return RimefangGUID;
+                    case DATA_THE_LICH_KING: return TheLichKingGUID;
+                    case GUID_ICE_SHARD_1: return IceShard1;
+                    case GUID_ICE_SHARD_2: return IceShard2;
+                    case GUID_ICE_SHARD_3: return IceShard3;
+                    case GUID_ICE_SHARD_4: return IceShard4;
+                    case GUID_FROSTY_EDGE_OUTER: return FrostyEdgeOuter;
+                    case GUID_FROSTY_EDGE_INNER: return FrostyEdgeInner;
+                    case GUID_EDGE_DESTROY_WARNING: return EdgeDestroyWarning;
+                    case GUID_LAVAMAN: return lavaman;
+                    case GUID_HANGINGMAN: return hangingman;
+                    case GUID_TIRION: return Tirion;
+                    case GUID_TERENAS_FIGHTER: return TerenasFighter;
+                    case GUID_SPIRIT_WARDEN: return SpiritWarden;
+                    default: break;
                 }
-
                 return 0;
             }
 
@@ -721,6 +768,20 @@ class instance_icecrown_citadel : public InstanceMapScript
                                         theLichKing->DespawnOrUnsummon();
                             }
                         }
+                        if (state == NOT_STARTED)
+                        {
+                            if (GameObject *go = instance->GetGameObject(lavaman))
+                                go->SetPhaseMask(2,true);
+                        }
+                        if (state == DONE)
+                        {
+                            if (GameObject *go = instance->GetGameObject(lavaman))
+                                go->SetPhaseMask(1,true);
+                            if (GameObject *go = instance->GetGameObject(lavaman))
+                                go->SetRespawnTime(5*DAY);;
+                            if (GameObject *go = instance->GetGameObject(hangingman))
+                                go->SetPhaseMask(2,true);
+                        }
                         break;
                     default:
                         break;
@@ -735,6 +796,12 @@ class instance_icecrown_citadel : public InstanceMapScript
                 {
                     case DATA_KILL_CREDIT:
                         GiveKillCredit(data);
+                        break;
+                    case DATA_NECK_DEEP_ACHIEVEMENT:
+                        IsNeckDeep = data ? true : false;
+                        break;
+                    case DATA_BEEN_WAITING_ACHIEVEMENT:
+                        IsNecroticStack = data ? true : false;
                         break;
                     case DATA_BONED_ACHIEVEMENT:
                         IsBonedEligible = data ? true : false;
@@ -882,39 +949,39 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (criteria_id)
                 {
+                    case CRITERIA_WAITING_A_LONG_TIME_10N:
+                    case CRITERIA_WAITING_A_LONG_TIME_10H:
+                    case CRITERIA_WAITING_A_LONG_TIME_25N:
+                    case CRITERIA_WAITING_A_LONG_TIME_25H: return IsNecroticStack;
+                    case CRITERIA_NECK_DEEP_IN_VILE_10N:
+                    case CRITERIA_NECK_DEEP_IN_VILE_10H:
+                    case CRITERIA_NECK_DEEP_IN_VILE_25N:
+                    case CRITERIA_NECK_DEEP_IN_VILE_25H: return IsNeckDeep;
                     case CRITERIA_BONED_10N:
                     case CRITERIA_BONED_25N:
                     case CRITERIA_BONED_10H:
-                    case CRITERIA_BONED_25H:
-                        return IsBonedEligible;
+                    case CRITERIA_BONED_25H: return IsBonedEligible;
                     case CRITERIA_DANCES_WITH_OOZES_10N:
                     case CRITERIA_DANCES_WITH_OOZES_25N:
                     case CRITERIA_DANCES_WITH_OOZES_10H:
-                    case CRITERIA_DANCES_WITH_OOZES_25H:
-                        return IsOozeDanceEligible;
+                    case CRITERIA_DANCES_WITH_OOZES_25H: return IsOozeDanceEligible;
                     case CRITERIA_NAUSEA_10N:
                     case CRITERIA_NAUSEA_25N:
                     case CRITERIA_NAUSEA_10H:
-                    case CRITERIA_NAUSEA_25H:
-                        return IsNauseaEligible;
+                    case CRITERIA_NAUSEA_25H: return IsNauseaEligible;
                     case CRITERIA_ORB_WHISPERER_10N:
                     case CRITERIA_ORB_WHISPERER_25N:
                     case CRITERIA_ORB_WHISPERER_10H:
-                    case CRITERIA_ORB_WHISPERER_25H:
-                        return IsOrbWhispererEligible;
+                    case CRITERIA_ORB_WHISPERER_25H: return IsOrbWhispererEligible;
                     // Only one criteria for both modes, need to do it like this
                     case CRITERIA_KILL_LANA_THEL_10M:
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_10N:
-                    case CRITERIA_ONCE_BITTEN_TWICE_SHY_10V:
-                        return instance->ToInstanceMap()->GetMaxPlayers() == 10;
+                    case CRITERIA_ONCE_BITTEN_TWICE_SHY_10V: return instance->ToInstanceMap()->GetMaxPlayers() == 10;
                     case CRITERIA_KILL_LANA_THEL_25M:
                     case CRITERIA_ONCE_BITTEN_TWICE_SHY_25N:
-                    case CRITERIA_ONCE_BITTEN_TWICE_SHY_25V:
-                        return instance->ToInstanceMap()->GetMaxPlayers() == 25;
-                    default:
-                        break;
+                    case CRITERIA_ONCE_BITTEN_TWICE_SHY_25V: return instance->ToInstanceMap()->GetMaxPlayers() == 25;
+                    default: break;
                 }
-
                 return false;
             }
 
@@ -1187,6 +1254,18 @@ class instance_icecrown_citadel : public InstanceMapScript
             uint64 SpinestalkerGUID;
             uint64 RimefangGUID;
             uint64 TheLichKingGUID;
+            uint64 Tirion;
+            uint64 TerenasFighter;
+            uint64 SpiritWarden;
+            uint64 IceShard1;
+            uint64 IceShard2;
+            uint64 IceShard3;
+            uint64 IceShard4;
+            uint64 FrostyEdgeInner;
+            uint64 FrostyEdgeOuter;
+            uint64 EdgeDestroyWarning;
+            uint64 lavaman;
+            uint64 hangingman;
             uint32 TeamInInstance;
             uint32 BloodQuickeningTimer;
             uint32 ColdflameJetsState;
@@ -1200,6 +1279,8 @@ class instance_icecrown_citadel : public InstanceMapScript
             bool IsOozeDanceEligible;
             bool IsNauseaEligible;
             bool IsOrbWhispererEligible;
+            bool IsNeckDeep;
+            bool IsNecroticStack;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

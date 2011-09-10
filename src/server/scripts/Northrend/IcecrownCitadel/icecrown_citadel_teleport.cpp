@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,21 +31,22 @@ class icecrown_citadel_teleport : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go)
         {
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Light's Hammer.", GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
+            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Der Hammer des Lichts.", GOSSIP_SENDER_ICC_PORT, LIGHT_S_HAMMER_TELEPORT);
             if (InstanceScript* instance = go->GetInstanceScript())
             {
                 if (instance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Oratory of the Damned.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Oratotium der Verdammten.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
                 if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Rampart of Skulls.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Das Schädelbollwerk.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
                 if (instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Deathbringer's Rise.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Dom des Todesbringers.", GOSSIP_SENDER_ICC_PORT, DEATHBRINGER_S_RISE_TELEPORT);
                 if (instance->GetData(DATA_COLDFLAME_JETS) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to the Upper Spire.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Die Bastion.", GOSSIP_SENDER_ICC_PORT, UPPER_SPIRE_TELEPORT);
                 if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Teleport to Sindragosa's Lair", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Der Hort der Frostkönigin.", GOSSIP_SENDER_ICC_PORT, SINDRAGOSA_S_LAIR_TELEPORT);
+                if (instance->GetBossState(DATA_SINDRAGOSA) == DONE)
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Der Frostthron", GOSSIP_SENDER_ICC_PORT, FROZEN_THRONE_TELEPORT);
             }
-
             player->SEND_GOSSIP_MENU(player->GetGossipTextId(go), go->GetGUID());
             return true;
         }
@@ -65,8 +66,18 @@ class icecrown_citadel_teleport : public GameObjectScript
             }
 
             if (sender == GOSSIP_SENDER_ICC_PORT)
+            {
+                // Preload the Lich King's platform before teleporting player to there
+                if (action == FROZEN_THRONE_TELEPORT)
+                    player->GetMap()->LoadGrid(530.3f, -2122.67f);
+
                 player->CastSpell(player, spell, true);
 
+                // Give him 2 tries after teleport, just in case if player will fall through the ground
+                if (action == FROZEN_THRONE_TELEPORT)
+                    player->CastSpell(player, spell, true);
+                    //TeleportPlayerToFrozenThrone(player);
+            }
             return true;
         }
 };

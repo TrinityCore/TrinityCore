@@ -1,4 +1,5 @@
 /*
+ * Copyright (C) 2008-2011 by WarHead - United Worlds of MaNGOS - http://www.uwom.de
  * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
@@ -2546,6 +2547,12 @@ void Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     // TODO: move these to sql
                     switch (m_spellInfo->Id)
                     {
+                        // Icecrown Citadel: Highlord Tirion Fordring's Mass Resurrection
+                        // Requires players to have at least friendly reputation with Argent Crusade
+                        case 72429:
+                            SearchAreaTarget(unitList, 300.0f, pushType, SPELL_TARGETS_ALLY);
+                            break;
+
                         case 46584: // Raise Dead
                         {
                             if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
