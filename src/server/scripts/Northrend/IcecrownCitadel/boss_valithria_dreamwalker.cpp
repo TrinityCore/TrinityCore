@@ -568,7 +568,8 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 // check if there is any player on threatlist, if not - evade
                 for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                     if (Unit* target = (*itr)->getTarget())
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        // Hier muss unbedingt auf GM geprüft werden!
+                        if (target->GetTypeId() == TYPEID_PLAYER && !target->ToPlayer()->isGameMaster() && target->ToPlayer()->isGMVisible())
                             return; // found any player, return
 
                 EnterEvadeMode();
