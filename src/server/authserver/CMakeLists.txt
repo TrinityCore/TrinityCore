@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-########### authserver ###############
+########### uc-auth ###############
 
 file(GLOB_RECURSE sources_authentication Authentication/*.cpp Authentication/*.h)
 file(GLOB_RECURSE sources_realms Realms/*.cpp Realms/*.h)
@@ -71,7 +71,7 @@ add_executable(authserver
 add_dependencies(authserver revision.h)
 
 if( NOT WIN32 )
-  add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/authserver.conf"')
+  add_definitions(-D_TRINITY_REALM_CONFIG='"${CONF_DIR}/uc-auth.conf"')
 endif()
 
 if( UNIX )
@@ -95,16 +95,16 @@ target_link_libraries(authserver
 if( WIN32 )
   add_custom_command(TARGET authserver
     POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/authserver.conf.dist ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/uc-auth.conf ${CMAKE_BINARY_DIR}/bin/$(ConfigurationName)/
   )
 endif()
 
 if( UNIX )
   install(TARGETS authserver DESTINATION bin)
-  install(FILES  authserver.conf.dist DESTINATION etc)
+  install(FILES  uc-auth.conf DESTINATION etc)
 elseif( WIN32 )
   install(TARGETS authserver DESTINATION "${CMAKE_INSTALL_PREFIX}")
-  install(FILES authserver.conf.dist DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(FILES uc-auth.conf DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()
 
 # Generate precompiled header

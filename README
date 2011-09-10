@@ -1,8 +1,9 @@
-= TrinityCore -- General information =
-
+= UltraCore -- General information =
+Copyright (C) Mangos (http://willbeupdated)
 Copyright (C) TrinityCore (http://www.trinitycore.org)
+Copyright (C) UltraCore (http://prydevserver.com)
 
-  Trinity Core is free software; you can redistribute it and/or modify
+  Ultra Core is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation; either version 2 of the License, or
   (at your option) any later version.
@@ -16,8 +17,8 @@ Copyright (C) TrinityCore (http://www.trinitycore.org)
   along with this program; if not, write to the Free Software
   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-  In addition, as a special exception, the Trinity Core project
-  gives permission to link the code of its release of Trinity Core with
+  In addition, as a special exception, the Ultra Core project
+  gives permission to link the code of its release of Ultra Core with
   the OpenSSL project's "OpenSSL" library (or with modified versions of
   it that use the same license as the "OpenSSL" library), and distribute
   the linked executables.  You must obey the GNU General Public License
@@ -26,20 +27,17 @@ Copyright (C) TrinityCore (http://www.trinitycore.org)
   file, but you are not obligated to do so.  If you do not wish to do
   so, delete this exception statement from your version.
 
-TrinityCore is a MMORPG Framework based mostly on C++. It is completely 
+UltraCore is a MMORPG Framework based mostly on C++. It is completely 
 open source, and is community supported. It is derived
 from MaNGOS, the Massive Network Game Object Server, and is based on the
 code of that project with extensive changes over time to optimize, improve
 and cleanup the codebase at the same time as improving the ingame mechanics
 and functionality. If you wish to contribute ideas or code please visit 
 our site linked below or make pull requests to our github repo at 
-https://github.com/TrinityCore/TrinityCore
+https://github.com/jrwade2k11/PDS-UC
 
-For further information on the TrinityCore project, please visit our
-project website at http://www.TrinityCore.org
-
-To get nightly builds of the master branch of TrinityCore, please visit
-http://www.TrinityCore.net
+For further information on the UltraCore project, please visit our
+project website at http://www.prydevserver.com
 
 Documentation including installation instructions can be found inside
 the doc directory.

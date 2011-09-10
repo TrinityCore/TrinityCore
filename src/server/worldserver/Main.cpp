@@ -32,7 +32,7 @@
 #include "Master.h"
 
 #ifndef _TRINITY_CORE_CONFIG
-# define _TRINITY_CORE_CONFIG  "worldserver.conf"
+# define _TRINITY_CORE_CONFIG  "uc-world.conf"
 #endif //_TRINITY_CORE_CONFIG
 
 #ifdef _WIN32
@@ -132,7 +132,7 @@ extern int main(int argc, char **argv)
     if (!sConfig->SetSource(cfg_file))
     {
         sLog->outError("Invalid or missing configuration file : %s", cfg_file);
-        sLog->outError("Verify that the file exists and has \'[worldserver]' written in the top of the file!");
+        sLog->outError("Verify that the file exists and has \'[G4-World]' written in the top of the file!");
         return 1;
     }
     sLog->outString("Using configuration file %s.", cfg_file);

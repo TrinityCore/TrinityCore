@@ -11,6 +11,7 @@
 #    PERFORMANCE SETTINGS
 #    SERVER LOGGING
 #    SERVER SETTINGS
+#    WARDEN SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
 #    CHAT SETTINGS
@@ -1410,6 +1411,63 @@ DBC.EnforceItemAttributes = 1
 #        Default:     5
 
 AccountInstancesPerHour = 5
+
+#
+###################################################################################################
+
+###################################################################################################
+# WARDEN SETTINGS
+#
+#    Warden.Enabled
+#        Description: Enable Warden anticheat system.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Warden.Enabled = 0
+
+#
+#    Warden.DebugLogFile
+#        Description: Debug log file for Warden, ClientCheckFailAction will be sent to regular
+#                     server log.
+#        Default:     ""           - (Disabled)
+#                     "Warden.log" - (Enabled)
+#
+
+Warden.DebugLogFile = ""
+
+#
+#    Warden.ClientResponseDelay
+#        Description: Time (in seconds) before client is getting disconnecting for not responding.
+#        Default:     90 - (90 Seconds)
+#                      0 - (Disabled, client won't be kicked)
+
+Warden.ClientResponseDelay = 90
+
+#
+#    Warden.ClientCheckPeriod
+#        Description: Time (in seconds) +/- 5 seconds between sending check requests to the client.
+#                     A low number increases traffic and load on client and server side.
+#        Default:     30 - (25-35 seconds)
+
+Warden.ClientCheckPeriod = 30
+
+#
+#    Warden.ClientCheckFailAction
+#        Description:
+#        Default:     0 - (Disabled, Logging only)
+#                     1 - (Kick)
+#                     2 - (Ban)
+
+Warden.ClientCheckFailAction = 0
+
+#
+#    Warden.BanDuration
+#        Description: Time (in seconds) an account will be banned if ClientCheckFailAction is set
+#                     to ban.
+#        Default:     86400 - (24 hours)
+#                     0     - (Permanent ban)
+
+Warden.BanDuration = 86400
 
 #
 ###################################################################################################

@@ -34,7 +34,7 @@
 #include "RealmAcceptor.h"
 
 #ifndef _TRINITY_REALM_CONFIG
-# define _TRINITY_REALM_CONFIG  "authserver.conf"
+# define _TRINITY_REALM_CONFIG  "uc-auth.conf"
 #endif
 
 bool StartDB();
@@ -44,7 +44,7 @@ bool stopEvent = false;                                     // Setting it to tru
 
 LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the auth server database
 
-// Handle authserver's termination signals
+// Handle uc-auth's termination signals
 class AuthServerSignalHandler : public Trinity::SignalHandler
 {
 public:
@@ -94,12 +94,12 @@ extern int main(int argc, char **argv)
     if (!sConfig->SetSource(cfg_file))
     {
         sLog->outError("Invalid or missing configuration file : %s", cfg_file);
-        sLog->outError("Verify that the file exists and has \'[authserver]\' written in the top of the file!");
+        sLog->outError("Verify that the file exists and has \'[G4-Auth]\' written in the top of the file!");
         return 1;
     }
     sLog->Initialize();
 
-    sLog->outString("%s (authserver)", _FULLVERSION);
+    sLog->outString("%s (UC-Auth Server)", _FULLVERSION);
     sLog->outString("<Ctrl-C> to stop.\n");
     sLog->outString("Using configuration file %s.", cfg_file);
 
@@ -113,7 +113,7 @@ extern int main(int argc, char **argv)
 
     sLog->outBasic("Max allowed open files is %d", ACE::max_handles());
 
-    // authserver PID file creation
+    // uc-auth Server PID file creation
     std::string pidfile = sConfig->GetStringDefault("PidFile", "");
     if (!pidfile.empty())
     {
@@ -134,7 +134,7 @@ extern int main(int argc, char **argv)
     // Initialize the log database
     sLog->SetLogDBLater(sConfig->GetBoolDefault("EnableLogDB", false)); // set var to enable DB logging once startup finished.
     sLog->SetLogDB(false);
-    sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (authserver realmid)
+    sLog->SetRealmID(0);                                               // ensure we've set realm to 0 (uc-auth realmid)
 
     // Get the list of realms for the server
     sRealmList->Initialize(sConfig->GetIntDefault("RealmsStateUpdateDelay", 20));
@@ -161,7 +161,7 @@ extern int main(int argc, char **argv)
     // Initialise the signal handlers
     AuthServerSignalHandler SignalINT, SignalTERM;
 
-    // Register authservers's signal handlers
+    // Register uc-auths server's signal handlers
     ACE_Sig_Handler Handler;
     Handler.register_handler(SIGINT, &SignalINT);
     Handler.register_handler(SIGTERM, &SignalTERM);
@@ -182,7 +182,7 @@ extern int main(int argc, char **argv)
                 ULONG_PTR curAff = Aff & appAff;            // remove non accessible processors
 
                 if (!curAff)
-                    sLog->outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for authserver. Accessible processors bitmask (hex): %x", Aff, appAff);
+                    sLog->outError("Processors marked in UseProcessors bitmask (hex) %x not accessible for uc-auth. Accessible processors bitmask (hex): %x", Aff, appAff);
                 else if (SetProcessAffinityMask(hProcess, curAff))
                     sLog->outString("Using processors (bitmask, hex): %x", curAff);
                 else
@@ -269,7 +269,7 @@ bool StartDB()
         synch_threads = 1;
     }
 
-    // NOTE: While authserver is singlethreaded you should keep synch_threads == 1. Increasing it is just silly since only 1 will be used ever.
+    // NOTE: While uc-auth is singlethreaded you should keep synch_threads == 1. Increasing it is just silly since only 1 will be used ever.
     if (!LoginDatabase.Open(dbstring.c_str(), worker_threads, synch_threads))
     {
         sLog->outError("Cannot connect to database");
