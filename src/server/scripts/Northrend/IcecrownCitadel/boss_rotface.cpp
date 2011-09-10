@@ -229,7 +229,7 @@ class npc_little_ooze : public CreatureScript
                 DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
                 DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
-                me->AddThreat(summoner, 500000.0f);
+                me->AddThreat(summoner, 5000000.0f);
             }
 
             void JustDied(Unit* /*killer*/)
