@@ -921,8 +921,6 @@ class npc_suppresser : public CreatureScript
                             break;
                     }
                 }
-
-                DoMeleeAttackIfReady();
             }
 
         private:
