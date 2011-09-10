@@ -152,8 +152,9 @@ enum Actions
     ACTION_DEATH        = 3,
 };
 
-const Position ValithriaSpawnPos    = { 4210.813f, 2484.443f, 364.9558f, 0.01745329f };
-const Position Ziel                 = { 4205.066895f, 2484.696533f, 364.871521f, 0.0f };
+const Position ValithriaSpawnPos    = { 4210.813f, 2484.443f, 364.9558f,  0.01745329f };
+const Position ZielVorne            = { 4240.891f, 2484.378f, 364.87039f, 0.0f };
+const Position ZielHinten           = { 4170.970f, 2484.396f, 364.87332f, 0.0f };
 
 class RisenArchmageCheck
 {
@@ -628,7 +629,12 @@ class npc_the_lich_king_controller : public CreatureScript
                     if (Unit * target = summon->AI()->SelectTarget(SELECT_TARGET_NEAREST, 0, 0.0f, true))
                         summon->AI()->AttackStart(target);
                     else
-                        summon->GetMotionMaster()->MovePoint(0, Ziel);
+                    {
+                        if (summon->GetPositionX() < 4200.0f)
+                            summon->GetMotionMaster()->MovePoint(0, ZielHinten);
+                        else
+                            summon->GetMotionMaster()->MovePoint(0, ZielVorne);
+                    }
 
                     summon->AI()->DoZoneInCombat();
                 }
