@@ -1723,7 +1723,7 @@ public:
             me->GetPosition(x, y, z);
             me->SetPosition(x, y, Z_VILE_SPIRIT, true);
             Position randomPos;
-            float dist = 1.0f * rand_norm() * 10.0f;
+            float dist = float(1.0f * rand_norm() * 10.0f);
             me->GetRandomNearPosition(randomPos, dist);
             randomPos.m_positionZ = Z_VILE_SPIRIT;
             me->GetMotionMaster()->MovePoint(POINT_MOVE_NEAR_RANDOM, randomPos);
@@ -1767,7 +1767,7 @@ public:
                     case EVENT_MOVE_RANDOM:
                     {
                         Position randomPos;
-                        float dist = 1.0f * rand_norm() * 10.0f;
+                        float dist = float(1.0f * rand_norm() * 10.0f);
                         me->GetRandomNearPosition(randomPos, dist);
                         randomPos.m_positionZ = Z_VILE_SPIRIT;
                         me->GetMotionMaster()->MovePoint(POINT_MOVE_NEAR_RANDOM, randomPos);
@@ -2144,7 +2144,7 @@ class spell_lich_king_infection : public SpellScriptLoader
             }
             void OnCalcAmount(AuraEffect const* aurEff, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                amount = (int32)(1000.0f * powf(1.15f, aurEff->GetTickNumber()));
+                amount = (int32)(1000.0f * powf(1.15f, float(aurEff->GetTickNumber())));
             }
 
             void Register()
@@ -3293,7 +3293,7 @@ class npc_terenas_fighter_icc : public CreatureScript
             void DamageDealt(Unit * /*target*/, uint32 & damage, DamageEffectType /*damageType*/)
             {
                 //Damage scales with Terenas' health
-                damage = damage * (100 + me->GetHealthPct()) / 100;
+                damage = damage * (100 + uint32(me->GetHealthPct())) / 100;
             }
 
             void JustDied(Unit * /*pKiller*/)
