@@ -1118,26 +1118,12 @@ class boss_the_lich_king : public CreatureScript
                 }
             }
         private:
-            uint8 Stage;
-            uint8 Phase;
-
-            uint32 EndingTimer;
-            uint32 SummonShamblingHorrorTimer;
-            uint32 SummonDrudgeGhoulsTimer;
-            uint32 SummonShadowTrap;
-            uint32 InfestTimer;
-            uint32 NecroticPlagueTimer;
-            uint32 SummonValkyrTimer;
-            uint32 SoulReaperTimer;
-            uint32 DefileTimer;
-            uint32 HarvestSoulTimer;
-            uint32 SummonVileSpiritTimer;
-            uint32 IcePulsSummonTimer;
-            uint32 SummonSpiritTimer;
-            uint64 TirionGUID;
-            bool isSwitching;
             SummonList summons;
             EventMap events;
+            uint64 TirionGUID;
+            uint32 EndingTimer;
+            uint8 Stage;
+            bool isSwitching;
         };
 
         CreatureAI * GetAI(Creature * creature) const
