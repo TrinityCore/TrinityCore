@@ -248,14 +248,12 @@ class ValithriaDespawner : public BasicEvent
                 case NPC_COLUMN_OF_FROST:
                 case NPC_ROT_WORM:
                     creature->DespawnOrUnsummon();
-                    return;
+                    break;
                 case NPC_RISEN_ARCHMAGE:
                     if (!creature->GetDBTableGUIDLow())
-                    {
                         creature->DespawnOrUnsummon();
-                        return;
-                    }
-                    creature->Respawn(true);
+                    else
+                        creature->Respawn(true);
                     break;
                 default:
                     return;
@@ -268,12 +266,11 @@ class ValithriaDespawner : public BasicEvent
 
             if (CreatureData const* data = creature->GetCreatureData())
                 creature->SetPosition(data->posX, data->posY, data->posZ, data->orientation);
-            creature->ForcedDespawn();
 
+            creature->ForcedDespawn();
             creature->SetCorpseDelay(corpseDelay);
             creature->SetRespawnDelay(respawnDelay);
         }
-
     private:
         Creature* _creature;
 };
