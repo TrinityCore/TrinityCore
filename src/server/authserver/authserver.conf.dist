@@ -1,16 +1,30 @@
 ###############################################
-# Ultra-Core Auth Server configuration file   #
-# Core:                                  G4   #
-# Replace?:                              Yes  #
+# Trinity Core Auth Server configuration file #
 ###############################################
 [authserver]
 
 ###################################################################################################
 # SECTION INDEX
 #
+#    EXAMPLE CONFIG
 #    AUTH SERVER SETTINGS
 #    MYSQL SETTINGS
 #
+###################################################################################################
+
+###################################################################################################
+# EXAMPLE CONFIG
+#
+#    Variable
+#        Description: Brief description what the variable is doing.
+#        Important:   Annotation for important things about this variable.
+#        Example:     "Example, i.e. if the value is a string"
+#        Default:     10 - (Enabled|Comment|Variable name in case of grouped config options)
+#                     0  - (Disabled|Comment|Variable name in case of grouped config options)
+#
+# Note to developers:
+# - Copy this example to keep the formatting.
+# - Line breaks should be at column 100.
 ###################################################################################################
 
 ###################################################################################################
@@ -219,9 +233,9 @@ WrongPass.BanType = 0
 #                                                                 section my.ini)
 #                     ".;/path/to/unix_socket;username;password;database" - (use Unix sockets on
 #                                                                           Unix/Linux)
-#        Default:     "127.0.0.1;3306;ultracore;ultracore;auth"
+#        Default:     "127.0.0.1;3306;trinity;trinity;auth"
 
-LoginDatabaseInfo = "127.0.0.1;3306;ultracore;ultracore;auth"
+LoginDatabaseInfo = "127.0.0.1;3306;trinity;trinity;auth"
 
 #
 #    LoginDatabase.WorkerThreads

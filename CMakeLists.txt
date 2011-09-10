@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # Set projectname (must be done AFTER setting configurationtypes)
-project(Ultra-Core)
+project(TrinityCore)
 
 # CMake policies (can not be handled elsewhere)
 cmake_minimum_required(VERSION 2.6)

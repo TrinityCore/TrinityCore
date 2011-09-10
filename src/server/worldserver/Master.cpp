@@ -123,40 +123,18 @@ int Master::Run()
     BigNumber seed1;
     seed1.SetRand(16 * 8);
 
-    sLog->outString("%s (PDS-UC World Server)", _FULLVERSION);
+    sLog->outString("%s (worldserver-daemon)", _FULLVERSION);
     sLog->outString("<Ctrl-C> to stop.\n");
 
-    							/* Ultracore badge */ /*Lorac*/
-	sLog->outString("  __  __  __     _______  ______    ____         ");
-	sLog->outString(" /\\ \\/\\ \\/\\ \\   /\\__  __\\/\\  __ \\  / __ \\         ");
-	sLog->outString(" \\ \\ \\ \\ \\ \\ \\  \\/_/\\ \\_/\\ \\ \\_\\/_/\\ \\_\\ \\       ");
-	sLog->outString("  \\ \\ \\ \\ \\ \\ \\    \\ \\ \\  \\ \\  __ \\ \\  __ \\       ");
-	sLog->outString("   \\ \\ \\_\\ \\ \\ \\____\\ \\ \\  \\ \\ \\ \\ \\ \\ \\ \\ \\       ");
-	sLog->outString("    \\ \\_____\\ \\_____\\\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\      ");
-	sLog->outString( "     \\/_____/\\/_____/ \\/_/   \\/_/\\/_/\\/_/\\/_/      ");
-	sLog->outString( "       ");
-	sLog->outString( "        ______                                ");
-	sLog->outString( "       /\\  ___\\ 2 0 1 1      ");
-	sLog->outString( "       \\ \\ \\__/   ______  _  __  _____          ");
-	sLog->outString( "        \\ \\ \\    /\\  __ \\/\\`'__\\/\\  __\\         ");
-	sLog->outString( "         \\ \\ \\___\\ \\ \\_\\ \\ \\ \\_/\\ \\ \\//_         ");
-	sLog->outString( "          \\ \\_____\\ \\_____\\ \\_\\  \\ \\____\\        ");
-	sLog->outString( "           \\______/\\/_____/\\/_/   \\/____/        ");
-	sLog->outString( "       ");
-	sLog->outString( "       ");
-	sLog->outString( "       ");
-	sLog->outString( "						Core: Apocalypse       ");
-	sLog->outString( "						Core Generation: 4th       ");
-	sLog->outString( "						Secured by Warden ");
-	sLog->outString( "       ");
-	sLog->outString( "       ");
-	sLog->outString( "       ");
-	sLog->outString( " Ultracore 2011     ");
-	sLog->outString( "       ");
-	sLog->outString( "       ");
-	/*sLog->outString( " Project Hub: WWW.PDS-UC.Com OFFLINE AT MOMENT   ");*/
-	sLog->outString( " Community site: WWW.Prydevserver.com/forum");
-	sLog->outString( "       ");
+    sLog->outString(" ______                       __");
+    sLog->outString("/\\__  _\\       __          __/\\ \\__");
+    sLog->outString("\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\ ,_\\  __  __");
+    sLog->outString("   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
+    sLog->outString("    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
+    sLog->outString("     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
+    sLog->outString("      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
+    sLog->outString("                                 C O R E  /\\___/");
+    sLog->outString("http://TrinityCore.org                    \\/__/\n");
 
 #ifdef USE_SFMT_FOR_RNG
     sLog->outString("\n");

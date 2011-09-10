@@ -778,11 +778,11 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     //uint8 expansion = 0;
     LocaleConstant locale;
     std::string account;
-    SHA1Hash sha;
+    SHA1Hash sha1;
     BigNumber v, s, g, N;
     WorldPacket packet, SendAddonPacked;
 
-    BigNumber k;
+    BigNumber K;
 
     if (sWorld->IsClosed())
     {
@@ -816,9 +816,21 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     LoginDatabase.EscapeString (safe_account);
     // No SQL injection, username escaped.
 
-    //                                                 0       1          2       3     4  5      6          7       8         9      10
-    QueryResult result = LoginDatabase.PQuery ("SELECT id, sessionkey, last_ip, locked, v, s, expansion, mutetime, locale, recruiter, os FROM account "
-                                               "WHERE username = '%s'", safe_account.c_str());
+    QueryResult result =
+          LoginDatabase.PQuery ("SELECT "
+                                "id, "                      //0
+                                "sessionkey, "              //1
+                                "last_ip, "                 //2
+                                "locked, "                  //3
+                                "v, "                       //4
+                                "s, "                       //5
+                                "expansion, "               //6
+                                "mutetime, "                //7
+                                "locale, "                  //8
+                                "recruiter "                //9
+                                "FROM account "
+                                "WHERE username = '%s'",
+                                safe_account.c_str());
 
     // Stop if the account is not found
     if (!result)
@@ -870,12 +882,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     }
 
     id = fields[0].GetUInt32();
-    /*
-    if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
-        security = SEC_ADMINISTRATOR;
-        */
-
-    k.SetHexStr (fields[1].GetCString());
+    K.SetHexStr (fields[1].GetCString());
 
     int64 mutetime = fields[7].GetInt64();
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
@@ -890,7 +897,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     uint32 recruiter = fields[9].GetUInt32();
-    std::string os = fields[10].GetString();
 
     // Checks gmlevel per Realm
     result =
@@ -942,6 +948,8 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     }
 
     // Check that Key and account name are the same on client and server
+    SHA1Hash sha;
+
     uint32 t = 0;
     uint32 seed = m_Seed;
 
@@ -949,7 +957,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     sha.UpdateData ((uint8 *) & t, 4);
     sha.UpdateData ((uint8 *) & clientSeed, 4);
     sha.UpdateData ((uint8 *) & seed, 4);
-    sha.UpdateBigNumbers (&k, NULL);
+    sha.UpdateBigNumbers (&K, NULL);
     sha.Finalize();
 
     if (memcmp (sha.GetDigest(), digest, 20))
@@ -989,15 +997,11 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     // NOTE ATM the socket is single-threaded, have this in mind ...
     ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
-    m_Crypt.Init(&k);
+    m_Crypt.Init(&K);
 
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
     m_Session->ReadAddonsInfo(recvPacket);
-
-    // Initialize Warden system only if it is enabled by config
-    if (sWorld->getBoolConfig(CONFIG_BOOL_WARDEN_ENABLED))
-        m_Session->InitWarden(&k, os);
 
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);

@@ -81,7 +81,6 @@ private:
     // Since GetLocaleByName() is _NOT_ bijective, we have to store the locale as a string. Otherwise we can't differ
     // between enUS and enGB, which is important for the patch system
     std::string _localizationName;
-    std::string _os;
     uint16 _build;
     uint8 _expversion;
     AccountTypes _accountSecurityLevel;

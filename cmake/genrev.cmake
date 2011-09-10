@@ -1,5 +1,4 @@
 # Copyright (C) 2008-2010 Trinity <http://www.trinitycore.org/>
-# Copyright (C) 2009-2011 ULTRA-Core <http://www.prydevserver.com/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without

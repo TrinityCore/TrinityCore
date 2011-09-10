@@ -29,7 +29,7 @@ extern LoginDatabaseWorkerPool LoginDatabase;
 
 Log::Log() :
     raLogfile(NULL), logfile(NULL), gmLogfile(NULL), charLogfile(NULL),
-    dberLogfile(NULL), chatLogfile(NULL), arenaLogFile(NULL), sqlLogFile(NULL), sqlDevLogFile(NULL), wardenDebugLogFile(NULL),
+    dberLogfile(NULL), chatLogfile(NULL), arenaLogFile(NULL), sqlLogFile(NULL), sqlDevLogFile(NULL),
     m_gmlog_per_account(false), m_enableLogDBLater(false),
     m_enableLogDB(false), m_colored(false)
 {
@@ -73,10 +73,6 @@ Log::~Log()
     if (sqlDevLogFile != NULL)
         fclose(sqlDevLogFile);
     sqlDevLogFile = NULL;
-
-    if (wardenDebugLogFile != NULL)
-        fclose(wardenDebugLogFile);
-    wardenDebugLogFile = NULL;
 }
 
 void Log::SetLogLevel(char *Level)
@@ -170,7 +166,6 @@ void Log::Initialize()
     arenaLogFile = openLogFile("ArenaLogFile", NULL, "a");
     sqlLogFile = openLogFile("SQLDriverLogFile", NULL, "a");
     sqlDevLogFile = openLogFile("SQLDeveloperLogFile", NULL, "a");
-    wardenDebugLogFile = openLogFile("Warden.DebugLogFile",NULL,"a");
 
     // Main log file settings
     m_logLevel     = sConfig->GetIntDefault("LogLevel", LOGL_NORMAL);
@@ -1032,23 +1027,6 @@ void Log::outChat(const char * str, ...)
         vfprintf(chatLogfile, str, ap);
         fprintf(chatLogfile, "\n" );
         fflush(chatLogfile);
-        va_end(ap);
-    }
-}
-
-void Log::outWarden(const char * str, ...)
-{
-    if (!str)
-        return;
-
-    if (wardenDebugLogFile)
-    {
-        outTimestamp(wardenDebugLogFile);
-        va_list ap;
-        va_start(ap, str);
-        vfprintf(wardenDebugLogFile, str, ap);
-        fprintf(wardenDebugLogFile, "\n" );
-        fflush(wardenDebugLogFile);
         va_end(ap);
     }
 }
