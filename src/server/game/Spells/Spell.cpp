@@ -3101,8 +3101,8 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     }
 
-    // triggered cast called from Spell::prepare where it was already checked
-    if (!IsTriggered() || !skipCheck)
+    // skip check if done already (for instant cast spells for example)
+    if (!skipCheck)
     {
         SpellCastResult castResult = CheckCast(false);
         if (castResult != SPELL_CAST_OK)
