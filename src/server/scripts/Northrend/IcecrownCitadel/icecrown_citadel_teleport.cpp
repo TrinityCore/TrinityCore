@@ -35,7 +35,7 @@ class icecrown_citadel_teleport : public GameObjectScript
             if (InstanceScript* instance = go->GetInstanceScript())
             {
                 if (instance->GetBossState(DATA_LORD_MARROWGAR) == DONE)
-                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Oratotium der Verdammten.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Oratorium der Verdammten.", GOSSIP_SENDER_ICC_PORT, ORATORY_OF_THE_DAMNED_TELEPORT);
                 if (instance->GetBossState(DATA_LADY_DEATHWHISPER) == DONE)
                     player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "Das Schädelbollwerk.", GOSSIP_SENDER_ICC_PORT, RAMPART_OF_SKULLS_TELEPORT);
                 if (instance->GetBossState(DATA_GUNSHIP_EVENT) == DONE)
