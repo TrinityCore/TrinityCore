@@ -538,7 +538,10 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             bool CanAIAttack(Unit const* target) const
             {
-                return target->GetTypeId() == TYPEID_PLAYER;
+                if (target && (target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
+                    return true;
+
+                return false;
             }
 
             void JustReachedHome()
