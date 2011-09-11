@@ -1331,7 +1331,7 @@ public:
             }
         } while (result->NextRow());
 
-        sLog->outString("GM-PIMPER: Habe %u gültige Pets gefunden und geladen.", cnt);
+        sLog->outDetail("GM-PIMPER: Habe %u gültige Pets gefunden und geladen.", cnt);
     }
 
     void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
@@ -1871,7 +1871,7 @@ public:
                 }
             } while (result->NextRow());
 
-            sLog->outString("USER-PIMPER: Habe %u gültige Pets gefunden und geladen.", cnt);
+            sLog->outDetail("USER-PIMPER: Habe %u gültige Pets gefunden und geladen.", cnt);
         }
 
         void InitStrings()
