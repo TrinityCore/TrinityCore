@@ -39,7 +39,7 @@ enum Texts
     SAY_VALITHRIA_DEATH         = 4,
     SAY_VALITHRIA_PLAYER_DEATH  = 5,
     SAY_VALITHRIA_BERSERK       = 6,
-    SAY_VALITHRIA_SUCCESS       = 7,
+    SAY_VALITHRIA_SUCCESS       = 7
 };
 
 enum Spells
@@ -100,7 +100,7 @@ enum Spells
     SPELL_EMERALD_VIGOR                 = 70873,
 
     // Nightmare Cloud
-    SPELL_TWISTED_NIGHTMARE             = 71941,
+    SPELL_TWISTED_NIGHTMARE             = 71941
 };
 
 #define SUMMON_PORTAL RAID_MODE<uint32>(SPELL_PRE_SUMMON_DREAM_PORTAL, SPELL_PRE_SUMMON_DREAM_PORTAL, \
@@ -112,49 +112,51 @@ enum Spells
 enum Events
 {
     // Valithria Dreamwalker
-    EVENT_INTRO_TALK                        = 1,
-    EVENT_BERSERK                           = 2,
-    EVENT_DREAM_PORTAL                      = 3,
-    EVENT_DREAM_SLIP                        = 4,
+    EVENT_INTRO_TALK = 1,
+    EVENT_BERSERK,
+    EVENT_DREAM_PORTAL,
+    EVENT_DREAM_SLIP,
 
     // The Lich King
-    EVENT_GLUTTONOUS_ABOMINATION_SUMMONER   = 5,
-    EVENT_SUPPRESSER_SUMMONER               = 6,
-    EVENT_BLISTERING_ZOMBIE_SUMMONER        = 7,
-    EVENT_RISEN_ARCHMAGE_SUMMONER           = 8,
-    EVENT_BLAZING_SKELETON_SUMMONER         = 9,
+    EVENT_GLUTTONOUS_ABOMINATION_SUMMONER,
+    EVENT_SUPPRESSER_SUMMONER,
+    EVENT_BLISTERING_ZOMBIE_SUMMONER,
+    EVENT_RISEN_ARCHMAGE_SUMMONER,
+    EVENT_BLAZING_SKELETON_SUMMONER,
 
     // Risen Archmage
-    EVENT_FROSTBOLT_VOLLEY                  = 10,
-    EVENT_MANA_VOID                         = 11,
-    EVENT_COLUMN_OF_FROST                   = 12,
+    EVENT_FROSTBOLT_VOLLEY,
+    EVENT_MANA_VOID,
+    EVENT_COLUMN_OF_FROST,
 
     // Blazing Skeleton
-    EVENT_FIREBALL                          = 13,
-    EVENT_LAY_WASTE                         = 14,
+    EVENT_FIREBALL,
+    EVENT_LAY_WASTE,
 
     // Suppresser
-    EVENT_SUPPRESSION                       = 15,
+    EVENT_SUPPRESSION,
 
     // Gluttonous Abomination
-    EVENT_GUT_SPRAY                         = 16,
+    EVENT_GUT_SPRAY,
 
     // Dream Cloud
     // Nightmare Cloud
-    EVENT_CHECK_PLAYER                      = 17,
-    EVENT_EXPLODE                           = 18,
+    EVENT_CHECK_PLAYER,
+    EVENT_EXPLODE
 };
 
 enum Actions
 {
     ACTION_ENTER_COMBAT = 1,
     MISSED_PORTALS      = 2,
-    ACTION_DEATH        = 3,
+    ACTION_DEATH        = 3
 };
 
 const Position ValithriaSpawnPos    = { 4210.813f, 2484.443f, 364.9558f,  0.01745329f };
 const Position ZielVorne            = { 4240.891f, 2484.378f, 364.87039f, 0.0f };
 const Position ZielHinten           = { 4170.970f, 2484.396f, 364.87332f, 0.0f };
+const Position Trigger25_1_Pos      = { 4166.02f,  2557.49f,  364.952f,   4.72984f };
+const Position Trigger25_2_Pos      = { 4166.17f,  2411.52f,  364.952f,   1.5708f };
 
 class RisenArchmageCheck
 {
@@ -283,9 +285,13 @@ class boss_valithria_dreamwalker : public CreatureScript
 
         struct boss_valithria_dreamwalkerAI : public ScriptedAI
         {
-            boss_valithria_dreamwalkerAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript()), _portalCount(RAID_MODE<uint32>(3, 8, 3, 8))
+            boss_valithria_dreamwalkerAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript()), _portalCount(RAID_MODE<uint32>(3, 8, 3, 8))
             {
+                if (_portalCount == 8)
+                {
+                    me->SummonCreature(NPC_WORLDTRIGGER, Trigger25_1_Pos);
+                    me->SummonCreature(NPC_WORLDTRIGGER, Trigger25_2_Pos);
+                }
             }
 
             void InitializeAI()
@@ -629,8 +635,13 @@ class npc_the_lich_king_controller : public CreatureScript
                 summon->SetPhaseMask((summon->GetPhaseMask() & ~0x10), true);
                 if (summon->GetEntry() != NPC_SUPPRESSER)
                 {
-                    if (Unit * target = summon->AI()->SelectTarget(SELECT_TARGET_NEAREST, 0, 0.0f, true))
+                    Unit * target = summon->AI()->SelectTarget(SELECT_TARGET_NEAREST, 0, 100.0f, true);
+
+                    if (target && (target->GetTypeId() == TYPEID_PLAYER || (target->GetOwner() && target->GetOwner()->GetTypeId() == TYPEID_PLAYER)))
+                    {
                         summon->AI()->AttackStart(target);
+                        summon->AI()->DoZoneInCombat();
+                    }
                     else
                     {
                         if (summon->GetPositionX() < 4200.0f)
@@ -638,7 +649,6 @@ class npc_the_lich_king_controller : public CreatureScript
                         else
                             summon->GetMotionMaster()->MovePoint(0, ZielVorne);
                     }
-                    summon->AI()->DoZoneInCombat();
                 }
             }
 
@@ -736,6 +746,7 @@ class npc_risen_archmage : public CreatureScript
                     if (Creature* trigger = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_TRIGGER)))
                         trigger->AI()->DoZoneInCombat();
                 }
+                DoZoneInCombat();
             }
 
             void DoAction(int32 const action)
@@ -828,6 +839,11 @@ class npc_blazing_skeleton : public CreatureScript
                 done = false;
             }
 
+            bool CanAIAttack(Unit const* target) const
+            {
+                return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
+            }
+
             void DamageTaken(Unit * /*attacker*/, uint32 & /*damage*/)
             {
                 if (!done)
@@ -835,6 +851,11 @@ class npc_blazing_skeleton : public CreatureScript
                     DoCast(me, SPELL_LAY_WASTE);
                     done = true;
                 }
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
+                DoZoneInCombat();
             }
 
             void UpdateAI(uint32 const diff)
@@ -951,10 +972,20 @@ class npc_blistering_zombie : public CreatureScript
             {
             }
 
+            bool CanAIAttack(Unit const* target) const
+            {
+                return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
+            }
+
             void DamageTaken(Unit * /*attacker*/, uint32 & damage)
             {
                 if (damage >= me->GetHealth())
                     DoCast(me, SPELL_ACID_BURST, true);
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
+                DoZoneInCombat();
             }
 
             void UpdateAI(uint32 const /*diff*/)
@@ -987,6 +1018,16 @@ class npc_gluttonous_abomination : public CreatureScript
             {
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_GUT_SPRAY, urand(10000, 13000));
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
+                DoZoneInCombat();
+            }
+
+            bool CanAIAttack(Unit const* target) const
+            {
+                return target->GetEntry() != NPC_VALITHRIA_DREAMWALKER;
             }
 
             void DamageTaken(Unit * /*attacker*/, uint32 & damage)

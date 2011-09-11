@@ -260,6 +260,7 @@ enum CreaturesIds
     NPC_NIGHTMARE_PORTAL_PRE_EFFECT             = 38429,
     NPC_DREAM_PORTAL                            = 37945,
     NPC_NIGHTMARE_PORTAL                        = 38430,
+    NPC_WORLDTRIGGER                            = 22515,
 
     // Sindragosa
     NPC_SINDRAGOSA                              = 36853,
