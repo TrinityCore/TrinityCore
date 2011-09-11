@@ -1108,50 +1108,6 @@ uint32 AllyFaction[AllyFactionCnt] = {1037,69,930,1068,54,946,47,978,890,730,72,
 #define WorldFactionCnt 43
 uint32 WorldFaction[WorldFactionCnt] = {1106,529,1012,87,21,910,609,942,909,577,1104,369,92,749,989,1090,1098,1011,93,1015,1038,470,349,1031,1077,809,970,70,932,933,1073,1105,990,934,935,1119,967,1091,59,576,270,1156,1094};
 
-// To find all Horde mounts...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=690;
-
-#define HordeMountsCnt  92
-uint32 HordeMounts[HordeMountsCnt][2] =
-{
-    {1132,580},{5665,6653},{5668,6654},{8586,16084},{8588,8395},{8591,10796},{8592,10799},{12330,16080},{12351,16081},{13317,17450},{13331,17462},{13332,17463},{13333,17464},{13334,17465},{15277,18989},{15290,18990},
-    {15292,18991},{15293,18992},{18245,22724},{18246,22721},{18247,22718},{18248,22722},{18788,23241},{18789,23242},{18790,23243},{18791,23246},{18793,23247},{18794,23249},{18795,23248},{18796,23250},{18797,23251},
-    {18798,23252},{25474,32243},{25475,32244},{25476,32245},{25477,32246},{25531,32295},{25532,32296},{25533,32297},{28927,34795},{28936,33660},{29102,34896},{29103,34897},{29104,34898},{29105,34899},{29220,35020},
-    {29221,35022},{29222,35018},{29223,35025},{29224,35027},{29466,22718},{29469,22724},{29470,22722},{29472,22721},{31829,39315},{31831,39317},{31833,39318},{31835,39319},{34129,35028},{41508,55531},{44077,59788},
-    {44080,59797},{44083,61467},{44086,61469},{44224,60119},{44226,60116},{44231,59793},{44234,61447},{44690,61230},{45592,63641},{45593,63635},{45595,63640},{45596,63642},{45597,63643},{46099,64658},{46100,64657},
-    {46102,64659},{46308,64977},{46743,65644},{46746,65645},{46749,65646},{46750,65641},{46751,65639},{46755,65641},{46757,65646},{46760,65644},{46761,65639},{46764,65645},{46816,66091},{47101,66846},{49046,68056},
-    {49098,68188}
-};
-
-// To find all Ally mounts...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=1101;
-
-#define AllyMountsCnt   94
-uint32 AllyMounts[AllyMountsCnt][2] =
-{
-    {2411,470},{2414,472},{5655,6648},{5656,458},{5864,6777},{5872,6899},{5873,6898},{8563,10873},{8595,10969},{8629,10793},{8631,8394},{8632,10789},{12302,16056},{12303,16055},{12353,16083},{12354,16082},{13086,17229},
-    {13321,17453},{13322,17454},{13326,15779},{13327,17459},{13328,17461},{13329,17460},{18241,22717},{18242,22723},{18243,22719},{18244,22720},{18766,23221},{18767,23219},{18772,23225},{18773,23223},{18774,23222},
-    {18776,23227},{18777,23229},{18778,23228},{18785,23240},{18786,23238},{18787,23239},{18902,23338},{25470,32235},{25471,32239},{25472,32240},{25473,32242},{25527,32289},{25528,32290},{25529,32292},{28481,34406},
-    {29227,34896},{29229,34898},{29230,34899},{29231,34897},{29465,22719},{29467,22720},{29468,22717},{29471,22723},{29743,35711},{29744,35710},{29745,35713},{29746,35712},{29747,35714},{31830,39315},{31832,39317},
-    {31834,39318},{31836,39319},{35906,48027},{43956,59785},{43958,59799},{43959,61465},{43961,61470},{44223,60118},{44225,60114},{44230,59791},{44235,61425},{44413,60424},{44689,61229},{45125,63232},{45586,63636},
-    {45589,63638},{45590,63639},{45591,63637},{46744,65638},{46745,65637},{46747,65642},{46748,65643},{46752,65640},{46756,65637},{46758,65640},{46759,65638},{46762,65643},{46763,65642},{46815,66090},{47100,66847},
-    {49044,68057},{49096,68187}
-};
-
-// To find all mounts for both sides...
-// SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=-1;
-
-#define BothSideMountsCnt   83
-uint32 BothSideMounts[BothSideMountsCnt][2] =
-{
-    {13325,17458},{13335,17481},{19029,23509},{19030,23510},{19872,24242},{19902,24252},{21176,26656},{21218,25953},{21321,26054},{21323,26056},{21324,26055},{30480,36702},{30609,37015},{32314,39798},{32316,39801},
-    {32317,39800},{32318,39802},{32319,39803},{32458,40192},{32768,41252},{32857,41513},{32858,41514},{32859,41515},{32860,41516},{32861,41517},{32862,41518},{33224,42776},{33809,43688},{33976,43899},{33977,43900},
-    {33999,43927},{34092,44744},{35225,46197},{35226,46199},{35513,46628},{37676,49193},{37719,49322},{37828,49379},{38576,51412},{43516,58615},{43951,59569},{43952,59567},{43953,59568},{43954,59571},{43955,59570},
-    {43962,54753},{43986,59650},{44151,59996},{44160,59961},{44164,59976},{44168,60002},{44175,60021},{44177,60024},{44178,60025},{44557,60975},{44558,61309},{44707,61294},{44842,61997},{44843,61996},{45693,63796},
-    {45725,63844},{45801,63956},{45802,63963},{46109,64731},{46171,65439},{46708,64927},{46813,66087},{46814,66088},{47179,66906},{47180,67466},{49282,51412},{49283,42776},{49285,46197},{49286,46199},{49290,65917},
-    {49636,69395},{50250,71342},{51954,72808},{51955,72807},{52200,73313},{54069,74856},{54797,75596},{54860,75973}
-};
-
 #define GOSSIP_GM_PIMPER_01 "Merkt Ihr denn nicht, dass ich genervt bin!? Oder könnt Ihr einfach nur nicht lesen? Ich bin für GM zuständig, nicht für Truthähnchen!"
 
 #define GOSSIP_GM_PIMPER_02 "Ey Mann, was hast du so unter dem Ladentisch!?"
@@ -1198,7 +1154,13 @@ enum PIMPER_ITEM_ENUM
 class npc_uwom_gm_pimper : public CreatureScript
 {
 public:
-    npc_uwom_gm_pimper() : CreatureScript("npc_uwom_gm_pimper") { LadePetListe(); }
+    npc_uwom_gm_pimper() : CreatureScript("npc_uwom_gm_pimper")
+    {
+        LadePetListe();
+        LadeHordeMountListe();
+        LadeAllyMountListe();
+        LadeBothMountListe();
+    }
 
     bool OnGossipHello(Player *pPlayer, Creature *pCreature)
     {
@@ -1315,7 +1277,7 @@ public:
         QueryResult result = WorldDatabase.PQuery("SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=2 AND `spellid_2`!=0");
         if (!result)
         {
-            sLog->outErrorDb("GM-PIMPER: Kann die Pets nicht laden!");
+            sLog->outErrorDb("GM-PIMPER: Kann die Minipets nicht laden!");
             return;
         }
 
@@ -1331,7 +1293,79 @@ public:
             }
         } while (result->NextRow());
 
-        sLog->outDetail("GM-PIMPER: Habe %u gültige Pets gefunden und geladen.", cnt);
+        sLog->outDetail("GM-PIMPER: Habe %u gültige Minipets gefunden und geladen.", cnt);
+    }
+
+    void LadeHordeMountListe()
+    {
+        QueryResult result = WorldDatabase.PQuery("SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=690");
+        if (!result)
+        {
+            sLog->outErrorDb("GM-PIMPER: Kann die Hordemounts nicht laden!");
+            return;
+        }
+
+        uint32 cnt = 0;
+
+        do
+        {
+            Field * fields = result->Fetch();
+            if (fields[0].GetUInt32() && fields[1].GetUInt32())
+            {
+                HordeMountListe[fields[0].GetUInt32()] = fields[1].GetUInt32();
+                ++cnt;
+            }
+        } while (result->NextRow());
+
+        sLog->outDetail("GM-PIMPER: Habe %u gültige Hordemounts gefunden und geladen.", cnt);
+    }
+
+    void LadeAllyMountListe()
+    {
+        QueryResult result = WorldDatabase.PQuery("SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=1101");
+        if (!result)
+        {
+            sLog->outErrorDb("GM-PIMPER: Kann die Allymounts nicht laden!");
+            return;
+        }
+
+        uint32 cnt = 0;
+
+        do
+        {
+            Field * fields = result->Fetch();
+            if (fields[0].GetUInt32() && fields[1].GetUInt32())
+            {
+                AllyMountListe[fields[0].GetUInt32()] = fields[1].GetUInt32();
+                ++cnt;
+            }
+        } while (result->NextRow());
+
+        sLog->outDetail("GM-PIMPER: Habe %u gültige Allymounts gefunden und geladen.", cnt);
+    }
+
+    void LadeBothMountListe()
+    {
+        QueryResult result = WorldDatabase.PQuery("SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=5 AND `spellid_2`!=0 AND `AllowableRace`=-1");
+        if (!result)
+        {
+            sLog->outErrorDb("GM-PIMPER: Kann die Mounts für beide Seiten nicht laden!");
+            return;
+        }
+
+        uint32 cnt = 0;
+
+        do
+        {
+            Field * fields = result->Fetch();
+            if (fields[0].GetUInt32() && fields[1].GetUInt32())
+            {
+                BothMountListe[fields[0].GetUInt32()] = fields[1].GetUInt32();
+                ++cnt;
+            }
+        } while (result->NextRow());
+
+        sLog->outDetail("GM-PIMPER: Habe %u gültige Mounts für beide Seiten gefunden und geladen.", cnt);
     }
 
     void SendActionMenu(Player* pPlayer, Creature* pCreature, uint32 uiAction)
@@ -1370,24 +1404,30 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 7:
                 if (pPlayer->GetTeam() == ALLIANCE)
                 {
-                    for (uint8 i=0; i<AllyMountsCnt; ++i)
-                        if (!pPlayer->HasSpell(AllyMounts[i][1]))
-                            pPlayer->learnSpell(AllyMounts[i][1], false);
+                    for (std::map<uint32, uint32>::const_iterator itr = AllyMountListe.begin(); itr != AllyMountListe.end(); ++itr)
+                    {
+                        if (!pPlayer->HasSpell(itr->second))
+                            pPlayer->learnSpell(itr->second, false);
+                    }
                 }
                 else
                 {
-                    for (uint8 i=0; i<HordeMountsCnt; ++i)
-                        if (!pPlayer->HasSpell(HordeMounts[i][1]))
-                            pPlayer->learnSpell(HordeMounts[i][1], false);
+                    for (std::map<uint32, uint32>::const_iterator itr = HordeMountListe.begin(); itr != HordeMountListe.end(); ++itr)
+                    {
+                        if (!pPlayer->HasSpell(itr->second))
+                            pPlayer->learnSpell(itr->second, false);
+                    }
                 }
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
 
             // Mounts (Both Side)
             case GOSSIP_ACTION_INFO_DEF + 8:
-                for (uint8 i=0; i<BothSideMountsCnt; ++i)
-                    if (!pPlayer->HasSpell(BothSideMounts[i][1]))
-                            pPlayer->learnSpell(BothSideMounts[i][1], false);
+                for (std::map<uint32, uint32>::const_iterator itr = BothMountListe.begin(); itr != BothMountListe.end(); ++itr)
+                {
+                    if (!pPlayer->HasSpell(itr->second))
+                        pPlayer->learnSpell(itr->second, false);
+                }
                 pPlayer->CLOSE_GOSSIP_MENU();
                 break;
 
@@ -1753,9 +1793,11 @@ public:
         }
         return true;
     }
-
 private:
     std::map<uint32, uint32> PetListe;
+    std::map<uint32, uint32> HordeMountListe;
+    std::map<uint32, uint32> AllyMountListe;
+    std::map<uint32, uint32> BothMountListe;
 };
 
 // ------------------------------------------------------------------------------------------------------------
@@ -1848,14 +1890,16 @@ public:
         ItemTemplate const * item;
         std::map<uint32, uint32> PetListe;
 
-        void Reset() {}
+        void Reset()
+        {
+        }
 
         void LadePetListe()
         {
             QueryResult result = WorldDatabase.PQuery("SELECT `entry`,`spellid_2` FROM `item_template` WHERE `class`=15 AND `subclass`=2 AND `spellid_2`!=0");
             if (!result)
             {
-                sLog->outErrorDb("USER-PIMPER: Kann die Pets nicht laden!");
+                sLog->outErrorDb("USER-PIMPER: Kann die Minipets nicht laden!");
                 return;
             }
 
@@ -1871,7 +1915,7 @@ public:
                 }
             } while (result->NextRow());
 
-            sLog->outDetail("USER-PIMPER: Habe %u gültige Pets gefunden und geladen.", cnt);
+            sLog->outDetail("USER-PIMPER: Habe %u gültige Minipets gefunden und geladen.", cnt);
         }
 
         void InitStrings()
