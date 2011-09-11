@@ -1505,8 +1505,7 @@ class npc_captain_grondel : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GRONDEL_CHARGE_CHECK:
-                            if (CanCast(me->getVictim(), sSpellMgr->GetSpellInfo(SPELL_CHARGE)))
-                                DoCastVictim(SPELL_CHARGE);
+                            DoCastVictim(SPELL_CHARGE);
                             Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 500);
                             break;
                         case EVENT_GRONDEL_MORTAL_STRIKE:
