@@ -505,6 +505,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
             {
                 _Reset();
                 me->SetReactState(REACT_PASSIVE);
+                instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, NOT_STARTED);
             }
 
             void EnterCombat(Unit* target)
@@ -593,8 +594,7 @@ class npc_the_lich_king_controller : public CreatureScript
 
         struct npc_the_lich_king_controllerAI : public ScriptedAI
         {
-            npc_the_lich_king_controllerAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
+            npc_the_lich_king_controllerAI(Creature* creature) : ScriptedAI(creature), summons(me), instance(creature->GetInstanceScript())
             {
             }
 
@@ -607,6 +607,7 @@ class npc_the_lich_king_controller : public CreatureScript
                 _events.ScheduleEvent(EVENT_RISEN_ARCHMAGE_SUMMONER, 20000);
                 _events.ScheduleEvent(EVENT_BLAZING_SKELETON_SUMMONER, 30000);
                 me->SetReactState(REACT_PASSIVE);
+                summons.DespawnAll();
             }
 
             void JustReachedHome()
@@ -622,6 +623,8 @@ class npc_the_lich_king_controller : public CreatureScript
 
             void JustSummoned(Creature* summon)
             {
+                summons.Summon(summon);
+
                 // must not be in dream phase
                 summon->SetPhaseMask((summon->GetPhaseMask() & ~0x10), true);
                 if (summon->GetEntry() != NPC_SUPPRESSER)
@@ -635,7 +638,6 @@ class npc_the_lich_king_controller : public CreatureScript
                         else
                             summon->GetMotionMaster()->MovePoint(0, ZielVorne);
                     }
-
                     summon->AI()->DoZoneInCombat();
                 }
             }
@@ -644,6 +646,9 @@ class npc_the_lich_king_controller : public CreatureScript
             {
                 if (!UpdateVictim())
                     return;
+
+                if (instance->GetBossState(DATA_VALITHRIA_DREAMWALKER) != IN_PROGRESS)
+                    EnterEvadeMode();
 
                 _events.Update(diff);
 
@@ -677,7 +682,8 @@ class npc_the_lich_king_controller : public CreatureScript
 
         private:
             EventMap _events;
-            InstanceScript* _instance;
+            SummonList summons;
+            InstanceScript * instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const
