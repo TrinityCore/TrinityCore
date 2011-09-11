@@ -560,24 +560,15 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_SINDRAGOSA_FROSTWYRMS:
-                        return FrostwyrmCount;
-                    case DATA_SPINESTALKER:
-                        return SpinestalkerTrashCount;
-                    case DATA_RIMEFANG:
-                        return RimefangTrashCount;
-                    case DATA_COLDFLAME_JETS:
-                        return ColdflameJetsState;
-                    case DATA_TEAM_IN_INSTANCE:
-                        return TeamInInstance;
-                    case DATA_BLOOD_QUICKENING_STATE:
-                        return BloodQuickeningState;
-                    case DATA_HEROIC_ATTEMPTS:
-                        return HeroicAttempts;
-                    default:
-                        break;
+                    case DATA_SINDRAGOSA_FROSTWYRMS:    return FrostwyrmCount;
+                    case DATA_SPINESTALKER:             return SpinestalkerTrashCount;
+                    case DATA_RIMEFANG:                 return RimefangTrashCount;
+                    case DATA_COLDFLAME_JETS:           return ColdflameJetsState;
+                    case DATA_TEAM_IN_INSTANCE:         return TeamInInstance;
+                    case DATA_BLOOD_QUICKENING_STATE:   return BloodQuickeningState;
+                    case DATA_HEROIC_ATTEMPTS:          return HeroicAttempts;
+                    default: break;
                 }
-
                 return 0;
             }
 
@@ -585,44 +576,44 @@ class instance_icecrown_citadel : public InstanceMapScript
             {
                 switch (type)
                 {
-                    case DATA_DEATHBRINGER_SAURFANG: return DeathbringerSaurfangGUID;
-                    case DATA_SAURFANG_EVENT_NPC: return DeathbringerSaurfangEventGUID;
-                    case GO_SAURFANG_S_DOOR: return DeathbringerSaurfangDoorGUID;
-                    case GO_SCOURGE_TRANSPORTER_SAURFANG: return SaurfangTeleportGUID;
-                    case DATA_FESTERGUT: return FestergutGUID;
-                    case DATA_ROTFACE: return RotfaceGUID;
-                    case DATA_PROFESSOR_PUTRICIDE: return ProfessorPutricideGUID;
-                    case DATA_PUTRICIDE_TABLE: return PutricideTableGUID;
-                    case DATA_PRINCE_KELESETH_GUID: return BloodCouncilGUIDs[0];
-                    case DATA_PRINCE_TALDARAM_GUID: return BloodCouncilGUIDs[1];
-                    case DATA_PRINCE_VALANAR_GUID: return BloodCouncilGUIDs[2];
-                    case DATA_BLOOD_PRINCES_CONTROL: return BloodCouncilControllerGUID;
-                    case DATA_BLOOD_QUEEN_LANA_THEL: return BloodQueenLanaThelGUID;
-                    case DATA_CROK_SCOURGEBANE: return CrokScourgebaneGUID;
+                    case DATA_DEATHBRINGER_SAURFANG:        return DeathbringerSaurfangGUID;
+                    case DATA_SAURFANG_EVENT_NPC:           return DeathbringerSaurfangEventGUID;
+                    case GO_SAURFANG_S_DOOR:                return DeathbringerSaurfangDoorGUID;
+                    case GO_SCOURGE_TRANSPORTER_SAURFANG:   return SaurfangTeleportGUID;
+                    case DATA_FESTERGUT:                    return FestergutGUID;
+                    case DATA_ROTFACE:                      return RotfaceGUID;
+                    case DATA_PROFESSOR_PUTRICIDE:          return ProfessorPutricideGUID;
+                    case DATA_PUTRICIDE_TABLE:              return PutricideTableGUID;
+                    case DATA_PRINCE_KELESETH_GUID:         return BloodCouncilGUIDs[0];
+                    case DATA_PRINCE_TALDARAM_GUID:         return BloodCouncilGUIDs[1];
+                    case DATA_PRINCE_VALANAR_GUID:          return BloodCouncilGUIDs[2];
+                    case DATA_BLOOD_PRINCES_CONTROL:        return BloodCouncilControllerGUID;
+                    case DATA_BLOOD_QUEEN_LANA_THEL:        return BloodQueenLanaThelGUID;
+                    case DATA_CROK_SCOURGEBANE:             return CrokScourgebaneGUID;
                     case DATA_CAPTAIN_ARNATH:
                     case DATA_CAPTAIN_BRANDON:
                     case DATA_CAPTAIN_GRONDEL:
-                    case DATA_CAPTAIN_RUPERT: return CrokCaptainGUIDs[type - DATA_CAPTAIN_ARNATH];
-                    case DATA_SISTER_SVALNA: return SisterSvalnaGUID;
-                    case DATA_VALITHRIA_DREAMWALKER: return ValithriaDreamwalkerGUID;
-                    case DATA_VALITHRIA_LICH_KING: return ValithriaLichKingGUID;
-                    case DATA_VALITHRIA_TRIGGER: return ValithriaTriggerGUID;
-                    case DATA_SINDRAGOSA: return SindragosaGUID;
-                    case DATA_SPINESTALKER: return SpinestalkerGUID;
-                    case DATA_RIMEFANG: return RimefangGUID;
-                    case DATA_THE_LICH_KING: return TheLichKingGUID;
-                    case GUID_ICE_SHARD_1: return IceShard1;
-                    case GUID_ICE_SHARD_2: return IceShard2;
-                    case GUID_ICE_SHARD_3: return IceShard3;
-                    case GUID_ICE_SHARD_4: return IceShard4;
-                    case GUID_FROSTY_EDGE_OUTER: return FrostyEdgeOuter;
-                    case GUID_FROSTY_EDGE_INNER: return FrostyEdgeInner;
-                    case GUID_EDGE_DESTROY_WARNING: return EdgeDestroyWarning;
-                    case GUID_LAVAMAN: return lavaman;
-                    case GUID_HANGINGMAN: return hangingman;
-                    case GUID_TIRION: return Tirion;
-                    case GUID_TERENAS_FIGHTER: return TerenasFighter;
-                    case GUID_SPIRIT_WARDEN: return SpiritWarden;
+                    case DATA_CAPTAIN_RUPERT:               return CrokCaptainGUIDs[type - DATA_CAPTAIN_ARNATH];
+                    case DATA_SISTER_SVALNA:                return SisterSvalnaGUID;
+                    case DATA_VALITHRIA_DREAMWALKER:        return ValithriaDreamwalkerGUID;
+                    case DATA_VALITHRIA_LICH_KING:          return ValithriaLichKingGUID;
+                    case DATA_VALITHRIA_TRIGGER:            return ValithriaTriggerGUID;
+                    case DATA_SINDRAGOSA:                   return SindragosaGUID;
+                    case DATA_SPINESTALKER:                 return SpinestalkerGUID;
+                    case DATA_RIMEFANG:                     return RimefangGUID;
+                    case DATA_THE_LICH_KING:                return TheLichKingGUID;
+                    case GUID_ICE_SHARD_1:                  return IceShard1;
+                    case GUID_ICE_SHARD_2:                  return IceShard2;
+                    case GUID_ICE_SHARD_3:                  return IceShard3;
+                    case GUID_ICE_SHARD_4:                  return IceShard4;
+                    case GUID_FROSTY_EDGE_OUTER:            return FrostyEdgeOuter;
+                    case GUID_FROSTY_EDGE_INNER:            return FrostyEdgeInner;
+                    case GUID_EDGE_DESTROY_WARNING:         return EdgeDestroyWarning;
+                    case GUID_LAVAMAN:                      return lavaman;
+                    case GUID_HANGINGMAN:                   return hangingman;
+                    case GUID_TIRION:                       return Tirion;
+                    case GUID_TERENAS_FIGHTER:              return TerenasFighter;
+                    case GUID_SPIRIT_WARDEN:                return SpiritWarden;
                     default: break;
                 }
                 return 0;
