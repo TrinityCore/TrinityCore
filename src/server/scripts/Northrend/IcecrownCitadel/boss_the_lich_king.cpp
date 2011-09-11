@@ -360,7 +360,7 @@ class boss_the_lich_king : public CreatureScript
 
         struct boss_the_lich_kingAI : public BossAI
         {
-            boss_the_lich_kingAI(Creature * creature) : BossAI(creature, DATA_THE_LICH_KING), Stage(1), summons(me)
+            boss_the_lich_kingAI(Creature * creature) : BossAI(creature, DATA_THE_LICH_KING), summons(me), Stage(1)
             {
             }
 
