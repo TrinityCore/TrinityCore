@@ -269,27 +269,6 @@ SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mec
     return apSpell[urand(0, spellCount - 1)];
 }
 
-bool ScriptedAI::CanCast(Unit* target, SpellInfo const* spell, bool triggered /*= false*/)
-{
-    //No target so we can't cast
-    if (!target || !spell)
-        return false;
-
-    //Silenced so we can't cast
-    if (!triggered && me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SILENCED))
-        return false;
-
-    //Check for power
-    if (!triggered && me->GetPower(Powers(spell->PowerType)) < spell->ManaCost)
-        return false;
-
-    //Unit is out of range of this spell
-    if (me->IsInRange(target, float(me->GetSpellMinRangeForTarget(target, spell)), float(me->GetSpellMaxRangeForTarget(target, spell))))
-        return false;
-
-    return true;
-}
-
 void ScriptedAI::DoResetThreat()
 {
     if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
