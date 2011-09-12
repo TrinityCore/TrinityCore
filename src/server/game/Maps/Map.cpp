@@ -824,9 +824,17 @@ void Map::MoveAllCreaturesInMoveList()
         }
         else
         {
+            //AddObjectToRemoveList(Pet*) should only be called in Pet::Remove
+            //This may happen when a player just logs in and a pet moves to a nearby unloaded cell
+            //To avoid this, we can load nearby cells when player log in
+            //But this check is always needed to ensure safety
+            if (c->isPet())
+            {
+                ((Pet*)c)->Remove(PET_SAVE_NOT_IN_SLOT, true);
+            }
             // if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
             // creature coordinates will be updated and notifiers send
-            if (!CreatureRespawnRelocation(c))
+            else if (!CreatureRespawnRelocation(c))
             {
                 // ... or unload (if respawn grid also not loaded)
                 #ifdef TRINITY_DEBUG
