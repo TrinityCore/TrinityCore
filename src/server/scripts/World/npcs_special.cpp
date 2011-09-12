@@ -228,6 +228,18 @@ enum FirecallerEvents
     EVENT_JOKE
 };
 
+/*
+DROP TABLE IF EXISTS `feuerrufer`;
+CREATE TABLE `feuerrufer` (
+  `num` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Nummer des Geschenkes',
+  `char` tinytext NOT NULL COMMENT 'Charaktername',
+  `item` int(11) unsigned NOT NULL COMMENT 'Das verschenkte Item',
+  `link` varchar(256) NOT NULL COMMENT 'Link zu Wowhead für das Item',
+  `zeit` int(11) unsigned NOT NULL COMMENT 'Zeitpunkt',
+  `guid` int(11) unsigned NOT NULL COMMENT 'NPC GUID des Feuerrufers',
+  PRIMARY KEY (`num`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT='Tabelle für die Geschenke des Feuerrufers';
+*/
 class npc_uwom_firecaller : public CreatureScript
 {
 public:
@@ -423,7 +435,7 @@ public:
                 return false;
 
             if (BereitsVergeben() >= MAX_GESCHENKE || SemaVorhanden(num))
-                return true; // Es wurde bereits alle Geschenke, oder diese Geschenknummer schon vergeben!
+                return true; // Es wurden bereits alle Geschenke, oder diese Geschenknummer vergeben!
 
             for (std::map<uint32, uint32>::const_iterator itr = PetListe.begin(); itr != PetListe.end(); ++itr)
             {
@@ -438,6 +450,11 @@ public:
                         // Bericht erstellen, damit wir wissen, wer welches Geschenk bekommen hat. ;)
                         SchreibeBericht(fmtstring("%s hat das Item http://de.wowhead.com/item=%s am %s Uhr von NPC-GUID %u erhalten.\n",
                                                   chr->GetName(), buffer, TimeToTimestampStr(localtime, GERMAN).c_str(), me->GetGUIDLow()));
+
+                        // Die Daten in die Datenbank eintragen.
+                        CharacterDatabase.DirectPExecute("INSERT INTO `feuerrufer` (`char`,`item`,`link`,`zeit`,`guid`) VALUES ('%s',%u,'%s',%u,%u)",
+                            chr->GetName(), itr->first, fmtstring("http://de.wowhead.com/item=%s", buffer), uint32(localtime), me->GetGUIDLow());
+
                         return true;
                     }
                 }
