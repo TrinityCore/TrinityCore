@@ -1221,7 +1221,7 @@ class spell_dreamwalker_decay_periodic_timer : public SpellScriptLoader
 
             bool Load()
             {
-                _decayRate = GetId() != SPELL_TIMER_BLAZING_SKELETON ? 1000 : 5000;
+                _decayRate = GetId() != SPELL_TIMER_BLAZING_SKELETON ? 5000 : 2000;
                 return true;
             }
 
