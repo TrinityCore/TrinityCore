@@ -939,6 +939,8 @@ class WorldSession
         uint32 _accountId;
         uint8 m_expansion;
 
+        typedef std::list<AddonInfo> AddonsList;
+
         time_t _logoutTime;
         bool m_inQueue;                                     // session wait in auth.queue
         bool m_playerLoading;                               // code processed in LoginPlayer

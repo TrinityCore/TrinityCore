@@ -19,12 +19,8 @@
 #ifndef _ADDONMGR_H
 #define _ADDONMGR_H
 
-#include "Common.h"
-#include <ace/Singleton.h>
-
+#include "Define.h"
 #include <string>
-
-class WorldSession;
 
 struct AddonInfo
 {
@@ -56,33 +52,14 @@ struct SavedAddon
     uint32 CRC;
 };
 
-// List of client addons (for WorldSession).
-typedef std::list<AddonInfo> AddonsList;
-
-// List of saved addons (in DB).
-typedef std::list<SavedAddon> SavedAddonsList;
-
 #define STANDARD_ADDON_CRC 0x4c1c776d
 
-class AddonMgr
+namespace AddonMgr
 {
-    friend class ACE_Singleton<AddonMgr, ACE_Null_Mutex>;
-    AddonMgr();
-    ~AddonMgr();
-
-    public:
-
-        void LoadFromDB();
-        void SaveAddon(AddonInfo const& addon);
-
-        SavedAddon const* GetAddonInfo(const std::string& name) const;
-
-    private:
-
-        SavedAddonsList m_knownAddons;                           // Known addons.
-};
-
-#define sAddonMgr ACE_Singleton<AddonMgr, ACE_Null_Mutex>::instance()
+    void LoadFromDB();
+    void SaveAddon(AddonInfo const& addon);
+    SavedAddon const* GetAddonInfo(const std::string& name);
+}
 
 #endif
 
