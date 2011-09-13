@@ -26,6 +26,7 @@
 #include "Transport.h"
 #include "ObjectAccessor.h"
 #include "CellImpl.h"
+#include "SpellInfo.h"
 
 using namespace Trinity;
 
@@ -266,44 +267,44 @@ MessageDistDeliverer::Visit(PlayerMapType &m)
     }
 }
 
-void
-MessageDistDeliverer::Visit(CreatureMapType &m)
+void MessageDistDeliverer::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if (!iter->getSource()->InSamePhase(i_phaseMask))
+        Creature* target = iter->getSource();
+        if (!target->InSamePhase(i_phaseMask))
             continue;
 
-        if (iter->getSource()->GetExactDist2dSq(i_source) > i_distSq)
+        if (target->GetExactDist2dSq(i_source) > i_distSq)
             continue;
 
         // Send packet to all who are sharing the creature's vision
-        if (!iter->getSource()->GetSharedVisionList().empty())
+        if (!target->GetSharedVisionList().empty())
         {
-            SharedVisionList::const_iterator i = iter->getSource()->GetSharedVisionList().begin();
-            for (; i != iter->getSource()->GetSharedVisionList().end(); ++i)
-                if ((*i)->m_seer == iter->getSource())
+            SharedVisionList::const_iterator i = target->GetSharedVisionList().begin();
+            for (; i != target->GetSharedVisionList().end(); ++i)
+                if ((*i)->m_seer == target)
                     SendPacket(*i);
         }
     }
 }
 
-void
-MessageDistDeliverer::Visit(DynamicObjectMapType &m)
+void MessageDistDeliverer::Visit(DynamicObjectMapType &m)
 {
     for (DynamicObjectMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
-        if (!iter->getSource()->InSamePhase(i_phaseMask))
+        DynamicObject *target = iter->getSource();
+        if (!target->InSamePhase(i_phaseMask))
             continue;
 
-        if (iter->getSource()->GetExactDist2dSq(i_source) > i_distSq)
+        if (target->GetExactDist2dSq(i_source) > i_distSq)
             continue;
 
-        if (IS_PLAYER_GUID(iter->getSource()->GetCasterGUID()))
+        if (IS_PLAYER_GUID(target->GetCasterGUID()))
         {
             // Send packet back to the caster if the caster has vision of dynamic object
-            Player* caster = (Player*)iter->getSource()->GetCaster();
-            if (caster && caster->m_seer == iter->getSource())
+            Player* caster = (Player*)target->GetCaster();
+            if (caster && caster->m_seer == target)
                 SendPacket(caster);
         }
     }
@@ -330,38 +331,41 @@ ObjectUpdater::Visit(GridRefManager<T> &m)
     }
 }
 
-bool CannibalizeObjectCheck::operator()(Corpse* u)
+bool AnyDeadUnitObjectInRangeCheck::operator()(Player* u)
 {
-    // ignore bones
-    if (u->GetType() == CORPSE_BONES)
-        return false;
-
-    Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGUID());
-
-    if (!owner || i_funit->IsFriendlyTo(owner))
-        return false;
-
-    if (i_funit->IsWithinDistInMap(u, i_range))
-        return true;
-
-    return false;
+    return !u->isAlive() && !u->HasAuraType(SPELL_AURA_GHOST) && i_searchObj->IsWithinDistInMap(u, i_range);
 }
 
-bool CarrionFeederObjectCheck::operator()(Corpse* u)
+bool AnyDeadUnitObjectInRangeCheck::operator()(Corpse* u)
 {
-    // ignore bones
-    if (u->GetType() == CORPSE_BONES)
-        return false;
+    return u->GetType() != CORPSE_BONES && i_searchObj->IsWithinDistInMap(u, i_range);
+}
 
+bool AnyDeadUnitObjectInRangeCheck::operator()(Creature* u)
+{
+    return !u->isAlive() && i_searchObj->IsWithinDistInMap(u, i_range);
+}
+
+bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Player* u)
+{
+    return AnyDeadUnitObjectInRangeCheck::operator()(u)
+        && i_spellInfo->CheckTarget(i_searchObj, u, true)
+        && i_searchObj->IsTargetMatchingCheck(u, i_check);
+}
+
+bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Corpse* u)
+{
     Player* owner = ObjectAccessor::FindPlayer(u->GetOwnerGUID());
+    return owner && AnyDeadUnitObjectInRangeCheck::operator()(u)
+        && i_spellInfo->CheckTarget(i_searchObj, owner, true)
+        && i_searchObj->IsTargetMatchingCheck(owner, i_check);
+}
 
-    if (!owner || i_funit->IsFriendlyTo(owner))
-        return false;
-
-    if (i_funit->IsWithinDistInMap(u, i_range))
-        return true;
-
-    return false;
+bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Creature* u)
+{
+    return AnyDeadUnitObjectInRangeCheck::operator()(u)
+        && i_spellInfo->CheckTarget(i_searchObj, u, true)
+        && i_searchObj->IsTargetMatchingCheck(u, i_check);
 }
 
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);

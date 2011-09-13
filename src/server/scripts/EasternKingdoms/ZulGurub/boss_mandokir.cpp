@@ -32,12 +32,12 @@ EndScriptData */
 #define SAY_WATCH               -1309018
 #define SAY_WATCH_WHISPER       -1309019                    //is this text for real? easter egg?
 
-#define SPELL_CHARGE            24315
-#define SPELL_CLEAVE            20691
+#define SPELL_CHARGE            24408
+#define SPELL_CLEAVE            7160
 #define SPELL_FEAR              29321
-#define SPELL_WHIRLWIND         24236
-#define SPELL_MORTAL_STRIKE     24573
-#define SPELL_ENRAGE            23537
+#define SPELL_WHIRLWIND         15589
+#define SPELL_MORTAL_STRIKE     16856
+#define SPELL_ENRAGE            24318
 #define SPELL_WATCH             24314
 #define SPELL_LEVEL_UP          24312
 

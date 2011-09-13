@@ -1172,12 +1172,12 @@ struct LFGDungeonEntry
     uint32  reclevel;                                       // 20
     uint32  recminlevel;                                    // 21
     uint32  recmaxlevel;                                    // 22
-    int32  map;                                             // 23
+    int32   map;                                            // 23
     uint32  difficulty;                                     // 24
-    //uint32  unk;                                          // 25
+    //uint32  flags;                                        // 25
     uint32  type;                                           // 26
-    //uint32  unk2;                                         // 27
-    //char*   unk3;                                         // 28
+    //uint32  unk;                                          // 27
+    //char*   iconname;                                     // 28
     uint32  expansion;                                      // 29
     //uint32  unk4;                                         // 30
     uint32  grouptype;                                      // 31
@@ -1538,7 +1538,7 @@ struct SpellEntry
     uint32    Effect[MAX_SPELL_EFFECTS];                    // 71-73    m_effect
     int32     EffectDieSides[MAX_SPELL_EFFECTS];            // 74-76    m_effectDieSides
     float     EffectRealPointsPerLevel[MAX_SPELL_EFFECTS];  // 77-79    m_effectRealPointsPerLevel
-    int32     EffectBasePoints[MAX_SPELL_EFFECTS];          // 80-82    m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
+    int32     EffectBasePoints[MAX_SPELL_EFFECTS];          // 80-82    m_effectBasePoints (must not be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
     uint32    EffectMechanic[MAX_SPELL_EFFECTS];            // 83-85    m_effectMechanic
     uint32    EffectImplicitTargetA[MAX_SPELL_EFFECTS];     // 86-88    m_implicitTargetA
     uint32    EffectImplicitTargetB[MAX_SPELL_EFFECTS];     // 89-91    m_implicitTargetB

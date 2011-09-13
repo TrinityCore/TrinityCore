@@ -307,7 +307,7 @@ enum SpellAttr1
     SPELL_ATTR1_NOT_BREAK_STEALTH                = 0x00000020, //  5 Not break stealth
     SPELL_ATTR1_CHANNELED_2                      = 0x00000040, //  6
     SPELL_ATTR1_CANT_BE_REFLECTED                = 0x00000080, //  7
-    SPELL_ATTR1_NOT_IN_COMBAT_TARGET             = 0x00000100, //  8 Spell req target not to be in combat state
+    SPELL_ATTR1_CANT_TARGET_IN_COMBAT            = 0x00000100, //  8 can target only out of combat units
     SPELL_ATTR1_MELEE_COMBAT_START               = 0x00000200, //  9 player starts melee combat after this spell is cast
     SPELL_ATTR1_NO_THREAT                        = 0x00000400, // 10 no generates threat on cast 100% (old NO_INITIAL_AGGRO)
     SPELL_ATTR1_UNK11                            = 0x00000800, // 11 aura
@@ -318,7 +318,7 @@ enum SpellAttr1
     SPELL_ATTR1_UNAFFECTED_BY_SCHOOL_IMMUNE      = 0x00010000, // 16 on immuniy
     SPELL_ATTR1_UNAUTOCASTABLE_BY_PET            = 0x00020000, // 17
     SPELL_ATTR1_UNK18                            = 0x00040000, // 18
-    SPELL_ATTR1_CANT_TARGET_SELF                 = 0x00080000, // 19 Applies only to unit target - for example Divine Intervention (19752)
+    SPELL_ATTR1_CANT_TARGET_SELF                 = 0x00080000, // 19
     SPELL_ATTR1_REQ_COMBO_POINTS1                = 0x00100000, // 20 Req combo points on target
     SPELL_ATTR1_UNK21                            = 0x00200000, // 21
     SPELL_ATTR1_REQ_COMBO_POINTS2                = 0x00400000, // 22 Req combo points on target
@@ -335,9 +335,9 @@ enum SpellAttr1
 
 enum SpellAttr2
 {
-    SPELL_ATTR2_ALLOW_DEAD_TARGET                = 0x00000001, //  0
+    SPELL_ATTR2_CAN_TARGET_DEAD                  = 0x00000001, //  0 can target dead unit or corpse
     SPELL_ATTR2_UNK1                             = 0x00000002, //  1 ? many triggered spells have this flag
-    SPELL_ATTR2_UNK2                             = 0x00000004, //  2
+    SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS            = 0x00000004, //  2 26368 4.0.1 dbc change
     SPELL_ATTR2_UNK3                             = 0x00000008, //  3
     SPELL_ATTR2_DISPLAY_IN_STANCE_BAR            = 0x00000010, //  4 client displays icon in stance bar when learned, even if not shapeshift
     SPELL_ATTR2_AUTOREPEAT_FLAG                  = 0x00000020, //  5
@@ -379,11 +379,11 @@ enum SpellAttr3
     SPELL_ATTR3_UNK5                             = 0x00000020, //  5
     SPELL_ATTR3_UNK6                             = 0x00000040, //  6
     SPELL_ATTR3_STACK_FOR_DIFF_CASTERS           = 0x00000080, //  7 separate stack for every caster
-    SPELL_ATTR3_PLAYERS_ONLY                     = 0x00000100, //  8 Player only?
+    SPELL_ATTR3_ONLY_TARGET_PLAYERS              = 0x00000100, //  8 can only target players
     SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2     = 0x00000200, //  9 triggered from effect?
     SPELL_ATTR3_MAIN_HAND                        = 0x00000400, // 10 Main hand weapon required
     SPELL_ATTR3_BATTLEGROUND                     = 0x00000800, // 11 Can casted only on battleground
-    SPELL_ATTR3_REQUIRE_DEAD_TARGET              = 0x00001000, // 12
+    SPELL_ATTR3_ONLY_TARGET_GHOSTS               = 0x00001000, // 12
     SPELL_ATTR3_UNK13                            = 0x00002000, // 13
     SPELL_ATTR3_UNK14                            = 0x00004000, // 14 "Honorless Target" only this spells have this flag
     SPELL_ATTR3_UNK15                            = 0x00008000, // 15 Auto Shoot, Shoot, Throw,  - this is autoshot flag
@@ -400,7 +400,7 @@ enum SpellAttr3
     SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED          = 0x04000000, // 26 auras with this attribute can proc from triggered spell casts with SPELL_ATTR3_TRIGGERED_CAN_TRIGGER_PROC_2 (67736 + 52999)
     SPELL_ATTR3_DRAIN_SOUL                       = 0x08000000, // 27 only drain soul has this flag
     SPELL_ATTR3_UNK28                            = 0x10000000, // 28
-    SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // 29 Ignore caster spellpower and done damage mods?
+    SPELL_ATTR3_NO_DONE_BONUS                    = 0x20000000, // 29 Ignore caster spellpower and done damage mods?  client doesn't apply spellmods for those spells
     SPELL_ATTR3_DONT_DISPLAY_RANGE               = 0x40000000, // 30 client doesn't display range in tooltip for those spells
     SPELL_ATTR3_UNK31                            = 0x80000000  // 31
 };
@@ -487,30 +487,30 @@ enum SpellAttr6
     SPELL_ATTR6_UNK5                             = 0x00000020, //  5
     SPELL_ATTR6_UNK6                             = 0x00000040, //  6
     SPELL_ATTR6_UNK7                             = 0x00000080, //  7
-    SPELL_ATTR6_IGNORE_CROWD_CONTROL_TARGETS     = 0x00000100, //  8
+    SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED     = 0x00000100, //  8
     SPELL_ATTR6_UNK9                             = 0x00000200, //  9
     SPELL_ATTR6_CAN_TARGET_POSSESSED_FRIENDS     = 0x00000400, // 10 NYI!
     SPELL_ATTR6_NOT_IN_RAID_INSTANCE             = 0x00000800, // 11 not usable in raid instance
     SPELL_ATTR6_CASTABLE_WHILE_ON_VEHICLE        = 0x00001000, // 12 castable while caster is on vehicle
-    SPELL_ATTR6_UNK13                            = 0x00002000, // 13
+    SPELL_ATTR6_CAN_TARGET_INVISIBLE             = 0x00002000, // 13 ignore visibility requirement for spell target (phases, invisibility, etc.)
     SPELL_ATTR6_UNK14                            = 0x00004000, // 14
     SPELL_ATTR6_UNK15                            = 0x00008000, // 15 not set in 3.0.3
     SPELL_ATTR6_UNK16                            = 0x00010000, // 16
     SPELL_ATTR6_UNK17                            = 0x00020000, // 17
-    SPELL_ATTR6_ONLY_CAST_WHILE_POSSESSED        = 0x00040000, // 18 (NYI) client won't allow to cast these spells when unit does not have possessor
+    SPELL_ATTR6_CAST_BY_CHARMER                  = 0x00040000, // 18 client won't allow to cast these spells when unit is not possessed && charmer of caster will be original caster
     SPELL_ATTR6_UNK19                            = 0x00080000, // 19
     SPELL_ATTR6_UNK20                            = 0x00100000, // 20
     SPELL_ATTR6_CLIENT_UI_TARGET_EFFECTS         = 0x00200000, // 21 it's only client-side attribute
     SPELL_ATTR6_UNK22                            = 0x00400000, // 22
     SPELL_ATTR6_UNK23                            = 0x00800000, // 23
-    SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24 NYI!
+    SPELL_ATTR6_CAN_TARGET_UNTARGETABLE          = 0x01000000, // 24
     SPELL_ATTR6_UNK25                            = 0x02000000, // 25
     SPELL_ATTR6_UNK26                            = 0x04000000, // 26
     SPELL_ATTR6_UNK27                            = 0x08000000, // 27
     SPELL_ATTR6_UNK28                            = 0x10000000, // 28
     SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS          = 0x20000000, // 29 ignores done percent damage mods?
     SPELL_ATTR6_UNK30                            = 0x40000000, // 30
-    SPELL_ATTR6_UNK31                            = 0x80000000  // 31
+    SPELL_ATTR6_UNK31                            = 0x80000000  // 31 some special cooldown calc?
 };
 
 enum SpellAttr7
@@ -1014,7 +1014,7 @@ enum SpellCastResult
     SPELL_FAILED_TARGET_CANNOT_BE_RESURRECTED = 186,
     SPELL_FAILED_UNKNOWN = 187, // actually doesn't exist in client
 
-    SPELL_CAST_OK = 255 // custom value, don't must be send to client
+    SPELL_CAST_OK = 255 // custom value, must not be sent to client
 };
 
 enum SpellCustomErrors
@@ -1241,7 +1241,7 @@ enum Mechanics
     (1<<MECHANIC_TURN)|(1<<MECHANIC_HORROR)|(1<<MECHANIC_DAZE)| \
     (1<<MECHANIC_SAPPED))
 
-// Spell dispell type
+// Spell dispel type
 enum DispelType
 {
     DISPEL_NONE         = 0,
@@ -1277,6 +1277,8 @@ enum SpellImmunity
 
 #define MAX_SPELL_IMMUNITY           7
 
+// target enum name consist of:
+// TARGET_[OBJECT_TYPE]_[REFERENCE_TYPE(skipped for caster)]_[SELECTION_TYPE(skipped for default)]_[additional specifiers(friendly, BACK_LEFT, etc.]
 enum Targets
 {
     TARGET_UNIT_CASTER                 = 1,
@@ -1285,67 +1287,66 @@ enum Targets
     TARGET_UNIT_NEARBY_ALLY            = 4,
     TARGET_UNIT_PET                    = 5,
     TARGET_UNIT_TARGET_ENEMY           = 6,
-    TARGET_UNIT_AREA_ENTRY_SRC         = 7,
-    TARGET_UNIT_AREA_ENTRY_DST         = 8,
-    TARGET_DST_HOME                    = 9,
-    TARGET_UNIT_TARGET_DEST_CASTER     = 11, // teleport target to caster
-    TARGET_UNIT_AREA_ENEMY_SRC         = 15,
-    TARGET_UNIT_AREA_ENEMY_DST         = 16,
-    TARGET_DST_DB                      = 17,
-    TARGET_DST_CASTER                  = 18,
-    TARGET_UNIT_PARTY_CASTER           = 20,
+    TARGET_UNIT_SRC_AREA_ENTRY         = 7,
+    TARGET_UNIT_DEST_AREA_ENTRY        = 8,
+    TARGET_DEST_HOME                   = 9,
+    TARGET_UNIT_SRC_AREA_UNK_11        = 11,
+    TARGET_UNIT_SRC_AREA_ENEMY         = 15,
+    TARGET_UNIT_DEST_AREA_ENEMY        = 16,
+    TARGET_DEST_DB                     = 17,
+    TARGET_DEST_CASTER                 = 18,
+    TARGET_UNIT_CASTER_AREA_PARTY      = 20,
     TARGET_UNIT_TARGET_ALLY            = 21,
     TARGET_SRC_CASTER                  = 22,
-    TARGET_GAMEOBJECT                  = 23,
-    TARGET_UNIT_CONE_ENEMY             = 24,
+    TARGET_GAMEOBJECT_TARGET           = 23,
+    TARGET_UNIT_CONE_ENEMY_24          = 24,
     TARGET_UNIT_TARGET_ANY             = 25,
-    TARGET_GAMEOBJECT_ITEM             = 26,
+    TARGET_GAMEOBJECT_ITEM_TARGET      = 26,
     TARGET_UNIT_MASTER                 = 27,
     TARGET_DEST_DYNOBJ_ENEMY           = 28,
     TARGET_DEST_DYNOBJ_ALLY            = 29,
-    TARGET_UNIT_AREA_ALLY_SRC          = 30,
-    TARGET_UNIT_AREA_ALLY_DST          = 31,
-    TARGET_MINION                      = 32,
-    //TARGET_DEST_SUMMON
-    TARGET_UNIT_AREA_PARTY_SRC         = 33,
-    TARGET_UNIT_AREA_PARTY_DST         = 34,
+    TARGET_UNIT_SRC_AREA_ALLY          = 30,
+    TARGET_UNIT_DEST_AREA_ALLY         = 31,
+    TARGET_DEST_CASTER_SUMMON          = 32, // front left, doesn't use radius
+    TARGET_UNIT_SRC_AREA_PARTY         = 33,
+    TARGET_UNIT_DEST_AREA_PARTY        = 34,
     TARGET_UNIT_TARGET_PARTY           = 35,
-    TARGET_DEST_CASTER_RANDOM_UNKNOWN  = 36, //unknown
-    TARGET_UNIT_TARGET_ALLY_PARTY      = 37,
+    TARGET_DEST_CASTER_UNK_36          = 36,
+    TARGET_UNIT_LASTTARGET_AREA_PARTY  = 37,
     TARGET_UNIT_NEARBY_ENTRY           = 38,
-    TARGET_UNIT_CASTER_FISHING         = 39,
+    TARGET_DEST_CASTER_FISHING         = 39,
     TARGET_GAMEOBJECT_NEARBY_ENTRY     = 40,
-    TARGET_DEST_CASTER_FRONT_LEFT      = 41,
-    TARGET_DEST_CASTER_BACK_LEFT       = 42,
-    TARGET_DEST_CASTER_BACK_RIGHT      = 43,
-    TARGET_DEST_CASTER_FRONT_RIGHT     = 44,
-    TARGET_UNIT_CHAINHEAL              = 45,
-    TARGET_DST_NEARBY_ENTRY            = 46,
+    TARGET_DEST_CASTER_FRONT_RIGHT     = 41,
+    TARGET_DEST_CASTER_BACK_RIGHT      = 42,
+    TARGET_DEST_CASTER_BACK_LEFT       = 43,
+    TARGET_DEST_CASTER_FRONT_LEFT      = 44,
+    TARGET_UNIT_TARGET_CHAINHEAL_ALLY  = 45,
+    TARGET_DEST_NEARBY_ENTRY           = 46,
     TARGET_DEST_CASTER_FRONT           = 47,
     TARGET_DEST_CASTER_BACK            = 48,
     TARGET_DEST_CASTER_RIGHT           = 49,
     TARGET_DEST_CASTER_LEFT            = 50,
-    TARGET_GAMEOBJECT_AREA_SRC         = 51,
-    TARGET_GAMEOBJECT_AREA_DST         = 52,
-    TARGET_DST_TARGET_ENEMY            = 53, // set unit coordinates as dest, only 16 target B imlemented
-    TARGET_UNIT_CONE_ENEMY_UNKNOWN     = 54, // 180 degree, or different angle
+    TARGET_GAMEOBJECT_SRC_AREA         = 51,
+    TARGET_GAMEOBJECT_DEST_AREA        = 52,
+    TARGET_DEST_TARGET_ENEMY           = 53,
+    TARGET_UNIT_CONE_ENEMY_54          = 54,
     TARGET_DEST_CASTER_FRONT_LEAP      = 55, // for a leap spell
-    TARGET_UNIT_RAID_CASTER            = 56,
+    TARGET_UNIT_CASTER_AREA_RAID       = 56,
     TARGET_UNIT_TARGET_RAID            = 57,
     TARGET_UNIT_NEARBY_RAID            = 58,
     TARGET_UNIT_CONE_ALLY              = 59,
     TARGET_UNIT_CONE_ENTRY             = 60,
-    TARGET_UNIT_TARGET_CLASS_RAID      = 61,
-    TARGET_TEST                        = 62, // for a test spell
+    TARGET_UNIT_TARGET_AREA_RAID_CLASS = 61,
+    TARGET_UNK_62                      = 62,
     TARGET_DEST_TARGET_ANY             = 63,
     TARGET_DEST_TARGET_FRONT           = 64,
     TARGET_DEST_TARGET_BACK            = 65,
     TARGET_DEST_TARGET_RIGHT           = 66,
     TARGET_DEST_TARGET_LEFT            = 67,
-    TARGET_DEST_TARGET_FRONT_LEFT      = 68,
-    TARGET_DEST_TARGET_BACK_LEFT       = 69,
-    TARGET_DEST_TARGET_BACK_RIGHT      = 70,
-    TARGET_DEST_TARGET_FRONT_RIGHT     = 71,
+    TARGET_DEST_TARGET_FRONT_RIGHT     = 68,
+    TARGET_DEST_TARGET_BACK_RIGHT      = 69,
+    TARGET_DEST_TARGET_BACK_LEFT       = 70,
+    TARGET_DEST_TARGET_FRONT_LEFT      = 71,
     TARGET_DEST_CASTER_RANDOM          = 72,
     TARGET_DEST_CASTER_RADIUS          = 73,
     TARGET_DEST_TARGET_RANDOM          = 74,
@@ -1356,18 +1357,18 @@ enum Targets
     TARGET_DEST_DEST_BACK              = 79,
     TARGET_DEST_DEST_RIGHT             = 80,
     TARGET_DEST_DEST_LEFT              = 81,
-    TARGET_DEST_DEST_FRONT_LEFT        = 82,
-    TARGET_DEST_DEST_BACK_LEFT         = 83,
-    TARGET_DEST_DEST_BACK_RIGHT        = 84,
-    TARGET_DEST_DEST_FRONT_RIGHT       = 85,
+    TARGET_DEST_DEST_FRONT_RIGHT       = 82,
+    TARGET_DEST_DEST_BACK_RIGHT        = 83,
+    TARGET_DEST_DEST_BACK_LEFT         = 84,
+    TARGET_DEST_DEST_FRONT_LEFT        = 85,
     TARGET_DEST_DEST_RANDOM            = 86,
     TARGET_DEST_DEST                   = 87,
     TARGET_DEST_DYNOBJ_NONE            = 88,
     TARGET_DEST_TRAJ                   = 89,
     TARGET_UNIT_TARGET_MINIPET         = 90,
-    TARGET_DEST_DEST_RANDOM_DIR_DIST   = 91,
+    TARGET_DEST_DEST_RADIUS            = 91,
     TARGET_UNIT_SUMMONER               = 92,
-    TARGET_CORPSE_AREA_ENEMY_PLAYER_SRC= 93, // TODO
+    TARGET_CORPSE_SRC_AREA_ENEMY       = 93, // NYI
     TARGET_UNIT_VEHICLE                = 94,
     TARGET_UNIT_TARGET_PASSENGER       = 95,
     TARGET_UNIT_PASSENGER_0            = 96,
@@ -1378,12 +1379,12 @@ enum Targets
     TARGET_UNIT_PASSENGER_5            = 101,
     TARGET_UNIT_PASSENGER_6            = 102,
     TARGET_UNIT_PASSENGER_7            = 103,
-    TARGET_UNIT_AREA_PATH              = 104,
+    TARGET_UNIT_CONE_ENEMY_104         = 104,
     TARGET_UNIT_UNK_105                = 105, // 1 spell
     TARGET_DEST_CHANNEL_CASTER         = 106,
-    TARGET_UNK_AREA_UNK_DST_107        = 107, // not enough info - only generic spells avalible
-    TARGET_GAMEOBJECT_AREA_PATH        = 108,
-    TARGET_DEST_UNK_110                = 110, // some kind of traj?
+    TARGET_UNK_DEST_AREA_UNK_107       = 107, // not enough info - only generic spells avalible
+    TARGET_GAMEOBJECT_CONE             = 108,
+    TARGET_DEST_UNK_110                = 110, // 1 spell
     TOTAL_SPELL_TARGETS
 };
 
@@ -1473,13 +1474,13 @@ enum GameobjectTypes
 
 enum GameObjectFlags
 {
-    GO_FLAG_IN_USE          = 0x00000001,                   //disables interaction while animated
-    GO_FLAG_LOCKED          = 0x00000002,                   //require key, spell, event, etc to be opened. Makes "Locked" appear in tooltip
-    GO_FLAG_INTERACT_COND   = 0x00000004,                   //cannot interact (condition to interact)
-    GO_FLAG_TRANSPORT       = 0x00000008,                   //any kind of transport? Object can transport (elevator, boat, car)
-    GO_FLAG_UNK1            = 0x00000010,                   //
-    GO_FLAG_NODESPAWN       = 0x00000020,                   //never despawn, typically for doors, they just change state
-    GO_FLAG_TRIGGERED       = 0x00000040,                   //typically, summoned objects. Triggered by spell or other events
+    GO_FLAG_IN_USE          = 0x00000001,                   // disables interaction while animated
+    GO_FLAG_LOCKED          = 0x00000002,                   // require key, spell, event, etc to be opened. Makes "Locked" appear in tooltip
+    GO_FLAG_INTERACT_COND   = 0x00000004,                   // cannot interact (condition to interact)
+    GO_FLAG_TRANSPORT       = 0x00000008,                   // any kind of transport? Object can transport (elevator, boat, car)
+    GO_FLAG_NOT_SELECTABLE  = 0x00000010,                   // not selectable even in GM mode
+    GO_FLAG_NODESPAWN       = 0x00000020,                   // never despawn, typically for doors, they just change state
+    GO_FLAG_TRIGGERED       = 0x00000040,                   // typically, summoned objects. Triggered by spell or other events
     GO_FLAG_DAMAGED         = 0x00000200,
     GO_FLAG_DESTROYED       = 0x00000400,
 };
@@ -2762,7 +2763,7 @@ enum PetDiet
 
 #define MAX_PET_DIET 9
 
-#define CHAIN_SPELL_JUMP_RADIUS 10
+#define CHAIN_SPELL_JUMP_RADIUS 8
 
 #define GUILD_BANKLOG_MAX_RECORDS   25
 #define GUILD_EVENTLOG_MAX_RECORDS  100

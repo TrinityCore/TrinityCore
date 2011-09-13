@@ -1138,7 +1138,7 @@ class Player : public Unit, public GridObject<Player>
         void SetAcceptWhispers(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_ACCEPT_WHISPERS; else m_ExtraFlags &= ~PLAYER_EXTRA_ACCEPT_WHISPERS; }
         bool isGameMaster() const { return m_ExtraFlags & PLAYER_EXTRA_GM_ON; }
         void SetGameMaster(bool on);
-        bool isGMChat() const { return GetSession()->GetSecurity() >= SEC_MODERATOR && (m_ExtraFlags & PLAYER_EXTRA_GM_CHAT); }
+        bool isGMChat() const { return m_ExtraFlags & PLAYER_EXTRA_GM_CHAT; }
         void SetGMChat(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_GM_CHAT; else m_ExtraFlags &= ~PLAYER_EXTRA_GM_CHAT; }
         bool isTaxiCheater() const { return m_ExtraFlags & PLAYER_EXTRA_TAXICHEAT; }
         void SetTaxiCheater(bool on) { if (on) m_ExtraFlags |= PLAYER_EXTRA_TAXICHEAT; else m_ExtraFlags &= ~PLAYER_EXTRA_TAXICHEAT; }
@@ -1462,6 +1462,7 @@ class Player : public Unit, public GridObject<Player>
         void ItemRemovedQuestCheck(uint32 entry, uint32 count);
         void KilledMonster(CreatureTemplate const* cInfo, uint64 guid);
         void KilledMonsterCredit(uint32 entry, uint64 guid);
+        void KilledPlayerCredit();
         void CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id);
         void TalkedToCreature(uint32 entry, uint64 guid);
         void MoneyChanged(uint32 value);
@@ -1481,6 +1482,7 @@ class Player : public Unit, public GridObject<Player>
         void SendPushToPartyResponse(Player *pPlayer, uint32 msg);
         void SendQuestUpdateAddItem(Quest const* pQuest, uint32 item_idx, uint16 count);
         void SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
+        void SendQuestUpdateAddPlayer(Quest const* pQuest, uint16 old_count, uint16 add_count);
 
         uint64 GetDivider() { return m_divider; }
         void SetDivider(uint64 guid) { m_divider = guid; }
@@ -1567,7 +1569,7 @@ class Player : public Unit, public GridObject<Player>
         uint64 GetSelection() const { return m_curSelection; }
         Unit *GetSelectedUnit() const;
         Player *GetSelectedPlayer() const;
-        void SetSelection(const uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
+        void SetSelection(uint64 guid) { m_curSelection = guid; SetUInt64Value(UNIT_FIELD_TARGET, guid); }
 
         uint8 GetComboPoints() { return m_comboPoints; }
         uint64 GetComboTarget() const { return m_comboTarget; }
@@ -1873,7 +1875,8 @@ class Player : public Unit, public GridObject<Player>
         void UpdateDefenseBonusesMod();
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float GetMeleeCritFromAgility();
-        float GetDodgeFromAgility();
+        void GetDodgeFromAgility(float &diminishing, float &nondiminishing);
+        float GetMissPercentageFromDefence() const;
         float GetSpellCritFromIntellect();
         float OCTRegenHPPerSpirit();
         float OCTRegenMPPerSpirit();
@@ -1902,7 +1905,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateRuneRegen(RuneType rune);
 
         uint64 GetLootGUID() const { return m_lootGuid; }
-        void SetLootGUID(const uint64 guid) { m_lootGuid = guid; }
+        void SetLootGUID(uint64 guid) { m_lootGuid = guid; }
 
         void RemovedInsignia(Player* looterPlr);
 
@@ -2247,6 +2250,7 @@ class Player : public Unit, public GridObject<Player>
         /***              ENVIROMENTAL SYSTEM                  ***/
         /*********************************************************/
 
+        bool IsImmuneToEnvironmentalDamage();
         uint32 EnvironmentalDamage(EnviromentalDamage type, uint32 damage);
 
         /*********************************************************/

@@ -804,7 +804,8 @@ enum TrinityStrings
     LANG_BANLIST_CHARACTERS_HEADER      = 1133,
     LANG_ALLOW_TICKETS                  = 1134,
     LANG_DISALLOW_TICKETS               = 1135,
-    // Room for more level 3              1136-1199 not used
+    LANG_CHAR_NOT_BANNED                = 1136,
+    // Room for more level 3              1137-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
@@ -942,6 +943,7 @@ enum TrinityStrings
     LANG_GOINFO_LOOTID                  = 5028,
     LANG_COMMAND_LOOKUP_MAX_RESULTS     = 5029,
     // Room for more Trinity strings      5030-9999
+    LANG_FLEE                           = 5030,
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

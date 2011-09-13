@@ -50,6 +50,7 @@
 #include "InstanceScript.h"
 #include "GameObjectAI.h"
 #include "Group.h"
+#include "AccountMgr.h"
 
 void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 {
@@ -57,8 +58,11 @@ void WorldSession::HandleRepopRequestOpcode(WorldPacket & recv_data)
 
     recv_data.read_skip<uint8>();
 
-    if (GetPlayer()->isAlive()||GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    if (GetPlayer()->isAlive() || GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
+
+    if (GetPlayer()->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+        return; // silently return, client should display the error by itself
 
     // the world update order is sessions, players, creatures
     // the netcode runs in parallel with all of these
@@ -164,7 +168,6 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
 void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_WHO Message");
-    //recv_data.hexlike();
 
     uint32 matchcount = 0;
 
@@ -240,7 +243,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
     HashMapHolder<Player>::MapType& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
-        if (security == SEC_PLAYER)
+        if (AccountMgr::IsPlayerAccount(security))
         {
             // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
             if (itr->second->GetTeam() != team && !allowTwoSideWhoList)
@@ -558,13 +561,13 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult result, std::string
         team = Player::TeamForRace((*result)[1].GetUInt8());
         friendAcctid = (*result)[2].GetUInt32();
 
-        if (GetSecurity() >= SEC_MODERATOR || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || sAccountMgr->GetSecurity(friendAcctid, realmID) < SEC_MODERATOR)
+        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAcctid, realmID)))
         {
             if (friendGuid)
             {
                 if (friendGuid == GetPlayer()->GetGUID())
                     friendResult = FRIEND_SELF;
-                else if (GetPlayer()->GetTeam() != team && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && GetSecurity() < SEC_MODERATOR)
+                else if (GetPlayer()->GetTeam() != team && !sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_ADD_FRIEND) && AccountMgr::IsPlayerAccount(GetSecurity()))
                     friendResult = FRIEND_ENEMY;
                 else if (GetPlayer()->GetSocial()->HasFriend(GUID_LOPART(friendGuid)))
                     friendResult = FRIEND_ALREADY;
@@ -951,7 +954,7 @@ void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
 
     if (decompressedSize > 0xFFFF)
     {
-        recv_data.rpos(recv_data.wpos());                   // unnneded warning spam in this case
+        recv_data.rfinish();                   // unnneded warning spam in this case
         sLog->outError("UAD: Account data packet too big, size %u", decompressedSize);
         return;
     }
@@ -962,12 +965,12 @@ void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
     uLongf realSize = decompressedSize;
     if (uncompress(const_cast<uint8*>(dest.contents()), &realSize, const_cast<uint8*>(recv_data.contents() + recv_data.rpos()), recv_data.size() - recv_data.rpos()) != Z_OK)
     {
-        recv_data.rpos(recv_data.wpos());                   // unnneded warning spam in this case
+        recv_data.rfinish();                   // unnneded warning spam in this case
         sLog->outError("UAD: Failed to decompress account data");
         return;
     }
 
-    recv_data.rpos(recv_data.wpos());                       // uncompress read (recv_data.size() - recv_data.rpos())
+    recv_data.rfinish();                       // uncompress read (recv_data.size() - recv_data.rpos())
 
     std::string adata;
     dest >> adata;
@@ -1097,13 +1100,13 @@ void WorldSession::HandleFeatherFallAck(WorldPacket &recv_data)
     sLog->outStaticDebug("WORLD: CMSG_MOVE_FEATHER_FALL_ACK");
 
     // no used
-    recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
+    recv_data.rfinish();                       // prevent warnings spam
 }
 
 void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
 {
     // no used
-    recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
+    recv_data.rfinish();                       // prevent warnings spam
 /*
     uint64 guid;
     recv_data >> guid;
@@ -1111,7 +1114,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
     // now can skip not our packet
     if (_player->GetGUID() != guid)
     {
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 
@@ -1129,7 +1132,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
 void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
 {
     // no used
-    recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
+    recv_data.rfinish();                       // prevent warnings spam
 /*
     uint64 guid;
     recv_data >> guid;
@@ -1137,7 +1140,7 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
     // now can skip not our packet
     if (_player->GetGUID() != guid)
     {
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 
@@ -1262,7 +1265,7 @@ void WorldSession::HandleWorldTeleportOpcode(WorldPacket& recv_data)
 
     sLog->outStaticDebug("Time %u sec, map=%u, x=%f, y=%f, z=%f, orient=%f", time/1000, mapid, PositionX, PositionY, PositionZ, Orientation);
 
-    if (GetSecurity() >= SEC_ADMINISTRATOR)
+    if (AccountMgr::IsAdminAccount(GetSecurity()))
         GetPlayer()->TeleportTo(mapid, PositionX, PositionY, PositionZ, Orientation);
     else
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
@@ -1275,7 +1278,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
     std::string charname;
     recv_data >> charname;
 
-    if (GetSecurity() < SEC_ADMINISTRATOR)
+    if (!AccountMgr::IsAdminAccount(GetSecurity()))
     {
         SendNotification(LANG_YOU_NOT_HAVE_PERMISSION);
         return;
@@ -1327,7 +1330,6 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
 void WorldSession::HandleComplainOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_COMPLAIN");
-    recv_data.hexlike();
 
     uint8 spam_type;                                        // 0 - mail, 1 - chat
     uint64 spammer_guid;
@@ -1388,7 +1390,6 @@ void WorldSession::HandleRealmSplitOpcode(WorldPacket & recv_data)
 void WorldSession::HandleFarSightOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_FAR_SIGHT");
-    //recv_data.hexlike();
 
     uint8 apply;
     recv_data >> apply;
@@ -1492,7 +1493,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
     Map *map = _player->GetMap();
     if (map && map->IsDungeon())
     {
-        sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+        sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player (Name: %s, GUID: %u) tried to reset the instance while player is inside!", _player->GetName(), _player->GetGUIDLow());
         return;
     }
 
@@ -1513,7 +1514,7 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
                 map = pGroupGuy->GetMap();
                 if (map && map->IsNonRaidDungeon())
                 {
-                    sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
+                    sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player %d tried to reset the instance while group member (Name: %s, GUID: %u) is inside!", _player->GetGUIDLow(), pGroupGuy->GetName(), pGroupGuy->GetGUIDLow());
                     return;
                 }
             }
@@ -1613,7 +1614,6 @@ void WorldSession::HandleMoveSetCanFlyAckOpcode(WorldPacket & recv_data)
 {
     // fly mode on/off
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_MOVE_SET_CAN_FLY_ACK");
-    //recv_data.hexlike();
 
     uint64 guid;                                            // guid - unused
     recv_data.readPackGUID(guid);

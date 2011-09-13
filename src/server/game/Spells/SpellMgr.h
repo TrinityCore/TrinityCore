@@ -24,6 +24,7 @@
 #include <ace/Singleton.h>
 #include "Common.h"
 #include "SharedDefines.h"
+#include "Unit.h"
 
 class SpellInfo;
 class Player;
@@ -348,7 +349,14 @@ enum SpellGroupStackRule
 
 typedef std::map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
 
-typedef std::map<uint32, uint16> SpellThreatMap;
+struct SpellThreatEntry
+{
+    int32       flatMod;                                    // flat threat-value for this Spell  - default: 0
+    float       pctMod;                                     // threat-multiplier for this Spell  - default: 1.0f
+    float       apPctMod;                                   // Pct of AP that is added as Threat - default: 0.0f
+};
+
+typedef std::map<uint32, SpellThreatEntry> SpellThreatMap;
 
 // Spell script target related declarations (accessed using SpellMgr functions)
 enum SpellScriptTargetType
@@ -550,8 +558,8 @@ class SpellMgr
         // Spell difficulty
         uint32 GetSpellDifficultyId(uint32 spellId) const;
         void SetSpellDifficultyId(uint32 spellId, uint32 id);
-        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit* caster) const;
-        SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit* caster) const;
+        uint32 GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) const;
+        SpellInfo const* GetSpellForDifficultyFromSpell(SpellInfo const* spell, Unit const* caster) const;
 
         // Spell Ranks table
         SpellChainNode const* GetSpellChainNode(uint32 spell_id) const;
@@ -602,7 +610,7 @@ class SpellMgr
         SpellBonusEntry const* GetSpellBonusData(uint32 spellId) const;
 
         // Spell threat table
-        uint16 GetSpellThreat(uint32 spellid) const;
+        SpellThreatEntry const* GetSpellThreatEntry(uint32 spellID) const;
 
         SkillLineAbilityMapBounds GetSkillLineAbilityMapBounds(uint32 spell_id) const;
 

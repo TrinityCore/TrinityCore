@@ -127,21 +127,18 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
     */
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Sending calendar");
-    data.hexlike();
     SendPacket(&data);
 }
 
 void WorldSession::HandleCalendarGetEvent(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_GET_EVENT");
-    recv_data.hexlike();
     recv_data.read_skip<uint64>();                          // unk
 }
 
 void WorldSession::HandleCalendarGuildFilter(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_GUILD_FILTER");
-    recv_data.hexlike();
     recv_data.read_skip<uint32>();                          // unk1
     recv_data.read_skip<uint32>();                          // unk2
     recv_data.read_skip<uint32>();                          // unk3
@@ -150,15 +147,13 @@ void WorldSession::HandleCalendarGuildFilter(WorldPacket &recv_data)
 void WorldSession::HandleCalendarArenaTeam(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_ARENA_TEAM");
-    recv_data.hexlike();
     recv_data.read_skip<uint32>();                          // unk
 }
 
 void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_ADD_EVENT");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //std::string unk1, unk2;
     //recv_data >> (std::string)unk1;
@@ -193,8 +188,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
 void WorldSession::HandleCalendarUpdateEvent(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_UPDATE_EVENT");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data >> uint64
     //recv_data >> uint64
@@ -212,8 +206,7 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket &recv_data)
 void WorldSession::HandleCalendarRemoveEvent(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_REMOVE_EVENT");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data >> uint64
     //recv_data >> uint64
@@ -224,8 +217,7 @@ void WorldSession::HandleCalendarRemoveEvent(WorldPacket &recv_data)
 void WorldSession::HandleCalendarCopyEvent(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_COPY_EVENT");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data >> uint64
     //recv_data >> uint64
@@ -236,8 +228,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket &recv_data)
 void WorldSession::HandleCalendarEventInvite(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_INVITE");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data >> uint64
     //recv_data >> uint64
@@ -250,8 +241,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket &recv_data)
 void WorldSession::HandleCalendarEventRsvp(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_RSVP");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data >> uint64
     //recv_data >> uint64
@@ -262,8 +252,7 @@ void WorldSession::HandleCalendarEventRsvp(WorldPacket &recv_data)
 void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_REMOVE_INVITE");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data.readPackGUID(guid)
     //recv_data >> uint64
@@ -274,8 +263,7 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket &recv_data)
 void WorldSession::HandleCalendarEventStatus(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_STATUS");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data.readPackGUID(guid)
     //recv_data >> uint64
@@ -287,8 +275,7 @@ void WorldSession::HandleCalendarEventStatus(WorldPacket &recv_data)
 void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_MODERATOR_STATUS");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data.readPackGUID(guid)
     //recv_data >> uint64
@@ -300,8 +287,7 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket &recv_data)
 void WorldSession::HandleCalendarComplain(WorldPacket &recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_COMPLAIN");
-    recv_data.hexlike();
-    recv_data.rpos(recv_data.wpos());                       // set to end to avoid warnings spam
+    recv_data.rfinish();                       // set to end to avoid warnings spam
 
     //recv_data >> uint64
     //recv_data >> uint64

@@ -67,7 +67,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     ASSERT(oldMap);
     if (GetPlayer()->IsInWorld())
     {
-        sLog->outCrash("Player is still in world when teleported from map %u! to new map %u", oldMap->GetId(), loc.GetMapId());
+        sLog->outCrash("Player (Name %s) is still in world when teleported from map %u to new map %u", GetPlayer()->GetName(), oldMap->GetId(), loc.GetMapId());
         oldMap->Remove(GetPlayer(), false);
     }
 
@@ -243,7 +243,6 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 {
     uint16 opcode = recv_data.GetOpcode();
-    recv_data.hexlike();
 
     Unit *mover = _player->m_mover;
 
@@ -254,7 +253,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plMover && plMover->IsBeingTeleported())
     {
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 
@@ -267,7 +266,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     movementInfo.guid = guid;
     ReadMovementInfo(recv_data, &movementInfo);
 
-    recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+    recv_data.rfinish();                   // prevent warnings spam
 
     // prevent tampered movement data
     if (guid != mover->GetGUID())
@@ -275,7 +274,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 
     if (!movementInfo.pos.IsPositionValid())
     {
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 
@@ -286,14 +285,14 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         // (also received at zeppelin leave by some reason with t_* as absolute in continent coordinates, can be safely skipped)
         if (movementInfo.t_pos.GetPositionX() > 50 || movementInfo.t_pos.GetPositionY() > 50 || movementInfo.t_pos.GetPositionZ() > 50)
         {
-            recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+            recv_data.rfinish();                   // prevent warnings spam
             return;
         }
 
         if (!Trinity::IsValidMapCoord(movementInfo.pos.GetPositionX() + movementInfo.t_pos.GetPositionX(), movementInfo.pos.GetPositionY() + movementInfo.t_pos.GetPositionY(),
             movementInfo.pos.GetPositionZ() + movementInfo.t_pos.GetPositionZ(), movementInfo.pos.GetOrientation() + movementInfo.t_pos.GetOrientation()))
         {
-            recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+            recv_data.rfinish();                   // prevent warnings spam
             return;
         }
 
@@ -406,7 +405,7 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
     // now can skip not our packet
     if (_player->GetGUID() != guid)
     {
-        recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
+        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 

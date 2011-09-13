@@ -381,6 +381,51 @@ public:
     }
 };
 
+/*######
+## npc_vereth_the_cunning
+######*/
+
+enum eVerethTheCunning
+{
+    NPC_GEIST_RETURN_BUNNY_KC   = 31049,
+    NPC_LITHE_STALKER           = 30894,
+    SPELL_SUBDUED_LITHE_STALKER = 58151,
+};
+
+class npc_vereth_the_cunning : public CreatureScript
+{
+public:
+    npc_vereth_the_cunning() : CreatureScript("npc_vereth_the_cunning") { }
+
+    struct npc_vereth_the_cunningAI : public ScriptedAI
+    {
+        npc_vereth_the_cunningAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            ScriptedAI::MoveInLineOfSight(who);
+
+            if (who->GetEntry() == NPC_LITHE_STALKER && me->IsWithinDistInMap(who, 10.0f))
+            {
+                if (Unit* owner = who->GetCharmer())
+                {
+                    if (who->HasAura(SPELL_SUBDUED_LITHE_STALKER))
+                        {
+                            owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, 0);
+                            who->ToCreature()->DisappearAndDie();
+                        
+                    }
+                }
+            }
+        }
+    };
+
+    CreatureAI *GetAI(Creature *creature) const
+    {
+        return new npc_vereth_the_cunningAI(creature);
+    }
+};
+
 void AddSC_icecrown()
 {
     new npc_arete;
@@ -389,4 +434,5 @@ void AddSC_icecrown()
     new npc_argent_valiant;
     new npc_alorah_and_grimmin;
     new npc_guardian_pavilion;
+    new npc_vereth_the_cunning;
 }

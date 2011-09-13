@@ -2486,7 +2486,7 @@ void ObjectMgr::LoadItemTemplates()
             else if (itemTemplate.Spells[1].SpellId != -1)
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemTemplate.Spells[1].SpellId);
-                if (!spellInfo && !sDisableMgr->IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[1].SpellId, NULL))
+                if (!spellInfo && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[1].SpellId, NULL))
                 {
                     sLog->outErrorDb("Item (Entry: %u) has wrong (not existing) spell in spellid_%d (%d)", entry, 1+1, itemTemplate.Spells[1].SpellId);
                     itemTemplate.Spells[0].SpellId = 0;
@@ -2534,7 +2534,7 @@ void ObjectMgr::LoadItemTemplates()
                 if (itemTemplate.Spells[j].SpellId && itemTemplate.Spells[j].SpellId != -1)
                 {
                     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itemTemplate.Spells[j].SpellId);
-                    if (!spellInfo && !sDisableMgr->IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[j].SpellId, NULL))
+                    if (!spellInfo && !DisableMgr::IsDisabledFor(DISABLE_TYPE_SPELL, itemTemplate.Spells[j].SpellId, NULL))
                     {
                         sLog->outErrorDb("Item (Entry: %u) has wrong (not existing) spell in spellid_%d (%d)", entry, j+1, itemTemplate.Spells[j].SpellId);
                         itemTemplate.Spells[j].SpellId = 0;
@@ -3752,7 +3752,7 @@ void ObjectMgr::LoadQuests()
     for (QuestMap::iterator iter = mQuestTemplates.begin(); iter != mQuestTemplates.end(); ++iter)
     {
         // skip post-loading checks for disabled quests
-        if (sDisableMgr->IsDisabledFor(DISABLE_TYPE_QUEST, iter->first, NULL))
+        if (DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, iter->first, NULL))
             continue;
 
         Quest * qinfo = iter->second;
@@ -3931,28 +3931,28 @@ void ObjectMgr::LoadQuests()
             // no changes, quest can't be done for this requirement
         }
 
-        if (!qinfo->RepObjectiveFaction && qinfo->RepObjectiveValue > 0)
+        if (!qinfo->RepObjectiveFaction && qinfo->RepObjectiveValue != 0)
         {
             sLog->outErrorDb("Quest %u has `RepObjectiveValue` = %d but `RepObjectiveFaction` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RepObjectiveValue);
             // warning
         }
 
-        if (!qinfo->RepObjectiveFaction2 && qinfo->RepObjectiveValue2 > 0)
+        if (!qinfo->RepObjectiveFaction2 && qinfo->RepObjectiveValue2 != 0)
         {
             sLog->outErrorDb("Quest %u has `RepObjectiveValue2` = %d but `RepObjectiveFaction2` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RepObjectiveValue2);
             // warning
         }
 
-        if (!qinfo->RequiredMinRepFaction && qinfo->RequiredMinRepValue > 0)
+        if (!qinfo->RequiredMinRepFaction && qinfo->RequiredMinRepValue != 0)
         {
             sLog->outErrorDb("Quest %u has `RequiredMinRepValue` = %d but `RequiredMinRepFaction` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RequiredMinRepValue);
             // warning
         }
 
-        if (!qinfo->RequiredMaxRepFaction && qinfo->RequiredMaxRepValue > 0)
+        if (!qinfo->RequiredMaxRepFaction && qinfo->RequiredMaxRepValue != 0)
         {
             sLog->outErrorDb("Quest %u has `RequiredMaxRepValue` = %d but `RequiredMaxRepFaction` is 0, value has no effect",
                 qinfo->GetQuestId(), qinfo->RequiredMaxRepValue);
@@ -4336,6 +4336,8 @@ void ObjectMgr::LoadQuests()
             mExclusiveQuestGroups.insert(std::pair<int32, uint32>(qinfo->ExclusiveGroup, qinfo->GetQuestId()));
         if (qinfo->LimitTime)
             qinfo->SetFlag(QUEST_TRINITY_FLAGS_TIMED);
+        if (qinfo->PlayersSlain)
+            qinfo->SetFlag(QUEST_TRINITY_FLAGS_PLAYER_KILL);
     }
 
     // check QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT for spell with SPELL_EFFECT_QUEST_COMPLETE
@@ -6220,8 +6222,6 @@ void ObjectMgr::SetHighestGuids()
     if (result)
         sGroupMgr->SetGroupDbStoreSize((*result)[0].GetUInt32()+1);
 }
-
-
 
 uint32 ObjectMgr::GenerateAuctionID()
 {

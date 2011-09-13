@@ -365,6 +365,7 @@ class Map : public GridRefManager<NGridType>
         bool IsRaid() const { return i_mapEntry && i_mapEntry->IsRaid(); }
         bool IsRaidOrHeroicDungeon() const { return IsRaid() || i_spawnMode > DUNGEON_DIFFICULTY_NORMAL; }
         bool IsHeroic() const { return IsRaid() ? i_spawnMode >= RAID_DIFFICULTY_10MAN_HEROIC : i_spawnMode >= DUNGEON_DIFFICULTY_HEROIC; }
+        bool Is25ManRaid() const { return IsRaid() && i_spawnMode & RAID_DIFFICULTY_MASK_25MAN; }   // since 25man difficulties are 1 and 3, we can check them like that
         bool IsBattleground() const { return i_mapEntry && i_mapEntry->IsBattleground(); }
         bool IsBattleArena() const { return i_mapEntry && i_mapEntry->IsBattleArena(); }
         bool IsBattlegroundOrArena() const { return i_mapEntry && i_mapEntry->IsBattlegroundOrArena(); }
@@ -416,6 +417,7 @@ class Map : public GridRefManager<NGridType>
 
         template<class T> void SwitchGridContainers(T* obj, bool active);
         template<class NOTIFIER> void VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier);
+        template<class NOTIFIER> void VisitFirstFound(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier);
         template<class NOTIFIER> void VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier);
         CreatureGroupHolderType CreatureGroupHolder;
@@ -648,6 +650,25 @@ Map::VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier)
     cell.Visit(p, world_object_notifier, *this, radius, x, y);
     TypeContainerVisitor<NOTIFIER, GridTypeMapContainer >  grid_object_notifier(notifier);
     cell.Visit(p, grid_object_notifier, *this, radius, x, y);
+}
+
+// should be used with Searcher notifiers, tries to search world if nothing found in grid
+template<class NOTIFIER>
+inline void
+Map::VisitFirstFound(const float &x, const float &y, float radius, NOTIFIER &notifier)
+{
+    CellPair p(Trinity::ComputeCellPair(x, y));
+    Cell cell(p);
+    cell.data.Part.reserved = ALL_DISTRICT;
+    cell.SetNoCreate();
+
+    TypeContainerVisitor<NOTIFIER, WorldTypeMapContainer> world_object_notifier(notifier);
+    cell.Visit(p, world_object_notifier, *this, radius, x, y);
+    if (!notifier.i_object)
+    {
+        TypeContainerVisitor<NOTIFIER, GridTypeMapContainer >  grid_object_notifier(notifier);
+        cell.Visit(p, grid_object_notifier, *this, radius, x, y);
+    }
 }
 
 template<class NOTIFIER>

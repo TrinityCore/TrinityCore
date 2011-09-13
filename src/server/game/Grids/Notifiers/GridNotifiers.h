@@ -554,56 +554,31 @@ namespace Trinity
             float i_range;
     };
 
-    class CannibalizeObjectCheck
+    class AnyDeadUnitObjectInRangeCheck
     {
         public:
-            CannibalizeObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
-            bool operator()(Player* u)
-            {
-                if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight())
-                    return false;
-
-                return i_funit->IsWithinDistInMap(u, i_range);
-            }
+            AnyDeadUnitObjectInRangeCheck(Unit const* searchObj, float range) : i_searchObj(searchObj), i_range(range) {}
+            bool operator()(Player* u);
             bool operator()(Corpse* u);
-            bool operator()(Creature* u)
-            {
-                if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight() ||
-                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
-                    return false;
-
-                return i_funit->IsWithinDistInMap(u, i_range);
-            }
+            bool operator()(Creature* u);
             template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
-        private:
-            Unit* const i_funit;
+        protected:
+            Unit const* const i_searchObj;
             float i_range;
     };
 
-    class CarrionFeederObjectCheck
+    class AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck
     {
         public:
-            CarrionFeederObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
-            bool operator()(Player* u)
-            {
-                if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight())
-                    return false;
-
-                return i_funit->IsWithinDistInMap(u, i_range);
-            }
+            AnyDeadUnitSpellTargetInRangeCheck(Unit const* searchObj, float range, SpellInfo const* spellInfo, SpellTargetSelectionCheckTypes check) 
+                : AnyDeadUnitObjectInRangeCheck(searchObj, range), i_spellInfo(spellInfo), i_check(check) {}
+            bool operator()(Player* u);
             bool operator()(Corpse* u);
-            bool operator()(Creature* u)
-            {
-                if (i_funit->IsFriendlyTo(u) || u->isAlive() || u->isInFlight() ||
-                    (u->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) != 0)
-                    return false;
-
-                return i_funit->IsWithinDistInMap(u, i_range);
-            }
+            bool operator()(Creature* u);
             template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
-        private:
-            Unit* const i_funit;
-            float i_range;
+        protected:
+            SpellInfo const* i_spellInfo;
+            SpellTargetSelectionCheckTypes i_check;
     };
 
     // WorldObject do classes
@@ -1297,6 +1272,34 @@ namespace Trinity
         private:
             TypeID _typeId;
             bool _equals;
+    };
+
+    class ObjectGUIDCheck
+    {
+        public:
+            ObjectGUIDCheck(uint64 GUID) : _GUID(GUID) {}
+            bool operator()(WorldObject* object)
+            {
+                return object->GetGUID() == _GUID;
+            }
+
+        private:
+            uint64 _GUID;
+    };
+
+    class UnitAuraCheck
+    {
+        public:
+            UnitAuraCheck(bool present, uint32 spellId, uint64 casterGUID = 0) : _present(present), _spellId(spellId), _casterGUID(casterGUID) {}
+            bool operator()(Unit* unit)
+            {
+                return unit->HasAura(_spellId, _casterGUID) == _present;
+            }
+
+        private:
+            bool _present;
+            uint32 _spellId;
+            uint64 _casterGUID;
     };
 
     // Player checks and do

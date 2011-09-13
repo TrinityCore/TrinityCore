@@ -383,7 +383,7 @@ enum SMART_ACTION
     SMART_ACTION_SET_EVENT_PHASE                    = 22,     // Phase
     SMART_ACTION_INC_EVENT_PHASE                    = 23,     // Value (may be negative to decrement phase, should not be 0)
     SMART_ACTION_EVADE                              = 24,     // No Params
-    SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // No Params
+    SMART_ACTION_FLEE_FOR_ASSIST                    = 25,     // With Emote
     SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // QuestID
     SMART_ACTION_CALL_CASTEDCREATUREORGO            = 27,     // CreatureId, SpellId
     SMART_ACTION_REMOVEAURASFROMSPELL               = 28,     // Spellid
@@ -420,7 +420,7 @@ enum SMART_ACTION
     SMART_ACTION_INSTALL_AI_TEMPLATE                = 58,     // AITemplateID
     SMART_ACTION_SET_RUN                            = 59,     // 0/1
     SMART_ACTION_SET_FLY                            = 60,     // 0/1
-    SMART_ACTION_SET_SWIMM                          = 61,     // 0/1
+    SMART_ACTION_SET_SWIM                           = 61,     // 0/1
     SMART_ACTION_TELEPORT                           = 62,     // mapID,
     SMART_ACTION_STORE_VARIABLE_DECIMAL             = 63,     // varID, number
     SMART_ACTION_STORE_TARGET_LIST                  = 64,     // varID,
@@ -754,8 +754,8 @@ struct SmartAction
 
         struct
         {
-            uint32 swimm;
-        } setSwimm;
+            uint32 swim;
+        } setSwim;
 
         struct
         {
@@ -851,6 +851,11 @@ struct SmartAction
             uint32 speedxy;
             uint32 speedz;
         } jump;
+
+        struct
+        {
+            uint32 withEmote;
+        } flee;
 
         struct
         {
@@ -1153,7 +1158,6 @@ struct SmartScriptHolder
         runOnce = false;
         link = 0;
         entryOrGuid = 0;
-        link = 0;
         event_id = 0;
         enableTimed = false;
     }
@@ -1236,7 +1240,7 @@ class SmartAIMgr
         //event stores
         SmartAIEventMap mEventMap[SMART_SCRIPT_TYPE_MAX];
 
-        bool IsEventValid(SmartScriptHolder &e);
+        bool IsEventValid(SmartScriptHolder& e);
         bool IsTargetValid(SmartScriptHolder const& e);
 
         /*inline bool IsTargetValid(SmartScriptHolder e, int32 target)

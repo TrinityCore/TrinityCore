@@ -555,10 +555,10 @@ class Creature : public Unit, public GridObject<Creature>
         Loot loot;
         bool lootForPickPocketed;
         bool lootForBody;
-        Player *GetLootRecipient() const;
-        Group *GetLootRecipientGroup() const;
+        Player* GetLootRecipient() const;
+        Group* GetLootRecipientGroup() const;
         bool hasLootRecipient() const { return m_lootRecipient || m_lootRecipientGroup; }
-        bool isTappedBy(Player* player) const;                          // return true if the creature is tapped by the player or a member of his party.
+        bool isTappedBy(Player const* player) const;                          // return true if the creature is tapped by the player or a member of his party.
 
         void SetLootRecipient (Unit* unit);
         void AllLootRemovedFromCorpse();
@@ -740,10 +740,10 @@ class Creature : public Unit, public GridObject<Creature>
 class AssistDelayEvent : public BasicEvent
 {
     public:
-        AssistDelayEvent(const uint64 victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
+        AssistDelayEvent(uint64 victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
 
         bool Execute(uint64 e_time, uint32 p_time);
-        void AddAssistant(const uint64 guid) { m_assistants.push_back(guid); }
+        void AddAssistant(uint64 guid) { m_assistants.push_back(guid); }
     private:
         AssistDelayEvent();
 

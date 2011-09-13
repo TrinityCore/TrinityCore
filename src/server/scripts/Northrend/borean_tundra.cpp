@@ -1832,6 +1832,7 @@ public:
                 creature->setFaction(FACTION_ESCORTEE_H);
                 break;
             }
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
             DoScriptText(SAY_1, creature);
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, false, player->GetGUID());
         }
@@ -1898,13 +1899,13 @@ public:
 
 enum Bonker_Togglevolt_Entries
 {
-    NPC_BONKER_TOGGLEVOLT           =25589,
-    QUEST_GET_ME_OUTA_HERE          =11673
+    NPC_BONKER_TOGGLEVOLT = 25589,
+    QUEST_GET_ME_OUTA_HERE = 11673
 };
 enum Script_Texts_Bonker_Togglevolt
 {
-    SAY_bonker_1                    =-1700002,
-    SAY_bonker_2                    =-1700003
+    SAY_bonker_1 = -1700002,
+    SAY_bonker_2 = -1700003
 };
 
 class npc_bonker_togglevolt : public CreatureScript
@@ -1916,15 +1917,7 @@ public:
     {
         if (quest->GetQuestId() == QUEST_GET_ME_OUTA_HERE)
         {
-            switch (player->GetTeam())
-            {
-            case ALLIANCE:
-                    creature->setFaction(FACTION_ESCORTEE_A);
-                    break;
-            case HORDE:
-                    creature->setFaction(FACTION_ESCORTEE_H);
-                    break;
-            }
+            creature->SetStandState(UNIT_STAND_STATE_STAND);
             DoScriptText(SAY_bonker_2, creature, player);
             CAST_AI(npc_escortAI, (creature->AI()))->Start(true, true, player->GetGUID());
         }
@@ -1938,8 +1931,8 @@ public:
 
         void Reset()
         {
-        Bonker_agro=0;
-        SetDespawnAtFar(false);
+            Bonker_agro=0;
+            SetDespawnAtFar(false);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1971,10 +1964,10 @@ public:
 
             switch(i)
             {
-            case 29:
-                if (player)
-                    player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
-                break;
+                case 29:
+                    if (player)
+                        player->GroupEventHappens(QUEST_GET_ME_OUTA_HERE, me);
+                    break;
             }
         }
     };
@@ -2431,7 +2424,7 @@ public:
             uiEventPhase = 1;
         }
 
-        void SetGUID(const uint64 uiGuid, int32 /*iId*/)
+        void SetGUID(uint64 uiGuid, int32 /*iId*/)
         {
             uiPlayerGUID = uiGuid;
         }

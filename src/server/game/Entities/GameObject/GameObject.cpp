@@ -147,7 +147,7 @@ void GameObject::RemoveFromWorld()
             if (Unit* owner = GetOwner())
                 owner->RemoveGameObject(this, false);
             else
-                sLog->outError("Delete GameObject (GUID: %u Entry: %u) that have references in not found creature %u GO list. Crash possible later.", GetGUIDLow(), GetGOInfo()->entry, GUID_LOPART(owner_guid));
+                sLog->outError("Delete GameObject (GUID: %u Entry: %u, Name: %s) that have references in not found creature %u GO list. Crash possible later.", GetGUIDLow(), GetGOInfo()->entry, GetGOInfo()->name.c_str(), GUID_LOPART(owner_guid));
         }
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
@@ -1575,8 +1575,9 @@ void GameObject::Use(Unit* user)
             return;
         }
         default:
-            sLog->outError("GameObject::Use(): unit (type: %u, guid: %u, name: %s) tries to use object (guid: %u, entry: %u, name: %s) of unknown type (%u)",
-                user->GetTypeId(), user->GetGUIDLow(), user->GetName(), GetGUIDLow(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
+            if (GetGoType() >= MAX_GAMEOBJECT_TYPE)
+                sLog->outError("GameObject::Use(): unit (type: %u, guid: %u, name: %s) tries to use object (guid: %u, entry: %u, name: %s) of unknown type (%u)",
+                    user->GetTypeId(), user->GetGUIDLow(), user->GetName(), GetGUIDLow(), GetEntry(), GetGOInfo()->name.c_str(), GetGoType());
             break;
     }
 
@@ -1630,6 +1631,8 @@ void GameObject::CastSpell(Unit* target, uint32 spellId)
     if (Unit* owner = GetOwner())
     {
         trigger->setFaction(owner->getFaction());
+        // needed for GO casts for proper target validation checks
+        trigger->SetUInt64Value(UNIT_FIELD_SUMMONEDBY, owner->GetGUID());
         trigger->CastSpell(target ? target : trigger, spellInfo, true, 0, 0, owner->GetGUID());
     }
     else

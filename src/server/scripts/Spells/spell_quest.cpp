@@ -22,6 +22,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "Vehicle.h"
 
 class spell_generic_quest_update_entry_SpellScript : public SpellScript
 {
@@ -857,6 +858,126 @@ public:
     };
 };
 
+enum StoppingTheSpread
+{
+    NPC_VILLAGER_KILL_CREDIT                     = 18240,
+    SPELL_FLAMES                                 = 39199,
+};
+
+class spell_q9874_liquid_fire : public SpellScriptLoader
+{
+    public:
+        spell_q9874_liquid_fire() : SpellScriptLoader("spell_q9874_liquid_fire")
+        {
+        }
+
+        class spell_q9874_liquid_fire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q9874_liquid_fire_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                Creature* target = GetHitUnit()->ToCreature();
+                if (!caster || !target || (target && target->HasAura(SPELL_FLAMES)))
+                    return;
+
+                caster->KilledMonsterCredit(NPC_VILLAGER_KILL_CREDIT, 0);
+                target->CastSpell(target, SPELL_FLAMES, true);
+                target->DespawnOrUnsummon(60000);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_q9874_liquid_fire_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q9874_liquid_fire_SpellScript();
+        };
+};
+
+
+enum SalvagingLifesStength
+{
+    NPC_SHARD_KILL_CREDIT                        = 29303,
+};
+
+class spell_q12805_lifeblood_dummy : public SpellScriptLoader
+{
+    public:
+        spell_q12805_lifeblood_dummy() : SpellScriptLoader("spell_q12805_lifeblood_dummy")
+        {
+        }
+
+        class spell_q12805_lifeblood_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_q12805_lifeblood_dummy_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                Creature* target = GetHitUnit()->ToCreature();
+                if (!caster || !target)
+                    return;
+
+                caster->KilledMonsterCredit(NPC_SHARD_KILL_CREDIT, 0);
+                target->CastSpell(target, uint32(GetEffectValue()), true);
+                target->DespawnOrUnsummon(2000);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_q12805_lifeblood_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_q12805_lifeblood_dummy_SpellScript();
+        };
+};
+
+/*
+ http://www.wowhead.com/quest=13283 King of the Mountain
+ http://www.wowhead.com/quest=13280 King of the Mountain
+ 59643 Plant Horde Battle Standard
+ 4338 Plant Alliance Battle Standard
+ */
+enum eBattleStandard
+{
+    NPC_KING_OF_THE_MOUNTAINT_KC					= 31766,
+};
+class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
+{
+public:
+    spell_q13280_13283_plant_battle_standard() : SpellScriptLoader("spell_q13280_13283_plant_battle_standard") { }
+
+    class spell_q13280_13283_plant_battle_standard_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q13280_13283_plant_battle_standard_SpellScript)
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {                 
+            Unit* caster = GetCaster();
+            if (caster->IsVehicle())
+                if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
+                     player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC,0);
+        }
+
+        void Register()
+        {
+        OnEffect += SpellEffectFn(spell_q13280_13283_plant_battle_standard_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q13280_13283_plant_battle_standard_SpellScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -877,4 +998,7 @@ void AddSC_quest_spell_scripts()
     new spell_q10041_q10040_who_are_they();
     new spell_symbol_of_life_dummy();
     new spell_q12659_ahunaes_knife();
+    new spell_q9874_liquid_fire();
+    new spell_q12805_lifeblood_dummy();
+    new spell_q13280_13283_plant_battle_standard();
 }

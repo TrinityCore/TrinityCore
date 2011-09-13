@@ -151,35 +151,35 @@ class SmartScript
             return NULL;
         }
 
-        GameObject* FindGameObjectNear(WorldObject* pSearchObject, uint32 guid) const
+        GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
         {
-            GameObject* pGameObject = NULL;
+            GameObject* gameObject = NULL;
 
-            CellPair p(Trinity::ComputeCellPair(pSearchObject->GetPositionX(), pSearchObject->GetPositionY()));
+            CellPair p(Trinity::ComputeCellPair(searchObject->GetPositionX(), searchObject->GetPositionY()));
             Cell cell(p);
             cell.data.Part.reserved = ALL_DISTRICT;
 
-            Trinity::GameObjectWithDbGUIDCheck goCheck(*pSearchObject, guid);
-            Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(pSearchObject, pGameObject, goCheck);
+            Trinity::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
+            Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
 
             TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
-            cell.Visit(p, objectChecker, *pSearchObject->GetMap());
+            cell.Visit(p, objectChecker, *searchObject->GetMap());
 
-            return pGameObject;
+            return gameObject;
         }
 
-        Creature* FindCreatureNear(WorldObject* pSearchObject, uint32 guid) const
+        Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
         {
             Creature* crea = NULL;
-            CellPair p(Trinity::ComputeCellPair(pSearchObject->GetPositionX(), pSearchObject->GetPositionY()));
+            CellPair p(Trinity::ComputeCellPair(searchObject->GetPositionX(), searchObject->GetPositionY()));
             Cell cell(p);
             cell.data.Part.reserved = ALL_DISTRICT;
 
-            Trinity::CreatureWithDbGUIDCheck target_check(pSearchObject, guid);
-            Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(pSearchObject, crea, target_check);
+            Trinity::CreatureWithDbGUIDCheck target_check(searchObject, guid);
+            Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(searchObject, crea, target_check);
 
             TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
-            cell.Visit(p, unit_checker, *pSearchObject->GetMap());
+            cell.Visit(p, unit_checker, *searchObject->GetMap());
 
             return crea;
         }

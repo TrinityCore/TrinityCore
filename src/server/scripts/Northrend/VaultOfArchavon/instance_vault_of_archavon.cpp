@@ -41,6 +41,9 @@ class instance_archavon : public InstanceMapScript
             {
                 EmalonGUID = 0;
                 ToravonGUID = 0;
+                ArchavonDeath = 0;
+                EmalonDeath = 0;
+                KoralonDeath = 0;
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -73,9 +76,63 @@ class instance_archavon : public InstanceMapScript
                 return 0;
             }
 
+            bool SetBossState(uint32 type, EncounterState state)
+            {
+                if (!InstanceScript::SetBossState(type, state))
+                    return false;
+
+                if (state != DONE)
+                   return true;
+
+                switch (type)
+                {
+                    case DATA_ARCHAVON:
+                        ArchavonDeath = time(NULL);
+                        break;
+                    case DATA_EMALON:
+                        EmalonDeath = time(NULL);
+                        break;
+                    case DATA_KORALON:
+                        KoralonDeath = time(NULL);
+                        break;
+                    default:
+                        return true;
+                }
+
+                // on every death of Archavon, Emalon and Koralon check our achievement
+                DoCastSpellOnPlayers(SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK);
+
+                return true;
+            }
+
+            bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/, uint32 /*miscvalue1*/)
+            {
+                switch (criteria_id)
+                {
+                    case CRITERIA_EARTH_WIND_FIRE_10:
+                    case CRITERIA_EARTH_WIND_FIRE_25:
+                        if (ArchavonDeath && EmalonDeath && KoralonDeath)
+                        {
+                            // instance difficulty check is already done in db (achievement_criteria_data)
+                            // int() for Visual Studio, compile errors with abs(time_t)
+                            return (abs(int(ArchavonDeath-EmalonDeath)) < MINUTE && \
+                                abs(int(EmalonDeath-KoralonDeath)) < MINUTE && \
+                                abs(int(KoralonDeath-ArchavonDeath)) < MINUTE);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                return false;
+            }
+
         private:
             uint64 EmalonGUID;
             uint64 ToravonGUID;
+            time_t ArchavonDeath;
+            time_t EmalonDeath;
+            time_t KoralonDeath;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

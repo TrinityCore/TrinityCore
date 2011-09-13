@@ -60,7 +60,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(Unit const* pUnit, float dist, bool playerOnly, int32 aura) : me(pUnit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
+    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
 
     bool operator()(Unit const* target) const
     {
@@ -120,7 +120,7 @@ class UnitAI
         virtual void DoAction(int32 const /*param*/) {}
         virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
-        virtual void SetGUID(uint64 const /*guid*/, int32 /*id*/ = 0) {}
+        virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) {}
         virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
@@ -128,7 +128,7 @@ class UnitAI
         // predicate shall extend std::unary_function<Unit* , bool>
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
-            const std::list<HostileReference* > &threatlist = me->getThreatManager().getThreatList();
+            const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
             if (position >= threatlist.size())
                 return NULL;
 
@@ -172,11 +172,11 @@ class UnitAI
             return NULL;
         }
 
-        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+        void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
 
         // Select the targets satifying the predicate.
         // predicate shall extend std::unary_function<Unit* , bool>
-        template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
+        template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
             std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
             if (threatlist.empty())
@@ -247,7 +247,7 @@ class PlayerAI : public UnitAI
     protected:
         Player* const me;
     public:
-        explicit PlayerAI(Player* p) : UnitAI((Unit*)p), me(p) {}
+        explicit PlayerAI(Player* player) : UnitAI((Unit*)player), me(player) {}
 
         void OnCharmed(bool apply);
 };

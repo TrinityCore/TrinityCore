@@ -204,12 +204,11 @@ class mob_corrupted_soul_fragment : public CreatureScript
                 if (type != TARGETED_MOTION_TYPE)
                     return;
 
-                uint64 BronjahmGUID = 0;
                 if (instance)
                 {
                     if (TempSummon* summ = me->ToTempSummon())
                     {
-                        BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
+                        uint64 BronjahmGUID = instance->GetData64(DATA_BRONJAHM);
                         if (GUID_LOPART(BronjahmGUID) != id)
                             return;
 
@@ -390,8 +389,8 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsInitial, EFFECT_1, TARGET_UNIT_AREA_ENEMY_DST);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_2, TARGET_UNIT_AREA_ENEMY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsInitial, EFFECT_1, TARGET_UNIT_DEST_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_bronjahm_soulstorm_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_2, TARGET_UNIT_DEST_AREA_ENEMY);
             }
 
             std::list<Unit*> sharedUnitList;

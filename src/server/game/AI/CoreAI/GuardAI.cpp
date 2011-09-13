@@ -40,8 +40,8 @@ bool GuardAI::CanSeeAlways(WorldObject const* obj)
     if (!obj->isType(TYPEMASK_UNIT))
         return false;
 
-    std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-    for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
     {
         if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
             if (unit == obj)
@@ -126,13 +126,17 @@ void GuardAI::UpdateAI(const uint32 /*diff*/)
     if (!UpdateVictim())
         return;
 
-    i_victimGuid = me->getVictim()->GetGUID();
+    Unit* const victim = me->getVictim();
+    if (!victim)
+        return;
+
+    i_victimGuid = victim->GetGUID();
 
     if (me->isAttackReady())
     {
-        if (me->IsWithinMeleeRange(me->getVictim()))
+        if (me->IsWithinMeleeRange(victim))
         {
-            me->AttackerStateUpdate(me->getVictim());
+            me->AttackerStateUpdate(victim);
             me->resetAttackTimer();
         }
     }
@@ -140,6 +144,6 @@ void GuardAI::UpdateAI(const uint32 /*diff*/)
 
 void GuardAI::JustDied(Unit* killer)
 {
-    if (Player* pkiller = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
-        me->SendZoneUnderAttackMessage(pkiller);
+    if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+        me->SendZoneUnderAttackMessage(player);
 }

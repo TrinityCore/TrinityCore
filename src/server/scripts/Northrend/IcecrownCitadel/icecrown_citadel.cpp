@@ -971,7 +971,7 @@ class npc_crok_scourgebane : public CreatureScript
                 }
             }
 
-            void SetGUID(uint64 const guid, int32 type/* = 0*/)
+            void SetGUID(uint64 guid, int32 type/* = 0*/)
             {
                 if (type == ACTION_VRYKUL_DEATH)
                 {
@@ -1505,8 +1505,7 @@ class npc_captain_grondel : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GRONDEL_CHARGE_CHECK:
-                            if (CanCast(me->getVictim(), sSpellMgr->GetSpellInfo(SPELL_CHARGE)))
-                                DoCastVictim(SPELL_CHARGE);
+                            DoCastVictim(SPELL_CHARGE);
                             Events.ScheduleEvent(EVENT_GRONDEL_CHARGE_CHECK, 500);
                             break;
                         case EVENT_GRONDEL_MORTAL_STRIKE:
@@ -1839,8 +1838,8 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_AREA_ALLY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ALLY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
                 OnEffect += SpellEffectFn(spell_frost_giant_death_plague_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
@@ -1912,7 +1911,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_svalna_revive_champion_SpellScript::RemoveAliveTarget, EFFECT_0, TARGET_UNIT_AREA_ENTRY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_svalna_revive_champion_SpellScript::RemoveAliveTarget, EFFECT_0, TARGET_UNIT_DEST_AREA_ENTRY);
             }
         };
 

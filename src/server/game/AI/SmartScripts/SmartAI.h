@@ -48,7 +48,7 @@ class SmartAI : public CreatureAI
 {
     public:
         ~SmartAI(){};
-        explicit SmartAI(Creature *c);
+        explicit SmartAI(Creature* c);
 
         // Start moving to the desired MovePoint
         void StartPath(bool run = false, uint32 path = 0, bool repeat = false, Unit* invoker = NULL);
@@ -65,7 +65,7 @@ class SmartAI : public CreatureAI
         void SetCombatMove(bool on);
         void SetFollow(Unit* target, float dist = 0.0f, float angle = 0.0f, uint32 credit = 0, uint32 end = 0, uint32 creditType = 0);
 
-        void SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker);
+        void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
         SmartScript* GetScript() { return &mScript; }
         bool IsEscortInvokerInRange();
 
@@ -79,7 +79,7 @@ class SmartAI : public CreatureAI
         void JustReachedHome();
 
         // Called for reaction at enter to combat if not in combat yet (enemy can be NULL)
-        void EnterCombat(Unit *enemy);
+        void EnterCombat(Unit* enemy);
 
         // Called for reaction at stopping attack at no attackers or targets
         void EnterEvadeMode();
@@ -97,25 +97,25 @@ class SmartAI : public CreatureAI
         void AttackStart(Unit* who);
 
         // Called if IsVisible(Unit *who) is true at each *who move, reaction at visibility zone enter
-        void MoveInLineOfSight(Unit *who);
+        void MoveInLineOfSight(Unit* who);
 
         // Called when hit by a spell
-        void SpellHit(Unit* pUnit, const SpellInfo* pSpell);
+        void SpellHit(Unit* unit, const SpellInfo* spellInfo);
 
         // Called when spell hits a target
-        void SpellHitTarget(Unit* target, const SpellInfo* pSpell);
+        void SpellHitTarget(Unit* target, const SpellInfo* spellInfo);
 
         // Called at any Damage from any attacker (before damage apply)
-        void DamageTaken(Unit* done_by, uint32& damage);
+        void DamageTaken(Unit* doneBy, uint32& damage);
 
         // Called when the creature receives heal
-        void HealReceived(Unit* done_by, uint32& addhealth);
+        void HealReceived(Unit* doneBy, uint32& addhealth);
 
         // Called at World update tick
         void UpdateAI(const uint32 diff);
 
         // Called at text emote receive from player
-        void ReceiveEmote(Player* pPlayer, uint32 text_emote);
+        void ReceiveEmote(Player* player, uint32 textEmote);
 
         // Called at waypoint reached or point movement finished
         void MovementInform(uint32 MovementType, uint32 Data);
@@ -124,13 +124,13 @@ class SmartAI : public CreatureAI
         void IsSummonedBy(Unit* summoner);
 
         // Called at any Damage to any victim (before damage apply)
-        void DamageDealt(Unit* done_to, uint32 & damage, DamageEffectType /*damagetype*/);
+        void DamageDealt(Unit* doneTo, uint32& damage, DamageEffectType /*damagetype*/);
 
         // Called when a summoned creature dissapears (UnSommoned)
         void SummonedCreatureDespawn(Creature* unit);
 
         // called when the corpse of this creature gets removed
-        void CorpseRemoved(uint32 & respawnDelay);
+        void CorpseRemoved(uint32& respawnDelay);
 
         // Called at World update tick if creature is charmed
         void UpdateAIWhileCharmed(const uint32 diff);
@@ -157,23 +157,23 @@ class SmartAI : public CreatureAI
         void SetData(uint32 id, uint32 value);
 
         // Used in scripts to share variables
-        void SetGUID(const uint64 guid, int32 id = 0);
+        void SetGUID(uint64 guid, int32 id = 0);
 
         // Used in scripts to share variables
         uint64 GetGUID(int32 id = 0);
 
         //core related
-        static int Permissible(const Creature *);
+        static int Permissible(const Creature*);
 
         // Called at movepoint reached
         void MovepointReached(uint32 id);
 
         // Makes the creature run/walk
-        void SetRun(bool bRun = true);
+        void SetRun(bool run = true);
 
-        void SetFly(bool bFly = true);
+        void SetFly(bool fly = true);
 
-        void SetSwimm(bool bSwimm = true);
+        void SetSwim(bool swim = true);
 
         void sGossipHello(Player* player);
         void sGossipSelect(Player* player, uint32 sender, uint32 action);
@@ -220,7 +220,7 @@ class SmartAI : public CreatureAI
         bool mCanCombatMove;
         bool mForcedPaused;
 
-        bool AssistPlayerInCombat(Unit* pWho);
+        bool AssistPlayerInCombat(Unit* who);
 
         uint32 mDespawnTime;
         uint32 mDespawnState;
@@ -231,7 +231,7 @@ class SmartAI : public CreatureAI
 class SmartGameObjectAI : public GameObjectAI
 {
 public:
-    SmartGameObjectAI(GameObject *g) : GameObjectAI(g), go(g) {}
+    SmartGameObjectAI(GameObject* g) : GameObjectAI(g), go(g) {}
     ~SmartGameObjectAI() {}
 
     void UpdateAI(const uint32 diff);
@@ -248,7 +248,7 @@ public:
     uint32 GetDialogStatus(Player* /*player*/);
     void Destroyed(Player* player, uint32 eventId);
     void SetData(uint32 id, uint32 value);
-    void SetScript9(SmartScriptHolder &e, uint32 entry, Unit* invoker);
+    void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
 
 protected:
     GameObject* const go;

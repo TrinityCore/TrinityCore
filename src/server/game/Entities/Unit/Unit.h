@@ -32,6 +32,7 @@
 #include "EventProcessor.h"
 #include "MotionMaster.h"
 #include "DBCStructure.h"
+#include "SpellInfo.h"
 #include "Path.h"
 #include "WorldPacket.h"
 #include "Timer.h"
@@ -173,7 +174,7 @@ enum UnitStandFlags
 {
     UNIT_STAND_FLAGS_UNK1         = 0x01,
     UNIT_STAND_FLAGS_CREEP        = 0x02,
-    UNIT_STAND_FLAGS_UNK3         = 0x04,
+    UNIT_STAND_FLAGS_UNTRACKABLE  = 0x04,
     UNIT_STAND_FLAGS_UNK4         = 0x08,
     UNIT_STAND_FLAGS_UNK5         = 0x10,
     UNIT_STAND_FLAGS_ALL          = 0xFF
@@ -184,7 +185,7 @@ enum UnitBytes1_Flags
 {
     UNIT_BYTE1_FLAG_ALWAYS_STAND = 0x01,
     UNIT_BYTE1_FLAG_UNK_2        = 0x02,
-    UNIT_BYTE1_FLAG_UNTRACKABLE  = 0x04,
+    UNIT_BYTE1_FLAG_UNK_3        = 0x04,
     UNIT_BYTE1_FLAG_ALL          = 0xFF
 };
 
@@ -395,10 +396,7 @@ enum TriggerCastFlags
     TRIGGERED_IGNORE_SET_FACING                     = 0x00000200,   //! Will not adjust facing to target (if any)
     TRIGGERED_IGNORE_SHAPESHIFT                     = 0x00000400,   //! Will ignore shapeshift checks
     TRIGGERED_IGNORE_CASTER_AURASTATE               = 0x00000800,   //! Will ignore caster aura states including combat requirements and death state
-    TRIGGERED_IGNORE_TARGET_AURASTATE               = 0x00001000,   //! Will ignore target aura states
     TRIGGERED_IGNORE_CASTER_MOUNTED_OR_ON_VEHICLE   = 0x00002000,   //! Will ignore mounted/on vehicle restrictions
-    TRIGGERED_IGNORE_TARGET_DETECTABILITY           = 0x00004000,   //! Will ignore canSeeOrDetect
-    TRIGGERED_IGNORE_LOS                            = 0x00008000,   //! Will ignore LOS to target
     TRIGGERED_IGNORE_CASTER_AURAS                   = 0x00010000,   //! Will ignore caster aura restrictions or requirements
     TRIGGERED_DISALLOW_PROC_EVENTS                  = 0x00020000,   //! Disallows proc events from triggered spell (default)
     TRIGGERED_DONT_REPORT_CAST_ERROR                = 0x00040000,   //! Will return SPELL_FAILED_DONT_REPORT in CheckCast functions
@@ -471,7 +469,7 @@ enum DeathState
 
 enum UnitState
 {
-    UNIT_STAT_DIED            = 0x00000001,
+    UNIT_STAT_DIED            = 0x00000001,                     // player has fake death aura
     UNIT_STAT_MELEE_ATTACKING = 0x00000002,                     // player is melee attacking someone
     //UNIT_STAT_MELEE_ATTACK_BY = 0x00000004,                     // player is melee attack by someone
     UNIT_STAT_STUNNED         = 0x00000008,
@@ -574,7 +572,7 @@ enum DamageEffectType
 // Value masks for UNIT_FIELD_FLAGS
 enum UnitFlags
 {
-    UNIT_FLAG_UNK_0                 = 0x00000001,
+    UNIT_FLAG_SERVER_CONTROLLED     = 0x00000001,           // set only when unit movement is controlled by server - by SPLINE/MONSTER_MOVE packets, together with UNIT_FLAG_STUNNED; only set to units controlled by client; client function CGUnit_C::IsClientControlled returns false when set for owner
     UNIT_FLAG_NON_ATTACKABLE        = 0x00000002,           // not attackable
     UNIT_FLAG_DISABLE_MOVE          = 0x00000004,
     UNIT_FLAG_PVP_ATTACKABLE        = 0x00000008,           // allow apply pvp rules to attackable state in addition to faction dependent state
@@ -1394,6 +1392,7 @@ class Unit : public WorldObject
         bool IsNeutralToAll() const;
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
+        bool IsTargetMatchingCheck(Unit const* target, SpellTargetSelectionCheckTypes check) const;
         void GetPartyMemberInDist(std::list<Unit*> &units, float dist);
         void GetPartyMembers(std::list<Unit*> &units);
         void GetRaidMember(std::list<Unit*> &units, float dist);
@@ -1480,6 +1479,7 @@ class Unit : public WorldObject
         float GetUnitDodgeChance()    const;
         float GetUnitParryChance()    const;
         float GetUnitBlockChance()    const;
+        float GetUnitMissChance(WeaponAttackType attType)     const;
         float GetUnitCriticalChance(WeaponAttackType attackType, const Unit *pVictim) const;
         int32 GetMechanicResistChance(const SpellInfo *spell);
         bool CanUseAttackType(uint8 attacktype) const
@@ -1547,8 +1547,7 @@ class Unit : public WorldObject
 
         bool isFrozen() const;
 
-        bool isTargetableForAttack() const;
-        bool isAttackableByAOE(SpellInfo const* spellProto = NULL) const;
+        bool isTargetableForAttack(bool checkFakeDeath = true) const;
         bool canAttack(Unit const* target, bool force = true) const;
         virtual bool IsInWater() const;
         virtual bool IsUnderWater() const;
@@ -1563,7 +1562,7 @@ class Unit : public WorldObject
         void CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags = TRIGGERED_NONE, Item* castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(Unit* victim, SpellInfo const *spellInfo, bool triggered, Item *castItem= NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastSpell(Unit* victim, SpellInfo const *spellInfo, TriggerCastFlags triggerFlags, Item *castItem= NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
-        void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0,  Unit* originalVictim = 0);
+        void CastSpell(float x, float y, float z, uint32 spellId, bool triggered, Item *castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastCustomSpell(Unit* Victim, uint32 spellId, int32 const* bp0, int32 const* bp1, int32 const* bp2, bool triggered, Item *castItem= NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastCustomSpell(uint32 spellId, SpellValueMod mod, int32 value, Unit* Victim = NULL, bool triggered = true, Item *castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
         void CastCustomSpell(uint32 spellId, CustomSpellValues const &value, Unit* Victim = NULL, bool triggered = true, Item *castItem = NULL, AuraEffect const* triggeredByAura = NULL, uint64 originalCaster = 0);
@@ -1573,8 +1572,6 @@ class Unit : public WorldObject
         void SetAuraStack(uint32 spellId, Unit* target, uint32 stack);
         void SendPlaySpellVisual(uint32 id);
         void SendPlaySpellImpact(uint64 guid, uint32 id);
-
-        bool IsDamageToThreatSpell(SpellInfo const* spellInfo) const;
 
         void DeMorph();
 
@@ -1868,11 +1865,6 @@ class Unit : public WorldObject
         void SetShapeshiftForm(ShapeshiftForm form)
         {
             SetByteValue(UNIT_FIELD_BYTES_2, 3, form);
-
-            // force update as too quick shapeshifting and back
-            // causes the value to stay the same serverside
-            // causes issues clientside (player gets stuck)
-            ForceValuesUpdateAtIndex(UNIT_FIELD_BYTES_2);
         }
 
         inline bool IsInFeralForm() const
@@ -2057,7 +2049,8 @@ class Unit : public WorldObject
         static Player* GetPlayer(WorldObject& object, uint64 guid);
         static Creature* GetCreature(WorldObject& object, uint64 guid);
 
-        MotionMaster* GetMotionMaster(){ return &i_motionMaster; }
+        MotionMaster* GetMotionMaster() { return &i_motionMaster; }
+        const MotionMaster* GetMotionMaster() const { return &i_motionMaster; }
 
         bool IsStopped() const { return !(HasUnitState(UNIT_STAT_MOVING)); }
         void StopMoving();

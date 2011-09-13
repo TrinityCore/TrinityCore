@@ -108,6 +108,8 @@ class Log
     public:
         void Initialize();
 
+        void ReloadConfig();
+
         void InitColors(const std::string& init_str);
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);

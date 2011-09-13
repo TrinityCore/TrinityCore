@@ -29,7 +29,6 @@
 #include "DatabaseEnv.h"
 #include "World.h"
 #include "WorldPacket.h"
-#include "Cryptography/BigNumber.h"
 
 struct ItemTemplate;
 struct AuctionEntry;
@@ -47,7 +46,6 @@ class WorldPacket;
 class WorldSocket;
 class LoginQueryHolder;
 class SpellCastTargets;
-class Warden;
 struct AreaTableEntry;
 struct LfgJoinResultData;
 struct LfgLockStatus;
@@ -247,13 +245,10 @@ class WorldSession
         uint32 GetAccountId() const { return _accountId; }
         Player* GetPlayer() const { return _player; }
         char const* GetPlayerName() const;
-        uint32 GetGuidLow() const;
         void SetSecurity(AccountTypes security) { _security = security; }
         std::string const& GetRemoteAddress() { return m_Address; }
         void SetPlayer(Player *plr);
         uint8 Expansion() const { return m_expansion; }
-
-        void InitWarden(BigNumber* k, std::string os);
 
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
@@ -944,6 +939,8 @@ class WorldSession
         AccountTypes _security;
         uint32 _accountId;
         uint8 m_expansion;
+
+        typedef std::list<AddonInfo> AddonsList;
 
         // Warden
         Warden* _warden;                                    // Remains NULL if Warden system is not enabled by config

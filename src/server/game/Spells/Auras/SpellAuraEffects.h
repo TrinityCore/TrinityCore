@@ -277,6 +277,7 @@ class AuraEffect
         void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
@@ -289,7 +290,7 @@ class AuraEffect
         void HandlePeriodicManaLeechAuraTick(Unit* target, Unit* caster) const;
         void HandleObsModPowerAuraTick(Unit* target, Unit* caster) const;
         void HandlePeriodicEnergizeAuraTick(Unit* target, Unit* caster) const;
-        void HandlePeriodicPowerBurnManaAuraTick(Unit* target, Unit* caster) const;
+        void HandlePeriodicPowerBurnAuraTick(Unit* target, Unit* caster) const;
 
         // aura effect proc handlers
         void HandleProcTriggerSpellAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);

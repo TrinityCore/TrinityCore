@@ -302,7 +302,7 @@ void WorldSession::HandlePetActionHelper(Unit *pet, uint64 guid1, uint16 spellid
 
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY_SRC || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_AREA_ENEMY_DST || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
+                if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
                     return;
             }
 
@@ -576,7 +576,6 @@ void WorldSession::HandlePetSetAction(WorldPacket & recv_data)
                         for (Unit::ControlList::iterator itr = GetPlayer()->m_Controlled.begin(); itr != GetPlayer()->m_Controlled.end(); ++itr)
                             if ((*itr)->GetEntry() == pet->GetEntry())
                                 (*itr)->GetCharmInfo()->ToggleCreatureAutocast(spellInfo, false);
-
                 }
             }
 
@@ -678,7 +677,7 @@ void WorldSession::HandlePetAbandon(WorldPacket & recv_data)
             if (pet->GetGUID() == _player->GetPetGUID())
             {
                 uint32 feelty = pet->GetPower(POWER_HAPPINESS);
-                pet->SetPower(POWER_HAPPINESS , (feelty-50000) > 0 ?(feelty-50000) : 0);
+                pet->SetPower(POWER_HAPPINESS , feelty > 50000 ? (feelty-50000) : 0);
             }
 
             _player->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);

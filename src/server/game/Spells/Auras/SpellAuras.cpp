@@ -1831,7 +1831,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
                 case SPELL_AURA_PERIODIC_ENERGIZE:
                 case SPELL_AURA_PERIODIC_MANA_LEECH:
                 case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_POWER_BURN_MANA:
+                case SPELL_AURA_POWER_BURN:
                 case SPELL_AURA_OBS_MOD_POWER:
                 case SPELL_AURA_OBS_MOD_HEALTH:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
@@ -2299,10 +2299,6 @@ void UnitAura::Remove(AuraRemoveMode removeMode)
 
 void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* caster)
 {
-    Player* modOwner = NULL;
-    if (caster)
-        modOwner = caster->GetSpellModOwner();
-
     for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS ; ++effIndex)
     {
         if (!HasEffect(effIndex))
@@ -2319,7 +2315,7 @@ void UnitAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* caster)
 
             if (!GetUnitOwner()->HasUnitState(UNIT_STAT_ISOLATED))
             {
-                switch(GetSpellInfo()->Effects[effIndex].Effect)
+                switch (GetSpellInfo()->Effects[effIndex].Effect)
                 {
                     case SPELL_EFFECT_APPLY_AREA_AURA_PARTY:
                         targetList.push_back(GetUnitOwner());
@@ -2397,7 +2393,7 @@ void DynObjAura::FillTargetMap(std::map<Unit *, uint8> & targets, Unit* /*caster
             continue;
         UnitList targetList;
         if (GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_DYNOBJ_ALLY
-            || GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() == TARGET_UNIT_AREA_ALLY_DST)
+            || GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() == TARGET_UNIT_DEST_AREA_ALLY)
         {
             Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
             Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targetList, u_check);

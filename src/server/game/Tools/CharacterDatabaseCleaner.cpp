@@ -20,6 +20,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "World.h"
 #include "Database/DatabaseEnv.h"
+#include "SpellMgr.h"
 #include "DBCStores.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()

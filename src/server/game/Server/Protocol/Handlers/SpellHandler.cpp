@@ -295,12 +295,8 @@ void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recv_data)
     if (_player->m_mover != _player)
         return;
 
-    GameObject *obj = GetPlayer()->GetMap()->GetGameObject(guid);
-
-    if (!obj)
-        return;
-
-    obj->Use(_player);
+    if (GameObject *obj = GetPlayer()->GetMap()->GetGameObject(guid))
+        obj->Use(_player);
 }
 
 void WorldSession::HandleGameobjectReportUse(WorldPacket& recvPacket)
@@ -428,12 +424,8 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
     if (!spellInfo)
         return;
 
-    // not allow remove non positive spells and spells with attr SPELL_ATTR0_CANT_CANCEL
-    if (!spellInfo->IsPositive() || (spellInfo->Attributes & SPELL_ATTR0_CANT_CANCEL))
-        return;
-
-    // don't allow cancelling passive auras (some of them are visible)
-    if (spellInfo->IsPassive())
+    // not allow remove spells with attr SPELL_ATTR0_CANT_CANCEL
+    if (spellInfo->Attributes & SPELL_ATTR0_CANT_CANCEL)
         return;
 
     // channeled spell case (it currently casted then)
@@ -445,7 +437,12 @@ void WorldSession::HandleCancelAuraOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    // non channeled case
+    // non channeled case:
+    // don't allow remove non positive spells
+    // don't allow cancelling passive auras (some of them are visible)
+    if (!spellInfo->IsPositive() || spellInfo->IsPassive())
+        return;
+
     // maybe should only remove one buff when there are multiple?
     _player->RemoveOwnedAura(spellId, 0, 0, AURA_REMOVE_BY_CANCEL);
 }
@@ -539,6 +536,9 @@ void WorldSession::HandleTotemDestroyed(WorldPacket& recvPacket)
 void WorldSession::HandleSelfResOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SELF_RES");                  // empty opcode
+
+    if (_player->HasAuraType(SPELL_AURA_PREVENT_RESURRECTION))
+        return; // silent return, client should display error by itself and not send this opcode
 
     if (_player->GetUInt32Value(PLAYER_SELF_RES_SPELL))
     {

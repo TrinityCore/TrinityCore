@@ -306,6 +306,7 @@ void Map::ScriptsProcess()
                         source = player->GetItemByGuid(step.sourceGUID);
                     break;
                 case HIGHGUID_UNIT:
+                case HIGHGUID_VEHICLE:
                     source = HashMapHolder<Creature>::Find(step.sourceGUID);
                     break;
                 case HIGHGUID_PET:
@@ -364,9 +365,7 @@ void Map::ScriptsProcess()
                     break;
             }
         }
-        // Some information for error messages
-        std::string tableName = GetScriptsTableNameByType(step.script->type);
-        std::string commandName = GetScriptCommandName(step.script->command);
+
         switch (step.script->command)
         {
             case SCRIPT_COMMAND_TALK:

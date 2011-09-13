@@ -160,9 +160,6 @@ struct ScriptedAI : public CreatureAI
     //Returns spells that meet the specified criteria from the creatures spell list
     SpellInfo const* SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effect);
 
-    //Checks if you can cast the specified spell
-    bool CanCast(Unit* target, SpellInfo const* spell, bool triggered = false);
-
     void SetEquipmentSlots(bool loadDefault, int32 mainHand = EQUIP_NO_CHANGE, int32 offHand = EQUIP_NO_CHANGE, int32 ranged = EQUIP_NO_CHANGE);
 
     //Generally used to control if MoveChase() is to be used or not in AttackStart(). Some creatures does not chase victims
@@ -182,7 +179,7 @@ struct ScriptedAI : public CreatureAI
     Difficulty GetDifficulty() { return _difficulty; }
 
     // return true for 25 man or 25 man heroic mode
-    bool Is25ManRaid() { return _difficulty & 1; }
+    bool Is25ManRaid() { return _difficulty & RAID_DIFFICULTY_MASK_25MAN; }
 
     template<class T> inline
     const T& DUNGEON_MODE(const T& normal5, const T& heroic10)

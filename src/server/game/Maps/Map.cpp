@@ -2489,7 +2489,7 @@ void InstanceMap::PermBindAllPlayers(Player* player)
     InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
     if (!save)
     {
-        sLog->outError("Cannot bind players, no instance save available for map!");
+        sLog->outError("Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", player->GetGUIDLow(), player->GetName(), player->GetMap()->GetMapName(), player->GetMapId(), GetInstanceId());
         return;
     }
 
@@ -2541,8 +2541,8 @@ void InstanceMap::SetResetSchedule(bool on)
         if (InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId()))
             sInstanceSaveMgr->ScheduleReset(on, save->GetResetTime(), InstanceSaveManager::InstResetEvent(0, GetId(), Difficulty(GetSpawnMode()), GetInstanceId()));
         else
-            sLog->outError("InstanceMap::SetResetSchedule: cannot turn schedule %s, there is no save information for instance (map [id: %u, name: %s], instance id: %u)",
-                on ? "on" : "off", GetId(), GetMapName(), GetInstanceId());
+            sLog->outError("InstanceMap::SetResetSchedule: cannot turn schedule %s, there is no save information for instance (map [id: %u, name: %s], instance id: %u, difficulty: %u)",
+                on ? "on" : "off", GetId(), GetMapName(), GetInstanceId(), Difficulty(GetSpawnMode()));
     }
 }
 

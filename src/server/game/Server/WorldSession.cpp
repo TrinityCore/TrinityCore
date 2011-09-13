@@ -885,7 +885,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
 
             AddonInfo addon(addonName, enabled, crc, 2, true);
 
-            SavedAddon const* savedAddon = sAddonMgr->GetAddonInfo(addonName);
+            SavedAddon const* savedAddon = AddonMgr::GetAddonInfo(addonName);
             if (savedAddon)
             {
                 bool match = true;
@@ -900,7 +900,7 @@ void WorldSession::ReadAddonsInfo(WorldPacket &data)
             }
             else
             {
-                sAddonMgr->SaveAddon(addon);
+                AddonMgr::SaveAddon(addon);
 
                 sLog->outDetail("ADDON: %s (0x%x) was not known, saving...", addon.Name.c_str(), addon.CRC);
             }
