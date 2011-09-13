@@ -250,7 +250,7 @@ public:
         npc_uwom_firecallerAI(Creature * creature) : ScriptedAI(creature)
         {
             events.Reset();
-            events.ScheduleEvent(EVENT_START, SEKUNDEN_60);
+            events.ScheduleEvent(EVENT_START, SEKUNDEN_60); // 1 Minute warten, bis zum Start.
             logfile = sWorld->GetDataPath().c_str();
             logfile.append("log/feuerrufer.log");
         }
@@ -527,7 +527,7 @@ public:
 
             me->GetMotionMaster()->MoveRandom(10.0f);
 
-            events.ScheduleEvent(EVENT_STOP, 1740 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_STOP, 29 * SEKUNDEN_60); // 29 Minuten vom Event übrig (30-1 Minute vor dem Start).
             events.ScheduleEvent(EVENT_SOUND, urand(SEKUNDEN_10, SEKUNDEN_60));
             events.ScheduleEvent(EVENT_CAST, 3 * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_TARGET, urand(SEKUNDEN_10, SEKUNDEN_60));
