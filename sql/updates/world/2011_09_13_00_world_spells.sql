@@ -28,8 +28,8 @@ INSERT INTO `conditions`(`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`
 (13,0,65045,4,18,1,33237,0,0, '', 'Flames to Ulduar Colossus'),
 (13,0,65045,5,18,1,33189,0,0, '', 'Flames to Liquid pyrite'),
 (13,0,65045,6,18,1,33090,0,0, '', 'Flames to Pool of Tar'),
-(13,0,65045,7,18,1,34161,0,0, '', 'Flames to Mechanostriker 54-A');
+(13,0,65045,7,18,1,34161,0,0, '', 'Flames to Mechanostriker 54-A'),
 (13,0,65045,8,18,1,33062,0,0, '', 'Flames to Salvaged Chopper'),
 (13,0,65045,9,18,1,34045,0,0, '', 'Flames to Salvaged Chopper'),
 (13,0,65045,10,18,1,33109,0,0, '', 'Flames to Salvaged Demolisher'),
-(13,0,65045,11,18,1,33060,0,0, '', 'Flames to Salvaged Salvaged Siege Engine')
+(13,0,65045,11,18,1,33060,0,0, '', 'Flames to Salvaged Salvaged Siege Engine');
