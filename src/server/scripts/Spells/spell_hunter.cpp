@@ -76,7 +76,7 @@ public:
 
             Unit* caster = GetCaster();
             if (caster->ToPlayer())
-                if (Pet* pet = caster->ToPlayer()->GetPet())
+                if (caster->ToPlayer()->GetPet())
                     caster->CastSpell(caster, HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET, true);
         }
 
