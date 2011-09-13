@@ -1973,7 +1973,7 @@ void SpellMgr::LoadSpellThreats()
         ste.apPctMod = fields[3].GetFloat();
 
         mSpellThreatMap[entry] = ste;
-        count++;
+        ++count;
     } while (result->NextRow());
 
     sLog->outString(">> Loaded %u SpellThreatEntries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
@@ -1988,7 +1988,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
 
     uint32 count = 0;
 
-    for (uint32 i = 0; i < sSpellMgr->GetSpellInfoStoreSize(); ++i)
+    for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
     {
         SkillLineAbilityEntry const* SkillInfo = sSkillLineAbilityStore.LookupEntry(i);
         if (!SkillInfo)
