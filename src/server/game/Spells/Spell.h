@@ -230,7 +230,7 @@ class Spell
         void EffectDistract(SpellEffIndex effIndex);
         void EffectPull(SpellEffIndex effIndex);
         void EffectSchoolDMG(SpellEffIndex effIndex);
-        void EffectEnvirinmentalDMG(SpellEffIndex effIndex);
+        void EffectEnvironmentalDMG(SpellEffIndex effIndex);
         void EffectInstaKill(SpellEffIndex effIndex);
         void EffectDummy(SpellEffIndex effIndex);
         void EffectTeleportUnits(SpellEffIndex effIndex);
