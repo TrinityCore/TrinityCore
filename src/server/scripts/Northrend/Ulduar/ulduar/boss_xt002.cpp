@@ -900,7 +900,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                    if (InstanceScript* instance = caster->GetInstanceScript())
                     {
                         if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetData64(DATA_TOY_PILE_0 + urand(0, 3))))
                         {
