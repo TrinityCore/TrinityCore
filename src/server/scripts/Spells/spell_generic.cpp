@@ -1313,6 +1313,56 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
         }
 };
 
+
+class spell_gen_oracle_wolvar_reputation: public SpellScriptLoader
+{
+public:
+    spell_gen_oracle_wolvar_reputation() : SpellScriptLoader("spell_gen_oracle_wolvar_reputation") { }
+
+    class spell_gen_oracle_wolvar_reputation_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_gen_oracle_wolvar_reputation_SpellScript)
+
+        void HandleDummy(SpellEffIndex effIndex)
+        {                 
+            
+            Unit* caster = GetCaster();		
+            if (Player* player = caster->ToPlayer())
+            {
+
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                uint32 faction_id = GetSpellInfo()->Effects[effIndex].CalcValue();
+                int32  rep_change =  GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+
+                FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+
+                if (!factionEntry)
+                    return;
+
+                // Set rep to baserep + basepoints (expecting spillover for oposite faction -> become hated)
+                // Not when player already has equal or higher rep with this faction
+                if (player->GetReputationMgr().GetBaseReputation(factionEntry) < rep_change)
+                    player->GetReputationMgr().SetReputation(factionEntry, rep_change);
+
+                // EFFECT_INDEX_2 most likely update at war state, we already handle this in SetReputation
+            }
+              
+        }
+
+        void Register()
+        {
+        OnEffect += SpellEffectFn(spell_gen_oracle_wolvar_reputation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_gen_oracle_wolvar_reputation_SpellScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1343,4 +1393,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_allow_cast_from_item_only();
     new spell_gen_launch();
     new spell_gen_vehicle_scaling();
+    new spell_gen_oracle_wolvar_reputation();
 }
