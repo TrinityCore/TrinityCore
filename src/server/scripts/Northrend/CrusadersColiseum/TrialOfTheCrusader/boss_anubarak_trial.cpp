@@ -174,7 +174,7 @@ public:
 
             m_uiSummonFrostSphereTimer = 20*IN_MILLISECONDS;
 
-            m_uiBerserkTimer = 15*MINUTE*IN_MILLISECONDS;
+            m_uiBerserkTimer = 10*MINUTE*IN_MILLISECONDS;
             m_uiStage = 0;
             m_uiScarabSummoned = 0;
             m_bIntro = true;
