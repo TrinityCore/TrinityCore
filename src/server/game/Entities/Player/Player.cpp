@@ -24140,23 +24140,20 @@ void Player::_SaveBGData(SQLTransaction& trans)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
-    if (m_bgData.bgInstanceID)
-    {
-        /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_PLAYER_BGDATA);
-        stmt->setUInt32(0, GetGUIDLow());
-        stmt->setUInt32(1, m_bgData.bgInstanceID);
-        stmt->setUInt16(2, m_bgData.bgTeam);
-        stmt->setFloat (3, m_bgData.joinPos.GetPositionX());
-        stmt->setFloat (4, m_bgData.joinPos.GetPositionY());
-        stmt->setFloat (5, m_bgData.joinPos.GetPositionZ());
-        stmt->setFloat (6, m_bgData.joinPos.GetOrientation());
-        stmt->setUInt16(7, m_bgData.joinPos.GetMapId());
-        stmt->setUInt16(8, m_bgData.taxiPath[0]);
-        stmt->setUInt16(9, m_bgData.taxiPath[1]);
-        stmt->setUInt16(10, m_bgData.mountSpell);
-        trans->Append(stmt);
-    }
+    /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_PLAYER_BGDATA);
+    stmt->setUInt32(0, GetGUIDLow());
+    stmt->setUInt32(1, m_bgData.bgInstanceID);
+    stmt->setUInt16(2, m_bgData.bgTeam);
+    stmt->setFloat (3, m_bgData.joinPos.GetPositionX());
+    stmt->setFloat (4, m_bgData.joinPos.GetPositionY());
+    stmt->setFloat (5, m_bgData.joinPos.GetPositionZ());
+    stmt->setFloat (6, m_bgData.joinPos.GetOrientation());
+    stmt->setUInt16(7, m_bgData.joinPos.GetMapId());
+    stmt->setUInt16(8, m_bgData.taxiPath[0]);
+    stmt->setUInt16(9, m_bgData.taxiPath[1]);
+    stmt->setUInt16(10, m_bgData.mountSpell);
+    trans->Append(stmt);
 }
 
 void Player::DeleteEquipmentSet(uint64 setGuid)
