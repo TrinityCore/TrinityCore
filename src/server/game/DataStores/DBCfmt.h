@@ -77,6 +77,7 @@ const char ItemRandomPropertiesfmt[]="nxiiixxssssssssssssssssx";
 const char ItemRandomSuffixfmt[]="nssssssssssssssssxxiiixxiiixx";
 const char ItemSetEntryfmt[]="dssssssssssssssssxiiiiiiiiiixxxxxxxiiiiiiiiiiiiiiiiii";
 const char LFGDungeonEntryfmt[]="nxxxxxxxxxxxxxxxxxiiiiiiixixxixixxxxxxxxxxxxxxxxx";
+//const char LiquidTypeEntryfmt[]="nsiiiiffffifiiisssssiiffffffffffffffffffiiii";
 const char LockEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 const char MailTemplateEntryfmt[]="nxxxxxxxxxxxxxxxxxssssssssssssssssx";
 const char MapEntryfmt[]="nxixxssssssssssssssssxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixiffxiix";
