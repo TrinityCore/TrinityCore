@@ -1333,18 +1333,18 @@ public:
                 if (caster->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                uint32 faction_id = GetSpellInfo()->Effects[effIndex].CalcValue();
-                int32  rep_change =  GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                uint32 factionId = GetSpellInfo()->Effects[effIndex].CalcValue();
+                int32  repChange =  GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
-                FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+                FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
 
                 if (!factionEntry)
                     return;
 
                 // Set rep to baserep + basepoints (expecting spillover for oposite faction -> become hated)
                 // Not when player already has equal or higher rep with this faction
-                if (player->GetReputationMgr().GetBaseReputation(factionEntry) < rep_change)
-                    player->GetReputationMgr().SetReputation(factionEntry, rep_change);
+                if (player->GetReputationMgr().GetBaseReputation(factionEntry) < repChange)
+                    player->GetReputationMgr().SetReputation(factionEntry, repChange);
 
                 // EFFECT_INDEX_2 most likely update at war state, we already handle this in SetReputation
             }
