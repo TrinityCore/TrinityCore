@@ -775,9 +775,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                     return;
                 }
 
-                std::list<Unit*>::iterator itr = targetList.begin();
-                std::advance(itr, urand(0, targetList.size() - 1));
-                Unit* target = *itr;
+                Unit* target = SelectRandomContainerElement(targetList);
                 targetList.clear();
                 targetList.push_back(target);
                 _target = target;

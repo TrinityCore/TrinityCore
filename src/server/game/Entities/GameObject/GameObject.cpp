@@ -1400,10 +1400,7 @@ void GameObject::Use(Unit* user)
                 {
                     for (int i = 0; i < info->summoningRitual.casterTargetSpellTargets; i++)
                     {
-                        std::set<uint32>::const_iterator itr = m_unique_users.begin();
-                        std::advance(itr, rand() % m_unique_users.size());
-
-                        if (Unit* target = Unit::GetUnit(*this, uint64(*itr)))
+                        if (Unit* target = Unit::GetUnit(*this, (uint64)SelectRandomContainerElement(m_unique_users)))
                             spellCaster->CastSpell(target, info->summoningRitual.casterTargetSpell, true);
                     }
                 }

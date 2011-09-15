@@ -480,9 +480,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     return tempTargets.front();
                 }
 
-                std::list<Player*>::iterator itr = tempTargets.begin();
-                std::advance(itr, urand(0, tempTargets.size() - 1));
-                return *itr;
+                return SelectRandomContainerElement(tempTargets);
             }
 
             std::set<uint64> _vampires;
