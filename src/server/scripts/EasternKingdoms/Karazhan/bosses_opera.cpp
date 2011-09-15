@@ -340,7 +340,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo *Spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
         {
             if ((Spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand()%10)))
             {
@@ -745,7 +745,7 @@ public:
 };
 
 /**************************************/
-/**** Opera Red Riding Hood Event ****/
+/**** Opera Red Riding Hood Event* ***/
 /************************************/
 
 /**** Yells for the Wolf ****/
@@ -761,7 +761,7 @@ public:
 
 #define GOSSIP_GRANDMA          "What phat lewtz you have grandmother?"
 
-/**** The Wolf's Entry ****/
+/**** The Wolf's Entry* ***/
 #define CREATURE_BIG_BAD_WOLF           17521
 
 class npc_grandmother : public CreatureScript
@@ -920,7 +920,7 @@ public:
 };
 
 /**********************************************/
-/******** Opera Romeo and Juliet Event *******/
+/******** Opera Romeo and Juliet Event* ******/
 /********************************************/
 
 /**** Speech *****/
@@ -1080,7 +1080,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo *Spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
         {
             if (Spell->Id == SPELL_DRINK_POISON)
             {

@@ -73,7 +73,7 @@ class boss_harbinger_skyriss : public CreatureScript
                 Intro = false;
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             bool Intro;
             bool IsImage33;

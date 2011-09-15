@@ -121,7 +121,7 @@ class Player;
 class Pet : public Guardian
 {
     public:
-        explicit Pet(Player *owner, PetType type = MAX_PET_TYPE);
+        explicit Pet(Player* owner, PetType type = MAX_PET_TYPE);
         virtual ~Pet();
 
         void AddToWorld();
@@ -134,10 +134,10 @@ class Pet : public Guardian
 
         bool IsPermanentPetFor(Player* owner);              // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
 
-        bool Create (uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
+        bool Create (uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
-        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map * map, uint32 phaseMask);
+        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
         bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
         bool isBeingLoaded() const { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
@@ -223,9 +223,9 @@ class Pet : public Guardian
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
 
-        Player *GetOwner() { return m_owner; }
+        Player* GetOwner() { return m_owner; }
     protected:
-        Player *m_owner;
+        Player* m_owner;
         uint32  m_happinessTimer;
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)

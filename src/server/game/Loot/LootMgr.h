@@ -169,7 +169,7 @@ class LootTemplate;
 
 typedef std::vector<QuestItem> QuestItemList;
 typedef std::vector<LootItem> LootItemList;
-typedef std::map<uint32, QuestItemList *> QuestItemMap;
+typedef std::map<uint32, QuestItemList*> QuestItemMap;
 typedef std::vector<LootStoreItem> LootStoreItemList;
 typedef UNORDERED_MAP<uint32, LootTemplate*> LootTemplateMap;
 
@@ -357,9 +357,9 @@ struct Loot
 struct LootView
 {
     Loot &loot;
-    Player *viewer;
+    Player* viewer;
     PermissionTypes permission;
-    LootView(Loot &_loot, Player *_viewer, PermissionTypes _permission = ALL_PERMISSION)
+    LootView(Loot &_loot, Player* _viewer, PermissionTypes _permission = ALL_PERMISSION)
         : loot(_loot), viewer(_viewer), permission(_permission) {}
 };
 

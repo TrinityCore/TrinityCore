@@ -327,7 +327,7 @@ class spell_varos_energize_core_area_enemy : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_varos_energize_core_area_enemySpellScript();
         }
@@ -374,7 +374,7 @@ class spell_varos_energize_core_area_entry : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_varos_energize_core_area_entrySpellScript();
         }

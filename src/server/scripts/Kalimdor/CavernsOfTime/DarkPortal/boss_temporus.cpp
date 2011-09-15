@@ -59,7 +59,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 Haste_Timer;
         uint32 SpellReflection_Timer;

@@ -151,11 +151,11 @@ public:
 
         for (uint32 i = 0; i < sSkillLineAbilityStore.GetNumRows(); ++i)
         {
-            SkillLineAbilityEntry const *entry = sSkillLineAbilityStore.LookupEntry(i);
+            SkillLineAbilityEntry const* entry = sSkillLineAbilityStore.LookupEntry(i);
             if (!entry)
                 continue;
 
-            SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(entry->spellId);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(entry->spellId);
             if (!spellInfo)
                 continue;
 
@@ -194,11 +194,11 @@ public:
 
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
-            TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
             if (!talentInfo)
                 continue;
 
-            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
             if (!talentTabInfo)
                 continue;
 
@@ -246,7 +246,7 @@ public:
             return false;
         }
 
-        CreatureTemplate const *ci = pet->GetCreatureInfo();
+        CreatureTemplate const* ci = pet->GetCreatureInfo();
         if (!ci)
         {
             handler->SendSysMessage(LANG_WRONG_PET_TYPE);
@@ -254,7 +254,7 @@ public:
             return false;
         }
 
-        CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
+        CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
         if (!pet_family)
         {
             handler->SendSysMessage(LANG_WRONG_PET_TYPE);
@@ -271,11 +271,11 @@ public:
 
         for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
         {
-            TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
             if (!talentInfo)
                 continue;
 
-            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
             if (!talentTabInfo)
                 continue;
 
@@ -340,7 +340,7 @@ public:
 
         for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); ++i)
         {
-            SkillLineEntry const *skillInfo = sSkillLineStore.LookupEntry(i);
+            SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(i);
             if (!skillInfo)
                 continue;
 
@@ -380,10 +380,10 @@ public:
 
         std::string name;
 
-        SkillLineEntry const *targetSkillInfo = NULL;
+        SkillLineEntry const* targetSkillInfo = NULL;
         for (uint32 i = 1; i < sSkillLineStore.GetNumRows(); ++i)
         {
-            SkillLineEntry const *skillInfo = sSkillLineStore.LookupEntry(i);
+            SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(i);
             if (!skillInfo)
                 continue;
 
@@ -437,7 +437,7 @@ public:
 
         for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
         {
-            SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
+            SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
             if (!skillLine)
                 continue;
 

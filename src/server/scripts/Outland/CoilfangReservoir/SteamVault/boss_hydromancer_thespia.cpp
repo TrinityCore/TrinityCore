@@ -63,7 +63,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 LightningCloud_Timer;
         uint32 LungBurst_Timer;

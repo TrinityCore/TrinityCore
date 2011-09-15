@@ -44,7 +44,7 @@ public:
         uint32 uiPoisonCloudTimer;
         bool bIsEnraged;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {

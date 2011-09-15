@@ -38,7 +38,7 @@ public:
 
     bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
     {
-        InstanceScript *pInstance = player->GetInstanceScript();
+        InstanceScript* pInstance = player->GetInstanceScript();
 
         if (!pInstance)
         {

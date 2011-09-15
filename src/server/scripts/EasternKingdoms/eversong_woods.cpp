@@ -346,7 +346,7 @@ class npc_second_trial_controller : public CreatureScript
 public:
     npc_second_trial_controller() : CreatureScript("npc_second_trial_controller") { }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
         // One Player exclusive quest, wait for user go activation
         if (quest->GetQuestId() == QUEST_SECOND_TRIAL)

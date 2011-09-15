@@ -46,7 +46,7 @@ struct WMOAreaTableTripple
     int32 adtId;
 };
 
-typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const *> WMOAreaInfoByTripple;
+typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
 DBCStorage <AreaTableEntry> sAreaStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
@@ -397,7 +397,7 @@ void LoadDBCStores(const std::string& dataPath)
 
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
-        SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
+        SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
 
         if (!skillLine)
             continue;
@@ -443,7 +443,7 @@ void LoadDBCStores(const std::string& dataPath)
     // Create Spelldifficulty searcher
     for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
     {
-        SpellDifficultyEntry const *spellDiff = sSpellDifficultyStore.LookupEntry(i);
+        SpellDifficultyEntry const* spellDiff = sSpellDifficultyStore.LookupEntry(i);
         if (!spellDiff)
             continue;
 
@@ -470,7 +470,7 @@ void LoadDBCStores(const std::string& dataPath)
     // create talent spells set
     for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
-        TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
         if (!talentInfo) continue;
         for (int j = 0; j < MAX_TALENT_RANK; j++)
             if (talentInfo->RankID[j])
@@ -484,7 +484,7 @@ void LoadDBCStores(const std::string& dataPath)
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
         for (uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
         {
-            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentTabId);
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentTabId);
             if (!talentTabInfo)
                 continue;
 
@@ -649,7 +649,7 @@ char* GetPetName(uint32 petfamily, uint32 dbclang)
 {
     if (!petfamily)
         return NULL;
-    CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
+    CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
     if (!pet_family)
         return NULL;
     return pet_family->Name[dbclang]?pet_family->Name[dbclang]:NULL;

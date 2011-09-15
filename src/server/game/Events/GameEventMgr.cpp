@@ -216,7 +216,7 @@ void GameEventMgr::LoadFromDB()
         uint32 count = 0;
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             uint16 event_id = fields[0].GetUInt16();
             if (event_id == 0)
@@ -279,7 +279,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint16 event_id = fields[0].GetUInt16();
 
@@ -324,7 +324,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint16 event_id = fields[0].GetUInt16();
 
@@ -377,7 +377,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 guid    = fields[0].GetUInt32();
                 int16 event_id = fields[1].GetInt16();
@@ -420,7 +420,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 guid    = fields[0].GetUInt32();
                 int16 event_id = fields[1].GetInt16();
@@ -463,7 +463,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 guid     = fields[0].GetUInt32();
                 uint16 event_id = fields[1].GetUInt16();
@@ -519,7 +519,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 id       = fields[0].GetUInt32();
                 uint32 quest    = fields[1].GetUInt32();
@@ -560,7 +560,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 id       = fields[0].GetUInt32();
                 uint32 quest    = fields[1].GetUInt32();
@@ -601,7 +601,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 quest     = fields[0].GetUInt32();
                 uint16 event_id  = fields[1].GetUInt16();
@@ -644,7 +644,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint16 event_id  = fields[0].GetUInt16();
                 uint32 condition = fields[1].GetUInt32();
@@ -686,7 +686,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint16 event_id  = fields[0].GetUInt16();
                 uint32 condition = fields[1].GetUInt32();
@@ -734,7 +734,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 guid     = fields[0].GetUInt32();
                 uint16 event_id = fields[1].GetUInt16();
@@ -774,7 +774,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint16 event_id  = fields[0].GetUInt16();
 
@@ -840,7 +840,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint16 event_id = fields[0].GetUInt16();
 
@@ -879,7 +879,7 @@ void GameEventMgr::LoadFromDB()
             uint32 count = 0;
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
 
                 uint32 entry   = fields[0].GetUInt32();
                 int16 event_id = fields[1].GetInt16();
@@ -933,7 +933,7 @@ void GameEventMgr::Initialize()
     QueryResult result = WorldDatabase.Query("SELECT MAX(eventEntry) FROM game_event");
     if (result)
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 maxEventId = fields[0].GetUInt16();
 
@@ -972,7 +972,7 @@ void GameEventMgr::StartArenaSeason()
         return;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     uint16 eventId = fields[0].GetUInt16();
 
     if (eventId >= mGameEvent.size())
@@ -1121,7 +1121,7 @@ void GameEventMgr::UpdateEventNPCFlags(uint16 event_id)
             if (cr)
             {
                 uint32 npcflag = GetNPCFlag(cr);
-                if (const CreatureTemplate * ci = cr->GetCreatureInfo())
+                if (const CreatureTemplate* ci = cr->GetCreatureInfo())
                     npcflag |= ci->npcflag;
                 cr->SetUInt32Value(UNIT_NPC_FLAGS, npcflag);
                 // reset gossip options, since the flag change might have added / removed some
@@ -1337,7 +1337,7 @@ void GameEventMgr::ChangeEquipOrModel(int16 event_id, bool activate)
             CreatureData const* data2 = sObjectMgr->GetCreatureData(itr->first);
             if (data2 && activate)
             {
-                CreatureTemplate const *cinfo = sObjectMgr->GetCreatureTemplate(data2->id);
+                CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(data2->id);
                 uint32 displayID = sObjectMgr->ChooseDisplayId(0, cinfo, data2);
                 sObjectMgr->GetCreatureModelRandomGender(&displayID);
 

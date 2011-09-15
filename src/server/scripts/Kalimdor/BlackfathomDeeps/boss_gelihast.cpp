@@ -42,7 +42,7 @@ public:
 
         uint32 uiNetTimer;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {

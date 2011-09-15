@@ -100,7 +100,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        /*void SpellHit(Unit* caster, const SpellInfo *spell)
+        /*void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             //we have no way of telling the Creature was hit by spell -> got aura applied after 10-12 seconds
             //then no way for the mobs to actually stop the shutdown as intended.
@@ -640,7 +640,7 @@ class at_commander_dawnforge : public AreaTriggerScript
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry*  /*at*/)
     {
         //if player lost aura or not have at all, we should not try start event.
         if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
@@ -681,7 +681,7 @@ class npc_professor_dabiri : public CreatureScript
 public:
     npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_DIMENSIUS)
             DoScriptText(WHISPER_DABIRI, creature, player);
@@ -782,7 +782,7 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo * /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo*  /*spell*/)
         {
             DoCast(me, SPELL_DE_MATERIALIZE);
         }
@@ -958,7 +958,7 @@ class npc_maxx_a_million_escort : public CreatureScript
 public:
     npc_maxx_a_million_escort() : CreatureScript("npc_maxx_a_million_escort") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_maxx_a_million_escortAI(creature);
     }

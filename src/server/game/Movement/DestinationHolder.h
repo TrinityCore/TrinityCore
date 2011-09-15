@@ -53,7 +53,7 @@ class DestinationHolder
         bool HasArrived(void) const { return (i_totalTravelTime == 0 || i_timeElapsed >= i_totalTravelTime); }
         bool UpdateTraveller(TRAVELLER &traveller, uint32 diff, bool micro_movement=false);
         uint32 StartTravel(TRAVELLER &traveller, bool sendMove = true);
-        void GetLocationNow(const Map * map, float &x, float &y, float &z, bool is3D = false) const;
+        void GetLocationNow(const Map* map, float &x, float &y, float &z, bool is3D = false) const;
         void GetLocationNowNoMicroMovement(float &x, float &y, float &z) const; // For use without micro movement
         float GetDistance3dFromDestSq(const WorldObject &obj) const;
 

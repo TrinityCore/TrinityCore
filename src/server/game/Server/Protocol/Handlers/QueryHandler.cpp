@@ -31,7 +31,7 @@
 #include "Pet.h"
 #include "MapManager.h"
 
-void WorldSession::SendNameQueryOpcode(Player *p)
+void WorldSession::SendNameQueryOpcode(Player* p)
 {
     if (!p)
         return;
@@ -85,7 +85,7 @@ void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult result)
     if (!result)
         return;
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     uint32 guid      = fields[0].GetUInt32();
     std::string name = fields[1].GetString();
     uint8 pRace = 0, pGender = 0, pClass = 0;
@@ -126,7 +126,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
 
     recv_data >> guid;
 
-    if (Player *pChar = ObjectAccessor::FindPlayer(guid))
+    if (Player* pChar = ObjectAccessor::FindPlayer(guid))
         SendNameQueryOpcode(pChar);
     else
         SendNameQueryOpcodeFromDB(guid);
@@ -153,7 +153,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    CreatureTemplate const *ci = sObjectMgr->GetCreatureTemplate(entry);
+    CreatureTemplate const* ci = sObjectMgr->GetCreatureTemplate(entry);
     if (ci)
     {
 
@@ -164,7 +164,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(entry))
+            if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(entry))
             {
                 ObjectMgr::GetLocaleString(cl->Name, loc_idx, Name);
                 ObjectMgr::GetLocaleString(cl->SubName, loc_idx, SubName);
@@ -216,7 +216,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
     uint64 guid;
     recv_data >> guid;
 
-    const GameObjectTemplate *info = sObjectMgr->GetGameObjectTemplate(entry);
+    const GameObjectTemplate* info = sObjectMgr->GetGameObjectTemplate(entry);
     if (info)
     {
         std::string Name;
@@ -230,7 +230,7 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(entry))
+            if (GameObjectLocale const* gl = sObjectMgr->GetGameObjectLocale(entry))
             {
                 ObjectMgr::GetLocaleString(gl->Name, loc_idx, Name);
                 ObjectMgr::GetLocaleString(gl->CastBarCaption, loc_idx, CastBarCaption);
@@ -268,7 +268,7 @@ void WorldSession::HandleCorpseQueryOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDetail("WORLD: Received MSG_CORPSE_QUERY");
 
-    Corpse *corpse = GetPlayer()->GetCorpse();
+    Corpse* corpse = GetPlayer()->GetCorpse();
 
     if (!corpse)
     {
@@ -359,7 +359,7 @@ void WorldSession::HandleNpcTextQueryOpcode(WorldPacket & recv_data)
         int loc_idx = GetSessionDbLocaleIndex();
         if (loc_idx >= 0)
         {
-            if (NpcTextLocale const *nl = sObjectMgr->GetNpcTextLocale(textID))
+            if (NpcTextLocale const* nl = sObjectMgr->GetNpcTextLocale(textID))
             {
                 for (int i = 0; i < MAX_LOCALES; ++i)
                 {
@@ -426,7 +426,7 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
 
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
-                if (PageTextLocale const *pl = sObjectMgr->GetPageTextLocale(pageID))
+                if (PageTextLocale const* pl = sObjectMgr->GetPageTextLocale(pageID))
                     ObjectMgr::GetLocaleString(pl->Text, loc_idx, Text);
 
             data << Text;
@@ -479,7 +479,7 @@ void WorldSession::HandleQuestPOIQuery(WorldPacket& recv_data)
 
         if (questOk)
         {
-            QuestPOIVector const *POI = sObjectMgr->GetQuestPOIVector(questId);
+            QuestPOIVector const* POI = sObjectMgr->GetQuestPOIVector(questId);
 
             if (POI)
             {

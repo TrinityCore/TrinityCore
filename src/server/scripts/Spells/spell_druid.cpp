@@ -108,7 +108,7 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // reduces all damage taken while Stunned in Moonkin Form
                 if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN))
@@ -122,7 +122,7 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_moonkin_form_passive_AuraScript();
         }
@@ -152,7 +152,7 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // reduces all damage taken while Stunned in Cat Form
                 if (GetTarget()->GetShapeshiftForm() == FORM_CAT && GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN))
@@ -166,7 +166,7 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_primal_tenacity_AuraScript();
         }
@@ -196,7 +196,7 @@ class spell_dru_savage_defense : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+            void Absorb(AuraEffect* aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
             {
                 absorbAmount = uint32(CalculatePctN(GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK), absorbPct));
                 aurEff->SetAmount(0);
@@ -209,7 +209,7 @@ class spell_dru_savage_defense : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_savage_defense_AuraScript();
         }
@@ -290,7 +290,7 @@ class spell_dru_starfall_aoe : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_dru_starfall_aoe_SpellScript();
         }

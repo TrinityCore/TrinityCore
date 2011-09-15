@@ -169,7 +169,7 @@ class boss_garfrost : public CreatureScript
             {
                 if (spell->Id == SPELL_PERMAFROST_HELPER)
                 {
-                    if (Aura *aura = target->GetAura(SPELL_PERMAFROST_HELPER))
+                    if (Aura* aura = target->GetAura(SPELL_PERMAFROST_HELPER))
                         _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
                 }
                 else if (spell->Id == SPELL_FORGE_BLADE)

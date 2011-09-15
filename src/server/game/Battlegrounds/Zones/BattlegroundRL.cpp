@@ -59,7 +59,7 @@ void BattlegroundRL::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 }
 
-void BattlegroundRL::AddPlayer(Player *plr)
+void BattlegroundRL::AddPlayer(Player* plr)
 {
     Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
@@ -102,7 +102,7 @@ bool BattlegroundRL::HandlePlayerUnderMap(Player* player)
     return true;
 }
 
-void BattlegroundRL::HandleAreaTrigger(Player *Source, uint32 Trigger)
+void BattlegroundRL::HandleAreaTrigger(Player* Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)

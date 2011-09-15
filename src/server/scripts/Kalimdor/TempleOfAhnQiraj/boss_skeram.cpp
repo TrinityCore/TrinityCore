@@ -238,7 +238,7 @@ public:
             {
                 if (Player* target = CAST_PLR(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
                 {
-                    if (Group *pGrp = target->GetGroup())
+                    if (Group* pGrp = target->GetGroup())
                         for (uint8 ico = 0; ico < TARGETICONCOUNT; ++ico)
                         {
                             //if (grp->m_targetIcons[ico] == me->GetGUID()) -- private member :(

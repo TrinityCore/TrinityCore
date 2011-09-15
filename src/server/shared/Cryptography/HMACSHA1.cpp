@@ -30,7 +30,7 @@ HmacHash::~HmacHash()
     HMAC_CTX_cleanup(&m_ctx);
 }
 
-void HmacHash::UpdateBigNumber(BigNumber *bn)
+void HmacHash::UpdateBigNumber(BigNumber* bn)
 {
     UpdateData(bn->AsByteArray(), bn->GetNumBytes());
 }
@@ -52,7 +52,7 @@ void HmacHash::Finalize()
     ASSERT(length == SHA_DIGEST_LENGTH)
 }
 
-uint8 *HmacHash::ComputeHash(BigNumber *bn)
+uint8 *HmacHash::ComputeHash(BigNumber* bn)
 {
     HMAC_Update(&m_ctx, bn->AsByteArray(), bn->GetNumBytes());
     Finalize();
