@@ -228,7 +228,7 @@ void LFGMgr::Update(uint32 diff)
                     SetState(guid, LFG_STATE_PROPOSAL);
                     if (Player* plr = ObjectAccessor::FindPlayer(itPlayers->first))
                     {
-                        Group *grp = plr->GetGroup();
+                        Group* grp = plr->GetGroup();
                         if (grp)
                          {
                             uint64 gguid = grp->GetGUID();

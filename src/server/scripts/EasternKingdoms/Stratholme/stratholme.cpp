@@ -53,9 +53,9 @@ public:
         if (pInstance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
             return false;
 
-        if (Group *pGroup = player->GetGroup())
+        if (Group* pGroup = player->GetGroup())
         {
-            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* pGroupie = itr->getSource();
                 if (!pGroupie)
@@ -148,7 +148,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -224,7 +224,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (!Tagged && spell->Id == SPELL_EGAN_BLASTER)
                 Tagged = true;

@@ -73,7 +73,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             Unit* victim = GetTarget();
             int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
@@ -113,7 +113,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_pal_ardent_defender_AuraScript();
     }
@@ -165,7 +165,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const
     {
         return new spell_pal_blessing_of_faith_SpellScript();
     }
@@ -208,7 +208,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_pal_blessing_of_sanctuary_AuraScript();
     }
@@ -292,7 +292,7 @@ public:
     class spell_pal_holy_shock_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_holy_shock_SpellScript)
-        bool Validate(SpellInfo const *spellEntry)
+        bool Validate(SpellInfo const* spellEntry)
         {
             if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_HOLY_SHOCK_R1))
                 return false;
@@ -332,7 +332,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const
     {
         return new spell_pal_holy_shock_SpellScript();
     }
@@ -360,7 +360,7 @@ public:
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const
     {
         return new spell_pal_judgement_of_command_SpellScript();
     }

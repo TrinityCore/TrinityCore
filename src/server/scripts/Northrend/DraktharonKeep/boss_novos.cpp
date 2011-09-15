@@ -245,7 +245,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_novosAI(creature);
     }
@@ -271,7 +271,7 @@ public:
 
         uint32 uiFlashOfDarknessTimer;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -308,7 +308,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_crystal_handlerAI(creature);
     }
@@ -326,7 +326,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void MovementInform(uint32 type, uint32 id)
         {
@@ -341,7 +341,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_novos_minionAI(creature);
     }

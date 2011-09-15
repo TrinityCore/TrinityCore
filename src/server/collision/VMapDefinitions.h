@@ -27,6 +27,6 @@ namespace VMAP
     const char VMAP_MAGIC[] = "VMAP_3.0";
 
     // defined in TileAssembler.cpp currently...
-    bool readChunk(FILE *rf, char *dest, const char *compare, uint32 len);
+    bool readChunk(FILE* rf, char *dest, const char *compare, uint32 len);
 }
 #endif

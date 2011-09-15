@@ -26,7 +26,7 @@
 #include "World.h"
 #include "ScriptPCH.h"
 
-OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP *pvp, ZM_BeaconType type)
+OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type)
 : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(ZM_TOWERSTATE_N)
 {
     SetCapturePointData(ZMCapturePoints[type].entry, ZMCapturePoints[type].map, ZMCapturePoints[type].x, ZMCapturePoints[type].y, ZMCapturePoints[type].z, ZMCapturePoints[type].o, ZMCapturePoints[type].rot0, ZMCapturePoints[type].rot1, ZMCapturePoints[type].rot2, ZMCapturePoints[type].rot3);
@@ -250,7 +250,7 @@ int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player* player, uint64 guid)
     return retval;
 }
 
-OPvPCapturePointZM_GraveYard::OPvPCapturePointZM_GraveYard(OutdoorPvP *pvp)
+OPvPCapturePointZM_GraveYard::OPvPCapturePointZM_GraveYard(OutdoorPvP* pvp)
 : OPvPCapturePoint(pvp)
 {
     m_BothControllingFaction = 0;

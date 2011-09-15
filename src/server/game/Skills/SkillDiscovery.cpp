@@ -67,7 +67,7 @@ void LoadSkillDiscoveryTable()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 spellId         = fields[0].GetUInt32();
         int32  reqSkillOrSpell = fields[1].GetInt32();

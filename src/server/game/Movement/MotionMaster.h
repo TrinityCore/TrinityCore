@@ -94,7 +94,7 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void InitTop();
     public:
 
-        explicit MotionMaster(Unit *unit) : i_top(-1), i_owner(unit), m_expList(NULL), m_cleanFlag(MMCF_NONE)
+        explicit MotionMaster(Unit* unit) : i_top(-1), i_owner(unit), m_expList(NULL), m_cleanFlag(MMCF_NONE)
         {
             for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
             {
@@ -185,7 +185,7 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void DelayedExpire();
 
         Unit       *i_owner;
-        ExpireList *m_expList;
+        ExpireList* m_expList;
         uint8       m_cleanFlag;
 };
 #endif

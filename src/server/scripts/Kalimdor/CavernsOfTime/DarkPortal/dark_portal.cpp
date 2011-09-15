@@ -73,7 +73,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 SpellCorrupt_Timer;
         uint32 Check_Timer;
@@ -266,7 +266,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 TimeRiftWave_Timer;
         uint8 mRiftWaveCount;

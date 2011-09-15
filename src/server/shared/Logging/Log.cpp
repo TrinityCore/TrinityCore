@@ -965,7 +965,7 @@ void Log::outChar(const char * str, ...)
 
 void Log::outCharDump(const char * str, uint32 account_id, uint32 guid, const char * name)
 {
-    FILE *file = NULL;
+    FILE* file = NULL;
     if (m_charLog_Dump_Separate)
     {
         char fileName[29]; // Max length: name(12) + guid(11) + _.log (5) + \0

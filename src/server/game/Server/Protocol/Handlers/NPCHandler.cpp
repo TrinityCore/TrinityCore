@@ -135,7 +135,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
     if (!unit->isCanTrainingOf(_player, true))
         return;
 
-    CreatureTemplate const *ci = unit->GetCreatureInfo();
+    CreatureTemplate const* ci = unit->GetCreatureInfo();
 
     if (!ci)
     {
@@ -325,7 +325,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recv_data)
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
     if (unit->isSpiritGuide())
     {
-        Battleground *bg = _player->GetBattleground();
+        Battleground* bg = _player->GetBattleground();
         if (bg)
         {
             bg->AddPlayerToResurrectQueue(unit->GetGUID(), _player->GetGUID());
@@ -413,8 +413,8 @@ void WorldSession::SendSpiritResurrect()
     _player->DurabilityLossAll(0.25f, true);
 
     // get corpse nearest graveyard
-    WorldSafeLocsEntry const *corpseGrave = NULL;
-    Corpse *corpse = _player->GetCorpse();
+    WorldSafeLocsEntry const* corpseGrave = NULL;
+    Corpse* corpse = _player->GetCorpse();
     if (corpse)
         corpseGrave = sObjectMgr->GetClosestGraveYard(
             corpse->GetPositionX(), corpse->GetPositionY(), corpse->GetPositionZ(), corpse->GetMapId(), _player->GetTeam());
@@ -425,7 +425,7 @@ void WorldSession::SendSpiritResurrect()
     // teleport to nearest from corpse graveyard, if different from nearest to player ghost
     if (corpseGrave)
     {
-        WorldSafeLocsEntry const *ghostGrave = sObjectMgr->GetClosestGraveYard(
+        WorldSafeLocsEntry const* ghostGrave = sObjectMgr->GetClosestGraveYard(
             _player->GetPositionX(), _player->GetPositionY(), _player->GetPositionZ(), _player->GetMapId(), _player->GetTeam());
 
         if (corpseGrave != ghostGrave)
@@ -461,7 +461,7 @@ void WorldSession::HandleBinderActivateOpcode(WorldPacket & recv_data)
     SendBindPoint(unit);
 }
 
-void WorldSession::SendBindPoint(Creature *npc)
+void WorldSession::SendBindPoint(Creature* npc)
 {
     // prevent set homebind to instances in any case
     if (GetPlayer()->GetMap()->Instanceable())
@@ -537,7 +537,7 @@ void WorldSession::SendStablePetCallback(QueryResult result, uint64 guid)
 
     data << uint64 (guid);
 
-    Pet *pet = _player->GetPet();
+    Pet* pet = _player->GetPet();
 
     size_t wpos = data.wpos();
     data << uint8(0);                                       // place holder for slot show number
@@ -561,7 +561,7 @@ void WorldSession::SendStablePetCallback(QueryResult result, uint64 guid)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             data << uint32(fields[1].GetUInt32());          // petnumber
             data << uint32(fields[2].GetUInt32());          // creature entry
@@ -609,7 +609,7 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
     if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    Pet *pet = _player->GetPet();
+    Pet* pet = _player->GetPet();
 
     // can't place in stable dead pet
     if (!pet||!pet->isAlive()||pet->getPetType() != HUNTER_PET)
@@ -633,7 +633,7 @@ void WorldSession::HandleStablePetCallback(QueryResult result)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             uint32 slot = fields[1].GetUInt32();
 
@@ -690,7 +690,7 @@ void WorldSession::HandleUnstablePetCallback(QueryResult result, uint32 petnumbe
     uint32 creature_id = 0;
     if (result)
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         creature_id = fields[0].GetUInt32();
     }
 
@@ -722,7 +722,7 @@ void WorldSession::HandleUnstablePetCallback(QueryResult result, uint32 petnumbe
     if (pet)
         _player->RemovePet(pet, PET_SAVE_AS_DELETED);
 
-    Pet *newpet = new Pet(_player, HUNTER_PET);
+    Pet* newpet = new Pet(_player, HUNTER_PET);
     if (!newpet->LoadPetFromDB(_player, creature_id, petnumber))
     {
         delete newpet;
@@ -753,7 +753,7 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
 
     if (GetPlayer()->m_stableSlots < MAX_PET_STABLES)
     {
-        StableSlotPricesEntry const *SlotPrice = sStableSlotPricesStore.LookupEntry(GetPlayer()->m_stableSlots+1);
+        StableSlotPricesEntry const* SlotPrice = sStableSlotPricesStore.LookupEntry(GetPlayer()->m_stableSlots+1);
         if (_player->HasEnoughMoney(SlotPrice->Price))
         {
             ++GetPlayer()->m_stableSlots;
@@ -817,7 +817,7 @@ void WorldSession::HandleStableSwapPetCallback(QueryResult result, uint32 petnum
         return;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
 
     uint32 slot        = fields[0].GetUInt8();
     uint32 creature_id = fields[1].GetUInt32();
@@ -845,7 +845,7 @@ void WorldSession::HandleStableSwapPetCallback(QueryResult result, uint32 petnum
     _player->RemovePet(pet, pet->isAlive() ? PetSaveMode(slot) : PET_SAVE_AS_DELETED);
 
     // summon unstabled pet
-    Pet *newpet = new Pet(_player);
+    Pet* newpet = new Pet(_player);
     if (!newpet->LoadPetFromDB(_player, creature_id, petnumber))
     {
         delete newpet;

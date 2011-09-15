@@ -194,7 +194,7 @@ bool ArenaTeam::LoadArenaTeamFromDB(QueryResult result)
     if (!result)
         return false;
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
 
     TeamId            = fields[0].GetUInt32();
     TeamName          = fields[1].GetString();
@@ -224,7 +224,7 @@ bool ArenaTeam::LoadMembersFromDB(QueryResult result)
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         // Prevent crash if db records are broken when all members in result are already processed and current team doesn't have any members
         if (!fields)

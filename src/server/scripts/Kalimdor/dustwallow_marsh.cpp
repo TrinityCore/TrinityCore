@@ -273,7 +273,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_theramore_guardAI(creature);
     }
@@ -588,7 +588,7 @@ public:
         return new npc_stinkyAI(creature);
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
          if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || QUEST_STINKYS_ESCAPE_A)
          {

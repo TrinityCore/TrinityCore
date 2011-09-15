@@ -420,7 +420,7 @@ public:
 
         sLog->outString("Reloading creature template entry %u", entry);
 
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[0] = fields[0].GetUInt32();
         const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[1] = fields[1].GetUInt32();

@@ -59,7 +59,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 HolyLight_Timer;
         uint32 DivineShield_Timer;

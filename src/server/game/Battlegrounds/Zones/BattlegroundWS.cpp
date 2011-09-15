@@ -202,7 +202,7 @@ void BattlegroundWS::StartingEventOpenDoors()
     StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, WS_EVENT_START_BATTLE);
 }
 
-void BattlegroundWS::AddPlayer(Player *plr)
+void BattlegroundWS::AddPlayer(Player* plr)
 {
     Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
@@ -254,7 +254,7 @@ void BattlegroundWS::RespawnFlagAfterDrop(uint32 team)
 
     PlaySoundToAll(BG_WS_SOUND_FLAGS_RESPAWNED);
 
-    if (GameObject *obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID(team)))
+    if (GameObject* obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID(team)))
         obj->Delete();
     else
         sLog->outError("unknown droped flag bg, guid: %u", GUID_LOPART(GetDroppedFlagGUID(team)));
@@ -263,7 +263,7 @@ void BattlegroundWS::RespawnFlagAfterDrop(uint32 team)
     m_BothFlagsKept = false;
 }
 
-void BattlegroundWS::EventPlayerCapturedFlag(Player *Source)
+void BattlegroundWS::EventPlayerCapturedFlag(Player* Source)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -349,7 +349,7 @@ void BattlegroundWS::EventPlayerCapturedFlag(Player *Source)
     }
 }
 
-void BattlegroundWS::EventPlayerDroppedFlag(Player *Source)
+void BattlegroundWS::EventPlayerDroppedFlag(Player* Source)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
     {
@@ -435,7 +435,7 @@ void BattlegroundWS::EventPlayerDroppedFlag(Player *Source)
     }
 }
 
-void BattlegroundWS::EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj)
+void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
@@ -556,7 +556,7 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player *Source, GameObject* target
     Source->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_ENTER_PVP_COMBAT);
 }
 
-void BattlegroundWS::RemovePlayer(Player *plr, uint64 guid, uint32 /*team*/)
+void BattlegroundWS::RemovePlayer(Player* plr, uint64 guid, uint32 /*team*/)
 {
     // sometimes flag aura not removed :(
     if (IsAllianceFlagPickedup() && m_FlagKeepers[BG_TEAM_ALLIANCE] == guid)
@@ -599,7 +599,7 @@ void BattlegroundWS::UpdateTeamScore(uint32 team)
         UpdateWorldState(BG_WS_FLAG_CAPTURES_HORDE, GetTeamScore(team));
 }
 
-void BattlegroundWS::HandleAreaTrigger(Player *Source, uint32 Trigger)
+void BattlegroundWS::HandleAreaTrigger(Player* Source, uint32 Trigger)
 {
     // this is wrong way to implement these things. On official it done by gameobject spell cast.
     if (GetStatus() != STATUS_IN_PROGRESS)
@@ -682,7 +682,7 @@ bool BattlegroundWS::SetupBattleground()
         return false;
     }
 
-    WorldSafeLocsEntry const *sg = sWorldSafeLocsStore.LookupEntry(WS_GRAVEYARD_MAIN_ALLIANCE);
+    WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(WS_GRAVEYARD_MAIN_ALLIANCE);
     if (!sg || !AddSpiritGuide(WS_SPIRIT_MAIN_ALLIANCE, sg->x, sg->y, sg->z, 3.124139f, ALLIANCE))
     {
         sLog->outErrorDb("BatteGroundWS: Failed to spawn Alliance spirit guide! Battleground not created!");
@@ -754,7 +754,7 @@ void BattlegroundWS::HandleKillPlayer(Player* player, Player* killer)
     Battleground::HandleKillPlayer(player, killer);
 }
 
-void BattlegroundWS::UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor)
+void BattlegroundWS::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
 
     BattlegroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());

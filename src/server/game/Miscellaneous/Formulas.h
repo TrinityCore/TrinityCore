@@ -156,7 +156,7 @@ namespace Trinity
             return baseGain;
         }
 
-        inline uint32 Gain(Player *pl, Unit *u)
+        inline uint32 Gain(Player* pl, Unit* u)
         {
             uint32 gain;
 

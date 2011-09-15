@@ -177,7 +177,7 @@ bool RealmSocket::send(const char *buf, size_t len)
         message_block.rd_ptr(un);
     }
 
-    ACE_Message_Block *mb = message_block.clone();
+    ACE_Message_Block* mb = message_block.clone();
 
     if (msg_queue()->enqueue_tail(mb, (ACE_Time_Value *)(&ACE_Time_Value::zero)) == -1)
     {
@@ -196,7 +196,7 @@ int RealmSocket::handle_output(ACE_HANDLE)
     if (closing_)
         return -1;
 
-    ACE_Message_Block *mb = 0;
+    ACE_Message_Block* mb = 0;
 
     if (msg_queue()->is_empty())
     {

@@ -53,7 +53,7 @@ namespace VMAP
         }
     }
 
-    IVMapManager *gVMapManager = 0;
+    IVMapManager* gVMapManager = 0;
     Table<unsigned int , bool>* iIgnoreSpellIds=0;
 
     //===============================================

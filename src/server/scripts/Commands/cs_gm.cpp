@@ -163,7 +163,7 @@ public:
             ///- Cycle through them. Display username and GM level
             do
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
                 const char* name = fields[0].GetCString();
                 uint8 security = fields[1].GetUInt8();
                 uint8 max = ((16 - strlen(name)) / 2);
@@ -234,7 +234,7 @@ public:
             handler->GetSession()->SendNotification(LANG_GM_ON);
             handler->GetSession()->GetPlayer()->UpdateTriggerVisibility();
 #ifdef _DEBUG_VMAPS
-            VMAP::IVMapManager *vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
+            VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
             vMapManager->processCommand("stoplog");
 #endif
             return true;
@@ -246,7 +246,7 @@ public:
             handler->GetSession()->SendNotification(LANG_GM_OFF);
             handler->GetSession()->GetPlayer()->UpdateTriggerVisibility();
 #ifdef _DEBUG_VMAPS
-            VMAP::IVMapManager *vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
+            VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
             vMapManager->processCommand("startlog");
 #endif
             return true;

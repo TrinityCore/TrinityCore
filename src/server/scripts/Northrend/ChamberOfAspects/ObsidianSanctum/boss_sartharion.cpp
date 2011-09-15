@@ -1330,7 +1330,7 @@ public:
                 }
 
                 Creature* pDebuffTarget = NULL;
-                Map *map = me->GetMap();
+                Map* map = me->GetMap();
                 if (map->IsDungeon())
                 {
                     Map::PlayerList const &PlayerList = map->GetPlayers();
@@ -1429,7 +1429,7 @@ public:
                 if (pVesperon && pVesperon->isAlive() && pVesperon->HasAura(SPELL_TWILIGHT_TORMENT_VESP))
                     pVesperon->RemoveAurasDueToSpell(SPELL_TWILIGHT_TORMENT_VESP);
 
-                Map *map = me->GetMap();
+                Map* map = me->GetMap();
                 if (map->IsDungeon())
                 {
                     Map::PlayerList const &PlayerList = map->GetPlayers();

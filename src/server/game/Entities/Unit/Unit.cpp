@@ -747,7 +747,7 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
         if (victim->GetTypeId() == TYPEID_PLAYER)
         {
-            if (Battleground *bg = killer->GetBattleground())
+            if (Battleground* bg = killer->GetBattleground())
             {
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
                 /** World of Warcraft Armory **/
@@ -901,7 +901,7 @@ void Unit::CastSpell(Unit* victim, uint32 spellId, TriggerCastFlags triggerFlags
     CastSpell(victim, spellInfo, triggerFlags, castItem, triggeredByAura, originalCaster);
 }
 
-void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item *castItem/*= NULL*/, AuraEffect const* triggeredByAura /*= NULL*/, uint64 originalCaster /*= 0*/)
+void Unit::CastSpell(Unit* victim, SpellInfo const* spellInfo, bool triggered, Item* castItem/*= NULL*/, AuraEffect const* triggeredByAura /*= NULL*/, uint64 originalCaster /*= 0*/)
 {
     CastSpell(victim, spellInfo, triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, castItem, triggeredByAura, originalCaster);
 }
@@ -1007,7 +1007,7 @@ void Unit::CastSpell(float x, float y, float z, uint32 spellId, bool triggered, 
 }
 
 // used for scripting
-void Unit::CastSpell(GameObject *go, uint32 spellId, bool triggered, Item* castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
+void Unit::CastSpell(GameObject* go, uint32 spellId, bool triggered, Item* castItem, AuraEffect* triggeredByAura, uint64 originalCaster)
 {
     if (!go)
         return;
@@ -1047,7 +1047,7 @@ uint32 Unit::SpellNonMeleeDamageLog(Unit* victim, uint32 spellID, uint32 damage)
     return damageInfo.damage;
 }
 
-void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit)
+void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit)
 {
     if (damage < 0)
         return;
@@ -1153,7 +1153,7 @@ void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 dama
     damageInfo->damage = damage;
 }
 
-void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
+void Unit::DealSpellDamage(SpellNonMeleeDamage* damageInfo, bool durabilityLoss)
 {
     if (damageInfo == 0)
         return;
@@ -1179,7 +1179,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
 }
 
 // TODO for melee need create structure as in
-void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo *damageInfo, WeaponAttackType attackType)
+void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo* damageInfo, WeaponAttackType attackType)
 {
     damageInfo->attacker         = this;
     damageInfo->target           = victim;
@@ -1376,7 +1376,7 @@ void Unit::CalculateMeleeDamage(Unit* victim, uint32 damage, CalcDamageInfo *dam
         damageInfo->damage = 0;
 }
 
-void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
+void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
 {
     Unit* victim = damageInfo->target;
 
@@ -1896,7 +1896,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     *absorb = dmgInfo.GetAbsorb();
 }
 
-void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo *healSpell, uint32 &healAmount, uint32 &absorb)
+void Unit::CalcHealAbsorb(Unit* victim, const SpellInfo* healSpell, uint32 &healAmount, uint32 &absorb)
 {
     if (!healAmount)
         return;
@@ -2319,7 +2319,7 @@ bool Unit::isBlockCritical()
     return false;
 }
 
-int32 Unit::GetMechanicResistChance(const SpellInfo *spell)
+int32 Unit::GetMechanicResistChance(const SpellInfo* spell)
 {
     if (!spell)
         return 0;
@@ -4657,7 +4657,7 @@ void Unit::_UnregisterDynObject(DynamicObject* dynObj)
     m_dynObj.remove(dynObj);
 }
 
-DynamicObject * Unit::GetDynObject(uint32 spellId)
+DynamicObject* Unit::GetDynObject(uint32 spellId)
 {
     if (m_dynObj.empty())
         return NULL;
@@ -4793,7 +4793,7 @@ void Unit::RemoveAllGameObjects()
     }
 }
 
-void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage *log)
+void Unit::SendSpellNonMeleeDamageLog(SpellNonMeleeDamage* log)
 {
     WorldPacket data(SMSG_SPELLNONMELEEDAMAGELOG, (16+4+4+4+1+4+4+1+1+4+4+1)); // we guess size
     data.append(log->target->GetPackGUID());
@@ -4838,7 +4838,7 @@ void Unit::ProcDamageAndSpell(Unit* victim, uint32 procAttacker, uint32 procVict
         victim->ProcDamageAndSpellFor(true, this, procVictim, procExtra, attType, procSpell, amount, procAura);
 }
 
-void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
+void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo* pInfo)
 {
     AuraEffect const* aura = pInfo->auraEff;
 
@@ -4918,7 +4918,7 @@ void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
     SendMessageToSet(&data, true);
 }
 
-void Unit::SendAttackStateUpdate(CalcDamageInfo *damageInfo)
+void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 {
     sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Sending SMSG_ATTACKERSTATEUPDATE");
 
@@ -10381,7 +10381,7 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
     // reserve place for players and pets because resizing vector every unit push is unefficient (vector is reallocated then)
     nearMembers.reserve(pGroup->GetMembersCount() * 2);
 
-    for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         if (Player* Target = itr->getSource())
         {
             // IsHostileTo check duel and controlled by enemy
@@ -12107,7 +12107,7 @@ void Unit::ApplySpellImmune(uint32 spellId, uint32 op, uint32 type, bool apply)
     }
 }
 
-void Unit::ApplySpellDispelImmunity(const SpellInfo * spellProto, DispelType type, bool apply)
+void Unit::ApplySpellDispelImmunity(const SpellInfo* spellProto, DispelType type, bool apply)
 {
     ApplySpellImmune(spellProto->Id, IMMUNITY_DISPEL, type, apply);
 
@@ -12142,7 +12142,7 @@ float Unit::GetWeaponProcChance() const
     return 0;
 }
 
-float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellInfo * spellProto) const
+float Unit::GetPPMProcChance(uint32 WeaponSpeed, float PPM, const SpellInfo* spellProto) const
 {
     // proc per minute chance calculation
     if (PPM <= 0) return 0.0f;
@@ -12188,7 +12188,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         Pet* pet = plr->GetPet();
         if (pet)
         {
-            Battleground *bg = ToPlayer()->GetBattleground();
+            Battleground* bg = ToPlayer()->GetBattleground();
             // don't unsummon pet in arena but SetFlag UNIT_FLAG_STUNNED to disable pet's interface
             if (bg && bg->isArena())
                 pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
@@ -14262,7 +14262,7 @@ bool InitTriggerAuraData()
     return true;
 }
 
-uint32 createProcExtendMask(SpellNonMeleeDamage *damageInfo, SpellMissInfo missCondition)
+uint32 createProcExtendMask(SpellNonMeleeDamage* damageInfo, SpellMissInfo missCondition)
 {
     uint32 procEx = PROC_EX_NONE;
     // Check victim state
@@ -15105,7 +15105,7 @@ void Unit::UpdateAuraForGroup(uint8 slot)
     }
     else if (GetTypeId() == TYPEID_UNIT && ToCreature()->isPet())
     {
-        Pet *pet = ((Pet*)this);
+        Pet* pet = ((Pet*)this);
         if (pet->isControlled())
         {
             Unit* owner = GetOwner();
@@ -15231,7 +15231,7 @@ Pet* Unit::CreateTamedPetFrom(uint32 creatureEntry, uint32 spell_id)
     return pet;
 }
 
-bool Unit::InitTamedPet(Pet * pet, uint8 level, uint32 spell_id)
+bool Unit::InitTamedPet(Pet* pet, uint8 level, uint32 spell_id)
 {
     pet->SetCreatorGUID(GetGUID());
     pet->setFaction(getFaction());
@@ -15673,7 +15673,7 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
                     // the reset time is set but not added to the scheduler
                     // until the players leave the instance
                     time_t resettime = creature->GetRespawnTimeEx() + 2 * HOUR;
-                    if (InstanceSave *save = sInstanceSaveMgr->GetInstanceSave(creature->GetInstanceId()))
+                    if (InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(creature->GetInstanceId()))
                         if (save->GetResetTime() < resettime) save->SetResetTime(resettime);
                 }
             }
@@ -16345,7 +16345,7 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
     Group* pGroup = owner->GetGroup();
     if (pGroup)
     {
-        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->getSource();
 
@@ -16381,7 +16381,7 @@ void Unit::GetPartyMemberInDist(std::list<Unit*> &TagUnitMap, float radius)
     {
         uint8 subgroup = owner->ToPlayer()->GetSubGroup();
 
-        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->getSource();
 
@@ -16418,7 +16418,7 @@ void Unit::GetPartyMembers(std::list<Unit*> &TagUnitMap)
     {
         uint8 subgroup = owner->ToPlayer()->GetSubGroup();
 
-        for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->getSource();
 
@@ -17005,7 +17005,7 @@ void Unit::JumpTo(float speedXY, float speedZ, bool forward)
     }
 }
 
-void Unit::JumpTo(WorldObject *obj, float speedZ)
+void Unit::JumpTo(WorldObject* obj, float speedZ)
 {
     float x, y, z;
     obj->GetContactPoint(this, x, y, z);
@@ -17120,7 +17120,7 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         // drop flag at invisible in bg
-        if (Battleground *bg = plr->GetBattleground())
+        if (Battleground* bg = plr->GetBattleground())
             bg->EventPlayerDroppedFlag(plr);
 
         WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
@@ -17175,7 +17175,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     m_vehicle->RemovePassenger(this);
 
     // This should be done before dismiss, because there may be some aura removal
-    Vehicle *vehicle = m_vehicle;
+    Vehicle* vehicle = m_vehicle;
     m_vehicle = NULL;
 
     SetControlled(false, UNIT_STAT_ROOT);       // SMSG_MOVE_FORCE_UNROOT, ~MOVEMENTFLAG_ROOT

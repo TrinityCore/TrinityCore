@@ -936,7 +936,7 @@ public:
         if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
             return true;
 
-        if (!player->IsInSameRaidWith(static_cast<Player* >(caster)))
+        if (!player->IsInSameRaidWith(static_cast<Player*>(caster)))
             return true;
 
         // Repeating this at every use is ugly and inefficient. But as long as we don't have proper

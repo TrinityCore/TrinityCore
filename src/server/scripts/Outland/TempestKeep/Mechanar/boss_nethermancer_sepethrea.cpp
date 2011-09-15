@@ -66,7 +66,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 pInstance = creature->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             uint32 frost_attack_Timer;
             uint32 arcane_blast_Timer;
@@ -188,7 +188,7 @@ class mob_ragin_flames : public CreatureScript
                     pInstance = creature->GetInstanceScript();
                 }
 
-                InstanceScript *pInstance;
+                InstanceScript* pInstance;
 
                 uint32 inferno_Timer;
                 uint32 flame_timer;

@@ -64,7 +64,7 @@ public:
     {
         boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            m_pInstance = (InstanceScript *) creature->GetInstanceScript();
+            m_pInstance = (InstanceScript* ) creature->GetInstanceScript();
         }
 
         InstanceScript* m_pInstance;
@@ -253,7 +253,7 @@ struct boss_faction_championsAI : public ScriptedAI
 {
     boss_faction_championsAI(Creature* creature, uint32 aitype) : ScriptedAI(creature)
     {
-        m_pInstance = (InstanceScript *) creature->GetInstanceScript();
+        m_pInstance = (InstanceScript* ) creature->GetInstanceScript();
         mAIType = aitype;
     }
 
@@ -369,8 +369,8 @@ struct boss_faction_championsAI : public ScriptedAI
 
     Creature* SelectRandomFriendlyMissingBuff(uint32 spell)
     {
-        std::list<Creature* > lst = DoFindFriendlyMissingBuff(40.0f, spell);
-        std::list<Creature* >::const_iterator itr = lst.begin();
+        std::list<Creature*> lst = DoFindFriendlyMissingBuff(40.0f, spell);
+        std::list<Creature*>::const_iterator itr = lst.begin();
         if (lst.empty())
             return NULL;
         advance(itr, rand()%lst.size());

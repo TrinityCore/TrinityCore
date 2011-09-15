@@ -112,7 +112,7 @@ void BattlegroundDS::StartingEventOpenDoors()
     m_knockbackCheck = true;
 }
 
-void BattlegroundDS::AddPlayer(Player *plr)
+void BattlegroundDS::AddPlayer(Player* plr)
 {
     Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
@@ -149,7 +149,7 @@ void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
     CheckArenaWinConditions();
 }
 
-void BattlegroundDS::HandleAreaTrigger(Player *Source, uint32 Trigger)
+void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;

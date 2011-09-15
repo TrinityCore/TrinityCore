@@ -60,7 +60,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             // reduces all damage taken while stun, fear or silence
             if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING | UNIT_FLAG_SILENCED) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
@@ -74,7 +74,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_sha_astral_shift_AuraScript();
     }
@@ -167,7 +167,7 @@ public:
                     int32 effValue = GetEffectValue();
                     // Glyph of Mana Tide
                     if (Unit* owner = caster->GetOwner())
-                        if (AuraEffect *dummy = owner->GetAuraEffect(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE, 0))
+                        if (AuraEffect* dummy = owner->GetAuraEffect(SHAMAN_SPELL_GLYPH_OF_MANA_TIDE, 0))
                             effValue += dummy->GetAmount();
                     // Regenerate 6% of Total Mana Every 3 secs
                     int32 effBasePoints0 = int32(CalculatePctN(unitTarget->GetMaxPower(POWER_MANA), effValue));
@@ -222,7 +222,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_sha_earthbind_totem_AuraScript();
     }

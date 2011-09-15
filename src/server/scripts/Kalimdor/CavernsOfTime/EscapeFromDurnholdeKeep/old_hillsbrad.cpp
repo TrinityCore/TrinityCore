@@ -289,7 +289,7 @@ public:
             me->setActive(true);
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint64 TarethaGUID;
 
@@ -629,7 +629,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void WaypointReached(uint32 i)
         {

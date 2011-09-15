@@ -88,7 +88,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        InstanceScript *pInstance = creature->GetInstanceScript();
+        InstanceScript* pInstance = creature->GetInstanceScript();
         if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CLOSE_GOSSIP_MENU();
@@ -109,7 +109,7 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        InstanceScript *pInstance = creature->GetInstanceScript();
+        InstanceScript* pInstance = creature->GetInstanceScript();
 
         if (pInstance)
         {
@@ -149,7 +149,7 @@ public:
         uint32 eventTimer;
         uint32 currentEvent;
         uint32 eventProgress;
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void WaypointReached(uint32 i)
         {
@@ -315,7 +315,7 @@ public:
                                 eventTimer = 3000;
                                 if (Creature* naralex = pInstance->instance->GetCreature(pInstance->GetData64(DATA_NARALEX)))
                                 {
-                                    AchievementEntry const *AchievWC = GetAchievementStore()->LookupEntry(ACHIEVEMENT_WAILING_CAVERNS);
+                                    AchievementEntry const* AchievWC = GetAchievementStore()->LookupEntry(ACHIEVEMENT_WAILING_CAVERNS);
                                     if (AchievWC)
                                     {
                                         Map* pMap = me->GetMap();

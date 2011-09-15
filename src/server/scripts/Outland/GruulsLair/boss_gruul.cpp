@@ -71,7 +71,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 m_uiGrowth_Timer;
         uint32 m_uiCaveIn_Timer;

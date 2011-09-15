@@ -170,7 +170,7 @@ class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 {
     public:
 
-        OPvPCapturePointZM_Beacon(OutdoorPvP * pvp, ZM_BeaconType type);
+        OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type);
 
         void ChangeState();
 
@@ -201,7 +201,7 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 {
     public:
 
-        OPvPCapturePointZM_GraveYard(OutdoorPvP * pvp);
+        OPvPCapturePointZM_GraveYard(OutdoorPvP* pvp);
 
         bool Update(uint32 diff);
 

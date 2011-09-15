@@ -101,9 +101,9 @@ class AuctionHouseObject
         return itr != AuctionsMap.end() ? itr->second : NULL;
     }
 
-    void AddAuction(AuctionEntry *auction);
+    void AddAuction(AuctionEntry* auction);
 
-    bool RemoveAuction(AuctionEntry *auction, uint32 item_template);
+    bool RemoveAuction(AuctionEntry* auction, uint32 item_template);
 
     void Update();
 
@@ -146,14 +146,14 @@ class AuctionHouseMgr
         }
 
         //auction messages
-        void SendAuctionWonMail(AuctionEntry * auction, SQLTransaction& trans);
-        void SendAuctionSalePendingMail(AuctionEntry * auction, SQLTransaction& trans);
-        void SendAuctionSuccessfulMail(AuctionEntry * auction, SQLTransaction& trans);
-        void SendAuctionExpiredMail(AuctionEntry * auction, SQLTransaction& trans);
-        void SendAuctionOutbiddedMail(AuctionEntry * auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
+        void SendAuctionWonMail(AuctionEntry* auction, SQLTransaction& trans);
+        void SendAuctionSalePendingMail(AuctionEntry* auction, SQLTransaction& trans);
+        void SendAuctionSuccessfulMail(AuctionEntry* auction, SQLTransaction& trans);
+        void SendAuctionExpiredMail(AuctionEntry* auction, SQLTransaction& trans);
+        void SendAuctionOutbiddedMail(AuctionEntry* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
         void SendAuctionCancelledToBidderMail(AuctionEntry* auction, SQLTransaction& trans);
 
-        static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item *pItem, uint32 count);
+        static uint32 GetAuctionDeposit(AuctionHouseEntry const* entry, uint32 time, Item* pItem, uint32 count);
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
 
     public:

@@ -96,7 +96,7 @@ class SmartAI : public CreatureAI
         // Tell creature to attack and follow the victim
         void AttackStart(Unit* who);
 
-        // Called if IsVisible(Unit *who) is true at each *who move, reaction at visibility zone enter
+        // Called if IsVisible(Unit* who) is true at each *who move, reaction at visibility zone enter
         void MoveInLineOfSight(Unit* who);
 
         // Called when hit by a spell

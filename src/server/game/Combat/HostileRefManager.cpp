@@ -142,7 +142,7 @@ void HostileRefManager::deleteReferencesForFaction(uint32 faction)
 //=================================================
 // delete one reference, defined by Unit
 
-void HostileRefManager::deleteReference(Unit *creature)
+void HostileRefManager::deleteReference(Unit* creature)
 {
     HostileReference* ref = getFirst();
     while (ref)
@@ -161,7 +161,7 @@ void HostileRefManager::deleteReference(Unit *creature)
 //=================================================
 // set state for one reference, defined by Unit
 
-void HostileRefManager::setOnlineOfflineState(Unit *creature, bool isOnline)
+void HostileRefManager::setOnlineOfflineState(Unit* creature, bool isOnline)
 {
     HostileReference* ref = getFirst();
     while (ref)

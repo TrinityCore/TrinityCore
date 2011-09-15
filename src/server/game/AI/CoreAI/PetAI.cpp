@@ -259,7 +259,7 @@ void PetAI::UpdateAllies()
     m_AllySet.insert(me->GetGUID());
     if (group)                                              //add group
     {
-        for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* Target = itr->getSource();
             if (!Target || !group->SameSubGroup((Player*)owner, Target))
