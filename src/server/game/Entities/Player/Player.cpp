@@ -17116,7 +17116,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 bool Player::isAllowedToLoot(const Creature* creature)
 {
     if (!creature->isDead() || !creature->IsDamageEnoughForLootingAndReward())
-       return false;
+        return false;
+       
+    if (HasPendingBind())
+        return false;
 
     const Loot* loot = &creature->loot;
     if (loot->isLooted()) // nothing to loot or everything looted.
