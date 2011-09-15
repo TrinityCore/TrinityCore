@@ -1326,12 +1326,8 @@ public:
         void HandleDummy(SpellEffIndex effIndex)
         {                 
             
-            Unit* caster = GetCaster();		
-            if (Player* player = caster->ToPlayer())
+            if (Player* player = GetCaster()->ToPlayer())
             {
-
-                if (caster->GetTypeId() != TYPEID_PLAYER)
-                    return;
 
                 uint32 factionId = GetSpellInfo()->Effects[effIndex].CalcValue();
                 int32  repChange =  GetSpellInfo()->Effects[EFFECT_1].CalcValue();
