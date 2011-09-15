@@ -39,6 +39,29 @@ ReputationRank ReputationMgr::ReputationToRank(int32 standing)
     return MIN_REPUTATION_RANK;
 }
 
+bool ReputationMgr::IsAtWar(uint32 faction_id) const
+{
+    FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+
+    if (!factionEntry)
+    {
+        sLog->outError("ReputationMgr::IsAtWar: Can't get AtWat flag of %s for unknown faction (faction id) #%u.", m_player->GetName(), faction_id);
+        return 0;
+    }
+
+    return IsAtWar(factionEntry);
+}
+
+bool ReputationMgr::IsAtWar(FactionEntry const* factionEntry) const
+{
+    if (!factionEntry)
+        return false;
+
+    if (FactionState const* factionState = GetState(factionEntry))
+        return (factionState->Flags & FACTION_FLAG_AT_WAR);
+    return false;
+}
+
 int32 ReputationMgr::GetReputation(uint32 faction_id) const
 {
     FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
