@@ -1393,6 +1393,21 @@ void GameObject::Use(Unit* user)
                     triggered = true;
                 }
 
+                // Cast casterTargetSpell at a random GO user
+                // on the current DB there is only one gameobject that uses this (Ritual of Doom)
+                // and its required target number is 1 (outter for loop will run once)
+                if (info->summoningRitual.casterTargetSpell && info->summoningRitual.casterTargetSpell != 1) // No idea why this field is a bool in some cases
+                {
+                    for (int i = 0; i < info->summoningRitual.casterTargetSpellTargets; i++)
+                    {
+                        std::set<uint32>::const_iterator itr = m_unique_users.begin();
+                        std::advance(itr, rand() % m_unique_users.size());
+
+                        if (Unit* target = Unit::GetUnit(*this, uint64(*itr)))
+                            spellCaster->CastSpell(target, info->summoningRitual.casterTargetSpell, true);
+                    }
+                }
+
                 // finish owners spell
                 if (owner)
                     owner->FinishSpell(CURRENT_CHANNELED_SPELL);

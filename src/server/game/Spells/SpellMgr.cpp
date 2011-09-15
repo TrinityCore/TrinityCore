@@ -3095,6 +3095,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->EffectMiscValue[0] |= 1;
                 break;
+            case 18541: // Ritual of Doom Effect (temp hack, current targeting system requires implicit targets to be set. Was target_dest_caster)
             case 51904: // Summon Ghouls On Scarlet Crusade (core does not know the triggered spell is summon spell)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 break;
