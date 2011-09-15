@@ -5820,6 +5820,8 @@ void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)
     unitTarget->m_extraAttacks = damage;
 
     ExecuteLogEffectExtraAttacks(effIndex, unitTarget->getVictim(), damage);
+
+    m_caster->HandleProcExtraAttackFor(unitTarget->getVictim());
 }
 
 void Spell::EffectParry(SpellEffIndex /*effIndex*/)
