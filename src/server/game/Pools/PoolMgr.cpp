@@ -476,10 +476,9 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
     {
         do
         {
-            ActivePoolObjects::iterator itr = currentQuests.begin();
-            std::advance(itr, urand(0, currentQuests.size()-1));
-            newQuests.insert(*itr);
-            currentQuests.erase(*itr);
+            uint32 questId = SelectRandomContainerElement(currentQuests);
+            newQuests.insert(questId);
+            currentQuests.erase(questId);
         } while (newQuests.size() < limit && !currentQuests.empty()); // failsafe
     }
 
@@ -489,12 +488,11 @@ void PoolGroup<Quest>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 
     // activate <limit> random quests
     do
     {
-        ActivePoolObjects::iterator itr = newQuests.begin();
-        std::advance(itr, urand(0, newQuests.size()-1));
-        spawns.ActivateObject<Quest>(*itr, poolId);
-        PoolObject tempObj(*itr, 0.0f);
+        uint32 questId = SelectRandomContainerElement(newQuests);
+        spawns.ActivateObject<Quest>(questId, poolId);
+        PoolObject tempObj(questId, 0.0f);
         Spawn1Object(&tempObj);
-        newQuests.erase(itr);
+        newQuests.erase(questId);
         --limit;
     } while (limit && !newQuests.empty());
 

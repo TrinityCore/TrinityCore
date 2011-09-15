@@ -648,4 +648,13 @@ public:
         return (part[el]);
     };
 };
+
+/* Select a random element from a container. Note: make sure you explicitly empty check the container */
+template <class C> typename C::value_type const& SelectRandomContainerElement(C const& container)
+{
+    C::const_iterator it = container.begin();
+    std::advance(it, urand(0, container.size() - 1));
+    return *it;
+}
+
 #endif

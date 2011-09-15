@@ -2556,9 +2556,7 @@ void World::SendAutoBroadcast()
 
     std::string msg;
 
-    std::list<std::string>::const_iterator itr = m_Autobroadcasts.begin();
-    std::advance(itr, rand() % m_Autobroadcasts.size());
-    msg = *itr;
+    msg = SelectRandomContainerElement(m_Autobroadcasts);
 
     uint32 abcenter = sWorld->getIntConfig(CONFIG_AUTOBROADCAST_CENTER);
 

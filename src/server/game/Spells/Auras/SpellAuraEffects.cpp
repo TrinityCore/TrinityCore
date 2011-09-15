@@ -5748,9 +5748,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     if (targets.empty())
                         return;
 
-                    UnitList::const_iterator itr = targets.begin();
-                    std::advance(itr, rand()%targets.size());
-                    Unit* spellTarget = *itr;
+                    Unit* spellTarget = SelectRandomContainerElement(targets);
 
                     target->CastSpell(spellTarget, 57840, true);
                     target->CastSpell(spellTarget, 57841, true);

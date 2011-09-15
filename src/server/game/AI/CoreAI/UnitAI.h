@@ -160,11 +160,7 @@ class UnitAI
                     return *ritr;
                 }
                 case SELECT_TARGET_RANDOM:
-                {
-                    std::list<Unit*>::iterator itr = targetList.begin();
-                    std::advance(itr, urand(position, targetList.size()-1));
-                    return *itr;
-                }
+                    return SelectRandomContainerElement(targetList);
                 default:
                     break;
             }
