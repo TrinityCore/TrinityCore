@@ -1373,10 +1373,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     uint32 maxTargets = std::min<uint32>(3, attackers.size());
                     for (uint32 i = 0; i < maxTargets; ++i)
                     {
-                        Unit::AttackerSet::iterator aItr = attackers.begin();
-                        std::advance(aItr, urand(0, attackers.size() - 1));
-                        AddUnitTarget(*aItr, 1);
-                        attackers.erase(aItr);
+                        Unit* attacker = SelectRandomContainerElement(attackers);
+                        AddUnitTarget(attacker, 1);
+                        attackers.erase(attacker);
                     }
 
                     // now let next effect cast spell at each target.
@@ -2621,10 +2620,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         if (!avalibleElixirs.empty())
         {
             // cast random elixir on target
-            uint32 rand_spell = urand(0, avalibleElixirs.size()-1);
-            std::set<uint32>::iterator itr = avalibleElixirs.begin();
-            std::advance(itr, rand_spell);
-            m_caster->CastSpell(unitTarget, *itr, true, m_CastItem);
+            m_caster->CastSpell(unitTarget, SelectRandomContainerElement(avalibleElixirs), true, m_CastItem);
         }
     }
 }
