@@ -342,7 +342,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_jedoga_shadowseekerAI(creature);
     }
@@ -508,7 +508,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_jedoga_initiandAI(creature);
     }
@@ -591,7 +591,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_jedogas_aufseher_triggerAI(creature);
     }

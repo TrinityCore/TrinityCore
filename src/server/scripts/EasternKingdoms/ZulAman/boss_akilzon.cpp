@@ -76,7 +76,7 @@ class boss_akilzon : public CreatureScript
             {
                 pInstance = c->GetInstanceScript();
             }
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             uint64 BirdGUIDs[8];
             uint64 TargetGUID;
@@ -194,7 +194,7 @@ class boss_akilzon : public CreatureScript
                     cell.data.Part.reserved = ALL_DISTRICT;
                     cell.SetNoCreate();
 
-                    std::list<Unit* > tempUnitMap;
+                    std::list<Unit*> tempUnitMap;
 
                     {
                         Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, 999);

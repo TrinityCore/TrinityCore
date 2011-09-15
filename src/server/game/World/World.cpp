@@ -1869,7 +1869,7 @@ void World::LoadAutobroadcasts()
     do
     {
 
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         std::string message = fields[0].GetString();
 
         m_Autobroadcasts.push_back(message);
@@ -2555,7 +2555,7 @@ void World::UpdateSessions(uint32 diff)
         ++next;
 
         ///- and remove not active sessions from the list
-        WorldSession * pSession = itr->second;
+        WorldSession* pSession = itr->second;
         WorldSessionFilter updater(pSession);
 
         if (!pSession->Update(diff, updater))    // As interval = 0
@@ -2636,7 +2636,7 @@ void World::_UpdateRealmCharCount(PreparedQueryResult resultCharCount)
 {
     if (resultCharCount)
     {
-        Field *fields = resultCharCount->Fetch();
+        Field* fields = resultCharCount->Fetch();
         uint32 accountId = fields[0].GetUInt32();
         uint32 charCount = fields[1].GetUInt32();
 
@@ -2667,7 +2667,7 @@ void World::InitDailyQuestResetTime()
     QueryResult result = CharacterDatabase.Query("SELECT MAX(time) FROM character_queststatus_daily");
     if (result)
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         mostRecentQuestTime = time_t(fields[0].GetUInt32());
     }
     else
@@ -2839,7 +2839,7 @@ void World::LoadWorldStates()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         m_worldstates[fields[0].GetUInt32()] = fields[1].GetUInt32();
         ++count;
     }

@@ -171,7 +171,7 @@ class boss_devourer_of_souls : public CreatureScript
                     {
                         if (player->GetAura(SPELL_MIRRORED_SOUL))
                         {
-                            int32 mirrorDamage = (uiDamage * 45)/100;
+                            int32 mirrorDamage = (uiDamage* 45)/100;
                             me->CastCustomSpell(player, 69034, &mirrorDamage, 0, 0, true);
                         }
                         else
@@ -234,7 +234,7 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, const SpellInfo *spell)
+            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell)
             {
                 if (spell->Id == H_SPELL_PHANTOM_BLAST)
                     threeFaced = false;
@@ -360,7 +360,7 @@ class boss_devourer_of_souls : public CreatureScript
             uint64 mirroredSoulTarget;
         };
 
-        CreatureAI *GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_devourer_of_soulsAI(creature);
         }

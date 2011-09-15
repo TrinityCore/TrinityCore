@@ -438,7 +438,7 @@ class boss_kiggler_the_crazed : public CreatureScript
 public:
     boss_kiggler_the_crazed() : CreatureScript("boss_kiggler_the_crazed") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_kiggler_the_crazedAI (creature);
     }
@@ -560,7 +560,7 @@ class boss_blindeye_the_seer : public CreatureScript
 public:
     boss_blindeye_the_seer() : CreatureScript("boss_blindeye_the_seer") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_blindeye_the_seerAI (creature);
     }
@@ -670,7 +670,7 @@ class boss_krosh_firehand : public CreatureScript
 public:
     boss_krosh_firehand() : CreatureScript("boss_krosh_firehand") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_krosh_firehandAI (creature);
     }
@@ -766,9 +766,9 @@ public:
             if (BlastWave_Timer <= diff)
             {
                 Unit* target = NULL;
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                std::vector<Unit* > target_list;
-                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                std::vector<Unit*> target_list;
+                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //15 yard radius minimum

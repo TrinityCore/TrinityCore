@@ -33,7 +33,7 @@ struct ItemSetEffect
 {
     uint32 setid;
     uint32 item_count;
-    SpellInfo const *spells[8];
+    SpellInfo const* spells[8];
 };
 
 enum InventoryResult
@@ -221,7 +221,7 @@ struct ItemRequiredTarget
     bool IsFitToRequirements(Unit* pUnitTarget) const;
 };
 
-bool ItemCanGoIntoBag(ItemTemplate const *proto, ItemTemplate const *pBagProto);
+bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 
 class Item : public Object
 {
@@ -264,7 +264,7 @@ class Item : public Object
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
 
-        bool HasEnchantRequiredSkill(const Player *pPlayer) const;
+        bool HasEnchantRequiredSkill(const Player* pPlayer) const;
         uint32 GetEnchantRequiredLevel() const;
 
         bool IsFitToSpellRequirements(SpellInfo const* spellInfo) const;
@@ -280,11 +280,11 @@ class Item : public Object
         InventoryResult CanBeMergedPartlyWith(ItemTemplate const* proto) const;
 
         uint8 GetSlot() const {return m_slot;}
-        Bag *GetContainer() { return m_container; }
+        Bag* GetContainer() { return m_container; }
         uint8 GetBagSlot() const;
         void SetSlot(uint8 slot) { m_slot = slot; }
         uint16 GetPos() const { return uint16(GetBagSlot()) << 8 | GetSlot(); }
-        void SetContainer(Bag *container) { m_container = container; }
+        void SetContainer(Bag* container) { m_container = container; }
 
         bool IsInBag() const { return m_container != NULL; }
         bool IsEquipped() const;
@@ -321,7 +321,7 @@ class Item : public Object
 
         // Update States
         ItemUpdateState GetState() const { return uState; }
-        void SetState(ItemUpdateState state, Player *forplayer = NULL);
+        void SetState(ItemUpdateState state, Player* forplayer = NULL);
         void AddToUpdateQueueOf(Player* player);
         void RemoveFromUpdateQueueOf(Player* player);
         bool IsInUpdateQueue() const { return uQueuePos != -1; }
@@ -339,7 +339,7 @@ class Item : public Object
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
 
         // Item Refund system
-        void SetNotRefundable(Player *owner, bool changestate = true, SQLTransaction* trans = NULL);
+        void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
         void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
@@ -347,7 +347,7 @@ class Item : public Object
         uint32 GetPaidMoney() { return m_paidMoney; }
         uint32 GetPaidExtendedCost() { return m_paidExtendedCost; }
 
-        void UpdatePlayedTime(Player *owner);
+        void UpdatePlayedTime(Player* owner);
         uint32 GetPlayedTime();
         bool IsRefundExpired();
 
@@ -361,7 +361,7 @@ class Item : public Object
     private:
         std::string m_text;
         uint8 m_slot;
-        Bag *m_container;
+        Bag* m_container;
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window

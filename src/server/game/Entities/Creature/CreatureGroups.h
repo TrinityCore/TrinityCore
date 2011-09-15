@@ -35,8 +35,8 @@ class CreatureGroupManager
 {
     friend class ACE_Singleton<CreatureGroupManager, ACE_Null_Mutex>;
     public:
-        void AddCreatureToGroup(uint32 group_id, Creature *creature);
-        void RemoveCreatureFromGroup(CreatureGroup* group, Creature *creature);
+        void AddCreatureToGroup(uint32 group_id, Creature* creature);
+        void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
         void LoadCreatureFormations();
 };
 
@@ -49,7 +49,7 @@ extern CreatureGroupInfoType    CreatureGroupMap;
 class CreatureGroup
 {
     private:
-        Creature *m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
+        Creature* m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
         typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
         CreatureGroupMemberType m_members;
 

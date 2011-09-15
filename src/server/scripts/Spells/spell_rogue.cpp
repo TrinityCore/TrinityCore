@@ -65,7 +65,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             Unit* target = GetTarget();
             if (dmgInfo.GetDamage() < target->GetHealth())
@@ -95,7 +95,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_rog_cheat_death_AuraScript();
     }
@@ -125,7 +125,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             // reduces all damage taken while stun or fear
             if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
@@ -139,7 +139,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_rog_nerves_of_steel_AuraScript();
     }
@@ -170,7 +170,7 @@ class spell_rog_preparation : public SpellScriptLoader
                 const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
-                    SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {
@@ -202,7 +202,7 @@ class spell_rog_preparation : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_rog_preparation_SpellScript();
         }
@@ -246,7 +246,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_rog_prey_on_the_weak_AuraScript();
     }
@@ -284,7 +284,7 @@ class spell_rog_shiv : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_rog_shiv_SpellScript();
         }

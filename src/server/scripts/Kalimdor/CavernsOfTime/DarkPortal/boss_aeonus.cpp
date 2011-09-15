@@ -60,7 +60,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 SandBreath_Timer;
         uint32 TimeStop_Timer;

@@ -90,7 +90,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Petitioner with GUID %u tried sell petition: name %s", GUID_LOPART(guidNPC), name.c_str());
 
     // prevent cheating
-    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC, UNIT_NPC_FLAG_PETITIONER);
+    Creature* pCreature = GetPlayer()->GetNPCIfCanInteractWith(guidNPC, UNIT_NPC_FLAG_PETITIONER);
     if (!pCreature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionBuyOpcode - Unit (GUID: %u) not found or you can't interact with him.", GUID_LOPART(guidNPC));
@@ -180,7 +180,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
         }
     }
 
-    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(charterid);
+    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(charterid);
     if (!pProto)
     {
         _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, NULL, charterid, 0);
@@ -202,7 +202,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     }
 
     _player->ModifyMoney(-(int32)cost);
-    Item *charter = _player->StoreNewItem(dest, charterid, true);
+    Item* charter = _player->StoreNewItem(dest, charterid, true);
     if (!charter)
         return;
 
@@ -223,7 +223,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             ssInvalidPetitionGUIDs << '\'' << fields[0].GetUInt32() << "' , ";
         } while (result->NextRow());
     }
@@ -259,7 +259,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
         sLog->outError("Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
         return;
     }
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     uint32 type = fields[0].GetUInt8();
 
     // if guild petition and has guild => error, return;
@@ -282,7 +282,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
 
     for (uint8 i = 1; i <= signs; ++i)
     {
-        Field *fields2 = result->Fetch();
+        Field* fields2 = result->Fetch();
         uint64 plguid = fields2[0].GetUInt64();
 
         data << uint64(plguid);                             // Player GUID
@@ -383,7 +383,7 @@ void WorldSession::HandlePetitionRenameOpcode(WorldPacket & recv_data)
     recv_data >> petitionguid;                              // guid
     recv_data >> newname;                                   // new name
 
-    Item *item = _player->GetItemByGuid(petitionguid);
+    Item* item = _player->GetItemByGuid(petitionguid);
     if (!item)
         return;
 
@@ -443,7 +443,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SIGN");    // ok
 
-    Field *fields;
+    Field* fields;
     uint64 petitionguid;
     uint8 unk;
     recv_data >> petitionguid;                              // petition guid
@@ -536,7 +536,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
         SendPacket(&data);
 
         // update for owner if online
-        if (Player *owner = ObjectAccessor::FindPlayer(ownerguid))
+        if (Player* owner = ObjectAccessor::FindPlayer(ownerguid))
             owner->GetSession()->SendPacket(&data);
         return;
     }
@@ -554,12 +554,12 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
     SendPacket(&data);
 
     // update signs count on charter, required testing...
-    //Item *item = _player->GetItemByGuid(petitionguid));
+    //Item* item = _player->GetItemByGuid(petitionguid));
     //if (item)
     //    item->SetUInt32Value(ITEM_FIELD_ENCHANTMENT_1_1+1, signs);
 
     // update for owner if online
-    if (Player *owner = ObjectAccessor::FindPlayer(ownerguid))
+    if (Player* owner = ObjectAccessor::FindPlayer(ownerguid))
         owner->GetSession()->SendPacket(&data);
 }
 
@@ -576,10 +576,10 @@ void WorldSession::HandlePetitionDeclineOpcode(WorldPacket & recv_data)
     if (!result)
         return;
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     ownerguid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
 
-    Player *owner = ObjectAccessor::FindPlayer(ownerguid);
+    Player* owner = ObjectAccessor::FindPlayer(ownerguid);
     if (owner)                                               // petition owner online
     {
         WorldPacket data(MSG_PETITION_DECLINE, 8);
@@ -608,7 +608,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
     if (!result)
         return;
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     type = fields[0].GetUInt8();
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "OFFER PETITION: type %u, GUID1 %u, to player id: %u", type, GUID_LOPART(petitionguid), GUID_LOPART(plguid));
@@ -676,7 +676,7 @@ void WorldSession::HandleOfferPetitionOpcode(WorldPacket & recv_data)
 
     for (uint8 i = 1; i <= signs; ++i)
     {
-        Field *fields2 = result->Fetch();
+        Field* fields2 = result->Fetch();
         plguid = fields2[0].GetUInt64();
 
         data << uint64(plguid);                             // Player GUID
@@ -716,7 +716,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
 
     if (result)
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         ownerguidlo = fields[0].GetUInt32();
         name = fields[1].GetString();
         type = fields[2].GetUInt8();
@@ -881,7 +881,7 @@ void WorldSession::HandlePetitionShowListOpcode(WorldPacket & recv_data)
 
 void WorldSession::SendPetitionShowList(uint64 guid)
 {
-    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
+    Creature* pCreature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_PETITIONER);
     if (!pCreature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandlePetitionShowListOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));

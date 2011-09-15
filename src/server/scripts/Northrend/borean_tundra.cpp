@@ -73,7 +73,7 @@ public:
             casterGuid = 0;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (Phase)
                 return;
@@ -153,7 +153,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_sinkhole_kill_creditAI(creature);
     }
@@ -193,7 +193,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_khunok_the_behemothAI(creature);
     }
@@ -428,7 +428,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_nerubar_victimAI(creature);
     }
@@ -463,7 +463,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_scourge_prisonerAI(creature);
     }
@@ -536,7 +536,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_jennyAI (creature);
     }
@@ -580,7 +580,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_fezzix_geartwistAI(creature);
     }
@@ -649,7 +649,7 @@ public:
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetLootState(GO_JUST_DEACTIVATED);
 
-            if (TempSummon *summon = me->ToTempSummon())
+            if (TempSummon* summon = me->ToTempSummon())
                 if (summon->isSummon())
                     if (Unit* pTemp = summon->GetSummoner())
                         if (pTemp->GetTypeId() == TYPEID_PLAYER)
@@ -725,7 +725,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_nesingwary_trapperAI(creature);
     }
@@ -842,12 +842,12 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_lurgglbrAI(creature);
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
         {
@@ -919,7 +919,7 @@ public:
                 AttackStart(who);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -976,7 +976,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_nexus_drake_hatchlingAI(creature);
     }
@@ -1322,7 +1322,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_thassarianAI(creature);
     }
@@ -1357,7 +1357,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_image_lich_kingAI(creature);
     }
@@ -1389,7 +1389,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_general_arlosAI(creature);
     }
@@ -1507,7 +1507,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_counselor_talbotAI(creature);
     }
@@ -1632,7 +1632,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_leryssaAI(creature);
     }
@@ -1709,7 +1709,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_beryl_sorcererAI(creature);
     }
@@ -1844,7 +1844,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_imprisoned_beryl_sorcererAI(creature);
     }
@@ -1940,7 +1940,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_mootoo_the_youngerAI(creature);
     }
@@ -2025,7 +2025,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_bonker_togglevoltAI(creature);
     }
@@ -2141,7 +2141,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_trapped_mammoth_calfAI(creature);
     }
@@ -2183,7 +2183,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_magmoth_crusherAI(creature);
     }
@@ -2233,7 +2233,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_seaforium_depth_chargeAI(creature);
     }
@@ -2285,7 +2285,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_valiance_keep_cannoneerAI(creature);
     }
@@ -2390,7 +2390,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_warmage_coldarraAI(creature);
     }

@@ -423,7 +423,7 @@ class BattlegroundSA : public Battleground
 
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
-        virtual void AddPlayer(Player *plr);
+        virtual void AddPlayer(Player* plr);
         /// Called when battle start
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
@@ -439,7 +439,7 @@ class BattlegroundSA : public Battleground
         /// Return the nearest graveyard where player can respawn
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         /// Called when a player click on flag (graveyard flag)
-        virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
+        virtual void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
         /// Called when a player use a gamobject (relic)
         virtual void EventPlayerUsedGO(Player* Source, GameObject* object);
         /// Return gate id, relative to bg data, according to gameobject id
@@ -477,12 +477,12 @@ class BattlegroundSA : public Battleground
         void EndBattleground(uint32 winner);
 
         /// CAlled when a player leave battleground
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger);
 
         /* Scorekeeping */
         /// Update score board
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         // Achievement Defense of the Ancients
         bool gateDestroyed;
@@ -530,7 +530,7 @@ class BattlegroundSA : public Battleground
          * \param i : id of graveyard
          * \param Source : Player who capture gy
          */
-        void CaptureGraveyard(BG_SA_Graveyards i, Player *Source);
+        void CaptureGraveyard(BG_SA_Graveyards i, Player* Source);
         /// Switch on/off timer worldstate
         void ToggleTimer();
 

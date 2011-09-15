@@ -578,7 +578,7 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_ick_explosive_barrage_AuraScript();
         }

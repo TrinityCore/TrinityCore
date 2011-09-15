@@ -385,7 +385,7 @@ int WorldSocket::handle_output_queue (GuardType& g)
     if (msg_queue()->is_empty())
         return cancel_wakeup_output(g);
 
-    ACE_Message_Block *mblk;
+    ACE_Message_Block* mblk;
 
     if (msg_queue()->dequeue_head(mblk, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
     {
@@ -495,7 +495,7 @@ int WorldSocket::handle_input_header (void)
 
     if ((header.size < 4) || (header.size > 10240) || (header.cmd  > 10240))
     {
-        Player *_player = m_Session ? m_Session->GetPlayer() : NULL;
+        Player* _player = m_Session ? m_Session->GetPlayer() : NULL;
         sLog->outError ("WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d , cmd: %d)",
             m_Session ? m_Session->GetAccountId() : 0,
             _player ? _player->GetGUIDLow() : 0,

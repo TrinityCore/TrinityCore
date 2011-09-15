@@ -203,7 +203,7 @@ public:
         }
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap *map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_azjol_nerub_InstanceScript(map);
     }

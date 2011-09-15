@@ -94,9 +94,9 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 
             if (!accessory)
                 GetPlayer()->ChangeSeat(-1, seatId > 0); // prev/next
-            else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), accessory))
+            else if (Unit* vehUnit = Unit::GetUnit(*GetPlayer(), accessory))
             {
-                if (Vehicle *vehicle = vehUnit->GetVehicleKit())
+                if (Vehicle* vehicle = vehUnit->GetVehicleKit())
                     if (vehicle->HasEmptySeat(seatId))
                         vehUnit->HandleSpellClick(GetPlayer(), seatId);
             }
@@ -112,8 +112,8 @@ void WorldSession::HandleChangeSeatsOnControlledVehicle(WorldPacket &recv_data)
 
             if (vehicle_base->GetGUID() == guid)
                 GetPlayer()->ChangeSeat(seatId);
-            else if (Unit *vehUnit = Unit::GetUnit(*GetPlayer(), guid))
-                if (Vehicle *vehicle = vehUnit->GetVehicleKit())
+            else if (Unit* vehUnit = Unit::GetUnit(*GetPlayer(), guid))
+                if (Vehicle* vehicle = vehUnit->GetVehicleKit())
                     if (vehicle->HasEmptySeat(seatId))
                         vehUnit->HandleSpellClick(GetPlayer(), seatId);
             break;
@@ -157,7 +157,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
 
     if (IS_PLAYER_GUID(guid))
     {
-        Player *plr = ObjectAccessor::FindPlayer(guid);
+        Player* plr = ObjectAccessor::FindPlayer(guid);
         if (!plr)
         {
             sLog->outError("Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
@@ -180,7 +180,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
 
     else if (IS_CREATURE_GUID(guid))
     {
-        Unit *unit = ObjectAccessor::GetUnit(*_player, guid);
+        Unit* unit = ObjectAccessor::GetUnit(*_player, guid);
         if (!unit) // creatures can be ejected too from player mounts
         {
             sLog->outError("Player %u tried to eject creature guid %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));

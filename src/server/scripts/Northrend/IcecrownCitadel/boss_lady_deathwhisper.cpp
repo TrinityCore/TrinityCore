@@ -322,7 +322,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         {
                             if (Group* group = owner->GetGroup())
                             {
-                                for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                                for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                                     if (Player* member = itr->getSource())
                                         member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, 0);
                             }
@@ -862,7 +862,7 @@ class npc_darnavan : public CreatureScript
                 {
                     if (Group* group = owner->GetGroup())
                     {
-                        for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                             if (Player* member = itr->getSource())
                                 member->FailQuest(QUEST_DEPROGRAMMING);
                     }

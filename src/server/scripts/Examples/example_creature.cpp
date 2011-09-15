@@ -28,12 +28,12 @@ EndScriptData */
 // **** This script is designed as an example for others to build on ****
 // **** Please modify whatever you'd like to as this script is only for developement ****
 
-// **** Script Info ****
+// **** Script Info* ***
 // This script is written in a way that it can be used for both friendly and hostile monsters
 // Its primary purpose is to show just how much you can really do with scripts
 // I recommend trying it out on both an agressive NPC and on friendly npc
 
-// **** Quick Info ****
+// **** Quick Info* ***
 // Functions with Handled Function marked above them are functions that are called automatically by the core
 // Functions that are marked Custom Function are functions I've created to simplify code
 

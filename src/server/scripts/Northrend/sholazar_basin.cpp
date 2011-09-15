@@ -161,7 +161,7 @@ public:
         return false;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_injured_rainspeaker_oracleAI(creature);
     }
@@ -323,7 +323,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_bushwhackerAI(creature);
     }
@@ -428,7 +428,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_engineer_heliceAI(creature);
     }
@@ -587,7 +587,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_jungle_punch_targetAI(creature);
     }
@@ -624,7 +624,7 @@ class npc_adventurous_dwarf : public CreatureScript
 public:
     npc_adventurous_dwarf() : CreatureScript("npc_adventurous_dwarf") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         DoScriptText(SAY_DWARF_OUCH, creature);
         return NULL;

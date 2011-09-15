@@ -147,7 +147,7 @@ class instance_forge_of_souls : public InstanceMapScript
             uint32 teamInInstance;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap *map) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
             return new instance_forge_of_souls_InstanceScript(map);
         }

@@ -151,7 +151,7 @@ public:
                         DoScriptText(RAND(SAY_FLESH_1, SAY_FLESH_2), me);
                         me->SetDisplayId(MODEL_FLESH);
 
-                        std::list<Unit* > playerList;
+                        std::list<Unit*> playerList;
                         SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
                         for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         {
@@ -206,7 +206,7 @@ public:
                         uiRainOfFireTimer = urand(14*IN_MILLISECONDS, 18*IN_MILLISECONDS);
                         uiShadowVolleyTimer = urand(8*IN_MILLISECONDS, 10*IN_MILLISECONDS);
 
-                        std::list<Unit* > playerList;
+                        std::list<Unit*> playerList;
                         SelectTargetList(playerList, 5, SELECT_TARGET_TOPAGGRO, 0, true);
                         for (std::list<Unit*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                         {
@@ -244,7 +244,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_tharon_jaAI(creature);
     }

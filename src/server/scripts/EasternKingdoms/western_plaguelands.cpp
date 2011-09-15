@@ -293,7 +293,7 @@ class npc_anchorite_truuen : public CreatureScript
 public:
     npc_anchorite_truuen() : CreatureScript("npc_anchorite_truuen") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         npc_escortAI* pEscortAI = CAST_AI(npc_anchorite_truuen::npc_anchorite_truuenAI, creature->AI());
 

@@ -41,7 +41,7 @@ namespace VMAP
     class MapRayCallback
     {
         public:
-            MapRayCallback(ModelInstance *val): prims(val), hit(false) {}
+            MapRayCallback(ModelInstance* val): prims(val), hit(false) {}
             bool operator()(const G3D::Ray& ray, uint32 entry, float& distance, bool pStopAtFirstHit=true)
             {
                 bool result = prims[entry].intersectRay(ray, distance, pStopAtFirstHit);
@@ -51,14 +51,14 @@ namespace VMAP
             }
         bool didHit() { return hit; }
     protected:
-        ModelInstance *prims;
+        ModelInstance* prims;
         bool hit;
     };
 
     class AreaInfoCallback
     {
         public:
-            AreaInfoCallback(ModelInstance *val): prims(val) {}
+            AreaInfoCallback(ModelInstance* val): prims(val) {}
             void operator()(const Vector3& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG
@@ -67,14 +67,14 @@ namespace VMAP
                 prims[entry].intersectPoint(point, aInfo);
             }
 
-            ModelInstance *prims;
+            ModelInstance* prims;
             AreaInfo aInfo;
     };
 
     class LocationInfoCallback
     {
         public:
-            LocationInfoCallback(ModelInstance *val, LocationInfo &info): prims(val), locInfo(info), result(false) {}
+            LocationInfoCallback(ModelInstance* val, LocationInfo &info): prims(val), locInfo(info), result(false) {}
             void operator()(const Vector3& point, uint32 entry)
             {
 #ifdef VMAP_DEBUG
@@ -84,7 +84,7 @@ namespace VMAP
                     result = true;
             }
 
-            ModelInstance *prims;
+            ModelInstance* prims;
             LocationInfo &locInfo;
             bool result;
     };
@@ -245,7 +245,7 @@ namespace VMAP
             basePath.push_back('/');
         std::string fullname = basePath + VMapManager2::getMapFileName(mapID);
         bool success = true;
-        FILE *rf = fopen(fullname.c_str(), "rb");
+        FILE* rf = fopen(fullname.c_str(), "rb");
         if (!rf)
             return false;
         // TODO: check magic number when implemented...
@@ -275,12 +275,12 @@ namespace VMAP
 
     //=========================================================
 
-    bool StaticMapTree::InitMap(const std::string &fname, VMapManager2 *vm)
+    bool StaticMapTree::InitMap(const std::string &fname, VMapManager2* vm)
     {
         sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : initializing StaticMapTree '%s'", fname.c_str());
         bool success = true;
         std::string fullname = iBasePath + fname;
-        FILE *rf = fopen(fullname.c_str(), "rb");
+        FILE* rf = fopen(fullname.c_str(), "rb");
         if (!rf)
             return false;
         else
@@ -309,7 +309,7 @@ namespace VMAP
 #endif
             if (!iIsTiled && ModelSpawn::readFromFile(rf, spawn))
             {
-                WorldModel *model = vm->acquireModelInstance(iBasePath, spawn.name);
+                WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
                 sLog->outDebug(LOG_FILTER_MAPS, "StaticMapTree::InitMap() : loading %s", spawn.name.c_str());
                 if (model)
                 {
@@ -331,7 +331,7 @@ namespace VMAP
 
     //=========================================================
 
-    void StaticMapTree::UnloadMap(VMapManager2 *vm)
+    void StaticMapTree::UnloadMap(VMapManager2* vm)
     {
         for (loadedSpawnMap::iterator i = iLoadedSpawns.begin(); i != iLoadedSpawns.end(); ++i)
         {
@@ -345,7 +345,7 @@ namespace VMAP
 
     //=========================================================
 
-    bool StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2 *vm)
+    bool StaticMapTree::LoadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm)
     {
         if (!iIsTiled)
         {
@@ -380,7 +380,7 @@ namespace VMAP
                 if (result)
                 {
                     // acquire model instance
-                    WorldModel *model = vm->acquireModelInstance(iBasePath, spawn.name);
+                    WorldModel* model = vm->acquireModelInstance(iBasePath, spawn.name);
                     if (!model)
                         sLog->outError("StaticMapTree::LoadMapTile() : could not acquire WorldModel pointer [%u, %u]", tileX, tileY);
 
@@ -426,7 +426,7 @@ namespace VMAP
 
     //=========================================================
 
-    void StaticMapTree::UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2 *vm)
+    void StaticMapTree::UnloadMapTile(uint32 tileX, uint32 tileY, VMapManager2* vm)
     {
         uint32 tileID = packTileID(tileX, tileY);
         loadedTileMap::iterator tile = iLoadedTiles.find(tileID);

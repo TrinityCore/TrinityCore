@@ -98,7 +98,7 @@ template<class T> void AddUnitState(T* /*obj*/, CellPair const& /*cell_pair*/)
 {
 }
 
-template<> void AddUnitState(Creature *obj, CellPair const& cell_pair)
+template<> void AddUnitState(Creature* obj, CellPair const& cell_pair)
 {
     Cell cell(cell_pair);
 
@@ -147,7 +147,7 @@ void LoadHelper(CellCorpseSet const& cell_corpses, CellPair &cell, CorpseMapType
 
         uint32 player_guid = itr->first;
 
-        Corpse *obj = sObjectAccessor->GetCorpseForPlayerGUID(player_guid);
+        Corpse* obj = sObjectAccessor->GetCorpseForPlayerGUID(player_guid);
         if (!obj)
             continue;
 
