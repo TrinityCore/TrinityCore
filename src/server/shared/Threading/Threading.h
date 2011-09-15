@@ -95,7 +95,7 @@ namespace ACE_Based
 
             ACE_thread_t m_iThreadId;
             ACE_hthread_t m_hThreadHandle;
-            Runnable * m_task;
+            Runnable* m_task;
 
             typedef ACE_TSS<Thread> ThreadStorage;
             //global object - container for Thread class representation of every thread

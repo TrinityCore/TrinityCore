@@ -247,7 +247,7 @@ int Master::Run()
 
     if (sConfig->GetBoolDefault("SOAP.Enabled", false))
     {
-        TCSoapRunnable *runnable = new TCSoapRunnable();
+        TCSoapRunnable* runnable = new TCSoapRunnable();
         runnable->setListenArguments(sConfig->GetStringDefault("SOAP.IP", "127.0.0.1"), sConfig->GetIntDefault("SOAP.Port", 7878));
         soap_thread = new ACE_Based::Thread(runnable);
     }
@@ -255,7 +255,7 @@ int Master::Run()
     ///- Start up freeze catcher thread
     if (uint32 freeze_delay = sConfig->GetIntDefault("MaxCoreStuckTime", 0))
     {
-        FreezeDetectorRunnable *fdr = new FreezeDetectorRunnable();
+        FreezeDetectorRunnable* fdr = new FreezeDetectorRunnable();
         fdr->SetDelayTime(freeze_delay*1000);
         ACE_Based::Thread freeze_thread(fdr);
         freeze_thread.setPriority(ACE_Based::Highest);

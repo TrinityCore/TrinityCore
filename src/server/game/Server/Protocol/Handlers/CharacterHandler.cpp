@@ -444,7 +444,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             uint16 acctCharCount = 0;
             if (result)
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
                 // SELECT SUM(x) is MYSQL_TYPE_NEWDECIMAL - needs to be read as string
                 const char* ch = fields[0].GetCString();
                 if (ch)
@@ -478,7 +478,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
         {
             if (result)
             {
-                Field *fields = result->Fetch();
+                Field* fields = result->Fetch();
                 createInfo->CharCount = fields[0].GetUInt8();
 
                 if (createInfo->CharCount >= sWorld->getIntConfig(CONFIG_CHARACTERS_PER_REALM))
@@ -728,7 +728,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     QueryResult result = CharacterDatabase.PQuery("SELECT account, name FROM characters WHERE guid='%u'", GUID_LOPART(guid));
     if (result)
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         accountId = fields[0].GetUInt32();
         name = fields[1].GetString();
     }
@@ -868,7 +868,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         sLog->outStaticDebug("WORLD: Sent server info");
     }
 
-    //QueryResult *result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
+    //QueryResult* result = CharacterDatabase.PQuery("SELECT guildid, rank FROM guild_member WHERE guid = '%u'", pCurrChar->GetGUIDLow());
     if (PreparedQueryResult resultGuild = holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADGUILD))
     {
         Field* fields = resultGuild->Fetch();
@@ -1325,7 +1325,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket & recv_data)
 
     if (uint32 glyph = _player->GetGlyph(slot))
     {
-        if (GlyphPropertiesEntry const *gp = sGlyphPropertiesStore.LookupEntry(glyph))
+        if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
         {
             _player->RemoveAurasDueToSpell(gp->SpellId);
             _player->SetGlyph(slot, 0);
@@ -1354,7 +1354,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
         return;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     uint32 at_loginFlags = fields[0].GetUInt16();
 
     if (!(at_loginFlags & AT_LOGIN_CUSTOMIZE))
@@ -1458,7 +1458,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
         uint64 itemGuid;
         recv_data.readPackGUID(itemGuid);
 
-        Item *item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+        Item* item = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
 
         if (!item && itemGuid)                               // cheating check 1
             return;
@@ -1499,13 +1499,13 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
 
         sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Item " UI64FMTD ": srcbag %u, srcslot %u", itemGuid, srcbag, srcslot);
 
-        Item *item = _player->GetItemByGuid(itemGuid);
+        Item* item = _player->GetItemByGuid(itemGuid);
 
         uint16 dstpos = i | (INVENTORY_SLOT_BAG_0 << 8);
 
         if (!item)
         {
-            Item *uItem = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
+            Item* uItem = _player->GetItemByPos(INVENTORY_SLOT_BAG_0, i);
             if (!uItem)
                 continue;
 
@@ -1553,7 +1553,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         return;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     uint32 playerClass = fields[0].GetUInt32();
     uint32 level = fields[1].GetUInt32();
     uint32 at_loginFlags = fields[2].GetUInt16();

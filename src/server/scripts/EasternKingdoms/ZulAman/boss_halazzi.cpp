@@ -88,7 +88,7 @@ class boss_halazzi : public CreatureScript
                 pInstance = c->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             uint32 FrenzyTimer;
             uint32 SaberlashTimer;
@@ -142,7 +142,7 @@ class boss_halazzi : public CreatureScript
                     damage = 0;
             }
 
-            void SpellHit(Unit*, const SpellInfo *spell)
+            void SpellHit(Unit*, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_TRANSFORM_SPLIT2)
                     EnterPhase(PHASE_HUMAN);

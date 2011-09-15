@@ -230,7 +230,7 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
 
         if (pReceiver->IsMailsLoaded())
         {
-            Mail * m = new Mail;
+            Mail* m = new Mail;
             m->messageID = mailId;
             m->mailTemplateId = GetMailTemplateId();
             m->subject = GetSubject();

@@ -48,7 +48,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        SimpleAI *ai = new SimpleAI(creature);
+        SimpleAI* ai = new SimpleAI(creature);
 
         ai->Spell[0].Enabled          = true;
         ai->Spell[0].Spell_Id         = SPELL_CONE_OF_FIRE;

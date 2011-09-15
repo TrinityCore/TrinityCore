@@ -165,7 +165,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const *locale, char* const* suffixStrings) const
+inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const* locale, char* const* suffixStrings) const
 {
     std::stringstream ss;
     if (locale == NULL || index >= locale->Name.size())
@@ -186,7 +186,7 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
     bool res = (FormatName(LOCALE_enUS, NULL, suffixStrings) == buffer);
     if (!res)
     {
-        ItemLocale const *il = sObjectMgr->GetItemLocale(_item->ItemId);
+        ItemLocale const* il = sObjectMgr->GetItemLocale(_item->ItemId);
         for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
         {
             if (FormatName(index, il, suffixStrings) == buffer)
@@ -243,7 +243,7 @@ bool QuestChatLink::ValidateName(char* buffer, const char* context)
 
     bool res = (_quest->GetTitle() == buffer);
     if (!res)
-        if (QuestLocale const *ql = sObjectMgr->GetQuestLocale(_quest->GetQuestId()))
+        if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(_quest->GetQuestId()))
             for (uint8 i = 0; i < ql->Title.size(); i++)
                 if (ql->Title[i] == buffer)
                 {
@@ -291,13 +291,13 @@ bool SpellChatLink::ValidateName(char* buffer, const char* context)
             sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line not found for spell %u", context, _spell->Id);
             return false;
         }
-        SkillLineAbilityEntry const *skillInfo = bounds.first->second;
+        SkillLineAbilityEntry const* skillInfo = bounds.first->second;
         if (!skillInfo)
         {
             sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line ability not found for spell %u", context, _spell->Id);
             return false;
         }
-        SkillLineEntry const *skillLine = sSkillLineStore.LookupEntry(skillInfo->skillId);
+        SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skillInfo->skillId);
         if (!skillLine)
         {
             sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line not found for skill %u", context, skillInfo->skillId);
@@ -457,7 +457,7 @@ bool TalentChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate talent
-    TalentEntry const *talentInfo = sTalentStore.LookupEntry(_talentId);
+    TalentEntry const* talentInfo = sTalentStore.LookupEntry(_talentId);
     if (!talentInfo)
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid talent id %u in |talent command", iss.str().c_str(), _talentId);

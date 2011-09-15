@@ -124,7 +124,7 @@ public:
         float y = chr->GetPositionY();
         float z = chr->GetPositionZ();
         float o = chr->GetOrientation();
-        Map *map = chr->GetMap();
+        Map* map = chr->GetMap();
 
         if (chr->GetTransport())
         {
@@ -453,7 +453,7 @@ public:
         // faction is set in creature_template - not inside creature
 
         // update in memory
-        if (CreatureTemplate const *cinfo = creature->GetCreatureInfo())
+        if (CreatureTemplate const* cinfo = creature->GetCreatureInfo())
         {
             const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
             const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
@@ -1182,7 +1182,7 @@ public:
             return false;
 
         Player* chr = handler->GetSession()->GetPlayer();
-        FormationInfo *group_member;
+        FormationInfo* group_member;
 
         group_member                 = new FormationInfo;
         group_member->follow_angle   = (creature->GetAngle(chr) - chr->GetOrientation()) * 180 / M_PI;

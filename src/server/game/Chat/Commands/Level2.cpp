@@ -298,7 +298,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         if (!result)
             return false;
 
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         total_player_time = fields[0].GetUInt32();
         level = fields[1].GetUInt32();
         money = fields[2].GetUInt32();
@@ -352,7 +352,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     if (QueryResult result = LoginDatabase.PQuery("SELECT unbandate, bandate = unbandate, bannedby, banreason FROM account_banned "
                                                   "WHERE id = '%u' AND active ORDER BY bandate ASC LIMIT 1", accId))
     {
-        Field * fields = result->Fetch();
+        Field* fields = result->Fetch();
         banTime = fields[1].GetBool() ? 0 : fields[0].GetUInt64();
         bannedby = fields[2].GetString();
         banreason = fields[3].GetString();
@@ -360,7 +360,7 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     else if (QueryResult result = CharacterDatabase.PQuery("SELECT unbandate, bandate = unbandate, bannedby, banreason FROM character_banned "
                                                            "WHERE guid = '%u' AND active ORDER BY bandate ASC LIMIT 1", GUID_LOPART(target_guid)))
     {
-        Field * fields = result->Fetch();
+        Field* fields = result->Fetch();
         banTime = fields[1].GetBool() ? 0 : fields[0].GetUInt64();
         bannedby = fields[2].GetString();
         banreason = fields[3].GetString();
@@ -563,7 +563,7 @@ bool ChatHandler::HandleCharacterReputationCommand(const char* args)
     for (FactionStateList::const_iterator itr = targetFSL.begin(); itr != targetFSL.end(); ++itr)
     {
         const FactionState& faction = itr->second;
-        FactionEntry const *factionEntry = sFactionStore.LookupEntry(faction.ID);
+        FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
         char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
         ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
         std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
@@ -834,7 +834,7 @@ bool ChatHandler::HandleWaterwalkCommand(const char* args)
 bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
 {
     Player* player = m_session->GetPlayer();
-    Creature *creatureTarget = getSelectedCreature();
+    Creature* creatureTarget = getSelectedCreature();
 
     if (!creatureTarget || creatureTarget->isPet() || creatureTarget->GetTypeId() == TYPEID_PLAYER)
     {
@@ -912,8 +912,8 @@ bool ChatHandler::HandlePetLearnCommand(const char* args)
     if (!*args)
         return false;
 
-    Player *plr = m_session->GetPlayer();
-    Pet *pet = plr->GetPet();
+    Player* plr = m_session->GetPlayer();
+    Pet* pet = plr->GetPet();
 
     if (!pet)
     {
@@ -955,8 +955,8 @@ bool ChatHandler::HandlePetUnlearnCommand(const char *args)
     if (!*args)
         return false;
 
-    Player *plr = m_session->GetPlayer();
-    Pet *pet = plr->GetPet();
+    Player* plr = m_session->GetPlayer();
+    Pet* pet = plr->GetPet();
 
     if (!pet)
     {
@@ -1001,7 +1001,7 @@ bool ChatHandler::HandleLookupTitleCommand(const char* args)
     // Search in CharTitles.dbc
     for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
     {
-        CharTitlesEntry const *titleInfo = sCharTitlesStore.LookupEntry(id);
+        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
         if (titleInfo)
         {
             int loc = GetSessionDbcLocale();
@@ -1074,7 +1074,7 @@ bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
     // Search in CharTitles.dbc
     for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
     {
-        CharTitlesEntry const *titleInfo = sCharTitlesStore.LookupEntry(id);
+        CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
         if (titleInfo && target->HasTitle(titleInfo))
         {
             std::string name = titleInfo->name[loc];

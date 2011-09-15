@@ -91,7 +91,7 @@ void WeatherMgr::LoadWeatherData()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 zone_id = fields[0].GetUInt32();
 

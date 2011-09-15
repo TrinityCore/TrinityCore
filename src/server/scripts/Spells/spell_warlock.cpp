@@ -224,7 +224,7 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_warl_seed_of_corruption_SpellScript();
         }

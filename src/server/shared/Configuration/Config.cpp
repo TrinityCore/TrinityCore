@@ -19,7 +19,7 @@
 #include "Config.h"
 #include <ace/Configuration_Import_Export.h>
 
-static bool GetValueHelper(ACE_Configuration_Heap *mConf, const char *name, ACE_TString &result)
+static bool GetValueHelper(ACE_Configuration_Heap* mConf, const char *name, ACE_TString &result)
 {
     if (!mConf)
         return false;

@@ -142,13 +142,13 @@ public:
         void CastBloodboil()
         {
             // Get the Threat List
-            std::list<HostileReference *> m_threatlist = me->getThreatManager().getThreatList();
+            std::list<HostileReference*> m_threatlist = me->getThreatManager().getThreatList();
 
             if (m_threatlist.empty()) // He doesn't have anyone in his threatlist, useless to continue
                 return;
 
-            std::list<Unit* > targets;
-            std::list<HostileReference *>::const_iterator itr = m_threatlist.begin();
+            std::list<Unit*> targets;
+            std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
@@ -163,10 +163,10 @@ public:
             targets.resize(5);
 
             //Aura each player in the targets list with Bloodboil. Aura code copied+pasted from Aura command in Level3.cpp
-            /*SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOODBOIL);
+            /*SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOODBOIL);
             if (spellInfo)
             {
-                for (std::list<Unit* >::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                 {
                     Unit* target = *itr;
                     if (!target) return;
@@ -176,7 +176,7 @@ public:
                         if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
 
-                        Aura *Aur = new Aura(spellInfo, i, target, target, target);
+                        Aura* Aur = new Aura(spellInfo, i, target, target, target);
                         target->AddAura(Aur);
                     }
                 }

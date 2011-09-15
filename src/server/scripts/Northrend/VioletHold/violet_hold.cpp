@@ -261,7 +261,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
                 CAST_AI(npc_sinclari_vh::npc_sinclariAI, (creature->AI()))->uiPhase = 1;
-                if (InstanceScript *pInstance = creature->GetInstanceScript())
+                if (InstanceScript* pInstance = creature->GetInstanceScript())
                     pInstance->SetData(DATA_MAIN_EVENT_PHASE, SPECIAL);
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
@@ -563,7 +563,7 @@ public:
 
         SummonList listOfMobs;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {

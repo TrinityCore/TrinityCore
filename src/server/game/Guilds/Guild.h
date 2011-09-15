@@ -527,7 +527,7 @@ private:
         virtual InventoryResult _CanStore(Item* pItem, bool swap) = 0;
 
         Guild* m_pGuild;
-        Player *m_pPlayer;
+        Player* m_pPlayer;
         uint8 m_container;
         uint8 m_slotId;
         Item* m_pItem;
@@ -569,7 +569,7 @@ private:
         InventoryResult _CanStore(Item* pItem, bool swap);
 
     private:
-        Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item *pItem, ItemPosCount& pos, bool clone) const;
+        Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const;
         bool _ReserveSpace(uint8 slotId, Item* pItem, Item* pItemDest, uint32& count);
         void _CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
     };
@@ -596,8 +596,8 @@ public:
     const std::string& GetInfo() const { return m_info; }
 
     // Handle client commands
-    void HandleRoster(WorldSession *session = NULL);          // NULL = broadcast
-    void HandleQuery(WorldSession *session);
+    void HandleRoster(WorldSession* session = NULL);          // NULL = broadcast
+    void HandleQuery(WorldSession* session);
     void HandleSetMOTD(WorldSession* session, const std::string& motd);
     void HandleSetInfo(WorldSession* session, const std::string& info);
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
@@ -620,13 +620,13 @@ public:
 
     // Send info to client
     void SendInfo(WorldSession* session) const;
-    void SendEventLog(WorldSession *session) const;
-    void SendBankLog(WorldSession *session, uint8 tabId) const;
-    void SendBankTabsInfo(WorldSession *session) const;
+    void SendEventLog(WorldSession* session) const;
+    void SendBankLog(WorldSession* session, uint8 tabId) const;
+    void SendBankTabsInfo(WorldSession* session) const;
     void SendBankTabData(WorldSession* session, uint8 tabId) const;
-    void SendBankTabText(WorldSession *session, uint8 tabId) const;
-    void SendPermissions(WorldSession *session) const;
-    void SendMoneyInfo(WorldSession *session) const;
+    void SendBankTabText(WorldSession* session, uint8 tabId) const;
+    void SendPermissions(WorldSession* session) const;
+    void SendMoneyInfo(WorldSession* session) const;
     void SendLoginInfo(WorldSession* session) const;
 
     // Load from DB
@@ -641,7 +641,7 @@ public:
     bool Validate();
 
     // Broadcasts
-    void BroadcastToGuild(WorldSession *session, bool officerOnly, const std::string& msg, uint32 language = LANG_UNIVERSAL) const;
+    void BroadcastToGuild(WorldSession* session, bool officerOnly, const std::string& msg, uint32 language = LANG_UNIVERSAL) const;
     void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
     void BroadcastPacket(WorldPacket* packet) const;
 
@@ -689,8 +689,8 @@ protected:
 
 private:
     inline uint8 _GetRanksSize() const { return uint8(m_ranks.size()); }
-    inline const RankInfo *GetRankInfo(uint8 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : NULL; }
-    inline RankInfo *GetRankInfo(uint8 rankId) { return rankId < _GetRanksSize() ? &m_ranks[rankId] : NULL; }
+    inline const RankInfo* GetRankInfo(uint8 rankId) const { return rankId < _GetRanksSize() ? &m_ranks[rankId] : NULL; }
+    inline RankInfo* GetRankInfo(uint8 rankId) { return rankId < _GetRanksSize() ? &m_ranks[rankId] : NULL; }
     inline bool _HasRankRight(Player* player, uint32 right) const { return (_GetRankRights(player->GetRank()) & right) != GR_RIGHT_EMPTY; }
     inline uint8 _GetLowestRankId() const { return uint8(m_ranks.size() - 1); }
 
@@ -760,8 +760,8 @@ private:
     void _MoveItems(MoveItemData* pSrc, MoveItemData* pDest, uint32 splitedAmount);
     bool _DoItemsMove(MoveItemData* pSrc, MoveItemData* pDest, bool sendError, uint32 splitedAmount = 0);
 
-    void _SendBankContent(WorldSession *session, uint8 tabId) const;
-    void _SendBankMoneyUpdate(WorldSession *session) const;
+    void _SendBankContent(WorldSession* session, uint8 tabId) const;
+    void _SendBankMoneyUpdate(WorldSession* session) const;
     void _SendBankContentUpdate(MoveItemData* pSrc, MoveItemData* pDest) const;
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
 

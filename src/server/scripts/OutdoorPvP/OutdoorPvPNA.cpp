@@ -63,7 +63,7 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
         case NA_NPC_GUARD_13:
         case NA_NPC_GUARD_14:
         case NA_NPC_GUARD_15:
-            if (Creature const * const cr = HashMapHolder<Creature>::Find(itr->second))
+            if (Creature const* const cr = HashMapHolder<Creature>::Find(itr->second))
                 if (cr->isAlive())
                     ++cnt;
             break;
@@ -198,7 +198,7 @@ void OPvPCapturePointNA::HandlePlayerLeave(Player* player)
     OPvPCapturePoint::HandlePlayerLeave(player);
 }
 
-OPvPCapturePointNA::OPvPCapturePointNA(OutdoorPvP *pvp) :
+OPvPCapturePointNA::OPvPCapturePointNA(OutdoorPvP* pvp) :
 OPvPCapturePoint(pvp), m_capturable(true), m_GuardsAlive(0), m_ControllingFaction(0),
 m_WyvernStateNorth(0), m_WyvernStateSouth(0), m_WyvernStateEast(0), m_WyvernStateWest(0),
 m_HalaaState(HALAA_N), m_RespawnTimer(NA_RESPAWN_TIME), m_GuardCheckTimer(NA_GUARD_CHECK_TIME)

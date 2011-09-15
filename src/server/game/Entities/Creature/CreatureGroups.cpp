@@ -28,7 +28,7 @@ CreatureGroupInfoType   CreatureGroupMap;
 
 void CreatureGroupManager::AddCreatureToGroup(uint32 groupId, Creature* member)
 {
-    Map *map = member->FindMap();
+    Map* map = member->FindMap();
     if (!map)
         return;
 
@@ -57,7 +57,7 @@ void CreatureGroupManager::RemoveCreatureFromGroup(CreatureGroup* group, Creatur
 
     if (group->isEmpty())
     {
-        Map *map = member->FindMap();
+        Map* map = member->FindMap();
         if (!map)
             return;
 
@@ -92,7 +92,7 @@ void CreatureGroupManager::LoadCreatureFormations()
     {
         do
         {
-            Field *fields = guidResult->Fetch();
+            Field* fields = guidResult->Fetch();
             uint32 guid = fields[0].GetUInt32();
 
             guidSet.insert(guid);
@@ -101,8 +101,8 @@ void CreatureGroupManager::LoadCreatureFormations()
     }
 
     uint32 count = 0;
-    Field *fields;
-    FormationInfo *group_member;
+    Field* fields;
+    FormationInfo* group_member;
 
     do
     {

@@ -187,13 +187,13 @@ public:
         void FlameWreathEffect()
         {
             std::vector<Unit*> targets;
-            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
+            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
 
             if (t_list.empty())
                 return;
 
             //store the threat list in a different container
-            for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players

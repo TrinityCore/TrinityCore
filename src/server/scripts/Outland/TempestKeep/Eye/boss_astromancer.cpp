@@ -91,7 +91,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                 defaultsize = creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
             SummonList Summons;
 
             uint8 Phase;
@@ -422,7 +422,7 @@ class mob_solarium_priest : public CreatureScript
                 pInstance = creature->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             uint32 healTimer;
             uint32 holysmiteTimer;

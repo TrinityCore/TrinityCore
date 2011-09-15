@@ -71,7 +71,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
         {
             if (itr->second.perm)
             {
-                InstanceSave *save = itr->second.save;
+                InstanceSave* save = itr->second.save;
                 data << uint32(save->GetMapId());
                 data << uint32(save->GetDifficulty());
                 data << uint32(save->GetResetTime() - cur_time);
