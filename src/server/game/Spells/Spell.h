@@ -533,14 +533,9 @@ class Spell
         GameObject* gameObjTarget;
         int32 damage;
         // used in effects handlers
-<<<<<<< HEAD
-        Aura * m_spellAura;
+        Aura* m_spellAura;
         // pointer to magneting aura if spell is redirected
         Aura* m_magnetingAura;
-=======
-        Aura* m_spellAura;
->>>>>>> af05915b9e36497eda8f2f061c29ffee0c8042b6
-
         // this is set in Spell Hit, but used in Apply Aura handler
         DiminishingLevels m_diminishLevel;
         DiminishingGroup m_diminishGroup;

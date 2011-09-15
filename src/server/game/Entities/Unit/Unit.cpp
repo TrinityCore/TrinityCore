@@ -745,13 +745,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         // in bg, count dmg if victim is also a player
 
         if (victim->GetTypeId() == TYPEID_PLAYER)
-<<<<<<< HEAD
         {
-            if (Battleground *bg = killer->GetBattleground())
-            {
-=======
             if (Battleground* bg = killer->GetBattleground())
->>>>>>> af05915b9e36497eda8f2f061c29ffee0c8042b6
+            {
                 bg->UpdatePlayerScore(killer, SCORE_DAMAGE_DONE, damage);
                 /** World of Warcraft Armory **/
                 if (sWorld->getBoolConfig(CONFIG_ARMORY_ENABLE))

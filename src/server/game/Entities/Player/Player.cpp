@@ -8741,7 +8741,6 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
     if (IS_GAMEOBJECT_GUID(guid))
     {
         sLog->outDebug(LOG_FILTER_LOOT, "IS_GAMEOBJECT_GUID(guid)");
-<<<<<<< HEAD
         if (GetSession()->GetSecurity() > SEC_MODERATOR)
         {
             if (Group *grp = GetGroup())
@@ -8758,10 +8757,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 sLog->outCommand(GetSession()->GetAccountId(), "GM %s (Account: %u) opened GO (GUID: %u) X: %f Y: %f Z: %f Map: %u",
                     GetName(), GetSession()->GetAccountId(), GUID_LOPART(guid), GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId());
         }
-        GameObject *go = GetMap()->GetGameObject(guid);
-=======
         GameObject* go = GetMap()->GetGameObject(guid);
->>>>>>> af05915b9e36497eda8f2f061c29ffee0c8042b6
 
         // not check distance for GO in case owned GO (fishing bobber case, for example)
         // And permit out of range GO with no owner in case fishing hole
@@ -22319,13 +22315,8 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
         case ITEM_CLASS_WEAPON:
         {
             for (uint8 i= EQUIPMENT_SLOT_MAINHAND; i < EQUIPMENT_SLOT_TABARD; ++i)
-<<<<<<< HEAD
-                if (Item *item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
-                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
-=======
                 if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
-                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
->>>>>>> af05915b9e36497eda8f2f061c29ffee0c8042b6
+                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
                         return true;
             break;
         }
@@ -22333,35 +22324,19 @@ bool Player::HasItemFitToSpellRequirements(SpellInfo const* spellInfo, Item cons
         {
             // tabard not have dependent spells
             for (uint8 i= EQUIPMENT_SLOT_START; i< EQUIPMENT_SLOT_MAINHAND; ++i)
-<<<<<<< HEAD
-                if (Item *item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
+                if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
                     if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
                         return true;
 
             // shields can be equipped to offhand slot
-            if (Item *item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
-                    return true;
-
-            // ranged slot can have some armor subclasses
-            if (Item *item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
-=======
-                if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, i))
-                    if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
-                        return true;
-
-            // shields can be equipped to offhand slot
             if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
+                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
                     return true;
 
             // ranged slot can have some armor subclasses
             if (Item* item = GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_RANGED))
-                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo))
->>>>>>> af05915b9e36497eda8f2f061c29ffee0c8042b6
+                if (item != ignoreItem && item->IsFitToSpellRequirements(spellInfo) && !item->IsBroken())
                     return true;
-
             break;
         }
         default:
