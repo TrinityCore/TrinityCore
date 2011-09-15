@@ -181,7 +181,7 @@ class boss_bronjahm : public CreatureScript
             }
         };
 
-        CreatureAI *GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_bronjahmAI(creature);
         }
@@ -225,7 +225,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
             InstanceScript* instance;
         };
 
-        CreatureAI *GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new mob_corrupted_soul_fragmentAI(creature);
         }

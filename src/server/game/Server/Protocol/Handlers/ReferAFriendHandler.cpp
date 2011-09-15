@@ -28,7 +28,7 @@ void WorldSession::HandleGrantLevel(WorldPacket& recv_data)
     uint64 guid;
     recv_data.readPackGUID(guid);
 
-    Player *target = ObjectAccessor::GetObjectInWorld(guid, _player);
+    Player* target = ObjectAccessor::GetObjectInWorld(guid, _player);
 
     // check cheating
     uint8 levels = _player->GetGrantableLevels();
@@ -70,7 +70,7 @@ void WorldSession::HandleAcceptGrantLevel(WorldPacket& recv_data)
     uint64 guid;
     recv_data.readPackGUID(guid);
 
-    Player *other = ObjectAccessor::GetObjectInWorld(guid, _player);
+    Player* other = ObjectAccessor::GetObjectInWorld(guid, _player);
     if (!(other && other->GetSession()))
         return;
 

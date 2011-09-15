@@ -108,7 +108,7 @@ class boss_nalorakk : public CreatureScript
                 pInstance = c->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             uint32 BrutalSwipe_Timer;
             uint32 Mangle_Timer;

@@ -390,7 +390,7 @@ AuraEffect::~AuraEffect()
     delete m_spellmod;
 }
 
-void AuraEffect::GetTargetList(std::list<Unit *> & targetList) const
+void AuraEffect::GetTargetList(std::list<Unit*> & targetList) const
 {
     Aura::ApplicationMap const & targetMap = GetBase()->GetApplicationMap();
     // remove all targets which were not added to new list - they no longer deserve area aura
@@ -1278,7 +1278,7 @@ bool AuraEffect::IsAffectedOnSpell(SpellInfo const* spell) const
     return false;
 }
 
-void AuraEffect::SendTickImmune(Unit* target, Unit *caster) const
+void AuraEffect::SendTickImmune(Unit* target, Unit* caster) const
 {
     if (caster)
         caster->SendSpellDamageImmune(target, m_spellInfo->Id);
@@ -5664,7 +5664,7 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
             // Mirror Image
             if (GetId() == 55342)
                 // Set name of summons to name of caster
-                target->CastSpell((Unit *)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
+                target->CastSpell((Unit* )NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
             break;
         }
         case SPELLFAMILY_WARLOCK:

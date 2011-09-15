@@ -63,7 +63,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) { }
 
-        void SpellHit(Unit* Hitter, const SpellInfo *Spellkind)
+        void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
         {
             if (!spellhit &&
                 Hitter->GetTypeId() == TYPEID_PLAYER &&

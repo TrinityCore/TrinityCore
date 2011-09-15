@@ -199,7 +199,7 @@ std::string CreateDumpString(char const* tableName, QueryResult result)
     if (!tableName || !result) return "";
     std::ostringstream ss;
     ss << "INSERT INTO "<< _TABLE_SIM_ << tableName << _TABLE_SIM_ << " VALUES (";
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     for (uint32 i = 0; i < result->GetFieldCount(); ++i)
     {
         if (i == 0) ss << '\'';
@@ -352,7 +352,7 @@ bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
 
 DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
 {
-    FILE *fout = fopen(file.c_str(), "w");
+    FILE* fout = fopen(file.c_str(), "w");
     if (!fout)
         return DUMP_FILE_OPEN_ERROR;
 
@@ -386,7 +386,7 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     if (charcount >= 10)
         return DUMP_TOO_MANY_CHARS;
 
-    FILE *fin = fopen(file.c_str(), "r");
+    FILE* fin = fopen(file.c_str(), "r");
     if (!fin)
         return DUMP_FILE_OPEN_ERROR;
 

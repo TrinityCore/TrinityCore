@@ -55,7 +55,7 @@ bool MapSessionFilter::Process(WorldPacket* packet)
     if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
         return false;
 
-    Player *plr = m_pSession->GetPlayer();
+    Player* plr = m_pSession->GetPlayer();
     if (!plr)
         return false;
 
@@ -77,7 +77,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
         return true;
 
     //no player attached? -> our client! ^^
-    Player *plr = m_pSession->GetPlayer();
+    Player* plr = m_pSession->GetPlayer();
     if (!plr)
         return true;
 
@@ -86,7 +86,7 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 }
 
 /// WorldSession constructor
-WorldSession::WorldSession(uint32 id, WorldSocket *sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
+WorldSession::WorldSession(uint32 id, WorldSocket* sock, AccountTypes sec, uint8 expansion, time_t mute_time, LocaleConstant locale, uint32 recruiter, bool isARecruiter):
 m_muteTime(mute_time), m_timeOutTime(0), _player(NULL), m_Socket(sock),
 _security(sec), _accountId(id), m_expansion(expansion), _logoutTime(0),
 m_inQueue(false), m_playerLoading(false), m_playerLogout(false),
@@ -137,13 +137,13 @@ void WorldSession::SizeError(WorldPacket const &packet, uint32 size) const
 }
 
 /// Get the player name
-char const *WorldSession::GetPlayerName() const
+char const* WorldSession::GetPlayerName() const
 {
     return GetPlayer() ? GetPlayer()->GetName() : "<none>";
 }
 
 /// Send a packet to the client
-void WorldSession::SendPacket(WorldPacket const *packet)
+void WorldSession::SendPacket(WorldPacket const* packet)
 {
     if (!m_Socket)
         return;
@@ -187,7 +187,7 @@ void WorldSession::SendPacket(WorldPacket const *packet)
 }
 
 /// Add an incoming packet to the queue
-void WorldSession::QueuePacket(WorldPacket *new_packet)
+void WorldSession::QueuePacket(WorldPacket* new_packet)
 {
     _recvQueue.add(new_packet);
 }
@@ -377,10 +377,10 @@ void WorldSession::LogoutPlayer(bool Save)
             _player->RemoveAllAurasOnDeath();
 
             // build set of player who attack _player or who have pet attacking of _player
-            std::set<Player *> aset;
+            std::set<Player*> aset;
             for (Unit::AttackerSet::const_iterator itr = _player->getAttackers().begin(); itr != _player->getAttackers().end(); ++itr)
             {
-                Unit *owner = (*itr)->GetOwner();           // including player controlled case
+                Unit* owner = (*itr)->GetOwner();           // including player controlled case
                 if (owner && owner->GetTypeId() == TYPEID_PLAYER)
                     aset.insert(owner->ToPlayer());
                 else if ((*itr)->GetTypeId() == TYPEID_PLAYER)
@@ -393,13 +393,13 @@ void WorldSession::LogoutPlayer(bool Save)
             _player->RepopAtGraveyard();
 
             // give honor to all attackers from set like group case
-            for (std::set<Player *>::const_iterator itr = aset.begin(); itr != aset.end(); ++itr)
+            for (std::set<Player*>::const_iterator itr = aset.begin(); itr != aset.end(); ++itr)
                 (*itr)->RewardHonor(_player, aset.size());
 
             // give bg rewards and update counters like kill by first from attackers
             // this can't be called for all attackers.
             if (!aset.empty())
-                if (Battleground *bg = _player->GetBattleground())
+                if (Battleground* bg = _player->GetBattleground())
                     bg->HandleKillPlayer(_player, *aset.begin());
         }
         else if (_player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
@@ -417,7 +417,7 @@ void WorldSession::LogoutPlayer(bool Save)
         }
 
         //drop a flag if player is carrying it
-        if (Battleground *bg = _player->GetBattleground())
+        if (Battleground* bg = _player->GetBattleground())
             bg->EventPlayerLoggedOut(_player);
 
         ///- Teleport to home if the player is in an invalid instance
@@ -441,7 +441,7 @@ void WorldSession::LogoutPlayer(bool Save)
             HandleMoveWorldportAckOpcode();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
-        if (Guild *pGuild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+        if (Guild* pGuild = sGuildMgr->GetGuildById(_player->GetGuildId()))
             pGuild->HandleMemberLogout(this);
 
         ///- Remove pet
@@ -493,7 +493,7 @@ void WorldSession::LogoutPlayer(bool Save)
         // calls to GetMap in this case may cause crashes
         _player->CleanupsBeforeDelete();
         sLog->outChar("Account: %d (IP: %s) Logout Character:[%s] (GUID: %u)", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName() , _player->GetGUIDLow());
-        Map *_map = _player->GetMap();
+        Map* _map = _player->GetMap();
         _map->Remove(_player, true);
         SetPlayer(NULL);                                    // deleted in Remove call
 
@@ -539,7 +539,7 @@ void WorldSession::SendNotification(const char *format, ...)
 
 void WorldSession::SendNotification(uint32 string_id, ...)
 {
-    char const *format = GetTrinityString(string_id);
+    char const* format = GetTrinityString(string_id);
     if (format)
     {
         va_list ap;
@@ -616,7 +616,7 @@ void WorldSession::LoadAccountData(PreparedQueryResult result, uint32 mask)
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         uint32 type = fields[0].GetUInt8();
         if (type >= NUM_ACCOUNT_DATA_TYPES)
         {
@@ -717,7 +717,7 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
     m_TutorialsChanged = false;
 }
 
-void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
+void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
 {
     data >> mi->flags;
     data >> mi->flags2;
@@ -787,7 +787,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo *mi)
         mi->flags &= ~(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_BACKWARD);
 }
 
-void WorldSession::WriteMovementInfo(WorldPacket *data, MovementInfo *mi)
+void WorldSession::WriteMovementInfo(WorldPacket* data, MovementInfo* mi)
 {
     data->appendPackGUID(mi->guid);
 
@@ -964,7 +964,7 @@ void WorldSession::SendAddonsInfo()
     SendPacket(&data);
 }
 
-void WorldSession::SetPlayer(Player *plr)
+void WorldSession::SetPlayer(Player* plr)
 {
     _player = plr;
 

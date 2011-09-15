@@ -45,10 +45,10 @@ class Transport : public GameObject
         typedef std::set<Creature*> CreatureSet;
         CreatureSet m_NPCPassengerSet;
         uint32 AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, float z, float o, uint32 anim=0);
-        void UpdatePosition(MovementInfo *mi);
+        void UpdatePosition(MovementInfo* mi);
         void UpdateNPCPositions();
-        void BuildStartMovePacket(Map const *targetMap);
-        void BuildStopMovePacket(Map const *targetMap);
+        void BuildStartMovePacket(Map const* targetMap);
+        void BuildStopMovePacket(Map const* targetMap);
         uint32 GetScriptId() const { return ScriptId; }
     private:
         struct WayPoint

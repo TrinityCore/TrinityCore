@@ -46,7 +46,7 @@ class Config
 
     private:
         std::string mFilename;
-        ACE_Configuration_Heap *mConf;
+        ACE_Configuration_Heap* mConf;
 };
 
 #define sConfig ACE_Singleton<Config, ACE_Null_Mutex>::instance()

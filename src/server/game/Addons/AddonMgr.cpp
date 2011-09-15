@@ -52,7 +52,7 @@ void LoadFromDB()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         std::string name = fields[0].GetString();
         uint32 crc = fields[1].GetUInt32();

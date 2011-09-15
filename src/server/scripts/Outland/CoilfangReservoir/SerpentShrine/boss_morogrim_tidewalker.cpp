@@ -96,7 +96,7 @@ public:
 
         InstanceScript* pInstance;
 
-        Map::PlayerList const *PlayerList;
+        Map::PlayerList const* PlayerList;
 
         uint32 TidalWave_Timer;
         uint32 WateryGrave_Timer;

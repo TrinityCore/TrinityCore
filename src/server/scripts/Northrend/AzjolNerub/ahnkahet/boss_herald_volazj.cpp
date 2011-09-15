@@ -72,7 +72,7 @@ public:
             pInstance = creature->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 uiMindFlayTimer;
         uint32 uiShadowBoltVolleyTimer;
@@ -101,7 +101,7 @@ public:
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellInfo *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_INSANITY)
             {
@@ -314,7 +314,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_volazjAI(creature);
     }

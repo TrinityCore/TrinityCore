@@ -68,7 +68,7 @@ public:
                 work = true;
         }
 
-        void SpellHit(Unit* caster, const SpellInfo * spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_AWAKEN_PEON && caster->GetTypeId() == TYPEID_PLAYER
                 && CAST_PLR(caster)->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)

@@ -88,7 +88,7 @@ class spell_eadric_radiance : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_eadric_radiance_SpellScript();
         }

@@ -65,7 +65,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
             }
         };
 
-        SpellScript * GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_mage_blast_wave_SpellScript();
         }
@@ -90,7 +90,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
                 const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
-                    SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE &&
                         (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
@@ -203,7 +203,7 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
             }
         };
 
-        SpellScript * GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_mage_summon_water_elemental_SpellScript();
         }
@@ -231,10 +231,10 @@ public:
                 && sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_R1);
         }
 
-        void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             Unit* target = GetTarget();
-            if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
+            if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
             {
                 int32 chance = talentAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
@@ -253,7 +253,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_mage_frost_warding_trigger_AuraScript();
     }
@@ -274,11 +274,11 @@ public:
             && sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
     }
 
-    void Trigger(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+    void Trigger(AuraEffect* aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
     {
         Unit* target = GetTarget();
 
-        if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
+        if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
         {
             int32 bp = CalculatePctN(absorbAmount, talentAurEff->GetAmount());
             target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
@@ -302,7 +302,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_mage_incanters_absorbtion_absorb_AuraScript();
     }
@@ -324,7 +324,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_mage_incanters_absorbtion_manashield_AuraScript();
     }

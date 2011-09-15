@@ -39,7 +39,7 @@ void InstanceScript::SaveToDB()
     CharacterDatabase.Execute(stmt);
 }
 
-void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject *go)
+void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject* go)
 {
     if (!go)
         go = instance->GetGameObject(GUID);
@@ -58,7 +58,7 @@ bool InstanceScript::IsEncounterInProgress() const
     return false;
 }
 
-void InstanceScript::LoadMinionData(const MinionData *data)
+void InstanceScript::LoadMinionData(const MinionData* data)
 {
     while (data->entry)
     {
@@ -70,7 +70,7 @@ void InstanceScript::LoadMinionData(const MinionData *data)
     sLog->outDebug(LOG_FILTER_TSCR, "InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
 }
 
-void InstanceScript::LoadDoorData(const DoorData *data)
+void InstanceScript::LoadDoorData(const DoorData* data)
 {
     while (data->entry)
     {
@@ -82,7 +82,7 @@ void InstanceScript::LoadDoorData(const DoorData *data)
     sLog->outDebug(LOG_FILTER_TSCR, "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
 }
 
-void InstanceScript::UpdateMinionState(Creature *minion, EncounterState state)
+void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
 {
     switch (state)
     {
@@ -103,7 +103,7 @@ void InstanceScript::UpdateMinionState(Creature *minion, EncounterState state)
     }
 }
 
-void InstanceScript::UpdateDoorState(GameObject *door)
+void InstanceScript::UpdateDoorState(GameObject* door)
 {
     DoorInfoMap::iterator lower = doors.lower_bound(door->GetEntry());
     DoorInfoMap::iterator upper = doors.upper_bound(door->GetEntry());
@@ -132,7 +132,7 @@ void InstanceScript::UpdateDoorState(GameObject *door)
     door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
 }
 
-void InstanceScript::AddDoor(GameObject *door, bool add)
+void InstanceScript::AddDoor(GameObject* door, bool add)
 {
     DoorInfoMap::iterator lower = doors.lower_bound(door->GetEntry());
     DoorInfoMap::iterator upper = doors.upper_bound(door->GetEntry());
@@ -175,7 +175,7 @@ void InstanceScript::AddDoor(GameObject *door, bool add)
         UpdateDoorState(door);
 }
 
-void InstanceScript::AddMinion(Creature *minion, bool add)
+void InstanceScript::AddMinion(Creature* minion, bool add)
 {
     MinionInfoMap::iterator itr = minions.find(minion->GetEntry());
     if (itr == minions.end())
@@ -191,7 +191,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
 {
     if (id < bosses.size())
     {
-        BossInfo *bossInfo = &bosses[id];
+        BossInfo* bossInfo = &bosses[id];
         if (bossInfo->state == TO_BE_DECIDED) // loading
         {
             bossInfo->state = state;
@@ -292,7 +292,7 @@ void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
     if (!lPlayers.isEmpty())
     {
         for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
-            if (Player *pPlayer = itr->getSource())
+            if (Player* pPlayer = itr->getSource())
                 pPlayer->SendUpdateWorldState(uiStateId, uiStateData);
     }
     else
@@ -311,8 +311,8 @@ void InstanceScript::DoSendNotifyToInstance(const char *format, ...)
         va_start(ap, format);
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
-            if (Player *pPlayer = i->getSource())
-                if (WorldSession *pSession = pPlayer->GetSession())
+            if (Player* pPlayer = i->getSource())
+                if (WorldSession* pSession = pPlayer->GetSession())
                     pSession->SendNotification(format, ap);
         }
         va_end(ap);
@@ -326,7 +326,7 @@ void InstanceScript::DoUpdateAchievementCriteria(AchievementCriteriaTypes type, 
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player *pPlayer = i->getSource())
+            if (Player* pPlayer = i->getSource())
                 pPlayer->UpdateAchievementCriteria(type, miscValue1, miscValue2, unit);
 }
 
@@ -337,7 +337,7 @@ void InstanceScript::DoStartTimedAchievement(AchievementCriteriaTimedTypes type,
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player *pPlayer = i->getSource())
+            if (Player* pPlayer = i->getSource())
                 pPlayer->GetAchievementMgr().StartTimedAchievement(type, entry);
 }
 
@@ -348,7 +348,7 @@ void InstanceScript::DoStopTimedAchievement(AchievementCriteriaTimedTypes type, 
 
     if (!PlayerList.isEmpty())
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-            if (Player *pPlayer = i->getSource())
+            if (Player* pPlayer = i->getSource())
                 pPlayer->GetAchievementMgr().RemoveTimedAchievement(type, entry);
 }
 

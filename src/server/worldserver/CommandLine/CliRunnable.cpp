@@ -43,7 +43,7 @@ char * command_finder(const char* text, int state)
 {
     static int idx, len;
     const char* ret;
-    ChatCommand *cmd = ChatHandler::getCommandTable();
+    ChatCommand* cmd = ChatHandler::getCommandTable();
 
     if (!state)
     {

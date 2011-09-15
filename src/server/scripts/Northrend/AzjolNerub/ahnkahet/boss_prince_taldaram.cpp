@@ -211,9 +211,9 @@ public:
                         {
                             //Count alive players
                             Unit* target = NULL;
-                            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                            std::vector<Unit* > target_list;
-                            for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                            std::vector<Unit*> target_list;
+                            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                             {
                                 target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                 // exclude pets & totems
@@ -325,7 +325,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_taldaramAI(creature);
     }
@@ -375,7 +375,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_taldaram_flamesphereAI(creature);
     }
@@ -388,7 +388,7 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        InstanceScript *pInstance = pGO->GetInstanceScript();
+        InstanceScript* pInstance = pGO->GetInstanceScript();
 
         Creature* pPrinceTaldaram = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_PRINCE_TALDARAM) : 0);
         if (pPrinceTaldaram && pPrinceTaldaram->isAlive())

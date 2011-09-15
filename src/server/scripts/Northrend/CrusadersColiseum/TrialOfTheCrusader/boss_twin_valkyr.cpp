@@ -743,7 +743,7 @@ class spell_powering_up : public SpellScriptLoader
 
             uint32 spellId;
 
-            bool Validate(SpellEntry const * /*spellEntry*/)
+            bool Validate(SpellEntry const*  /*spellEntry*/)
             {
                 spellId = sSpellMgr->GetSpellIdForDifficulty(SPELL_SURGE_OF_SPEED, GetCaster());
                 if (!sSpellMgr->GetSpellInfo(spellId))
@@ -789,7 +789,7 @@ class spell_valkyr_essences : public SpellScriptLoader
                 return true;
             }
 
-            void Absorb(AuraEffect * /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & /*absorbAmount*/)
+            void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & /*dmgInfo*/, uint32 & /*absorbAmount*/)
             {
                 if (urand(0, 99) < 5)
                     GetTarget()->CastSpell(GetTarget(), spellId, true);
@@ -801,7 +801,7 @@ class spell_valkyr_essences : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_valkyr_essences_AuraScript();
         }
@@ -847,7 +847,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_power_of_the_twins_AuraScript();
         }

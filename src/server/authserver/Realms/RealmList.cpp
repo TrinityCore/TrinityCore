@@ -78,7 +78,7 @@ void RealmList::UpdateRealms(bool init)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint32 realmId = fields[0].GetUInt32();
             const std::string& name = fields[1].GetString();
             const std::string& address = fields[2].GetString();

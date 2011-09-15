@@ -29,7 +29,7 @@ EndScriptData */
 // **** This script is designed as an example for others to build on ****
 // **** Please modify whatever you'd like to as this script is only for developement ****
 
-// **** Script Info ****
+// **** Script Info* ***
 // This script's primary purpose is to show just how much you can really do with commandscripts
 
 class example_commandscript : public CommandScript

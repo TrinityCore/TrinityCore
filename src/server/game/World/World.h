@@ -521,7 +521,7 @@ class World
         ~World();
 
         WorldSession* FindSession(uint32 id) const;
-        void AddSession(WorldSession *s);
+        void AddSession(WorldSession* s);
         void SendAutoBroadcast();
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions

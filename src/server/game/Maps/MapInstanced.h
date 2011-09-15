@@ -27,7 +27,7 @@ class MapInstanced : public Map
 {
     friend class MapManager;
     public:
-        typedef UNORDERED_MAP< uint32, Map* > InstancedMaps;
+        typedef UNORDERED_MAP< uint32, Map*> InstancedMaps;
 
         MapInstanced(uint32 id, time_t expiry);
         ~MapInstanced() {}
@@ -61,7 +61,7 @@ class MapInstanced : public Map
 
     private:
 
-        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave *save, Difficulty difficulty);
+        InstanceMap* CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty);
         BattlegroundMap* CreateBattleground(uint32 InstanceId, Battleground* bg);
 
         InstancedMaps m_InstancedMaps;

@@ -149,7 +149,7 @@ public:
                 CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellInfo *spell)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_INFERNAL_RELAY)
             {
@@ -188,7 +188,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
         uint32 EnfeebleTimer;
         uint32 EnfeebleResetTimer;
         uint32 ShadowNovaTimer;
@@ -297,7 +297,7 @@ public:
             SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
 
             //damage
-            const CreatureTemplate *cinfo = me->GetCreatureInfo();
+            const CreatureTemplate* cinfo = me->GetCreatureInfo();
             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
             me->UpdateDamagePhysical(BASE_ATTACK);
@@ -305,18 +305,18 @@ public:
 
         void EnfeebleHealthEffect()
         {
-            const SpellInfo *info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
+            const SpellInfo* info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
             if (!info)
                 return;
 
-            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-            std::vector<Unit* > targets;
+            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+            std::vector<Unit*> targets;
 
             if (t_list.empty())
                 return;
 
             //begin + 1, so we don't target the one with the highest threat
-            std::list<HostileReference *>::const_iterator itr = t_list.begin();
+            std::list<HostileReference*>::const_iterator itr = t_list.begin();
             std::advance(itr, 1);
             for (; itr != t_list.end(); ++itr) //store the threat list in a different container
                 if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
@@ -328,7 +328,7 @@ public:
                 targets.erase(targets.begin()+rand()%targets.size());
 
             uint32 i = 0;
-            for (std::vector<Unit* >::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
+            for (std::vector<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
                 if (Unit* target = *iter)
                 {
                     enfeeble_targets[i] = target->GetGUID();
@@ -420,7 +420,7 @@ public:
                     SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
 
                     //damage
-                    const CreatureTemplate *cinfo = me->GetCreatureInfo();
+                    const CreatureTemplate* cinfo = me->GetCreatureInfo();
                     me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2*cinfo->mindmg);
                     me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2*cinfo->maxdmg);
                     me->UpdateDamagePhysical(BASE_ATTACK);

@@ -194,7 +194,7 @@ class mob_healing_ward : public CreatureScript
 
             uint32 Heal_Timer;
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             void Reset()
             {

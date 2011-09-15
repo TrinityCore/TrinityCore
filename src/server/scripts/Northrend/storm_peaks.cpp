@@ -47,7 +47,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_agnetta_tyrsdottarAI(creature);
     }
@@ -223,7 +223,7 @@ public:
 
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_goblin_prisonerAI(creature);
     }
@@ -320,7 +320,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_victorious_challengerAI(creature);
     }
@@ -446,7 +446,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_injured_goblinAI(creature);
     }
@@ -466,7 +466,7 @@ public:
         return true;
     }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_BITTER_DEPARTURE)
             DoScriptText(SAY_QUEST_ACCEPT, creature);
@@ -678,7 +678,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_brunnhildar_prisonerAI(creature);
     }

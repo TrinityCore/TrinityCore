@@ -64,7 +64,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        void SpellHit(Unit* Hitter, const SpellInfo *Spellkind)
+        void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
         {
             if (Spellkind->Id == 32001 && !Spawn)
             {
@@ -838,7 +838,7 @@ public:
             ScriptedAI::UpdateAI(diff);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (caster->GetTypeId() == TYPEID_PLAYER)
             {
@@ -925,7 +925,7 @@ class npc_corki : public CreatureScript
 public:
   npc_corki() : CreatureScript("npc_corki") { }
 
-  CreatureAI *GetAI(Creature* creature) const
+  CreatureAI* GetAI(Creature* creature) const
   {
       return new npc_corkiAI(creature);
   }

@@ -55,8 +55,8 @@ enum VehicleSpells
 
 struct VehicleSeat
 {
-    explicit VehicleSeat(VehicleSeatEntry const *seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
-    VehicleSeatEntry const *SeatInfo;
+    explicit VehicleSeat(VehicleSeatEntry const* seatInfo) : SeatInfo(seatInfo), Passenger(0) {}
+    VehicleSeatEntry const* SeatInfo;
     uint64 Passenger;
 };
 

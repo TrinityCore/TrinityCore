@@ -31,13 +31,13 @@ Bag::Bag(): Item()
 
     m_valuesCount = CONTAINER_END;
 
-    memset(m_bagslot, 0, sizeof(Item *) * MAX_BAG_SIZE);
+    memset(m_bagslot, 0, sizeof(Item* ) * MAX_BAG_SIZE);
 }
 
 Bag::~Bag()
 {
     for (uint8 i = 0; i < MAX_BAG_SIZE; ++i)
-        if (Item *item = m_bagslot[i])
+        if (Item* item = m_bagslot[i])
         {
             if (item->IsInWorld())
             {
@@ -153,7 +153,7 @@ void Bag::RemoveItem(uint8 slot, bool /*update*/)
     SetUInt64Value(CONTAINER_FIELD_SLOT_1 + (slot * 2), 0);
 }
 
-void Bag::StoreItem(uint8 slot, Item *pItem, bool /*update*/)
+void Bag::StoreItem(uint8 slot, Item* pItem, bool /*update*/)
 {
     ASSERT(slot < MAX_BAG_SIZE);
 
@@ -168,7 +168,7 @@ void Bag::StoreItem(uint8 slot, Item *pItem, bool /*update*/)
     }
 }
 
-void Bag::BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) const
+void Bag::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const
 {
     Item::BuildCreateUpdateBlockForPlayer(data, target);
 
@@ -189,7 +189,7 @@ bool Bag::IsEmpty() const
 
 uint32 Bag::GetItemCount(uint32 item, Item* eItem) const
 {
-    Item *pItem;
+    Item* pItem;
     uint32 count = 0;
     for (uint32 i=0; i < GetBagSize(); ++i)
     {
@@ -215,9 +215,9 @@ uint32 Bag::GetItemCountWithLimitCategory(uint32 limitCategory, Item* skipItem) 
 {
     uint32 count = 0;
     for (uint32 i = 0; i < GetBagSize(); ++i)
-        if (Item *pItem = m_bagslot[i])
+        if (Item* pItem = m_bagslot[i])
             if (pItem != skipItem)
-                if (ItemTemplate const *pProto = pItem->GetTemplate())
+                if (ItemTemplate const* pProto = pItem->GetTemplate())
                     if (pProto->ItemLimitCategory == limitCategory)
                         count += m_bagslot[i]->GetCount();
 

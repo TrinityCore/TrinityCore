@@ -40,7 +40,7 @@ class ResultSet
         uint64 GetRowCount() const { return m_rowCount; }
         uint32 GetFieldCount() const { return m_fieldCount; }
 
-        Field *Fetch() const { return m_currentRow; }
+        Field* Fetch() const { return m_currentRow; }
         const Field & operator [] (uint32 index) const
         {
             ASSERT(index < m_fieldCount);
@@ -48,7 +48,7 @@ class ResultSet
         }
 
     protected:
-        Field *m_currentRow;
+        Field* m_currentRow;
         uint64 m_rowCount;
         uint32 m_fieldCount;
 

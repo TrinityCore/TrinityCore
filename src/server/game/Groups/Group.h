@@ -127,8 +127,8 @@ class Roll : public LootValidatorRef
     public:
         Roll(uint64 _guid, LootItem const& li);
         ~Roll();
-        void setLoot(Loot *pLoot);
-        Loot *getLoot();
+        void setLoot(Loot* pLoot);
+        Loot* getLoot();
         void targetObjectBuildLink();
 
         uint64 itemGUID;
@@ -148,7 +148,7 @@ class Roll : public LootValidatorRef
 
 struct InstanceGroupBind
 {
-    InstanceSave *save;
+    InstanceSave* save;
     bool perm;
     /* permanent InstanceGroupBinds exist if the leader has a permanent
        PlayerInstanceBind for the same instance. */
@@ -183,8 +183,8 @@ class Group
         ~Group();
 
         // group manipulation methods
-        bool   Create(Player *leader);
-        void   LoadGroupFromDB(Field *field);
+        bool   Create(Player* leader);
+        void   LoadGroupFromDB(Field* field);
         void   LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles);
         bool   AddInvite(Player* player);
         void   RemoveInvite(Player* player);
@@ -238,7 +238,7 @@ class Group
         void ConvertToLFG();
         void ConvertToRaid();
 
-        void SetBattlegroundGroup(Battleground *bg);
+        void SetBattlegroundGroup(Battleground* bg);
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
         void ChangeMembersGroup(uint64 guid, uint8 group);
@@ -257,8 +257,8 @@ class Group
         void ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo);
 
         // -no description-
-        //void SendInit(WorldSession *session);
-        void SendTargetIconList(WorldSession *session);
+        //void SendInit(WorldSession* session);
+        void SendTargetIconList(WorldSession* session);
         void SendUpdate();
         void UpdatePlayerOutOfRange(Player* pPlayer);
                                                             // ignore: GUID of player that will be ignored
@@ -275,22 +275,22 @@ class Group
         void SendLootRoll(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootRollWon(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r);
-        void SendLooter(Creature *pCreature, Player *pLooter);
-        void GroupLoot(Loot *loot, WorldObject* pLootedObject);
-        void NeedBeforeGreed(Loot *loot, WorldObject* pLootedObject);
-        void MasterLoot(Loot *loot, WorldObject* pLootedObject);
+        void SendLooter(Creature* pCreature, Player* pLooter);
+        void GroupLoot(Loot* loot, WorldObject* pLootedObject);
+        void NeedBeforeGreed(Loot* loot, WorldObject* pLootedObject);
+        void MasterLoot(Loot* loot, WorldObject* pLootedObject);
         Rolls::iterator GetRoll(uint64 Guid);
         void CountTheRoll(Rolls::iterator roll, uint32 NumberOfPlayers);
         void CountRollVote(uint64 playerGUID, uint64 Guid, uint32 NumberOfPlayers, uint8 Choise);
-        void EndRoll(Loot *loot);
+        void EndRoll(Loot* loot);
 
         // related to disenchant rolls
         void ResetMaxEnchantingLevel();
 
-        void LinkMember(GroupReference *pRef);
+        void LinkMember(GroupReference* pRef);
         void DelinkMember(GroupReference* /*pRef*/) const;
 
-        InstanceGroupBind* BindToInstance(InstanceSave *save, bool permanent, bool load = false);
+        InstanceGroupBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);
         InstanceGroupBind* GetBoundInstance(Player* player);
         InstanceGroupBind* GetBoundInstance(Map* aMap);

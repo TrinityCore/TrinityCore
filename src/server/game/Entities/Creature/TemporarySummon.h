@@ -24,7 +24,7 @@
 class TempSummon : public Creature
 {
     public:
-        explicit TempSummon(SummonPropertiesEntry const *properties, Unit *owner);
+        explicit TempSummon(SummonPropertiesEntry const* properties, Unit* owner);
         virtual ~TempSummon() {}
         void Update(uint32 time);
         virtual void InitStats(uint32 lifetime);
@@ -37,7 +37,7 @@ class TempSummon : public Creature
         uint64 GetSummonerGUID() { return m_summonerGUID; }
         TempSummonType const& GetSummonType() { return m_type; }
 
-        const SummonPropertiesEntry * const m_Properties;
+        const SummonPropertiesEntry* const m_Properties;
     private:
         TempSummonType m_type;
         uint32 m_timer;
@@ -48,10 +48,10 @@ class TempSummon : public Creature
 class Minion : public TempSummon
 {
     public:
-        Minion(SummonPropertiesEntry const *properties, Unit *owner);
+        Minion(SummonPropertiesEntry const* properties, Unit* owner);
         void InitStats(uint32 duration);
         void RemoveFromWorld();
-        Unit *GetOwner() { return m_owner; }
+        Unit* GetOwner() { return m_owner; }
         float GetFollowAngle() const { return m_followAngle; }
         void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
@@ -64,7 +64,7 @@ class Minion : public TempSummon
 class Guardian : public Minion
 {
     public:
-        Guardian(SummonPropertiesEntry const *properties, Unit *owner);
+        Guardian(SummonPropertiesEntry const* properties, Unit* owner);
         void InitStats(uint32 duration);
         bool InitStatsForLevel(uint8 level);
         void InitSummon();
@@ -88,13 +88,13 @@ class Guardian : public Minion
 class Puppet : public Minion
 {
     public:
-        Puppet(SummonPropertiesEntry const *properties, Unit *owner);
+        Puppet(SummonPropertiesEntry const* properties, Unit* owner);
         void InitStats(uint32 duration);
         void InitSummon();
         void Update(uint32 time);
         void RemoveFromWorld();
     protected:
-        Player *m_owner;
+        Player* m_owner;
 };
 
 class ForcedUnsummonDelayEvent : public BasicEvent

@@ -547,7 +547,7 @@ enum SkillRangeType
     SKILL_RANGE_NONE,                                       // 0..0 always
 };
 
-SkillRangeType GetSkillRangeType(SkillLineEntry const *pSkill, bool racial);
+SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial);
 
 #define MAX_PLAYER_NAME          12                         // max allowed by client name length
 #define MAX_INTERNAL_PLAYER_NAME 15                         // max server internal player name length (> MAX_PLAYER_NAME for support declined names)
@@ -625,17 +625,17 @@ class ObjectMgr
         int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32> *skip_vendors);
 
         void LoadGameObjectTemplate();
-        void AddGameobjectInfo(GameObjectTemplate *goinfo);
+        void AddGameobjectInfo(GameObjectTemplate* goinfo);
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() { return &CreatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
         CreatureModelInfo const* GetCreatureModelRandomGender(uint32* displayID);
-        static uint32 ChooseDisplayId(uint32 team, const CreatureTemplate *cinfo, const CreatureData *data = NULL);
-        static void ChooseCreatureFlags(const CreatureTemplate *cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData *data = NULL);
-        EquipmentInfo const *GetEquipmentInfo(uint32 entry);
-        CreatureAddon const *GetCreatureAddon(uint32 lowguid);
-        CreatureAddon const *GetCreatureTemplateAddon(uint32 entry);
+        static uint32 ChooseDisplayId(uint32 team, const CreatureTemplate* cinfo, const CreatureData* data = NULL);
+        static void ChooseCreatureFlags(const CreatureTemplate* cinfo, uint32& npcflag, uint32& unit_flags, uint32& dynamicflags, const CreatureData* data = NULL);
+        EquipmentInfo const* GetEquipmentInfo(uint32 entry);
+        CreatureAddon const* GetCreatureAddon(uint32 lowguid);
+        CreatureAddon const* GetCreatureTemplateAddon(uint32 entry);
         ItemTemplate const* GetItemTemplate(uint32 entry);
         ItemTemplateContainer const* GetItemTemplateStore() { return &ItemTemplateStore; }
 
@@ -708,8 +708,8 @@ class ObjectMgr
 
         GossipText const* GetGossipText(uint32 Text_ID) const;
 
-        WorldSafeLocsEntry const *GetDefaultGraveYard(uint32 team);
-        WorldSafeLocsEntry const *GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team);
+        WorldSafeLocsEntry const* GetDefaultGraveYard(uint32 team);
+        WorldSafeLocsEntry const* GetClosestGraveYard(float x, float y, float z, uint32 MapId, uint32 team);
         bool AddGraveYardLink(uint32 id, uint32 zone, uint32 team, bool inDB = true);
         void RemoveGraveYardLink(uint32 id, uint32 zone, uint32 team, bool inDB = false);
         void LoadGraveyardZones();

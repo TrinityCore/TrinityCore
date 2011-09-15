@@ -234,7 +234,7 @@ struct Location
     float x, y, z, o;
 };
 
-void UpdateWorldState(Map *map, uint32 id, uint32 state)
+void UpdateWorldState(Map* map, uint32 id, uint32 state)
 {
     Map::PlayerList const& players = map->GetPlayers();
 
@@ -1311,7 +1311,7 @@ public:
                             //    pGo->SetPhaseMask(0, true);
 
                             {
-                                Map *map = me->GetMap(); // search players with in 50 yards for quest credit
+                                Map* map = me->GetMap(); // search players with in 50 yards for quest credit
                                 Map::PlayerList const &PlayerList = map->GetPlayers();
                                 if (!PlayerList.isEmpty())
                                 {

@@ -168,9 +168,9 @@ class GridMap
     uint8  *m_liquid_type;
     float  *m_liquid_map;
 
-    bool  loadAreaData(FILE *in, uint32 offset, uint32 size);
-    bool  loadHeihgtData(FILE *in, uint32 offset, uint32 size);
-    bool  loadLiquidData(FILE *in, uint32 offset, uint32 size);
+    bool  loadAreaData(FILE* in, uint32 offset, uint32 size);
+    bool  loadHeihgtData(FILE* in, uint32 offset, uint32 size);
+    bool  loadLiquidData(FILE* in, uint32 offset, uint32 size);
 
     // Get height functions and pointers
     typedef float (GridMap::*pGetHeightPtr) (float x, float y) const;
@@ -190,7 +190,7 @@ public:
     inline float getHeight(float x, float y) {return (this->*m_gridGetHeight)(x, y);}
     float  getLiquidLevel(float x, float y);
     uint8  getTerrainType(float x, float y);
-    ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData *data = 0);
+    ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0);
 };
 
 struct CreatureMover
@@ -254,8 +254,8 @@ class Map : public GridRefManager<NGridType>
             return false;
         }
 
-        virtual bool Add(Player *);
-        virtual void Remove(Player *, bool);
+        virtual bool Add(Player* );
+        virtual void Remove(Player* , bool);
         template<class T> void Add(T *);
         template<class T> void Remove(T *, bool);
 
@@ -266,8 +266,8 @@ class Map : public GridRefManager<NGridType>
         //function for setting up visibility distance for maps on per-type/per-Id basis
         virtual void InitVisibilityDistance();
 
-        void PlayerRelocation(Player *, float x, float y, float z, float orientation);
-        void CreatureRelocation(Creature *creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
+        void PlayerRelocation(Player* , float x, float y, float z, float orientation);
+        void CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
 
         template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
 
@@ -309,7 +309,7 @@ class Map : public GridRefManager<NGridType>
         // can return INVALID_HEIGHT if under z+2 z coord not found height
         float GetHeight(float x, float y, float z, bool pCheckVMap=true, float maxSearchDist=DEFAULT_HEIGHT_SEARCH) const;
 
-        ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData *data = 0) const;
+        ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0) const;
 
         uint16 GetAreaFlag(float x, float y, float z, bool *isOutdoors=0) const;
         bool GetAreaInfo(float x, float y, float z, uint32 &mogpflags, int32 &adtId, int32 &rootId, int32 &groupId) const;
@@ -318,7 +318,7 @@ class Map : public GridRefManager<NGridType>
 
         uint8 GetTerrainType(float x, float y) const;
         float GetWaterLevel(float x, float y) const;
-        bool IsInWater(float x, float y, float z, LiquidData *data = 0) const;
+        bool IsInWater(float x, float y, float z, LiquidData* data = 0) const;
         bool IsUnderWater(float x, float y, float z) const;
 
         static uint32 GetAreaIdByAreaFlag(uint16 areaflag, uint32 map_id);
@@ -344,7 +344,7 @@ class Map : public GridRefManager<NGridType>
         void RemoveAllObjectsInRemoveList();
         virtual void RemoveAllPlayers();
 
-        bool CreatureRespawnRelocation(Creature *c);        // used only in MoveAllCreaturesInMoveList and ObjectGridUnloader
+        bool CreatureRespawnRelocation(Creature* c);        // used only in MoveAllCreaturesInMoveList and ObjectGridUnloader
 
         // assert print helper
         bool CheckGridIntegrity(Creature* c, bool moved) const;
@@ -376,8 +376,8 @@ class Map : public GridRefManager<NGridType>
             return i_mapEntry->GetEntrancePos(mapid, x, y);
         }
 
-        void AddObjectToRemoveList(WorldObject *obj);
-        void AddObjectToSwitchList(WorldObject *obj, bool on);
+        void AddObjectToRemoveList(WorldObject* obj);
+        void AddObjectToSwitchList(WorldObject* obj, bool on);
         virtual void DelayedUpdate(const uint32 diff);
 
         void UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair);
@@ -391,8 +391,8 @@ class Map : public GridRefManager<NGridType>
         uint32 GetPlayersCountExceptGMs() const;
         bool ActiveObjectsNearGrid(uint32 x, uint32 y) const;
 
-        void AddWorldObject(WorldObject *obj) { i_worldObjects.insert(obj); }
-        void RemoveWorldObject(WorldObject *obj) { i_worldObjects.erase(obj); }
+        void AddWorldObject(WorldObject* obj) { i_worldObjects.insert(obj); }
+        void RemoveWorldObject(WorldObject* obj) { i_worldObjects.erase(obj); }
 
         void SendToPlayers(WorldPacket const* data) const;
 
@@ -438,7 +438,7 @@ class Map : public GridRefManager<NGridType>
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
         void LoadMap(int gx, int gy, bool reload = false);
-        GridMap *GetGrid(float x, float y);
+        GridMap* GetGrid(float x, float y);
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 
@@ -447,9 +447,9 @@ class Map : public GridRefManager<NGridType>
         void SendInitTransports(Player* player);
         void SendRemoveTransports(Player* player);
 
-        bool CreatureCellRelocation(Creature *creature, Cell new_cell);
+        bool CreatureCellRelocation(Creature* creature, Cell new_cell);
 
-        void AddCreatureToMoveList(Creature *c, float x, float y, float z, float ang);
+        void AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang);
         CreatureMoveList i_creaturesToMove;
 
         bool loaded(const GridPair &) const;
@@ -513,7 +513,7 @@ class Map : public GridRefManager<NGridType>
         Map* m_parentMap;
 
         NGridType* i_grids[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
-        GridMap *GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
+        GridMap* GridMaps[MAX_NUMBER_OF_GRIDS][MAX_NUMBER_OF_GRIDS];
         std::bitset<TOTAL_NUMBER_OF_CELLS_PER_MAP*TOTAL_NUMBER_OF_CELLS_PER_MAP> marked_cells;
 
         //these functions used to process player/mob aggro reactions and
@@ -521,7 +521,7 @@ class Map : public GridRefManager<NGridType>
         void ProcessRelocationNotifies(const uint32 diff);
 
         bool i_scriptLock;
-        std::set<WorldObject *> i_objectsToRemove;
+        std::set<WorldObject*> i_objectsToRemove;
         std::map<WorldObject*, bool> i_objectsToSwitch;
         std::set<WorldObject*> i_worldObjects;
 
@@ -577,8 +577,8 @@ class InstanceMap : public Map
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
-        bool Add(Player *);
-        void Remove(Player *, bool);
+        bool Add(Player* );
+        void Remove(Player* , bool);
         void Update(const uint32);
         void CreateInstanceData(bool load);
         bool Reset(uint8 method);
@@ -607,8 +607,8 @@ class BattlegroundMap : public Map
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
         ~BattlegroundMap();
 
-        bool Add(Player *);
-        void Remove(Player *, bool);
+        bool Add(Player* );
+        void Remove(Player* , bool);
         bool CanEnter(Player* player);
         void SetUnload();
         //void UnloadAll(bool pForce);

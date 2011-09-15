@@ -96,7 +96,7 @@ void WorldSession::HandleGossipSelectOptionOpcode(WorldPacket & recv_data)
         recv_data >> code;
 
     Creature* unit = NULL;
-    GameObject *go = NULL;
+    GameObject* go = NULL;
     if (IS_CRE_OR_VEH_GUID(guid))
     {
         unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_NONE);
@@ -474,7 +474,7 @@ void WorldSession::HandleTogglePvP(WorldPacket & recv_data)
             GetPlayer()->pvpInfo.endTimer = time(NULL);     // start toggle-off
     }
 
-    //if (OutdoorPvP * pvp = _player->GetOutdoorPvP())
+    //if (OutdoorPvP* pvp = _player->GetOutdoorPvP())
     //    pvp->HandlePlayerActivityChanged(_player);
 }
 
@@ -729,7 +729,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket &recv_data)
     if (!GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
         return;
 
-    Corpse *corpse = GetPlayer()->GetCorpse();
+    Corpse* corpse = GetPlayer()->GetCorpse();
 
     if (!corpse)
         return;
@@ -905,7 +905,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         return;
     }
 
-    if (OutdoorPvP * pvp = GetPlayer()->GetOutdoorPvP())
+    if (OutdoorPvP* pvp = GetPlayer()->GetOutdoorPvP())
     {
         if (pvp->HandleAreaTrigger(_player, Trigger_ID))
             return;
@@ -997,7 +997,7 @@ void WorldSession::HandleRequestAccountData(WorldPacket& recv_data)
     if (type > NUM_ACCOUNT_DATA_TYPES)
         return;
 
-    AccountData *adata = GetAccountData(AccountDataType(type));
+    AccountData* adata = GetAccountData(AccountDataType(type));
 
     uint32 size = adata->Data.size();
 
@@ -1201,7 +1201,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 
     _player->SetSelection(guid);
 
-    Player *plr = ObjectAccessor::FindPlayer(guid);
+    Player* plr = ObjectAccessor::FindPlayer(guid);
     if (!plr)                                                // wrong player
         return;
 
@@ -1302,7 +1302,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Player *plr = sObjectAccessor->FindPlayerByName(charname.c_str());
+    Player* plr = sObjectAccessor->FindPlayerByName(charname.c_str());
 
     if (!plr)
     {
@@ -1319,7 +1319,7 @@ void WorldSession::HandleWhoisOpcode(WorldPacket& recv_data)
         return;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     std::string acc = fields[0].GetString();
     if (acc.empty())
         acc = "Unknown";
@@ -1414,7 +1414,7 @@ void WorldSession::HandleFarSightOpcode(WorldPacket & recv_data)
             break;
         case 1:
             sLog->outDebug(LOG_FILTER_NETWORKIO, "Added FarSight " UI64FMTD " to player %u", _player->GetUInt64Value(PLAYER_FARSIGHT), _player->GetGUIDLow());
-            if (WorldObject *target = _player->GetViewpoint())
+            if (WorldObject* target = _player->GetViewpoint())
                 _player->SetSeer(target);
             else
                 sLog->outError("Player %s requests non-existing seer " UI64FMTD, _player->GetName(), _player->GetUInt64Value(PLAYER_FARSIGHT));
@@ -1469,7 +1469,7 @@ void WorldSession::HandleTimeSyncResp(WorldPacket & recv_data)
 void WorldSession::HandleResetInstancesOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_INSTANCES");
-    Group *pGroup = _player->GetGroup();
+    Group* pGroup = _player->GetGroup();
     if (pGroup)
     {
         if (pGroup->IsLeader(_player->GetGUID()))
@@ -1502,19 +1502,19 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
         return;
 
     // cannot reset while in an instance
-    Map *map = _player->GetMap();
+    Map* map = _player->GetMap();
     if (map && map->IsDungeon())
     {
         sLog->outError("WorldSession::HandleSetDungeonDifficultyOpcode: player (Name: %s, GUID: %u) tried to reset the instance while player is inside!", _player->GetName(), _player->GetGUIDLow());
         return;
     }
 
-    Group *pGroup = _player->GetGroup();
+    Group* pGroup = _player->GetGroup();
     if (pGroup)
     {
         if (pGroup->IsLeader(_player->GetGUID()))
         {
-            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* pGroupGuy = itr->getSource();
                 if (!pGroupGuy)
@@ -1557,7 +1557,7 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
     }
 
     // cannot reset while in an instance
-    Map *map = _player->GetMap();
+    Map* map = _player->GetMap();
     if (map && map->IsDungeon())
     {
         sLog->outError("WorldSession::HandleSetRaidDifficultyOpcode: player %d tried to reset the instance while inside!", _player->GetGUIDLow());
@@ -1567,12 +1567,12 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
     if (Difficulty(mode) == _player->GetRaidDifficulty())
         return;
 
-    Group *pGroup = _player->GetGroup();
+    Group* pGroup = _player->GetGroup();
     if (pGroup)
     {
         if (pGroup->IsLeader(_player->GetGUID()))
         {
-            for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* pGroupGuy = itr->getSource();
                 if (!pGroupGuy)
@@ -1699,7 +1699,7 @@ void WorldSession::HandleHearthAndResurrect(WorldPacket& /*recv_data*/)
     if (_player->isInFlight())
         return;
 
-    AreaTableEntry const *atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
+    AreaTableEntry const* atEntry = GetAreaEntryByAreaID(_player->GetAreaId());
     if (!atEntry || !(atEntry->flags & AREA_FLAG_WINTERGRASP_2))
         return;
 
