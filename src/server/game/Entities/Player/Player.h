@@ -2373,8 +2373,8 @@ class Player : public Unit, public GridObject<Player>
         void UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficulty, bool unload = false);
         InstancePlayerBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
         void BindToInstance();
-        void SetPendingBind(InstanceSave* save, uint32 bindTimer) { _pendingBind = save; _pendingBindTimer = bindTimer; }
-        bool HasPendingBind() const { return _pendingBind != NULL; }
+        void SetPendingBind(uint32 instanceId, uint32 bindTimer) { _pendingBindId = instanceId; _pendingBindTimer = bindTimer; }
+        bool HasPendingBind() const { return _pendingBindId > 0; }
         void SendRaidInfo();
         void SendSavedInstances();
         static void ConvertInstancesToGroup(Player* player, Group* group, bool switchLeader);
@@ -2802,7 +2802,7 @@ class Player : public Unit, public GridObject<Player>
         uint32 m_timeSyncServer;
 
         InstanceTimeMap _instanceResetTimes;
-        InstanceSave* _pendingBind;
+        uint32 _pendingBindId;
         uint32 _pendingBindTimer;
 };
 
