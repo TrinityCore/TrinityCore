@@ -3062,25 +3062,11 @@ void Spell::cast(bool skipCheck)
     // update pointers base at GUIDs to prevent access to non-existed already object
     UpdatePointers();
 
-    if (Unit* target = m_targets.GetUnitTarget())
+    // cancel at lost explicit target during cast
+    if (m_targets.GetObjectTargetGUID() && !m_targets.GetObjectTarget())
     {
-        // three check: prepare, cast (m_casttime > 0), hit (delayed)
-        if (m_casttime && target->isAlive() && !target->IsFriendlyTo(m_caster) && !m_caster->canSeeOrDetect(target))
-        {
-            SendCastResult(SPELL_FAILED_BAD_TARGETS);
-            SendInterrupted(0);
-            finish(false);
-            return;
-        }
-    }
-    else
-    {
-        // cancel at lost main target unit
-        if (m_targets.GetUnitTargetGUID() && m_targets.GetUnitTargetGUID() != m_caster->GetGUID())
-        {
-            cancel();
-            return;
-        }
+        cancel();
+        return;
     }
 
     // now that we've done the basic check, now run the scripts
@@ -3101,8 +3087,8 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     }
 
-    // triggered cast called from Spell::prepare where it was already checked
-    if (!IsTriggered() || !skipCheck)
+    // skip check if done already (for instant cast spells for example)
+    if (!skipCheck)
     {
         SpellCastResult castResult = CheckCast(false);
         if (castResult != SPELL_CAST_OK)
@@ -5203,8 +5189,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                     Difficulty difficulty = m_caster->GetMap()->GetDifficulty();
                     if (map->IsRaid())
                         if (InstancePlayerBind* targetBind = target->GetBoundInstance(mapId, difficulty))
-                            if (targetBind->perm && targetBind != m_caster->ToPlayer()->GetBoundInstance(mapId, difficulty))
-                                return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
+                            if (InstancePlayerBind* casterBind = m_caster->ToPlayer()->GetBoundInstance(mapId, difficulty))
+                                if (targetBind->perm && targetBind->save != casterBind->save)
+                                    return SPELL_FAILED_TARGET_LOCKED_TO_RAID_INSTANCE;
 
                     InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(mapId);
                     if (!instance)

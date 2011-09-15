@@ -2326,6 +2326,9 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
 bool Player::TeleportToBGEntryPoint()
 {
+    if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
+        return false;
+
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
     return TeleportTo(m_bgData.joinPos);
@@ -17113,7 +17116,10 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
 bool Player::isAllowedToLoot(const Creature* creature)
 {
     if (!creature->isDead() || !creature->IsDamageEnoughForLootingAndReward())
-       return false;
+        return false;
+       
+    if (HasPendingBind())
+        return false;
 
     const Loot* loot = &creature->loot;
     if (loot->isLooted()) // nothing to loot or everything looted.
@@ -20961,7 +20967,6 @@ void Player::SetBattlegroundEntryPoint()
 
         // On taxi we don't need check for dungeon
         m_bgData.joinPos = WorldLocation(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-        return;
     }
     else
     {
@@ -20981,23 +20986,17 @@ void Player::SetBattlegroundEntryPoint()
         if (GetMap()->IsDungeon())
         {
             if (const WorldSafeLocsEntry* entry = sObjectMgr->GetClosestGraveYard(GetPositionX(), GetPositionY(), GetPositionZ(), GetMapId(), GetTeam()))
-            {
                 m_bgData.joinPos = WorldLocation(entry->map_id, entry->x, entry->y, entry->z, 0.0f);
-                return;
-            }
             else
                 sLog->outError("SetBattlegroundEntryPoint: Dungeon map %u has no linked graveyard, setting home location as entry point.", GetMapId());
         }
         // If new entry point is not BG or arena set it
         else if (!GetMap()->IsBattlegroundOrArena())
-        {
             m_bgData.joinPos = WorldLocation(GetMapId(), GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
-            return;
-        }
     }
 
-    // In error cases use homebind position
-    m_bgData.joinPos = WorldLocation(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, 0.0f);
+    if (m_bgData.joinPos.m_mapId == MAPID_INVALID) // In error cases use homebind position
+        m_bgData.joinPos = WorldLocation(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, 0.0f);
 }
 
 void Player::LeaveBattleground(bool teleportToEntryPoint)
@@ -24144,23 +24143,20 @@ void Player::_SaveBGData(SQLTransaction& trans)
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_PLAYER_BGDATA);
     stmt->setUInt32(0, GetGUIDLow());
     trans->Append(stmt);
-    if (m_bgData.bgInstanceID)
-    {
-        /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_PLAYER_BGDATA);
-        stmt->setUInt32(0, GetGUIDLow());
-        stmt->setUInt32(1, m_bgData.bgInstanceID);
-        stmt->setUInt16(2, m_bgData.bgTeam);
-        stmt->setFloat (3, m_bgData.joinPos.GetPositionX());
-        stmt->setFloat (4, m_bgData.joinPos.GetPositionY());
-        stmt->setFloat (5, m_bgData.joinPos.GetPositionZ());
-        stmt->setFloat (6, m_bgData.joinPos.GetOrientation());
-        stmt->setUInt16(7, m_bgData.joinPos.GetMapId());
-        stmt->setUInt16(8, m_bgData.taxiPath[0]);
-        stmt->setUInt16(9, m_bgData.taxiPath[1]);
-        stmt->setUInt16(10, m_bgData.mountSpell);
-        trans->Append(stmt);
-    }
+    /* guid, bgInstanceID, bgTeam, x, y, z, o, map, taxi[0], taxi[1], mountSpell */
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_PLAYER_BGDATA);
+    stmt->setUInt32(0, GetGUIDLow());
+    stmt->setUInt32(1, m_bgData.bgInstanceID);
+    stmt->setUInt16(2, m_bgData.bgTeam);
+    stmt->setFloat (3, m_bgData.joinPos.GetPositionX());
+    stmt->setFloat (4, m_bgData.joinPos.GetPositionY());
+    stmt->setFloat (5, m_bgData.joinPos.GetPositionZ());
+    stmt->setFloat (6, m_bgData.joinPos.GetOrientation());
+    stmt->setUInt16(7, m_bgData.joinPos.GetMapId());
+    stmt->setUInt16(8, m_bgData.taxiPath[0]);
+    stmt->setUInt16(9, m_bgData.taxiPath[1]);
+    stmt->setUInt16(10, m_bgData.mountSpell);
+    trans->Append(stmt);
 }
 
 void Player::DeleteEquipmentSet(uint64 setGuid)

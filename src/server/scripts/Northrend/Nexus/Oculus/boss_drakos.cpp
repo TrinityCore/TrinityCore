@@ -28,21 +28,20 @@ enum Spells
     NPC_UNSTABLE_SPHERE                           = 28166,
 };
 
-//not in db
 enum Yells
 {
-    SAY_AGGRO                                     = -1578000,
-    SAY_KILL_1                                    = -1578001,
-    SAY_KILL_2                                    = -1578002,
-    SAY_KILL_3                                    = -1578003,
-    SAY_DEATH                                     = -1578004,
-    SAY_PULL_1                                    = -1578005,
-    SAY_PULL_2                                    = -1578006,
-    SAY_PULL_3                                    = -1578007,
-    SAY_PULL_4                                    = -1578008,
-    SAY_STOMP_1                                   = -1578009,
-    SAY_STOMP_2                                   = -1578010,
-    SAY_STOMP_3                                   = -1578011
+    SAY_AGGRO                                     = -1578005,
+    SAY_KILL_1                                    = -1578006,
+    SAY_KILL_2                                    = -1578007,
+    SAY_KILL_3                                    = -1578008,
+    SAY_DEATH                                     = -1578009,
+    SAY_PULL_1                                    = -1578010,
+    SAY_PULL_2                                    = -1578011,
+    SAY_PULL_3                                    = -1578012,
+    SAY_PULL_4                                    = -1578013,
+    SAY_STOMP_1                                   = -1578014,
+    SAY_STOMP_2                                   = -1578015,
+    SAY_STOMP_3                                   = -1578016
 };
 
 enum DrakosAchievement
