@@ -1634,7 +1634,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE) && !caster->canSeeOrDetect(target, implicit))
         return SPELL_FAILED_BAD_TARGETS;
 
-    // TODO: more research
+    // checked in Unit::IsValidAttack/AssistTarget, shouldn't be checked for ENTRY targets
     //if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_UNTARGETABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
     //    return SPELL_FAILED_BAD_TARGETS;
 
@@ -1645,14 +1645,6 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
         if (target->GetTypeId() == TYPEID_PLAYER)
             return SPELL_FAILED_TARGET_IS_PLAYER;
         else
-            return SPELL_FAILED_BAD_TARGETS;
-    }
-
-    // check UNIT_FLAG_NON_ATTACKABLE flag - a player can cast spells on his pet (or other controlled unit) though in any state
-    if (!IsPositive() && target != caster && target->GetCharmerOrOwnerGUID() != caster->GetGUID())
-    {
-        // any unattackable target skipped
-        if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             return SPELL_FAILED_BAD_TARGETS;
     }
 
@@ -1738,17 +1730,13 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
         if (neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER))
         {
             if (neededTargets & TARGET_FLAG_UNIT_ENEMY)
-                if (!caster->IsFriendlyTo(unitTarget))
+                if (caster->_IsValidAttackTarget(unitTarget, this))
                     return SPELL_CAST_OK;
-            if (neededTargets & TARGET_FLAG_UNIT_ALLY)
-                if (caster->IsFriendlyTo(unitTarget))
-                    return SPELL_CAST_OK;
-            if (neededTargets & TARGET_FLAG_UNIT_PARTY)
-                if (caster->IsInPartyWith(unitTarget))
-                    return SPELL_CAST_OK;
-            if (neededTargets & TARGET_FLAG_UNIT_RAID)
-                if (caster->IsInRaidWith(unitTarget))
-                    return SPELL_CAST_OK;
+            if (neededTargets & TARGET_FLAG_UNIT_ALLY
+                || (neededTargets & TARGET_FLAG_UNIT_PARTY && caster->IsInPartyWith(unitTarget))
+                || (neededTargets & TARGET_FLAG_UNIT_RAID && caster->IsInRaidWith(unitTarget)))
+                    if (caster->_IsValidAssistTarget(unitTarget, this))
+                        return SPELL_CAST_OK;
             if (neededTargets & TARGET_FLAG_UNIT_MINIPET)
                 if (unitTarget->GetGUID() == caster->GetCritterGUID())
                     return SPELL_CAST_OK;
