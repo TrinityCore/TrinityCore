@@ -23029,7 +23029,7 @@ void Player::UpdateCharmedAI()
         GetMotionMaster()->MoveFollow(charmer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
 
     Unit* target = getVictim();
-    if (!target || !charmer->canAttack(target))
+    if (!target || !charmer->IsValidAttackTarget(target))
     {
         target = charmer->SelectNearestTarget();
         if (!target)
