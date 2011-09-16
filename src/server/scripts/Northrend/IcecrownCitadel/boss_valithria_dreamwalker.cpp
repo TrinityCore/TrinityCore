@@ -1339,6 +1339,38 @@ class spell_dreamwalker_nightmare_cloud : public SpellScriptLoader
         }
 };
 
+class spell_dreamwalker_twisted_nightmares : public SpellScriptLoader
+{
+    public:
+        spell_dreamwalker_twisted_nightmares() : SpellScriptLoader("spell_dreamwalker_twisted_nightmares") { }
+
+        class spell_dreamwalker_twisted_nightmares_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dreamwalker_twisted_nightmares_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                // impossible with TARGET_UNIT_CASTER
+                //if (!GetHitUnit())
+                //    return;
+
+                if (InstanceScript* instance = GetHitUnit()->GetInstanceScript())
+                    GetHitUnit()->CastSpell((Unit*)NULL, GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, instance->GetData64(DATA_VALITHRIA_DREAMWALKER));
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_dreamwalker_twisted_nightmares_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dreamwalker_twisted_nightmares_SpellScript();
+        }
+};
+
 class achievement_portal_jockey : public AchievementCriteriaScript
 {
     public:
@@ -1369,5 +1401,6 @@ void AddSC_boss_valithria_dreamwalker()
     new spell_dreamwalker_summon_dream_portal();
     new spell_dreamwalker_summon_nightmare_portal();
     new spell_dreamwalker_nightmare_cloud();
+    new spell_dreamwalker_twisted_nightmares();
     new achievement_portal_jockey();
 }
