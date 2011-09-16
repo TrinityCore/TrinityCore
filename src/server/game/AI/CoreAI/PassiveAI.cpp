@@ -39,7 +39,7 @@ void PossessedAI::UpdateAI(const uint32 /*diff*/)
 {
     if (me->getVictim())
     {
-        if (!me->canAttack(me->getVictim()))
+        if (!me->IsValidAttackTarget(me->getVictim()))
             me->AttackStop();
         else
             DoMeleeAttackIfReady();
