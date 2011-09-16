@@ -4927,11 +4927,6 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (m_targets.GetUnitTarget() && !m_caster->IsFriendlyTo(m_targets.GetUnitTarget()) && !m_caster->HasInArc(static_cast<float>(M_PI), m_targets.GetUnitTarget()))
                         return SPELL_FAILED_UNIT_NOT_INFRONT;
                 }
-                else if (m_spellInfo->SpellIconID == 33 && m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG_SHAMAN_FIRE_NOVA)
-                {
-                    if (!m_caster->m_SummonSlot[1])
-                        return SPELL_FAILED_SUCCESS;
-                }
                 else if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellFamilyFlags[0] == 0x2000) // Death Coil (DeathKnight)
                 {
                     Unit* target = m_targets.GetUnitTarget();
