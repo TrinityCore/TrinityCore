@@ -1374,7 +1374,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     for (uint32 i = 0; i < maxTargets; ++i)
                     {
                         Unit* attacker = SelectRandomContainerElement(attackers);
-                        AddUnitTarget(attacker, 1);
+                        AddUnitTarget(attacker, 1 << 1);
                         attackers.erase(attacker);
                     }
 

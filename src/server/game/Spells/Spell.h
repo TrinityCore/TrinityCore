@@ -400,7 +400,7 @@ class Spell
 
         void InitExplicitTargets(SpellCastTargets const& targets);
         void SelectSpellTargets();
-        void SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur);
+        uint32 SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur);
         void SelectTrajTargets();
 
         template<typename T> WorldObject* FindCorpseUsing();
@@ -588,10 +588,10 @@ class Spell
         };
         std::list<ItemTargetInfo> m_UniqueItemInfo;
 
-        void AddUnitTarget(Unit* target, uint32 effIndex, bool checkIfValid = true);
-        void AddGOTarget(GameObject* target, uint32 effIndex);
-        void AddGOTarget(uint64 goGUID, uint32 effIndex);
-        void AddItemTarget(Item* target, uint32 effIndex);
+        void AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid = true);
+        void AddGOTarget(GameObject* target, uint32 effectMask);
+        void AddGOTarget(uint64 goGUID, uint32 effectMask);
+        void AddItemTarget(Item* item, uint32 effectMask);
         void DoAllEffectOnTarget(TargetInfo* target);
         SpellMissInfo DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleAura);
         void DoTriggersOnSpellHit(Unit* unit, uint8 effMask);
