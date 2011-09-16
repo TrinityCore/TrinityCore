@@ -12454,53 +12454,6 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell) co
     return true;
 }
 
-bool Unit::canAttack(Unit const* target, bool force) const
-{
-    ASSERT(target);
-
-    if (force)
-    {
-        if (IsFriendlyTo(target))
-            return false;
-
-        if (GetTypeId() != TYPEID_PLAYER)
-        {
-            if (isPet())
-            {
-                if (Unit* owner = GetOwner())
-                    if (!(owner->canAttack(target)))
-                        return false;
-            }
-            else if (!IsHostileTo(target))
-                return false;
-        }
-    }
-    else if (!IsHostileTo(target))
-        return false;
-
-    if (!target->isTargetableForAttack(false))
-        return false;
-
-    if (target->HasUnitState(UNIT_STAT_DIED))
-    {
-        if (!ToCreature() || !ToCreature()->isGuard())
-            return false;
-
-        // guards can detect fake death
-        if (!target->HasFlag(UNIT_FIELD_FLAGS_2, UNIT_FLAG2_FEIGN_DEATH))
-            return false;
-    }
-
-    if (m_vehicle)
-        if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
-            return false;
-
-    if (!canSeeOrDetect(target))
-        return false;
-
-    return true;
-}
-
 bool Unit::IsValidAssistTarget(Unit const* target) const
 {
     return _IsValidAssistTarget(target, NULL);
