@@ -855,7 +855,7 @@ Player::Player (WorldSession* session): Unit(), m_achievementMgr(this), m_reputa
 
     isDebugAreaTriggers = false;
 
-    SetPendingBind(NULL, 0);
+    SetPendingBind(0, 0);
 }
 
 Player::~Player ()
@@ -1757,7 +1757,7 @@ void Player::Update(uint32 p_time)
             // Player left the instance
             if (_pendingBindId == GetInstanceId())
                 BindToInstance();
-            SetPendingBind(NULL, 0);
+            SetPendingBind(0, 0);
         }
         else
             _pendingBindTimer -= p_time;

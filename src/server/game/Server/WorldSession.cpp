@@ -413,7 +413,7 @@ void WorldSession::LogoutPlayer(bool Save)
         else if (_player->HasPendingBind())
         {
             _player->RepopAtGraveyard();
-            _player->SetPendingBind(NULL, 0);
+            _player->SetPendingBind(0, 0);
         }
 
         //drop a flag if player is carrying it
