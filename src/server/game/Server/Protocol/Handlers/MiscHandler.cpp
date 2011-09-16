@@ -789,47 +789,47 @@ void WorldSession::SendAreaTriggerMessage(const char* Text, ...)
     SendPacket(&data);
 }
 
-void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
+void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AREATRIGGER");
+    uint32 triggerId;
+    recv_data >> triggerId;
 
-    uint32 Trigger_ID;
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_AREATRIGGER. Trigger ID: %u", triggerId);
 
-    recv_data >> Trigger_ID;
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Trigger ID:%u", Trigger_ID);
-
-    if (GetPlayer()->isInFlight())
+    Player* player = GetPlayer();
+    if (player->isInFlight())
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), Trigger_ID);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) in flight, ignore Area Trigger ID:%u",
+            player->GetName(), player->GetGUIDLow(), triggerId);
         return;
     }
 
-    AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(Trigger_ID);
+    AreaTriggerEntry const* atEntry = sAreaTriggerStore.LookupEntry(triggerId);
     if (!atEntry)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) send unknown (by DBC) Area Trigger ID:%u", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), Trigger_ID);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) send unknown (by DBC) Area Trigger ID:%u",
+            player->GetName(), player->GetGUIDLow(), triggerId);
         return;
     }
 
-    if (GetPlayer()->GetMapId() != atEntry->mapid)
+    if (player->GetMapId() != atEntry->mapid)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u", GetPlayer()->GetName(), atEntry->mapid, GetPlayer()->GetMapId(), GetPlayer()->GetGUIDLow(), Trigger_ID);
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u", 
+            player->GetName(), atEntry->mapid, player->GetMapId(), player->GetGUIDLow(), triggerId);
         return;
     }
 
     // delta is safe radius
     const float delta = 5.0f;
-    // check if player in the range of areatrigger
-    Player* pl = GetPlayer();
 
     if (atEntry->radius > 0)
     {
         // if we have radius check it
-        float dist = pl->GetDistance(atEntry->x, atEntry->y, atEntry->z);
+        float dist = player->GetDistance(atEntry->x, atEntry->y, atEntry->z);
         if (dist > atEntry->radius + delta)
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) too far (radius: %f distance: %f), ignore Area Trigger ID: %u",
-                pl->GetName(), pl->GetGUIDLow(), atEntry->radius, dist, Trigger_ID);
+                player->GetName(), player->GetGUIDLow(), atEntry->radius, dist, triggerId);
             return;
         }
     }
@@ -841,93 +841,82 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
         // is-in-cube check and we have to calculate only one point instead of 4
 
         // 2PI = 360°, keep in mind that ingame orientation is counter-clockwise
-        double rotation = 2*M_PI-atEntry->box_orientation;
+        double rotation = 2 * M_PI - atEntry->box_orientation;
         double sinVal = sin(rotation);
         double cosVal = cos(rotation);
 
-        float playerBoxDistX = pl->GetPositionX() - atEntry->x;
-        float playerBoxDistY = pl->GetPositionY() - atEntry->y;
+        float playerBoxDistX = player->GetPositionX() - atEntry->x;
+        float playerBoxDistY = player->GetPositionY() - atEntry->y;
 
-        float rotPlayerX = (float)(atEntry->x + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
-        float rotPlayerY = (float)(atEntry->y + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
+        float rotPlayerX = float(atEntry->x + playerBoxDistX * cosVal - playerBoxDistY*sinVal);
+        float rotPlayerY = float(atEntry->y + playerBoxDistY * cosVal + playerBoxDistX*sinVal);
 
         // box edges are parallel to coordiante axis, so we can treat every dimension independently :D
-        float dz = pl->GetPositionZ() - atEntry->z;
+        float dz = player->GetPositionZ() - atEntry->z;
         float dx = rotPlayerX - atEntry->x;
         float dy = rotPlayerY - atEntry->y;
-        if ((fabs(dx) > atEntry->box_x/2 + delta) ||
-            (fabs(dy) > atEntry->box_y/2 + delta) ||
-            (fabs(dz) > atEntry->box_z/2 + delta))
+        if ((fabs(dx) > atEntry->box_x / 2 + delta) ||
+            (fabs(dy) > atEntry->box_y / 2 + delta) ||
+            (fabs(dz) > atEntry->box_z / 2 + delta))
         {
             sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) too far (1/2 box X: %f 1/2 box Y: %f 1/2 box Z: %f rotatedPlayerX: %f rotatedPlayerY: %f dZ:%f), ignore Area Trigger ID: %u",
-                pl->GetName(), pl->GetGUIDLow(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotPlayerX, rotPlayerY, dz, Trigger_ID);
+                player->GetName(), player->GetGUIDLow(), atEntry->box_x/2, atEntry->box_y/2, atEntry->box_z/2, rotPlayerX, rotPlayerY, dz, triggerId);
             return;
         }
     }
 
-    if (GetPlayer()->isDebugAreaTriggers)
-        ChatHandler(GetPlayer()).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, Trigger_ID);
+    if (player->isDebugAreaTriggers)
+        ChatHandler(player).PSendSysMessage(LANG_DEBUG_AREATRIGGER_REACHED, triggerId);
 
-    if (sScriptMgr->OnAreaTrigger(GetPlayer(), atEntry))
+    if (sScriptMgr->OnAreaTrigger(player, atEntry))
         return;
 
-    uint32 quest_id = sObjectMgr->GetQuestForAreaTrigger(Trigger_ID);
-    if (quest_id && GetPlayer()->isAlive() && GetPlayer()->IsActiveQuest(quest_id))
-    {
-        Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
-        if (pQuest)
-        {
-            if (GetPlayer()->GetQuestStatus(quest_id) == QUEST_STATUS_INCOMPLETE)
-                GetPlayer()->AreaExploredOrEventHappens(quest_id);
-        }
-    }
+    if (player->isAlive())
+        if (uint32 questId = sObjectMgr->GetQuestForAreaTrigger(triggerId))
+            if (player->GetQuestStatus(questId) == QUEST_STATUS_INCOMPLETE)
+                player->AreaExploredOrEventHappens(questId);
 
-    if (sObjectMgr->IsTavernAreaTrigger(Trigger_ID))
+    if (sObjectMgr->IsTavernAreaTrigger(triggerId))
     {
         // set resting flag we are in the inn
-        GetPlayer()->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
-        GetPlayer()->InnEnter(time(NULL), atEntry->mapid, atEntry->x, atEntry->y, atEntry->z);
-        GetPlayer()->SetRestType(REST_TYPE_IN_TAVERN);
+        player->SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING);
+        player->InnEnter(time(NULL), atEntry->mapid, atEntry->x, atEntry->y, atEntry->z);
+        player->SetRestType(REST_TYPE_IN_TAVERN);
 
         if (sWorld->IsFFAPvPRealm())
-            GetPlayer()->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
+            player->RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
 
         return;
     }
 
-    if (GetPlayer()->InBattleground())
-    {
-        Battleground* bg = GetPlayer()->GetBattleground();
-        if (bg)
-            if (bg->GetStatus() == STATUS_IN_PROGRESS)
-                bg->HandleAreaTrigger(GetPlayer(), Trigger_ID);
-
-        return;
-    }
-
-    if (OutdoorPvP* pvp = GetPlayer()->GetOutdoorPvP())
-    {
-        if (pvp->HandleAreaTrigger(_player, Trigger_ID))
+    if (Battleground* bg = player->GetBattleground())
+        if (bg->GetStatus() == STATUS_IN_PROGRESS)
+        {
+            bg->HandleAreaTrigger(player, triggerId);
             return;
-    }
+        }
 
-    // NULL if all values default (non teleport trigger)
-    AreaTrigger const* at = sObjectMgr->GetAreaTrigger(Trigger_ID);
+    if (OutdoorPvP* pvp = player->GetOutdoorPvP())
+        if (pvp->HandleAreaTrigger(_player, triggerId))
+            return;
+
+    AreaTrigger const* at = sObjectMgr->GetAreaTrigger(triggerId);
     if (!at)
         return;
 
-    // Check only if target map != current player's map
-    // check if player can enter instance : instance not full, and raid instance not in encounter fight
-    if (GetPlayer()->GetMapId() != at->target_mapId && !sMapMgr->CanPlayerEnter(at->target_mapId, GetPlayer(), false))
-        return;
-
-    // Check if we are in LfgGroup and trying to get out the dungeon
     bool teleported = false;
-    if (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->isLFGGroup() && GetPlayer()->GetMap()->IsDungeon() && at->target_mapId != GetPlayer()->GetMapId())
-        teleported = GetPlayer()->TeleportToBGEntryPoint();
+    if (player->GetMapId() != at->target_mapId)
+    {
+        if (!sMapMgr->CanPlayerEnter(at->target_mapId, player, false))
+            return;
+
+        if (Group* group = player->GetGroup())
+            if (group->isLFGGroup() && player->GetMap()->IsDungeon())
+                teleported = player->TeleportToBGEntryPoint();
+    }
 
     if (!teleported)
-        GetPlayer()->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
+        player->TeleportTo(at->target_mapId, at->target_X, at->target_Y, at->target_Z, at->target_Orientation, TELE_TO_NOT_LEAVE_TRANSPORT);
 }
 
 void WorldSession::HandleUpdateAccountData(WorldPacket &recv_data)
@@ -1724,5 +1713,5 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
     else
         _player->RepopAtGraveyard();
 
-    _player->SetPendingBind(NULL, 0);
+    _player->SetPendingBind(0, 0);
 }

@@ -101,7 +101,6 @@ class boss_sulfuron : public CreatureScript
                             break;
                         case EVENT_INSPIRE:
                         {
-                            Creature* target = NULL;
                             std::list<Creature*> healers = DoFindFriendlyMissingBuff(45.0f, SPELL_INSPIRE);
                             if (!healers.empty())
                                 DoCast(SelectRandomContainerElement(healers), SPELL_INSPIRE);
