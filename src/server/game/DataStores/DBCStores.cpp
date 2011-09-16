@@ -879,6 +879,6 @@ uint32 GetCreatureModelRace(uint32 model_id)
  DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
  DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
  DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
- DBCStorage <EmotesEntry>              const* GetEmotesStore()          { return &sEmotesStore;              }
- DBCStorage <EmotesTextEntry>          const* GetEmotesTextStore()      { return &sEmotesTextStore;          }
- DBCStorage <AchievementEntry>         const* GetAchievementStore()     { return &sAchievementStore;         }
+ DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
+ DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }
+ DBCStorage <AchievementEntry>   const* GetAchievementStore()    { return &sAchievementStore;    }
