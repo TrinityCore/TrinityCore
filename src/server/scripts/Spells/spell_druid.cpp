@@ -251,10 +251,9 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
                         return;
                     }
 
-                    std::list<Unit*>::const_iterator it2 = tempTargets.begin();
-                    std::advance(it2, urand(0, tempTargets.size() - 1));
+                    Unit* target = SelectRandomContainerElement(tempTargets);
                     unitList.clear();
-                    unitList.push_back(*it2);
+                    unitList.push_back(target);
                 }
             }
 
