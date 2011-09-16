@@ -487,7 +487,7 @@ public:
             if (!who)
                 return;
 
-            if (who->isTargetableForAttack() && me->IsHostileTo(who))
+            if (me->IsValidAttackTarget(who))
                 if (me->IsWithinDistInMap(who, 20) && me->IsWithinLOSInMap(who))
                     AttackStart(who);
         }
