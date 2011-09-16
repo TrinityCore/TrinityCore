@@ -86,6 +86,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
     {
         /*
         if (method == GROUP_REMOVEMETHOD_LEAVE)
+            // Add deserter flag
         else if (group->isLfgKickActive())
             // Update internal kick cooldown of kicked
         */
