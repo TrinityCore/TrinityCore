@@ -96,7 +96,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         bool bChanneling;
         bool bGuardianSummoned;
@@ -346,7 +346,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_anub_arakAI(creature);
     }

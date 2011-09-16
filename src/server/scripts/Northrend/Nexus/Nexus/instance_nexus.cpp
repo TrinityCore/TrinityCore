@@ -31,14 +31,14 @@ class instance_nexus : public InstanceMapScript
 public:
     instance_nexus() : InstanceMapScript("instance_nexus", 576) { }
 
-    InstanceScript *GetInstanceScript(InstanceMap *pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
     {
         return new instance_nexus_InstanceMapScript(pMap);
     }
 
     struct instance_nexus_InstanceMapScript : public InstanceScript
     {
-        instance_nexus_InstanceMapScript(Map *pMap) : InstanceScript(pMap) {}
+        instance_nexus_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 

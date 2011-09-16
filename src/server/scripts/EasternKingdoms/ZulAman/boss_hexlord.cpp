@@ -219,7 +219,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     AddGUID[i] = 0;
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             uint64 AddGUID[4];
             uint32 AddEntry[4];

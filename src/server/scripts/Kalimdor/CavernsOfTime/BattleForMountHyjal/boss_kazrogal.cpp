@@ -172,8 +172,8 @@ public:
                 //cast dummy, useful for bos addons
                 me->CastCustomSpell(me, SPELL_MARK, NULL, NULL, NULL, false, NULL, NULL, me->GetGUID());
 
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (target && target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA)

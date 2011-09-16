@@ -108,7 +108,7 @@ public:
         uint8 AddCount;
         bool DoneAdds[4];
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -301,7 +301,7 @@ public:
         uint32 uiCrazedTimer;
         uint32 uiTerrifyingRoarTimer;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -408,7 +408,7 @@ public:
         uint32 uiEnrage1Timer;
         uint32 uiEnrage2Timer;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -519,7 +519,7 @@ public:
         uint32 uiGoreTimer;
         uint32 uiGrievousWoundTimer;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -633,7 +633,7 @@ public:
         uint32 uiAcidSplatterTimer;
         uint32 uiPoisonBreathTimer;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {
@@ -730,7 +730,7 @@ public:
             me->SetUInt32Value(UNIT_FIELD_DISPLAYID, 11686);
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
         uint32 SummonTimer;
         Phase currentPhase;
 
@@ -808,7 +808,7 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        InstanceScript *pInstance = pGO->GetInstanceScript();
+        InstanceScript* pInstance = pGO->GetInstanceScript();
 
         Creature* pPalehoof = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_GORTOK_PALEHOOF) : 0);
         if (pPalehoof && pPalehoof->isAlive())

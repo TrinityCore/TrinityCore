@@ -543,7 +543,7 @@ void WorldSession::HandleTextEmoteOpcode(WorldPacket & recv_data)
 
     sScriptMgr->OnPlayerTextEmote(GetPlayer(), text_emote, emoteNum, guid);
 
-    EmotesTextEntry const *em = sEmotesTextStore.LookupEntry(text_emote);
+    EmotesTextEntry const* em = sEmotesTextStore.LookupEntry(text_emote);
     if (!em)
         return;
 

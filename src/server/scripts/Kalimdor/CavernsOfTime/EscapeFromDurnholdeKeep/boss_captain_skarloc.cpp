@@ -57,7 +57,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 Holy_Light_Timer;
         uint32 Cleanse_Timer;

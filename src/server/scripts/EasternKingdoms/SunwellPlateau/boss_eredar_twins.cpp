@@ -102,7 +102,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         bool SisterDeath;
         bool Enraged;
@@ -361,7 +361,7 @@ public:
             IntroStepCounter = 10;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         bool SisterDeath;
         bool Enraged;

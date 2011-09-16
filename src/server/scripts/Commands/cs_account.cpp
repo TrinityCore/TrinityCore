@@ -206,7 +206,7 @@ public:
         ///- Cycle through accounts
         do
         {
-            Field *fieldsDB = resultDB->Fetch();
+            Field* fieldsDB = resultDB->Fetch();
             std::string name = fieldsDB[0].GetString();
             uint32 account = fieldsDB[1].GetUInt32();
 
@@ -220,7 +220,7 @@ public:
                 "WHERE a.id = '%u'", account);
             if (resultLogin)
             {
-                Field *fieldsLogin = resultLogin->Fetch();
+                Field* fieldsLogin = resultLogin->Fetch();
                 handler->PSendSysMessage(LANG_ACCOUNT_LIST_LINE,
                     fieldsLogin[0].GetCString(), name.c_str(), fieldsLogin[1].GetCString(),
                     fieldsDB[2].GetUInt16(), fieldsDB[3].GetUInt16(), fieldsLogin[3].GetUInt32(),

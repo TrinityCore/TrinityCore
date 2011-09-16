@@ -155,7 +155,7 @@ void GameObject::RemoveFromWorld()
     }
 }
 
-bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
+bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
 {
     ASSERT(map);
     SetMap(map);
@@ -466,7 +466,7 @@ void GameObject::Update(uint32 diff)
                         {
                             //Battleground gameobjects case
                             if (ok->ToPlayer()->InBattleground())
-                                if (Battleground *bg = ok->ToPlayer()->GetBattleground())
+                                if (Battleground* bg = ok->ToPlayer()->GetBattleground())
                                     bg->HandleTriggerBuff(GetGUID());
                         }
                     }
@@ -640,7 +640,7 @@ void GameObject::Delete()
         AddObjectToRemoveList();
 }
 
-void GameObject::getFishLoot(Loot *fishloot, Player* loot_owner)
+void GameObject::getFishLoot(Loot* fishloot, Player* loot_owner)
 {
     fishloot->clear();
 
@@ -657,7 +657,7 @@ void GameObject::SaveToDB()
 {
     // this should only be used when the gameobject has already been loaded
     // preferably after adding to map, because mapid may not be valid otherwise
-    GameObjectData const *data = sObjectMgr->GetGOData(m_DBTableGuid);
+    GameObjectData const* data = sObjectMgr->GetGOData(m_DBTableGuid);
     if (!data)
     {
         sLog->outError("GameObject::SaveToDB failed, cannot get gameobject data!");
@@ -669,7 +669,7 @@ void GameObject::SaveToDB()
 
 void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
 {
-    const GameObjectTemplate *goI = GetGOInfo();
+    const GameObjectTemplate* goI = GetGOInfo();
 
     if (!goI)
         return;
@@ -723,7 +723,7 @@ void GameObject::SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask)
     WorldDatabase.CommitTransaction(trans);
 }
 
-bool GameObject::LoadFromDB(uint32 guid, Map *map)
+bool GameObject::LoadFromDB(uint32 guid, Map* map)
 {
     GameObjectData const* data = sObjectMgr->GetGOData(guid);
 
@@ -889,7 +889,7 @@ void GameObject::Respawn()
     }
 }
 
-bool GameObject::ActivateToQuest(Player *pTarget) const
+bool GameObject::ActivateToQuest(Player* pTarget) const
 {
     if (pTarget->HasQuestForGO(GetEntry()))
         return true;
@@ -907,7 +907,7 @@ bool GameObject::ActivateToQuest(Player *pTarget) const
                 //TODO: fix this hack
                 //look for battlegroundAV for some objects which are only activated after mine gots captured by own team
                 if (GetEntry() == BG_AV_OBJECTID_MINE_N || GetEntry() == BG_AV_OBJECTID_MINE_S)
-                    if (Battleground *bg = pTarget->GetBattleground())
+                    if (Battleground* bg = pTarget->GetBattleground())
                         if (bg->GetTypeID(true) == BATTLEGROUND_AV && !(((BattlegroundAV*)bg)->PlayerCanDoMineQuest(GetEntry(), pTarget->GetTeam())))
                             return false;
                 return true;
@@ -1008,14 +1008,14 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
 void GameObject::SetGoArtKit(uint8 kit)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 2, kit);
-    GameObjectData *data = const_cast<GameObjectData*>(sObjectMgr->GetGOData(m_DBTableGuid));
+    GameObjectData* data = const_cast<GameObjectData*>(sObjectMgr->GetGOData(m_DBTableGuid));
     if (data)
         data->artKit = kit;
 }
 
-void GameObject::SetGoArtKit(uint8 artkit, GameObject *go, uint32 lowguid)
+void GameObject::SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid)
 {
-    const GameObjectData *data = NULL;
+    const GameObjectData* data = NULL;
     if (go)
     {
         go->SetGoArtKit(artkit);
@@ -1404,6 +1404,18 @@ void GameObject::Use(Unit* user)
                     triggered = true;
                 }
 
+                // Cast casterTargetSpell at a random GO user
+                // on the current DB there is only one gameobject that uses this (Ritual of Doom)
+                // and its required target number is 1 (outter for loop will run once)
+                if (info->summoningRitual.casterTargetSpell && info->summoningRitual.casterTargetSpell != 1) // No idea why this field is a bool in some cases
+                {
+                    for (int i = 0; i < info->summoningRitual.casterTargetSpellTargets; i++)
+                    {
+                        if (Unit* target = Unit::GetUnit(*this, (uint64)SelectRandomContainerElement(m_unique_users)))
+                            spellCaster->CastSpell(target, info->summoningRitual.casterTargetSpell, true);
+                    }
+                }
+
                 // finish owners spell
                 if (owner)
                     owner->FinishSpell(CURRENT_CHANNELED_SPELL);
@@ -1488,7 +1500,7 @@ void GameObject::Use(Unit* user)
             if (player->CanUseBattlegroundObject())
             {
                 // in battleground check
-                Battleground *bg = player->GetBattleground();
+                Battleground* bg = player->GetBattleground();
                 if (!bg)
                     return;
                 if (player->GetVehicle())
@@ -1699,7 +1711,7 @@ const char* GameObject::GetNameForLocaleIdx(LocaleConstant loc_idx) const
     if (loc_idx != DEFAULT_LOCALE)
     {
         uint8 uloc_idx = uint8(loc_idx);
-        if (GameObjectLocale const *cl = sObjectMgr->GetGameObjectLocale(GetEntry()))
+        if (GameObjectLocale const* cl = sObjectMgr->GetGameObjectLocale(GetEntry()))
             if (cl->Name.size() > uloc_idx && !cl->Name[uloc_idx].empty())
                 return cl->Name[uloc_idx].c_str();
     }

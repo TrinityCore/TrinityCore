@@ -55,7 +55,7 @@ void UnitAI::DoMeleeAttackIfReady()
     if (me->HasUnitState(UNIT_STAT_CASTING))
         return;
 
-    Unit *victim = me->getVictim();
+    Unit* victim = me->getVictim();
     //Make sure our attack is ready and we aren't currently casting before checking distance
     if (me->isAttackReady() && me->IsWithinMeleeRange(victim))
     {

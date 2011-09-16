@@ -86,7 +86,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_hun_aspect_of_the_beast_AuraScript();
     }
@@ -327,7 +327,7 @@ public:
             const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
             for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
             {
-                SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(itr->first);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
                 ///! If spellId in cooldown map isn't valid, the above will return a null pointer.
                 if (spellInfo &&
@@ -432,7 +432,7 @@ public:
             }
         }
 
-        void HandleUpdatePeriodic(AuraEffect * aurEff)
+        void HandleUpdatePeriodic(AuraEffect* aurEff)
         {
             Unit* target = GetUnitOwner();
             if (Player* playerTarget = target->ToPlayer())
@@ -452,7 +452,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_hun_sniper_training_AuraScript();
     }

@@ -881,7 +881,7 @@ class npc_colossus : public CreatureScript
                 instance = creature->GetInstanceScript();
             }
 
-            InstanceScript *instance;
+            InstanceScript* instance;
 
             void JustDied(Unit* /*Who*/)
             {

@@ -54,7 +54,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 Cleave_Timer;
         uint32 ToxicVolley_Timer;
@@ -151,7 +151,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 Charge_Timer;
         uint32 KnockBack_Timer;
@@ -244,7 +244,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 Heal_Timer;
         uint32 Fear_Timer;

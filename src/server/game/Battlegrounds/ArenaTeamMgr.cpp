@@ -148,7 +148,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
 
     // At first update all points for all team members
     for (ArenaTeamContainer::iterator teamItr = GetArenaTeamMapBegin(); teamItr != GetArenaTeamMapEnd(); ++teamItr)
-        if (ArenaTeam * at = teamItr->second)
+        if (ArenaTeam* at = teamItr->second)
             at->UpdateArenaPointsHelper(PlayerPoints);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -172,7 +172,7 @@ void ArenaTeamMgr::DistributeArenaPoints()
     sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_START);
     for (ArenaTeamContainer::iterator titr = GetArenaTeamMapBegin(); titr != GetArenaTeamMapEnd(); ++titr)
     {
-        if (ArenaTeam * at = titr->second)
+        if (ArenaTeam* at = titr->second)
         {
             at->FinishWeek();
             at->SaveToDB();

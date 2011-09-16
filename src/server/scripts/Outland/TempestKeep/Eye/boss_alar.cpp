@@ -86,7 +86,7 @@ class boss_alar : public CreatureScript
                 DefaultMoveSpeedRate = creature->GetSpeedRate(MOVE_RUN);
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             WaitEventType WaitEvent;
             uint32 WaitTimer;
@@ -190,7 +190,7 @@ class boss_alar : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit*, const SpellInfo *spell)
+            void SpellHit(Unit*, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_DIVE_BOMB_VISUAL)
                 {
@@ -474,7 +474,7 @@ class mob_ember_of_alar : public CreatureScript
                 creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
             bool toDie;
 
             void Reset()

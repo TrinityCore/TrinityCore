@@ -749,7 +749,7 @@ bool ChatHandler::HandleAddItemCommand(const char *args)
 
     sLog->outDetail(GetTrinityString(LANG_ADDITEM), itemId, count);
 
-    ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(itemId);
+    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(itemId);
     if (!pProto)
     {
         PSendSysMessage(LANG_COMMAND_ITEMIDINVALID, itemId);
@@ -921,7 +921,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint32 item_guid = fields[0].GetUInt32();
             uint32 item_bag = fields[1].GetUInt32();
             uint32 item_slot = fields[2].GetUInt32();
@@ -976,7 +976,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint32 item_guid        = fields[0].GetUInt32();
             uint32 item_s           = fields[1].GetUInt32();
             uint32 item_r           = fields[2].GetUInt32();
@@ -1021,7 +1021,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint32 item_guid       = fields[0].GetUInt32();
             uint32 owner           = fields[1].GetUInt32();
             uint32 owner_acc       = fields[2].GetUInt32();
@@ -1052,7 +1052,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint32 item_guid = fields[0].GetUInt32();
             uint32 guild_guid = fields[1].GetUInt32();
             std::string guild_name = fields[2].GetString();
@@ -1135,7 +1135,7 @@ bool ChatHandler::HandleListObjectCommand(const char *args)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint32 guid = fields[0].GetUInt32();
             float x = fields[1].GetFloat();
             float y = fields[2].GetFloat();
@@ -1207,7 +1207,7 @@ bool ChatHandler::HandleListCreatureCommand(const char *args)
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint32 guid = fields[0].GetUInt32();
             float x = fields[1].GetFloat();
             float y = fields[2].GetFloat();
@@ -1251,7 +1251,7 @@ bool ChatHandler::HandleLookupItemCommand(const char *args)
         if (loc_idx >= 0)
         {
             uint8 uloc_idx = uint8(loc_idx);
-            if (ItemLocale const *il = sObjectMgr->GetItemLocale(itr->second.ItemId))
+            if (ItemLocale const* il = sObjectMgr->GetItemLocale(itr->second.ItemId))
             {
                 if (il->Name.size() > uloc_idx && !il->Name[uloc_idx].empty())
                 {
@@ -1328,7 +1328,7 @@ bool ChatHandler::HandleLookupItemSetCommand(const char *args)
     // Search in ItemSet.dbc
     for (uint32 id = 0; id < sItemSetStore.GetNumRows(); id++)
     {
-        ItemSetEntry const *set = sItemSetStore.LookupEntry(id);
+        ItemSetEntry const* set = sItemSetStore.LookupEntry(id);
         if (set)
         {
             int loc = GetSessionDbcLocale();
@@ -1401,7 +1401,7 @@ bool ChatHandler::HandleLookupSkillCommand(const char *args)
     // Search in SkillLine.dbc
     for (uint32 id = 0; id < sSkillLineStore.GetNumRows(); id++)
     {
-        SkillLineEntry const *skillInfo = sSkillLineStore.LookupEntry(id);
+        SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(id);
         if (skillInfo)
         {
             int loc = GetSessionDbcLocale();
@@ -1488,7 +1488,7 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
     // Search in Spell.dbc
     for (uint32 id = 0; id < sSpellMgr->GetSpellInfoStoreSize(); id++)
     {
-        SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(id);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
         if (spellInfo)
         {
             int loc = GetSessionDbcLocale();
@@ -1605,7 +1605,7 @@ bool ChatHandler::HandleLookupQuestCommand(const char *args)
         if (loc_idx >= 0)
         {
             uint8 uloc_idx = uint8(loc_idx);
-            if (QuestLocale const *il = sObjectMgr->GetQuestLocale(qinfo->GetQuestId()))
+            if (QuestLocale const* il = sObjectMgr->GetQuestLocale(qinfo->GetQuestId()))
             {
                 if (il->Title.size() > uloc_idx && !il->Title[uloc_idx].empty())
                 {
@@ -1718,7 +1718,7 @@ bool ChatHandler::HandleLookupCreatureCommand(const char *args)
     {
         uint32 id = itr->second.Entry;
         uint8 localeIndex = GetSessionDbLocaleIndex();
-        if (CreatureLocale const *cl = sObjectMgr->GetCreatureLocale(id))
+        if (CreatureLocale const* cl = sObjectMgr->GetCreatureLocale(id))
         {
             if (cl->Name.size() > localeIndex && !cl->Name[localeIndex].empty ())
             {
@@ -1795,7 +1795,7 @@ bool ChatHandler::HandleLookupObjectCommand(const char *args)
     for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
     {
         uint8 localeIndex = GetSessionDbLocaleIndex();
-        if (GameObjectLocale const *gl = sObjectMgr->GetGameObjectLocale(itr->second.entry))
+        if (GameObjectLocale const* gl = sObjectMgr->GetGameObjectLocale(itr->second.entry))
         {
             if (gl->Name.size() > localeIndex && !gl->Name[localeIndex].empty())
             {
@@ -1856,7 +1856,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
         return false;
 
     // Can be NULL at console call
-    Player *target = getSelectedPlayer ();
+    Player* target = getSelectedPlayer ();
 
     std::string namepart = args;
     std::wstring wnamepart;
@@ -1873,7 +1873,7 @@ bool ChatHandler::HandleLookupFactionCommand(const char *args)
 
     for (uint32 id = 0; id < sFactionStore.GetNumRows(); ++id)
     {
-        FactionEntry const *factionEntry = sFactionStore.LookupEntry (id);
+        FactionEntry const* factionEntry = sFactionStore.LookupEntry (id);
         if (factionEntry)
         {
             FactionState const* repState = target ? target->GetReputationMgr().GetState(factionEntry) : NULL;
@@ -1973,7 +1973,7 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
     // Search in TaxiNodes.dbc
     for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
     {
-        TaxiNodesEntry const *nodeEntry = sTaxiNodesStore.LookupEntry(id);
+        TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
         if (nodeEntry)
         {
             int loc = GetSessionDbcLocale();
@@ -2443,7 +2443,7 @@ bool ChatHandler::HandleAuraCommand(const char *args)
     // number or [name] Shift-click form |color|Hspell:spell_id|h[name]|h|r or Htalent form
     uint32 spellID = extractSpellIdFromLink((char*)args);
 
-    if (SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(spellID))
+    if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellID))
         Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, target, target);
 
     return true;
@@ -2513,7 +2513,7 @@ bool ChatHandler::HandleLinkGraveCommand(const char *args)
 
     uint32 zoneId = player->GetZoneId();
 
-    AreaTableEntry const *areaEntry = GetAreaEntryByAreaID(zoneId);
+    AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(zoneId);
     if (!areaEntry || areaEntry->zone !=0)
     {
         PSendSysMessage(LANG_COMMAND_GRAVEYARDWRONGZONE, g_id, zoneId);
@@ -2602,7 +2602,7 @@ bool ChatHandler::HandleExploreCheatCommand(const char *args)
 
     int flag = atoi((char*)args);
 
-    Player *chr = getSelectedPlayer();
+    Player* chr = getSelectedPlayer();
     if (chr == NULL)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -2768,7 +2768,7 @@ bool ChatHandler::HandleShowAreaCommand(const char *args)
     if (!*args)
         return false;
 
-    Player *chr = getSelectedPlayer();
+    Player* chr = getSelectedPlayer();
     if (chr == NULL)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -2799,7 +2799,7 @@ bool ChatHandler::HandleHideAreaCommand(const char *args)
     if (!*args)
         return false;
 
-    Player *chr = getSelectedPlayer();
+    Player* chr = getSelectedPlayer();
     if (chr == NULL)
     {
         SendSysMessage(LANG_NO_CHAR_SELECTED);
@@ -2876,7 +2876,7 @@ bool ChatHandler::HandleChangeWeather(const char *args)
 
 bool ChatHandler::HandleListAurasCommand (const char * /*args*/)
 {
-    Unit *unit = getSelectedUnit();
+    Unit* unit = getSelectedUnit();
     if (!unit)
     {
         SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
@@ -3663,7 +3663,7 @@ bool ChatHandler::HandleBanInfoIPCommand(const char *args)
         return true;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
     bool permanent = !fields[6].GetUInt64();
     PSendSysMessage(LANG_BANINFO_IPENTRY,
         fields[0].GetCString(), fields[1].GetCString(), permanent ? GetTrinityString(LANG_BANINFO_NEVER) : fields[2].GetCString(),
@@ -3818,7 +3818,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult result)
         do
         {
             SendSysMessage("-------------------------------------------------------------------------------");
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint32 account_id = fields[0].GetUInt32 ();
 
             std::string account_name;
@@ -3834,7 +3834,7 @@ bool ChatHandler::HandleBanListHelper(QueryResult result)
             QueryResult banInfo = LoginDatabase.PQuery("SELECT bandate, unbandate, bannedby, banreason FROM account_banned WHERE id = %u ORDER BY unbandate", account_id);
             if (banInfo)
             {
-                Field *fields2 = banInfo->Fetch();
+                Field* fields2 = banInfo->Fetch();
                 do
                 {
                     time_t t_ban = fields2[0].GetUInt64();
@@ -3911,7 +3911,7 @@ bool ChatHandler::HandleBanListIPCommand(const char *args)
         do
         {
             SendSysMessage("-------------------------------------------------------------------------------");
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             time_t t_ban = fields[1].GetUInt64();
             tm* aTm_ban = localtime(&t_ban);
             if (fields[1].GetUInt64() == fields[2].GetUInt64())
@@ -4577,7 +4577,7 @@ bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
         Player::BoundInstancesMap &binds = player->GetBoundInstances(Difficulty(i));
         for (Player::BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end(); ++itr)
         {
-            InstanceSave *save = itr->second.save;
+            InstanceSave* save = itr->second.save;
             std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
             PSendSysMessage("map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
             counter++;
@@ -4593,7 +4593,7 @@ bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
             Group::BoundInstancesMap &binds = group->GetBoundInstances(Difficulty(i));
             for (Group::BoundInstancesMap::const_iterator itr = binds.begin(); itr != binds.end(); ++itr)
             {
-                InstanceSave *save = itr->second.save;
+                InstanceSave* save = itr->second.save;
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
                 PSendSysMessage("map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                 counter++;
@@ -4634,7 +4634,7 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
         Player::BoundInstancesMap &binds = player->GetBoundInstances(Difficulty(i));
         for (Player::BoundInstancesMap::iterator itr = binds.begin(); itr != binds.end();)
         {
-            InstanceSave *save = itr->second.save;
+            InstanceSave* save = itr->second.save;
             if (itr->first != player->GetMapId() && (!MapId || MapId == itr->first) && (diff == -1 || diff == save->GetDifficulty()))
             {
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
@@ -4877,7 +4877,7 @@ bool ChatHandler::HandleSendMoneyCommand(const char *args)
 bool ChatHandler::HandleSendMessageCommand(const char *args)
 {
     ///- Find the player
-    Player *rPlayer;
+    Player* rPlayer;
     if (!extractPlayerTarget((char*)args, &rPlayer))
         return false;
 
@@ -4921,7 +4921,7 @@ bool ChatHandler::HandleChannelSetOwnership(const char *args)
         return false;
 
     Player* player = m_session->GetPlayer();
-    Channel *chn = NULL;
+    Channel* chn = NULL;
 
     if (ChannelMgr* cMgr = channelMgr(player->GetTeam()))
         chn = cMgr->GetChannel(channel, player);
@@ -5026,7 +5026,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
         //if player class = hunter || warlock remove pet if alive
         if ((player->getClass() == CLASS_HUNTER) || (player->getClass() == CLASS_WARLOCK))
         {
-            if (Pet *pet = player->GetPet())
+            if (Pet* pet = player->GetPet())
             {
                 pet->SavePetToDB(PET_SAVE_AS_CURRENT);
                 // not let dismiss dead pet
@@ -5036,7 +5036,7 @@ bool ChatHandler::HandleFreezeCommand(const char *args)
         }
 
         //m_session->GetPlayer()->CastSpell(player, spellID, false);
-        if (SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(9454))
+        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(9454))
             Aura::TryRefreshStackOrCreate(spellInfo, MAX_EFFECT_MASK, player, player);
 
         //save player
@@ -5092,7 +5092,7 @@ bool ChatHandler::HandleUnFreezeCommand(const char *args)
                 return true;
             }
             //if player found: delete his freeze aura
-            Field *fields=result->Fetch();
+            Field* fields=result->Fetch();
             uint64 pguid = fields[0].GetUInt64();
 
             CharacterDatabase.PQuery("DELETE FROM character_aura WHERE character_aura.spell = 9454 AND character_aura.guid = '%u'", pguid);
@@ -5124,7 +5124,7 @@ bool ChatHandler::HandleListFreezeCommand(const char * /*args*/)
     //Output of the results
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         std::string fplayers = fields[0].GetString();
         PSendSysMessage(LANG_COMMAND_FROZEN_PLAYERS, fplayers.c_str());
     } while (result->NextRow());
@@ -5179,7 +5179,7 @@ bool ChatHandler::HandleGroupRemoveCommand(const char *args)
 
 bool ChatHandler::HandlePossessCommand(const char * /*args*/)
 {
-    Unit *pUnit = getSelectedUnit();
+    Unit* pUnit = getSelectedUnit();
     if (!pUnit)
         return false;
 
@@ -5189,7 +5189,7 @@ bool ChatHandler::HandlePossessCommand(const char * /*args*/)
 
 bool ChatHandler::HandleUnPossessCommand(const char * /*args*/)
 {
-    Unit *pUnit = getSelectedUnit();
+    Unit* pUnit = getSelectedUnit();
     if (!pUnit)
         pUnit = m_session->GetPlayer();
 
@@ -5200,7 +5200,7 @@ bool ChatHandler::HandleUnPossessCommand(const char * /*args*/)
 
 bool ChatHandler::HandleBindSightCommand(const char * /*args*/)
 {
-    Unit *pUnit = getSelectedUnit();
+    Unit* pUnit = getSelectedUnit();
     if (!pUnit)
         return false;
 

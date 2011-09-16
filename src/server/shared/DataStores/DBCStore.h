@@ -94,7 +94,7 @@ class DBCStorage
 
             uint32 sqlRecordCount = 0;
             uint32 sqlHighestIndex = 0;
-            Field *fields = NULL;
+            Field* fields = NULL;
             QueryResult result = QueryResult(NULL);
             // Load data from sql
             if (sql)

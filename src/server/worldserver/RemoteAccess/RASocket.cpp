@@ -187,7 +187,7 @@ int RASocket::check_access_level(const std::string& user)
         return -1;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
 
     if (fields[1].GetUInt32() < iMinLevel)
     {

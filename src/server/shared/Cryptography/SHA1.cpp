@@ -40,17 +40,17 @@ void SHA1Hash::UpdateData(const std::string &str)
     UpdateData((uint8 const*)str.c_str(), str.length());
 }
 
-void SHA1Hash::UpdateBigNumbers(BigNumber *bn0, ...)
+void SHA1Hash::UpdateBigNumbers(BigNumber* bn0, ...)
 {
     va_list v;
-    BigNumber *bn;
+    BigNumber* bn;
 
     va_start(v, bn0);
     bn = bn0;
     while (bn)
     {
         UpdateData(bn->AsByteArray(), bn->GetNumBytes());
-        bn = va_arg(v, BigNumber *);
+        bn = va_arg(v, BigNumber* );
     }
     va_end(v);
 }

@@ -59,7 +59,7 @@ class boss_jeklik : public CreatureScript
                 m_pInstance = c->GetInstanceScript();
             }
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_pInstance;
 
             uint32 Charge_Timer;
             uint32 SonicBurst_Timer;
@@ -241,7 +241,7 @@ class mob_batrider : public CreatureScript
                 m_pInstance = c->GetInstanceScript();
             }
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_pInstance;
 
             uint32 Bomb_Timer;
             uint32 Check_Timer;

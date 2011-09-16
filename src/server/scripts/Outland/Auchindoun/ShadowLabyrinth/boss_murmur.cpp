@@ -79,8 +79,8 @@ public:
 
         void SonicBoomEffect()
         {
-            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-            for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                if (target && target->GetTypeId() == TYPEID_PLAYER)
@@ -98,7 +98,7 @@ public:
         void EnterCombat(Unit* /*who*/) { }
 
         // Sonic Boom instant damage (needs core fix instead of this)
-        void SpellHitTarget(Unit* target, const SpellInfo *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
             if (target && target->isAlive() && spell && spell->Id == uint32(SPELL_SONIC_BOOM_EFFECT))
                 me->DealDamage(target, (target->GetHealth()*90)/100, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NATURE, spell);

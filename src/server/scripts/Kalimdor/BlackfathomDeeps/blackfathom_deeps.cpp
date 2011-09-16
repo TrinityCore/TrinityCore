@@ -53,7 +53,7 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGo)
     {
-        InstanceScript *pInstance = pGo->GetInstanceScript();
+        InstanceScript* pInstance = pGo->GetInstanceScript();
 
         if (pInstance)
         {

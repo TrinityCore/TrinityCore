@@ -559,7 +559,7 @@ class npc_clintar_dreamwalker : public CreatureScript
 public:
     npc_clintar_dreamwalker() : CreatureScript("npc_clintar_dreamwalker") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == 10965)
         {

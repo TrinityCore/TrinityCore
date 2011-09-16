@@ -34,7 +34,7 @@
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
-    SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(skill);
+    SkillLineEntry const* pSkill = sSkillLineStore.LookupEntry(skill);
     if (!pSkill)
         return false;
 
@@ -352,7 +352,7 @@ SpellMgr::~SpellMgr()
 }
 
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
-bool SpellMgr::IsSpellValid(SpellInfo const *spellInfo, Player *pl, bool msg)
+bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* pl, bool msg)
 {
     // not exist
     if (!spellInfo)
@@ -474,7 +474,7 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     if (!difficultyId)
         return spellId; //return source spell, it has only REGULAR_DIFFICULTY
 
-    SpellDifficultyEntry const *difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
+    SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
     if (!difficultyEntry)
     {
         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
@@ -1159,7 +1159,7 @@ void SpellMgr::LoadSpellRanks()
         // fill one chain
         while (currentSpell == lastSpell && !finished)
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             currentSpell = fields[0].GetUInt32();
             if (lastSpell == -1)
@@ -1261,7 +1261,7 @@ void SpellMgr::LoadSpellRequired()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 spell_id =  fields[0].GetUInt32();
         uint32 spell_req = fields[1].GetUInt32();
@@ -1356,7 +1356,7 @@ void SpellMgr::LoadSpellLearnSpells()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 spell_id = fields[0].GetUInt32();
 
@@ -1460,7 +1460,7 @@ void SpellMgr::LoadSpellTargetPositions()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 Spell_ID = fields[0].GetUInt32();
 
@@ -1584,7 +1584,7 @@ void SpellMgr::LoadSpellGroups()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 group_id = fields[0].GetUInt32();
         if (group_id <= SPELL_GROUP_DB_RANGE_MIN && group_id >= SPELL_GROUP_CORE_RANGE_MAX)
@@ -1665,7 +1665,7 @@ void SpellMgr::LoadSpellGroupStackRules()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 group_id = fields[0].GetUInt32();
         uint8 stack_rule = fields[1].GetUInt32();
@@ -1712,7 +1712,7 @@ void SpellMgr::LoadSpellProcEvents()
     uint32 customProc = 0;
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
 
@@ -1916,7 +1916,7 @@ void SpellMgr::LoadSpellBonusess()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
 
         SpellInfo const* spell = GetSpellInfo(entry);
@@ -1958,7 +1958,7 @@ void SpellMgr::LoadSpellThreats()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
 
@@ -2022,7 +2022,7 @@ void SpellMgr::LoadSpellPetAuras()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 spell = fields[0].GetUInt32();
         uint8 eff = fields[1].GetUInt8();
@@ -2127,7 +2127,7 @@ void SpellMgr::LoadSpellEnchantProcData()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 enchantId = fields[0].GetUInt32();
 
@@ -2172,7 +2172,7 @@ void SpellMgr::LoadSpellLinked()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         int32 trigger = fields[0].GetInt32();
         int32 effect =  fields[1].GetInt32();
@@ -2417,7 +2417,7 @@ void SpellMgr::LoadSpellAreas()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 spell = fields[0].GetUInt32();
         SpellArea spellArea;
@@ -2853,6 +2853,9 @@ void SpellMgr::LoadSpellCustomAttr()
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
+            case 72293: // Mark of the Fallen Champion (Deathbringer Saurfang)
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_NEGATIVE_EFF0;
+                break;
             default:
                 break;
         }
@@ -3096,6 +3099,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->EffectMiscValue[0] |= 1;
                 break;
+            case 18541: // Ritual of Doom Effect (temp hack, current targeting system requires implicit targets to be set. Was target_dest_caster)
             case 51904: // Summon Ghouls On Scarlet Crusade (core does not know the triggered spell is summon spell)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 break;

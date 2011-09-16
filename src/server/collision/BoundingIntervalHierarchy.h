@@ -334,8 +334,8 @@ class BIH
             }
         }
 
-        bool writeToFile(FILE *wf) const;
-        bool readFromFile(FILE *rf);
+        bool writeToFile(FILE* wf) const;
+        bool readFromFile(FILE* rf);
 
     protected:
         std::vector<uint32> tree;

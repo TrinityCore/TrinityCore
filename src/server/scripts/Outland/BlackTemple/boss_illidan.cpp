@@ -454,7 +454,7 @@ public:
 
 };
 
-/************************************** Illidan's AI ***************************************/
+/************************************** Illidan's AI* **************************************/
 class boss_illidan_stormrage : public CreatureScript
 {
 public:
@@ -585,7 +585,7 @@ public:
                 done_by->AddThreat(me, -(3*(float)damage)/4); // do not let maiev tank him
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_GLAIVE_RETURNS) // Re-equip our warblades!
             {
@@ -1138,9 +1138,9 @@ public:
 
 };
 
-/********************************** End of Illidan AI ******************************************/
+/********************************** End of Illidan AI* *****************************************/
 
-/******* Functions and vars for Akama's AI ******/
+/******* Functions and vars for Akama's AI* *****/
 class boss_maiev_shadowsong : public CreatureScript
 {
 public:
@@ -2163,7 +2163,7 @@ public:
     {
         blade_of_azzinothAI(Creature* c) : NullCreatureAI(c) {}
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_THROW_GLAIVE2 || spell->Id == SPELL_THROW_GLAIVE)
                 me->SetDisplayId(21431);//appear when hit by Illidan's glaive

@@ -34,7 +34,7 @@ class achievement_storm_glory : public AchievementCriteriaScript
             if (source->GetBattlegroundTypeId() != BATTLEGROUND_EY)
                 return false;
 
-            Battleground *pEotS = source->GetBattleground();
+            Battleground* pEotS = source->GetBattleground();
             if (!pEotS)
                 return false;
 
