@@ -207,7 +207,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         sLog->outError("HandleEjectPassenger: Player %u tried to eject invalid GUID "UI64FMTD, GetPlayer()->GetGUIDLow(), guid);
 }
 
-void WorldSession::HandleRequestVehicleExit(WorldPacket &recv_data)
+void WorldSession::HandleRequestVehicleExit(WorldPacket& /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd CMSG_REQUEST_VEHICLE_EXIT");
 
