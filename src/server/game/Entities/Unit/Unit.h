@@ -1556,7 +1556,6 @@ class Unit : public WorldObject
 
         bool IsValidAttackTarget(Unit const* target) const;
         bool _IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell) const;
-        bool canAttack(Unit const* target, bool force = true) const;
 
         bool IsValidAssistTarget(Unit const* target) const;
         bool _IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) const;
