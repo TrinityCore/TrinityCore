@@ -322,7 +322,7 @@ class boss_lady_deathwhisper : public CreatureScript
                         {
                             if (Group* group = owner->GetGroup())
                             {
-                                for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                                for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                                     if (Player* member = itr->getSource())
                                         member->KilledMonsterCredit(NPC_DARNAVAN_CREDIT, 0);
                             }
@@ -605,10 +605,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     return;
 
                 // select random cultist
-                std::list<Creature*>::iterator cultistItr = temp.begin();
-                std::advance(cultistItr, urand(0, temp.size()-1));
-
-                Creature* cultist = *cultistItr;
+                Creature* cultist = SelectRandomContainerElement(temp);
                 DoCast(cultist, cultist->GetEntry() == NPC_CULT_FANATIC ? SPELL_DARK_TRANSFORMATION_T : SPELL_DARK_EMPOWERMENT_T, true);
                 Talk(uint8(cultist->GetEntry() == NPC_CULT_FANATIC ? SAY_DARK_TRANSFORMATION : SAY_DARK_EMPOWERMENT));
             }
@@ -862,7 +859,7 @@ class npc_darnavan : public CreatureScript
                 {
                     if (Group* group = owner->GetGroup())
                     {
-                        for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+                        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                             if (Player* member = itr->getSource())
                                 member->FailQuest(QUEST_DEPROGRAMMING);
                     }

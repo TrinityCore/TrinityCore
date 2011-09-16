@@ -1341,9 +1341,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                         ++itr;
                 }
 
-                std::list<Unit*>::iterator itr = unitList.begin();
-                std::advance(itr, urand(0, unitList.size()-1));
-                Unit* target = *itr;
+                Unit* target = SelectRandomContainerElement(unitList);
                 unitList.clear();
                 unitList.push_back(target);
             }
@@ -1357,9 +1355,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                 if (Creature* creature = GetCaster()->ToCreature())
                     unitList.remove_if(OrderWhelpTargetSelector(creature));
 
-                std::list<Creature*>::iterator itr = unitList.begin();
-                std::advance(itr, urand(0, unitList.size()-1));
-                (*itr)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+                SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 
             void Register()

@@ -33,7 +33,7 @@
 
 #define PET_XP_FACTOR 0.05f
 
-Pet::Pet(Player *owner, PetType type) : Guardian(NULL, owner),
+Pet::Pet(Player* owner, PetType type) : Guardian(NULL, owner),
 m_usedTalentCount(0), m_removed(false), m_owner(owner),
 m_happinessTimer(7500), m_petType(type), m_duration(0),
 m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
@@ -130,7 +130,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         return false;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
 
     // update for case of current pet "slot = 0"
     petentry = fields[1].GetUInt32();
@@ -162,7 +162,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         return false;
     }
 
-    Map *map = owner->GetMap();
+    Map* map = owner->GetMap();
     uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
     if (!Create(guid, map, owner->GetPhaseMask(), petentry, pet_number))
         return false;
@@ -182,7 +182,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
     setFaction(owner->getFaction());
     SetUInt32Value(UNIT_CREATED_BY_SPELL, summon_spell_id);
 
-    CreatureTemplate const *cinfo = GetCreatureInfo();
+    CreatureTemplate const* cinfo = GetCreatureInfo();
     if (cinfo->type == CREATURE_TYPE_CRITTER)
     {
         map->Add(this->ToCreature());
@@ -318,7 +318,7 @@ bool Pet::LoadPetFromDB(Player* owner, uint32 petentry, uint32 petnumber, bool c
         {
             delete m_declinedname;
             m_declinedname = new DeclinedName;
-            Field *fields2 = result->Fetch();
+            Field* fields2 = result->Fetch();
             for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             {
                 m_declinedname->name[i] = fields2[i].GetString();
@@ -706,7 +706,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
         return false;
     }
 
-    CreatureTemplate const *cinfo = GetCreatureInfo();
+    CreatureTemplate const* cinfo = GetCreatureInfo();
     if (!cinfo)
     {
         sLog->outError("CreateBaseAtCreature() failed, creatureInfo is missing!");
@@ -736,7 +736,7 @@ bool Pet::CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner)
     return true;
 }
 
-bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map * map, uint32 phaseMask)
+bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask)
 {
     sLog->outDebug(LOG_FILTER_PETS, "Pet::CreateBaseForTamed");
     uint32 guid=sObjectMgr->GenerateLowGuid(HIGHGUID_PET);
@@ -765,7 +765,7 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map * map, uint32 pha
 // TODO: Move stat mods code to pet passive auras
 bool Guardian::InitStatsForLevel(uint8 petlevel)
 {
-    CreatureTemplate const *cinfo = GetCreatureInfo();
+    CreatureTemplate const* cinfo = GetCreatureInfo();
     ASSERT(cinfo);
 
     SetLevel(petlevel);
@@ -1044,7 +1044,7 @@ void Pet::_LoadSpellCooldowns()
 
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             uint32 spell_id = fields[0].GetUInt32();
             time_t db_time  = time_t(fields[1].GetUInt32());
@@ -1100,7 +1100,7 @@ void Pet::_LoadSpells()
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             addSpell(fields[0].GetUInt32(), ActiveStates(fields[1].GetUInt8()), PETSPELL_UNCHANGED);
         }
@@ -1150,7 +1150,7 @@ void Pet::_LoadAuras(uint32 timediff)
         {
             int32 damage[3];
             int32 baseDamage[3];
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
             uint64 caster_guid = fields[0].GetUInt64();
             uint32 spellid = fields[1].GetUInt32();
             uint8 effmask = fields[2].GetUInt8();
@@ -1217,7 +1217,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
         if (!itr->second->CanBeSaved() || IsPetAura(itr->second))
             continue;
 
-        Aura * aura = itr->second;
+        Aura* aura = itr->second;
 
         int32 damage[MAX_SPELL_EFFECTS];
         int32 baseDamage[MAX_SPELL_EFFECTS];
@@ -1250,7 +1250,7 @@ void Pet::_SaveAuras(SQLTransaction& trans)
 
 bool Pet::addSpell(uint32 spell_id, ActiveStates active /*= ACT_DECIDE*/, PetSpellState state /*= PETSPELL_NEW*/, PetSpellType type /*= PETSPELL_NORMAL*/)
 {
-    SpellInfo const *spellInfo = sSpellMgr->GetSpellInfo(spell_id);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
     if (!spellInfo)
     {
         // do pet spell book cleanup
@@ -1306,7 +1306,7 @@ bool Pet::addSpell(uint32 spell_id, ActiveStates active /*= ACT_DECIDE*/, PetSpe
     // talent: unlearn all other talent ranks (high and low)
     if (TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
     {
-        if (TalentEntry const *talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
+        if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
         {
             for (uint8 i = 0; i < MAX_TALENT_RANK; ++i)
             {
@@ -1395,7 +1395,7 @@ void Pet::InitLevelupSpellsForLevel()
 {
     uint8 level = getLevel();
 
-    if (PetLevelupSpellSet const *levelupSpells = GetCreatureInfo()->family ? sSpellMgr->GetPetLevelupSpellList(GetCreatureInfo()->family) : NULL)
+    if (PetLevelupSpellSet const* levelupSpells = GetCreatureInfo()->family ? sSpellMgr->GetPetLevelupSpellList(GetCreatureInfo()->family) : NULL)
     {
         // PetLevelupSpellSet ordered by levels, process in reversed order
         for (PetLevelupSpellSet::const_reverse_iterator itr = levelupSpells->rbegin(); itr != levelupSpells->rend(); ++itr)
@@ -1412,7 +1412,7 @@ void Pet::InitLevelupSpellsForLevel()
     int32 petSpellsId = GetCreatureInfo()->PetSpellDataId ? -(int32)GetCreatureInfo()->PetSpellDataId : GetEntry();
 
     // default spells (can be not learned if pet level (as owner level decrease result for example) less first possible in normal game)
-    if (PetDefaultSpellsEntry const *defSpells = sSpellMgr->GetPetDefaultSpellsEntry(petSpellsId))
+    if (PetDefaultSpellsEntry const* defSpells = sSpellMgr->GetPetDefaultSpellsEntry(petSpellsId))
     {
         for (uint8 i = 0; i < MAX_CREATURE_SPELL_DATA_SLOT; ++i)
         {
@@ -1525,7 +1525,7 @@ void Pet::InitPetCreateSpells()
 
 bool Pet::resetTalents()
 {
-    Unit *owner = GetOwner();
+    Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return false;
 
@@ -1537,7 +1537,7 @@ bool Pet::resetTalents()
     if (!ci)
         return false;
     // Check pet talent type
-    CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
+    CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(ci->family);
     if (!pet_family || pet_family->petTalentType < 0)
         return false;
 
@@ -1554,12 +1554,12 @@ bool Pet::resetTalents()
 
     for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
-        TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
 
         if (!talentInfo)
             continue;
 
-        TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
+        TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentInfo->TalentTab);
 
         if (!talentTabInfo)
             continue;
@@ -1635,7 +1635,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
 
     do
     {
-        Field *fields = resultPets->Fetch();
+        Field* fields = resultPets->Fetch();
 
         uint32 id = fields[0].GetUInt32();
 
@@ -1653,7 +1653,7 @@ void Pet::resetTalentsForAllPetsOf(Player* owner, Pet* online_pet /*= NULL*/)
     bool need_execute = false;
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 spell = fields[0].GetUInt32();
 
@@ -1687,7 +1687,7 @@ void Pet::InitTalentForLevel()
 
     SetFreeTalentPoints(talentPointsForLevel - m_usedTalentCount);
 
-    Unit *owner = GetOwner();
+    Unit* owner = GetOwner();
     if (!owner || owner->GetTypeId() != TYPEID_PLAYER)
         return;
 
@@ -1699,7 +1699,7 @@ uint8 Pet::GetMaxTalentPointsForLevel(uint8 level)
 {
     uint8 points = (level >= 20) ? ((level - 16) / 4) : 0;
     // Mod points from owner SPELL_AURA_MOD_PET_TALENT_POINTS
-    if (Unit *owner = GetOwner())
+    if (Unit* owner = GetOwner())
         points+=owner->GetTotalAuraModifier(SPELL_AURA_MOD_PET_TALENT_POINTS);
     return points;
 }
@@ -1774,7 +1774,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
     }
 }
 
-bool Pet::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
+bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
 {
     ASSERT(map);
     SetMap(map);

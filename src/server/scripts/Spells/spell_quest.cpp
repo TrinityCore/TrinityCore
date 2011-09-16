@@ -470,7 +470,7 @@ public:
         }
     };
 
-    SpellScript * GetSpellScript() const
+    SpellScript* GetSpellScript() const
     {
         return new spell_q11730_ultrasonic_screwdriver_SpellScript();
     }

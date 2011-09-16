@@ -493,9 +493,7 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                std::list<Unit*>::iterator itr = targets.begin();
-                std::advance(itr, urand(0, targets.size() - 1));
-                Unit* target = *itr;
+                Unit* target = SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
                 _target = target;

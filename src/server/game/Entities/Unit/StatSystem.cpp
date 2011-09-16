@@ -63,7 +63,7 @@ bool Player::UpdateStats(Stats stat)
 
     if (stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
     {
-        Pet *pet = GetPet();
+        Pet* pet = GetPet();
         if (pet)
             pet->UpdateStats(stat);
     }
@@ -190,7 +190,7 @@ void Player::UpdateResistances(uint32 school)
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
         SetResistance(SpellSchools(school), int32(value));
 
-        Pet *pet = GetPet();
+        Pet* pet = GetPet();
         if (pet)
             pet->UpdateResistances(school);
     }
@@ -220,7 +220,7 @@ void Player::UpdateArmor()
 
     SetArmor(int32(value));
 
-    Pet *pet = GetPet();
+    Pet* pet = GetPet();
     if (pet)
         pet->UpdateArmor();
 
@@ -365,7 +365,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                                     if (Item* mainHand = m_items[EQUIPMENT_SLOT_MAINHAND])
                                     {
                                         // also gains % attack power from equipped weapon
-                                        ItemTemplate const *proto = mainHand->GetTemplate();
+                                        ItemTemplate const* proto = mainHand->GetTemplate();
                                         if (!proto)
                                             continue;
 
@@ -442,7 +442,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     SetInt32Value(index_mod, (uint32)attPowerMod);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MODS field
     SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
 
-    Pet *pet = GetPet();                                //update pet's AP
+    Pet* pet = GetPet();                                //update pet's AP
     //automatically update weapon damage after attack power modification
     if (ranged)
     {
@@ -798,7 +798,7 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
     int32 expertise = int32(GetRatingBonusValue(CR_EXPERTISE));
 
-    Item *weapon = GetWeaponForAttack(attack, true);
+    Item* weapon = GetWeaponForAttack(attack, true);
 
     AuraEffectList const& expAuras = GetAuraEffectsByType(SPELL_AURA_MOD_EXPERTISE);
     for (AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
@@ -1078,7 +1078,7 @@ bool Guardian::UpdateStats(Stats stat)
     ApplyStatBuffMod(stat, m_statFromOwner[stat], false);
     float ownersBonus = 0.0f;
 
-    Unit *owner = GetOwner();
+    Unit* owner = GetOwner();
     // Handle Death Knight Glyphs and Talents
     float mod = 0.75f;
     if (IsPetGhoul() && (stat == STAT_STAMINA || stat == STAT_STRENGTH))
@@ -1090,7 +1090,7 @@ bool Guardian::UpdateStats(Stats stat)
             default: break;
         }
         // Ravenous Dead
-        AuraEffect const *aurEff = NULL;
+        AuraEffect const* aurEff = NULL;
         // Check just if owner has Ravenous Dead since it's effect is not an aura
         aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
         if (aurEff)

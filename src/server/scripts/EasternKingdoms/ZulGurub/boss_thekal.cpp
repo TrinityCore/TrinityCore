@@ -81,7 +81,7 @@ class boss_thekal : public CreatureScript
             uint32 Check_Timer;
             uint32 Resurrect_Timer;
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_pInstance;
             bool Enraged;
             bool PhaseTwo;
             bool WasDead;
@@ -201,7 +201,7 @@ class boss_thekal : public CreatureScript
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             me->SetFullHealth();
-                            const CreatureTemplate *cinfo = me->GetCreatureInfo();
+                            const CreatureTemplate* cinfo = me->GetCreatureInfo();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 40)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
                             me->UpdateDamagePhysical(BASE_ATTACK);
@@ -290,7 +290,7 @@ class mob_zealot_lorkhan : public CreatureScript
 
             bool FakeDeath;
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_pInstance;
 
             void Reset()
             {
@@ -451,7 +451,7 @@ class mob_zealot_zath : public CreatureScript
 
             bool FakeDeath;
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_pInstance;
 
             void Reset()
             {

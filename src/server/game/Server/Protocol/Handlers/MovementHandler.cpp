@@ -63,7 +63,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (GetPlayer()->m_InstanceValid == false && !mInstance)
         GetPlayer()->m_InstanceValid = true;
 
-    Map * oldMap = GetPlayer()->GetMap();
+    Map* oldMap = GetPlayer()->GetMap();
     ASSERT(oldMap);
     if (GetPlayer()->IsInWorld())
     {
@@ -72,7 +72,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     }
 
     // relocate the player to the teleport destination
-    Map * newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer(), 0);
+    Map* newMap = sMapMgr->CreateMap(loc.GetMapId(), GetPlayer(), 0);
     // the CanEnter checks are done in TeleporTo but conditions may change
     // while the player is in transit, for example the map may get full
     if (!newMap || !newMap->CanEnter(GetPlayer()))
@@ -110,7 +110,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
             _player->SetBGTeam(0);
         }
         // join to bg case
-        else if (Battleground *bg = _player->GetBattleground())
+        else if (Battleground* bg = _player->GetBattleground())
         {
             if (_player->IsInvitedForBattlegroundInstance(_player->GetBattlegroundId()))
                 bg->AddPlayer(_player);
@@ -136,7 +136,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     }
 
     // resurrect character at enter into instance where his corpse exist after add to map
-    Corpse *corpse = GetPlayer()->GetCorpse();
+    Corpse* corpse = GetPlayer()->GetCorpse();
     if (corpse && corpse->GetType() != CORPSE_BONES && corpse->GetMapId() == GetPlayer()->GetMapId())
     {
         if (mEntry->IsDungeon())
@@ -200,8 +200,8 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
     sLog->outStaticDebug("Guid " UI64FMTD, guid);
     sLog->outStaticDebug("Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
-    Unit *mover = _player->m_mover;
-    Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
+    Unit* mover = _player->m_mover;
+    Player* plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
 
     if (!plMover || !plMover->IsBeingTeleportedNear())
         return;
@@ -244,11 +244,11 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 {
     uint16 opcode = recv_data.GetOpcode();
 
-    Unit *mover = _player->m_mover;
+    Unit* mover = _player->m_mover;
 
     ASSERT(mover != NULL);                                  // there must always be a mover
 
-    Player *plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
+    Player* plMover = mover->GetTypeId() == TYPEID_PLAYER ? (Player*)mover : NULL;
 
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plMover && plMover->IsBeingTeleported())
@@ -313,7 +313,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 
         if (!mover->GetTransport() && !mover->GetVehicle())
         {
-            GameObject *go = mover->GetMap()->GetGameObject(movementInfo.t_guid);
+            GameObject* go = mover->GetMap()->GetGameObject(movementInfo.t_guid);
             if (!go || go->GetGoType() != GAMEOBJECT_TYPE_TRANSPORT)
                 movementInfo.flags &= ~MOVEMENTFLAG_ONTRANSPORT;
         }
@@ -478,7 +478,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
 
     if (GetPlayer()->IsInWorld())
     {
-        if (Unit *mover = ObjectAccessor::GetUnit(*GetPlayer(), guid))
+        if (Unit* mover = ObjectAccessor::GetUnit(*GetPlayer(), guid))
         {
             GetPlayer()->SetMover(mover);
             if (mover != GetPlayer() && mover->canFly())

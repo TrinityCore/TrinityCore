@@ -180,7 +180,7 @@ public:
                 SpellBinderGUID[i] = 0;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 Whirlwind_Timer;
         uint32 ChaosBlast_Timer;
@@ -507,16 +507,16 @@ public:
                 //Summon Inner Demon
                 if (InnerDemons_Timer <= diff)
                 {
-                    std::list<HostileReference *>& ThreatList = me->getThreatManager().getThreatList();
-                    std::vector<Unit* > TargetList;
-                    for (std::list<HostileReference *>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
+                    std::list<HostileReference*>& ThreatList = me->getThreatManager().getThreatList();
+                    std::vector<Unit*> TargetList;
+                    for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                     {
                         Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                         if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->getVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }
-                    //SpellInfo *spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
-                    for (std::vector<Unit* >::const_iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
+                    //SpellInfo* spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
+                    for (std::vector<Unit*>::const_iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                     {
                         if ((*itr) && (*itr)->isAlive())
                         {
@@ -680,7 +680,7 @@ public:
             AddedBanish = false;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint64 leotherasGUID;
 

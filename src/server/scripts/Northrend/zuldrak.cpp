@@ -102,7 +102,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_drakuru_shacklesAI(creature);
     }
@@ -184,7 +184,7 @@ public:
        }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_captured_rageclawAI(creature);
     }
@@ -554,7 +554,7 @@ public:
         return false;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_gurgthockAI(creature);
     }
@@ -696,7 +696,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_orinoko_tuskbreakerAI(creature);
     }
@@ -794,7 +794,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_korrak_bloodragerAI(creature);
     }
@@ -836,8 +836,8 @@ public:
 
             if (me->getVictim()->GetPositionZ() >= 286.276f)
             {
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
@@ -886,7 +886,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_yggdrasAI(creature);
     }
@@ -958,8 +958,8 @@ public:
             {
                 if (victim->GetPositionZ() >= 286.276f)
                 {
-                    std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                    for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
                         if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                         {
@@ -1019,7 +1019,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_stinkbeardAI(creature);
     }
@@ -1103,8 +1103,8 @@ public:
 
             if (me->getVictim()->GetPositionZ() >= 286.276f)
             {
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
@@ -1164,7 +1164,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_elemental_lordAI(creature);
     }
@@ -1229,7 +1229,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_fiend_elementalAI(creature);
     }
@@ -1263,7 +1263,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_released_offspring_harkoaAI(creature);
     }
@@ -1351,7 +1351,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_crusade_recruitAI(creature);
     }

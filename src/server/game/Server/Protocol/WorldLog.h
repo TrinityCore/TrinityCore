@@ -46,11 +46,11 @@ class WorldLog
         /// Is the world logger active?
         bool LogWorld(void) const { return (i_file != NULL); }
         /// %Log to the file
-        void outLog(char const *fmt, ...);
-        void outTimestampLog(char const *fmt, ...);
+        void outLog(char const* fmt, ...);
+        void outTimestampLog(char const* fmt, ...);
 
     private:
-        FILE *i_file;
+        FILE* i_file;
 
         bool m_dbWorld;
 };

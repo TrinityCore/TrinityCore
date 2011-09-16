@@ -69,7 +69,7 @@ private:
     ssize_t noblk_send(ACE_Message_Block &message_block);
 
     ACE_Message_Block input_buffer_;
-    Session *session_;
+    Session* session_;
     std::string remote_address_;
 };
 

@@ -118,7 +118,7 @@ class boss_janalai : public CreatureScript
                 pInstance = c->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             uint32 FireBreathTimer;
             uint32 BombTimer;
@@ -454,7 +454,7 @@ class mob_janalai_firebomb : public CreatureScript
 
             void Reset() {}
 
-            void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
+            void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_FIRE_BOMB_THROW)
                     DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
@@ -491,7 +491,7 @@ class mob_janalai_hatcher : public CreatureScript
                 pInstance =c->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             uint32 waypoint;
             uint32 HatchNum;
@@ -624,7 +624,7 @@ class mob_janalai_hatchling : public CreatureScript
                 pInstance =c->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
             uint32 BuffetTimer;
 
             void Reset()

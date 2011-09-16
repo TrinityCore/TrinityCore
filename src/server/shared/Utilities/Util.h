@@ -368,8 +368,8 @@ std::wstring GetMainPartOfName(std::wstring wname, uint32 declension);
 bool utf8ToConsole(const std::string& utf8str, std::string& conStr);
 bool consoleToUtf8(const std::string& conStr, std::string& utf8str);
 bool Utf8FitTo(const std::string& str, std::wstring search);
-void utf8printf(FILE *out, const char *str, ...);
-void vutf8printf(FILE *out, const char *str, va_list* ap);
+void utf8printf(FILE* out, const char *str, ...);
+void vutf8printf(FILE* out, const char *str, va_list* ap);
 
 bool IsIPAddress(char const* ipaddress);
 uint32 CreatePIDFile(const std::string& filename);
@@ -648,4 +648,13 @@ public:
         return (part[el]);
     };
 };
+
+/* Select a random element from a container. Note: make sure you explicitly empty check the container */
+template <class C> typename C::value_type const& SelectRandomContainerElement(C const& container)
+{
+    typename C::const_iterator it = container.begin();
+    std::advance(it, urand(0, container.size() - 1));
+    return *it;
+}
+
 #endif

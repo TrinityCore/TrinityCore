@@ -143,7 +143,7 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
 
 template<typename TRAVELLER>
 void
-DestinationHolder<TRAVELLER>::GetLocationNow(const Map * map, float &x, float &y, float &z, bool is3D) const
+DestinationHolder<TRAVELLER>::GetLocationNow(const Map* map, float &x, float &y, float &z, bool is3D) const
 {
     if (HasArrived())
     {

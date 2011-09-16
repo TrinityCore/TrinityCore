@@ -1017,7 +1017,7 @@ void CreatureEventAI::AttackStart(Unit* who)
     }
 }
 
-void CreatureEventAI::MoveInLineOfSight(Unit *who)
+void CreatureEventAI::MoveInLineOfSight(Unit* who)
 {
     if (me->getVictim())
         return;

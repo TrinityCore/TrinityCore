@@ -419,9 +419,9 @@ class Creature : public Unit, public GridObject<Creature>
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData *data = NULL);
+        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
-        void SelectLevel(const CreatureTemplate *cinfo);
+        void SelectLevel(const CreatureTemplate* cinfo);
         void LoadEquipment(uint32 equip_entry, bool force=false);
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
@@ -457,7 +457,7 @@ class Creature : public Unit, public GridObject<Creature>
         bool isCanTrainingOf(Player* player, bool msg) const;
         bool isCanInteractWithBattleMaster(Player* player, bool msg) const;
         bool isCanTrainingAndResetTalentsOf(Player* pPlayer) const;
-        bool canCreatureAttack(Unit const *pVictim, bool force = true) const;
+        bool canCreatureAttack(Unit const* pVictim, bool force = true) const;
         bool IsImmunedToSpell(SpellInfo const* spellInfo);
                                                             // redefine Unit::IsImmunedToSpell
         bool IsImmunedToSpellEffect(SpellInfo const* spellInfo, uint32 index) const;
@@ -489,7 +489,7 @@ class Creature : public Unit, public GridObject<Creature>
         void Motion_Initialize();
 
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
-        CreatureAI * AI() const { return (CreatureAI*)i_AI; }
+        CreatureAI* AI() const { return (CreatureAI*)i_AI; }
 
         uint32 GetShieldBlockValue() const                  //dunno mob block value
         {
@@ -526,8 +526,8 @@ class Creature : public Unit, public GridObject<Creature>
 
         TrainerSpellData const* GetTrainerSpells() const;
 
-        CreatureTemplate const *GetCreatureInfo() const { return m_creatureInfo; }
-        CreatureData const *GetCreatureData() const { return m_creatureData; }
+        CreatureTemplate const* GetCreatureInfo() const { return m_creatureInfo; }
+        CreatureData const* GetCreatureData() const { return m_creatureData; }
         CreatureAddon const* GetCreatureAddon() const;
 
         std::string GetAIName() const;
@@ -546,7 +546,7 @@ class Creature : public Unit, public GridObject<Creature>
         void setDeathState(DeathState s);                   // override virtual Unit::setDeathState
         bool FallGround();
 
-        bool LoadFromDB(uint32 guid, Map *map);
+        bool LoadFromDB(uint32 guid, Map* map);
         void SaveToDB();
                                                             // overriden in Pet
         virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
@@ -570,8 +570,8 @@ class Creature : public Unit, public GridObject<Creature>
         void RemoveLootMode(uint16 lootMode) { m_LootMode &= ~lootMode; }
         void ResetLootMode() { m_LootMode = LOOT_MODE_DEFAULT; }
 
-        SpellInfo const *reachWithSpellAttack(Unit *pVictim);
-        SpellInfo const *reachWithSpellCure(Unit *pVictim);
+        SpellInfo const* reachWithSpellAttack(Unit* pVictim);
+        SpellInfo const* reachWithSpellCure(Unit* pVictim);
 
         uint32 m_spells[CREATURE_MAX_SPELLS];
         CreatureSpellCooldowns m_CreatureSpellCooldowns;
@@ -651,10 +651,10 @@ class Creature : public Unit, public GridObject<Creature>
         void UpdateWaypointID(uint32 wpID){m_waypointID = wpID;}
 
         void SearchFormation();
-        CreatureGroup *GetFormation() {return m_formation;}
-        void SetFormation(CreatureGroup *formation) {m_formation = formation;}
+        CreatureGroup* GetFormation() {return m_formation;}
+        void SetFormation(CreatureGroup* formation) {m_formation = formation;}
 
-        Unit *SelectVictim();
+        Unit* SelectVictim();
 
         void SetDisableReputationGain(bool disable) { DisableReputationGain = disable; }
         bool IsReputationGainDisabled() { return DisableReputationGain; }
@@ -679,7 +679,7 @@ class Creature : public Unit, public GridObject<Creature>
 
         void FarTeleportTo(Map* map, float X, float Y, float Z, float O);
     protected:
-        bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData *data = NULL);
+        bool CreateFromProto(uint32 guidlow, uint32 Entry, uint32 vehId, uint32 team, const CreatureData* data = NULL);
         bool InitEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
         // vendor items
@@ -733,7 +733,7 @@ class Creature : public Unit, public GridObject<Creature>
         uint32 m_path_id;
 
         //Formation var
-        CreatureGroup *m_formation;
+        CreatureGroup* m_formation;
         bool TriggerJustRespawned;
 };
 

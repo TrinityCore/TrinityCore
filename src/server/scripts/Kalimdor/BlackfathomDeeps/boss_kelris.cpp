@@ -52,7 +52,7 @@ public:
         uint32 uiMindBlastTimer;
         uint32 uiSleepTimer;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {

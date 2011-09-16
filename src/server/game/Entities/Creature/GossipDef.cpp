@@ -109,7 +109,7 @@ void GossipMenu::ClearMenu()
     _menuItemData.clear();
 }
 
-PlayerMenu::PlayerMenu(WorldSession *session) : _session(session)
+PlayerMenu::PlayerMenu(WorldSession* session) : _session(session)
 {
 }
 
@@ -187,7 +187,7 @@ void PlayerMenu::SendPointOfInterest(uint32 poiId) const
     std::string iconText = poi->icon_name;
     int32 locale = _session->GetSessionDbLocaleIndex();
     if (locale >= 0)
-        if (PointOfInterestLocale const *localeData = sObjectMgr->GetPointOfInterestLocale(poiId))
+        if (PointOfInterestLocale const* localeData = sObjectMgr->GetPointOfInterestLocale(poiId))
             ObjectMgr::GetLocaleString(localeData->IconName, locale, iconText);
 
     WorldPacket data(SMSG_GOSSIP_POI, 4 + 4 + 4 + 4 + 4 + 10);  // guess size
@@ -261,13 +261,13 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
         uint32 questID = qmi.QuestId;
 
-        if (Quest const *pQuest = sObjectMgr->GetQuestTemplate(questID))
+        if (Quest const* pQuest = sObjectMgr->GetQuestTemplate(questID))
         {
             std::string title = pQuest->GetTitle();
 
             int loc_idx = _session->GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
-                if (QuestLocale const *ql = sObjectMgr->GetQuestLocale(questID))
+                if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(questID))
                     ObjectMgr::GetLocaleString(ql->Title, loc_idx, title);
 
             data << uint32(questID);
@@ -294,7 +294,7 @@ void PlayerMenu::SendQuestGiverStatus(uint8 questStatus, uint64 npcGUID) const
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_STATUS NPC Guid=%u, status=%u", GUID_LOPART(npcGUID), questStatus);
 }
 
-void PlayerMenu::SendQuestGiverQuestDetails(Quest const *quest, uint64 npcGUID, bool activateAccept) const
+void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, bool activateAccept) const
 {
     std::string questTitle      = quest->GetTitle();
     std::string questDetails    = quest->GetDetails();
@@ -624,7 +624,7 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
 }
 
-void PlayerMenu::SendQuestGiverRequestItems(Quest const *quest, uint64 npcGUID, bool canComplete, bool closeOnCancel) const
+void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, bool canComplete, bool closeOnCancel) const
 {
     // We can always call to RequestItems, but this packet only goes out if there are actually
     // items.  Otherwise, we'll skip straight to the OfferReward

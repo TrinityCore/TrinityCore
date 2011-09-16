@@ -111,7 +111,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* Caster, const SpellInfo *Spell)
+        void SpellHit(Unit* Caster, const SpellInfo* Spell)
         {
             if (Spell->SpellFamilyFlags[2] & 0x080000000)
             {

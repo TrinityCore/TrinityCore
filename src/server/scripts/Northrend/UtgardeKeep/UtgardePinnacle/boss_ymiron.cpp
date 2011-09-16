@@ -150,7 +150,7 @@ public:
         uint64 m_uiActivedCreatureGUID;
         uint64 m_uiOrbGUID;
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void Reset()
         {

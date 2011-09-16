@@ -27,8 +27,8 @@
 void WorldSession::HandleDuelAcceptedOpcode(WorldPacket& recvPacket)
 {
     uint64 guid;
-    Player *pl;
-    Player *plTarget;
+    Player* pl;
+    Player* plTarget;
 
     recvPacket >> guid;
 

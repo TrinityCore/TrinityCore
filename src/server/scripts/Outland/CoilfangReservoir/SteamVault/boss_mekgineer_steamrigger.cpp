@@ -65,7 +65,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 Shrink_Timer;
         uint32 Saw_Blade_Timer;

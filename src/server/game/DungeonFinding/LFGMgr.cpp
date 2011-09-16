@@ -228,7 +228,7 @@ void LFGMgr::Update(uint32 diff)
                     SetState(guid, LFG_STATE_PROPOSAL);
                     if (Player* plr = ObjectAccessor::FindPlayer(itPlayers->first))
                     {
-                        Group *grp = plr->GetGroup();
+                        Group* grp = plr->GetGroup();
                         if (grp)
                          {
                             uint64 gguid = grp->GetGUID();
@@ -934,11 +934,8 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
 
     // Select a random dungeon from the compatible list
     // TODO - Select the dungeon based on group item Level, not just random
-    LfgDungeonSet::const_iterator itDungeon = compatibleDungeons.begin();
-    std::advance(itDungeon, urand(0, compatibleDungeons.size() - 1));
-
     // Create a new proposal
-    pProposal = new LfgProposal(*itDungeon);
+    pProposal = new LfgProposal(SelectRandomContainerElement(compatibleDungeons));
     pProposal->cancelTime = time_t(time(NULL)) + LFG_TIME_PROPOSAL;
     pProposal->state = LFG_PROPOSAL_INITIATING;
     pProposal->queues = check;
