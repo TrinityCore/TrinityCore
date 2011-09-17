@@ -1184,59 +1184,75 @@ void Group::SendTargetIconList(WorldSession* session)
 
 void Group::SendUpdate()
 {
-    Player* player;
+    for (member_witerator witr = m_memberSlots.begin(); witr != m_memberSlots.end(); ++witr)
+    {
+        SendUpdateToPlayer(witr->guid, &(*witr));
+    }
+}
+
+void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
+{
+    Player* player = ObjectAccessor::FindPlayer(playerGUID);
+
+    if (!player || !player->GetSession() || player->GetGroup() != this)
+        return;
+
+    // if MemberSlot wasn't provided
+    if (!slot)
+    {
+        member_witerator witr = _getMemberWSlot(playerGUID);
+
+        if (witr == m_memberSlots.end()) // if there is no MemberSlot for such a player
+            return;
+
+        slot = &(*witr);
+    }
+    
+    WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
+    data << uint8(m_groupType);                         // group type (flags in 3.3)
+    data << uint8(slot->group);
+    data << uint8(slot->flags);
+    data << uint8(slot->roles);
+    if (isLFGGroup())
+    {
+        data << uint8(sLFGMgr->GetState(m_guid) == LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
+        data << uint32(sLFGMgr->GetDungeon(m_guid));
+    }
+
+    data << uint64(m_guid);
+    data << uint32(m_counter++);                        // 3.3, value increases every time this packet gets sent
+    data << uint32(GetMembersCount()-1);
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        player = ObjectAccessor::FindPlayer(citr->guid);
-        if (!player || !player->GetSession() || player->GetGroup() != this)
+        if (slot->guid == citr->guid)
             continue;
 
-        WorldPacket data(SMSG_GROUP_LIST, (1+1+1+1+1+4+8+4+4+(GetMembersCount()-1)*(13+8+1+1+1+1)+8+1+8+1+1+1+1));
-        data << uint8(m_groupType);                         // group type (flags in 3.3)
-        data << uint8(citr->group);
-        data << uint8(citr->flags);
-        data << uint8(citr->roles);
-        if (isLFGGroup())
-        {
-            data << uint8(sLFGMgr->GetState(m_guid) == LFG_STATE_FINISHED_DUNGEON ? 2 : 0); // FIXME - Dungeon save status? 2 = done
-            data << uint32(sLFGMgr->GetDungeon(m_guid));
-        }
+        Player* member = ObjectAccessor::FindPlayer(citr->guid);
 
-        data << uint64(m_guid);
-        data << uint32(m_counter++);                        // 3.3, value increases every time this packet gets sent
-        data << uint32(GetMembersCount()-1);
-        for (member_citerator citr2 = m_memberSlots.begin(); citr2 != m_memberSlots.end(); ++citr2)
-        {
-            if (citr->guid == citr2->guid)
-                continue;
+        uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
+        onlineState = onlineState | ((isBGGroup()) ? MEMBER_STATUS_PVP : 0);
 
-            Player* member = ObjectAccessor::FindPlayer(citr2->guid);
-
-            uint8 onlineState = (member) ? MEMBER_STATUS_ONLINE : MEMBER_STATUS_OFFLINE;
-            onlineState = onlineState | ((isBGGroup()) ? MEMBER_STATUS_PVP : 0);
-
-            data << citr2->name;
-            data << uint64(citr2->guid);                    // guid
-            data << uint8(onlineState);                     // online-state
-            data << uint8(citr2->group);                    // groupid
-            data << uint8(citr2->flags);                    // See enum GroupMemberFlags
-            data << uint8(citr2->roles);                    // Lfg Roles
-        }
-
-        data << uint64(m_leaderGuid);                       // leader guid
-
-        if (GetMembersCount() - 1)
-        {
-            data << uint8(m_lootMethod);                    // loot method
-            data << uint64(m_looterGuid);                   // looter guid
-            data << uint8(m_lootThreshold);                 // loot threshold
-            data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
-            data << uint8(m_raidDifficulty);                // Raid Difficulty
-            data << uint8(0);                               // 3.3
-        }
-
-        player->GetSession()->SendPacket(&data);
+        data << citr->name;
+        data << uint64(citr->guid);                     // guid
+        data << uint8(onlineState);                     // online-state
+        data << uint8(citr->group);                     // groupid
+        data << uint8(citr->flags);                     // See enum GroupMemberFlags
+        data << uint8(citr->roles);                     // Lfg Roles
     }
+
+    data << uint64(m_leaderGuid);                       // leader guid
+
+    if (GetMembersCount() - 1)
+    {
+        data << uint8(m_lootMethod);                    // loot method
+        data << uint64(m_looterGuid);                   // looter guid
+        data << uint8(m_lootThreshold);                 // loot threshold
+        data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
+        data << uint8(m_raidDifficulty);                // Raid Difficulty
+        data << uint8(0);                               // 3.3
+    }
+
+    player->GetSession()->SendPacket(&data);
 }
 
 void Group::UpdatePlayerOutOfRange(Player* pPlayer)
