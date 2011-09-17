@@ -1462,9 +1462,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
         if (m_spellInfo->Speed > 0.0f && unit->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE) && unit->GetCharmerOrOwnerGUID() != m_caster->GetGUID())
             return SPELL_MISS_EVADE;
 
-        // check for IsHostileTo() instead of !IsFriendlyTo()
-        // ex: spell 47463 needs to be casted by different units on the same neutral target
-        if (m_caster->IsHostileTo(unit))
+        if (m_caster->IsValidAttackTarget(unit))
         {
             unit->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_HITBYSPELL);
             //TODO: This is a hack. But we do not know what types of stealth should be interrupted by CC
@@ -4781,7 +4779,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     // those spells may have incorrect target entries or not filled at all (for example 15332)
     // such spells when learned are not targeting anyone using targeting system, they should apply directly to caster instead
     // also, such casts shouldn't be sent to client
-    if (!(((m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && !m_targets.GetUnitTarget()) || m_targets.GetUnitTarget() == m_caster))
+    if (!((m_spellInfo->Attributes & SPELL_ATTR0_PASSIVE) && (!m_targets.GetUnitTarget() || m_targets.GetUnitTarget() == m_caster)))
     {
         // Check explicit target for m_originalCaster - todo: get rid of such workarounds
         SpellCastResult castResult = m_spellInfo->CheckExplicitTarget(m_originalCaster ? m_originalCaster : m_caster, m_targets.GetObjectTarget(), m_targets.GetItemTarget());
@@ -4818,22 +4816,21 @@ SpellCastResult Spell::CheckCast(bool strict)
                         return SPELL_FAILED_TARGET_AURASTATE;
             }
         }
+    }
 
-        // check pet presence
-        for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    // check pet presence
+    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    {
+        if (m_spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PET)
         {
-            if (m_spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PET)
+            if (!m_caster->GetGuardianPet())
             {
-                target = m_caster->GetGuardianPet();
-                if (!target)
-                {
-                    if (m_triggeredByAuraSpell)              // not report pet not existence for triggered spells
-                        return SPELL_FAILED_DONT_REPORT;
-                    else
-                        return SPELL_FAILED_NO_PET;
-                }
-                break;
+                if (m_triggeredByAuraSpell)              // not report pet not existence for triggered spells
+                    return SPELL_FAILED_DONT_REPORT;
+                else
+                    return SPELL_FAILED_NO_PET;
             }
+            break;
         }
     }
 
