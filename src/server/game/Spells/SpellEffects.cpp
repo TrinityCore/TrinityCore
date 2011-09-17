@@ -4148,10 +4148,18 @@ void Spell::EffectThreat(SpellEffIndex /*effIndex*/)
     if (!unitTarget || !unitTarget->isAlive() || !m_caster->isAlive())
         return;
 
-    if (!unitTarget->CanHaveThreatList())
+    if (!unitTarget->CanHaveThreatList() || !m_caster->CanHaveThreatList())
         return;
 
-    unitTarget->AddThreat(m_caster, float(damage));
+    switch(GetSpellInfo()->Id)
+    {
+        case 71204: // Lady Deathwhisper - Touch of Insignificance
+            m_caster->getThreatManager().modifyThreatPercent(unitTarget, -20);
+            break;
+        default:
+            unitTarget->AddThreat(m_caster, float(damage));
+            break;
+    }
 }
 
 void Spell::EffectHealMaxHealth(SpellEffIndex /*effIndex*/)
