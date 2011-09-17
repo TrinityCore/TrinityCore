@@ -527,13 +527,10 @@ void GameObject::Update(uint32 diff)
 
                 if (spellId)
                 {
-                    std::set<uint32>::const_iterator it = m_unique_users.begin();
-                    std::set<uint32>::const_iterator end = m_unique_users.end();
-                    for (; it != end; ++it)
-                    {
-                        if (Unit* owner = Unit::GetUnit(*this, uint64(*it)))
+                    for (std::set<uint64>::const_iterator it = m_unique_users.begin(); it != m_unique_users.end(); ++it)
+                        // m_unique_users can contain only player GUIDs
+                        if (Player* owner = ObjectAccessor::GetPlayer(*this, *it))
                             owner->CastSpell(owner, spellId, false);
-                    }
 
                     m_unique_users.clear();
                     m_usetimes = 0;
@@ -606,7 +603,7 @@ void GameObject::Refresh()
 void GameObject::AddUniqueUse(Player* player)
 {
     AddUse();
-    m_unique_users.insert(player->GetGUIDLow());
+    m_unique_users.insert(player->GetGUID());
 }
 
 void GameObject::Delete()
@@ -1397,13 +1394,10 @@ void GameObject::Use(Unit* user)
                 // on the current DB there is only one gameobject that uses this (Ritual of Doom)
                 // and its required target number is 1 (outter for loop will run once)
                 if (info->summoningRitual.casterTargetSpell && info->summoningRitual.casterTargetSpell != 1) // No idea why this field is a bool in some cases
-                {
-                    for (int i = 0; i < info->summoningRitual.casterTargetSpellTargets; i++)
-                    {
-                        if (Unit* target = Unit::GetUnit(*this, (uint64)SelectRandomContainerElement(m_unique_users)))
+                    for (uint32 i = 0; i < info->summoningRitual.casterTargetSpellTargets; i++)
+                        // m_unique_users can contain only player GUIDs
+                        if (Player* target = ObjectAccessor::GetPlayer(*this, SelectRandomContainerElement(m_unique_users)))
                             spellCaster->CastSpell(target, info->summoningRitual.casterTargetSpell, true);
-                    }
-                }
 
                 // finish owners spell
                 if (owner)
