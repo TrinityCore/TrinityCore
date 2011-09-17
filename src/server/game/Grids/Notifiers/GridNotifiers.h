@@ -297,6 +297,26 @@ namespace Trinity
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
+    template<class Functor>
+    struct GameObjectWorker
+    {
+        GameObjectWorker(WorldObject const* searcher, Functor& func)
+            : _func(func), _phaseMask(searcher->GetPhaseMask()) {}
+
+        void Visit(GameObjectMapType& m)
+        {
+            for (GameObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+                if (itr->getSource()->InSamePhase(_phaseMask))
+                    _func(itr->getSource());
+        }
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+
+    private:
+        Functor& _func;
+        uint32 _phaseMask;
+    };
+
     // Unit searchers
 
     // First accepted by Check Unit if any
@@ -570,7 +590,7 @@ namespace Trinity
     class AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck
     {
         public:
-            AnyDeadUnitSpellTargetInRangeCheck(Unit const* searchObj, float range, SpellInfo const* spellInfo, SpellTargetSelectionCheckTypes check) 
+            AnyDeadUnitSpellTargetInRangeCheck(Unit const* searchObj, float range, SpellInfo const* spellInfo, SpellTargetSelectionCheckTypes check)
                 : AnyDeadUnitObjectInRangeCheck(searchObj, range), i_spellInfo(spellInfo), i_check(check) {}
             bool operator()(Player* u);
             bool operator()(Corpse* u);
