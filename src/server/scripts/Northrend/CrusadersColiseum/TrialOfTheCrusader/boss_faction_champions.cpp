@@ -24,8 +24,7 @@ SDCategory: Crusader Coliseum
 EndScriptData */
 
 // Known bugs:
-// All - untested
-// Pets aren't being summoned by their masters
+// The Champions are not using all of their abilities.
 
 #include "ScriptPCH.h"
 #include "trial_of_the_crusader.h"
@@ -520,16 +519,28 @@ public:
                 switch (urand(0, 4))
                 {
                     case 0:
-                        DoCast(me, SPELL_LIFEBLOOM);
+						if (Unit* target = DoSelectLowestHpFriendly(60.0f))
+							DoCast(target, SPELL_LIFEBLOOM);
+						else
+							DoCast(me, SPELL_LIFEBLOOM);
                         break;
                     case 1:
-                        DoCast(me, SPELL_NOURISH);
+                        if (Unit* target = DoSelectLowestHpFriendly(60.0f))
+							DoCast(target, SPELL_NOURISH);
+						else
+							DoCast(me, SPELL_NOURISH);
                         break;
                     case 2:
-                        DoCast(me, SPELL_REGROWTH);
+                        if (Unit* target = DoSelectLowestHpFriendly(40.0f))
+							DoCast(target, SPELL_REGROWTH);
+						else
+							DoCast(me, SPELL_REGROWTH);
                         break;
                     case 3:
-                        DoCast(me, SPELL_REJUVENATION);
+                        if (Unit* target = DoSelectLowestHpFriendly(40.0f))
+							DoCast(target, SPELL_REJUVENATION);
+						else
+							DoCast(me, SPELL_REJUVENATION);
                         break;
                     case 4:
                         if (Creature* target = SelectRandomFriendlyMissingBuff(SPELL_THORNS))
@@ -615,13 +626,20 @@ public:
                 switch (urand(0, 5))
                 {
                     case 0: case 1:
-                        DoCast(me, SPELL_HEALING_WAVE);
+						if (Unit* target = DoSelectLowestHpFriendly(40.0f))
+							DoCast(target, SPELL_HEALING_WAVE);
+						else
+							DoCast(me, SPELL_HEALING_WAVE);
                         break;
                     case 2:
-                        DoCast(me, SPELL_RIPTIDE);
+                        if (Unit* target = DoSelectLowestHpFriendly(40.0f))
+							DoCast(target, SPELL_RIPTIDE);
+						else
+							DoCast(me, SPELL_RIPTIDE);
                         break;
                     case 3:
-                        DoCast(me, SPELL_EARTH_SHOCK);
+                        if (Unit* target = SelectEnemyCaster(false))
+							DoCast(target, SPELL_EARTH_SHOCK);
                         break;
                     case 4:
                         DoCast(me, SPELL_SPIRIT_CLEANSE);
@@ -731,13 +749,20 @@ public:
                 switch (urand(0, 4))
                 {
                     case 0: case 1:
-                        DoCast(me, SPELL_FLASH_OF_LIGHT);
+						if (Unit* target = DoSelectLowestHpFriendly(60.0f))
+							DoCast(target, SPELL_FLASH_OF_LIGHT);
+						else
+							DoCast(me, SPELL_FLASH_OF_LIGHT);
                         break;
                     case 2: case 3:
-                        DoCast(me, SPELL_HOLY_LIGHT);
+                        if (Unit* target = DoSelectLowestHpFriendly(60.0f))
+							DoCast(target, SPELL_HOLY_LIGHT);
+						else
+							DoCast(me, SPELL_HOLY_LIGHT);
                         break;
                     case 4:
-                        DoCast(me, SPELL_CLEANSE);
+						// Unsure what to use for this so left it as cleanse his/herself
+						DoCast(me, SPELL_CLEANSE);
                         break;
                 }
                 m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -800,20 +825,30 @@ public:
                 switch (urand(0, 5))
                 {
                     case 0:
-                        DoCast(me, SPELL_RENEW);
+                         if (Unit* target = DoSelectLowestHpFriendly(40.0f))
+							DoCast(target, SPELL_RENEW);
+						else
+							DoCast(me, SPELL_RENEW);
                         break;
                     case 1:
-                        DoCast(me, SPELL_SHIELD);
+                         if (Unit* target = DoSelectLowestHpFriendly(40.0f))
+							DoCast(target, SPELL_SHIELD);
+						else
+							DoCast(me, SPELL_SHIELD);
                         break;
                     case 2: case 3:
-                        DoCast(me, SPELL_FLASH_HEAL);
+                        if (Unit* target = DoSelectLowestHpFriendly(40.0f))
+							DoCast(target, SPELL_FLASH_HEAL);
+						else
+							DoCast(me, SPELL_FLASH_HEAL);
                         break;
                     case 4:
                         if (Unit* target = urand(0, 1) ? SelectTarget(SELECT_TARGET_RANDOM, 0) : DoSelectLowestHpFriendly(40.0f))
                             DoCast(target, SPELL_DISPEL);
                         break;
                     case 5:
-                        DoCast(me, SPELL_MANA_BURN);
+						if (Unit* target = SelectEnemyCaster(false))
+							DoCast(target, SPELL_MANA_BURN);
                         break;
                 }
                 m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -914,15 +949,15 @@ public:
                 switch (urand(0, 4))
                 {
                     case 0: case 1:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             DoCast(target, SPELL_MIND_FLAY);
                         break;
                     case 2:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             DoCast(target, SPELL_VAMPIRIC_TOUCH);
                         break;
                    case 3:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40.0f, true))
                             DoCast(target, SPELL_SW_PAIN);
                         break;
                    case 4:
@@ -994,7 +1029,7 @@ public:
 
             if (m_uiFearTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
                     DoCast(target, SPELL_FEAR);
                 m_uiFearTimer = urand(4*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiFearTimer -= uiDiff;
@@ -1008,7 +1043,7 @@ public:
 
             if (m_uiUnstableAfflictionTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                     DoCast(target, SPELL_UNSTABLE_AFFLICTION);
                 m_uiUnstableAfflictionTimer = urand(2*IN_MILLISECONDS, 10*IN_MILLISECONDS);
             } else m_uiUnstableAfflictionTimer -= uiDiff;
@@ -1035,7 +1070,7 @@ public:
                         DoCastVictim(SPELL_CURSE_OF_AGONY);
                         break;
                     case 5:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                             DoCast(target, SPELL_CURSE_OF_EXHAUSTION);
                         break;
                 }
@@ -1079,6 +1114,7 @@ public:
         uint32 m_uiIceBlockTimer;
         uint32 m_uiPolymorphTimer;
         uint32 m_uiCommonTimer;
+		uint32 m_uiArcaneExplosionTimer;
 
         void Reset()
         {
@@ -1088,6 +1124,7 @@ public:
             m_uiIceBlockTimer = urand(0*IN_MILLISECONDS, 360*IN_MILLISECONDS);
             m_uiPolymorphTimer = urand(15*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+			m_uiArcaneExplosionTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             SetEquipmentSlots(false, 47524, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
         }
 
@@ -1112,6 +1149,15 @@ public:
                 m_uiBlinkTimer = urand(7*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             } else m_uiBlinkTimer -= uiDiff;
 
+			if (m_uiArcaneExplosionTimer <= uiDiff)
+			{
+				if (EnemiesInRange(10.0f) > 2)
+				{
+					DoCast(SPELL_ARCANE_EXPLOSION);
+				}
+				m_uiArcaneExplosionTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+			} else m_uiArcaneExplosionTimer -= uiDiff;
+
             if (m_uiIceBlockTimer <= uiDiff)
             {
                 if (HealthBelowPct(20))
@@ -1121,7 +1167,7 @@ public:
 
             if (m_uiPolymorphTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                     DoCast(target, SPELL_POLYMORPH);
                 m_uiPolymorphTimer = urand(15*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             } else m_uiPolymorphTimer -= uiDiff;
@@ -1131,13 +1177,16 @@ public:
                 switch (urand(0, 2))
                 {
                     case 0:
-                        DoCast(me, SPELL_ARCANE_BARRAGE);
+						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+                        DoCast(target, SPELL_ARCANE_BARRAGE);
                         break;
                     case 1:
-                        DoCastVictim(SPELL_ARCANE_BLAST);
+						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+                        DoCast(target, SPELL_ARCANE_BLAST);
                         break;
                     case 2:
-                        DoCastVictim(SPELL_FROSTBOLT);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0F, true))
+                        DoCast(target, SPELL_FROSTBOLT);
                         break;
                 }
                 m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -1249,13 +1298,16 @@ public:
                 switch (urand(0, 3))
                 {
                     case 0: case 1:
-                        DoCastVictim(SPELL_SHOOT);
+						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
+							DoCast(target, SPELL_SHOOT);
                         break;
                     case 2:
-                        DoCastVictim(SPELL_EXPLOSIVE_SHOT);
+						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f, true))
+							DoCast(target, SPELL_EXPLOSIVE_SHOT);
                         break;
                     case 3:
-                        DoCastVictim(SPELL_AIMED_SHOT);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 35.0f, true))
+							DoCast(target, SPELL_AIMED_SHOT);
                         break;
                 }
                 m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -1323,14 +1375,14 @@ public:
 
             if (m_uiCycloneTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
                     DoCast(target, SPELL_CYCLONE);
                 m_uiCycloneTimer = urand(5*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             } else m_uiCycloneTimer -= uiDiff;
 
             if (m_uiEntanglingRootsTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
                     DoCast(target, SPELL_ENTANGLING_ROOTS);
                 m_uiEntanglingRootsTimer = urand(5*IN_MILLISECONDS, 40*IN_MILLISECONDS);
             } else m_uiEntanglingRootsTimer -= uiDiff;
@@ -1346,16 +1398,20 @@ public:
                 switch (urand(0, 6))
                 {
                     case 0: case 1:
-                        DoCastVictim(SPELL_MOONFIRE);
+						if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+							DoCast(target, SPELL_MOONFIRE);
                         break;
                     case 2:
-                        DoCastVictim(SPELL_INSECT_SWARM);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+							DoCast(target, SPELL_INSECT_SWARM);
                         break;
                     case 3:
-                        DoCastVictim(SPELL_STARFIRE);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+							DoCast(target, SPELL_STARFIRE);
                         break;
                     case 4: case 5: case 6:
-                        DoCastVictim(SPELL_WRATH);
+                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30.0f, true))
+							DoCast(target, SPELL_WRATH);
                         break;
                 }
                 m_uiCommonTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
@@ -1434,9 +1490,12 @@ public:
 
             if (m_uiIntimidatingShoutTimer <= uiDiff)
             {
-                DoCast(me, SPELL_INTIMIDATING_SHOUT);
-                m_uiIntimidatingShoutTimer = urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS);
-            } else m_uiIntimidatingShoutTimer -= uiDiff;
+				if (EnemiesInRange(10.0f) > 3)
+				{
+					DoCast(SPELL_INTIMIDATING_SHOUT);
+				}
+				m_uiIntimidatingShoutTimer = urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS);
+			} else m_uiIntimidatingShoutTimer -= uiDiff;
 
             if (m_uiMortalStrikeTimer <= uiDiff)
             {
@@ -1452,13 +1511,14 @@ public:
 
             if (m_uiChargeTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_CHARGE);
+				if (me->IsInRange(me->getVictim(), 8.0f, 25.0f, false))
+					DoCastVictim(SPELL_CHARGE);
                 m_uiChargeTimer = urand(3*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             } else m_uiChargeTimer -= uiDiff;
 
             if (m_uiRetaliationTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_RETALIATION);
+                DoCast(me, SPELL_RETALIATION);
                 m_uiRetaliationTimer = urand(30*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             } else m_uiRetaliationTimer -= uiDiff;
 
@@ -1545,7 +1605,7 @@ public:
 
             if (m_uiChainsOfIceTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 25.0f, true))
                     DoCast(target, SPELL_CHAINS_OF_ICE);
                 m_uiChainsOfIceTimer = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiChainsOfIceTimer -= uiDiff;
@@ -1681,7 +1741,7 @@ public:
 
             if (m_uiBladeFlurryTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_BLADE_FLURRY);
+                DoCast(me, SPELL_BLADE_FLURRY);
                 m_uiBladeFlurryTimer = urand(12*IN_MILLISECONDS, 120*IN_MILLISECONDS);
             } else m_uiBladeFlurryTimer -= uiDiff;
 
@@ -1790,7 +1850,10 @@ public:
 
             if (m_uiEarthShockTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_EARTH_SHOCK_ENH);
+				if (Unit* target = SelectEnemyCaster(false))
+				{
+					DoCast(target, SPELL_EARTH_SHOCK_ENH);
+				}
                 m_uiEarthShockTimer = urand(5*IN_MILLISECONDS, 8*IN_MILLISECONDS);
             } else m_uiEarthShockTimer -= uiDiff;
 
@@ -1846,7 +1909,7 @@ public:
     {
         mob_toc_retro_paladinAI(Creature* creature) : boss_faction_championsAI(creature, AI_MELEE) {}
 
-        uint32 m_uiRepeteanceTimer;
+        uint32 m_uiRepentanceTimer;
         uint32 m_uiCrusaderStrikeTimer;
         uint32 m_uiAvengingWrathTimer;
         uint32 m_uiDivineShieldTimer;
@@ -1856,7 +1919,7 @@ public:
         void Reset()
         {
             boss_faction_championsAI::Reset();
-            m_uiRepeteanceTimer = 60*IN_MILLISECONDS;
+            m_uiRepentanceTimer = 60*IN_MILLISECONDS;
             m_uiCrusaderStrikeTimer = urand(6*IN_MILLISECONDS, 18*IN_MILLISECONDS);
             m_uiAvengingWrathTimer = 180*IN_MILLISECONDS;
             m_uiDivineShieldTimer = urand(0*IN_MILLISECONDS, 360*IN_MILLISECONDS);
@@ -1875,12 +1938,12 @@ public:
         {
             if (!UpdateVictim()) return;
 
-            if (m_uiRepeteanceTimer <= uiDiff)
+            if (m_uiRepentanceTimer <= uiDiff)
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20.0f, true))
                     DoCast(target, SPELL_REPENTANCE);
-                m_uiRepeteanceTimer = 60*IN_MILLISECONDS;
-            } else m_uiRepeteanceTimer -= uiDiff;
+                m_uiRepentanceTimer = 60*IN_MILLISECONDS;
+            } else m_uiRepentanceTimer -= uiDiff;
 
             if (m_uiCrusaderStrikeTimer <= uiDiff)
             {
@@ -1890,7 +1953,7 @@ public:
 
             if (m_uiAvengingWrathTimer <= uiDiff)
             {
-                DoCastVictim(SPELL_AVENGING_WRATH);
+                DoCast(me, SPELL_AVENGING_WRATH);
                 m_uiAvengingWrathTimer = 180*IN_MILLISECONDS;
             } else m_uiAvengingWrathTimer -= uiDiff;
 
