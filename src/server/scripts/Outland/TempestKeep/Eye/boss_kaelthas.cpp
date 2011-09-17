@@ -397,8 +397,7 @@ class boss_kaelthas : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (!me->HasUnitState(UNIT_STAT_STUNNED) && who->isTargetableForAttack() &&
-                    me->IsHostileTo(who) && who->isInAccessiblePlaceFor(me))
+                if (!me->HasUnitState(UNIT_STAT_STUNNED) && me->canCreatureAttack(who))
                 {
                     if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;

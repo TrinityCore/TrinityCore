@@ -862,7 +862,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (me->canAttack(who))
+            if (me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 
@@ -1618,7 +1618,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (me->canAttack(who))
+            if (me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 
