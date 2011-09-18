@@ -315,7 +315,7 @@ class npc_warden_mellichar : public CreatureScript
                 if (IsRunning)
                     return;
 
-                if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
+                if (!me->getVictim() && me->canCreatureAttack(who))
                 {
                     if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;

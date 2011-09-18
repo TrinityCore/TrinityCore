@@ -297,6 +297,26 @@ namespace Trinity
         template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
     };
 
+    template<class Functor>
+    struct GameObjectWorker
+    {
+        GameObjectWorker(WorldObject const* searcher, Functor& func)
+            : _func(func), _phaseMask(searcher->GetPhaseMask()) {}
+
+        void Visit(GameObjectMapType& m)
+        {
+            for (GameObjectMapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+                if (itr->getSource()->InSamePhase(_phaseMask))
+                    _func(itr->getSource());
+        }
+
+        template<class NOT_INTERESTED> void Visit(GridRefManager<NOT_INTERESTED> &) {}
+
+    private:
+        Functor& _func;
+        uint32 _phaseMask;
+    };
+
     // Unit searchers
 
     // First accepted by Check Unit if any
@@ -570,7 +590,7 @@ namespace Trinity
     class AnyDeadUnitSpellTargetInRangeCheck : public AnyDeadUnitObjectInRangeCheck
     {
         public:
-            AnyDeadUnitSpellTargetInRangeCheck(Unit const* searchObj, float range, SpellInfo const* spellInfo, SpellTargetSelectionCheckTypes check) 
+            AnyDeadUnitSpellTargetInRangeCheck(Unit const* searchObj, float range, SpellInfo const* spellInfo, SpellTargetSelectionCheckTypes check)
                 : AnyDeadUnitObjectInRangeCheck(searchObj, range), i_spellInfo(spellInfo), i_check(check) {}
             bool operator()(Player* u);
             bool operator()(Corpse* u);
@@ -807,7 +827,7 @@ namespace Trinity
                 return u->isAlive()
                     && i_funit->IsWithinDistInMap(u, i_range)
                     && !i_funit->IsFriendlyTo(u)
-                    && i_funit->canAttack(u)
+                    && i_funit->IsValidAttackTarget(u)
                     && u->GetCreatureType() != CREATURE_TYPE_CRITTER
                     && i_funit->canSeeOrDetect(u);
             }
@@ -902,12 +922,10 @@ namespace Trinity
             bool operator()(Unit* u)
             {
                 // Check contains checks for: live, non-selectable, non-attackable flags, flight check and GM check, ignore totems
-                if (!u->isTargetableForAttack())
-                    return false;
                 if (u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isTotem())
                     return false;
 
-                if ((i_targetForPlayer ? !i_funit->IsFriendlyTo(u) : i_funit->IsHostileTo(u))&& i_obj->IsWithinDistInMap(u, i_range))
+                if (i_funit->IsValidAttackTarget(u) && i_obj->IsWithinDistInMap(u, i_range))
                     return true;
 
                 return false;
@@ -977,7 +995,7 @@ namespace Trinity
                 if (!me->IsWithinDistInMap(u, m_range))
                     return false;
 
-                if (!me->canAttack(u))
+                if (!me->IsValidAttackTarget(u))
                     return false;
 
                 m_range = me->GetDistance(u);   // use found unit range as new range limit for next check
@@ -1008,7 +1026,7 @@ namespace Trinity
 
                 if (m_force)
                 {
-                    if (!me->canAttack(u))
+                    if (!me->IsValidAttackTarget(u))
                         return false;
                 }
                 else
