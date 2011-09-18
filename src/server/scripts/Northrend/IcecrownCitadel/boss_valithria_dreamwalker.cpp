@@ -617,7 +617,8 @@ class npc_the_lich_king_controller : public CreatureScript
                 // must not be in dream phase
                 summon->SetPhaseMask((summon->GetPhaseMask() & ~0x10), true);
                 if (summon->GetEntry() != NPC_SUPPRESSER)
-                    summon->AI()->DoZoneInCombat();
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
+                        summon->AI()->AttackStart(target);
             }
 
             void UpdateAI(uint32 const diff)
@@ -883,7 +884,7 @@ class npc_suppresser : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SUPPRESSION:
-                            DoCast(me, SPELL_SUPPRESSION);
+                            DoCastAOE(SPELL_SUPPRESSION);
                             _events.ScheduleEvent(EVENT_SUPPRESSION, 5000);
                             break;
                         default:
@@ -891,7 +892,10 @@ class npc_suppresser : public CreatureScript
                     }
                 }
 
-                DoMeleeAttackIfReady();
+                // this creature has REACT_PASSIVE so it does not always have victim here
+                if (Unit* victim = me->getVictim())
+                    if (victim->GetEntry() != NPC_VALITHRIA_DREAMWALKER)
+                        DoMeleeAttackIfReady();
             }
 
         private:
