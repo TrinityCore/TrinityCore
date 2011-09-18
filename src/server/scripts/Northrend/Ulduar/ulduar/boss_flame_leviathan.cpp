@@ -418,25 +418,25 @@ class boss_flame_leviathan : public CreatureScript
                                 me->CastSpell(target, SPELL_PURSUED, true);
                                 me->MonsterTextEmote(EMOTE_PURSUE, target->GetGUID(), true);
                             }
-                            events.RepeatEvent(30*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_PURSUE, 30*IN_MILLISECONDS);
                             break;
                         case EVENT_MISSILE:
                             DoCast(me, SPELL_MISSILE_BARRAGE, true);
-                            events.RepeatEvent(2*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_MISSILE, 2*IN_MILLISECONDS);
                             break;
                         case EVENT_VENT:
                             DoCastAOE(SPELL_FLAME_VENTS);
-                            events.RepeatEvent(20*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS)
                             break;
                         case EVENT_SPEED:
                             DoCastAOE(SPELL_GATHERING_SPEED);
-                            events.RepeatEvent(15*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SPEED, 15*IN_MILLISECONDS);
                             break;
                         case EVENT_SUMMON:
                             if (summons.size() < 15)
                                 if (Creature* lift = DoSummonFlyer(NPC_MECHANOLIFT, me, 30.0f, 50.0f, 0))
                                     lift->GetMotionMaster()->MoveRandom(100);
-                            events.RepeatEvent(2*IN_MILLISECONDS);
+                            events.ScheduleEvent(EVENT_SUMMON, 2*IN_MILLISECONDS);
                             break;
                         case EVENT_SHUTDOWN:
                             DoScriptText(RAND(SAY_OVERLOAD_1, SAY_OVERLOAD_2, SAY_OVERLOAD_3), me);
