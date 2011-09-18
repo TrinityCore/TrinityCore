@@ -426,7 +426,7 @@ class boss_flame_leviathan : public CreatureScript
                             break;
                         case EVENT_VENT:
                             DoCastAOE(SPELL_FLAME_VENTS);
-                            events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS)
+                            events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
                             break;
                         case EVENT_SPEED:
                             DoCastAOE(SPELL_GATHERING_SPEED);
