@@ -800,7 +800,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!who || !who->isTargetableForAttack() || !me->IsHostileTo(who) || me->getVictim())
+            if (!who || !me->IsValidAttackTarget(who) || me->getVictim())
                 return;
 
             me->AddThreat(who, 0.0f);
