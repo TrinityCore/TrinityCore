@@ -339,9 +339,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
                     DoCast(me, SPELL_ACHIEVEMENT_CHECK);
-                    float x, y, z;
-                    me->GetPosition(x, y, z);
-                    me->CastSpell(x, y, z, SPELL_DREAMWALKERS_RAGE, false);
+                    DoCastAOE(SPELL_DREAMWALKERS_RAGE);
                     _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
                         lichKing->AI()->EnterEvadeMode();
@@ -529,7 +527,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void JustReachedHome()
             {
-                BossAI::JustReachedHome();
+                _JustReachedHome();
                 DoAction(ACTION_DEATH);
             }
 
@@ -537,7 +535,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
             {
                 if (action == ACTION_DEATH)
                 {
-                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, FAIL);
+                    instance->SetBossState(DATA_VALITHRIA_DREAMWALKER, NOT_STARTED);
                     me->m_Events.AddEvent(new ValithriaDespawner(me), me->m_Events.CalculateTime(5000));
                 }
             }
@@ -1180,6 +1178,13 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dreamwalker_summoner_SpellScript);
 
+            bool Load()
+            {
+                if (!GetCaster()->GetInstanceScript())
+                    return false;
+                return true;
+            }
+
             void FilterTargets(std::list<Unit*>& targets)
             {
                 targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
@@ -1191,9 +1196,19 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
                 targets.push_back(target);
             }
 
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (!GetHitUnit())
+                    return;
+
+                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, GetCaster()->GetInstanceScript()->GetData64(DATA_VALITHRIA_LICH_KING));
+            }
+
             void Register()
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_dreamwalker_summoner_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENTRY);
+                OnEffect += SpellEffectFn(spell_dreamwalker_summoner_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
             }
         };
 
@@ -1220,7 +1235,7 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
                     return;
 
                 std::list<Creature*> summoners;
-                GetCreatureListWithEntryInGrid(summoners, caster, 22515, 100.0f);
+                GetCreatureListWithEntryInGrid(summoners, caster, NPC_WORLD_TRIGGER, 100.0f);
                 summoners.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 Trinity::RandomResizeList(summoners, 2);
                 if (summoners.empty())
@@ -1236,13 +1251,48 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
             {
                 OnEffectPeriodic += AuraEffectPeriodicFn(spell_dreamwalker_summon_suppresser_AuraScript::PeriodicTick, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
             }
-
-            int32 _decayRate;
         };
 
         AuraScript* GetAuraScript() const
         {
             return new spell_dreamwalker_summon_suppresser_AuraScript();
+        }
+};
+
+class spell_dreamwalker_summon_suppresser_effect : public SpellScriptLoader
+{
+    public:
+        spell_dreamwalker_summon_suppresser_effect() : SpellScriptLoader("spell_dreamwalker_summon_suppresser_effect") { }
+
+        class spell_dreamwalker_summon_suppresser_effect_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dreamwalker_summon_suppresser_effect_SpellScript);
+
+            bool Load()
+            {
+                if (!GetCaster()->GetInstanceScript())
+                    return false;
+                return true;
+            }
+
+            void HandleForceCast(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                if (!GetHitUnit())
+                    return;
+
+                GetHitUnit()->CastSpell(GetCaster(), GetSpellInfo()->Effects[effIndex].TriggerSpell, true, NULL, NULL, GetCaster()->GetInstanceScript()->GetData64(DATA_VALITHRIA_LICH_KING));
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_dreamwalker_summon_suppresser_effect_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dreamwalker_summon_suppresser_effect_SpellScript();
         }
 };
 
@@ -1402,6 +1452,7 @@ void AddSC_boss_valithria_dreamwalker()
     new spell_dreamwalker_decay_periodic_timer();
     new spell_dreamwalker_summoner();
     new spell_dreamwalker_summon_suppresser();
+    new spell_dreamwalker_summon_suppresser_effect();
     new spell_dreamwalker_summon_dream_portal();
     new spell_dreamwalker_summon_nightmare_portal();
     new spell_dreamwalker_nightmare_cloud();
