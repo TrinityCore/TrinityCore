@@ -278,6 +278,7 @@ enum CreaturesIds
     NPC_RAGING_SPIRIT                           = 36701,
     NPC_TRIGGER                                 = 38667,
     NPC_VILE_SPIRIT                             = 37799,
+    NPC_WORLD_TRIGGER                           = 22515,
 };
 
 enum GameObjectsIds
