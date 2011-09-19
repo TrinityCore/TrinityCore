@@ -248,7 +248,7 @@ class SmartScript
         uint32 mTextTimer;
         uint32 mLastTextID;
         uint64 mTextGUID;
-        Creature* talker;
+        uint32 mTalkerEntry;
         bool mUseTextTimer;
 
         SMARTAI_TEMPLATE mTemplate;
