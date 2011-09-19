@@ -638,7 +638,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             }
         case SMART_ACTION_SUMMON_CREATURE:
             if (!IsCreatureValid(e, e.action.summonCreature.creature)) return false;
-            if (e.action.summonCreature.type > TEMPSUMMON_MANUAL_DESPAWN)
+            if (e.action.summonCreature.type < TEMPSUMMON_TIMED_OR_DEAD_DESPAWN || e.action.summonCreature.type > TEMPSUMMON_MANUAL_DESPAWN)
             {
                 sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses incorrect TempSummonType %u, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.action.summonCreature.type);
                 return false;
