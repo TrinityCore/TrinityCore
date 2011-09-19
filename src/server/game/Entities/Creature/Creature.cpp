@@ -1984,7 +1984,7 @@ void Creature::SaveRespawnTime()
 }
 
 // this should not be called by petAI or
-bool Creature::canCreatureAttack(Unit const* pVictim, bool force) const
+bool Creature::canCreatureAttack(Unit const* pVictim, bool /*force*/) const
 {
     if (!pVictim->IsInMap(this))
         return false;
