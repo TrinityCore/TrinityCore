@@ -247,6 +247,7 @@ enum CreaturesIds
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
+    NPC_WORLD_TRIGGER                           = 22515,
 };
 
 enum GameObjectsIds
