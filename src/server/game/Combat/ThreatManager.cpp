@@ -74,6 +74,10 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
     if (!hatedUnit->isAlive() || !hatingUnit->isAlive())
         return false;
 
+    // not in same map or phase
+    if (!hatedUnit->IsInMap(hatingUnit))
+        return false;
+
     // spell not causing threat
     if (threatSpell && threatSpell->AttributesEx & SPELL_ATTR1_NO_THREAT)
         return false;
