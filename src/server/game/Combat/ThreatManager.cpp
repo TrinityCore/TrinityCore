@@ -178,11 +178,13 @@ void HostileReference::updateOnlineStatus()
     // ref is valid
     // target is no player or not gamemaster
     // target is not in flight
-    if (isValid() &&
-        ((getTarget()->GetTypeId() != TYPEID_PLAYER || !getTarget()->ToPlayer()->isGameMaster()) ||
-        !getTarget()->HasUnitState(UNIT_STAT_IN_FLIGHT)))
+    if (isValid()
+        && (getTarget()->GetTypeId() != TYPEID_PLAYER || !getTarget()->ToPlayer()->isGameMaster())
+        && !getTarget()->HasUnitState(UNIT_STAT_IN_FLIGHT)
+        && getTarget()->IsInMap(getSourceUnit())
+        )
     {
-      Creature* creature = getSourceUnit()->ToCreature();
+        Creature* creature = getSourceUnit()->ToCreature();
         online = getTarget()->isInAccessiblePlaceFor(creature);
         if (!online)
         {
