@@ -805,15 +805,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
-                case 54015: //Set Oracle Faction Honored
-                case 53487: //Set Wolvar Faction Honored
-                {
-                    if (effIndex==0)
-                    {
-                            unitTarget->ToPlayer()->SetReputation(m_spellInfo->Effects[0].BasePoints+1,21000);
-                    }
-                    return;
-                }
                 case 31225:                                 // Shimmering Vessel (restore creature to life)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
