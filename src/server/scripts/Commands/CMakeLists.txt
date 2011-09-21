@@ -20,6 +20,7 @@ set(scripts_STAT_SRCS
   Commands/cs_gps.cpp
   Commands/cs_honor.cpp
   Commands/cs_learn.cpp
+  Commands/cs_misc.cpp
   Commands/cs_modify.cpp
   Commands/cs_npc.cpp
   Commands/cs_quest.cpp
