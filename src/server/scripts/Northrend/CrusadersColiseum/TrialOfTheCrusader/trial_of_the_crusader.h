@@ -35,6 +35,13 @@ enum
     DESPAWN_TIME                = 300000,
 };
 
+const Position ToCSpawnLoc[]=
+{
+    {563.912f, 261.625f, 394.73f, 4.70437f},  //  0 Center
+    {575.451f, 261.496f, 394.73f,  4.6541f},  //  1 Left
+    {549.951f,  261.55f, 394.73f, 4.74835f},  //  2 Right
+};
+
 const Position ToCCommonLoc[]=
 {
     {559.257996f, 90.266197f, 395.122986f, 0},  //  0 Barrent
