@@ -627,9 +627,9 @@ public:
             else m_uiRangeCheckTimer -= uiDiff;
         }
 
-        void SpellHitTarget(Unit* who, const SpellInfo* /*spell*/)
+        void SpellHitTarget(Unit* who, SpellInfo const* spell)
         {
-            if(spell->Id == SPELL_UNLEASHED_DARK_HELPER)
+            if (spell->Id == SPELL_UNLEASHED_DARK_HELPER)
             {
                 if (who->HasAura(SPELL_DARK_ESSENCE_HELPER))
                     who->CastSpell(who, SPELL_POWERING_UP, true);
