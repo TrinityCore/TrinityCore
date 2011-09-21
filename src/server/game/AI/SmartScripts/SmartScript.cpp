@@ -152,7 +152,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 delete targets;
             }
-
             mTalkerEntry = talker->GetEntry();
             mLastTextID = e.action.talk.textGroupID;
             mTextTimer = e.action.talk.duration;
@@ -211,10 +210,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
-                    if (IsCreature(*itr))
+                    if (IsPlayer(*itr))
                     {
-                        sCreatureTextMgr->SendSound((*itr)->ToCreature(), e.action.sound.sound, CHAT_MSG_MONSTER_SAY, 0, TextRange(e.action.sound.range), Team(0), false);
-                        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: source: %s (GuidLow: %u), sound: %u, range: %u",
+                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.range > 0 ? true : false);
+                        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: target: %s (GuidLow: %u), sound: %u, onlyself: %u",
                             (*itr)->GetName(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.range);
                     }
                 }
