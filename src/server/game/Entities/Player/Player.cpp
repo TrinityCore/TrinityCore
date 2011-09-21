@@ -2329,6 +2329,7 @@ bool Player::TeleportToBGEntryPoint()
 
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
+    ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
     return TeleportTo(m_bgData.joinPos);
 }
 
@@ -2383,7 +2384,13 @@ void Player::ProcessDelayedOperations()
             ContinueTaxiFlight();
         }
     }
-
+    
+    if (m_DelayedOperations & DELAYED_BG_GROUP_RESTORE)
+    {
+        if (Group *g = GetGroup())
+            g->SendUpdateToPlayer(GetGUID());
+    }
+    
     //we have executed ALL delayed ops, so clear the flag
     m_DelayedOperations = 0;
 }
