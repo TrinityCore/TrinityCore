@@ -3549,6 +3549,11 @@ void SpellMgr::LoadDbcDataCorrections()
                 // Divine Providence should affect at Prayer of Mending
                 else if (spellInfo->SpellIconID == 2845 && spellInfo->Id != 64844)
                     spellInfo->EffectSpellClassMask[0][1] |= 0x20;
+            case SPELLFAMILY_SHAMAN:
+                // Flametongue Totem
+                if (spellInfo->SpellFamilyFlags[0] & 0x2000000)
+                    spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                break;
             case SPELLFAMILY_PALADIN:
                 // Seals of the Pure should affect Seal of Righteousness
                 if (spellInfo->SpellIconID == 25 && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
