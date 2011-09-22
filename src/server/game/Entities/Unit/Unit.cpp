@@ -1584,7 +1584,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
         // Figure out how much armor do we ignore
         float armorPen = CalculatePctF(maxArmorPen, ToPlayer()->GetRatingBonusValue(CR_ARMOR_PENETRATION));
         // Got the value, apply it
-        armor -= armorPen;
+        armor -= std::min(armorPen, maxArmorPen);
     }
 
     if (armor < 0.0f)
