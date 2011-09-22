@@ -49,8 +49,6 @@ class instance_ulduar : public InstanceMapScript
             uint64 XTToyPileGUIDs[4];
             uint64 AssemblyGUIDs[3];
             uint64 KologarnGUID;
-            uint64 LeftArmGUID;
-            uint64 RightArmGUID;
             uint64 AuriayaGUID;
             uint64 MimironGUID;
             uint64 HodirGUID;
@@ -94,8 +92,6 @@ class instance_ulduar : public InstanceMapScript
                 ExpeditionCommanderGUID          = 0;
                 XT002GUID                        = 0;
                 KologarnGUID                     = 0;
-                LeftArmGUID                      = 0;
-                RightArmGUID                     = 0;
                 AuriayaGUID                      = 0;
                 MimironGUID                      = 0;
                 HodirGUID                        = 0;
@@ -435,7 +431,10 @@ class instance_ulduar : public InstanceMapScript
                         if (state == DONE)
                         {
                             if (GameObject* gameObject = instance->GetGameObject(KologarnChestGUID))
+                            {
                                 gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
+                                gameObject->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            }
                             HandleGameObject(KologarnBridgeGUID, false);
                         }
                         if (state == IN_PROGRESS)
@@ -501,15 +500,6 @@ class instance_ulduar : public InstanceMapScript
 
             void SetData64(uint32 type, uint64 data)
             {
-                switch (type)
-                {
-                    case DATA_LEFT_ARM:
-                        LeftArmGUID = data;
-                        break;
-                    case DATA_RIGHT_ARM:
-                        RightArmGUID = data;
-                        break;
-                }
             }
 
             uint64 GetData64(uint32 data)
@@ -533,10 +523,6 @@ class instance_ulduar : public InstanceMapScript
                         return XTToyPileGUIDs[data - DATA_TOY_PILE_0];
                     case BOSS_KOLOGARN:
                         return KologarnGUID;
-                    case DATA_LEFT_ARM:
-                        return LeftArmGUID;
-                    case DATA_RIGHT_ARM:
-                        return RightArmGUID;
                     case BOSS_AURIAYA:
                         return AuriayaGUID;
                     case BOSS_MIMIRON:
