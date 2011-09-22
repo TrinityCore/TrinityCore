@@ -454,9 +454,11 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
             if (x > 3218.86f && x < 3275.69f && y < 572.40f && y > 484.68f)
                 return false;
             break;
-        default:
-            sLog->outError("TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition.", me->GetEntry());
-            return false;
+        default: // For most of creatures that certain area is their home area.
+            sLog->outDetail("TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition. Using the default one.", me->GetEntry());
+            uint32 homeAreaId = me->GetMap()->GetAreaId(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ());
+            if(me->GetAreaId() == homeAreaId)
+                return false;
     }
 
     EnterEvadeMode();

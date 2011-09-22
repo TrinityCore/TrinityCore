@@ -306,6 +306,8 @@ class boss_xt002 : public CreatureScript
 
                 if (_phase == 1)
                     DoMeleeAttackIfReady();
+
+                EnterEvadeIfOutOfCombatArea(diff);
             }
 
             void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply)
