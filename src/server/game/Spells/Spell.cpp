@@ -656,7 +656,7 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
             else if ((m_caster->GetTypeId() == TYPEID_UNIT) && neededTargets & (TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT))
                 target = m_caster->getVictim();
             // didn't find anything - let's use self as target
-            if (!target && neededTargets & (TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT))
+            if (!target && neededTargets & (TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY | TARGET_FLAG_UNIT_ALLY))
                 target = m_caster;
 
             m_targets.SetUnitTarget(target);
@@ -709,121 +709,21 @@ void Spell::SelectSpellTargets()
         if (implicitTargetMask & (TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_GAMEOBJECT_ITEM))
             m_targets.SetTargetFlag(TARGET_FLAG_GAMEOBJECT);
 
-        uint32 effectTargetType = m_spellInfo->Effects[i].GetRequiredTargetType();
-
-        // is it possible that areaaura is not applied to caster?
-        if (effectTargetType == SPELL_REQUIRE_NONE)
-            continue;
-
         uint32 targetA = m_spellInfo->Effects[i].TargetA.GetTarget();
         uint32 targetB = m_spellInfo->Effects[i].TargetB.GetTarget();
 
         if (targetA)
             processedTargets |= SelectEffectTargets(i, m_spellInfo->Effects[i].TargetA);
-        if (targetB) // In very rare case !A && B
+        if (targetB)
             processedTargets |= SelectEffectTargets(i, m_spellInfo->Effects[i].TargetB);
 
-        if (effectTargetType != SPELL_REQUIRE_UNIT)
-        {
-            if (effectTargetType == SPELL_REQUIRE_CASTER)
-                AddUnitTarget(m_caster, 1 << i, false);
-            else if (effectTargetType == SPELL_REQUIRE_ITEM)
-                if (m_targets.GetItemTarget())
-                    AddItemTarget(m_targets.GetItemTarget(), 1 << i);
-            continue;
-        }
+        // Select targets of effect based on effect type
+        // those are used when no valid target could be added for spell effect based on spell target type
+        // some spell effects use explicit target as a default target added to target map (like SPELL_EFFECT_LEARN_SPELL)
+        // some spell effects add target to target map only when target type specified (like SPELL_EFFECT_WEAPON)
+        // some spell effects don't add anything to target map (confirmed with sniffs) (like SPELL_EFFECT_DESTROY_ALL_TOTEMS)
+        SelectEffectTypeImplicitTargets(i);
 
-        if (!targetA && !targetB)
-        {
-            if (!m_spellInfo->GetMaxRange(true))
-            {
-                AddUnitTarget(m_caster, 1 << i, false);
-                continue;
-            }
-
-            // add here custom effects that need default target.
-            // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
-            switch (m_spellInfo->Effects[i].Effect)
-            {
-                case SPELL_EFFECT_DUMMY:
-                {
-                    if (m_targets.GetUnitTarget())
-                        AddUnitTarget(m_targets.GetUnitTarget(), 1 << i, false);
-                    else
-                        AddUnitTarget(m_caster, 1 << i, false);
-                    break;
-                }
-                case SPELL_EFFECT_BIND:
-                case SPELL_EFFECT_RESURRECT:
-                case SPELL_EFFECT_CREATE_ITEM:
-                case SPELL_EFFECT_TRIGGER_SPELL:
-                case SPELL_EFFECT_SKILL_STEP:
-                case SPELL_EFFECT_PROFICIENCY:
-                case SPELL_EFFECT_SUMMON_OBJECT_WILD:
-                case SPELL_EFFECT_SELF_RESURRECT:
-                case SPELL_EFFECT_REPUTATION:
-                case SPELL_EFFECT_LEARN_SPELL:
-                case SPELL_EFFECT_SEND_TAXI:
-                    if (m_targets.GetUnitTarget())
-                        AddUnitTarget(m_targets.GetUnitTarget(), 1 << i, false);
-                    // Triggered spells have additional spell targets - cast them even if no explicit unit target is given (required for spell 50516 for example)
-                    else if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_TRIGGER_SPELL)
-                        AddUnitTarget(m_caster, 1 << i, false);
-                    break;
-                case SPELL_EFFECT_SUMMON_RAF_FRIEND:
-                case SPELL_EFFECT_SUMMON_PLAYER:
-                    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetSelection())
-                    {
-                        Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelection());
-                        if (target)
-                            AddUnitTarget(target, 1 << i, false);
-                    }
-                    break;
-                case SPELL_EFFECT_SKIN_PLAYER_CORPSE:
-                case SPELL_EFFECT_RESURRECT_NEW:
-                    if (WorldObject* target = m_targets.GetObjectTarget())
-                    {
-                        if (Unit* unitTarget = target->ToUnit())
-                            AddUnitTarget(unitTarget, 1 << i, false);
-                        else if (Corpse* corpseTarget = target->ToCorpse())
-                        {
-                            Player* owner = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
-                            if (owner)
-                                AddUnitTarget(owner, 1 << i, false);
-                        }
-                    }
-                    break;
-                case SPELL_EFFECT_SUMMON_CHANGE_ITEM:
-                case SPELL_EFFECT_ADD_FARSIGHT:
-                case SPELL_EFFECT_APPLY_GLYPH:
-                case SPELL_EFFECT_STUCK:
-                case SPELL_EFFECT_FEED_PET:
-                case SPELL_EFFECT_DESTROY_ALL_TOTEMS:
-                case SPELL_EFFECT_KILL_CREDIT2: // only one spell: 42793
-                    AddUnitTarget(m_caster, 1 << i, false);
-                    break;
-                case SPELL_EFFECT_LEARN_PET_SPELL:
-                    if (Guardian* pet = m_caster->GetGuardianPet())
-                        AddUnitTarget(pet, 1 << i);
-                    break;
-                case SPELL_EFFECT_APPLY_AURA:
-                    switch (m_spellInfo->Effects[i].ApplyAuraName)
-                    {
-                        case SPELL_AURA_ADD_FLAT_MODIFIER:  // some spell mods auras have 0 target modes instead expected TARGET_UNIT_CASTER(1) (and present for other ranks for same spell for example)
-                        case SPELL_AURA_ADD_PCT_MODIFIER:
-                            AddUnitTarget(m_caster, 1 << i, false);
-                            break;
-                        default:                            // apply to target in other case
-                            if (m_targets.GetUnitTarget())
-                                AddUnitTarget(m_targets.GetUnitTarget(), 1 << i, false);
-                            break;
-                    }
-                    break;
-                default:
-                    AddUnitTarget(m_caster, 1 << i, false);
-                    break;
-            }
-        }
         if (m_spellInfo->IsChanneled())
         {
             uint8 mask = (1 << i);
@@ -874,6 +774,82 @@ void Spell::SelectSpellTargets()
             float dist = m_caster->GetDistance(*m_targets.GetDst());
             m_delayMoment = (uint64) floor(dist / m_spellInfo->Speed * 1000.0f);
         }
+    }
+}
+
+void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
+{
+    // special case for SPELL_EFFECT_SUMMON_RAF_FRIEND and SPELL_EFFECT_SUMMON_PLAYER
+    // TODO: this is a workaround - target shouldn't be stored in target map for those spells
+    switch (m_spellInfo->Effects[effIndex].Effect)
+    {
+        case SPELL_EFFECT_SUMMON_RAF_FRIEND:
+        case SPELL_EFFECT_SUMMON_PLAYER:
+            if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetSelection())
+            {
+                Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelection());
+                if (target)
+                    AddUnitTarget(target, 1 << effIndex, false);
+            }
+            return;
+        default:
+            break;
+    }
+
+    // select spell implicit targets based on effect type
+    if (!m_spellInfo->Effects[effIndex].GetImplicitTargetType())
+        return;
+
+    uint32 targetMask = m_spellInfo->Effects[effIndex].GetMissingTargetMask();
+
+    if (!targetMask)
+        return;
+
+    switch (m_spellInfo->Effects[effIndex].GetImplicitTargetType())
+    {
+        // add explicit object target or self to the target map 
+        case EFFECT_IMPLICIT_TARGET_EXPLICIT:
+            // player which not released his spirit is Unit, but target flag for it is TARGET_FLAG_CORPSE_MASK
+            if (targetMask & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK))
+            {
+                if (Unit* unitTarget = m_targets.GetUnitTarget())
+                    AddUnitTarget(unitTarget, 1 << effIndex, false);
+                else if (targetMask & TARGET_FLAG_CORPSE_MASK)
+                {
+                    if (Corpse* corpseTarget = m_targets.GetCorpseTarget())
+                    {
+                        // TODO: this is a workaround - corpses should be added to spell target map too, but we can't do that so we add owner instead
+                        if (Player* owner = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID()))
+                            AddUnitTarget(owner, 1 << effIndex, false);
+                    }
+                }
+                else //if (targetMask & TARGET_FLAG_UNIT_MASK)
+                {
+                    AddUnitTarget(m_caster, 1 << effIndex, false);
+                }
+            }
+            if (targetMask & TARGET_FLAG_ITEM_MASK)
+            {
+                if (Item* itemTarget = m_targets.GetItemTarget())
+                    AddItemTarget(itemTarget, 1 << effIndex);
+            }
+            if (targetMask & TARGET_FLAG_GAMEOBJECT_MASK)
+            {
+                if (GameObject* gObjTarget = m_targets.GetGOTarget())
+                    AddGOTarget(gObjTarget, 1 << effIndex);
+            }
+            break;
+        // add self to the target map 
+        case EFFECT_IMPLICIT_TARGET_CASTER:
+            if (targetMask & TARGET_FLAG_UNIT_MASK)
+                AddUnitTarget(m_caster, 1 << effIndex, false);
+            break;
+        // for EFFECT_LEARN_PET_SPELL - maybe should add unitTarget's pet instead of caster's?
+        case EFFECT_IMPLICIT_TARGET_PET:
+            if (targetMask & TARGET_FLAG_UNIT_MASK)
+                if (Guardian* pet = m_caster->GetGuardianPet())
+                    AddUnitTarget(pet, 1 << effIndex, false);
+            break;
     }
 }
 
@@ -2505,10 +2481,6 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
     }
     else if (pushType)
     {
-        // Dummy, just for client
-        if (m_spellInfo->Effects[i].GetRequiredTargetType() != SPELL_REQUIRE_UNIT)
-            return 0;
-
         float radius;
         SpellTargets targetType;
         switch (cur.GetTarget())
@@ -3015,7 +2987,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
             for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-                if (m_spellInfo->Effects[i].GetRequiredTargetType() == SPELL_REQUIRE_UNIT)
+                if (m_spellInfo->Effects[i].GetUsedTargetObjectType() == TARGET_OBJECT_TYPE_UNIT)
                 {
                     m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_SPELL_ATTACK);
                     break;
@@ -3438,17 +3410,17 @@ void Spell::_handle_immediate_phase()
     // process ground
     for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
-        if (m_spellInfo->Effects[j].Effect == 0)
+        if (!m_spellInfo->Effects[j].IsEffect())
             continue;
 
-        if (m_spellInfo->Effects[j].GetRequiredTargetType() == SPELL_REQUIRE_DEST)
+        if (m_spellInfo->Effects[j].GetUsedTargetObjectType() == TARGET_OBJECT_TYPE_DEST)
         {
             if (!m_targets.HasDst()) // FIXME: this will ignore dest set in effect
                 m_targets.SetDst(*m_caster);
             HandleEffects(m_originalCaster, NULL, NULL, j);
             m_effectMask |= (1<<j);
         }
-        else if (m_spellInfo->Effects[j].GetRequiredTargetType() == SPELL_REQUIRE_NONE)
+        else if (m_spellInfo->Effects[j].GetUsedTargetObjectType() && !m_spellInfo->Effects[j].GetImplicitTargetType())
         {
             HandleEffects(m_originalCaster, NULL, NULL, j);
             m_effectMask |= (1<<j);
@@ -5703,16 +5675,7 @@ SpellCastResult Spell::CheckRange(bool strict)
     if (!strict && m_casttime == 0)
         return SPELL_CAST_OK;
 
-    uint32 range_type = 0;
-
-    if (m_spellInfo->RangeEntry)
-    {
-        // self cast doesn't need range checking -- also for Starshards fix
-        if (m_spellInfo->RangeEntry->ID == 1)
-            return SPELL_CAST_OK;
-
-        range_type = m_spellInfo->RangeEntry->type;
-    }
+    uint32 range_type = m_spellInfo->RangeEntry ? m_spellInfo->RangeEntry->type : 0;
 
     Unit* target = m_targets.GetUnitTarget();
     float max_range = m_caster->GetSpellMaxRangeForTarget(target, m_spellInfo);
