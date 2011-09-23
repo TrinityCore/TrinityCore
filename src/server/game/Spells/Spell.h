@@ -202,6 +202,14 @@ enum SpellState
     SPELL_STATE_DELAYED   = 5
 };
 
+enum SpellEffectHandleMode
+{
+    SPELL_EFFECT_HANDLE_LAUNCH,
+    SPELL_EFFECT_HANDLE_LAUNCH_TARGET,
+    SPELL_EFFECT_HANDLE_HIT,
+    SPELL_EFFECT_HANDLE_HIT_TARGET,
+};
+
 enum SpellTargets
 {
     SPELL_TARGETS_NONE      = 0,
@@ -400,6 +408,7 @@ class Spell
 
         void InitExplicitTargets(SpellCastTargets const& targets);
         void SelectSpellTargets();
+        void SelectEffectTypeImplicitTargets(uint8 effIndex);
         uint32 SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur);
         void SelectTrajTargets();
 
