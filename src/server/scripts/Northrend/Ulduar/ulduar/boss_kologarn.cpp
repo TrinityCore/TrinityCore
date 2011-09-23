@@ -158,11 +158,10 @@ class boss_kologarn : public CreatureScript
                     left = apply;
                     if (!apply && isEncounterInProgress)
                     {
+                        who->ToCreature()->DisappearAndDie();
                         DoScriptText(SAY_LEFT_ARM_GONE, me);
                         events.ScheduleEvent(EVENT_RESPAWN_LEFT_ARM, 40000);
                     }
-                    else
-                        instance->SetData64(DATA_LEFT_ARM, who->GetGUID());
                 }
 
                 else if (who->GetEntry() == NPC_RIGHT_ARM)
@@ -170,11 +169,10 @@ class boss_kologarn : public CreatureScript
                     right = apply;
                     if (!apply && isEncounterInProgress)
                     {
+                        who->ToCreature()->DisappearAndDie();
                         DoScriptText(SAY_RIGHT_ARM_GONE, me);
                         events.ScheduleEvent(EVENT_RESPAWN_RIGHT_ARM, 40000);
                     }
-                    else
-                        instance->SetData64(DATA_RIGHT_ARM, who->GetGUID());
                 }
 
                 if (!isEncounterInProgress)
@@ -249,79 +247,68 @@ class boss_kologarn : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                switch (events.GetEvent())
+                while (uint32 eventId = events.ExecuteEvent())
                 {
-                    case EVENT_MELEE_CHECK:
-                        if (!me->IsWithinMeleeRange(me->getVictim()))
-                            DoCast(SPELL_PETRIFY_BREATH);
-                        events.RepeatEvent(1000);
-                        break;
-                    case EVENT_SWEEP:
-                        if (left)
-                            DoCast(me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
-                        events.RepeatEvent(25000);
-                        break;
-                    case EVENT_SMASH:
-                        if (left && right)
-                            DoCastVictim(SPELL_TWO_ARM_SMASH);
-                        else if (left || right)
-                            DoCastVictim(SPELL_ONE_ARM_SMASH);
-                        events.RepeatEvent(15000);
-                        break;
-                    case EVENT_STONE_SHOUT:
-                        DoCast(SPELL_STONE_SHOUT);
-                        events.RepeatEvent(2000);
-                        break;
-                    case EVENT_ENRAGE:
-                        DoCast(SPELL_BERSERK);
-                        DoScriptText(SAY_BERSERK, me);
-                        events.CancelEvent(EVENT_ENRAGE);
-                        break;
-                    case EVENT_RESPAWN_LEFT_ARM:
+                    switch (eventId)
                     {
-                        if (Creature* arm = Unit::GetCreature(*me, instance->GetData64(DATA_LEFT_ARM)))
-                            RespawnArm(arm->ToCreature());
-                        events.CancelEvent(EVENT_RESPAWN_LEFT_ARM);
-                        break;
-                    }
-                    case EVENT_RESPAWN_RIGHT_ARM:
-                    {
-                        if (Creature* arm = Unit::GetCreature(*me, instance->GetData64(DATA_RIGHT_ARM)))
-                            RespawnArm(arm->ToCreature());
-                        events.CancelEvent(EVENT_RESPAWN_RIGHT_ARM);
-                        break;
-                    }
-                    case EVENT_STONE_GRIP:
-                    {
-                        if (right)
+                        case EVENT_MELEE_CHECK:
+                            if (!me->IsWithinMeleeRange(me->getVictim()))
+                                DoCast(SPELL_PETRIFY_BREATH);
+                            events.ScheduleEvent(EVENT_MELEE_CHECK, 1 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_SWEEP:
+                            if (left)
+                                DoCast(me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
+                            events.ScheduleEvent(EVENT_SWEEP, 25 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_SMASH:
+                            if (left && right)
+                                DoCastVictim(SPELL_TWO_ARM_SMASH);
+                            else if (left || right)
+                                DoCastVictim(SPELL_ONE_ARM_SMASH);
+                            events.ScheduleEvent(EVENT_SMASH, 15 * IN_MILLISECONDS);
+                            break;
+                        case EVENT_STONE_SHOUT:
+                            DoCast(SPELL_STONE_SHOUT);
+                            events.ScheduleEvent(EVENT_STONE_SHOUT, 2 * IN_MILLISECONDS); 
+                            break;
+                        case EVENT_ENRAGE:
+                            DoCast(SPELL_BERSERK);
+                            DoScriptText(SAY_BERSERK, me);
+                            break;
+                        case EVENT_RESPAWN_LEFT_ARM:
+                        case EVENT_RESPAWN_RIGHT_ARM:
                         {
-                            DoCast(SPELL_STONE_GRIP);
-                            DoScriptText(SAY_GRAB_PLAYER, me);
+                            if (vehicle)
+                            {
+                                int8 seat = eventId == EVENT_RESPAWN_LEFT_ARM ? 0 : 1;
+                                uint32 entry = eventId == EVENT_RESPAWN_LEFT_ARM ? NPC_LEFT_ARM : NPC_RIGHT_ARM;
+                                vehicle->InstallAccessory(entry, seat, true, TEMPSUMMON_MANUAL_DESPAWN, 0);
+                            }
+                            break;
                         }
-                        events.RepeatEvent(25000);
-                    }
-                    break;
-                    case EVENT_FOCUSED_EYEBEAM:
-                        if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0, true))
+                        case EVENT_STONE_GRIP:
                         {
-                            eyebeamTarget = eyebeamTargetUnit->GetGUID();
-                            DoCast(SPELL_SUMMON_FOCUSED_EYEBEAM);
+                            if (right)
+                            {
+                                DoCast(SPELL_STONE_GRIP);
+                                DoScriptText(SAY_GRAB_PLAYER, me);
+                            }
+                            events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);
                         }
-                        events.RepeatEvent(urand(15000, 35000));
                         break;
+                        case EVENT_FOCUSED_EYEBEAM:
+                            if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0, true))
+                            {
+                                eyebeamTarget = eyebeamTargetUnit->GetGUID();
+                                DoCast(me, SPELL_SUMMON_FOCUSED_EYEBEAM, true);
+                            }
+                            events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
+                            break;
+                    }
                 }
 
                 DoMeleeAttackIfReady();
-            }
-
-            void RespawnArm(Creature* arm)
-            {
-                if (!arm->isAlive())
-                    arm->Respawn();
-
-                int32 seatId = arm->GetEntry() == NPC_LEFT_ARM ? 0 : 1;
-                arm->CastCustomSpell(SPELL_ARM_ENTER_VEHICLE, SPELLVALUE_BASE_POINT0, seatId+1, me, true);
-                arm->CastSpell(arm, SPELL_ARM_ENTER_VISUAL, true);
             }
         };
 
@@ -629,6 +616,34 @@ class spell_kologarn_stone_shout : public SpellScriptLoader
         }
 };
 
+class spell_kologarn_summon_focused_eyebeam : public SpellScriptLoader
+{
+    public:
+        spell_kologarn_summon_focused_eyebeam() : SpellScriptLoader("spell_kologarn_summon_focused_eyebeam") { }
+
+        class spell_kologarn_summon_focused_eyebeam_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_kologarn_summon_focused_eyebeam_SpellScript);
+
+            void HandleForceCast(SpellEffIndex eff)
+            {
+                PreventHitDefaultEffect(eff);
+                GetCaster()->CastSpell(GetCaster(), GetSpellInfo()->Effects[eff].TriggerSpell, true);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_kologarn_summon_focused_eyebeam_SpellScript::HandleForceCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffect += SpellEffectFn(spell_kologarn_summon_focused_eyebeam_SpellScript::HandleForceCast, EFFECT_1, SPELL_EFFECT_FORCE_CAST);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_kologarn_summon_focused_eyebeam_SpellScript();
+        }
+};
+
 void AddSC_boss_kologarn()
 {
     new boss_kologarn();
@@ -639,4 +654,5 @@ void AddSC_boss_kologarn()
     new spell_ulduar_stone_grip_absorb();
     new spell_ulduar_stone_grip();
     new spell_kologarn_stone_shout();
+    new spell_kologarn_summon_focused_eyebeam();
 }
