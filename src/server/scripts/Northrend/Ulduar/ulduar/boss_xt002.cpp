@@ -258,7 +258,7 @@ class boss_xt002 : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
