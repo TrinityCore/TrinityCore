@@ -174,7 +174,7 @@ enum UlduarData
 {
     // Collosus (Leviathan)
     DATA_COLOSSUS                = 20,
-
+    
     // Razorscale
     DATA_EXPEDITION_COMMANDER,
     DATA_RAZORSCALE_CONTROL,
@@ -185,12 +185,14 @@ enum UlduarData
     DATA_TOY_PILE_2,
     DATA_TOY_PILE_3,
 
-    // Kologarn
-    DATA_LEFT_ARM,
-    DATA_RIGHT_ARM,
-
     // Hodir
     DATA_HODIR_RARE_CACHE,
+};
+
+enum UlduarAchievementData
+{
+    // FL Achievement boolean
+    DATA_UNBROKEN = 29052906, // 2905, 2906 are achievement IDs,
 };
 
 template<class AI>

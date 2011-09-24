@@ -80,6 +80,7 @@ class instance_ulduar : public InstanceMapScript
             uint32 ColossusData;
             uint8 elderCount;
             bool conSpeedAtory;
+            bool Unbroken;
 
             std::set<uint64> mRubbleSpawns;
 
@@ -118,6 +119,7 @@ class instance_ulduar : public InstanceMapScript
                 ColossusData                     = 0;
                 elderCount                       = 0;
                 conSpeedAtory                    = false;
+                Unbroken                         = true;
 
                 memset(Encounter, 0, sizeof(Encounter));
                 memset(XTToyPileGUIDs, 0, sizeof(XTToyPileGUIDs));
@@ -499,6 +501,9 @@ class instance_ulduar : public InstanceMapScript
                                     Hodir->RemoveGameObject(gameObject, false);
                         }
                         break;
+                    case DATA_UNBROKEN:
+                        Unbroken = bool(data);
+                        break;
                     default:
                         break;
                 }
@@ -586,6 +591,8 @@ class instance_ulduar : public InstanceMapScript
                         return ColossusData;
                     case DATA_HODIR_RARE_CACHE:
                         return HodirRareCacheData;
+                    case DATA_UNBROKEN:
+                        return uint32(Unbroken);
                     default:
                         break;
                 }

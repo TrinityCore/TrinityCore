@@ -139,7 +139,6 @@ enum Vehicles
 #define EMOTE_OVERLOAD    "Flame Leviathan's circuits overloaded."
 #define EMOTE_REPAIR      "Automatic repair sequence initiated."
 #define DATA_SHUTOUT      29112912 // 2911, 2912 are achievement IDs
-#define DATA_UNBROKEN     29052906 // 2905, 2906 are achievement IDs
 #define DATA_ORBIT_ACHIEVEMENTS    1
 #define VEHICLE_SPAWNS             5
 #define FREYA_SPAWNS               4
@@ -1296,28 +1295,6 @@ class go_ulduar_tower : public GameObjectScript
         }
 };
 
-class at_RX_214_repair_o_matic_station : public AreaTriggerScript
-{
-    public:
-        at_RX_214_repair_o_matic_station() : AreaTriggerScript("at_RX_214_repair_o_matic_station") { }
-
-        bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
-        {
-            InstanceScript* instance = player->GetInstanceScript();
-            if (Creature* vehicle = player->GetVehicleCreatureBase())
-            {
-                if (!vehicle->HasAura(SPELL_AUTO_REPAIR))
-                {
-                    player->MonsterTextEmote(EMOTE_REPAIR, player->GetGUID(), true);
-                    player->CastSpell(vehicle, SPELL_AUTO_REPAIR, true);
-                    if (Creature* leviathan = ObjectAccessor::GetCreature(*player, instance ? instance->GetData64(BOSS_LEVIATHAN) : 0))
-                        leviathan->AI()->SetData(DATA_UNBROKEN, 0); // set bool to false thats checked in leviathan getdata
-                }
-            }
-            return true;
-        }
-};
-
 class achievement_three_car_garage_demolisher : public AchievementCriteriaScript
 {
     public:
@@ -1393,9 +1370,8 @@ class achievement_unbroken : public AchievementCriteriaScript
         bool OnCheck(Player* /*source*/, Unit* target)
         {
             if (target)
-                if (Creature* leviathan = target->ToCreature())
-                    if (leviathan->AI()->GetData(DATA_UNBROKEN))
-                        return true;
+                if (InstanceScript* instance = target->GetInstanceScript())
+                    return instance->GetData(DATA_UNBROKEN);
 
             return false;
         }
@@ -1518,6 +1494,72 @@ class spell_load_into_catapult : public SpellScriptLoader
         }
 };
 
+class spell_auto_repair : public SpellScriptLoader
+{
+    enum Spells
+    {
+        SPELL_AUTO_REPAIR = 62705,
+    };
+
+    public:
+        spell_auto_repair() : SpellScriptLoader("spell_auto_repair") {}
+
+        class spell_auto_repair_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_auto_repair_SpellScript);
+
+            void CheckCooldownForTarget()
+            {
+                if (GetHitUnit()->HasAuraEffect(SPELL_AUTO_REPAIR, EFFECT_2))   // Check presence of dummy aura indicating cooldown
+                {
+                    PreventHitEffect(EFFECT_0);
+                    PreventHitDefaultEffect(EFFECT_1);
+                    PreventHitDefaultEffect(EFFECT_2);
+                    //! Currently this doesn't work: if we call PreventHitAura(), the existing aura will be removed
+                    //! because of recent aura refreshing changes. Since removing the existing aura negates the idea
+                    //! of a cooldown marker, we just let the dummy aura refresh itself without executing the other spelleffects.
+                    //! The spelleffects can be executed by letting the dummy aura expire naturally.
+                    //! This is a temporary solution only.
+                    //PreventHitAura();
+                }
+            }
+
+            void HandleScript(SpellEffIndex /*eff*/)
+            {
+                Vehicle* vehicle = GetHitUnit()->GetVehicleKit();
+                if (!vehicle)
+                    return;
+
+                Player* driver = vehicle->GetPassenger(0) ? vehicle->GetPassenger(0)->ToPlayer() : NULL;
+                if (!driver)
+                    return;
+
+                driver->MonsterTextEmote(EMOTE_REPAIR, driver->GetGUID(), true);
+
+                InstanceScript* instance = driver->GetInstanceScript();
+                if (!instance)
+                    return;
+
+                // Actually should/could use basepoints (100) for this spell effect as percentage of health, but oh well.
+                vehicle->GetBase()->SetFullHealth();
+
+                // For achievement
+                instance->SetData(DATA_UNBROKEN, 0);
+            }
+
+            void Register()
+            {
+                OnEffect += SpellEffectFn(spell_auto_repair_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                BeforeHit += SpellHitFn(spell_auto_repair_SpellScript::CheckCooldownForTarget);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_auto_repair_SpellScript();
+        }
+};
+
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
@@ -1537,7 +1579,7 @@ void AddSC_boss_flame_leviathan()
     new npc_lorekeeper();
     // new npc_brann_bronzebeard();
     new go_ulduar_tower();
-    new at_RX_214_repair_o_matic_station();
+
     new achievement_three_car_garage_demolisher();
     new achievement_three_car_garage_chopper();
     new achievement_three_car_garage_siege();
@@ -1549,4 +1591,5 @@ void AddSC_boss_flame_leviathan()
     new achievement_orbit_uary();
 
     new spell_load_into_catapult();
+    new spell_auto_repair();
 }
