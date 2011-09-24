@@ -5675,6 +5675,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 66765;
                     break;
                 }
+                // Dark Hunger (The Lich King encounter)
+                case 69383:
+                {
+                    basepoints0 = CalculatePctN(int32(damage), 50);
+                    triggered_spell_id = 69384;
+                    break;
+                }
             }
             break;
         }
@@ -9373,7 +9380,7 @@ ReputationRank Unit::GetReactionTo(Unit const* target) const
             if (GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_FFA_PVP
                 && target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_FFA_PVP)
                 return REP_HOSTILE;
-            
+
             if (selfPlayerOwner)
             {
                 if (FactionTemplateEntry const* targetFactionTemplateEntry = target->getFactionTemplateEntry())
@@ -12568,7 +12575,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell) co
             && target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_FFA_PVP)
             return true;
 
-        return (GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_UNK1) 
+        return (GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_UNK1)
             || (target->GetByteValue(UNIT_FIELD_BYTES_2, 1) & UNIT_BYTE2_FLAG_UNK1);
     }
     return true;
@@ -13635,7 +13642,7 @@ void Unit::ApplyDiminishingAura(DiminishingGroup group, bool apply)
     }
 }
 
-float Unit::GetSpellMaxRangeForTarget(Unit* target, SpellInfo const* spellInfo)
+float Unit::GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
 {
     if (!spellInfo->RangeEntry)
         return 0;
@@ -13644,7 +13651,7 @@ float Unit::GetSpellMaxRangeForTarget(Unit* target, SpellInfo const* spellInfo)
     return spellInfo->GetMaxRange(!IsHostileTo(target));
 }
 
-float Unit::GetSpellMinRangeForTarget(Unit* target, SpellInfo const* spellInfo)
+float Unit::GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const
 {
     if (!spellInfo->RangeEntry)
         return 0;
