@@ -97,6 +97,32 @@ struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
     }
 };
 
+// Target selector for spell casts checking range, auras and attributes
+// TODO: Add more checks from Spell::CheckCast
+struct SpellTargetSelector : public std::unary_function<Unit*, bool>
+{
+    public:
+        SpellTargetSelector(Unit* caster, uint32 spellId);
+        bool operator()(Unit const* target) const;
+
+    private:
+        Unit const* _caster;
+        SpellInfo const* _spellInfo;
+};
+
+// Very simple target selector, will just skip main target
+// NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
+//       because tank will not be in the temporary list
+struct NonTankTargetSelector : public std::unary_function<Unit*, bool>
+{
+    public:
+        explicit NonTankTargetSelector(Creature* source) : _source(source) { }
+        bool operator()(Unit const* target) const;
+
+    private:
+        Creature const* _source;
+};
+
 class UnitAI
 {
     protected:

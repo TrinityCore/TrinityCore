@@ -23,6 +23,7 @@
 #include "SpellAuraEffects.h"
 #include "SpellMgr.h"
 #include "SpellInfo.h"
+#include "Spell.h"
 #include "CreatureAIImpl.h"
 
 void UnitAI::AttackStart(Unit* victim)
@@ -244,4 +245,49 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
     Unit* target = me->getVictim();
     if (!target || !charmer->IsValidAttackTarget(target))
         AttackStart(charmer->SelectNearestTargetInAttackDistance());
+}
+
+SpellTargetSelector::SpellTargetSelector(Unit* caster, uint32 spellId) :
+    _caster(caster), _spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(sSpellMgr->GetSpellInfo(spellId), caster))
+{
+    ASSERT(_spellInfo);
+}
+
+bool SpellTargetSelector::operator()(Unit const* target) const
+{
+    if (_spellInfo->CheckTarget(_caster, target) != SPELL_CAST_OK)
+        return false;
+
+    // copypasta from Spell::CheckRange
+    uint32 range_type = _spellInfo->RangeEntry ? _spellInfo->RangeEntry->type : 0;
+    float max_range = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
+    float min_range = _caster->GetSpellMinRangeForTarget(target, _spellInfo);
+
+
+    if (target && target != _caster)
+    {
+        if (range_type == SPELL_RANGE_MELEE)
+        {
+            // Because of lag, we can not check too strictly here.
+            if (!_caster->IsWithinMeleeRange(target, max_range))
+                return false;
+        }
+        else if (!_caster->IsWithinCombatRange(target, max_range))
+            return false;
+
+        if (range_type == SPELL_RANGE_RANGED)
+        {
+            if (_caster->IsWithinMeleeRange(target))
+                return false;
+        }
+        else if (min_range && _caster->IsWithinCombatRange(target, min_range)) // skip this check if min_range = 0
+            return false;
+    }
+
+    return true;
+}
+
+bool NonTankTargetSelector::operator()(Unit const* target) const
+{
+    return target != _source->getVictim();
 }
