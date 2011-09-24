@@ -1255,8 +1255,8 @@ class Unit : public WorldObject
         void ClearDiminishings() { m_Diminishing.clear(); }
 
         // target dependent range checks
-        float GetSpellMaxRangeForTarget(Unit* target, SpellInfo const* spellInfo);
-        float GetSpellMinRangeForTarget(Unit* target, SpellInfo const* spellInfo);
+        float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
+        float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
         virtual void Update(uint32 time);
 

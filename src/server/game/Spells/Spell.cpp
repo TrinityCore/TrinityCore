@@ -807,7 +807,7 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
 
     switch (m_spellInfo->Effects[effIndex].GetImplicitTargetType())
     {
-        // add explicit object target or self to the target map 
+        // add explicit object target or self to the target map
         case EFFECT_IMPLICIT_TARGET_EXPLICIT:
             // player which not released his spirit is Unit, but target flag for it is TARGET_FLAG_CORPSE_MASK
             if (targetMask & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_CORPSE_MASK))
@@ -839,7 +839,7 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
                     AddGOTarget(gObjTarget, 1 << effIndex);
             }
             break;
-        // add self to the target map 
+        // add self to the target map
         case EFFECT_IMPLICIT_TARGET_CASTER:
             if (targetMask & TARGET_FLAG_UNIT_MASK)
                 AddUnitTarget(m_caster, 1 << effIndex, false);
