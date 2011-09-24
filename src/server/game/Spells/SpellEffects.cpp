@@ -3205,13 +3205,12 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 
     if (unitTarget->GetTypeId() != TYPEID_PLAYER)
     {
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
+        if (unitTarget->ToPet())
             EffectLearnPetSpell(effIndex);
-
         return;
     }
 
-    Player* player = (Player*)unitTarget;
+    Player* player = unitTarget->ToPlayer();
 
     uint32 spellToLearn = (m_spellInfo->Id == 483 || m_spellInfo->Id == 55884) ? damage : m_spellInfo->Effects[effIndex].TriggerSpell;
     player->learnSpell(spellToLearn, false);
@@ -3896,15 +3895,16 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
 
 void Spell::EffectLearnPetSpell(SpellEffIndex effIndex)
 {
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    if (!unitTarget)
         return;
 
-    Player* _player = m_caster->ToPlayer();
-
-    Pet* pet = _player->GetPet();
+    if (unitTarget->ToPlayer())
+    {
+        EffectLearnSpell(effIndex);
+        return;
+    }
+    Pet* pet = unitTarget->ToPet();
     if (!pet)
-        return;
-    if (!pet->isAlive())
         return;
 
     SpellInfo const* learn_spellproto = sSpellMgr->GetSpellInfo(m_spellInfo->Effects[effIndex].TriggerSpell);
@@ -3912,9 +3912,8 @@ void Spell::EffectLearnPetSpell(SpellEffIndex effIndex)
         return;
 
     pet->learnSpell(learn_spellproto->Id);
-
     pet->SavePetToDB(PET_SAVE_AS_CURRENT);
-    _player->PetSpellInitialize();
+    pet->GetOwner()->PetSpellInitialize();
 }
 
 void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
