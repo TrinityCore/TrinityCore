@@ -76,10 +76,28 @@ class spell_ex_5581 : public SpellScriptLoader
                 delete localVariable2;
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleDummyLaunch(SpellEffIndex /*effIndex*/)
             {
+                sLog->outString("Spell %u with SPELL_EFFECT_DUMMY is just launched!", GetSpellInfo()->Id);
+            }
+
+            void HandleDummyLaunchTarget(SpellEffIndex /*effIndex*/)
+            {
+                uint64 targetGUID = 0;
+                if (Unit* unitTarget = GetHitUnit())
+                    targetGUID = unitTarget->GetGUID();
                 // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
-                sLog->outString("SPELL_EFFECT_DUMMY is executed on target!");
+                sLog->outString("Spell %u with SPELL_EFFECT_DUMMY is just launched at it's target: " UI64FMTD "!", GetSpellInfo()->Id, targetGUID);
+            }
+
+            void HandleDummyHit(SpellEffIndex /*effIndex*/)
+            {
+                sLog->outString("Spell %u with SPELL_EFFECT_DUMMY has hit!", GetSpellInfo()->Id);
+            }
+
+            void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
+            {
+                sLog->outString("SPELL_EFFECT_DUMMY is hits it's target!");
                 // make caster cast a spell on a unit target of effect
                 if (Unit* target = GetHitUnit())
                     GetCaster()->CastSpell(target, SPELL_TRIGGERED, true);
@@ -110,15 +128,20 @@ class spell_ex_5581 : public SpellScriptLoader
             void Register()
             {
                 // we're registering our function here
-                // function HandleDummy will be called when unit is hit by spell, just before default effect 0 handler
-                //OnEffect += SpellEffectFn(spell_ex_5581SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnEffect += SpellEffectFn(spell_ex_5581SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // function HandleDummy will be called when spell is launched, independant from targets selected for spell, just before default effect 0 launch handler
+                OnEffectLaunch += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // function HandleDummy will be called when spell is launched at target, just before default effect 0 launch at target handler
+                OnEffectLaunchTarget += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyLaunchTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // function HandleDummy will be called when spell hits it's destination, independant from targets selected for spell, just before default effect 0 hit handler
+                OnEffectHit += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // function HandleDummy will be called when unit is hit by spell, just before default effect 0 hit target handler
+                OnEffectHitTarget += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
                 // this will prompt an error on startup because effect 0 of spell 49375 is set to SPELL_EFFECT_DUMMY, not SPELL_EFFECT_APPLY_AURA
-                //OnEffect += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                //OnEffectHitTarget += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 // this will make HandleDummy function to be called on first != 0 effect of spell 49375
-                //OnEffect += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
+                //OnEffectHitTarget += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
                 // this will make HandleDummy function to be called on all != 0 effect of spell 49375
-                //OnEffect += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
+                //OnEffectHitTarget += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
                 // bind handler to BeforeHit event of the spell
                 BeforeHit += SpellHitFn(spell_ex_5581SpellScript::HandleBeforeHit);
                 // bind handler to OnHit event of the spell

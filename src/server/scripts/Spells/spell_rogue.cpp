@@ -198,7 +198,7 @@ class spell_rog_preparation : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Preparation
-                OnEffect += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -280,7 +280,7 @@ class spell_rog_shiv : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Shiv
-                OnEffect += SpellEffectFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

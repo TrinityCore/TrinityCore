@@ -122,7 +122,10 @@ class _SpellScript
 // SpellScript interface - enum used for runtime checks of script function calls
 enum SpellScriptHookType
 {
-    SPELL_SCRIPT_HOOK_EFFECT = SPELL_SCRIPT_STATE_END,
+    SPELL_SCRIPT_HOOK_EFFECT_LAUNCH = SPELL_SCRIPT_STATE_END,
+    SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET,
+    SPELL_SCRIPT_HOOK_EFFECT_HIT,
+    SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET,
     SPELL_SCRIPT_HOOK_BEFORE_HIT,
     SPELL_SCRIPT_HOOK_HIT,
     SPELL_SCRIPT_HOOK_AFTER_HIT,
@@ -130,7 +133,7 @@ enum SpellScriptHookType
     SPELL_SCRIPT_HOOK_CHECK_CAST,
 };
 
-#define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT
+#define HOOK_SPELL_HIT_START SPELL_SCRIPT_HOOK_EFFECT_HIT
 #define HOOK_SPELL_HIT_END SPELL_SCRIPT_HOOK_AFTER_HIT + 1
 #define HOOK_SPELL_START SPELL_SCRIPT_HOOK_EFFECT
 #define HOOK_SPELL_END SPELL_SCRIPT_HOOK_CHECK_CAST + 1
@@ -205,9 +208,10 @@ class SpellScript : public _SpellScript
         bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) { return m_hitPreventDefaultEffectMask & (1<<effIndex); }
         void _PrepareScriptCall(SpellScriptHookType hookType);
         void _FinishScriptCall();
-        bool IsInCheckCastHook() const { return m_currentScriptState == SPELL_SCRIPT_HOOK_CHECK_CAST; }
-        bool IsInHitPhase() const { return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END); }
-        bool IsInEffectHook() const { return (m_currentScriptState == SPELL_SCRIPT_HOOK_EFFECT); }
+        bool IsInCheckCastHook() const;
+        bool IsInTargetHook() const;
+        bool IsInHitPhase() const;
+        bool IsInEffectHook() const;
     private:
         Spell* m_spell;
         uint8 m_hitPreventEffectMask;
@@ -223,9 +227,12 @@ class SpellScript : public _SpellScript
         HookList<CheckCastHandler> OnCheckCast;
         #define SpellCheckCastFn(F) CheckCastHandlerFunction(&F)
 
-        // example: OnEffect += SpellEffectFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
+        // example: OnEffect**** += SpellEffectFn(class::function, EffectIndexSpecifier, EffectNameSpecifier);
         // where function is void function(SpellEffIndex effIndex)
-        HookList<EffectHandler> OnEffect;
+        HookList<EffectHandler> OnEffectLaunch;
+        HookList<EffectHandler> OnEffectLaunchTarget;
+        HookList<EffectHandler> OnEffectHit;
+        HookList<EffectHandler> OnEffectHitTarget;
         #define SpellEffectFn(F, I, N) EffectHandlerFunction(&F, I, N)
 
         // example: BeforeHit += SpellHitFn(class::function);
@@ -244,10 +251,13 @@ class SpellScript : public _SpellScript
 
         // hooks are executed in following order, at specified event of spell:
         // 1. OnUnitTargetSelect - executed just before adding selected targets to final target list
-        // 2. BeforeHit - executed just before spell hits a target
-        // 3. OnEffect - executed just before specified effect handler call
-        // 4. OnHit - executed just before spell deals damage and procs auras
-        // 5. AfterHit - executed just after spell finishes all it's jobs for target
+        // 2. OnEffectLaunch - executed just before specified effect handler call - when spell missile is launched
+        // 3. OnEffectLaunchTarget - executed just before specified effect handler call - when spell missile is launched - called for each target from spell target map
+        // 4. OnEffectHit - executed just before specified effect handler call - when spell missile hits dest
+        // 5. BeforeHit - executed just before spell hits a target - called for each target from spell target map
+        // 6. OnEffectHitTarget - executed just before specified effect handler call - called for each target from spell target map
+        // 7. OnHit - executed just before spell deals damage and procs auras - when spell hits target - called for each target from spell target map
+        // 8. AfterHit - executed just after spell finishes all it's jobs for target - called for each target from spell target map
 
         //
         // methods allowing interaction with Spell object
@@ -275,7 +285,7 @@ class SpellScript : public _SpellScript
         // returns: Item which was selected as a spell target or NULL
         Item* GetTargetItem();
 
-        // methods useable only during spell hit on target phase:
+        // methods useable only during spell hit on target, or during spell launch on target:
 
         // returns: target of current effect if it was Unit otherwise NULL
         Unit* GetHitUnit();
