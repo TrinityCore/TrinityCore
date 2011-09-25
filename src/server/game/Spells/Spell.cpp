@@ -483,7 +483,6 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
     m_delayAtDamageCount = 0;
 
     m_applyMultiplierMask = 0;
-    m_effectMask = 0;
     m_auraScaleMask = 0;
 
     // Get data for type of attack
@@ -1166,7 +1165,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
         // can't use default call because of threading, do stuff as fast as possible
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (farMask & (1 << i))
-                HandleEffects(unit, NULL, NULL, i);
+                HandleEffects(unit, NULL, NULL, i, SPELL_EFFECT_HANDLE_HIT_TARGET);
         return;
     }
 
@@ -1563,7 +1562,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
-            HandleEffects(unit, NULL, NULL, effectNumber);
+            HandleEffects(unit, NULL, NULL, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     return SPELL_MISS_NONE;
 }
@@ -1655,7 +1654,7 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo* target)
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
-            HandleEffects(NULL, NULL, go, effectNumber);
+            HandleEffects(NULL, NULL, go, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     CallScriptOnHitHandlers();
 
@@ -1678,7 +1677,7 @@ void Spell::DoAllEffectOnTarget(ItemTargetInfo* target)
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
-            HandleEffects(NULL, target->item, NULL, effectNumber);
+            HandleEffects(NULL, target->item, NULL, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     CallScriptOnHitHandlers();
 
@@ -3187,29 +3186,12 @@ void Spell::cast(bool skipCheck)
             TakeReagents();
     }
 
-    if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_DIRECT_DAMAGE)
-        CalculateDamageDoneForAllTargets();
-
     // CAST SPELL
     SendSpellCooldown();
 
     PrepareScriptHitHandlers();
 
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-    {
-        switch (m_spellInfo->Effects[i].Effect)
-        {
-            case SPELL_EFFECT_CHARGE:
-            case SPELL_EFFECT_CHARGE_DEST:
-            case SPELL_EFFECT_JUMP:
-            case SPELL_EFFECT_JUMP_DEST:
-            case SPELL_EFFECT_LEAP_BACK:
-            case SPELL_EFFECT_ACTIVATE_RUNE:
-                HandleEffects(NULL, NULL, NULL, i);
-                m_effectMask |= (1<<i);
-                break;
-        }
-    }
+    HandleLaunchPhase();
 
     // we must send smsg_spell_go packet before m_castItem delete in TakeCastItem()...
     SendSpellGo();
@@ -3372,27 +3354,25 @@ uint64 Spell::handle_delayed(uint64 t_offset)
 void Spell::_handle_immediate_phase()
 {
     m_spellAura = NULL;
+    // initialize Diminishing Returns Data
+    m_diminishLevel = DIMINISHING_LEVEL_1;
+    m_diminishGroup = DIMINISHING_NONE;
+
     // handle some immediate features of the spell here
     HandleThreatSpells();
 
     PrepareScriptHitHandlers();
 
+    // handle effects with SPELL_EFFECT_HANDLE_HIT mode
     for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
-        if (m_spellInfo->Effects[j].Effect == 0)
+        // don't do anything for empty effect
+        if (!m_spellInfo->Effects[j].IsEffect())
             continue;
 
-        // apply Send Event effect to ground in case empty target lists
-        if (m_spellInfo->Effects[j].Effect == SPELL_EFFECT_SEND_EVENT && !HaveTargetsForEffect(j))
-        {
-            HandleEffects(NULL, NULL, NULL, j);
-            continue;
-        }
+        // call effect handlers to handle destination hit
+        HandleEffects(NULL, NULL, NULL, j, SPELL_EFFECT_HANDLE_HIT);
     }
-
-    // initialize Diminishing Returns Data
-    m_diminishLevel = DIMINISHING_LEVEL_1;
-    m_diminishGroup = DIMINISHING_NONE;
 
     // process items
     for (std::list<ItemTargetInfo>::iterator ihit= m_UniqueItemInfo.begin(); ihit != m_UniqueItemInfo.end(); ++ihit)
@@ -3400,39 +3380,14 @@ void Spell::_handle_immediate_phase()
 
     if (!m_originalCaster)
         return;
-    uint8 oldEffMask = m_effectMask;
-    // process ground
-    for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-    {
-        if (!m_spellInfo->Effects[j].IsEffect())
-            continue;
-
-        if (m_spellInfo->Effects[j].GetUsedTargetObjectType() == TARGET_OBJECT_TYPE_DEST)
-        {
-            if (!m_targets.HasDst()) // FIXME: this will ignore dest set in effect
-                m_targets.SetDst(*m_caster);
-            HandleEffects(m_originalCaster, NULL, NULL, j);
-            m_effectMask |= (1<<j);
-        }
-        else if (m_spellInfo->Effects[j].GetUsedTargetObjectType() && !m_spellInfo->Effects[j].GetImplicitTargetType())
-        {
-            HandleEffects(m_originalCaster, NULL, NULL, j);
-            m_effectMask |= (1<<j);
-        }
-    }
-    if (oldEffMask != m_effectMask && m_UniqueTargetInfo.empty())
+    // Handle procs on cast
+    // TODO: finish new proc system:P
+    if (m_UniqueTargetInfo.empty())
     {
         uint32 procAttacker = m_procAttacker;
         if (!procAttacker)
         {
-            bool positive = true;
-            for (uint8 i = 0; i< MAX_SPELL_EFFECTS; ++i)
-                // If at least one effect negative spell is negative hit
-                if (m_effectMask & (1<<i) && !m_spellInfo->IsPositiveEffect(i))
-                {
-                    positive = false;
-                    break;
-                }
+            bool positive = m_spellInfo->IsPositive();
             switch (m_spellInfo->DmgClass)
             {
                 case SPELL_DAMAGE_CLASS_MAGIC:
@@ -4571,12 +4526,9 @@ void Spell::HandleThreatSpells()
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell %u, added an additional %f threat for %s %u target(s)", m_spellInfo->Id, threat, m_spellInfo->_IsPositiveSpell() ? "assisting" : "harming", uint32(m_UniqueTargetInfo.size()));
 }
 
-void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i)
+void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOTarget, uint32 i, SpellEffectHandleMode mode)
 {
-    //effect has been handled, skip it
-    if (m_effectMask & (1<<i))
-        return;
-
+    effectHandleMode = mode;
     unitTarget = pUnitTarget;
     itemTarget = pItemTarget;
     gameObjTarget = pGOTarget;
@@ -4585,10 +4537,10 @@ void Spell::HandleEffects(Unit* pUnitTarget, Item* pItemTarget, GameObject* pGOT
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell: %u Effect : %u", m_spellInfo->Id, eff);
 
-    //we do not need DamageMultiplier here.
+    // we do not need DamageMultiplier here.
     damage = CalculateDamage(i, NULL);
 
-    bool preventDefault = CallScriptEffectHandlers((SpellEffIndex)i);
+    bool preventDefault = CallScriptEffectHandlers((SpellEffIndex)i, mode);
 
     if (!preventDefault && eff < TOTAL_SPELL_EFFECTS)
     {
@@ -6598,14 +6550,24 @@ bool Spell::IsValidDeadOrAliveTarget(Unit const* target) const
     return false;
 }
 
-void Spell::CalculateDamageDoneForAllTargets()
+void Spell::HandleLaunchPhase()
 {
+    // handle effects with SPELL_EFFECT_HANDLE_LAUNCH mode
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        // don't do anything for empty effect
+        if (!m_spellInfo->Effects[i].IsEffect())
+            continue;
+
+        HandleEffects(NULL, NULL, NULL, i, SPELL_EFFECT_HANDLE_LAUNCH);
+    }
+
     float multiplier[MAX_SPELL_EFFECTS];
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (m_applyMultiplierMask & (1 << i))
             multiplier[i] = m_spellInfo->Effects[i].CalcDamageMultiplier(m_originalCaster, this);
 
-    bool usesAmmo = true;
+    bool usesAmmo = m_spellInfo->AttributesCu & SPELL_ATTR0_CU_DIRECT_DAMAGE;
     Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
     for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
     {
@@ -6615,14 +6577,10 @@ void Spell::CalculateDamageDoneForAllTargets()
 
     for (std::list<TargetInfo>::iterator ihit= m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
     {
-        TargetInfo &target = *ihit;
+        TargetInfo& target = *ihit;
 
         uint32 mask = target.effectMask;
         if (!mask)
-            continue;
-
-        Unit* unit = m_caster->GetGUID() == target.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, target.targetGUID);
-        if (!unit) // || !unit->isAlive()) do we need to check alive here?
             continue;
 
         // do not consume ammo anymore for Hunter's volley spell
@@ -6650,49 +6608,30 @@ void Spell::CalculateDamageDoneForAllTargets()
                     break;
             }
         }
-
-        if (target.missCondition == SPELL_MISS_NONE)                          // In case spell hit target, do all effect on that target
-        {
-            target.damage += CalculateDamageDone(unit, mask, multiplier);
-            target.crit = m_caster->isSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
-        }
-        else if (target.missCondition == SPELL_MISS_REFLECT)                // In case spell reflect from target, do all effect on caster (if hit)
-        {
-            if (target.reflectResult == SPELL_MISS_NONE)       // If reflected spell hit caster -> do all effect on him
-            {
-                target.damage += CalculateDamageDone(m_caster, mask, multiplier);
-                target.crit = m_caster->isSpellCrit(m_caster, m_spellInfo, m_spellSchoolMask, m_attackType);
-            }
-        }
+        DoAllEffectOnLaunchTarget(target, multiplier);
     }
 }
 
-int32 Spell::CalculateDamageDone(Unit* unit, const uint32 effectMask, float * multiplier)
+void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
 {
-    int32 damageDone = 0;
-    unitTarget = unit;
+    Unit* unit = NULL;
+    // In case spell hit target, do all effect on that target
+    if (targetInfo.missCondition == SPELL_MISS_NONE)
+        unit = m_caster->GetGUID() == targetInfo.targetGUID ? m_caster : ObjectAccessor::GetUnit(*m_caster, targetInfo.targetGUID);
+    // In case spell reflect from target, do all effect on caster (if hit)
+    else if (targetInfo.missCondition == SPELL_MISS_REFLECT && targetInfo.reflectResult == SPELL_MISS_NONE)
+        unit = m_caster;
+    if (!unit)
+        return;
+
     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (effectMask & (1<<i))
+        if (targetInfo.effectMask & (1<<i))
         {
             m_damage = 0;
-            damage = CalculateDamage(i, NULL);
+            m_healing = 0;
 
-            switch (m_spellInfo->Effects[i].Effect)
-            {
-                case SPELL_EFFECT_SCHOOL_DAMAGE:
-                    SpellDamageSchoolDmg((SpellEffIndex)i);
-                    break;
-                case SPELL_EFFECT_WEAPON_DAMAGE:
-                case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
-                case SPELL_EFFECT_NORMALIZED_WEAPON_DMG:
-                case SPELL_EFFECT_WEAPON_PERCENT_DAMAGE:
-                    SpellDamageWeaponDmg((SpellEffIndex)i);
-                    break;
-                case SPELL_EFFECT_HEAL:
-                    SpellDamageHeal((SpellEffIndex)i);
-                    break;
-            }
+            HandleEffects(unit, NULL, NULL, i, SPELL_EFFECT_HANDLE_LAUNCH_TARGET);
 
             if (m_damage > 0)
             {
@@ -6716,12 +6655,11 @@ int32 Spell::CalculateDamageDone(Unit* unit, const uint32 effectMask, float * mu
                 m_damage = int32(m_damage * m_damageMultipliers[i]);
                 m_damageMultipliers[i] *= multiplier[i];
             }
-
-            damageDone += m_damage;
+            targetInfo.damage += m_damage;
         }
     }
 
-    return damageDone;
+    targetInfo.crit = m_caster->isSpellCrit(unit, m_spellInfo, m_spellSchoolMask, m_attackType);
 }
 
 SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& skillId, int32& reqSkillValue, int32& skillValue)
@@ -7031,14 +6969,41 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
     return retVal;
 }
 
-bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex)
+bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMode mode)
 {
     // execute script effect handler hooks and check if effects was prevented
     bool preventDefault = false;
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
     {
-        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_EFFECT);
-        std::list<SpellScript::EffectHandler>::iterator effEndItr = (*scritr)->OnEffect.end(), effItr = (*scritr)->OnEffect.begin();
+        std::list<SpellScript::EffectHandler>::iterator effItr, effEndItr;
+        SpellScriptHookType hookType;
+        switch (mode)
+        {
+            case SPELL_EFFECT_HANDLE_LAUNCH:
+                effItr = (*scritr)->OnEffectLaunch.begin();
+                effEndItr = (*scritr)->OnEffectLaunch.end();
+                hookType = SPELL_SCRIPT_HOOK_EFFECT_LAUNCH;
+                break;
+            case SPELL_EFFECT_HANDLE_LAUNCH_TARGET:
+                effItr = (*scritr)->OnEffectLaunchTarget.begin();
+                effEndItr = (*scritr)->OnEffectLaunchTarget.end();
+                hookType = SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET;
+                break;
+            case SPELL_EFFECT_HANDLE_HIT:
+                effItr = (*scritr)->OnEffectHit.begin();
+                effEndItr = (*scritr)->OnEffectHit.end();
+                hookType = SPELL_SCRIPT_HOOK_EFFECT_HIT;
+                break;
+            case SPELL_EFFECT_HANDLE_HIT_TARGET:
+                effItr = (*scritr)->OnEffectHitTarget.begin();
+                effEndItr = (*scritr)->OnEffectHitTarget.end();
+                hookType = SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET;
+                break;
+            default:
+                ASSERT(false);
+                break;
+        }
+        (*scritr)->_PrepareScriptCall(hookType);
         for (; effItr != effEndItr ; ++effItr)
             // effect execution can be prevented
             if (!(*scritr)->_IsEffectPrevented(effIndex) && (*effItr).IsEffectAffected(m_spellInfo, effIndex))

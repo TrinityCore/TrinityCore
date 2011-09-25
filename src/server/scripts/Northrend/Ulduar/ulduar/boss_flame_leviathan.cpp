@@ -1549,7 +1549,7 @@ class spell_auto_repair : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_auto_repair_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_auto_repair_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
                 BeforeHit += SpellHitFn(spell_auto_repair_SpellScript::CheckCooldownForTarget);
             }
         };
