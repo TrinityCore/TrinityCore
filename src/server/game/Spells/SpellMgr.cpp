@@ -2955,12 +2955,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 // because of bug in dbc
                 spellInfo->procChance = 0;
                 break;
-            case 32182: // Heroism
-                spellInfo->excludeCasterAuraSpell = 57723; // Exhaustion
-                break;
-            case 2825:  // Bloodlust
-                spellInfo->excludeCasterAuraSpell = 57724; // Sated
-                break;
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
