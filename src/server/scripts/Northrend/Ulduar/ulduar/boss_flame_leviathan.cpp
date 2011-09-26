@@ -32,6 +32,7 @@
 #include "SpellInfo.h"
 #include "SpellScript.h"
 #include "Vehicle.h"
+#include "VehicleDefines.h"
 #include "ulduar.h"
 
 enum Spells
@@ -272,8 +273,8 @@ class boss_flame_leviathan : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 _EnterCombat();
-                me->SetReactState(REACT_AGGRESSIVE);
-                events.ScheduleEvent(EVENT_PURSUE, 30*IN_MILLISECONDS);
+                me->SetReactState(REACT_PASSIVE);
+                events.ScheduleEvent(EVENT_PURSUE, 1);
                 events.ScheduleEvent(EVENT_MISSILE, urand(1500, 4*IN_MILLISECONDS));
                 events.ScheduleEvent(EVENT_VENT, 20*IN_MILLISECONDS);
                 events.ScheduleEvent(EVENT_SHUTDOWN, 150*IN_MILLISECONDS);
@@ -317,14 +318,6 @@ class boss_flame_leviathan : public CreatureScript
                 }
                 else
                     DoScriptText(SAY_AGGRO, me);
-            }
-
-            //TODO: effect 0 and effect 1 may be on different target
-            //TODO: Move to spellscript
-            void SpellHitTarget(Unit* target, SpellInfo const* spell)
-            {
-                if (spell->Id == SPELL_PURSUED)
-                    AttackStart(target);
             }
 
             void JustDied(Unit* /*victim*/)
@@ -372,6 +365,8 @@ class boss_flame_leviathan : public CreatureScript
                     Unbroken = data ? true : false;
             }
 
+            Unit* pursueTarget;
+
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
@@ -388,21 +383,6 @@ class boss_flame_leviathan : public CreatureScript
                     return;
                 }
 
-                if (me->HasAura(SPELL_SYSTEMS_SHUTDOWN))
-                {
-                    me->SetReactState(REACT_PASSIVE);
-                    me->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                    if (Shutout)
-                        Shutout = false;
-                    return;
-                }
-                else
-                {
-                    me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
-                }
-
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
@@ -412,12 +392,8 @@ class boss_flame_leviathan : public CreatureScript
                     {
                         case EVENT_PURSUE:
                             DoScriptText(RAND(SAY_TARGET_1, SAY_TARGET_2, SAY_TARGET_3), me);
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 75, true))
-                            {
-                                me->CastSpell(target, SPELL_PURSUED, true);
-                                me->MonsterTextEmote(EMOTE_PURSUE, target->GetGUID(), true);
-                            }
-                            events.ScheduleEvent(EVENT_PURSUE, 30*IN_MILLISECONDS);
+                            DoCast(SPELL_PURSUED);  // Will select target in spellscript
+                            events.ScheduleEvent(EVENT_PURSUE, 35*IN_MILLISECONDS);
                             break;
                         case EVENT_MISSILE:
                             DoCast(me, SPELL_MISSILE_BARRAGE, true);
@@ -441,9 +417,10 @@ class boss_flame_leviathan : public CreatureScript
                             DoScriptText(RAND(SAY_OVERLOAD_1, SAY_OVERLOAD_2, SAY_OVERLOAD_3), me);
                             me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
                             me->CastSpell(me, SPELL_SYSTEMS_SHUTDOWN, true);
-                            me->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
+                            if (Shutout)
+                                Shutout = false;
                             events.ScheduleEvent(EVENT_REPAIR, 4000);
-                            events.CancelEvent(EVENT_SHUTDOWN);
+                            events.DelayEvents(20 * IN_MILLISECONDS, 0);
                             break;
                         case EVENT_REPAIR:
                             me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
@@ -488,7 +465,7 @@ class boss_flame_leviathan : public CreatureScript
                 //TODO: Fix this spell, gets applied on players who are on leviathan should be excluded?
                 /*if (me->IsWithinMeleeRange(me->getVictim())) //bugged spell casts on units that are boarded on leviathan
                 DoSpellAttackIfReady(SPELL_BATTERING_RAM);*/
-                DoMeleeAttackIfReady();
+                //DoMeleeAttackIfReady();
             }
 
             void DoAction(int32 const action)
@@ -553,6 +530,8 @@ class boss_flame_leviathan : public CreatureScript
                         break;
                 }
             }
+
+            //Unit* SelectTarget()
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -1560,6 +1539,140 @@ class spell_auto_repair : public SpellScriptLoader
         }
 };
 
+class spell_systems_shutdown : public SpellScriptLoader
+{
+    public:
+        spell_systems_shutdown() : SpellScriptLoader("spell_systems_shutdown") { }
+
+        class spell_systems_shutdown_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_systems_shutdown_AuraScript);
+
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Creature* owner = GetOwner()->ToCreature();
+                if (!owner)
+                    return;
+
+                //! This could probably in the SPELL_EFFECT_SEND_EVENT handler too:
+                owner->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+                owner->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
+            }
+
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Creature* owner = GetOwner()->ToCreature();
+                if (!owner)
+                    return;
+
+                owner->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_systems_shutdown_AuraScript::OnApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+                OnEffectRemove += AuraEffectRemoveFn(spell_systems_shutdown_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_systems_shutdown_AuraScript();
+        }
+};
+
+class FlameLeviathanPursuedTargetSelector
+{
+    enum Area
+    {
+        AREA_FORMATION_GROUNDS = 4652,
+    };
+
+    public:
+        explicit FlameLeviathanPursuedTargetSelector(Unit* unit) : _me(unit) {};
+
+        bool operator()(Unit* target) const
+        {
+            //! No players, only vehicles (todo: check if blizzlike)
+            Creature* creatureTarget = target->ToCreature();
+            if (!creatureTarget)
+                return true;
+
+            //! NPC entries must match
+            if (creatureTarget->GetEntry() != NPC_SALVAGED_DEMOLISHER && creatureTarget->GetEntry() != NPC_SALVAGED_SIEGE_ENGINE)
+                return true;
+
+            //! NPC must be a valid vehicle installation
+            Vehicle* vehicle = creatureTarget->GetVehicleKit();
+            if (!vehicle)
+                return true;
+
+            //! Entity needs to be in appropriate area
+            if (target->GetAreaId() != AREA_FORMATION_GROUNDS)
+                return true;
+
+            //! Vehicle must be in use by player
+            bool playerFound = false;
+            for (SeatMap::const_iterator itr = vehicle->Seats.begin(); itr != vehicle->Seats.end() && !playerFound; ++itr)
+                if (IS_PLAYER_GUID(itr->second.Passenger))
+                    playerFound = true;
+
+            return !playerFound;
+        }
+
+    private:
+        Unit const* _me;
+};
+
+class spell_pursue : public SpellScriptLoader
+{
+    public:
+        spell_pursue() : SpellScriptLoader("spell_pursue") {}
+
+        class spell_pursue_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pursue_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& targets)
+            {
+                targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));
+                if (targets.empty())
+                    if (Creature* caster = GetCaster()->ToCreature())
+                        caster->AI()->EnterEvadeMode();
+            }
+
+            void HandleScript(SpellEffIndex eff)
+            {
+                Creature* caster = GetCaster()->ToCreature();
+                if (!caster)
+                    return;
+
+                caster->AI()->AttackStart(GetHitUnit());    // Chase target
+                
+                for (SeatMap::const_iterator itr = caster->GetVehicleKit()->Seats.begin(); itr != caster->GetVehicleKit()->Seats.end(); ++itr)
+                {
+                    if (IS_PLAYER_GUID(itr->second.Passenger))
+                    {
+                        caster->MonsterTextEmote(EMOTE_PURSUE, itr->second.Passenger, true);
+                        return;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffect += SpellEffectFn(spell_pursue_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pursue_SpellScript();
+        }
+};
+
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
@@ -1592,4 +1705,6 @@ void AddSC_boss_flame_leviathan()
 
     new spell_load_into_catapult();
     new spell_auto_repair();
+    new spell_systems_shutdown();
+    new spell_pursue();
 }
