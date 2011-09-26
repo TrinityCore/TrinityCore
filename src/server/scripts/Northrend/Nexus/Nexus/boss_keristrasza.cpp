@@ -237,12 +237,13 @@ class spell_intense_cold : public SpellScriptLoader
 
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                if (aurEff->GetBase()->GetStackAmount() < 2)
                     return;
-
-                if (aurEff->GetBase()->GetStackAmount() >= 2)
-                    caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
+                Unit* caster = GetCaster();
+                //TODO: the caster should be boss but not the player
+                if (!caster || !caster->GetAI())
+                    return;
+                caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
             }
 
             void Register()
