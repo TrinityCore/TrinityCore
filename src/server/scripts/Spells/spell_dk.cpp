@@ -168,6 +168,8 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
                 SpellInfo const* talentSpell = sSpellMgr->GetSpellInfo(DK_SPELL_ANTI_MAGIC_SHELL_TALENT);
                 amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
                 Unit* caster = GetCaster();
+                if(!caster)
+                    return;
                 if(Player* player = caster->ToPlayer())
                      amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
             }
