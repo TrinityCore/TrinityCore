@@ -2927,11 +2927,6 @@ void SpellMgr::LoadDbcDataCorrections()
                     if (!spellInfo->speed && !spellInfo->SpellFamilyName)
                         spellInfo->speed = SPEED_CHARGE;
                     break;
-                case SPELL_EFFECT_TRIGGER_SPELL:
-                    if (SpellImplicitTargetInfo::IsPosition(spellInfo->EffectImplicitTargetA[j]) ||
-                        spellInfo->Targets & (TARGET_FLAG_SOURCE_LOCATION | TARGET_FLAG_DEST_LOCATION))
-                        spellInfo->Effect[j] = SPELL_EFFECT_TRIGGER_MISSILE;
-                    break;
             }
         }
 
@@ -2978,10 +2973,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 59372: // Energize Cores
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
-            case 3286:  // Bind
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ENEMY;
-                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
-                break;
             case 8494: // Mana Shield (rank 2)
                 // because of bug in dbc
                 spellInfo->procChance = 0;
@@ -3002,14 +2993,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 63320: // Glyph of Life Tap
             // Entries were not updated after spell effect change, we have to do that manually :/
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CAN_PROC_WITH_TRIGGERED;
-                break;
-            case 16007: // Draco-Incarcinatrix 900
-                // was 46, but effect is aura effect
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_NEARBY_ENTRY;
-                spellInfo->EffectImplicitTargetB[0] = TARGET_DEST_NEARBY_ENTRY;
-                break;
-            case 19465: // Improved Stings, only rank 2 of this spell has target for effect 2 = TARGET_DST_DB
-                spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_CASTER;
                 break;
             case 59725: // Improved Spell Reflection - aoe aura
                 // Target entry seems to be wrong for this spell :/
@@ -3049,13 +3032,8 @@ void SpellMgr::LoadDbcDataCorrections()
             case 42611: // Shoot
             case 62374: // Pursued
             case 61588: // Blazing Harpoon
-                spellInfo->MaxAffectedTargets = 1;
-                break;
             case 52479: // Gift of the Harvester
                 spellInfo->MaxAffectedTargets = 1;
-                // a trap always has dst = src?
-                spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_CASTER;
-                spellInfo->EffectImplicitTargetA[1] = TARGET_DEST_CASTER;
                 break;
             case 41376: // Spite
             case 39992: // Needle Spine
@@ -3137,15 +3115,10 @@ void SpellMgr::LoadDbcDataCorrections()
                 // add corruption to affected spells
                 spellInfo->EffectSpellClassMask[1][0] |= 2;
                 break;
-            case 49305: // Teleport to Boss 1 DND
-            case 64981: // Summon Random Vanquished Tentacle
-                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_CASTER;
-                break;
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->EffectMiscValue[0] |= 1;
                 break;
-            case 18541: // Ritual of Doom Effect (temp hack, current targeting system requires implicit targets to be set. Was target_dest_caster)
-            case 51904: // Summon Ghouls On Scarlet Crusade (core does not know the triggered spell is summon spell)
+            case 51904: // Summon Ghouls On Scarlet Crusade (this should use conditions table, script for this spell needs to be fixed)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 break;
             case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
@@ -3204,10 +3177,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ALLY;
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
-            case 31687: // Summon Water Elemental
-                // 322-330 switch - effect changed to dummy, target entry not changed in client:(
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-                break;
             case 12051: // Evocation - now we can interrupt this
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
@@ -3245,12 +3214,12 @@ void SpellMgr::LoadDbcDataCorrections()
             case 53246: // Marked for Death (Rank 5)
                 spellInfo->EffectSpellClassMask[0] = flag96(423937, 276955137, 2049);
                 break;
-            case 70728: // Exploit Weakness
-            case 70840: // Devious Minds
+            case 70728: // Exploit Weakness (needs target selection script)
+            case 70840: // Devious Minds (needs target selection script)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_PET;
                 break;
-            case 70893: // Culling The Herd
+            case 70893: // Culling The Herd (needs target selection script)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_MASTER;
                 break;
@@ -3407,10 +3376,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 72507: // Mutated Plague (Professor Putricide)
                 spellInfo->EffectRadiusIndex[0] = 28;   // 50000yd
                 break;
-            case 70911: // Unbound Plague (Professor Putricide)
-            case 72854: // Unbound Plague (Professor Putricide)
-            case 72855: // Unbound Plague (Professor Putricide)
-            case 72856: // Unbound Plague (Professor Putricide)
+            case 70911: // Unbound Plague (Professor Putricide) (needs target selection script)
+            case 72854: // Unbound Plague (Professor Putricide) (needs target selection script)
+            case 72855: // Unbound Plague (Professor Putricide) (needs target selection script)
+            case 72856: // Unbound Plague (Professor Putricide) (needs target selection script)
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
                 break;
             case 71518: // Unholy Infusion Quest Credit (Professor Putricide)
@@ -3437,7 +3406,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 71085: // Mana Void (periodic aura)
                 spellInfo->DurationIndex = 9; // 30 seconds (missing)
                 break;
-            case 70936: // Summon Suppressor
+            case 70936: // Summon Suppressor (needs target selection script)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_TARGET_ANY;
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 break;

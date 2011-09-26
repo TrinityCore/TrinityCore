@@ -61,7 +61,7 @@ class spell_mage_blast_wave : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_mage_blast_wave_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_blast_wave_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
             }
         };
 
@@ -106,7 +106,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Cold Snap
-                OnEffect += SpellEffectFn(spell_mage_cold_snap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_mage_cold_snap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -145,7 +145,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Polymorph visual
-                OnEffect += SpellEffectFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -186,20 +186,18 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    // Glyph of Eternal Water
-                    if (unitTarget->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
-                        unitTarget->CastSpell(unitTarget, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);
-                    else
-                        unitTarget->CastSpell(unitTarget, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
-                }
+                Unit* caster = GetCaster();
+                // Glyph of Eternal Water
+                if (caster->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
+                    caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);
+                else
+                    caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
             }
 
             void Register()
             {
                 // add dummy effect spell handler to Summon Water Elemental
-                OnEffect += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
