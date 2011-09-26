@@ -104,7 +104,7 @@ class spell_ulduar_proximity_mines : public SpellScriptLoader
 
            void Register()
            {
-               OnEffect += SpellEffectFn(spell_ulduar_proximity_minesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+               OnEffectHitTarget += SpellEffectFn(spell_ulduar_proximity_minesSpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
            }
        };
 
