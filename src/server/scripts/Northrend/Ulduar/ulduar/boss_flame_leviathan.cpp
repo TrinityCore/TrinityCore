@@ -365,8 +365,6 @@ class boss_flame_leviathan : public CreatureScript
                     Unbroken = data ? true : false;
             }
 
-            Unit* pursueTarget;
-
             void UpdateAI(uint32 const diff)
             {
                 if (!UpdateVictim() || !CheckInRoom())
@@ -1663,7 +1661,7 @@ class spell_pursue : public SpellScriptLoader
             void Register()
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_pursue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-                OnEffect += SpellEffectFn(spell_pursue_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnEffectHitTarget += SpellEffectFn(spell_pursue_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 
