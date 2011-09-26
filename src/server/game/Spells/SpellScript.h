@@ -208,18 +208,11 @@ class SpellScript : public _SpellScript
         bool _IsDefaultEffectPrevented(SpellEffIndex effIndex) { return m_hitPreventDefaultEffectMask & (1<<effIndex); }
         void _PrepareScriptCall(SpellScriptHookType hookType);
         void _FinishScriptCall();
-<<<<<<< HEAD
         bool IsInAfterHitPhase() { return (m_currentScriptState == SPELL_SCRIPT_HOOK_AFTER_HIT); };
-        bool IsInCheckCastHook() const { return m_currentScriptState == SPELL_SCRIPT_HOOK_CHECK_CAST; }
-        bool IsInHitPhase() const { return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END); }
-        bool IsInEffectHook() const { return (m_currentScriptState == SPELL_SCRIPT_HOOK_EFFECT); }
-
-=======
         bool IsInCheckCastHook() const;
         bool IsInTargetHook() const;
         bool IsInHitPhase() const;
         bool IsInEffectHook() const;
->>>>>>> 210a770958c19ea4a881b77c78ca96624aaddc12
     private:
         Spell* m_spell;
         uint8 m_hitPreventEffectMask;

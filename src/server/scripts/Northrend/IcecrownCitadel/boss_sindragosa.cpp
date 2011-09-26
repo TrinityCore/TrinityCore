@@ -1434,12 +1434,8 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
             void Register()
             {
-<<<<<<< HEAD
                 BeforeHit += SpellHitFn(spell_rimefang_icy_blast_SpellScript::MarkIcyBlastSpot); 
-                OnEffect += SpellEffectFn(spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
-=======
                 OnEffectHit += SpellEffectFn(spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
->>>>>>> 210a770958c19ea4a881b77c78ca96624aaddc12
             }
         };
 

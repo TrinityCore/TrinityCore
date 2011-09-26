@@ -406,12 +406,8 @@ class spell_dk_scourge_strike : public SpellScriptLoader
 
             void Register()
             {
-<<<<<<< HEAD
-                OnEffect += SpellEffectFn(spell_dk_scourge_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
-                AfterHit += SpellHitFn(spell_dk_scourge_strike_SpellScript::HandleAfterHit);
-=======
                 OnEffectHitTarget += SpellEffectFn(spell_dk_scourge_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
->>>>>>> 210a770958c19ea4a881b77c78ca96624aaddc12
+                AfterHit += SpellHitFn(spell_dk_scourge_strike_SpellScript::HandleAfterHit);
             }
         };
 
@@ -607,7 +603,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_dk_blood_tap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_ACTIVATE_RUNE);
+            OnEffectHitTarget += SpellEffectFn(spell_dk_blood_tap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_ACTIVATE_RUNE);
         }
     
             

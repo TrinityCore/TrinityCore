@@ -2977,7 +2977,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 // because of bug in dbc
                 spellInfo->procChance = 0;
                 break;
-<<<<<<< HEAD
             case 45524: // Chains of Ice
                 // this will fix self-damage caused by Glyph of Chains of Ice
                 spellInfo->EffectImplicitTargetA[2] = TARGET_UNIT_TARGET_ENEMY;
@@ -2988,8 +2987,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 2825:  // Bloodlust
                 spellInfo->excludeCasterAuraSpell = 57724; // Sated
                 break;
-=======
->>>>>>> 210a770958c19ea4a881b77c78ca96624aaddc12
             case 20335: // Heart of the Crusader
             case 20336:
             case 20337:
@@ -3180,19 +3177,12 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ALLY;
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_SRC_AREA_ALLY;
                 break;
-<<<<<<< HEAD
-            case 31687: // Summon Water Elemental
-                // 322-330 switch - effect changed to dummy, target entry not changed in client:(
-                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
-                break;
             case 12051: // Evocation - now we can interrupt this
                 spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
             case 42650: // Army of the Dead - now we can interrupt this
                 spellInfo->InterruptFlags = SPELL_INTERRUPT_FLAG_INTERRUPT;
                 break;
-=======
->>>>>>> 210a770958c19ea4a881b77c78ca96624aaddc12
             case 57994: // Wind Shear - improper data for EFFECT_1 in 3.3.5 DBC, but is correct in 4.x
                 spellInfo->Effect[EFFECT_1] = SPELL_EFFECT_MODIFY_THREAT_PERCENT;
                 spellInfo->EffectBasePoints[EFFECT_1] = -6; // -5%
