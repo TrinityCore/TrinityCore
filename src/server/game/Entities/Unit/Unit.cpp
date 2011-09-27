@@ -887,6 +887,10 @@ void Unit::CastSpell(SpellCastTargets const& targets, SpellInfo const* spellInfo
         if (Unit* owner = GetOwner())
             originalCaster=owner->GetGUID();
 
+    // TODO: this is a workaround - not needed anymore, but required for some scripts :(
+    if (!originalCaster && triggeredByAura)
+        originalCaster = triggeredByAura->GetCasterGUID();
+
     Spell* spell = new Spell(this, spellInfo, triggerFlags, originalCaster);
 
     if (value)
