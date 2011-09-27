@@ -1064,7 +1064,7 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
 bool SpellInfo::IsAOE() const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsArea())
+        if (Effects[i].IsEffect() && Effects[i].IsArea())
             return true;
     return false;
 }
@@ -1538,6 +1538,8 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
     // aura limitations
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
+        if (!Effects[i].IsAura())
+            continue;
         switch (Effects[i].ApplyAuraName)
         {
             case SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED:
@@ -1718,7 +1720,7 @@ uint32 SpellInfo::GetAllEffectsMechanicMask() const
     if (Mechanic)
         mask |= 1 << Mechanic;
     for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].Mechanic)
+        if (Effects[i].IsEffect() && Effects[i].Mechanic)
             mask |= 1 << Effects[i].Mechanic;
     return mask;
 }
@@ -1728,14 +1730,14 @@ uint32 SpellInfo::GetEffectMechanicMask(uint8 effIndex) const
     uint32 mask = 0;
     if (Mechanic)
         mask |= 1<< Mechanic;
-    if (Effects[effIndex].Mechanic)
+    if (Effects[effIndex].IsEffect() && Effects[effIndex].Mechanic)
         mask |= 1<< Effects[effIndex].Mechanic;
     return mask;
 }
 
 Mechanics SpellInfo::GetEffectMechanic(uint8 effIndex) const
 {
-    if (Effects[effIndex].Mechanic)
+    if (Effects[effIndex].IsEffect() && Effects[effIndex].Mechanic)
         return Mechanics(Effects[effIndex].Mechanic);
     if (Mechanic)
         return Mechanics(Mechanic);
@@ -1805,8 +1807,8 @@ AuraStateType SpellInfo::GetAuraState() const
 
     if (GetSchoolMask() & SPELL_SCHOOL_MASK_FROST)
         for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            if (Effects[i].ApplyAuraName == SPELL_AURA_MOD_STUN
-                || Effects[i].ApplyAuraName == SPELL_AURA_MOD_ROOT)
+            if (Effects[i].IsAura() && (Effects[i].ApplyAuraName == SPELL_AURA_MOD_STUN
+                || Effects[i].ApplyAuraName == SPELL_AURA_MOD_ROOT))
                 return AURA_STATE_FROZEN;
 
     switch (Id)
@@ -1833,6 +1835,8 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 bool drink = false;
                 for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 {
+                    if (!Effects[i].IsAura())
+                        continue;
                     switch (Effects[i].ApplyAuraName)
                     {
                         // Food
@@ -2304,7 +2308,7 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
     // Special case: effects which determine positivity of whole spell
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (Effects[i].ApplyAuraName == SPELL_AURA_MOD_STEALTH)
+        if (Effects[i].IsAura() && Effects[i].ApplyAuraName == SPELL_AURA_MOD_STEALTH)
             return true;
     }
 
