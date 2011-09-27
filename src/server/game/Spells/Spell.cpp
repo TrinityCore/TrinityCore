@@ -3421,6 +3421,10 @@ void Spell::_handle_finish_phase()
         if (m_comboPointGain)
             m_caster->m_movedPlayer->GainSpellComboPoints(m_comboPointGain);
     }
+
+    if (m_caster->m_extraAttacks && GetSpellInfo()->HasEffect(SPELL_EFFECT_ADD_EXTRA_ATTACKS))
+        m_caster->HandleProcExtraAttackFor(m_caster->getVictim());
+
     // TODO: trigger proc phase finish here
 }
 
