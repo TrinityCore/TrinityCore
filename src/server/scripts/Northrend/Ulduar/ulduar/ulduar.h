@@ -51,6 +51,8 @@ enum UlduarNPCs
 {
     // General
     NPC_LEVIATHAN                = 33113,
+    NPC_SALVAGED_DEMOLISHER      = 33109,
+    NPC_SALVAGED_SIEGE_ENGINE    = 33060,
     NPC_IGNIS                    = 33118,
     NPC_RAZORSCALE               = 33186,
     NPC_RAZORSCALE_CONTROLLER    = 33233,
