@@ -235,6 +235,7 @@ class boss_flame_leviathan : public CreatureScript
                 ASSERT(vehicle);
                 if (!me->isDead())
                     Reset();
+
                 ActiveTowersCount = 4;
                 Shutdown = 0;
                 ActiveTowers = false;
@@ -244,6 +245,8 @@ class boss_flame_leviathan : public CreatureScript
                 towerOfFrost = false;
                 Shutout = true;
                 Unbroken = true;
+
+                _pursueTarget = NULL;
 
                 DoCast(SPELL_INVIS_AND_STEALTH_DETECT);
 
@@ -460,10 +463,14 @@ class boss_flame_leviathan : public CreatureScript
                             break;
                     }
                 }
-                //TODO: Fix this spell, gets applied on players who are on leviathan should be excluded?
-                /*if (me->IsWithinMeleeRange(me->getVictim())) //bugged spell casts on units that are boarded on leviathan
-                DoSpellAttackIfReady(SPELL_BATTERING_RAM);*/
-                //DoMeleeAttackIfReady();
+
+                DoBatteringRamIfReady();
+            }
+
+            void SpellHitTarget(Unit* target , SpellInfo const* spell)
+            {
+                if (spell->Id == SPELL_PURSUED)
+                    _pursueTarget = target;
             }
 
             void DoAction(int32 const action)
@@ -529,7 +536,25 @@ class boss_flame_leviathan : public CreatureScript
                 }
             }
 
-            //Unit* SelectTarget()
+            private:
+                //! Copypasta from DoSpellAttackIfReady, only difference is the target - it cannot be selected trough getVictim this way -
+                //! I also removed the spellInfo check
+                void DoBatteringRamIfReady()
+                {
+                    if (me->HasUnitState(UNIT_STAT_CASTING))
+                        return;
+
+                    if (me->isAttackReady())
+                    {
+                        if (me->IsWithinCombatRange(_pursueTarget, 30.0f))
+                        {
+                            DoCast(_pursueTarget, SPELL_BATTERING_RAM);
+                            me->resetAttackTimer();
+                        }
+                    }
+                }
+
+                Unit* _pursueTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const
