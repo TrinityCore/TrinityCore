@@ -742,11 +742,6 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             if (GetId() == 55233)
                 amount = GetBase()->GetUnitOwner()->CountPctFromMaxHealth(amount);
             break;
-        case SPELL_AURA_MOD_INCREASE_ENERGY:
-            // Hymn of Hope
-            if (GetId() == 64904)
-                ApplyPctU(amount, GetBase()->GetUnitOwner()->GetMaxPower(GetBase()->GetUnitOwner()->getPowerType()));
-            break;
         case SPELL_AURA_MOD_INCREASE_SPEED:
             // Dash - do not set speed if not in cat form
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
@@ -3989,19 +3984,6 @@ void AuraEffect::HandleAuraModIncreaseEnergy(AuraApplication const* aurApp, uint
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
 
-    // Special case with temporary increase max/current power (percent)
-    if (GetId() == 64904)                                     // Hymn of Hope
-    {
-        if (mode & AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK)
-        {
-            int32 change = target->GetPower(powerType) + (apply ? GetAmount() : -GetAmount());
-            if (change < 0)
-                change = 0;
-            target->SetPower(powerType, change);
-        }
-    }
-
-    // generic flat case
     target->HandleStatModifier(unitMod, TOTAL_VALUE, float(GetAmount()), apply);
 }
 
