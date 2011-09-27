@@ -9462,123 +9462,12 @@ ReputationRank Unit::GetFactionReactionTo(FactionTemplateEntry const* factionTem
 
 bool Unit::IsHostileTo(Unit const* unit) const
 {
-    if (!unit)
-        return false;
-    // always non-hostile to self
-    if (unit == this)
-        return false;
-
-    // always non-hostile to GM in GM mode
-    if (unit->GetTypeId() == TYPEID_PLAYER && ((Player const*)unit)->isGameMaster())
-        return false;
-
-    // always hostile to enemy
-    if (getVictim() == unit || unit->getVictim() == this)
-        return true;
-
-    // test pet/charm masters instead pers/charmeds
-    Unit const* testerOwner = GetCharmerOrOwner();
-    Unit const* targetOwner = unit->GetCharmerOrOwner();
-
-    // always hostile to owner's enemy
-    if (testerOwner && (testerOwner->getVictim() == unit || unit->getVictim() == testerOwner))
-        return true;
-
-    // always hostile to enemy owner
-    if (targetOwner && (getVictim() == targetOwner || targetOwner->getVictim() == this))
-        return true;
-
-    // always hostile to owner of owner's enemy
-    if (testerOwner && targetOwner && (testerOwner->getVictim() == targetOwner || targetOwner->getVictim() == testerOwner))
-        return true;
-
-    Unit const* tester = testerOwner ? testerOwner : this;
-    Unit const* target = targetOwner ? targetOwner : unit;
-
-    // always non-hostile to target with common owner, or to owner/pet
-    if (tester == target)
-        return false;
-
-    // special cases (Duel, etc)
-    if (tester->GetTypeId() == TYPEID_PLAYER && target->GetTypeId() == TYPEID_PLAYER)
-    {
-        Player const* pTester = (Player const*)tester;
-        Player const* pTarget = (Player const*)target;
-
-        // Duel
-        if (pTester->duel && pTester->duel->opponent == pTarget && pTester->duel->startTime != 0)
-            return true;
-
-        // Group
-        if (pTester->GetGroup() && pTester->GetGroup() == pTarget->GetGroup())
-            return false;
-
-        // Sanctuary
-        if (pTarget->HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY) && pTester->HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY))
-            return false;
-
-        // PvP FFA state
-        if (pTester->HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP) && pTarget->HasByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP))
-            return true;
-
-        // = PvP states
-        // Green/Blue (can't attack)
-        if (!pTester->HasAuraType(SPELL_AURA_MOD_FACTION) && !pTarget->HasAuraType(SPELL_AURA_MOD_FACTION))
-        {
-            if (pTester->GetTeam() == pTarget->GetTeam())
-                return false;
-
-            // Red (can attack) if true, Blue/Yellow (can't attack) in another case
-            return pTester->IsPvP() && pTarget->IsPvP();
-        }
-    }
-
-    // faction base cases
-    FactionTemplateEntry const*tester_faction = tester->getFactionTemplateEntry();
-    FactionTemplateEntry const*target_faction = target->getFactionTemplateEntry();
-    if (!tester_faction || !target_faction)
-        return false;
-
-    if (target->isAttackingPlayer() && tester->IsContestedGuard())
-        return true;
-
-    // PvC forced reaction and reputation case
-    if (tester->GetTypeId() == TYPEID_PLAYER && !tester->HasAuraType(SPELL_AURA_MOD_FACTION))
-    {
-        // forced reaction
-        if (target_faction->faction)
-        {
-            if (ReputationRank const* force = tester->ToPlayer()->GetReputationMgr().GetForcedRankIfAny(target_faction))
-                return *force <= REP_HOSTILE;
-
-            // if faction have reputation then hostile state for tester at 100% dependent from at_war state
-            if (FactionEntry const* raw_target_faction = sFactionStore.LookupEntry(target_faction->faction))
-                if (FactionState const* factionState = tester->ToPlayer()->GetReputationMgr().GetState(raw_target_faction))
-                    return (factionState->Flags & FACTION_FLAG_AT_WAR);
-        }
-    }
-    // CvP forced reaction and reputation case
-    else if (target->GetTypeId() == TYPEID_PLAYER && !target->HasAuraType(SPELL_AURA_MOD_FACTION))
-    {
-        // forced reaction
-        if (tester_faction->faction)
-        {
-            if (ReputationRank const* force = target->ToPlayer()->GetReputationMgr().GetForcedRankIfAny(tester_faction))
-                return *force <= REP_HOSTILE;
-
-            // apply reputation state
-            FactionEntry const* raw_tester_faction = sFactionStore.LookupEntry(tester_faction->faction);
-            if (raw_tester_faction && raw_tester_faction->reputationListID >= 0)
-                return ((Player const*)target)->GetReputationMgr().GetRank(raw_tester_faction) <= REP_HOSTILE;
-        }
-    }
-
-    // common faction based case (CvC, PvC, CvP)
-    return tester_faction->IsHostileTo(*target_faction);
+    return GetReactionTo(unit) <= REP_HOSTILE;
 }
 
 bool Unit::IsFriendlyTo(Unit const* unit) const
 {
+<<<<<<< HEAD
     // not friendly for null unit
     if (!unit)
         return false;
@@ -9694,6 +9583,9 @@ bool Unit::IsFriendlyTo(Unit const* unit) const
 
     // common faction based case (CvC, PvC, CvP)
     return tester_faction->IsFriendlyTo(*target_faction);
+=======
+    return GetReactionTo(unit) >= REP_FRIENDLY;
+>>>>>>> 23ba776767690834f17e8fa7f468324c819cf1c9
 }
 
 bool Unit::IsHostileToPlayers() const
@@ -11269,6 +11161,13 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 // Custom crit by class
                 switch (spellProto->SpellFamilyName)
                 {
+                    case SPELLFAMILY_MAGE:
+                        // Glyph of Fire Blast
+                        if (spellProto->SpellFamilyFlags[0] == 0x2 && spellProto->SpellIconID == 12)
+                            if (victim->HasAuraWithMechanic((1<<MECHANIC_STUN) | (1<<MECHANIC_KNOCKOUT)))
+                                if (AuraEffect const* aurEff = GetAuraEffect(56369, EFFECT_0))
+                                    crit_chance += aurEff->GetAmount();
+                        break;
                     case SPELLFAMILY_DRUID:
                         // Improved Faerie Fire
                         if (victim->HasAuraState(AURA_STATE_FAERIE_FIRE))
@@ -12511,8 +12410,8 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell) co
         if (IsOnVehicle(target) || m_vehicle->GetBase()->IsOnVehicle(target))
             return false;
 
-    // can't attack invisible
-    if ((!bySpell || !(bySpell->AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE)) && !canSeeOrDetect(target))
+    // can't attack invisible (ignore stealth for aoe spells)
+    if ((!bySpell || !(bySpell->AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE)) && !canSeeOrDetect(target, bySpell && bySpell->IsAOE()))
         return false;
 
     // can't attack dead
@@ -12606,7 +12505,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
             return false;
 
     // can't assist invisible
-    if ((!bySpell || !(bySpell->AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE)) && !canSeeOrDetect(target))
+    if ((!bySpell || !(bySpell->AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE)) && !canSeeOrDetect(target, bySpell && bySpell->IsAOE()))
         return false;
 
     // can't assist dead
