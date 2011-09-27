@@ -246,8 +246,6 @@ class boss_flame_leviathan : public CreatureScript
                 Shutout = true;
                 Unbroken = true;
 
-                _pursueTarget = NULL;
-
                 DoCast(SPELL_INVIS_AND_STEALTH_DETECT);
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
@@ -270,6 +268,8 @@ class boss_flame_leviathan : public CreatureScript
                 _Reset();
                 //resets shutdown counter to 0.  2 or 4 depending on raid mode
                 Shutdown = 0;
+                _pursueTarget = 0;
+
                 me->SetReactState(REACT_DEFENSIVE);
             }
 
@@ -467,10 +467,10 @@ class boss_flame_leviathan : public CreatureScript
                 DoBatteringRamIfReady();
             }
 
-            void SpellHitTarget(Unit* target , SpellInfo const* spell)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_PURSUED)
-                    _pursueTarget = target;
+                    _pursueTarget = target->GetGUID();
             }
 
             void DoAction(int32 const action)
@@ -546,15 +546,16 @@ class boss_flame_leviathan : public CreatureScript
 
                     if (me->isAttackReady())
                     {
-                        if (me->IsWithinCombatRange(_pursueTarget, 30.0f))
+                        Unit* target = ObjectAccessor::GetUnit(*me, _pursueTarget);
+                        if (me->IsWithinCombatRange(target, 30.0f))
                         {
-                            DoCast(_pursueTarget, SPELL_BATTERING_RAM);
+                            DoCast(target, SPELL_BATTERING_RAM);
                             me->resetAttackTimer();
                         }
                     }
                 }
 
-                Unit* _pursueTarget;
+                uint64 _pursueTarget;
         };
 
         CreatureAI* GetAI(Creature* creature) const
