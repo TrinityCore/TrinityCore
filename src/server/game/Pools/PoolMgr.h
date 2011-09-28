@@ -105,8 +105,10 @@ typedef std::pair<PooledQuestRelation::iterator, PooledQuestRelation::iterator> 
 class PoolMgr
 {
     friend class ACE_Singleton<PoolMgr, ACE_Null_Mutex>;
-    PoolMgr();
-    ~PoolMgr() {};
+
+    private:
+        PoolMgr();
+        ~PoolMgr() {};
 
     public:
         void LoadFromDB();
@@ -134,7 +136,8 @@ class PoolMgr
 
         PooledQuestRelation mQuestCreatureRelation;
         PooledQuestRelation mQuestGORelation;
-    protected:
+
+    private:
         template<typename T>
         void SpawnPool(uint32 pool_id, uint32 db_guid_or_pool_id);
 

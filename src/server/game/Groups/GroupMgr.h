@@ -23,6 +23,7 @@
 class GroupMgr
 {
     friend class ACE_Singleton<GroupMgr, ACE_Null_Mutex>;
+private:
     GroupMgr();
     ~GroupMgr();
 
