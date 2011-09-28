@@ -21,66 +21,75 @@
 */
 
 #include "WeatherMgr.h"
+#include "Weather.h"
 #include "Log.h"
 #include "ObjectMgr.h"
+#include <ace/Refcounted_Auto_Ptr.h>
 
-WeatherMgr::~WeatherMgr()
+namespace WeatherMgr
 {
-    ///- Empty the WeatherMap
-    for (WeatherMap::const_iterator itr = m_weathers.begin(); itr != m_weathers.end(); ++itr)
-        delete itr->second;
 
-    m_weathers.clear();
+namespace
+{
+    typedef UNORDERED_MAP<uint32, ACE_Refcounted_Auto_Ptr<Weather, ACE_Null_Mutex> > WeatherMap;
+    typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
+
+    WeatherMap m_weathers;
+    WeatherZoneMap mWeatherZoneMap;
+
+    WeatherData const* GetWeatherData(uint32 zone_id)
+    {
+        WeatherZoneMap::const_iterator itr = mWeatherZoneMap.find(zone_id);
+        return (itr != mWeatherZoneMap.end()) ? &itr->second : NULL;
+    }
 }
 
 /// Find a Weather object by the given zoneid
-Weather* WeatherMgr::FindWeather(uint32 id) const
+Weather* FindWeather(uint32 id)
 {
     WeatherMap::const_iterator itr = m_weathers.find(id);
-
-    if (itr != m_weathers.end())
-        return itr->second;
-    else
-        return 0;
+    return (itr != m_weathers.end()) ? itr->second.get() : 0;
 }
 
 /// Remove a Weather object for the given zoneid
-void WeatherMgr::RemoveWeather(uint32 id)
+void RemoveWeather(uint32 id)
 {
     // not called at the moment. Kept for completeness
     WeatherMap::iterator itr = m_weathers.find(id);
 
     if (itr != m_weathers.end())
-    {
-        delete itr->second;
         m_weathers.erase(itr);
-    }
 }
 
 /// Add a Weather object to the list
-Weather* WeatherMgr::AddWeather(uint32 zone_id)
+Weather* AddWeather(uint32 zone_id)
 {
-    WeatherData const* weatherChances = GetWeatherChances(zone_id);
+    WeatherData const* weatherChances = GetWeatherData(zone_id);
 
-    // zone not have weather, ignore
+    // zone does not have weather, ignore
     if (!weatherChances)
         return NULL;
 
     Weather* w = new Weather(zone_id, weatherChances);
-    m_weathers[w->GetZone()] = w;
+    m_weathers[w->GetZone()].reset(w);
     w->ReGenerate();
     w->UpdateWeather();
+
     return w;
 }
 
-void WeatherMgr::LoadWeatherData()
+void LoadWeatherData()
 {
     uint32 oldMSTime = getMSTime();
 
     uint32 count = 0;
 
-    //                                                0     1                   2                   3                    4                   5                   6                    7                 8                 9                  10                  11                  12                                13
-    QueryResult result = WorldDatabase.Query("SELECT zone, spring_rain_chance, spring_snow_chance, spring_storm_chance, summer_rain_chance, summer_snow_chance, summer_storm_chance, fall_rain_chance, fall_snow_chance, fall_storm_chance, winter_rain_chance, winter_snow_chance, winter_storm_chance, ScriptName FROM game_weather");
+    QueryResult result = WorldDatabase.Query("SELECT "
+        "zone, spring_rain_chance, spring_snow_chance, spring_storm_chance,"
+        "summer_rain_chance, summer_snow_chance, summer_storm_chance,"
+        "fall_rain_chance, fall_snow_chance, fall_storm_chance,"
+        "winter_rain_chance, winter_snow_chance, winter_storm_chance,"
+        "ScriptName FROM game_weather");
 
     if (!result)
     {
@@ -132,7 +141,7 @@ void WeatherMgr::LoadWeatherData()
     sLog->outString();
 }
 
-void WeatherMgr::Update(uint32 diff)
+void Update(uint32 diff)
 {
     ///- Send an update signal to Weather objects
     WeatherMap::iterator itr, next;
@@ -142,11 +151,10 @@ void WeatherMgr::Update(uint32 diff)
         ++next;
 
         ///- and remove Weather objects for zones with no player
-                                                        //As interval > WorldTick
+        // As interval > WorldTick
         if (!itr->second->Update(diff))
-        {
-            delete itr->second;
             m_weathers.erase(itr);
-        }
     }
 }
+
+} // namespace
