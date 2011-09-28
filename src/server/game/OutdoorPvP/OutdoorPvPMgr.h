@@ -38,14 +38,13 @@ struct OutdoorPvPData
 // class to handle player enter / leave / areatrigger / GO use events
 class OutdoorPvPMgr
 {
-    public:
+    friend class ACE_Singleton<OutdoorPvPMgr, ACE_Null_Mutex>;
 
-        // ctor
+    private:
         OutdoorPvPMgr();
-
-        // dtor
         ~OutdoorPvPMgr();
 
+    public:
         // create outdoor pvp events
         void InitOutdoorPvP();
 
@@ -79,11 +78,10 @@ class OutdoorPvPMgr
 
         void HandleDropFlag(Player* plr, uint32 spellId);
 
+    private:
         typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
         typedef std::map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;
         typedef std::map<OutdoorPvPTypes, OutdoorPvPData*> OutdoorPvPDataMap;
-
-    private:
 
         // contains all initiated outdoor pvp events
         // used when initing / cleaning up
