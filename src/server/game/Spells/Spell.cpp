@@ -843,6 +843,8 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
             if (targetMask & TARGET_FLAG_UNIT_MASK)
                 AddUnitTarget(m_caster, 1 << effIndex, false);
             break;
+        default:
+            break;
     }
 }
 

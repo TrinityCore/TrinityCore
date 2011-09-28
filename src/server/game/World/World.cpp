@@ -1564,7 +1564,7 @@ void World::SetInitialWorldSettings()
     sSmartWaypointMgr->LoadFromDB();
 
     sLog->outString("Loading Creature Formations...");
-    sFormationMgr->LoadCreatureFormations();
+    FormationMgr::LoadCreatureFormations();
 
     sLog->outString("Loading Conditions...");
     sConditionMgr->LoadConditions();

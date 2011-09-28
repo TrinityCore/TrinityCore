@@ -139,9 +139,12 @@ class PlayerSocial
 class SocialMgr
 {
     friend class ACE_Singleton<SocialMgr, ACE_Null_Mutex>;
-    SocialMgr();
-    public:
+
+    private:
+        SocialMgr();
         ~SocialMgr();
+
+    public:
         // Misc
         void RemovePlayerSocial(uint32 guid) { m_socialMap.erase(guid); }
 
