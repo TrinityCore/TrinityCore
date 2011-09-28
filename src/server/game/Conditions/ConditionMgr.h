@@ -133,11 +133,11 @@ struct Condition
 };
 
 typedef std::list<Condition*> ConditionList;
-typedef std::map<uint32, ConditionList > ConditionTypeMap;
-typedef std::map<ConditionSourceType, ConditionTypeMap > ConditionMap;
-typedef std::map<uint32, ConditionTypeMap > VehicleSpellConditionMap;
+typedef std::map<uint32, ConditionList> ConditionTypeMap;
+typedef std::map<ConditionSourceType, ConditionTypeMap> ConditionMap;
+typedef std::map<uint32, ConditionTypeMap> VehicleSpellConditionMap;
 
-typedef std::map<uint32, ConditionList > ConditionReferenceMap;//only used for references
+typedef std::map<uint32, ConditionList> ConditionReferenceMap;//only used for references
 
 class ConditionMgr
 {
