@@ -1068,4 +1068,3 @@ void Channel::LeaveNotify(uint64 guid)
     else
         SendToAll(&data);
 }
-

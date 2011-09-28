@@ -55,7 +55,7 @@ void LFGScripts::OnAddMember(Group* group, uint64 guid)
             sLFGMgr->Leave(plr);
 }
 
-void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method, uint64 kicker, const char* reason)
+void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
 {
     uint64 gguid = group->GetGUID();
     if (!gguid || method == GROUP_REMOVEMETHOD_DEFAULT)
