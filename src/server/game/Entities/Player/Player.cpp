@@ -7426,12 +7426,12 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
 
     if (sWorld->getBoolConfig(CONFIG_WEATHER))
     {
-        Weather* wth = sWeatherMgr->FindWeather(zone->ID);
+        Weather* wth = WeatherMgr::FindWeather(zone->ID);
         if (wth)
             wth->SendWeatherUpdateToPlayer(this);
         else
         {
-            if (!sWeatherMgr->AddWeather(zone->ID))
+            if (!WeatherMgr::AddWeather(zone->ID))
             {
                 // send fine weather packet to remove old zone's weather
                 Weather::SendFineWeatherUpdateToPlayer(this);

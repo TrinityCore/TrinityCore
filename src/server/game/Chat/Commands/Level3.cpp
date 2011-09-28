@@ -2372,10 +2372,10 @@ bool ChatHandler::HandleChangeWeather(const char *args)
     Player* player = m_session->GetPlayer();
     uint32 zoneid = player->GetZoneId();
 
-    Weather* wth = sWeatherMgr->FindWeather(zoneid);
+    Weather* wth = WeatherMgr::FindWeather(zoneid);
 
     if (!wth)
-        wth = sWeatherMgr->AddWeather(zoneid);
+        wth = WeatherMgr::AddWeather(zoneid);
     if (!wth)
     {
         SendSysMessage(LANG_NO_WEATHER);
