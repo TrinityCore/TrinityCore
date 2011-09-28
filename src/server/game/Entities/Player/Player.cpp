@@ -7434,7 +7434,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             if (!WeatherMgr::AddWeather(zone->ID))
             {
                 // send fine weather packet to remove old zone's weather
-                Weather::SendFineWeatherUpdateToPlayer(this);
+                WeatherMgr::SendFineWeatherUpdateToPlayer(this);
             }
         }
     }
