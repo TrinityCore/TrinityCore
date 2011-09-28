@@ -2593,6 +2593,12 @@ BattlegroundMap::BattlegroundMap(uint32 id, time_t expiry, uint32 InstanceId, Ma
 
 BattlegroundMap::~BattlegroundMap()
 {
+    if(m_bg)
+    {
+        //unlink to prevent crash, always unlink all pointer reference before destruction
+        m_bg->SetBgMap(NULL);
+        m_bg = NULL;
+    }
 }
 
 void BattlegroundMap::InitVisibilityDistance()
