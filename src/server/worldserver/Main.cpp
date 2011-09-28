@@ -129,7 +129,7 @@ extern int main(int argc, char **argv)
         ++c;
     }
 
-    if (!sConfig->SetSource(cfg_file))
+    if (!ConfigMgr::Load(cfg_file))
     {
         sLog->outError("Invalid or missing configuration file : %s", cfg_file);
         sLog->outError("Verify that the file exists and has \'[worldserver]' written in the top of the file!");
