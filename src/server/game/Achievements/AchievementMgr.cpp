@@ -2039,7 +2039,11 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         return;
 
     // titles
-    if (uint32 titleId = reward->titleId[GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1])
+    //! Currently there's only one achievement that deals with gender-specific titles. 
+    //! Since no common attributes were found, (not even in titleRewardFlags field)
+    //! we explicitly check by ID. Maybe in the future we could move the achievement_reward 
+    //! condition fields to the condition system.
+    if (uint32 titleId = reward->titleId[achievement->ID == 1793 ? GetPlayer()->getGender() : (GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1)])
         if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
             GetPlayer()->SetTitle(titleEntry);
 
