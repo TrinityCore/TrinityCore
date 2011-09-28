@@ -17,90 +17,98 @@
  */
 
 #include "Config.h"
+#include <ace/Auto_Ptr.h>
 #include <ace/Configuration_Import_Export.h>
+#include <ace/Thread_Mutex.h>
 
-static bool GetValueHelper(ACE_Configuration_Heap* mConf, const char *name, ACE_TString &result)
+namespace ConfigMgr
 {
-    if (!mConf)
+
+namespace
+{
+    typedef ACE_Thread_Mutex LockType;
+    typedef ACE_Guard<LockType> GuardType;
+
+    std::string _filename;
+    ACE_Auto_Ptr<ACE_Configuration_Heap> _config;
+    LockType m_configLock;
+
+    // Defined here as it must not be exposed to end-users.
+    bool GetValueHelper(const char* name, ACE_TString &result)
+    {
+        GuardType guard(m_configLock);
+
+        if (_config.get() == 0)
+            return false;
+
+        ACE_TString section_name;
+        ACE_Configuration_Section_Key section_key;
+        const ACE_Configuration_Section_Key &root_key = _config->root_section();
+
+        int i = 0;
+        while (_config->enumerate_sections(root_key, i, section_name) == 0)
+        {
+            _config->open_section(root_key, section_name.c_str(), 0, section_key);
+            if (_config->get_string_value(section_key, name, result) == 0)
+                return true;
+            ++i;
+        }
+
         return false;
-
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, (sConfig->mMtx), false);
-
-    ACE_TString section_name;
-    ACE_Configuration_Section_Key section_key;
-    ACE_Configuration_Section_Key root_key = mConf->root_section();
-
-    int i = 0;
-    while (mConf->enumerate_sections(root_key, i, section_name) == 0)
-    {
-        mConf->open_section(root_key, section_name.c_str(), 0, section_key);
-        if (mConf->get_string_value(section_key, name, result) == 0)
-            return true;
-        ++i;
     }
+}
 
+bool Load(const char* file)
+{
+    GuardType guard(m_configLock);
+
+    if (file)
+        _filename = file;
+
+    _config.reset(new ACE_Configuration_Heap);
+    if (_config->open() == 0)
+    {
+        ACE_Ini_ImpExp config_importer(*_config.get());
+        if (config_importer.import_config(_filename.c_str()) == 0)
+            return true;
+    }
+    _config.reset();
     return false;
 }
 
-Config::Config() : mConf(NULL)
-{
-}
-
-Config::~Config()
-{
-    delete mConf;
-}
-
-bool Config::SetSource(const char *file)
-{
-    mFilename = file;
-    return Reload();
-}
-
-bool Config::Reload()
-{
-    delete mConf;
-    mConf = new ACE_Configuration_Heap;
-    if (mConf->open() == 0)
-    {
-        ACE_Ini_ImpExp config_importer(*mConf);
-        if (config_importer.import_config(mFilename.c_str()) == 0)
-            return true;
-    }
-    delete mConf;
-    mConf = NULL;
-    return false;
-}
-
-std::string Config::GetStringDefault(const char * name, std::string def)
+std::string GetStringDefault(const char* name, const std::string &def)
 {
     ACE_TString val;
-    return GetValueHelper(mConf, name, val) ? val.c_str() : def;
+    return GetValueHelper(name, val) ? val.c_str() : def;
 };
 
-bool Config::GetBoolDefault(const char * name, const bool def)
+bool GetBoolDefault(const char* name, bool def)
 {
     ACE_TString val;
-    if (!GetValueHelper(mConf, name, val))
+
+    if (!GetValueHelper(name, val))
         return def;
-    const char* str = val.c_str();
 
-    if(strcmp(str, "true") == 0 || strcmp(str, "TRUE") == 0 ||
-        strcmp(str, "yes") == 0 || strcmp(str, "YES") == 0 ||
-        strcmp(str, "1") == 0)
-        return true;
-    else
-        return false;
+    return (val == "true" || val == "TRUE" || val == "yes" || val == "YES" ||
+        val == "1");
 };
 
-int32 Config::GetIntDefault(const char * name, const int32 def)
+int GetIntDefault(const char* name, int def)
 {
     ACE_TString val;
-    return GetValueHelper(mConf, name, val) ? atoi(val.c_str()) : def;
+    return GetValueHelper(name, val) ? atoi(val.c_str()) : def;
 };
 
-float Config::GetFloatDefault(const char * name, const float def)
+float GetFloatDefault(const char* name, float def)
 {
     ACE_TString val;
-    return GetValueHelper(mConf, name, val) ? (float)atof(val.c_str()) : def;
+    return GetValueHelper(name, val) ? (float)atof(val.c_str()) : def;
 };
+
+const std::string & GetFilename()
+{
+    GuardType guard(m_configLock);
+    return _filename;
+}
+
+} // namespace

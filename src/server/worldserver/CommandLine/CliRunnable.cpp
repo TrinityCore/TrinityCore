@@ -566,7 +566,7 @@ void CliRunnable::run()
     rl_attempted_completion_function = cli_completion;
     rl_event_hook = cli_hook_func;
     #endif
-    if (sConfig->GetBoolDefault("BeepAtStart", true))
+    if (ConfigMgr::GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
     // print this here the first time
