@@ -561,7 +561,7 @@ class boss_razorscale : public CreatureScript
                     case ACTION_EVENT_START:
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->SetReactState(REACT_AGGRESSIVE);
-                        DoZoneInCombat();
+                        DoZoneInCombat(me, 150.0f);
                         break;
                 }
             }
