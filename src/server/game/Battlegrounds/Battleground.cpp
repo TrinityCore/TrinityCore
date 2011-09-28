@@ -220,7 +220,12 @@ Battleground::~Battleground()
     sBattlegroundMgr->RemoveBattleground(GetInstanceID(), GetTypeID());
     // unload map
     if (m_Map)
+    {
         m_Map->SetUnload();
+        //unlink to prevent crash, always unlink all pointer reference before destruction
+        m_Map->SetBG(NULL);
+        m_Map = NULL;
+    }
     // remove from bg free slot queue
     RemoveFromBGFreeSlotQueue();
 
