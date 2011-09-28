@@ -141,6 +141,14 @@ void LoadWeatherData()
     sLog->outString();
 }
 
+void SendFineWeatherUpdateToPlayer(Player* player)
+{
+    WorldPacket data(SMSG_WEATHER, (4+4+4));
+
+    data << (uint32)WEATHER_STATE_FINE << (float)0.0f << uint8(0);
+    player->GetSession()->SendPacket(&data);
+}
+
 void Update(uint32 diff)
 {
     ///- Send an update signal to Weather objects
