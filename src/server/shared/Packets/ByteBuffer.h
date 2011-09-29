@@ -147,14 +147,14 @@ class ByteBuffer
 
         ByteBuffer &operator<<(const std::string &value)
         {
-            append((uint8 const* )value.c_str(), value.length());
+            append((uint8 const*)value.c_str(), value.length());
             append((uint8)0);
             return *this;
         }
 
         ByteBuffer &operator<<(const char *str)
         {
-            append((uint8 const* )str, str ? strlen(str) : 0);
+            append((uint8 const*)str, str ? strlen(str) : 0);
             append((uint8)0);
             return *this;
         }
