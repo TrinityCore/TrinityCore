@@ -414,14 +414,14 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
                     *data << (float)0;
                     *data << (float)0;
                     *data << (float)0;
-                    *data << ((WorldObject* )this)->GetOrientation();
+                    *data << ((WorldObject*)this)->GetOrientation();
                 }
                 else
                 {
-                    *data << ((WorldObject* )this)->GetPositionX();
-                    *data << ((WorldObject* )this)->GetPositionY();
-                    *data << ((WorldObject* )this)->GetPositionZ();
-                    *data << ((WorldObject* )this)->GetOrientation();
+                    *data << ((WorldObject*)this)->GetPositionX();
+                    *data << ((WorldObject*)this)->GetPositionY();
+                    *data << ((WorldObject*)this)->GetPositionZ();
+                    *data << ((WorldObject*)this)->GetOrientation();
                 }
             }
         }

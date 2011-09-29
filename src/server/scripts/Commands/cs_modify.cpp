@@ -441,12 +441,12 @@ public:
         else if (target->ToCreature()->isPet())
         {
             Unit* owner = target->GetOwner();
-            if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet* )target)->IsPermanentPetFor(owner->ToPlayer()))
+            if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet*)target)->IsPermanentPetFor(owner->ToPlayer()))
             {
                 // check online security
                 if (handler->HasLowerSecurity(owner->ToPlayer(), 0))
                     return false;
-                ((Pet* )target)->SetFreeTalentPoints(tp);
+                ((Pet*)target)->SetFreeTalentPoints(tp);
                 owner->ToPlayer()->SendTalentsInfoData(true);
                 return true;
             }
