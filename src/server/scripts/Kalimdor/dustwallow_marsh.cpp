@@ -299,7 +299,7 @@ public:
 
             if (bYellTimer && uiYellTimer <= uiDiff)
             {
-                switch(uiStep)
+                switch (uiStep)
                 {
                     case 0:
                         DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);

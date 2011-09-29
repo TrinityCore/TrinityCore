@@ -255,7 +255,7 @@ void Battleground::Update(uint32 diff)
         return;
     }
 
-    switch(GetStatus())
+    switch (GetStatus())
     {
         case STATUS_WAIT_JOIN:
             if (GetPlayersSize())
@@ -890,7 +890,7 @@ uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
 
 uint32 Battleground::GetBattlemasterEntry() const
 {
-    switch(GetTypeID(true))
+    switch (GetTypeID(true))
     {
         case BATTLEGROUND_AV: return 15972;
         case BATTLEGROUND_WS: return 14623;

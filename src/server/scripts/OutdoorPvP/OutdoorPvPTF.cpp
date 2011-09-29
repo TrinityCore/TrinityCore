@@ -287,7 +287,7 @@ void OPvPCapturePointTF::ChangeState()
 
     uint32 artkit = 21;
 
-    switch(m_State)
+    switch (m_State)
     {
     case OBJECTIVESTATE_ALLIANCE:
     {

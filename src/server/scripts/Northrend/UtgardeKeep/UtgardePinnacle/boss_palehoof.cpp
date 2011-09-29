@@ -780,7 +780,7 @@ public:
                 if (currentPhase<5&&currentPhase >= 0)
                 {
                    Creature* pNext = NULL;
-                   switch(currentPhase)
+                   switch (currentPhase)
                    {
                         case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN) : 0); break;
                         case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;
@@ -811,7 +811,7 @@ public:
             if (id > 4)
                 return;
             Creature* pNext = NULL;
-            switch(id)
+            switch (id)
             {
                 case PHASE_FRENZIED_WORGEN: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_FRENZIED_WORGEN) : 0); break;
                 case PHASE_RAVENOUS_FURLBORG: pNext = Unit::GetCreature((*me), pInstance ? pInstance->GetData64(DATA_MOB_RAVENOUS_FURBOLG) : 0); break;

@@ -77,7 +77,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_CLOUD:
                         DoCastAOE(SPELL_POISON_CLOUD);

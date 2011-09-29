@@ -86,7 +86,7 @@ class BIH
         template< class T, class BoundsFunc >
         void build(const std::vector<T> &primitives, BoundsFunc &getBounds, uint32 leafSize = 3, bool printStats=false)
         {
-            if(primitives.empty())
+            if (primitives.empty())
                 return;
             buildData dat;
             dat.maxPrims = leafSize;
@@ -156,7 +156,7 @@ class BIH
             uint32 offsetBack3[3];
             // compute custom offsets from direction sign bit
 
-            for(int i=0; i<3; ++i)
+            for (int i=0; i<3; ++i)
             {
                 offsetFront[i] = floatToRawIntBits(dir[i]) >> 31;
                 offsetBack[i] = offsetFront[i] ^ 1;
@@ -218,7 +218,7 @@ class BIH
                             int n = tree[node + 1];
                             while (n > 0) {
                                 bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirst);
-                                if(stopAtFirst && hit) return;
+                                if (stopAtFirst && hit) return;
                                 --n;
                                 ++offset;
                             }
@@ -376,7 +376,7 @@ class BIH
                 maxObjects(0xFFFFFFFF), sumDepth(0), minDepth(0x0FFFFFFF),
                 maxDepth(0xFFFFFFFF), numBVH2(0)
             {
-                for(int i=0; i<6; ++i) numLeavesN[i] = 0;
+                for (int i=0; i<6; ++i) numLeavesN[i] = 0;
             }
 
             void updateInner() { numNodes++; }

@@ -67,7 +67,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_AURA:
                         DoCastAOE(SPELL_NECROTIC_AURA);

@@ -116,7 +116,7 @@ class instance_zulaman : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature)
             {
-                switch(creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                 case 23578://janalai
                 case 23863://zuljin
@@ -129,7 +129,7 @@ class instance_zulaman : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch(go->GetEntry())
+                switch (go->GetEntry())
                 {
                 case 186303: HalazziDoorGUID = go->GetGUID(); break;
                 case 186304: ZulJinGateGUID  = go->GetGUID(); break;
@@ -205,7 +205,7 @@ class instance_zulaman : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_NALORAKKEVENT:
                     m_auiEncounter[0] = data;
@@ -279,7 +279,7 @@ class instance_zulaman : public InstanceMapScript
 
             uint32 GetData(uint32 type)
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_NALORAKKEVENT: return m_auiEncounter[0];
                 case DATA_AKILZONEVENT:  return m_auiEncounter[1];

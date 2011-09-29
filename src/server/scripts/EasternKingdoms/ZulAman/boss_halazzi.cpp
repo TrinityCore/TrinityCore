@@ -155,7 +155,7 @@ class boss_halazzi : public CreatureScript
 
             void EnterPhase(PhaseHalazzi NextPhase)
             {
-                switch(NextPhase)
+                switch (NextPhase)
                 {
                 case PHASE_LYNX:
                 case PHASE_ENRAGE:

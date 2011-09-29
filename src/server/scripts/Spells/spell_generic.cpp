@@ -102,7 +102,7 @@ class spell_gen_av_drekthar_presence : public SpellScriptLoader
 
             bool CheckAreaTarget(Unit* target)
             {
-                switch(target->GetEntry())
+                switch (target->GetEntry())
                 {
                     // alliance
                     case 14762: // Dun Baldar North Marshal
@@ -1226,7 +1226,7 @@ class spell_gen_launch : public SpellScriptLoader
             void HandleScript(SpellEffIndex /*effIndex*/)
             {
                 if (Player* player = GetHitPlayer())
-                    player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE,player); // prevents falling damage
+                    player->AddAura(SPELL_LAUNCH_NO_FALLING_DAMAGE, player); // prevents falling damage
             }
 
             void Launch()
@@ -1241,10 +1241,10 @@ class spell_gen_launch : public SpellScriptLoader
                     // There is no spell for this, the following calculation was based on void Spell::CalculateJumpSpeeds
 
                     float speedZ = 10.0f;
-                    float dist = position->GetExactDist2d(player->GetPositionX(),player->GetPositionY());
+                    float dist = position->GetExactDist2d(player->GetPositionX(), player->GetPositionY());
                     float speedXY = dist;
 
-                    player->GetMotionMaster()->MoveJump(position->GetPositionX(),position->GetPositionY(),position->GetPositionZ(),speedXY,speedZ);
+                    player->GetMotionMaster()->MoveJump(position->GetPositionX(), position->GetPositionY(), position->GetPositionZ(), speedXY, speedZ);
                 }
             }
 
@@ -1324,8 +1324,8 @@ public:
         PrepareSpellScript(spell_gen_oracle_wolvar_reputation_SpellScript)
 
         void HandleDummy(SpellEffIndex effIndex)
-        {                 
-            
+        {
+
             if (Player* player = GetCaster()->ToPlayer())
             {
 
@@ -1344,7 +1344,7 @@ public:
 
                 // EFFECT_INDEX_2 most likely update at war state, we already handle this in SetReputation
             }
-              
+
         }
 
         void Register()

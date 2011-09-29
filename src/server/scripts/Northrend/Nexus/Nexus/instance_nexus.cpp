@@ -151,7 +151,7 @@ public:
 
         uint32 GetData(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_MAGUS_TELESTRA_EVENT: return m_auiEncounter[0];
                 case DATA_ANOMALUS_EVENT:       return m_auiEncounter[1];
@@ -218,7 +218,7 @@ public:
 
         uint64 GetData64(uint32 uiIdentifier)
         {
-            switch(uiIdentifier)
+            switch (uiIdentifier)
             {
                 case DATA_ANOMALUS:                 return Anomalus;
                 case DATA_KERISTRASZA:              return Keristrasza;

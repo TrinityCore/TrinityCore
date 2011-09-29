@@ -374,13 +374,13 @@ class AuraScript : public _SpellScript
 
     #define AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
         typedef bool(CLASSNAME::*AuraCheckAreaTargetFnType)(Unit* target); \
-        typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const* , AuraEffectHandleModes); \
+        typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const*, AuraEffectHandleModes); \
         typedef void(CLASSNAME::*AuraEffectPeriodicFnType)(AuraEffect const*); \
         typedef void(CLASSNAME::*AuraEffectUpdatePeriodicFnType)(AuraEffect*); \
-        typedef void(CLASSNAME::*AuraEffectCalcAmountFnType)(AuraEffect const* , int32 &, bool &); \
-        typedef void(CLASSNAME::*AuraEffectCalcPeriodicFnType)(AuraEffect const* , bool &, int32 &); \
-        typedef void(CLASSNAME::*AuraEffectCalcSpellModFnType)(AuraEffect const* , SpellModifier* &); \
-        typedef void(CLASSNAME::*AuraEffectAbsorbFnType)(AuraEffect* , DamageInfo &, uint32 &); \
+        typedef void(CLASSNAME::*AuraEffectCalcAmountFnType)(AuraEffect const*, int32 &, bool &); \
+        typedef void(CLASSNAME::*AuraEffectCalcPeriodicFnType)(AuraEffect const*, bool &, int32 &); \
+        typedef void(CLASSNAME::*AuraEffectCalcSpellModFnType)(AuraEffect const*, SpellModifier* &); \
+        typedef void(CLASSNAME::*AuraEffectAbsorbFnType)(AuraEffect*, DamageInfo &, uint32 &); \
 
         AURASCRIPT_FUNCTION_TYPE_DEFINES(AuraScript)
 

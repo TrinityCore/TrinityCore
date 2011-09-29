@@ -57,7 +57,7 @@ namespace VMAP
         Ray modRay(p, iInvRot * pRay.direction());
         float distance = pMaxDist * iInvScale;
         bool hit = iModel->IntersectRay(modRay, distance, pStopAtFirstHit);
-        if(hit)
+        if (hit)
         {
             distance *= iScale;
             pMaxDist = distance;

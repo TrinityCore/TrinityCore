@@ -186,7 +186,7 @@ class npc_ruul_snowhoof : public CreatureScript
                 if (!player)
                     return;
 
-                switch(i)
+                switch (i)
                 {
                 case 0:    {
                         me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
@@ -319,7 +319,7 @@ class npc_muglash : public CreatureScript
             {
                 Player* player = GetPlayerForEscort();
 
-                switch(i)
+                switch (i)
                 {
                     case 0:
                         if (player)
@@ -382,7 +382,7 @@ class npc_muglash : public CreatureScript
 
             void DoWaveSummon()
             {
-                switch(m_uiWaveId)
+                switch (m_uiWaveId)
                 {
                     case 1:
                         me->SummonCreature(NPC_WRATH_RIDER,     m_afFirstNagaCoord[0][0], m_afFirstNagaCoord[0][1], m_afFirstNagaCoord[0][2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);

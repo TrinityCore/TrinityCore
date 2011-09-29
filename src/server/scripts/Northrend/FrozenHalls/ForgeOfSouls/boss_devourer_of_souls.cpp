@@ -261,7 +261,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_PHANTOM_BLAST:
                             DoCastVictim(SPELL_PHANTOM_BLAST);

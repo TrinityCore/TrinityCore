@@ -291,7 +291,7 @@ public:
                 else if (commentToken[1] == '/')
                 {
                     std::string str;
-                    getline(ifs,str);
+                    getline(ifs, str);
                     continue;
                 }
                 // regular data
@@ -558,7 +558,7 @@ public:
                 uint8 bag_slot = container ? container->GetSlot() : uint8(INVENTORY_SLOT_BAG_0);
 
                 std::string st;
-                switch(item->GetState())
+                switch (item->GetState())
                 {
                     case ITEM_UNCHANGED: st = "unchanged"; break;
                     case ITEM_CHANGED: st = "changed"; break;
@@ -1061,13 +1061,13 @@ public:
         if (isint32)
         {
             uint32 iValue = (uint32)atoi(py);
-            target->SetUInt32Value(Opcode , iValue);
+            target->SetUInt32Value(Opcode, iValue);
             handler->PSendSysMessage(LANG_SET_UINT_FIELD, GUID_LOPART(guid), Opcode, iValue);
         }
         else
         {
             float fValue = (float)atof(py);
-            target->SetFloatValue(Opcode , fValue);
+            target->SetFloatValue(Opcode, fValue);
             handler->PSendSysMessage(LANG_SET_FLOAT_FIELD, GUID_LOPART(guid), Opcode, fValue);
         }
 
@@ -1143,7 +1143,7 @@ public:
         int CurrentValue = (int)handler->GetSession()->GetPlayer()->GetUInt32Value(Opcode);
 
         CurrentValue += Value;
-        handler->GetSession()->GetPlayer()->SetUInt32Value(Opcode , (uint32)CurrentValue);
+        handler->GetSession()->GetPlayer()->SetUInt32Value(Opcode, (uint32)CurrentValue);
 
         handler->PSendSysMessage(LANG_CHANGE_32BIT_FIELD, Opcode, CurrentValue);
 
@@ -1225,7 +1225,7 @@ public:
             return false;
 
         uint32 iValue = Value ? 1 << (Value - 1) : 0;
-        target->SetUInt32Value(Opcode ,  iValue);
+        target->SetUInt32Value(Opcode,  iValue);
 
         handler->PSendSysMessage(LANG_SET_32BIT_FIELD, Opcode, iValue);
         return true;

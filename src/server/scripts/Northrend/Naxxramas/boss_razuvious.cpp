@@ -107,7 +107,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_STRIKE:
                         DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);

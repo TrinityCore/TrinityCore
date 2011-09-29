@@ -81,8 +81,8 @@ enum BossSpells
     SPELL_DARK_ESSENCE          = 65684,
     SPELL_EMPOWERED_DARK        = 65724,
     SPELL_TWIN_EMPATHY_DARK     = 66132,
-    SPELL_UNLEASHED_DARK        = 65808,    
-    
+    SPELL_UNLEASHED_DARK        = 65808,
+
     SPELL_CONTROLLER_PERIODIC    = 66149,
     SPELL_POWER_TWINS           = 65879,
     SPELL_BERSERK               = 64238,
@@ -408,7 +408,7 @@ public:
         {
             m_pInstance = (InstanceScript*)creature->GetInstanceScript();
         }
-        
+
         InstanceScript* m_pInstance;
 
         void Reset() {
@@ -445,7 +445,7 @@ public:
             me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
             boss_twin_baseAI::EnterCombat(who);
         }
-        
+
         void EnterEvadeMode()
         {
             m_pInstance->DoUseDoorOrButton(m_pInstance->GetData64(GO_MAIN_GATE_DOOR));
@@ -727,10 +727,10 @@ class spell_powering_up : public SpellScriptLoader
                     {
                         if (pAura->GetStackAmount() == 100)
                         {
-                            if(target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1))
+                            if (target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2206, EFFECT_1))
                                 target->CastSpell(target, SPELL_EMPOWERED_DARK, true);
 
-                            if(target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1))
+                            if (target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2845, EFFECT_1))
                                 target->CastSpell(target, SPELL_EMPOWERED_LIGHT, true);
 
                             target->RemoveAurasDueToSpell(GetId());

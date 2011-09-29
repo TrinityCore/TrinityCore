@@ -414,7 +414,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
     }
     uint32 queueSlot = _player->GetBattlegroundQueueIndex(bgQueueTypeId);
     WorldPacket data;
-    switch(action)
+    switch (action)
     {
         case 1:                                         // port to battleground
             if (!_player->IsInvitedForBattlegroundQueueType(bgQueueTypeId))
@@ -631,7 +631,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     uint32 arenaRating = 0;
     uint32 matchmakerRating = 0;
 
-    switch(arenaslot)
+    switch (arenaslot)
     {
         case 0:
             arenatype = ARENA_TYPE_2v2;

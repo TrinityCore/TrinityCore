@@ -149,7 +149,7 @@ enum MalygosSays
 
 #define MAX_HOVER_DISK_WAYPOINTS 18
 
-// Sniffed data (x,y,z)
+// Sniffed data (x, y,z)
 const Position HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS] =
 {
    {782.9821f, 1296.652f, 282.1114f, 0.0f},
@@ -174,7 +174,7 @@ const Position HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS] =
 
 #define GROUND_Z 268
 
-// Source: Sniffs (x,y,z)
+// Source: Sniffs (x, y,z)
 #define MALYGOS_MAX_WAYPOINTS 16
 const Position MalygosPhaseTwoWaypoints[MALYGOS_MAX_WAYPOINTS] =
 {
@@ -1049,7 +1049,7 @@ public:
                 {
                     MakePlayerEnter();
                     _entered = true;
-                } else 
+                } else
                     _timer -= diff;
             }
         }

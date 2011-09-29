@@ -69,7 +69,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 2:
                     if (me->HasStealthAura())

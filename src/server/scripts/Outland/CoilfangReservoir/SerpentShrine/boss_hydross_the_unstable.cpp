@@ -307,7 +307,7 @@ public:
                     {
                         uint32 mark_spell = 0;
 
-                        switch(MarkOfHydross_Count)
+                        switch (MarkOfHydross_Count)
                         {
                             case 0:  mark_spell = SPELL_MARK_OF_HYDROSS1; break;
                             case 1:  mark_spell = SPELL_MARK_OF_HYDROSS2; break;
