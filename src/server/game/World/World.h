@@ -511,6 +511,14 @@ struct CliCommandHolder
 
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
 
+struct CharacterNameData
+{
+    std::string _name;
+    uint8 _class;
+    uint8 _race;
+    uint8 _gender;
+};
+
 /// The World
 class World
 {
@@ -729,6 +737,9 @@ class World
 
         bool isEventKillStart;
 
+        CharacterNameData *GetCharacterNameData(uint32 guid);
+        void ReloadSingleCharacterNameData(uint32 guid);
+
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
     protected:
@@ -816,7 +827,10 @@ class World
 
         std::list<std::string> m_Autobroadcasts;
 
-    private:
+        std::map<uint32, CharacterNameData*> _CharacterNameDataMap;
+        ACE_Thread_Mutex _CharacterNameDataMapMutex;
+        void LoadCharacterNameData();
+
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
 };
