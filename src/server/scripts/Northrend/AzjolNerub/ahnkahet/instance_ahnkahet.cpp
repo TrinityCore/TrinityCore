@@ -94,7 +94,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 29309: Elder_Nadox = creature->GetGUID();                     break;
                 case 29308: Prince_Taldaram = creature->GetGUID();                 break;
@@ -107,7 +107,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 193564:     Prince_TaldaramPlatform = go->GetGUID();
                     if (m_auiEncounter[1] == DONE) HandleGameObject(0, true, go); break;
@@ -134,7 +134,7 @@ public:
 
         void SetData64(uint32 idx, uint64 guid)
         {
-            switch(idx)
+            switch (idx)
             {
                 case DATA_ADD_JEDOGA_OPFER: JedogaSacrifices = guid; break;
                 case DATA_PL_JEDOGA_TARGET: JedogaTarget = guid; break;
@@ -143,7 +143,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_ELDER_NADOX:                return Elder_Nadox;
                 case DATA_PRINCE_TALDARAM:            return Prince_Taldaram;
@@ -176,7 +176,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_ELDER_NADOX_EVENT: m_auiEncounter[0] = data; break;
                 case DATA_PRINCE_TALDARAM_EVENT:
@@ -223,7 +223,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_ELDER_NADOX_EVENT:            return m_auiEncounter[0];
                 case DATA_PRINCE_TALDARAM_EVENT:        return m_auiEncounter[1];

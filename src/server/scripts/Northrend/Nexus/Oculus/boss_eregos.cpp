@@ -65,7 +65,7 @@ enum Actions
     ACTION_SET_NORMAL_EVENTS = 1
 };
 
-/*Ruby Drake ,
+/*Ruby Drake,
 (npc 27756) (item 37860)
 (summoned by spell Ruby Essence = 37860 ---> Call Amber Drake == 49462 ---> Summon 27756)
 */

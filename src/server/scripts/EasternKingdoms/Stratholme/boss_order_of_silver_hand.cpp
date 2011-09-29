@@ -71,7 +71,7 @@ public:
 
             if (pInstance)
             {
-                switch(me->GetEntry())
+                switch (me->GetEntry())
                 {
                     case SH_AELMAR:
                         pInstance->SetData(TYPE_SH_AELMAR, 0);
@@ -100,7 +100,7 @@ public:
         {
             if (pInstance)
             {
-                switch(me->GetEntry())
+                switch (me->GetEntry())
                 {
                     case SH_AELMAR:
                         pInstance->SetData(TYPE_SH_AELMAR, 2);

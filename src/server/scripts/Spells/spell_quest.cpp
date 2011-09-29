@@ -648,7 +648,7 @@ public:
                 Unit* target = GetTarget();
                 if (Player* player = caster->GetCharmerOrOwnerPlayerOrPlayerItself())
                 {
-                    switch(target->GetEntry())
+                    switch (target->GetEntry())
                     {
                         case NPC_FROSTWORG:
                             target->CastSpell(player, SPELL_FROSTWORG_CREDIT, true);
@@ -707,7 +707,7 @@ public:
             Unit* pCaster = GetCaster();
             if (Player* player = pCaster->ToPlayer())
             {
-                if(Creature* target = GetHitCreature())
+                if (Creature* target = GetHitCreature())
                 {
                     player->CastSpell(player, SPELL_TRIGGER_AID_OF_THE_EARTHEN, true, NULL);
                     player->KilledMonsterCredit(NPC_FALLEN_EARTHEN_DEFENDER, 0);
@@ -948,7 +948,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
  */
 enum eBattleStandard
 {
-    NPC_KING_OF_THE_MOUNTAINT_KC					= 31766,
+    NPC_KING_OF_THE_MOUNTAINT_KC                    = 31766,
 };
 class spell_q13280_13283_plant_battle_standard: public SpellScriptLoader
 {
@@ -959,11 +959,11 @@ public:
     {
         PrepareSpellScript(spell_q13280_13283_plant_battle_standard_SpellScript)
         void HandleDummy(SpellEffIndex /*effIndex*/)
-        {                 
+        {
             Unit* caster = GetCaster();
             if (caster->IsVehicle())
                 if (Unit* player = caster->GetVehicleKit()->GetPassenger(0))
-                     player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC,0);
+                     player->ToPlayer()->KilledMonsterCredit(NPC_KING_OF_THE_MOUNTAINT_KC, 0);
         }
 
         void Register()

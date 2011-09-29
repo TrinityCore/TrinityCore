@@ -148,7 +148,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     etime *= MINUTE;
 
     // client understand only 3 auction time
-    switch(etime)
+    switch (etime)
     {
         case 1*MIN_AUCTION_TIME:
         case 2*MIN_AUCTION_TIME:
@@ -578,7 +578,7 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recv_data)
 
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(pCreature->getFaction());
 
-    //sLog->outDebug("Auctionhouse search (GUID: %u TypeId: %u)", , list from: %u, searchedname: %s, levelmin: %u, levelmax: %u, auctionSlotID: %u, auctionMainCategory: %u, auctionSubCategory: %u, quality: %u, usable: %u",
+    //sLog->outDebug("Auctionhouse search (GUID: %u TypeId: %u)",, list from: %u, searchedname: %s, levelmin: %u, levelmax: %u, auctionSlotID: %u, auctionMainCategory: %u, auctionSubCategory: %u, quality: %u, usable: %u",
     //  GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)), listfrom, searchedname.c_str(), levelmin, levelmax, auctionSlotID, auctionMainCategory, auctionSubCategory, quality, usable);
 
     WorldPacket data(SMSG_AUCTION_LIST_RESULT, (4+4+4));

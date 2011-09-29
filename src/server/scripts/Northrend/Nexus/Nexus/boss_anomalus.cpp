@@ -162,7 +162,7 @@ class boss_anomalus : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             Rift->AI()->AttackStart(target);
                         uiChaoticRiftGUID = Rift->GetGUID();
-                        DoScriptText(SAY_RIFT , me);
+                        DoScriptText(SAY_RIFT, me);
                     }
                 }
 

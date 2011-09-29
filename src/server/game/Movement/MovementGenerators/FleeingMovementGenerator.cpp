@@ -85,7 +85,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
 
         float distance = 5.0f;
 
-        switch(i)
+        switch (i)
         {
             case 0:
                 angle = i_cur_angle;

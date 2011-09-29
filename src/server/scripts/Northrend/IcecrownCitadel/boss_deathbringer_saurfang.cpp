@@ -719,7 +719,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                                 float x, y, z;
                                 deathbringer->GetClosePoint(x, y, z, deathbringer->GetObjectSize());
                                 me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                me->GetMotionMaster()->MovePoint(POINT_CORPSE , x, y, z);
+                                me->GetMotionMaster()->MovePoint(POINT_CORPSE, x, y, z);
                             }
                             break;
                         case EVENT_OUTRO_HORDE_5:   // move

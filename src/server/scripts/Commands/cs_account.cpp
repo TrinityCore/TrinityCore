@@ -104,7 +104,7 @@ public:
         std::string password = szPassword;
 
         AccountOpResult result = AccountMgr::CreateAccount(account_name, password);
-        switch(result)
+        switch (result)
         {
         case AOR_OK:
             handler->PSendSysMessage(LANG_ACCOUNT_CREATED, account_name.c_str());
@@ -165,7 +165,7 @@ public:
             return false;
 
         AccountOpResult result = AccountMgr::DeleteAccount(account_id);
-        switch(result)
+        switch (result)
         {
         case AOR_OK:
             handler->PSendSysMessage(LANG_ACCOUNT_DELETED, account_name.c_str());
@@ -299,7 +299,7 @@ public:
         }
 
         AccountOpResult result = AccountMgr::ChangePassword(handler->GetSession()->GetAccountId(), std::string(new_pass));
-        switch(result)
+        switch (result)
         {
         case AOR_OK:
             handler->SendSysMessage(LANG_COMMAND_PASSWORD);

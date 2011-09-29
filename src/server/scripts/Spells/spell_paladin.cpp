@@ -141,7 +141,7 @@ public:
             if (Unit* unitTarget = GetHitUnit())
             {
                 uint32 spell_id = 0;
-                switch(unitTarget->getClass())
+                switch (unitTarget->getClass())
                 {
                     case CLASS_DRUID:   spell_id = SPELL_BLESSING_OF_LOWER_CITY_DRUID; break;
                     case CLASS_PALADIN: spell_id = SPELL_BLESSING_OF_LOWER_CITY_PALADIN; break;

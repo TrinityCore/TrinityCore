@@ -113,7 +113,7 @@ DestinationHolder<TRAVELLER>::UpdateTraveller(TRAVELLER &traveller, uint32 diff,
             return true;
 
         if (traveller.GetTraveller().HasUnitState(UNIT_STAT_IN_FLIGHT))
-            GetLocationNow(traveller.GetTraveller().GetBaseMap() , x, y, z, true);                  // Should reposition Object with right Coord, so I can bypass some Grid Relocation
+            GetLocationNow(traveller.GetTraveller().GetBaseMap(), x, y, z, true);                  // Should reposition Object with right Coord, so I can bypass some Grid Relocation
         else
             GetLocationNow(traveller.GetTraveller().GetBaseMap(), x, y, z, false);
 

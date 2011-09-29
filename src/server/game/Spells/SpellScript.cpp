@@ -87,7 +87,7 @@ bool _SpellScript::EffectHook::IsEffectAffected(SpellInfo const* spellEntry, uin
 
 std::string _SpellScript::EffectHook::EffIndexToString()
 {
-    switch(effIndex)
+    switch (effIndex)
     {
         case EFFECT_ALL:
             return "EFFECT_ALL";
@@ -114,7 +114,7 @@ bool _SpellScript::EffectNameCheck::Check(SpellInfo const* spellEntry, uint8 eff
 
 std::string _SpellScript::EffectNameCheck::ToString()
 {
-    switch(effName)
+    switch (effName)
     {
         case SPELL_EFFECT_ANY:
             return "SPELL_EFFECT_ANY";
@@ -136,7 +136,7 @@ bool _SpellScript::EffectAuraNameCheck::Check(SpellInfo const* spellEntry, uint8
 
 std::string _SpellScript::EffectAuraNameCheck::ToString()
 {
-    switch(effAurName)
+    switch (effAurName)
     {
         case SPELL_AURA_ANY:
             return "SPELL_AURA_ANY";

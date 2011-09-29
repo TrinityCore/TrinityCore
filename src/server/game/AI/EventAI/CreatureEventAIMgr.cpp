@@ -278,7 +278,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     sLog->outErrorDb("CreatureEventAI:  Creature %u are using repeatable event(%u) with param4 < param3 (RepeatMax < RepeatMin). Event will never repeat.", temp.creature_id, i);
                 break;
             case EVENT_T_SPAWNED:
-                switch(temp.spawned.condition)
+                switch (temp.spawned.condition)
                 {
                     case SPAWNED_EVENT_ALWAY:
                         break;

@@ -230,7 +230,7 @@ public:
 
         void DoAction(const int32 actionId)
         {
-            switch(actionId)
+            switch (actionId)
             {
                 case ACTION_START_INTRO:
                     events.ScheduleEvent(EVENT_START_INTRO, 0);
@@ -244,7 +244,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             events.Update(diff);
-            switch(events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_START_INTRO:
                     me->GetMotionMaster()->MovePoint(0, MoveThronePos);
@@ -664,7 +664,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SHADOW_WORD_PAIN:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
@@ -747,7 +747,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_FIREBALL:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
@@ -847,7 +847,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SHADOW_STEP:
                         DoCast(SPELL_SHADOW_STEP);
@@ -917,7 +917,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SPECTRAL_STRIKE:
                         DoCast(me->getVictim(), SPELL_SPECTRAL_STRIKE);
@@ -983,7 +983,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SHOOT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))

@@ -123,7 +123,7 @@ public:
                     return;
                 }
 
-                switch(m_uiPhase)
+                switch (m_uiPhase)
                 {
                     case 1:
                         DoScriptText(SAY_COMPLETE, me);

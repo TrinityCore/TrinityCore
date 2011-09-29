@@ -376,7 +376,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
             case 0:
                 DoScriptText(SAY_START, me, player);
@@ -479,7 +479,7 @@ public:
         {
             Creature* Spark = Unit::GetCreature(*me, SparkGUID);
 
-            switch(Step)
+            switch (Step)
             {
             case 0:
                 if (Spark)

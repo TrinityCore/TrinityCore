@@ -361,7 +361,7 @@ void hyjalAI::Reset()
     EnemyCount = 0;
 
     // Set faction properly based on Creature entry
-    switch(me->GetEntry())
+    switch (me->GetEntry())
     {
         case JAINA:
             Faction = 0;
@@ -450,7 +450,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
         SpawnLoc[i] = Base[random][i];
     }
     Creature* creature = NULL;
-    switch(entry)
+    switch (entry)
     {
             case 17906:    //GARGOYLE
 
@@ -463,7 +463,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
                     creature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_GARG_GATE][0]+irand(-10, 10), SpawnPointSpecial[SPAWN_GARG_GATE][1]+irand(-10, 10), SpawnPointSpecial[SPAWN_GARG_GATE][2]+irand(-10, 10), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 }
                 break;
-            case 17907:    //FROST_WYRM ,
+            case 17907:    //FROST_WYRM,
                 if (FirstBossDead && WaveCount == 1) //summon at gate
                     creature = me->SummonCreature(entry, SpawnPointSpecial[SPAWN_WYRM_GATE][0], SpawnPointSpecial[SPAWN_WYRM_GATE][1], SpawnPointSpecial[SPAWN_WYRM_GATE][2], 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                 else
@@ -492,7 +492,7 @@ void hyjalAI::SummonCreature(uint32 entry, float Base[4][3])
 
         creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
         creature->setActive(true);
-        switch(entry)
+        switch (entry)
         {
             case NECROMANCER:
             case ABOMINATION:
@@ -751,7 +751,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
     if (DoHide)
     {
         DoHide = false;
-        switch(me->GetEntry())
+        switch (me->GetEntry())
         {
             case JAINA:
                 if (pInstance && pInstance->GetData(DATA_ALLIANCE_RETREAT))
@@ -810,7 +810,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
             IsDummy = true;
             bRetreat = false;
             HideNearPos(me->GetPositionX(), me->GetPositionY());
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case JAINA://jaina
                     HideNearPos(5037.76f, -1889.71f);
@@ -892,7 +892,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
 
                 Unit* target = NULL;
 
-                switch(Spells[i].TargetType)
+                switch (Spells[i].TargetType)
                 {
                     case TARGETTYPE_SELF: target = me; break;
                     case TARGETTYPE_RANDOM: target = SelectTarget(SELECT_TARGET_RANDOM, 0); break;
@@ -1071,7 +1071,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
     if (!Teleported)
         return;
     Overrun = false;//execute once
-    switch(faction)
+    switch (faction)
     {
         case 0://alliance
             for (uint8 i = 0; i < 92; ++i)//summon fires

@@ -947,7 +947,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(PlayerOrPetCheck());
+                unitList.remove_if (PlayerOrPetCheck());
             }
 
             void Register()

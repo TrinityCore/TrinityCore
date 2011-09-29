@@ -330,7 +330,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 0: DoScriptText(SAY1, me, player); break;
                 case 4: DoScriptText(WHISP1, me, player); break;
@@ -449,7 +449,7 @@ public:
         {
             Player* player = Unit::GetPlayer(*me, PlayerGUID);
 
-            switch(Step)
+            switch (Step)
             {
             case 0:{ me->SetInFront(player);
                 Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
@@ -632,7 +632,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF+1:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, KHADGAR_GOSSIP_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);

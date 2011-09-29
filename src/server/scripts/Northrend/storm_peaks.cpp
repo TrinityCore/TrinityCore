@@ -507,12 +507,12 @@ public:
             player->PrepareQuestMenu(creature->GetGUID());
 
         //Trainer Menu
-        if( creature->isTrainer() )
+        if ( creature->isTrainer() )
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_TEXT_TRAIN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRAIN);
 
         //Vendor Menu
-        if( creature->isVendor() )
-            if(player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
+        if ( creature->isVendor() )
+            if (player->HasSpell(SPELL_MECHANO_HOG) || player->HasSpell(SPELL_MEKGINEERS_CHOPPER))
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
@@ -522,7 +522,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(action)
+        switch (action)
         {
         case GOSSIP_ACTION_TRAIN:
             player->GetSession()->SendTrainerList(creature->GetGUID());
@@ -769,7 +769,7 @@ class npc_hyldsmeet_protodrake : public CreatureScript
                     else
                         _accessoryRespawnTimer -= diff;
                 }
-            
+
             private:
                 uint32 _accessoryRespawnTimer;
                 Vehicle* _vehicleKit;
