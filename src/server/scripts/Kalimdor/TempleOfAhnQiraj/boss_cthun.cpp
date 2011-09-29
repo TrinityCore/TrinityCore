@@ -592,7 +592,7 @@ public:
 
             //Get random but only if we have more than one unit on threat list
             if (temp.size() > 1)
-                advance (j , rand() % (temp.size() - 1));
+                advance (j, rand() % (temp.size() - 1));
 
             return (*j);
         }
@@ -916,7 +916,7 @@ public:
 
         void DoAction(const int32 param)
         {
-            switch(param)
+            switch (param)
             {
                 case ACTION_FLESH_TENTACLE_KILLED:
                     ++FleshTentaclesKilled;

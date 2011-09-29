@@ -986,7 +986,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
     else
         *data << uint32(LANG_UNIVERSAL);
 
-    switch(type)
+    switch (type)
     {
         case CHAT_MSG_SAY:
         case CHAT_MSG_PARTY:
@@ -1287,7 +1287,7 @@ uint32 ChatHandler::extractSpellIdFromLink(char* text)
 
     uint32 id = (uint32)atol(idS);
 
-    switch(type)
+    switch (type)
     {
         case SPELL_LINK_SPELL:
             return id;
@@ -1367,7 +1367,7 @@ uint64 ChatHandler::extractGuidFromLink(char* text)
     if (!idS)
         return 0;
 
-    switch(type)
+    switch (type)
     {
         case SPELL_LINK_PLAYER:
         {

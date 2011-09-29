@@ -725,7 +725,7 @@ public:
         uint32 num = 0;
 
         num = atoi((char*)args);
-        switch(num)
+        switch (num)
         {
         case 1:
             mId=14340;
@@ -1282,7 +1282,7 @@ public:
             return false;
 
         uint32 anim_id = atoi((char*)args);
-        handler->GetSession()->GetPlayer()->SetUInt32Value(UNIT_NPC_EMOTESTATE , anim_id);
+        handler->GetSession()->GetPlayer()->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim_id);
 
         return true;
     }

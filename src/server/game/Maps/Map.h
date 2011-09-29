@@ -255,7 +255,7 @@ class Map : public GridRefManager<NGridType>
         }
 
         virtual bool Add(Player*);
-        virtual void Remove(Player* , bool);
+        virtual void Remove(Player*, bool);
         template<class T> void Add(T *);
         template<class T> void Remove(T *, bool);
 
@@ -266,7 +266,7 @@ class Map : public GridRefManager<NGridType>
         //function for setting up visibility distance for maps on per-type/per-Id basis
         virtual void InitVisibilityDistance();
 
-        void PlayerRelocation(Player* , float x, float y, float z, float orientation);
+        void PlayerRelocation(Player*, float x, float y, float z, float orientation);
         void CreatureRelocation(Creature* creature, float x, float y, float z, float ang, bool respawnRelocationOnFail = true);
 
         template<class T, class CONTAINER> void Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor);
@@ -578,7 +578,7 @@ class InstanceMap : public Map
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
         bool Add(Player*);
-        void Remove(Player* , bool);
+        void Remove(Player*, bool);
         void Update(const uint32);
         void CreateInstanceData(bool load);
         bool Reset(uint8 method);
@@ -608,7 +608,7 @@ class BattlegroundMap : public Map
         ~BattlegroundMap();
 
         bool Add(Player*);
-        void Remove(Player* , bool);
+        void Remove(Player*, bool);
         bool CanEnter(Player* player);
         void SetUnload();
         //void UnloadAll(bool pForce);

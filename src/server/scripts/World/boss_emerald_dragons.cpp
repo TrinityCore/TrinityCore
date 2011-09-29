@@ -122,7 +122,7 @@ struct emerald_dragonAI : public WorldBossAI
                 // Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random time" (30 seconds at max)
                 DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
                 DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(120000,150000));
+                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(120000, 150000));
                 break;
             case EVENT_NOXIOUS_BREATH:
                 // Noxious Breath is cast on random intervals, no less than 7.5 seconds between
@@ -241,7 +241,7 @@ class spell_dream_fog_sleep : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(DreamFogTargetSelector());
+                unitList.remove_if (DreamFogTargetSelector());
             }
 
             void Register()
@@ -292,7 +292,7 @@ class spell_mark_of_nature : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(MarkOfNatureTargetSelector());
+                unitList.remove_if (MarkOfNatureTargetSelector());
             }
 
             void HandleEffect(SpellEffIndex effIndex)

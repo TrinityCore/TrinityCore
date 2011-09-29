@@ -226,7 +226,7 @@ public:
 
     static bool HandleReloadAllNpcCommand(ChatHandler* handler, const char* args)
     {
-        if(*args != 'a')                                          // will be reloaded from all_gossips
+        if (*args != 'a')                                          // will be reloaded from all_gossips
         HandleReloadNpcTrainerCommand(handler, "a");
         HandleReloadNpcVendorCommand(handler, "a");
         HandleReloadPointsOfInterestCommand(handler, "a");
@@ -298,7 +298,7 @@ public:
     {
         HandleReloadGossipMenuCommand(handler, "a");
         HandleReloadGossipMenuOptionCommand(handler, "a");
-        if(*args != 'a')                                          // already reload from all_scripts
+        if (*args != 'a')                                          // already reload from all_scripts
         HandleReloadPointsOfInterestCommand(handler, "a");
         return true;
     }

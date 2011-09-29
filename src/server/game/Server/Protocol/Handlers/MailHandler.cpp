@@ -577,7 +577,7 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
         data << uint32((*itr)->messageID);                 // Message ID
         data << uint8((*itr)->messageType);                // Message Type
 
-        switch((*itr)->messageType)
+        switch ((*itr)->messageType)
         {
             case MAIL_NORMAL:                               // sender guid
                 data << uint64(MAKE_NEW_GUID((*itr)->sender, 0, HIGHGUID_PLAYER));
@@ -743,7 +743,7 @@ void WorldSession::HandleQueryNextMailTime(WorldPacket & /*recv_data*/)
             else
                 data << uint32(m->sender); // creature entry
 
-            switch(m->messageType)
+            switch (m->messageType)
             {
                 case MAIL_AUCTION:
                     data << uint32(2);

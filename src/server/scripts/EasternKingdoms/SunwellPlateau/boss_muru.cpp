@@ -85,8 +85,8 @@ float DarkFiends[8][4] =
     {1801.98f,   633.62f,    69.74f,    5.71f},
     {1830.88f,   629.99f,    69.73f,    3.52f},
     {1800.38f,   621.41f,    69.74f,    0.22f},
-    {1808.3f ,   612.45f,    69.73f,    1.02f},
-    {1823.9f ,   639.69f,    69.74f,    4.12f},
+    {1808.3f,   612.45f,    69.73f,    1.02f},
+    {1823.9f,   639.69f,    69.74f,    4.12f},
     {1811.85f,   640.46f,    69.73f,    4.97f}
 };
 
@@ -95,7 +95,7 @@ float Humanoides[6][5] =
     {CREATURE_FURY_MAGE, 1780.16f,    666.83f,    71.19f,    5.21f},
     {CREATURE_FURY_MAGE, 1847.93f,    600.30f,    71.30f,    2.57f},
     {CREATURE_BERSERKER, 1779.97f,    660.64f,    71.19f,    5.28f},
-    {CREATURE_BERSERKER, 1786.2f ,    661.01f,    71.19f,    4.51f},
+    {CREATURE_BERSERKER, 1786.2f,    661.01f,    71.19f,    4.51f},
     {CREATURE_BERSERKER, 1845.17f,    602.63f,    71.28f,    2.43f},
     {CREATURE_BERSERKER, 1842.91f,    599.93f,    71.23f,    2.44f}
 };
@@ -145,7 +145,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            switch(summoned->GetEntry())
+            switch (summoned->GetEntry())
             {
                 case CREATURE_DARK_FIENDS:
                     summoned->CastSpell(summoned, SPELL_DARKFIEND_VISUAL, false);
@@ -270,7 +270,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            switch(summoned->GetEntry())
+            switch (summoned->GetEntry())
             {
                 case BOSS_ENTROPIUS:
                     me->SetVisible(false);
@@ -294,7 +294,7 @@ public:
                 {
                     if (!pInstance)
                         return;
-                    switch(pInstance->GetData(DATA_MURU_EVENT))
+                    switch (pInstance->GetData(DATA_MURU_EVENT))
                     {
                         case NOT_STARTED:
                             Reset();
@@ -318,7 +318,7 @@ public:
             {
                 if (Timer[i] <= diff)
                 {
-                    switch(i)
+                    switch (i)
                     {
                         case TIMER_DARKNESS:
                             if (!DarkFiend)
@@ -419,7 +419,7 @@ public:
             me->GetHomePosition(x, y, z, o);
             DoTeleportTo(x, y, z);
             InAction = true;
-            switch(Spell->Id)
+            switch (Spell->Id)
             {
                 case SPELL_OPEN_ALL_PORTALS:
                     DoCastAOE(SPELL_OPEN_PORTAL, false);

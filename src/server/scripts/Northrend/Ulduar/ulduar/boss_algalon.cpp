@@ -229,7 +229,7 @@ public:
                 {
                     if (uiPhase_timer <= diff)
                     {
-                        switch(uiStep)
+                        switch (uiStep)
                         {
                             case 1:
                                 DoScriptText(SAY_SUMMON_1, me);

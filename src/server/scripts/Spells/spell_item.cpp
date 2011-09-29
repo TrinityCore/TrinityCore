@@ -1108,7 +1108,7 @@ class spell_magic_eater_food : public SpellScriptLoader
                         target->CastSpell(target, SPELL_WELL_FED_3, true);
                         break;
                     case 4:
-                        target->CastSpell(target, SPELL_WELL_FED_4, true); 
+                        target->CastSpell(target, SPELL_WELL_FED_4, true);
                         break;
                     case 5:
                         target->CastSpell(target, SPELL_WELL_FED_5, true);

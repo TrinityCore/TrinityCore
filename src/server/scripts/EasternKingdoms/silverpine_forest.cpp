@@ -141,7 +141,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
             case 1: DoScriptText(SAY_START, me, player);break;
             case 13:

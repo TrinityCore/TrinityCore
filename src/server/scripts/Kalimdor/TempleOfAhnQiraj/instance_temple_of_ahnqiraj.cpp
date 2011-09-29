@@ -91,7 +91,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_VEMISDEAD:
                     if (IsBossDied[0])
@@ -119,7 +119,7 @@ public:
 
         uint64 GetData64 (uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_SKERAM:
                     return SkeramGUID;
@@ -137,7 +137,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_VEM_DEATH:
                     IsBossDied[0] = true;

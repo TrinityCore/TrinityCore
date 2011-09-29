@@ -178,22 +178,22 @@ class boss_venoxis : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         // thrash is available in all phases
                         case EVENT_THRASH:
                             DoCast(me, SPELL_THRASH, true);
-                            events.ScheduleEvent(EVENT_THRASH, urand(10000,20000));
+                            events.ScheduleEvent(EVENT_THRASH, urand(10000, 20000));
                             break;
 
                         // troll form spells and actions (first part)
                         case EVENT_DISPEL_MAGIC:
                             DoCast(me, SPELL_DISPEL_MAGIC);
-                            events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000,20000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_DISPEL_MAGIC, urand(15000, 20000), 0, PHASE_ONE);
                             break;
                         case EVENT_RENEW:
                             DoCast(me, SPELL_RENEW);
-                            events.ScheduleEvent(EVENT_RENEW, urand(25000,30000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_RENEW, urand(25000, 30000), 0, PHASE_ONE);
                             break;
                         case EVENT_HOLY_NOVA:
                             _inMeleeRange = 0;
@@ -210,17 +210,17 @@ class boss_venoxis : public CreatureScript
                             if (_inMeleeRange >= 3)
                                 DoCast(me->getVictim(), SPELL_HOLY_NOVA);
 
-                            events.ScheduleEvent(EVENT_HOLY_NOVA, urand(45000,75000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_HOLY_NOVA, urand(45000, 75000), 0, PHASE_ONE);
                             break;
                         case EVENT_HOLY_FIRE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_HOLY_FIRE);
-                            events.ScheduleEvent(EVENT_HOLY_FIRE, urand(45000,60000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_HOLY_FIRE, urand(45000, 60000), 0, PHASE_ONE);
                             break;
                         case EVENT_HOLY_WRATH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_HOLY_WRATH);
-                            events.ScheduleEvent(EVENT_HOLY_WRATH, urand(45000,60000), 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_HOLY_WRATH, urand(45000, 60000), 0, PHASE_ONE);
                             break;
 
                         //
@@ -230,12 +230,12 @@ class boss_venoxis : public CreatureScript
                         case EVENT_VENOM_SPIT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_VENOM_SPIT);
-                            events.ScheduleEvent(EVENT_VENOM_SPIT, urand(5000,15000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_VENOM_SPIT, urand(5000, 15000), 0, PHASE_TWO);
                             break;
                         case EVENT_POISON_CLOUD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                                 DoCast(target, SPELL_POISON_CLOUD);
-                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(15000,20000), 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_POISON_CLOUD, urand(15000, 20000), 0, PHASE_TWO);
                             break;
                         case EVENT_PARASITIC_SERPENT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))

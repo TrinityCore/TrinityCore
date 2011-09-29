@@ -204,7 +204,7 @@ public:
             // Health check
             if (HealthBelowPct(100 - 25 * m_uiHealthAmountModifier))
             {
-                switch(m_uiHealthAmountModifier)
+                switch (m_uiHealthAmountModifier)
                 {
                     case 1: DoScriptText(SAY_75HEALTH, me); break;
                     case 2: DoScriptText(SAY_50HEALTH, me); break;

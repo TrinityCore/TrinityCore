@@ -173,7 +173,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            switch(phase)
+            switch (phase)
             {
             case PHASE_CHAINED:
                 if (!anchorGUID)
@@ -247,7 +247,7 @@ public:
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                     case EVENT_ICY_TOUCH:
                         DoCast(me->getVictim(), SPELL_ICY_TOUCH);
@@ -553,7 +553,7 @@ public:
 
             if (PhaseTimer <= diff)
             {
-                switch(Phase)
+                switch (Phase)
                 {
                    case 0:
                         me->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);

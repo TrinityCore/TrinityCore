@@ -108,7 +108,7 @@ public:
 
     struct netherspite_infernalAI : public ScriptedAI
     {
-        netherspite_infernalAI(Creature* c) : ScriptedAI(c) ,
+        netherspite_infernalAI(Creature* c) : ScriptedAI(c),
             HellfireTimer(0), CleanupTimer(0), malchezaar(0), point(NULL) {}
 
         uint32 HellfireTimer;

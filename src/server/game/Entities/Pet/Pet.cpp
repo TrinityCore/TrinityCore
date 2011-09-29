@@ -483,7 +483,7 @@ void Pet::Update(uint32 diff)
     if (m_loading)
         return;
 
-    switch(m_deathState)
+    switch (m_deathState)
     {
         case CORPSE:
         {

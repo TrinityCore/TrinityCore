@@ -89,7 +89,7 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                switch(action)
+                switch (action)
                 {
                     case ACTION_INTRO_BALTHARUS:
                         if (_introDone)
