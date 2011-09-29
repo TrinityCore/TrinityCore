@@ -199,7 +199,7 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
         if (questStart)
         {
             // not in expected required quest state
-            if (((!questStartCanActive || !playerClicker->IsActiveQuest(questStart)) && !playerClicker->GetQuestRewardStatus(questStart)))
+            if ((!questStartCanActive || !playerClicker->IsActiveQuest(questStart)) && !playerClicker->GetQuestRewardStatus(questStart))
                 return false;
         }
 

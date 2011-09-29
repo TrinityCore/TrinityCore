@@ -507,10 +507,8 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
         }
 
         if (need_execute)
-            ssdel << ')';
-
-        if (need_execute)
         {
+            ssdel << ')';
             trans->Append(ssdel.str().c_str());
             trans->Append(ssins.str().c_str());
         }

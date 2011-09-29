@@ -505,9 +505,8 @@ namespace VMAP
         if (!wf)
             return false;
 
-        bool result = true;
         uint32 chunkSize, count;
-        result = fwrite(VMAP_MAGIC, 1, 8, wf) == 8;
+        bool result = fwrite(VMAP_MAGIC, 1, 8, wf) == 8;
         if (result && fwrite("WMOD", 1, 4, wf) != 4) result = false;
         chunkSize = sizeof(uint32) + sizeof(uint32);
         if (result && fwrite(&chunkSize, sizeof(uint32), 1, wf) != 1) result = false;

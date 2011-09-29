@@ -9057,11 +9057,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
         case 3698:
         case 3702:
         case 3968:
-            NumberOfFields = 11;
-            break;
         case 4378:
-            NumberOfFields = 11;
-            break;
         case 3703:
             NumberOfFields = 11;
             break;
@@ -9072,8 +9068,6 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
             NumberOfFields = 28;
             break;
         case 4812:  // Icecrown Citadel
-            NumberOfFields = 13;
-            break;
         case 4100:  // The Culling of Stratholme
             NumberOfFields = 13;
             break;
