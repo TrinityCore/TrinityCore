@@ -171,7 +171,7 @@ class BattlegroundWS : public Battleground
         uint64 GetFlagPickerGUID(int32 team) const
         {
             if (team == BG_TEAM_ALLIANCE || team == BG_TEAM_HORDE)
-                return m_FlagKeepers[BG_TEAM_ALLIANCE];
+                return m_FlagKeepers[team];
             return 0;
         }
         void SetAllianceFlagPicker(uint64 guid)     { m_FlagKeepers[BG_TEAM_ALLIANCE] = guid; }
