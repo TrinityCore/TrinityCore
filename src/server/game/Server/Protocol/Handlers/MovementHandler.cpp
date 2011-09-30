@@ -523,13 +523,29 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_KNOCK_BACK_ACK");
 
-    uint64 guid;                                            // guid - unused
+    uint64 guid;
     recv_data.readPackGUID(guid);
+
+    if (_player->m_mover->GetGUID() != guid)
+        return;
 
     recv_data.read_skip<uint32>();                          // unk
 
     MovementInfo movementInfo;
     ReadMovementInfo(recv_data, &movementInfo);
+    _player->m_movementInfo = movementInfo;
+
+    WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
+    data.appendPackGUID(guid);
+    _player->BuildMovementPacket(&data);
+
+    // knockback specific info
+    data << movementInfo.j_sinAngle;
+    data << movementInfo.j_cosAngle;
+    data << movementInfo.j_xyspeed;
+    data << movementInfo.j_zspeed;
+
+    _player->SendMessageToSet(&data, false);
 }
 
 void WorldSession::HandleMoveHoverAck(WorldPacket& recv_data)
