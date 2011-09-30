@@ -62,7 +62,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
 
     recv_data >> guid;
 
-	// This is disable by default to prevent lots of console spam
+    // This is disable by default to prevent lots of console spam
     // sLog->outString("HandleNameQueryOpcode %u", guid);
 
     if (Player* pChar = ObjectAccessor::FindPlayer(guid))
