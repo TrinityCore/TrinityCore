@@ -6241,11 +6241,7 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     if (unitTarget->IsNonMeleeSpellCasted(true))
         unitTarget->InterruptNonMeleeSpells(true);
 
-    float ratio = m_caster->GetCombatReach() / std::max(unitTarget->GetCombatReach(), 1.0f);
-    if (ratio < 1.0f)
-        ratio = ratio * ratio * ratio * 0.1f; // volume = length^3
-    else
-        ratio = 0.1f; // dbc value ratio
+    float ratio = 0.1f;
     float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue) * ratio;
     float speedz = float(damage) * ratio;
     if (speedxy < 0.1f && speedz < 0.1f)

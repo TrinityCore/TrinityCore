@@ -16510,7 +16510,7 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
 
         WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
         data.append(GetPackGUID());
-        data << uint32(0);                                      // Sequence
+        data << uint32(0);                                      // counter
         data << float(vcos);                                    // x direction
         data << float(vsin);                                    // y direction
         data << float(speedXY);                                 // Horizontal speed
