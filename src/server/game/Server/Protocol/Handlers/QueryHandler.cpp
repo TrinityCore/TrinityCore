@@ -56,80 +56,41 @@ void WorldSession::SendNameQueryOpcode(Player* p)
     SendPacket(&data);
 }
 
-void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
-{
-    QueryResultFuture lFutureResult =
-        CharacterDatabase.AsyncPQuery(
-            !sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) ?
-        //   ------- Query Without Declined Names --------
-        //          0     1     2     3       4
-            "SELECT guid, name, race, gender, class "
-            "FROM characters WHERE guid = '%u'"
-            :
-        //   --------- Query With Declined Names ---------
-        //          0                1     2     3       4
-            "SELECT characters.guid, name, race, gender, class, "
-        //   5         6       7           8             9
-            "genitive, dative, accusative, instrumental, prepositional "
-            "FROM characters LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid WHERE characters.guid = '%u'",
-            GUID_LOPART(guid)
-        );
-
-    _nameQueryCallbacks.insert(lFutureResult);
-
-// CharacterDatabase.AsyncPQuery(&WorldSession::SendNameQueryOpcodeFromDBCallBack, GetAccountId(),
-}
-
-void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult result)
-{
-    if (!result)
-        return;
-
-    Field* fields = result->Fetch();
-    uint32 guid      = fields[0].GetUInt32();
-    std::string name = fields[1].GetString();
-    uint8 pRace = 0, pGender = 0, pClass = 0;
-    if (name == "")
-        name         = GetTrinityString(LANG_NON_EXIST_CHARACTER);
-    else
-    {
-        pRace        = fields[2].GetUInt8();
-        pGender      = fields[3].GetUInt8();
-        pClass       = fields[4].GetUInt8();
-    }
-                                                            // guess size
-    WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+1+10));
-    data.appendPackGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
-    data << uint8(0);                                       // added in 3.1
-    data << name;
-    data << uint8(0);                                       // realm name for cross realm BG usage
-    data << uint8(pRace);                                   // race
-    data << uint8(pGender);                                 // gender
-    data << uint8(pClass);                                  // class
-
-    // if the first declined name field (5) is empty, the rest must be too
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && fields[5].GetString() != "")
-    {
-        data << uint8(1);                                   // is declined
-        for (int i = 5; i < MAX_DECLINED_NAME_CASES+5; ++i)
-            data << fields[i].GetString();
-    }
-    else
-        data << uint8(0);                                   // is not declined
-
-    SendPacket(&data);
-}
-
 void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
 {
     uint64 guid;
 
     recv_data >> guid;
 
+	// This is disable by default to prevent lots of console spam
+    // sLog->outString("HandleNameQueryOpcode %u", guid);
+
     if (Player* pChar = ObjectAccessor::FindPlayer(guid))
         SendNameQueryOpcode(pChar);
     else
-        SendNameQueryOpcodeFromDB(guid);
+    {
+        if (CharacterNameData* cname = sWorld->GetCharacterNameData(guid))
+        {
+            WorldPacket data(SMSG_NAME_QUERY_RESPONSE, 8+1+1+1+1+1+1+10);
+            data.appendPackGUID(guid);
+            data << uint8(0);
+            if (cname->m_name == "")
+            {
+                data << std::string(GetTrinityString(LANG_NON_EXIST_CHARACTER));
+                data << uint32(0);
+            }
+            else
+            {
+                data << cname->m_name;
+                data << uint8(0);
+                data << uint8(cname->m_race);
+                data << uint8(cname->m_gender);
+                data << uint8(cname->m_class);
+            }
+            data << uint8(0);
+            SendPacket(&data);
+        }
+    }
 }
 
 void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recv_data*/)
