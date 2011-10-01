@@ -227,7 +227,7 @@ std::string Warden::Penalty()
             std::stringstream duration;
             duration << sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_BAN_DURATION) << "s";
             std::string accountName;
-            sAccountMgr->GetName(_session->GetAccountId(), accountName);
+            AccountMgr::GetName(_session->GetAccountId(), accountName);
             sWorld->BanAccount(BAN_ACCOUNT, accountName, duration.str(), "Warden Anticheat violation","Server");
 
             return "Ban";
