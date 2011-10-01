@@ -469,6 +469,9 @@ void SmartAI::MoveInLineOfSight(Unit* who)
 
     if (!CanAIAttack(who))
         return;
+    
+    if (!me->canStartAttack(who, false))
+        return;
 
     if (me->IsHostileTo(who))
     {
@@ -487,9 +490,6 @@ void SmartAI::MoveInLineOfSight(Unit* who)
             }
         }
     }
-
-    //if (me->canStartAttack(who, false))
-    //    AttackStart(who);
 }
 
 bool SmartAI::CanAIAttack(const Unit* /*who*/) const
