@@ -9,6 +9,3 @@ DELETE FROM `creature_template_addon` WHERE `entry` IN (32358,32438);
 INSERT INTO `creature_template_addon` (`entry`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (32358,25587,0x3000000,1,0, NULL), -- Fumblub Gearwind
 (32438,0,0,2,0, NULL); -- Syreian the Bonecarver
-
-
-UPDATE `creature_template` SET  WHERE `entry`=32358; -- Fumblub Gearwind
