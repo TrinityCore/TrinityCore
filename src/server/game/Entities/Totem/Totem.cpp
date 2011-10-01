@@ -91,7 +91,9 @@ void Totem::InitSummon()
     {
         switch (GetSpell())
         {
-            case 50461:
+            case 33663: // Earth Elemental Totem
+            case 32982: // Fire Elemental Totem
+            case 50461: // Anti-Magic Zone
                 CastSpell(this, GetSpell(), true);
                 break;
             default:
