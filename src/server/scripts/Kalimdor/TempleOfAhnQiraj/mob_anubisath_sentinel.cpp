@@ -118,7 +118,7 @@ public:
 
         void GiveBuddyMyList(Creature* c)
         {
-            aqsentinelAI *cai = CAST_AI(aqsentinelAI, (c)->AI());
+            aqsentinelAI* cai = CAST_AI(aqsentinelAI, (c)->AI());
             for (int i=0; i<3; ++i)
                 if (NearbyGUID[i] && NearbyGUID[i] != c->GetGUID())
                     cai->AddBuddyToList(NearbyGUID[i]);

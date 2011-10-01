@@ -162,8 +162,10 @@ typedef std::map<uint32, GmTicket*> GmTicketList;
 
 class TicketMgr
 {
-    TicketMgr();
     friend class ACE_Singleton<TicketMgr, ACE_Null_Mutex>;
+
+private:
+    TicketMgr();
 
 public:
     void LoadTickets();

@@ -256,7 +256,7 @@ public:
 
             if (Timer <= diff)
             {
-                switch(Counter)
+                switch (Counter)
                 {
                 case 0:
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);  // I R ANNNGRRRY!
@@ -536,7 +536,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 for (uint8 i = 0; i < 3; ++i)

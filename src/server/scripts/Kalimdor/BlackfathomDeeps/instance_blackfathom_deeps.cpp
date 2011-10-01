@@ -109,7 +109,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_FIRE_OF_AKU_MAI_1:
                     m_uiShrine1GUID = go->GetGUID();
@@ -143,7 +143,7 @@ public:
 
         void SetData(uint32 uiType, uint32 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case TYPE_GELIHAST:
                     m_auiEncounter[0] = uiData;
@@ -213,7 +213,7 @@ public:
 
         uint32 GetData(uint32 uiType)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case TYPE_GELIHAST:
                     return m_auiEncounter[0];
@@ -234,7 +234,7 @@ public:
 
         uint64 GetData64(uint32 uiData)
         {
-            switch(uiData)
+            switch (uiData)
             {
                 case DATA_TWILIGHT_LORD_KELRIS:
                     return m_uiTwilightLordKelrisGUID;

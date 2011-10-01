@@ -33,7 +33,7 @@ const uint32 HP_LANG_CAPTURE_A[HP_TOWER_NUM] = {LANG_OPVP_HP_CAPTURE_BROKENHILL_
 
 const uint32 HP_LANG_CAPTURE_H[HP_TOWER_NUM] = {LANG_OPVP_HP_CAPTURE_BROKENHILL_H, LANG_OPVP_HP_CAPTURE_OVERLOOK_H, LANG_OPVP_HP_CAPTURE_STADIUM_H};
 
-OPvPCapturePointHP::OPvPCapturePointHP(OutdoorPvP *pvp, OutdoorPvPHPTowerType type)
+OPvPCapturePointHP::OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type)
 : OPvPCapturePoint(pvp), m_TowerType(type)
 {
     SetCapturePointData(HPCapturePoints[type].entry,
@@ -166,7 +166,7 @@ void OutdoorPvPHP::FillInitialWorldStates(WorldPacket &data)
 void OPvPCapturePointHP::ChangeState()
 {
     uint32 field = 0;
-    switch(m_OldState)
+    switch (m_OldState)
     {
     case OBJECTIVESTATE_NEUTRAL:
         field = HP_MAP_N[m_TowerType];
@@ -205,7 +205,7 @@ void OPvPCapturePointHP::ChangeState()
     }
     uint32 artkit = 21;
     uint32 artkit2 = HP_TowerArtKit_N[m_TowerType];
-    switch(m_State)
+    switch (m_State)
     {
     case OBJECTIVESTATE_NEUTRAL:
         field = HP_MAP_N[m_TowerType];
@@ -282,7 +282,7 @@ void OPvPCapturePointHP::SendChangePhase()
 
 void OPvPCapturePointHP::FillInitialWorldStates(WorldPacket &data)
 {
-    switch(m_State)
+    switch (m_State)
     {
         case OBJECTIVESTATE_ALLIANCE:
         case OBJECTIVESTATE_ALLIANCE_HORDE_CHALLENGE:

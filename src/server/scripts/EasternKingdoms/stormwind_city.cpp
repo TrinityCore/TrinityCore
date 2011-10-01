@@ -346,7 +346,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 14:
                     SetEscortPaused(true);
@@ -387,7 +387,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             if (Creature* pGuard = me->FindNearestCreature(NPC_STORMWIND_ROYAL, 8.0f, true))
@@ -510,7 +510,7 @@ public:
                 Unit* summoner = me->ToTempSummon()->GetSummoner();
                 if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled)
                 {
-                    npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI *ai =
+                    npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI* ai =
                         CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, summoner->GetAI());
                     if (ai)
                     {
@@ -577,7 +577,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 1:
                     SetEscortPaused(true);
@@ -605,7 +605,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             DoScriptText(SAY_QUEST_ACCEPT_ATTACK, me);
@@ -696,7 +696,7 @@ class npc_tyrion : public CreatureScript
 public:
     npc_tyrion() : CreatureScript("npc_tyrion") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_THE_ATTACK)
         {

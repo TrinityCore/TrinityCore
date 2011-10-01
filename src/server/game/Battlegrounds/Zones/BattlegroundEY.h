@@ -48,7 +48,7 @@ enum BG_EY_WorldStates
     BLOOD_ELF_ALLIANCE_CONTROL      = 2723,
     BLOOD_ELF_UNCONTROL             = 2722,
     PROGRESS_BAR_PERCENT_GREY       = 2720,                 //100 = empty (only grey), 0 = blue|red (no grey)
-    PROGRESS_BAR_STATUS             = 2719,                 //50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky , 100 = full alliance
+    PROGRESS_BAR_STATUS             = 2719,                 //50 init!, 48 ... hordak bere .. 33 .. 0 = full 100% hordacky, 100 = full alliance
     PROGRESS_BAR_SHOW               = 2718,                 //1 init, 0 druhy send - bez messagu, 1 = controlled aliance
     NETHERSTORM_FLAG                = 2757,
     //set to 2 when flag is picked up, and to 1 if it is dropped
@@ -336,44 +336,44 @@ class BattlegroundEY : public Battleground
         ~BattlegroundEY();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void AddPlayer(Player* plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 
         /* BG Flags */
-        uint64 GetFlagPickerGUID() const    { return m_FlagKeeper; }
+        uint64 GetFlagPickerGUID(int32 /*team*/ = -1) const    { return m_FlagKeeper; }
         void SetFlagPicker(uint64 guid)     { m_FlagKeeper = guid; }
         bool IsFlagPickedup() const         { return m_FlagKeeper != 0; }
         uint8 GetFlagState() const          { return m_FlagState; }
         void RespawnFlag(bool send_message);
         void RespawnFlagAfterDrop();
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
+        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
         void HandleBuffUse(uint64 buff_guid);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
         virtual bool SetupBattleground();
         virtual void Reset();
         void UpdateTeamScore(uint32 Team);
         void EndBattleground(uint32 winner);
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
         virtual void FillInitialWorldStates(WorldPacket& data);
         void SetDroppedFlagGUID(uint64 guid)       { m_DroppedFlagGUID = guid;}
         uint64 GetDroppedFlagGUID() const          { return m_DroppedFlagGUID;}
 
         /* Battleground Events */
-        virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
-        virtual void EventPlayerDroppedFlag(Player *Source);
+        virtual void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
+        virtual void EventPlayerDroppedFlag(Player* Source);
 
         /* achievement req. */
         bool IsAllNodesConrolledByTeam(uint32 team) const;
     private:
         virtual void PostUpdateImpl(uint32 diff);
 
-        void EventPlayerCapturedFlag(Player *Source, uint32 BgObjectType);
-        void EventTeamCapturedPoint(Player *Source, uint32 Point);
-        void EventTeamLostPoint(Player *Source, uint32 Point);
+        void EventPlayerCapturedFlag(Player* Source, uint32 BgObjectType);
+        void EventTeamCapturedPoint(Player* Source, uint32 Point);
+        void EventTeamLostPoint(Player* Source, uint32 Point);
         void UpdatePointsCount(uint32 Team);
         void UpdatePointsIcons(uint32 Team, uint32 Point);
 

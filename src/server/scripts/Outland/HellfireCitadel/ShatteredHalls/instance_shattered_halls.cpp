@@ -55,7 +55,7 @@ class instance_shattered_halls : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch(go->GetEntry())
+                switch (go->GetEntry())
                 {
                     case DOOR_NETHEKURSE:
                         nethekurseDoorGUID = go->GetGUID();
@@ -65,7 +65,7 @@ class instance_shattered_halls : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature)
             {
-                switch(creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                     case 16807:
                         nethekurseGUID = creature->GetGUID();
@@ -75,7 +75,7 @@ class instance_shattered_halls : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                switch(type)
+                switch (type)
                 {
                     case TYPE_NETHEKURSE:
                         m_auiEncounter[0] = data;
@@ -88,7 +88,7 @@ class instance_shattered_halls : public InstanceMapScript
 
             uint32 GetData(uint32 type)
             {
-                switch(type)
+                switch (type)
                 {
                     case TYPE_NETHEKURSE:
                         return m_auiEncounter[0];
@@ -100,7 +100,7 @@ class instance_shattered_halls : public InstanceMapScript
 
             uint64 GetData64(uint32 data)
             {
-                switch(data)
+                switch (data)
                 {
                     case DATA_NETHEKURSE:
                         return nethekurseGUID;

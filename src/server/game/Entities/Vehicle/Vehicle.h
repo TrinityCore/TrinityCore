@@ -36,6 +36,7 @@ class Vehicle
         void Reset(bool evading = false);
         void InstallAllAccessories(bool evading);
         void ApplyAllImmunities();
+        void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);   //! May be called from scripts
 
         Unit* GetBase() const { return _me; }
         VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }
@@ -48,7 +49,7 @@ class Vehicle
 
         bool AddPassenger(Unit* passenger, int8 seatId = -1);
         void EjectPassenger(Unit* passenger, Unit* controller);
-        void RemovePassenger(Unit *passenger);
+        void RemovePassenger(Unit* passenger);
         void RelocatePassengers(float x, float y, float z, float ang);
         void RemoveAllPassengers();
         void Dismiss();
@@ -61,7 +62,6 @@ class Vehicle
     private:
         SeatMap::iterator GetSeatIteratorForPassenger(Unit* passenger);
         void InitMovementInfoForBase();
-        void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);
 
         Unit* _me;
         VehicleEntry const* _vehicleInfo;

@@ -89,7 +89,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 26:
                     DoScriptText(SAY_OOX_AMBUSH, me);
@@ -107,7 +107,7 @@ public:
 
         void WaypointStart(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 27:
                     for (uint8 i = 0; i < 3; ++i)
@@ -284,7 +284,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 1:
                     DoScriptText(SAY_RIN_FREE, me, player);
@@ -317,7 +317,7 @@ public:
 
                         if (Unit* player = GetPlayerForEscort())
                         {
-                            switch(m_uiPostEventCount)
+                            switch (m_uiPostEventCount)
                             {
                                 case 1:
                                     DoScriptText(SAY_RIN_PROGRESS_1, me, player);

@@ -45,7 +45,7 @@ public:
 
     static bool HandleGPSCommand(ChatHandler* handler, const char *args)
     {
-        WorldObject *obj = NULL;
+        WorldObject* obj = NULL;
         if (*args)
         {
             uint64 guid = handler->extractGuidFromLink((char*)args);
@@ -85,7 +85,7 @@ public:
 
         Map2ZoneCoordinates(zone_x, zone_y, zone_id);
 
-        Map const *map = obj->GetMap();
+        Map const* map = obj->GetMap();
         float ground_z = map->GetHeight(obj->GetPositionX(), obj->GetPositionY(), MAX_HEIGHT);
         float floor_z = map->GetHeight(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ());
 
@@ -129,7 +129,7 @@ public:
     {
         Player* player = handler->GetSession()->GetPlayer();
 
-        sLog->outSQLDev("(@PATH,XX,%.3f,%.3f,%.5f,0,0,0,100,0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
+        sLog->outSQLDev("(@PATH, XX, %.3f, %.3f, %.5f, 0,0, 0,100, 0),", player->GetPositionX(), player->GetPositionY(), player->GetPositionZ());
 
         handler->PSendSysMessage("Waypoint SQL written to SQL Developer log");
         return true;

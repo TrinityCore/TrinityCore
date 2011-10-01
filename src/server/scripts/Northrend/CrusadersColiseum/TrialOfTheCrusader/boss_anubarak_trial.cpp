@@ -104,7 +104,7 @@ enum BossSpells
     SPELL_SPIKE_TELE        = 66170,
 };
 
-#define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193,67856,67855,67857)
+#define SPELL_PERMAFROST_HELPER RAID_MODE<uint32>(66193, 67856, 67855, 67857)
 
 enum SummonActions
 {
@@ -174,7 +174,7 @@ public:
 
             m_uiSummonFrostSphereTimer = 20*IN_MILLISECONDS;
 
-            m_uiBerserkTimer = 15*MINUTE*IN_MILLISECONDS;
+            m_uiBerserkTimer = 10*MINUTE*IN_MILLISECONDS;
             m_uiStage = 0;
             m_uiScarabSummoned = 0;
             m_bIntro = true;

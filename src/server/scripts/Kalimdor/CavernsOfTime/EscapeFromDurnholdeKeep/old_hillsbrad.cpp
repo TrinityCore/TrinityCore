@@ -202,7 +202,7 @@ public:
     {
         player->PlayerTalkClass->ClearMenus();
         InstanceScript* pInstance = creature->GetInstanceScript();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
@@ -289,7 +289,7 @@ public:
             me->setActive(true);
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint64 TarethaGUID;
 
@@ -301,7 +301,7 @@ public:
             if (!pInstance)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 8:
                     SetRun(false);
@@ -513,7 +513,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-             switch(summoned->GetEntry())
+             switch (summoned->GetEntry())
              {
             //TODO: make Scarloc start into event instead, and not start attack directly
              case MOB_ENTRY_BARN_GUARDSMAN:
@@ -629,11 +629,11 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         void WaypointReached(uint32 i)
         {
-            switch(i)
+            switch (i)
             {
                 case 6:
                     DoScriptText(SAY_TA_FREE, me);

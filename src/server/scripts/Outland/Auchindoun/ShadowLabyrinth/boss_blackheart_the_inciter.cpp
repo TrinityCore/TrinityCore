@@ -71,7 +71,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         bool InciteChaos;
         uint32 InciteChaos_Timer;
@@ -133,12 +133,12 @@ public:
             {
                 DoCast(me, SPELL_INCITE_CHAOS);
 
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (target && target->GetTypeId() == TYPEID_PLAYER)
-                        target->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
+                        me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
                 }
 
                 DoResetThreat();

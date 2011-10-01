@@ -258,7 +258,7 @@ class boss_xt002 : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                if (!UpdateVictim())
+                if (!UpdateVictim() || !CheckInRoom())
                     return;
 
                 events.Update(diff);
@@ -274,18 +274,18 @@ class boss_xt002 : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25));
 
-                            events.RepeatEvent(TIMER_SEARING_LIGHT);
+                            events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
                             break;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 DoCast(target, RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
 
-                            events.RepeatEvent(TIMER_GRAVITY_BOMB);
+                            events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                             break;
                         case EVENT_TYMPANIC_TANTRUM:
                             DoScriptText(SAY_TYMPANIC_TANTRUM, me);
                             DoCast(SPELL_TYMPANIC_TANTRUM);
-                            events.RepeatEvent(urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX));
+                            events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX));
                             break;
                         case EVENT_DISPOSE_HEART:
                             SetPhaseOne();
@@ -352,7 +352,7 @@ class boss_xt002 : public CreatureScript
             {
                 DoScriptText(SAY_HEART_OPENED, me);
 
-                DoCast(SPELL_SUBMERGE);  // WIll make creature untargetable
+                DoCast(me, SPELL_SUBMERGE);  // WIll make creature untargetable
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
 
@@ -383,7 +383,7 @@ class boss_xt002 : public CreatureScript
             {
                 DoScriptText(SAY_HEART_CLOSED, me);
 
-                DoCast(SPELL_STAND);
+                DoCast(me, SPELL_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 _phase = 1;
@@ -860,7 +860,7 @@ class spell_xt002_gravity_bomb_damage : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_xt002_gravity_bomb_damage_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnEffectHitTarget += SpellEffectFn(spell_xt002_gravity_bomb_damage_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             }
         };
 
@@ -900,7 +900,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                 {
-                    if (InstanceScript* instance = GetCaster()->GetInstanceScript())
+                    if (InstanceScript* instance = caster->GetInstanceScript())
                     {
                         if (Unit* toyPile = ObjectAccessor::GetUnit(*caster, instance->GetData64(DATA_TOY_PILE_0 + urand(0, 3))))
                         {
@@ -926,7 +926,7 @@ class spell_xt002_heart_overload_periodic : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_xt002_heart_overload_periodic_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_xt002_heart_overload_periodic_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -947,7 +947,7 @@ class spell_xt002_tympanic_tantrum : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(PlayerOrPetCheck());
+                unitList.remove_if (PlayerOrPetCheck());
             }
 
             void Register()
@@ -974,17 +974,17 @@ class spell_xt002_submerged : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*eff*/)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                Creature* target = GetHitCreature();
+                if (!target)
                     return;
 
-                caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                caster->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_SUBMERGED);
+                target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                target->SetByteValue(UNIT_FIELD_BYTES_1, 0, UNIT_STAND_STATE_SUBMERGED);
             }
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_xt002_submerged_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_xt002_submerged_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1005,7 +1005,7 @@ class spell_xt002_stand : public SpellScriptLoader
 
             void HandleScript(SpellEffIndex /*eff*/)
             {
-                Unit* target = GetTargetUnit();
+                Creature* target = GetHitCreature();
                 if (!target)
                     return;
 
@@ -1015,7 +1015,7 @@ class spell_xt002_stand : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_xt002_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_xt002_stand_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

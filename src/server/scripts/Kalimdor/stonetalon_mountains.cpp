@@ -121,7 +121,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
             case 16:
                 DoScriptText(SAY_AMBUSH, me);

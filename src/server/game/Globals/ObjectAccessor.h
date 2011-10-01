@@ -86,13 +86,13 @@ class ObjectAccessor
 {
     friend class ACE_Singleton<ObjectAccessor, ACE_Thread_Mutex>;
     friend class WorldRunnable;
-    ObjectAccessor();
-    ~ObjectAccessor();
-    ObjectAccessor(const ObjectAccessor&);
-    ObjectAccessor& operator=(const ObjectAccessor&);
+    private:
+        ObjectAccessor();
+        ~ObjectAccessor();
+        ObjectAccessor(const ObjectAccessor&);
+        ObjectAccessor& operator=(const ObjectAccessor&);
 
     public:
-
         typedef UNORDERED_MAP<uint64, Corpse*> Player2CorpsesMapType;
         typedef UNORDERED_MAP<Player*, UpdateData>::value_type UpdateDataValueType;
 
@@ -140,7 +140,7 @@ class ObjectAccessor
         }
 
         // returns object if is in map
-        template<class T> static T* GetObjectInMap(uint64 guid, Map * map, T* /*typeSpecifier*/)
+        template<class T> static T* GetObjectInMap(uint64 guid, Map* map, T* /*typeSpecifier*/)
         {
             ASSERT(map);
             if (T * obj = GetObjectInWorld(guid, (T*)NULL))
@@ -192,7 +192,7 @@ class ObjectAccessor
 
         // these functions return objects if found in whole world
         // ACCESS LIKE THAT IS NOT THREAD SAFE
-        static Pet * FindPet(uint64);
+        static Pet* FindPet(uint64);
         static Player* FindPlayer(uint64);
         static Unit* FindUnit(uint64);
         Player* FindPlayerByName(const char* name);

@@ -210,7 +210,7 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        InstanceScript *pInstance = pGO->GetInstanceScript();
+        InstanceScript* pInstance = pGO->GetInstanceScript();
 
         Creature* pKeristrasza = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_KERISTRASZA) : 0);
         if (pKeristrasza && pKeristrasza->isAlive())
@@ -237,12 +237,13 @@ class spell_intense_cold : public SpellScriptLoader
 
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                if (aurEff->GetBase()->GetStackAmount() < 2)
                     return;
-
-                if (aurEff->GetBase()->GetStackAmount() >= 2)
-                    caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
+                Unit* caster = GetCaster();
+                //TODO: the caster should be boss but not the player
+                if (!caster || !caster->GetAI())
+                    return;
+                caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
             }
 
             void Register()

@@ -256,7 +256,7 @@ void CreatureTextMgr::SendChatString(WorldObject* source, char const* text, Chat
     SendChatPacket(&data, source, msgtype, whisperGuid, range, team, gmOnly);//send our packet
 }
 
-void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const
+void CreatureTextMgr::BuildMonsterChat(WorldPacket* data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const
 {
     if (!source)
         return;

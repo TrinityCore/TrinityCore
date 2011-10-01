@@ -83,7 +83,7 @@ public:
                 if (buffTimer <= diff)
                 {
                     //Find a spell that targets friendly and applies an aura (these are generally buffs)
-                    SpellInfo const *info = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
+                    SpellInfo const* info = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
 
                     if (info && !globalCooldown)
                     {
@@ -111,7 +111,7 @@ public:
                 if (me->IsWithinMeleeRange(me->getVictim()))
                 {
                     bool healing = false;
-                    SpellInfo const *info = NULL;
+                    SpellInfo const* info = NULL;
 
                     //Select a healing spell if less than 30% hp
                     if (me->HealthBelowPct(30))
@@ -147,7 +147,7 @@ public:
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
                     bool healing = false;
-                    SpellInfo const *info = NULL;
+                    SpellInfo const* info = NULL;
 
                     //Select a healing spell if less than 30% hp ONLY 33% of the time
                     if (me->HealthBelowPct(30) && 33 > urand(0, 99))
@@ -194,7 +194,7 @@ public:
 
         void DoReplyToTextEmote(uint32 emote)
         {
-            switch(emote)
+            switch (emote)
             {
                 case TEXT_EMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);    break;
                 case TEXT_EMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);   break;
@@ -207,7 +207,7 @@ public:
 
         void ReceiveEmote(Player* player, uint32 textEmote)
         {
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case NPC_STORMWIND_CITY_GUARD:
                 case NPC_STORMWIND_CITY_PATROLLER:
@@ -228,7 +228,7 @@ public:
         uint32 buffTimer;
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
        return new guard_genericAI(creature);
     }
@@ -301,7 +301,7 @@ public:
         bool canTeleport;
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new guard_shattrath_scryerAI(creature);
     }
@@ -365,7 +365,7 @@ public:
         bool canTeleport;
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new guard_shattrath_aldorAI(creature);
     }

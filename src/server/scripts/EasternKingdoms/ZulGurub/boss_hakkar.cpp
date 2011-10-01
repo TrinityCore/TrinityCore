@@ -60,7 +60,7 @@ class boss_hakkar : public CreatureScript
                 m_pInstance = c->GetInstanceScript();
             }
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_pInstance;
 
             uint32 BloodSiphon_Timer;
             uint32 CorruptedBlood_Timer;

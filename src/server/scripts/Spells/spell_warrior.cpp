@@ -53,11 +53,11 @@ class spell_warr_last_stand : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Last Stand
-                OnEffect += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_warr_last_stand_SpellScript();
         }
@@ -83,7 +83,7 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_warr_improved_spell_reflection_SpellScript();
         }

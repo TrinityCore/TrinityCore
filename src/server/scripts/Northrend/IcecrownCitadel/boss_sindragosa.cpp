@@ -985,7 +985,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_sindragosa_s_fury_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_sindragosa_s_fury_SpellScript::CountTargets, EFFECT_1, TARGET_UNIT_DEST_AREA_ENTRY);
             }
 
@@ -1020,7 +1020,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(UnchainedMagicTargetSelector());
+                unitList.remove_if (UnchainedMagicTargetSelector());
                 uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 5 : 2);
                 if (unitList.size() > maxSize)
                     Trinity::RandomResizeList(unitList, maxSize);
@@ -1214,7 +1214,7 @@ class spell_sindragosa_collision_filter : public SpellScriptLoader
             {
                 std::list<Creature*> tombs;
                 GetCreatureListWithEntryInGrid(tombs, GetCaster(), NPC_ICE_TOMB, 200.0f);
-                unitList.remove_if(FrostBombTargetSelector(GetCaster(), tombs));
+                unitList.remove_if (FrostBombTargetSelector(GetCaster(), tombs));
             }
 
             void Register()
@@ -1253,7 +1253,7 @@ class spell_sindragosa_icy_grip : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_sindragosa_icy_grip_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_sindragosa_icy_grip_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1289,7 +1289,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
+                OnEffectHit += SpellEffectFn(spell_rimefang_icy_blast_SpellScript::HandleTriggerMissile, EFFECT_1, SPELL_EFFECT_TRIGGER_MISSILE);
             }
         };
 
@@ -1341,9 +1341,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                         ++itr;
                 }
 
-                std::list<Unit*>::iterator itr = unitList.begin();
-                std::advance(itr, urand(0, unitList.size()-1));
-                Unit* target = *itr;
+                Unit* target = SelectRandomContainerElement(unitList);
                 unitList.clear();
                 unitList.push_back(target);
             }
@@ -1355,16 +1353,14 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                 std::list<Creature*> unitList;
                 GetCreatureListWithEntryInGrid(unitList, GetCaster(), NPC_FROSTWING_WHELP, 150.0f);
                 if (Creature* creature = GetCaster()->ToCreature())
-                    unitList.remove_if(OrderWhelpTargetSelector(creature));
+                    unitList.remove_if (OrderWhelpTargetSelector(creature));
 
-                std::list<Creature*>::iterator itr = unitList.begin();
-                std::advance(itr, urand(0, unitList.size()-1));
-                (*itr)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+                SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_frostwarden_handler_order_whelp_SpellScript::HandleForcedCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+                OnEffectHitTarget += SpellEffectFn(spell_frostwarden_handler_order_whelp_SpellScript::HandleForcedCast, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_frostwarden_handler_order_whelp_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
@@ -1393,7 +1389,7 @@ class spell_frostwarden_handler_focus_fire : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_frostwarden_handler_focus_fire_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_frostwarden_handler_focus_fire_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 

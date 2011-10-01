@@ -54,7 +54,7 @@ class npc_forest_frog : public CreatureScript
                 pInstance = c->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* pInstance;
 
             void Reset() {}
 
@@ -65,7 +65,7 @@ class npc_forest_frog : public CreatureScript
                 if (pInstance)
                 {
                     uint32 cEntry = 0;
-                    switch(rand()%10)
+                    switch (rand()%10)
                     {
                         case 0: cEntry = 24397; break;          //Mannuth
                         case 1: cEntry = 24403; break;          //Deez
@@ -91,7 +91,7 @@ class npc_forest_frog : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* caster, const SpellInfo *spell)
+            void SpellHit(Unit* caster, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == ENTRY_FOREST_FROG)
                 {

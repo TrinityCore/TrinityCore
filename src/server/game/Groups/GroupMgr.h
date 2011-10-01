@@ -23,12 +23,13 @@
 class GroupMgr
 {
     friend class ACE_Singleton<GroupMgr, ACE_Null_Mutex>;
+private:
     GroupMgr();
     ~GroupMgr();
 
 public:
-    typedef std::map<uint32, Group *> GroupContainer;
-    typedef std::vector<Group *>      GroupDbContainer;
+    typedef std::map<uint32, Group*> GroupContainer;
+    typedef std::vector<Group*>      GroupDbContainer;
 
     Group* GetGroupByGUID(uint32 guid) const;
 

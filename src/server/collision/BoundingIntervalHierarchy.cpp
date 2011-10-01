@@ -238,7 +238,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
         stats.updateLeaf(depth + 1, 0);
 }
 
-bool BIH::writeToFile(FILE *wf) const
+bool BIH::writeToFile(FILE* wf) const
 {
     uint32 treeSize = tree.size();
     uint32 check=0, count=0;
@@ -252,7 +252,7 @@ bool BIH::writeToFile(FILE *wf) const
     return check == (3 + 3 + 2 + treeSize + count);
 }
 
-bool BIH::readFromFile(FILE *rf)
+bool BIH::readFromFile(FILE* rf)
 {
     uint32 treeSize;
     Vector3 lo, hi;

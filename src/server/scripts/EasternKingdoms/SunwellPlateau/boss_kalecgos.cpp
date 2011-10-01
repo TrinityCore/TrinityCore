@@ -124,7 +124,7 @@ public:
             me->setActive(true);
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 ArcaneBuffetTimer;
         uint32 FrostBreathTimer;
@@ -331,7 +331,7 @@ public:
             if (bJustReset)//boss is invisible, don't attack
                 return;
 
-            if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)))
+            if (!me->getVictim() && me->IsValidAttackTarget(who))
             {
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius))
@@ -389,7 +389,7 @@ public:
 
         void GoodEnding()
         {
-            switch(TalkSequence)
+            switch (TalkSequence)
             {
             case 1:
                 me->setFaction(35);
@@ -411,7 +411,7 @@ public:
 
         void BadEnding()
         {
-            switch(TalkSequence)
+            switch (TalkSequence)
             {
             case 1:
                 DoScriptText(SAY_EVIL_ENRAGE, me);
@@ -445,7 +445,7 @@ public:
 
     struct boss_kalecAI : public ScriptedAI
     {
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 RevitalizeTimer;
         uint32 HeroicStrikeTimer;
@@ -491,7 +491,7 @@ public:
 
             if (YellTimer <= diff)
             {
-                switch(YellSequence)
+                switch (YellSequence)
                 {
                 case 0:
                     DoScriptText(SAY_GOOD_AGGRO, me);
@@ -582,7 +582,7 @@ public:
             KalecgosGUID = 0;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 CorruptionStrikeTimer;
         uint32 AgonyCurseTimer;

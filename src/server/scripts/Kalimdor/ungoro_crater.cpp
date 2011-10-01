@@ -283,7 +283,7 @@ public:
                             return;
                         }
 
-                        switch(m_uiEndEventProgress)
+                        switch (m_uiEndEventProgress)
                         {
                             case 1:
                                 DoScriptText(SAY_RIN_END_1, me);

@@ -102,7 +102,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         bool SisterDeath;
         bool Enraged;
@@ -183,7 +183,7 @@ public:
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            switch(spell->Id)
+            switch (spell->Id)
             {
             case SPELL_SHADOW_BLADES:
             case SPELL_SHADOW_NOVA:
@@ -199,7 +199,7 @@ public:
 
         void HandleTouchedSpells(Unit* target, uint32 TouchedType)
         {
-            switch(TouchedType)
+            switch (TouchedType)
             {
             case SPELL_FLAME_TOUCHED:
                 if (!target->HasAura(SPELL_DARK_FLAME))
@@ -361,7 +361,7 @@ public:
             IntroStepCounter = 10;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         bool SisterDeath;
         bool Enraged;
@@ -437,9 +437,8 @@ public:
             if (!who || me->getVictim())
                 return;
 
-            if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who))
+            if (me->canCreatureAttack(who))
             {
-
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius) && me->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && me->IsWithinLOSInMap(who))
                 {
@@ -478,7 +477,7 @@ public:
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            switch(spell->Id)
+            switch (spell->Id)
             {
 
             case SPELL_BLAZE:
@@ -495,7 +494,7 @@ public:
 
         void HandleTouchedSpells(Unit* target, uint32 TouchedType)
         {
-            switch(TouchedType)
+            switch (TouchedType)
             {
             case SPELL_FLAME_TOUCHED:
                 if (!target->HasAura(SPELL_DARK_FLAME))
@@ -703,7 +702,7 @@ public:
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            switch(spell->Id)
+            switch (spell->Id)
             {
 
             case SPELL_SHADOW_FURY:

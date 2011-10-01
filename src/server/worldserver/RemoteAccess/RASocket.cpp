@@ -32,7 +32,7 @@
 
 RASocket::RASocket()
 {
-    iMinLevel = sConfig->GetIntDefault("RA.MinLevel", 3);
+    iMinLevel = ConfigMgr::GetIntDefault("RA.MinLevel", 3);
 }
 
 RASocket::~RASocket()
@@ -187,7 +187,7 @@ int RASocket::check_access_level(const std::string& user)
         return -1;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
 
     if (fields[1].GetUInt32() < iMinLevel)
     {
@@ -349,7 +349,7 @@ int RASocket::svc(void)
     if (send(std::string(sWorld->GetMotd()) + "\r\n") == -1)
         return -1;
 
-    for(;;)
+    for (;;)
     {
         // show prompt
         const char* tc_prompt = "TC> ";

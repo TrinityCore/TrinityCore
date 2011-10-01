@@ -68,7 +68,7 @@ public:
 
         if (player->GetQuestStatus(QUEST_CHILDREN_OF_URSOC) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_BEAR_GODS_OFFSPRING) == QUEST_STATUS_INCOMPLETE)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_ORSONN:
                     if (!player->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_ORSONN_CREDIT) || !player->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_ORSONN_CREDIT))
@@ -96,7 +96,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -325,7 +325,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_emilyAI(creature);
     }
@@ -351,7 +351,7 @@ public:
         {
             if (Creature* Emily = GetClosestCreatureWithEntry(me, NPC_EMILY, 50.0f))
             {
-                switch(Who->GetEntry())
+                switch (Who->GetEntry())
                 {
                     case NPC_HUNGRY_WORG:
                         DoScriptText(SAY_WORGHAGGRO2, Emily);
@@ -376,7 +376,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_mrfloppyAI(creature);
     }
@@ -440,7 +440,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_outhouse_bunnyAI(creature);
     }
@@ -484,7 +484,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_tallhorn_stagAI(creature);
     }
@@ -527,7 +527,7 @@ public:
                 {
                     if (m_uiTimer <= uiDiff)
                     {
-                        switch(m_uiPhase)
+                        switch (m_uiPhase)
                         {
                             case 1:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_LOOT);
@@ -550,7 +550,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_amberpine_woodsmanAI(creature);
     }
@@ -594,14 +594,14 @@ public:
                 me->DespawnOrUnsummon(DespawnTimer);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
             {
                 caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
                 DoScriptText(RAND(RANDOM_SAY_1, RANDOM_SAY_2, RANDOM_SAY_3), caster);
-                if(me->IsStandState())
+                if (me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
                 else
                 {
@@ -620,7 +620,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_wounded_skirmisherAI(creature);
     }
@@ -643,7 +643,7 @@ class npc_lightning_sentry : public CreatureScript
 public:
     npc_lightning_sentry() : CreatureScript("npc_lightning_sentry") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_lightning_sentryAI(creature);
     }
@@ -710,7 +710,7 @@ class npc_venture_co_straggler : public CreatureScript
 public:
     npc_venture_co_straggler() : CreatureScript("npc_venture_co_straggler") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_venture_co_stragglerAI(creature);
     }
@@ -784,7 +784,7 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SpellHit(Unit* pCaster, const SpellInfo *pSpell)
+        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
             if (pCaster && pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_SMOKE_BOMB)
             {

@@ -124,7 +124,7 @@ class MapManager
         void LoadTransports();
         void LoadTransportNPCs();
 
-        typedef std::set<Transport *> TransportSet;
+        typedef std::set<Transport*> TransportSet;
         TransportSet m_Transports;
 
         typedef std::map<uint32, TransportSet> TransportMap;

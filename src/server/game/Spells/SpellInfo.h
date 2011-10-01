@@ -21,6 +21,7 @@
 #include "SharedDefines.h"
 #include "Util.h"
 #include "DBCStructure.h"
+#include "Object.h"
 
 class Unit;
 class Player;
@@ -61,20 +62,11 @@ enum SpellCastTargetFlags
     TARGET_FLAG_UNUSED20        = 0x00080000,               // uint32 counter, loop { vec3 - screen position (?), guid }, not used so far
     TARGET_FLAG_UNIT_PASSENGER  = 0x00100000,               // guessed, used to validate target (if vehicle passenger)
 
-    TARGET_FLAG_UNIT_MASK = TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY 
+    TARGET_FLAG_UNIT_MASK = TARGET_FLAG_UNIT | TARGET_FLAG_UNIT_RAID | TARGET_FLAG_UNIT_PARTY
         | TARGET_FLAG_UNIT_ENEMY | TARGET_FLAG_UNIT_ALLY | TARGET_FLAG_UNIT_DEAD | TARGET_FLAG_UNIT_MINIPET | TARGET_FLAG_UNIT_PASSENGER,
     TARGET_FLAG_GAMEOBJECT_MASK = TARGET_FLAG_GAMEOBJECT | TARGET_FLAG_GAMEOBJECT_ITEM,
     TARGET_FLAG_CORPSE_MASK = TARGET_FLAG_CORPSE_ALLY | TARGET_FLAG_CORPSE_ENEMY,
-};
-
-enum SpellEffectTargetTypes
-{
-    SPELL_REQUIRE_NONE,
-    SPELL_REQUIRE_UNIT,
-    SPELL_REQUIRE_DEST,
-    SPELL_REQUIRE_ITEM,
-    SPELL_REQUIRE_CASTER,
-    SPELL_REQUIRE_GOBJECT,
+    TARGET_FLAG_ITEM_MASK = TARGET_FLAG_TRADE_ITEM | TARGET_FLAG_ITEM | TARGET_FLAG_GAMEOBJECT_ITEM,
 };
 
 enum SpellTargetSelectionCategories
@@ -99,7 +91,7 @@ enum SpellTargetReferenceTypes
 
 enum SpellTargetObjectTypes
 {
-    TARGET_OBJECT_TYPE_NONE,
+    TARGET_OBJECT_TYPE_NONE = 0,
     TARGET_OBJECT_TYPE_SRC,
     TARGET_OBJECT_TYPE_DEST,
     TARGET_OBJECT_TYPE_UNIT,
@@ -108,6 +100,9 @@ enum SpellTargetObjectTypes
     TARGET_OBJECT_TYPE_GOBJ_ITEM,
     TARGET_OBJECT_TYPE_ITEM,
     TARGET_OBJECT_TYPE_CORPSE,
+    // only for effect target type
+    TARGET_OBJECT_TYPE_CORPSE_ENEMY,
+    TARGET_OBJECT_TYPE_CORPSE_ALLY,
 };
 
 enum SpellTargetSelectionCheckTypes
@@ -150,6 +145,13 @@ enum SpellSelectTargetTypes
     TARGET_TYPE_DEST_DEST,
     TARGET_TYPE_DEST_SPECIAL,
     TARGET_TYPE_CHANNEL,
+};
+
+enum SpellEffectImplicitTargetTypes
+{
+    EFFECT_IMPLICIT_TARGET_NONE = 0,
+    EFFECT_IMPLICIT_TARGET_EXPLICIT,
+    EFFECT_IMPLICIT_TARGET_CASTER,
 };
 
 // Spell clasification
@@ -226,9 +228,7 @@ public:
     uint32 GetExplicitTargetMask(bool& srcSet, bool& dstSet) const;
 
     // temporarily avalible to public
-    static bool IsPosition(uint32 targetType);
     static SpellSelectTargetTypes Type[TOTAL_SPELL_TARGETS];
-
 private:
     static bool InitStaticData();
     static void InitTypeData();
@@ -293,22 +293,17 @@ public:
     bool HasRadius() const;
     float CalcRadius(Unit* caster = NULL, Spell* = NULL) const;
 
-    SpellEffectTargetTypes GetRequiredTargetType() const;
+    uint32 GetProvidedTargetMask() const;
+    uint32 GetMissingTargetMask(bool srcSet = false, bool destSet = false, uint32 mask = 0) const;
 
-    SpellTargetObjectTypes GetImplicitTargetObjectType() const;
-    SpellTargetObjectTypes GetRequiredTargetObjectType() const;
+    SpellEffectImplicitTargetTypes GetImplicitTargetType() const;
+    SpellTargetObjectTypes GetUsedTargetObjectType() const;
 
 private:
-    static bool InitStaticData();
-    static void InitRequiredTargetTypeData();
-
-    static bool Init;
-    static SpellEffectTargetTypes RequiredTargetType[TOTAL_SPELL_EFFECTS];
-
     struct StaticData
     {
-        SpellTargetObjectTypes ImplicitObjectType; // defines if explicit target can be added to effect target list if there's no valid target type provided for effect
-        SpellTargetObjectTypes RequiredObjectType; // defines valid target object type for spell effect
+        SpellEffectImplicitTargetTypes ImplicitTargetType; // defines what target can be added to effect target list if there's no valid target type provided for effect
+        SpellTargetObjectTypes UsedTargetObjectType; // defines valid target object type for spell effect
     };
     static StaticData _data[TOTAL_SPELL_EFFECTS];
 };

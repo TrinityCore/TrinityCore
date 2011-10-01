@@ -186,7 +186,7 @@ class instance_deadmines : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch(go->GetEntry())
+                switch (go->GetEntry())
                 {
                     case GO_FACTORY_DOOR:   FactoryDoorGUID = go->GetGUID(); break;
                     case GO_IRONCLAD_DOOR:  IronCladDoorGUID = go->GetGUID();  break;

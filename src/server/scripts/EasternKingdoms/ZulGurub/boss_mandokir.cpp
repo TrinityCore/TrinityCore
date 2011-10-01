@@ -72,7 +72,7 @@ class boss_mandokir : public CreatureScript
             float targetY;
             float targetZ;
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_pInstance;
 
             bool endWatch;
             bool someWatched;
@@ -300,7 +300,7 @@ class mob_ohgan : public CreatureScript
             }
 
             uint32 SunderArmor_Timer;
-            InstanceScript *m_pInstance;
+            InstanceScript* m_pInstance;
 
             void Reset()
             {

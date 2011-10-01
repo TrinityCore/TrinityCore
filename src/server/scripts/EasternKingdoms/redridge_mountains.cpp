@@ -43,7 +43,7 @@ class npc_corporal_keeshan : public CreatureScript
 public:
     npc_corporal_keeshan() : CreatureScript("npc_corporal_keeshan") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
     {
         if (pQuest->GetQuestId() == QUEST_MISSING_IN_ACTION)
         {
@@ -86,7 +86,7 @@ public:
             if (uiI >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALKING)
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
-            switch(uiI)
+            switch (uiI)
             {
                 case 39:
                     SetEscortPaused(true);
@@ -115,7 +115,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             me->SetStandState(UNIT_STAND_STATE_SIT);

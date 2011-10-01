@@ -381,17 +381,19 @@ class boss_freya : public CreatureScript
                     }
                 }
 
-                if (Elder[0]->isAlive())
+                if (Elder[0] && Elder[0]->isAlive())
                 {
                     Elder[0]->CastSpell(me, SPELL_BRIGHTLEAF_ESSENCE, true);
                     events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, urand(10000, 20000));
                 }
-                if (Elder[1]->isAlive())
+
+                if (Elder[1] && Elder[1]->isAlive())
                 {
                     Elder[1]->CastSpell(me, SPELL_STONEBARK_ESSENCE, true);
                     events.ScheduleEvent(EVENT_GROUND_TREMOR, urand(10000, 20000));
                 }
-                if (Elder[2]->isAlive())
+
+                if (Elder[2] && Elder[2]->isAlive())
                 {
                     Elder[2]->CastSpell(me, SPELL_IRONBRANCH_ESSENCE, true);
                     events.ScheduleEvent(EVENT_STRENGTHENED_IRON_ROOTS, urand(10000, 20000));
@@ -1565,7 +1567,7 @@ class spell_freya_attuned_to_nature_dose_reduction : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_freya_attuned_to_nature_dose_reduction_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_freya_attuned_to_nature_dose_reduction_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1600,7 +1602,7 @@ class spell_freya_iron_roots : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_freya_iron_roots_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
+                OnEffectHit += SpellEffectFn(spell_freya_iron_roots_SpellScript::HandleSummon, EFFECT_0, SPELL_EFFECT_SUMMON);
             }
         };
 

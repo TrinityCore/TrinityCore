@@ -91,7 +91,7 @@ class boss_doomwalker : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsHostileTo(who))
+                if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsValidAttackTarget(who))
                     if (who->HasAura(SPELL_MARK_DEATH, 0))
                         who->CastSpell(who, SPELL_AURA_DEATH, 1);
             }
@@ -106,9 +106,9 @@ class boss_doomwalker : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                while(uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_ENRAGE:
                             if (!HealthAbovePct(20))

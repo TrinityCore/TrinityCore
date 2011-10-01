@@ -104,7 +104,7 @@ struct boss_horAI : ScriptedAI
 
     void DoAction(const int32 actionID)
     {
-        switch(actionID)
+        switch (actionID)
         {
             case ACTION_ENTER_COMBAT:  // called by InstanceScript when boss shall enter in combat.
                 // Just in case. Should have been done by InstanceScript

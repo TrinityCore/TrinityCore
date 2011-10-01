@@ -42,7 +42,7 @@ void CreatureAI::Talk(uint8 id, uint64 WhisperGuid)
     sCreatureTextMgr->SendChat(me, id, WhisperGuid);
 }
 
-void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/)
+void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToNearestTarget /* = 50.0f*/)
 {
     if (!creature)
         creature = me;
@@ -59,7 +59,7 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/)
 
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
-        if (Unit* target = creature->SelectNearestTarget(50))
+        if (Unit* target = creature->SelectNearestTarget(maxRangeToNearestTarget))
             creature->AI()->AttackStart(target);
         else if (creature->isSummon())
         {

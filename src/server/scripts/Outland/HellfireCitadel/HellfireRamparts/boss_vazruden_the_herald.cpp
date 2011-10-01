@@ -95,7 +95,7 @@ class boss_nazan : public CreatureScript
             uint32 Turn_Timer;
             bool flight;
             uint64 VazrudenGUID;
-            SpellInfo *liquid_fire;
+            SpellInfo* liquid_fire;
 
             void Reset()
             {
@@ -397,7 +397,7 @@ class boss_vazruden_the_herald : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                switch(phase)
+                switch (phase)
                 {
                 case 0: // circle around the platform
                     return;

@@ -62,7 +62,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            InstanceScript *pInstance = me->GetInstanceScript();
+            InstanceScript* pInstance = me->GetInstanceScript();
             if (pInstance)
             {
                 pInstance->SetData(DATA_THERAVENIAN_DEATH, 0);

@@ -63,12 +63,12 @@ bool Player::UpdateStats(Stats stat)
 
     if (stat == STAT_STAMINA || stat == STAT_INTELLECT || stat == STAT_STRENGTH)
     {
-        Pet *pet = GetPet();
+        Pet* pet = GetPet();
         if (pet)
             pet->UpdateStats(stat);
     }
 
-    switch(stat)
+    switch (stat)
     {
         case STAT_STRENGTH:
             UpdateShieldBlockValue();
@@ -190,7 +190,7 @@ void Player::UpdateResistances(uint32 school)
         float value  = GetTotalAuraModValue(UnitMods(UNIT_MOD_RESISTANCE_START + school));
         SetResistance(SpellSchools(school), int32(value));
 
-        Pet *pet = GetPet();
+        Pet* pet = GetPet();
         if (pet)
             pet->UpdateResistances(school);
     }
@@ -220,7 +220,7 @@ void Player::UpdateArmor()
 
     SetArmor(int32(value));
 
-    Pet *pet = GetPet();
+    Pet* pet = GetPet();
     if (pet)
         pet->UpdateArmor();
 
@@ -365,7 +365,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
                                     if (Item* mainHand = m_items[EQUIPMENT_SLOT_MAINHAND])
                                     {
                                         // also gains % attack power from equipped weapon
-                                        ItemTemplate const *proto = mainHand->GetTemplate();
+                                        ItemTemplate const* proto = mainHand->GetTemplate();
                                         if (!proto)
                                             continue;
 
@@ -442,7 +442,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     SetInt32Value(index_mod, (uint32)attPowerMod);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MODS field
     SetFloatValue(index_mult, attPowerMultiplier);          //UNIT_FIELD_(RANGED)_ATTACK_POWER_MULTIPLIER field
 
-    Pet *pet = GetPet();                                //update pet's AP
+    Pet* pet = GetPet();                                //update pet's AP
     //automatically update weapon damage after attack power modification
     if (ranged)
     {
@@ -472,7 +472,7 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 {
     UnitMods unitMod;
 
-    switch(attType)
+    switch (attType)
     {
         case BASE_ATTACK:
         default:
@@ -584,7 +584,7 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
     uint16 index;
     CombatRating cr;
 
-    switch(attType)
+    switch (attType)
     {
         case OFF_ATTACK:
             modGroup = OFFHAND_CRIT_PERCENTAGE;
@@ -798,7 +798,7 @@ void Player::UpdateExpertise(WeaponAttackType attack)
 
     int32 expertise = int32(GetRatingBonusValue(CR_EXPERTISE));
 
-    Item *weapon = GetWeaponForAttack(attack, true);
+    Item* weapon = GetWeaponForAttack(attack, true);
 
     AuraEffectList const& expAuras = GetAuraEffectsByType(SPELL_AURA_MOD_EXPERTISE);
     for (AuraEffectList::const_iterator itr = expAuras.begin(); itr != expAuras.end(); ++itr)
@@ -814,7 +814,7 @@ void Player::UpdateExpertise(WeaponAttackType attack)
     if (expertise < 0)
         expertise = 0;
 
-    switch(attack)
+    switch (attack)
     {
         case BASE_ATTACK: SetUInt32Value(PLAYER_EXPERTISE, expertise);         break;
         case OFF_ATTACK:  SetUInt32Value(PLAYER_OFFHAND_EXPERTISE, expertise); break;
@@ -998,7 +998,7 @@ void Creature::UpdateAttackPowerAndDamage(bool ranged)
 void Creature::UpdateDamagePhysical(WeaponAttackType attType)
 {
     UnitMods unitMod;
-    switch(attType)
+    switch (attType)
     {
         case BASE_ATTACK:
         default:
@@ -1034,7 +1034,7 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float mindamage = ((base_value + weapon_mindamage) * dmg_multiplier * base_pct + total_value) * total_pct;
     float maxdamage = ((base_value + weapon_maxdamage) * dmg_multiplier * base_pct + total_value) * total_pct;
 
-    switch(attType)
+    switch (attType)
     {
         case BASE_ATTACK:
         default:
@@ -1078,7 +1078,7 @@ bool Guardian::UpdateStats(Stats stat)
     ApplyStatBuffMod(stat, m_statFromOwner[stat], false);
     float ownersBonus = 0.0f;
 
-    Unit *owner = GetOwner();
+    Unit* owner = GetOwner();
     // Handle Death Knight Glyphs and Talents
     float mod = 0.75f;
     if (IsPetGhoul() && (stat == STAT_STAMINA || stat == STAT_STRENGTH))
@@ -1090,7 +1090,7 @@ bool Guardian::UpdateStats(Stats stat)
             default: break;
         }
         // Ravenous Dead
-        AuraEffect const *aurEff = NULL;
+        AuraEffect const* aurEff = NULL;
         // Check just if owner has Ravenous Dead since it's effect is not an aura
         aurEff = owner->GetAuraEffect(SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE, SPELLFAMILY_DEATHKNIGHT, 3010, 0);
         if (aurEff)
@@ -1221,7 +1221,7 @@ void Guardian::UpdateMaxHealth()
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
 
     float multiplicator;
-    switch(GetEntry())
+    switch (GetEntry())
     {
         case ENTRY_IMP:         multiplicator = 8.4f;   break;
         case ENTRY_VOIDWALKER:  multiplicator = 11.0f;  break;
@@ -1246,7 +1246,7 @@ void Guardian::UpdateMaxPower(Powers power)
     float addValue = (power == POWER_MANA) ? GetStat(STAT_INTELLECT) - GetCreateStat(STAT_INTELLECT) : 0.0f;
     float multiplicator = 15.0f;
 
-    switch(GetEntry())
+    switch (GetEntry())
     {
         case ENTRY_IMP:         multiplicator = 4.95f;  break;
         case ENTRY_VOIDWALKER:
@@ -1386,7 +1386,7 @@ void Guardian::UpdateDamagePhysical(WeaponAttackType attType)
     //  Pet's base damage changes depending on happiness
     if (isHunterPet() && attType == BASE_ATTACK)
     {
-        switch(ToPet()->GetHappinessState())
+        switch (ToPet()->GetHappinessState())
         {
             case HAPPY:
                 // 125% of normal damage

@@ -69,7 +69,7 @@ struct OutdoorPvPData;
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
 // Generic scripting text function.
-void DoScriptText(int32 textEntry, WorldObject* pSource, Unit *pTarget = NULL);
+void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* pTarget = NULL);
 
 /*
     TODO: Add more script type classes.
@@ -785,7 +785,7 @@ class GroupScript : public ScriptObject
         virtual void OnInviteMember(Group* /*group*/, uint64 /*guid*/) { }
 
         // Called when a member is removed from a group.
-        virtual void OnRemoveMember(Group* /*group*/, uint64 /*guid*/, RemoveMethod& /*method*/, uint64 /*kicker*/, const char* /*reason*/) { }
+        virtual void OnRemoveMember(Group* /*group*/, uint64 /*guid*/, RemoveMethod /*method*/, uint64 /*kicker*/, const char* /*reason*/) { }
 
         // Called when the leader of a group is changed.
         virtual void OnChangeLeader(Group* /*group*/, uint64 /*newLeaderGuid*/, uint64 /*oldLeaderGuid*/) { }

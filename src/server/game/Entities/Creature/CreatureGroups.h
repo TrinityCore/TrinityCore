@@ -19,8 +19,11 @@
 #ifndef _FORMATIONS_H
 #define _FORMATIONS_H
 
-#include "Common.h"
+#include "Define.h"
+#include "UnorderedMap.h"
+#include <map>
 
+class Creature;
 class CreatureGroup;
 
 struct FormationInfo
@@ -31,25 +34,21 @@ struct FormationInfo
     uint8 groupAI;
 };
 
-class CreatureGroupManager
+namespace FormationMgr
 {
-    friend class ACE_Singleton<CreatureGroupManager, ACE_Null_Mutex>;
-    public:
-        void AddCreatureToGroup(uint32 group_id, Creature *creature);
-        void RemoveCreatureFromGroup(CreatureGroup* group, Creature *creature);
-        void LoadCreatureFormations();
+    void AddCreatureToGroup(uint32 group_id, Creature* creature);
+    void RemoveCreatureFromGroup(CreatureGroup* group, Creature* creature);
+    void LoadCreatureFormations();
 };
-
-#define sFormationMgr ACE_Singleton<CreatureGroupManager, ACE_Null_Mutex>::instance()
 
 typedef UNORDERED_MAP<uint32/*memberDBGUID*/, FormationInfo*>   CreatureGroupInfoType;
 
-extern CreatureGroupInfoType    CreatureGroupMap;
+extern CreatureGroupInfoType CreatureGroupMap;
 
 class CreatureGroup
 {
     private:
-        Creature *m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
+        Creature* m_leader; //Important do not forget sometimes to work with pointers instead synonims :D:D
         typedef std::map<Creature*, FormationInfo*>  CreatureGroupMemberType;
         CreatureGroupMemberType m_members;
 
@@ -59,7 +58,7 @@ class CreatureGroup
     public:
         //Group cannot be created empty
         explicit CreatureGroup(uint32 id) : m_leader(NULL), m_groupID(id), m_Formed(false) {}
-        ~CreatureGroup() { sLog->outDebug(LOG_FILTER_UNITS, "Destroying group"); }
+        ~CreatureGroup() {}
 
         Creature* getLeader() const { return m_leader; }
         uint32 GetId() const { return m_groupID; }

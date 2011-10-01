@@ -49,7 +49,7 @@ enum SelectAggroTarget
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
+struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
 {
     const Unit* me;
     float m_dist;
@@ -97,6 +97,33 @@ struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
     }
 };
 
+// Target selector for spell casts checking range, auras and attributes
+// TODO: Add more checks from Spell::CheckCast
+struct SpellTargetSelector : public std::unary_function<Unit*, bool>
+{
+    public:
+        SpellTargetSelector(Unit* caster, uint32 spellId);
+        bool operator()(Unit const* target) const;
+
+    private:
+        Unit const* _caster;
+        SpellInfo const* _spellInfo;
+};
+
+// Very simple target selector, will just skip main target
+// NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
+//       because tank will not be in the temporary list
+struct NonTankTargetSelector : public std::unary_function<Unit*, bool>
+{
+    public:
+        NonTankTargetSelector(Creature* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
+        bool operator()(Unit const* target) const;
+
+    private:
+        Creature const* _source;
+        bool _playerOnly;
+};
+
 class UnitAI
 {
     protected:
@@ -125,7 +152,7 @@ class UnitAI
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satifying the predicate.
-        // predicate shall extend std::unary_function<Unit* , bool>
+        // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
             const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
@@ -162,7 +189,7 @@ class UnitAI
                 case SELECT_TARGET_RANDOM:
                 {
                     std::list<Unit*>::iterator itr = targetList.begin();
-                    std::advance(itr, urand(position, targetList.size()-1));
+                    std::advance(itr, urand(position, targetList.size() - 1));
                     return *itr;
                 }
                 default:
@@ -175,7 +202,7 @@ class UnitAI
         void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
 
         // Select the targets satifying the predicate.
-        // predicate shall extend std::unary_function<Unit* , bool>
+        // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
             std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();

@@ -46,7 +46,7 @@ SmartScript::SmartScript()
     mLastTextID = 0;
     mTextGUID = 0;
     mUseTextTimer = false;
-    talker = NULL;
+    mTalkerEntry = 0;
     mTemplate = SMARTAI_TEMPLATE_BASIC;
     meOrigGUID = 0;
     goOrigGUID = 0;
@@ -138,7 +138,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 return;
 
             ObjectList* targets = GetTargets(e, unit);
-            talker = me;
+            Creature* talker = me;
             if (targets)
             {
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
@@ -152,7 +152,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
                 delete targets;
             }
-
+            mTalkerEntry = talker->GetEntry();
             mLastTextID = e.action.talk.textGroupID;
             mTextTimer = e.action.talk.duration;
             mTextGUID = IsPlayer(GetLastInvoker()) ? GetLastInvoker()->GetGUID() : 0;//invoker, used for $vars in texts
@@ -210,10 +210,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             {
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 {
-                    if (IsCreature(*itr))
+                    if (IsPlayer(*itr))
                     {
-                        sCreatureTextMgr->SendSound((*itr)->ToCreature(), e.action.sound.sound, CHAT_MSG_MONSTER_SAY, 0, TextRange(e.action.sound.range), Team(0), false);
-                        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: source: %s (GuidLow: %u), sound: %u, range: %u",
+                        (*itr)->SendPlaySound(e.action.sound.sound, e.action.sound.range > 0 ? true : false);
+                        sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SOUND: target: %s (GuidLow: %u), sound: %u, onlyself: %u",
                             (*itr)->GetName(), (*itr)->GetGUIDLow(), e.action.sound.sound, e.action.sound.range);
                     }
                 }
@@ -460,7 +460,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (IsPlayer(*itr))
                 {
                     (*itr)->ToPlayer()->CastedCreatureOrGO(e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
-                    sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SEND_CASTCREATUREORGO: Player guidLow %u.org Creature: %u, BaseObject GUID: "UI64FMTD" , Spell: %u",
+                    sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SEND_CASTCREATUREORGO: Player guidLow %u.org Creature: %u, BaseObject GUID: "UI64FMTD", Spell: %u",
                         (*itr)->GetGUIDLow(), e.action.castedCreatureOrGO.creature, GetBaseObject()->GetGUID(), e.action.castedCreatureOrGO.spell);
                 }
             }
@@ -1309,7 +1309,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             bool run = e.action.setRun.run ? true : false;
             CAST_AI(SmartAI, me->AI())->SetRun(run);
-            me->GetMotionMaster()->MovePoint(0, e.target.x, e.target.y , e.target.z);
+            me->GetMotionMaster()->MovePoint(0, e.target.x, e.target.y, e.target.z);
             break;
         }
         case SMART_ACTION_RESPAWN_TARGET:
@@ -1781,7 +1781,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_JUMP_TO_POS:
         {
-            me->GetMotionMaster()->MoveJump(e.target.x, e.target.y , e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
+            me->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
             break;
         }
         default:
@@ -2705,13 +2705,13 @@ void SmartScript::OnUpdate(uint32 const diff)
     {
         if (mTextTimer < diff)
         {
-            uint32 temp = mLastTextID;
+            uint32 textID = mLastTextID;
             mLastTextID = 0;
+            uint32 entry = mTalkerEntry;
+            mTalkerEntry = 0;
             mTextTimer = 0;
             mUseTextTimer = false;
-            uint32 tempEntry = talker?talker->GetEntry():0;
-            talker = NULL;
-            ProcessEventsFor(SMART_EVENT_TEXT_OVER, NULL, temp, tempEntry);
+            ProcessEventsFor(SMART_EVENT_TEXT_OVER, NULL, textID, entry);
         } else mTextTimer -= diff;
     }
 }

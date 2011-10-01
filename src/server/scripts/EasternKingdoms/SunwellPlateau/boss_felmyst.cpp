@@ -120,7 +120,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
         PhaseFelmyst phase;
         EventMap events;
 
@@ -192,7 +192,7 @@ public:
                 pInstance->SetData(DATA_FELMYST_EVENT, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)
@@ -239,7 +239,7 @@ public:
 
         void EnterPhase(PhaseFelmyst NextPhase)
         {
-            switch(NextPhase)
+            switch (NextPhase)
             {
             case PHASE_GROUND:
                 me->CastStop(SPELL_FOG_BREATH);
@@ -267,7 +267,7 @@ public:
 
         void HandleFlightSequence()
         {
-            switch(uiFlightCount)
+            switch (uiFlightCount)
             {
             case 0:
                 //me->AttackStop();
@@ -416,7 +416,7 @@ public:
 
             if (phase == PHASE_GROUND)
             {
-                switch(events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_BERSERK:
                         DoScriptText(YELL_BERSERK, me);
@@ -451,7 +451,7 @@ public:
 
             if (phase == PHASE_FLIGHT)
             {
-                switch(events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_BERSERK:
                         DoScriptText(YELL_BERSERK, me);

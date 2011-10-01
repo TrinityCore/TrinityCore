@@ -23,7 +23,7 @@
 enum mograine
 {
 #ifdef LESS_MOB
-    ENCOUNTER_DK_NUMBER               = 5,  // how many player queue to start the quest , or -
+    ENCOUNTER_DK_NUMBER               = 5,  // how many player queue to start the quest, or -
     ENCOUNTER_DK_TIMER                = 10, // *every 5 minutes. These have to be done in instance data
     ENCOUNTER_DEFENDER_NUMBER         = 10, // how many of defender
     ENCOUNTER_EARTHSHATTER_NUMBER     = 1, // how many of earthshatter
@@ -32,7 +32,7 @@ enum mograine
     ENCOUNTER_GHOUL_NUMBER            = 5, // how many of ghoul
     ENCOUNTER_WARRIOR_NUMBER          = 1,  // how many of warrior
 #else
-    ENCOUNTER_DK_NUMBER               = 5,  // how many player queue to start the quest , or -
+    ENCOUNTER_DK_NUMBER               = 5,  // how many player queue to start the quest, or -
     ENCOUNTER_DK_TIMER                = 10, // *every 5 minutes. These have to be done in instance data
     ENCOUNTER_DEFENDER_NUMBER         = 20, // how many of defender
     ENCOUNTER_EARTHSHATTER_NUMBER     = 20, // how many of earthshatter
@@ -234,7 +234,7 @@ struct Location
     float x, y, z, o;
 };
 
-void UpdateWorldState(Map *map, uint32 id, uint32 state)
+void UpdateWorldState(Map* map, uint32 id, uint32 state)
 {
     Map::PlayerList const& players = map->GetPlayers();
 
@@ -487,7 +487,7 @@ public:
             if (!who)
                 return;
 
-            if (who->isTargetableForAttack() && me->IsHostileTo(who))
+            if (me->IsValidAttackTarget(who))
                 if (me->IsWithinDistInMap(who, 20) && me->IsWithinLOSInMap(who))
                     AttackStart(who);
         }
@@ -1311,7 +1311,7 @@ public:
                             //    pGo->SetPhaseMask(0, true);
 
                             {
-                                Map *map = me->GetMap(); // search players with in 50 yards for quest credit
+                                Map* map = me->GetMap(); // search players with in 50 yards for quest credit
                                 Map::PlayerList const &PlayerList = map->GetPlayers();
                                 if (!PlayerList.isEmpty())
                                 {

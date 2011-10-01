@@ -377,7 +377,7 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPED_ITEM:
         {
-            ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(miscvalue1);
+            ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscvalue1);
             if (!pProto)
                 return false;
             return pProto->ItemLevel >= equipped_item.item_level && pProto->Quality >= equipped_item.item_quality;
@@ -443,9 +443,9 @@ void AchievementMgr::ResetAchievementCriteria(AchievementCriteriaTypes type, uin
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
     {
-        AchievementCriteriaEntry const *achievementCriteria = (*i);
+        AchievementCriteriaEntry const* achievementCriteria = (*i);
 
-        AchievementEntry const *achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
         if (!achievement)
             continue;
 
@@ -744,8 +744,8 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetAchievementCriteriaByType(type);
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
     {
-        AchievementCriteriaEntry const *achievementCriteria = (*i);
-        AchievementEntry const *achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
+        AchievementCriteriaEntry const* achievementCriteria = (*i);
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry(achievementCriteria->referredAchievement);
         if (!achievement)
             continue;
 
@@ -1281,7 +1281,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (miscValue2 != achievementCriteria->roll_greed_on_loot.rollValue)
                     continue;
 
-                ItemTemplate const *pProto = sObjectMgr->GetItemTemplate(miscValue1);
+                ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(miscValue1);
                 if (!pProto)
                     continue;
 
@@ -1600,7 +1600,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     }
 }
 
-static const uint32 achievIdByClass[MAX_CLASSES] = { 0, 459, 465 , 462, 458, 464, 461, 467, 460, 463, 0, 466 };
+static const uint32 achievIdByClass[MAX_CLASSES] = { 0, 459, 465, 462, 458, 464, 461, 467, 460, 463, 0, 466 };
 static const uint32 achievIdByRace[MAX_RACES]    = { 0, 1408, 1410, 1407, 1409, 1413, 1411, 1404, 1412, 0, 1405, 1406 };
 
 bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
@@ -1928,7 +1928,7 @@ void AchievementMgr::SetCriteriaProgress(AchievementCriteriaEntry const* entry, 
     SendCriteriaUpdate(entry, progress, timeElapsed, timedCompleted);
 }
 
-void AchievementMgr::RemoveCriteriaProgress(const AchievementCriteriaEntry *entry)
+void AchievementMgr::RemoveCriteriaProgress(const AchievementCriteriaEntry* entry)
 {
     CriteriaProgressMap::iterator criteriaProgress = m_criteriaProgress.find(entry->ID);
     if (criteriaProgress == m_criteriaProgress.end())
@@ -1950,7 +1950,7 @@ void AchievementMgr::UpdateTimedAchievements(uint32 timeDiff)
             // Time is up, remove timer and reset progress
             if (itr->second <= timeDiff)
             {
-                AchievementCriteriaEntry const *entry = sAchievementCriteriaStore.LookupEntry(itr->first);
+                AchievementCriteriaEntry const* entry = sAchievementCriteriaStore.LookupEntry(itr->first);
                 RemoveCriteriaProgress(entry);
                 m_timedAchievements.erase(itr++);
             }
@@ -1971,7 +1971,7 @@ void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, u
         if ((*i)->timerStartEvent != entry)
             continue;
 
-        AchievementEntry const *achievement = sAchievementStore.LookupEntry((*i)->referredAchievement);
+        AchievementEntry const* achievement = sAchievementStore.LookupEntry((*i)->referredAchievement);
         if (m_timedAchievements.find((*i)->ID) == m_timedAchievements.end() && !IsCompletedCriteria(*i, achievement))
         {
             // Start the timer
@@ -2039,7 +2039,11 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         return;
 
     // titles
-    if (uint32 titleId = reward->titleId[GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1])
+    //! Currently there's only one achievement that deals with gender-specific titles.
+    //! Since no common attributes were found, (not even in titleRewardFlags field)
+    //! we explicitly check by ID. Maybe in the future we could move the achievement_reward
+    //! condition fields to the condition system.
+    if (uint32 titleId = reward->titleId[achievement->ID == 1793 ? GetPlayer()->getGender() : (GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1)])
         if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))
             GetPlayer()->SetTitle(titleEntry);
 
@@ -2097,7 +2101,7 @@ void AchievementMgr::SendRespondInspectAchievements(Player* player) const
 /**
  * used by SMSG_RESPOND_INSPECT_ACHIEVEMENT and SMSG_ALL_ACHIEVEMENT_DATA
  */
-void AchievementMgr::BuildAllDataPacket(WorldPacket *data) const
+void AchievementMgr::BuildAllDataPacket(WorldPacket* data) const
 {
     AchievementEntry const* achievement = NULL;
     for (CompletedAchievementMap::const_iterator iter = m_completedAchievements.begin(); iter != m_completedAchievements.end(); ++iter)
@@ -2247,7 +2251,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaData()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         uint32 criteria_id = fields[0].GetUInt32();
 
         AchievementCriteriaEntry const* criteria = sAchievementCriteriaStore.LookupEntry(criteria_id);
@@ -2389,7 +2393,7 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 achievement_id = fields[0].GetUInt32();
         if (!sAchievementStore.LookupEntry(achievement_id))
@@ -2427,7 +2431,7 @@ void AchievementGlobalMgr::LoadRewards()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         uint32 entry = fields[0].GetUInt32();
         const AchievementEntry* pAchievement = sAchievementStore.LookupEntry(entry);
         if (!pAchievement)
@@ -2533,7 +2537,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 entry = fields[0].GetUInt32();
 

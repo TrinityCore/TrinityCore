@@ -153,7 +153,7 @@ public:
             c->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE); //set it only once on Creature create (no need do intro if wiped)
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint64 ShieldGeneratorChannel[4];
 
@@ -282,7 +282,7 @@ public:
             if (!who || me->getVictim())
                 return;
 
-            if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who))
+            if (me->canCreatureAttack(who))
             {
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius) && me->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && me->IsWithinLOSInMap(who))
@@ -451,8 +451,8 @@ public:
                 {
                     bool InMeleeRange = false;
                     Unit* target;
-                    std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                    for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
                         target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                                                                 //if in melee range
@@ -592,7 +592,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
         uint32 move;
         uint32 phase;
         float x, y, z;
@@ -694,7 +694,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 PoisonBolt_Timer;
         uint32 Despawn_Timer;
@@ -770,7 +770,7 @@ public:
             EnterEvadeMode();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 movement_timer;
         uint32 ToxicSpore_Timer;
@@ -884,7 +884,7 @@ public:
 };
 
 //Coilfang Strider
-//It hits plate for about 8000 damage, has a Mind Blast spell doing about 3000 shadow damage, and a Psychic Scream Aura, which fears everybody in a 8 yard range of it every 2-3 seconds , for 5 seconds and increasing their movement speed by 150% during the fear.
+//It hits plate for about 8000 damage, has a Mind Blast spell doing about 3000 shadow damage, and a Psychic Scream Aura, which fears everybody in a 8 yard range of it every 2-3 seconds, for 5 seconds and increasing their movement speed by 150% during the fear.
 class mob_coilfang_strider : public CreatureScript
 {
 public:
@@ -927,7 +927,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
         uint32 Check_Timer;
         bool Casted;
         void Reset()
@@ -976,7 +976,7 @@ public:
 
     bool OnUse(Player* player, Item* /*_Item*/, SpellCastTargets const& targets)
     {
-        InstanceScript *pInstance = player->GetInstanceScript();
+        InstanceScript* pInstance = player->GetInstanceScript();
 
         if (!pInstance)
         {
@@ -992,7 +992,7 @@ public:
             {
                 uint32 identifier;
                 uint8 channel_identifier;
-                switch(gObj->GetEntry())
+                switch (gObj->GetEntry())
                 {
                     case 185052:
                         identifier = DATA_SHIELDGENERATOR1;

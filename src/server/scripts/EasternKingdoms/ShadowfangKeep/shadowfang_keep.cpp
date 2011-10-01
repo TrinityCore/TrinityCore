@@ -96,12 +96,12 @@ public:
             uiNpcEntry = c->GetEntry();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
         uint32 uiNpcEntry;
 
         void WaypointReached(uint32 uiPoint)
         {
-            switch(uiPoint)
+            switch (uiPoint)
             {
                 case 0:
                     if (uiNpcEntry == NPC_ASH)

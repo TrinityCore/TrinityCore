@@ -149,7 +149,7 @@ public:
 
         uint8 GetRiftWaveId()
         {
-            switch(mRiftPortalCount)
+            switch (mRiftPortalCount)
             {
             case 6:
                 mRiftWaveId = 2;
@@ -166,7 +166,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
             case TYPE_MEDIVH:
                 if (data == SPECIAL && m_auiEncounter[0] == IN_PROGRESS)
@@ -237,7 +237,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
             case TYPE_MEDIVH:
                 return m_auiEncounter[0];

@@ -184,7 +184,7 @@ public:
             if (pInstance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) != IN_PROGRESS || !bOnGround)
                 return;
 
-            if (!me->getVictim() && who->isTargetableForAttack() && me->IsHostileTo(who) && who->isInAccessiblePlaceFor(me))
+            if (!me->getVictim() && me->canCreatureAttack(who))
             {
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius) && me->IsWithinLOSInMap(who))
@@ -342,7 +342,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_jedoga_shadowseekerAI(creature);
     }
@@ -440,7 +440,7 @@ public:
             if (uiType != POINT_MOTION_TYPE || !pInstance)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 1:
                     {
@@ -508,7 +508,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_jedoga_initiandAI(creature);
     }
@@ -591,7 +591,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_jedogas_aufseher_triggerAI(creature);
     }

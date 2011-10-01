@@ -26,9 +26,12 @@
 
 CreatureGroupInfoType   CreatureGroupMap;
 
-void CreatureGroupManager::AddCreatureToGroup(uint32 groupId, Creature* member)
+namespace FormationMgr
 {
-    Map *map = member->FindMap();
+
+void AddCreatureToGroup(uint32 groupId, Creature* member)
+{
+    Map* map = member->FindMap();
     if (!map)
         return;
 
@@ -50,14 +53,14 @@ void CreatureGroupManager::AddCreatureToGroup(uint32 groupId, Creature* member)
     }
 }
 
-void CreatureGroupManager::RemoveCreatureFromGroup(CreatureGroup* group, Creature* member)
+void RemoveCreatureFromGroup(CreatureGroup* group, Creature* member)
 {
     sLog->outDebug(LOG_FILTER_UNITS, "Deleting member pointer to GUID: %u from group %u", group->GetId(), member->GetDBTableGUIDLow());
     group->RemoveMember(member);
 
     if (group->isEmpty())
     {
-        Map *map = member->FindMap();
+        Map* map = member->FindMap();
         if (!map)
             return;
 
@@ -67,7 +70,7 @@ void CreatureGroupManager::RemoveCreatureFromGroup(CreatureGroup* group, Creatur
     }
 }
 
-void CreatureGroupManager::LoadCreatureFormations()
+void LoadCreatureFormations()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -92,7 +95,7 @@ void CreatureGroupManager::LoadCreatureFormations()
     {
         do
         {
-            Field *fields = guidResult->Fetch();
+            Field* fields = guidResult->Fetch();
             uint32 guid = fields[0].GetUInt32();
 
             guidSet.insert(guid);
@@ -101,8 +104,8 @@ void CreatureGroupManager::LoadCreatureFormations()
     }
 
     uint32 count = 0;
-    Field *fields;
-    FormationInfo *group_member;
+    Field* fields;
+    FormationInfo* group_member;
 
     do
     {
@@ -150,6 +153,8 @@ void CreatureGroupManager::LoadCreatureFormations()
     sLog->outString(">> Loaded %u creatures in formations in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
+
+} // Namespace
 
 void CreatureGroup::AddMember(Creature* member)
 {
@@ -199,7 +204,7 @@ void CreatureGroup::MemberAttackStart(Creature* member, Unit* target)
         if (itr->first->getVictim())
             continue;
 
-        if (itr->first->canAttack(target) && itr->first->AI())
+        if (itr->first->IsValidAttackTarget(target) && itr->first->AI())
             itr->first->AI()->AttackStart(target);
     }
 }

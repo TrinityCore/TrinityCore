@@ -77,7 +77,7 @@ public:
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
         ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
-        ItemTemplateContainer::const_iterator result = find_if(itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
+        ItemTemplateContainer::const_iterator result = find_if (itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
 
         if (result != itc->end())
         {
@@ -222,7 +222,7 @@ public:
             uint32 repValue = pQuest->GetRepObjectiveValue();
             uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
             if (curRep < repValue)
-                if (FactionEntry const *factionEntry = sFactionStore.LookupEntry(repFaction))
+                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
                     player->GetReputationMgr().SetReputation(factionEntry, repValue);
         }
 
@@ -232,7 +232,7 @@ public:
             uint32 repValue2 = pQuest->GetRepObjectiveValue2();
             uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
             if (curRep < repValue2)
-                if (FactionEntry const *factionEntry = sFactionStore.LookupEntry(repFaction))
+                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
                     player->GetReputationMgr().SetReputation(factionEntry, repValue2);
         }
 

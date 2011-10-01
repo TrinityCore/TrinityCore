@@ -66,14 +66,14 @@ void Corpse::RemoveFromWorld()
     Object::RemoveFromWorld();
 }
 
-bool Corpse::Create(uint32 guidlow, Map *map)
+bool Corpse::Create(uint32 guidlow, Map* map)
 {
     SetMap(map);
     Object::_Create(guidlow, 0, HIGHGUID_CORPSE);
     return true;
 }
 
-bool Corpse::Create(uint32 guidlow, Player *owner)
+bool Corpse::Create(uint32 guidlow, Player* owner)
 {
     ASSERT(owner);
 
@@ -162,7 +162,7 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
     trans->Append(stmt);
 }
 
-bool Corpse::LoadFromDB(uint32 guid, Field *fields)
+bool Corpse::LoadFromDB(uint32 guid, Field* fields)
 {
     uint32 ownerGuid = fields[17].GetUInt32();
     //        0     1     2     3            4      5          6          7       8       9        10     11        12    13          14          15         16          17

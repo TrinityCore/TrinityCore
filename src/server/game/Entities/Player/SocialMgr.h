@@ -139,15 +139,18 @@ class PlayerSocial
 class SocialMgr
 {
     friend class ACE_Singleton<SocialMgr, ACE_Null_Mutex>;
-    SocialMgr();
-    public:
+
+    private:
+        SocialMgr();
         ~SocialMgr();
+
+    public:
         // Misc
         void RemovePlayerSocial(uint32 guid) { m_socialMap.erase(guid); }
 
         void GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &friendInfo);
         // Packet management
-        void MakeFriendStatusPacket(FriendsResult result, uint32 friend_guid, WorldPacket *data);
+        void MakeFriendStatusPacket(FriendsResult result, uint32 friend_guid, WorldPacket* data);
         void SendFriendStatus(Player* player, FriendsResult result, uint32 friend_guid, bool broadcast);
         void BroadcastToFriendListers(Player* player, WorldPacket* packet);
         // Loading

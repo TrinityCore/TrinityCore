@@ -157,7 +157,7 @@ public:
                     uiEventTimer = 5000;
                     ++uiEventPhase;
 
-                    switch(uiEventPhase)
+                    switch (uiEventPhase)
                     {
                         case 1:
                             if (Unit* pUnit = Unit::GetUnit(*me, uiPlayerGUID))

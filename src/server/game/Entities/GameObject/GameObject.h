@@ -409,7 +409,7 @@ struct GameObjectTemplate
     // helpers
     bool IsDespawnAtAction() const
     {
-        switch(type)
+        switch (type)
         {
             case GAMEOBJECT_TYPE_CHEST:  return chest.consumable;
             case GAMEOBJECT_TYPE_GOOBER: return goober.consumable;
@@ -419,7 +419,7 @@ struct GameObjectTemplate
 
     uint32 GetLockId() const
     {
-        switch(type)
+        switch (type)
         {
             case GAMEOBJECT_TYPE_DOOR:       return door.lockId;
             case GAMEOBJECT_TYPE_BUTTON:     return button.lockId;
@@ -438,7 +438,7 @@ struct GameObjectTemplate
 
     bool GetDespawnPossibility() const                      // despawn at targeting of cast?
     {
-        switch(type)
+        switch (type)
         {
             case GAMEOBJECT_TYPE_DOOR:       return door.noDamageImmune;
             case GAMEOBJECT_TYPE_BUTTON:     return button.noDamageImmune;
@@ -452,7 +452,7 @@ struct GameObjectTemplate
 
     uint32 GetCharges() const                               // despawn at uses amount
     {
-        switch(type)
+        switch (type)
         {
             //case GAMEOBJECT_TYPE_TRAP:        return trap.charges;
             case GAMEOBJECT_TYPE_GUARDPOST:   return guardpost.charges;
@@ -463,7 +463,7 @@ struct GameObjectTemplate
 
     uint32 GetLinkedGameObjectEntry() const
     {
-        switch(type)
+        switch (type)
         {
             case GAMEOBJECT_TYPE_CHEST:       return chest.linkedTrapId;
             case GAMEOBJECT_TYPE_SPELL_FOCUS: return spellFocus.linkedTrapId;
@@ -475,7 +475,7 @@ struct GameObjectTemplate
     uint32 GetAutoCloseTime() const
     {
         uint32 autoCloseTime = 0;
-        switch(type)
+        switch (type)
         {
             case GAMEOBJECT_TYPE_DOOR:          autoCloseTime = door.autoCloseTime; break;
             case GAMEOBJECT_TYPE_BUTTON:        autoCloseTime = button.autoCloseTime; break;
@@ -490,7 +490,7 @@ struct GameObjectTemplate
 
     uint32 GetLootId() const
     {
-        switch(type)
+        switch (type)
         {
             case GAMEOBJECT_TYPE_CHEST:       return chest.lootId;
             case GAMEOBJECT_TYPE_FISHINGHOLE: return fishinghole.lootId;
@@ -500,7 +500,7 @@ struct GameObjectTemplate
 
     uint32 GetGossipMenuId() const
     {
-        switch(type)
+        switch (type)
         {
             case GAMEOBJECT_TYPE_QUESTGIVER:    return questgiver.gossipID;
             case GAMEOBJECT_TYPE_GOOBER:        return goober.gossipID;
@@ -510,7 +510,7 @@ struct GameObjectTemplate
 
     uint32 GetEventScriptId() const
     {
-        switch(type)
+        switch (type)
         {
             case GAMEOBJECT_TYPE_GOOBER:        return goober.eventId;
             case GAMEOBJECT_TYPE_CHEST:         return chest.eventId;
@@ -623,7 +623,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld();
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        bool Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
@@ -648,7 +648,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
-        bool LoadFromDB(uint32 guid, Map *map);
+        bool LoadFromDB(uint32 guid, Map* map);
         void DeleteFromDB();
 
         void SetOwnerGUID(uint64 owner)
@@ -698,7 +698,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         uint32 GetRespawnDelay() const { return m_respawnDelayTime; }
         void Refresh();
         void Delete();
-        void getFishLoot(Loot *loot, Player* loot_owner);
+        void getFishLoot(Loot* loot, Player* loot_owner);
         GameobjectTypes GetGoType() const { return GameobjectTypes(GetByteValue(GAMEOBJECT_BYTES_1, 1)); }
         void SetGoType(GameobjectTypes type) { SetByteValue(GAMEOBJECT_BYTES_1, 1, type); }
         GOState GetGoState() const { return GOState(GetByteValue(GAMEOBJECT_BYTES_1, 0)); }
@@ -707,7 +707,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void SetGoArtKit(uint8 artkit);
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
-        static void SetGoArtKit(uint8 artkit, GameObject *go, uint32 lowguid = 0);
+        static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
 
         void Use(Unit* user);
 
@@ -745,7 +745,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         bool hasQuest(uint32 quest_id) const;
         bool hasInvolvedQuest(uint32 quest_id) const;
-        bool ActivateToQuest(Player *pTarget) const;
+        bool ActivateToQuest(Player* pTarget) const;
         void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false);
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
@@ -800,7 +800,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         std::list<uint32> m_SkillupList;
 
         Player* m_ritualOwner;                              // used for GAMEOBJECT_TYPE_SUMMONING_RITUAL where GO is not summoned (no owner)
-        std::set<uint32> m_unique_users;
+        std::set<uint64> m_unique_users;
         uint32 m_usetimes;
 
         typedef std::map<uint32, uint64> ChairSlotAndUser;

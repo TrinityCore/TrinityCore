@@ -273,6 +273,11 @@ enum EventIds
     EVENT_AWAKEN_WARD_4 = 22909,
 };
 
+enum MovementPoints
+{
+    POINT_LAND  = 1,
+};
+
 class FrostwingVrykulSearcher
 {
     public:
@@ -666,10 +671,6 @@ class npc_frost_freeze_trap : public CreatureScript
                     case 11000:
                         _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, uint32(action));
                         break;
-                    case ACTION_STOP_TRAPS:
-                        me->RemoveAurasDueToSpell(SPELL_COLDFLAME_JETS);
-                        _events.CancelEvent(EVENT_ACTIVATE_TRAP);
-                        break;
                     default:
                         break;
                 }
@@ -761,7 +762,6 @@ class boss_sister_svalna : public CreatureScript
                 _EnterCombat();
                 if (Creature* crok = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CROK_SCOURGEBANE)))
                     crok->AI()->Talk(SAY_CROK_COMBAT_SVALNA);
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                 events.ScheduleEvent(EVENT_SVALNA_COMBAT, 9000);
                 events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(40000, 50000));
                 events.ScheduleEvent(EVENT_AETHER_SHIELD, urand(100000, 110000));
@@ -835,17 +835,30 @@ class boss_sister_svalna : public CreatureScript
                 }
             }
 
+            void MovementInform(uint32 type, uint32 id)
+            {
+                if (type != POINT_MOTION_TYPE || id != POINT_LAND)
+                    return;
+
+                _isEventInProgress = false;
+                me->setActive(false);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+            }
+
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 switch (spell->Id)
                 {
                     case SPELL_REVIVE_CHAMPION:
+                    {
                         if (!_isEventInProgress)
                             break;
-                        _isEventInProgress = false;
-                        me->setActive(false);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                        Position pos;
+                        me->GetPosition(&pos);
+                        me->UpdateGroundPositionZ(pos.GetPositionX(), pos.GetPositionY(), pos.m_positionZ);
+                        me->GetMotionMaster()->MovePoint(POINT_LAND, pos);
                         break;
+                    }
                     case SPELL_IMPALING_SPEAR_KILL:
                         me->Kill(target);
                         break;
@@ -884,7 +897,6 @@ class boss_sister_svalna : public CreatureScript
                             me->CastSpell(me, SPELL_REVIVE_CHAMPION, false);
                             break;
                         case EVENT_SVALNA_COMBAT:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_ATTACKABLE_1);
                             me->SetReactState(REACT_DEFENSIVE);
                             Talk(SAY_SVALNA_AGGRO);
                             break;
@@ -1361,9 +1373,7 @@ class npc_captain_arnath : public CreatureScript
                         case EVENT_ARNATH_PW_SHIELD:
                         {
                             std::list<Creature*> targets = DoFindFriendlyMissingBuff(40.0f, SPELL_POWER_WORD_SHIELD);
-                            std::list<Creature*>::iterator itr = targets.begin();
-                            std::advance(itr, urand(0, targets.size() - 1));
-                            DoCast(*itr, SPELL_POWER_WORD_SHIELD);
+                            DoCast(SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
                             Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, urand(15000, 20000));
                             break;
                         }
@@ -1755,7 +1765,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
+                OnEffectHit += SpellEffectFn(spell_icc_sprit_alarm_SpellScript::HandleEvent, EFFECT_2, SPELL_EFFECT_SEND_EVENT);
             }
         };
 
@@ -1814,12 +1824,10 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
             void FilterTargets(std::list<Unit*>& unitList)
             {
                 // Select valid targets for jump
-                unitList.remove_if(DeathPlagueTargetSelector(GetCaster()));
+                unitList.remove_if (DeathPlagueTargetSelector(GetCaster()));
                 if (!unitList.empty())
                 {
-                    std::list<Unit*>::iterator itr = unitList.begin();
-                    std::advance(itr, urand(0, unitList.size()-1));
-                    Unit* target = *itr;
+                    Unit* target = SelectRandomContainerElement(unitList);
                     unitList.clear();
                     unitList.push_back(target);
                 }
@@ -1840,7 +1848,7 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::CountTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_frost_giant_death_plague_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
-                OnEffect += SpellEffectFn(spell_frost_giant_death_plague_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_frost_giant_death_plague_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
 
             bool _failed;
@@ -1874,8 +1882,8 @@ class spell_icc_harvest_blight_specimen : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffect += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
+                OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_icc_harvest_blight_specimen_SpellScript::HandleQuestComplete, EFFECT_1, SPELL_EFFECT_QUEST_COMPLETE);
             }
         };
 
@@ -1905,7 +1913,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
 
             void RemoveAliveTarget(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(AliveCheck());
+                unitList.remove_if (AliveCheck());
                 Trinity::RandomResizeList(unitList, 2);
             }
 
@@ -1939,7 +1947,7 @@ class spell_svalna_remove_spear : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_svalna_remove_spear_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_svalna_remove_spear_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1991,8 +1999,7 @@ class at_icc_shutdown_traps : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
             if (InstanceScript* instance = player->GetInstanceScript())
-                if (instance->GetData(DATA_COLDFLAME_JETS) == IN_PROGRESS)
-                    instance->SetData(DATA_COLDFLAME_JETS, DONE);
+                instance->SetData(DATA_COLDFLAME_JETS, DONE);
             return true;
         }
 };

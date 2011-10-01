@@ -102,7 +102,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_drakuru_shacklesAI(creature);
     }
@@ -184,7 +184,7 @@ public:
        }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_captured_rageclawAI(creature);
     }
@@ -371,10 +371,10 @@ public:
             bRemoveFlag = true;
             me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
 
-            switch(uiId)
+            switch (uiId)
             {
                 case 1:
-                    switch(uiValue)
+                    switch (uiValue)
                     {
                         case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
                             DoScriptText(SAY_QUEST_ACCEPT_TUSKARRMAGEDON, me);
@@ -425,7 +425,7 @@ public:
 
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             if (Creature* summon = me->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
@@ -554,7 +554,7 @@ public:
         return false;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_gurgthockAI(creature);
     }
@@ -656,7 +656,7 @@ public:
 
             if (!bSummoned && !HealthAbovePct(50))
             {
-                DoScriptText(SAY_CALL_FOR_HELP , me);
+                DoScriptText(SAY_CALL_FOR_HELP, me);
                 //DoCast(me->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
 
                 if (Creature* pWhisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
@@ -669,7 +669,7 @@ public:
 
         void JustSummoned(Creature* summon)
         {
-            switch(summon->GetEntry())
+            switch (summon->GetEntry())
             {
                 case NPC_WHISKER:
                     summon->AI()->AttackStart(me->getVictim());
@@ -696,7 +696,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_orinoko_tuskbreakerAI(creature);
     }
@@ -743,7 +743,7 @@ public:
 
         void WaypointReached(uint32 uiI)
         {
-            switch(uiI)
+            switch (uiI)
             {
                 case 6:
                     me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0);
@@ -794,7 +794,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_korrak_bloodragerAI(creature);
     }
@@ -836,8 +836,8 @@ public:
 
             if (me->getVictim()->GetPositionZ() >= 286.276f)
             {
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
@@ -886,7 +886,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_yggdrasAI(creature);
     }
@@ -937,7 +937,7 @@ public:
 
         void WaypointReached(uint32 uiI)
         {
-            switch(uiI)
+            switch (uiI)
             {
                 case 7:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -958,8 +958,8 @@ public:
             {
                 if (victim->GetPositionZ() >= 286.276f)
                 {
-                    std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                    for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
                         if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                         {
@@ -1019,7 +1019,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_stinkbeardAI(creature);
     }
@@ -1103,8 +1103,8 @@ public:
 
             if (me->getVictim()->GetPositionZ() >= 286.276f)
             {
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
@@ -1164,7 +1164,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_elemental_lordAI(creature);
     }
@@ -1229,7 +1229,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_fiend_elementalAI(creature);
     }
@@ -1263,7 +1263,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_released_offspring_harkoaAI(creature);
     }
@@ -1316,7 +1316,7 @@ public:
             {
                 if (m_uiTimer <= uiDiff)
                 {
-                    switch(m_uiPhase)
+                    switch (m_uiPhase)
                     {
                         case 1:
                             // say random text
@@ -1351,7 +1351,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_crusade_recruitAI(creature);
     }

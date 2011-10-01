@@ -862,19 +862,19 @@ class BattlegroundIC : public Battleground
         ~BattlegroundIC();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void AddPlayer(Player* plr);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
         virtual void PostUpdateImpl(uint32 diff);
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void SpawnLeader(uint32 teamid);
         void HandleKillUnit(Creature* unit, Player* killer);
         void HandleKillPlayer(Player* player, Player* killer);
         void EndBattleground(uint32 winner);
-        void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
 
         void EventPlayerDamagedGO(Player* /*plr*/, GameObject* go, uint32 eventType);
         void DestroyGate(Player* player, GameObject* go);
@@ -882,7 +882,7 @@ class BattlegroundIC : public Battleground
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         void FillInitialWorldStates(WorldPacket& data);
 
@@ -911,7 +911,7 @@ class BattlegroundIC : public Battleground
         uint32 GetGateIDFromEntry(uint32 id)
         {
             uint32 i = 0;
-            switch(id)
+            switch (id)
             {
                 case GO_HORDE_GATE_1: i = BG_IC_H_FRONT ;break;
                 case GO_HORDE_GATE_2: i = BG_IC_H_WEST ;break;
@@ -927,7 +927,7 @@ class BattlegroundIC : public Battleground
         {
             uint32 uws = 0;
 
-            switch(id)
+            switch (id)
             {
                 case GO_HORDE_GATE_1:
                     uws = (open ? BG_IC_GATE_FRONT_H_WS_OPEN : BG_IC_GATE_FRONT_H_WS_CLOSED);

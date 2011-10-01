@@ -60,7 +60,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
 
         uint32 ArcaneBlast_Timer;
         uint32 TimeLapse_Timer;

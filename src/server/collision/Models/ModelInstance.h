@@ -56,15 +56,15 @@ namespace VMAP
             // temp?
             const G3D::AABox& getBounds() const { return iBound; }
 
-            static bool readFromFile(FILE *rf, ModelSpawn &spawn);
-            static bool writeToFile(FILE *rw, const ModelSpawn &spawn);
+            static bool readFromFile(FILE* rf, ModelSpawn &spawn);
+            static bool writeToFile(FILE* rw, const ModelSpawn &spawn);
     };
 
     class ModelInstance: public ModelSpawn
     {
         public:
             ModelInstance(): iModel(0) {}
-            ModelInstance(const ModelSpawn &spawn, WorldModel *model);
+            ModelInstance(const ModelSpawn &spawn, WorldModel* model);
             void setUnloaded() { iModel = 0; }
             bool intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit) const;
             void intersectPoint(const G3D::Vector3& p, AreaInfo &info) const;
@@ -73,7 +73,7 @@ namespace VMAP
         protected:
             G3D::Matrix3 iInvRot;
             float iInvScale;
-            WorldModel *iModel;
+            WorldModel* iModel;
     };
 } // namespace VMAP
 

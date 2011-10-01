@@ -106,7 +106,7 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
             if (!me->GetEquipmentId())
-                if (const CreatureTemplate *info = sObjectMgr->GetCreatureTemplate(28406))
+                if (const CreatureTemplate* info = sObjectMgr->GetCreatureTemplate(28406))
                     if (info->equipmentId)
                         const_cast<CreatureTemplate*>(me->GetCreatureInfo())->equipmentId = info->equipmentId;
         }
@@ -173,7 +173,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            switch(phase)
+            switch (phase)
             {
             case PHASE_CHAINED:
                 if (!anchorGUID)
@@ -247,7 +247,7 @@ public:
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                     case EVENT_ICY_TOUCH:
                         DoCast(me->getVictim(), SPELL_ICY_TOUCH);
@@ -553,7 +553,7 @@ public:
 
             if (PhaseTimer <= diff)
             {
-                switch(Phase)
+                switch (Phase)
                 {
                    case 0:
                         me->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);
@@ -625,7 +625,7 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* c) : ScriptedAI(c) {}
 
-        void SpellHit(Unit* caster, const SpellInfo *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == DELIVER_STOLEN_HORSE)
             {

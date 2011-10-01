@@ -78,7 +78,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -269,7 +269,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_argent_valiantAI(creature);
     }
@@ -311,7 +311,7 @@ public:
             uiCast = true;
             Creature* target = NULL;
 
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case NPC_PRIESTESS_ALORAH:
                     target = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
@@ -328,7 +328,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_alorah_and_grimminAI(creature);
     }
@@ -375,7 +375,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_guardian_pavilionAI(creature);
     }
@@ -413,14 +413,14 @@ public:
                         {
                             owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, 0);
                             who->ToCreature()->DisappearAndDie();
-                        
+
                     }
                 }
             }
         }
     };
 
-    CreatureAI *GetAI(Creature *creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_vereth_the_cunningAI(creature);
     }

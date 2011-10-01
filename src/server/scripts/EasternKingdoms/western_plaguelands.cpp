@@ -52,7 +52,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_TRADE:
                 player->GetSession()->SendListInventory(creature->GetGUID());
@@ -191,7 +191,7 @@ public:
 
             if (who->GetTypeId() == TYPEID_PLAYER)
             {
-                switch(me->GetAreaId())
+                switch (me->GetAreaId())
                 {
                     case 199:                                   //felstone
                         if (CAST_PLR(who)->GetQuestStatus(5216) == QUEST_STATUS_INCOMPLETE ||
@@ -293,7 +293,7 @@ class npc_anchorite_truuen : public CreatureScript
 public:
     npc_anchorite_truuen() : CreatureScript("npc_anchorite_truuen") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         npc_escortAI* pEscortAI = CAST_AI(npc_anchorite_truuen::npc_anchorite_truuenAI, creature->AI());
 
@@ -358,7 +358,7 @@ public:
                 case 22:
                     break;
                 case 23:
-                    Ughost = me->SummonCreature(NPC_GHOST_UTHER, 971.86f, -1825.42f , 81.99f , 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                    Ughost = me->SummonCreature(NPC_GHOST_UTHER, 971.86f, -1825.42f, 81.99f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
                     Ughost->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     DoScriptText(SAY_WP_4, Ughost, me);
                     m_uiChatTimer = 4000;

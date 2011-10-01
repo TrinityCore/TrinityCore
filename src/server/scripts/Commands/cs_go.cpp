@@ -132,7 +132,7 @@ public:
         if (result->GetRowCount() > 1)
             handler->SendSysMessage(LANG_COMMAND_GOCREATMULTIPLE);
 
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         float x = fields[0].GetFloat();
         float y = fields[1].GetFloat();
         float z = fields[2].GetFloat();
@@ -255,7 +255,7 @@ public:
         else
             _player->SaveRecallPosition();
 
-        Map const *map = sMapMgr->CreateBaseMap(mapid);
+        Map const* map = sMapMgr->CreateBaseMap(mapid);
         float z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         _player->TeleportTo(mapid, x, y, z, _player->GetOrientation());
 
@@ -443,7 +443,7 @@ public:
         // update to parent zone if exist (client map show only zones without parents)
         AreaTableEntry const* zoneEntry = areaEntry->zone ? GetAreaEntryByAreaID(areaEntry->zone) : areaEntry;
 
-        Map const *map = sMapMgr->CreateBaseMap(zoneEntry->mapid);
+        Map const* map = sMapMgr->CreateBaseMap(zoneEntry->mapid);
 
         if (map->Instanceable())
         {
@@ -498,18 +498,18 @@ public:
         float z;
         float ort;
         uint32 mapid;
-        
+
         if (pmapid)
             mapid = (uint32)atoi(pmapid);
         else
             mapid = _player->GetMapId();
-            
-        if( port )
+
+        if ( port )
             ort = (float)atof(port);
         else
             ort = _player->GetOrientation();
-        
-        if( pz )
+
+        if ( pz )
         {
             z = (float)atof(pz);
             if (!MapManager::IsValidMapCoord(mapid, x, y, z))
@@ -527,10 +527,10 @@ public:
                 handler->SetSentErrorMessage(true);
                 return false;
             }
-            Map const *map = sMapMgr->CreateBaseMap(mapid);
+            Map const* map = sMapMgr->CreateBaseMap(mapid);
             z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         }
-        
+
         // stop flight if need
         if (_player->isInFlight())
         {

@@ -83,7 +83,7 @@ public:
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                switch(uiWPHolder)
+                switch (uiWPHolder)
                 {
                     case 7: DoScriptText(SAY_DS_DOWN_1, me); break;
                     case 8: DoScriptText(SAY_DS_DOWN_2, me); break;
@@ -105,7 +105,7 @@ public:
 
             uiWPHolder = uiPoint;
 
-            switch(uiPoint)
+            switch (uiPoint)
             {
                 case 4:
                     SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE, EQUIP_ID_RIFLE);

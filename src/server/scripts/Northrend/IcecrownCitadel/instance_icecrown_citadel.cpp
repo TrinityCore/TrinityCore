@@ -50,7 +50,7 @@ DoorData const doorData[] =
     {GO_SINDRAGOSA_SHORTCUT_EXIT_DOOR,       DATA_SINDRAGOSA,            DOOR_TYPE_PASSAGE,    BOUNDARY_NONE},
     {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,       BOUNDARY_SE  },
     {GO_ICE_WALL,                            DATA_SINDRAGOSA,            DOOR_TYPE_ROOM,       BOUNDARY_SW  },
-    {0,                                      0,                          DOOR_TYPE_ROOM,       BOUNDARY_NONE},// END
+    {0,                                      0,                          DOOR_TYPE_ROOM,       BOUNDARY_NONE}, // END
 };
 
 // this doesnt have to only store questgivers, also can be used for related quest spawns
@@ -207,9 +207,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                         if (TeamInInstance == ALLIANCE)
                             creature->UpdateEntry(NPC_SE_SKYBREAKER_MARINE, ALLIANCE);
                         break;
-                    case NPC_FROST_FREEZE_TRAP:
-                        ColdflameJetGUIDs.insert(creature->GetGUID());
-                        break;
                     case NPC_FESTERGUT:
                         FestergutGUID = creature->GetGUID();
                         break;
@@ -308,12 +305,6 @@ class instance_icecrown_citadel : public InstanceMapScript
                 }
 
                 return entry;
-            }
-
-            void OnCreatureRemove(Creature* creature)
-            {
-                if (creature->GetEntry() == NPC_FROST_FREEZE_TRAP)
-                    ColdflameJetGUIDs.erase(creature->GetGUID());
             }
 
             void OnCreatureDeath(Creature* creature)
@@ -792,12 +783,7 @@ class instance_icecrown_citadel : public InstanceMapScript
                     case DATA_COLDFLAME_JETS:
                         ColdflameJetsState = data;
                         if (ColdflameJetsState == DONE)
-                        {
                             SaveToDB();
-                            for (std::set<uint64>::iterator itr = ColdflameJetGUIDs.begin(); itr != ColdflameJetGUIDs.end(); ++itr)
-                                if (Creature* trap = instance->GetCreature(*itr))
-                                    trap->AI()->DoAction(ACTION_STOP_TRAPS);
-                        }
                         break;
                     case DATA_BLOOD_QUICKENING_STATE:
                     {
@@ -1090,7 +1076,6 @@ class instance_icecrown_citadel : public InstanceMapScript
             }
 
         protected:
-            std::set<uint64> ColdflameJetGUIDs;
             uint64 LadyDeathwisperElevatorGUID;
             uint64 DeathbringerSaurfangGUID;
             uint64 DeathbringerSaurfangDoorGUID;

@@ -114,6 +114,7 @@ class Log
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
 
+        void outErrorST( const char * err, ... )                ATTR_PRINTF(2, 3);
         void outDB( LogTypes type, const char * str );
         void outString( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outString( );

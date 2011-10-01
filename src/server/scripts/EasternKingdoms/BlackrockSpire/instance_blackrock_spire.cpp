@@ -81,7 +81,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_OMOKK:
                     HighlordOmokk = creature->GetGUID();
@@ -130,7 +130,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
                     go->CastSpell(NULL, SPELL_SUMMON_ROOKERY_WHELP);
@@ -169,7 +169,7 @@ public:
 
         uint64 GetData64(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_OMOKK:
                     return HighlordOmokk;

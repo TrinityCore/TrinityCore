@@ -45,14 +45,14 @@ void MapManager::LoadTransports()
     do
     {
 
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         uint32 lowguid = fields[0].GetUInt32();
         uint32 entry = fields[1].GetUInt32();
         std::string name = fields[2].GetString();
         uint32 period = fields[3].GetUInt32();
         uint32 scriptId = sObjectMgr->GetScriptId(fields[4].GetCString());
 
-        const GameObjectTemplate *goinfo = sObjectMgr->GetGameObjectTemplate(entry);
+        const GameObjectTemplate* goinfo = sObjectMgr->GetGameObjectTemplate(entry);
 
         if (!goinfo)
         {
@@ -70,7 +70,7 @@ void MapManager::LoadTransports()
 
         std::set<uint32> mapsUsed;
 
-        Transport *t = new Transport(period, scriptId);
+        Transport* t = new Transport(period, scriptId);
         if (!t->GenerateWaypoints(goinfo->moTransport.taxiPathId, mapsUsed))
             // skip transports with empty waypoints list
         {
@@ -111,12 +111,12 @@ void MapManager::LoadTransports()
     {
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             uint32 guid  = fields[0].GetUInt32();
             uint32 entry = fields[1].GetUInt32();
             std::string name = fields[2].GetString();
-            sLog->outErrorDb("Transport %u '%s' have record (GUID: %u) in `gameobject`. Transports must not have any records in `gameobject` or its behavior will be unpredictable/bugged.",entry,name.c_str(),guid);
+            sLog->outErrorDb("Transport %u '%s' have record (GUID: %u) in `gameobject`. Transports must not have any records in `gameobject` or its behavior will be unpredictable/bugged.", entry, name.c_str(), guid);
         }
         while (result->NextRow());
     }
@@ -143,7 +143,7 @@ void MapManager::LoadTransportNPCs()
 
     do
     {
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
         uint32 guid = fields[0].GetUInt32();
         uint32 entry = fields[1].GetUInt32();
         uint32 transportEntry = fields[2].GetUInt32();
@@ -489,7 +489,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
     for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
     {
-        Player *plr = *itr;
+        Player* plr = *itr;
         ++itr;
 
         if (plr->isDead() && !plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
@@ -503,7 +503,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
     RemoveFromWorld();
     ResetMap();
-    Map * newMap = sMapMgr->CreateMap(newMapid, this, 0);
+    Map* newMap = sMapMgr->CreateMap(newMapid, this, 0);
     SetMap(newMap);
     ASSERT (GetMap());
     AddToWorld();
@@ -661,7 +661,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
     pCreature->Relocate(
         GetPositionX() + (x * cos(GetOrientation()) + y * sin(GetOrientation() + float(M_PI))),
         GetPositionY() + (y * cos(GetOrientation()) + x * sin(GetOrientation())),
-        z + GetPositionZ() ,
+        z + GetPositionZ(),
         o + GetOrientation());
 
     pCreature->SetHomePosition(pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ(), pCreature->GetOrientation());

@@ -106,17 +106,17 @@ struct BossInfo
 
 struct DoorInfo
 {
-    explicit DoorInfo(BossInfo *_bossInfo, DoorType _type, BoundaryType _boundary)
+    explicit DoorInfo(BossInfo* _bossInfo, DoorType _type, BoundaryType _boundary)
         : bossInfo(_bossInfo), type(_type), boundary(_boundary) {}
-    BossInfo *bossInfo;
+    BossInfo* bossInfo;
     DoorType type;
     BoundaryType boundary;
 };
 
 struct MinionInfo
 {
-    explicit MinionInfo(BossInfo *_bossInfo) : bossInfo(_bossInfo) {}
-    BossInfo *bossInfo;
+    explicit MinionInfo(BossInfo* _bossInfo) : bossInfo(_bossInfo) {}
+    BossInfo* bossInfo;
 };
 
 typedef std::multimap<uint32 /*entry*/, DoorInfo> DoorInfoMap;
@@ -130,7 +130,7 @@ class InstanceScript : public ZoneScript
 
         virtual ~InstanceScript() {}
 
-        Map *instance;
+        Map* instance;
 
         //On creation, NOT load.
         virtual void Initialize() {}
@@ -217,8 +217,8 @@ class InstanceScript : public ZoneScript
         void AddDoor(GameObject* door, bool add);
         void AddMinion(Creature* minion, bool add);
 
-        void UpdateDoorState(GameObject *door);
-        void UpdateMinionState(Creature *minion, EncounterState state);
+        void UpdateDoorState(GameObject* door);
+        void UpdateMinionState(Creature* minion, EncounterState state);
 
         std::string LoadBossState(char const* data);
         std::string GetBossSaveData();

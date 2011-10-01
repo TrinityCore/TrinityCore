@@ -89,7 +89,7 @@ class OPvPCapturePointHP : public OPvPCapturePoint
 {
     public:
 
-        OPvPCapturePointHP(OutdoorPvP * pvp, OutdoorPvPHPTowerType type);
+        OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type);
 
         void ChangeState();
 

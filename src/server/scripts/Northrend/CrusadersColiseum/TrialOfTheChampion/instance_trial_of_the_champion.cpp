@@ -109,7 +109,7 @@ public:
                     TeamInInstance = player->GetTeam();
             }
 
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 // Champions
                 case VEHICLE_MOKRA_SKILLCRUSHER_MOUNT:
@@ -151,7 +151,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_MAIN_GATE:
                     uiMainGateGUID = go->GetGUID();
@@ -165,7 +165,7 @@ public:
 
         void SetData(uint32 uiType, uint32 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case DATA_MOVEMENT_DONE:
                     uiMovementDone = uiData;
@@ -234,7 +234,7 @@ public:
 
         uint32 GetData(uint32 uiData)
         {
-            switch(uiData)
+            switch (uiData)
             {
                 case BOSS_GRAND_CHAMPIONS:  return m_auiEncounter[0];
                 case BOSS_ARGENT_CHALLENGE_E: return m_auiEncounter[1];
@@ -250,7 +250,7 @@ public:
 
         uint64 GetData64(uint32 uiData)
         {
-            switch(uiData)
+            switch (uiData)
             {
                 case DATA_ANNOUNCER: return uiAnnouncerGUID;
                 case DATA_MAIN_GATE: return uiMainGateGUID;
@@ -265,7 +265,7 @@ public:
 
         void SetData64(uint32 uiType, uint64 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case DATA_GRAND_CHAMPION_1:
                     uiGrandChampion1GUID = uiData;

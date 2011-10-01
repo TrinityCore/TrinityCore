@@ -29,7 +29,7 @@
 
 MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery(stationery)
 {
-    switch(sender->GetTypeId())
+    switch (sender->GetTypeId())
     {
         case TYPEID_UNIT:
             m_messageType = MAIL_CREATURE;
@@ -230,7 +230,7 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
 
         if (pReceiver->IsMailsLoaded())
         {
-            Mail * m = new Mail;
+            Mail* m = new Mail;
             m->messageID = mailId;
             m->mailTemplateId = GetMailTemplateId();
             m->subject = GetSubject();

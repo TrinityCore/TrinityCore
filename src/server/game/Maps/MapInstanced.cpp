@@ -130,14 +130,14 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player* player)
     }
     else
     {
-        InstancePlayerBind *pBind = player->GetBoundInstance(GetId(), player->GetDifficulty(IsRaid()));
-        InstanceSave *pSave = pBind ? pBind->save : NULL;
+        InstancePlayerBind* pBind = player->GetBoundInstance(GetId(), player->GetDifficulty(IsRaid()));
+        InstanceSave* pSave = pBind ? pBind->save : NULL;
 
         // the player's permanent player bind is taken into consideration first
         // then the player's group bind and finally the solo bind.
         if (!pBind || !pBind->perm)
         {
-            InstanceGroupBind *groupBind = NULL;
+            InstanceGroupBind* groupBind = NULL;
             Group* group = player->GetGroup();
             // use the player's difficulty setting (it may not be the same as the group's)
             if (group)
@@ -170,7 +170,7 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player* player)
     return map;
 }
 
-InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save, Difficulty difficulty)
+InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty)
 {
     // load/create a map
     ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
@@ -182,7 +182,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
         sLog->outError("CreateInstance: no entry for map %d", GetId());
         ASSERT(false);
     }
-    const InstanceTemplate * iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
+    const InstanceTemplate* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
         sLog->outError("CreateInstance: no instance template for map %d", GetId());
@@ -194,7 +194,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave *save,
 
     sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
-    InstanceMap *map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
+    InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon());
 
     bool load_data = save != NULL;
@@ -220,7 +220,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
     else
         spawnMode = REGULAR_DIFFICULTY;
 
-    BattlegroundMap *map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
+    BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
     ASSERT(map->IsBattlegroundOrArena());
     map->SetBG(bg);
     bg->SetBgMap(map);

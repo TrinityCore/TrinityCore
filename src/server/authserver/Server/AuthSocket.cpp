@@ -148,11 +148,11 @@ typedef struct AuthHandler
 class PatcherRunnable: public ACE_Based::Runnable
 {
 public:
-    PatcherRunnable(class AuthSocket *);
+    PatcherRunnable(class AuthSocket*);
     void run();
 
 private:
-    AuthSocket * mySocket;
+    AuthSocket* mySocket;
 };
 
 typedef struct PATCH_INFO
@@ -648,7 +648,7 @@ bool AuthSocket::_HandleLogonProof()
 
         sLog->outBasic("[AuthChallenge] account %s tried to login with wrong password!", _login.c_str());
 
-        uint32 MaxWrongPassCount = sConfig->GetIntDefault("WrongPass.MaxCount", 0);
+        uint32 MaxWrongPassCount = ConfigMgr::GetIntDefault("WrongPass.MaxCount", 0);
         if (MaxWrongPassCount > 0)
         {
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
@@ -665,8 +665,8 @@ bool AuthSocket::_HandleLogonProof()
 
                 if (failed_logins >= MaxWrongPassCount)
                 {
-                    uint32 WrongPassBanTime = sConfig->GetIntDefault("WrongPass.BanTime", 600);
-                    bool WrongPassBanType = sConfig->GetBoolDefault("WrongPass.BanType", false);
+                    uint32 WrongPassBanTime = ConfigMgr::GetIntDefault("WrongPass.BanTime", 600);
+                    bool WrongPassBanType = ConfigMgr::GetBoolDefault("WrongPass.BanType", false);
 
                     if (WrongPassBanType)
                     {
@@ -964,7 +964,7 @@ bool AuthSocket::_HandleXferAccept()
     return true;
 }
 
-PatcherRunnable::PatcherRunnable(class AuthSocket * as)
+PatcherRunnable::PatcherRunnable(class AuthSocket* as)
 {
     mySocket = as;
 }
@@ -1032,7 +1032,7 @@ void Patcher::LoadPatchMD5(char *szFileName)
     // Try to open the patch file
     std::string path = "./patches/";
     path += szFileName;
-    FILE *pPatch = fopen(path.c_str(), "rb");
+    FILE* pPatch = fopen(path.c_str(), "rb");
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Loading patch info from %s\n", path.c_str());
 
     if (!pPatch)

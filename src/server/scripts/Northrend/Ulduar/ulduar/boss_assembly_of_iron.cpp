@@ -653,7 +653,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_BERSERK:
                             DoScriptText(SAY_BRUNDIR_BERSERK, me);
@@ -787,7 +787,7 @@ class spell_assembly_meltdown : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_assembly_meltdown_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
+                OnEffectHitTarget += SpellEffectFn(spell_assembly_meltdown_SpellScript::HandleInstaKill, EFFECT_1, SPELL_EFFECT_INSTAKILL);
             }
         };
 

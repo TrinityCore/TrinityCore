@@ -292,7 +292,7 @@ bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const
     return count == NODE_TYPE_WORKSHOP;
 }
 
-void BattlegroundIC::AddPlayer(Player *plr)
+void BattlegroundIC::AddPlayer(Player* plr)
 {
     Battleground::AddPlayer(plr);
     //create score and add it to map, default values are set in constructor
@@ -332,7 +332,7 @@ void BattlegroundIC::UpdatePlayerScore(Player* Source, uint32 type, uint32 value
     if (itr == m_PlayerScores.end())                         // player not found...
         return;
 
-    switch(type)
+    switch (type)
     {
         case SCORE_BASES_ASSAULTED:
             ((BattlegroundICScore*)itr->second)->BasesAssaulted += value;
@@ -479,7 +479,7 @@ void BattlegroundIC::RealocatePlayers(ICNodePointType nodeType)
     std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[BG_IC_NPC_SPIRIT_GUIDE_1+nodeType-2]];
     if (!ghost_list.empty())
     {
-        WorldSafeLocsEntry const *ClosestGrave = NULL;
+        WorldSafeLocsEntry const* ClosestGrave = NULL;
         for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
             Player* plr = ObjectAccessor::FindPlayer(*itr);
@@ -642,7 +642,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             sLog->outError("Isle of Conquest: Failed to spawn spirit guide! point: %u, team: %u, ", nodePoint->nodeType, nodePoint->faction);
     }
 
-    switch(nodePoint->gameobject_type)
+    switch (nodePoint->gameobject_type)
     {
     case BG_IC_GO_HANGAR_BANNER:
         // all the players on the stopped transport should be teleported out
@@ -833,7 +833,7 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
 
     uint32 lang_entry = 0;
 
-    switch(go->GetEntry())
+    switch (go->GetEntry())
     {
         case GO_HORDE_GATE_1:
             lang_entry = LANG_BG_IC_NORTH_GATE_DESTROYED;
@@ -940,7 +940,7 @@ Transport* BattlegroundIC::CreateTransport(uint32 goEntry, uint32 period)
     t->SetMap(GetBgMap());
 
     for (uint8 i = 0; i < 5; i++)
-        t->AddNPCPassenger(0, (goEntry == GO_HORDE_GUNSHIP ? NPC_HORDE_GUNSHIP_CANNON : NPC_ALLIANCE_GUNSHIP_CANNON), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionX() : allianceGunshipPassengers[i].GetPositionX()) , (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionY() : allianceGunshipPassengers[i].GetPositionY()), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionZ() : allianceGunshipPassengers[i].GetPositionZ()), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetOrientation() : allianceGunshipPassengers[i].GetOrientation()));
+        t->AddNPCPassenger(0, (goEntry == GO_HORDE_GUNSHIP ? NPC_HORDE_GUNSHIP_CANNON : NPC_ALLIANCE_GUNSHIP_CANNON), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionX() : allianceGunshipPassengers[i].GetPositionX()), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionY() : allianceGunshipPassengers[i].GetPositionY()), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionZ() : allianceGunshipPassengers[i].GetPositionZ()), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetOrientation() : allianceGunshipPassengers[i].GetOrientation()));
 
     return t;
 }

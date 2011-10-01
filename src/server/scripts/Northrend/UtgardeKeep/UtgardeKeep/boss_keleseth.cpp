@@ -166,7 +166,7 @@ public:
 
             if (IsHeroic() && !ShatterFrostTomb)
             {
-                AchievementEntry const *AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
+                AchievementEntry const* AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
                 if (AchievOnTheRocks)
                 {
                     Map* pMap = me->GetMap();
@@ -219,11 +219,11 @@ public:
                     DoScriptText(SAY_SKELETONS, me);
                     for (uint8 i = 0; i < 5; ++i)
                     {
-                        Skeleton = me->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        Skeleton = me->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1], SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
                         if (Skeleton)
                         {
                             Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                            Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() , me->GetPositionZ());
+                            Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                             Skeleton->AddThreat(me->getVictim(), 0.0f);
                             DoZoneInCombat(Skeleton);
                         }
@@ -272,7 +272,7 @@ public:
             pInstance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* pInstance;
         uint32 Respawn_Time;
         uint64 Target_Guid;
         uint32 Decrepify_Timer;

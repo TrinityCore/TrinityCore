@@ -43,7 +43,7 @@ EndScriptData */
 
 #define MOUNTED_DISPLAYID           16040
 
-//Attumen (TODO: Use the summoning spell instead of Creature id. It works , but is not convenient for us)
+//Attumen (TODO: Use the summoning spell instead of Creature id. It works, but is not convenient for us)
 #define SUMMON_ATTUMEN 15550
 
 class boss_attumen : public CreatureScript
@@ -98,7 +98,7 @@ public:
 
         void UpdateAI(const uint32 diff);
 
-        void SpellHit(Unit* /*source*/, const SpellInfo *spell)
+        void SpellHit(Unit* /*source*/, const SpellInfo* spell)
         {
             if (spell->Mechanic == MECHANIC_DISARM)
                 DoScriptText(SAY_DISARMED, me);
@@ -277,9 +277,9 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
         if (ChargeTimer <= diff)
         {
             Unit* target = NULL;
-            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-            std::vector<Unit* > target_list;
-            for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+            std::vector<Unit*> target_list;
+            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 if (target && !target->IsWithinDist(me, ATTACK_DISTANCE, false))

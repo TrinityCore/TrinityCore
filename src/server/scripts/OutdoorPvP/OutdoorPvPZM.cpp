@@ -26,7 +26,7 @@
 #include "World.h"
 #include "ScriptPCH.h"
 
-OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP *pvp, ZM_BeaconType type)
+OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type)
 : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(ZM_TOWERSTATE_N)
 {
     SetCapturePointData(ZMCapturePoints[type].entry, ZMCapturePoints[type].map, ZMCapturePoints[type].x, ZMCapturePoints[type].y, ZMCapturePoints[type].z, ZMCapturePoints[type].o, ZMCapturePoints[type].rot0, ZMCapturePoints[type].rot1, ZMCapturePoints[type].rot2, ZMCapturePoints[type].rot3);
@@ -88,7 +88,7 @@ void OPvPCapturePointZM_Beacon::ChangeState()
         sWorld->SendZoneText(ZM_GRAVEYARD_ZONE, sObjectMgr->GetTrinityStringForDBCLocale(ZMBeaconLoseH[m_TowerType]));
     }
 
-    switch(m_State)
+    switch (m_State)
     {
         case OBJECTIVESTATE_ALLIANCE:
         {
@@ -250,7 +250,7 @@ int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player* player, uint64 guid)
     return retval;
 }
 
-OPvPCapturePointZM_GraveYard::OPvPCapturePointZM_GraveYard(OutdoorPvP *pvp)
+OPvPCapturePointZM_GraveYard::OPvPCapturePointZM_GraveYard(OutdoorPvP* pvp)
 : OPvPCapturePoint(pvp)
 {
     m_BothControllingFaction = 0;
@@ -294,7 +294,7 @@ void OPvPCapturePointZM_GraveYard::SetBeaconState(uint32 controlling_faction)
         return;
     m_BothControllingFaction = controlling_faction;
 
-    switch(controlling_faction)
+    switch (controlling_faction)
     {
     case ALLIANCE:
         // if ally already controls the gy and taken back both beacons, return, nothing to do for us
@@ -376,7 +376,7 @@ bool OPvPCapturePointZM_GraveYard::HandleGossipOption(Player* player, uint64 gui
 
 bool OPvPCapturePointZM_GraveYard::HandleDropFlag(Player* /*player*/, uint32 spellId)
 {
-    switch(spellId)
+    switch (spellId)
     {
     case ZM_BATTLE_STANDARD_A:
         m_FlagCarrierGUID = 0;
