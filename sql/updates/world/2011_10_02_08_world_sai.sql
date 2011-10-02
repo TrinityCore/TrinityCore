@@ -6,7 +6,7 @@ SET @ELK := 26616;
 SET @GRIZZLY := 26643;
 SET @ELKDUMMY = 27111;
 SET @GRIZZLYDUMMY = 27112;
- 
+
 UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry` IN (@ELK, @GRIZZLY);
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@ELK,@GRIZZLY) AND `source_type`=0;
 DELETE FROM `creature_ai_scripts` WHERE `id` IN (2661601,2661602,2661603,2664301,2664302,2664303);
@@ -22,6 +22,6 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (18,0,@ITEM,0,24,2,@GRIZZLY,0,0,'','Item Elune Liquid Fire target Rabid Grizzly (dead)'),
 (18,0,@ITEM,0,24,2,@ELK,0,0,'','Item Elune Liquid Fire target Blighted Elk (dead)');
 
-DELETE FROM `spell_linked_spell` `WHERE `spell_trigger`=46770;
+DELETE FROM `spell_linked_spell` WHERE `spell_trigger`=46770;
 INSERT INTO `spell_linked_spell` (`spell_trigger`, `spell_effect`, `type`, `comment`) VALUES
 (46770, 47972, 1, 'Liquid Fire of Elune');
