@@ -823,6 +823,36 @@ class spell_energize_aoe : public SpellScriptLoader
         }
 };
 
+/*######
+## go_blackhoof_cage
+######*/
+
+enum PrisonersOfTheGrimTotems
+{
+    NPC_THERAMORE_PRISONER                          = 23720,
+    SAY_FREE                                        = 0,
+};
+
+class go_blackhoof_cage : public GameObjectScript
+{
+public:
+    go_blackhoof_cage() : GameObjectScript("go_blackhoof_cage") { }
+
+    bool OnGossipHello(Player* player, GameObject* go)
+    {
+        if (Creature* prisoner = go->FindNearestCreature(NPC_THERAMORE_PRISONER, 1.0f))
+        {
+            go->UseDoorOrButton();
+            if (player)
+                player->KilledMonsterCredit(NPC_THERAMORE_PRISONER, 0);
+
+            prisoner->AI()->Talk(SAY_FREE); // We also emote cry here (handled in creature_text.emote)
+            prisoner->ForcedDespawn(6000);
+        }
+        return true;
+    }
+};
+
 void AddSC_dustwallow_marsh()
 {
     new mobs_risen_husk_spirit();
@@ -836,4 +866,5 @@ void AddSC_dustwallow_marsh()
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
+    new go_blackhoof_cage();
 }
