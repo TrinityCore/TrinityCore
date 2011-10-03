@@ -20522,15 +20522,15 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     }
 
     uint32 price = 0;
-    if(crItem->IsGoldRequired(pProto))
+    if(crItem->IsGoldRequired(pProto) && pProto->BuyPrice > 0) //Assume price cannot be negative (do not know why it is int32)
     {
-        uint32 maxCount = 0xFFFFFFFF / pProto->BuyPrice; //why price is int32? can be negative?
+        uint32 maxCount = MAX_MONEY_AMOUNT / pProto->BuyPrice;
         if((uint32)count > maxCount)
         {
             sLog->outError("Player %s tried to buy %u item id %u, causing overflow", GetName(), (uint32)count, pProto->ItemId);
             count = (uint8)maxCount;
         }
-        price = pProto->BuyPrice * count; //it should not exceed 0xFFFFFFFF
+        price = pProto->BuyPrice * count; //it should not exceed MAX_MONEY_AMOUNT
 
         // reputation discount
         price = uint32(floor(price * GetReputationPriceDiscount(pCreature)));
