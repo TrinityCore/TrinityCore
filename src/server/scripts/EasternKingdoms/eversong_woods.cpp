@@ -56,7 +56,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -222,7 +222,7 @@ public:
           spellJudLight   = false;
           spellCommand    = false;
 
-          switch(me->GetEntry())
+          switch (me->GetEntry())
           {
               case CHAMPION_BLOODWRATH:
                   spellFlashLight = true;
@@ -417,7 +417,7 @@ public:
                     {
                         CAST_AI(npc_second_trial_paladin::npc_secondTrialAI, paladinSpawn->AI())->Activate(me->GetGUID());
 
-                        switch(paladinPhase)
+                        switch (paladinPhase)
                         {
                         case 0:
                             DoScriptText(TEXT_SECOND_TRIAL_1, me);

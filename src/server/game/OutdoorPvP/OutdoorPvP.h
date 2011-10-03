@@ -182,7 +182,7 @@ class OPvPCapturePoint
         OutdoorPvP* m_PvP;
 
         // map to store the various gameobjects and creatures spawned by the objective
-        //        type , guid
+        //        type, guid
         std::map<uint32, uint64> m_Objects;
         std::map<uint32, uint64> m_Creatures;
         std::map<uint64, uint32> m_ObjectTypes;
@@ -223,7 +223,7 @@ class OutdoorPvP : public ZoneScript
 
         void OnGameObjectCreate(GameObject* go);
         void OnGameObjectRemove(GameObject* go);
-        void OnCreatureCreate(Creature* ) {}
+        void OnCreatureCreate(Creature*) {}
 
         // send world state update to all players present
         void SendUpdateWorldState(uint32 field, uint32 value);

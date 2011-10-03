@@ -33,13 +33,13 @@
 class WorldLog
 {
     friend class ACE_Singleton<WorldLog, ACE_Thread_Mutex>;
-    WorldLog();
-    WorldLog(const WorldLog &);
-    WorldLog& operator=(const WorldLog &);
-    ACE_Thread_Mutex Lock;
 
-    /// Close the file in destructor
-    ~WorldLog();
+    private:
+        WorldLog();
+        ~WorldLog();
+        WorldLog(const WorldLog &);
+        WorldLog& operator=(const WorldLog &);
+        ACE_Thread_Mutex Lock;
 
     public:
         void Initialize();

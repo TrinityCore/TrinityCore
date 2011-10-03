@@ -161,7 +161,7 @@ namespace VMAP
         if ((iFlags[tx + ty*iTilesX] & 0x0F) == 0x0F)
             return false;
 
-        // (dx, dy) coordinates inside tile, in [0,1]^2
+        // (dx, dy) coordinates inside tile, in [0, 1]^2
         float dx = tx_f - (float)tx;
         float dy = ty_f - (float)ty;
 
@@ -169,7 +169,7 @@ namespace VMAP
 
             ^ dy
             |
-          1 x---------x (1,1)
+          1 x---------x (1, 1)
             | (b)   / |
             |     /   |
             |   /     |
@@ -442,7 +442,7 @@ namespace VMAP
             {
                 float group_Z;
                 //float pVol = prims[entry].GetBound().volume();
-                //if(pVol < minVol)
+                //if (pVol < minVol)
                 //{
                     /* if (prims[entry].iBound.contains(point)) */
                     if (prims[entry].IsInsideObject(point, zVec, group_Z))

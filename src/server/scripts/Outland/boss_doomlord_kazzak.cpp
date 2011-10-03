@@ -113,9 +113,9 @@ class boss_doomlord_kazzak : public CreatureScript
                 if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
-                while(uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_SHADOW_VOLLEY:
                             DoCastVictim(SPELL_SHADOWVOLLEY);

@@ -90,7 +90,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_NOVOS_CRYSTAL_1:
                     uiNovosCrystal1 = go->GetGUID();
@@ -109,7 +109,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_TROLLGORE:
                     uiTrollgore = creature->GetGUID();
@@ -128,7 +128,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_TROLLGORE:          return uiTrollgore;
                 case DATA_NOVOS:              return uiNovos;
@@ -145,7 +145,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_TROLLGORE_EVENT:
                     m_auiEncounter[0] = data;

@@ -92,7 +92,7 @@ class mob_av_marshal_or_warmaster : public CreatureScript
             {
                 if (!bHasAura)
                 {
-                    switch(me->GetEntry())
+                    switch (me->GetEntry())
                     {
                         case NPC_NORTH_MARSHAL:
                             DoCast(me, SPELL_NORTH_MARSHAL);

@@ -138,7 +138,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             me->HandleEmoteCommand(EMOTE_STATE_KNEEL); //dosen't work?

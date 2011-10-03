@@ -112,7 +112,7 @@ class Aura
         void _Remove(AuraRemoveMode removeMode);
         virtual void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT) = 0;
 
-        virtual void FillTargetMap(std::map<Unit* , uint8> & targets, Unit* caster) = 0;
+        virtual void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster) = 0;
         void UpdateTargetMap(Unit* caster, bool apply = true);
 
         void _RegisterForTargets() {Unit* caster = GetCaster(); UpdateTargetMap(caster, false);}
@@ -252,7 +252,7 @@ class UnitAura : public Aura
 
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
-        void FillTargetMap(std::map<Unit* , uint8> & targets, Unit* caster);
+        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster);
 
         // Allow Apply Aura Handler to modify and access m_AuraDRGroup
         void SetDiminishGroup(DiminishingGroup group) { m_AuraDRGroup = group; }
@@ -270,6 +270,6 @@ class DynObjAura : public Aura
     public:
         void Remove(AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
 
-        void FillTargetMap(std::map<Unit* , uint8> & targets, Unit* caster);
+        void FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster);
 };
 #endif

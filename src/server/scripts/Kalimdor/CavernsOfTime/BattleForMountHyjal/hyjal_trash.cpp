@@ -197,7 +197,7 @@ void hyjal_trashAI::UpdateAI(const uint32 /*diff*/)
             {
                 for (uint8 i = 0; i < 4; ++i)
                     AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3), AllianceWPs[i][1]+irand(-3, 3), AllianceWPs[i][2]);
-                switch(OverrunType)
+                switch (OverrunType)
                 {
                     case 0:
                         AddWaypoint(4, AllianceOverrunWP[22][0]+irand(-3, 3), AllianceOverrunWP[22][1]+irand(-3, 3), AllianceOverrunWP[22][2]);
@@ -257,7 +257,7 @@ void hyjal_trashAI::UpdateAI(const uint32 /*diff*/)
             {
                 for (uint8 i = 0; i < 4; ++i)
                     AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3), AllianceWPs[i][1]+irand(-3, 3), AllianceWPs[i][2]);
-                switch(OverrunType)
+                switch (OverrunType)
                 {
                     case 0:
                         AddWaypoint(4, AllianceOverrunWP[1][0]+irand(-3, 3), AllianceOverrunWP[1][1]+irand(-3, 3), AllianceOverrunWP[1][2]);
@@ -332,7 +332,7 @@ void hyjal_trashAI::UpdateAI(const uint32 /*diff*/)
             {
                 for (uint8 i = 0; i < 6; ++i)
                     AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3), HordeWPs[i][1]+irand(-3, 3), HordeWPs[i][2]);
-                switch(OverrunType)
+                switch (OverrunType)
                 {
                     case 0:
                         AddWaypoint(5, HordeOverrunWP[16][0]+irand(-10, 10), HordeOverrunWP[16][1]+irand(-10, 10), HordeOverrunWP[16][2]);

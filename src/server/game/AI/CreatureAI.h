@@ -133,7 +133,7 @@ class CreatureAI : public UnitAI
         // Called at reaching home after evade
         virtual void JustReachedHome() {}
 
-        void DoZoneInCombat(Creature* creature = NULL);
+        void DoZoneInCombat(Creature* creature = NULL, float maxRangeToNearestTarget = 50.0f);
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) {}
@@ -142,7 +142,7 @@ class CreatureAI : public UnitAI
 
         // Called when creature attack expected (if creature can and no have current victim)
         // Note: for reaction at hostile action must be called AttackedBy function.
-        //virtual void AttackStart(Unit* ) {}
+        //virtual void AttackStart(Unit*) {}
 
         // Called at World update tick
         //virtual void UpdateAI(const uint32 /*diff*/) {}
@@ -150,7 +150,7 @@ class CreatureAI : public UnitAI
         /// == State checks =================================
 
         // Is unit visible for MoveInLineOfSight
-        //virtual bool IsVisible(Unit* ) const { return false; }
+        //virtual bool IsVisible(Unit*) const { return false; }
 
         // called when the corpse of this creature gets removed
         virtual void CorpseRemoved(uint32& /*respawnDelay*/) {}

@@ -64,6 +64,7 @@
 #include "ScriptMgr.h"
 #include "GameObjectAI.h"
 #include "AccountMgr.h"
+#include "InstanceScript.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -361,7 +362,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     damage /= count;                    // divide to all targets
                 }
 
-                switch(m_spellInfo->Id)                     // better way to check unknown
+                switch (m_spellInfo->Id)                     // better way to check unknown
                 {
                     // Positive/Negative Charge
                     case 28062:
@@ -992,7 +993,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 case 35745:                                 // Socrethar's Stone
                 {
                     uint32 spell_id;
-                    switch(m_caster->GetAreaId())
+                    switch (m_caster->GetAreaId())
                     {
                         case 3900: spell_id = 35743; break; // Socrethar Portal
                         case 3742: spell_id = 35744; break; // Socrethar Portal
@@ -1360,7 +1361,7 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 m_damage += CalculatePctF(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
                 return;
             }
-            switch(m_spellInfo->Id)
+            switch (m_spellInfo->Id)
             {
                 // Bloodthirst
                 case 23881:
@@ -1451,7 +1452,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                 return;
             }
-            switch(m_spellInfo->Id)
+
+            switch (m_spellInfo->Id)
             {
                 case 31789:                                 // Righteous Defense (step 1)
                 {
@@ -1652,7 +1654,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
         && effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
     {
         // special cases
-        switch(triggered_spell_id)
+        switch (triggered_spell_id)
         {
             // Mirror Image
             case 58832:
@@ -1777,7 +1779,7 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
     }
     else //if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH)
     {
-        if (spellInfo->NeedsToBeTriggeredByCaster() && !(m_spellInfo->Effects[effIndex].GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
+        if (spellInfo->NeedsToBeTriggeredByCaster() && (m_spellInfo->Effects[effIndex].GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
             return;
 
         if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
@@ -1830,7 +1832,7 @@ void Spell::EffectTriggerMissileSpell(SpellEffIndex effIndex)
     }
     else //if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
-        if (spellInfo->NeedsToBeTriggeredByCaster() && !(m_spellInfo->Effects[effIndex].GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
+        if (spellInfo->NeedsToBeTriggeredByCaster() && (m_spellInfo->Effects[effIndex].GetProvidedTargetMask() & TARGET_FLAG_UNIT_MASK))
             return;
 
         if (spellInfo->GetExplicitTargetMask() & TARGET_FLAG_DEST_LOCATION)
@@ -2229,7 +2231,7 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
         && effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    Object* target = NULL;
+    WorldObject* target = NULL;
 
     // call events for target if present
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -2250,7 +2252,9 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell ScriptStart %u for spellid %u in EffectSendEvent ", m_spellInfo->Effects[effIndex].MiscValue, m_spellInfo->Id);
 
     if (ZoneScript* zoneScript = m_caster->GetZoneScript())
-        zoneScript->ProcessEvent(unitTarget, m_spellInfo->Effects[effIndex].MiscValue);
+        zoneScript->ProcessEvent(target, m_spellInfo->Effects[effIndex].MiscValue);
+    else if (InstanceScript* instanceScript = m_caster->GetInstanceScript())    // needed in case Player is the caster
+        instanceScript->ProcessEvent(target, m_spellInfo->Effects[effIndex].MiscValue);
 
     m_caster->GetMap()->ScriptsStart(sEventScripts, m_spellInfo->Effects[effIndex].MiscValue, m_caster, target);
 }
@@ -2487,7 +2491,7 @@ void Spell::DoCreateItem(uint32 /*i*/, uint32 itemtype)
 
     // bg reward have some special in code work
     uint32 bgType = 0;
-    switch(m_spellInfo->Id)
+    switch (m_spellInfo->Id)
     {
         case SPELL_AV_MARK_WINNER:
         case SPELL_AV_MARK_LOSER:
@@ -3303,7 +3307,7 @@ void Spell::EffectLearnSpell(SpellEffIndex effIndex)
 }
 
 typedef std::list< std::pair<uint32, uint64> > DispelList;
-typedef std::list< std::pair<Aura* , uint8> > DispelChargesList;
+typedef std::list< std::pair<Aura*, uint8> > DispelChargesList;
 void Spell::EffectDispel(SpellEffIndex effIndex)
 {
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT_TARGET)
@@ -3773,7 +3777,7 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
         // enchanting spell selected by calculated damage-per-sec stored in Effect[1] base value
         // Note: damage calculated (correctly) with rounding int32(float(v)) but
         // RW enchantments applied damage int32(float(v)+0.5), this create  0..1 difference sometime
-        switch(damage)
+        switch (damage)
         {
             // Rank 1
             case  2: spell_id = 36744; break;               //  0% [ 7% == 2, 14% == 2, 20% == 2]
@@ -4350,7 +4354,7 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
     {
         // We assume that a spell have at most one fixed_bonus
         // and at most one weaponDamagePercentMod
-        switch(m_spellInfo->Effects[j].Effect)
+        switch (m_spellInfo->Effects[j].Effect)
         {
             case SPELL_EFFECT_WEAPON_DAMAGE:
             case SPELL_EFFECT_WEAPON_DAMAGE_NOSCHOOL:
@@ -4496,7 +4500,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
         Player* pl = m_caster->ToPlayer();
         Battleground* bg = pl->GetBattleground();
 
-        switch(pGameObj->GetMapId())
+        switch (pGameObj->GetMapId())
         {
             case 489:                                       //WS
             {
@@ -4552,7 +4556,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
     // TODO: we must implement hunter pet summon at login there (spell 6962)
 
-    switch(m_spellInfo->SpellFamilyName)
+    switch (m_spellInfo->SpellFamilyName)
     {
         case SPELLFAMILY_GENERIC:
         {
@@ -4588,7 +4592,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 }
             }
 
-            switch(m_spellInfo->Id)
+            switch (m_spellInfo->Id)
             {
                 //Sunreaver Disguis
                 case 69672:
@@ -4716,7 +4720,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         return;
 
                     uint32 spell_id = 0;
-                    switch(urand(1, 5))
+                    switch (urand(1, 5))
                     {
                     case 1:  spell_id = 8854; break;
                     default: spell_id = 8855; break;
@@ -4878,7 +4882,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
-                    switch(unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
+                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 51621, true); break;
                     case 150: unitTarget->CastSpell(unitTarget, 48024, true); break;
@@ -4923,7 +4927,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
-                    switch(unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
+                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 42680, true); break;
                     case 150: unitTarget->CastSpell(unitTarget, 42683, true); break;
@@ -4993,7 +4997,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                         return;
 
                     uint32 spellId = 0;
-                    switch(rand() % 4)
+                    switch (rand() % 4)
                     {
                         case 0: spellId = 46740; break;
                         case 1: spellId = 46739; break;
@@ -5239,7 +5243,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
-                    switch(unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
+                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
                     {
                     case 0: unitTarget->CastSpell(unitTarget, 71343, true); break;
                     case 75: unitTarget->CastSpell(unitTarget, 71344, true); break;
@@ -5285,7 +5289,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
-                    switch(unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
+                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 72281, true); break;
                     case 150: unitTarget->CastSpell(unitTarget, 72282, true); break;
@@ -5348,7 +5352,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (!pArea || (canFly && (pArea->flags & AREA_FLAG_NO_FLY_ZONE)))
                         canFly = false;
 
-                    switch(unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
+                    switch (unitTarget->ToPlayer()->GetBaseSkillValue(SKILL_RIDING))
                     {
                     case 75: unitTarget->CastSpell(unitTarget, 75619, true); break;
                     case 150: unitTarget->CastSpell(unitTarget, 75620, true); break;
@@ -5447,7 +5451,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
 
                     uint32 spell_heal;
 
-                    switch(m_caster->GetEntry())
+                    switch (m_caster->GetEntry())
                     {
                         case 31897: spell_heal = 7001; break;
                         case 31896: spell_heal = 27873; break;
@@ -5614,7 +5618,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         }
         case SPELLFAMILY_POTION:
         {
-            switch(m_spellInfo->Id)
+            switch (m_spellInfo->Id)
             {
                 // Netherbloom
                 case 28702:
@@ -5780,8 +5784,8 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     Map* map = m_caster->GetMap();
     if (!pGameObj->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), gameobject_id,
         map, m_caster->GetPhaseMask(),
-        m_caster->GetPositionX()+(unitTarget->GetPositionX()-m_caster->GetPositionX())/2 ,
-        m_caster->GetPositionY()+(unitTarget->GetPositionY()-m_caster->GetPositionY())/2 ,
+        m_caster->GetPositionX()+(unitTarget->GetPositionX()-m_caster->GetPositionX())/2,
+        m_caster->GetPositionY()+(unitTarget->GetPositionY()-m_caster->GetPositionY())/2,
         m_caster->GetPositionZ(),
         m_caster->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
     {
@@ -6097,7 +6101,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
     uint32 go_id = m_spellInfo->Effects[effIndex].MiscValue;
 
     uint8 slot = 0;
-    switch(m_spellInfo->Effects[effIndex].Effect)
+    switch (m_spellInfo->Effects[effIndex].Effect)
     {
         case SPELL_EFFECT_SUMMON_OBJECT_SLOT1: slot = 0; break;
         case SPELL_EFFECT_SUMMON_OBJECT_SLOT2: slot = 1; break;
@@ -6462,11 +6466,7 @@ void Spell::EffectKnockBack(SpellEffIndex effIndex)
     if (unitTarget->IsNonMeleeSpellCasted(true))
         unitTarget->InterruptNonMeleeSpells(true);
 
-    float ratio = m_caster->GetCombatReach() / std::max(unitTarget->GetCombatReach(), 1.0f);
-    if (ratio < 1.0f)
-        ratio = ratio * ratio * ratio * 0.1f; // volume = length^3
-    else
-        ratio = 0.1f; // dbc value ratio
+    float ratio = 0.1f;
     float speedxy = float(m_spellInfo->Effects[effIndex].MiscValue) * ratio;
     float speedz = float(damage) * ratio;
     if (speedxy < 0.1f && speedz < 0.1f)
@@ -6800,7 +6800,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
     int32 duration = m_spellInfo->GetDuration();
 
-    switch(goinfo->type)
+    switch (goinfo->type)
     {
         case GAMEOBJECT_TYPE_FISHINGNODE:
         {
@@ -6810,7 +6810,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
             // end time of range when possible catch fish (FISHING_BOBBER_READY_TIME..GetDuration(m_spellInfo))
             // start time == fish-FISHING_BOBBER_READY_TIME (0..GetDuration(m_spellInfo)-FISHING_BOBBER_READY_TIME)
             int32 lastSec = 0;
-            switch(urand(0, 3))
+            switch (urand(0, 3))
             {
                 case 0: lastSec =  3; break;
                 case 1: lastSec =  7; break;
@@ -7458,7 +7458,7 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
 
     OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
-    switch(m_spellInfo->Id)
+    switch (m_spellInfo->Id)
     {
         case 58730: // Restricted Flight Area
            {

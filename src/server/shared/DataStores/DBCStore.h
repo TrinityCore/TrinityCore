@@ -143,7 +143,7 @@ class DBCStorage
                         if (!fields)
                             fields = result->Fetch();
 
-                        if(sql->indexPos >= 0)
+                        if (sql->indexPos >= 0)
                         {
                             uint32 id = fields[sql->sqlIndexPos].GetUInt32();
                             if (indexTable.asT[id])
@@ -162,7 +162,7 @@ class DBCStorage
                         {
                             if ((*sql->formatString)[columnNumber] == FT_SQL_ABSENT)
                             {
-                                switch(fmt[columnNumber])
+                                switch (fmt[columnNumber])
                                 {
                                     case FT_FLOAT:
                                         *((float*)(&sqlDataTable[offset]))= 0.0f;
@@ -187,7 +187,7 @@ class DBCStorage
                             else if ((*sql->formatString)[columnNumber] == FT_SQL_PRESENT)
                             {
                                 bool validSqlColumn = true;
-                                switch(fmt[columnNumber])
+                                switch (fmt[columnNumber])
                                 {
                                     case FT_FLOAT:
                                         *((float*)(&sqlDataTable[offset]))=fields[sqlColumnNumber].GetFloat();
@@ -243,7 +243,7 @@ class DBCStorage
 
             DBCFileLoader dbc;
             // Check if load was successful, only then continue
-            if(!dbc.Load(fn, fmt))
+            if (!dbc.Load(fn, fmt))
                 return false;
 
             stringPoolList.push_back(dbc.AutoProduceStrings(fmt, (char*)dataTable));
@@ -261,7 +261,7 @@ class DBCStorage
             delete[] ((char*)dataTable);
             dataTable = NULL;
 
-            while(!stringPoolList.empty())
+            while (!stringPoolList.empty())
             {
                 delete[] stringPoolList.front();
                 stringPoolList.pop_front();

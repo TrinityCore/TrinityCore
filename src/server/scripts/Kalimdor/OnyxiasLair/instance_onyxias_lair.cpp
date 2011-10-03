@@ -37,11 +37,7 @@ public:
 
     struct instance_onyxias_lair_InstanceMapScript : public InstanceScript
     {
-        instance_onyxias_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
-        {
-            Initialize();
-            SetBossNumber(MAX_ENCOUNTER);
-        }
+        instance_onyxias_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
 
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
@@ -53,11 +49,15 @@ public:
         uint32 m_uiManyWhelpsCounter;
         uint32 m_uiEruptTimer;
 
+        uint8  m_auiEncounter[MAX_ENCOUNTER];
+
         bool   m_bAchievManyWhelpsHandleIt;
         bool   m_bAchievSheDeepBreathMore;
 
         void Initialize()
         {
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
             m_uiOnyxiasGUID = 0;
             m_uiOnyxiaLiftoffTimer = 0;
             m_uiManyWhelpsCounter = 0;
@@ -85,7 +85,7 @@ public:
                 return;
             }
 
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
                     Position goPos;
@@ -141,8 +141,13 @@ public:
 
         void SetData(uint32 uiType, uint32 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
+                case DATA_ONYXIA:
+                    m_auiEncounter[0] = uiData;
+                    if (uiData == IN_PROGRESS)
+                        SetData(DATA_SHE_DEEP_BREATH_MORE, IN_PROGRESS);
+                    break;
                 case DATA_ONYXIA_PHASE:
                     if (uiData == PHASE_BREATH) //Used to mark the liftoff phase
                     {
@@ -169,7 +174,7 @@ public:
 
         void SetData64(uint32 uiType, uint64 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case DATA_FLOOR_ERUPTION_GUID:
                     FloorEruptionGUID[1] = FloorEruptionGUID[0];
@@ -179,9 +184,20 @@ public:
             }
         }
 
+        uint32 GetData(uint32 uiType)
+        {
+            switch (uiType)
+            {
+                case DATA_ONYXIA:
+                    return m_auiEncounter[0];
+            }
+
+            return 0;
+        }
+
         uint64 GetData64(uint32 uiData)
         {
-            switch(uiData)
+            switch (uiData)
             {
                 case DATA_ONYXIA_GUID:
                     return m_uiOnyxiasGUID;
@@ -190,25 +206,9 @@ public:
             return 0;
         }
 
-        bool SetBossState(uint32 id, EncounterState state)
-        {
-            if (!InstanceScript::SetBossState(id, state))
-                return false;
-
-            switch (id)
-            {
-                case DATA_ONYXIA:
-                    if (state == IN_PROGRESS)
-                        SetData(DATA_SHE_DEEP_BREATH_MORE, IN_PROGRESS);
-                    break;
-            }
-
-            return true;
-        }
-
         void Update(uint32 uiDiff)
         {
-            if (GetBossState(DATA_ONYXIA) == IN_PROGRESS)
+            if (GetData(DATA_ONYXIA) == IN_PROGRESS)
             {
                 if (m_uiOnyxiaLiftoffTimer && m_uiOnyxiaLiftoffTimer <= uiDiff)
                 {
@@ -238,7 +238,7 @@ public:
 
         bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0)
         {
-            switch(criteria_id)
+            switch (criteria_id)
             {
                 case ACHIEV_CRITERIA_MANY_WHELPS_10_PLAYER:  // Criteria for achievement 4403: Many Whelps! Handle It! (10 player) Hatch 50 eggs in 10s
                 case ACHIEV_CRITERIA_MANY_WHELPS_25_PLAYER:  // Criteria for achievement 4406: Many Whelps! Handle It! (25 player) Hatch 50 eggs in 10s

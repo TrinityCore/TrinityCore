@@ -68,7 +68,7 @@ public:
     void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
     {
         //! NOTE:
-        //! LANG_ADDON can only be sent by client in "PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER" 
+        //! LANG_ADDON can only be sent by client in "PARTY", "RAID", "GUILD", "BATTLEGROUND", "WHISPER"
         switch (type)
         {
             case CHAT_MSG_PARTY:
@@ -126,7 +126,7 @@ public:
 
     void OnChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
     {
-        switch(type)
+        switch (type)
         {
             case CHAT_MSG_GUILD:
                 if (lang != LANG_ADDON && sWorld->getBoolConfig(CONFIG_CHATLOG_GUILD))

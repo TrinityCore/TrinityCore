@@ -271,7 +271,7 @@ void LFGMgr::Update(uint32 diff)
             role &= ~ROLE_LEADER;
 
             int32 waitTime = -1;
-            switch(role)
+            switch (role)
             {
                 case ROLE_NONE:                             // Should not happen - just in case
                     waitTime = -1;
@@ -514,7 +514,7 @@ void LFGMgr::Join(Player* plr, uint8 roles, const LfgDungeonSet& selectedDungeon
         bool isDungeon = false;
         for (LfgDungeonSet::const_iterator it = dungeons.begin(); it != dungeons.end() && joinData.result == LFG_JOIN_OK; ++it)
         {
-            switch(GetDungeonType(*it))
+            switch (GetDungeonType(*it))
             {
                 case LFG_TYPE_RANDOM:
                     if (dungeons.size() > 1)               // Only allow 1 random dungeon
@@ -657,7 +657,7 @@ void LFGMgr::Leave(Player* plr, Group* grp /* = NULL*/)
     LfgState state = GetState(guid);
 
     sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::Leave: [" UI64FMTD "]", guid);
-    switch(state)
+    switch (state)
     {
         case LFG_STATE_QUEUED:
             {
@@ -904,7 +904,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
     {
         LfgQueueInfoMap::const_iterator itOther = itFirst;
         ++itOther;
-        while(itOther != pqInfoMap.end() && itOther->second->dungeons.find(*itDungeon) != itOther->second->dungeons.end())
+        while (itOther != pqInfoMap.end() && itOther->second->dungeons.find(*itDungeon) != itOther->second->dungeons.end())
             ++itOther;
 
         if (itOther == pqInfoMap.end())
@@ -1358,7 +1358,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
             // Update timers
             uint8 role = GetRoles(pguid);
             role &= ~ROLE_LEADER;
-            switch(role)
+            switch (role)
             {
                 case ROLE_DAMAGE:
                 {

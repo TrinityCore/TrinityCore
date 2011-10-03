@@ -118,7 +118,7 @@ class WorldSocket : public WorldHandler
 
         /// things called by ACE framework.
 
-        /// Called on open , the void* is the acceptor.
+        /// Called on open, the void* is the acceptor.
         virtual int open (void *);
 
         /// Called on failures inside of the acceptor, don't call from your code.
@@ -152,7 +152,7 @@ class WorldSocket : public WorldHandler
         int handle_output_queue (GuardType& g);
 
         /// process one incoming packet.
-        /// @param new_pct received packet , note that you need to delete it.
+        /// @param new_pct received packet, note that you need to delete it.
         int ProcessIncoming (WorldPacket* new_pct);
 
         /// Called by ProcessIncoming() on CMSG_AUTH_SESSION.
@@ -165,7 +165,7 @@ class WorldSocket : public WorldHandler
         /// Time in which the last ping was received
         ACE_Time_Value m_LastPingTime;
 
-        /// Keep track of over-speed pings , to prevent ping flood.
+        /// Keep track of over-speed pings, to prevent ping flood.
         uint32 m_OverSpeedPings;
 
         /// Address of the remote peer

@@ -100,7 +100,7 @@ class instance_arcatraz : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch(go->GetEntry())
+                switch (go->GetEntry())
                 {
                 case CONTAINMENT_CORE_SECURITY_FIELD_ALPHA: Containment_Core_Security_Field_AlphaGUID = go->GetGUID(); break;
                 case CONTAINMENT_CORE_SECURITY_FIELD_BETA:  Containment_Core_Security_Field_BetaGUID =  go->GetGUID(); break;
@@ -122,7 +122,7 @@ class instance_arcatraz : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                switch(type)
+                switch (type)
                 {
                 case TYPE_ZEREKETH:
                     m_auiEncounter[0] = data;
@@ -204,7 +204,7 @@ class instance_arcatraz : public InstanceMapScript
 
             uint32 GetData(uint32 type)
             {
-                switch(type)
+                switch (type)
                 {
                 case TYPE_HARBINGERSKYRISS: return m_auiEncounter[3];
                 case TYPE_WARDEN_1:         return m_auiEncounter[4];
@@ -218,7 +218,7 @@ class instance_arcatraz : public InstanceMapScript
 
             uint64 GetData64(uint32 data)
             {
-                switch(data)
+                switch (data)
                 {
                 case DATA_MELLICHAR:        return MellicharGUID;
                 case DATA_SPHERE_SHIELD:    return GoSphereGUID;

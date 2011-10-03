@@ -143,7 +143,7 @@ class boss_bronjahm : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_MAGIC_BANE:
                             DoCastVictim(SPELL_MAGIC_S_BANE);
@@ -377,7 +377,7 @@ class spell_bronjahm_soulstorm_targeting : public SpellScriptLoader
 
             void FilterTargetsInitial(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(DistanceCheck(GetCaster()));
+                unitList.remove_if (DistanceCheck(GetCaster()));
                 sharedUnitList = unitList;
             }
 

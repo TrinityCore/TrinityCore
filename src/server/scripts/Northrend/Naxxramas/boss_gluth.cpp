@@ -101,7 +101,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_WOUND:
                         DoCast(me->getVictim(), SPELL_MORTAL_WOUND);

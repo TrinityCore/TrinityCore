@@ -219,7 +219,7 @@ public:
                         pTemp->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
                         pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         pTemp->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        switch(m_uiActiveOrder[m_uiActivedNumber])
+                        switch (m_uiActiveOrder[m_uiActivedNumber])
                         {
                             case 0: m_bIsActiveWithBJORN  = true; break;
                             case 1: m_bIsActiveWithHALDOR = true; break;

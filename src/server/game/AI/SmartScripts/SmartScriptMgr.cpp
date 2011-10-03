@@ -123,7 +123,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
         }
         if (temp.entryOrGuid >= 0)
         {
-            switch(source_type)
+            switch (source_type)
             {
                 case SMART_SCRIPT_TYPE_CREATURE:
                 {

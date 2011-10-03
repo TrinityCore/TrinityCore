@@ -145,7 +145,7 @@ public:
                         if (DoGetThreat(target))
                             DoModifyThreatPercent(target, -100);
 
-                        switch(urand(0, 2))
+                        switch (urand(0, 2))
                         {
                             case 0:
                                 DoTeleportPlayer(target, -8106.0142f, 1289.2900f, -74.419533f, 5.112f);

@@ -1282,7 +1282,7 @@ enum Opcodes
     CMSG_SET_PAID_SERVICE_CHEAT                     = 0x4DD,
     SMSG_BATTLEFIELD_MGR_ENTRY_INVITE               = 0x4DE, // uint32
     CMSG_BATTLEFIELD_MGR_ENTRY_INVITE_RESPONSE      = 0x4DF,
-    SMSG_BATTLEFIELD_MGR_ENTERED                    = 0x4E0, // uint32, uint8, uint8 
+    SMSG_BATTLEFIELD_MGR_ENTERED                    = 0x4E0, // uint32, uint8, uint8
     SMSG_BATTLEFIELD_MGR_QUEUE_INVITE               = 0x4E1, // uint32
     CMSG_BATTLEFIELD_MGR_QUEUE_INVITE_RESPONSE      = 0x4E2,
     CMSG_BATTLEFIELD_MGR_QUEUE_REQUEST              = 0x4E3,
@@ -1300,7 +1300,7 @@ enum Opcodes
     SMSG_GMRESPONSE_RECEIVED                        = 0x4EF, // uint32, uint32, string[2000], string[4000][4]
     CMSG_GMRESPONSE_RESOLVE                         = 0x4F0,
     SMSG_GMRESPONSE_STATUS_UPDATE                   = 0x4F1, // uint8 (1 - EVENT_GMSURVEY_DISPLAY, 0 - EVENT_UPDATE_TICKET)
-    SMSG_GMRESPONSE_CREATE_TICKET                   = 0x4F2, 
+    SMSG_GMRESPONSE_CREATE_TICKET                   = 0x4F2,
     CMSG_GMRESPONSE_CREATE_TICKET                   = 0x4F3,
     CMSG_SERVERINFO                                 = 0x4F4,
     SMSG_SERVERINFO                                 = 0x4F5,
