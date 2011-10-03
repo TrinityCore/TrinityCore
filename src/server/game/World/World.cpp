@@ -573,29 +573,6 @@ void World::LoadConfigSettings(bool reload)
         sLog->outError("Compression level (%i) must be in range 1..9. Using default compression level (1).", m_int_configs[CONFIG_COMPRESSION]);
         m_int_configs[CONFIG_COMPRESSION] = 1;
     }
-<<<<<<< HEAD
-    m_bool_configs[CONFIG_ADDON_CHANNEL] = sConfig->GetBoolDefault("AddonChannel", true);
-    m_bool_configs[CONFIG_CLEAN_CHARACTER_DB] = sConfig->GetBoolDefault("CleanCharacterDB", false);
-    m_int_configs[CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS] = sConfig->GetIntDefault("PersistentCharacterCleanFlags", 0);
-    m_int_configs[CONFIG_CHAT_CHANNEL_LEVEL_REQ] = sConfig->GetIntDefault("ChatLevelReq.Channel", 1);
-    m_int_configs[CONFIG_CHAT_WHISPER_LEVEL_REQ] = sConfig->GetIntDefault("ChatLevelReq.Whisper", 1);
-    m_int_configs[CONFIG_CHAT_SAY_LEVEL_REQ] = sConfig->GetIntDefault("ChatLevelReq.Say", 1);
-    m_int_configs[CONFIG_TRADE_LEVEL_REQ] = sConfig->GetIntDefault("LevelReq.Trade", 1);
-    m_int_configs[CONFIG_TICKET_LEVEL_REQ] = sConfig->GetIntDefault("LevelReq.Ticket", 1);
-    m_int_configs[CONFIG_AUCTION_LEVEL_REQ] = sConfig->GetIntDefault("LevelReq.Auction", 1);
-    m_int_configs[CONFIG_MAIL_LEVEL_REQ] = sConfig->GetIntDefault("LevelReq.Mail", 1);
-    m_bool_configs[CONFIG_ALLOW_PLAYER_COMMANDS] = sConfig->GetBoolDefault("AllowPlayerCommands", 1);
-    m_bool_configs[CONFIG_PRESERVE_CUSTOM_CHANNELS] = sConfig->GetBoolDefault("PreserveCustomChannels", false);
-    m_int_configs[CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION] = sConfig->GetIntDefault("PreserveCustomChannelDuration", 14);
-    m_bool_configs[CONFIG_GRID_UNLOAD] = sConfig->GetBoolDefault("GridUnload", true);
-    m_int_configs[CONFIG_INTERVAL_SAVE] = sConfig->GetIntDefault("PlayerSaveInterval", 15 * MINUTE * IN_MILLISECONDS);
-    m_int_configs[CONFIG_INTERVAL_DISCONNECT_TOLERANCE] = sConfig->GetIntDefault("DisconnectToleranceInterval", 0);
-    m_bool_configs[CONFIG_STATS_SAVE_ONLY_ON_LOGOUT] = sConfig->GetBoolDefault("PlayerSave.Stats.SaveOnlyOnLogout", true);
-    m_bool_configs[CONFIG_DUEL_RESET_COOLDOWN] = sConfig->GetBoolDefault("DuelResetCooldown", false);
-    m_bool_configs[CONFIG_PREVENT_PLAYERS_ACCESS_TO_GMISLAND] = sConfig->GetBoolDefault("PreventPlayersAccessToGMIsland", false);
-
-    m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE] = sConfig->GetIntDefault("PlayerSave.Stats.MinLevel", 0);
-=======
     m_bool_configs[CONFIG_ADDON_CHANNEL] = ConfigMgr::GetBoolDefault("AddonChannel", true);
     m_bool_configs[CONFIG_CLEAN_CHARACTER_DB] = ConfigMgr::GetBoolDefault("CleanCharacterDB", false);
     m_int_configs[CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS] = ConfigMgr::GetIntDefault("PersistentCharacterCleanFlags", 0);
@@ -613,9 +590,10 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_INTERVAL_SAVE] = ConfigMgr::GetIntDefault("PlayerSaveInterval", 15 * MINUTE * IN_MILLISECONDS);
     m_int_configs[CONFIG_INTERVAL_DISCONNECT_TOLERANCE] = ConfigMgr::GetIntDefault("DisconnectToleranceInterval", 0);
     m_bool_configs[CONFIG_STATS_SAVE_ONLY_ON_LOGOUT] = ConfigMgr::GetBoolDefault("PlayerSave.Stats.SaveOnlyOnLogout", true);
+    m_bool_configs[CONFIG_DUEL_RESET_COOLDOWN] = ConfigMgr::GetBoolDefault("DuelResetCooldown", false);
+    m_bool_configs[CONFIG_PREVENT_PLAYERS_ACCESS_TO_GMISLAND] = ConfigMgr::GetBoolDefault("PreventPlayersAccessToGMIsland", false);
 
     m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE] = ConfigMgr::GetIntDefault("PlayerSave.Stats.MinLevel", 0);
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
     if (m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE] > MAX_LEVEL)
     {
         sLog->outError("PlayerSave.Stats.MinLevel (%i) must be in range 0..80. Using default, do not save character stats (0).", m_int_configs[CONFIG_MIN_LEVEL_STAT_SAVE]);
@@ -874,9 +852,8 @@ void World::LoadConfigSettings(bool reload)
         m_int_configs[CONFIG_MIN_PETITION_SIGNS] = 9;
     }
 
-<<<<<<< HEAD
-    rate_values[RATE_PVP_RANK_EXTRA_HONOR] = sConfig->GetFloatDefault("PvPRank.Rate.ExtraHonor", 1);
-    std::string s_pvp_ranks = sConfig->GetStringDefault("PvPRank.HKPerRank", "10,50,100,200,450,750,1300,2000,3500,6000,9500,15000,21000,30000");
+    rate_values[RATE_PVP_RANK_EXTRA_HONOR] = ConfigMgr::GetFloatDefault("PvPRank.Rate.ExtraHonor", 1);
+    std::string s_pvp_ranks = ConfigMgr::GetStringDefault("PvPRank.HKPerRank", "10,50,100,200,450,750,1300,2000,3500,6000,9500,15000,21000,30000");
     char *c_pvp_ranks = const_cast<char*>(s_pvp_ranks.c_str());
     for (int i = 0; i !=HKRANKMAX; i++)
     {
@@ -888,16 +865,10 @@ void World::LoadConfigSettings(bool reload)
             pvp_ranks[i] = atoi(strtok (NULL, ","));
     }
 
-    m_int_configs[CONFIG_GM_LOGIN_STATE]        = sConfig->GetIntDefault("GM.LoginState", 2);
-    m_int_configs[CONFIG_GM_VISIBLE_STATE]      = sConfig->GetIntDefault("GM.Visible", 2);
-    m_int_configs[CONFIG_GM_CHAT]               = sConfig->GetIntDefault("GM.Chat", 2);
-    m_int_configs[CONFIG_GM_WHISPERING_TO]      = sConfig->GetIntDefault("GM.WhisperingTo", 2);
-=======
     m_int_configs[CONFIG_GM_LOGIN_STATE]        = ConfigMgr::GetIntDefault("GM.LoginState", 2);
     m_int_configs[CONFIG_GM_VISIBLE_STATE]      = ConfigMgr::GetIntDefault("GM.Visible", 2);
     m_int_configs[CONFIG_GM_CHAT]               = ConfigMgr::GetIntDefault("GM.Chat", 2);
     m_int_configs[CONFIG_GM_WHISPERING_TO]      = ConfigMgr::GetIntDefault("GM.WhisperingTo", 2);
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
 
     m_int_configs[CONFIG_GM_LEVEL_IN_GM_LIST]   = ConfigMgr::GetIntDefault("GM.InGMList.Level", SEC_ADMINISTRATOR);
     m_int_configs[CONFIG_GM_LEVEL_IN_WHO_LIST]  = ConfigMgr::GetIntDefault("GM.InWhoList.Level", SEC_ADMINISTRATOR);
@@ -1227,36 +1198,31 @@ void World::LoadConfigSettings(bool reload)
     m_int_configs[CONFIG_AUTOBROADCAST_CENTER] = ConfigMgr::GetIntDefault("AutoBroadcast.Center", 0);
     m_int_configs[CONFIG_AUTOBROADCAST_INTERVAL] = ConfigMgr::GetIntDefault("AutoBroadcast.Timer", 60000);
 
-    // MySQL ping time interval
-<<<<<<< HEAD
-    m_int_configs[CONFIG_DB_PING_INTERVAL] = sConfig->GetIntDefault("MaxPingTime", 30);
-	
     //Wintergrasp
-    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED]         = sConfig->GetBoolDefault("OutdoorPvP.Wintergrasp.Enabled", true);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD] = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.SaveState.Period", 10000);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME]       = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.StartTime", 30);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME]      = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.BattleTime", 30);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL]         = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.Interval", 150);
-    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR]    = sConfig->GetBoolDefault("OutdoorPvP.Wintergrasp.CustomHonorRewards", false);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE]       = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleWin", 3000);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE]      = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleLose", 1250);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER]    = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamageTower", 750);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower", 750);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING] = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding", 750);
-    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding", 1500);
-    m_bool_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE]  = sConfig->GetBoolDefault("OutdoorPvP.Wintergrasp.Antifarm.Enable", false);
-    m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Atk", 5);
-    m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF]  = sConfig->GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Def", 5);
+    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED]         = ConfigMgr::GetBoolDefault("OutdoorPvP.Wintergrasp.Enabled", true);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.SaveState.Period", 10000);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME]       = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.StartTime", 30);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME]      = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.BattleTime", 30);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL]         = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Interval", 150);
+    m_bool_configs[CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR]    = ConfigMgr::GetBoolDefault("OutdoorPvP.Wintergrasp.CustomHonorRewards", false);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE]       = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleWin", 3000);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE]      = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorBattleLose", 1250);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER]    = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamageTower", 750);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER]  = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower", 750);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING] = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding", 750);
+    m_int_configs[CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING]  = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding", 1500);
+    m_bool_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE]  = ConfigMgr::GetBoolDefault("OutdoorPvP.Wintergrasp.Antifarm.Enable", false);
+    m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK]  = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Atk", 5);
+    m_int_configs[CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF]  = ConfigMgr::GetIntDefault("OutdoorPvP.Wintergrasp.Antifarm.Def", 5);
 
     // Management for channels with flag CHANNEL_DBC_FLAG_CITY_ONLY.
-    m_bool_configs[CONFIG_CHANNEL_ON_CITY_ONLY_FLAG]  = sConfig->GetBoolDefault("Channel.CityOnlyFlag", true);
+    m_bool_configs[CONFIG_CHANNEL_ON_CITY_ONLY_FLAG]  = ConfigMgr::GetBoolDefault("Channel.CityOnlyFlag", true);
 
     /** World of Warcraft Armory **/
-    m_bool_configs[CONFIG_ARMORY_ENABLE] = sConfig->GetBoolDefault("Armory.Enable", true);
+    m_bool_configs[CONFIG_ARMORY_ENABLE] = ConfigMgr::GetBoolDefault("Armory.Enable", true);
     /** World of Warcraft Armory **/
-=======
+
     m_int_configs[CONFIG_DB_PING_INTERVAL] = ConfigMgr::GetIntDefault("MaxPingTime", 30);
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
 
     sScriptMgr->OnConfigLoad(reload);
 }

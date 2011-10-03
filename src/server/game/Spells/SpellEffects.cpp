@@ -1451,12 +1451,8 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
 
                 return;
             }
-<<<<<<< HEAD
-            switch(m_spellInfo->Id)
-=======
 
             switch (m_spellInfo->Id)
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             {
                 case 31789:                                 // Righteous Defense (step 1)
                 {
@@ -4563,7 +4559,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
     {
         case SPELLFAMILY_GENERIC:
         {
-<<<<<<< HEAD
             if (unitTarget && unitTarget->HasAura(63050))
             {
                 // reduces Sanity by %
@@ -4596,10 +4591,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 }
             }
 
-            switch(m_spellInfo->Id)
-=======
             switch (m_spellInfo->Id)
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             {
                 //Sunreaver Disguis
                 case 69672:
@@ -7460,13 +7452,9 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
-<<<<<<< HEAD
     OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
 
-    switch(m_spellInfo->Id)
-=======
     switch (m_spellInfo->Id)
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
     {
         case 58730: // Restricted Flight Area
            {

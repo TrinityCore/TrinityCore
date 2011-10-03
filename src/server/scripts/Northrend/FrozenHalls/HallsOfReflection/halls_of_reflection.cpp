@@ -236,11 +236,7 @@ public:
 
         void Event()
         {
-<<<<<<< HEAD
             switch(Step)
-=======
-            switch (actionId)
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             {
                 case 1:
                     me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
@@ -640,7 +636,6 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-<<<<<<< HEAD
             if(!m_pInstance)
                 return;
 
@@ -650,10 +645,6 @@ public:
 
             if(m_pInstance->GetData(TYPE_EVENT) == 2
                 &&  m_pInstance->GetData64(DATA_ESCAPE_LIDER) == me->GetGUID())
-=======
-            events.Update(diff);
-            switch (events.ExecuteEvent())
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             {
                 Small = true;
                 StartEvent();
@@ -1520,7 +1511,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+                switch(eventId)
                 {
                     case EVENT_SHADOW_WORD_PAIN:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
@@ -1603,7 +1594,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+                switch(eventId)
                 {
                     case EVENT_FIREBALL:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))
@@ -1703,7 +1694,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+                switch(eventId)
                 {
                     case EVENT_SHADOW_STEP:
                         DoCast(SPELL_SHADOW_STEP);
@@ -1773,7 +1764,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+                switch(eventId)
                 {
                     case EVENT_SPECTRAL_STRIKE:
                         DoCast(me->getVictim(), SPELL_SPECTRAL_STRIKE);
@@ -1839,7 +1830,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch (eventId)
+                switch(eventId)
                 {
                     case EVENT_SHOOT:
                         if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM))

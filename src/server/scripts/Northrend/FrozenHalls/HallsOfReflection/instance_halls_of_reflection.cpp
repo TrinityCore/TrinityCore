@@ -114,7 +114,7 @@ public:
                 if (Player* pPlayer = players.begin()->getSource())
                     m_uiTeamInInstance = pPlayer->GetTeam();
 
-            switch (creature->GetEntry())
+            switch(creature->GetEntry())
             {
                 case NPC_FALRIC: 
                        m_uiFalricGUID = creature->GetGUID(); 
@@ -162,12 +162,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-<<<<<<< HEAD
             switch(go->GetEntry())
-=======
-            // TODO: init state depending on encounters
-            switch (go->GetEntry())
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             {
                 case GO_IMPENETRABLE_DOOR: m_uiMainGateGUID = go->GetGUID(); break;
                 case GO_FROSTMOURNE: m_uiFrostmourneGUID = go->GetGUID(); break;
@@ -216,21 +211,7 @@ public:
 
         void SetData(uint32 uiType, uint32 uiData)
         {
-<<<<<<< HEAD
             switch(uiType)
-=======
-            if (type == DATA_WAVE_COUNT && data == SPECIAL)
-            {
-                bIntroDone = true;
-                events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                return;
-            }
-
-            if (uiWaveCount && data == NOT_STARTED)
-                DoWipe();
-
-            switch (type)
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             {
                 case TYPE_PHASE:                m_auiEncounter[uiType] = uiData; break;
                 case TYPE_EVENT:                m_auiEncounter[uiType] = uiData;
@@ -306,16 +287,12 @@ public:
 
         const char* Save()
         {
-<<<<<<< HEAD
             return strSaveData.c_str();
         }
 
         uint32 GetData(uint32 uiType)
         {
             switch(uiType)
-=======
-            switch (type)
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             {
                 case TYPE_PHASE:                return m_auiEncounter[uiType];
                 case TYPE_EVENT:                return m_auiEncounter[uiType];
@@ -338,11 +315,7 @@ public:
 
         void SetData64(uint32 uiData, uint64 uiGuid)
         {
-<<<<<<< HEAD
             switch(uiData)
-=======
-            switch (identifier)
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             {
                 case DATA_ESCAPE_LIDER:
                        m_uiLiderGUID = uiGuid;
@@ -389,74 +362,13 @@ public:
             {
                 loadStream >> m_auiEncounter[i];
 
-<<<<<<< HEAD
                 if (m_auiEncounter[i] == IN_PROGRESS)
                     m_auiEncounter[i] = NOT_STARTED;
-=======
-            OUT_LOAD_INST_DATA_COMPLETE;
-        }
-
-        void AddWave()
-        {
-            DoUpdateWorldState(WORLD_STATE_HOR, 1);
-            DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
-
-            switch (uiWaveCount)
-            {
-                case 1:
-                case 2:
-                case 3:
-                case 4:
-                    if (Creature* pFalric = instance->GetCreature(uiFalric))
-                        SpawnWave(pFalric);
-                    break;
-                case 5:
-                    if (GetData(DATA_FALRIC_EVENT) == DONE)
-                        events.ScheduleEvent(EVENT_NEXT_WAVE, 10000);
-                    else if (Creature* pFalric = instance->GetCreature(uiFalric))
-                        if (pFalric->AI())
-                            pFalric->AI()->DoAction(ACTION_ENTER_COMBAT);
-                    break;
-                case 6:
-                case 7:
-                case 8:
-                case 9:
-                    if (Creature* pMarwyn  = instance->GetCreature(uiMarwyn))
-                        SpawnWave(pMarwyn);
-                    break;
-                case 10:
-                    if (GetData(DATA_MARWYN_EVENT) != DONE) // wave should not have been started if DONE. Check anyway to avoid bug exploit!
-                        if (Creature* pMarwyn = instance->GetCreature(uiMarwyn))
-                            if (pMarwyn->AI())
-                                pMarwyn->AI()->DoAction(ACTION_ENTER_COMBAT);
-                    break;
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
             }
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-<<<<<<< HEAD
-=======
-        void Update(uint32 diff)
-        {
-            if (!instance->HavePlayers())
-                return;
-
-            events.Update(diff);
-
-            switch (events.ExecuteEvent())
-            {
-                case EVENT_NEXT_WAVE:
-                    uiWaveCount++;
-                    AddWave();
-                    break;
-                case EVENT_START_LICH_KING:
-                    // TODO
-                    break;
-            }
-        }
->>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
     };
 
     InstanceScript* GetInstanceScript (InstanceMap* pMap) const
