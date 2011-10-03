@@ -727,7 +727,7 @@ namespace Trinity
                         break;
                 }
 
-                switch(i_push_type)
+                switch (i_push_type)
                 {
                     case PUSH_SRC_CENTER:
                     case PUSH_DST_CENTER:

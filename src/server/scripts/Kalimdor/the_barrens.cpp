@@ -134,7 +134,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 16:
                     DoScriptText(SAY_GIL_AT_LAST, me, player);
@@ -597,7 +597,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
             case 0:
                 DoScriptText(SAY_STARTUP1, me);
@@ -625,7 +625,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 9:
                     DoScriptText(SAY_STARTUP2, me, player);
@@ -654,7 +654,7 @@ public:
                 {
                     if (m_uiPostEventTimer <= uiDiff)
                     {
-                        switch(m_uiPostEventCount)
+                        switch (m_uiPostEventCount)
                         {
                             case 0:
                                 DoScriptText(SAY_PROGRESS_2, me);

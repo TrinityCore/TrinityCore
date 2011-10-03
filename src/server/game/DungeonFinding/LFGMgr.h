@@ -254,9 +254,12 @@ struct LfgPlayerBoot
 class LFGMgr
 {
     friend class ACE_Singleton<LFGMgr, ACE_Null_Mutex>;
-    public:
+
+    private:
         LFGMgr();
         ~LFGMgr();
+
+    public:
         void Update(uint32 diff);
 
         // Reward

@@ -68,7 +68,7 @@ public:
         if (creature->isQuestGiver())
             player->PrepareQuestMenu(creature->GetGUID());
 
-        switch(creature->GetEntry())
+        switch (creature->GetEntry())
         {
         case 17435: // Azuremyst Isle - Susurrus
             if (player->HasItemCount(23843, 1, true))
@@ -189,7 +189,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF:
             //spellId is correct, however it gives flight a somewhat funny effect //TaxiPath 506.

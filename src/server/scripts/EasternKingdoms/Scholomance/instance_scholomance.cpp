@@ -83,7 +83,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_GATE_KIRTONOS:  GateKirtonosGUID = go->GetGUID(); break;
                 case GO_GATE_GANDLING:  GateGandlingGUID = go->GetGUID(); break;
@@ -98,7 +98,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_LORDALEXEIBAROV_DEATH:
                     IsBossDied[0] = true;

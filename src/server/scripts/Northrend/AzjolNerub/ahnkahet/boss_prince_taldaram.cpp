@@ -397,7 +397,7 @@ public:
             pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             pGO->SetGoState(GO_STATE_ACTIVE);
 
-            switch(pGO->GetEntry())
+            switch (pGO->GetEntry())
             {
                 case GO_SPHERE1: pInstance->SetData(DATA_SPHERE1_EVENT, IN_PROGRESS); break;
                 case GO_SPHERE2: pInstance->SetData(DATA_SPHERE2_EVENT, IN_PROGRESS); break;

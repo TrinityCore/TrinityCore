@@ -66,7 +66,7 @@ class spell_dk_anti_magic_shell_raid : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                  absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
             }
@@ -113,7 +113,7 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 absorbAmount = std::min(CalculatePctN(dmgInfo.GetDamage(), absorbPct), GetTarget()->CountPctFromMaxHealth(hpPct));
             }
@@ -169,13 +169,13 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
                 SpellInfo const* talentSpell = sSpellMgr->GetSpellInfo(DK_SPELL_ANTI_MAGIC_SHELL_TALENT);
                 amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
                 Unit* caster = GetCaster();
-                if(!caster)
+                if (!caster)
                     return;
-                if(Player* player = caster->ToPlayer())
+                if (Player* player = caster->ToPlayer())
                      amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
             }
 
-            void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                  absorbAmount = CalculatePctN(dmgInfo.GetDamage(), absorbPct);
             }
@@ -443,7 +443,7 @@ class spell_dk_spell_deflection : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // You have a chance equal to your Parry chance
                 if ((dmgInfo.GetDamageType() == SPELL_DIRECT_DAMAGE) && roll_chance_f(GetTarget()->GetUnitParryChance()))
@@ -546,7 +546,7 @@ class spell_dk_will_of_the_necropolis : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect*  /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // min pct of hp is stored in effect 0 of talent spell
                 uint32 rank = sSpellMgr->GetSpellRank(GetSpellInfo()->Id);
@@ -665,7 +665,7 @@ public:
     }
 };
 
-// 50391,50392 Improved Unholy Presence
+// 50391, 50392 Improved Unholy Presence
 class spell_dk_improved_unholy_presence : public SpellScriptLoader
 {
 public:
@@ -690,7 +690,7 @@ public:
             {
                 // Not listed as any effect, only base points set in dbc
                 int32 basePoints0 = aurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
-                target->CastCustomSpell(target, DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, &basePoints0 , &basePoints0, &basePoints0, true, 0, aurEff);
+                target->CastCustomSpell(target, DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED, &basePoints0, &basePoints0, &basePoints0, true, 0, aurEff);
             }
         }
 

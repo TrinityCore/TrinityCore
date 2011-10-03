@@ -45,14 +45,14 @@ ThreadPriority::ThreadPriority()
 
     ASSERT (!_tmp.empty());
 
-    if(_tmp.size() >= MAXPRIORITYNUM)
+    if (_tmp.size() >= MAXPRIORITYNUM)
     {
         const size_t max_pos = _tmp.size();
         size_t min_pos = 1;
         size_t norm_pos = 0;
         for (size_t i = 0; i < max_pos; ++i)
         {
-            if(_tmp[i] == ACE_THR_PRI_OTHER_DEF)
+            if (_tmp[i] == ACE_THR_PRI_OTHER_DEF)
             {
                 norm_pos = i + 1;
                 break;
@@ -65,7 +65,7 @@ ThreadPriority::ThreadPriority()
         //into ¹ piesces
         const size_t _divider = 4;
         size_t _div = (norm_pos - min_pos) / _divider;
-        if(_div == 0)
+        if (_div == 0)
             _div = 1;
 
         min_pos = (norm_pos - 1);
@@ -74,7 +74,7 @@ ThreadPriority::ThreadPriority()
         m_priority[Lowest] = _tmp[min_pos -= _div ];
 
         _div = (max_pos - norm_pos) / _divider;
-        if(_div == 0)
+        if (_div == 0)
             _div = 1;
 
         min_pos = norm_pos - 1;
@@ -86,10 +86,10 @@ ThreadPriority::ThreadPriority()
 
 int ThreadPriority::getPriority(Priority p) const
 {
-    if(p < Idle)
+    if (p < Idle)
         p = Idle;
 
-    if(p > Realtime)
+    if (p > Realtime)
         p = Realtime;
 
     return m_priority[p];
@@ -204,14 +204,14 @@ ACE_hthread_t Thread::currentHandle()
 Thread * Thread::current()
 {
     Thread * _thread = m_ThreadStorage.ts_object();
-    if(!_thread)
+    if (!_thread)
     {
         _thread = new Thread();
         _thread->m_iThreadId = Thread::currentId();
         _thread->m_hThreadHandle = Thread::currentHandle();
 
         Thread * _oldValue = m_ThreadStorage.ts_object(_thread);
-        if(_oldValue)
+        if (_oldValue)
             delete _oldValue;
     }
 

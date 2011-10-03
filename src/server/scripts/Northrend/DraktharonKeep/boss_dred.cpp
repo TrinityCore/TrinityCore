@@ -100,7 +100,7 @@ class boss_dred : public CreatureScript
 
                 if (uiGrievousBiteTimer <= diff)
                 {
-                    DoCastVictim(SPELL_GRIEVOUS_BITE , false);
+                    DoCastVictim(SPELL_GRIEVOUS_BITE, false);
                     uiGrievousBiteTimer = 20000;
                 }
                 else

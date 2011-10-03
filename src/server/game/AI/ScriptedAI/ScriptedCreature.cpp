@@ -436,7 +436,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
     float y = me->GetPositionY();
     float z = me->GetPositionZ();
 
-    switch(me->GetEntry())
+    switch (me->GetEntry())
     {
         case NPC_BROODLORD:                                         // broodlord (not move down stairs)
             if (z > 448.60f)
@@ -457,7 +457,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
         default: // For most of creatures that certain area is their home area.
             sLog->outDetail("TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition. Using the default one.", me->GetEntry());
             uint32 homeAreaId = me->GetMap()->GetAreaId(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ());
-            if(me->GetAreaId() == homeAreaId)
+            if (me->GetAreaId() == homeAreaId)
                 return false;
     }
 

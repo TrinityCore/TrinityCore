@@ -138,7 +138,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case CREATURE_SLAD_RAN: uiSladRan = creature->GetGUID(); break;
                 case CREATURE_MOORABI: uiMoorabi = creature->GetGUID(); break;
@@ -154,7 +154,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 192518:
                     uiSladRanAltar = go->GetGUID();
@@ -253,7 +253,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
             case DATA_SLAD_RAN_EVENT:
                 m_auiEncounter[0] = data;
@@ -317,7 +317,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_SLAD_RAN_EVENT:
                     return m_auiEncounter[0];
@@ -338,7 +338,7 @@ public:
 
         uint64 GetData64(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_SLAD_RAN_ALTAR:
                     return uiSladRanAltar;

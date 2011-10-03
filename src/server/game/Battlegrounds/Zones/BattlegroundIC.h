@@ -912,7 +912,7 @@ class BattlegroundIC : public Battleground
         uint32 GetGateIDFromEntry(uint32 id)
         {
             uint32 i = 0;
-            switch(id)
+            switch (id)
             {
                 case GO_HORDE_GATE_1: i = BG_IC_H_FRONT ;break;
                 case GO_HORDE_GATE_2: i = BG_IC_H_WEST ;break;
@@ -928,7 +928,7 @@ class BattlegroundIC : public Battleground
         {
             uint32 uws = 0;
 
-            switch(id)
+            switch (id)
             {
                 case GO_HORDE_GATE_1:
                     uws = (open ? BG_IC_GATE_FRONT_H_WS_OPEN : BG_IC_GATE_FRONT_H_WS_CLOSED);

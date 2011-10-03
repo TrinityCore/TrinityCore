@@ -115,7 +115,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
             void JustSummoned(Creature* summoned)
             {
-                switch(summoned->GetEntry())
+                switch (summoned->GetEntry())
                 {
                     case MOB_HEARTHEN_GUARD:
                     case MOB_SHARPSHOOTER_GUARD:

@@ -397,7 +397,7 @@ class boss_vazruden_the_herald : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                switch(phase)
+                switch (phase)
                 {
                 case 0: // circle around the platform
                     return;

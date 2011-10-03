@@ -246,10 +246,18 @@ public:
                         me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
                     } else uiResurrectTimer -= uiDiff;
 
+<<<<<<< HEAD
                 switch(uiPhase)
+=======
+            switch (uiPhase)
+            {
+                case PHASE_UNDEAD:
+                case PHASE_SKELETON:
+>>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
                 {
                     case PHASE_UNDEAD:
                     {
+<<<<<<< HEAD
     	    			if (uiPlagueStrikeTimer <= uiDiff)
                         {
                             DoCastVictim(SPELL_PLAGUE_STRIKE);
@@ -270,6 +278,12 @@ public:
                         break;
                     }
                     case PHASE_SKELETON:
+=======
+                        DoCastVictim(SPELL_OBLITERATE);
+                        uiObliterateTimer = urand(17000, 19000);
+                    } else uiObliterateTimer -= uiDiff;
+                    switch (uiPhase)
+>>>>>>> ade5f9b9695fe61ca3e6a623fc4ca4ed490919d9
                     {
                         if (!bSummonArmy)
                         {
@@ -386,7 +400,7 @@ public:
                 me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
     			me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 RemoveSummons();
-                switch(uiPhase)
+                switch (uiPhase)
                 {
                     case PHASE_UNDEAD:
                         me->SetDisplayId(MODEL_SKELETON);

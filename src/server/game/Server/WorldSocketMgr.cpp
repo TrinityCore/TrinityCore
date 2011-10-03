@@ -47,7 +47,7 @@
 #include "ScriptMgr.h"
 
 /**
-* This is a helper class to WorldSocketMgr , that manages
+* This is a helper class to WorldSocketMgr, that manages
 * network threads, and assigning connections from acceptor thread
 * to other network threads
 */
@@ -230,9 +230,9 @@ WorldSocketMgr::~WorldSocketMgr()
 int
 WorldSocketMgr::StartReactiveIO (ACE_UINT16 port, const char* address)
 {
-    m_UseNoDelay = sConfig->GetBoolDefault ("Network.TcpNodelay", true);
+    m_UseNoDelay = ConfigMgr::GetBoolDefault ("Network.TcpNodelay", true);
 
-    int num_threads = sConfig->GetIntDefault ("Network.Threads", 1);
+    int num_threads = ConfigMgr::GetIntDefault ("Network.Threads", 1);
 
     if (num_threads <= 0)
     {
@@ -247,9 +247,9 @@ WorldSocketMgr::StartReactiveIO (ACE_UINT16 port, const char* address)
     sLog->outBasic ("Max allowed socket connections %d", ACE::max_handles());
 
     // -1 means use default
-    m_SockOutKBuff = sConfig->GetIntDefault ("Network.OutKBuff", -1);
+    m_SockOutKBuff = ConfigMgr::GetIntDefault ("Network.OutKBuff", -1);
 
-    m_SockOutUBuff = sConfig->GetIntDefault ("Network.OutUBuff", 65536);
+    m_SockOutUBuff = ConfigMgr::GetIntDefault ("Network.OutUBuff", 65536);
 
     if (m_SockOutUBuff <= 0)
     {
@@ -263,7 +263,7 @@ WorldSocketMgr::StartReactiveIO (ACE_UINT16 port, const char* address)
 
     if (m_Acceptor->open(listen_addr, m_NetThreads[0].GetReactor(), ACE_NONBLOCK) == -1)
     {
-        sLog->outError ("Failed to open acceptor , check if the port is free");
+        sLog->outError ("Failed to open acceptor, check if the port is free");
         return -1;
     }
 

@@ -181,7 +181,7 @@ class instance_pit_of_saron : public InstanceMapScript
                         }
                         break;
                     case DATA_GARFROST:
-                        if(state == DONE)
+                        if (state == DONE)
                         {
                             if (Creature* summoner = instance->GetCreature(_garfrostGUID))
                             {

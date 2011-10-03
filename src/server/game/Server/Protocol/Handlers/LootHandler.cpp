@@ -106,7 +106,7 @@ void WorldSession::HandleLootMoneyOpcode(WorldPacket & /*recv_data*/)
     Loot* loot = NULL;
     bool shareMoney = true;
 
-    switch(GUID_HIPART(guid))
+    switch (GUID_HIPART(guid))
     {
         case HIGHGUID_GAMEOBJECT:
         {

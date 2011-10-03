@@ -30,7 +30,7 @@
 
 bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
 {
-    switch(mGameEvent[entry].state)
+    switch (mGameEvent[entry].state)
     {
         default:
         case GAMEEVENT_NORMAL:
@@ -1079,7 +1079,7 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
 {
-    switch(sWorld->getIntConfig(CONFIG_EVENT_ANNOUNCE))
+    switch (sWorld->getIntConfig(CONFIG_EVENT_ANNOUNCE))
     {
         case 0:                                             // disable
             break;

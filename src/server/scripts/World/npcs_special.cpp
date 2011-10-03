@@ -194,7 +194,7 @@ public:
                 if (!lastSpawnedGuard)
                     SpawnedGUID = 0;
 
-                switch(SpawnAssoc->spawnType)
+                switch (SpawnAssoc->spawnType)
                 {
                     case SPAWNTYPE_ALARMBOT:
                     {
@@ -349,7 +349,7 @@ public:
 
         void ReceiveEmote(Player* player, uint32 emote)
         {
-            switch(emote)
+            switch (emote)
             {
                 case TEXT_EMOTE_CHICKEN:
                     if (player->GetQuestStatus(QUEST_CLUCK) == QUEST_STATUS_NONE && rand() % 30 == 1)
@@ -456,7 +456,7 @@ public:
                 WorldPacket data;
                 me->BuildHeartBeatMsg(&data);
                 me->SendMessageToSet(&data, true);
-                switch(emote)
+                switch (emote)
                 {
                     case TEXT_EMOTE_KISS:
                         me->HandleEmoteCommand(EMOTE_ONESHOT_SHY);
@@ -599,7 +599,7 @@ public:
             PatientDiedCount = 0;
             PatientSavedCount = 0;
 
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case DOCTOR_ALLIANCE:
                     for (uint8 i = 0; i < ALLIANCE_COORDS; ++i)
@@ -827,7 +827,7 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 const diff)
             std::vector<Location*>::iterator itr = Coordinates.begin() + rand() % Coordinates.size();
             uint32 patientEntry = 0;
 
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case DOCTOR_ALLIANCE:
                     patientEntry = AllianceSoldierId[rand() % 3];
@@ -945,7 +945,7 @@ public:
 
                 if (Player* player = caster->ToPlayer())
                 {
-                    switch(me->GetEntry())
+                    switch (me->GetEntry())
                     {
                         case ENTRY_SHAYA:
                             if (player->GetQuestStatus(QUEST_MOON) == QUEST_STATUS_INCOMPLETE)
@@ -1053,7 +1053,7 @@ public:
                 {
                     if (Unit* unit = Unit::GetUnit(*me, CasterGUID))
                     {
-                        switch(me->GetEntry())
+                        switch (me->GetEntry())
                         {
                             case ENTRY_SHAYA:
                                 DoScriptText(SAY_SHAYA_GOODBYE, me, unit);
@@ -1314,7 +1314,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(action)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->CLOSE_GOSSIP_MENU();
@@ -1418,7 +1418,7 @@ public:
 
     void SendAction(Player* player, Creature* creature, uint32 action)
     {
-        switch(action)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SENDACTION_SAYGE1,            GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -1465,7 +1465,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(sender)
+        switch (sender)
         {
             case GOSSIP_SENDER_MAIN:
                 SendAction(player, creature, action);
@@ -1707,7 +1707,7 @@ public:
             //Add delta to make them not all hit the same time
             uint32 delta = (rand() % 7) * 100;
             me->SetStatFloatValue(UNIT_FIELD_BASEATTACKTIME, float(Info->baseattacktime + delta));
-            me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER , float(Info->attackpower));
+            me->SetStatFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER, float(Info->attackpower));
 
             // Start attacking attacker of owner on first ai update after spawn - move in line of sight may choose better target
             if (!me->getVictim() && me->isSummon())
@@ -2284,7 +2284,7 @@ public:
         player->PlayerTalkClass->ClearMenus();
         bool roll = urand(0, 1);
 
-        switch(action)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1: //Borean Tundra
                 player->CLOSE_GOSSIP_MENU();
@@ -2356,7 +2356,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(action)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->PlayerTalkClass->SendGossipMenu(TEXT_PETINFO, creature->GetGUID());
@@ -2456,7 +2456,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(action)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->CLOSE_GOSSIP_MENU();
@@ -2615,7 +2615,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(action)
+        switch (action)
         {
             case GOSSIP_ACTION_TRADE:
                 player->GetSession()->SendListInventory(creature->GetGUID());
@@ -2681,7 +2681,7 @@ public:
         bool noXPGain = player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_NO_XP_GAIN);
         bool doSwitch = false;
 
-        switch(action)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF + 1://xp off
                 {

@@ -176,7 +176,7 @@ enum UlduarData
 {
     // Collosus (Leviathan)
     DATA_COLOSSUS                = 20,
-    
+
     // Razorscale
     DATA_EXPEDITION_COMMANDER,
     DATA_RAZORSCALE_CONTROL,

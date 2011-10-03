@@ -98,7 +98,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_WRAP:
                         // TODO : Add missing text

@@ -120,11 +120,11 @@ void OPvPCapturePointEP_EWT::FillInitialWorldStates(WorldPacket &data)
 
 void OPvPCapturePointEP_EWT::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(EP_EWT_A , bool(m_TowerState & EP_TS_A));
-    m_PvP->SendUpdateWorldState(EP_EWT_H , bool(m_TowerState & EP_TS_H));
-    m_PvP->SendUpdateWorldState(EP_EWT_N_A , bool(m_TowerState & EP_TS_N_A));
-    m_PvP->SendUpdateWorldState(EP_EWT_N_H , bool(m_TowerState & EP_TS_N_H));
-    m_PvP->SendUpdateWorldState(EP_EWT_N , bool(m_TowerState & EP_TS_N));
+    m_PvP->SendUpdateWorldState(EP_EWT_A, bool(m_TowerState & EP_TS_A));
+    m_PvP->SendUpdateWorldState(EP_EWT_H, bool(m_TowerState & EP_TS_H));
+    m_PvP->SendUpdateWorldState(EP_EWT_N_A, bool(m_TowerState & EP_TS_N_A));
+    m_PvP->SendUpdateWorldState(EP_EWT_N_H, bool(m_TowerState & EP_TS_N_H));
+    m_PvP->SendUpdateWorldState(EP_EWT_N, bool(m_TowerState & EP_TS_N));
 }
 
 bool OPvPCapturePointEP_EWT::HandlePlayerEnter(Player* player)
@@ -269,11 +269,11 @@ void OPvPCapturePointEP_NPT::FillInitialWorldStates(WorldPacket &data)
 
 void OPvPCapturePointEP_NPT::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(EP_NPT_A , bool(m_TowerState & EP_TS_A));
-    m_PvP->SendUpdateWorldState(EP_NPT_H , bool(m_TowerState & EP_TS_H));
-    m_PvP->SendUpdateWorldState(EP_NPT_N_A , bool(m_TowerState & EP_TS_N_A));
-    m_PvP->SendUpdateWorldState(EP_NPT_N_H , bool(m_TowerState & EP_TS_N_H));
-    m_PvP->SendUpdateWorldState(EP_NPT_N , bool(m_TowerState & EP_TS_N));
+    m_PvP->SendUpdateWorldState(EP_NPT_A, bool(m_TowerState & EP_TS_A));
+    m_PvP->SendUpdateWorldState(EP_NPT_H, bool(m_TowerState & EP_TS_H));
+    m_PvP->SendUpdateWorldState(EP_NPT_N_A, bool(m_TowerState & EP_TS_N_A));
+    m_PvP->SendUpdateWorldState(EP_NPT_N_H, bool(m_TowerState & EP_TS_N_H));
+    m_PvP->SendUpdateWorldState(EP_NPT_N, bool(m_TowerState & EP_TS_N));
 }
 
 bool OPvPCapturePointEP_NPT::HandlePlayerEnter(Player* player)
@@ -319,7 +319,7 @@ OPvPCapturePointEP_CGT::OPvPCapturePointEP_CGT(OutdoorPvP* pvp)
 void OPvPCapturePointEP_CGT::ChangeState()
 {
     // if changing from controlling alliance to horde or vice versa
-    if( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
+    if ( m_OldState == OBJECTIVESTATE_ALLIANCE && m_OldState != m_State )
     {
         sWorld->SendZoneText(EP_GraveYardZone, sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_EP_LOSE_CGT_A));
         ((OutdoorPvPEP*)m_PvP)->SetControlledState(EP_CGT, 0);
@@ -401,11 +401,11 @@ void OPvPCapturePointEP_CGT::FillInitialWorldStates(WorldPacket &data)
 
 void OPvPCapturePointEP_CGT::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(EP_CGT_A , bool(m_TowerState & EP_TS_A));
-    m_PvP->SendUpdateWorldState(EP_CGT_H , bool(m_TowerState & EP_TS_H));
-    m_PvP->SendUpdateWorldState(EP_CGT_N_A , bool(m_TowerState & EP_TS_N_A));
-    m_PvP->SendUpdateWorldState(EP_CGT_N_H , bool(m_TowerState & EP_TS_N_H));
-    m_PvP->SendUpdateWorldState(EP_CGT_N , bool(m_TowerState & EP_TS_N));
+    m_PvP->SendUpdateWorldState(EP_CGT_A, bool(m_TowerState & EP_TS_A));
+    m_PvP->SendUpdateWorldState(EP_CGT_H, bool(m_TowerState & EP_TS_H));
+    m_PvP->SendUpdateWorldState(EP_CGT_N_A, bool(m_TowerState & EP_TS_N_A));
+    m_PvP->SendUpdateWorldState(EP_CGT_N_H, bool(m_TowerState & EP_TS_N_H));
+    m_PvP->SendUpdateWorldState(EP_CGT_N, bool(m_TowerState & EP_TS_N));
 }
 
 bool OPvPCapturePointEP_CGT::HandlePlayerEnter(Player* player)
@@ -540,11 +540,11 @@ void OPvPCapturePointEP_PWT::FillInitialWorldStates(WorldPacket &data)
 
 void OPvPCapturePointEP_PWT::UpdateTowerState()
 {
-    m_PvP->SendUpdateWorldState(EP_PWT_A , bool(m_TowerState & EP_TS_A));
-    m_PvP->SendUpdateWorldState(EP_PWT_H , bool(m_TowerState & EP_TS_H));
-    m_PvP->SendUpdateWorldState(EP_PWT_N_A , bool(m_TowerState & EP_TS_N_A));
-    m_PvP->SendUpdateWorldState(EP_PWT_N_H , bool(m_TowerState & EP_TS_N_H));
-    m_PvP->SendUpdateWorldState(EP_PWT_N , bool(m_TowerState & EP_TS_N));
+    m_PvP->SendUpdateWorldState(EP_PWT_A, bool(m_TowerState & EP_TS_A));
+    m_PvP->SendUpdateWorldState(EP_PWT_H, bool(m_TowerState & EP_TS_H));
+    m_PvP->SendUpdateWorldState(EP_PWT_N_A, bool(m_TowerState & EP_TS_N_A));
+    m_PvP->SendUpdateWorldState(EP_PWT_N_H, bool(m_TowerState & EP_TS_N_H));
+    m_PvP->SendUpdateWorldState(EP_PWT_N, bool(m_TowerState & EP_TS_N));
 }
 
 bool OPvPCapturePointEP_PWT::HandlePlayerEnter(Player* player)
@@ -579,7 +579,7 @@ void OPvPCapturePointEP_PWT::SummonFlightMaster(uint32 team)
         Creature* c = HashMapHolder<Creature>::Find(m_Creatures[EP_PWT_FLIGHTMASTER]);
         //Spawn flight master as friendly to capturing team
         c->SetUInt32Value(GAMEOBJECT_FACTION, (team == ALLIANCE ? 55 : 68));
-        if(c)
+        if (c)
         {
             GossipOption gso;
             gso.Action = GOSSIP_OPTION_OUTDOORPVP;
