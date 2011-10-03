@@ -110,6 +110,12 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Charge Stun (own diminishing)
             else if (spellproto->SpellFamilyFlags[0] & 0x01000000)
                 return DIMINISHING_CHARGE;
+            // Concussion Blow
+            else if (spellproto->Id == 12809)
+                return DIMINISHING_CONTROLLED_STUN;
+            // Shockwave
+            else if (spellproto->Id == 46968)
+                return DIMINISHING_CONTROLLED_STUN;
             break;
         }
         case SPELLFAMILY_WARLOCK:
