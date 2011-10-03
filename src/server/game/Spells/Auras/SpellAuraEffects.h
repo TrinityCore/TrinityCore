@@ -42,6 +42,7 @@ class AuraEffect
         void GetTargetList(std::list<Unit*> & targetList) const;
         void GetApplicationList(std::list<AuraApplication*> & applicationList) const;
         SpellModifier* GetSpellModifier() const { return m_spellmod; }
+        bool HasSpellClassMask() const { return m_spellInfo->Effects[m_effIndex].SpellClassMask; }
 
         SpellInfo const* GetSpellInfo() const { return m_spellInfo; }
         uint32 GetId() const { return m_spellInfo->Id; }
