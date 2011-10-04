@@ -320,6 +320,22 @@ bool ChatHandler::HandleGMTicketDeleteByIdCommand(const char* args)
     return true;
 }
 
+bool ChatHandler::HandleGMTicketResetCommand(const char* /* args */)
+{
+    if (sTicketMgr->GetOpenTicketCount() > 0)
+    {
+        SendSysMessage(LANG_COMMAND_TICKETPENDING);
+        return true;
+    }
+    else
+    {
+        sTicketMgr->ResetTickets();
+        SendSysMessage(LANG_COMMAND_TICKETRESET);
+    }
+
+    return true;
+}
+
 bool ChatHandler::HandleToggleGMTicketSystem(const char* /* args */)
 {
     bool status = !sTicketMgr->GetStatus();
