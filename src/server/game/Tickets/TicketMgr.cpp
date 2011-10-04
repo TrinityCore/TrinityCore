@@ -200,6 +200,16 @@ TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _ope
 
 void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
 
+void TicketMgr::ResetTickets()
+{
+    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
+        if (itr->second->IsClosed())
+            sTicketMgr->RemoveTicket(itr->second->GetId());
+
+    _lastTicketId = 0;
+    CharacterDatabase.PExecute("TRUNCATE TABLE gm_tickets");
+}
+
 void TicketMgr::LoadTickets()
 {
     uint32 oldMSTime = getMSTime();
