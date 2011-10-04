@@ -436,7 +436,7 @@ ChatCommand* ChatHandler::getCommandTable()
             // cache top-level commands
             commandTableCache = (ChatCommand*)malloc(sizeof(ChatCommand) * total);
             memset(commandTableCache, 0, sizeof(ChatCommand) * total);
-            ACE_ASSERT(commandTableCache);
+            ASSERT(commandTableCache);
             size_t added = appendCommandTable(commandTableCache, commandTable);
             for (std::vector<ChatCommand*>::const_iterator it = dynamic.begin(); it != dynamic.end(); ++it)
                 added += appendCommandTable(commandTableCache + added, *it);
