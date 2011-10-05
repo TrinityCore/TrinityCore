@@ -28,9 +28,6 @@
 #include "GridNotifiersImpl.h"
 #include "icecrown_citadel.h"
 
-// TODO:
-// test outro
-
 enum Texts
 {
     // The Lich King
