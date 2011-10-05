@@ -2044,7 +2044,7 @@ Rate.Drop.Item.ReferencedAmount = 1
 #        Description: Experience rates.
 #        Default:     1 - (Rate.XP.Kill)
 #                     1 - (Rate.XP.Quest)
-#                     1 - ( Rate.XP.Explore)
+#                     1 - (Rate.XP.Explore)
 
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
