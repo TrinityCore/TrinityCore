@@ -721,6 +721,97 @@ void Spell::SelectSpellTargets()
         if (targetB)
             processedTargets |= SelectEffectTargets(i, m_spellInfo->Effects[i].TargetB);
 
+        if (!targetA && !targetB && m_spellInfo->Effects[i].GetImplicitTargetType() == EFFECT_IMPLICIT_TARGET_NONE)
+        {
+            if (!m_spellInfo->GetMaxRange(true))
+            {
+                AddUnitTarget(m_caster, 1 << i, false);
+                continue;
+            }
+
+            // add here custom effects that need default target.
+            // FOR EVERY TARGET TYPE THERE IS A DIFFERENT FILL!!
+            switch (m_spellInfo->Effects[i].Effect)
+            {
+                case SPELL_EFFECT_DUMMY:
+                {
+                    if (m_targets.GetUnitTarget())
+                        AddUnitTarget(m_targets.GetUnitTarget(), 1 << i, false);
+                    else
+                        AddUnitTarget(m_caster, 1 << i, false);
+                    break;
+                }
+                case SPELL_EFFECT_BIND:
+                case SPELL_EFFECT_RESURRECT:
+                case SPELL_EFFECT_CREATE_ITEM:
+                case SPELL_EFFECT_TRIGGER_SPELL:
+                case SPELL_EFFECT_SKILL_STEP:
+                case SPELL_EFFECT_PROFICIENCY:
+                case SPELL_EFFECT_SUMMON_OBJECT_WILD:
+                case SPELL_EFFECT_SELF_RESURRECT:
+                case SPELL_EFFECT_REPUTATION:
+                case SPELL_EFFECT_LEARN_SPELL:
+                case SPELL_EFFECT_SEND_TAXI:
+                    if (m_targets.GetUnitTarget())
+                        AddUnitTarget(m_targets.GetUnitTarget(), 1 << i, false);
+                    // Triggered spells have additional spell targets - cast them even if no explicit unit target is given (required for spell 50516 for example)
+                    else if (m_spellInfo->Effects[i].Effect == SPELL_EFFECT_TRIGGER_SPELL)
+                        AddUnitTarget(m_caster, 1 << i, false);
+                    break;
+                case SPELL_EFFECT_SUMMON_RAF_FRIEND:
+                case SPELL_EFFECT_SUMMON_PLAYER:
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->GetSelection())
+                    {
+                        Player* target = ObjectAccessor::FindPlayer(m_caster->ToPlayer()->GetSelection());
+                        if (target)
+                            AddUnitTarget(target, 1 << i, false);
+                    }
+                    break;
+                case SPELL_EFFECT_SKIN_PLAYER_CORPSE:
+                case SPELL_EFFECT_RESURRECT_NEW:
+                    if (WorldObject* target = m_targets.GetObjectTarget())
+                    {
+                        if (Unit* unitTarget = target->ToUnit())
+                            AddUnitTarget(unitTarget, 1 << i, false);
+                        else if (Corpse* corpseTarget = target->ToCorpse())
+                        {
+                            Player* owner = ObjectAccessor::FindPlayer(corpseTarget->GetOwnerGUID());
+                            if (owner)
+                                AddUnitTarget(owner, 1 << i, false);
+                        }
+                    }
+                    break;
+                case SPELL_EFFECT_SUMMON_CHANGE_ITEM:
+                case SPELL_EFFECT_ADD_FARSIGHT:
+                case SPELL_EFFECT_APPLY_GLYPH:
+                case SPELL_EFFECT_STUCK:
+                case SPELL_EFFECT_FEED_PET:
+                case SPELL_EFFECT_DESTROY_ALL_TOTEMS:
+                case SPELL_EFFECT_KILL_CREDIT2: // only one spell: 42793
+                    AddUnitTarget(m_caster, 1 << i, false);
+                    break;
+                case SPELL_EFFECT_LEARN_PET_SPELL:
+                    if (Guardian* pet = m_caster->GetGuardianPet())
+                        AddUnitTarget(pet, 1 << i);
+                    break;
+                case SPELL_EFFECT_APPLY_AURA:
+                    switch (m_spellInfo->Effects[i].ApplyAuraName)
+                    {
+                        case SPELL_AURA_ADD_FLAT_MODIFIER:  // some spell mods auras have 0 target modes instead expected TARGET_UNIT_CASTER(1) (and present for other ranks for same spell for example)
+                        case SPELL_AURA_ADD_PCT_MODIFIER:
+                            AddUnitTarget(m_caster, 1 << i, false);
+                            break;
+                        default:                            // apply to target in other case
+                            if (m_targets.GetUnitTarget())
+                                AddUnitTarget(m_targets.GetUnitTarget(), 1 << i, false);
+                            break;
+                    }
+                    break;
+                default:
+                    AddUnitTarget(m_caster, 1 << i, false);
+                    break;
+            }
+        }
         // Select targets of effect based on effect type
         // those are used when no valid target could be added for spell effect based on spell target type
         // some spell effects use explicit target as a default target added to target map (like SPELL_EFFECT_LEARN_SPELL)
