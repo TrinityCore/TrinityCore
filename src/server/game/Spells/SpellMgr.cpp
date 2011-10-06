@@ -3403,6 +3403,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 75127: // Kill Frostmourne Players
             case 72351: // Fury of Frostmourne
+            case 72431: // Jump (removes Fury of Frostmourne debuff)
             case 72429: // Mass Resurrection
             case 73159: // Play Movie
             case 73582: // Trigger Vile Spirit (Inside, Heroic)
