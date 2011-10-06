@@ -3417,6 +3417,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->rangeIndex = 3;              // 20yd
                 spellInfo->EffectRadiusIndex[0] = 20;   // 25yd
                 break;
+            case 72405: // Broken Frostmourne
+                spellInfo->EffectRadiusIndex[1] = 22;   // 200yd
+                break;
             default:
                 break;
         }
