@@ -28,22 +28,30 @@ uint32 const EncounterCount = 13;
 uint32 const WeeklyNPCs = 9;
 uint32 const MaxHeroicAttempts = 50;
 
+// Defined in boss_valithria_dreamwalker.cpp
 extern Position const ValithriaSpawnPos;
 // Defined in boss_sindragosa.cpp
 extern Position const SindragosaSpawnPos;
+// Defined in boss_the_lich_king.cpp
+extern Position const TerenasSpawn;
+extern Position const TerenasSpawnHeroic;
+extern Position const SpiritWardenSpawn;
 
 // Shared spells used by more than one script
 enum SharedSpells
 {
-    SPELL_BERSERK               = 26662,
-    SPELL_BERSERK2              = 47008,
+    SPELL_BERSERK                       = 26662,
+    SPELL_BERSERK2                      = 47008,
 
     // Deathbound Ward
-    SPELL_STONEFORM             = 70733,
+    SPELL_STONEFORM                     = 70733,
 
     // Residue Rendezvous
-    SPELL_ORANGE_BLIGHT_RESIDUE = 72144,
-    SPELL_GREEN_BLIGHT_RESIDUE  = 72145,
+    SPELL_ORANGE_BLIGHT_RESIDUE         = 72144,
+    SPELL_GREEN_BLIGHT_RESIDUE          = 72145,
+
+    // The Lich King
+    SPELL_FROSTMOURNE_TELEPORT_VISUAL   = 73078,
 };
 
 enum TeleporterSpells
@@ -99,23 +107,9 @@ enum DataTypes
     DATA_CAPTAIN_RUPERT             = 34,
     DATA_VALITHRIA_TRIGGER          = 35,
     DATA_VALITHRIA_LICH_KING        = 36,
-
-    //For Lich King script only
-    GUID_TIRION                     = 37,
-    GUID_TERENAS_FIGHTER            = 38,
-    GUID_SPIRIT_WARDEN              = 39,
-    GUID_ICE_SHARD_1                = 40,    
-    GUID_ICE_SHARD_2                = 41,         
-    GUID_ICE_SHARD_3                = 42,
-    GUID_ICE_SHARD_4                = 43,
-    GUID_LAVAMAN                    = 44,
-    GUID_HANGINGMAN                 = 45,
-    GUID_FROSTY_EDGE_OUTER          = 46,
-    GUID_FROSTY_EDGE_INNER          = 47,
-    GUID_EDGE_DESTROY_WARNING       = 48,
-    DATA_BEEN_WAITING_ACHIEVEMENT   = 49,
-    DATA_NECK_DEEP_ACHIEVEMENT      = 50,
-
+    DATA_HIGHLORD_TIRION_FORDRING   = 37,
+    DATA_ARTHAS_PLATFORM            = 38,
+    DATA_TERENAS_MENETHIL           = 39,
 };
 
 enum CreaturesIds
@@ -264,21 +258,23 @@ enum CreaturesIds
 
     // The Lich King
     NPC_THE_LICH_KING                           = 36597,
-    NPC_TIRION_ICC                              = 38995,
-    NPC_PLATFORM_DESTRUCTIBLE_EDGE_STALKER      = 22515,
-    NPC_TERENAS_MENETHIL                        = 38579,
-    NPC_FROSTMOURNE_TRIGGER                     = 38584,
-    NPC_TERENAS_FIGHTER                         = 36823, //for frostmourne
+    NPC_HIGHLORD_TIRION_FORDRING_LK             = 38995,
+    NPC_TERENAS_MENETHIL_FROSTMOURNE            = 36823,
     NPC_SPIRIT_WARDEN                           = 36824,
-    NPC_ICE_SPHERE                              = 36633,
-    NPC_DRUDGE_GHOUL                            = 37695,
+    NPC_TERENAS_MENETHIL_FROSTMOURNE_H          = 39217,
     NPC_SHAMBLING_HORROR                        = 37698,
-    NPC_VALKYR                                  = 36609,
-    NPC_DEFILE                                  = 38757,
+    NPC_DRUDGE_GHOUL                            = 37695,
+    NPC_ICE_SPHERE                              = 36633,
     NPC_RAGING_SPIRIT                           = 36701,
-    NPC_TRIGGER                                 = 38667,
+    NPC_DEFILE                                  = 38757,
+    NPC_VALKYR_SHADOWGUARD                      = 36609,
     NPC_VILE_SPIRIT                             = 37799,
+    NPC_WICKED_SPIRIT                           = 39190,
+    NPC_STRANGULATE_VEHICLE                     = 36598,
     NPC_WORLD_TRIGGER                           = 22515,
+    NPC_WORLD_TRIGGER_INFINITE_AOI              = 36171,
+    NPC_SPIRIT_BOMB                             = 39189,
+    NPC_FROSTMOURNE_TRIGGER                     = 38584,
 };
 
 enum GameObjectsIds
@@ -335,10 +331,6 @@ enum GameObjectsIds
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_02   = 201381,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_03   = 201382,
     GO_DOODAD_ICECROWN_ROOSTPORTCULLIS_04   = 201383,
-    GO_DREAMWALKER_CACHE_10_N               = 201959,
-    GO_DREAMWALKER_CACHE_10_H               = 202338,
-    GO_DREAMWALKER_CACHE_25_N               = 202339,
-    GO_DREAMWALKER_CACHE_25_H               = 202340,
 
     // Sindragosa
     GO_SINDRAGOSA_ENTRANCE_DOOR             = 201373,
@@ -348,32 +340,23 @@ enum GameObjectsIds
     GO_ICE_BLOCK                            = 201722,
     GO_SIGIL_OF_THE_FROSTWING               = 202181,
 
-    // Lich King
+    // The Lich King
     GO_ARTHAS_PLATFORM                      = 202161,
-    GO_ICE_SHARD_1                          = 202141,
-    GO_ICE_SHARD_2                          = 202142,
-    GO_ICE_SHARD_3                          = 202143,
-    GO_ICE_SHARD_4                          = 202144,
-    GO_FROSTY_EDGE_OUTER                    = 202188,
-
-    GO_FROSTY_EDGE_INNER                    = 202189,
-    GO_EDGE_DESTROY_WARNING                 = 202190,
-    GO_LAVAMAN                              = 202436,
-    GO_HANGINGMAN                           = 202437,
+    GO_ARTHAS_PRECIPICE                     = 202078,
+    GO_DOODAD_ICECROWN_THRONEFROSTYWIND01   = 202188,
+    GO_DOODAD_ICECROWN_THRONEFROSTYEDGE01   = 202189,
+    GO_DOODAD_ICESHARD_STANDING02           = 202141,
+    GO_DOODAD_ICESHARD_STANDING01           = 202142,
+    GO_DOODAD_ICESHARD_STANDING03           = 202143,
+    GO_DOODAD_ICESHARD_STANDING04           = 202144,
+    GO_DOODAD_ICECROWN_SNOWEDGEWARNING01    = 202190,
+    GO_FROZEN_LAVAMAN                       = 202436,
+    GO_LAVAMAN_PILLARS_CHAINED              = 202437,
+    GO_LAVAMAN_PILLARS_UNCHAINED            = 202438,
 };
 
 enum AchievementCriteriaIds
 {
-    // Lich King
-    CRITERIA_WAITING_A_LONG_TIME_25N    = 13244,
-    CRITERIA_WAITING_A_LONG_TIME_25H    = 13245,
-    CRITERIA_WAITING_A_LONG_TIME_10N    = 13246,
-    CRITERIA_WAITING_A_LONG_TIME_10H    = 13247,
-    CRITERIA_NECK_DEEP_IN_VILE_10N      = 12823,
-    CRITERIA_NECK_DEEP_IN_VILE_10H      = 13163,
-    CRITERIA_NECK_DEEP_IN_VILE_25H      = 13164,
-    CRITERIA_NECK_DEEP_IN_VILE_25N      = 13243,
-
     // Lord Marrowgar
     CRITERIA_BONED_10N                  = 12775,
     CRITERIA_BONED_25N                  = 12962,
@@ -409,9 +392,6 @@ enum AchievementCriteriaIds
 
 enum SharedActions
 {
-    // Coldflame Traps
-    ACTION_STOP_TRAPS           = -377440,
-
     // Festergut
     ACTION_FESTERGUT_COMBAT     = -366260,
     ACTION_FESTERGUT_GAS        = -366261,
@@ -432,7 +412,10 @@ enum SharedActions
     // Sindragosa
     ACTION_START_FROSTWYRM      = -368530,
     ACTION_TRIGGER_ASPHYXIATION = -368531,
-    ACTION_BOMB_LANDED          = -368532,
+
+    // The Lich King
+    ACTION_RESTORE_LIGHT        = -72262,
+    ACTION_FROSTMOURNE_INTRO    = -36823,
 };
 
 enum WeekliesICC
@@ -456,6 +439,11 @@ enum WorldStatesICC
     WORLDSTATE_SHOW_ATTEMPTS        = 4940,
     WORLDSTATE_ATTEMPTS_REMAINING   = 4941,
     WORLDSTATE_ATTEMPTS_MAX         = 4942,
+};
+
+enum AreaIds
+{
+    AREA_THE_FROZEN_THRONE  = 4859,
 };
 
 class spell_trigger_spell_from_caster : public SpellScriptLoader
@@ -508,7 +496,5 @@ CreatureAI* GetIcecrownCitadelAI(Creature* creature)
                 return new AI(creature);
     return NULL;
 }
-
-void TeleportPlayerToFrozenThrone(Player *player);
 
 #endif // ICECROWN_CITADEL_H_

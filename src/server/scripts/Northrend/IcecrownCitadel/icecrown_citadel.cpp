@@ -1184,9 +1184,7 @@ class npc_crok_scourgebane : public CreatureScript
             bool CanAIAttack(Unit const* target) const
             {
                 // do not see targets inside Frostwing Halls when we are not there
-                if (target->GetPositionY() < 2650.0f)
-                    return true;
-                return false;
+                return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f);
             }
 
         private:
@@ -1265,9 +1263,7 @@ struct npc_argent_captainAI : public ScriptedAI
         bool CanAIAttack(Unit const* target) const
         {
             // do not see targets inside Frostwing Halls when we are not there
-            if (target->GetPositionY() < 2650.0f)
-                return true;
-            return false;
+            return (me->GetPositionY() > 2660.0f) == (target->GetPositionY() > 2660.0f);
         }
 
         void EnterEvadeMode()
@@ -1905,28 +1901,6 @@ class AliveCheck
             return unit->isAlive();
         }
 };
-
-class TeleportToFrozenThrone : public BasicEvent
-{
-    public:
-        TeleportToFrozenThrone(Player *player, uint8 attempts): pPlayer(player), attemptsLeft(attempts) { }
-
-        bool Execute(uint64 /*eventTime*/, uint32 /*updateTime*/)
-        {
-            pPlayer->CastSpell(pPlayer, FROZEN_THRONE_TELEPORT, true);
-            if (--attemptsLeft)
-                pPlayer->m_Events.AddEvent(new TeleportToFrozenThrone(pPlayer, attemptsLeft), pPlayer->m_Events.CalculateTime(uint64(1500)));
-            return true;
-        }
-    private:
-        Player *pPlayer;
-        uint8 attemptsLeft;
-};
-
-void TeleportPlayerToFrozenThrone(Player *player)
-{
-    player->m_Events.AddEvent(new TeleportToFrozenThrone(player, 2), player->m_Events.CalculateTime(uint64(5000)));
-}
 
 class spell_svalna_revive_champion : public SpellScriptLoader
 {
