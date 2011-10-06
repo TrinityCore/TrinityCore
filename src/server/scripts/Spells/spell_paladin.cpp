@@ -38,8 +38,8 @@ enum PaladinSpells
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
 
-    SPELL_RIGHTEOUS_DEFENCE                      = 31789,
-    SPELL_RIGHTEOUS_DEFENCE_EFFECT_1             = 31790,
+    PALADIN_SPELL_RIGHTEOUS_DEFENCE              = 31789,
+    PALADIN_SPELL_RIGHTEOUS_DEFENCE_EFFECT_1     = 31790,
 };
 
 // 31850 - Ardent Defender
@@ -341,7 +341,7 @@ class spell_pal_righteous_defense : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RIGHTEOUS_DEFENCE))
+                if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_RIGHTEOUS_DEFENCE))
                     return false;
                 return true;
             }
@@ -350,7 +350,7 @@ class spell_pal_righteous_defense : public SpellScriptLoader
             {
                 if (Unit* caster = GetCaster())
                     if (Unit* targetUnit = GetHitUnit())
-                        caster->CastSpell(targetUnit, SPELL_RIGHTEOUS_DEFENCE_EFFECT_1, true);
+                        caster->CastSpell(targetUnit, PALADIN_SPELL_RIGHTEOUS_DEFENCE_EFFECT_1, true);
             }
 
             void Register()
