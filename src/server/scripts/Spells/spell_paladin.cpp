@@ -37,6 +37,9 @@ enum PaladinSpells
     SPELL_BLESSING_OF_LOWER_CITY_PALADIN         = 37879,
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
+
+    SPELL_RIGHTEOUS_DEFENCE                      = 31789,
+    SPELL_RIGHTEOUS_DEFENCE_EFFECT_1             = 31790,
 };
 
 // 31850 - Ardent Defender
@@ -327,6 +330,42 @@ public:
     }
 };
 
+class spell_pal_righteous_defense : public SpellScriptLoader
+{
+    public:
+        spell_pal_righteous_defense() : SpellScriptLoader("spell_pal_righteous_defense") { }
+
+        class spell_pal_righteous_defense_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pal_righteous_defense_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RIGHTEOUS_DEFENCE))
+                    return false;
+                return true;
+            }
+
+            void HandleSpellEffectTriggerSpell(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (Unit* targetUnit = GetHitUnit())
+                        caster->CastSpell(targetUnit, SPELL_RIGHTEOUS_DEFENCE_EFFECT_1, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_SpellScript::HandleSpellEffectTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pal_righteous_defense_SpellScript();
+        }
+};
+
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -335,4 +374,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_guarded_by_the_light();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
+    new spell_pal_righteous_defense();
 }
