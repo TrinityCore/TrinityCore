@@ -564,14 +564,19 @@ class spell_marrowgar_bone_storm : public SpellScriptLoader
         {
             PrepareSpellScript(spell_marrowgar_bone_storm_SpellScript);
 
-            void RecalculateDamage(SpellEffIndex /*effIndex*/)
+            void RecalculateDamage()
             {
-                SetHitDamage(int32(GetHitDamage() / sqrtf(logf(GetHitUnit()->GetExactDist2d(GetCaster())))));
+                if (Unit* caster = GetCaster())
+                {
+                    const float distance = GetHitUnit()->GetExactDist2d(caster);
+                    const int32 damage   = GetHitDamage();
+                    SetHitDamage(int32(damage - (damage * distance / (distance + caster->GetObjectSize() / 2))));
+                }
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_marrowgar_bone_storm_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnHit += SpellHitFn(spell_marrowgar_bone_storm_SpellScript::RecalculateDamage);
             }
         };
 
