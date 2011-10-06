@@ -309,7 +309,7 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 {
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
     bool apply_direct_bonus = true;
