@@ -431,11 +431,8 @@ class Battleground
 
         // Map pointers
         void SetBgMap(BattlegroundMap* map) { m_Map = map; }
-        BattlegroundMap* GetBgMap()
-        {
-            ASSERT(m_Map);
-            return m_Map;
-        }
+        BattlegroundMap* GetBgMap() const { ASSERT(m_Map); return m_Map; }
+        BattlegroundMap* FindBgMap() const { return m_Map; }
 
         void SetTeamStartLoc(uint32 TeamID, float X, float Y, float Z, float O);
         void GetTeamStartLoc(uint32 TeamID, float &X, float &Y, float &Z, float &O) const
