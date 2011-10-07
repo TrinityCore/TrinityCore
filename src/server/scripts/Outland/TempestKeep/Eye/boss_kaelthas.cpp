@@ -770,8 +770,8 @@ class boss_kaelthas : public CreatureScript
 
                             if (FlameStrike_Timer <= diff)
                             {
-                                if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                    DoCast(pUnit, SPELL_FLAME_STRIKE);
+                                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                    DoCast(unit, SPELL_FLAME_STRIKE);
 
                                 FlameStrike_Timer = 30000;
                             }
@@ -784,7 +784,7 @@ class boss_kaelthas : public CreatureScript
                                     for (uint32 i = 0; i < 3; ++i)
                                 {
                                     sLog->outDebug(LOG_FILTER_TSCR, "SD2: Kael'Thas mind control not supported.");
-                                    //DoCast(pUnit, SPELL_MIND_CONTROL);
+                                    //DoCast(unit, SPELL_MIND_CONTROL);
                                 }
 
                                 MindControl_Timer = 60000;
@@ -892,11 +892,11 @@ class boss_kaelthas : public CreatureScript
                                         // 1) Kael'thas will portal the whole raid right into his body
                                         for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
                                         {
-                                            Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                                            if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                                            Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                                            if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                                             {
                                                 //Use work around packet to prevent player from being dropped from combat
-                                                DoTeleportPlayer(pUnit, afGravityPos[0], afGravityPos[1], afGravityPos[2], pUnit->GetOrientation());
+                                                DoTeleportPlayer(unit, afGravityPos[0], afGravityPos[1], afGravityPos[2], unit->GetOrientation());
                                             }
                                         }
 
@@ -913,20 +913,20 @@ class boss_kaelthas : public CreatureScript
                                         // 2) At that point he will put a Gravity Lapse debuff on everyone
                                         for (i = me->getThreatManager().getThreatList().begin(); i != me->getThreatManager().getThreatList().end(); ++i)
                                         {
-                                            if (Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid()))
+                                            if (Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid()))
                                             {
-                                                DoCast(pUnit, SPELL_KNOCKBACK, true);
+                                                DoCast(unit, SPELL_KNOCKBACK, true);
                                                 //Gravity lapse - needs an exception in Spell system to work
 
-                                                pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE, true, 0, 0, me->GetGUID());
-                                                pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE_AURA, true, 0, 0, me->GetGUID());
+                                                unit->CastSpell(unit, SPELL_GRAVITY_LAPSE, true, 0, 0, me->GetGUID());
+                                                unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_AURA, true, 0, 0, me->GetGUID());
 
                                                 //Using packet workaround
                                                 WorldPacket data(12);
                                                 data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
-                                                data.append(pUnit->GetPackGUID());
+                                                data.append(unit->GetPackGUID());
                                                 data << uint32(0);
-                                                pUnit->SendMessageToSet(&data, true);
+                                                unit->SendMessageToSet(&data, true);
                                             }
                                         }
                                         GravityLapse_Timer = 10000;
@@ -946,14 +946,14 @@ class boss_kaelthas : public CreatureScript
                                         //Remove flight
                                         for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
                                         {
-                                            if (Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid()))
+                                            if (Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid()))
                                             {
                                                 //Using packet workaround
                                                 WorldPacket data(12);
                                                 data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
-                                                data.append(pUnit->GetPackGUID());
+                                                data.append(unit->GetPackGUID());
                                                 data << uint32(0);
-                                                pUnit->SendMessageToSet(&data, true);
+                                                unit->SendMessageToSet(&data, true);
                                             }
                                         }
 
@@ -982,8 +982,8 @@ class boss_kaelthas : public CreatureScript
                                 //NetherBeam_Timer
                                 if (NetherBeam_Timer <= diff)
                                 {
-                                    if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                        DoCast(pUnit, SPELL_NETHER_BEAM);
+                                    if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                                        DoCast(unit, SPELL_NETHER_BEAM);
 
                                     NetherBeam_Timer = 4000;
                                 }
@@ -1286,12 +1286,12 @@ class boss_grand_astromancer_capernian : public CreatureScript
                     std::list<HostileReference*>& m_threatlist = me->getThreatManager().getThreatList();
                     for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
                     {
-                        Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                        Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
                                                                     //if in melee range
-                        if (pUnit && pUnit->IsWithinDistInMap(me, 5))
+                        if (unit && unit->IsWithinDistInMap(me, 5))
                         {
                             InMeleeRange = true;
-                            target = pUnit;
+                            target = unit;
                             break;
                         }
                     }

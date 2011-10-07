@@ -2665,10 +2665,10 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         Player* targetPlayer = m_targets.GetUnitTarget() && m_targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER
                             ? (Player*)m_targets.GetUnitTarget() : NULL;
 
-                        Group* pGroup = targetPlayer ? targetPlayer->GetGroup() : NULL;
-                        if (pGroup)
+                        Group* group = targetPlayer ? targetPlayer->GetGroup() : NULL;
+                        if (group)
                         {
-                            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                             {
                                 Player* Target = itr->getSource();
 

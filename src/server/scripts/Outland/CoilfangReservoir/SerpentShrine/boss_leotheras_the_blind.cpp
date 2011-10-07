@@ -96,9 +96,9 @@ public:
         }
         void JustDied(Unit* /*victim*/)
         {
-            Unit* pUnit = Unit::GetUnit((*me), victimGUID);
-            if (pUnit && pUnit->HasAura(SPELL_INSIDIOUS_WHISPER))
-                pUnit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
+            Unit* unit = Unit::GetUnit((*me), victimGUID);
+            if (unit && unit->HasAura(SPELL_INSIDIOUS_WHISPER))
+                unit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
         }
 
         void DamageTaken(Unit* done_by, uint32 &damage)
@@ -353,13 +353,13 @@ public:
             {
                 if (InnderDemon[i] > 0)
                 {
-                    Creature* pUnit = Unit::GetCreature((*me), InnderDemon[i]);
-                    if (pUnit && pUnit->isAlive())
+                    Creature* unit = Unit::GetCreature((*me), InnderDemon[i]);
+                    if (unit && unit->isAlive())
                     {
-                        Unit* unit_target = Unit::GetUnit(*pUnit, CAST_AI(mob_inner_demon::mob_inner_demonAI, pUnit->AI())->victimGUID);
+                        Unit* unit_target = Unit::GetUnit(*unit, CAST_AI(mob_inner_demon::mob_inner_demonAI, unit->AI())->victimGUID);
                         if (unit_target && unit_target->isAlive())
                         {
-                            pUnit->CastSpell(unit_target, SPELL_CONSUMING_MADNESS, true);
+                            unit->CastSpell(unit_target, SPELL_CONSUMING_MADNESS, true);
                             DoModifyThreatPercent(unit_target, -100);
                         }
                     }
