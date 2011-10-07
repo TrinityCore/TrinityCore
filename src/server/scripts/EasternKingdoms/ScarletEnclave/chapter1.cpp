@@ -478,8 +478,8 @@ public:
                     {
                         me->setFaction(FACTION_HOSTILE);
 
-                        if (Unit* pUnit = Unit::GetUnit(*me, m_uiDuelerGUID))
-                            AttackStart(pUnit);
+                        if (Unit* unit = Unit::GetUnit(*me, m_uiDuelerGUID))
+                            AttackStart(unit);
                     }
                     else
                         m_uiDuelTimer -= uiDiff;

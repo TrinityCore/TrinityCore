@@ -103,15 +103,15 @@ public:
                 //for (uint8 i = 0; i < CRYSTALS_NUMBER; ++i)
                 for (std::list<uint64>::const_iterator itr = Crystals.begin(); itr != Crystals.end(); ++itr)
                 {
-                    //Unit* pUnit = Unit::GetUnit(*me, FelCrystals[i]);
-                    Unit* pUnit = Unit::GetUnit(*me, *itr);
-                    if (pUnit)
+                    //Unit* unit = Unit::GetUnit(*me, FelCrystals[i]);
+                    Unit* unit = Unit::GetUnit(*me, *itr);
+                    if (unit)
                     {
-                        if (!pUnit->isAlive())
-                            CAST_CRE(pUnit)->Respawn();      // Let the core handle setting death state, etc.
+                        if (!unit->isAlive())
+                            CAST_CRE(unit)->Respawn();      // Let the core handle setting death state, etc.
 
                         // Only need to set unselectable flag. You can't attack unselectable units so non_attackable flag is not necessary here.
-                        pUnit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        unit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                 }
 

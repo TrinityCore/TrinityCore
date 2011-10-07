@@ -707,15 +707,15 @@ public:
             if (Heal_Timer <= diff)
             {
                 // It can be cast on any of the mobs
-                Unit* pUnit = NULL;
+                Unit* unit = NULL;
 
-                while (pUnit == NULL || !pUnit->isAlive())
+                while (unit == NULL || !unit->isAlive())
                 {
-                    pUnit = selectAdvisorUnit();
+                    unit = selectAdvisorUnit();
                 }
 
-                if (pUnit && pUnit->isAlive())
-                    DoCast(pUnit, SPELL_HEAL);
+                if (unit && unit->isAlive())
+                    DoCast(unit, SPELL_HEAL);
                 Heal_Timer = 60000;
             } else Heal_Timer -= diff;
 
@@ -724,26 +724,26 @@ public:
 
         Unit* selectAdvisorUnit()
         {
-            Unit* pUnit = NULL;
+            Unit* unit = NULL;
             if (pInstance)
             {
                 switch (rand()%4)
                 {
                 case 0:
-                    pUnit = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESS));
+                    unit = Unit::GetUnit((*me), pInstance->GetData64(DATA_KARATHRESS));
                     break;
                 case 1:
-                    pUnit = Unit::GetUnit((*me), pInstance->GetData64(DATA_SHARKKIS));
+                    unit = Unit::GetUnit((*me), pInstance->GetData64(DATA_SHARKKIS));
                     break;
                 case 2:
-                    pUnit = Unit::GetUnit((*me), pInstance->GetData64(DATA_TIDALVESS));
+                    unit = Unit::GetUnit((*me), pInstance->GetData64(DATA_TIDALVESS));
                     break;
                 case 3:
-                    pUnit = me;
+                    unit = me;
                     break;
                 }
-            } else pUnit = me;
-            return pUnit;
+            } else unit = me;
+            return unit;
         }
     };
 };
