@@ -994,9 +994,9 @@ public:
                     std::list<HostileReference*>::iterator itr;
                     for (itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
                     {
-                        Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                        if (pUnit)
-                            pPortal->AddThreat(pUnit, 1.0f);
+                        Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
+                        if (unit)
+                            pPortal->AddThreat(unit, 1.0f);
                     }
                 }
                 FelfirePortalTimer = 20000;

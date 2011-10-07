@@ -129,9 +129,9 @@ public:
                 {
                     if (bCanEat && !bIsEating)
                     {
-                        if (Unit* pUnit = Unit::GetUnit(*me, uiPlayerGUID))
+                        if (Unit* unit = Unit::GetUnit(*me, uiPlayerGUID))
                         {
-                            if (GameObject* pGo = pUnit->FindNearestGameObject(GO_CARCASS, 10))
+                            if (GameObject* pGo = unit->FindNearestGameObject(GO_CARCASS, 10))
                             {
                                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
                                     me->GetMotionMaster()->MovementExpired();

@@ -883,8 +883,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     if (pCurrChar->GetGuildId() != 0)
     {
-        if (Guild* pGuild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
-            pGuild->SendLoginInfo(this);
+        if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
+            guild->SendLoginInfo(this);
         else
         {
             // remove wrong guild data
