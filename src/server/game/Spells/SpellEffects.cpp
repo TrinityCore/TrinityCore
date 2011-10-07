@@ -1282,15 +1282,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 m_damage += CalculatePctF(damage, m_caster->GetTotalAttackPowerValue(BASE_ATTACK));
                 return;
             }
-            switch (m_spellInfo->Id)
-            {
-                // Bloodthirst
-                case 23881:
-                {
-                    m_caster->CastCustomSpell(unitTarget, 23885, &damage, NULL, NULL, true, NULL);
-                    return;
-                }
-            }
             break;
         case SPELLFAMILY_WARLOCK:
             // Life Tap
