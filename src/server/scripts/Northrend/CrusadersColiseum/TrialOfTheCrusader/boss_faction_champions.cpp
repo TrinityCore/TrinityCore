@@ -292,14 +292,14 @@ struct boss_faction_championsAI : public ScriptedAI
         std::list<HostileReference*> const& tList = me->getThreatManager().getThreatList();
         for (std::list<HostileReference*>::const_iterator itr = tList.begin(); itr != tList.end(); ++itr)
         {
-            Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-            if (pUnit && me->getThreatManager().getThreat(pUnit))
+            Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+            if (unit && me->getThreatManager().getThreat(unit))
             {
-                if (pUnit->GetTypeId()==TYPEID_PLAYER)
+                if (unit->GetTypeId()==TYPEID_PLAYER)
                 {
-                    float threat = CalculateThreat(me->GetDistance2d(pUnit), (float)pUnit->GetArmor(), pUnit->GetHealth());
-                    me->getThreatManager().modifyThreatPercent(pUnit, -100);
-                    me->AddThreat(pUnit, 1000000.0f * threat);
+                    float threat = CalculateThreat(me->GetDistance2d(unit), (float)unit->GetArmor(), unit->GetHealth());
+                    me->getThreatManager().modifyThreatPercent(unit, -100);
+                    me->AddThreat(unit, 1000000.0f * threat);
                 }
             }
         }

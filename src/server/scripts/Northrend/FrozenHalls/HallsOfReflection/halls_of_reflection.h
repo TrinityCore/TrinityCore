@@ -114,8 +114,8 @@ struct boss_horAI : ScriptedAI
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                if (Unit* pUnit = me->SelectNearestTarget())
-                    AttackStart(pUnit);
+                if (Unit* unit = me->SelectNearestTarget())
+                    AttackStart(unit);
 
                 DoZoneInCombat();
                 break;

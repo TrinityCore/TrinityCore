@@ -155,7 +155,7 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
 
 inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
 {
-    Unit* pUnit = NULL;
+    Unit* unit = NULL;
     if (!obj)
         sLog->outError("%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else if (!obj->isType(TYPEMASK_UNIT))
@@ -163,12 +163,12 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
             scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
     else
     {
-        pUnit = obj->ToUnit();
-        if (!pUnit)
+        unit = obj->ToUnit();
+        if (!unit)
             sLog->outError("%s %s object could not be casted to unit.",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     }
-    return pUnit;
+    return unit;
 }
 
 inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const

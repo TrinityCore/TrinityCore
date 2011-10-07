@@ -1706,12 +1706,12 @@ public:
         {
         }
 
-        void SpellHit(Unit* pUnit, const SpellInfo* pSpell)
+        void SpellHit(Unit* unit, const SpellInfo* pSpell)
         {
-            if (pSpell->Id == SPELL_NEURAL_NEEDLE && pUnit->GetTypeId() == TYPEID_PLAYER)
+            if (pSpell->Id == SPELL_NEURAL_NEEDLE && unit->GetTypeId() == TYPEID_PLAYER)
             {
                 ++uiPhase;
-                CasterGUID = pUnit->GetGUID();
+                CasterGUID = unit->GetGUID();
             }
         }
 

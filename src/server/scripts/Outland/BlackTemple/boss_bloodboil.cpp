@@ -185,14 +185,14 @@ public:
 
         void RevertThreatOnTarget(uint64 guid)
         {
-            Unit* pUnit = NULL;
-            pUnit = Unit::GetUnit((*me), guid);
-            if (pUnit)
+            Unit* unit = NULL;
+            unit = Unit::GetUnit((*me), guid);
+            if (unit)
             {
-                if (DoGetThreat(pUnit))
-                    DoModifyThreatPercent(pUnit, -100);
+                if (DoGetThreat(unit))
+                    DoModifyThreatPercent(unit, -100);
                 if (TargetThreat)
-                    me->AddThreat(pUnit, TargetThreat);
+                    me->AddThreat(unit, TargetThreat);
             }
         }
 
