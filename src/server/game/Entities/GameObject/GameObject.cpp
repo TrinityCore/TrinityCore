@@ -1211,15 +1211,13 @@ void GameObject::Use(Unit* user)
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             SetLootState(GO_ACTIVATED);
 
-            uint32 time_to_restore = info->GetAutoCloseTime();
-
             // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
-            if (time_to_restore && info->goober.customAnim)
+            if (info->goober.customAnim)
                 SendCustomAnim(GetGoAnimProgress());
             else
                 SetGoState(GO_STATE_ACTIVE);
 
-            m_cooldownTime = time(NULL) + time_to_restore;
+            m_cooldownTime = time(NULL) + info->GetAutoCloseTime();
 
             // cast this spell later if provided
             spellId = info->goober.spellId;
