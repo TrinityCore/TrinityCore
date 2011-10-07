@@ -54,7 +54,7 @@ public:
     {
         player->PlayerTalkClass->ClearMenus();
         hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 ai->StartEvent(player);
@@ -131,7 +131,7 @@ public:
         player->PlayerTalkClass->ClearMenus();
         hyjalAI* ai = CAST_AI(hyjalAI, creature->AI());
         ai->DeSpawnVeins();//despawn the alliance veins
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 ai->StartEvent(player);

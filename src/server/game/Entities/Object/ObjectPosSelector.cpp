@@ -85,7 +85,7 @@ bool ObjectPosSelector::FirstAngle(float& angle)
 
 bool ObjectPosSelector::NextAngle(float& angle)
 {
-    while(m_nextUsedPos[USED_POS_PLUS]!=m_UsedPosLists[USED_POS_PLUS].end() ||
+    while (m_nextUsedPos[USED_POS_PLUS]!=m_UsedPosLists[USED_POS_PLUS].end() ||
         m_nextUsedPos[USED_POS_MINUS]!=m_UsedPosLists[USED_POS_MINUS].end() ||
         m_smallStepOk[USED_POS_PLUS] || m_smallStepOk[USED_POS_MINUS] )
     {
@@ -99,7 +99,7 @@ bool ObjectPosSelector::NextAngle(float& angle)
 
 bool ObjectPosSelector::NextUsedAngle(float& angle)
 {
-    while(m_nextUsedPos[USED_POS_PLUS]!=m_UsedPosLists[USED_POS_PLUS].end() ||
+    while (m_nextUsedPos[USED_POS_PLUS]!=m_UsedPosLists[USED_POS_PLUS].end() ||
         m_nextUsedPos[USED_POS_MINUS]!=m_UsedPosLists[USED_POS_MINUS].end() )
     {
         // calculate next possible angle

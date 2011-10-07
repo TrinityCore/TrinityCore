@@ -94,7 +94,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_ATALAI_STATUE1: GOAtalaiStatue1 = go->GetGUID();   break;
                 case GO_ATALAI_STATUE2: GOAtalaiStatue2 = go->GetGUID();   break;
@@ -108,7 +108,7 @@ public:
 
          virtual void Update(uint32 /*diff*/) // correct order goes form 1-6
          {
-             switch(State)
+             switch (State)
              {
              case GO_ATALAI_STATUE1:
                 if (!s1 && !s2 && !s3 && !s4 && !s5 && !s6)

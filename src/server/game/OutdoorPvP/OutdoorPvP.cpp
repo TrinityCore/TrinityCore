@@ -413,7 +413,7 @@ void OPvPCapturePoint::SendUpdateWorldState(uint32 field, uint32 value)
 void OPvPCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
 {
     uint32 team;
-    switch(m_State)
+    switch (m_State)
     {
     case OBJECTIVESTATE_ALLIANCE:
         team = 0;
@@ -432,9 +432,9 @@ void OPvPCapturePoint::SendObjectiveComplete(uint32 id, uint64 guid)
 
 void OutdoorPvP::HandleKill(Player* killer, Unit* killed)
 {
-    if (Group* pGroup = killer->GetGroup())
+    if (Group* group = killer->GetGroup())
     {
-        for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* pGroupGuy = itr->getSource();
 

@@ -51,7 +51,7 @@ class LinkedListElement
 
         void delink()
         {
-            if(isInList())
+            if (isInList())
             {
                 iNext->iPrev = iPrev; iPrev->iNext = iNext; iNext = NULL; iPrev = NULL;
             }
@@ -112,11 +112,11 @@ class LinkedListHead
 
         uint32 getSize() const
         {
-            if(!iSize)
+            if (!iSize)
             {
                 uint32 result = 0;
                 LinkedListElement const* e = getFirst();
-                while(e)
+                while (e)
                 {
                     ++result;
                     e = e->next();

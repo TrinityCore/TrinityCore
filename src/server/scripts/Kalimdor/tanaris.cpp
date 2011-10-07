@@ -178,7 +178,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 0: DoScriptText(WHISPER_CUSTODIAN_1, me, player); break;
                 case 1: DoScriptText(WHISPER_CUSTODIAN_2, me, player); break;
@@ -435,7 +435,7 @@ public:
             if (!player)
                 return;
 
-            switch(i) {
+            switch (i) {
                 case 23:
                     me->SummonCreature(SPAWN_FIRST, -8350.96f, -4445.79f, 10.10f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(SPAWN_FIRST, -8355.96f, -4447.79f, 10.10f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -591,7 +591,7 @@ public:
                             return;
                         }
 
-                        switch(m_uiPhasePostEvent)
+                        switch (m_uiPhasePostEvent)
                         {
                             case 1:
                                 DoScriptText(SAY_TOOG_POST_1, me);

@@ -739,7 +739,7 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
     if (!mapEntry)
         return CONTENT_1_60;
 
-    switch(mapEntry->Expansion())
+    switch (mapEntry->Expansion())
     {
         default: return CONTENT_1_60;
         case 1:  return CONTENT_61_70;

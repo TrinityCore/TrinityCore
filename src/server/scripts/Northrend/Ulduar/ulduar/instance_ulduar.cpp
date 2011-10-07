@@ -23,7 +23,7 @@
 static DoorData const doorData[] =
 {
     {   GO_LEVIATHAN_DOOR, BOSS_LEVIATHAN,    DOOR_TYPE_ROOM, BOUNDARY_S      },
-    {   GO_XT_002_DOOR,    BOSS_XT002,        DOOR_TYPE_ROOM, BOUNDARY_S      },   
+    {   GO_XT_002_DOOR,    BOSS_XT002,        DOOR_TYPE_ROOM, BOUNDARY_S      },
     {   0,                 0,                 DOOR_TYPE_ROOM, BOUNDARY_NONE   },
 };
 
@@ -104,7 +104,6 @@ class instance_ulduar : public InstanceMapScript
                 AlgalonGUID                      = 0;
                 KologarnChestGUID                = 0;
                 KologarnBridgeGUID               = 0;
-                KologarnChestGUID                = 0;
                 ThorimChestGUID                  = 0;
                 HodirRareCacheGUID               = 0;
                 HodirChestGUID                   = 0;

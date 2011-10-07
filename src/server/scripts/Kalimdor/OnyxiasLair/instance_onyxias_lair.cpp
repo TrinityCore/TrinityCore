@@ -85,7 +85,7 @@ public:
                 return;
             }
 
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
                     Position goPos;
@@ -141,7 +141,7 @@ public:
 
         void SetData(uint32 uiType, uint32 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case DATA_ONYXIA:
                     m_auiEncounter[0] = uiData;
@@ -174,7 +174,7 @@ public:
 
         void SetData64(uint32 uiType, uint64 uiData)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case DATA_FLOOR_ERUPTION_GUID:
                     FloorEruptionGUID[1] = FloorEruptionGUID[0];
@@ -186,7 +186,7 @@ public:
 
         uint32 GetData(uint32 uiType)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case DATA_ONYXIA:
                     return m_auiEncounter[0];
@@ -197,7 +197,7 @@ public:
 
         uint64 GetData64(uint32 uiData)
         {
-            switch(uiData)
+            switch (uiData)
             {
                 case DATA_ONYXIA_GUID:
                     return m_uiOnyxiasGUID;
@@ -238,7 +238,7 @@ public:
 
         bool CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ = NULL, uint32 /*miscvalue1*/ = 0)
         {
-            switch(criteria_id)
+            switch (criteria_id)
             {
                 case ACHIEV_CRITERIA_MANY_WHELPS_10_PLAYER:  // Criteria for achievement 4403: Many Whelps! Handle It! (10 player) Hatch 50 eggs in 10s
                 case ACHIEV_CRITERIA_MANY_WHELPS_25_PLAYER:  // Criteria for achievement 4406: Many Whelps! Handle It! (25 player) Hatch 50 eggs in 10s

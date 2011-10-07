@@ -91,7 +91,7 @@ namespace ACE_Based
                     return false;
 
                 result = _queue.front();
-                if(!check.Process(result))
+                if (!check.Process(result))
                     return false;
 
                 _queue.pop_front();

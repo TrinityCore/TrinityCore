@@ -202,7 +202,7 @@ class example_escort : public CreatureScript
             player->PlayerTalkClass->ClearMenus();
             npc_escortAI* pEscortAI = CAST_AI(example_escort::example_escortAI, creature->AI());
 
-            switch(uiAction)
+            switch (uiAction)
             {
                 case GOSSIP_ACTION_INFO_DEF+1:
                     player->CLOSE_GOSSIP_MENU();

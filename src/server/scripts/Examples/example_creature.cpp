@@ -148,7 +148,7 @@ class example_creature : public CreatureScript
             {
                 me->HandleEmoteCommand(uiTextEmote);
 
-                switch(uiTextEmote)
+                switch (uiTextEmote)
                 {
                     case TEXT_EMOTE_DANCE:
                         DoScriptText(SAY_DANCE, me);

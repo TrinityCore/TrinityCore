@@ -43,7 +43,7 @@ EndScriptData */
 
 #define MOUNTED_DISPLAYID           16040
 
-//Attumen (TODO: Use the summoning spell instead of Creature id. It works , but is not convenient for us)
+//Attumen (TODO: Use the summoning spell instead of Creature id. It works, but is not convenient for us)
 #define SUMMON_ATTUMEN 15550
 
 class boss_attumen : public CreatureScript
@@ -141,8 +141,8 @@ public:
         {
             if (Phase == 2)
             {
-                if (Unit* pUnit = Unit::GetUnit(*me, Attumen))
-                DoScriptText(SAY_MIDNIGHT_KILL, pUnit);
+                if (Unit* unit = Unit::GetUnit(*me, Attumen))
+                DoScriptText(SAY_MIDNIGHT_KILL, unit);
             }
         }
 

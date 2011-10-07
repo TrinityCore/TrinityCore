@@ -2216,7 +2216,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
     PreparedStatement* stmt = NULL;
 
     ///- Update the database with ban information
-    switch(mode)
+    switch (mode)
     {
         case BAN_IP:
             // No SQL injection with prepared statements

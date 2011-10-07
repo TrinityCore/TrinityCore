@@ -419,10 +419,10 @@ struct boss_illidari_councilAI : public ScriptedAI
     {
         for (uint8 i = 0; i < 4; ++i)
         {
-            if (Unit* pUnit = Unit::GetUnit(*me, Council[i]))
-                if (pUnit != me && pUnit->getVictim())
+            if (Unit* unit = Unit::GetUnit(*me, Council[i]))
+                if (unit != me && unit->getVictim())
                 {
-                    AttackStart(pUnit->getVictim());
+                    AttackStart(unit->getVictim());
                     return;
                 }
         }
@@ -437,11 +437,11 @@ struct boss_illidari_councilAI : public ScriptedAI
         damage /= 4;
         for (uint8 i = 0; i < 4; ++i)
         {
-            if (Creature* pUnit = Unit::GetCreature(*me, Council[i]))
-                if (pUnit != me && damage < pUnit->GetHealth())
+            if (Creature* unit = Unit::GetCreature(*me, Council[i]))
+                if (unit != me && damage < unit->GetHealth())
                 {
-                    pUnit->ModifyHealth(-int32(damage));
-                    pUnit->LowerPlayerDamageReq(damage);
+                    unit->ModifyHealth(-int32(damage));
+                    unit->LowerPlayerDamageReq(damage);
                 }
         }
     }
@@ -504,15 +504,15 @@ public:
 
         Unit* SelectCouncilMember()
         {
-            Unit* pUnit = me;
+            Unit* unit = me;
             uint32 member = 0;                                  // He chooses Lady Malande most often
 
             if (rand()%10 == 0)                                  // But there is a chance he picks someone else.
                 member = urand(1, 3);
 
             if (member != 2)                                     // No need to create another pointer to us using Unit::GetUnit
-                pUnit = Unit::GetUnit((*me), Council[member]);
-            return pUnit;
+                unit = Unit::GetUnit((*me), Council[member]);
+            return unit;
         }
 
         void CastAuraOnCouncil()
@@ -525,9 +525,9 @@ public:
             }
             for (uint8 i = 0; i < 4; ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), Council[i]);
-                if (pUnit)
-                    pUnit->CastSpell(pUnit, spellid, true, 0, 0, me->GetGUID());
+                Unit* unit = Unit::GetUnit((*me), Council[i]);
+                if (unit)
+                    unit->CastSpell(unit, spellid, true, 0, 0, me->GetGUID());
             }
         }
 
@@ -538,12 +538,12 @@ public:
 
             if (BlessingTimer <= diff)
             {
-                if (Unit* pUnit = SelectCouncilMember())
+                if (Unit* unit = SelectCouncilMember())
                 {
                     switch (urand(0, 1))
                     {
-                        case 0: DoCast(pUnit, SPELL_BLESS_SPELLWARD);  break;
-                        case 1: DoCast(pUnit, SPELL_BLESS_PROTECTION); break;
+                        case 0: DoCast(unit, SPELL_BLESS_SPELLWARD);  break;
+                        case 1: DoCast(unit, SPELL_BLESS_PROTECTION); break;
                     }
                 }
                 BlessingTimer = 60000;

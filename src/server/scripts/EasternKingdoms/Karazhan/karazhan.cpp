@@ -163,7 +163,7 @@ public:
             if (!pInstance)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 0:
                     DoCast(me, SPELL_TUXEDO, false);
@@ -197,7 +197,7 @@ public:
         {
             int32 text = 0;
 
-            switch(m_uiEventId)
+            switch (m_uiEventId)
             {
                 case EVENT_OZ:
                     if (OzDialogue[count].textid)
@@ -231,7 +231,7 @@ public:
             uint8 index = 0;
             uint8 count = 0;
 
-            switch(m_uiEventId)
+            switch (m_uiEventId)
             {
                 case EVENT_OZ:
                     index = 0;
@@ -329,7 +329,7 @@ public:
         player->PlayerTalkClass->ClearMenus();
         npc_barnesAI* pBarnesAI = CAST_AI(npc_barnes::npc_barnesAI, creature->AI());
 
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, OZ_GOSSIP2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
@@ -538,7 +538,7 @@ public:
         {
             Unit* arca = Unit::GetUnit((*me), ArcanagosGUID);
             Map* pMap = me->GetMap();
-            switch(Step)
+            switch (Step)
             {
             case 0: return 9999999;
             case 1:

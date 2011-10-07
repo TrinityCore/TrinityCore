@@ -54,7 +54,7 @@ public:
         bool disabled = false;
 
         //for special scripts
-        switch(itemId)
+        switch (itemId)
         {
            case 24538:
                 if (player->GetAreaId() != 3628)
@@ -418,7 +418,7 @@ public:
             } else
                 player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
         } else
-            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW , pItem, NULL);
+            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
         return true;
     }
 };
