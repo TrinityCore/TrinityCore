@@ -541,9 +541,6 @@ class boss_flame_leviathan : public CreatureScript
                 //! I also removed the spellInfo check
                 void DoBatteringRamIfReady()
                 {
-                    if (me->HasUnitState(UNIT_STAT_CASTING))
-                        return;
-
                     if (me->isAttackReady())
                     {
                         Unit* target = ObjectAccessor::GetUnit(*me, _pursueTarget);
@@ -1229,7 +1226,7 @@ public:
     //bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
     //{
     //    player->PlayerTalkClass->ClearMenus();
-    //    switch (uiAction)
+    //    switch(uiAction)
     //    {
     //        case GOSSIP_ACTION_INFO_DEF+1:
     //            if (player)
@@ -1660,10 +1657,25 @@ class spell_pursue : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& targets)
             {
-                targets.remove_if (FlameLeviathanPursuedTargetSelector(GetCaster()));
+                targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));
                 if (targets.empty())
+                {
                     if (Creature* caster = GetCaster()->ToCreature())
                         caster->AI()->EnterEvadeMode();
+                }
+                else 
+                {
+                    //! In the end, only one target should be selected
+                    _target = SelectRandomContainerElement(targets);
+                    FilterTargetsSubsequently(targets);
+                }
+            }
+
+            void FilterTargetsSubsequently(std::list<Unit*>& targets)
+            {
+                ASSERT(_target);
+                targets.clear();
+                targets.push_back(_target);
             }
 
             void HandleScript(SpellEffIndex /*eff*/)
@@ -1687,8 +1699,11 @@ class spell_pursue : public SpellScriptLoader
             void Register()
             {
                 OnUnitTargetSelect += SpellUnitTargetFn(spell_pursue_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_pursue_SpellScript::FilterTargetsSubsequently, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
                 OnEffectHitTarget += SpellEffectFn(spell_pursue_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
+
+            Unit* _target;
         };
 
         SpellScript* GetSpellScript() const
