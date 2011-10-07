@@ -137,10 +137,7 @@ class boss_renataki : public CreatureScript
 
                         Aggro_Timer = 7000 + rand()%13000;
                     } else Aggro_Timer -= diff;
-                }
 
-                if (!Invisible)
-                {
                     if (ThousandBlades_Timer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_THOUSANDBLADES);
