@@ -569,9 +569,9 @@ public:
                 std::list<HostileReference*>::const_iterator itr;
                 for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
                 {
-                    Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                    if (pUnit && pUnit->isAlive() && pUnit != caster)
-                        me->AddThreat(pUnit, caster->getThreatManager().getThreat(pUnit));
+                    Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                    if (unit && unit->isAlive() && unit != caster)
+                        me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
                 }
             }
         }

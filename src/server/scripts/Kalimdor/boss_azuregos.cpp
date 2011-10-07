@@ -87,10 +87,10 @@ public:
                 std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
                 for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
                 {
-                    Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                    if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                    Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                    if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     {
-                        DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, pUnit->GetOrientation());
+                        DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+3, unit->GetOrientation());
                     }
                 }
 
