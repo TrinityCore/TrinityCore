@@ -100,29 +100,29 @@ void Map::ScriptCommandStart(ScriptInfo const& script, uint32 delay, Object* sou
 // Helpers for ScriptProcess method.
 inline Player* Map::_GetScriptPlayerSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo) const
 {
-    Player* pPlayer = NULL;
+    Player* player = NULL;
     if (!source && !target)
         sLog->outError("%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
     else
     {
         // Check target first, then source.
         if (target)
-            pPlayer = target->ToPlayer();
-        if (!pPlayer && source)
-            pPlayer = source->ToPlayer();
+            player = target->ToPlayer();
+        if (!player && source)
+            player = source->ToPlayer();
 
-        if (!pPlayer)
+        if (!player)
             sLog->outError("%s neither source nor target object is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
                 source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
                 target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
     }
-    return pPlayer;
+    return player;
 }
 
 inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* target, const ScriptInfo* scriptInfo, bool bReverse) const
 {
-    Creature* pCreature = NULL;
+    Creature* creature = NULL;
     if (!source && !target)
         sLog->outError("%s source and target objects are NULL.", scriptInfo->GetDebugInfo().c_str());
     else
@@ -131,26 +131,26 @@ inline Creature* Map::_GetScriptCreatureSourceOrTarget(Object* source, Object* t
         {
             // Check target first, then source.
             if (target)
-                pCreature = target->ToCreature();
-            if (!pCreature && source)
-                pCreature = source->ToCreature();
+                creature = target->ToCreature();
+            if (!creature && source)
+                creature = source->ToCreature();
         }
         else
         {
             // Check source first, then target.
             if (source)
-                pCreature = source->ToCreature();
-            if (!pCreature && target)
-                pCreature = target->ToCreature();
+                creature = source->ToCreature();
+            if (!creature && target)
+                creature = target->ToCreature();
         }
 
-        if (!pCreature)
+        if (!creature)
             sLog->outError("%s neither source nor target are creatures (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
                 scriptInfo->GetDebugInfo().c_str(),
                 source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
                 target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
     }
-    return pCreature;
+    return creature;
 }
 
 inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
@@ -173,32 +173,32 @@ inline Unit* Map::_GetScriptUnit(Object* obj, bool isSource, const ScriptInfo* s
 
 inline Player* Map::_GetScriptPlayer(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
 {
-    Player* pPlayer = NULL;
+    Player* player = NULL;
     if (!obj)
         sLog->outError("%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
     {
-        pPlayer = obj->ToPlayer();
-        if (!pPlayer)
+        player = obj->ToPlayer();
+        if (!player)
             sLog->outError("%s %s object is not a player (TypeId: %u, Entry: %u, GUID: %u).",
                 scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
     }
-    return pPlayer;
+    return player;
 }
 
 inline Creature* Map::_GetScriptCreature(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const
 {
-    Creature* pCreature = NULL;
+    Creature* creature = NULL;
     if (!obj)
         sLog->outError("%s %s object is NULL.", scriptInfo->GetDebugInfo().c_str(), isSource ? "source" : "target");
     else
     {
-        pCreature = obj->ToCreature();
-        if (!pCreature)
+        creature = obj->ToCreature();
+        if (!creature)
             sLog->outError("%s %s object is not a creature (TypeId: %u, Entry: %u, GUID: %u).", scriptInfo->GetDebugInfo().c_str(),
                 isSource ? "source" : "target", obj->GetTypeId(), obj->GetEntry(), obj->GetGUIDLow());
     }
-    return pCreature;
+    return creature;
 }
 
 inline WorldObject* Map::_GetScriptWorldObject(Object* obj, bool isSource, const ScriptInfo* scriptInfo) const

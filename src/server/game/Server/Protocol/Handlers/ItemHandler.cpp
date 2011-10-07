@@ -494,8 +494,8 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
     if (!itemguid)
         return;
 
-    Creature* pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
-    if (!pCreature)
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
+    if (!creature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, itemguid, 0);
@@ -512,21 +512,21 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
         // prevent sell not owner item
         if (_player->GetGUID() != pItem->GetOwnerGUID())
         {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
+            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
             return;
         }
 
         // prevent sell non empty bag by drag-and-drop at vendor's item list
         if (pItem->IsNotEmptyBag())
         {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
+            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
             return;
         }
 
         // prevent sell currently looted item
         if (_player->GetLootGUID() == pItem->GetGUID())
         {
-            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
+            _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
             return;
         }
 
@@ -546,7 +546,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
             // prevent sell more items that exist in stack (possible only not from client)
             if (count > pItem->GetCount())
             {
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
+                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
                 return;
             }
         }
@@ -562,7 +562,7 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
                     if (!pNewItem)
                     {
                         sLog->outError("WORLD: HandleSellItemOpcode - could not create clone of item %u; count = %u", pItem->GetEntry(), count);
-                        _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
+                        _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
                         return;
                     }
 
@@ -589,11 +589,11 @@ void WorldSession::HandleSellItemOpcode(WorldPacket & recv_data)
                 _player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_MONEY_FROM_VENDORS, money);
             }
             else
-                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, pCreature, itemguid, 0);
+                _player->SendSellError(SELL_ERR_CANT_SELL_ITEM, creature, itemguid, 0);
             return;
         }
     }
-    _player->SendSellError(SELL_ERR_CANT_FIND_ITEM, pCreature, itemguid, 0);
+    _player->SendSellError(SELL_ERR_CANT_FIND_ITEM, creature, itemguid, 0);
     return;
 }
 
@@ -605,8 +605,8 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
 
     recv_data >> vendorguid >> slot;
 
-    Creature* pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
-    if (!pCreature)
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
+    if (!creature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleBuybackItem - Unit (GUID: %u) not found or you can not interact with him.", uint32(GUID_LOPART(vendorguid)));
         _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, 0, 0);
@@ -623,7 +623,7 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
         uint32 price = _player->GetUInt32Value(PLAYER_FIELD_BUYBACK_PRICE_1 + slot - BUYBACK_SLOT_START);
         if (!_player->HasEnoughMoney(price))
         {
-            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, pCreature, pItem->GetEntry(), 0);
+            _player->SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, creature, pItem->GetEntry(), 0);
             return;
         }
 
@@ -642,7 +642,7 @@ void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
         return;
     }
     else
-        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, pCreature, 0, 0);
+        _player->SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, 0, 0);
 }
 
 void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
@@ -867,8 +867,8 @@ void WorldSession::HandleBuyBankSlotOpcode(WorldPacket& recvPacket)
 
     // cheating protection
     /* not critical if "cheated", and check skip allow by slots in bank windows open by .bank command.
-    Creature* pCreature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
-    if (!pCreature)
+    Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_BANKER);
+    if (!creature)
     {
         sLog->outDebug("WORLD: HandleBuyBankSlotOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
         return;

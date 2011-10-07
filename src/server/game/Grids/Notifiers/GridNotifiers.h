@@ -1231,10 +1231,10 @@ namespace Trinity
     {
     public:
         PlayerAtMinimumRangeAway(Unit const* unit, float fMinRange) : unit(unit), fRange(fMinRange) {}
-        bool operator() (Player* pPlayer)
+        bool operator() (Player* player)
         {
             //No threat list check, must be done explicit if expected to be in combat with creature
-            if (!pPlayer->isGameMaster() && pPlayer->isAlive() && !unit->IsWithinDist(pPlayer, fRange, false))
+            if (!player->isGameMaster() && player->isAlive() && !unit->IsWithinDist(player, fRange, false))
                 return true;
 
             return false;

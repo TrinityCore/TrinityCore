@@ -172,7 +172,6 @@ void Group::LoadGroupFromDB(Field* fields)
        m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
     else
        m_raidDifficulty = Difficulty(r_diff);
-
 }
 
 void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
@@ -720,12 +719,12 @@ void Group::SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r)
 }
 
 // notify group members which player is the allowed looter for the given creature
-void Group::SendLooter(Creature* pCreature, Player* pLooter)
+void Group::SendLooter(Creature* creature, Player* pLooter)
 {
-    ASSERT(pCreature);
+    ASSERT(creature);
 
     WorldPacket data(SMSG_LOOT_LIST, (8+8));
-    data << uint64(pCreature->GetGUID());
+    data << uint64(creature->GetGUID());
     data << uint8(0); // unk1
 
     if (pLooter)
@@ -770,7 +769,6 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
                 {
                     if (member->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
                     {
-
                         r->totalPlayersRolling++;
 
                         if (member->GetPassOnGroupLoot())
@@ -1255,19 +1253,18 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     player->GetSession()->SendPacket(&data);
 }
 
-void Group::UpdatePlayerOutOfRange(Player* pPlayer)
+void Group::UpdatePlayerOutOfRange(Player* player)
 {
-    if (!pPlayer || !pPlayer->IsInWorld())
+    if (!player || !player->IsInWorld())
         return;
 
-    Player* player;
     WorldPacket data;
-    pPlayer->GetSession()->BuildPartyMemberStatsChangedPacket(pPlayer, &data);
+    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data);
 
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
         player = itr->getSource();
-        if (player && !player->IsWithinDist(pPlayer, player->GetSightRange(), false))
+        if (player && !player->IsWithinDist(player, player->GetSightRange(), false))
             player->GetSession()->SendPacket(&data);
     }
 }
@@ -1589,9 +1586,9 @@ bool Group::InCombatToInstance(uint32 instanceId)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* pPlayer = itr->getSource();
-        if (pPlayer && !pPlayer->getAttackers().empty() && pPlayer->GetInstanceId() == instanceId && (pPlayer->GetMap()->IsRaidOrHeroicDungeon()))
-            for (std::set<Unit*>::const_iterator i = pPlayer->getAttackers().begin(); i != pPlayer->getAttackers().end(); ++i)
+        Player* player = itr->getSource();
+        if (player && !player->getAttackers().empty() && player->GetInstanceId() == instanceId && (player->GetMap()->IsRaidOrHeroicDungeon()))
+            for (std::set<Unit*>::const_iterator i = player->getAttackers().begin(); i != player->getAttackers().end(); ++i)
                 if ((*i) && (*i)->GetTypeId() == TYPEID_UNIT && (*i)->ToCreature()->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                     return true;
     }
@@ -1755,7 +1752,6 @@ void Group::BroadcastGroupUpdate(void)
     // -- not very efficient but safe
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-
         Player* pp = ObjectAccessor::FindPlayer(citr->guid);
         if (pp && pp->IsInWorld())
         {

@@ -657,14 +657,14 @@ void Creature::DoFleeToGetAssistance()
     float radius = sWorld->getFloatConfig(CONFIG_CREATURE_FAMILY_FLEE_ASSISTANCE_RADIUS);
     if (radius >0)
     {
-        Creature* pCreature = NULL;
+        Creature* creature = NULL;
 
         CellPair p(Trinity::ComputeCellPair(GetPositionX(), GetPositionY()));
         Cell cell(p);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
         Trinity::NearestAssistCreatureInCreatureRangeCheck u_check(this, getVictim(), radius);
-        Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck> searcher(this, pCreature, u_check);
+        Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck> searcher(this, creature, u_check);
 
         TypeContainerVisitor<Trinity::CreatureLastSearcher<Trinity::NearestAssistCreatureInCreatureRangeCheck>, GridTypeMapContainer > grid_creature_searcher(searcher);
 
@@ -673,12 +673,12 @@ void Creature::DoFleeToGetAssistance()
         SetNoSearchAssistance(true);
         UpdateSpeed(MOVE_RUN, false);
 
-        if (!pCreature)
+        if (!creature)
             //SetFeared(true, getVictim()->GetGUID(), 0, sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_FLEE_DELAY));
             //TODO: use 31365
             SetControlled(true, UNIT_STAT_FLEEING);
         else
-            GetMotionMaster()->MoveSeekAssistance(pCreature->GetPositionX(), pCreature->GetPositionY(), pCreature->GetPositionZ());
+            GetMotionMaster()->MoveSeekAssistance(creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ());
     }
 }
 
@@ -805,7 +805,7 @@ bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, 
     return true;
 }
 
-bool Creature::isCanTrainingOf(Player* pPlayer, bool msg) const
+bool Creature::isCanTrainingOf(Player* player, bool msg) const
 {
     if (!isTrainer())
         return false;
@@ -822,65 +822,65 @@ bool Creature::isCanTrainingOf(Player* pPlayer, bool msg) const
     switch (GetCreatureInfo()->trainer_type)
     {
         case TRAINER_TYPE_CLASS:
-            if (pPlayer->getClass() != GetCreatureInfo()->trainer_class)
+            if (player->getClass() != GetCreatureInfo()->trainer_class)
             {
                 if (msg)
                 {
-                    pPlayer->PlayerTalkClass->ClearMenus();
+                    player->PlayerTalkClass->ClearMenus();
                     switch (GetCreatureInfo()->trainer_class)
                     {
-                        case CLASS_DRUID:  pPlayer->PlayerTalkClass->SendGossipMenu(4913, GetGUID()); break;
-                        case CLASS_HUNTER: pPlayer->PlayerTalkClass->SendGossipMenu(10090, GetGUID()); break;
-                        case CLASS_MAGE:   pPlayer->PlayerTalkClass->SendGossipMenu(328, GetGUID()); break;
-                        case CLASS_PALADIN:pPlayer->PlayerTalkClass->SendGossipMenu(1635, GetGUID()); break;
-                        case CLASS_PRIEST: pPlayer->PlayerTalkClass->SendGossipMenu(4436, GetGUID()); break;
-                        case CLASS_ROGUE:  pPlayer->PlayerTalkClass->SendGossipMenu(4797, GetGUID()); break;
-                        case CLASS_SHAMAN: pPlayer->PlayerTalkClass->SendGossipMenu(5003, GetGUID()); break;
-                        case CLASS_WARLOCK:pPlayer->PlayerTalkClass->SendGossipMenu(5836, GetGUID()); break;
-                        case CLASS_WARRIOR:pPlayer->PlayerTalkClass->SendGossipMenu(4985, GetGUID()); break;
+                        case CLASS_DRUID:  player->PlayerTalkClass->SendGossipMenu(4913, GetGUID()); break;
+                        case CLASS_HUNTER: player->PlayerTalkClass->SendGossipMenu(10090, GetGUID()); break;
+                        case CLASS_MAGE:   player->PlayerTalkClass->SendGossipMenu(328, GetGUID()); break;
+                        case CLASS_PALADIN:player->PlayerTalkClass->SendGossipMenu(1635, GetGUID()); break;
+                        case CLASS_PRIEST: player->PlayerTalkClass->SendGossipMenu(4436, GetGUID()); break;
+                        case CLASS_ROGUE:  player->PlayerTalkClass->SendGossipMenu(4797, GetGUID()); break;
+                        case CLASS_SHAMAN: player->PlayerTalkClass->SendGossipMenu(5003, GetGUID()); break;
+                        case CLASS_WARLOCK:player->PlayerTalkClass->SendGossipMenu(5836, GetGUID()); break;
+                        case CLASS_WARRIOR:player->PlayerTalkClass->SendGossipMenu(4985, GetGUID()); break;
                     }
                 }
                 return false;
             }
             break;
         case TRAINER_TYPE_PETS:
-            if (pPlayer->getClass() != CLASS_HUNTER)
+            if (player->getClass() != CLASS_HUNTER)
             {
-                pPlayer->PlayerTalkClass->ClearMenus();
-                pPlayer->PlayerTalkClass->SendGossipMenu(3620, GetGUID());
+                player->PlayerTalkClass->ClearMenus();
+                player->PlayerTalkClass->SendGossipMenu(3620, GetGUID());
                 return false;
             }
             break;
         case TRAINER_TYPE_MOUNTS:
-            if (GetCreatureInfo()->trainer_race && pPlayer->getRace() != GetCreatureInfo()->trainer_race)
+            if (GetCreatureInfo()->trainer_race && player->getRace() != GetCreatureInfo()->trainer_race)
             {
                 if (msg)
                 {
-                    pPlayer->PlayerTalkClass->ClearMenus();
+                    player->PlayerTalkClass->ClearMenus();
                     switch (GetCreatureInfo()->trainer_class)
                     {
-                        case RACE_DWARF:        pPlayer->PlayerTalkClass->SendGossipMenu(5865, GetGUID()); break;
-                        case RACE_GNOME:        pPlayer->PlayerTalkClass->SendGossipMenu(4881, GetGUID()); break;
-                        case RACE_HUMAN:        pPlayer->PlayerTalkClass->SendGossipMenu(5861, GetGUID()); break;
-                        case RACE_NIGHTELF:     pPlayer->PlayerTalkClass->SendGossipMenu(5862, GetGUID()); break;
-                        case RACE_ORC:          pPlayer->PlayerTalkClass->SendGossipMenu(5863, GetGUID()); break;
-                        case RACE_TAUREN:       pPlayer->PlayerTalkClass->SendGossipMenu(5864, GetGUID()); break;
-                        case RACE_TROLL:        pPlayer->PlayerTalkClass->SendGossipMenu(5816, GetGUID()); break;
-                        case RACE_UNDEAD_PLAYER:pPlayer->PlayerTalkClass->SendGossipMenu(624, GetGUID()); break;
-                        case RACE_BLOODELF:     pPlayer->PlayerTalkClass->SendGossipMenu(5862, GetGUID()); break;
-                        case RACE_DRAENEI:      pPlayer->PlayerTalkClass->SendGossipMenu(5864, GetGUID()); break;
+                        case RACE_DWARF:        player->PlayerTalkClass->SendGossipMenu(5865, GetGUID()); break;
+                        case RACE_GNOME:        player->PlayerTalkClass->SendGossipMenu(4881, GetGUID()); break;
+                        case RACE_HUMAN:        player->PlayerTalkClass->SendGossipMenu(5861, GetGUID()); break;
+                        case RACE_NIGHTELF:     player->PlayerTalkClass->SendGossipMenu(5862, GetGUID()); break;
+                        case RACE_ORC:          player->PlayerTalkClass->SendGossipMenu(5863, GetGUID()); break;
+                        case RACE_TAUREN:       player->PlayerTalkClass->SendGossipMenu(5864, GetGUID()); break;
+                        case RACE_TROLL:        player->PlayerTalkClass->SendGossipMenu(5816, GetGUID()); break;
+                        case RACE_UNDEAD_PLAYER:player->PlayerTalkClass->SendGossipMenu(624, GetGUID()); break;
+                        case RACE_BLOODELF:     player->PlayerTalkClass->SendGossipMenu(5862, GetGUID()); break;
+                        case RACE_DRAENEI:      player->PlayerTalkClass->SendGossipMenu(5864, GetGUID()); break;
                     }
                 }
                 return false;
             }
             break;
         case TRAINER_TYPE_TRADESKILLS:
-            if (GetCreatureInfo()->trainer_spell && !pPlayer->HasSpell(GetCreatureInfo()->trainer_spell))
+            if (GetCreatureInfo()->trainer_spell && !player->HasSpell(GetCreatureInfo()->trainer_spell))
             {
                 if (msg)
                 {
-                    pPlayer->PlayerTalkClass->ClearMenus();
-                    pPlayer->PlayerTalkClass->SendGossipMenu(11031, GetGUID());
+                    player->PlayerTalkClass->ClearMenus();
+                    player->PlayerTalkClass->SendGossipMenu(11031, GetGUID());
                 }
                 return false;
             }
@@ -891,23 +891,23 @@ bool Creature::isCanTrainingOf(Player* pPlayer, bool msg) const
     return true;
 }
 
-bool Creature::isCanInteractWithBattleMaster(Player* pPlayer, bool msg) const
+bool Creature::isCanInteractWithBattleMaster(Player* player, bool msg) const
 {
     if (!isBattleMaster())
         return false;
 
     BattlegroundTypeId bgTypeId = sBattlegroundMgr->GetBattleMasterBG(GetEntry());
     if (!msg)
-        return pPlayer->GetBGAccessByLevel(bgTypeId);
+        return player->GetBGAccessByLevel(bgTypeId);
 
-    if (!pPlayer->GetBGAccessByLevel(bgTypeId))
+    if (!player->GetBGAccessByLevel(bgTypeId))
     {
-        pPlayer->PlayerTalkClass->ClearMenus();
+        player->PlayerTalkClass->ClearMenus();
         switch (bgTypeId)
         {
-            case BATTLEGROUND_AV:  pPlayer->PlayerTalkClass->SendGossipMenu(7616, GetGUID()); break;
-            case BATTLEGROUND_WS:  pPlayer->PlayerTalkClass->SendGossipMenu(7599, GetGUID()); break;
-            case BATTLEGROUND_AB:  pPlayer->PlayerTalkClass->SendGossipMenu(7642, GetGUID()); break;
+            case BATTLEGROUND_AV:  player->PlayerTalkClass->SendGossipMenu(7616, GetGUID()); break;
+            case BATTLEGROUND_WS:  player->PlayerTalkClass->SendGossipMenu(7599, GetGUID()); break;
+            case BATTLEGROUND_AB:  player->PlayerTalkClass->SendGossipMenu(7642, GetGUID()); break;
             case BATTLEGROUND_EY:
             case BATTLEGROUND_NA:
             case BATTLEGROUND_BE:
@@ -915,7 +915,7 @@ bool Creature::isCanInteractWithBattleMaster(Player* pPlayer, bool msg) const
             case BATTLEGROUND_RL:
             case BATTLEGROUND_SA:
             case BATTLEGROUND_DS:
-            case BATTLEGROUND_RV: pPlayer->PlayerTalkClass->SendGossipMenu(10024, GetGUID()); break;
+            case BATTLEGROUND_RV: player->PlayerTalkClass->SendGossipMenu(10024, GetGUID()); break;
             default: break;
         }
         return false;
@@ -923,11 +923,11 @@ bool Creature::isCanInteractWithBattleMaster(Player* pPlayer, bool msg) const
     return true;
 }
 
-bool Creature::isCanTrainingAndResetTalentsOf(Player* pPlayer) const
+bool Creature::isCanTrainingAndResetTalentsOf(Player* player) const
 {
-    return pPlayer->getLevel() >= 10
+    return player->getLevel() >= 10
         && GetCreatureInfo()->trainer_type == TRAINER_TYPE_CLASS
-        && pPlayer->getClass() == GetCreatureInfo()->trainer_class;
+        && player->getClass() == GetCreatureInfo()->trainer_class;
 }
 
 void Creature::AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 /*MovementFlags*/, uint8 /*type*/)
@@ -2132,16 +2132,16 @@ void Creature::SetInCombatWithZone()
 
     for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
     {
-        if (Player* pPlayer = i->getSource())
+        if (Player* player = i->getSource())
         {
-            if (pPlayer->isGameMaster())
+            if (player->isGameMaster())
                 continue;
 
-            if (pPlayer->isAlive())
+            if (player->isAlive())
             {
-                this->SetInCombatWith(pPlayer);
-                pPlayer->SetInCombatWith(this);
-                AddThreat(pPlayer, 0.0f);
+                this->SetInCombatWith(player);
+                player->SetInCombatWith(this);
+                AddThreat(player, 0.0f);
             }
         }
     }
