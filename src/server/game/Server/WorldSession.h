@@ -145,7 +145,7 @@ public:
     explicit PacketFilter(WorldSession* pSession) : m_pSession(pSession) {}
     virtual ~PacketFilter() {}
 
-    virtual bool Process(WorldPacket*  /*packet*/) { return true; }
+    virtual bool Process(WorldPacket* /*packet*/) { return true; }
     virtual bool ProcessLogout() const { return true; }
 
 protected:
@@ -367,7 +367,7 @@ class WorldSession
 
         uint32 GetLatency() const { return m_latency; }
         void SetLatency(uint32 latency) { m_latency = latency; }
-        uint32 getDialogStatus(Player* pPlayer, Object* questgiver, uint32 defstatus);
+        uint32 getDialogStatus(Player* player, Object* questgiver, uint32 defstatus);
 
         time_t m_timeOutTime;
         void UpdateTimeOutTime(uint32 diff)

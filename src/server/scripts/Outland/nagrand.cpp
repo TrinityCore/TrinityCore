@@ -613,7 +613,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 7:
                     DoScriptText(SAY_MAG_MORE, me);

@@ -86,7 +86,7 @@ class boss_laj : public CreatureScript
 
             void DoTransform()
             {
-                switch(rand()%5)
+                switch (rand()%5)
                 {
                     case 0:
                         me->SetDisplayId(MODEL_DEFAULT);
@@ -133,7 +133,7 @@ class boss_laj : public CreatureScript
 
             void DoSummons()
             {
-                switch(rand()%4)
+                switch (rand()%4)
                 {
                     case 0:
                         DoCast(me, SPELL_SUMMON_LASHER_1, true);

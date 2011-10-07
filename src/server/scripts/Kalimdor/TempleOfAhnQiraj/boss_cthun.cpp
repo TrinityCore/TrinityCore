@@ -576,11 +576,11 @@ public:
             while (i != Stomach_Map.end())
             {
                 //Check for valid player
-                Unit* pUnit = Unit::GetUnit(*me, i->first);
+                Unit* unit = Unit::GetUnit(*me, i->first);
 
                 //Only units out of stomach
-                if (pUnit && i->second == false)
-                    temp.push_back(pUnit);
+                if (unit && i->second == false)
+                    temp.push_back(unit);
 
                 ++i;
             }
@@ -592,7 +592,7 @@ public:
 
             //Get random but only if we have more than one unit on threat list
             if (temp.size() > 1)
-                advance (j , rand() % (temp.size() - 1));
+                advance (j, rand() % (temp.size() - 1));
 
             return (*j);
         }
@@ -724,19 +724,19 @@ public:
                         while (i != Stomach_Map.end())
                         {
                             //Check for valid player
-                            Unit* pUnit = Unit::GetUnit(*me, i->first);
+                            Unit* unit = Unit::GetUnit(*me, i->first);
 
                             //Only move units in stomach
-                            if (pUnit && i->second == true)
+                            if (unit && i->second == true)
                             {
                                 //Teleport each player out
-                                DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
+                                DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
 
                                 //Cast knockback on them
-                                DoCast(pUnit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
+                                DoCast(unit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
 
                                 //Remove the acid debuff
-                                pUnit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
+                                unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
 
                                 i->second = false;
                             }
@@ -755,25 +755,25 @@ public:
                         while (i != Stomach_Map.end())
                         {
                             //Check for valid player
-                            Unit* pUnit = Unit::GetUnit(*me, i->first);
+                            Unit* unit = Unit::GetUnit(*me, i->first);
 
                             //Only apply to units in stomach
-                            if (pUnit && i->second == true)
+                            if (unit && i->second == true)
                             {
                                 //Cast digestive acid on them
-                                DoCast(pUnit, SPELL_DIGESTIVE_ACID, true);
+                                DoCast(unit, SPELL_DIGESTIVE_ACID, true);
 
                                 //Check if player should be kicked from stomach
-                                if (pUnit->IsWithinDist3d(&KickPos, 15.0f))
+                                if (unit->IsWithinDist3d(&KickPos, 15.0f))
                                 {
                                     //Teleport each player out
-                                    DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
+                                    DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
 
                                     //Cast knockback on them
-                                    DoCast(pUnit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
+                                    DoCast(unit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
 
                                     //Remove the acid debuff
-                                    pUnit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
+                                    unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
 
                                     i->second = false;
                                 }
@@ -805,11 +805,11 @@ public:
                         if (StomachEnterVisTimer <= diff)
                         {
                             //Check for valid player
-                            Unit* pUnit = Unit::GetUnit(*me, StomachEnterTarget);
+                            Unit* unit = Unit::GetUnit(*me, StomachEnterTarget);
 
-                            if (pUnit)
+                            if (unit)
                             {
-                                DoTeleportPlayer(pUnit, STOMACH_X, STOMACH_Y, STOMACH_Z, STOMACH_O);
+                                DoTeleportPlayer(unit, STOMACH_X, STOMACH_Y, STOMACH_Z, STOMACH_O);
                             }
 
                             StomachEnterTarget = 0;
@@ -916,7 +916,7 @@ public:
 
         void DoAction(const int32 param)
         {
-            switch(param)
+            switch (param)
             {
                 case ACTION_FLESH_TENTACLE_KILLED:
                     ++FleshTentaclesKilled;

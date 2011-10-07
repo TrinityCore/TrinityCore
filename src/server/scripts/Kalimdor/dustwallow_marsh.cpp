@@ -299,7 +299,7 @@ public:
 
             if (bYellTimer && uiYellTimer <= uiDiff)
             {
-                switch(uiStep)
+                switch (uiStep)
                 {
                     case 0:
                         DoScriptText(RAND(SAY_QUEST2, SAY_QUEST3, SAY_QUEST4, SAY_QUEST5, SAY_QUEST6), me);
@@ -535,8 +535,8 @@ public:
             SetCombatMovement(true);
 
             if (me->isInCombat())
-                if (Unit* pUnit = me->getVictim())
-                    me->GetMotionMaster()->MoveChase(pUnit);
+                if (Unit* unit = me->getVictim())
+                    me->GetMotionMaster()->MoveChase(unit);
         }
 
         void MoveToDock()
@@ -590,7 +590,7 @@ public:
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || QUEST_STINKYS_ESCAPE_A)
+         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || quest->GetQuestId() == QUEST_STINKYS_ESCAPE_A)
          {
              if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, creature->AI()))
              {
@@ -823,6 +823,36 @@ class spell_energize_aoe : public SpellScriptLoader
         }
 };
 
+/*######
+## go_blackhoof_cage
+######*/
+
+enum PrisonersOfTheGrimTotems
+{
+    NPC_THERAMORE_PRISONER                          = 23720,
+    SAY_FREE                                        = 0,
+};
+
+class go_blackhoof_cage : public GameObjectScript
+{
+public:
+    go_blackhoof_cage() : GameObjectScript("go_blackhoof_cage") { }
+
+    bool OnGossipHello(Player* player, GameObject* go)
+    {
+        if (Creature* prisoner = go->FindNearestCreature(NPC_THERAMORE_PRISONER, 1.0f))
+        {
+            go->UseDoorOrButton();
+            if (player)
+                player->KilledMonsterCredit(NPC_THERAMORE_PRISONER, 0);
+
+            prisoner->AI()->Talk(SAY_FREE); // We also emote cry here (handled in creature_text.emote)
+            prisoner->ForcedDespawn(6000);
+        }
+        return true;
+    }
+};
+
 void AddSC_dustwallow_marsh()
 {
     new mobs_risen_husk_spirit();
@@ -836,4 +866,5 @@ void AddSC_dustwallow_marsh()
     new spell_ooze_zap();
     new spell_ooze_zap_channel_end();
     new spell_energize_aoe();
+    new go_blackhoof_cage();
 }

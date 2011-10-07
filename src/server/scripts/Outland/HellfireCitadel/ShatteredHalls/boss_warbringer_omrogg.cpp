@@ -281,7 +281,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 Unit* source = (pLeftHead->GetEntry() == Killing[ikilling].creature ? pLeftHead : pRightHead);
 
-                switch(ikilling)
+                switch (ikilling)
                 {
                     case 0:
                         DoScriptText(Killing[ikilling].id, source);

@@ -173,9 +173,9 @@ public:
             std::list<Unit*> targets;
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                if (pUnit && pUnit->isAlive())
-                    targets.push_back(pUnit);
+                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                if (unit && unit->isAlive())
+                    targets.push_back(unit);
             }
             targets.sort(Trinity::ObjectDistanceOrderPred(me));
             Unit* target = targets.front();
@@ -322,11 +322,11 @@ public:
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && pUnit->isAlive())
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && unit->isAlive())
                 {
-                    float threat = DoGetThreat(pUnit);
-                    Blossom->AddThreat(pUnit, threat);
+                    float threat = DoGetThreat(unit);
+                    Blossom->AddThreat(unit, threat);
                 }
             }
         }
@@ -389,9 +389,9 @@ public:
                     Done = true;
                     if (AggroTargetGUID)
                     {
-                        Unit* pUnit = Unit::GetUnit((*me), AggroTargetGUID);
-                        if (pUnit)
-                            AttackStart(pUnit);
+                        Unit* unit = Unit::GetUnit((*me), AggroTargetGUID);
+                        if (unit)
+                            AttackStart(unit);
 
                         DoZoneInCombat();
                     }

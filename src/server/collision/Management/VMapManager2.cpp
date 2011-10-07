@@ -62,17 +62,6 @@ namespace VMAP
         return pos;
     }
 
-    Vector3 VMapManager2::convertPositionToMangosRep(float x, float y, float z) const
-    {
-        Vector3 pos;
-        const float mid = 0.5f * 64.0f * 533.33333333f;
-        pos.x = mid - x;
-        pos.y = mid - y;
-        pos.z = z;
-
-        return pos;
-    }
-
     // move to MapTree too?
     std::string VMapManager2::getMapFileName(unsigned int mapId)
     {
@@ -175,7 +164,7 @@ namespace VMAP
                 Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
                 Vector3 resultPos;
                 bool result = instanceTree->second->getObjectHitPos(pos1, pos2, resultPos, modifyDist);
-                resultPos = convertPositionToMangosRep(resultPos.x, resultPos.y, resultPos.z);
+                resultPos = convertPositionToInternalRep(resultPos.x, resultPos.y, resultPos.z);
                 rx = resultPos.x;
                 ry = resultPos.y;
                 rz = resultPos.z;
@@ -222,7 +211,7 @@ namespace VMAP
             {
                 Vector3 pos = convertPositionToInternalRep(x, y, z);
                 bool result = instanceTree->second->getAreaInfo(pos, flags, adtId, rootId, groupId);
-                // z is not touched by convertPositionToMangosRep(), so just copy
+                // z is not touched by convertPositionToInternalRep(), so just copy
                 z = pos.z;
                 return result;
             }

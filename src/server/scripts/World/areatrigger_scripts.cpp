@@ -68,7 +68,7 @@ class AreaTrigger_at_aldurthar_gate : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
-            switch(trigger->id)
+            switch (trigger->id)
             {
                 case TRIGGER_SOUTH:     player->KilledMonsterCredit(NPC_SOUTH_GATE, 0);     break;
                 case TRIGGER_CENTRAL:   player->KilledMonsterCredit(NPC_CENTRAL_GATE, 0);   break;
@@ -205,7 +205,7 @@ class AreaTrigger_at_warsong_farms : public AreaTriggerScript
         {
             if (!player->isDead() && player->GetQuestStatus(QUEST_THE_WARSONG_FARMS) == QUEST_STATUS_INCOMPLETE)
             {
-                switch(trigger->id)
+                switch (trigger->id)
                 {
                     case AT_SLAUGHTERHOUSE: player->KilledMonsterCredit(NPC_CREDIT_SLAUGHTERHOUSE, 0); break;
                     case AT_GRAINERY:       player->KilledMonsterCredit(NPC_CREDIT_GRAINERY, 0);       break;
@@ -305,7 +305,7 @@ class AreaTrigger_at_last_rites : public AreaTriggerScript
 
             WorldLocation pPosition;
 
-            switch(trigger->id)
+            switch (trigger->id)
             {
                 case 5332:
                 case 5338:
@@ -357,7 +357,7 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
             if (player->GetQuestStatus(QUEST_THE_MAKERS_OVERLOOK) == QUEST_STATUS_REWARDED && !player->isDead() &&
                 player->GetQuestStatus(QUEST_THE_MAKERS_PERCH)    == QUEST_STATUS_REWARDED)
             {
-                switch(trigger->id)
+                switch (trigger->id)
                 {
                     case AT_SHOLAZAR: player->CastSpell(player, SPELL_SHOLAZAR_TO_UNGORO_TELEPORT, false); break;
                     case AT_UNGORO:   player->CastSpell(player, SPELL_UNGORO_TO_SHOLAZAR_TELEPORT, false); break;

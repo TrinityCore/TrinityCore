@@ -498,18 +498,18 @@ public:
         float z;
         float ort;
         uint32 mapid;
-        
+
         if (pmapid)
             mapid = (uint32)atoi(pmapid);
         else
             mapid = _player->GetMapId();
-            
-        if( port )
+
+        if ( port )
             ort = (float)atof(port);
         else
             ort = _player->GetOrientation();
-        
-        if( pz )
+
+        if ( pz )
         {
             z = (float)atof(pz);
             if (!MapManager::IsValidMapCoord(mapid, x, y, z))
@@ -530,7 +530,7 @@ public:
             Map const* map = sMapMgr->CreateBaseMap(mapid);
             z = std::max(map->GetHeight(x, y, MAX_HEIGHT), map->GetWaterLevel(x, y));
         }
-        
+
         // stop flight if need
         if (_player->isInFlight())
         {

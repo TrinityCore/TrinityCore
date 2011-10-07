@@ -49,14 +49,14 @@ enum SelectAggroTarget
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
+struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
 {
     const Unit* me;
     float m_dist;
     bool m_playerOnly;
     int32 m_aura;
 
-    // pUnit: the reference unit
+    // unit: the reference unit
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
@@ -152,7 +152,7 @@ class UnitAI
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satifying the predicate.
-        // predicate shall extend std::unary_function<Unit* , bool>
+        // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
             const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
@@ -202,7 +202,7 @@ class UnitAI
         void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
 
         // Select the targets satifying the predicate.
-        // predicate shall extend std::unary_function<Unit* , bool>
+        // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
             std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();

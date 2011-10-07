@@ -204,7 +204,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->TeleportTo(1, 9952.239f, 2284.277f, 1341.394f, 1.595f);
@@ -238,7 +238,7 @@ public:
 
         void WaypointReached(uint32 uiPoint)
         {
-            switch(uiPoint)
+            switch (uiPoint)
             {
                 case 4:
                     SetEscortPaused(true);

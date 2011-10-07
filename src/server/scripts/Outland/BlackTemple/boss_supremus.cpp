@@ -177,13 +177,13 @@ public:
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && me->IsWithinMeleeRange(pUnit))
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && me->IsWithinMeleeRange(unit))
                 {
-                    if (pUnit->GetHealth() > health)
+                    if (unit->GetHealth() > health)
                     {
-                        health = pUnit->GetHealth();
-                        target = pUnit;
+                        health = unit->GetHealth();
+                        target = unit;
                     }
                 }
             }
@@ -200,7 +200,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);

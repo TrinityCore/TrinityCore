@@ -132,7 +132,7 @@ uint32 GenerateEnchSuffixFactor(uint32 item_id)
         return 0;
 
     uint32 suffixFactor;
-    switch(itemProto->InventoryType)
+    switch (itemProto->InventoryType)
     {
         // Items of that type don`t have points
         case INVTYPE_NON_EQUIP:

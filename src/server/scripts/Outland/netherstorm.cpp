@@ -117,7 +117,7 @@ public:
                 Unit* p = Unit::GetUnit((*me), someplayer);
                 if (p && p->GetTypeId() == TYPEID_PLAYER)
                 {
-                    switch(me->GetEntry())
+                    switch (me->GetEntry())
                     {
                         case ENTRY_BNAAR_C_CONSOLE:
                             CAST_PLR(p)->FailQuest(10299);
@@ -148,7 +148,7 @@ public:
 
         void DoWaveSpawnForCreature(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case ENTRY_BNAAR_C_CONSOLE:
                     if (rand()%2)
@@ -202,7 +202,7 @@ public:
         }
         void DoFinalSpawnForCreature(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case ENTRY_BNAAR_C_CONSOLE:
                     add = me->SummonCreature(ENTRY_SUNFURY_TECH, 2946.52f, 4201.42f, 163.47f, 3.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
@@ -237,7 +237,7 @@ public:
         {
             if (Event_Timer <= diff)
             {
-                switch(Phase)
+                switch (Phase)
                 {
                     case 1:
                         if (someplayer)
@@ -317,7 +317,7 @@ public:
 
         Creature* manaforge = NULL;
 
-        switch(pGo->GetAreaId())
+        switch (pGo->GetAreaId())
         {
             case 3726:                                          //b'naar
                 if ((player->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
@@ -565,7 +565,7 @@ public:
                 break;
                 //Phase 6
             case 6:
-                switch(PhaseSubphase)
+                switch (PhaseSubphase)
                 {
                     //Subphase 1: Turn Dawnforge and Ardonis
                 case 0:
@@ -584,7 +584,7 @@ public:
                 break;
                 //Phase 7 Pathaleons say 3 Sentence, every sentence need a subphase
             case 7:
-                switch(PhaseSubphase)
+                switch (PhaseSubphase)
                 {
                     //Subphase 1
                 case 0:
@@ -640,7 +640,7 @@ class at_commander_dawnforge : public AreaTriggerScript
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry*  /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
         //if player lost aura or not have at all, we should not try start event.
         if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
@@ -782,7 +782,7 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellInfo*  /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
         {
             DoCast(me, SPELL_DE_MATERIALIZE);
         }
@@ -809,10 +809,10 @@ public:
 
                 for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
                 {
-                    if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
-                        if (pUnit->GetCreateMana() > 0)
-                            UnitsWithMana.push_back(pUnit);
+                        if (unit->GetCreateMana() > 0)
+                            UnitsWithMana.push_back(unit);
                     }
                 }
                 if (!UnitsWithMana.empty())
@@ -903,7 +903,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 3: //first spawn
                     me->SummonCreature(SPAWN_FIRST, 2449.67f, 2183.11f, 96.85f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);

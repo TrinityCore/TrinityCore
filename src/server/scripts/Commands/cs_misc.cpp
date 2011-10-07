@@ -27,7 +27,7 @@ public:
     {
         static ChatCommand commandTable[] =
         {
-            { "dev",            SEC_ADMINISTRATOR,  false,  &HandleDevCommand,          "", NULL },
+            { "dev",            SEC_ADMINISTRATOR,  false,  &HandleDevCommand,          "", NULL }, 
             { NULL,             0,                  false,  NULL,                       "", NULL }
         };
         return commandTable;

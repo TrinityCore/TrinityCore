@@ -179,7 +179,7 @@ public:
             case PHASE_UNDERGROUND:
                 if (uiImpaleTimer <= diff)
                 {
-                    switch(uiImpalePhase)
+                    switch (uiImpalePhase)
                     {
                     case IMPALE_PHASE_TARGET:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))

@@ -103,7 +103,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case THRALL_ENTRY:
                     ThrallGUID = creature->GetGUID();
@@ -127,7 +127,7 @@ public:
                 return;
             }
 
-            switch(type)
+            switch (type)
             {
                 case TYPE_BARREL_DIVERSION:
                 {
@@ -202,7 +202,7 @@ public:
 
         uint32 GetData(uint32 data)
         {
-            switch(data)
+            switch (data)
             {
                 case TYPE_BARREL_DIVERSION:
                     return m_auiEncounter[0];
@@ -222,7 +222,7 @@ public:
 
         uint64 GetData64(uint32 data)
         {
-            switch(data)
+            switch (data)
             {
                 case DATA_THRALL:
                     return ThrallGUID;

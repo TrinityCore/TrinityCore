@@ -424,10 +424,10 @@ public:
 
                 for (uint32 i = 0; i < 4; ++i)
                 {
-                    if (Creature* pUnit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
+                    if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
                     {
-                        pUnit->Attack(me->getVictim(), true);
-                        pUnit->setFaction(me->getFaction());
+                        unit->Attack(me->getVictim(), true);
+                        unit->setFaction(me->getFaction());
                     }
                 }
 
@@ -438,10 +438,10 @@ public:
             {
                 for (uint32 i = 0; i < 5; ++i)
                 {
-                    if (Creature* pUnit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                    if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
-                        pUnit->Attack(me->getVictim(), true);
-                        pUnit->setFaction(me->getFaction());
+                        unit->Attack(me->getVictim(), true);
+                        unit->setFaction(me->getFaction());
                     }
                 }
 
@@ -464,11 +464,11 @@ public:
                         if (!FlameWreathTarget[i])
                             continue;
 
-                        Unit* pUnit = Unit::GetUnit(*me, FlameWreathTarget[i]);
-                        if (pUnit && !pUnit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
+                        Unit* unit = Unit::GetUnit(*me, FlameWreathTarget[i]);
+                        if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
-                            pUnit->CastSpell(pUnit, 20476, true, 0, 0, me->GetGUID());
-                            pUnit->CastSpell(pUnit, 11027, true);
+                            unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());
+                            unit->CastSpell(unit, 11027, true);
                             FlameWreathTarget[i] = 0;
                         }
                     }

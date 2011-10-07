@@ -132,7 +132,7 @@ public:
                             DoModifyThreatPercent(target, -100);
 
                         Creature* Summoned = NULL;
-                        switch(rand()%6)
+                        switch (rand()%6)
                         {
                             case 0:
                                 DoTeleportPlayer(target, 250.0696f, 0.3921f, 84.8408f, 3.149f);

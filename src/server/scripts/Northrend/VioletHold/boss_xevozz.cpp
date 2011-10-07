@@ -99,7 +99,7 @@ public:
         void DespawnSphere()
         {
             std::list<Creature*> assistList;
-            GetCreatureListWithEntryInGrid(assistList, me, NPC_ETHEREAL_SPHERE , 150.0f);
+            GetCreatureListWithEntryInGrid(assistList, me, NPC_ETHEREAL_SPHERE, 150.0f);
 
             if (assistList.empty())
                 return;

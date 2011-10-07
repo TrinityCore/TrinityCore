@@ -1824,7 +1824,7 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
             void FilterTargets(std::list<Unit*>& unitList)
             {
                 // Select valid targets for jump
-                unitList.remove_if(DeathPlagueTargetSelector(GetCaster()));
+                unitList.remove_if (DeathPlagueTargetSelector(GetCaster()));
                 if (!unitList.empty())
                 {
                     Unit* target = SelectRandomContainerElement(unitList);
@@ -1913,7 +1913,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
 
             void RemoveAliveTarget(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(AliveCheck());
+                unitList.remove_if (AliveCheck());
                 Trinity::RandomResizeList(unitList, 2);
             }
 

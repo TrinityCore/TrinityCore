@@ -151,7 +151,7 @@ public:
 
         void DoAction(const int32 action)
         {
-            switch(action)
+            switch (action)
             {
                 case ACTION_FEUGEN_RESET:
                     checkFeugenAlive = true;
@@ -229,7 +229,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SHIFT:
                         DoCastAOE(SPELL_POLARITY_SHIFT);

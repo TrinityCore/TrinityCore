@@ -54,7 +54,7 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER> &v
     CellPair begin_cell = standing_cell;
     CellPair end_cell = standing_cell;
 
-    switch(district)
+    switch (district)
     {
         case ALL_DISTRICT:
         {
