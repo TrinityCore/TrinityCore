@@ -1426,6 +1426,8 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     data << uint8(hairColor);
     data << uint8(facialHair);
     SendPacket(&data);
+
+    sWorld->ReloadSingleCharacterNameData(GUID_LOPART(guid));
 }
 
 void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
