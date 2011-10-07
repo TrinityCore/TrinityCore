@@ -503,7 +503,8 @@ public:
             if (me->IsWithinDistInMap(who, 50.0f))
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    if (who->ToPlayer()->GetQuestStatus(QUEST_GETTING_THE_BLADESPIRE_TANKED || QUEST_BLADESPIRE_KEGGER) == QUEST_STATUS_INCOMPLETE)
+                    if (who->ToPlayer()->GetQuestStatus(QUEST_GETTING_THE_BLADESPIRE_TANKED) == QUEST_STATUS_INCOMPLETE
+                        || who->ToPlayer()->GetQuestStatus(QUEST_BLADESPIRE_KEGGER) == QUEST_STATUS_INCOMPLETE)
                         PlayerGUID = who->GetGUID();
             }
         }

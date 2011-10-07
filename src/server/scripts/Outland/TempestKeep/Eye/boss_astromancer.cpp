@@ -129,7 +129,6 @@ class boss_high_astromancer_solarian : public CreatureScript
                 AppearDelay = false;
                 Wrath_Timer = 20000+rand()%5000;//twice in phase one
                 Phase = 1;
-                Wrath_Timer = 20000+rand()%5000;//twice in phase one
 
                 if (pInstance)
                     pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
