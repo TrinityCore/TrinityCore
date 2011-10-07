@@ -590,7 +590,7 @@ public:
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || QUEST_STINKYS_ESCAPE_A)
+         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || quest->GetQuestId() == QUEST_STINKYS_ESCAPE_A)
          {
              if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, creature->AI()))
              {

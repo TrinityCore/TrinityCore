@@ -104,7 +104,6 @@ class instance_ulduar : public InstanceMapScript
                 AlgalonGUID                      = 0;
                 KologarnChestGUID                = 0;
                 KologarnBridgeGUID               = 0;
-                KologarnChestGUID                = 0;
                 ThorimChestGUID                  = 0;
                 HodirRareCacheGUID               = 0;
                 HodirChestGUID                   = 0;
