@@ -1825,6 +1825,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
                 && !m_caster->isInFrontInMap(*next, max_range))
                 || !m_caster->canSeeOrDetect(*next)
                 || !cur->IsWithinLOSInMap(*next)
+                || (*next)->GetCreatureType() == CREATURE_TYPE_CRITTER
                 || ((GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED) && !(*next)->CanFreeMove()))
             {
                 ++next;
