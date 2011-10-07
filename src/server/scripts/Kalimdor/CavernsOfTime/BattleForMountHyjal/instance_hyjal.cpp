@@ -191,12 +191,12 @@ public:
                             Creature* creature = instance->GetCreature(Azgalor);
                             if (creature)
                             {
-                                Creature* pUnit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                Creature* unit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
 
                                 Map* pMap = creature->GetMap();
-                                if (pMap->IsDungeon() && pUnit)
+                                if (pMap->IsDungeon() && unit)
                                 {
-                                    pUnit->SetVisible(false);
+                                    unit->SetVisible(false);
                                     Map::PlayerList const &PlayerList = pMap->GetPlayers();
                                     if (PlayerList.isEmpty())
                                          return;
@@ -206,7 +206,7 @@ public:
                                          if (i->getSource())
                                          {
                                             WorldPacket data(SMSG_MESSAGECHAT, 200);
-                                            pUnit->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
+                                            unit->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
                                             i->getSource()->GetSession()->SendPacket(&data);
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4);

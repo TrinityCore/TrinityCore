@@ -160,23 +160,23 @@ class boss_mandokir : public CreatureScript
                     {
                         if (WatchTarget)                             //If someone is watched and If the Position of the watched target is different from the one stored, or are attacking, mandokir will charge him
                         {
-                            Unit* pUnit = Unit::GetUnit(*me, WatchTarget);
+                            Unit* unit = Unit::GetUnit(*me, WatchTarget);
 
-                            if (pUnit && (
-                                targetX != pUnit->GetPositionX() ||
-                                targetY != pUnit->GetPositionY() ||
-                                targetZ != pUnit->GetPositionZ() ||
-                                pUnit->isInCombat()))
+                            if (unit && (
+                                targetX != unit->GetPositionX() ||
+                                targetY != unit->GetPositionY() ||
+                                targetZ != unit->GetPositionZ() ||
+                                unit->isInCombat()))
                             {
-                                if (me->IsWithinMeleeRange(pUnit))
+                                if (me->IsWithinMeleeRange(unit))
                                 {
-                                    DoCast(pUnit, 24316);
+                                    DoCast(unit, 24316);
                                 }
                                 else
                                 {
-                                    DoCast(pUnit, SPELL_CHARGE);
-                                    //me->SendMonsterMove(pUnit->GetPositionX(), pUnit->GetPositionY(), pUnit->GetPositionZ(), 0, true, 1);
-                                    AttackStart(pUnit);
+                                    DoCast(unit, SPELL_CHARGE);
+                                    //me->SendMonsterMove(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), 0, true, 1);
+                                    AttackStart(unit);
                                 }
                             }
                         }
@@ -198,12 +198,12 @@ class boss_mandokir : public CreatureScript
 
                     if ((Watch_Timer < 1000) && endWatch)           //1 sec before the debuf expire, store the target position
                     {
-                        Unit* pUnit = Unit::GetUnit(*me, WatchTarget);
-                        if (pUnit)
+                        Unit* unit = Unit::GetUnit(*me, WatchTarget);
+                        if (unit)
                         {
-                            targetX = pUnit->GetPositionX();
-                            targetY = pUnit->GetPositionY();
-                            targetZ = pUnit->GetPositionZ();
+                            targetX = unit->GetPositionX();
+                            targetY = unit->GetPositionY();
+                            targetZ = unit->GetPositionZ();
                         }
                         endWatch = false;
                     }
@@ -232,8 +232,8 @@ class boss_mandokir : public CreatureScript
                             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                             for (; i != me->getThreatManager().getThreatList().end(); ++i)
                             {
-                                Unit* pUnit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                                if (pUnit && me->IsWithinMeleeRange(pUnit))
+                                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                                if (unit && me->IsWithinMeleeRange(unit))
                                     ++TargetInRange;
                             }
 

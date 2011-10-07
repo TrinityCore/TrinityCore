@@ -223,8 +223,8 @@ public:
                         uint64 uiGrandChampionBoss1 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle1GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                                if (Unit* pUnit = pVehicle->GetPassenger(0))
-                                    uiGrandChampionBoss1 = pUnit->GetGUID();
+                                if (Unit* unit = pVehicle->GetPassenger(0))
+                                    uiGrandChampionBoss1 = unit->GetGUID();
                         if (pInstance)
                         {
                             pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
@@ -239,8 +239,8 @@ public:
                         uint64 uiGrandChampionBoss2 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle2GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                                if (Unit* pUnit = pVehicle->GetPassenger(0))
-                                    uiGrandChampionBoss2 = pUnit->GetGUID();
+                                if (Unit* unit = pVehicle->GetPassenger(0))
+                                    uiGrandChampionBoss2 = unit->GetGUID();
                         if (pInstance)
                         {
                             pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
@@ -255,8 +255,8 @@ public:
                         uint64 uiGrandChampionBoss3 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle3GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                                if (Unit* pUnit = pVehicle->GetPassenger(0))
-                                    uiGrandChampionBoss3 = pUnit->GetGUID();
+                                if (Unit* unit = pVehicle->GetPassenger(0))
+                                    uiGrandChampionBoss3 = unit->GetGUID();
                         if (pInstance)
                         {
                             pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
