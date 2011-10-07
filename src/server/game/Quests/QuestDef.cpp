@@ -166,16 +166,16 @@ Quest::Quest(Field* questRecord)
             ++m_rewchoiceitemscount;
 }
 
-uint32 Quest::XPValue(Player* pPlayer) const
+uint32 Quest::XPValue(Player* player) const
 {
-    if (pPlayer)
+    if (player)
     {
-        int32 quest_level = (QuestLevel == -1 ? pPlayer->getLevel() : QuestLevel);
+        int32 quest_level = (QuestLevel == -1 ? player->getLevel() : QuestLevel);
         const QuestXPEntry* xpentry = sQuestXPStore.LookupEntry(quest_level);
         if (!xpentry)
             return 0;
 
-        int32 diffFactor = 2 * (quest_level - pPlayer->getLevel()) + 20;
+        int32 diffFactor = 2 * (quest_level - player->getLevel()) + 20;
         if (diffFactor < 1)
             diffFactor = 1;
         else if (diffFactor > 10)

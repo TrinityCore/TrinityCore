@@ -193,11 +193,11 @@ public:
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && pUnit->isAlive())
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && unit->isAlive())
                 {
-                    float threat = me->getThreatManager().getThreat(pUnit);
-                    SummonedUnit->AddThreat(pUnit, threat);
+                    float threat = me->getThreatManager().getThreat(unit);
+                    SummonedUnit->AddThreat(unit, threat);
                 }
             }
         }
@@ -211,9 +211,9 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
-                    pUnit->CastSpell(pUnit, SPELL_TELEPORT_CENTER, true);
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                    unit->CastSpell(unit, SPELL_TELEPORT_CENTER, true);
             }
             DoCast(me, SPELL_TELEPORT_CENTER, true);
         }
@@ -223,10 +223,10 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     // Knockback into the air
-                    pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, me->GetGUID());
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, me->GetGUID());
             }
         }
 
@@ -235,17 +235,17 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
                     // Also needs an exception in spell system.
-                    pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, me->GetGUID());
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, me->GetGUID());
                     // Use packet hack
                     WorldPacket data(12);
                     data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
-                    data.append(pUnit->GetPackGUID());
+                    data.append(unit->GetPackGUID());
                     data << uint32(0);
-                    pUnit->SendMessageToSet(&data, true);
+                    unit->SendMessageToSet(&data, true);
                 }
             }
         }
@@ -255,17 +255,17 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
-                    pUnit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
-                    pUnit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
+                    unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
+                    unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
 
                     WorldPacket data(12);
                     data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
-                    data.append(pUnit->GetPackGUID());
+                    data.append(unit->GetPackGUID());
                     data << uint32(0);
-                    pUnit->SendMessageToSet(&data, true);
+                    unit->SendMessageToSet(&data, true);
                 }
             }
         }

@@ -53,9 +53,9 @@ public:
         if (pInstance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
             return false;
 
-        if (Group* pGroup = player->GetGroup())
+        if (Group* group = player->GetGroup())
         {
-            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* pGroupie = itr->getSource();
                 if (!pGroupie)

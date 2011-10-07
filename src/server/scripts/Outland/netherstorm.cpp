@@ -809,10 +809,10 @@ public:
 
                 for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
                 {
-                    if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
-                        if (pUnit->GetCreateMana() > 0)
-                            UnitsWithMana.push_back(pUnit);
+                        if (unit->GetCreateMana() > 0)
+                            UnitsWithMana.push_back(unit);
                     }
                 }
                 if (!UnitsWithMana.empty())

@@ -760,11 +760,11 @@ public:
             {
                 for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
                 {
-                    if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
-                        if (pUnit->GetPositionZ() > me->GetPositionZ()+5)
+                        if (unit->GetPositionZ() > me->GetPositionZ()+5)
                         {
-                            me->getThreatManager().modifyThreatPercent(pUnit, -100);
+                            me->getThreatManager().modifyThreatPercent(unit, -100);
                         }
                     }
                 }

@@ -527,12 +527,12 @@ public:
             {
                 DoCast(me, SPELL_VANISH);
 
-                Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0);
+                Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 DoResetThreat();
 
-                if (pUnit)
-                    me->AddThreat(pUnit, 1000.0f);
+                if (unit)
+                    me->AddThreat(unit, 1000.0f);
 
                 InVanish = true;
                 Vanish_Timer = 30000;
@@ -644,24 +644,24 @@ public:
 
             if (Seed_of_Corruption_Timer <= diff)
             {
-                if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pUnit, SPELL_SEED_OF_CORRUPTION);
+                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(unit, SPELL_SEED_OF_CORRUPTION);
 
                 Seed_of_Corruption_Timer = 10000;
             } else Seed_of_Corruption_Timer -= diff;
 
             if (Curse_of_Agony_Timer <= diff)
             {
-                if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pUnit, SPELL_CURSE_OF_AGONY);
+                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(unit, SPELL_CURSE_OF_AGONY);
 
                 Curse_of_Agony_Timer = 13000;
             } else Curse_of_Agony_Timer -= diff;
 
             if (Fear_Timer <= diff)
             {
-                if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pUnit, SPELL_FEAR);
+                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(unit, SPELL_FEAR);
 
                 Fear_Timer = 10000;
             } else Fear_Timer -= diff;
@@ -806,8 +806,8 @@ public:
 
             if (Blizzard_Timer <= diff)
             {
-                if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pUnit, SPELL_BLIZZARD);
+                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(unit, SPELL_BLIZZARD);
 
                 Blizzard_Timer = 8000;
             } else Blizzard_Timer -= diff;
@@ -937,8 +937,8 @@ public:
                 //if nobody is in melee range than try to use Intercept
                 if (!InMeleeRange)
                 {
-                    if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(pUnit, SPELL_INTERCEPT_STUN);
+                    if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(unit, SPELL_INTERCEPT_STUN);
                 }
 
                 Intercept_Stun_Timer = 10000;
@@ -1168,8 +1168,8 @@ public:
 
             if (Purge_Timer <= diff)
             {
-                if (Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(pUnit, SPELL_PURGE);
+                if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                    DoCast(unit, SPELL_PURGE);
 
                 Purge_Timer = 15000;
             } else Purge_Timer -= diff;

@@ -220,8 +220,8 @@ void PoolGroup<Creature>::Despawn1Object(uint32 guid)
     {
         sObjectMgr->RemoveCreatureFromGrid(guid, data);
 
-        if (Creature* pCreature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
-            pCreature->AddObjectToRemoveList();
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+            creature->AddObjectToRemoveList();
     }
 }
 
@@ -363,15 +363,15 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         // We use spawn coords to spawn
         if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
-            Creature* pCreature = new Creature;
+            Creature* creature = new Creature;
             //sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning creature %u", guid);
-            if (!pCreature->LoadFromDB(obj->guid, map))
+            if (!creature->LoadFromDB(obj->guid, map))
             {
-                delete pCreature;
+                delete creature;
                 return;
             }
             else
-                map->Add(pCreature);
+                map->Add(creature);
         }
     }
 }
@@ -506,8 +506,8 @@ template <>
 void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(obj->guid))
-        if (Creature* pCreature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
-            pCreature->GetMap()->Add(pCreature);
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+            creature->GetMap()->Add(creature);
 }
 
 // Method that does the respawn job on the specified gameobject
