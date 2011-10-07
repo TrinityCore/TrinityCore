@@ -473,7 +473,7 @@ private:
 
         void SetInfo(const std::string& name, const std::string& icon);
         void SetText(const std::string& text);
-        void SendText(const Guild* pGuild, WorldSession* session) const;
+        void SendText(const Guild* guild, WorldSession* session) const;
 
         inline Item* GetItem(uint8 slotId) const { return slotId < GUILD_BANK_MAX_SLOTS ?  m_items[slotId] : NULL; }
         bool SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem);
@@ -492,7 +492,7 @@ private:
     class MoveItemData
     {
     public:
-        MoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) : m_pGuild(pGuild), m_pPlayer(player),
+        MoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) : m_pGuild(guild), m_pPlayer(player),
             m_container(container), m_slotId(slotId), m_pItem(NULL), m_pClonedItem(NULL) { }
         virtual ~MoveItemData() { }
 
@@ -538,8 +538,8 @@ private:
     class PlayerMoveItemData : public MoveItemData
     {
     public:
-        PlayerMoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) :
-            MoveItemData(pGuild, player, container, slotId) { }
+        PlayerMoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) :
+            MoveItemData(guild, player, container, slotId) { }
 
         bool IsBank() const { return false; }
         bool InitItem();
@@ -553,8 +553,8 @@ private:
     class BankMoveItemData : public MoveItemData
     {
     public:
-        BankMoveItemData(Guild* pGuild, Player* player, uint8 container, uint8 slotId) :
-            MoveItemData(pGuild, player, container, slotId) { }
+        BankMoveItemData(Guild* guild, Player* player, uint8 container, uint8 slotId) :
+            MoveItemData(guild, player, container, slotId) { }
 
         bool IsBank() const { return true; }
         bool InitItem();

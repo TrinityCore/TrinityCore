@@ -160,9 +160,9 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
 
             if (qInfo->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
             {
-                if (Group* pGroup = _player->GetGroup())
+                if (Group* group = _player->GetGroup())
                 {
-                    for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
                         Player* pPlayer = itr->getSource();
 
@@ -546,9 +546,9 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 
     if (Quest const* pQuest = sObjectMgr->GetQuestTemplate(questId))
     {
-        if (Group* pGroup = _player->GetGroup())
+        if (Group* group = _player->GetGroup())
         {
-            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* pPlayer = itr->getSource();
 
