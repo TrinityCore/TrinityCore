@@ -4774,8 +4774,8 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
     sObjectAccessor->ConvertCorpseForPlayer(playerguid);
 
     if (uint32 guildId = GetGuildIdFromDB(playerguid))
-        if (Guild* pGuild = sGuildMgr->GetGuildById(guildId))
-            pGuild->DeleteMember(guid);
+        if (Guild* guild = sGuildMgr->GetGuildById(guildId))
+            guild->DeleteMember(guid);
 
     // remove from arena teams
     LeaveAllArenaTeams(playerguid);
@@ -5462,11 +5462,11 @@ uint32 Player::DurabilityRepair(uint16 pos, bool cost, float discountMod, bool g
                     return TotalCost;
                 }
 
-                Guild* pGuild = sGuildMgr->GetGuildById(GetGuildId());
-                if (!pGuild)
+                Guild* guild = sGuildMgr->GetGuildById(GetGuildId());
+                if (!guild)
                     return TotalCost;
 
-                if (!pGuild->HandleMemberWithdrawMoney(GetSession(), costs, true))
+                if (!guild->HandleMemberWithdrawMoney(GetSession(), costs, true))
                     return TotalCost;
 
                 TotalCost = costs;
@@ -15668,9 +15668,9 @@ void Player::AreaExploredOrEventHappens(uint32 questId)
 //not used in Trinityd, function for external script library
 void Player::GroupEventHappens(uint32 questId, WorldObject const* pEventObject)
 {
-    if (Group* pGroup = GetGroup())
+    if (Group* group = GetGroup())
     {
-        for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* pGroupGuy = itr->getSource();
 
@@ -22374,9 +22374,9 @@ void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewar
     uint64 creature_guid = (pRewardSource->GetTypeId() == TYPEID_UNIT) ? pRewardSource->GetGUID() : uint64(0);
 
     // prepare data for near group iteration
-    if (Group* pGroup = GetGroup())
+    if (Group* group = GetGroup())
     {
-        for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+        for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
             Player* pGroupGuy = itr->getSource();
             if (!pGroupGuy)
@@ -22390,7 +22390,7 @@ void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewar
                 pGroupGuy->KilledMonsterCredit(creature_id, creature_guid);
         }
     }
-    else                                                    // if (!pGroup)
+    else                                                    // if (!group)
         KilledMonsterCredit(creature_id, creature_guid);
 }
 
@@ -22609,14 +22609,14 @@ void Player::SendCorpseReclaimDelay(bool load)
 
 Player* Player::GetNextRandomRaidMember(float radius)
 {
-    Group* pGroup = GetGroup();
-    if (!pGroup)
+    Group* group = GetGroup();
+    if (!group)
         return NULL;
 
     std::vector<Player*> nearMembers;
-    nearMembers.reserve(pGroup->GetMembersCount());
+    nearMembers.reserve(group->GetMembersCount());
 
-    for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
         Player* Target = itr->getSource();
 
