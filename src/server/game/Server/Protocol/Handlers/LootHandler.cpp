@@ -78,17 +78,17 @@ void WorldSession::HandleAutostoreLootItemOpcode(WorldPacket & recv_data)
     }
     else
     {
-        Creature* pCreature = GetPlayer()->GetMap()->GetCreature(lguid);
+        Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass() == CLASS_ROGUE && pCreature->lootForPickPocketed);
+        bool ok_loot = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
 
-        if (!ok_loot || !pCreature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        if (!ok_loot || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
         {
             player->SendLootRelease(lguid);
             return;
         }
 
-        loot = &pCreature->loot;
+        loot = &creature->loot;
     }
 
     player->StoreLootItem(lootSlot, loot);
@@ -384,20 +384,20 @@ void WorldSession::DoLootRelease(uint64 lguid)
     }
     else
     {
-        Creature* pCreature = GetPlayer()->GetMap()->GetCreature(lguid);
+        Creature* creature = GetPlayer()->GetMap()->GetCreature(lguid);
 
-        bool ok_loot = pCreature && pCreature->isAlive() == (player->getClass() == CLASS_ROGUE && pCreature->lootForPickPocketed);
-        if (!ok_loot || !pCreature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        bool ok_loot = creature && creature->isAlive() == (player->getClass() == CLASS_ROGUE && creature->lootForPickPocketed);
+        if (!ok_loot || !creature->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
             return;
 
-        loot = &pCreature->loot;
+        loot = &creature->loot;
         if (loot->isLooted())
         {
             // skip pickpocketing loot for speed, skinning timer reduction is no-op in fact
-            if (!pCreature->isAlive())
-                pCreature->AllLootRemovedFromCorpse();
+            if (!creature->isAlive())
+                creature->AllLootRemovedFromCorpse();
 
-            pCreature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
+            creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
             loot->clear();
         }
         else
@@ -410,10 +410,10 @@ void WorldSession::DoLootRelease(uint64 lguid)
                     if (group->GetLootMethod() != MASTER_LOOT)
                     {
                         loot->roundRobinPlayer = 0;
-                        group->SendLooter(pCreature, NULL);
+                        group->SendLooter(creature, NULL);
 
                         // force update of dynamic flags, otherwise other group's players still not able to loot.
-                        pCreature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
+                        creature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
                     }
                 }
                 else
@@ -452,11 +452,11 @@ void WorldSession::HandleLootMasterGiveOpcode(WorldPacket & recv_data)
 
     if (IS_CRE_OR_VEH_GUID(GetPlayer()->GetLootGUID()))
     {
-        Creature* pCreature = GetPlayer()->GetMap()->GetCreature(lootguid);
-        if (!pCreature)
+        Creature* creature = GetPlayer()->GetMap()->GetCreature(lootguid);
+        if (!creature)
             return;
 
-        pLoot = &pCreature->loot;
+        pLoot = &creature->loot;
     }
     else if (IS_GAMEOBJECT_GUID(GetPlayer()->GetLootGUID()))
     {
