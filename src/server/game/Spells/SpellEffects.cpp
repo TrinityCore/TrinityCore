@@ -6287,7 +6287,7 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
 
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
-    Player* pPlayer = unitTarget->ToPlayer();
+    Player* player = unitTarget->ToPlayer();
 
     uint32 quest_id = m_spellInfo->Effects[effIndex].MiscValue;
 
@@ -6297,24 +6297,24 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
         return;
 
     // Player has never done this quest
-    if (pPlayer->GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
+    if (player->GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
         return;
 
     // remove all quest entries for 'entry' from quest log
     for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
     {
-        uint32 quest = pPlayer->GetQuestSlotQuestId(slot);
+        uint32 quest = player->GetQuestSlotQuestId(slot);
         if (quest == quest_id)
         {
-            pPlayer->SetQuestSlot(slot, 0);
+            player->SetQuestSlot(slot, 0);
 
             // we ignore unequippable quest items in this case, its' still be equipped
-            pPlayer->TakeQuestSourceItem(quest, false);
+            player->TakeQuestSourceItem(quest, false);
         }
     }
 
-    pPlayer->RemoveActiveQuest(quest_id);
-    pPlayer->RemoveRewardedQuest(quest_id);
+    player->RemoveActiveQuest(quest_id);
+    player->RemoveRewardedQuest(quest_id);
 }
 
 void Spell::EffectSendTaxi(SpellEffIndex effIndex)
