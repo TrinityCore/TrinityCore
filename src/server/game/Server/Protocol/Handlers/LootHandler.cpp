@@ -329,9 +329,9 @@ void WorldSession::DoLootRelease(uint64 lguid)
             // if the round robin player release, reset it.
             if (player->GetGUID() == loot->roundRobinPlayer)
             {
-                if (Group* pGroup = player->GetGroup())
+                if (Group* group = player->GetGroup())
                 {
-                    if (pGroup->GetLootMethod() != MASTER_LOOT)
+                    if (group->GetLootMethod() != MASTER_LOOT)
                     {
                         loot->roundRobinPlayer = 0;
                     }
@@ -405,12 +405,12 @@ void WorldSession::DoLootRelease(uint64 lguid)
             // if the round robin player release, reset it.
             if (player->GetGUID() == loot->roundRobinPlayer)
             {
-                if (Group* pGroup = player->GetGroup())
+                if (Group* group = player->GetGroup())
                 {
-                    if (pGroup->GetLootMethod() != MASTER_LOOT)
+                    if (group->GetLootMethod() != MASTER_LOOT)
                     {
                         loot->roundRobinPlayer = 0;
-                        pGroup->SendLooter(pCreature, NULL);
+                        group->SendLooter(pCreature, NULL);
 
                         // force update of dynamic flags, otherwise other group's players still not able to loot.
                         pCreature->ForceValuesUpdateAtIndex(UNIT_DYNAMIC_FLAGS);
