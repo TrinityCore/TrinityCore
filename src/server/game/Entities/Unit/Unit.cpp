@@ -4939,7 +4939,7 @@ bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 33735:
                 {
                     target = SelectNearbyTarget();
-                    if (!target || target == victim)
+                    if (!target)
                         return false;
                     basepoints0 = damage;
                     triggered_spell_id = 22482;
@@ -5877,7 +5877,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     return false;
 
                 target = SelectNearbyTarget();
-                if (!target || target == victim)
+                if (!target)
                     return false;
 
                 CastSpell(target, 58567, true);
