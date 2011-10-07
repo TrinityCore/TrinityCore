@@ -317,6 +317,7 @@ class ChatHandler
         bool HandleGMTicketUnAssignCommand(const char* args);
         bool HandleGMTicketCommentCommand(const char* args);
         bool HandleGMTicketDeleteByIdCommand(const char* args);
+        bool HandleGMTicketResetCommand(const char* /* args */);
         bool HandleGMTicketReloadCommand(const char*);
         bool HandleToggleGMTicketSystem(const char* args);
         bool HandleGMTicketEscalateCommand(const char* args);
