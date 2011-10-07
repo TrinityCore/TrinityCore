@@ -653,7 +653,7 @@ class boss_stormcaller_brundir : public CreatureScript
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_BERSERK:
                             DoScriptText(SAY_BRUNDIR_BERSERK, me);

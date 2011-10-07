@@ -117,7 +117,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 182060:
                     HordeGate = go->GetGUID();
@@ -141,7 +141,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 17767: RageWinterchill = creature->GetGUID(); break;
                 case 17808: Anetheron = creature->GetGUID(); break;
@@ -156,7 +156,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_RAGEWINTERCHILL: return RageWinterchill;
                 case DATA_ANETHERON: return Anetheron;
@@ -173,7 +173,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_RAGEWINTERCHILLEVENT: m_auiEncounter[0] = data; break;
                 case DATA_ANETHERONEVENT:
@@ -191,12 +191,12 @@ public:
                             Creature* creature = instance->GetCreature(Azgalor);
                             if (creature)
                             {
-                                Creature* pUnit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                Creature* unit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
 
                                 Map* pMap = creature->GetMap();
-                                if (pMap->IsDungeon() && pUnit)
+                                if (pMap->IsDungeon() && unit)
                                 {
-                                    pUnit->SetVisible(false);
+                                    unit->SetVisible(false);
                                     Map::PlayerList const &PlayerList = pMap->GetPlayers();
                                     if (PlayerList.isEmpty())
                                          return;
@@ -206,7 +206,7 @@ public:
                                          if (i->getSource())
                                          {
                                             WorldPacket data(SMSG_MESSAGECHAT, 200);
-                                            pUnit->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
+                                            unit->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
                                             i->getSource()->GetSession()->SendPacket(&data);
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4);
@@ -282,7 +282,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_RAGEWINTERCHILLEVENT: return m_auiEncounter[0];
                 case DATA_ANETHERONEVENT:      return m_auiEncounter[1];

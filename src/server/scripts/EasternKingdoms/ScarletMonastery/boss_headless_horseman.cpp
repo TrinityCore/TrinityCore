@@ -153,7 +153,7 @@ public:
         void EnterCombat(Unit* /*who*/){}
         void SetType(uint32 _type)
         {
-            switch(Creaturetype = _type)
+            switch (Creaturetype = _type)
             {
                 case 1:
                     spell = SPELL_PUMPKIN_AURA_GREEN;
@@ -257,7 +257,7 @@ public:
             if (withbody)
                 return;
 
-            switch(Phase)
+            switch (Phase)
             {
                 case 1:
                     if (me->HealthBelowPctDamaged(67, damage))
@@ -569,9 +569,9 @@ public:
                 std::list<HostileReference*>::const_iterator itr;
                 for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
                 {
-                    Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                    if (pUnit && pUnit->isAlive() && pUnit != caster)
-                        me->AddThreat(pUnit, caster->getThreatManager().getThreat(pUnit));
+                    Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                    if (unit && unit->isAlive() && unit != caster)
+                        me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
                 }
             }
         }
@@ -608,7 +608,7 @@ public:
         {
             if (withhead)
             {
-                switch(Phase)
+                switch (Phase)
                 {
                     case 0:
                     {

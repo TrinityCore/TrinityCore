@@ -46,9 +46,9 @@ class ObjectRegistry
         bool InsertItem(T *obj, Key key, bool override = false)
         {
             typename RegistryMapType::iterator iter = i_registeredObjects.find(key);
-            if( iter != i_registeredObjects.end() )
+            if ( iter != i_registeredObjects.end() )
             {
-                if( !override )
+                if ( !override )
                     return false;
                 delete iter->second;
                 i_registeredObjects.erase(iter);
@@ -62,9 +62,9 @@ class ObjectRegistry
         void RemoveItem(Key key, bool delete_object = true)
         {
             typename RegistryMapType::iterator iter = i_registeredObjects.find(key);
-            if( iter != i_registeredObjects.end() )
+            if ( iter != i_registeredObjects.end() )
             {
-                if( delete_object )
+                if ( delete_object )
                     delete iter->second;
                 i_registeredObjects.erase(iter);
             }

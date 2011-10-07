@@ -165,12 +165,12 @@ public:
             float Z = TeleportPoint[random].z;
             for (uint8 i = 0; i < 3; ++i)
             {
-                Unit* pUnit = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 1);
+                if (unit && unit->isAlive() && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
-                    TargetGUID[i] = pUnit->GetGUID();
-                    pUnit->CastSpell(pUnit, SPELL_TELEPORT_VISUAL, true);
-                    DoTeleportPlayer(pUnit, X, Y, Z, pUnit->GetOrientation());
+                    TargetGUID[i] = unit->GetGUID();
+                    unit->CastSpell(unit, SPELL_TELEPORT_VISUAL, true);
+                    DoTeleportPlayer(unit, X, Y, Z, unit->GetOrientation());
                 }
             }
         }
@@ -196,7 +196,7 @@ public:
 
                 BeamTimer = 9000;
 
-                switch(CurrentBeam)
+                switch (CurrentBeam)
                 {
                     case 0:
                         DoCast(target, SPELL_BEAM_SINISTER);
@@ -247,12 +247,12 @@ public:
                 {
                     for (uint8 i = 0; i < 3; ++i)
                     {
-                        Unit* pUnit = NULL;
+                        Unit* unit = NULL;
                         if (TargetGUID[i])
                         {
-                            pUnit = Unit::GetUnit((*me), TargetGUID[i]);
-                            if (pUnit)
-                                pUnit->CastSpell(pUnit, SPELL_ATTRACTION, true);
+                            unit = Unit::GetUnit((*me), TargetGUID[i]);
+                            if (unit)
+                                unit->CastSpell(unit, SPELL_ATTRACTION, true);
                             TargetGUID[i] = 0;
                         }
                     }

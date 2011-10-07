@@ -25,7 +25,6 @@
 
 #include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
-#include "BattlegroundWS.h"
 #include "Battleground.h"
 #include "Chat.h"
 #include "Language.h"
@@ -252,56 +251,42 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recv_
     if (!bg)                                                 // can't be received if player not in battleground
         return;
 
-    switch(bg->GetTypeID(true))
+    uint32 count = 0;
+    Player* aplr = NULL;
+    Player* hplr = NULL;
+
+    if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
     {
-        case BATTLEGROUND_WS:
-        {
-            uint32 count = 0;
-
-            Player* aplr = ObjectAccessor::FindPlayer(((BattlegroundWS*)bg)->GetAllianceFlagPickerGUID());
-            if (aplr)
-                ++count;
-
-            Player* hplr = ObjectAccessor::FindPlayer(((BattlegroundWS*)bg)->GetHordeFlagPickerGUID());
-            if (hplr)
-                ++count;
-
-            WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * count);
-            data << 0;
-            data << count;
-            if (aplr)
-            {
-                data << uint64(aplr->GetGUID());
-                data << float(aplr->GetPositionX());
-                data << float(aplr->GetPositionY());
-            }
-
-            if (hplr)
-            {
-                data << uint64(hplr->GetGUID());
-                data << float(hplr->GetPositionX());
-                data << float(hplr->GetPositionY());
-            }
-
-            SendPacket(&data);
-            break;
-        }
-        case BATTLEGROUND_EY:
-            //TODO : fix me!
-            break;
-        case BATTLEGROUND_AB:
-        case BATTLEGROUND_AV:
-        {
-            WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, (4+4));
-            data << uint32(0);
-            data << uint32(0);
-            SendPacket(&data);
-            break;
-        }
-        default:
-            //maybe it is sent also in arena - do nothing
-            break;
+        aplr = ObjectAccessor::FindPlayer(guid);
+        if (aplr)
+            ++count;
     }
+
+    if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
+    {
+        hplr = ObjectAccessor::FindPlayer(guid);
+        if (hplr)
+            ++count;
+    }
+
+    WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * count);
+    data << 0;
+    data << count;
+    if (aplr)
+    {
+        data << uint64(aplr->GetGUID());
+        data << float(aplr->GetPositionX());
+        data << float(aplr->GetPositionY());
+    }
+
+    if (hplr)
+    {
+        data << uint64(hplr->GetGUID());
+        data << float(hplr->GetPositionX());
+        data << float(hplr->GetPositionY());
+    }
+
+    SendPacket(&data);
 }
 
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recv_data*/)
@@ -429,7 +414,7 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recv_data)
     }
     uint32 queueSlot = _player->GetBattlegroundQueueIndex(bgQueueTypeId);
     WorldPacket data;
-    switch(action)
+    switch (action)
     {
         case 1:                                         // port to battleground
             if (!_player->IsInvitedForBattlegroundQueueType(bgQueueTypeId))
@@ -646,7 +631,7 @@ void WorldSession::HandleBattlemasterJoinArena(WorldPacket & recv_data)
     uint32 arenaRating = 0;
     uint32 matchmakerRating = 0;
 
-    switch(arenaslot)
+    switch (arenaslot)
     {
         case 0:
             arenatype = ARENA_TYPE_2v2;

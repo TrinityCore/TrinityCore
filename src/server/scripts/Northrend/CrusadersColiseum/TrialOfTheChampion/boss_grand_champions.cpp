@@ -176,7 +176,7 @@ public:
 
         void SetData(uint32 uiType, uint32 /*uiData*/)
         {
-            switch(uiType)
+            switch (uiType)
             {
                 case 1:
                     AddWaypoint(0, 747.36f, 634.07f, 411.572f);
@@ -205,7 +205,7 @@ public:
 
         void WaypointReached(uint32 i)
         {
-            switch(i)
+            switch (i)
             {
                 case 2:
                     if ((pInstance && uiWaypointPath == 3) || uiWaypointPath == 2)

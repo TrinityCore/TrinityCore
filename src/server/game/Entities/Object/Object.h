@@ -151,38 +151,38 @@ class Object
 
         int32 GetInt32Value(uint16 index) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
             return m_int32Values[index];
         }
 
         uint32 GetUInt32Value(uint16 index) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
             return m_uint32Values[index];
         }
 
         uint64 GetUInt64Value(uint16 index) const
         {
-            ASSERT(index + 1 < m_valuesCount || PrintIndexError(index , false));
+            ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, false));
             return *((uint64*)&(m_uint32Values[index]));
         }
 
         float GetFloatValue(uint16 index) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
             return m_floatValues[index];
         }
 
         uint8 GetByteValue(uint16 index, uint8 offset) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
             ASSERT(offset < 4);
             return *(((uint8*)&m_uint32Values[index])+offset);
         }
 
         uint16 GetUInt16Value(uint16 index, uint8 offset) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
             ASSERT(offset < 2);
             return *(((uint16*)&m_uint32Values[index])+offset);
         }
@@ -227,7 +227,7 @@ class Object
 
         bool HasFlag(uint16 index, uint32 flag) const
         {
-            if (index >= m_valuesCount && !PrintIndexError(index , false)) return false;
+            if (index >= m_valuesCount && !PrintIndexError(index, false)) return false;
             return (m_uint32Values[index] & flag) != 0;
         }
 
@@ -244,7 +244,7 @@ class Object
 
         bool HasByteFlag(uint16 index, uint8 offset, uint8 flag) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
             ASSERT(offset < 4);
             return (((uint8*)&m_uint32Values[index])[offset] & flag) != 0;
         }
@@ -278,7 +278,7 @@ class Object
 
         bool HasFlag64(uint16 index, uint64 flag) const
         {
-            ASSERT(index < m_valuesCount || PrintIndexError(index , false));
+            ASSERT(index < m_valuesCount || PrintIndexError(index, false));
             return (GetUInt64Value(index) & flag) != 0;
         }
 
@@ -294,7 +294,7 @@ class Object
         virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
         virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
         virtual void BuildUpdate(UpdateDataMapType&) {}
-        void BuildFieldsUpdate(Player* , UpdateDataMapType &) const;
+        void BuildFieldsUpdate(Player*, UpdateDataMapType &) const;
 
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);

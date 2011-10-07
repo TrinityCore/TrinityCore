@@ -78,7 +78,7 @@ class spell_eadric_radiance : public SpellScriptLoader
             PrepareSpellScript(spell_eadric_radiance_SpellScript);
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(OrientationCheck(GetCaster()));
+                unitList.remove_if (OrientationCheck(GetCaster()));
             }
 
             void Register()
@@ -317,7 +317,7 @@ public:
                 {
                     me->InterruptNonMeleeSpells(true);
                     uint8 uiTarget = urand(0, 1);
-                    switch(uiTarget)
+                    switch (uiTarget)
                     {
                         case 0:
                             DoCast(me, SPELL_RENEW);
@@ -451,7 +451,7 @@ public:
         {
             if (uiPoint == 0)
             {
-                switch(uiWaypoint)
+                switch (uiWaypoint)
                 {
                     case 0:
                         me->SetOrientation(5.81f);
@@ -470,10 +470,10 @@ public:
 
         void SetData(uint32 uiType, uint32 /*uiData*/)
         {
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case NPC_ARGENT_LIGHWIELDER:
-                    switch(uiType)
+                    switch (uiType)
                     {
                         case 0:
                             AddWaypoint(0, 712.14f, 628.42f, 411.88f);
@@ -487,7 +487,7 @@ public:
                     }
                     break;
                 case NPC_ARGENT_MONK:
-                    switch(uiType)
+                    switch (uiType)
                     {
                         case 0:
                             AddWaypoint(0, 713.12f, 632.97f, 411.90f);
@@ -501,7 +501,7 @@ public:
                     }
                     break;
                 case NPC_PRIESTESS:
-                    switch(uiType)
+                    switch (uiType)
                     {
                         case 0:
                             AddWaypoint(0, 715.06f, 637.07f, 411.91f);

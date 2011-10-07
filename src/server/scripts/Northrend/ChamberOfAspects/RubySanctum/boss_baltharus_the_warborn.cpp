@@ -89,7 +89,7 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void DoAction(int32 const action)
             {
-                switch(action)
+                switch (action)
                 {
                     case ACTION_INTRO_BALTHARUS:
                         if (_introDone)
@@ -160,7 +160,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                         DoAction(ACTION_CLONE);
                 }
 
-                if (me->GetHealth() - damage > 0)
+                if (me->GetHealth() > damage)
                     instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
             }
 
@@ -246,7 +246,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
                 // Setting DATA_BALTHARUS_SHARED_HEALTH to 0 when killed would bug the boss.
-                if (_instance && me->GetHealth() - damage > 0)
+                if (_instance && me->GetHealth() > damage)
                     _instance->SetData(DATA_BALTHARUS_SHARED_HEALTH, me->GetHealth() - damage);
             }
 

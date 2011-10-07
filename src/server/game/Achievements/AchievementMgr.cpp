@@ -507,10 +507,8 @@ void AchievementMgr::SaveToDB(SQLTransaction& trans)
         }
 
         if (need_execute)
-            ssdel << ')';
-
-        if (need_execute)
         {
+            ssdel << ')';
             trans->Append(ssdel.str().c_str());
             trans->Append(ssins.str().c_str());
         }
@@ -1600,7 +1598,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
     }
 }
 
-static const uint32 achievIdByClass[MAX_CLASSES] = { 0, 459, 465 , 462, 458, 464, 461, 467, 460, 463, 0, 466 };
+static const uint32 achievIdByClass[MAX_CLASSES] = { 0, 459, 465, 462, 458, 464, 461, 467, 460, 463, 0, 466 };
 static const uint32 achievIdByRace[MAX_RACES]    = { 0, 1408, 1410, 1407, 1409, 1413, 1411, 1404, 1412, 0, 1405, 1406 };
 
 bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achievementCriteria, AchievementEntry const* achievement)
@@ -2039,9 +2037,9 @@ void AchievementMgr::CompletedAchievement(AchievementEntry const* achievement)
         return;
 
     // titles
-    //! Currently there's only one achievement that deals with gender-specific titles. 
+    //! Currently there's only one achievement that deals with gender-specific titles.
     //! Since no common attributes were found, (not even in titleRewardFlags field)
-    //! we explicitly check by ID. Maybe in the future we could move the achievement_reward 
+    //! we explicitly check by ID. Maybe in the future we could move the achievement_reward
     //! condition fields to the condition system.
     if (uint32 titleId = reward->titleId[achievement->ID == 1793 ? GetPlayer()->getGender() : (GetPlayer()->GetTeam() == ALLIANCE ? 0 : 1)])
         if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(titleId))

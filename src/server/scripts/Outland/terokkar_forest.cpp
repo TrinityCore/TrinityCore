@@ -95,9 +95,9 @@ public:
             if (done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->HealthBelowPctDamaged(30, damage))
             {
-                if (Group* pGroup = CAST_PLR(done_by)->GetGroup())
+                if (Group* group = CAST_PLR(done_by)->GetGroup())
                 {
-                    for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
                         Player* pGroupie = itr->getSource();
                         if (pGroupie &&
@@ -210,7 +210,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 8:
                     player->AreaExploredOrEventHappens(10898);
@@ -474,7 +474,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
             case 0:
                 {
@@ -551,7 +551,7 @@ public:
     bool OnGossipSelect(Player* player, GameObject* pGo, uint32 uiSender, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiSender)
+        switch (uiSender)
         {
             case GOSSIP_SENDER_MAIN:    SendActionMenu(player, pGo, uiAction); break;
         }
@@ -574,7 +574,7 @@ public:
 
     void SendActionMenu(Player* player, GameObject* /*pGo*/, uint32 uiAction)
     {
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                   player->CastSpell(player, 40642, false);
@@ -676,7 +676,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 3:
                     me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);

@@ -78,7 +78,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ARETE_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -311,7 +311,7 @@ public:
             uiCast = true;
             Creature* target = NULL;
 
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case NPC_PRIESTESS_ALORAH:
                     target = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
@@ -399,7 +399,7 @@ public:
 
     struct npc_vereth_the_cunningAI : public ScriptedAI
     {
-        npc_vereth_the_cunningAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_vereth_the_cunningAI(Creature* creature) : ScriptedAI(creature) {}
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -413,7 +413,7 @@ public:
                         {
                             owner->ToPlayer()->KilledMonsterCredit(NPC_GEIST_RETURN_BUNNY_KC, 0);
                             who->ToCreature()->DisappearAndDie();
-                        
+
                     }
                 }
             }

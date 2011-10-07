@@ -349,7 +349,7 @@ int RASocket::svc(void)
     if (send(std::string(sWorld->GetMotd()) + "\r\n") == -1)
         return -1;
 
-    for(;;)
+    for (;;)
     {
         // show prompt
         const char* tc_prompt = "TC> ";

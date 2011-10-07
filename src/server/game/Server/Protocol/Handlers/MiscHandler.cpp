@@ -820,7 +820,7 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket& recv_data)
 
     if (player->GetMapId() != atEntry->mapid)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u", 
+        sLog->outDebug(LOG_FILTER_NETWORKIO, "Player '%s' (GUID: %u) too far (trigger map: %u player map: %u), ignore Area Trigger ID: %u",
             player->GetName(), atEntry->mapid, player->GetMapId(), player->GetGUIDLow(), triggerId);
         return;
     }
@@ -1036,7 +1036,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
     }
     else
     {
-        switch(type)
+        switch (type)
         {
             case ACTION_BUTTON_MACRO:
             case ACTION_BUTTON_CMACRO:
@@ -1347,7 +1347,7 @@ void WorldSession::HandleComplainOpcode(WorldPacket & recv_data)
     std::string description = "";
     recv_data >> spam_type;                                 // unk 0x01 const, may be spam type (mail/chat)
     recv_data >> spammer_guid;                              // player guid
-    switch(spam_type)
+    switch (spam_type)
     {
         case 0:
             recv_data >> unk1;                              // const 0
@@ -1401,7 +1401,7 @@ void WorldSession::HandleFarSightOpcode(WorldPacket & recv_data)
     uint8 apply;
     recv_data >> apply;
 
-    switch(apply)
+    switch (apply)
     {
         case 0:
             sLog->outDebug(LOG_FILTER_NETWORKIO, "Player %u set vision to self", _player->GetGUIDLow());
@@ -1464,13 +1464,13 @@ void WorldSession::HandleTimeSyncResp(WorldPacket & recv_data)
 void WorldSession::HandleResetInstancesOpcode(WorldPacket & /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_RESET_INSTANCES");
-    Group* pGroup = _player->GetGroup();
-    if (pGroup)
+    Group* group = _player->GetGroup();
+    if (group)
     {
-        if (pGroup->IsLeader(_player->GetGUID()))
+        if (group->IsLeader(_player->GetGUID()))
         {
-            pGroup->ResetInstances(INSTANCE_RESET_ALL, false, _player);
-            pGroup->ResetInstances(INSTANCE_RESET_ALL, true, _player);
+            group->ResetInstances(INSTANCE_RESET_ALL, false, _player);
+            group->ResetInstances(INSTANCE_RESET_ALL, true, _player);
         }
     }
     else
@@ -1504,12 +1504,12 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
         return;
     }
 
-    Group* pGroup = _player->GetGroup();
-    if (pGroup)
+    Group* group = _player->GetGroup();
+    if (group)
     {
-        if (pGroup->IsLeader(_player->GetGUID()))
+        if (group->IsLeader(_player->GetGUID()))
         {
-            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* pGroupGuy = itr->getSource();
                 if (!pGroupGuy)
@@ -1527,8 +1527,8 @@ void WorldSession::HandleSetDungeonDifficultyOpcode(WorldPacket & recv_data)
             }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty(true);
-            pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, _player);
-            pGroup->SetDungeonDifficulty(Difficulty(mode));
+            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, _player);
+            group->SetDungeonDifficulty(Difficulty(mode));
         }
     }
     else
@@ -1562,12 +1562,12 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
     if (Difficulty(mode) == _player->GetRaidDifficulty())
         return;
 
-    Group* pGroup = _player->GetGroup();
-    if (pGroup)
+    Group* group = _player->GetGroup();
+    if (group)
     {
-        if (pGroup->IsLeader(_player->GetGUID()))
+        if (group->IsLeader(_player->GetGUID()))
         {
-            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
                 Player* pGroupGuy = itr->getSource();
                 if (!pGroupGuy)
@@ -1585,8 +1585,8 @@ void WorldSession::HandleSetRaidDifficultyOpcode(WorldPacket & recv_data)
             }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty(true);
-            pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, _player);
-            pGroup->SetRaidDifficulty(Difficulty(mode));
+            group->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, _player);
+            group->SetRaidDifficulty(Difficulty(mode));
         }
     }
     else

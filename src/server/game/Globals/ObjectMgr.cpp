@@ -199,7 +199,7 @@ bool SpellClickInfo::IsFitToRequirements(Unit const* clicker, Unit const* clicke
         if (questStart)
         {
             // not in expected required quest state
-            if (((!questStartCanActive || !playerClicker->IsActiveQuest(questStart)) && !playerClicker->GetQuestRewardStatus(questStart)))
+            if ((!questStartCanActive || !playerClicker->IsActiveQuest(questStart)) && !playerClicker->GetQuestRewardStatus(questStart))
                 return false;
         }
 
@@ -2266,7 +2266,7 @@ void ObjectMgr::LoadItemTemplates()
 
             if (itemTemplate.Unk0 != dbcitem->Unk0)
             {
-                sLog->outErrorDb("Item (Entry: %u) does not have a correct Unk0 (%i) , must be %i .", entry, itemTemplate.Unk0, dbcitem->Unk0);
+                sLog->outErrorDb("Item (Entry: %u) does not have a correct Unk0 (%i), must be %i .", entry, itemTemplate.Unk0, dbcitem->Unk0);
                 if (enforceDBCAttributes)
                     itemTemplate.Unk0 = dbcitem->Unk0;
             }
@@ -3612,7 +3612,7 @@ void ObjectMgr::BuildPlayerLevelInfo(uint8 race, uint8 _class, uint8 level, Play
     // if conversion from uint32 to uint8 causes unexpected behaviour, change lvl to uint32
     for (uint8 lvl = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)-1; lvl < level; ++lvl)
     {
-        switch(_class)
+        switch (_class)
         {
             case CLASS_WARRIOR:
                 info->stats[STAT_STRENGTH]  += (lvl > 23 ? 2: (lvl > 1  ? 1: 0));
@@ -4206,7 +4206,7 @@ void ObjectMgr::LoadQuests()
                 }
                 if (!sFactionStore.LookupEntry(qinfo->RewRepFaction[j]))
                 {
-                    sLog->outErrorDb("Quest %u has `RewRepFaction%d` = %u but raw faction (faction.dbc) %u does not exist, quest will not reward reputation for this faction.", qinfo->GetQuestId(), j+1, qinfo->RewRepFaction[j] , qinfo->RewRepFaction[j]);
+                    sLog->outErrorDb("Quest %u has `RewRepFaction%d` = %u but raw faction (faction.dbc) %u does not exist, quest will not reward reputation for this faction.", qinfo->GetQuestId(), j+1, qinfo->RewRepFaction[j], qinfo->RewRepFaction[j]);
                     qinfo->RewRepFaction[j] = 0;            // quest will not reward this
                 }
             }
@@ -4298,7 +4298,7 @@ void ObjectMgr::LoadQuests()
             if (qNextItr == mQuestTemplates.end())
             {
                 sLog->outErrorDb("Quest %u has `NextQuestInChain` = %u but quest %u does not exist, quest chain will not work.",
-                    qinfo->GetQuestId(), qinfo->NextQuestInChain , qinfo->NextQuestInChain);
+                    qinfo->GetQuestId(), qinfo->NextQuestInChain, qinfo->NextQuestInChain);
                 qinfo->NextQuestInChain = 0;
             }
             else
@@ -4362,7 +4362,7 @@ void ObjectMgr::LoadQuests()
 
             if (!quest->HasFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT))
             {
-                sLog->outErrorDb("Spell (id: %u) have SPELL_EFFECT_QUEST_COMPLETE for quest %u , but quest not have flag QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT. Quest flags must be fixed, quest modified to enable objective.", spellInfo->Id, quest_id);
+                sLog->outErrorDb("Spell (id: %u) have SPELL_EFFECT_QUEST_COMPLETE for quest %u, but quest not have flag QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT. Quest flags must be fixed, quest modified to enable objective.", spellInfo->Id, quest_id);
 
                 // this will prevent quest completing without objective
                 const_cast<Quest*>(quest)->SetFlag(QUEST_TRINITY_FLAGS_EXPLORATION_OR_EVENT);
@@ -4921,7 +4921,7 @@ void ObjectMgr::LoadSpellScriptNames()
                 sLog->outErrorDb("Scriptname:`%s` spell (spell_id:%d) is not first rank of spell.", scriptName, fields[0].GetInt32());
                 continue;
             }
-            while(spellInfo)
+            while (spellInfo)
             {
                 mSpellScripts.insert(SpellScriptsMap::value_type(spellInfo->Id, GetScriptId(scriptName)));
                 spellInfo = sSpellMgr->GetSpellInfo(spellInfo->Id)->GetNextRankSpell();
@@ -6255,7 +6255,7 @@ uint32 ObjectMgr::GenerateMailID()
 
 uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
 {
-    switch(guidhigh)
+    switch (guidhigh)
     {
         case HIGHGUID_ITEM:
             if (m_hiItemGuid >= 0xFFFFFFFE)
@@ -6474,7 +6474,7 @@ void ObjectMgr::LoadGameObjectTemplate()
 
         // Checks
 
-        switch(got.type)
+        switch (got.type)
         {
         case GAMEOBJECT_TYPE_DOOR:                      //0
             {
@@ -7562,7 +7562,7 @@ enum LanguageType
 
 static LanguageType GetRealmLanguageType(bool create)
 {
-    switch(sWorld->getIntConfig(CONFIG_REALM_ZONE))
+    switch (sWorld->getIntConfig(CONFIG_REALM_ZONE))
     {
         case REALM_ZONE_UNKNOWN:                            // any language
         case REALM_ZONE_DEVELOPMENT:
@@ -7701,7 +7701,7 @@ void ObjectMgr::LoadGameObjectForQuests()
     GameObjectTemplateContainer const* gotc = sObjectMgr->GetGameObjectTemplates();
     for (GameObjectTemplateContainer::const_iterator itr = gotc->begin(); itr != gotc->end(); ++itr)
     {
-        switch(itr->second.type)
+        switch (itr->second.type)
         {
             // scan GO chest with loot including quest items
             case GAMEOBJECT_TYPE_CHEST:
@@ -7933,7 +7933,7 @@ SpellScriptsBounds ObjectMgr::GetSpellScriptsBounds(uint32 spell_id)
 
 SkillRangeType GetSkillRangeType(SkillLineEntry const* pSkill, bool racial)
 {
-    switch(pSkill->categoryId)
+    switch (pSkill->categoryId)
     {
         case SKILL_CATEGORY_LANGUAGES: return SKILL_RANGE_LANGUAGE;
         case SKILL_CATEGORY_WEAPON:
@@ -8648,7 +8648,7 @@ void ObjectMgr::CheckScripts(ScriptsType type, std::set<int32>& ids)
     {
         for (ScriptMap::const_iterator itrM = itrMM->second.begin(); itrM != itrMM->second.end(); ++itrM)
         {
-            switch(itrM->second.command)
+            switch (itrM->second.command)
             {
                 case SCRIPT_COMMAND_TALK:
                 {

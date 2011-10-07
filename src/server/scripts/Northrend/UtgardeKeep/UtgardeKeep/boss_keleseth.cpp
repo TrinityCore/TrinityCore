@@ -219,11 +219,11 @@ public:
                     DoScriptText(SAY_SKELETONS, me);
                     for (uint8 i = 0; i < 5; ++i)
                     {
-                        Skeleton = me->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1] , SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        Skeleton = me->SummonCreature(CREATURE_SKELETON, SkeletonSpawnPoint[i][0], SkeletonSpawnPoint[i][1], SKELETONSPAWN_Z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
                         if (Skeleton)
                         {
                             Skeleton->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                            Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY() , me->GetPositionZ());
+                            Skeleton->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                             Skeleton->AddThreat(me->getVictim(), 0.0f);
                             DoZoneInCombat(Skeleton);
                         }

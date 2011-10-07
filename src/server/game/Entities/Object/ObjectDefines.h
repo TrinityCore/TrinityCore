@@ -80,7 +80,7 @@ enum HighGuid
 
 inline bool IsGuidHaveEnPart(uint64 guid)
 {
-    switch(GUID_HIPART(guid))
+    switch (GUID_HIPART(guid))
     {
         case HIGHGUID_ITEM:
         case HIGHGUID_PLAYER:
@@ -104,7 +104,7 @@ inline bool IsGuidHaveEnPart(uint64 guid)
 
 inline char const* GetLogNameForGuid(uint64 guid)
 {
-    switch(GUID_HIPART(guid))
+    switch (GUID_HIPART(guid))
     {
         case HIGHGUID_ITEM:         return "item";
         case HIGHGUID_PLAYER:       return guid ? "player" : "none";

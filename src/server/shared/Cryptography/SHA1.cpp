@@ -50,7 +50,7 @@ void SHA1Hash::UpdateBigNumbers(BigNumber* bn0, ...)
     while (bn)
     {
         UpdateData(bn->AsByteArray(), bn->GetNumBytes());
-        bn = va_arg(v, BigNumber* );
+        bn = va_arg(v, BigNumber*);
     }
     va_end(v);
 }

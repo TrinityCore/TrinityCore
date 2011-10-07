@@ -27,7 +27,7 @@ enum Data
     DATA_UROK_DOOMHOWL,                       // not scripted
     DATA_QUARTERMASTER_ZIGRIS,
     DATA_GIZRUL_THE_SLAVENER,                 // not scripted
-    DATA_HALYCON ,
+    DATA_HALYCON,
     DATA_OVERLORD_WYRMTHALAK,
     DATA_PYROGAURD_EMBERSEER,
     DATA_WARCHIEF_REND_BLACKHAND,

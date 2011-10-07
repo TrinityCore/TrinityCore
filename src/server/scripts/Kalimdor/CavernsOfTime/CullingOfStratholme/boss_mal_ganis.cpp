@@ -126,7 +126,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            switch(Phase)
+            switch (Phase)
             {
                 case COMBAT:
                     //Return since we have no target
@@ -195,7 +195,7 @@ public:
                 case OUTRO:
                     if (uiOutroTimer < diff)
                     {
-                        switch(uiOutroStep)
+                        switch (uiOutroStep)
                         {
                             case 1:
                                 DoScriptText(SAY_ESCAPE_SPEECH_1, me);

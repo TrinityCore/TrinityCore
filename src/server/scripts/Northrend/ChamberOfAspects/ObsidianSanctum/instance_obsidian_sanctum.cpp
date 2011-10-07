@@ -73,7 +73,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_SARTHARION:
                     m_uiSartharionGUID = creature->GetGUID();
@@ -99,11 +99,11 @@ public:
         {
             if (uiType == TYPE_SARTHARION_EVENT)
                 m_auiEncounter[0] = uiData;
-            else if(uiType == TYPE_TENEBRON_PREKILLED)
+            else if (uiType == TYPE_TENEBRON_PREKILLED)
                 m_bTenebronKilled = true;
-            else if(uiType == TYPE_SHADRON_PREKILLED)
+            else if (uiType == TYPE_SHADRON_PREKILLED)
                 m_bShadronKilled = true;
-            else if(uiType == TYPE_VESPERON_PREKILLED)
+            else if (uiType == TYPE_VESPERON_PREKILLED)
                 m_bVesperonKilled = true;
         }
 
@@ -111,11 +111,11 @@ public:
         {
             if (uiType == TYPE_SARTHARION_EVENT)
                 return m_auiEncounter[0];
-            else if(uiType == TYPE_TENEBRON_PREKILLED)
+            else if (uiType == TYPE_TENEBRON_PREKILLED)
                 return m_bTenebronKilled;
-            else if(uiType == TYPE_SHADRON_PREKILLED)
+            else if (uiType == TYPE_SHADRON_PREKILLED)
                 return m_bShadronKilled;
-            else if(uiType == TYPE_VESPERON_PREKILLED)
+            else if (uiType == TYPE_VESPERON_PREKILLED)
                 return m_bVesperonKilled;
 
             return 0;
@@ -123,7 +123,7 @@ public:
 
         uint64 GetData64(uint32 uiData)
         {
-            switch(uiData)
+            switch (uiData)
             {
                 case DATA_SARTHARION:
                     return m_uiSartharionGUID;

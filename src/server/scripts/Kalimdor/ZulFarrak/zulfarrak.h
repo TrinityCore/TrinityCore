@@ -24,7 +24,7 @@ enum zfPyramidPhases
 {
     PYRAMID_NOT_STARTED, //default
     PYRAMID_CAGES_OPEN, //happens in GO hello for cages
-    PYRAMID_ARRIVED_AT_STAIR , //happens in Weegli's movementinform
+    PYRAMID_ARRIVED_AT_STAIR, //happens in Weegli's movementinform
     PYRAMID_WAVE_1,
     PYRAMID_PRE_WAVE_2,
     PYRAMID_WAVE_2,

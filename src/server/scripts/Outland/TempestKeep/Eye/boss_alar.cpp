@@ -246,7 +246,7 @@ class boss_alar : public CreatureScript
                                 AfterMoving = false;
                             }
 
-                            switch(WaitEvent)
+                            switch (WaitEvent)
                             {
                             case WE_PLATFORM:
                                 Platforms_Move_Timer = 30000+rand()%5000;

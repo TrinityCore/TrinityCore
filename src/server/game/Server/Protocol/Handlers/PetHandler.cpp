@@ -147,10 +147,10 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
         return;
     }
 
-    switch(flag)
+    switch (flag)
     {
         case ACT_COMMAND:                                   //0x07
-            switch(spellid)
+            switch (spellid)
             {
                 case COMMAND_STAY:                          //flat=1792  //STAY
                     pet->AttackStop();
@@ -267,7 +267,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
             }
             break;
         case ACT_REACTION:                                  // 0x6
-            switch(spellid)
+            switch (spellid)
             {
                 case REACT_PASSIVE:                         //passive
                     pet->AttackStop();
@@ -677,7 +677,7 @@ void WorldSession::HandlePetAbandon(WorldPacket & recv_data)
             if (pet->GetGUID() == _player->GetPetGUID())
             {
                 uint32 feelty = pet->GetPower(POWER_HAPPINESS);
-                pet->SetPower(POWER_HAPPINESS , feelty > 50000 ? (feelty-50000) : 0);
+                pet->SetPower(POWER_HAPPINESS, feelty > 50000 ? (feelty-50000) : 0);
             }
 
             _player->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);

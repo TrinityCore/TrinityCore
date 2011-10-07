@@ -286,7 +286,7 @@ public:
                     Phase = SKADI;
                     me->SetFlying(false);
                     me->Unmount();
-                    if(Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
+                    if (Creature* pGrauf = me->SummonCreature(CREATURE_GRAUF, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3*IN_MILLISECONDS))
                     {
                         pGrauf->GetMotionMaster()->MoveFall(0);
                         pGrauf->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
@@ -304,7 +304,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            switch(Phase)
+            switch (Phase)
             {
                 case FLYING:
                     if (!UpdateVictim())
@@ -340,7 +340,7 @@ public:
 
                     if (m_uiMovementTimer <= diff)
                     {
-                        switch(m_uiWaypointId)
+                        switch (m_uiWaypointId)
                         {
                             case 0:
                                 me->GetMotionMaster()->MovePoint(0, Location[1].GetPositionX(), Location[1].GetPositionY(), Location[1].GetPositionZ());

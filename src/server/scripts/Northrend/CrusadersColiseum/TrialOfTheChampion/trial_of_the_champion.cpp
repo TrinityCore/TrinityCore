@@ -135,7 +135,7 @@ public:
                     std::list<uint64> TempList;
                     if (uiLesserChampions == 3 || uiLesserChampions == 6)
                     {
-                        switch(uiLesserChampions)
+                        switch (uiLesserChampions)
                         {
                             case 3:
                                 TempList = Champion2List;
@@ -187,7 +187,7 @@ public:
             ++uiSummonTimes;
             uint32 VEHICLE_TO_SUMMON1 = 0;
             uint32 VEHICLE_TO_SUMMON2 = 0;
-            switch(uiBoss)
+            switch (uiBoss)
             {
                 case 0:
                     VEHICLE_TO_SUMMON1 = VEHICLE_MOKRA_SKILLCRUSHER_MOUNT;
@@ -215,7 +215,7 @@ public:
 
             if (Creature* pBoss = me->SummonCreature(VEHICLE_TO_SUMMON1, SpawnPosition))
             {
-                switch(uiSummonTimes)
+                switch (uiSummonTimes)
                 {
                     case 1:
                     {
@@ -223,8 +223,8 @@ public:
                         uint64 uiGrandChampionBoss1 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle1GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                                if (Unit* pUnit = pVehicle->GetPassenger(0))
-                                    uiGrandChampionBoss1 = pUnit->GetGUID();
+                                if (Unit* unit = pVehicle->GetPassenger(0))
+                                    uiGrandChampionBoss1 = unit->GetGUID();
                         if (pInstance)
                         {
                             pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_1, uiVehicle1GUID);
@@ -239,8 +239,8 @@ public:
                         uint64 uiGrandChampionBoss2 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle2GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                                if (Unit* pUnit = pVehicle->GetPassenger(0))
-                                    uiGrandChampionBoss2 = pUnit->GetGUID();
+                                if (Unit* unit = pVehicle->GetPassenger(0))
+                                    uiGrandChampionBoss2 = unit->GetGUID();
                         if (pInstance)
                         {
                             pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_2, uiVehicle2GUID);
@@ -255,8 +255,8 @@ public:
                         uint64 uiGrandChampionBoss3 = 0;
                         if (Creature* pBoss = Unit::GetCreature(*me, uiVehicle3GUID))
                             if (Vehicle* pVehicle = pBoss->GetVehicleKit())
-                                if (Unit* pUnit = pVehicle->GetPassenger(0))
-                                    uiGrandChampionBoss3 = pUnit->GetGUID();
+                                if (Unit* unit = pVehicle->GetPassenger(0))
+                                    uiGrandChampionBoss3 = unit->GetGUID();
                         if (pInstance)
                         {
                             pInstance->SetData64(DATA_GRAND_CHAMPION_VEHICLE_3, uiVehicle3GUID);
@@ -273,7 +273,7 @@ public:
                 {
                     if (Creature* pAdd = me->SummonCreature(VEHICLE_TO_SUMMON2, SpawnPosition, TEMPSUMMON_CORPSE_DESPAWN))
                     {
-                        switch(uiSummonTimes)
+                        switch (uiSummonTimes)
                         {
                             case 1:
                                 Champion1List.push_back(pAdd->GetGUID());
@@ -286,7 +286,7 @@ public:
                                 break;
                         }
 
-                        switch(i)
+                        switch (i)
                         {
                             case 0:
                                 pAdd->GetMotionMaster()->MoveFollow(pBoss, 2.0f, M_PI);
@@ -337,7 +337,7 @@ public:
         {
            uint8 uiTempBoss = urand(0, 1);
 
-           switch(uiTempBoss)
+           switch (uiTempBoss)
            {
                 case 0:
                     uiArgentChampion = NPC_EADRIC;
@@ -406,7 +406,7 @@ public:
 
             if (uiTimer <= uiDiff)
             {
-                switch(uiPhase)
+                switch (uiPhase)
                 {
                     case 1:
                         DoSummonGrandChampion(uiSecondBoss);
@@ -443,7 +443,7 @@ public:
 
         void SummonedCreatureDespawn(Creature* summon)
         {
-            switch(summon->GetEntry())
+            switch (summon->GetEntry())
             {
                 case VEHICLE_DARNASSIA_NIGHTSABER:
                 case VEHICLE_EXODAR_ELEKK:

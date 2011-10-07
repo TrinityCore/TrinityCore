@@ -255,7 +255,7 @@ void Battleground::Update(uint32 diff)
         return;
     }
 
-    switch(GetStatus())
+    switch (GetStatus())
     {
         case STATUS_WAIT_JOIN:
             if (GetPlayersSize())
@@ -890,7 +890,7 @@ uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
 
 uint32 Battleground::GetBattlemasterEntry() const
 {
-    switch(GetTypeID(true))
+    switch (GetTypeID(true))
     {
         case BATTLEGROUND_AV: return 15972;
         case BATTLEGROUND_WS: return 14623;
@@ -1527,36 +1527,36 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
     if (!map)
         return NULL;
 
-    Creature* pCreature = new Creature;
-    if (!pCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, teamval, x, y, z, o))
+    Creature* creature = new Creature;
+    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, teamval, x, y, z, o))
     {
         sLog->outError("Battleground::AddCreature: cannot create creature (entry: %u) for BG (map: %u, instance id: %u)!",
             entry, m_MapId, m_InstanceID);
-        delete pCreature;
+        delete creature;
         return NULL;
     }
 
-    pCreature->SetHomePosition(x, y, z, o);
+    creature->SetHomePosition(x, y, z, o);
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
     {
         sLog->outError("Battleground::AddCreature: creature template (entry: %u) does not exist for BG (map: %u, instance id: %u)!",
             entry, m_MapId, m_InstanceID);
-        delete pCreature;
+        delete creature;
         return NULL;
     }
     // Force using DB speeds
-    pCreature->SetSpeed(MOVE_WALK,  cinfo->speed_walk);
-    pCreature->SetSpeed(MOVE_RUN,   cinfo->speed_run);
+    creature->SetSpeed(MOVE_WALK,  cinfo->speed_walk);
+    creature->SetSpeed(MOVE_RUN,   cinfo->speed_run);
 
-    map->Add(pCreature);
-    m_BgCreatures[type] = pCreature->GetGUID();
+    map->Add(creature);
+    m_BgCreatures[type] = creature->GetGUID();
 
     if (respawntime)
-        pCreature->SetRespawnDelay(respawntime);
+        creature->SetRespawnDelay(respawntime);
 
-    return  pCreature;
+    return  creature;
 }
 
 bool Battleground::DelCreature(uint32 type)
@@ -1601,18 +1601,18 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         BG_CREATURE_ENTRY_A_SPIRITGUIDE :
         BG_CREATURE_ENTRY_H_SPIRITGUIDE;
 
-    if (Creature* pCreature = AddCreature(entry, type, team, x, y, z, o))
+    if (Creature* creature = AddCreature(entry, type, team, x, y, z, o))
     {
-        pCreature->setDeathState(DEAD);
-        pCreature->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, pCreature->GetGUID());
+        creature->setDeathState(DEAD);
+        creature->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, creature->GetGUID());
         // aura
         // TODO: Fix display here
-        // pCreature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
+        // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
         // casting visual effect
-        pCreature->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
+        creature->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
         // correct cast speed
-        pCreature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
-        //pCreature->CastSpell(pCreature, SPELL_SPIRIT_HEAL_CHANNEL, true);
+        creature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
+        //creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
         return true;
     }
     sLog->outError("Battleground::AddSpiritGuide: cannot create spirit guide (type: %u, entry: %u) for BG (map: %u, instance id: %u)!",
@@ -1887,8 +1887,8 @@ bool Battleground::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxSc
 void Battleground::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
 {
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        if (Player* pPlayer = ObjectAccessor::FindPlayer(itr->first))
-            pPlayer->GetAchievementMgr().StartTimedAchievement(type, entry);
+        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            player->GetAchievementMgr().StartTimedAchievement(type, entry);
 }
 
 void Battleground::SetBracket(PvPDifficultyEntry const* bracketEntry)

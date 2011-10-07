@@ -1272,7 +1272,7 @@ void CreatureEventAI::DoScriptText(int32 textEntry, WorldObject* source, Unit* t
             sLog->outErrorDb("CreatureEventAI: DoScriptText entry %i tried to process emote for invalid TypeId (%u).", textEntry, source->GetTypeId());
     }
 
-    switch((*i).second.Type)
+    switch ((*i).second.Type)
     {
         case CHAT_TYPE_SAY:
             source->MonsterSay(textEntry, (*i).second.Language, target ? target->GetGUID() : 0);
