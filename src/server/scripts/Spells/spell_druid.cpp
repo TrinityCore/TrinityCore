@@ -295,6 +295,38 @@ class spell_dru_starfall_aoe : public SpellScriptLoader
         }
 };
 
+// 40121 - Swift Flight Form (Passive)
+class spell_dru_swift_flight_passive : public SpellScriptLoader
+{
+    public:
+        spell_dru_swift_flight_passive() : SpellScriptLoader("spell_dru_swift_flight_passive") { }
+
+        class spell_dru_swift_flight_passive_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_swift_flight_passive_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster || !caster->ToPlayer())
+                    return;
+
+                if (caster->ToPlayer()->Has310Flyer(false))
+                    amount = 310;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_swift_flight_passive_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_swift_flight_passive_AuraScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_glyph_of_starfire();
@@ -303,4 +335,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_savage_defense();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_starfall_aoe();
+    new spell_dru_swift_flight_passive();
 }
