@@ -16794,7 +16794,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
             RelocateToHomebind();
         }
 
-        // fix crash (because of if (Map* map = _FindMap(instanceId)) in Mainstanced::CreateInstance)
+        // fix crash (because of if (Map* map = _FindMap(instanceId)) in MapInstanced::CreateInstance)
         if (instanceId)
             if (InstanceSave* save = GetInstanceSave(mapId, mapEntry->IsRaid()))
                 if (save->GetInstanceId() != instanceId)
