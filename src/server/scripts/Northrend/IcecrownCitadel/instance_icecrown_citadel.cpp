@@ -21,6 +21,7 @@
 #include "ScriptedCreature.h"
 #include "Map.h"
 #include "PoolMgr.h"
+#include "AccountMgr.h"
 #include "icecrown_citadel.h"
 
 enum EventIds
@@ -949,7 +950,7 @@ class instance_icecrown_citadel : public InstanceMapScript
 
             bool CheckRequiredBosses(uint32 bossId, Player const* player = NULL) const
             {
-                if (player && player->isGameMaster())
+                if (player && AccountMgr::IsGMAccount(player->GetSession()->GetSecurity()))
                     return true;
 
                 switch (bossId)
