@@ -1655,6 +1655,12 @@ class spell_pursue : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pursue_SpellScript);
 
+            bool Load()
+            {
+                _target = NULL;
+                return true;
+            }
+
             void FilterTargets(std::list<Unit*>& targets)
             {
                 targets.remove_if(FlameLeviathanPursuedTargetSelector(GetCaster()));
@@ -1673,7 +1679,6 @@ class spell_pursue : public SpellScriptLoader
 
             void FilterTargetsSubsequently(std::list<Unit*>& targets)
             {
-                ASSERT(_target);
                 targets.clear();
                 targets.push_back(_target);
             }
