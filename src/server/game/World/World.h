@@ -739,8 +739,8 @@ class World
 
         bool isEventKillStart;
 
-        CharacterNameData *GetCharacterNameData(uint32 guid);
-        void ReloadSingleCharacterNameData(uint32 guid);
+        const CharacterNameData* GetCharacterNameData(uint32 guid) const;
+        void UpdateCharacterNameData(uint32 guid, const std::string& name, uint8 gender, uint8 race = RACE_NONE);
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
@@ -829,8 +829,7 @@ class World
 
         std::list<std::string> m_Autobroadcasts;
 
-        std::map<uint32, CharacterNameData*> m_CharacterNameDataMap;
-        ACE_Thread_Mutex m_CharacterNameDataMapMutex;
+        std::map<uint32, CharacterNameData> _characterNameDataMap;
         void LoadCharacterNameData();
 
         void ProcessQueryCallbacks();
