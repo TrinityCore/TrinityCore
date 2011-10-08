@@ -131,7 +131,7 @@ public:
                     {
                         if (Unit* unit = Unit::GetUnit(*me, uiPlayerGUID))
                         {
-                            if (GameObject* pGo = unit->FindNearestGameObject(GO_CARCASS, 10))
+                            if (GameObject* go = unit->FindNearestGameObject(GO_CARCASS, 10))
                             {
                                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
                                     me->GetMotionMaster()->MovementExpired();
@@ -139,7 +139,7 @@ public:
                                 me->GetMotionMaster()->MoveIdle();
                                 me->StopMoving();
 
-                                me->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                                me->GetMotionMaster()->MovePoint(POINT_ID, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
                             }
                         }
                         bCanEat = false;
@@ -153,8 +153,8 @@ public:
                         {
                             pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, 0);
 
-                            if (GameObject* pGo = pPlr->FindNearestGameObject(GO_CARCASS, 10))
-                                pGo->Delete();
+                            if (GameObject* go = pPlr->FindNearestGameObject(GO_CARCASS, 10))
+                                go->Delete();
                         }
 
                         Reset();
@@ -914,15 +914,15 @@ class npc_earthmender_wilda : public CreatureScript
 public:
     npc_earthmender_wilda() : CreatureScript("npc_earthmender_wilda") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
+        if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
         {
             DoScriptText(SAY_WIL_START, creature, player);
             creature->setFaction(FACTION_EARTHEN);
 
             if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
         return true;
     }

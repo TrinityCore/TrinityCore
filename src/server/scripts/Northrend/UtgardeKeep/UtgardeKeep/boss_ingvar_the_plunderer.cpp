@@ -85,10 +85,10 @@ public:
     {
         boss_ingvar_the_plundererAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool bIsUndead;
         bool bEventInProgress;
@@ -117,8 +117,8 @@ public:
 
             uiSpawnResTimer = 3000;
 
-            if (pInstance)
-                pInstance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_INGVAR_EVENT, NOT_STARTED);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
@@ -164,16 +164,16 @@ public:
         {
             DoScriptText(YELL_AGGRO_1, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_INGVAR_EVENT, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(YELL_DEAD_2, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_INGVAR_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_INGVAR_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -298,11 +298,11 @@ public:
     {
         mob_annhylde_the_callerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         float x, y, z;
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiResurectTimer;
         uint32 uiResurectPhase;
 
@@ -317,7 +317,7 @@ public:
             me->GetPosition(x, y, z);
             DoTeleportTo(x+1, y, z+30);
 
-            Unit* ingvar = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
+            Unit* ingvar = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_INGVAR) : 0);
             if (ingvar)
             {
                 me->GetMotionMaster()->MovePoint(1, x, y, z+15);
@@ -330,7 +330,7 @@ public:
         {
             if (type != POINT_MOTION_TYPE)
                 return;
-            Unit* ingvar = Unit::GetUnit((*me), pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
+            Unit* ingvar = Unit::GetUnit((*me), instance ? instance->GetData64(DATA_INGVAR) : 0);
             if (ingvar)
             {
                 switch (id)
@@ -362,7 +362,7 @@ public:
                 {
                     if (uiResurectPhase == 1)
                     {
-                        Unit* ingvar = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0);
+                        Unit* ingvar = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_INGVAR) : 0);
                         if (ingvar)
                         {
                             ingvar->SetStandState(UNIT_STAND_STATE_STAND);
@@ -373,7 +373,7 @@ public:
                     }
                     else if (uiResurectPhase == 2)
                     {
-                        if (Creature* ingvar = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_INGVAR) : 0))
+                        if (Creature* ingvar = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_INGVAR) : 0))
                         {
                             ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
 

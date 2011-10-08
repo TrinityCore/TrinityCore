@@ -527,25 +527,25 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        switch (pQuest->GetQuestId())
+        switch (quest->GetQuestId())
         {
             case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2:
             case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
         }
 
@@ -1088,10 +1088,10 @@ public:
             if (!SummonList.empty())
                 for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                 {
-                    if (Creature* pTemp = Unit::GetCreature(*me, *itr))
+                    if (Creature* temp = Unit::GetCreature(*me, *itr))
                     {
-                        pTemp->m_CombatDistance = 100.0f; // ugly hack? we are not in a instance sorry. :(
-                        pTemp->AI()->AttackStart(unit);
+                        temp->m_CombatDistance = 100.0f; // ugly hack? we are not in a instance sorry. :(
+                        temp->AI()->AttackStart(unit);
                     }
                 }
         }
@@ -1131,13 +1131,13 @@ public:
                 if (!SummonList.empty())
                     for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
                     {
-                        if (Creature* pTemp = Unit::GetCreature(*me, *itr))
+                        if (Creature* temp = Unit::GetCreature(*me, *itr))
                         {
-                            if (pTemp->GetPositionZ() >= 287.00f)
+                            if (temp->GetPositionZ() >= 287.00f)
                                 continue;
 
-                            if (pTemp->getVictim())
-                                pTemp->GetMotionMaster()->MoveChase(pTemp->getVictim());
+                            if (temp->getVictim())
+                                temp->GetMotionMaster()->MoveChase(temp->getVictim());
                         }
                     }
 
@@ -1151,8 +1151,8 @@ public:
         {
             if (!SummonList.empty())
                 for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
-                    if (Creature* pTemp = Unit::GetCreature(*me, *itr))
-                        pTemp->DespawnOrUnsummon();
+                    if (Creature* temp = Unit::GetCreature(*me, *itr))
+                        temp->DespawnOrUnsummon();
 
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
                 player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND, killer);

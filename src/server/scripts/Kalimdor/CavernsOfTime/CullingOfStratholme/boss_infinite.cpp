@@ -45,21 +45,21 @@ public:
     {
         boss_infinite_corruptorAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_INFINITE_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_INFINITE_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -73,8 +73,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_INFINITE_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_INFINITE_EVENT, DONE);
         }
     };
 

@@ -51,10 +51,10 @@ class npc_forest_frog : public CreatureScript
         {
             npc_forest_frogAI(Creature* c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             void Reset() {}
 
@@ -62,7 +62,7 @@ class npc_forest_frog : public CreatureScript
 
             void DoSpawnRandom()
             {
-                if (pInstance)
+                if (instance)
                 {
                     uint32 cEntry = 0;
                     switch (rand()%10)
@@ -79,15 +79,15 @@ class npc_forest_frog : public CreatureScript
                         case 9: cEntry = 24455; break;          //Hollee
                     }
 
-                    if (!pInstance->GetData(TYPE_RAND_VENDOR_1))
+                    if (!instance->GetData(TYPE_RAND_VENDOR_1))
                         if (rand()%10 == 1) cEntry = 24408;      //Gunter
-                    if (!pInstance->GetData(TYPE_RAND_VENDOR_2))
+                    if (!instance->GetData(TYPE_RAND_VENDOR_2))
                         if (rand()%10 == 1) cEntry = 24409;      //Kyren
 
                     if (cEntry) me->UpdateEntry(cEntry);
 
-                    if (cEntry == 24408) pInstance->SetData(TYPE_RAND_VENDOR_1, DONE);
-                    if (cEntry == 24409) pInstance->SetData(TYPE_RAND_VENDOR_2, DONE);
+                    if (cEntry == 24408) instance->SetData(TYPE_RAND_VENDOR_1, DONE);
+                    if (cEntry == 24409) instance->SetData(TYPE_RAND_VENDOR_2, DONE);
                 }
             }
 
@@ -167,11 +167,11 @@ class npc_zulaman_hostage : public CreatureScript
                 return true;
             creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            InstanceScript* pInstance = creature->GetInstanceScript();
-            if (pInstance)
+            InstanceScript* instance = creature->GetInstanceScript();
+            if (instance)
             {
-                //uint8 progress = pInstance->GetData(DATA_CHESTLOOTED);
-                pInstance->SetData(DATA_CHESTLOOTED, 0);
+                //uint8 progress = instance->GetData(DATA_CHESTLOOTED);
+                instance->SetData(DATA_CHESTLOOTED, 0);
                 float x, y, z;
                 creature->GetPosition(x, y, z);
                 uint32 entry = creature->GetEntry();

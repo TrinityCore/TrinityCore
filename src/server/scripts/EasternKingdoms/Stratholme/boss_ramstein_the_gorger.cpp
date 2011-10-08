@@ -45,10 +45,10 @@ public:
     {
         boss_ramstein_the_gorgerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 Trample_Timer;
         uint32 Knockout_Timer;
@@ -71,8 +71,8 @@ public:
                     mob->AI()->AttackStart(me->SelectNearestTarget(100.0f));
             }
 
-            if (pInstance)
-                pInstance->SetData(TYPE_RAMSTEIN, DONE);
+            if (instance)
+                instance->SetData(TYPE_RAMSTEIN, DONE);
         }
 
         void UpdateAI(const uint32 diff)

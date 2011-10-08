@@ -78,10 +78,10 @@ public:
             {
                 AddId[i] = 0;
             }
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 AddGUID[4];
 
@@ -110,14 +110,14 @@ public:
                 SpawnAdds();
             }
 
-            if (pInstance)
-                pInstance->SetData(TYPE_MOROES, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_MOROES, NOT_STARTED);
         }
 
         void StartEvent()
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_MOROES, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_MOROES, IN_PROGRESS);
 
             DoZoneInCombat();
         }
@@ -140,14 +140,14 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_MOROES, DONE);
+            if (instance)
+                instance->SetData(TYPE_MOROES, DONE);
 
             DeSpawnAdds();
 
             //remove aura from spell Garrote when Moroes dies
-            if (pInstance)
-                pInstance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
+            if (instance)
+                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_GARROTE);
         }
 
         void SpawnAdds()
@@ -237,7 +237,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (pInstance && !pInstance->GetData(TYPE_MOROES))
+            if (instance && !instance->GetData(TYPE_MOROES))
             {
                 EnterEvadeMode();
                 return;
@@ -318,7 +318,7 @@ public:
 
 struct boss_moroes_guestAI : public ScriptedAI
 {
-    InstanceScript* pInstance;
+    InstanceScript* instance;
 
     uint64 GuestGUID[4];
 
@@ -327,21 +327,21 @@ struct boss_moroes_guestAI : public ScriptedAI
         for (uint8 i = 0; i < 4; ++i)
             GuestGUID[i] = 0;
 
-        pInstance = c->GetInstanceScript();
+        instance = c->GetInstanceScript();
     }
 
     void Reset()
     {
-        if (pInstance)
-            pInstance->SetData(TYPE_MOROES, NOT_STARTED);
+        if (instance)
+            instance->SetData(TYPE_MOROES, NOT_STARTED);
     }
 
     void AcquireGUID()
     {
-        if (!pInstance)
+        if (!instance)
             return;
 
-        uint64 MoroesGUID = pInstance->GetData64(DATA_MOROES);
+        uint64 MoroesGUID = instance->GetData64(DATA_MOROES);
         Creature* Moroes = (Unit::GetCreature((*me), MoroesGUID));
         if (Moroes)
         {
@@ -369,7 +369,7 @@ struct boss_moroes_guestAI : public ScriptedAI
 
     void UpdateAI(const uint32 /*diff*/)
     {
-        if (pInstance && !pInstance->GetData(TYPE_MOROES))
+        if (instance && !instance->GetData(TYPE_MOROES))
             EnterEvadeMode();
 
         DoMeleeAttackIfReady();

@@ -56,10 +56,10 @@ public:
     {
         mob_naga_distillerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -67,9 +67,9 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
             //hack, due to really weird spell behaviour :(
-            if (pInstance)
+            if (instance)
             {
-                if (pInstance->GetData(TYPE_DISTILLER) == IN_PROGRESS)
+                if (instance->GetData(TYPE_DISTILLER) == IN_PROGRESS)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -86,15 +86,15 @@ public:
 
             DoCast(me, SPELL_WARLORDS_RAGE_NAGA, true);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_DISTILLER, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_DISTILLER, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             if (me->GetHealth() <= damage)
-                if (pInstance)
-                    pInstance->SetData(TYPE_DISTILLER, DONE);
+                if (instance)
+                    instance->SetData(TYPE_DISTILLER, DONE);
         }
     };
 
@@ -114,10 +114,10 @@ public:
     {
         boss_warlord_kalithreshAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 Reflection_Timer;
         uint32 Impale_Timer;
@@ -131,16 +131,16 @@ public:
             Rage_Timer = 45000;
             CanRage = false;
 
-            if (pInstance)
-                pInstance->SetData(TYPE_WARLORD_KALITHRESH, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_WARLORD_KALITHRESH, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_WARLORD_KALITHRESH, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_WARLORD_KALITHRESH, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -152,8 +152,8 @@ public:
         {
             //hack :(
             if (spell->Id == SPELL_WARLORDS_RAGE_PROC)
-                if (pInstance)
-                    if (pInstance->GetData(TYPE_DISTILLER) == DONE)
+                if (instance)
+                    if (instance->GetData(TYPE_DISTILLER) == DONE)
                         me->RemoveAurasDueToSpell(SPELL_WARLORDS_RAGE_PROC);
         }
 
@@ -161,8 +161,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_WARLORD_KALITHRESH, DONE);
+            if (instance)
+                instance->SetData(TYPE_WARLORD_KALITHRESH, DONE);
         }
 
         void UpdateAI(const uint32 diff)

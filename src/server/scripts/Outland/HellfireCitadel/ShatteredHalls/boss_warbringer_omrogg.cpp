@@ -164,10 +164,10 @@ class boss_warbringer_omrogg : public CreatureScript
             {
                 LeftHeadGUID  = 0;
                 RightHeadGUID = 0;
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint64 LeftHeadGUID;
             uint64 RightHeadGUID;
@@ -215,8 +215,8 @@ class boss_warbringer_omrogg : public CreatureScript
                 ThunderClap_Timer = 15000;
                 ResetThreat_Timer = 30000;
 
-                if (pInstance)
-                    pInstance->SetData(TYPE_OMROGG, NOT_STARTED);   //End boss can use this later. O'mrogg must be defeated(DONE) or he will come to aid.
+                if (instance)
+                    instance->SetData(TYPE_OMROGG, NOT_STARTED);   //End boss can use this later. O'mrogg must be defeated(DONE) or he will come to aid.
             }
 
             void DoYellForThreat()
@@ -252,8 +252,8 @@ class boss_warbringer_omrogg : public CreatureScript
                     AggroYell = true;
                 }
 
-                if (pInstance)
-                    pInstance->SetData(TYPE_OMROGG, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(TYPE_OMROGG, IN_PROGRESS);
             }
 
             void JustSummoned(Creature* summoned)
@@ -307,8 +307,8 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 CAST_AI(mob_omrogg_heads::mob_omrogg_headsAI, CAST_CRE(pRightHead)->AI())->DoDeathYell();
 
-                if (pInstance)
-                    pInstance->SetData(TYPE_OMROGG, DONE);
+                if (instance)
+                    instance->SetData(TYPE_OMROGG, DONE);
             }
 
             void UpdateAI(const uint32 diff)

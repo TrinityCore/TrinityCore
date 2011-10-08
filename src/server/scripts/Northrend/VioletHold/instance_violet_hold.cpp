@@ -105,14 +105,14 @@ class instance_violet_hold : public InstanceMapScript
 public:
     instance_violet_hold() : InstanceMapScript("instance_violet_hold", 608) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_violet_hold_InstanceMapScript(pMap);
+        return new instance_violet_hold_InstanceMapScript(map);
     }
 
     struct instance_violet_hold_InstanceMapScript : public InstanceScript
     {
-        instance_violet_hold_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_violet_hold_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint64 uiMoragg;
         uint64 uiErekem;

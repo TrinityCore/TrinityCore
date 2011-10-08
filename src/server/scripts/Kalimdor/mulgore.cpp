@@ -162,10 +162,10 @@ public:
                         case 1:
                             if (Unit* unit = Unit::GetUnit(*me, uiPlayerGUID))
                             {
-                                if (GameObject* pGo = unit->GetGameObject(SPELL_LUNCH))
+                                if (GameObject* go = unit->GetGameObject(SPELL_LUNCH))
                                 {
                                     m_bIsMovingToLunch = true;
-                                    me->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                                    me->GetMotionMaster()->MovePoint(POINT_ID, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
                                 }
                             }
                             break;

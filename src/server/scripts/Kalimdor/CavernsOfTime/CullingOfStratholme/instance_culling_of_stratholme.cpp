@@ -40,14 +40,14 @@ class instance_culling_of_stratholme : public InstanceMapScript
     public:
         instance_culling_of_stratholme() : InstanceMapScript("instance_culling_of_stratholme", 595) { }
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_culling_of_stratholme_InstanceMapScript(pMap);
+            return new instance_culling_of_stratholme_InstanceMapScript(map);
         }
 
         struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
         {
-            instance_culling_of_stratholme_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+            instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 _arthasGUID = 0;
                 _meathookGUID = 0;

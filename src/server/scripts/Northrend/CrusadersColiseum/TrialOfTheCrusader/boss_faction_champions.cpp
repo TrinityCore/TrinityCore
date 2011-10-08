@@ -64,10 +64,10 @@ public:
     {
         boss_toc_champion_controllerAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
-            m_pInstance = (InstanceScript*) creature->GetInstanceScript();
+            m_instance = (InstanceScript*) creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
         SummonList Summons;
         uint32 m_uiChampionsNotStarted;
         uint32 m_uiChampionsFailed;
@@ -101,7 +101,7 @@ public:
             vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
 
             uint8 healersSubtracted = 2;
-            if (m_pInstance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || m_pInstance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+            if (m_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || m_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
                 healersSubtracted = 1;
             for (uint8 i = 0; i < healersSubtracted; ++i)
             {
@@ -136,7 +136,7 @@ public:
                 vHealersEntries.erase(vHealersEntries.begin()+pos);
             }
 
-            if (m_pInstance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || m_pInstance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+            if (m_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || m_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                 for (uint8 i = 0; i < 4; ++i)
                     vOtherEntries.erase(vOtherEntries.begin()+urand(0, vOtherEntries.size()-1));
 
@@ -168,22 +168,22 @@ public:
             for (uint8 i = 0; i < vChampionEntries.size(); ++i)
             {
                 uint8 pos = urand(0, vChampionJumpTarget.size()-1);
-                if (Creature* pTemp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
+                if (Creature* temp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
                 {
-                    Summons.Summon(pTemp);
-                    pTemp->SetReactState(REACT_PASSIVE);
-                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    Summons.Summon(temp);
+                    temp->SetReactState(REACT_PASSIVE);
+                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     if (playerTeam == ALLIANCE)
                     {
-                        pTemp->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
-                        pTemp->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
-                        pTemp->SetOrientation(0);
+                        temp->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
+                        temp->GetMotionMaster()->MoveJump(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
+                        temp->SetOrientation(0);
                     }
                     else
                     {
-                        pTemp->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
-                        pTemp->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
-                        pTemp->SetOrientation(3);
+                        temp->SetHomePosition((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 3);
+                        temp->GetMotionMaster()->MoveJump((ToCCommonLoc[1].GetPositionX()*2)-vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 20.0f, 20.0f);
+                        temp->SetOrientation(3);
                     }
                 }
                 vChampionJumpTarget.erase(vChampionJumpTarget.begin()+pos);
@@ -200,10 +200,10 @@ public:
                 case 1:
                     for (std::list<uint64>::iterator i = Summons.begin(); i != Summons.end(); ++i)
                     {
-                        if (Creature* pTemp = Unit::GetCreature(*me, *i))
+                        if (Creature* temp = Unit::GetCreature(*me, *i))
                         {
-                            pTemp->SetReactState(REACT_AGGRESSIVE);
-                            pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            temp->SetReactState(REACT_AGGRESSIVE);
+                            temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                         }
                     }
                     break;
@@ -214,7 +214,7 @@ public:
                             m_uiChampionsFailed++;
                             if (m_uiChampionsFailed + m_uiChampionsKilled >= Summons.size())
                             {
-                                m_pInstance->SetData(TYPE_CRUSADERS, FAIL);
+                                m_instance->SetData(TYPE_CRUSADERS, FAIL);
                                 Summons.DespawnAll();
                                 me->DespawnOrUnsummon();
                             }
@@ -227,16 +227,16 @@ public:
                                 m_uiChampionsKilled = 0;
                                 m_bInProgress = true;
                                 Summons.DoZoneInCombat();
-                                m_pInstance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
+                                m_instance->SetData(TYPE_CRUSADERS, IN_PROGRESS);
                             }
                             break;
                         case DONE:
                             m_uiChampionsKilled++;
                             if (m_uiChampionsKilled == 1)
-                                m_pInstance->SetData(TYPE_CRUSADERS, SPECIAL);
+                                m_instance->SetData(TYPE_CRUSADERS, SPECIAL);
                             else if (m_uiChampionsKilled >= Summons.size())
                             {
-                                m_pInstance->SetData(TYPE_CRUSADERS, DONE);
+                                m_instance->SetData(TYPE_CRUSADERS, DONE);
                                 Summons.DespawnAll();
                                 me->DespawnOrUnsummon();
                             }
@@ -253,11 +253,11 @@ struct boss_faction_championsAI : public ScriptedAI
 {
     boss_faction_championsAI(Creature* creature, uint32 aitype) : ScriptedAI(creature)
     {
-        m_pInstance = (InstanceScript*) creature->GetInstanceScript();
+        m_instance = (InstanceScript*) creature->GetInstanceScript();
         mAIType = aitype;
     }
 
-    InstanceScript* m_pInstance;
+    InstanceScript* m_instance;
 
     uint64 championControllerGUID;
     uint32 mAIType;
@@ -273,8 +273,8 @@ struct boss_faction_championsAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if (m_pInstance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+        if (m_instance)
+            if (Creature* pChampionController = Unit::GetCreature((*me), m_instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, FAIL);
         me->DespawnOrUnsummon();
     }
@@ -326,8 +326,8 @@ struct boss_faction_championsAI : public ScriptedAI
     void JustDied(Unit* /*killer*/)
     {
         if (mAIType != AI_PET)
-            if (m_pInstance)
-                if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+            if (m_instance)
+                if (Creature* pChampionController = Unit::GetCreature((*me), m_instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                     pChampionController->AI()->SetData(2, DONE);
     }
 
@@ -335,8 +335,8 @@ struct boss_faction_championsAI : public ScriptedAI
     {
         DoCast(me, SPELL_ANTI_AOE, true);
         me->SetInCombatWithZone();
-        if (m_pInstance)
-            if (Creature* pChampionController = Unit::GetCreature((*me), m_pInstance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
+        if (m_instance)
+            if (Creature* pChampionController = Unit::GetCreature((*me), m_instance->GetData64(NPC_CHAMPIONS_CONTROLLER)))
                 pChampionController->AI()->SetData(2, IN_PROGRESS);
     }
 
@@ -351,18 +351,18 @@ struct boss_faction_championsAI : public ScriptedAI
                 if (Player* player = players.begin()->getSource())
                     TeamInInstance = player->GetTeam();
 
-            if (m_pInstance)
+            if (m_instance)
             {
                 if (TeamInInstance == ALLIANCE)
                 {
-                    if (Creature* pTemp = Unit::GetCreature(*me, m_pInstance->GetData64(NPC_VARIAN)))
-                        DoScriptText(SAY_VARIAN_KILL_HORDE_PLAYER4+urand(0, 3), pTemp); // + cause we are on negative
+                    if (Creature* temp = Unit::GetCreature(*me, m_instance->GetData64(NPC_VARIAN)))
+                        DoScriptText(SAY_VARIAN_KILL_HORDE_PLAYER4+urand(0, 3), temp); // + cause we are on negative
                 }
                 else
-                    if (Creature* pTemp = me->FindNearestCreature(NPC_GARROSH, 300.f))
-                        DoScriptText(SAY_GARROSH_KILL_ALLIANCE_PLAYER4+urand(0, 3), pTemp); // + cause we are on negative
+                    if (Creature* temp = me->FindNearestCreature(NPC_GARROSH, 300.f))
+                        DoScriptText(SAY_GARROSH_KILL_ALLIANCE_PLAYER4+urand(0, 3), temp); // + cause we are on negative
 
-                m_pInstance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
+                m_instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
             }
         }
     }

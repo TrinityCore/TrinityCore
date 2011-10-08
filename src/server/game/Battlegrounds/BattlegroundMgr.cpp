@@ -296,7 +296,6 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
             if (!team && plr)
                 team = plr->GetBGTeam();
             *data << uint8(team == ALLIANCE ? 1 : 0); // green or yellow
-
         }
         *data << uint32(itr2->second->DamageDone);              // damage done
         *data << uint32(itr2->second->HealingDone);             // healing done
@@ -1090,7 +1089,6 @@ void BattlegroundMgr::LoadBattleMastersEntry()
         }
 
         mBattleMastersMap[entry] = BattlegroundTypeId(bgTypeId);
-
     }
     while (result->NextRow());
 
