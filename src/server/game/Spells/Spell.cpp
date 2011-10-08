@@ -791,6 +791,14 @@ void Spell::SelectEffectTypeImplicitTargets(uint8 effIndex)
                     AddUnitTarget(target, 1 << effIndex, false);
             }
             return;
+        case SPELL_EFFECT_DUMMY:
+        {
+            if (m_targets.GetUnitTarget())
+                AddUnitTarget(m_targets.GetUnitTarget(), 1 << effIndex, false);
+            else
+                AddUnitTarget(m_caster, 1 << effIndex, false);
+            return;
+        }
         default:
             break;
     }

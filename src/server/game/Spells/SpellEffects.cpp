@@ -1636,12 +1636,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, spell->Id, true);
                 return;
             }
-            // Righteous Defense
-            case 31980:
-            {
-                m_caster->CastSpell(unitTarget, 31790, true);
-                return;
-            }
             // Cloak of Shadows
             case 35729:
             {
@@ -1661,13 +1655,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     else
                         ++iter;
                 }
-                return;
-            }
-            // Priest Shadowfiend (34433) need apply mana gain trigger aura on pet
-            case 41967:
-            {
-                if (Unit* pet = unitTarget->GetGuardianPet())
-                    pet->CastSpell(pet, 28305, true);
                 return;
             }
         }
