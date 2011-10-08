@@ -110,10 +110,10 @@ class go_keystone_chamber : public GameObjectScript
 public:
     go_keystone_chamber() : GameObjectScript("go_keystone_chamber") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
-        if (InstanceScript* pInstance = pGo->GetInstanceScript())
-            pInstance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
+        if (InstanceScript* instance = go->GetInstanceScript())
+            instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
 
         return false;
     }

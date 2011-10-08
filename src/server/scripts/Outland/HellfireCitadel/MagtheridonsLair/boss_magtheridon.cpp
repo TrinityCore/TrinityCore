@@ -217,14 +217,14 @@ class boss_magtheridon : public CreatureScript
         {
             boss_magtheridonAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                 me->SetFloatValue(UNIT_FIELD_COMBATREACH, 10);
             }
 
             CubeMap Cube;
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 Berserk_Timer;
             uint32 Quake_Timer;
@@ -259,10 +259,10 @@ class boss_magtheridon : public CreatureScript
 
             void JustReachedHome()
             {
-                if (pInstance)
+                if (instance)
                 {
-                    pInstance->SetData(DATA_MAGTHERIDON_EVENT, NOT_STARTED);
-                    pInstance->SetData(DATA_COLLAPSE, false);
+                    instance->SetData(DATA_MAGTHERIDON_EVENT, NOT_STARTED);
+                    instance->SetData(DATA_COLLAPSE, false);
                 }
             }
 
@@ -324,8 +324,8 @@ class boss_magtheridon : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_MAGTHERIDON_EVENT, DONE);
 
                 DoScriptText(SAY_DEATH, me);
             }
@@ -340,8 +340,8 @@ class boss_magtheridon : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_MAGTHERIDON_EVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_MAGTHERIDON_EVENT, IN_PROGRESS);
                 DoZoneInCombat();
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -438,8 +438,8 @@ class boss_magtheridon : public CreatureScript
                     DoCast(me, SPELL_CAMERA_SHAKE, true);
                     DoCast(me, SPELL_DEBRIS_KNOCKDOWN, true);
 
-                    if (pInstance)
-                        pInstance->SetData(DATA_COLLAPSE, true);
+                    if (instance)
+                        instance->SetData(DATA_COLLAPSE, true);
                 }
 
                 if (Phase3)
@@ -483,10 +483,10 @@ class mob_hellfire_channeler : public CreatureScript
         {
             mob_hellfire_channelerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 ShadowBoltVolley_Timer;
             uint32 DarkMending_Timer;
@@ -507,8 +507,8 @@ class mob_hellfire_channeler : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_CHANNELER_EVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_CHANNELER_EVENT, IN_PROGRESS);
 
                 me->InterruptNonMeleeSpells(false);
                 DoZoneInCombat();
@@ -516,8 +516,8 @@ class mob_hellfire_channeler : public CreatureScript
 
             void JustReachedHome()
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
 
                 DoCast(me, SPELL_SHADOW_GRASP_C, false);
             }
@@ -535,8 +535,8 @@ class mob_hellfire_channeler : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_CHANNELER_EVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_CHANNELER_EVENT, DONE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -599,14 +599,14 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        InstanceScript* pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = pGO->GetInstanceScript();
 
-        if (!pInstance)
+        if (!instance)
             return true;
 
-        if (pInstance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS)
+        if (instance->GetData(DATA_MAGTHERIDON_EVENT) != IN_PROGRESS)
             return true;
-        Creature* Magtheridon =Unit::GetCreature(*pGO, pInstance->GetData64(DATA_MAGTHERIDON));
+        Creature* Magtheridon =Unit::GetCreature(*pGO, instance->GetData64(DATA_MAGTHERIDON));
         if (!Magtheridon || !Magtheridon->isAlive())
             return true;
 

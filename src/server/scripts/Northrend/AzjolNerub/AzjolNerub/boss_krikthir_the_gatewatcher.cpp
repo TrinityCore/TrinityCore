@@ -96,10 +96,10 @@ public:
     {
         boss_krik_thirAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiMindFlayTimer;
         uint32 uiCurseFatigueTimer;
@@ -110,8 +110,8 @@ public:
             uiMindFlayTimer = 15*IN_MILLISECONDS;
             uiCurseFatigueTimer = 12*IN_MILLISECONDS;
 
-            if (pInstance)
-                pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -120,8 +120,8 @@ public:
             Summon();
             uiSummonTimer = 15*IN_MILLISECONDS;
 
-            if (pInstance)
-                pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, IN_PROGRESS);
         }
 
         void Summon()
@@ -181,8 +181,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_KRIKTHIR_THE_GATEWATCHER_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

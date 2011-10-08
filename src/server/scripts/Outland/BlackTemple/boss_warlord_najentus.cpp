@@ -74,10 +74,10 @@ public:
     {
         boss_najentusAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         uint64 SpineTargetGUID;
@@ -88,8 +88,8 @@ public:
 
             SpineTargetGUID = 0;
 
-            if (pInstance)
-                pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -100,8 +100,8 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }
@@ -118,8 +118,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
 
             DoScriptText(SAY_AGGRO, me);
             DoZoneInCombat();
@@ -212,14 +212,14 @@ class go_najentus_spine : public GameObjectScript
 public:
     go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (InstanceScript* pInstance = pGo->GetInstanceScript())
-            if (Creature* Najentus = Unit::GetCreature(*pGo, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
+        if (InstanceScript* instance = go->GetInstanceScript())
+            if (Creature* Najentus = Unit::GetCreature(*go, instance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
                 if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                 {
                     player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
-                    pGo->Delete();
+                    go->Delete();
                 }
         return true;
     }

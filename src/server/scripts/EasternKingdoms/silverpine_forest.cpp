@@ -225,9 +225,9 @@ class pyrewood_ambush : public CreatureScript
 public:
     pyrewood_ambush() : CreatureScript("pyrewood_ambush") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest *quest)
     {
-        if (pQuest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress)
+        if (quest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress)
         {
             CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress = true;
             CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->Phase = 0;

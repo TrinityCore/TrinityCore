@@ -128,12 +128,12 @@ public:
         // some targeting issues with the spell, so use this workaround as temporary solution
         void DoWorkaroundForQuestCredit()
         {
-            Map* pMap = me->GetMap();
+            Map* map = me->GetMap();
 
-            if (!pMap || pMap->IsHeroic())
+            if (!map || map->IsHeroic())
                 return;
 
-            Map::PlayerList const &lList = pMap->GetPlayers();
+            Map::PlayerList const &lList = map->GetPlayers();
 
             if (lList.isEmpty())
                 return;

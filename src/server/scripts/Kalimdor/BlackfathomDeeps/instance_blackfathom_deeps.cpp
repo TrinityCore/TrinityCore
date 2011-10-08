@@ -56,14 +56,14 @@ class instance_blackfathom_deeps : public InstanceMapScript
 public:
     instance_blackfathom_deeps() : InstanceMapScript("instance_blackfathom_deeps", 48) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_blackfathom_deeps_InstanceMapScript(pMap);
+        return new instance_blackfathom_deeps_InstanceMapScript(map);
     }
 
     struct instance_blackfathom_deeps_InstanceMapScript : public InstanceScript
     {
-        instance_blackfathom_deeps_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_blackfathom_deeps_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint64 m_uiTwilightLordKelrisGUID;
         uint64 m_uiShrine1GUID;

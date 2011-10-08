@@ -67,10 +67,10 @@ public:
     {
         boss_maiden_of_griefAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 PartingSorrowTimer;
         uint32 StormOfGriefTimer;
@@ -84,10 +84,10 @@ public:
             ShockOfSorrowTimer = 20000+rand()%5000;
             PillarOfWoeTimer = 5000 + rand()%10000;
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, NOT_STARTED);
-                pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+                instance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, NOT_STARTED);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
         }
 
@@ -95,17 +95,17 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
+            if (instance)
             {
-                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAIDEN_DOOR)))
+                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_MAIDEN_DOOR)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
                         return;
                     }
 
-                pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, IN_PROGRESS);
-                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+                instance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, IN_PROGRESS);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
         }
 
@@ -161,8 +161,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

@@ -313,9 +313,9 @@ class go_acherus_soul_prison : public GameObjectScript
 public:
     go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (Creature* anchor = pGo->FindNearestCreature(29521, 15))
+        if (Creature* anchor = go->FindNearestCreature(29521, 15))
             if (uint64 prisonerGUID = anchor->AI()->GetGUID())
                 if (Creature* prisoner = Creature::GetCreature(*player, prisonerGUID))
                     CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);

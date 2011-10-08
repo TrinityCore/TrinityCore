@@ -2117,15 +2117,15 @@ void Creature::SetInCombatWithZone()
         return;
     }
 
-    Map* pMap = GetMap();
+    Map* map = GetMap();
 
-    if (!pMap->IsDungeon())
+    if (!map->IsDungeon())
     {
-        sLog->outError("Creature entry %u call SetInCombatWithZone for map (id: %u) that isn't an instance.", GetEntry(), pMap->GetId());
+        sLog->outError("Creature entry %u call SetInCombatWithZone for map (id: %u) that isn't an instance.", GetEntry(), map->GetId());
         return;
     }
 
-    Map::PlayerList const &PlList = pMap->GetPlayers();
+    Map::PlayerList const &PlList = map->GetPlayers();
 
     if (PlList.isEmpty())
         return;

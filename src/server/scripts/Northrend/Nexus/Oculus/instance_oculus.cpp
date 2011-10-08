@@ -31,14 +31,14 @@ class instance_oculus : public InstanceMapScript
 public:
     instance_oculus() : InstanceMapScript("instance_oculus", 578) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_oculus_InstanceMapScript(pMap);
+        return new instance_oculus_InstanceMapScript(map);
     }
 
     struct instance_oculus_InstanceMapScript : public InstanceScript
     {
-        instance_oculus_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_oculus_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         void Initialize()
         {

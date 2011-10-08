@@ -93,10 +93,10 @@ public:
     {
         boss_anub_arakAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool bChanneling;
         bool bGuardianSummoned;
@@ -135,10 +135,10 @@ public:
 
             lSummons.DespawnAll();
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
-                pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->SetData(DATA_ANUBARAK_EVENT, NOT_STARTED);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
         }
 
@@ -162,10 +162,10 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
-                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+                instance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
             }
         }
 
@@ -329,8 +329,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
             lSummons.DespawnAll();
-            if (pInstance)
-                pInstance->SetData(DATA_ANUBARAK_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_ANUBARAK_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

@@ -56,10 +56,10 @@ class go_atalai_statue : public GameObjectScript
 public:
     go_atalai_statue() : GameObjectScript("go_atalai_statue") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (InstanceScript* pInstance = player->GetInstanceScript())
-            pInstance->SetData(EVENT_STATE, pGo->GetEntry());
+        if (InstanceScript* instance = player->GetInstanceScript())
+            instance->SetData(EVENT_STATE, go->GetEntry());
         return false;
     }
 
