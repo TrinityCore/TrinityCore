@@ -25,7 +25,7 @@
 #include "World.h"
 #include "Group.h"
 
-Mainstanced::Mainstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DUNGEON_DIFFICULTY_NORMAL)
+MapInstanced::MapInstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DUNGEON_DIFFICULTY_NORMAL)
 {
     // initialize instanced maps list
     m_InstancedMaps.clear();
@@ -33,7 +33,7 @@ Mainstanced::Mainstanced(uint32 id, time_t expiry) : Map(id, expiry, 0, DUNGEON_
     memset(&GridMapReference, 0, MAX_NUMBER_OF_GRIDS*MAX_NUMBER_OF_GRIDS*sizeof(uint16));
 }
 
-void Mainstanced::InitVisibilityDistance()
+void MapInstanced::InitVisibilityDistance()
 {
     if (m_InstancedMaps.empty())
         return;
@@ -44,7 +44,7 @@ void Mainstanced::InitVisibilityDistance()
     }
 }
 
-void Mainstanced::Update(const uint32 t)
+void MapInstanced::Update(const uint32 t)
 {
     // take care of loaded GridMaps (when unused, unload it!)
     Map::Update(t);
@@ -73,7 +73,7 @@ void Mainstanced::Update(const uint32 t)
     }
 }
 
-void Mainstanced::DelayedUpdate(const uint32 diff)
+void MapInstanced::DelayedUpdate(const uint32 diff)
 {
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
         i->second->DelayedUpdate(diff);
@@ -82,14 +82,14 @@ void Mainstanced::DelayedUpdate(const uint32 diff)
 }
 
 /*
-void Mainstanced::RelocationNotify()
+void MapInstanced::RelocationNotify()
 {
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
         i->second->RelocationNotify();
 }
 */
 
-void Mainstanced::UnloadAll()
+void MapInstanced::UnloadAll()
 {
     // Unload instanced maps
     for (InstancedMaps::iterator i = m_InstancedMaps.begin(); i != m_InstancedMaps.end(); ++i)
@@ -110,7 +110,7 @@ void Mainstanced::UnloadAll()
 - create the instance if it's not created already
 - the player is not actually added to the instance (only in InstanceMap::Add)
 */
-Map* Mainstanced::CreateInstance(const uint32 mapId, Player* player)
+Map* MapInstanced::CreateInstance(const uint32 mapId, Player* player)
 {
     if (GetId() != mapId || !player)
         return NULL;
@@ -170,7 +170,7 @@ Map* Mainstanced::CreateInstance(const uint32 mapId, Player* player)
     return map;
 }
 
-InstanceMap* Mainstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty)
+InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty)
 {
     // load/create a map
     ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
@@ -192,7 +192,7 @@ InstanceMap* Mainstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, 
     // some instances only have one difficulty
     GetDownscaledMapDifficultyData(GetId(), difficulty);
 
-    sLog->outDebug(LOG_FILTER_MAPS, "Mainstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
+    sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
     InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
     ASSERT(map->IsDungeon());
@@ -204,12 +204,12 @@ InstanceMap* Mainstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, 
     return map;
 }
 
-BattlegroundMap* Mainstanced::CreateBattleground(uint32 InstanceId, Battleground* bg)
+BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battleground* bg)
 {
     // load/create a map
     ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
 
-    sLog->outDebug(LOG_FILTER_MAPS, "Mainstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
+    sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
 
     PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bg->GetMapId(), bg->GetMinLevel());
 
@@ -230,7 +230,7 @@ BattlegroundMap* Mainstanced::CreateBattleground(uint32 InstanceId, Battleground
 }
 
 // increments the iterator after erase
-bool Mainstanced::DestroyInstance(InstancedMaps::iterator &itr)
+bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 {
     itr->second->RemoveAllPlayers();
     if (itr->second->HavePlayers())
@@ -260,7 +260,7 @@ bool Mainstanced::DestroyInstance(InstancedMaps::iterator &itr)
     return true;
 }
 
-bool Mainstanced::CanEnter(Player* /*player*/)
+bool MapInstanced::CanEnter(Player* /*player*/)
 {
     //ASSERT(false);
     return true;

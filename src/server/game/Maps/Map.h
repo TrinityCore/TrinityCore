@@ -48,7 +48,7 @@ struct ScriptInfo;
 struct ScriptAction;
 struct Position;
 class Battleground;
-class Mainstanced;
+class MapInstanced;
 class InstanceMap;
 namespace Trinity { struct ObjectUpdater; }
 
@@ -429,8 +429,8 @@ class Map : public GridRefManager<NGridType>
         GameObject* GetGameObject(uint64 guid);
         DynamicObject* GetDynamicObject(uint64 guid);
 
-        Mainstanced* ToMainstanced(){ if (Instanceable())  return reinterpret_cast<Mainstanced*>(this); else return NULL;  }
-        const Mainstanced* ToMainstanced() const { if (Instanceable())  return (const Mainstanced*)((Mainstanced*)this); else return NULL;  }
+        MapInstanced* ToMainstanced(){ if (Instanceable())  return reinterpret_cast<MapInstanced*>(this); else return NULL;  }
+        const MapInstanced* ToMainstanced() const { if (Instanceable())  return (const MapInstanced*)((MapInstanced*)this); else return NULL;  }
 
         InstanceMap* ToInstanceMap(){ if (IsDungeon())  return reinterpret_cast<InstanceMap*>(this); else return NULL;  }
         const InstanceMap* ToInstanceMap() const { if (IsDungeon())  return (const InstanceMap*)((InstanceMap*)this); else return NULL;  }
@@ -508,7 +508,7 @@ class Map : public GridRefManager<NGridType>
 
         time_t i_gridExpiry;
 
-        //used for fast base_map (e.g. Mainstanced class object) search for
+        //used for fast base_map (e.g. MapInstanced class object) search for
         //InstanceMaps and BattlegroundMaps...
         Map* m_parentMap;
 
