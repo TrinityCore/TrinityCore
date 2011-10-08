@@ -153,7 +153,7 @@ public:
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                DoCast(me, SPELL_FROZEN_PRISON, false);
+                DoCast (me, SPELL_FROZEN_PRISON, false);
             }
         }
 
@@ -171,19 +171,19 @@ public:
             if (!bEnrage && HealthBelowPct(25))
             {
                 DoScriptText(SAY_ENRAGE, me);
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 bEnrage = true;
             }
 
             if (uiCrystalfireBreathTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CRYSTALFIRE_BREATH);
+                DoCast (me->getVictim(), SPELL_CRYSTALFIRE_BREATH);
                 uiCrystalfireBreathTimer = 14*IN_MILLISECONDS;
             } else uiCrystalfireBreathTimer -= diff;
 
             if (uiTailSweepTimer <= diff)
             {
-                DoCast(me, SPELL_TAIL_SWEEP);
+                DoCast (me, SPELL_TAIL_SWEEP);
                 uiTailSweepTimer = 5*IN_MILLISECONDS;
             } else uiTailSweepTimer -= diff;
 
@@ -191,9 +191,9 @@ public:
             {
                 DoScriptText(SAY_CRYSTAL_NOVA, me);
                 if (IsHeroic())
-                    DoCast(me, SPELL_CRYSTALIZE);
+                    DoCast (me, SPELL_CRYSTALIZE);
                 else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CRYSTAL_CHAINS);
+                    DoCast (target, SPELL_CRYSTAL_CHAINS);
                 uiCrystalChainsCrystalizeTimer = DUNGEON_MODE(30*IN_MILLISECONDS, 11*IN_MILLISECONDS);
             } else uiCrystalChainsCrystalizeTimer -= diff;
 

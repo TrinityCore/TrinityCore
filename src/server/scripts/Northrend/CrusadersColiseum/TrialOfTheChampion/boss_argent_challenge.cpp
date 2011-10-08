@@ -167,8 +167,8 @@ public:
                 {
                     if (target && target->isAlive())
                     {
-                        DoCast(target, SPELL_HAMMER_JUSTICE);
-                        DoCast(target, SPELL_HAMMER_RIGHTEOUS);
+                        DoCast (target, SPELL_HAMMER_JUSTICE);
+                        DoCast (target, SPELL_HAMMER_RIGHTEOUS);
                     }
                 }
                 uiHammerJusticeTimer = 25000;
@@ -176,7 +176,7 @@ public:
 
             if (uiVenganceTimer <= uiDiff)
             {
-                DoCast(me, SPELL_VENGEANCE);
+                DoCast (me, SPELL_VENGEANCE);
 
                 uiVenganceTimer = 10000;
             } else uiVenganceTimer -= uiDiff;
@@ -290,7 +290,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
                     if (target && target->isAlive())
-                        DoCast(target, SPELL_HOLY_FIRE);
+                        DoCast (target, SPELL_HOLY_FIRE);
                 }
                  if (me->HasAura(SPELL_SHIELD))
                     uiHolyFireTimer = 13000;
@@ -303,7 +303,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 250, true))
                 {
                     if (target && target->isAlive())
-                        DoCast(target, SPELL_SMITE);
+                        DoCast (target, SPELL_SMITE);
                 }
                 if (me->HasAura(SPELL_SHIELD))
                     uiHolySmiteTimer = 9000;
@@ -320,12 +320,12 @@ public:
                     switch (uiTarget)
                     {
                         case 0:
-                            DoCast(me, SPELL_RENEW);
+                            DoCast (me, SPELL_RENEW);
                             break;
                         case 1:
                             if (Creature* pMemory = Unit::GetCreature(*me, MemoryGUID))
                                 if (pMemory->isAlive())
-                                    DoCast(pMemory, SPELL_RENEW);
+                                    DoCast (pMemory, SPELL_RENEW);
                             break;
                     }
                     uiRenewTimer = urand(15000, 17000);
@@ -336,7 +336,7 @@ public:
             {
                 me->InterruptNonMeleeSpells(true);
                 DoCastAOE(SPELL_HOLY_NOVA, false);
-                DoCast(me, SPELL_SHIELD);
+                DoCast (me, SPELL_SHIELD);
                 DoCastAOE(SPELL_SUMMON_MEMORY, false);
                 DoCastAOE(SPELL_CONFESS, false);
 
@@ -388,14 +388,14 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (target && target->isAlive())
-                        DoCast(target, SPELL_OLD_WOUNDS);
+                        DoCast (target, SPELL_OLD_WOUNDS);
                 }
                 uiOldWoundsTimer = 12000;
             }else uiOldWoundsTimer -= uiDiff;
 
             if (uiWakingNightmare <= uiDiff)
             {
-                DoCast(me, SPELL_WAKING_NIGHTMARE);
+                DoCast (me, SPELL_WAKING_NIGHTMARE);
                 uiWakingNightmare = 7000;
             }else uiWakingNightmare -= uiDiff;
 
@@ -404,7 +404,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 {
                     if (target && target->isAlive())
-                        DoCast(target, SPELL_SHADOWS_PAST);
+                        DoCast (target, SPELL_SHADOWS_PAST);
                 }
                 uiShadowPastTimer = 5000;
             }else uiShadowPastTimer -= uiDiff;

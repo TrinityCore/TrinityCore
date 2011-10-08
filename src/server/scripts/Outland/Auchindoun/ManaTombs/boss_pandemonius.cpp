@@ -92,7 +92,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(target, SPELL_VOID_BLAST);
+                    DoCast (target, SPELL_VOID_BLAST);
                     VoidBlast_Timer = 500;
                     ++VoidBlast_Counter;
                 }
@@ -113,7 +113,7 @@ public:
 
                     DoScriptText(EMOTE_DARK_SHELL, me);
 
-                    DoCast(me, SPELL_DARK_SHELL);
+                    DoCast (me, SPELL_DARK_SHELL);
                     DarkShell_Timer = 20000;
                 } else DarkShell_Timer -= diff;
             }

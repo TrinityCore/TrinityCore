@@ -166,7 +166,7 @@ public:
             switch (i)
             {
                 case 0:
-                    DoCast(me, SPELL_TUXEDO, false);
+                    DoCast (me, SPELL_TUXEDO, false);
                     instance->DoUseDoorOrButton(instance->GetData64(DATA_GO_STAGEDOORLEFT));
                     break;
                 case 4:
@@ -567,14 +567,14 @@ public:
                 return 5000;
             case 8:
                 FireMedivhTimer = 500;
-                DoCast(me, SPELL_MANA_SHIELD);
+                DoCast (me, SPELL_MANA_SHIELD);
                 return 10000;
             case 9:
                 me->MonsterTextEmote(EMOTE_DIALOG_MEDIVH_7, 0, false);
                 return 10000;
             case 10:
                 if (arca)
-                    DoCast(arca, SPELL_CONFLAGRATION_BLAST, false);
+                    DoCast (arca, SPELL_CONFLAGRATION_BLAST, false);
                 return 1000;
             case 11:
                 if (arca)
@@ -637,7 +637,7 @@ public:
                 if (FireMedivhTimer <= diff)
                 {
                     if (arca)
-                        DoCast(arca, SPELL_FIRE_BALL);
+                        DoCast (arca, SPELL_FIRE_BALL);
                     FireMedivhTimer = 5000;
                 } else FireMedivhTimer -= diff;
             }

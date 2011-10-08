@@ -120,7 +120,7 @@ public:
                     if (uiCurseOfLifeTimer < diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_CURSE_OF_LIFE);
+                            DoCast (target, SPELL_CURSE_OF_LIFE);
                         uiCurseOfLifeTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
                     } else uiCurseOfLifeTimer -= diff;
 
@@ -138,7 +138,7 @@ public:
 
                     if (uiPhaseTimer < diff)
                     {
-                        DoCast(SPELL_DECAY_FLESH);
+                        DoCast (SPELL_DECAY_FLESH);
                         Phase = GOING_FLESH;
                         uiPhaseTimer = 6*IN_MILLISECONDS;
                     } else uiPhaseTimer -= diff;
@@ -170,14 +170,14 @@ public:
                     if (uiLightningBreathTimer < diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_LIGHTNING_BREATH);
+                            DoCast (target, SPELL_LIGHTNING_BREATH);
                         uiLightningBreathTimer = urand(6*IN_MILLISECONDS, 7*IN_MILLISECONDS);
                     } else uiLightningBreathTimer -= diff;
 
                     if (uiEyeBeamTimer < diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_EYE_BEAM);
+                            DoCast (target, SPELL_EYE_BEAM);
                         uiEyeBeamTimer = urand(4*IN_MILLISECONDS, 6*IN_MILLISECONDS);
                     } else uiEyeBeamTimer -= diff;
 
@@ -189,7 +189,7 @@ public:
 
                     if (uiPhaseTimer < diff)
                     {
-                        DoCast(SPELL_RETURN_FLESH);
+                        DoCast (SPELL_RETURN_FLESH);
                         Phase = GOING_SKELETAL;
                         uiPhaseTimer = 6*IN_MILLISECONDS;
                     } else uiPhaseTimer -= diff;

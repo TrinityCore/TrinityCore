@@ -368,7 +368,7 @@ class boss_hexlord_malacrass : public CreatureScript
 
                 if (DrainPower_Timer <= diff)
                 {
-                    DoCast(me, SPELL_DRAIN_POWER, true);
+                    DoCast (me, SPELL_DRAIN_POWER, true);
                     me->MonsterYell(YELL_DRAIN_POWER, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_YELL_DRAIN_POWER);
                     DrainPower_Timer = urand(40000, 55000);    // must cast in 60 sec, or buff/debuff will disappear
@@ -380,7 +380,7 @@ class boss_hexlord_malacrass : public CreatureScript
                         SpiritBolts_Timer = 13000;   // cast drain power first
                     else
                     {
-                        DoCast(me, SPELL_SPIRIT_BOLTS, false);
+                        DoCast (me, SPELL_SPIRIT_BOLTS, false);
                         me->MonsterYell(YELL_SPIRIT_BOLTS, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_YELL_SPIRIT_BOLTS);
                         SpiritBolts_Timer = 40000;
@@ -405,7 +405,7 @@ class boss_hexlord_malacrass : public CreatureScript
                         trigger->CastSpell(target, SPELL_SIPHON_SOUL, true);
                         trigger->GetMotionMaster()->MoveChase(me);
 
-                        //DoCast(target, SPELL_SIPHON_SOUL, true);
+                        //DoCast (target, SPELL_SIPHON_SOUL, true);
                         //me->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, target->GetGUID());
                         //me->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SIPHON_SOUL);
 
@@ -463,7 +463,7 @@ class boss_hexlord_malacrass : public CreatureScript
                         break;
                 }
                 if (target)
-                    DoCast(target, PlayerAbility[PlayerClass][random].spell, false);
+                    DoCast (target, PlayerAbility[PlayerClass][random].spell, false);
             }
         };
 
@@ -512,14 +512,14 @@ class boss_thurg : public CreatureScript
                     if (!templist.empty())
                     {
                         if (Unit* target = *(templist.begin()))
-                            DoCast(target, SPELL_BLOODLUST, false);
+                            DoCast (target, SPELL_BLOODLUST, false);
                     }
                     bloodlust_timer = 12000;
                 } else bloodlust_timer -= diff;
 
                 if (cleave_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CLEAVE, false);
+                    DoCast (me->getVictim(), SPELL_CLEAVE, false);
                     cleave_timer = 12000; //3 sec cast
                 } else cleave_timer -= diff;
 
@@ -589,7 +589,7 @@ class boss_alyson_antille : public CreatureScript
                     if (target)
                     {
                         if (target->IsWithinDistInMap(me, 50))
-                            DoCast(target, SPELL_FLASH_HEAL, false);
+                            DoCast (target, SPELL_FLASH_HEAL, false);
                         else
                         {
                             // bugged
@@ -604,7 +604,7 @@ class boss_alyson_antille : public CreatureScript
                         else
                             target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
-                            DoCast(target, SPELL_DISPEL_MAGIC, false);
+                            DoCast (target, SPELL_DISPEL_MAGIC, false);
                     }
                     flashheal_timer = 2500;
                 } else flashheal_timer -= diff;
@@ -615,7 +615,7 @@ class boss_alyson_antille : public CreatureScript
                 {
                     Unit* target = SelectTarget();
 
-                    DoCast(target, SPELL_DISPEL_MAGIC, false);
+                    DoCast (target, SPELL_DISPEL_MAGIC, false);
                 }
                 else
                     me->CastSpell(SelectUnit(SELECT_TARGET_RANDOM, 0), SPELL_DISPEL_MAGIC, false);
@@ -669,7 +669,7 @@ struct boss_gazakrothAI : public boss_hexlord_addAI
 
         if (firebolt_timer <= diff)
         {
-            DoCast(me->getVictim(), SPELL_FIREBOLT, false);
+            DoCast (me->getVictim(), SPELL_FIREBOLT, false);
             firebolt_timer = 700;
         } else firebolt_timer -= diff;
 
@@ -711,13 +711,13 @@ class boss_lord_raadan : public CreatureScript
 
                 if (thunderclap_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_THUNDERCLAP, false);
+                    DoCast (me->getVictim(), SPELL_THUNDERCLAP, false);
                     thunderclap_timer = 12000;
                 } else thunderclap_timer -= diff;
 
                 if (flamebreath_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FLAME_BREATH, false);
+                    DoCast (me->getVictim(), SPELL_FLAME_BREATH, false);
                     flamebreath_timer = 12000;
                 } else flamebreath_timer -= diff;
 
@@ -760,7 +760,7 @@ class boss_darkheart : public CreatureScript
 
                 if (psychicwail_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_PSYCHIC_WAIL, false);
+                    DoCast (me->getVictim(), SPELL_PSYCHIC_WAIL, false);
                     psychicwail_timer = 12000;
                 } else psychicwail_timer -= diff;
 
@@ -820,7 +820,7 @@ class boss_slither : public CreatureScript
                 if (venomspit_timer <= diff)
                 {
                     if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(victim, SPELL_VENOM_SPIT, false);
+                        DoCast (victim, SPELL_VENOM_SPIT, false);
                     venomspit_timer = 2500;
                 } else venomspit_timer -= diff;
 
@@ -913,13 +913,13 @@ class boss_koragg : public CreatureScript
 
                 if (mightyblow_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_MIGHTY_BLOW, false);
+                    DoCast (me->getVictim(), SPELL_MIGHTY_BLOW, false);
                     mightyblow_timer = 12000;
                 }
                 if (coldstare_timer <= diff)
                 {
                     if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(victim, SPELL_COLD_STARE, false);
+                        DoCast (victim, SPELL_COLD_STARE, false);
                     coldstare_timer = 12000;
                 }
 

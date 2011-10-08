@@ -109,12 +109,12 @@ public:
             if (LightningCloud_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_LIGHTNING_CLOUD);
+                    DoCast (target, SPELL_LIGHTNING_CLOUD);
 
                 //cast twice in Heroic mode
                 if (IsHeroic())
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_LIGHTNING_CLOUD);
+                        DoCast (target, SPELL_LIGHTNING_CLOUD);
 
                 LightningCloud_Timer = 15000+rand()%10000;
             } else LightningCloud_Timer -=diff;
@@ -123,7 +123,7 @@ public:
             if (LungBurst_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_LUNG_BURST);
+                    DoCast (target, SPELL_LUNG_BURST);
                 LungBurst_Timer = 7000+rand()%5000;
             } else LungBurst_Timer -=diff;
 
@@ -131,12 +131,12 @@ public:
             if (EnvelopingWinds_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_ENVELOPING_WINDS);
+                    DoCast (target, SPELL_ENVELOPING_WINDS);
 
                 //cast twice in Heroic mode
                 if (IsHeroic())
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_ENVELOPING_WINDS);
+                        DoCast (target, SPELL_ENVELOPING_WINDS);
                 EnvelopingWinds_Timer = 10000+rand()%5000;
             } else EnvelopingWinds_Timer -=diff;
 
@@ -176,7 +176,7 @@ public:
 
             if (WaterBoltVolley_Timer <= diff)
             {
-                DoCast(me, SPELL_WATER_BOLT_VOLLEY);
+                DoCast (me, SPELL_WATER_BOLT_VOLLEY);
                 WaterBoltVolley_Timer = 7000+rand()%5000;
             } else WaterBoltVolley_Timer -= diff;
 

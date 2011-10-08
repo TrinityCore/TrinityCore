@@ -103,7 +103,7 @@ class boss_mandokir : public CreatureScript
                 RaptorDead = false;
                 CombatStart = false;
 
-                DoCast(me, 23243);
+                DoCast (me, 23243);
             }
 
             void KilledUnit(Unit* victim)
@@ -128,7 +128,7 @@ class boss_mandokir : public CreatureScript
                                 }
                             }
                         }
-                    DoCast(me, SPELL_LEVEL_UP, true);
+                    DoCast (me, SPELL_LEVEL_UP, true);
                      KillCount = 0;
                     }
                 }
@@ -170,11 +170,11 @@ class boss_mandokir : public CreatureScript
                             {
                                 if (me->IsWithinMeleeRange(unit))
                                 {
-                                    DoCast(unit, 24316);
+                                    DoCast (unit, 24316);
                                 }
                                 else
                                 {
-                                    DoCast(unit, SPELL_CHARGE);
+                                    DoCast (unit, SPELL_CHARGE);
                                     //me->SendMonsterMove(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), 0, true, 1);
                                     AttackStart(unit);
                                 }
@@ -189,7 +189,7 @@ class boss_mandokir : public CreatureScript
                         if (Unit* p = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             DoScriptText(SAY_WATCH, me, p);
-                            DoCast(p, SPELL_WATCH);
+                            DoCast (p, SPELL_WATCH);
                             WatchTarget = p->GetGUID();
                             someWatched = true;
                             endWatch = true;
@@ -213,14 +213,14 @@ class boss_mandokir : public CreatureScript
                         //Cleave
                         if (Cleave_Timer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_CLEAVE);
+                            DoCast (me->getVictim(), SPELL_CLEAVE);
                             Cleave_Timer = 7000;
                         } else Cleave_Timer -= diff;
 
                         //Whirlwind
                         if (Whirlwind_Timer <= diff)
                         {
-                            DoCast(me, SPELL_WHIRLWIND);
+                            DoCast (me, SPELL_WHIRLWIND);
                             Whirlwind_Timer = 18000;
                         } else Whirlwind_Timer -= diff;
 
@@ -238,7 +238,7 @@ class boss_mandokir : public CreatureScript
                             }
 
                             if (TargetInRange > 3)
-                                DoCast(me->getVictim(), SPELL_FEAR);
+                                DoCast (me->getVictim(), SPELL_FEAR);
 
                             Fear_Timer = 4000;
                         } else Fear_Timer -=diff;
@@ -248,7 +248,7 @@ class boss_mandokir : public CreatureScript
                         {
                             if (MortalStrike_Timer <= diff)
                             {
-                                DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
+                                DoCast (me->getVictim(), SPELL_MORTAL_STRIKE);
                                 MortalStrike_Timer = 15000;
                             } else MortalStrike_Timer -= diff;
                         }
@@ -262,7 +262,7 @@ class boss_mandokir : public CreatureScript
                             {
                                 if (!RaptorDead)
                                 {
-                                    DoCast(me, SPELL_ENRAGE);
+                                    DoCast (me, SPELL_ENRAGE);
                                     RaptorDead = true;
                                 }
                             }
@@ -324,7 +324,7 @@ class mob_ohgan : public CreatureScript
                 //SunderArmor_Timer
                 if (SunderArmor_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SUNDERARMOR);
+                    DoCast (me->getVictim(), SPELL_SUNDERARMOR);
                     SunderArmor_Timer = 10000 + rand()%5000;
                 } else SunderArmor_Timer -= diff;
 

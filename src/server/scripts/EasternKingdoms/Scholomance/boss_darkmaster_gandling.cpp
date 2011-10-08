@@ -100,21 +100,21 @@ public:
             //ArcaneMissiles_Timer
             if (ArcaneMissiles_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANEMISSILES);
+                DoCast (me->getVictim(), SPELL_ARCANEMISSILES);
                 ArcaneMissiles_Timer = 8000;
             } else ArcaneMissiles_Timer -= diff;
 
             //ShadowShield_Timer
             if (ShadowShield_Timer <= diff)
             {
-                DoCast(me, SPELL_SHADOWSHIELD);
+                DoCast (me, SPELL_SHADOWSHIELD);
                 ShadowShield_Timer = 14000 + rand()%14000;
             } else ShadowShield_Timer -= diff;
 
             //Curse_Timer
             if (Curse_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CURSE);
+                DoCast (me->getVictim(), SPELL_CURSE);
                 Curse_Timer = 15000 + rand()%12000;
             } else Curse_Timer -= diff;
 

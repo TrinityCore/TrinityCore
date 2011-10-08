@@ -114,7 +114,7 @@ public:
         {
             DoScriptText(RAND(SAY_XHEALTH, SAY_AGGRO, SAY_SHADOWFLAME), me);
 
-            DoCast(who, SPELL_SHADOWFLAME_INITIAL);
+            DoCast (who, SPELL_SHADOWFLAME_INITIAL);
             DoZoneInCombat();
         }
 
@@ -133,28 +133,28 @@ public:
             //ShadowFlame_Timer
             if (ShadowFlame_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWFLAME);
+                DoCast (me->getVictim(), SPELL_SHADOWFLAME);
                 ShadowFlame_Timer = 12000;
             } else ShadowFlame_Timer -= diff;
 
             //BellowingRoar_Timer
             if (BellowingRoar_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_BELLOWINGROAR);
+                DoCast (me->getVictim(), SPELL_BELLOWINGROAR);
                 BellowingRoar_Timer = 30000;
             } else BellowingRoar_Timer -= diff;
 
             //VeilOfShadow_Timer
             if (VeilOfShadow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VEILOFSHADOW);
+                DoCast (me->getVictim(), SPELL_VEILOFSHADOW);
                 VeilOfShadow_Timer = 15000;
             } else VeilOfShadow_Timer -= diff;
 
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 7000;
             } else Cleave_Timer -= diff;
 
@@ -162,7 +162,7 @@ public:
             if (TailLash_Timer <= diff)
             {
                 //Cast NYI since we need a better check for behind target
-                //DoCast(me->getVictim(), SPELL_TAILLASH);
+                //DoCast (me->getVictim(), SPELL_TAILLASH);
 
                 TailLash_Timer = 10000;
             } else TailLash_Timer -= diff;
@@ -178,39 +178,39 @@ public:
                 {
                     case 0:
                         DoScriptText(SAY_MAGE, me);
-                        DoCast(me, SPELL_MAGE);
+                        DoCast (me, SPELL_MAGE);
                         break;
                     case 1:
                         DoScriptText(SAY_WARRIOR, me);
-                        DoCast(me, SPELL_WARRIOR);
+                        DoCast (me, SPELL_WARRIOR);
                         break;
                     case 2:
                         DoScriptText(SAY_DRUID, me);
-                        DoCast(me, SPELL_DRUID);
+                        DoCast (me, SPELL_DRUID);
                         break;
                     case 3:
                         DoScriptText(SAY_PRIEST, me);
-                        DoCast(me, SPELL_PRIEST);
+                        DoCast (me, SPELL_PRIEST);
                         break;
                     case 4:
                         DoScriptText(SAY_PALADIN, me);
-                        DoCast(me, SPELL_PALADIN);
+                        DoCast (me, SPELL_PALADIN);
                         break;
                     case 5:
                         DoScriptText(SAY_SHAMAN, me);
-                        DoCast(me, SPELL_SHAMAN);
+                        DoCast (me, SPELL_SHAMAN);
                         break;
                     case 6:
                         DoScriptText(SAY_WARLOCK, me);
-                        DoCast(me, SPELL_WARLOCK);
+                        DoCast (me, SPELL_WARLOCK);
                         break;
                     case 7:
                         DoScriptText(SAY_HUNTER, me);
-                        DoCast(me, SPELL_HUNTER);
+                        DoCast (me, SPELL_HUNTER);
                         break;
                     case 8:
                         DoScriptText(SAY_ROGUE, me);
-                        DoCast(me, SPELL_ROGUE);
+                        DoCast (me, SPELL_ROGUE);
                         break;
                 }
 

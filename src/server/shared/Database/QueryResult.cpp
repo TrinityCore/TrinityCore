@@ -26,7 +26,7 @@ m_result(result),
 m_fields(fields)
 {
     m_currentRow = new Field[m_fieldCount];
-    ASSERT(m_currentRow);
+    ASSERT (m_currentRow);
 }
 
 PreparedResultSet::PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, uint64 rowCount, uint32 fieldCount) :

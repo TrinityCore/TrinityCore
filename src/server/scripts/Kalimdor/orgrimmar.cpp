@@ -225,13 +225,13 @@ public:
 
             if (ChainLightning_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
+                DoCast (me->getVictim(), SPELL_CHAIN_LIGHTNING);
                 ChainLightning_Timer = 9000;
             } else ChainLightning_Timer -= diff;
 
             if (Shock_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHOCK);
+                DoCast (me->getVictim(), SPELL_SHOCK);
                 Shock_Timer = 15000;
             } else Shock_Timer -= diff;
 

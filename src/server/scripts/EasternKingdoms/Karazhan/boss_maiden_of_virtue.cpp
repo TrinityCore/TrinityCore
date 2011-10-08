@@ -95,19 +95,19 @@ public:
 
             if (Enrage_Timer < diff && !Enraged)
             {
-                DoCast(me, SPELL_BERSERK, true);
+                DoCast (me, SPELL_BERSERK, true);
                 Enraged = true;
             } else Enrage_Timer -= diff;
 
             if (Holyground_Timer <= diff)
             {
-                DoCast(me, SPELL_HOLYGROUND, true);   //Triggered so it doesn't interrupt her at all
+                DoCast (me, SPELL_HOLYGROUND, true);   //Triggered so it doesn't interrupt her at all
                 Holyground_Timer = 3000;
             } else Holyground_Timer -= diff;
 
             if (Repentance_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_REPENTANCE);
+                DoCast (me->getVictim(), SPELL_REPENTANCE);
                 DoScriptText(RAND(SAY_REPENTANCE1, SAY_REPENTANCE2), me);
 
                 Repentance_Timer = urand(25000, 35000);        //A little randomness on that spell
@@ -116,7 +116,7 @@ public:
             if (Holyfire_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_HOLYFIRE);
+                    DoCast (target, SPELL_HOLYFIRE);
 
                     Holyfire_Timer = urand(8000, 23000);      //Anywhere from 8 to 23 seconds, good luck having several of those in a row!
             } else Holyfire_Timer -= diff;
@@ -124,7 +124,7 @@ public:
             if (Holywrath_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_HOLYWRATH);
+                    DoCast (target, SPELL_HOLYWRATH);
 
                 Holywrath_Timer = urand(20000, 25000);        //20-30 secs sounds nice
             } else Holywrath_Timer -= diff;

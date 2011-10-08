@@ -180,13 +180,13 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     if (!entry)
     {
         sLog->outError("CreateInstance: no entry for map %d", GetId());
-        ASSERT(false);
+        ASSERT (false);
     }
     const InstanceTemplate* iTemplate = sObjectMgr->GetInstanceTemplate(GetId());
     if (!iTemplate)
     {
         sLog->outError("CreateInstance: no instance template for map %d", GetId());
-        ASSERT(false);
+        ASSERT (false);
     }
 
     // some instances only have one difficulty
@@ -195,7 +195,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
     sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateInstance: %s map instance %d for %d created with difficulty %s", save?"":"new ", InstanceId, GetId(), difficulty?"heroic":"normal");
 
     InstanceMap* map = new InstanceMap(GetId(), GetGridExpiry(), InstanceId, difficulty, this);
-    ASSERT(map->IsDungeon());
+    ASSERT (map->IsDungeon());
 
     bool load_data = save != NULL;
     map->CreateInstanceData(load_data);
@@ -221,7 +221,7 @@ BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battlegroun
         spawnMode = REGULAR_DIFFICULTY;
 
     BattlegroundMap* map = new BattlegroundMap(GetId(), GetGridExpiry(), InstanceId, this, spawnMode);
-    ASSERT(map->IsBattlegroundOrArena());
+    ASSERT (map->IsBattlegroundOrArena());
     map->SetBG(bg);
     bg->SetBgMap(map);
 
@@ -262,6 +262,6 @@ bool MapInstanced::DestroyInstance(InstancedMaps::iterator &itr)
 
 bool MapInstanced::CanEnter(Player* /*player*/)
 {
-    //ASSERT(false);
+    //ASSERT (false);
     return true;
 }

@@ -97,27 +97,27 @@ public:
                     return;
 
                 ++AngerCount;
-                DoCast(me, SPELL_FURIOUS_ANGER, false);
+                DoCast (me, SPELL_FURIOUS_ANGER, false);
             } else FuriousAnger_Timer -= diff;
 
             //DrainingBlow
             if (DrainingBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DRAININGBLOW);
+                DoCast (me->getVictim(), SPELL_DRAININGBLOW);
                 DrainingBlow_Timer = 15000;
             } else DrainingBlow_Timer -= diff;
 
             //CrowdPummel
             if (CrowdPummel_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CROWDPUMMEL);
+                DoCast (me->getVictim(), SPELL_CROWDPUMMEL);
                 CrowdPummel_Timer = 15000;
             } else CrowdPummel_Timer -= diff;
 
             //MightyBlow
             if (MightyBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
+                DoCast (me->getVictim(), SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 20000;
             } else MightyBlow_Timer -= diff;
 

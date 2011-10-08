@@ -38,7 +38,7 @@ TotemAI::Permissible(const Creature* creature)
 
 TotemAI::TotemAI(Creature* c) : CreatureAI(c), i_victimGuid(0)
 {
-    ASSERT(c->isTotem());
+    ASSERT (c->isTotem());
 }
 
 void

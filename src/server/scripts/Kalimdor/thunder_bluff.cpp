@@ -101,31 +101,31 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
-                    DoCast(target, SPELL_BERSERKER_CHARGE);
+                    DoCast (target, SPELL_BERSERKER_CHARGE);
                 BerserkerCharge_Timer = 25000;
             } else BerserkerCharge_Timer -= diff;
 
             if (Uppercut_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_UPPERCUT);
+                DoCast (me->getVictim(), SPELL_UPPERCUT);
                 Uppercut_Timer = 20000;
             } else Uppercut_Timer -= diff;
 
             if (Thunderclap_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_THUNDERCLAP);
+                DoCast (me->getVictim(), SPELL_THUNDERCLAP);
                 Thunderclap_Timer = 15000;
             } else Thunderclap_Timer -= diff;
 
             if (MortalStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
+                DoCast (me->getVictim(), SPELL_MORTAL_STRIKE);
                 MortalStrike_Timer = 15000;
             } else MortalStrike_Timer -= diff;
 
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 7000;
             } else Cleave_Timer -= diff;
 

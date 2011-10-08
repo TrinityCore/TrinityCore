@@ -363,7 +363,7 @@ public:
                 if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                     pPortal->ResetDoorOrButton();
             }
-            DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
+            DoCast (me, SPELL_KELTHUZAD_CHANNEL, false);
             DoScriptText(SAY_SUMMON_MINIONS, me);
             Phase = 1;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
@@ -509,7 +509,7 @@ public:
                                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true);
                                 if (target && !target->isCharmed() && (chained.find(target->GetGUID()) == chained.end()))
                                 {
-                                    DoCast(target, SPELL_CHAINS_OF_KELTHUZAD);
+                                    DoCast (target, SPELL_CHAINS_OF_KELTHUZAD);
                                     float scale = target->GetFloatValue(OBJECT_FIELD_SCALE_X);
                                     chained.insert(std::make_pair(target->GetGUID(), scale));
                                     target->SetFloatValue(OBJECT_FIELD_SCALE_X, scale * 2);
@@ -625,12 +625,12 @@ public:
                         }
                         case EVENT_FISSURE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_SHADOW_FISURE);
+                                DoCast (target, SPELL_SHADOW_FISURE);
                             events.RepeatEvent(urand(10000, 45000));
                             break;
                         case EVENT_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, RAID_MODE(1, 0), 0, true))
-                                DoCast(target, SPELL_FROST_BLAST);
+                                DoCast (target, SPELL_FROST_BLAST);
                             if (rand()%2)
                                 DoScriptText(SAY_FROST_BLAST, me);
                             events.RepeatEvent(urand(30000, 90000));
@@ -736,7 +736,7 @@ class npc_kelthuzad_abomination : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
-                DoCast(me, SPELL_FRENZY, true);
+                DoCast (me, SPELL_FRENZY, true);
             }
 
             void UpdateAI(uint32 const diff)

@@ -203,16 +203,16 @@ public:
                 switch (eventId)
                 {
                     case EVENT_BERSERK:
-                        DoCast(me, SPELL_BERSERK, true);
+                        DoCast (me, SPELL_BERSERK, true);
                         break;
                     case EVENT_FLAME:
-                        DoCast(me, SPELL_MOLTEN_PUNCH);
+                        DoCast (me, SPELL_MOLTEN_PUNCH);
                         events.DelayEvents(1500, GCD_CAST);
                         events.ScheduleEvent(EVENT_FLAME, 20000, GCD_CAST);
                         break;
                     case EVENT_HATEFUL_STRIKE:
                         if (Unit* target = CalculateHatefulStrikeTarget())
-                            DoCast(target, SPELL_HATEFUL_STRIKE);
+                            DoCast (target, SPELL_HATEFUL_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(EVENT_HATEFUL_STRIKE, 5000, GCD_CAST, PHASE_STRIKE);
                         break;
@@ -231,7 +231,7 @@ public:
                         if (!target) target = me->getVictim();
                         if (target)
                         {
-                            //DoCast(target, SPELL_VOLCANIC_SUMMON);//movement bugged
+                            //DoCast (target, SPELL_VOLCANIC_SUMMON);//movement bugged
                             me->SummonCreature(CREATURE_VOLCANO, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000);
                             DoScriptText(EMOTE_GROUND_CRACK, me);
                             events.DelayEvents(1500, GCD_CAST);
@@ -269,7 +269,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            //DoCast(me, SPELL_VOLCANIC_ERUPTION);
+            //DoCast (me, SPELL_VOLCANIC_ERUPTION);
             me->SetReactState(REACT_PASSIVE);
             wait = 3000;
         }
@@ -288,7 +288,7 @@ public:
         {
             if (wait <= diff)//wait 3secs before casting
             {
-                DoCast(me, SPELL_VOLCANIC_ERUPTION);
+                DoCast (me, SPELL_VOLCANIC_ERUPTION);
                 wait = 60000;
             }
             else wait -= diff;

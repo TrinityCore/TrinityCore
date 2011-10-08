@@ -277,7 +277,7 @@ public:
             {
                 if (timerFlashLight <= diff)
                 {
-                    DoCast(me, SPELL_FLASH_OF_LIGHT);
+                    DoCast (me, SPELL_FLASH_OF_LIGHT);
                     timerFlashLight = 3225 +  rand()%3225;
                 }
                 else
@@ -288,7 +288,7 @@ public:
             {
                 if (timerJustice <= diff)
                 {
-                    DoCast(me, SPELL_SEAL_OF_JUSTICE);
+                    DoCast (me, SPELL_SEAL_OF_JUSTICE);
                     timerJustice = 10000 + rand()%10000;
                 }
                 else
@@ -299,7 +299,7 @@ public:
             {
                 if (timerJudLight <= diff)
                 {
-                    DoCast(me, SPELL_JUDGEMENT_OF_LIGHT);
+                    DoCast (me, SPELL_JUDGEMENT_OF_LIGHT);
                     timerJudLight = 10000 + rand()%10000;
                 }
                 else
@@ -310,7 +310,7 @@ public:
             {
                   if (timerCommand <= diff)
                   {
-                      DoCast(me, SPELL_SEAL_OF_COMMAND);
+                      DoCast (me, SPELL_SEAL_OF_COMMAND);
                       timerCommand = 20000 + rand()%20000;
                   }
                   else

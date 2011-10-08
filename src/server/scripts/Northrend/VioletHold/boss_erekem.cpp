@@ -125,7 +125,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            DoCast(me, SPELL_EARTH_SHIELD);
+            DoCast (me, SPELL_EARTH_SHIELD);
 
             if (instance)
             {
@@ -159,14 +159,14 @@ public:
                     if (Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0))
                     {
                         if (!pGuard1->isAlive() && !pGuard2->isAlive())
-                            DoCast(me->getVictim(), SPELL_STORMSTRIKE);
+                            DoCast (me->getVictim(), SPELL_STORMSTRIKE);
                     }
                 }
             }
 
             if (uiEarthShieldTimer <= diff)
             {
-                DoCast(me, SPELL_EARTH_SHIELD);
+                DoCast (me, SPELL_EARTH_SHIELD);
                 uiEarthShieldTimer = 20000;
             } else uiEarthShieldTimer -= diff;
 
@@ -175,7 +175,7 @@ public:
                 if (uint64 TargetGUID = GetChainHealTargetGUID())
                 {
                     if (Creature* target = Unit::GetCreature(*me, TargetGUID))
-                        DoCast(target, SPELL_CHAIN_HEAL);
+                        DoCast (target, SPELL_CHAIN_HEAL);
 
                     //If one of the adds is dead spawn heals faster
                     Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0);
@@ -186,20 +186,20 @@ public:
 
             if (uiBloodlustTimer <= diff)
             {
-                DoCast(me, SPELL_BLOODLUST);
+                DoCast (me, SPELL_BLOODLUST);
                 uiBloodlustTimer = urand(35000, 45000);
             } else uiBloodlustTimer -= diff;
 
             if (uiEarthShockTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_EARTH_SHOCK);
+                DoCast (me->getVictim(), SPELL_EARTH_SHOCK);
                 uiEarthShockTimer = urand(8000, 13000);
             } else uiEarthShockTimer -= diff;
 
             if (uiLightningBoltTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_LIGHTNING_BOLT);
+                    DoCast (target, SPELL_LIGHTNING_BOLT);
                 uiLightningBoltTimer = urand(18000, 24000);
             } else uiLightningBoltTimer -= diff;
 
@@ -313,19 +313,19 @@ public:
 
             if (uiStrikeTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STRIKE);
+                DoCast (me->getVictim(), SPELL_STRIKE);
                 uiStrikeTimer = urand(4000, 8000);
             } else uiStrikeTimer -= diff;
 
             if (uiHowlingScreechTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HOWLING_SCREECH);
+                DoCast (me->getVictim(), SPELL_HOWLING_SCREECH);
                 uiHowlingScreechTimer = urand(8000, 13000);
             } else uiHowlingScreechTimer -= diff;
 
             if (uiGushingWoundTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GUSHING_WOUND);
+                DoCast (me->getVictim(), SPELL_GUSHING_WOUND);
                 uiGushingWoundTimer = urand(7000, 12000);
             } else uiGushingWoundTimer -= diff;
         }

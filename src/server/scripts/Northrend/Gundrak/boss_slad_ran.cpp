@@ -123,19 +123,19 @@ public:
 
             if (uiPoisonNovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_POISON_NOVA);
+                DoCast (me->getVictim(), SPELL_POISON_NOVA);
                 uiPoisonNovaTimer = 15*IN_MILLISECONDS;
             } else uiPoisonNovaTimer -= diff;
 
             if (uiPowerfullBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_POWERFULL_BITE);
+                DoCast (me->getVictim(), SPELL_POWERFULL_BITE);
                 uiPowerfullBiteTimer = 10*IN_MILLISECONDS;
             } else uiPowerfullBiteTimer -= diff;
 
             if (uiVenomBoltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VENOM_BOLT);
+                DoCast (me->getVictim(), SPELL_VENOM_BOLT);
                 uiVenomBoltTimer = 10*IN_MILLISECONDS;
             } else uiVenomBoltTimer -= diff;
 
@@ -217,7 +217,7 @@ public:
                 return;
             if (uiGripOfSladRanTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
+                DoCast (me->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
                 uiGripOfSladRanTimer = 5*IN_MILLISECONDS;
             } else uiGripOfSladRanTimer -= diff;
         }
@@ -257,7 +257,7 @@ public:
 
             if (uiVenomousBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VENOMOUS_BITE);
+                DoCast (me->getVictim(), SPELL_VENOMOUS_BITE);
                 uiVenomousBiteTimer = 10*IN_MILLISECONDS;
             } else uiVenomousBiteTimer -= diff;
         }

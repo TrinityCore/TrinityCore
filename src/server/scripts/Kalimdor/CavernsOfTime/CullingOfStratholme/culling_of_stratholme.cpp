@@ -395,7 +395,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me, SPELL_ARTHAS_AURA);
+            DoCast (me, SPELL_ARTHAS_AURA);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1192,12 +1192,12 @@ public:
             if (uiExorcismTimer < diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_EXORCISM_N);
+                    DoCast (target, SPELL_EXORCISM_N);
                 uiExorcismTimer = 7300;
             } else uiExorcismTimer -= diff;
 
             if (HealthBelowPct(40))
-                DoCast(me, SPELL_HOLY_LIGHT);
+                DoCast (me, SPELL_HOLY_LIGHT);
         }
     };
 

@@ -157,7 +157,7 @@ public:
             if (m_uiStance != STANCE_DEFENSIVE)
             {
                 DoRemoveStanceAura(m_uiStance);
-                DoCast(me, SPELL_DEFENSIVE_STANCE);
+                DoCast (me, SPELL_DEFENSIVE_STANCE);
                 m_uiStance = STANCE_DEFENSIVE;
             }
 
@@ -235,19 +235,19 @@ public:
                     case STANCE_DEFENSIVE:
                         DoScriptText(SAY_DEFENSIVE_STANCE, me);
                         DoScriptText(EMOTE_DEFENSIVE_STANCE, me);
-                        DoCast(me, SPELL_DEFENSIVE_STANCE);
+                        DoCast (me, SPELL_DEFENSIVE_STANCE);
                         SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SHIELD, EQUIP_NO_CHANGE);
                         break;
                     case STANCE_BERSERKER:
                         DoScriptText(SAY_BERSEKER_STANCE, me);
                         DoScriptText(EMOTE_BERSEKER_STANCE, me);
-                        DoCast(me, SPELL_BERSEKER_STANCE);
+                        DoCast (me, SPELL_BERSEKER_STANCE);
                         SetEquipmentSlots(false, EQUIP_SWORD, EQUIP_SWORD, EQUIP_NO_CHANGE);
                         break;
                     case STANCE_BATTLE:
                         DoScriptText(SAY_BATTLE_STANCE, me);
                         DoScriptText(EMOTE_BATTLE_STANCE, me);
-                        DoCast(me, SPELL_BATTLE_STANCE);
+                        DoCast (me, SPELL_BATTLE_STANCE);
                         SetEquipmentSlots(false, EQUIP_MACE, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                         break;
                 }
@@ -264,7 +264,7 @@ public:
                 {
                     if (m_uiReflection_Timer <= uiDiff)
                     {
-                        DoCast(me, SPELL_SPELL_REFLECTION);
+                        DoCast (me, SPELL_SPELL_REFLECTION);
                         m_uiReflection_Timer = 8000 + rand()%1000;
                     }
                     else
@@ -272,7 +272,7 @@ public:
 
                     if (m_uiKnockAway_Timer <= uiDiff)
                     {
-                        DoCast(me, SPELL_KNOCK_AWAY);
+                        DoCast (me, SPELL_KNOCK_AWAY);
                         m_uiKnockAway_Timer = 20000 + rand()%1000;
                     }
                     else
@@ -280,7 +280,7 @@ public:
 
                     if (m_uiPummel_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_PUMMEL);
+                        DoCast (me->getVictim(), SPELL_PUMMEL);
                         m_uiPummel_Timer = 10000 + rand()%1000;
                     }
                     else
@@ -288,7 +288,7 @@ public:
 
                     if (m_uiIronform_Timer <= uiDiff)
                     {
-                        DoCast(me, SPELL_IRONFORM);
+                        DoCast (me, SPELL_IRONFORM);
                         m_uiIronform_Timer = 25000 + rand()%1000;
                     }
                     else
@@ -301,7 +301,7 @@ public:
                     if (m_uiIntercept_Timer <= uiDiff)
                     {
                         //not much point is this, better random target and more often?
-                        DoCast(me->getVictim(), SPELL_INTERCEPT);
+                        DoCast (me->getVictim(), SPELL_INTERCEPT);
                         m_uiIntercept_Timer = 45000 + rand()%1000;
                     }
                     else
@@ -309,7 +309,7 @@ public:
 
                     if (m_uiWhirlwind_Timer <= uiDiff)
                     {
-                        DoCast(me, SPELL_WHIRLWIND);
+                        DoCast (me, SPELL_WHIRLWIND);
                         m_uiWhirlwind_Timer = 10000 + rand()%1000;
                     }
                     else
@@ -317,7 +317,7 @@ public:
 
                     if (m_uiCleave_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        DoCast (me->getVictim(), SPELL_CLEAVE);
                         m_uiCleave_Timer = 8000 + rand()%1000;
                     }
                     else
@@ -329,7 +329,7 @@ public:
                 {
                     if (m_uiMortalStrike_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
+                        DoCast (me->getVictim(), SPELL_MORTAL_STRIKE);
                         m_uiMortalStrike_Timer = 20000 + rand()%1000;
                     }
                     else
@@ -337,7 +337,7 @@ public:
 
                     if (m_uiSlam_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_SLAM);
+                        DoCast (me->getVictim(), SPELL_SLAM);
                         m_uiSlam_Timer = 15000 + rand()%1000;
                     }
                     else
@@ -405,7 +405,7 @@ public:
 
             if (m_uiArcWeld_Timer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_ARC_WELD);
+                DoCast (me->getVictim(), SPELL_ARC_WELD);
                 m_uiArcWeld_Timer = 20000 + rand()%1000;
             }
             else
@@ -418,7 +418,7 @@ public:
                     if (Creature* pBjarngrim = m_instance->instance->GetCreature(m_instance->GetData64(DATA_BJARNGRIM)))
                     {
                         if (pBjarngrim->isAlive())
-                            DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
+                            DoCast (pBjarngrim, SPELL_RENEW_STEEL_N);
                     }
                 }
                 m_uiRenewSteel_Timer = 10000 + rand()%4000;

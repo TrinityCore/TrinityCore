@@ -168,9 +168,9 @@ public:
                 if (m_uiResumePulsingShockwave_Timer <= uiDiff)
                 {
                     //breaks at movement, can we assume when it's time, this spell is casted and also must stop movement?
-                    DoCast(me, SPELL_PULSING_SHOCKWAVE_AURA, true);
+                    DoCast (me, SPELL_PULSING_SHOCKWAVE_AURA, true);
 
-                    DoCast(me, SPELL_PULSING_SHOCKWAVE_N); // need core support
+                    DoCast (me, SPELL_PULSING_SHOCKWAVE_N); // need core support
                     m_bIsAura = true;
                     m_uiResumePulsingShockwave_Timer = 0;
                 }
@@ -181,7 +181,7 @@ public:
             if (m_uiArcLightning_Timer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_ARC_LIGHTNING);
+                    DoCast (target, SPELL_ARC_LIGHTNING);
 
                 m_uiArcLightning_Timer = 15000 + rand()%1000;
             }
@@ -192,7 +192,7 @@ public:
             {
                 DoScriptText(RAND(SAY_NOVA_1, SAY_NOVA_2, SAY_NOVA_3), me);
                 DoScriptText(EMOTE_NOVA, me);
-                DoCast(me, SPELL_LIGHTNING_NOVA_N);
+                DoCast (me, SPELL_LIGHTNING_NOVA_N);
 
                 m_bIsAura = false;
                 m_uiResumePulsingShockwave_Timer = DUNGEON_MODE(5000, 4000); // Pause Pulsing Shockwave aura

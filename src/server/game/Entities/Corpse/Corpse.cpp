@@ -75,7 +75,7 @@ bool Corpse::Create(uint32 guidlow, Map* map)
 
 bool Corpse::Create(uint32 guidlow, Player* owner)
 {
-    ASSERT(owner);
+    ASSERT (owner);
 
     Relocate(owner->GetPositionX(), owner->GetPositionY(), owner->GetPositionZ(), owner->GetOrientation());
 
@@ -132,7 +132,7 @@ void Corpse::SaveToDB()
 
 void Corpse::DeleteBonesFromWorld()
 {
-    ASSERT(GetType() == CORPSE_BONES);
+    ASSERT (GetType() == CORPSE_BONES);
     Corpse* corpse = ObjectAccessor::GetCorpse(*this, GetGUID());
 
     if (!corpse)

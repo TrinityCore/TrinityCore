@@ -96,7 +96,7 @@ public:
             if (HandOfThaurissan_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_HANDOFTHAURISSAN);
+                    DoCast (target, SPELL_HANDOFTHAURISSAN);
 
                 //3 Hands of Thaurissan will be casted
                 //if (Counter < 3)
@@ -114,7 +114,7 @@ public:
             //AvatarOfFlame_Timer
             if (AvatarOfFlame_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_AVATAROFFLAME);
+                DoCast (me->getVictim(), SPELL_AVATAROFFLAME);
                 AvatarOfFlame_Timer = 18000;
             } else AvatarOfFlame_Timer -= diff;
 

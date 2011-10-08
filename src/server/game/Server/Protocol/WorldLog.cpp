@@ -62,7 +62,7 @@ void WorldLog::outTimestampLog(char const* fmt, ...)
     if (LogWorld())
     {
         ACE_GUARD(ACE_Thread_Mutex, Guard, Lock);
-        ASSERT(i_file);
+        ASSERT (i_file);
 
         Log::outTimestamp(i_file);
         va_list args;
@@ -90,7 +90,7 @@ void WorldLog::outLog(char const* fmt, ...)
     if (LogWorld())
     {
         ACE_GUARD(ACE_Thread_Mutex, Guard, Lock);
-        ASSERT(i_file);
+        ASSERT (i_file);
 
         va_list args;
         va_start(args, fmt);

@@ -358,7 +358,7 @@ class boss_nalorakk : public CreatureScript
 
                 if (Berserk_Timer <= diff)
                 {
-                    DoCast(me, SPELL_BERSERK, true);
+                    DoCast (me, SPELL_BERSERK, true);
                     me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_YELL_BERSERK);
                     Berserk_Timer = 600000;
@@ -383,7 +383,7 @@ class boss_nalorakk : public CreatureScript
                         // me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 1, 0);
                         me->MonsterYell(YELL_SHIFTEDTOBEAR, LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, SOUND_YELL_TOBEAR);
-                        DoCast(me, SPELL_BEARFORM, true);
+                        DoCast (me, SPELL_BEARFORM, true);
                         LaceratingSlash_Timer = 2000; // dur 18s
                         RendFlesh_Timer = 3000;  // dur 5s
                         DeafeningRoar_Timer = 5000 + rand()%5000;  // dur 2s
@@ -396,7 +396,7 @@ class boss_nalorakk : public CreatureScript
                 {
                     if (BrutalSwipe_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_BRUTALSWIPE);
+                        DoCast (me->getVictim(), SPELL_BRUTALSWIPE);
                         BrutalSwipe_Timer = 7000 + rand()%5000;
                     } else BrutalSwipe_Timer -= diff;
 
@@ -404,7 +404,7 @@ class boss_nalorakk : public CreatureScript
                     {
                         if (me->getVictim() && !me->getVictim()->HasAura(SPELL_MANGLEEFFECT))
                         {
-                            DoCast(me->getVictim(), SPELL_MANGLE);
+                            DoCast (me->getVictim(), SPELL_MANGLE);
                             Mangle_Timer = 1000;
                         }
                         else Mangle_Timer = 10000 + rand()%5000;
@@ -416,7 +416,7 @@ class boss_nalorakk : public CreatureScript
                         DoPlaySoundToSet(me, SOUND_YELL_SURGE);
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true);
                         if (target)
-                            DoCast(target, SPELL_SURGE);
+                            DoCast (target, SPELL_SURGE);
                         Surge_Timer = 15000 + rand()%5000;
                     } else Surge_Timer -= diff;
                 }
@@ -424,19 +424,19 @@ class boss_nalorakk : public CreatureScript
                 {
                     if (LaceratingSlash_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_LACERATINGSLASH);
+                        DoCast (me->getVictim(), SPELL_LACERATINGSLASH);
                         LaceratingSlash_Timer = 18000 + rand()%5000;
                     } else LaceratingSlash_Timer -= diff;
 
                     if (RendFlesh_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_RENDFLESH);
+                        DoCast (me->getVictim(), SPELL_RENDFLESH);
                         RendFlesh_Timer = 5000 + rand()%5000;
                     } else RendFlesh_Timer -= diff;
 
                     if (DeafeningRoar_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_DEAFENINGROAR);
+                        DoCast (me->getVictim(), SPELL_DEAFENINGROAR);
                         DeafeningRoar_Timer = 15000 + rand()%5000;
                     } else DeafeningRoar_Timer -= diff;
                 }

@@ -97,20 +97,20 @@ public:
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 5000 + rand()%7000;
             } else Cleave_Timer -= diff;
 
             //ToxicVolley_Timer
             if (ToxicVolley_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TOXIC_VOLLEY);
+                DoCast (me->getVictim(), SPELL_TOXIC_VOLLEY);
                 ToxicVolley_Timer = 10000 + rand()%5000;
             } else ToxicVolley_Timer -= diff;
 
             if (!HealthAbovePct(5) && !Death)
             {
-                DoCast(me->getVictim(), SPELL_POISON_CLOUD);
+                DoCast (me->getVictim(), SPELL_POISON_CLOUD);
                 Death = true;
             }
 
@@ -121,7 +121,7 @@ public:
                 {
                     if (instance && instance->GetData(DATA_VEMISDEAD))
                     {
-                        DoCast(me, SPELL_ENRAGE);
+                        DoCast (me, SPELL_ENRAGE);
                         VemDead = true;
                     }
                     Check_Timer = 2000;
@@ -197,7 +197,7 @@ public:
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
                 {
-                    DoCast(target, SPELL_CHARGE);
+                    DoCast (target, SPELL_CHARGE);
                     //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
                     AttackStart(target);
                 }
@@ -208,7 +208,7 @@ public:
             //KnockBack_Timer
             if (KnockBack_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKBACK);
+                DoCast (me->getVictim(), SPELL_KNOCKBACK);
                 if (DoGetThreat(me->getVictim()))
                     DoModifyThreatPercent(me->getVictim(), -80);
                 KnockBack_Timer = 15000 + rand()%10000;
@@ -217,7 +217,7 @@ public:
             //Enrage_Timer
             if (!Enraged && Enrage_Timer <= diff)
             {
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 Enraged = true;
             } else Charge_Timer -= diff;
 
@@ -293,7 +293,7 @@ public:
             //Fear_Timer
             if (Fear_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEAR);
+                DoCast (me->getVictim(), SPELL_FEAR);
                 DoResetThreat();
                 Fear_Timer = 20000;
             } else Fear_Timer -= diff;
@@ -310,14 +310,14 @@ public:
                     {
                         case 0:
                             if (pKri)
-                                DoCast(pKri, SPELL_HEAL);
+                                DoCast (pKri, SPELL_HEAL);
                             break;
                         case 1:
                             if (pVem)
-                                DoCast(pVem, SPELL_HEAL);
+                                DoCast (pVem, SPELL_HEAL);
                             break;
                         case 2:
-                            DoCast(me, SPELL_HEAL);
+                            DoCast (me, SPELL_HEAL);
                             break;
                     }
                 }
@@ -334,7 +334,7 @@ public:
                     {
                         if (instance->GetData(DATA_VEMISDEAD))
                         {
-                            DoCast(me, SPELL_ENRAGE);
+                            DoCast (me, SPELL_ENRAGE);
                             VemDead = true;
                         }
                     }

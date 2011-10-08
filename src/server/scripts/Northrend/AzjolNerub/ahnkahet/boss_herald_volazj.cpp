@@ -97,7 +97,7 @@ public:
                 (GetHealthPct(0) >= 33 && GetHealthPct(damage) < 33))
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me, SPELL_INSANITY, false);
+                DoCast (me, SPELL_INSANITY, false);
             }
         }
 
@@ -112,7 +112,7 @@ public:
                 if (!insanityHandled)
                 {
                     // Channel visual
-                    DoCast(me, INSANITY_VISUAL, true);
+                    DoCast (me, INSANITY_VISUAL, true);
                     // Unattackable
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetControlled(true, UNIT_STAT_STUNNED);
@@ -277,20 +277,20 @@ public:
 
             if (uiMindFlayTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIND_FLAY);
+                DoCast (me->getVictim(), SPELL_MIND_FLAY);
                 uiMindFlayTimer = 20*IN_MILLISECONDS;
             } else uiMindFlayTimer -= diff;
 
             if (uiShadowBoltVolleyTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
+                DoCast (me->getVictim(), SPELL_SHADOW_BOLT_VOLLEY);
                 uiShadowBoltVolleyTimer = 5*IN_MILLISECONDS;
             } else uiShadowBoltVolleyTimer -= diff;
 
             if (uiShiverTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_SHIVER);
+                    DoCast (target, SPELL_SHIVER);
                 uiShiverTimer = 15*IN_MILLISECONDS;
             } else uiShiverTimer -= diff;
 

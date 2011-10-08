@@ -146,7 +146,7 @@ public:
                     }
                     else if (bIsEating)
                     {
-                        DoCast(me, SPELL_JUST_EATEN);
+                        DoCast (me, SPELL_JUST_EATEN);
                         DoScriptText(SAY_JUST_EATEN, me);
 
                         if (Player* pPlr = Unit::GetPlayer(*me, uiPlayerGUID))
@@ -172,7 +172,7 @@ public:
 
             if (CastTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_NETHER_BREATH);
+                DoCast (me->getVictim(), SPELL_NETHER_BREATH);
                 CastTimer = 5000;
             } else CastTimer -= diff;
 
@@ -239,7 +239,7 @@ public:
                 PlayerGUID = caster->GetGUID();
 
                 me->setFaction(FACTION_FRIENDLY);
-                DoCast(caster, SPELL_FORCE_OF_NELTHARAKU, true);
+                DoCast (caster, SPELL_FORCE_OF_NELTHARAKU, true);
 
                 Unit* Dragonmaw = me->FindNearestCreature(CREATURE_DRAGONMAW_SUBJUGATOR, 50);
 
@@ -266,7 +266,7 @@ public:
                 {
                     Unit* player = Unit::GetUnit((*me), PlayerGUID);
                     if (player)
-                        DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
+                        DoCast (player, SPELL_FORCE_OF_NELTHARAKU, true);
 
                     PlayerGUID = 0;
                 }
@@ -291,7 +291,7 @@ public:
                             Player* player = Unit::GetPlayer(*me, PlayerGUID);
                             if (player && player->GetQuestStatus(10854) == QUEST_STATUS_INCOMPLETE)
                             {
-                                DoCast(player, SPELL_FORCE_OF_NELTHARAKU, true);
+                                DoCast (player, SPELL_FORCE_OF_NELTHARAKU, true);
                                 /*
                                 float x, y, z;
                                 me->GetPosition(x, y, z);
@@ -1049,7 +1049,7 @@ public:
             {
                 if (m_uiHealingTimer <= uiDiff)
                 {
-                    DoCast(me, SPELL_HEALING_WAVE);
+                    DoCast (me, SPELL_HEALING_WAVE);
                     m_uiHealingTimer = 15000;
                 }
                 else
@@ -1272,19 +1272,19 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[6].SpellId);//Cleave
+                    DoCast (me->getVictim(), SpawnCast[6].SpellId);//Cleave
                     SpellTimer1 = SpawnCast[6].Timer2 + (rand()%10 * 1000);
                 } else SpellTimer1 -= diff;
 
                 if (SpellTimer2 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[7].SpellId);//Shadowfury
+                    DoCast (me->getVictim(), SpawnCast[7].SpellId);//Shadowfury
                     SpellTimer2 = SpawnCast[7].Timer2 + (rand()%5 * 1000);
                 } else SpellTimer2 -= diff;
 
                 if (SpellTimer3 <= diff)
                 {
-                    DoCast(me, SpawnCast[8].SpellId);
+                    DoCast (me, SpawnCast[8].SpellId);
                     SpellTimer3 = SpawnCast[8].Timer2 + (rand()%7 * 1000);//Spell Reflection
                 } else SpellTimer3 -= diff;
             }
@@ -1532,7 +1532,7 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[0].SpellId);//Spellbreaker
+                    DoCast (me->getVictim(), SpawnCast[0].SpellId);//Spellbreaker
                     SpellTimer1 = SpawnCast[0].Timer2 + (rand()%5 * 1000);
                 } else SpellTimer1 -= diff;
             }
@@ -1545,7 +1545,7 @@ public:
                     {
                         if (target->GetTypeId() == TYPEID_PLAYER)
                         {
-                            DoCast(target, SpawnCast[1].SpellId); //Focused Bursts
+                            DoCast (target, SpawnCast[1].SpellId); //Focused Bursts
                             SpellTimer1 = SpawnCast[1].Timer2 + (rand()%5 * 1000);
                         } else SpellTimer1 = 2000;
                     }
@@ -1553,13 +1553,13 @@ public:
 
                 if (SpellTimer2 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[2].SpellId);//Psychic Scream
+                    DoCast (me->getVictim(), SpawnCast[2].SpellId);//Psychic Scream
                     SpellTimer2 = SpawnCast[2].Timer2 + (rand()%13 * 1000);
                 } else SpellTimer2 -= diff;
 
                 if (SpellTimer3 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[3].SpellId);//Mind Blast
+                    DoCast (me->getVictim(), SpawnCast[3].SpellId);//Mind Blast
                     SpellTimer3 = SpawnCast[3].Timer2 + (rand()%8 * 1000);
                 } else SpellTimer3 -= diff;
             }
@@ -1568,13 +1568,13 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[4].SpellId);//Curse Of Flames
+                    DoCast (me->getVictim(), SpawnCast[4].SpellId);//Curse Of Flames
                     SpellTimer1 = SpawnCast[4].Timer2 + (rand()%10 * 1000);
                 } else SpellTimer1 -= diff;
 
                 if (SpellTimer2 <= diff)
                 {
-                    DoCast(me->getVictim(), SpawnCast[5].SpellId);//Flamestrike
+                    DoCast (me->getVictim(), SpawnCast[5].SpellId);//Flamestrike
                     SpellTimer2 = SpawnCast[5].Timer2 + (rand()%7 * 13000);
                 } else SpellTimer2 -= diff;
             }
@@ -1790,9 +1790,9 @@ public:
 
                      Unit* Owner = totemOspirits->GetOwner();
                      if (Owner && Owner->GetTypeId() == TYPEID_PLAYER)
-                         // DoCast(Owner, credit); -- not working!
+                         // DoCast (Owner, credit); -- not working!
                          CAST_PLR(Owner)->KilledMonsterCredit(credit, 0);
-                     DoCast(totemOspirits, SPELL_SOUL_CAPTURED);
+                     DoCast (totemOspirits, SPELL_SOUL_CAPTURED);
                  }
             }
         }

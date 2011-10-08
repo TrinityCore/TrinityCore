@@ -272,19 +272,19 @@ class boss_xt002 : public CreatureScript
                     {
                         case EVENT_SEARING_LIGHT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25));
+                                DoCast (target, RAID_MODE(SPELL_SEARING_LIGHT_10, SPELL_SEARING_LIGHT_25));
 
                             events.ScheduleEvent(EVENT_SEARING_LIGHT, TIMER_SEARING_LIGHT);
                             break;
                         case EVENT_GRAVITY_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
+                                DoCast (target, RAID_MODE(SPELL_GRAVITY_BOMB_10, SPELL_GRAVITY_BOMB_25));
 
                             events.ScheduleEvent(EVENT_GRAVITY_BOMB, TIMER_GRAVITY_BOMB);
                             break;
                         case EVENT_TYMPANIC_TANTRUM:
                             DoScriptText(SAY_TYMPANIC_TANTRUM, me);
-                            DoCast(SPELL_TYMPANIC_TANTRUM);
+                            DoCast (SPELL_TYMPANIC_TANTRUM);
                             events.ScheduleEvent(EVENT_TYMPANIC_TANTRUM, urand(TIMER_TYMPANIC_TANTRUM_MIN, TIMER_TYMPANIC_TANTRUM_MAX));
                             break;
                         case EVENT_DISPOSE_HEART:
@@ -292,11 +292,11 @@ class boss_xt002 : public CreatureScript
                             break;
                         case EVENT_ENRAGE:
                             DoScriptText(SAY_BERSERK, me);
-                            DoCast(me, SPELL_ENRAGE);
+                            DoCast (me, SPELL_ENRAGE);
                             break;
                         case EVENT_ENTER_HARD_MODE:
                             me->SetFullHealth();
-                            DoCast(me, RAID_MODE(SPELL_HEARTBREAK_10, SPELL_HEARTBREAK_25), true);
+                            DoCast (me, RAID_MODE(SPELL_HEARTBREAK_10, SPELL_HEARTBREAK_25), true);
                             me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                             _hardMode = true;
                             SetPhaseOne();
@@ -352,7 +352,7 @@ class boss_xt002 : public CreatureScript
             {
                 DoScriptText(SAY_HEART_OPENED, me);
 
-                DoCast(me, SPELL_SUBMERGE);  // WIll make creature untargetable
+                DoCast (me, SPELL_SUBMERGE);  // WIll make creature untargetable
                 me->AttackStop();
                 me->SetReactState(REACT_PASSIVE);
 
@@ -383,7 +383,7 @@ class boss_xt002 : public CreatureScript
             {
                 DoScriptText(SAY_HEART_CLOSED, me);
 
-                DoCast(me, SPELL_STAND);
+                DoCast (me, SPELL_STAND);
                 me->SetReactState(REACT_AGGRESSIVE);
 
                 _phase = 1;
@@ -504,7 +504,7 @@ class mob_scrapbot : public CreatureScript
                     {
                         if (me->IsWithinMeleeRange(xt002))
                         {
-                            DoCast(xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
+                            DoCast (xt002, SPELL_SCRAPBOT_RIDE_VEHICLE);
                             // Unapply vehicle aura again
                             xt002->RemoveAurasDueToSpell(SPELL_SCRAPBOT_RIDE_VEHICLE);
                             me->DespawnOrUnsummon();
@@ -566,7 +566,7 @@ class mob_pummeller : public CreatureScript
                 {
                     if (_arcingSmashTimer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_ARCING_SMASH);
+                        DoCast (me->getVictim(), SPELL_ARCING_SMASH);
                         _arcingSmashTimer = TIMER_ARCING_SMASH;
                     }
                     else
@@ -574,7 +574,7 @@ class mob_pummeller : public CreatureScript
 
                     if (_trampleTimer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_TRAMPLE);
+                        DoCast (me->getVictim(), SPELL_TRAMPLE);
                         _trampleTimer = TIMER_TRAMPLE;
                     }
                     else
@@ -582,7 +582,7 @@ class mob_pummeller : public CreatureScript
 
                     if (_uppercutTimer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_UPPERCUT);
+                        DoCast (me->getVictim(), SPELL_UPPERCUT);
                         _uppercutTimer = TIMER_UPPERCUT;
                     }
                     else
@@ -649,7 +649,7 @@ class mob_boombot : public CreatureScript
             {
                 _boomed = false;
 
-                DoCast(SPELL_AURA_BOOMBOT); // For achievement
+                DoCast (SPELL_AURA_BOOMBOT); // For achievement
 
                 // HACK/workaround:
                 // these values aren't confirmed - lack of data - and the values in DB are incorrect
@@ -725,7 +725,7 @@ class mob_life_spark : public CreatureScript
 
             void Reset()
             {
-                DoCast(me, RAID_MODE(SPELL_STATIC_CHARGED_10, SPELL_STATIC_CHARGED_25));
+                DoCast (me, RAID_MODE(SPELL_STATIC_CHARGED_10, SPELL_STATIC_CHARGED_25));
                 _shockTimer = 0; // first one is immediate.
             }
 
@@ -738,7 +738,7 @@ class mob_life_spark : public CreatureScript
                 {
                     if (me->IsWithinMeleeRange(me->getVictim()))
                     {
-                        DoCast(me->getVictim(), SPELL_SHOCK);
+                        DoCast (me->getVictim(), SPELL_SHOCK);
                         _shockTimer = TIMER_SHOCK;
                     }
                 }

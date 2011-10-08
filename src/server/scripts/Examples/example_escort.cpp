@@ -145,7 +145,7 @@ class example_escort : public CreatureScript
                     if (m_uiDeathCoilTimer <= uiDiff)
                     {
                         DoScriptText(SAY_SPELL, me);
-                        DoCast(me->getVictim(), SPELL_DEATH_COIL, false);
+                        DoCast (me->getVictim(), SPELL_DEATH_COIL, false);
                         m_uiDeathCoilTimer = 4000;
                     }
                     else
@@ -161,12 +161,12 @@ class example_escort : public CreatureScript
                             if (me->HasAura(SPELL_ELIXIR_OF_FORTITUDE, 0))
                             {
                                 DoScriptText(SAY_RAND_1, me);
-                                DoCast(me, SPELL_BLUE_FIREWORK, false);
+                                DoCast (me, SPELL_BLUE_FIREWORK, false);
                             }
                             else
                             {
                                 DoScriptText(SAY_RAND_2, me);
-                                DoCast(me, SPELL_ELIXIR_OF_FORTITUDE, false);
+                                DoCast (me, SPELL_ELIXIR_OF_FORTITUDE, false);
                             }
 
                             m_uiChatTimer = 12000;

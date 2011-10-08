@@ -172,13 +172,13 @@ public:
                     if (uiMindBlastTimer < diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_MIND_BLAST);
+                            DoCast (target, SPELL_MIND_BLAST);
                         uiMindBlastTimer = 6000;
                     } else uiMindBlastTimer -= diff;
 
                     if (uiVampiricTouchTimer < diff)
                     {
-                        DoCast(me, SPELL_VAMPIRIC_TOUCH);
+                        DoCast (me, SPELL_VAMPIRIC_TOUCH);
                         uiVampiricTouchTimer = 32000;
                     } else uiVampiricTouchTimer -= diff;
 
@@ -186,7 +186,7 @@ public:
                     {
                         DoScriptText(RAND(SAY_SLEEP_1, SAY_SLEEP_2), me);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_SLEEP);
+                            DoCast (target, SPELL_SLEEP);
                         uiSleepTimer = urand(15000, 20000);
                     } else uiSleepTimer -= diff;
 

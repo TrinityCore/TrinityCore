@@ -93,7 +93,7 @@ public:
             if (CurseOfBlood_Timer <= diff)
             {
                 //Cast
-                DoCast(me->getVictim(), SPELL_CURSEOFBLOOD);
+                DoCast (me->getVictim(), SPELL_CURSEOFBLOOD);
 
                 //45 seconds
                 CurseOfBlood_Timer = 30000;
@@ -129,7 +129,7 @@ public:
             //            if (Illusion_Timer <= diff)
             //            {
             //                  //Cast
-            //                DoCast(me->getVictim(), SPELL_ILLUSION);
+            //                DoCast (me->getVictim(), SPELL_ILLUSION);
             //
             //                  //3 Illusion will be summoned
             //                  if (Illusioncounter < 3)
@@ -189,7 +189,7 @@ public:
             if (Cleave_Timer <= diff)
             {
                 //Cast
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
 
                 //5-8 seconds
                 Cleave_Timer = 5000 + rand()%3000;

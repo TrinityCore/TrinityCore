@@ -195,7 +195,7 @@ public:
             {
                 if (EventCast_Timer <= diff)
                 {
-                    DoCast(me, SPELL_HIGHBORNE_AURA);
+                    DoCast (me, SPELL_HIGHBORNE_AURA);
                     EventCast = false;
                 } else EventCast_Timer -= diff;
             }

@@ -65,7 +65,7 @@ public:
         boss_varosAI(Creature* creature) : BossAI(creature, DATA_VAROS_EVENT)
         {
             if (instance->GetBossState(DATA_DRAKOS_EVENT) != DONE)
-                DoCast(me, SPELL_CENTRIFUGE_SHIELD);
+                DoCast (me, SPELL_CENTRIFUGE_SHIELD);
         }
 
         void Reset()
@@ -109,7 +109,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ENERGIZE_CORES:
-                        DoCast(me, SPELL_ENERGIZE_CORES);
+                        DoCast (me, SPELL_ENERGIZE_CORES);
                         events.CancelEvent(EVENT_ENERGIZE_CORES);
                         break;
                     case EVENT_ENERGIZE_CORES_VISUAL:
@@ -120,19 +120,19 @@ public:
                         } else
                             coreEnergizeOrientation = MapManager::NormalizeOrientation(coreEnergizeOrientation - 2.0f);
 
-                        DoCast(me, SPELL_ENERGIZE_CORES_VISUAL);
+                        DoCast (me, SPELL_ENERGIZE_CORES_VISUAL);
                         events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
                         events.ScheduleEvent(EVENT_ENERGIZE_CORES, 4000);
                         break;
                     case EVENT_CALL_AZURE:
                         // not sure how blizz handles this, i cant see any pattern between the differnt spells
-                        DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
+                        DoCast (me, SPELL_CALL_AZURE_RING_CAPTAIN);
                         Talk(SAY_AZURE);
                         Talk(SAY_AZURE_EMOTE);
                         events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
                         break;
                     case EVENT_AMPLIFY_MAGIC:
-                        DoCast(me->getVictim(), SPELL_CALL_AMPLIFY_MAGIC);
+                        DoCast (me->getVictim(), SPELL_CALL_AMPLIFY_MAGIC);
                         events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(17, 20) * IN_MILLISECONDS);
                         break;
                 }
@@ -199,7 +199,7 @@ class npc_azure_ring_captain : public CreatureScript
                 me->GetMotionMaster()->MoveIdle();
 
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
-                    DoCast(target, SPELL_ICE_BEAM);
+                    DoCast (target, SPELL_ICE_BEAM);
             }
 
             void DoAction(const int32 action)

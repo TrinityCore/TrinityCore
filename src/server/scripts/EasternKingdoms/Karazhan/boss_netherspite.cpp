@@ -234,8 +234,8 @@ public:
         {
             me->RemoveAurasDueToSpell(SPELL_EMPOWERMENT);
             me->RemoveAurasDueToSpell(SPELL_NETHERBURN_AURA);
-            DoCast(me, SPELL_BANISH_VISUAL, true);
-            DoCast(me, SPELL_BANISH_ROOT, true);
+            DoCast (me, SPELL_BANISH_VISUAL, true);
+            DoCast (me, SPELL_BANISH_ROOT, true);
             DestroyPortals();
             PhaseTimer = 30000;
             PortalPhase = false;
@@ -271,7 +271,7 @@ public:
             // Void Zone
             if (VoidZoneTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true), SPELL_VOIDZONE, true);
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 1, 45, true), SPELL_VOIDZONE, true);
                 VoidZoneTimer = 15000;
             } else VoidZoneTimer -= diff;
 
@@ -279,7 +279,7 @@ public:
             if (!Berserk && NetherInfusionTimer <= diff)
             {
                 me->AddAura(SPELL_NETHER_INFUSION, me);
-                DoCast(me, SPELL_NETHERSPITE_ROAR);
+                DoCast (me, SPELL_NETHERSPITE_ROAR);
                 Berserk = true;
             } else NetherInfusionTimer -= diff;
 
@@ -295,7 +295,7 @@ public:
                 // Empowerment & Nether Burn
                 if (EmpowermentTimer <= diff)
                 {
-                    DoCast(me, SPELL_EMPOWERMENT);
+                    DoCast (me, SPELL_EMPOWERMENT);
                     me->AddAura(SPELL_NETHERBURN_AURA, me);
                     EmpowermentTimer = 90000;
                 } else EmpowermentTimer -= diff;
@@ -315,7 +315,7 @@ public:
                 if (NetherbreathTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true))
-                        DoCast(target, SPELL_NETHERBREATH);
+                        DoCast (target, SPELL_NETHERBREATH);
                     NetherbreathTimer = urand(5000, 7000);
                 } else NetherbreathTimer -= diff;
 

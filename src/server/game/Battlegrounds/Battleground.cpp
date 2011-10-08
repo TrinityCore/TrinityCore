@@ -1412,7 +1412,7 @@ void Battleground::RemovePlayerFromResurrectQueue(uint64 player_guid)
 bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float z, float o, float rotation0, float rotation1, float rotation2, float rotation3, uint32 /*respawnTime*/)
 {
     // If the assert is called, means that m_BgObjects must be resized!
-    ASSERT(type < m_BgObjects.size());
+    ASSERT (type < m_BgObjects.size());
 
     Map* map = FindBgMap();
     if (!map)
@@ -1528,7 +1528,7 @@ void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
 Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, float x, float y, float z, float o, uint32 respawntime)
 {
     // If the assert is called, means that m_BgCreatures must be resized!
-    ASSERT(type < m_BgCreatures.size());
+    ASSERT (type < m_BgCreatures.size());
 
     Map* map = FindBgMap();
     if (!map)

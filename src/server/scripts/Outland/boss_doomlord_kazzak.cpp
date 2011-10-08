@@ -92,7 +92,7 @@ class boss_doomlord_kazzak : public CreatureScript
                 if (victim->GetTypeId() != TYPEID_PLAYER)
                     return;
 
-                DoCast(me, SPELL_CAPTURESOUL);
+                DoCast (me, SPELL_CAPTURESOUL);
 
                 Talk(SAY_KILL);
             }
@@ -135,17 +135,17 @@ class boss_doomlord_kazzak : public CreatureScript
                             break;
                         case EVENT_MARK_OF_KAZZAK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_MARKOFKAZZAK);
+                                DoCast (target, SPELL_MARKOFKAZZAK);
                             _events.ScheduleEvent(EVENT_MARK_OF_KAZZAK, 20000);
                             break;
                         case EVENT_ENRAGE:
                             Talk(EMOTE_FRENZY);
-                            DoCast(me, SPELL_ENRAGE);
+                            DoCast (me, SPELL_ENRAGE);
                             _events.ScheduleEvent(EVENT_ENRAGE, 30000);
                             break;
                         case EVENT_TWISTED_REFLECTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_TWISTEDREFLECTION);
+                                DoCast (target, SPELL_TWISTEDREFLECTION);
                             _events.ScheduleEvent(EVENT_TWISTED_REFLECTION, 15000);
                             break;
                         default:

@@ -113,7 +113,7 @@ public:
             // Sonic Boom
             if (SonicBoom)
             {
-                DoCast(me, SPELL_SONIC_BOOM_EFFECT, true);
+                DoCast (me, SPELL_SONIC_BOOM_EFFECT, true);
                 SonicBoomEffect();
 
                 SonicBoom = false;
@@ -122,7 +122,7 @@ public:
             if (SonicBoom_Timer <= diff)
             {
                 DoScriptText(EMOTE_SONIC_BOOM, me);
-                DoCast(me, SPELL_SONIC_BOOM_CAST);
+                DoCast (me, SPELL_SONIC_BOOM_CAST);
                 SonicBoom_Timer = 30000;
                 SonicBoom = true;
                 return;
@@ -132,7 +132,7 @@ public:
             if (MurmursTouch_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
-                    DoCast(target, SPELL_MURMURS_TOUCH);
+                    DoCast (target, SPELL_MURMURS_TOUCH);
                 MurmursTouch_Timer = 25000 + rand()%10000;
             } else MurmursTouch_Timer -= diff;
 
@@ -141,7 +141,7 @@ public:
             {
                 if (Resonance_Timer <= diff)
                 {
-                    DoCast(me, SPELL_RESONANCE);
+                    DoCast (me, SPELL_RESONANCE);
                     Resonance_Timer = 5000;
                 } else Resonance_Timer -= diff;
             }
@@ -152,7 +152,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     if (target->GetTypeId() == TYPEID_PLAYER && target->isAlive())
                     {
-                        DoCast(target, SPELL_MAGNETIC_PULL);
+                        DoCast (target, SPELL_MAGNETIC_PULL);
                         MagneticPull_Timer = 15000+rand()%15000;
                         return;
                     }
@@ -168,7 +168,7 @@ public:
                     for (std::list<HostileReference*>::const_iterator i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
                         if (Unit* target = Unit::GetUnit((*me), (*i)->getUnitGuid()))
                             if (target->isAlive() && !me->IsWithinDist(target, 35, false))
-                                DoCast(target, SPELL_THUNDERING_STORM, true);
+                                DoCast (target, SPELL_THUNDERING_STORM, true);
                     ThunderingStorm_Timer = 15000;
                 } else ThunderingStorm_Timer -= diff;
 
@@ -177,7 +177,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 20, false))
                         if (target->isAlive())
-                            DoCast(target, SPELL_SONIC_SHOCK);
+                            DoCast (target, SPELL_SONIC_SHOCK);
                     SonicShock_Timer = 10000+rand()%10000;
                 } else SonicShock_Timer -= diff;
             }

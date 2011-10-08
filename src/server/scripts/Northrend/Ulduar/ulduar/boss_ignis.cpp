@@ -120,7 +120,7 @@ class boss_ignis : public CreatureScript
         {
             boss_ignis_AI(Creature* creature) : BossAI(creature, BOSS_IGNIS), _vehicle(me->GetVehicleKit())
             {
-                ASSERT(_vehicle);
+                ASSERT (_vehicle);
             }
 
             void Reset()
@@ -211,7 +211,7 @@ class boss_ignis : public CreatureScript
                     {
                         case EVENT_JET:
                             me->MonsterTextEmote(EMOTE_JETS, 0, true);
-                            DoCast(me, SPELL_FLAME_JETS);
+                            DoCast (me, SPELL_FLAME_JETS);
                             events.ScheduleEvent(EVENT_JET, urand(35000, 40000));
                             break;
                         case EVENT_SLAG_POT:
@@ -219,7 +219,7 @@ class boss_ignis : public CreatureScript
                             {
                                 DoScriptText(SAY_SLAG_POT, me);
                                 _slagPotGUID = target->GetGUID();
-                                DoCast(target, SPELL_GRAB);
+                                DoCast (target, SPELL_GRAB);
                                 events.DelayEvents(3000);
                                 events.ScheduleEvent(EVENT_GRAB_POT, 500);
                             }
@@ -255,18 +255,18 @@ class boss_ignis : public CreatureScript
                             DoScriptText(RAND(SAY_SCORCH_1, SAY_SCORCH_2), me);
                             if (Unit* target = me->getVictim())
                                 me->SummonCreature(NPC_GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
-                            DoCast(SPELL_SCORCH);
+                            DoCast (SPELL_SCORCH);
                             events.ScheduleEvent(EVENT_SCORCH, 25000);
                             break;
                         case EVENT_CONSTRUCT:
                             DoScriptText(SAY_SUMMON, me);
                             DoSummon(NPC_IRON_CONSTRUCT, ConstructSpawnPosition[urand(0, CONSTRUCT_SPAWN_POINTS - 1)], 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
-                            DoCast(SPELL_STRENGHT);
-                            DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
+                            DoCast (SPELL_STRENGHT);
+                            DoCast (me, SPELL_ACTIVATE_CONSTRUCT);
                             events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));
                             break;
                         case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK, true);
+                            DoCast (me, SPELL_BERSERK, true);
                             DoScriptText(SAY_BERSERK, me);
                             break;
                     }
@@ -312,7 +312,7 @@ class npc_iron_construct : public CreatureScript
             {
                 if (me->HasAura(SPELL_BRITTLE) && damage >= 5000)
                 {
-                    DoCast(SPELL_SHATTER);
+                    DoCast (SPELL_SHATTER);
                     if (Creature* ignis = ObjectAccessor::GetCreature(*me, _instance->GetData64(BOSS_IGNIS)))
                         if (ignis->AI())
                             ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
@@ -331,7 +331,7 @@ class npc_iron_construct : public CreatureScript
                     if (aur->GetStackAmount() >= 10)
                     {
                         me->RemoveAura(SPELL_HEAT);
-                        DoCast(SPELL_MOLTEN);
+                        DoCast (SPELL_MOLTEN);
                         _brittled = false;
                     }
                 }
@@ -339,7 +339,7 @@ class npc_iron_construct : public CreatureScript
                 // Water pools
                 if (me->IsInWater() && !_brittled && me->HasAura(SPELL_MOLTEN))
                 {
-                    DoCast(SPELL_BRITTLE);
+                    DoCast (SPELL_BRITTLE);
                     me->RemoveAura(SPELL_MOLTEN);
                     _brittled = true;
                 }
@@ -389,7 +389,7 @@ class npc_scorch_ground : public CreatureScript
             void Reset()
             {
                 _heat = false;
-                DoCast(me, SPELL_GROUND);
+                DoCast (me, SPELL_GROUND);
                 _constructGUID = 0;
                 _heatTimer = 0;
             }

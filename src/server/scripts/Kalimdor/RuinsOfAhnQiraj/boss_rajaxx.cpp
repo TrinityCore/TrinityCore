@@ -105,7 +105,7 @@ class boss_rajaxx : public CreatureScript
                             events.ScheduleEvent(EVENT_DISARM, 22000);
                             break;
                         case EVENT_THUNDERCRASH:
-                            DoCast(me, SPELL_THUNDERCRASH);
+                            DoCast (me, SPELL_THUNDERCRASH);
                             events.ScheduleEvent(EVENT_THUNDERCRASH, 21000);
                             break;
                         default:

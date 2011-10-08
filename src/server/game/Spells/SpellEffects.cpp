@@ -2067,7 +2067,7 @@ void Spell::EffectApplyAura(SpellEffIndex effIndex)
 
     if (!m_spellAura || !unitTarget)
         return;
-    ASSERT(unitTarget == m_spellAura->GetOwner());
+    ASSERT (unitTarget == m_spellAura->GetOwner());
     m_spellAura->_ApplyEffectForTargets(effIndex);
 }
 
@@ -2586,7 +2586,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             return;
     }
 
-    ASSERT(m_spellAura->GetDynobjOwner());
+    ASSERT (m_spellAura->GetDynobjOwner());
     m_spellAura->_ApplyEffectForTargets(effIndex);
 }
 
@@ -3863,7 +3863,7 @@ void Spell::EffectSummonPet(SpellEffIndex effIndex)
             if (OldSummon->isDead())
                 return;
 
-            ASSERT(OldSummon->GetMap() == owner->GetMap());
+            ASSERT (OldSummon->GetMap() == owner->GetMap());
 
             //OldSummon->GetMap()->Remove(OldSummon->ToCreature(), false);
 

@@ -130,7 +130,7 @@ public:
                 //Cast
                 if (rand()%100 < 90) //90% chance to cast
                 {
-                    DoCast(me->getVictim(), SPELL_PUMMEL);
+                    DoCast (me->getVictim(), SPELL_PUMMEL);
                 }
                 //12 seconds until we should cast this again
                 Pummel_Timer = 12000;
@@ -142,7 +142,7 @@ public:
                 //Cast
                 if (rand()%100 < 80) //80% chance to cast
                 {
-                    DoCast(me->getVictim(), SPELL_KNOCKAWAY);
+                    DoCast (me->getVictim(), SPELL_KNOCKAWAY);
                 }
                 //14 seconds until we should cast this again
                 KnockAway_Timer = 14000;
@@ -152,7 +152,7 @@ public:
             if (Shoot_Timer <= diff)
             {
                 //Cast
-                DoCast(me->getVictim(), SPELL_SHOOT);
+                DoCast (me->getVictim(), SPELL_SHOOT);
                 //1 seconds until we should cast this again
                 Shoot_Timer = 1000;
             } else Shoot_Timer -= diff;

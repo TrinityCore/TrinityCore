@@ -74,7 +74,7 @@ public:
             //Dustfield_Timer
             if (Dustfield_Timer <= diff)
             {
-                DoCast(me, SPELL_DUSTFIELD);
+                DoCast (me, SPELL_DUSTFIELD);
                 Dustfield_Timer = 14000;
             } else Dustfield_Timer -= diff;
 
@@ -84,21 +84,21 @@ public:
                 Unit* target = NULL;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
-                    DoCast(target, SPELL_BOULDER);
+                    DoCast (target, SPELL_BOULDER);
                 Boulder_Timer = 10000;
             } else Boulder_Timer -= diff;
 
             //RepulsiveGaze_Timer
             if (RepulsiveGaze_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_REPULSIVEGAZE);
+                DoCast (me->getVictim(), SPELL_REPULSIVEGAZE);
                 RepulsiveGaze_Timer = 20000;
             } else RepulsiveGaze_Timer -= diff;
 
             //Thrash_Timer
             if (Thrash_Timer <= diff)
             {
-                DoCast(me, SPELL_THRASH);
+                DoCast (me, SPELL_THRASH);
                 Thrash_Timer = 18000;
             } else Thrash_Timer -= diff;
 

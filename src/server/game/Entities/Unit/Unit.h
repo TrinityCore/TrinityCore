@@ -2114,7 +2114,7 @@ class Unit : public WorldObject
                 ++m_procDeep;
             else
             {
-                ASSERT(m_procDeep);
+                ASSERT (m_procDeep);
                 --m_procDeep;
             }
         }

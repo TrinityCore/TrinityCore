@@ -225,7 +225,7 @@ class boss_steelbreaker : public CreatureScript
                 StartEncounter(instance, me, who);
                 DoScriptText(SAY_STEELBREAKER_AGGRO, me);
                 DoZoneInCombat();
-                DoCast(me, SPELL_HIGH_VOLTAGE);
+                DoCast (me, SPELL_HIGH_VOLTAGE);
                 events.SetPhase(++phase);
                 events.ScheduleEvent(EVENT_BERSERK, 900000);
                 events.ScheduleEvent(EVENT_FUSION_PUNCH, 15000);
@@ -246,7 +246,7 @@ class boss_steelbreaker : public CreatureScript
                             events.RescheduleEvent(EVENT_OVERWHELMING_POWER, urand(2000, 5000));
                         break;
                     case ACTION_ADD_CHARGE:
-                        DoCast(me, SPELL_ELECTRICAL_CHARGE, true);
+                        DoCast (me, SPELL_ELECTRICAL_CHARGE, true);
                         break;
                 }
             }
@@ -273,7 +273,7 @@ class boss_steelbreaker : public CreatureScript
                 DoScriptText(RAND(SAY_STEELBREAKER_SLAY_1, SAY_STEELBREAKER_SLAY_2), me);
 
                 if (phase == 3)
-                    DoCast(me, SPELL_ELECTRICAL_CHARGE);
+                    DoCast (me, SPELL_ELECTRICAL_CHARGE);
             }
 
             void UpdateAI(uint32 const diff)
@@ -292,7 +292,7 @@ class boss_steelbreaker : public CreatureScript
                     {
                         case EVENT_BERSERK:
                             DoScriptText(SAY_STEELBREAKER_BERSERK, me);
-                            DoCast(SPELL_BERSERK);
+                            DoCast (SPELL_BERSERK);
                             events.CancelEvent(EVENT_BERSERK);
                             break;
                         case EVENT_FUSION_PUNCH:
@@ -302,7 +302,7 @@ class boss_steelbreaker : public CreatureScript
                             break;
                         case EVENT_STATIC_DISRUPTION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_STATIC_DISRUPTION);
+                                DoCast (target, SPELL_STATIC_DISRUPTION);
                             events.ScheduleEvent(EVENT_STATIC_DISRUPTION, urand(20000, 40000));
                             break;
                         case EVENT_OVERWHELMING_POWER:
@@ -414,7 +414,7 @@ class boss_runemaster_molgeim : public CreatureScript
                     {
                         case EVENT_BERSERK:
                             DoScriptText(SAY_MOLGEIM_BERSERK, me);
-                            DoCast(SPELL_BERSERK);
+                            DoCast (SPELL_BERSERK);
                             events.CancelEvent(EVENT_BERSERK);
                             break;
                         case EVENT_RUNE_OF_POWER:
@@ -436,24 +436,24 @@ class boss_runemaster_molgeim : public CreatureScript
                                             target = Brundir;
                                     break;
                             }
-                            DoCast(target, SPELL_SUMMON_RUNE_OF_POWER);
+                            DoCast (target, SPELL_SUMMON_RUNE_OF_POWER);
                             events.ScheduleEvent(EVENT_RUNE_OF_POWER, 60000);
                             break;
                         }
                         case EVENT_SHIELD_OF_RUNES:
-                            DoCast(me, SPELL_SHIELD_OF_RUNES);
+                            DoCast (me, SPELL_SHIELD_OF_RUNES);
                             events.ScheduleEvent(EVENT_SHIELD_OF_RUNES, urand(27000, 34000));
                             break;
                         case EVENT_RUNE_OF_DEATH:
                             DoScriptText(SAY_MOLGEIM_RUNE_DEATH, me);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_RUNE_OF_DEATH);
+                                DoCast (target, SPELL_RUNE_OF_DEATH);
                             events.ScheduleEvent(EVENT_RUNE_OF_DEATH, urand(30000, 40000));
                             break;
                         case EVENT_RUNE_OF_SUMMONING:
                             DoScriptText(SAY_MOLGEIM_SUMMON, me);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_RUNE_OF_SUMMONING);
+                                DoCast (target, SPELL_RUNE_OF_SUMMONING);
                             events.ScheduleEvent(EVENT_RUNE_OF_SUMMONING, urand(30000, 45000));
                             break;
                     }
@@ -481,7 +481,7 @@ class mob_rune_of_power : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->setFaction(16); // Same faction as bosses
-                DoCast(SPELL_RUNE_OF_POWER);
+                DoCast (SPELL_RUNE_OF_POWER);
 
                 me->DespawnOrUnsummon(60000);
             }
@@ -607,7 +607,7 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.RescheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 250000));
                         if (phase >= 3)
                         {
-                            DoCast(me, SPELL_STORMSHIELD);
+                            DoCast (me, SPELL_STORMSHIELD);
                             events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, urand(50000, 60000));
                         }
                     break;
@@ -657,30 +657,30 @@ class boss_stormcaller_brundir : public CreatureScript
                     {
                         case EVENT_BERSERK:
                             DoScriptText(SAY_BRUNDIR_BERSERK, me);
-                            DoCast(SPELL_BERSERK);
+                            DoCast (SPELL_BERSERK);
                             events.CancelEvent(EVENT_BERSERK);
                             break;
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_CHAIN_LIGHTNING);
+                                DoCast (target, SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, urand(7000, 10000));
                             break;
                         case EVENT_OVERLOAD:
                             me->MonsterTextEmote(EMOTE_OVERLOAD, 0, true);
                             DoScriptText(SAY_BRUNDIR_SPECIAL, me);
-                            DoCast(SPELL_OVERLOAD);
+                            DoCast (SPELL_OVERLOAD);
                             events.ScheduleEvent(EVENT_OVERLOAD, urand(60000, 120000));
                             break;
                         case EVENT_LIGHTNING_WHIRL:
-                            DoCast(SPELL_LIGHTNING_WHIRL);
+                            DoCast (SPELL_LIGHTNING_WHIRL);
                             events.ScheduleEvent(EVENT_LIGHTNING_WHIRL, urand(15000, 20000));
                             break;
                         case EVENT_LIGHTNING_TENDRILS:
                             DoScriptText(SAY_BRUNDIR_FLIGHT, me);
-                            DoCast(SPELL_LIGHTNING_TENDRILS);
+                            DoCast (SPELL_LIGHTNING_TENDRILS);
                             me->AttackStop();
                             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                            DoCast(SPELL_LIGHTNING_TENDRILS_SELF_VISUAL);
+                            DoCast (SPELL_LIGHTNING_TENDRILS_SELF_VISUAL);
                             me->GetMotionMaster()->Initialize();
                             me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), FINAL_FLIGHT_Z);
                             events.DelayEvents(35000);

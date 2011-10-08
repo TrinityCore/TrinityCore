@@ -287,7 +287,7 @@ public:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             me->InterruptNonMeleeSpells(false);
-                            DoCast(target, SPELL_GREEN_BEAM);
+                            DoCast (target, SPELL_GREEN_BEAM);
 
                             //Correctly update our target
                             me->SetTarget(target->GetGUID());
@@ -338,10 +338,10 @@ public:
                         }
 
                         //Add red coloration to C'thun
-                        DoCast(me, SPELL_RED_COLORATION, true);
+                        DoCast (me, SPELL_RED_COLORATION, true);
 
                         //Freeze animation
-                        DoCast(me, SPELL_FREEZE_ANIM);
+                        DoCast (me, SPELL_FREEZE_ANIM);
                         me->SetOrientation(DarkGlareAngle);
                         me->StopMoving();
 
@@ -365,7 +365,7 @@ public:
                             me->StopMoving();
 
                             //Actual dark glare cast, maybe something missing here?
-                            DoCast(me, SPELL_DARK_GLARE, false);
+                            DoCast (me, SPELL_DARK_GLARE, false);
 
                             //Increase tick
                             ++DarkGlareTick;
@@ -667,7 +667,7 @@ public:
 
                         //Switch to c'thun model
                         me->InterruptNonMeleeSpells(false);
-                        DoCast(me, SPELL_TRANSFORM, false);
+                        DoCast (me, SPELL_TRANSFORM, false);
                         me->SetFullHealth();
 
                         me->SetVisible(true);
@@ -716,7 +716,7 @@ public:
                         DoScriptText(EMOTE_WEAKENED, me);
                         PhaseTimer = 45000;
 
-                        DoCast(me, SPELL_PURPLE_COLORATION, true);
+                        DoCast (me, SPELL_PURPLE_COLORATION, true);
 
                         UNORDERED_MAP<uint64, bool>::iterator i = Stomach_Map.begin();
 
@@ -733,7 +733,7 @@ public:
                                 DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
 
                                 //Cast knockback on them
-                                DoCast(unit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
+                                DoCast (unit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
 
                                 //Remove the acid debuff
                                 unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
@@ -761,7 +761,7 @@ public:
                             if (unit && i->second == true)
                             {
                                 //Cast digestive acid on them
-                                DoCast(unit, SPELL_DIGESTIVE_ACID, true);
+                                DoCast (unit, SPELL_DIGESTIVE_ACID, true);
 
                                 //Check if player should be kicked from stomach
                                 if (unit->IsWithinDist3d(&KickPos, 15.0f))
@@ -770,7 +770,7 @@ public:
                                     DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
 
                                     //Cast knockback on them
-                                    DoCast(unit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
+                                    DoCast (unit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
 
                                     //Remove the acid debuff
                                     unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
@@ -990,7 +990,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target && !target->HasAura(SPELL_DIGESTIVE_ACID))
-                    DoCast(target, SPELL_MIND_FLAY);
+                    DoCast (target, SPELL_MIND_FLAY);
 
                 //Mindflay every 10 seconds
                 MindflayTimer = 10000;
@@ -1093,14 +1093,14 @@ public:
             //GroundRuptureTimer
             if (GroundRuptureTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GROUND_RUPTURE);
+                DoCast (me->getVictim(), SPELL_GROUND_RUPTURE);
                 GroundRuptureTimer = 30000;
             } else GroundRuptureTimer -= diff;
 
             //HamstringTimer
             if (HamstringTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMSTRING);
+                DoCast (me->getVictim(), SPELL_HAMSTRING);
                 HamstringTimer = 5000;
             } else HamstringTimer -= diff;
 
@@ -1205,21 +1205,21 @@ public:
             //GroundRuptureTimer
             if (GroundRuptureTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GROUND_RUPTURE);
+                DoCast (me->getVictim(), SPELL_GROUND_RUPTURE);
                 GroundRuptureTimer = 30000;
             } else GroundRuptureTimer -= diff;
 
             //ThrashTimer
             if (ThrashTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_THRASH);
+                DoCast (me->getVictim(), SPELL_THRASH);
                 ThrashTimer = 10000;
             } else ThrashTimer -= diff;
 
             //HamstringTimer
             if (HamstringTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMSTRING);
+                DoCast (me->getVictim(), SPELL_HAMSTRING);
                 HamstringTimer = 10000;
             } else HamstringTimer -= diff;
 
@@ -1283,7 +1283,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target && !target->HasAura(SPELL_DIGESTIVE_ACID))
-                    DoCast(target, SPELL_GREEN_BEAM);
+                    DoCast (target, SPELL_GREEN_BEAM);
 
                 //Beam every 2 seconds
                 BeamTimer = 2100;

@@ -181,7 +181,7 @@ class boss_rotface : public CreatureScript
                             {
                                 DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TEMPSUMMON_TIMED_DESPAWN);
                                 Talk(EMOTE_SLIME_SPRAY);
-                                DoCast(me, SPELL_SLIME_SPRAY);
+                                DoCast (me, SPELL_SLIME_SPRAY);
                             }
                             events.ScheduleEvent(EVENT_SLIME_SPRAY, 20000);
                             break;
@@ -228,8 +228,8 @@ class npc_little_ooze : public CreatureScript
 
             void IsSummonedBy(Unit* summoner)
             {
-                DoCast(me, SPELL_LITTLE_OOZE_COMBINE, true);
-                DoCast(me, SPELL_WEAK_RADIATING_OOZE, true);
+                DoCast (me, SPELL_LITTLE_OOZE_COMBINE, true);
+                DoCast (me, SPELL_WEAK_RADIATING_OOZE, true);
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
                 me->AddThreat(summoner, 500000.0f);
             }
@@ -278,11 +278,11 @@ class npc_big_ooze : public CreatureScript
 
             void IsSummonedBy(Unit* /*summoner*/)
             {
-                DoCast(me, SPELL_LARGE_OOZE_COMBINE, true);
-                DoCast(me, SPELL_LARGE_OOZE_BUFF_COMBINE, true);
-                DoCast(me, SPELL_RADIATING_OOZE, true);
-                DoCast(me, SPELL_UNSTABLE_OOZE, true);
-                DoCast(me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
+                DoCast (me, SPELL_LARGE_OOZE_COMBINE, true);
+                DoCast (me, SPELL_LARGE_OOZE_BUFF_COMBINE, true);
+                DoCast (me, SPELL_RADIATING_OOZE, true);
+                DoCast (me, SPELL_UNSTABLE_OOZE, true);
+                DoCast (me, SPELL_GREEN_ABOMINATION_HITTIN__YA_PROC, true);
                 events.ScheduleEvent(EVENT_STICKY_OOZE, 5000);
                 // register in Rotface's summons - not summoned with Rotface as owner
                 if (Creature* rotface = Unit::GetCreature(*me, instance->GetData64(DATA_ROTFACE)))
@@ -402,7 +402,7 @@ class npc_precious_icc : public CreatureScript
                         case EVENT_SUMMON_ZOMBIES:
                             Talk(EMOTE_PRECIOUS_ZOMBIES);
                             for (uint32 i = 0; i < 11; ++i)
-                                DoCast(me, SPELL_AWAKEN_PLAGUED_ZOMBIES, false);
+                                DoCast (me, SPELL_AWAKEN_PLAGUED_ZOMBIES, false);
                             _events.ScheduleEvent(EVENT_SUMMON_ZOMBIES, urand(20000, 22000));
                             break;
                         default:

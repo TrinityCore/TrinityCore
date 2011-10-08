@@ -72,7 +72,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me->getVictim(), SPELL_BIRTH);
+            DoCast (me->getVictim(), SPELL_BIRTH);
         }
 
         void UpdateAI(const uint32 diff)
@@ -84,14 +84,14 @@ public:
             //Sweep_Timer
             if (!Submerged && Sweep_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SWEEP);
+                DoCast (me->getVictim(), SPELL_SWEEP);
                 Sweep_Timer = 15000 + rand()%15000;
             } else Sweep_Timer -= diff;
 
             //SandBlast_Timer
             if (!Submerged && SandBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SANDBLAST);
+                DoCast (me->getVictim(), SPELL_SANDBLAST);
                 SandBlast_Timer = 20000 + rand()%15000;
             } else SandBlast_Timer -= diff;
 
@@ -102,7 +102,7 @@ public:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_SUBMERGE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->setFaction(35);
-                DoCast(me, SPELL_DIRTMOUND_PASSIVE);
+                DoCast (me, SPELL_DIRTMOUND_PASSIVE);
 
                 Submerged = true;
                 Back_Timer = 30000 + rand()%15000;
@@ -126,7 +126,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->setFaction(14);
 
-                DoCast(me->getVictim(), SPELL_GROUND_RUPTURE);
+                DoCast (me->getVictim(), SPELL_GROUND_RUPTURE);
 
                 Submerged = false;
                 Submerge_Timer = 60000 + rand()%60000;

@@ -104,7 +104,7 @@ void CombatAI::UpdateAI(const uint32 diff)
 
     if (uint32 spellId = events.ExecuteEvent())
     {
-        DoCast(spellId);
+        DoCast (spellId);
         events.ScheduleEvent(spellId, AISpellInfo[spellId].cooldown + rand()%AISpellInfo[spellId].cooldown);
     }
     else
@@ -143,7 +143,7 @@ void CasterAI::EnterCombat(Unit* who)
             uint32 cooldown = GetAISpellInfo(*itr)->realCooldown;
             if (count == spell)
             {
-                DoCast(spells[spell]);
+                DoCast (spells[spell]);
                 cooldown += me->GetCurrentSpellCastTime(*itr);
             }
             events.ScheduleEvent(*itr, cooldown);
@@ -163,7 +163,7 @@ void CasterAI::UpdateAI(const uint32 diff)
 
     if (uint32 spellId = events.ExecuteEvent())
     {
-        DoCast(spellId);
+        DoCast (spellId);
         uint32 casttime = me->GetCurrentSpellCastTime(spellId);
         events.ScheduleEvent(spellId, (casttime ? casttime : 500) + GetAISpellInfo(spellId)->realCooldown);
     }

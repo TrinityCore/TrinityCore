@@ -413,7 +413,7 @@ public:
             //ThunderClap_Timer
             if (ThunderClap_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_THUNDERCLAP);
+                DoCast (me->getVictim(), SPELL_THUNDERCLAP);
                 ThunderClap_Timer = 10000;
             } else ThunderClap_Timer -= diff;
 
@@ -422,7 +422,7 @@ public:
             {
                 if (FireballVolley_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FIREBALLVOLLEY);
+                    DoCast (me->getVictim(), SPELL_FIREBALLVOLLEY);
                     FireballVolley_Timer = 15000;
                 } else FireballVolley_Timer -= diff;
             }
@@ -430,7 +430,7 @@ public:
             //MightyBlow_Timer
             if (MightyBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
+                DoCast (me->getVictim(), SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 10000;
             } else MightyBlow_Timer -= diff;
 

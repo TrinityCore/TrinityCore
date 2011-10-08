@@ -120,7 +120,7 @@ public:
             //Attractmagic_Timer
             if (Attractmagic_Timer <= diff)
             {
-                DoCast(me, SPELL_ATTRACTMAGIC);
+                DoCast (me, SPELL_ATTRACTMAGIC);
                 Attractmagic_Timer = 30000;
                 Carnivorousbite_Timer = 1500;
             } else Attractmagic_Timer -= diff;
@@ -128,7 +128,7 @@ public:
             //Carnivorousbite_Timer
             if (Carnivorousbite_Timer <= diff)
             {
-                DoCast(me, SPELL_CARNIVOROUSBITE);
+                DoCast (me, SPELL_CARNIVOROUSBITE);
                 Carnivorousbite_Timer = 10000;
             } else Carnivorousbite_Timer -= diff;
 
@@ -195,7 +195,7 @@ public:
             //FieryBlast_Timer
             if (fiery2 && FieryBlast_Timer <= diff)
             {
-                DoCast(me, SPELL_FIERY_BLAST);
+                DoCast (me, SPELL_FIERY_BLAST);
 
                 if (fiery1) fiery1 = false;
                 else if (fiery2) fiery2 = false;

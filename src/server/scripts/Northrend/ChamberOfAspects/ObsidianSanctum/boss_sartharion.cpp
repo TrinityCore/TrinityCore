@@ -465,7 +465,7 @@ public:
             }
 
             if (bCanUseWill)
-                DoCast(me, SPELL_WILL_OF_SARTHARION);
+                DoCast (me, SPELL_WILL_OF_SARTHARION);
         }
 
         void CallDragon(uint32 uiDataId)
@@ -559,7 +559,7 @@ public:
                 && ((pTene && pTene->isAlive()) || (pShad && pShad->isAlive()) || (pVesp && pVesp->isAlive())))
             {
                 DoScriptText(SAY_SARTHARION_BERSERK, me);
-                DoCast(me, SPELL_BERSERK);
+                DoCast (me, SPELL_BERSERK);
                 m_bIsBerserk = true;
             }
 
@@ -575,7 +575,7 @@ public:
             {
                 if (m_uiEnrageTimer <= uiDiff)
                 {
-                    DoCast(me, SPELL_PYROBUFFET, true);
+                    DoCast (me, SPELL_PYROBUFFET, true);
                     m_bIsHardEnraged = true;
                 }
                 else
@@ -617,7 +617,7 @@ public:
             if (m_uiFlameBreathTimer <= uiDiff)
             {
                 DoScriptText(SAY_SARTHARION_BREATH, me);
-                DoCast(me->getVictim(), RAID_MODE(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
+                DoCast (me->getVictim(), RAID_MODE(SPELL_FLAME_BREATH, SPELL_FLAME_BREATH_H));
                 m_uiFlameBreathTimer = urand(25000, 35000);
             }
             else
@@ -626,7 +626,7 @@ public:
             // Tail Sweep
             if (m_uiTailSweepTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), RAID_MODE(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
+                DoCast (me->getVictim(), RAID_MODE(SPELL_TAIL_LASH, SPELL_TAIL_LASH_H));
                 m_uiTailSweepTimer = urand(15000, 20000);
             }
             else
@@ -635,7 +635,7 @@ public:
             // Cleave
             if (m_uiCleaveTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 m_uiCleaveTimer = urand(7000, 10000);
             }
             else
@@ -956,7 +956,7 @@ struct dummy_dragonAI : public ScriptedAI
                 if (pSartharion->isAlive())
                 {
                     pSartharion->RemoveAurasDueToSpell(uiSpellId);
-                    DoCast(pSartharion, SPELL_TWILIGHT_REVENGE, true);
+                    DoCast (pSartharion, SPELL_TWILIGHT_REVENGE, true);
                 }
         }
     }
@@ -1017,7 +1017,7 @@ public:
         {
             DoScriptText(SAY_TENEBRON_AGGRO, me);
             DoZoneInCombat();
-            DoCast(me, SPELL_POWER_OF_TENEBRON);
+            DoCast (me, SPELL_POWER_OF_TENEBRON);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -1038,7 +1038,7 @@ public:
             if (m_uiShadowFissureTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
+                    DoCast (target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE));
 
                 m_uiShadowFissureTimer = urand(15000, 20000);
             }
@@ -1058,7 +1058,7 @@ public:
             if (m_uiShadowBreathTimer <= uiDiff)
             {
                 DoScriptText(SAY_TENEBRON_BREATH, me);
-                DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                DoCast (me->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
                 m_uiShadowBreathTimer = urand(20000, 25000);
             }
             else
@@ -1113,7 +1113,7 @@ public:
         {
             DoScriptText(SAY_SHADRON_AGGRO, me);
             DoZoneInCombat();
-            DoCast(me, SPELL_POWER_OF_SHADRON);
+            DoCast (me, SPELL_POWER_OF_SHADRON);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -1134,7 +1134,7 @@ public:
             if (m_uiShadowFissureTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
+                    DoCast (target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
                 m_uiShadowFissureTimer = urand(15000, 20000);
             }
@@ -1163,7 +1163,7 @@ public:
             if (m_uiShadowBreathTimer <= uiDiff)
             {
                 DoScriptText(SAY_SHADRON_BREATH, me);
-                DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                DoCast (me->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
                 m_uiShadowBreathTimer = urand(20000, 25000);
             }
             else
@@ -1212,7 +1212,7 @@ public:
         {
             DoScriptText(SAY_VESPERON_AGGRO, me);
             DoZoneInCombat();
-            DoCast(me, SPELL_POWER_OF_VESPERON);
+            DoCast (me, SPELL_POWER_OF_VESPERON);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -1233,7 +1233,7 @@ public:
             if (m_uiShadowFissureTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
+                    DoCast (target, RAID_MODE(SPELL_SHADOW_FISSURE, SPELL_SHADOW_FISSURE_H));
 
                 m_uiShadowFissureTimer = urand(15000, 20000);
             }
@@ -1248,7 +1248,7 @@ public:
                 else
                 {
                     OpenPortal();
-                    DoCast(me->getVictim(), SPELL_TWILIGHT_TORMENT_VESP);
+                    DoCast (me->getVictim(), SPELL_TWILIGHT_TORMENT_VESP);
                     m_uiAcolyteVesperonTimer = urand(60000, 70000);
                 }
             }
@@ -1259,7 +1259,7 @@ public:
             if (m_uiShadowBreathTimer <= uiDiff)
             {
                 DoScriptText(SAY_VESPERON_BREATH, me);
-                DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
+                DoCast (me->getVictim(), RAID_MODE(SPELL_SHADOW_BREATH, SPELL_SHADOW_BREATH_H));
                 m_uiShadowBreathTimer = urand(20000, 25000);
             }
             else
@@ -1412,7 +1412,7 @@ public:
             {
                 me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
             }
-            DoCast(me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
+            DoCast (me, SPELL_TWILIGHT_TORMENT_VESP_ACO);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -1586,7 +1586,7 @@ public:
         {
             if (Tsunami_Timer <= diff)
             {
-                DoCast(me, SPELL_FLAME_TSUNAMI_DMG_AURA);
+                DoCast (me, SPELL_FLAME_TSUNAMI_DMG_AURA);
                 Tsunami_Timer = 500;
             }else Tsunami_Timer -= diff;
 
@@ -1636,8 +1636,8 @@ public:
             {
                 DoCastAOE(RAID_MODE(SPELL_VOID_BLAST, SPELL_VOID_BLAST_H));
                 ////twilight realm
-                //DoCast(me->getVictim(), 57620, true);
-                //DoCast(me->getVictim(), 57874, true);
+                //DoCast (me->getVictim(), 57620, true);
+                //DoCast (me->getVictim(), 57874, true);
                 VoidBlast_Timer = 9000;
                 me->RemoveAllAuras();
                 me->Kill(me);
@@ -1686,7 +1686,7 @@ public:
             // twilight torment
             if (m_uiFadeArmorTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_FADE_ARMOR);
+                DoCast (me->getVictim(), SPELL_FADE_ARMOR);
                 m_uiFadeArmorTimer = urand(5000, 10000);
             }
             else

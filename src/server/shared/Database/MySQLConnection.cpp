@@ -196,7 +196,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
     uint32 index = stmt->m_index;
     {
         MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
-        ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
+        ASSERT (m_mStmt);            // Can only be null if preparation failed, server side error or bad query
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
         stmt->m_stmt = m_mStmt;     // TODO: Cleaner way
 
@@ -249,7 +249,7 @@ bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint6
     uint32 index = stmt->m_index;
     {
         MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
-        ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
+        ASSERT (m_mStmt);            // Can only be null if preparation failed, server side error or bad query
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
         stmt->m_stmt = m_mStmt;     // TODO: Cleaner way
 
@@ -394,7 +394,7 @@ bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
             case SQL_ELEMENT_PREPARED:
             {
                 PreparedStatement* stmt = data.element.stmt;
-                ASSERT(stmt);
+                ASSERT (stmt);
                 if (!Execute(stmt))
                 {
                     sLog->outSQLDriver("[Warning] Transaction aborted. %u queries not executed.", (uint32)queries.size());
@@ -406,7 +406,7 @@ bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
             case SQL_ELEMENT_RAW:
             {
                 const char* sql = data.element.query;
-                ASSERT(sql);
+                ASSERT (sql);
                 if (!Execute(sql))
                 {
                     sLog->outSQLDriver("[Warning] Transaction aborted. %u queries not executed.", (uint32)queries.size());
@@ -429,7 +429,7 @@ bool MySQLConnection::ExecuteTransaction(SQLTransaction& transaction)
 
 MySQLPreparedStatement* MySQLConnection::GetPreparedStatement(uint32 index)
 {
-    ASSERT(index < m_stmts.size());
+    ASSERT (index < m_stmts.size());
     MySQLPreparedStatement* ret = m_stmts[index];
     if (!ret)
         sLog->outSQLDriver("ERROR: Could not fetch prepared statement %u on database `%s`, connection type: %s.",

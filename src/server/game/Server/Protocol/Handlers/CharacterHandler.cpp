@@ -428,7 +428,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 return;
             }
 
-            ASSERT(_charCreateCallback.GetParam() == createInfo);
+            ASSERT (_charCreateCallback.GetParam() == createInfo);
 
             PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_SUM_REALMCHARS);
             stmt->setUInt32(0, GetAccountId());
@@ -463,7 +463,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             }
 
 
-            ASSERT(_charCreateCallback.GetParam() == createInfo);
+            ASSERT (_charCreateCallback.GetParam() == createInfo);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_SUM_CHARS);
             stmt->setUInt32(0, GetAccountId());

@@ -126,13 +126,13 @@ class npc_torek : public CreatureScript
 
                 if (Rend_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_REND);
+                    DoCast (me->getVictim(), SPELL_REND);
                     Rend_Timer = 20000;
                 } else Rend_Timer -= diff;
 
                 if (Thunderclap_Timer <= diff)
                 {
-                    DoCast(me, SPELL_THUNDERCLAP);
+                    DoCast (me, SPELL_THUNDERCLAP);
                     Thunderclap_Timer = 30000;
                 } else Thunderclap_Timer -= diff;
             }

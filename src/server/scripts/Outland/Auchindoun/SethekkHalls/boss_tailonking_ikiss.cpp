@@ -138,14 +138,14 @@ public:
 
             if (Blink)
             {
-                DoCast(me, SPELL_ARCANE_EXPLOSION);
-                DoCast(me, SPELL_ARCANE_BUBBLE, true);
+                DoCast (me, SPELL_ARCANE_EXPLOSION);
+                DoCast (me, SPELL_ARCANE_BUBBLE, true);
                 Blink = false;
             }
 
             if (ArcaneVolley_Timer <= diff)
             {
-                DoCast(me, SPELL_ARCANE_VOLLEY);
+                DoCast (me, SPELL_ARCANE_VOLLEY);
                 ArcaneVolley_Timer = 7000+rand()%5000;
             } else ArcaneVolley_Timer -= diff;
 
@@ -160,14 +160,14 @@ public:
                     target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                 if (target)
-                    DoCast(target, SPELL_POLYMORPH);
+                    DoCast (target, SPELL_POLYMORPH);
                 Sheep_Timer = 15000+rand()%2500;
             } else Sheep_Timer -= diff;
 
             //may not be correct time to cast
             if (!ManaShield && HealthBelowPct(20))
             {
-                DoCast(me, SPELL_MANA_SHIELD);
+                DoCast (me, SPELL_MANA_SHIELD);
                 ManaShield = true;
             }
 
@@ -175,7 +175,7 @@ public:
             {
                 if (Slow_Timer <= diff)
                 {
-                    DoCast(me, H_SPELL_SLOW);
+                    DoCast (me, H_SPELL_SLOW);
                     Slow_Timer = 15000+rand()%25000;
                 } else Slow_Timer -= diff;
             }
@@ -190,7 +190,7 @@ public:
                         me->InterruptNonMeleeSpells(false);
 
                     //Spell doesn't work, but we use for visual effect at least
-                    DoCast(target, SPELL_BLINK);
+                    DoCast (target, SPELL_BLINK);
 
                     float X = target->GetPositionX();
                     float Y = target->GetPositionY();
@@ -198,7 +198,7 @@ public:
 
                     DoTeleportTo(X, Y, Z);
 
-                    DoCast(target, SPELL_BLINK_TELEPORT);
+                    DoCast (target, SPELL_BLINK_TELEPORT);
                     Blink = true;
                 }
                 Blink_Timer = 35000+rand()%5000;

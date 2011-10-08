@@ -250,22 +250,22 @@ public:
                     switch (eventId)
                     {
                     case EVENT_ICY_TOUCH:
-                        DoCast(me->getVictim(), SPELL_ICY_TOUCH);
+                        DoCast (me->getVictim(), SPELL_ICY_TOUCH);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(EVENT_ICY_TOUCH, 5000, GCD_CAST);
                         break;
                     case EVENT_PLAGUE_STRIKE:
-                        DoCast(me->getVictim(), SPELL_PLAGUE_STRIKE);
+                        DoCast (me->getVictim(), SPELL_PLAGUE_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(SPELL_PLAGUE_STRIKE, 5000, GCD_CAST);
                         break;
                     case EVENT_BLOOD_STRIKE:
-                        DoCast(me->getVictim(), SPELL_BLOOD_STRIKE);
+                        DoCast (me->getVictim(), SPELL_BLOOD_STRIKE);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(EVENT_BLOOD_STRIKE, 5000, GCD_CAST);
                         break;
                     case EVENT_DEATH_COIL:
-                        DoCast(me->getVictim(), SPELL_DEATH_COIL);
+                        DoCast (me->getVictim(), SPELL_DEATH_COIL);
                         events.DelayEvents(1000, GCD_CAST);
                         events.ScheduleEvent(EVENT_DEATH_COIL, 5000, GCD_CAST);
                         break;
@@ -562,7 +562,7 @@ public:
                         break;
                     case 1:
                         if (Unit* target = Unit::GetUnit(*me, TargetGUID))
-                            DoCast(target, DESPAWN_HORSE, true);
+                            DoCast (target, DESPAWN_HORSE, true);
                         PhaseTimer = 3000;
                         Phase = 2;
                         break;
@@ -638,7 +638,7 @@ public:
                             charmer->RemoveAurasDueToSpell(EFFECT_STOLEN_HORSE);
                             caster->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                             caster->setFaction(35);
-                            DoCast(caster, CALL_DARK_RIDER, true);
+                            DoCast (caster, CALL_DARK_RIDER, true);
                             if (Creature* Dark_Rider = me->FindNearestCreature(28654, 15))
                                 CAST_AI(npc_dark_rider_of_acherus::npc_dark_rider_of_acherusAI, Dark_Rider->AI())->InitDespawnHorse(caster);
                         }
@@ -789,7 +789,7 @@ public:
         {
             // Ghouls should display their Birth Animation
             // Crawling out of the ground
-            //DoCast(me, 35177, true);
+            //DoCast (me, 35177, true);
             //me->MonsterSay("Mommy?", LANG_UNIVERSAL, 0);
             me->SetReactState(REACT_DEFENSIVE);
         }
@@ -1028,7 +1028,7 @@ public:
                     if (IntroPhase == 1)
                     {
                         if (Creature* car = Unit::GetCreature(*me, carGUID))
-                            DoCast(car, SPELL_CART_DRAG);
+                            DoCast (car, SPELL_CART_DRAG);
                         IntroTimer = 800;
                         IntroPhase = 2;
                     }

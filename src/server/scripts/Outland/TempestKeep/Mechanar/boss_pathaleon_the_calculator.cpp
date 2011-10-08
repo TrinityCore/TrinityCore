@@ -142,7 +142,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
                 if (ManaTap_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_MANA_TAP);
+                    DoCast (me->getVictim(), SPELL_MANA_TAP);
                     ManaTap_Timer = 14000 + rand()%8000;
                 }
                 else
@@ -150,7 +150,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
                 if (ArcaneTorrent_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ARCANE_TORRENT);
+                    DoCast (me->getVictim(), SPELL_ARCANE_TORRENT);
                     ArcaneTorrent_Timer = 12000 + rand()%6000;
                 }
                 else
@@ -161,7 +161,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                     {
                         DoScriptText(RAND(SAY_DOMINATION_1, SAY_DOMINATION_2), me);
-                        DoCast(target, SPELL_DOMINATION);
+                        DoCast (target, SPELL_DOMINATION);
                     }
                     Domination_Timer = 25000 + rand()%5000;
                 }
@@ -173,7 +173,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 {
                     if (ArcaneExplosion_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), H_SPELL_ARCANE_EXPLOSION);
+                        DoCast (me->getVictim(), H_SPELL_ARCANE_EXPLOSION);
                         ArcaneExplosion_Timer = 10000 + rand()%4000;
                     }
                     else
@@ -182,7 +182,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
 
                 if (!Enraged && HealthBelowPct(21))
                 {
-                    DoCast(me, SPELL_FRENZY);
+                    DoCast (me, SPELL_FRENZY);
                     DoScriptText(SAY_ENRAGE, me);
                     Enraged = true;
 
@@ -234,9 +234,9 @@ class mob_nether_wraith : public CreatureScript
                 if (ArcaneMissiles_Timer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        DoCast(target, SPELL_ARCANE_MISSILES);
+                        DoCast (target, SPELL_ARCANE_MISSILES);
                     else
-                        DoCast(me->getVictim(), SPELL_ARCANE_MISSILES);
+                        DoCast (me->getVictim(), SPELL_ARCANE_MISSILES);
                     ArcaneMissiles_Timer = 5000 + rand()%5000;
                 }
                 else
@@ -246,7 +246,7 @@ class mob_nether_wraith : public CreatureScript
                 {
                     if (Detonation_Timer <= diff)
                     {
-                        DoCast(me, SPELL_DETONATION);
+                        DoCast (me, SPELL_DETONATION);
                         Detonation = true;
                     }
                     else

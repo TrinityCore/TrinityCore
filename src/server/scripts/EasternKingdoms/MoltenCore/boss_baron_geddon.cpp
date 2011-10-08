@@ -75,7 +75,7 @@ class boss_baron_geddon : public CreatureScript
                 if (!HealthAbovePct(2))
                 {
                     me->InterruptNonMeleeSpells(true);
-                    DoCast(me, SPELL_ARMAGEDDON);
+                    DoCast (me, SPELL_ARMAGEDDON);
                     DoScriptText(EMOTE_SERVICE, me);
                     return;
                 }
@@ -88,17 +88,17 @@ class boss_baron_geddon : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_INFERNO:
-                            DoCast(me, SPELL_INFERNO);
+                            DoCast (me, SPELL_INFERNO);
                             events.ScheduleEvent(EVENT_INFERNO, 45000);
                             break;
                         case EVENT_IGNITE_MANA:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -SPELL_IGNITE_MANA))
-                                DoCast(target, SPELL_IGNITE_MANA);
+                                DoCast (target, SPELL_IGNITE_MANA);
                             events.ScheduleEvent(EVENT_IGNITE_MANA, 30000);
                             break;
                         case EVENT_LIVING_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_LIVING_BOMB);
+                                DoCast (target, SPELL_LIVING_BOMB);
                             events.ScheduleEvent(EVENT_LIVING_BOMB, 35000);
                             break;
                         default:

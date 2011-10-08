@@ -117,7 +117,7 @@ public:
             //Arcane Blast
             if (ArcaneBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_BLAST);
+                DoCast (me->getVictim(), SPELL_ARCANE_BLAST);
                 ArcaneBlast_Timer = 15000+rand()%10000;
             } else ArcaneBlast_Timer -= diff;
 
@@ -125,7 +125,7 @@ public:
             if (ArcaneDischarge_Timer <= diff)
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                DoCast(target, SPELL_ARCANE_DISCHARGE);
+                DoCast (target, SPELL_ARCANE_DISCHARGE);
                 ArcaneDischarge_Timer = 20000+rand()%10000;
             } else ArcaneDischarge_Timer -= diff;
 
@@ -133,7 +133,7 @@ public:
             if (TimeLapse_Timer <= diff)
             {
                 DoScriptText(SAY_BANISH, me);
-                DoCast(me, SPELL_TIME_LAPSE);
+                DoCast (me, SPELL_TIME_LAPSE);
                 TimeLapse_Timer = 15000+rand()%10000;
             } else TimeLapse_Timer -= diff;
 
@@ -141,7 +141,7 @@ public:
             {
                 if (Attraction_Timer <= diff)
                 {
-                    DoCast(me, SPELL_ATTRACTION);
+                    DoCast (me, SPELL_ATTRACTION);
                     Attraction_Timer = 25000+rand()%10000;
                 } else Attraction_Timer -= diff;
             }

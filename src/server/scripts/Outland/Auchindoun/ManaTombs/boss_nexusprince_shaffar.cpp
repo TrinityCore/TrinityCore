@@ -161,20 +161,20 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(true);
 
-                DoCast(me, SPELL_FROSTNOVA);
+                DoCast (me, SPELL_FROSTNOVA);
                 FrostNova_Timer  = 17500 + rand()%7500;
                 CanBlink = true;
             } else FrostNova_Timer -= diff;
 
             if (Frostbolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROSTBOLT);
+                DoCast (me->getVictim(), SPELL_FROSTBOLT);
                 Frostbolt_Timer = 4500 + rand()%1500;
             } else Frostbolt_Timer -= diff;
 
             if (FireBall_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIREBALL);
+                DoCast (me->getVictim(), SPELL_FIREBALL);
                 FireBall_Timer = 4500 + rand()%1500;
             } else FireBall_Timer -= diff;
 
@@ -190,7 +190,7 @@ public:
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
                         me->GetMotionMaster()->MovementExpired();
 
-                    DoCast(me, SPELL_BLINK);
+                    DoCast (me, SPELL_BLINK);
                     Blink_Timer = 1000 + rand()%1500;
                     CanBlink = false;
                 } else Blink_Timer -= diff;
@@ -204,7 +204,7 @@ public:
                 if (!urand(0, 3))
                     DoScriptText(SAY_SUMMON, me);
 
-                DoCast(me, SPELL_ETHEREAL_BEACON, true);
+                DoCast (me, SPELL_ETHEREAL_BEACON, true);
 
                 Beacon_Timer = 10000;
             } else Beacon_Timer -= diff;
@@ -289,7 +289,7 @@ public:
 
             if (ArcaneBolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_BOLT);
+                DoCast (me->getVictim(), SPELL_ARCANE_BOLT);
                 ArcaneBolt_Timer = 2000 + rand()%2500;
             } else ArcaneBolt_Timer -= diff;
 
@@ -298,7 +298,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(true);
 
-                DoCast(me, SPELL_ETHEREAL_APPRENTICE, true);
+                DoCast (me, SPELL_ETHEREAL_APPRENTICE, true);
                 me->DespawnOrUnsummon();
                 return;
             } else Apprentice_Timer -= diff;
@@ -346,10 +346,10 @@ public:
             {
                 if (isFireboltTurn)
                 {
-                    DoCast(me->getVictim(), SPELL_ETHEREAL_APPRENTICE_FIREBOLT, true);
+                    DoCast (me->getVictim(), SPELL_ETHEREAL_APPRENTICE_FIREBOLT, true);
                     isFireboltTurn = false;
                 }else{
-                    DoCast(me->getVictim(), SPELL_ETHEREAL_APPRENTICE_FROSTBOLT, true);
+                    DoCast (me->getVictim(), SPELL_ETHEREAL_APPRENTICE_FROSTBOLT, true);
                     isFireboltTurn = true;
                 }
                 Cast_Timer = 3000;

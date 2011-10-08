@@ -167,14 +167,14 @@ public:
                     {
                         if (uiStampedeTimer <= diff)
                         {
-                            DoCast(me, SPELL_STAMPEDE);
+                            DoCast (me, SPELL_STAMPEDE);
                             DoScriptText(RAND(SAY_SUMMON_RHINO_1, SAY_SUMMON_RHINO_2, SAY_SUMMON_RHINO_3), me);
                             uiStampedeTimer = 15*IN_MILLISECONDS;
                         } else uiStampedeTimer -= diff;
 
                         if (uiWhirlingSlashTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_WHIRLING_SLASH);
+                            DoCast (me->getVictim(), SPELL_WHIRLING_SLASH);
                             uiWhirlingSlashTimer = 21*IN_MILLISECONDS;
                             ++uiPhaseCounter;
                         } else uiWhirlingSlashTimer -= diff;
@@ -210,19 +210,19 @@ public:
                     {
                         if (uiPunctureTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_PUNCTURE);
+                            DoCast (me->getVictim(), SPELL_PUNCTURE);
                             uiPunctureTimer = 8*IN_MILLISECONDS;
                         } else uiPunctureTimer -= diff;
 
                         if (uiEnrageTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_ENRAGE);
+                            DoCast (me->getVictim(), SPELL_ENRAGE);
                             uiEnrageTimer = 20*IN_MILLISECONDS;
                         } else uiEnrageTimer -= diff;
 
                         if (uiStompTimer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_STOMP);
+                            DoCast (me->getVictim(), SPELL_STOMP);
                             uiStompTimer = 20*IN_MILLISECONDS;
                         } else uiStompTimer -= diff;
 
@@ -230,7 +230,7 @@ public:
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
-                                DoCast(target, SPELL_IMPALING_CHARGE);
+                                DoCast (target, SPELL_IMPALING_CHARGE);
                                 CheckAchievement(target->GetGUID());
                             }
                             uiImpalingChargeTimer = 31*IN_MILLISECONDS;

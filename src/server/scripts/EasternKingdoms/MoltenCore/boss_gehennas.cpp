@@ -81,12 +81,12 @@ class boss_gehennas : public CreatureScript
                             break;
                         case EVENT_RAIN_OF_FIRE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_RAIN_OF_FIRE);
+                                DoCast (target, SPELL_RAIN_OF_FIRE);
                             events.ScheduleEvent(EVENT_RAIN_OF_FIRE, urand(4000, 12000));
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                                DoCast(target, SPELL_SHADOW_BOLT);
+                                DoCast (target, SPELL_SHADOW_BOLT);
                             events.ScheduleEvent(EVENT_SHADOW_BOLT, 7000);
                             break;
                         default:

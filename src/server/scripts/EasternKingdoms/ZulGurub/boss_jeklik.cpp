@@ -91,7 +91,7 @@ class boss_jeklik : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
-                DoCast(me, SPELL_BAT_FORM);
+                DoCast (me, SPELL_BAT_FORM);
             }
 
             void JustDied(Unit* /*Killer*/)
@@ -115,7 +115,7 @@ class boss_jeklik : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                DoCast(target, SPELL_CHARGE);
+                                DoCast (target, SPELL_CHARGE);
                                 AttackStart(target);
                             }
 
@@ -124,13 +124,13 @@ class boss_jeklik : public CreatureScript
 
                         if (SonicBurst_Timer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_SONICBURST);
+                            DoCast (me->getVictim(), SPELL_SONICBURST);
                             SonicBurst_Timer = 8000 + rand()%5000;
                         } else SonicBurst_Timer -= diff;
 
                         if (Screech_Timer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_SCREECH);
+                            DoCast (me->getVictim(), SPELL_SCREECH);
                             Screech_Timer = 18000 + rand()%8000;
                         } else Screech_Timer -= diff;
 
@@ -167,28 +167,28 @@ class boss_jeklik : public CreatureScript
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
-                                    DoCast(target, SPELL_SHADOW_WORD_PAIN);
+                                    DoCast (target, SPELL_SHADOW_WORD_PAIN);
                                     ShadowWordPain_Timer = 12000 + rand()%6000;
                                 }
                             }ShadowWordPain_Timer -=diff;
 
                             if (MindFlay_Timer <= diff)
                             {
-                                DoCast(me->getVictim(), SPELL_MIND_FLAY);
+                                DoCast (me->getVictim(), SPELL_MIND_FLAY);
                                 MindFlay_Timer = 16000;
                             }MindFlay_Timer -=diff;
 
                             if (ChainMindFlay_Timer <= diff)
                             {
                                 me->InterruptNonMeleeSpells(false);
-                                DoCast(me->getVictim(), SPELL_CHAIN_MIND_FLAY);
+                                DoCast (me->getVictim(), SPELL_CHAIN_MIND_FLAY);
                                 ChainMindFlay_Timer = 15000 + rand()%15000;
                             }ChainMindFlay_Timer -=diff;
 
                             if (GreaterHeal_Timer <= diff)
                             {
                                 me->InterruptNonMeleeSpells(false);
-                                DoCast(me, SPELL_GREATERHEAL);
+                                DoCast (me, SPELL_GREATERHEAL);
                                 GreaterHeal_Timer = 25000 + rand()%10000;
                             }GreaterHeal_Timer -=diff;
 
@@ -266,7 +266,7 @@ class mob_batrider : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        DoCast(target, SPELL_BOMB);
+                        DoCast (target, SPELL_BOMB);
                         Bomb_Timer = 5000;
                     }
                 } else Bomb_Timer -= diff;

@@ -71,7 +71,7 @@ public:
                 (Spellkind->Id == 118 || Spellkind->Id == 12824 || Spellkind->Id == 12825 || Spellkind->Id == 12826))
             {
                 spellhit=true;
-                DoCast(me, 29124);                       //become a sheep
+                DoCast (me, 29124);                       //become a sheep
             }
         }
 
@@ -89,8 +89,8 @@ public:
                 morphtimer+=diff;
                 if (morphtimer >= 5000)
                 {
-                    DoCast(me, 28406);                   //summon copies
-                    DoCast(me, 6924);                    //visual explosion
+                    DoCast (me, 28406);                   //summon copies
+                    DoCast (me, 6924);                    //visual explosion
                 }
             }
             if (!UpdateVictim())
@@ -347,7 +347,7 @@ public:
 
                 if (spellEscape_Timer <= diff)
                 {
-                    DoCast(me, SPELL_RIZZLE_ESCAPE, false);
+                    DoCast (me, SPELL_RIZZLE_ESCAPE, false);
                     spellEscape_Timer = 10000;
                 } else spellEscape_Timer -= diff;
 
@@ -363,7 +363,7 @@ public:
                     //begin swimming and summon depth charges
                     Player* player = Unit::GetPlayer(*me, PlayerGUID);
                     SendText(MSG_ESCAPE_NOTICE, player);
-                    DoCast(me, SPELL_PERIODIC_DEPTH_CHARGE);
+                    DoCast (me, SPELL_PERIODIC_DEPTH_CHARGE);
                     me->SetUnitMovementFlags(MOVEMENTFLAG_HOVER | MOVEMENTFLAG_SWIMMING);
                     me->SetSpeed(MOVE_RUN, 0.85f, true);
                     me->GetMotionMaster()->MovementExpired();
@@ -386,7 +386,7 @@ public:
                 if (player)
                 {
                    DoScriptText(SAY_RIZZLE_GRENADE, me, player);
-                   DoCast(player, SPELL_RIZZLE_FROST_GRENADE, true);
+                   DoCast (player, SPELL_RIZZLE_FROST_GRENADE, true);
                 }
                 Grenade_Timer = 30000;
             } else Grenade_Timer -= diff;
@@ -431,7 +431,7 @@ public:
             {
                 PlayerGUID = who->GetGUID();
                 DoScriptText(SAY_RIZZLE_START, me);
-                DoCast(who, SPELL_RIZZLE_BLACKJACK, false);
+                DoCast (who, SPELL_RIZZLE_BLACKJACK, false);
                 return;
             }
         }
@@ -502,7 +502,7 @@ public:
 
             if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 5))
             {
-                DoCast(who, SPELL_DEPTH_CHARGE_TRAP);
+                DoCast (who, SPELL_DEPTH_CHARGE_TRAP);
                 we_must_die = true;
                 return;
             }

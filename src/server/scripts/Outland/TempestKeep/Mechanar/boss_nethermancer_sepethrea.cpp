@@ -92,7 +92,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                     instance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
                 DoScriptText(SAY_AGGRO, me);
-                DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
+                DoCast (who, SPELL_SUMMON_RAGIN_FLAMES);
                 DoScriptText(SAY_SUMMON, me);
             }
 
@@ -117,7 +117,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 //Frost Attack
                 if (frost_attack_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FROST_ATTACK);
+                    DoCast (me->getVictim(), SPELL_FROST_ATTACK);
 
                     frost_attack_Timer = 7000 + rand()%3000;
                 }
@@ -127,7 +127,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 //Arcane Blast
                 if (arcane_blast_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ARCANE_BLAST);
+                    DoCast (me->getVictim(), SPELL_ARCANE_BLAST);
                     arcane_blast_Timer = 15000;
                 }
                 else
@@ -135,7 +135,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 //Dragons Breath
                 if (dragons_breath_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DRAGONS_BREATH);
+                    DoCast (me->getVictim(), SPELL_DRAGONS_BREATH);
                     {
                         if (rand()%2)
                             return;
@@ -149,7 +149,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 //Knockback
                 if (knockback_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_KNOCKBACK);
+                    DoCast (me->getVictim(), SPELL_KNOCKBACK);
                     knockback_Timer = 15000 + rand()%10000;
                 }
                 else
@@ -158,7 +158,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 //Solarburn
                 if (solarburn_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SOLARBURN);
+                    DoCast (me->getVictim(), SPELL_SOLARBURN);
                     solarburn_Timer = 30000;
                 }
                 else
@@ -240,14 +240,14 @@ class mob_ragin_flames : public CreatureScript
 
                     if (inferno_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_INFERNO);
+                        DoCast (me->getVictim(), SPELL_INFERNO);
                         me->TauntApply(me->getVictim());
                         inferno_Timer = 10000;
                     } else inferno_Timer -= diff;
 
                     if (flame_timer <= diff)
                     {
-                        DoCast(me, SPELL_FIRE_TAIL);
+                        DoCast (me, SPELL_FIRE_TAIL);
                         flame_timer = 500;
                     } else flame_timer -=diff;
 

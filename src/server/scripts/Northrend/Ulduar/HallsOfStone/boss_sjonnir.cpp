@@ -157,19 +157,19 @@ public:
             if (uiChainLightningTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CHAIN_LIGHTING);
+                    DoCast (target, SPELL_CHAIN_LIGHTING);
                 uiChainLightningTimer = 10000 + rand()%5000;
             } else uiChainLightningTimer -= diff;
 
             if (uiLightningShieldTimer <= diff)
             {
-                DoCast(me, SPELL_LIGHTING_SHIELD);
+                DoCast (me, SPELL_LIGHTING_SHIELD);
                 uiLightningShieldTimer -= diff;
             }
 
             if (uiStaticChargeTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STATIC_CHARGE);
+                DoCast (me->getVictim(), SPELL_STATIC_CHARGE);
                 uiStaticChargeTimer = 20000 + rand()%5000;
             } uiStaticChargeTimer -= diff;
 
@@ -177,7 +177,7 @@ public:
             {
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
-                DoCast(me, SPELL_LIGHTING_RING);
+                DoCast (me, SPELL_LIGHTING_RING);
                 uiLightningRingTimer = 30000 + rand()%5000;
             } else uiLightningRingTimer -= diff;
 
@@ -195,7 +195,7 @@ public:
             {
               if (uiFrenzyTimer <= diff)
               {
-                  DoCast(me, SPELL_FRENZY);
+                  DoCast (me, SPELL_FRENZY);
                   bIsFrenzy = true;
               }
               else uiFrenzyTimer -= diff;

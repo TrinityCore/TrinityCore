@@ -82,13 +82,13 @@ public:
 
             if (uiBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ECK_BITE);
+                DoCast (me->getVictim(), SPELL_ECK_BITE);
                 uiBiteTimer = urand(8*IN_MILLISECONDS, 12*IN_MILLISECONDS);
             } else uiBiteTimer -= diff;
 
             if (uiSpitTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ECK_SPIT);
+                DoCast (me->getVictim(), SPELL_ECK_SPIT);
                 uiSpitTimer = urand(6*IN_MILLISECONDS, 14*IN_MILLISECONDS);
             } else uiSpitTimer -= diff;
 
@@ -97,7 +97,7 @@ public:
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
+                    DoCast (target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
                     uiSpringTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
                 }
             } else uiSpringTimer -= diff;
@@ -107,7 +107,7 @@ public:
             {
                 if (uiBerserkTimer <= diff)
                 {
-                    DoCast(me, SPELL_ECK_BERSERK);
+                    DoCast (me, SPELL_ECK_BERSERK);
                     bBerserk = true;
                 }
                 else
@@ -115,7 +115,7 @@ public:
                     uiBerserkTimer -= diff;
                     if (HealthBelowPct(20))
                     {
-                        DoCast(me, SPELL_ECK_BERSERK);
+                        DoCast (me, SPELL_ECK_BERSERK);
                         bBerserk = true;
                     }
                 }

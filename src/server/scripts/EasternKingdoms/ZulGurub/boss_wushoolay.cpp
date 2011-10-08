@@ -63,7 +63,7 @@ class boss_wushoolay : public CreatureScript
                 //LightningCloud_Timer
                 if (LightningCloud_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_LIGHTNINGCLOUD);
+                    DoCast (me->getVictim(), SPELL_LIGHTNINGCLOUD);
                     LightningCloud_Timer = 15000 + rand()%5000;
                 } else LightningCloud_Timer -= diff;
 
@@ -72,7 +72,7 @@ class boss_wushoolay : public CreatureScript
                 {
                     Unit* target = NULL;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                    if (target) DoCast(target, SPELL_LIGHTNINGWAVE);
+                    if (target) DoCast (target, SPELL_LIGHTNINGWAVE);
 
                     LightningWave_Timer = 12000 + rand()%4000;
                 } else LightningWave_Timer -= diff;

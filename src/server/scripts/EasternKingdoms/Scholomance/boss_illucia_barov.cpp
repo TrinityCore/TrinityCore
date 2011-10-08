@@ -82,7 +82,7 @@ public:
             //CurseOfAgony_Timer
             if (CurseOfAgony_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CURSEOFAGONY);
+                DoCast (me->getVictim(), SPELL_CURSEOFAGONY);
                 CurseOfAgony_Timer = 30000;
             } else CurseOfAgony_Timer -= diff;
 
@@ -91,7 +91,7 @@ public:
             {
                 Unit* target = NULL;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target) DoCast(target, SPELL_SHADOWSHOCK);
+                if (target) DoCast (target, SPELL_SHADOWSHOCK);
 
                 ShadowShock_Timer = 12000;
             } else ShadowShock_Timer -= diff;
@@ -99,14 +99,14 @@ public:
             //Silence_Timer
             if (Silence_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SILENCE);
+                DoCast (me->getVictim(), SPELL_SILENCE);
                 Silence_Timer = 14000;
             } else Silence_Timer -= diff;
 
             //Fear_Timer
             if (Fear_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEAR);
+                DoCast (me->getVictim(), SPELL_FEAR);
                 Fear_Timer = 30000;
             } else Fear_Timer -= diff;
 

@@ -343,7 +343,7 @@ public:
             if (me->HasFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP))
                 me->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
 
-            DoCast(me, SPELL_PLUCKY_CHICKEN, false);
+            DoCast (me, SPELL_PLUCKY_CHICKEN, false);
         }
 
         void ReceiveEmote(Player* player, uint32 uiTextEmote)
@@ -354,7 +354,7 @@ public:
                 {
                     me->setFaction(FACTION_FRIENDLY);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    DoCast(me, SPELL_PLUCKY_HUMAN, false);
+                    DoCast (me, SPELL_PLUCKY_HUMAN, false);
                 }
             }
 
@@ -366,7 +366,7 @@ public:
                 {
                     me->setFaction(FACTION_FRIENDLY);
                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                    DoCast(me, SPELL_PLUCKY_HUMAN, false);
+                    DoCast (me, SPELL_PLUCKY_HUMAN, false);
                     me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);
                 }
             }

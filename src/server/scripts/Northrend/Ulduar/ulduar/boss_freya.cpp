@@ -441,11 +441,11 @@ class boss_freya : public CreatureScript
                     {
                         case EVENT_ENRAGE:
                             DoScriptText(SAY_BERSERK, me);
-                            DoCast(me, SPELL_ENRAGE);
+                            DoCast (me, SPELL_ENRAGE);
                             break;
                         case EVENT_SUNBEAM:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_SUNBEAM);
+                                DoCast (target, SPELL_SUNBEAM);
                             events.ScheduleEvent(EVENT_SUNBEAM, urand(10000, 15000));
                             break;
                         case EVENT_NATURE_BOMB:
@@ -462,7 +462,7 @@ class boss_freya : public CreatureScript
                         }
                         case EVENT_UNSTABLE_ENERGY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_FREYA_UNSTABLE_SUNBEAM, true);
+                                DoCast (target, SPELL_FREYA_UNSTABLE_SUNBEAM, true);
                             events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, urand(15000, 20000));
                             break;
                         case EVENT_WAVE:
@@ -475,7 +475,7 @@ class boss_freya : public CreatureScript
                                 events.ScheduleEvent(EVENT_NATURE_BOMB, urand(10000, 20000));
                             break;
                         case EVENT_EONAR_GIFT:
-                            DoCast(me, SPELL_SUMMON_EONAR_GIFT);
+                            DoCast (me, SPELL_SUMMON_EONAR_GIFT);
                             events.ScheduleEvent(EVENT_EONAR_GIFT, urand(40000, 50000));
                             break;
                         case EVENT_STRENGTHENED_IRON_ROOTS:
@@ -612,16 +612,16 @@ class boss_freya : public CreatureScript
                     case 0:
                         DoScriptText(SAY_SUMMON_LASHERS, me);
                         for (uint8 n = 0; n < 10; ++n)
-                            DoCast(SPELL_SUMMON_LASHERS);
+                            DoCast (SPELL_SUMMON_LASHERS);
                         break;
                     case 1:
                         DoScriptText(SAY_SUMMON_TRIO, me);
-                        DoCast(SPELL_SUMMON_TRIO);
+                        DoCast (SPELL_SUMMON_TRIO);
                         trioWaveCount++;
                         break;
                     case 2:
                         DoScriptText(SAY_SUMMON_CONSERVATOR, me);
-                        DoCast(SPELL_SUMMON_ANCIENT_CONSERVATOR);
+                        DoCast (SPELL_SUMMON_ANCIENT_CONSERVATOR);
                         break;
                 }
                 waveCount++;
@@ -904,7 +904,7 @@ class boss_elder_stonebark : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BARK:
-                            DoCast(me, SPELL_PETRIFIED_BARK);
+                            DoCast (me, SPELL_PETRIFIED_BARK);
                             events.ScheduleEvent(EVENT_BARK, urand(30000, 50000));
                             break;
                         case EVENT_FISTS:
@@ -1082,7 +1082,7 @@ class npc_detonating_lasher : public CreatureScript
 
                 if (lashTimer <= diff)
                 {
-                    DoCast(SPELL_FLAME_LASH);
+                    DoCast (SPELL_FLAME_LASH);
                     lashTimer = urand(5000, 10000);
                 }
                 else
@@ -1143,8 +1143,8 @@ class npc_ancient_water_spirit : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                     {
-                        DoCast(target, SPELL_TIDAL_WAVE);
-                        DoCast(target, SPELL_TIDAL_WAVE_EFFECT, true);
+                        DoCast (target, SPELL_TIDAL_WAVE);
+                        DoCast (target, SPELL_TIDAL_WAVE_EFFECT, true);
                     }
                     tidalWaveTimer = urand(12000, 25000);
                 }
@@ -1202,7 +1202,7 @@ class npc_storm_lasher : public CreatureScript
 
                 if (lightningLashTimer <= diff)
                 {
-                    DoCast(SPELL_LIGHTNING_LASH);
+                    DoCast (SPELL_LIGHTNING_LASH);
                     lightningLashTimer = urand(7000, 14000);
                 }
                 else
@@ -1211,7 +1211,7 @@ class npc_storm_lasher : public CreatureScript
                 if (stormboltTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                        DoCast(target, SPELL_STORMBOLT);
+                        DoCast (target, SPELL_STORMBOLT);
                     stormboltTimer = urand(8000, 12000);
                 }
                 else
@@ -1262,7 +1262,7 @@ class npc_snaplasher : public CreatureScript
                     return;
 
                 if (!me->HasAura(SPELL_BARK_AURA))
-                    DoCast(SPELL_HARDENED_BARK);
+                    DoCast (SPELL_HARDENED_BARK);
 
                 DoMeleeAttackIfReady();
             }
@@ -1309,16 +1309,16 @@ class npc_ancient_conservator : public CreatureScript
             {
                 for (uint8 n = 0; n < sporesCount; ++n)
                 {
-                    DoCast(SPELL_SUMMON_PERIODIC);
-                    DoCast(SPELL_SPORE_SUMMON_NE);
-                    DoCast(SPELL_SPORE_SUMMON_SE);
-                    DoCast(SPELL_SPORE_SUMMON_SW);
+                    DoCast (SPELL_SUMMON_PERIODIC);
+                    DoCast (SPELL_SPORE_SUMMON_NE);
+                    DoCast (SPELL_SPORE_SUMMON_SE);
+                    DoCast (SPELL_SPORE_SUMMON_SW);
                 }
             }
 
             void EnterCombat(Unit* who)
             {
-                DoCast(who, SPELL_CONSERVATOR_GRIP, true);
+                DoCast (who, SPELL_CONSERVATOR_GRIP, true);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1337,7 +1337,7 @@ class npc_ancient_conservator : public CreatureScript
                 if (natureFuryTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true, -SPELL_NATURE_FURY))
-                        DoCast(target, SPELL_NATURE_FURY);
+                        DoCast (target, SPELL_NATURE_FURY);
                     me->AddAura(SPELL_CONSERVATOR_GRIP, me);
                     natureFuryTimer = 5000;
                 }
@@ -1369,7 +1369,7 @@ class npc_sun_beam : public CreatureScript
             {
                 me->SetReactState(REACT_PASSIVE);
                 DoCastAOE(SPELL_FREYA_UNSTABLE_ENERGY_VISUAL, true);
-                DoCast(SPELL_FREYA_UNSTABLE_ENERGY);
+                DoCast (SPELL_FREYA_UNSTABLE_ENERGY);
             }
         };
 
@@ -1390,9 +1390,9 @@ class npc_healthy_spore : public CreatureScript
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 me->SetReactState(REACT_PASSIVE);
-                DoCast(me, SPELL_HEALTHY_SPORE_VISUAL);
-                DoCast(me, SPELL_POTENT_PHEROMONES);
-                DoCast(me, SPELL_GROW);
+                DoCast (me, SPELL_HEALTHY_SPORE_VISUAL);
+                DoCast (me, SPELL_POTENT_PHEROMONES);
+                DoCast (me, SPELL_GROW);
                 lifeTimer = urand(22000, 30000);
             }
 
@@ -1428,9 +1428,9 @@ class npc_eonars_gift : public CreatureScript
             npc_eonars_giftAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 lifeBindersGiftTimer = 12000;
-                DoCast(me, SPELL_GROW);
-                DoCast(me, SPELL_PHEROMONES, true);
-                DoCast(me, SPELL_EONAR_VISUAL, true);
+                DoCast (me, SPELL_GROW);
+                DoCast (me, SPELL_PHEROMONES, true);
+                DoCast (me, SPELL_EONAR_VISUAL, true);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1438,7 +1438,7 @@ class npc_eonars_gift : public CreatureScript
                 if (lifeBindersGiftTimer <= diff)
                 {
                     me->RemoveAurasDueToSpell(SPELL_GROW);
-                    DoCast(SPELL_LIFEBINDERS_GIFT);
+                    DoCast (SPELL_LIFEBINDERS_GIFT);
                     me->ForcedDespawn(2500);
                     lifeBindersGiftTimer = 12000;
                 }
@@ -1466,7 +1466,7 @@ class npc_nature_bomb : public CreatureScript
             npc_nature_bombAI(Creature* creature) : Scripted_NoMovementAI(creature)
             {
                 bombTimer = urand(8000, 10000);
-                DoCast(SPELL_OBJECT_BOMB);
+                DoCast (SPELL_OBJECT_BOMB);
             }
 
             void UpdateAI(uint32 const diff)
@@ -1475,7 +1475,7 @@ class npc_nature_bomb : public CreatureScript
                 {
                     if (GameObject* go = me->FindNearestGameObject(OBJECT_NATURE_BOMB, 1.0f))
                     {
-                        DoCast(me, SPELL_NATURE_BOMB);
+                        DoCast (me, SPELL_NATURE_BOMB);
                         me->RemoveGameObject(go, true);
                         me->RemoveFromWorld();
                     }
@@ -1507,8 +1507,8 @@ class npc_unstable_sun_beam : public CreatureScript
             {
                 despawnTimer = urand(7000, 12000);
                 instance = me->GetInstanceScript();
-                DoCast(me, SPELL_PHOTOSYNTHESIS);
-                DoCast(me, SPELL_UNSTABLE_SUN_BEAM);
+                DoCast (me, SPELL_PHOTOSYNTHESIS);
+                DoCast (me, SPELL_UNSTABLE_SUN_BEAM);
                 me->SetReactState(REACT_PASSIVE);
             }
 

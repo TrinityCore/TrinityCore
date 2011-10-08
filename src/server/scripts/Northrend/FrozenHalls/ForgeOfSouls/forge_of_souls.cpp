@@ -510,7 +510,7 @@ public:
                         return;
                     case EVENT_WAIL_OF_SOULS:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_WAIL_OF_SOULS);
+                            DoCast (target, SPELL_WAIL_OF_SOULS);
                         events.RescheduleEvent(EVENT_WAIL_OF_SOULS, 5000);
                         return;
                 }
@@ -563,11 +563,11 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SHROUD_OF_RUNES:
-                        DoCast(me, SPELL_SHROUD_OF_RUNES);
+                        DoCast (me, SPELL_SHROUD_OF_RUNES);
                         events.RescheduleEvent(EVENT_SHROUD_OF_RUNES, 5000);
                         return;
                     case EVENT_UNHOLY_RAGE:
-                        DoCast(me, SPELL_UNHOLY_RAGE);
+                        DoCast (me, SPELL_UNHOLY_RAGE);
                         events.RescheduleEvent(EVENT_UNHOLY_RAGE, 99999);
                         return;
                 }
@@ -620,12 +620,12 @@ public:
                 switch (eventId)
                 {
                     case EVENT_FROST_NOVA:
-                        DoCast(me, SPELL_FROST_NOVA);
+                        DoCast (me, SPELL_FROST_NOVA);
                         events.RescheduleEvent(EVENT_FROST_NOVA, 9600);
                         return;
                     case EVENT_SHADOW_LANCE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SHADOW_LANCE);
+                            DoCast (target, SPELL_SHADOW_LANCE);
                         events.RescheduleEvent(EVENT_SHADOW_LANCE, 8000);
                         return;
                 }
@@ -684,11 +684,11 @@ public:
                         events.RescheduleEvent(EVENT_BONE_VOLLEY, 7000);
                         return;
                     case EVENT_RAISE_DEAD:
-                        DoCast(me, SPELL_RAISE_DEAD);
+                        DoCast (me, SPELL_RAISE_DEAD);
                         events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                         return;
                     case EVENT_SHIELD_OF_BONES:
-                        DoCast(me, SPELL_SHIELD_OF_BONES);
+                        DoCast (me, SPELL_SHIELD_OF_BONES);
                         events.RescheduleEvent(EVENT_SHIELD_OF_BONES, 8000);
                         return;
                 }
@@ -746,22 +746,22 @@ public:
                 switch (eventId)
                 {
                     case EVENT_RAISE_DEAD:
-                        DoCast(me, SPELL_RAISE_DEAD);
+                        DoCast (me, SPELL_RAISE_DEAD);
                         events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                         return;
                     case EVENT_SHADOW_BOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SHADOW_BOLT);
+                            DoCast (target, SPELL_SHADOW_BOLT);
                         events.RescheduleEvent(EVENT_SHADOW_BOLT, 5000);
                         return;
                     case EVENT_SOUL_SICKNESS:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SOUL_SICKNESS);
+                            DoCast (target, SPELL_SOUL_SICKNESS);
                         events.RescheduleEvent(EVENT_SOUL_SICKNESS, 10000);
                         return;
                     case EVENT_SOUL_SIPHON:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SOUL_SIPHON);
+                            DoCast (target, SPELL_SOUL_SIPHON);
                         events.RescheduleEvent(EVENT_SOUL_SIPHON, 8000);
                         return;
                 }
@@ -819,21 +819,21 @@ public:
                 switch (eventId)
                 {
                     case EVENT_RAISE_DEAD:
-                        DoCast(me, SPELL_RAISE_DEAD);
+                        DoCast (me, SPELL_RAISE_DEAD);
                         events.RescheduleEvent(EVENT_RAISE_DEAD, 25000);
                         return;
                     case EVENT_SHADOW_BOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SHADOW_BOLT);
+                            DoCast (target, SPELL_SHADOW_BOLT);
                         events.RescheduleEvent(EVENT_SHADOW_BOLT, 4000);
                         return;
                     case EVENT_DRAIN_LIFE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_DRAIN_LIFE);
+                            DoCast (target, SPELL_DRAIN_LIFE);
                         events.RescheduleEvent(EVENT_DRAIN_LIFE, 9000);
                         return;
                     case EVENT_SHADOW_MEND:
-                        DoCast(me, SPELL_SHADOW_MEND);
+                        DoCast (me, SPELL_SHADOW_MEND);
                         events.RescheduleEvent(EVENT_SHADOW_MEND, 20000);
                         return;
                 }
@@ -886,7 +886,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SOUL_STRIKE:
-                        DoCast(me->getVictim(), SPELL_SOUL_STRIKE);
+                        DoCast (me->getVictim(), SPELL_SOUL_STRIKE);
                         events.RescheduleEvent(EVENT_SOUL_STRIKE, 8000);
                         return;
                 }

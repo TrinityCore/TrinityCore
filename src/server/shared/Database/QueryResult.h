@@ -43,7 +43,7 @@ class ResultSet
         Field* Fetch() const { return m_currentRow; }
         const Field & operator [] (uint32 index) const
         {
-            ASSERT(index < m_fieldCount);
+            ASSERT (index < m_fieldCount);
             return m_currentRow[index];
         }
 
@@ -72,14 +72,14 @@ class PreparedResultSet
 
         Field* Fetch() const
         {
-            ASSERT(m_rowPosition < m_rowCount);
+            ASSERT (m_rowPosition < m_rowCount);
             return m_rows[uint32(m_rowPosition)];
         }
 
         const Field & operator [] (uint32 index) const
         {
-            ASSERT(m_rowPosition < m_rowCount);
-            ASSERT(index < m_fieldCount);
+            ASSERT (m_rowPosition < m_rowCount);
+            ASSERT (index < m_fieldCount);
             return m_rows[uint32(m_rowPosition)][index];
         }
 

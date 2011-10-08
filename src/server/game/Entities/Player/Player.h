@@ -337,7 +337,7 @@ struct EnchantDuration
 {
     EnchantDuration() : item(NULL), slot(MAX_ENCHANTMENT_SLOT), leftduration(0) {};
     EnchantDuration(Item* _item, EnchantmentSlot _slot, uint32 _leftduration) : item(_item), slot(_slot),
-        leftduration(_leftduration){ ASSERT(item); };
+        leftduration(_leftduration){ ASSERT (item); };
 
     Item* item;
     EnchantmentSlot slot;
@@ -1619,7 +1619,7 @@ class Player : public Unit, public GridObject<Player>
 
         void AddMItem(Item* it)
         {
-            ASSERT(it);
+            ASSERT (it);
             //ASSERT deleted, because items can be added before loading
             mMitems[it->GetGUIDLow()] = it;
         }
@@ -2834,7 +2834,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
 
         // Charges can be set only for mods with auras
         if (!mod->ownerAura)
-            ASSERT(mod->charges == 0);
+            ASSERT (mod->charges == 0);
 
         if (!IsAffectedBySpellmod(spellInfo, mod, spell))
             continue;

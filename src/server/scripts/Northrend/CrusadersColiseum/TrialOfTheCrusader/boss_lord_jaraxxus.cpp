@@ -144,7 +144,7 @@ public:
         {
             if (m_instance)
                 m_instance->SetData(TYPE_JARAXXUS, FAIL);
-            DoCast(me, SPELL_JARAXXUS_CHAINS);
+            DoCast (me, SPELL_JARAXXUS_CHAINS);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetReactState(REACT_PASSIVE);
         }
@@ -188,7 +188,7 @@ public:
             {
                 DoScriptText(EMOTE_INFERNAL_ERUPTION, me);
                 DoScriptText(SAY_INFERNAL_ERUPTION, me);
-                DoCast(SPELL_INFERNAL_ERUPTION);
+                DoCast (SPELL_INFERNAL_ERUPTION);
                 m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonInfernalEruptionTimer -= uiDiff;
 
@@ -196,7 +196,7 @@ public:
             {
                 DoScriptText(EMOTE_NETHER_PORTAL, me);
                 DoScriptText(SAY_NETHER_PORTAL, me);
-                DoCast(SPELL_NETHER_PORTAL);
+                DoCast (SPELL_NETHER_PORTAL);
                 m_uiSummonNetherPortalTimer = 2*MINUTE*IN_MILLISECONDS;
             } else m_uiSummonNetherPortalTimer -= uiDiff;
 
@@ -209,7 +209,7 @@ public:
             if (m_uiFelLightningTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                    DoCast(target, SPELL_FEL_LIGHTING);
+                    DoCast (target, SPELL_FEL_LIGHTING);
                 m_uiFelLightningTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiFelLightningTimer -= uiDiff;
 
@@ -219,7 +219,7 @@ public:
                 {
                     DoScriptText(EMOTE_INCINERATE, me, target);
                     DoScriptText(SAY_INCINERATE, me);
-                    DoCast(target, SPELL_INCINERATE_FLESH);
+                    DoCast (target, SPELL_INCINERATE_FLESH);
                 }
                 m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             } else m_uiIncinerateFleshTimer -= uiDiff;
@@ -235,7 +235,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0, true))
                 {
                     DoScriptText(EMOTE_LEGION_FLAME, me, target);
-                    DoCast(target, SPELL_LEGION_FLAME);
+                    DoCast (target, SPELL_LEGION_FLAME);
                 }
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
             } else m_uiLegionFlameTimer -= uiDiff;
@@ -243,7 +243,7 @@ public:
             if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_TOUCH_OF_JARAXXUS);
+                    DoCast (target, SPELL_TOUCH_OF_JARAXXUS);
                 m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             } else m_uiTouchOfJaraxxusTimer -= uiDiff;
 
@@ -274,7 +274,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetInCombatWithZone();
-            DoCast(SPELL_LEGION_FLAME_EFFECT);
+            DoCast (SPELL_LEGION_FLAME_EFFECT);
         }
 
         void UpdateAI(const uint32 /*uiDiff*/)
@@ -321,7 +321,7 @@ public:
 
         void IsSummonedBy(Unit* /*summoner*/)
         {
-            DoCast(SPELL_INFERNAL_ERUPTION_EFFECT);
+            DoCast (SPELL_INFERNAL_ERUPTION_EFFECT);
         }
 
         void JustSummoned(Creature* summoned)
@@ -384,7 +384,7 @@ public:
             if (m_uiFelStreakTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_FEL_STREAK);
+                    DoCast (target, SPELL_FEL_STREAK);
                 m_uiFelStreakTimer = 30*IN_MILLISECONDS;
             } else m_uiFelStreakTimer -= uiDiff;
 
@@ -430,7 +430,7 @@ public:
 
         void IsSummonedBy(Unit* /*summoner*/)
         {
-            DoCast(SPELL_NETHER_PORTAL_EFFECT);
+            DoCast (SPELL_NETHER_PORTAL_EFFECT);
         }
 
         void JustSummoned(Creature* summoned)
@@ -505,14 +505,14 @@ public:
             if (m_uiSpinningStrikeTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                    DoCast(target, SPELL_SPINNING_STRIKE);
+                    DoCast (target, SPELL_SPINNING_STRIKE);
                 m_uiSpinningStrikeTimer = 30*IN_MILLISECONDS;
             } else m_uiSpinningStrikeTimer -= uiDiff;
 
             if (IsHeroic() && m_uiMistressKissTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
-                    DoCast(target, SPELL_MISTRESS_KISS);
+                    DoCast (target, SPELL_MISTRESS_KISS);
                 m_uiMistressKissTimer = 30*IN_MILLISECONDS;
             } else m_uiMistressKissTimer -= uiDiff;
 

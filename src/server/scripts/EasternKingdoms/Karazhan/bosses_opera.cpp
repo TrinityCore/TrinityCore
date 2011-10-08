@@ -194,13 +194,13 @@ public:
 
             if (WaterBoltTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_WATERBOLT);
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_WATERBOLT);
                 WaterBoltTimer = TitoDied ? 1500 : 5000;
             } else WaterBoltTimer -= diff;
 
             if (FearTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SCREAM);
+                DoCast (me->getVictim(), SPELL_SCREAM);
                 FearTimer = 30000;
             } else FearTimer -= diff;
 
@@ -262,7 +262,7 @@ public:
 
             if (YipTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_YIPPING);
+                DoCast (me->getVictim(), SPELL_YIPPING);
                 YipTimer = 10000;
             } else YipTimer -= diff;
 
@@ -349,7 +349,7 @@ public:
                         return;
                 */
 
-                DoCast(me, SPELL_BURNING_STRAW, true);
+                DoCast (me, SPELL_BURNING_STRAW, true);
             }
         }
 
@@ -382,14 +382,14 @@ public:
 
             if (BrainBashTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_BRAIN_BASH);
+                DoCast (me->getVictim(), SPELL_BRAIN_BASH);
                 BrainBashTimer = 15000;
             } else BrainBashTimer -= diff;
 
             if (BrainWipeTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_BRAIN_WIPE);
+                    DoCast (target, SPELL_BRAIN_WIPE);
                 BrainWipeTimer = 20000;
             } else BrainWipeTimer -= diff;
 
@@ -488,7 +488,7 @@ public:
 
             if (CleaveTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 CleaveTimer = 5000;
             } else CleaveTimer -= diff;
 
@@ -498,7 +498,7 @@ public:
                 {
                     ++RustCount;
                     DoScriptText(EMOTE_RUST, me);
-                    DoCast(me, SPELL_RUST);
+                    DoCast (me, SPELL_RUST);
                     RustTimer = 6000;
                 } else RustTimer -= diff;
             }
@@ -596,19 +596,19 @@ public:
 
             if (MangleTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MANGLE);
+                DoCast (me->getVictim(), SPELL_MANGLE);
                 MangleTimer = urand(5000, 8000);
             } else MangleTimer -= diff;
 
             if (ShredTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHRED);
+                DoCast (me->getVictim(), SPELL_SHRED);
                 ShredTimer = urand(10000, 15000);
             } else ShredTimer -= diff;
 
             if (ScreamTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FRIGHTENED_SCREAM);
+                DoCast (me->getVictim(), SPELL_FRIGHTENED_SCREAM);
                 ScreamTimer = urand(20000, 30000);
             } else ScreamTimer -= diff;
 
@@ -690,7 +690,7 @@ public:
 
             if (ChainLightningTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
+                DoCast (me->getVictim(), SPELL_CHAIN_LIGHTNING);
                 ChainLightningTimer = 15000;
             } else ChainLightningTimer -= diff;
 
@@ -730,7 +730,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (!me->HasAura(SPELL_KNOCKBACK))
-                DoCast(me, SPELL_KNOCKBACK, true);
+                DoCast (me, SPELL_KNOCKBACK, true);
 
             if (MoveTimer <= diff)
             {
@@ -872,7 +872,7 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
                         DoScriptText(SAY_WOLF_HOOD, me);
-                        DoCast(target, SPELL_LITTLE_RED_RIDING_HOOD, true);
+                        DoCast (target, SPELL_LITTLE_RED_RIDING_HOOD, true);
                         TempThreat = DoGetThreat(target);
                         if (TempThreat)
                             DoModifyThreatPercent(target, -100);
@@ -904,13 +904,13 @@ public:
 
             if (FearTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TERRIFYING_HOWL);
+                DoCast (me->getVictim(), SPELL_TERRIFYING_HOWL);
                 FearTimer = urand(25000, 35000);
             } else FearTimer -= diff;
 
             if (SwipeTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WIDE_SWIPE);
+                DoCast (me->getVictim(), SPELL_WIDE_SWIPE);
                 SwipeTimer = urand(25000, 30000);
             } else SwipeTimer -= diff;
 
@@ -1292,27 +1292,27 @@ public:
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
                 if (target && !me->HasInArc(M_PI, target))
                 {
-                    DoCast(target, SPELL_BACKWARD_LUNGE);
+                    DoCast (target, SPELL_BACKWARD_LUNGE);
                     BackwardLungeTimer = urand(15000, 30000);
                 }
             } else BackwardLungeTimer -= diff;
 
             if (DaringTimer <= diff)
             {
-                DoCast(me, SPELL_DARING);
+                DoCast (me, SPELL_DARING);
                 DaringTimer = urand(20000, 40000);
             } else DaringTimer -= diff;
 
             if (DeadlySwatheTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_DEADLY_SWATHE);
+                    DoCast (target, SPELL_DEADLY_SWATHE);
                 DeadlySwatheTimer = urand(15000, 25000);
             } else DeadlySwatheTimer -= diff;
 
             if (PoisonThrustTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_POISON_THRUST);
+                DoCast (me->getVictim(), SPELL_POISON_THRUST);
                 PoisonThrustTimer = urand(10000, 20000);
             } else PoisonThrustTimer -= diff;
 
@@ -1411,19 +1411,19 @@ void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)
     if (BlindingPassionTimer <= diff)
     {
         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-            DoCast(target, SPELL_BLINDING_PASSION);
+            DoCast (target, SPELL_BLINDING_PASSION);
         BlindingPassionTimer = urand(30000, 45000);
     } else BlindingPassionTimer -= diff;
 
     if (DevotionTimer <= diff)
     {
-        DoCast(me, SPELL_DEVOTION);
+        DoCast (me, SPELL_DEVOTION);
         DevotionTimer = urand(15000, 45000);
     } else DevotionTimer -= diff;
 
     if (PowerfulAttractionTimer <= diff)
     {
-        DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POWERFUL_ATTRACTION);
+        DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_POWERFUL_ATTRACTION);
         PowerfulAttractionTimer = urand(5000, 30000);
     } else PowerfulAttractionTimer -= diff;
 
@@ -1433,8 +1433,8 @@ void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)
         {
             Creature* Romulo = (Unit::GetCreature((*me), RomuloGUID));
             if (Romulo && Romulo->isAlive() && !RomuloDead)
-                DoCast(Romulo, SPELL_ETERNAL_AFFECTION);
-        } else DoCast(me, SPELL_ETERNAL_AFFECTION);
+                DoCast (Romulo, SPELL_ETERNAL_AFFECTION);
+        } else DoCast (me, SPELL_ETERNAL_AFFECTION);
 
         EternalAffectionTimer = urand(45000, 60000);
     } else EternalAffectionTimer -= diff;
@@ -1458,7 +1458,7 @@ void boss_julianne::boss_julianneAI::DamageTaken(Unit* /*done_by*/, uint32 &dama
             return;
 
         me->InterruptNonMeleeSpells(true);
-        DoCast(me, SPELL_DRINK_POISON);
+        DoCast (me, SPELL_DRINK_POISON);
 
         IsFakingDeath = true;
         //IS THIS USEFULL? Creature* Julianne = (Unit::GetCreature((*me), JulianneGUID));

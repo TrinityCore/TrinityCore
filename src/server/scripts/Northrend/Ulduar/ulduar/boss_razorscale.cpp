@@ -206,7 +206,7 @@ class boss_razorscale_controller : public CreatureScript
                     case SPELL_HARPOON_SHOT_2:
                     case SPELL_HARPOON_SHOT_3:
                     case SPELL_HARPOON_SHOT_4:
-                        DoCast(SPELL_HARPOON_TRIGGER);
+                        DoCast (SPELL_HARPOON_TRIGGER);
                         break;
                 }
             }
@@ -398,7 +398,7 @@ class boss_razorscale : public CreatureScript
 
                 if (EnrageTimer <= Diff && !Enraged)
                 {
-                    DoCast(me, SPELL_BERSERK);
+                    DoCast (me, SPELL_BERSERK);
                     Enraged = true;
                 }
                 else
@@ -473,12 +473,12 @@ class boss_razorscale : public CreatureScript
                                 return;
                             case EVENT_FIREBALL:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                                    DoCast(target, SPELL_FIREBALL);
+                                    DoCast (target, SPELL_FIREBALL);
                                 events.ScheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_PERMAGROUND);
                                 return;
                             case EVENT_DEVOURING:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                                    DoCast(target, SPELL_DEVOURING_FLAME);
+                                    DoCast (target, SPELL_DEVOURING_FLAME);
                                 events.ScheduleEvent(EVENT_DEVOURING, 10000, 0, PHASE_PERMAGROUND);
                                 return;
                             case EVENT_BUFFET:
@@ -486,7 +486,7 @@ class boss_razorscale : public CreatureScript
                                 events.CancelEvent(EVENT_BUFFET);
                                 return;
                             case EVENT_FUSE:
-                                DoCast(me->getVictim(), SPELL_FUSEARMOR);
+                                DoCast (me->getVictim(), SPELL_FUSEARMOR);
                                 events.ScheduleEvent(EVENT_FUSE, 10000, 0, PHASE_PERMAGROUND);
                                 return;
                         }
@@ -502,7 +502,7 @@ class boss_razorscale : public CreatureScript
                         {
                             case EVENT_FIREBALL:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 200.0f, true))
-                                    DoCast(target, SPELL_FIREBALL);
+                                    DoCast (target, SPELL_FIREBALL);
                                 events.ScheduleEvent(EVENT_FIREBALL, 3000, 0, PHASE_FLIGHT);
                                 return;
                             case EVENT_DEVOURING:
@@ -757,7 +757,7 @@ class npc_mole_machine_trigger : public CreatureScript
             {
                 if (!GobSummoned && SummonGobTimer <= Diff)
                 {
-                    DoCast(SPELL_SUMMON_MOLE_MACHINE);
+                    DoCast (SPELL_SUMMON_MOLE_MACHINE);
                     GobSummoned = true;
                 }
                 else
@@ -768,15 +768,15 @@ class npc_mole_machine_trigger : public CreatureScript
                     switch (urand(0, 1 ))
                     {
                         case 0:
-                            DoCast(SPELL_SUMMON_IRON_DWARVES);
+                            DoCast (SPELL_SUMMON_IRON_DWARVES);
                             break;
                         case 1:
-                            DoCast(SPELL_SUMMON_IRON_DWARVES_2);
+                            DoCast (SPELL_SUMMON_IRON_DWARVES_2);
                             break;
                     }
 
-                    DoCast(SPELL_SUMMON_IRON_DWARVE_GUARDIAN);
-                    DoCast(SPELL_SUMMON_IRON_DWARVE_WATCHER);
+                    DoCast (SPELL_SUMMON_IRON_DWARVE_GUARDIAN);
+                    DoCast (SPELL_SUMMON_IRON_DWARVE_WATCHER);
                     NpcSummoned = true;
                 }
                 else
@@ -819,7 +819,7 @@ class npc_devouring_flame : public CreatureScript
 
             void Reset()
             {
-                DoCast(SPELL_FLAME_GROUND);
+                DoCast (SPELL_FLAME_GROUND);
             }
         };
 
@@ -854,7 +854,7 @@ class npc_darkrune_watcher : public CreatureScript
 
                 if (ChainTimer <= Diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
+                    DoCast (me->getVictim(), SPELL_CHAIN_LIGHTNING);
                     ChainTimer = urand(10000, 15000);
                 }
                 else
@@ -914,7 +914,7 @@ class npc_darkrune_guardian : public CreatureScript
 
                 if (StormTimer <= Diff)
                 {
-                    DoCast(me->getVictim(), SPELL_STORMSTRIKE);
+                    DoCast (me->getVictim(), SPELL_STORMSTRIKE);
                     StormTimer = urand(4000, 8000);
                 }
                 else
@@ -960,7 +960,7 @@ class npc_darkrune_sentinel : public CreatureScript
 
                 if (HeroicTimer <= Diff)
                 {
-                    DoCast(me->getVictim(), SPELL_HEROIC_STRIKE);
+                    DoCast (me->getVictim(), SPELL_HEROIC_STRIKE);
                     HeroicTimer = urand(4000, 6000);
                 }
                 else
@@ -968,7 +968,7 @@ class npc_darkrune_sentinel : public CreatureScript
 
                 if (WhirlTimer <= Diff)
                 {
-                    DoCast(me->getVictim(), SPELL_WHIRLWIND);
+                    DoCast (me->getVictim(), SPELL_WHIRLWIND);
                     WhirlTimer = urand(20000, 25000);
                 }
                 else
@@ -976,7 +976,7 @@ class npc_darkrune_sentinel : public CreatureScript
 
                 if (ShoutTimer <= Diff)
                 {
-                    DoCast(me, SPELL_BATTLE_SHOUT);
+                    DoCast (me, SPELL_BATTLE_SHOUT);
                     ShoutTimer = urand(30000, 40000);
                 }
                 else

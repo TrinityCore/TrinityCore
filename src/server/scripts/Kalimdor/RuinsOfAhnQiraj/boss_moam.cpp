@@ -92,10 +92,10 @@ class boss_moam : public CreatureScript
                     }
                     case ACTION_STONE_PHASE_START:
                     {
-                        DoCast(me, SPELL_SUMMON_MANA_FIEND_1);
-                        DoCast(me, SPELL_SUMMON_MANA_FIEND_2);
-                        DoCast(me, SPELL_SUMMON_MANA_FIEND_3);
-                        DoCast(me, SPELL_ENERGIZE);
+                        DoCast (me, SPELL_SUMMON_MANA_FIEND_1);
+                        DoCast (me, SPELL_SUMMON_MANA_FIEND_2);
+                        DoCast (me, SPELL_SUMMON_MANA_FIEND_3);
+                        DoCast (me, SPELL_ENERGIZE);
                         events.ScheduleEvent(EVENT_STONE_PHASE_END, 90000);
                         break;
                     }
@@ -156,11 +156,11 @@ class boss_moam : public CreatureScript
                             break;
                         }/*
                         case EVENT_WIDE_SLASH:
-                            DoCast(me, SPELL_WIDE_SLASH);
+                            DoCast (me, SPELL_WIDE_SLASH);
                             events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
                             break;
                         case EVENT_TRASH:
-                            DoCast(me, SPELL_TRASH);
+                            DoCast (me, SPELL_TRASH);
                             events.ScheduleEvent(EVENT_WIDE_SLASH, 16000);
                             break;*/
                         default:

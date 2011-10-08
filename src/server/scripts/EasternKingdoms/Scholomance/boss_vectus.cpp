@@ -66,7 +66,7 @@ public:
             //FireShield_Timer
             if (m_uiFireShield_Timer <= uiDiff)
             {
-                DoCast(me, SPELL_FIRESHIELD);
+                DoCast (me, SPELL_FIRESHIELD);
                 m_uiFireShield_Timer = 90000;
             }
             else
@@ -75,7 +75,7 @@ public:
             //BlastWave_Timer
             if (m_uiBlastWave_Timer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_BLAST_WAVE);
+                DoCast (me->getVictim(), SPELL_BLAST_WAVE);
                 m_uiBlastWave_Timer = 12000;
             }
             else
@@ -86,7 +86,7 @@ public:
             {
                 if (m_uiFrenzy_Timer <= uiDiff)
                 {
-                    DoCast(me, SPELL_FRENZY);
+                    DoCast (me, SPELL_FRENZY);
                     DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
 
                     m_uiFrenzy_Timer = 24000;

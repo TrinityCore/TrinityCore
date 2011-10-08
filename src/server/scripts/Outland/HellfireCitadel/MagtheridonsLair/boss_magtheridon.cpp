@@ -128,7 +128,7 @@ class mob_abyssal : public CreatureScript
             {
                 if (trigger == 2 && spell->Id == SPELL_BLAZE_TARGET)
                 {
-                    DoCast(me, SPELL_BLAZE_TRAP, true);
+                    DoCast (me, SPELL_BLAZE_TRAP, true);
                     me->SetVisible(false);
                     Despawn_Timer = 130000;
                 }
@@ -141,7 +141,7 @@ class mob_abyssal : public CreatureScript
                 if (trigger == 1) //debris
                 {
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    DoCast(me, SPELL_DEBRIS_VISUAL, true);
+                    DoCast (me, SPELL_DEBRIS_VISUAL, true);
                     FireBlast_Timer = 5000;
                     Despawn_Timer = 10000;
                 }
@@ -170,7 +170,7 @@ class mob_abyssal : public CreatureScript
                     {
                         if (FireBlast_Timer <= diff)
                         {
-                            DoCast(me, SPELL_DEBRIS_DAMAGE, true);
+                            DoCast (me, SPELL_DEBRIS_DAMAGE, true);
                             trigger = 3;
                         }
                         else FireBlast_Timer -= diff;
@@ -189,7 +189,7 @@ class mob_abyssal : public CreatureScript
 
                 if (FireBlast_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FIRE_BLAST);
+                    DoCast (me->getVictim(), SPELL_FIRE_BLAST);
                     FireBlast_Timer = 5000+rand()%10000;
                 }
                 else FireBlast_Timer -= diff;
@@ -254,7 +254,7 @@ class boss_magtheridon : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 me->AddUnitState(UNIT_STAT_STUNNED);
-                DoCast(me, SPELL_SHADOW_CAGE_C, true);
+                DoCast (me, SPELL_SHADOW_CAGE_C, true);
             }
 
             void JustReachedHome()
@@ -307,7 +307,7 @@ class boss_magtheridon : public CreatureScript
                 if (ClickerNum >= CLICKERS_COUNT && !me->HasAura(SPELL_SHADOW_CAGE))
                 {
                     DoScriptText(SAY_BANISH, me);
-                    DoCast(me, SPELL_SHADOW_CAGE, true);
+                    DoCast (me, SPELL_SHADOW_CAGE, true);
                 }
                 else
                     if (ClickerNum < CLICKERS_COUNT && me->HasAura(SPELL_SHADOW_CAGE))
@@ -370,7 +370,7 @@ class boss_magtheridon : public CreatureScript
 
                 if (Berserk_Timer <= diff)
                 {
-                    DoCast(me, SPELL_BERSERK, true);
+                    DoCast (me, SPELL_BERSERK, true);
                     DoScriptText(EMOTE_BERSERK, me);
                     Berserk_Timer = 60000;
                 }
@@ -379,7 +379,7 @@ class boss_magtheridon : public CreatureScript
 
                 if (Cleave_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CLEAVE);
+                    DoCast (me->getVictim(), SPELL_CLEAVE);
                     Cleave_Timer = 10000;
                 }
                 else
@@ -391,7 +391,7 @@ class boss_magtheridon : public CreatureScript
                     if (!me->HasUnitState(UNIT_STAT_STUNNED))
                     {
                         DoScriptText(EMOTE_BLASTNOVA, me);
-                        DoCast(me, SPELL_BLASTNOVA);
+                        DoCast (me, SPELL_BLASTNOVA);
                         BlastNova_Timer = 60000;
                     }
                 }
@@ -403,7 +403,7 @@ class boss_magtheridon : public CreatureScript
                     // to avoid blastnova interruption
                     if (!me->IsNonMeleeSpellCasted(false))
                     {
-                        DoCast(me, SPELL_QUAKE_TRIGGER, true);
+                        DoCast (me, SPELL_QUAKE_TRIGGER, true);
                         Quake_Timer = 50000;
                     }
                 }
@@ -420,7 +420,7 @@ class boss_magtheridon : public CreatureScript
                         if (summon)
                         {
                             CAST_AI(mob_abyssal::mob_abyssalAI, summon->AI())->SetTrigger(2);
-                            DoCast(summon, SPELL_BLAZE_TARGET, true);
+                            DoCast (summon, SPELL_BLAZE_TARGET, true);
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         }
                     }
@@ -435,8 +435,8 @@ class boss_magtheridon : public CreatureScript
                 {
                     Phase3 = true;
                     DoScriptText(SAY_CHAMBER_DESTROY, me);
-                    DoCast(me, SPELL_CAMERA_SHAKE, true);
-                    DoCast(me, SPELL_DEBRIS_KNOCKDOWN, true);
+                    DoCast (me, SPELL_CAMERA_SHAKE, true);
+                    DoCast (me, SPELL_DEBRIS_KNOCKDOWN, true);
 
                     if (instance)
                         instance->SetData(DATA_COLLAPSE, true);
@@ -519,7 +519,7 @@ class mob_hellfire_channeler : public CreatureScript
                 if (instance)
                     instance->SetData(DATA_CHANNELER_EVENT, NOT_STARTED);
 
-                DoCast(me, SPELL_SHADOW_GRASP_C, false);
+                DoCast (me, SPELL_SHADOW_GRASP_C, false);
             }
 
             void JustSummoned(Creature* summon)
@@ -530,7 +530,7 @@ class mob_hellfire_channeler : public CreatureScript
             void DamageTaken(Unit*, uint32 &damage)
             {
                 if (damage >= me->GetHealth())
-                    DoCast(me, SPELL_SOUL_TRANSFER, true);
+                    DoCast (me, SPELL_SOUL_TRANSFER, true);
             }
 
             void JustDied(Unit* /*who*/)
@@ -546,7 +546,7 @@ class mob_hellfire_channeler : public CreatureScript
 
                 if (ShadowBoltVolley_Timer <= diff)
                 {
-                    DoCast(me, SPELL_SHADOW_BOLT_VOLLEY);
+                    DoCast (me, SPELL_SHADOW_BOLT_VOLLEY);
                     ShadowBoltVolley_Timer = 10000 + rand()%10000;
                 }
                 else
@@ -555,7 +555,7 @@ class mob_hellfire_channeler : public CreatureScript
                 if (DarkMending_Timer <= diff)
                 {
                     if (HealthBelowPct(50))
-                        DoCast(me, SPELL_DARK_MENDING);
+                        DoCast (me, SPELL_DARK_MENDING);
                     DarkMending_Timer = 10000 +(rand() % 10000);
                 }
                 else
@@ -564,7 +564,7 @@ class mob_hellfire_channeler : public CreatureScript
                 if (Fear_Timer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        DoCast(target, SPELL_FEAR);
+                        DoCast (target, SPELL_FEAR);
                     Fear_Timer = 25000 + rand()%15000;
                 }
                 else
@@ -573,7 +573,7 @@ class mob_hellfire_channeler : public CreatureScript
                 if (Infernal_Timer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_BURNING_ABYSSAL, true);
+                        DoCast (target, SPELL_BURNING_ABYSSAL, true);
                     Infernal_Timer = 30000 + rand()%10000;
                 }
                 else

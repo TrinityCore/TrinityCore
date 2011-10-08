@@ -133,7 +133,7 @@ public:
                         DoScriptText(YELL_SKARVALD_SKA_DIEDFIRST, me);
 
                         me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                        //DoCast(me, SPELL_SUMMON_SKARVALD_GHOST, true);
+                        //DoCast (me, SPELL_SUMMON_SKARVALD_GHOST, true);
                         Creature* temp = me->SummonCreature(MOB_SKARVALD_GHOST, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 5000);
                         if (temp)
                         {
@@ -193,13 +193,13 @@ public:
 
             if (Charge_Timer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_CHARGE);
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_CHARGE);
                 Charge_Timer = 5000+rand()%5000;
             } else Charge_Timer -= diff;
 
             if (StoneStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STONE_STRIKE);
+                DoCast (me->getVictim(), SPELL_STONE_STRIKE);
                 StoneStrike_Timer = 5000+rand()%5000;
             } else StoneStrike_Timer -= diff;
 
@@ -292,7 +292,7 @@ public:
                         DoScriptText(YELL_DALRONN_DAL_DIEDFIRST, me);
 
                         me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                        //DoCast(me, SPELL_SUMMON_DALRONN_GHOST, true);
+                        //DoCast (me, SPELL_SUMMON_DALRONN_GHOST, true);
                         Creature* temp = me->SummonCreature(MOB_DALRONN_GHOST, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 5000);
                         if (temp)
                         {
@@ -364,7 +364,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_BOLT);
+                    DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOW_BOLT);
                     ShadowBolt_Timer = 2100;//give a 100ms pause to try cast other spells
                 }
             } else ShadowBolt_Timer -= diff;
@@ -373,7 +373,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
+                    DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_DEBILITATE);
                     Debilitate_Timer = 5000+rand()%5000;
                 }
             } else Debilitate_Timer -= diff;
@@ -384,7 +384,7 @@ public:
                 {
                     if (!me->IsNonMeleeSpellCasted(false))
                     {
-                        DoCast(me, H_SPELL_SUMMON_SKELETONS);
+                        DoCast (me, H_SPELL_SUMMON_SKELETONS);
                         Summon_Timer = (rand()%10000) + 20000;
                     }
                 } else Summon_Timer -= diff;

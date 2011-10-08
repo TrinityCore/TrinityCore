@@ -321,7 +321,7 @@ public:
                     break;
             }
             if (target)
-                DoCast(target, SPELL_CHAIN);
+                DoCast (target, SPELL_CHAIN);
 
             if (!UpdateVictim())
                 return;

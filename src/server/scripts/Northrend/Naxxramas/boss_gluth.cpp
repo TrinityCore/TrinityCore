@@ -104,12 +104,12 @@ public:
                 switch (eventId)
                 {
                     case EVENT_WOUND:
-                        DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
+                        DoCast (me->getVictim(), SPELL_MORTAL_WOUND);
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
                         // TODO : Add missing text
-                        DoCast(me, SPELL_ENRAGE);
+                        DoCast (me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
@@ -118,7 +118,7 @@ public:
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
                     case EVENT_BERSERK:
-                        DoCast(me, SPELL_BERSERK);
+                        DoCast (me, SPELL_BERSERK);
                         events.ScheduleEvent(EVENT_BERSERK, 5*60000);
                         break;
                     case EVENT_SUMMON:

@@ -110,7 +110,7 @@ public:
             //Curse of twisted flesh timer
             if (uiCurseFleshTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
+                DoCast (me->getVictim(), SPELL_CURSE_OF_TWISTED_FLESH);
                 uiCurseFleshTimer = 37000;
             } else uiCurseFleshTimer -= diff;
 
@@ -118,7 +118,7 @@ public:
             if (uiShadowBoltTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_SHADOW_BOLT);
+                    DoCast (target, SPELL_SHADOW_BOLT);
                 uiShadowBoltTimer = urand(8000, 12000);
             } else uiShadowBoltTimer -= diff;
 
@@ -127,7 +127,7 @@ public:
             {
                 DoScriptText(RAND(SAY_STEAL_FLESH_1, SAY_STEAL_FLESH_2, SAY_STEAL_FLESH_3), me);
                 if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(random_pTarget, SPELL_STEAL_FLESH);
+                    DoCast (random_pTarget, SPELL_STEAL_FLESH);
                 uiStealFleshTimer = 10000;
             } else uiStealFleshTimer -= diff;
 
@@ -136,7 +136,7 @@ public:
             {
                 DoScriptText(RAND(SAY_SUMMON_GHOULS_1, SAY_SUMMON_GHOULS_2), me);
                 if (Unit* random_pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
+                    DoCast (random_pTarget, SPELL_SUMMON_GHOULS);
                 uiSummonGhoulsTimer = 10000;
             } else uiSummonGhoulsTimer -= diff;
 

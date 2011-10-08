@@ -132,7 +132,7 @@ class boss_faerlina : public CreatureScript
                 if (_delayFrenzy && !me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
                 {
                     _delayFrenzy = false;
-                    DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY), true);
+                    DoCast (me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY), true);
                 }
 
                 events.Update(diff);
@@ -151,13 +151,13 @@ class boss_faerlina : public CreatureScript
                             break;
                         case EVENT_FIRE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, RAID_MODE(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
+                                DoCast (target, RAID_MODE(SPELL_RAIN_OF_FIRE, H_SPELL_RAIN_OF_FIRE));
                             events.ScheduleEvent(EVENT_FIRE, urand(6000, 18000));
                             break;
                         case EVENT_FRENZY:
                             // TODO : Add Text
                             if (!me->HasAura(SPELL_WIDOWS_EMBRACE_HELPER))
-                                DoCast(me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY));
+                                DoCast (me, RAID_MODE(SPELL_FRENZY, H_SPELL_FRENZY));
                             else
                                 _delayFrenzy = true;
 
@@ -205,7 +205,7 @@ class mob_faerlina_add : public CreatureScript
             {
                 if (_instance && GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
                     if (Creature* faerlina = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_FAERLINA)))
-                        DoCast(faerlina, SPELL_WIDOWS_EMBRACE);
+                        DoCast (faerlina, SPELL_WIDOWS_EMBRACE);
             }
 
         private:

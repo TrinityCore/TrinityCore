@@ -137,7 +137,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoCastAOE(SPELL_NEGATIVE_ENERGY_E, true);
-            DoCast(me, SPELL_ENTROPIUS_SPAWN, false);
+            DoCast (me, SPELL_ENTROPIUS_SPAWN, false);
 
             if (instance)
                 instance->SetData(DATA_MURU_EVENT, IN_PROGRESS);
@@ -176,7 +176,7 @@ public:
 
             if (EnrageTimer < diff && !me->HasAura(SPELL_ENRAGE, 0))
             {
-                DoCast(me, SPELL_ENRAGE, false);
+                DoCast (me, SPELL_ENRAGE, false);
             } else EnrageTimer -= diff;
 
             if (BlackHoleSummonTimer <= diff)
@@ -185,7 +185,7 @@ public:
                 if (!random)
                     return;
 
-                DoCast(random, SPELL_DARKNESS_E, false);
+                DoCast (random, SPELL_DARKNESS_E, false);
 
                 random = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                 if (!random)
@@ -261,7 +261,7 @@ public:
                 damage = 0;
                 Phase = 2;
                 me->RemoveAllAuras();
-                DoCast(me, SPELL_OPEN_ALL_PORTALS, false);
+                DoCast (me, SPELL_OPEN_ALL_PORTALS, false);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             }
             if (Phase > 1 && Phase < 4)
@@ -311,7 +311,7 @@ public:
 
             if (EnrageTimer < diff && !me->HasAura(SPELL_ENRAGE, 0))
             {
-                DoCast(me, SPELL_ENRAGE, false);
+                DoCast (me, SPELL_ENRAGE, false);
             } else EnrageTimer -= diff;
 
             for (uint8 i = 0; i < 4; ++i)
@@ -342,7 +342,7 @@ public:
                             break;
                         case TIMER_PHASE:
                             me->RemoveAllAuras();
-                            DoCast(me, SPELL_SUMMON_ENTROPIUS, false);
+                            DoCast (me, SPELL_SUMMON_ENTROPIUS, false);
                             Timer[TIMER_PHASE] = 3000;
                             Phase = 3;
                             return;
@@ -559,7 +559,7 @@ public:
 
             if (VoidBlastTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_VOID_BLAST, false);
+                DoCast (me->getVictim(), SPELL_VOID_BLAST, false);
                 VoidBlastTimer = 45000;
             } else VoidBlastTimer -= diff;
 

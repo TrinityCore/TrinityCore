@@ -112,8 +112,8 @@ bool DynamicObject::Create(uint32 guidlow, Unit* caster, uint32 spellId, Positio
 void DynamicObject::Update(uint32 p_time)
 {
     // caster has to be always avalible and in the same map
-    ASSERT(_caster);
-    ASSERT(_caster->GetMap() == GetMap());
+    ASSERT (_caster);
+    ASSERT (_caster->GetMap() == GetMap());
 
     bool expired = false;
 
@@ -179,7 +179,7 @@ void DynamicObject::SetAura(Aura* aura)
 
 void DynamicObject::RemoveAura()
 {
-    ASSERT(_aura && !_removedAura);
+    ASSERT (_aura && !_removedAura);
     _removedAura = _aura;
     _aura = NULL;
     if (!_removedAura->IsRemoved())
@@ -208,14 +208,14 @@ void DynamicObject::BindToCaster()
 {
     ASSERT(!_caster);
     _caster = ObjectAccessor::GetUnit(*this, GetCasterGUID());
-    ASSERT(_caster);
-    ASSERT(_caster->GetMap() == GetMap());
+    ASSERT (_caster);
+    ASSERT (_caster->GetMap() == GetMap());
     _caster->_RegisterDynObject(this);
 }
 
 void DynamicObject::UnbindFromCaster()
 {
-    ASSERT(_caster);
+    ASSERT (_caster);
     _caster->_UnregisterDynObject(this);
     _caster = NULL;
 }

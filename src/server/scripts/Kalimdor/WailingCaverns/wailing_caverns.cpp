@@ -237,7 +237,7 @@ public:
                             {
                                 ++eventProgress;
                                 DoScriptText(SAY_BANISH_THE_SPIRITS, me);
-                                DoCast(me, SPELL_SERPENTINE_CLEANSING);
+                                DoCast (me, SPELL_SERPENTINE_CLEANSING);
                                 //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(false);
                                 eventTimer = 30000;
                                 me->SummonCreature(NPC_DEVIATE_VIPER, -61.5261f, 273.676f, -92.8442f, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
@@ -269,7 +269,7 @@ public:
                                 eventTimer = 15000;
                                 //CAST_AI(npc_escort::npc_escortAI, me->AI())->SetCanDefend(false);
                                 if (Creature* naralex = instance->instance->GetCreature(instance->GetData64(DATA_NARALEX)))
-                                    DoCast(naralex, SPELL_NARALEXS_AWAKENING, true);
+                                    DoCast (naralex, SPELL_NARALEXS_AWAKENING, true);
                                 DoScriptText(EMOTE_AWAKENING_RITUAL, me);
                             }
                             else

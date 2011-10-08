@@ -89,7 +89,7 @@ public:
             //CallOfGraves_Timer
             if (CallOfGraves_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CALLOFGRAVES);
+                DoCast (me->getVictim(), SPELL_CALLOFGRAVES);
                 CallOfGraves_Timer = 65000;
             } else CallOfGraves_Timer -= diff;
 
@@ -98,7 +98,7 @@ public:
             {
                 Unit* target = NULL;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
-                if (target) DoCast(target, SPELL_CORRUPTION);
+                if (target) DoCast (target, SPELL_CORRUPTION);
 
                 Corruption_Timer = 24000;
             } else Corruption_Timer -= diff;
@@ -106,14 +106,14 @@ public:
             //Renew_Timer
             if (Renew_Timer <= diff)
             {
-                DoCast(me, SPELL_RENEW);
+                DoCast (me, SPELL_RENEW);
                 Renew_Timer = 10000;
             } else Renew_Timer -= diff;
 
             //FlashHeal_Timer
             if (FlashHeal_Timer <= diff)
             {
-                DoCast(me, SPELL_FLASHHEAL);
+                DoCast (me, SPELL_FLASHHEAL);
 
                 //5 Flashheals will be casted
                 if (FlashCounter < 2)
@@ -131,7 +131,7 @@ public:
             //HealingTouch_Timer
             if (HealingTouch_Timer <= diff)
             {
-                DoCast(me, SPELL_HEALINGTOUCH);
+                DoCast (me, SPELL_HEALINGTOUCH);
 
                 //3 Healingtouchs will be casted
                 if (HealingTouch_Timer < 2)

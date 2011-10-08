@@ -266,7 +266,7 @@ public:
                     }
                 }
 
-                DoCast(target, SPELL_FLASH_HEAL);
+                DoCast (target, SPELL_FLASH_HEAL);
                 HealTimer = 15000;
             } else HealTimer -= diff;
 
@@ -279,7 +279,7 @@ public:
                         if (pAdd->isAlive())
                             target = pAdd;
 
-                DoCast(target, SPELL_RENEW_NORMAL);
+                DoCast (target, SPELL_RENEW_NORMAL);
                 RenewTimer = 5000;
             } else RenewTimer -= diff;
 
@@ -292,7 +292,7 @@ public:
                         if (pAdd->isAlive() && !pAdd->HasAura(SPELL_SHIELD))
                             target = pAdd;
 
-                DoCast(target, SPELL_SHIELD);
+                DoCast (target, SPELL_SHIELD);
                 ShieldTimer = 7500;
             } else ShieldTimer -= diff;
 
@@ -313,7 +313,7 @@ public:
                 }
 
                 if (target)
-                    DoCast(target, SPELL_DISPEL_MAGIC);
+                    DoCast (target, SPELL_DISPEL_MAGIC);
 
                 DispelTimer = 12000;
             } else DispelTimer -= diff;
@@ -321,7 +321,7 @@ public:
             if (SWPainTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_SW_PAIN_NORMAL);
+                    DoCast (target, SPELL_SW_PAIN_NORMAL);
 
                 SWPainTimer = 10000;
             } else SWPainTimer -= diff;
@@ -459,7 +459,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
     {
         if (!UsedPotion && HealthBelowPct(25))
         {
-            DoCast(me, SPELL_HEALING_POTION);
+            DoCast (me, SPELL_HEALING_POTION);
             UsedPotion = true;
         }
 
@@ -525,7 +525,7 @@ public:
 
             if (Vanish_Timer <= diff)
             {
-                DoCast(me, SPELL_VANISH);
+                DoCast (me, SPELL_VANISH);
 
                 Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
@@ -543,8 +543,8 @@ public:
             {
                 if (Wait_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BACKSTAB, true);
-                    DoCast(me->getVictim(), SPELL_KIDNEY_SHOT, true);
+                    DoCast (me->getVictim(), SPELL_BACKSTAB, true);
+                    DoCast (me->getVictim(), SPELL_KIDNEY_SHOT, true);
                     me->SetVisible(true);       // ...? Hacklike
                     InVanish = false;
                 } else Wait_Timer -= diff;
@@ -552,19 +552,19 @@ public:
 
             if (Gouge_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GOUGE);
+                DoCast (me->getVictim(), SPELL_GOUGE);
                 Gouge_Timer = 5500;
             } else Gouge_Timer -= diff;
 
             if (Kick_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KICK);
+                DoCast (me->getVictim(), SPELL_KICK);
                 Kick_Timer = 7000;
             } else Kick_Timer -= diff;
 
             if (Eviscerate_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_EVISCERATE);
+                DoCast (me->getVictim(), SPELL_EVISCERATE);
                 Eviscerate_Timer = 4000;
             } else Eviscerate_Timer -= diff;
 
@@ -620,7 +620,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me, SPELL_SUMMON_IMP);
+            DoCast (me, SPELL_SUMMON_IMP);
         }
 
         void UpdateAI(const uint32 diff)
@@ -632,20 +632,20 @@ public:
 
             if (Immolate_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_IMMOLATE);
+                DoCast (me->getVictim(), SPELL_IMMOLATE);
                 Immolate_Timer = 6000;
             } else Immolate_Timer -= diff;
 
             if (Shadow_Bolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
+                DoCast (me->getVictim(), SPELL_SHADOW_BOLT);
                 Shadow_Bolt_Timer = 5000;
             } else Shadow_Bolt_Timer -= diff;
 
             if (Seed_of_Corruption_Timer <= diff)
             {
                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(unit, SPELL_SEED_OF_CORRUPTION);
+                    DoCast (unit, SPELL_SEED_OF_CORRUPTION);
 
                 Seed_of_Corruption_Timer = 10000;
             } else Seed_of_Corruption_Timer -= diff;
@@ -653,7 +653,7 @@ public:
             if (Curse_of_Agony_Timer <= diff)
             {
                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(unit, SPELL_CURSE_OF_AGONY);
+                    DoCast (unit, SPELL_CURSE_OF_AGONY);
 
                 Curse_of_Agony_Timer = 13000;
             } else Curse_of_Agony_Timer -= diff;
@@ -661,7 +661,7 @@ public:
             if (Fear_Timer <= diff)
             {
                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(unit, SPELL_FEAR);
+                    DoCast (unit, SPELL_FEAR);
 
                 Fear_Timer = 10000;
             } else Fear_Timer -= diff;
@@ -713,13 +713,13 @@ public:
 
             if (Knockdown_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKDOWN);
+                DoCast (me->getVictim(), SPELL_KNOCKDOWN);
                 Knockdown_Timer = 6000;
             } else Knockdown_Timer -= diff;
 
             if (Snap_Kick_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SNAP_KICK);
+                DoCast (me->getVictim(), SPELL_SNAP_KICK);
                 Snap_Kick_Timer  = 4500;
             } else Snap_Kick_Timer -= diff;
 
@@ -793,40 +793,40 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(target, SPELL_POLYMORPH);
+                    DoCast (target, SPELL_POLYMORPH);
                     Polymorph_Timer = 20000;
                 }
             } else Polymorph_Timer -= diff;
 
             if (HealthBelowPct(35) && !HasIceBlocked)
             {
-                DoCast(me, SPELL_ICE_BLOCK);
+                DoCast (me, SPELL_ICE_BLOCK);
                 HasIceBlocked = true;
             }
 
             if (Blizzard_Timer <= diff)
             {
                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(unit, SPELL_BLIZZARD);
+                    DoCast (unit, SPELL_BLIZZARD);
 
                 Blizzard_Timer = 8000;
             } else Blizzard_Timer -= diff;
 
             if (Ice_Lance_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ICE_LANCE);
+                DoCast (me->getVictim(), SPELL_ICE_LANCE);
                 Ice_Lance_Timer = 12000;
             } else Ice_Lance_Timer -= diff;
 
             if (Cone_of_Cold_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CONE_OF_COLD);
+                DoCast (me->getVictim(), SPELL_CONE_OF_COLD);
                 Cone_of_Cold_Timer = 10000;
             } else Cone_of_Cold_Timer -= diff;
 
             if (Frostbolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROSTBOLT);
+                DoCast (me->getVictim(), SPELL_FROSTBOLT);
                 Frostbolt_Timer = 8000;
             } else Frostbolt_Timer -= diff;
 
@@ -849,7 +849,7 @@ public:
 
                 //if anybody is in melee range than escape by blink
                 if (InMeleeRange)
-                    DoCast(me, SPELL_BLINK);
+                    DoCast (me, SPELL_BLINK);
 
                 Blink_Timer = 8000;
             } else Blink_Timer -= diff;
@@ -907,7 +907,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me, SPELL_BATTLE_SHOUT);
+            DoCast (me, SPELL_BATTLE_SHOUT);
         }
 
         void UpdateAI(const uint32 diff)
@@ -938,7 +938,7 @@ public:
                 if (!InMeleeRange)
                 {
                     if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(unit, SPELL_INTERCEPT_STUN);
+                        DoCast (unit, SPELL_INTERCEPT_STUN);
                 }
 
                 Intercept_Stun_Timer = 10000;
@@ -946,31 +946,31 @@ public:
 
             if (Disarm_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DISARM);
+                DoCast (me->getVictim(), SPELL_DISARM);
                 Disarm_Timer = 6000;
             } else Disarm_Timer -= diff;
 
             if (Hamstring_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMSTRING);
+                DoCast (me->getVictim(), SPELL_HAMSTRING);
                 Hamstring_Timer = 4500;
             } else Hamstring_Timer -= diff;
 
             if (Mortal_Strike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
+                DoCast (me->getVictim(), SPELL_MORTAL_STRIKE);
                 Mortal_Strike_Timer = 4500;
             } else Mortal_Strike_Timer -= diff;
 
             if (Piercing_Howl_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_PIERCING_HOWL);
+                DoCast (me->getVictim(), SPELL_PIERCING_HOWL);
                 Piercing_Howl_Timer = 10000;
             } else Piercing_Howl_Timer -= diff;
 
             if (Frightening_Shout_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FRIGHTENING_SHOUT);
+                DoCast (me->getVictim(), SPELL_FRIGHTENING_SHOUT);
                 Frightening_Shout_Timer = 18000;
             } else Frightening_Shout_Timer -= diff;
 
@@ -1048,7 +1048,7 @@ public:
             {
                 if (Wing_Clip_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_WING_CLIP);
+                    DoCast (me->getVictim(), SPELL_WING_CLIP);
                     Wing_Clip_Timer = 4000;
                 } else Wing_Clip_Timer -= diff;
 
@@ -1063,7 +1063,7 @@ public:
                     else
                     {
                         //if go does not exist, then we can cast
-                        DoCast(me->getVictim(), SPELL_FREEZING_TRAP);
+                        DoCast (me->getVictim(), SPELL_FREEZING_TRAP);
                         Freezing_Trap_Timer = 15000;
                     }
                 } else Freezing_Trap_Timer -= diff;
@@ -1074,25 +1074,25 @@ public:
             {
                 if (Concussive_Shot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CONCUSSIVE_SHOT);
+                    DoCast (me->getVictim(), SPELL_CONCUSSIVE_SHOT);
                     Concussive_Shot_Timer = 8000;
                 } else Concussive_Shot_Timer -= diff;
 
                 if (Multi_Shot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_MULTI_SHOT);
+                    DoCast (me->getVictim(), SPELL_MULTI_SHOT);
                     Multi_Shot_Timer = 10000;
                 } else Multi_Shot_Timer -= diff;
 
                 if (Aimed_Shot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_AIMED_SHOT);
+                    DoCast (me->getVictim(), SPELL_AIMED_SHOT);
                     Aimed_Shot_Timer = 6000;
                 } else Aimed_Shot_Timer -= diff;
 
                 if (Shoot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SHOOT);
+                    DoCast (me->getVictim(), SPELL_SHOOT);
                     Shoot_Timer = 2500;
                 } else Shoot_Timer -= diff;
             }
@@ -1155,28 +1155,28 @@ public:
 
             if (Totem_Timer <= diff)
             {
-                DoCast(me, RAND(SPELL_WINDFURY_TOTEM, SPELL_FIRE_NOVA_TOTEM, SPELL_EARTHBIND_TOTEM));
+                DoCast (me, RAND(SPELL_WINDFURY_TOTEM, SPELL_FIRE_NOVA_TOTEM, SPELL_EARTHBIND_TOTEM));
                 ++Totem_Amount;
                 Totem_Timer = Totem_Amount*2000;
             } else Totem_Timer -= diff;
 
             if (War_Stomp_Timer <= diff)
             {
-                DoCast(me, SPELL_WAR_STOMP);
+                DoCast (me, SPELL_WAR_STOMP);
                 War_Stomp_Timer = 10000;
             } else War_Stomp_Timer -= diff;
 
             if (Purge_Timer <= diff)
             {
                 if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(unit, SPELL_PURGE);
+                    DoCast (unit, SPELL_PURGE);
 
                 Purge_Timer = 15000;
             } else Purge_Timer -= diff;
 
             if (Frost_Shock_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROST_SHOCK);
+                DoCast (me->getVictim(), SPELL_FROST_SHOCK);
                 Frost_Shock_Timer = 7000;
             } else Frost_Shock_Timer -= diff;
 
@@ -1189,7 +1189,7 @@ public:
                 //   Unit* pAdd = Unit::GetUnit(*me, (*itr)->guid);
                 //   if (pAdd && pAdd->isAlive())
                 //   {
-                DoCast(me, SPELL_LESSER_HEALING_WAVE);
+                DoCast (me, SPELL_LESSER_HEALING_WAVE);
                 Healing_Wave_Timer = 5000;
                 //    }
                 // }
@@ -1252,19 +1252,19 @@ public:
 
             if (Goblin_Dragon_Gun_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GOBLIN_DRAGON_GUN);
+                DoCast (me->getVictim(), SPELL_GOBLIN_DRAGON_GUN);
                 Goblin_Dragon_Gun_Timer = 10000;
             } else Goblin_Dragon_Gun_Timer -= diff;
 
             if (Rocket_Launch_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ROCKET_LAUNCH);
+                DoCast (me->getVictim(), SPELL_ROCKET_LAUNCH);
                 Rocket_Launch_Timer = 9000;
             } else Rocket_Launch_Timer -= diff;
 
             if (Fel_Iron_Bomb_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEL_IRON_BOMB);
+                DoCast (me->getVictim(), SPELL_FEL_IRON_BOMB);
                 Fel_Iron_Bomb_Timer = 15000;
             } else Fel_Iron_Bomb_Timer -= diff;
 
@@ -1276,7 +1276,7 @@ public:
                     {
                         if (pAdd->IsPolymorphed())
                         {
-                            DoCast(pAdd, SPELL_RECOMBOBULATE);
+                            DoCast (pAdd, SPELL_RECOMBOBULATE);
                             break;
                         }
                     }
@@ -1286,7 +1286,7 @@ public:
 
             if (High_Explosive_Sheep_Timer <= diff)
             {
-                DoCast(me, SPELL_HIGH_EXPLOSIVE_SHEEP);
+                DoCast (me, SPELL_HIGH_EXPLOSIVE_SHEEP);
                 High_Explosive_Sheep_Timer = 65000;
             } else High_Explosive_Sheep_Timer -= diff;
 

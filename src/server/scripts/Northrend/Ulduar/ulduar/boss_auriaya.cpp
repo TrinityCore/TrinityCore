@@ -225,12 +225,12 @@ class boss_auriaya : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SCREECH:
-                            DoCast(SPELL_SONIC_SCREECH);
+                            DoCast (SPELL_SONIC_SCREECH);
                             events.ScheduleEvent(EVENT_SCREECH, urand(40000, 60000));
                             break;
                         case EVENT_TERRIFYING:
                             DoScriptText(EMOTE_FEAR, me);
-                            DoCast(SPELL_TERRIFYING_SCREECH);
+                            DoCast (SPELL_TERRIFYING_SCREECH);
                             events.ScheduleEvent(EVENT_TERRIFYING, urand(20000, 30000));
                             break;
                         case EVENT_BLAST:
@@ -239,9 +239,9 @@ class boss_auriaya : public CreatureScript
                             break;
                         case EVENT_DEFENDER:
                             DoScriptText(EMOTE_DEFENDER, me);
-                            DoCast(SPELL_DEFENDER_TRIGGER);
+                            DoCast (SPELL_DEFENDER_TRIGGER);
                             if (Creature* trigger = me->FindNearestCreature(NPC_FERAL_DEFENDER_TRIGGER, 15.0f, true))
-                                DoCast(trigger, SPELL_ACTIVATE_DEFENDER, true);
+                                DoCast (trigger, SPELL_ACTIVATE_DEFENDER, true);
                             break;
                         case EVENT_RESPAWN_DEFENDER:
                             if (Creature* Defender = ObjectAccessor::GetCreature(*me, DefenderGUID))
@@ -257,11 +257,11 @@ class boss_auriaya : public CreatureScript
                             break;
                         case EVENT_SUMMON:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_SUMMON_SWARMING_GUARDIAN);
+                                DoCast (target, SPELL_SUMMON_SWARMING_GUARDIAN);
                             events.ScheduleEvent(EVENT_SUMMON, urand(30000, 45000));
                             break;
                         case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK, true);
+                            DoCast (me, SPELL_BERSERK, true);
                             DoScriptText(SAY_BERSERK, me);
                             events.CancelEvent(EVENT_BERSERK);
                             break;
@@ -299,7 +299,7 @@ class npc_auriaya_seeping_trigger : public CreatureScript
         void Reset()
         {
             me->ForcedDespawn(600000);
-            DoCast(me, SPELL_SEEPING_ESSENCE);
+            DoCast (me, SPELL_SEEPING_ESSENCE);
         }
 
         void UpdateAI(uint32 const /*diff*/)
@@ -338,7 +338,7 @@ class npc_sanctum_sentry : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoCast(me, SPELL_STRENGHT_PACK, true);
+                DoCast (me, SPELL_STRENGHT_PACK, true);
             }
 
             void UpdateAI(uint32 const diff)
@@ -364,7 +364,7 @@ class npc_sanctum_sentry : public CreatureScript
                             {
                                 me->AddThreat(target, 100.0f);
                                 me->AI()->AttackStart(target);
-                                DoCast(target, SPELL_SAVAGE_POUNCE);
+                                DoCast (target, SPELL_SAVAGE_POUNCE);
                             }
                             events.ScheduleEvent(EVENT_POUNCE, urand(12000, 17000));
                             break;
@@ -430,7 +430,7 @@ class npc_feral_defender : public CreatureScript
                             {
                                 me->AddThreat(target, 100.0f);
                                 me->AI()->AttackStart(target);
-                                DoCast(target, SPELL_FERAL_POUNCE);
+                                DoCast (target, SPELL_FERAL_POUNCE);
                             }
                             events.ScheduleEvent(EVENT_FERAL_POUNCE, urand(10000, 12000));
                             break;
@@ -439,7 +439,7 @@ class npc_feral_defender : public CreatureScript
                             {
                                 me->AddThreat(target, 100.0f);
                                 me->AI()->AttackStart(target);
-                                DoCast(target, SPELL_FERAL_RUSH);
+                                DoCast (target, SPELL_FERAL_RUSH);
                             }
                             events.ScheduleEvent(EVENT_RUSH, urand(10000, 12000));
                             break;
@@ -453,7 +453,7 @@ class npc_feral_defender : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                DoCast(me, SPELL_SUMMON_ESSENCE);
+                DoCast (me, SPELL_SUMMON_ESSENCE);
                 if (Creature* Auriaya = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_AURIAYA)))
                     Auriaya->AI()->DoAction(ACTION_RESPAWN_DEFENDER);
             }

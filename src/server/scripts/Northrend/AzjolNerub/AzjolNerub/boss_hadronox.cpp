@@ -151,14 +151,14 @@ public:
 
             if (uiPierceTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_PIERCE_ARMOR);
+                DoCast (me->getVictim(), SPELL_PIERCE_ARMOR);
                 uiPierceTimer = 8*IN_MILLISECONDS;
             } else uiPierceTimer -= diff;
 
             if (uiAcidTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_ACID_CLOUD);
+                    DoCast (target, SPELL_ACID_CLOUD);
 
                 uiAcidTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiAcidTimer -= diff;
@@ -166,7 +166,7 @@ public:
             if (uiLeechTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_LEECH_POISON);
+                    DoCast (target, SPELL_LEECH_POISON);
 
                 uiLeechTimer = urand(11*IN_MILLISECONDS, 14*IN_MILLISECONDS);
             } else uiLeechTimer -= diff;
@@ -174,7 +174,7 @@ public:
             if (uiGrabTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0)) // Draws all players (and attacking Mobs) to itself.
-                    DoCast(target, SPELL_WEB_GRAB);
+                    DoCast (target, SPELL_WEB_GRAB);
 
                 uiGrabTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiGrabTimer -= diff;

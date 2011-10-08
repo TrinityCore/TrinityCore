@@ -106,21 +106,21 @@ public:
             switch (events.ExecuteEvent())
             {
                 case EVENT_OBLITERATE:
-                    DoCast(SPELL_OBLITERATE);
+                    DoCast (SPELL_OBLITERATE);
                     events.ScheduleEvent(EVENT_OBLITERATE, 30000);
                     break;
                 case EVENT_WELL_OF_CORRUPTION:
-                    DoCast(SPELL_WELL_OF_CORRUPTION);
+                    DoCast (SPELL_WELL_OF_CORRUPTION);
                     events.ScheduleEvent(EVENT_WELL_OF_CORRUPTION, 13000);
                     break;
                 case EVENT_CORRUPTED_FLESH:
                     DoScriptText(RAND(SAY_CORRUPTED_FLESH_1, SAY_CORRUPTED_FLESH_2), me);
-                    DoCast(SPELL_CORRUPTED_FLESH);
+                    DoCast (SPELL_CORRUPTED_FLESH);
                     events.ScheduleEvent(EVENT_CORRUPTED_FLESH, 20000);
                     break;
                 case EVENT_SHARED_SUFFERING:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(target, SPELL_SHARED_SUFFERING);
+                        DoCast (target, SPELL_SHARED_SUFFERING);
                     events.ScheduleEvent(EVENT_SHARED_SUFFERING, 20000);
                     break;
             }

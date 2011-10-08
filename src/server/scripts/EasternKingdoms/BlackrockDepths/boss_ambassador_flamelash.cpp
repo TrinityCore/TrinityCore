@@ -70,7 +70,7 @@ public:
             //FireBlast_Timer
             if (FireBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIREBLAST);
+                DoCast (me->getVictim(), SPELL_FIREBLAST);
                 FireBlast_Timer = 7000;
             } else FireBlast_Timer -= diff;
 

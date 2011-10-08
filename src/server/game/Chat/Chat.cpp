@@ -782,7 +782,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
 
 int ChatHandler::ParseCommands(const char* text)
 {
-    ASSERT(text);
+    ASSERT (text);
     ASSERT(*text);
 
     std::string fullcmd = text;
@@ -1043,7 +1043,7 @@ void ChatHandler::FillMessageData(WorldPacket* data, WorldSession* session, uint
 
     if (type == CHAT_MSG_CHANNEL)
     {
-        ASSERT(channelName);
+        ASSERT (channelName);
         *data << channelName;
     }
 

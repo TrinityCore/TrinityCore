@@ -285,7 +285,7 @@ class boss_zuljin : public CreatureScript
                             me->AttackerStateUpdate(me->getVictim());
                             if (me->getVictim() && health == me->getVictim()->GetHealth())
                             {
-                                DoCast(me->getVictim(), SPELL_OVERPOWER, false);
+                                DoCast (me->getVictim(), SPELL_OVERPOWER, false);
                                 Overpower_Timer = 5000;
                             }
                         } else me->AttackerStateUpdate(me->getVictim());
@@ -352,7 +352,7 @@ class boss_zuljin : public CreatureScript
                     DoResetThreat();
                     me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                     me->RemoveAurasDueToSpell(Transform[Phase].unaura);
-                    DoCast(me, Transform[Phase].spell);
+                    DoCast (me, Transform[Phase].spell);
                     me->MonsterYell(Transform[Phase].text.c_str(), LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, Transform[Phase].sound);
                     if (Phase > 0)
@@ -365,7 +365,7 @@ class boss_zuljin : public CreatureScript
                     if (NextPhase == 2)
                     {
                         me->GetMotionMaster()->Clear();
-                        DoCast(me, SPELL_ENERGY_STORM, true); // enemy aura
+                        DoCast (me, SPELL_ENERGY_STORM, true); // enemy aura
                         for (uint8 i = 0; i < 4; ++i)
                         {
                             Creature* Vortex = DoSpawnCreature(CREATURE_FEATHER_VORTEX, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
@@ -408,7 +408,7 @@ class boss_zuljin : public CreatureScript
 
                 if (Berserk_Timer <= diff)
                 {
-                    DoCast(me, SPELL_BERSERK, true);
+                    DoCast (me, SPELL_BERSERK, true);
                     me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_BERSERK);
                     Berserk_Timer = 60000;
@@ -429,14 +429,14 @@ class boss_zuljin : public CreatureScript
 
                     if (Whirlwind_Timer <= diff)
                     {
-                        DoCast(me, SPELL_WHIRLWIND);
+                        DoCast (me, SPELL_WHIRLWIND);
                         Whirlwind_Timer = 15000 + rand()%5000;
                     } else Whirlwind_Timer -= diff;
 
                     if (Grievous_Throw_Timer <= diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_GRIEVOUS_THROW, false);
+                            DoCast (target, SPELL_GRIEVOUS_THROW, false);
                         Grievous_Throw_Timer = 10000;
                     } else Grievous_Throw_Timer -= diff;
                     break;
@@ -444,7 +444,7 @@ class boss_zuljin : public CreatureScript
                 case 1:
                     if (Creeping_Paralysis_Timer <= diff)
                     {
-                        DoCast(me, SPELL_CREEPING_PARALYSIS);
+                        DoCast (me, SPELL_CREEPING_PARALYSIS);
                         Creeping_Paralysis_Timer = 20000;
                     } else Creeping_Paralysis_Timer -= diff;
 
@@ -485,7 +485,7 @@ class boss_zuljin : public CreatureScript
                                     AttackStart(target);
                                     if (me->IsWithinMeleeRange(target))
                                     {
-                                        DoCast(target, SPELL_CLAW_RAGE_DAMAGE, true);
+                                        DoCast (target, SPELL_CLAW_RAGE_DAMAGE, true);
                                         ++Claw_Counter;
                                         if (Claw_Counter == 12)
                                         {
@@ -533,7 +533,7 @@ class boss_zuljin : public CreatureScript
                             {
                                 if (me->IsWithinMeleeRange(target))
                                 {
-                                    DoCast(target, SPELL_LYNX_RUSH_DAMAGE, true);
+                                    DoCast (target, SPELL_LYNX_RUSH_DAMAGE, true);
                                     ++Claw_Counter;
                                     if (Claw_Counter == 9)
                                     {
@@ -558,14 +558,14 @@ class boss_zuljin : public CreatureScript
                 case 4:
                     if (Flame_Whirl_Timer <= diff)
                     {
-                        DoCast(me, SPELL_FLAME_WHIRL);
+                        DoCast (me, SPELL_FLAME_WHIRL);
                         Flame_Whirl_Timer = 12000;
                     }Flame_Whirl_Timer -= diff;
 
                     if (Pillar_Of_Fire_Timer <= diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SUMMON_PILLAR);
+                            DoCast (target, SPELL_SUMMON_PILLAR);
                         Pillar_Of_Fire_Timer = 10000;
                     } else Pillar_Of_Fire_Timer -= diff;
 
@@ -573,7 +573,7 @@ class boss_zuljin : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             me->SetInFront(target);
-                        DoCast(me, SPELL_FLAME_BREATH);
+                        DoCast (me, SPELL_FLAME_BREATH);
                         Flame_Breath_Timer = 10000;
                     } else Flame_Breath_Timer -= diff;
                     break;
@@ -613,7 +613,7 @@ class mob_zuljin_vortex : public CreatureScript
             void SpellHit(Unit* caster, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_ZAP_INFORM)
-                    DoCast(caster, SPELL_ZAP_DAMAGE, true);
+                    DoCast (caster, SPELL_ZAP_DAMAGE, true);
             }
 
             void UpdateAI(const uint32 /*diff*/)

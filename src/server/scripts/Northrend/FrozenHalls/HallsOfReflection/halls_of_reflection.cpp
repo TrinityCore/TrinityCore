@@ -668,24 +668,24 @@ public:
                 {
                     case EVENT_SHADOW_WORD_PAIN:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_SHADOW_WORD_PAIN);
+                            DoCast (target, SPELL_SHADOW_WORD_PAIN);
                         events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 8000);
                         return;
                     case EVENT_CIRCLE_OF_DESTRUCTION:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_CIRCLE_OF_DESTRUCTION);
+                            DoCast (target, SPELL_CIRCLE_OF_DESTRUCTION);
                         events.ScheduleEvent(EVENT_CIRCLE_OF_DESTRUCTION, 12000);
                         return;
                     case EVENT_COWER_IN_FEAR:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_COWER_IN_FEAR);
+                            DoCast (target, SPELL_COWER_IN_FEAR);
                         events.ScheduleEvent(EVENT_COWER_IN_FEAR, 10000);
                         return;
                     case EVENT_DARK_MENDING:
                         // find an ally with missing HP
                         if (Unit* target = DoSelectLowestHpFriendly(40, DUNGEON_MODE(30000, 50000)))
                         {
-                            DoCast(target, SPELL_DARK_MENDING);
+                            DoCast (target, SPELL_DARK_MENDING);
                             events.ScheduleEvent(EVENT_DARK_MENDING, 20000);
                         }
                         else
@@ -751,25 +751,25 @@ public:
                 {
                     case EVENT_FIREBALL:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_FIREBALL);
+                            DoCast (target, SPELL_FIREBALL);
                         events.ScheduleEvent(EVENT_FIREBALL, 15000);
                         return;
                     case EVENT_FLAMESTRIKE:
-                        DoCast(SPELL_FLAMESTRIKE);
+                        DoCast (SPELL_FLAMESTRIKE);
                         events.ScheduleEvent(EVENT_FLAMESTRIKE, 15000);
                         return;
                     case EVENT_FROSTBOLT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_FROSTBOLT);
+                            DoCast (target, SPELL_FROSTBOLT);
                         events.ScheduleEvent(EVENT_FROSTBOLT, 15000);
                         return;
                     case EVENT_CHAINS_OF_ICE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_CHAINS_OF_ICE);
+                            DoCast (target, SPELL_CHAINS_OF_ICE);
                         events.ScheduleEvent(EVENT_CHAINS_OF_ICE, 15000);
                         return;
                     case EVENT_HALLUCINATION:
-                        DoCast(SPELL_HALLUCINATION);
+                        DoCast (SPELL_HALLUCINATION);
                         return;
                 }
             }
@@ -798,7 +798,7 @@ public:
 
         void JustDied(Unit* /*who*/)
         {
-            DoCast(SPELL_HALLUCINATION_2);
+            DoCast (SPELL_HALLUCINATION_2);
         }
     };
 
@@ -850,20 +850,20 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SHADOW_STEP:
-                        DoCast(SPELL_SHADOW_STEP);
+                        DoCast (SPELL_SHADOW_STEP);
                         events.ScheduleEvent(EVENT_SHADOW_STEP, 8000);
                         return;
                     case EVENT_DEADLY_POISON:
-                        DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        DoCast (me->getVictim(), SPELL_DEADLY_POISON);
                         events.ScheduleEvent(EVENT_DEADLY_POISON, 10000);
                         return;
                     case EVENT_ENVENOMED_DAGGER_THROW:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_ENVENOMED_DAGGER_THROW);
+                            DoCast (target, SPELL_ENVENOMED_DAGGER_THROW);
                         events.ScheduleEvent(EVENT_ENVENOMED_DAGGER_THROW, 10000);
                         return;
                     case EVENT_KIDNEY_SHOT:
-                        DoCast(me->getVictim(), SPELL_KIDNEY_SHOT);
+                        DoCast (me->getVictim(), SPELL_KIDNEY_SHOT);
                         events.ScheduleEvent(EVENT_KIDNEY_SHOT, 10000);
                         return;
                 }
@@ -920,15 +920,15 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SPECTRAL_STRIKE:
-                        DoCast(me->getVictim(), SPELL_SPECTRAL_STRIKE);
+                        DoCast (me->getVictim(), SPELL_SPECTRAL_STRIKE);
                         events.ScheduleEvent(EVENT_SPECTRAL_STRIKE, 5000);
                         return;
                     case EVENT_SHIELD_BASH:
-                        DoCast(me->getVictim(), SPELL_SHIELD_BASH);
+                        DoCast (me->getVictim(), SPELL_SHIELD_BASH);
                         events.ScheduleEvent(EVENT_SHIELD_BASH, 5000);
                         return;
                     case EVENT_TORTURED_ENRAGE:
-                        DoCast(SPELL_TORTURED_ENRAGE);
+                        DoCast (SPELL_TORTURED_ENRAGE);
                         events.ScheduleEvent(EVENT_TORTURED_ENRAGE, 15000);
                         return;
                 }
@@ -987,21 +987,21 @@ public:
                 {
                     case EVENT_SHOOT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_SHOOT);
+                            DoCast (target, SPELL_SHOOT);
                         events.ScheduleEvent(EVENT_SHOOT, 2000);
                         return;
                     case EVENT_CURSED_ARROW:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_CURSED_ARROW);
+                            DoCast (target, SPELL_CURSED_ARROW);
                         events.ScheduleEvent(EVENT_CURSED_ARROW, 10000);
                         return;
                     case EVENT_FROST_TRAP:
-                        DoCast(SPELL_FROST_TRAP);
+                        DoCast (SPELL_FROST_TRAP);
                         events.ScheduleEvent(EVENT_FROST_TRAP, 30000);
                         return;
                     case EVENT_ICE_SHOT:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                            DoCast(target, SPELL_ICE_SHOT);
+                            DoCast (target, SPELL_ICE_SHOT);
                         events.ScheduleEvent(EVENT_ICE_SHOT, 15000);
                         return;
                 }

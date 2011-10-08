@@ -87,7 +87,7 @@ WorldObject::~WorldObject()
         if (GetTypeId() == TYPEID_CORPSE)
         {
             sLog->outCrash("Object::~Object Corpse guid="UI64FMTD", type=%d, entry=%u deleted but still in map!!", GetGUID(), ((Corpse*)this)->GetType(), GetEntry());
-            ASSERT(false);
+            ASSERT (false);
         }
         ResetMap();
     }
@@ -100,14 +100,14 @@ Object::~Object()
         sLog->outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in world!!", GetGUID(), GetTypeId(), GetEntry());
         if (isType(TYPEMASK_ITEM))
             sLog->outCrash("Item slot %u", ((Item*)this)->GetSlot());
-        ASSERT(false);
+        ASSERT (false);
         RemoveFromWorld();
     }
 
     if (m_objectUpdated)
     {
         sLog->outCrash("Object::~Object - guid="UI64FMTD", typeid=%d, entry=%u deleted but still in update list!!", GetGUID(), GetTypeId(), GetEntry());
-        ASSERT(false);
+        ASSERT (false);
         sObjectAccessor->RemoveUpdateObject(this);
     }
 
@@ -164,7 +164,7 @@ void Object::AddToWorld()
     if (m_inWorld)
         return;
 
-    ASSERT(m_uint32Values);
+    ASSERT (m_uint32Values);
 
     m_inWorld = true;
 
@@ -293,7 +293,7 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
 
 void Object::DestroyForPlayer(Player* target, bool anim) const
 {
-    ASSERT(target);
+    ASSERT (target);
 
     WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
     data << uint64(GetGUID());
@@ -787,7 +787,7 @@ void Object::BuildFieldsUpdate(Player* pl, UpdateDataMapType& data_map) const
     if (iter == data_map.end())
     {
         std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(pl, UpdateData()));
-        ASSERT(p.second);
+        ASSERT (p.second);
         iter = p.first;
     }
 
@@ -835,7 +835,7 @@ void Object::_SetCreateBits(UpdateMask* updateMask, Player* /*target*/) const
 
 void Object::SetInt32Value(uint16 index, int32 value)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
 
     if (m_int32Values[index] != value)
     {
@@ -852,7 +852,7 @@ void Object::SetInt32Value(uint16 index, int32 value)
 
 void Object::SetUInt32Value(uint16 index, uint32 value)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
 
     if (m_uint32Values[index] != value)
     {
@@ -869,7 +869,7 @@ void Object::SetUInt32Value(uint16 index, uint32 value)
 
 void Object::UpdateUInt32Value(uint16 index, uint32 value)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
 
     m_uint32Values[index] = value;
     _changedFields[index] = true;
@@ -877,7 +877,7 @@ void Object::UpdateUInt32Value(uint16 index, uint32 value)
 
 void Object::SetUInt64Value(uint16 index, uint64 value)
 {
-    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index + 1 < m_valuesCount || PrintIndexError(index, true));
     if (*((uint64*)&(m_uint32Values[index])) != value)
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
@@ -895,7 +895,7 @@ void Object::SetUInt64Value(uint16 index, uint64 value)
 
 bool Object::AddUInt64Value(uint16 index, uint64 value)
 {
-    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index + 1 < m_valuesCount || PrintIndexError(index, true));
     if (value && !*((uint64*)&(m_uint32Values[index])))
     {
         m_uint32Values[index] = PAIR64_LOPART(value);
@@ -917,7 +917,7 @@ bool Object::AddUInt64Value(uint16 index, uint64 value)
 
 bool Object::RemoveUInt64Value(uint16 index, uint64 value)
 {
-    ASSERT(index + 1 < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index + 1 < m_valuesCount || PrintIndexError(index, true));
     if (value && *((uint64*)&(m_uint32Values[index])) == value)
     {
         m_uint32Values[index] = 0;
@@ -939,7 +939,7 @@ bool Object::RemoveUInt64Value(uint16 index, uint64 value)
 
 void Object::SetFloatValue(uint16 index, float value)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
 
     if (m_floatValues[index] != value)
     {
@@ -956,7 +956,7 @@ void Object::SetFloatValue(uint16 index, float value)
 
 void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
 
     if (offset > 4)
     {
@@ -980,7 +980,7 @@ void Object::SetByteValue(uint16 index, uint8 offset, uint8 value)
 
 void Object::SetUInt16Value(uint16 index, uint8 offset, uint16 value)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
 
     if (offset > 2)
     {
@@ -1052,7 +1052,7 @@ void Object::ApplyModPositiveFloatValue(uint16 index, float  val, bool apply)
 
 void Object::SetFlag(uint16 index, uint32 newFlag)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
     uint32 oldval = m_uint32Values[index];
     uint32 newval = oldval | newFlag;
 
@@ -1071,8 +1071,8 @@ void Object::SetFlag(uint16 index, uint32 newFlag)
 
 void Object::RemoveFlag(uint16 index, uint32 oldFlag)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
-    ASSERT(m_uint32Values);
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (m_uint32Values);
 
     uint32 oldval = m_uint32Values[index];
     uint32 newval = oldval & ~oldFlag;
@@ -1092,7 +1092,7 @@ void Object::RemoveFlag(uint16 index, uint32 oldFlag)
 
 void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
 
     if (offset > 4)
     {
@@ -1115,7 +1115,7 @@ void Object::SetByteFlag(uint16 index, uint8 offset, uint8 newFlag)
 
 void Object::RemoveByteFlag(uint16 index, uint8 offset, uint8 oldFlag)
 {
-    ASSERT(index < m_valuesCount || PrintIndexError(index, true));
+    ASSERT (index < m_valuesCount || PrintIndexError(index, true));
 
     if (offset > 4)
     {
@@ -2060,14 +2060,14 @@ void WorldObject::SendObjectDeSpawnAnim(uint64 guid)
 
 void WorldObject::SetMap(Map* map)
 {
-    ASSERT(map);
+    ASSERT (map);
     ASSERT(!IsInWorld() || GetTypeId() == TYPEID_CORPSE);
     if (m_currMap == map) // command add npc: first create, than loadfromdb
         return;
     if (m_currMap)
     {
         sLog->outCrash("WorldObject::SetMap: obj %u new map %u %u, old map %u %u", (uint32)GetTypeId(), map->GetId(), map->GetInstanceId(), m_currMap->GetId(), m_currMap->GetInstanceId());
-        ASSERT(false);
+        ASSERT (false);
     }
     m_currMap = map;
     m_mapId = map->GetId();
@@ -2078,7 +2078,7 @@ void WorldObject::SetMap(Map* map)
 
 void WorldObject::ResetMap()
 {
-    ASSERT(m_currMap);
+    ASSERT (m_currMap);
     ASSERT(!IsInWorld());
     if (m_isWorldObject)
         m_currMap->RemoveWorldObject(this);
@@ -2090,13 +2090,13 @@ void WorldObject::ResetMap()
 
 Map const* WorldObject::GetBaseMap() const
 {
-    ASSERT(m_currMap);
+    ASSERT (m_currMap);
     return m_currMap->GetParent();
 }
 
 void WorldObject::AddObjectToRemoveList()
 {
-    ASSERT(m_uint32Values);
+    ASSERT (m_uint32Values);
 
     Map* map = FindMap();
     if (!map)

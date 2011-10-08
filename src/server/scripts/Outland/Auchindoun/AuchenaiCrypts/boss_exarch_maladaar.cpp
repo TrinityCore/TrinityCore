@@ -81,39 +81,39 @@ public:
                 switch (myClass)
                 {
                     case CLASS_WARRIOR:
-                        DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
+                        DoCast (me->getVictim(), SPELL_MORTAL_STRIKE);
                         Class_Timer = 6000;
                         break;
                     case CLASS_PALADIN:
-                        DoCast(me->getVictim(), SPELL_HAMMER_OF_JUSTICE);
+                        DoCast (me->getVictim(), SPELL_HAMMER_OF_JUSTICE);
                         Class_Timer = 6000;
                         break;
                     case CLASS_HUNTER:
-                        DoCast(me->getVictim(), SPELL_FREEZING_TRAP);
+                        DoCast (me->getVictim(), SPELL_FREEZING_TRAP);
                         Class_Timer = 20000;
                         break;
                     case CLASS_ROGUE:
-                        DoCast(me->getVictim(), SPELL_HEMORRHAGE);
+                        DoCast (me->getVictim(), SPELL_HEMORRHAGE);
                         Class_Timer = 10000;
                         break;
                     case CLASS_PRIEST:
-                        DoCast(me->getVictim(), SPELL_MIND_FLAY);
+                        DoCast (me->getVictim(), SPELL_MIND_FLAY);
                         Class_Timer = 5000;
                         break;
                     case CLASS_SHAMAN:
-                        DoCast(me->getVictim(), SPELL_FROSTSHOCK);
+                        DoCast (me->getVictim(), SPELL_FROSTSHOCK);
                         Class_Timer = 8000;
                         break;
                     case CLASS_MAGE:
-                        DoCast(me->getVictim(), SPELL_FIREBALL);
+                        DoCast (me->getVictim(), SPELL_FIREBALL);
                         Class_Timer = 5000;
                         break;
                     case CLASS_WARLOCK:
-                        DoCast(me->getVictim(), SPELL_CURSE_OF_AGONY);
+                        DoCast (me->getVictim(), SPELL_CURSE_OF_AGONY);
                         Class_Timer = 20000;
                         break;
                     case CLASS_DRUID:
-                        DoCast(me->getVictim(), SPELL_MOONFIRE);
+                        DoCast (me->getVictim(), SPELL_MOONFIRE);
                         Class_Timer = 10000;
                         break;
                 }
@@ -252,7 +252,7 @@ public:
 
                 DoScriptText(SAY_SUMMON, me);
 
-                DoCast(me, SPELL_SUMMON_AVATAR);
+                DoCast (me, SPELL_SUMMON_AVATAR);
                 Avatar_summoned = true;
                 StolenSoul_Timer = 15000 + rand()% 15000;
             }
@@ -276,7 +276,7 @@ public:
                         soulholder = target->GetGUID();
                         soulclass = target->getClass();
 
-                        DoCast(target, SPELL_STOLEN_SOUL);
+                        DoCast (target, SPELL_STOLEN_SOUL);
                         me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
                         StolenSoul_Timer = 20000 + rand()% 10000;
@@ -287,14 +287,14 @@ public:
             if (Ribbon_of_Souls_timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_RIBBON_OF_SOULS);
+                    DoCast (target, SPELL_RIBBON_OF_SOULS);
 
                 Ribbon_of_Souls_timer = 5000 + (rand()%20 * 1000);
             } else Ribbon_of_Souls_timer -= diff;
 
             if (Fear_timer <= diff)
             {
-                DoCast(me, SPELL_SOUL_SCREAM);
+                DoCast (me, SPELL_SOUL_SCREAM);
                 Fear_timer = 15000 + rand()% 15000;
             } else Fear_timer -= diff;
 
@@ -339,7 +339,7 @@ public:
 
             if (Mortal_Strike_timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_AV_MORTAL_STRIKE);
+                DoCast (me->getVictim(), SPELL_AV_MORTAL_STRIKE);
                 Mortal_Strike_timer = 10000 + rand()%20 * 1000;
             } else Mortal_Strike_timer -= diff;
 

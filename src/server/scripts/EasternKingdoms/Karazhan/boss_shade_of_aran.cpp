@@ -267,9 +267,9 @@ public:
 
                 if (!DrinkInturrupted)
                 {
-                    DoCast(me, SPELL_MASS_POLY, true);
-                    DoCast(me, SPELL_CONJURE, false);
-                    DoCast(me, SPELL_DRINK, false);
+                    DoCast (me, SPELL_MASS_POLY, true);
+                    DoCast (me, SPELL_CONJURE, false);
+                    DoCast (me, SPELL_DRINK, false);
                     me->SetStandState(UNIT_STAND_STATE_SIT);
                     DrinkInterruptTimer = 10000;
                 }
@@ -282,7 +282,7 @@ public:
                 me->RemoveAurasDueToSpell(SPELL_DRINK);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetPower(POWER_MANA, me->GetMaxPower(POWER_MANA)-32000);
-                DoCast(me, SPELL_POTION, false);
+                DoCast (me, SPELL_POTION, false);
             }
 
             //Drink Interrupt Timer
@@ -293,8 +293,8 @@ public:
                 else
                 {
                     me->SetStandState(UNIT_STAND_STATE_STAND);
-                    DoCast(me, SPELL_POTION, true);
-                    DoCast(me, SPELL_AOE_PYROBLAST, false);
+                    DoCast (me, SPELL_POTION, true);
+                    DoCast (me, SPELL_AOE_PYROBLAST, false);
                     DrinkInturrupted = true;
                     Drinking = false;
                 }
@@ -337,7 +337,7 @@ public:
                     if (AvailableSpells)
                     {
                         CurrentNormalSpell = Spells[rand() % AvailableSpells];
-                        DoCast(target, CurrentNormalSpell);
+                        DoCast (target, CurrentNormalSpell);
                     }
                 }
                 NormalCastTimer = 1000;
@@ -348,11 +348,11 @@ public:
                 switch (urand(0, 1))
                 {
                     case 0:
-                        DoCast(me, SPELL_AOE_CS);
+                        DoCast (me, SPELL_AOE_CS);
                         break;
                     case 1:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_CHAINSOFICE);
+                            DoCast (target, SPELL_CHAINSOFICE);
                         break;
                 }
                 SecondarySpellTimer = urand(5000, 20000);
@@ -385,10 +385,10 @@ public:
                     case SUPER_AE:
                         DoScriptText(RAND(SAY_EXPLOSION1, SAY_EXPLOSION2), me);
 
-                        DoCast(me, SPELL_BLINK_CENTER, true);
-                        DoCast(me, SPELL_PLAYERPULL, true);
-                        DoCast(me, SPELL_MASSSLOW, true);
-                        DoCast(me, SPELL_AEXPLOSION, false);
+                        DoCast (me, SPELL_BLINK_CENTER, true);
+                        DoCast (me, SPELL_PLAYERPULL, true);
+                        DoCast (me, SPELL_MASSSLOW, true);
+                        DoCast (me, SPELL_AEXPLOSION, false);
                         break;
 
                     case SUPER_FLAME:
@@ -541,7 +541,7 @@ public:
 
             if (CastTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WATERBOLT);
+                DoCast (me->getVictim(), SPELL_WATERBOLT);
                 CastTimer = urand(2000, 5000);
             } else CastTimer -= diff;
         }

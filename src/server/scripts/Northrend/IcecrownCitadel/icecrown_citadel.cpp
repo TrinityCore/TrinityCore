@@ -622,7 +622,7 @@ class npc_rotting_frost_giant : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
                                 Talk(EMOTE_DEATH_PLAGUE_WARNING, target->GetGUID());
-                                DoCast(target, SPELL_DEATH_PLAGUE);
+                                DoCast (target, SPELL_DEATH_PLAGUE);
                             }
                             _events.ScheduleEvent(EVENT_DEATH_PLAGUE, 15000);
                             break;
@@ -682,7 +682,7 @@ class npc_frost_freeze_trap : public CreatureScript
 
                 if (_events.ExecuteEvent() == EVENT_ACTIVATE_TRAP)
                 {
-                    DoCast(me, SPELL_COLDFLAME_JETS);
+                    DoCast (me, SPELL_COLDFLAME_JETS);
                     _events.ScheduleEvent(EVENT_ACTIVATE_TRAP, 22000);
                 }
             }
@@ -895,8 +895,8 @@ class boss_sister_svalna : public CreatureScript
                         case EVENT_IMPALING_SPEAR:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_IMPALING_SPEAR))
                             {
-                                DoCast(me, SPELL_AETHER_SHIELD);
-                                DoCast(target, SPELL_IMPALING_SPEAR);
+                                DoCast (me, SPELL_AETHER_SHIELD);
+                                DoCast (target, SPELL_IMPALING_SPEAR);
                             }
                             events.ScheduleEvent(EVENT_IMPALING_SPEAR, urand(20000, 25000));
                             break;
@@ -1113,7 +1113,7 @@ class npc_crok_scourgebane : public CreatureScript
                     }
 
                     damage = 0;
-                    DoCast(me, SPELL_ICEBOUND_ARMOR);
+                    DoCast (me, SPELL_ICEBOUND_ARMOR);
                     _events.ScheduleEvent(EVENT_HEALTH_CHECK, 1000);
                 }
             }
@@ -1310,7 +1310,7 @@ struct npc_argent_captainAI : public ScriptedAI
 
                 Talk(SAY_CAPTAIN_RESURRECTED);
                 me->UpdateEntry(newEntry, Instance->GetData(DATA_TEAM_IN_INSTANCE), me->GetCreatureData());
-                DoCast(me, SPELL_UNDEATH, true);
+                DoCast (me, SPELL_UNDEATH, true);
             }
         }
 
@@ -1362,13 +1362,13 @@ class npc_captain_arnath : public CreatureScript
                     {
                         case EVENT_ARNATH_FLASH_HEAL:
                             if (Creature* target = FindFriendlyCreature())
-                                DoCast(target, SPELL_FLASH_HEAL);
+                                DoCast (target, SPELL_FLASH_HEAL);
                             Events.ScheduleEvent(EVENT_ARNATH_FLASH_HEAL, urand(6000, 9000));
                             break;
                         case EVENT_ARNATH_PW_SHIELD:
                         {
                             std::list<Creature*> targets = DoFindFriendlyMissingBuff(40.0f, SPELL_POWER_WORD_SHIELD);
-                            DoCast(SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
+                            DoCast (SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
                             Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, urand(15000, 20000));
                             break;
                         }
@@ -1378,7 +1378,7 @@ class npc_captain_arnath : public CreatureScript
                             break;
                         case EVENT_ARNATH_DOMINATE_MIND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-                                DoCast(target, SPELL_DOMINATE_MIND);
+                                DoCast (target, SPELL_DOMINATE_MIND);
                             Events.ScheduleEvent(EVENT_ARNATH_DOMINATE_MIND, urand(28000, 37000));
                             break;
                         default:
@@ -1447,7 +1447,7 @@ class npc_captain_brandon : public CreatureScript
                             break;
                         case EVENT_BRANDON_DIVINE_SHIELD:
                             if (HealthBelowPct(20))
-                                DoCast(me, SPELL_DIVINE_SHIELD);
+                                DoCast (me, SPELL_DIVINE_SHIELD);
                             Events.ScheduleEvent(EVENT_BRANDON_DIVINE_SHIELD, 500);
                             break;
                         case EVENT_BRANDON_JUDGEMENT_OF_COMMAND:
@@ -1456,7 +1456,7 @@ class npc_captain_brandon : public CreatureScript
                             break;
                         case EVENT_BRANDON_HAMMER_OF_BETRAYAL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-                                DoCast(target, SPELL_HAMMER_OF_BETRAYAL);
+                                DoCast (target, SPELL_HAMMER_OF_BETRAYAL);
                             Events.ScheduleEvent(EVENT_BRANDON_HAMMER_OF_BETRAYAL, urand(45000, 60000));
                             break;
                         default:
@@ -1523,7 +1523,7 @@ class npc_captain_grondel : public CreatureScript
                             break;
                         case EVENT_GRONDEL_CONFLAGRATION:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
-                                DoCast(target, SPELL_CONFLAGRATION);
+                                DoCast (target, SPELL_CONFLAGRATION);
                             Events.ScheduleEvent(EVENT_GRONDEL_CONFLAGRATION, urand(10000, 15000));
                             break;
                         default:
@@ -1576,17 +1576,17 @@ class npc_captain_rupert : public CreatureScript
                     {
                         case EVENT_RUPERT_FEL_IRON_BOMB:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_FEL_IRON_BOMB);
+                                DoCast (target, SPELL_FEL_IRON_BOMB);
                             Events.ScheduleEvent(EVENT_RUPERT_FEL_IRON_BOMB, urand(15000, 20000));
                             break;
                         case EVENT_RUPERT_MACHINE_GUN:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                                DoCast(target, SPELL_MACHINE_GUN);
+                                DoCast (target, SPELL_MACHINE_GUN);
                             Events.ScheduleEvent(EVENT_RUPERT_MACHINE_GUN, urand(25000, 30000));
                             break;
                         case EVENT_RUPERT_ROCKET_LAUNCH:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                                DoCast(target, SPELL_ROCKET_LAUNCH);
+                                DoCast (target, SPELL_ROCKET_LAUNCH);
                             Events.ScheduleEvent(EVENT_RUPERT_ROCKET_LAUNCH, urand(10000, 15000));
                             break;
                         default:

@@ -133,7 +133,7 @@ public:
                     {
                         Creature* pSpheres[3];
 
-                        //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
+                        //DoCast (me, SPELL_FLAME_SPHERE_SUMMON_1);
                         pSpheres[0] = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
                         Unit* pSphereTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                         if (pSphereTarget && pSpheres[0])
@@ -146,9 +146,9 @@ public:
                         }
                         if (IsHeroic())
                         {
-                            //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_1);
+                            //DoCast (me, H_SPELL_FLAME_SPHERE_SUMMON_1);
                             pSpheres[1] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
-                            //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_2);
+                            //DoCast (me, H_SPELL_FLAME_SPHERE_SUMMON_2);
                             pSpheres[2] = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10*IN_MILLISECONDS);
                             if (pSphereTarget && pSpheres[1] && pSpheres[2])
                             {
@@ -180,7 +180,7 @@ public:
                         break;
                     case VANISHED:
                         if (Unit* pEmbraceTarget = GetEmbraceTarget())
-                            DoCast(pEmbraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
+                            DoCast (pEmbraceTarget, SPELL_EMBRACE_OF_THE_VAMPYR);
                         me->GetMotionMaster()->Clear();
                         me->SetSpeed(MOVE_WALK, 1.0f, true);
                         me->GetMotionMaster()->MoveChase(me->getVictim());
@@ -195,13 +195,13 @@ public:
                     case NORMAL:
                         if (uiBloodthirstTimer <= diff)
                         {
-                            DoCast(me, SPELL_BLOODTHIRST);
+                            DoCast (me, SPELL_BLOODTHIRST);
                             uiBloodthirstTimer = 10*IN_MILLISECONDS;
                         } else uiBloodthirstTimer -= diff;
 
                         if (uiFlamesphereTimer <= diff)
                         {
-                            DoCast(me, SPELL_CONJURE_FLAME_SPHERE);
+                            DoCast (me, SPELL_CONJURE_FLAME_SPHERE);
                             Phase = CASTING_FLAME_SPHERES;
                             uiPhaseTimer = 3*IN_MILLISECONDS + diff;
                             uiFlamesphereTimer = 15*IN_MILLISECONDS;
@@ -225,7 +225,7 @@ public:
                             if (target_list.size() > 2)
                             {
                                 DoScriptText(RAND(SAY_VANISH_1, SAY_VANISH_2), me);
-                                DoCast(me, SPELL_VANISH);
+                                DoCast (me, SPELL_VANISH);
                                 Phase = JUST_VANISHED;
                                 uiPhaseTimer = 500;
                                 if (Unit* pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
@@ -352,9 +352,9 @@ public:
             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
             me->setFaction(16);
             me->SetFloatValue(OBJECT_FIELD_SCALE_X, 1.0f);
-            DoCast(me, SPELL_FLAME_SPHERE_VISUAL);
-            DoCast(me, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
-            DoCast(me, SPELL_FLAME_SPHERE_PERIODIC);
+            DoCast (me, SPELL_FLAME_SPHERE_VISUAL);
+            DoCast (me, SPELL_FLAME_SPHERE_SPAWN_EFFECT);
+            DoCast (me, SPELL_FLAME_SPHERE_PERIODIC);
             uiDespawnTimer = 10*IN_MILLISECONDS;
         }
 
@@ -363,7 +363,7 @@ public:
 
         void JustDied(Unit* /*who*/)
         {
-            DoCast(me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
+            DoCast (me, SPELL_FLAME_SPHERE_DEATH_EFFECT);
         }
 
         void UpdateAI(const uint32 diff)

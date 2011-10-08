@@ -84,14 +84,14 @@ public:
             //Trample
             if (Trample_Timer <= diff)
             {
-                DoCast(me, SPELL_TRAMPLE);
+                DoCast (me, SPELL_TRAMPLE);
                 Trample_Timer = 7000;
             } else Trample_Timer -= diff;
 
             //Knockout
             if (Knockout_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKOUT);
+                DoCast (me->getVictim(), SPELL_KNOCKOUT);
                 Knockout_Timer = 10000;
             } else Knockout_Timer -= diff;
 

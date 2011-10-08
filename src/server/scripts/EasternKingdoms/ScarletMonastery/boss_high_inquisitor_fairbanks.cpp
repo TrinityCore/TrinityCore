@@ -80,7 +80,7 @@ public:
             //If we are <25% hp cast Heal
             if (!HealthAbovePct(25) && !me->IsNonMeleeSpellCasted(false) && Heal_Timer <= diff)
             {
-                DoCast(me, SPELL_HEAL);
+                DoCast (me, SPELL_HEAL);
                 Heal_Timer = 30000;
             } else Heal_Timer -= diff;
 
@@ -88,7 +88,7 @@ public:
             if (Fear_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                    DoCast(target, SPELL_FEAR);
+                    DoCast (target, SPELL_FEAR);
 
                 Fear_Timer = 40000;
             } else Fear_Timer -= diff;
@@ -97,7 +97,7 @@ public:
             if (Sleep_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0))
-                    DoCast(target, SPELL_SLEEP);
+                    DoCast (target, SPELL_SLEEP);
 
                 Sleep_Timer = 30000;
             } else Sleep_Timer -= diff;
@@ -105,7 +105,7 @@ public:
             //PowerWordShield_Timer
             if (!PowerWordShield && !HealthAbovePct(25))
             {
-                DoCast(me, SPELL_POWERWORDSHIELD);
+                DoCast (me, SPELL_POWERWORDSHIELD);
                 PowerWordShield = true;
             }
 
@@ -113,7 +113,7 @@ public:
             if (Dispel_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_DISPELMAGIC);
+                    DoCast (target, SPELL_DISPELMAGIC);
 
                 DispelMagic_Timer = 30000;
             } else DispelMagic_Timer -= diff;
@@ -121,7 +121,7 @@ public:
             //CurseOfBlood_Timer
             if (CurseOfBlood_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CURSEOFBLOOD);
+                DoCast (me->getVictim(), SPELL_CURSEOFBLOOD);
                 CurseOfBlood_Timer = 25000;
             } else CurseOfBlood_Timer -= diff;
 

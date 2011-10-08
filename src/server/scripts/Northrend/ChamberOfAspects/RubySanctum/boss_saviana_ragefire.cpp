@@ -155,10 +155,10 @@ class boss_saviana_ragefire : public CreatureScript
                             break;
                         }
                         case EVENT_CONFLAGRATION:
-                            DoCast(me, SPELL_CONFLAGRATION, true);
+                            DoCast (me, SPELL_CONFLAGRATION, true);
                             break;
                         case EVENT_ENRAGE:
-                            DoCast(me, SPELL_ENRAGE);
+                            DoCast (me, SPELL_ENRAGE);
                             Talk(EMOTE_ENRAGED);
                             events.ScheduleEvent(EVENT_ENRAGE, urand(15000, 20000), EVENT_GROUP_LAND_PHASE);
                             break;

@@ -86,11 +86,11 @@ class boss_shazzrah : public CreatureScript
                             break;
                         case EVENT_SHAZZRAH_CURSE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true, -EVENT_SHAZZRAH_CURSE))
-                                DoCast(target, SPELL_SHAZZRAH_CURSE);
+                                DoCast (target, SPELL_SHAZZRAH_CURSE);
                             events.ScheduleEvent(EVENT_SHAZZRAH_CURSE, urand(25000, 30000));
                             break;
                         case EVENT_MAGIC_GROUNDING:
-                            DoCast(me, SPELL_MAGIC_GROUNDING);
+                            DoCast (me, SPELL_MAGIC_GROUNDING);
                             events.ScheduleEvent(EVENT_MAGIC_GROUNDING, 35000);
                             break;
                         case EVENT_COUNTERSPELL:
@@ -103,7 +103,7 @@ class boss_shazzrah : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100.0f, true))
                             {
                                 DoTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
-                                DoCast(target, SPELL_ARCANE_EXPLOSION);
+                                DoCast (target, SPELL_ARCANE_EXPLOSION);
                                 DoResetThreat();
                             }
                             events.ScheduleEvent(EVENT_BLINK, 45000);

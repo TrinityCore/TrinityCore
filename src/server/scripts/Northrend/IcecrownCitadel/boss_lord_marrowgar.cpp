@@ -162,7 +162,7 @@ class boss_lord_marrowgar : public CreatureScript
                     {
                         case EVENT_BONE_SPIKE_GRAVEYARD:
                             if (IsHeroic() || !me->HasAura(SPELL_BONE_STORM))
-                                DoCast(me, SPELL_BONE_SPIKE_GRAVEYARD);
+                                DoCast (me, SPELL_BONE_SPIKE_GRAVEYARD);
                             events.ScheduleEvent(EVENT_BONE_SPIKE_GRAVEYARD, urand(15000, 20000), EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_COLDFLAME:
@@ -171,14 +171,14 @@ class boss_lord_marrowgar : public CreatureScript
                             if (!me->HasAura(SPELL_BONE_STORM))
                                 DoCastAOE(SPELL_COLDFLAME_NORMAL);
                             else
-                                DoCast(me, SPELL_COLDFLAME_BONE_STORM);
+                                DoCast (me, SPELL_COLDFLAME_BONE_STORM);
                             events.ScheduleEvent(EVENT_COLDFLAME, 5000, EVENT_GROUP_SPECIAL);
                             break;
                         case EVENT_WARN_BONE_STORM:
                             _boneSlice = false;
                             Talk(EMOTE_BONE_STORM);
                             me->FinishSpell(CURRENT_MELEE_SPELL, false);
-                            DoCast(me, SPELL_BONE_STORM);
+                            DoCast (me, SPELL_BONE_STORM);
                             events.DelayEvents(3000, EVENT_GROUP_SPECIAL);
                             events.ScheduleEvent(EVENT_BONE_STORM_BEGIN, 3050);
                             events.ScheduleEvent(EVENT_WARN_BONE_STORM, urand(90000, 95000));
@@ -214,7 +214,7 @@ class boss_lord_marrowgar : public CreatureScript
                             _boneSlice = true;
                             break;
                         case EVENT_ENRAGE:
-                            DoCast(me, SPELL_BERSERK, true);
+                            DoCast (me, SPELL_BERSERK, true);
                             Talk(SAY_BERSERK);
                             break;
                     }
@@ -333,7 +333,7 @@ class npc_coldflame : public CreatureScript
                     Position newPos;
                     me->GetNearPosition(newPos, 5.5f, 0.0f);
                     me->NearTeleportTo(newPos.GetPositionX(), newPos.GetPositionY(), me->GetPositionZ(), me->GetOrientation());
-                    DoCast(SPELL_COLDFLAME_SUMMON);
+                    DoCast (SPELL_COLDFLAME_SUMMON);
                     _events.ScheduleEvent(EVENT_COLDFLAME_TRIGGER, 450);
                 }
             }
@@ -357,7 +357,7 @@ class npc_bone_spike : public CreatureScript
         {
             npc_bone_spikeAI(Creature* creature) : Scripted_NoMovementAI(creature), _hasTrappedUnit(false)
             {
-                ASSERT(creature->GetVehicleKit());
+                ASSERT (creature->GetVehicleKit());
             }
 
             void JustDied(Unit* /*killer*/)
@@ -377,7 +377,7 @@ class npc_bone_spike : public CreatureScript
 
             void IsSummonedBy(Unit* summoner)
             {
-                DoCast(summoner, SPELL_IMPALED);
+                DoCast (summoner, SPELL_IMPALED);
                 summoner->CastSpell(me, SPELL_RIDE_VEHICLE, true);
                 _events.ScheduleEvent(EVENT_FAIL_BONED, 8000);
                 _hasTrappedUnit = true;

@@ -171,8 +171,8 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 Talk(SAY_AGGRO);
                 instance->SetBossState(DATA_BLOOD_QUEEN_LANA_THEL, IN_PROGRESS);
 
-                DoCast(me, SPELL_SHROUD_OF_SORROW, true);
-                DoCast(me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
+                DoCast (me, SPELL_SHROUD_OF_SORROW, true);
+                DoCast (me, SPELL_FRENZIED_BLOODTHIRST_VISUAL, true);
                 _creditBloodQuickening = instance->GetData(DATA_BLOOD_QUICKENING_STATE) == IN_PROGRESS;
             }
 
@@ -282,7 +282,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 switch (id)
                 {
                     case POINT_CENTER:
-                        DoCast(me, SPELL_INCITE_TERROR);
+                        DoCast (me, SPELL_INCITE_TERROR);
                         events.ScheduleEvent(EVENT_AIR_PHASE, 100000 + uint32(Is25ManRaid() ? 0 : 20000));
                         events.RescheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
                         events.RescheduleEvent(EVENT_PACT_OF_THE_DARKFALLEN, 25500, EVENT_GROUP_NORMAL);
@@ -290,7 +290,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         break;
                     case POINT_AIR:
                         _bloodboltedPlayers.clear();
-                        DoCast(me, SPELL_BLOODBOLT_WHIRL);
+                        DoCast (me, SPELL_BLOODBOLT_WHIRL);
                         Talk(SAY_AIR_PHASE);
                         events.ScheduleEvent(EVENT_AIR_FLY_DOWN, 10000);
                         break;
@@ -305,7 +305,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         events.ScheduleEvent(EVENT_BLOOD_MIRROR, 2500, EVENT_GROUP_CANCELLABLE);
                         break;
                     case POINT_MINCHAR:
-                        DoCast(me, SPELL_ANNIHILATE, true);
+                        DoCast (me, SPELL_ANNIHILATE, true);
                         // already in evade mode
                         me->GetMotionMaster()->MoveTargetedHome();
                         Reset();
@@ -331,7 +331,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         case EVENT_BERSERK:
                             DoScriptText(EMOTE_GENERIC_BERSERK_RAID, me);
                             Talk(SAY_BERSERK);
-                            DoCast(me, SPELL_BERSERK);
+                            DoCast (me, SPELL_BERSERK);
                             break;
                         case EVENT_VAMPIRIC_BITE:
                         {
@@ -340,7 +340,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             if (!targets.empty())
                             {
                                 Unit* target = targets.front();
-                                DoCast(target, SPELL_VAMPIRIC_BITE);
+                                DoCast (target, SPELL_VAMPIRIC_BITE);
                                 Talk(SAY_VAMPIRIC_BITE);
                                 _vampires.insert(target->GetGUID());
                             }
@@ -373,7 +373,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         }
                         case EVENT_DELIRIOUS_SLASH:
                             if (_offtank && !me->HasByteFlag(UNIT_FIELD_BYTES_1, 3, 0x03))
-                                DoCast(_offtank, SPELL_DELIRIOUS_SLASH);
+                                DoCast (_offtank, SPELL_DELIRIOUS_SLASH);
                             events.ScheduleEvent(EVENT_DELIRIOUS_SLASH, urand(20000, 24000), EVENT_GROUP_NORMAL);
                             break;
                         case EVENT_PACT_OF_THE_DARKFALLEN:
@@ -401,7 +401,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             {
                                 Talk(EMOTE_SWARMING_SHADOWS, target->GetGUID());
                                 Talk(SAY_SWARMING_SHADOWS);
-                                DoCast(target, SPELL_SWARMING_SHADOWS);
+                                DoCast (target, SPELL_SWARMING_SHADOWS);
                             }
                             events.ScheduleEvent(EVENT_SWARMING_SHADOWS, 30500, EVENT_GROUP_NORMAL);
                             break;
@@ -412,7 +412,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             Trinity::RandomResizeList<Player*>(targets, uint32(Is25ManRaid() ? 4 : 2));
                             for (std::list<Player*>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
                                 DoCast(*itr, SPELL_TWILIGHT_BLOODBOLT);
-                            DoCast(me, SPELL_TWILIGHT_BLOODBOLT_TARGET);
+                            DoCast (me, SPELL_TWILIGHT_BLOODBOLT_TARGET);
                             events.ScheduleEvent(EVENT_TWILIGHT_BLOODBOLT, urand(10000, 15000), EVENT_GROUP_NORMAL);
                             break;
                         }

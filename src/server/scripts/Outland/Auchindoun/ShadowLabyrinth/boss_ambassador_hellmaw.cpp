@@ -84,7 +84,7 @@ public:
             if (m_instance && me->isAlive())
             {
                 if (m_instance->GetData(TYPE_OVERSEER) != DONE)
-                    DoCast(me, SPELL_BANISH, true);
+                    DoCast (me, SPELL_BANISH, true);
             }
         }
 
@@ -181,13 +181,13 @@ public:
 
             if (CorrosiveAcid_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CORROSIVE_ACID);
+                DoCast (me->getVictim(), SPELL_CORROSIVE_ACID);
                 CorrosiveAcid_Timer = 15000 + rand()%10000;
             } else CorrosiveAcid_Timer -= diff;
 
             if (Fear_Timer <= diff)
             {
-                DoCast(me, SPELL_FEAR);
+                DoCast (me, SPELL_FEAR);
                 Fear_Timer = 20000 + rand()%15000;
             } else Fear_Timer -= diff;
 
@@ -195,7 +195,7 @@ public:
             {
                 if (!Enraged && Enrage_Timer <= diff)
                 {
-                    DoCast(me, SPELL_ENRAGE);
+                    DoCast (me, SPELL_ENRAGE);
                     Enraged = true;
                 } else Enrage_Timer -= diff;
             }

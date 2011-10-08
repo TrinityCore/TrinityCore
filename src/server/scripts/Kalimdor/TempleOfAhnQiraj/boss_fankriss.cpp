@@ -105,7 +105,7 @@ public:
             //MortalWound_Timer
             if (MortalWound_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
+                DoCast (me->getVictim(), SPELL_MORTAL_WOUND);
                 MortalWound_Timer = 10000 + rand()%10000;
             } else MortalWound_Timer -= diff;
 
@@ -140,7 +140,7 @@ public:
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (target && target->GetTypeId() == TYPEID_PLAYER)
                     {
-                        DoCast(target, SPELL_ROOT);
+                        DoCast (target, SPELL_ROOT);
 
                         if (DoGetThreat(target))
                             DoModifyThreatPercent(target, -100);

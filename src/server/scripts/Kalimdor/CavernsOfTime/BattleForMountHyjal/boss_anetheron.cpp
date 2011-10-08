@@ -169,7 +169,7 @@ public:
             if (SwarmTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CARRION_SWARM);
+                    DoCast (target, SPELL_CARRION_SWARM);
 
                 SwarmTimer = urand(45000, 60000);
                 switch (urand(0, 1))
@@ -207,12 +207,12 @@ public:
             } else SleepTimer -= diff;
             if (AuraTimer <= diff)
             {
-                DoCast(me, SPELL_VAMPIRIC_AURA, true);
+                DoCast (me, SPELL_VAMPIRIC_AURA, true);
                 AuraTimer = urand(10000, 20000);
             } else AuraTimer -= diff;
             if (InfernoTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_INFERNO);
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_INFERNO);
                 InfernoTimer = 45000;
                 switch (urand(0, 1))
                 {
@@ -262,7 +262,7 @@ public:
 
         void Reset()
         {
-            DoCast(me, SPELL_INFERNO_EFFECT);
+            DoCast (me, SPELL_INFERNO_EFFECT);
             ImmolationTimer = 5000;
             CheckTimer = 5000;
         }
@@ -308,7 +308,7 @@ public:
 
             if (ImmolationTimer <= diff)
             {
-                DoCast(me, SPELL_IMMOLATION);
+                DoCast (me, SPELL_IMMOLATION);
                 ImmolationTimer = 5000;
             } else ImmolationTimer -= diff;
 

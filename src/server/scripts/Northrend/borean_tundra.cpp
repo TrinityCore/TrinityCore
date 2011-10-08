@@ -98,8 +98,8 @@ public:
                 switch (Phase)
                 {
                     case 1:
-                        DoCast(me, SPELL_EXPLODE_CART, true);
-                        DoCast(me, SPELL_SUMMON_CART, true);
+                        DoCast (me, SPELL_EXPLODE_CART, true);
+                        DoCast (me, SPELL_SUMMON_CART, true);
                         if (GameObject* cart = me->FindNearestGameObject(188160, 3))
                             cart->SetUInt32Value(GAMEOBJECT_FACTION, 14);
                         uiPhaseTimer = 3000;
@@ -108,16 +108,16 @@ public:
                     case 2:
                         if (GameObject* cart = me->FindNearestGameObject(188160, 3))
                             cart->UseDoorOrButton();
-                        DoCast(me, SPELL_EXPLODE_CART, true);
+                        DoCast (me, SPELL_EXPLODE_CART, true);
                         uiPhaseTimer = 3000;
                         Phase = 3;
                         break;
                     case 3:
-                        DoCast(me, SPELL_EXPLODE_CART, true);
+                        DoCast (me, SPELL_EXPLODE_CART, true);
                         uiPhaseTimer = 2000;
                         Phase = 4;
                     case 5:
-                        DoCast(me, SPELL_SUMMON_WORM, true);
+                        DoCast (me, SPELL_SUMMON_WORM, true);
                         if (Unit* worm = me->FindNearestCreature(26250, 3))
                         {
                             worm->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -127,7 +127,7 @@ public:
                         Phase = 6;
                         break;
                     case 6:
-                        DoCast(me, SPELL_EXPLODE_CART, true);
+                        DoCast (me, SPELL_EXPLODE_CART, true);
                         if (Unit* worm = me->FindNearestCreature(26250, 3))
                         {
                             me->Kill(worm);
@@ -137,7 +137,7 @@ public:
                         Phase = 7;
                         break;
                     case 7:
-                        DoCast(me, SPELL_EXPLODE_CART, true);
+                        DoCast (me, SPELL_EXPLODE_CART, true);
                         if (Player* caster = Unit::GetPlayer(*me, casterGuid))
                             caster->KilledMonster(me->GetCreatureInfo(), me->GetGUID());
                         uiPhaseTimer = 5000;
@@ -464,7 +464,7 @@ public:
 
         void DamageTaken(Unit* /*pDone_by*/, uint32& /*uiDamage*/)
         {
-            DoCast(me, SPELL_DROP_CRATE, true);
+            DoCast (me, SPELL_DROP_CRATE, true);
         }
 
         void UpdateAI(const uint32 /*diff*/)
@@ -664,7 +664,7 @@ public:
                     }
                         break;
                     case 8:
-                        DoCast(me, SPELL_TRAPPED, true);
+                        DoCast (me, SPELL_TRAPPED, true);
                         Phase = 0;
                         break;
                 }
@@ -871,7 +871,7 @@ public:
             if (spell->Id == SPELL_DRAKE_HARPOON && caster->GetTypeId() == TYPEID_PLAYER)
             {
                 HarpoonerGUID = caster->GetGUID();
-                DoCast(me, SPELL_RED_DRAGONBLOOD, true);
+                DoCast (me, SPELL_RED_DRAGONBLOOD, true);
             }
             WithRedDragonBlood = true;
         }
@@ -908,7 +908,7 @@ public:
                     EnterEvadeMode();
                     StartFollow(pHarpooner, 35, NULL);
 
-                    DoCast(me, SPELL_SUBDUED, true);
+                    DoCast (me, SPELL_SUBDUED, true);
                     pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
 
                     me->AttackStop();
@@ -1410,19 +1410,19 @@ public:
             {
                 if (uiShadowBoltTimer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
+                    DoCast (me->getVictim(), SPELL_SHADOW_BOLT);
                     uiShadowBoltTimer = urand(5000, 12000);
                 } else uiShadowBoltTimer -= uiDiff;
 
                 if (uiDeflectionTimer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_DEFLECTION);
+                    DoCast (me->getVictim(), SPELL_DEFLECTION);
                     uiDeflectionTimer = urand(20000, 25000);
                 } else uiDeflectionTimer -= uiDiff;
 
                 if (uiSoulBlastTimer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_SOUL_BLAST);
+                    DoCast (me->getVictim(), SPELL_SOUL_BLAST);
                     uiSoulBlastTimer  = urand (12000, 18000);
                 } else uiSoulBlastTimer -= uiDiff;
             }
@@ -1630,7 +1630,7 @@ public:
                 me->SetReactState(REACT_PASSIVE);
                 StartFollow(pCaster->ToPlayer(), 0, NULL);
                 me->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER, TEAM_NEUTRAL);
-                DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
+                DoCast (me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
                 CAST_PLR(pCaster)->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER, 0);
                 bEnslaved = true;
             }
@@ -1720,7 +1720,7 @@ public:
             ScriptedAI::UpdateAI(uiDiff);
 
             if (!me->HasAura(SPELL_COSMETIC_ENSLAVE_CHAINS_SELF))
-                DoCast(me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF);
+                DoCast (me, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF);
 
             if (me->GetReactState() != REACT_PASSIVE)
                 me->SetReactState(REACT_PASSIVE);
@@ -2161,7 +2161,7 @@ public:
         {
             if (uiExplosionTimer < diff)
             {
-                DoCast(SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
+                DoCast (SPELL_SEAFORIUM_DEPTH_CHARGE_EXPLOSION);
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     if (Creature* cCredit = me->FindNearestCreature(25402 + i, 10.0f))//25402-25405 credit markers
@@ -2292,7 +2292,7 @@ public:
                             {
                                 if (Creature* pOrb = *itr)
                                     if (pOrb->GetPositionY() > 6680)
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
+                                        DoCast (pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
                             }
                         }
                         m_uiTimer = urand(90000, 120000);
@@ -2306,7 +2306,7 @@ public:
                             {
                                 if (Creature* pOrb = *itr)
                                     if ((pOrb->GetPositionY() < 6680) && (pOrb->GetPositionY() > 6630))
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
+                                        DoCast (pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
                             }
                         }
                         m_uiTimer = urand(90000, 120000);
@@ -2320,7 +2320,7 @@ public:
                             {
                                 if (Creature* pOrb = *itr)
                                     if (pOrb->GetPositionY() < 6630)
-                                        DoCast(pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
+                                        DoCast (pOrb, SPELL_TRANSITUS_SHIELD_BEAM);
                             }
                         }
                         m_uiTimer = urand(90000, 120000);
@@ -2406,7 +2406,7 @@ public:
 
             uiPlayerGUID = 0;
 
-            DoCast(SPELL_SHROUD_OF_THE_DEATH_CULTIST);
+            DoCast (SPELL_SHROUD_OF_THE_DEATH_CULTIST);
 
             me->RestoreFaction();
         }

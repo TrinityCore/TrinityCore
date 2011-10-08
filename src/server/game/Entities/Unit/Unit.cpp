@@ -282,14 +282,14 @@ Unit::~Unit()
 
     ASSERT(!m_duringRemoveFromWorld);
     ASSERT(!m_attacking);
-    ASSERT(m_attackers.empty());
-    ASSERT(m_sharedVision.empty());
-    ASSERT(m_Controlled.empty());
-    ASSERT(m_appliedAuras.empty());
-    ASSERT(m_ownedAuras.empty());
-    ASSERT(m_removedAuras.empty());
-    ASSERT(m_gameObj.empty());
-    ASSERT(m_dynObj.empty());
+    ASSERT (m_attackers.empty());
+    ASSERT (m_sharedVision.empty());
+    ASSERT (m_Controlled.empty());
+    ASSERT (m_appliedAuras.empty());
+    ASSERT (m_ownedAuras.empty());
+    ASSERT (m_removedAuras.empty());
+    ASSERT (m_gameObj.empty());
+    ASSERT (m_dynObj.empty());
 }
 
 void Unit::Update(uint32 p_time)
@@ -847,10 +847,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         // last damage from duel opponent
         if (duel_hasEnded)
         {
-            ASSERT(victim->GetTypeId() == TYPEID_PLAYER);
+            ASSERT (victim->GetTypeId() == TYPEID_PLAYER);
             Player* he = victim->ToPlayer();
 
-            ASSERT(he->duel);
+            ASSERT (he->duel);
 
             he->SetHealth(1);
 
@@ -2928,7 +2928,7 @@ void Unit::_UpdateAutoRepeatSpell()
 
 void Unit::SetCurrentCastedSpell(Spell* pSpell)
 {
-    ASSERT(pSpell);                                         // NULL may be never passed here, use InterruptSpell or InterruptNonMeleeSpells
+    ASSERT (pSpell);                                         // NULL may be never passed here, use InterruptSpell or InterruptNonMeleeSpells
 
     CurrentSpellTypes CSpellType = pSpell->GetCurrentContainer();
 
@@ -3001,7 +3001,7 @@ void Unit::SetCurrentCastedSpell(Spell* pSpell)
 
 void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool withInstant)
 {
-    ASSERT(spellType < CURRENT_MAX_SPELL);
+    ASSERT (spellType < CURRENT_MAX_SPELL);
 
     //sLog->outDebug(LOG_FILTER_UNITS, "Interrupt spell for unit %u.", GetEntry());
     Spell* spell = m_currentSpells[spellType];
@@ -3145,7 +3145,7 @@ void Unit::DeMorph()
 
 Aura* Unit::_TryStackingOrRefreshingExistingAura(SpellInfo const* newAura, uint8 effMask, Unit* caster, int32* baseAmount /*= NULL*/, Item* castItem /*= NULL*/, uint64 casterGUID /*= 0*/)
 {
-    ASSERT(casterGUID || caster);
+    ASSERT (casterGUID || caster);
     if (!casterGUID)
         casterGUID = caster->GetGUID();
 
@@ -3270,10 +3270,10 @@ AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint8 effMask)
 
 void Unit::_ApplyAuraEffect(Aura* aura, uint8 effIndex)
 {
-    ASSERT(aura);
-    ASSERT(aura->HasEffect(effIndex));
+    ASSERT (aura);
+    ASSERT (aura->HasEffect(effIndex));
     AuraApplication * aurApp = aura->GetApplicationOfTarget(GetGUID());
-    ASSERT(aurApp);
+    ASSERT (aurApp);
     if (!aurApp->GetEffectMask())
         _ApplyAura(aurApp, 1<<effIndex);
     else
@@ -3321,16 +3321,16 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint8 effMask)
 void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMode)
 {
     AuraApplication * aurApp = i->second;
-    ASSERT(aurApp);
+    ASSERT (aurApp);
     ASSERT(!aurApp->GetRemoveMode());
-    ASSERT(aurApp->GetTarget() == this);
+    ASSERT (aurApp->GetTarget() == this);
 
     aurApp->SetRemoveMode(removeMode);
     Aura* aura = aurApp->GetBase();
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Aura %u now is remove mode %d", aura->GetId(), removeMode);
 
     // dead loop is killing the server probably
-    ASSERT(m_removedAurasCount < 0xFFFFFFFF);
+    ASSERT (m_removedAurasCount < 0xFFFFFFFF);
 
     ++m_removedAurasCount;
 
@@ -3399,7 +3399,7 @@ void Unit::_UnapplyAura(AuraApplicationMap::iterator &i, AuraRemoveMode removeMo
 void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode)
 {
     // aura can be removed from unit only if it's applied on it, shouldn't happen
-    ASSERT(aurApp->GetBase()->GetApplicationOfTarget(GetGUID()) == aurApp);
+    ASSERT (aurApp->GetBase()->GetApplicationOfTarget(GetGUID()) == aurApp);
     uint32 spellId = aurApp->GetBase()->GetId();
     for (AuraApplicationMap::iterator iter = m_appliedAuras.lower_bound(spellId); iter != m_appliedAuras.upper_bound(spellId);)
     {
@@ -3411,7 +3411,7 @@ void Unit::_UnapplyAura(AuraApplication * aurApp, AuraRemoveMode removeMode)
         else
             ++iter;
     }
-    ASSERT(false);
+    ASSERT (false);
 }
 
 void Unit::_RemoveNoStackAurasDueToAura(Aura* aura)
@@ -3488,7 +3488,7 @@ void Unit::RemoveOwnedAura(Aura* aura, AuraRemoveMode removeMode)
     if (aura->IsRemoved())
         return;
 
-    ASSERT(aura->GetOwner() == this);
+    ASSERT (aura->GetOwner() == this);
 
     uint32 spellId = aura->GetId();
     for (AuraMap::iterator itr = m_ownedAuras.lower_bound(spellId); itr != m_ownedAuras.upper_bound(spellId); ++itr)
@@ -3497,7 +3497,7 @@ void Unit::RemoveOwnedAura(Aura* aura, AuraRemoveMode removeMode)
             RemoveOwnedAura(itr, removeMode);
             return;
         }
-    ASSERT(false);
+    ASSERT (false);
 }
 
 Aura* Unit::GetOwnedAura(uint32 spellId, uint64 casterGUID, uint64 itemCasterGUID, uint8 reqEffMask, Aura* except) const
@@ -9838,7 +9838,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
                     {
                         OutDebugInfo();
                         (*itr)->OutDebugInfo();
-                        ASSERT(false);
+                        ASSERT (false);
                     }
                     ASSERT((*itr)->GetTypeId() == TYPEID_UNIT);
 
@@ -12115,7 +12115,7 @@ bool Unit::IsValidAttackTarget(Unit const* target) const
 // function based on function Unit::CanAttack from 13850 client
 bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell) const
 {
-    ASSERT(target);
+    ASSERT (target);
 
     // can't attack self
     if (this == target)
@@ -12209,7 +12209,7 @@ bool Unit::IsValidAssistTarget(Unit const* target) const
 // function based on function Unit::CanAssist from 13850 client
 bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) const
 {
-    ASSERT(target);
+    ASSERT (target);
 
     // can assist to self
     if (this == target)
@@ -12784,7 +12784,7 @@ void Unit::DeleteThreatList()
 
 void Unit::TauntApply(Unit* taunter)
 {
-    ASSERT(GetTypeId() == TYPEID_UNIT);
+    ASSERT (GetTypeId() == TYPEID_UNIT);
 
     if (!taunter || (taunter->GetTypeId() == TYPEID_PLAYER && taunter->ToPlayer()->isGameMaster()))
         return;
@@ -12812,7 +12812,7 @@ void Unit::TauntApply(Unit* taunter)
 
 void Unit::TauntFadeOut(Unit* taunter)
 {
-    ASSERT(GetTypeId() == TYPEID_UNIT);
+    ASSERT (GetTypeId() == TYPEID_UNIT);
 
     if (!taunter || (taunter->GetTypeId() == TYPEID_PLAYER && taunter->ToPlayer()->isGameMaster()))
         return;
@@ -13669,7 +13669,7 @@ void Unit::AddToWorld()
 void Unit::RemoveFromWorld()
 {
     // cleanup
-    ASSERT(GetGUID());
+    ASSERT (GetGUID());
 
     if (IsInWorld())
     {
@@ -13693,7 +13693,7 @@ void Unit::RemoveFromWorld()
         if (GetCharmerGUID())
         {
             sLog->outCrash("Unit %u has charmer guid when removed from world", GetEntry());
-            ASSERT(false);
+            ASSERT (false);
         }
 
         if (Unit* owner = GetOwner())
@@ -13701,7 +13701,7 @@ void Unit::RemoveFromWorld()
             if (owner->m_Controlled.find(this) != owner->m_Controlled.end())
             {
                 sLog->outCrash("Unit %u is in controlled list of %u when removed from world", GetEntry(), owner->GetEntry());
-                ASSERT(false);
+                ASSERT (false);
             }
         }
 
@@ -13718,7 +13718,7 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
     if (IsInWorld())
         RemoveFromWorld();
 
-    ASSERT(GetGUID());
+    ASSERT (GetGUID());
 
     // A unit may be in removelist and not in world, but it is still in grid
     // and may have some references during delete
@@ -14307,7 +14307,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
                 continue;
 
             AuraEffect* triggeredByAura = i->aura->GetEffect(effIndex);
-            ASSERT(triggeredByAura);
+            ASSERT (triggeredByAura);
 
             switch (triggeredByAura->GetAuraType())
             {
@@ -15810,7 +15810,7 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (GetTypeId() == TYPEID_PLAYER)
         Unmount();
 
-    ASSERT(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
+    ASSERT (type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
     ASSERT((type == CHARM_TYPE_VEHICLE) == IsVehicle());
 
     sLog->outDebug(LOG_FILTER_UNITS, "SetCharmedBy: charmer %u (GUID %u), charmed %u (GUID %u), type %u.", charmer->GetEntry(), charmer->GetGUIDLow(), GetEntry(), GetGUIDLow(), uint32(type));
@@ -15958,7 +15958,7 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     {
 //        sLog->outCrash("Unit::RemoveCharmedBy: this: " UI64FMTD " true charmer: " UI64FMTD " false charmer: " UI64FMTD,
 //            GetGUID(), GetCharmerGUID(), charmer->GetGUID());
-//        ASSERT(false);
+//        ASSERT (false);
         return;
     }
 
@@ -16004,8 +16004,8 @@ void Unit::RemoveCharmedBy(Unit* charmer)
     if (!charmer)
         return;
 
-    ASSERT(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
-    ASSERT(type != CHARM_TYPE_VEHICLE || (GetTypeId() == TYPEID_UNIT && IsVehicle()));
+    ASSERT (type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
+    ASSERT (type != CHARM_TYPE_VEHICLE || (GetTypeId() == TYPEID_UNIT && IsVehicle()));
 
     charmer->SetCharm(this, false);
 
@@ -16993,7 +16993,7 @@ void Unit::ChangeSeat(int8 seatId, bool next)
 
     m_vehicle->RemovePassenger(this);
     if (!m_vehicle->AddPassenger(this, seatId))
-        ASSERT(false);
+        ASSERT (false);
 }
 
 void Unit::ExitVehicle(Position const* exitPosition)

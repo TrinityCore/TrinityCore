@@ -100,7 +100,7 @@ struct emerald_dragonAI : public WorldBossAI
         _Reset();
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
         me->SetReactState(REACT_AGGRESSIVE);
-        DoCast(me, SPELL_MARK_OF_NATURE_AURA, true);
+        DoCast (me, SPELL_MARK_OF_NATURE_AURA, true);
         events.ScheduleEvent(EVENT_TAIL_SWEEP, 4000);
         events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
         events.ScheduleEvent(EVENT_SEEPING_FOG, urand(12500, 20000));
@@ -120,18 +120,18 @@ struct emerald_dragonAI : public WorldBossAI
             case EVENT_SEEPING_FOG:
                 // Seeping Fog appears only as "pairs", and only ONE pair at any given time!
                 // Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random time" (30 seconds at max)
-                DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
-                DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
+                DoCast (me, SPELL_SEEPING_FOG_LEFT, true);
+                DoCast (me, SPELL_SEEPING_FOG_RIGHT, true);
                 events.ScheduleEvent(EVENT_SEEPING_FOG, urand(120000, 150000));
                 break;
             case EVENT_NOXIOUS_BREATH:
                 // Noxious Breath is cast on random intervals, no less than 7.5 seconds between
-                DoCast(me, SPELL_NOXIOUS_BREATH);
+                DoCast (me, SPELL_NOXIOUS_BREATH);
                 events.ScheduleEvent(EVENT_NOXIOUS_BREATH, urand(7500, 15000));
                 break;
             case EVENT_TAIL_SWEEP:
                 // Tail Sweep is cast every two seconds, no matter what goes on in front of the dragon
-                DoCast(me, SPELL_TAIL_SWEEP);
+                DoCast (me, SPELL_TAIL_SWEEP);
                 events.ScheduleEvent(EVENT_TAIL_SWEEP, 2000);
                 break;
         }
@@ -151,7 +151,7 @@ struct emerald_dragonAI : public WorldBossAI
             ExecuteEvent(eventId);
 
         if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, -50.0f, true))
-            DoCast(target, SPELL_SUMMON_PLAYER);
+            DoCast (target, SPELL_SUMMON_PLAYER);
 
         DoMeleeAttackIfReady();
     }
@@ -372,7 +372,7 @@ class boss_ysondre : public CreatureScript
                     Talk(SAY_YSONDRE_SUMMON_DRUIDS);
 
                     for (uint8 i = 0 ; i < 10 ; ++i)
-                        DoCast(me, SPELL_SUMMON_DRUID_SPIRITS, true);
+                        DoCast (me, SPELL_SUMMON_DRUID_SPIRITS, true);
                     ++_stage;
                 }
             }
@@ -455,7 +455,7 @@ class boss_lethon : public CreatureScript
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
                     Talk(SAY_LETHON_DRAW_SPIRIT);
-                    DoCast(me, SPELL_DRAW_SPIRIT);
+                    DoCast (me, SPELL_DRAW_SPIRIT);
                     ++_stage;
                 }
             }
@@ -465,7 +465,7 @@ class boss_lethon : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_SHADOW_BOLT_WHIRL:
-                        DoCast(me, SPELL_SHADOW_BOLT_WHIRL, true);
+                        DoCast (me, SPELL_SHADOW_BOLT_WHIRL, true);
                         events.ScheduleEvent(EVENT_SHADOW_BOLT_WHIRL, urand(15000, 30000));
                         break;
                     default:
@@ -525,7 +525,7 @@ class boss_emeriss : public CreatureScript
             void KilledUnit(Unit* who)
             {
                 if (who->GetTypeId() == TYPEID_PLAYER)
-                    DoCast(who, SPELL_PUTRID_MUSHROOM, true);
+                    DoCast (who, SPELL_PUTRID_MUSHROOM, true);
                 emerald_dragonAI::KilledUnit(who);
             }
 
@@ -540,7 +540,7 @@ class boss_emeriss : public CreatureScript
                 if (!HealthAbovePct(100 - 25 * _stage))
                 {
                     Talk(SAY_EMERISS_CAST_CORRUPTION);
-                    DoCast(me, SPELL_CORRUPTION_OF_EARTH, true);
+                    DoCast (me, SPELL_CORRUPTION_OF_EARTH, true);
                     ++_stage;
                 }
             }
@@ -656,7 +656,7 @@ class boss_taerar : public CreatureScript
                         DoCastVictim(TaerarShadeSpells[i], true);
                     _shades += count;
 
-                    DoCast(SPELL_SHADE);
+                    DoCast (SPELL_SHADE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NON_ATTACKABLE);
                     me->SetReactState(REACT_PASSIVE);
 
@@ -669,11 +669,11 @@ class boss_taerar : public CreatureScript
                 switch (eventId)
                 {
                     case EVENT_ARCANE_BLAST:
-                        DoCast(SPELL_ARCANE_BLAST);
+                        DoCast (SPELL_ARCANE_BLAST);
                         events.ScheduleEvent(EVENT_ARCANE_BLAST, urand(7000, 12000));
                         break;
                     case EVENT_BELLOWING_ROAR:
-                        DoCast(SPELL_BELLOWING_ROAR);
+                        DoCast (SPELL_BELLOWING_ROAR);
                         events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(20000, 30000));
                         break;
                     default:

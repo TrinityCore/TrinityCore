@@ -143,14 +143,14 @@ class boss_drakkari_colossus : public CreatureScript
                 switch (action)
                 {
                     case ACTION_SUMMON_ELEMENTAL:
-                        DoCast(SPELL_EMERGE);
+                        DoCast (SPELL_EMERGE);
                         break;
                     case ACTION_FREEZE_COLOSSUS:
                         me->GetMotionMaster()->MoveIdle();
 
                         me->SetReactState(REACT_PASSIVE);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                        DoCast(me, SPELL_FREEZE_ANIM);
+                        DoCast (me, SPELL_FREEZE_ANIM);
                         break;
                     case ACTION_UNFREEZE_COLOSSUS:
 
@@ -220,7 +220,7 @@ class boss_drakkari_colossus : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_MIGHTY_BLOW:
-                            DoCast(me->getVictim(), SPELL_MIGHTY_BLOW);
+                            DoCast (me->getVictim(), SPELL_MIGHTY_BLOW);
                             events.ScheduleEvent(EVENT_MIGHTY_BLOW, urand(5000, 15000));
                             break;
                     }
@@ -258,7 +258,7 @@ class boss_drakkari_elemental : public CreatureScript
         {
             boss_drakkari_elementalAI(Creature* creature) : ScriptedAI(creature)
             {
-                DoCast(me, SPELL_ELEMENTAL_SPAWN_EFFECT);
+                DoCast (me, SPELL_ELEMENTAL_SPAWN_EFFECT);
                 instance = creature->GetInstanceScript();
             }
 
@@ -297,9 +297,9 @@ class boss_drakkari_elemental : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_SURGE:
-                            DoCast(SPELL_SURGE_VISUAL);
+                            DoCast (SPELL_SURGE_VISUAL);
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-                                DoCast(target, SPELL_SURGE);
+                                DoCast (target, SPELL_SURGE);
                             events.ScheduleEvent(EVENT_SURGE, urand(5000, 15000));
                             break;
                     }
@@ -313,12 +313,12 @@ class boss_drakkari_elemental : public CreatureScript
                 switch (action)
                 {
                     case ACTION_RETURN_TO_COLOSSUS:
-                        DoCast(SPELL_SURGE_VISUAL);
+                        DoCast (SPELL_SURGE_VISUAL);
                         if (instance)
                         {
                             if (Creature* colossus = Unit::GetCreature(*me, instance->GetData64(DATA_DRAKKARI_COLOSSUS)))
                                 // what if the elemental is more than 80 yards from drakkari colossus ?
-                                DoCast(colossus, SPELL_MERGE, true);
+                                DoCast (colossus, SPELL_MERGE, true);
                         }
                         break;
                 }
@@ -471,13 +471,13 @@ public:
 
             if (mojoWaveTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MOJO_WAVE);
+                DoCast (me->getVictim(), SPELL_MOJO_WAVE);
                 mojoWaveTimer = 15*IN_MILLISECONDS;
             } else mojoWaveTimer -= diff;
 
             if (mojoPuddleTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MOJO_PUDDLE);
+                DoCast (me->getVictim(), SPELL_MOJO_PUDDLE);
                 mojoPuddleTimer = 18*IN_MILLISECONDS;
             } else mojoPuddleTimer -= diff;
 

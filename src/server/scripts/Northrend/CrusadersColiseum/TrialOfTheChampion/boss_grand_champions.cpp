@@ -226,7 +226,7 @@ public:
         void DoCastSpellShield()
         {
             for (uint8 i = 0; i < 3; ++i)
-                DoCast(me, SPELL_SHIELD, true);
+                DoCast (me, SPELL_SHIELD, true);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -256,7 +256,7 @@ public:
                         {
                             DoResetThreat();
                             me->AddThreat(player, 1.0f);
-                            DoCast(player, SPELL_CHARGE);
+                            DoCast (player, SPELL_CHARGE);
                             break;
                         }
                     }
@@ -397,7 +397,7 @@ public:
                         {
                             DoResetThreat();
                             me->AddThreat(player, 5.0f);
-                            DoCast(player, SPELL_INTERCEPT);
+                            DoCast (player, SPELL_INTERCEPT);
                             break;
                         }
                     }
@@ -538,7 +538,7 @@ public:
             if (uiPolymorphTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_POLYMORPH);
+                    DoCast (target, SPELL_POLYMORPH);
                 uiPolymorphTimer = 8000;
             } else uiPolymorphTimer -= uiDiff;
 
@@ -552,7 +552,7 @@ public:
             {
                 me->InterruptNonMeleeSpells(true);
 
-                DoCast(me, SPELL_HASTE);
+                DoCast (me, SPELL_HASTE);
                 uiHasteTimer = 22000;
             } else uiHasteTimer -= uiDiff;
 
@@ -618,8 +618,8 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoCast(me, SPELL_EARTH_SHIELD);
-            DoCast(who, SPELL_HEX_OF_MENDING);
+            DoCast (me, SPELL_EARTH_SHIELD);
+            DoCast (who, SPELL_HEX_OF_MENDING);
         };
 
         void JustReachedHome()
@@ -670,7 +670,7 @@ public:
             if (uiChainLightningTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHAIN_LIGHTNING);
+                    DoCast (target, SPELL_CHAIN_LIGHTNING);
 
                 uiChainLightningTimer = 16000;
             } else uiChainLightningTimer -= uiDiff;
@@ -682,16 +682,16 @@ public:
                 if (!bChance)
                 {
                     if (Unit* pFriend = DoSelectLowestHpFriendly(40))
-                        DoCast(pFriend, SPELL_HEALING_WAVE);
+                        DoCast (pFriend, SPELL_HEALING_WAVE);
                 } else
-                    DoCast(me, SPELL_HEALING_WAVE);
+                    DoCast (me, SPELL_HEALING_WAVE);
 
                 uiHealingWaveTimer = 12000;
             } else uiHealingWaveTimer -= uiDiff;
 
             if (uiEartShieldTimer <= uiDiff)
             {
-                DoCast(me, SPELL_EARTH_SHIELD);
+                DoCast (me, SPELL_EARTH_SHIELD);
 
                 uiEartShieldTimer = urand(30000, 35000);
             } else uiEartShieldTimer -= uiDiff;
@@ -824,7 +824,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 30.0f))
                 {
                     uiTargetGUID = target->GetGUID();
-                    DoCast(target, SPELL_SHOOT);
+                    DoCast (target, SPELL_SHOOT);
                 }
                 uiShootTimer = 12000;
                 uiMultiShotTimer = 3000;
@@ -838,7 +838,7 @@ public:
 
                 if (target && me->IsInRange(target, 5.0f, 30.0f, false))
                 {
-                    DoCast(target, SPELL_MULTI_SHOT);
+                    DoCast (target, SPELL_MULTI_SHOT);
                 } else
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
@@ -849,7 +849,7 @@ public:
                             Player* player = itr->getSource();
                             if (player && !player->isGameMaster() && me->IsInRange(player, 5.0f, 30.0f, false))
                             {
-                                DoCast(target, SPELL_MULTI_SHOT);
+                                DoCast (target, SPELL_MULTI_SHOT);
                                 break;
                             }
                         }
@@ -962,7 +962,7 @@ public:
 
             if (uiEviscerateTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_EVISCERATE);
+                DoCast (me->getVictim(), SPELL_EVISCERATE);
                 uiEviscerateTimer = 8000;
             } else uiEviscerateTimer -= uiDiff;
 
@@ -975,7 +975,7 @@ public:
             if (uiPosionBottleTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_POISON_BOTTLE);
+                    DoCast (target, SPELL_POISON_BOTTLE);
                 uiPosionBottleTimer = 19000;
             } else uiPosionBottleTimer -= uiDiff;
 

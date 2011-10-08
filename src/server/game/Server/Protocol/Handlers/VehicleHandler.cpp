@@ -171,7 +171,7 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         }
 
         VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(plr);
-        ASSERT(seat);
+        ASSERT (seat);
         if (seat->IsEjectable())
             plr->ExitVehicle();
         else
@@ -194,10 +194,10 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
         }
 
         VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(unit);
-        ASSERT(seat);
+        ASSERT (seat);
         if (seat->IsEjectable())
         {
-            ASSERT(GetPlayer() == vehicle->GetBase());
+            ASSERT (GetPlayer() == vehicle->GetBase());
             unit->ExitVehicle();
         }
         else

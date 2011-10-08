@@ -217,7 +217,7 @@ public:
                     {
                         if (Creature* RWORG = Unit::GetCreature(*me, RWORGGUID))
                             RWORG->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
-                        DoCast(Mrfloppy, SPELL_MRFLOPPY);
+                        DoCast (Mrfloppy, SPELL_MRFLOPPY);
                     }
                     break;
                 case 19:
@@ -427,10 +427,10 @@ public:
             {
                 ++m_counter;
                 if (m_counter < 5)
-                    DoCast(pCaster, SPELL_CAMERA_SHAKE, true);
+                    DoCast (pCaster, SPELL_CAMERA_SHAKE, true);
                 else
                     m_counter = 0;
-                DoCast(me, SPELL_DUST_FIELD, true);
+                DoCast (me, SPELL_DUST_FIELD, true);
                 switch (m_gender)
                 {
                     case GENDER_FEMALE: DoPlaySoundToSet(me, SOUND_FEMALE); break;
@@ -667,7 +667,7 @@ public:
 
             if (uiChargedSentryTotem <= uiDiff)
             {
-                DoCast(SPELL_CHARGED_SENTRY_TOTEM);
+                DoCast (SPELL_CHARGED_SENTRY_TOTEM);
                 uiChargedSentryTotem = urand(10000, 12000);
             }
             else
@@ -776,7 +776,7 @@ public:
 
             if (uiChopTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_CHOP);
+                DoCast (me->getVictim(), SPELL_CHOP);
                 uiChopTimer = urand(10000, 12000);
             }
             else

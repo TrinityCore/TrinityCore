@@ -131,20 +131,20 @@ public:
 
             if (SpellSummonVoidTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SUMMON_VOID_SENTRY, false);
+                DoCast (me->getVictim(), SPELL_SUMMON_VOID_SENTRY, false);
                 SpellSummonVoidTimer = 20000;
             } else SpellSummonVoidTimer -=diff;
 
             if (SpellVoidShiftTimer <= diff)
             {
                  if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(unit, SPELL_VOID_SHIFT);
+                    DoCast (unit, SPELL_VOID_SHIFT);
                 SpellVoidShiftTimer = 20000;
             } else SpellVoidShiftTimer -=diff;
 
             if (SpellShroudOfDarknessTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHROUD_OF_DARKNESS);
+                DoCast (me->getVictim(), SPELL_SHROUD_OF_DARKNESS);
                 SpellShroudOfDarknessTimer = 20000;
             } else SpellShroudOfDarknessTimer -=diff;
 

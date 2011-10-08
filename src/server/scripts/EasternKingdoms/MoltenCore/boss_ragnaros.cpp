@@ -176,7 +176,7 @@ class boss_ragnaros : public CreatureScript
                                 AttackStart(target);
                             instance->SetData(DATA_RAGNAROS_ADDS, 0);
 
-                            //DoCast(me, SPELL_RAGEMERGE); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
+                            //DoCast (me, SPELL_RAGEMERGE); //"phase spells" didnt worked correctly so Ive commented them and wrote solution witch doesnt need core support
                             _isBanished = false;
                         }
                         else if (_isBanished)
@@ -208,7 +208,7 @@ class boss_ragnaros : public CreatureScript
                                 events.ScheduleEvent(EVENT_WRATH_OF_RAGNAROS, 25000);
                                 break;
                             case EVENT_HAND_OF_RAGNAROS:
-                                DoCast(me, SPELL_HAND_OF_RAGNAROS);
+                                DoCast (me, SPELL_HAND_OF_RAGNAROS);
                                 if (urand(0, 1))
                                     DoScriptText(SAY_HAND, me);
                                 events.ScheduleEvent(EVENT_HAND_OF_RAGNAROS, 20000);
@@ -246,7 +246,7 @@ class boss_ragnaros : public CreatureScript
                                     me->SetReactState(REACT_PASSIVE);
                                     me->InterruptNonMeleeSpells(false);
                                     //Root self
-                                    //DoCast(me, 23973);
+                                    //DoCast (me, 23973);
                                     me->setFaction(35);
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
@@ -265,7 +265,7 @@ class boss_ragnaros : public CreatureScript
 
                                         _hasSubmergedOnce = true;
                                         _isBanished = true;
-                                        //DoCast(me, SPELL_RAGSUBMERGE);
+                                        //DoCast (me, SPELL_RAGSUBMERGE);
                                         _emergeTimer = 90000;
 
                                     }
@@ -279,7 +279,7 @@ class boss_ragnaros : public CreatureScript
                                                     summoned->AI()->AttackStart(target);
 
                                         _isBanished = true;
-                                        //DoCast(me, SPELL_RAGSUBMERGE);
+                                        //DoCast (me, SPELL_RAGSUBMERGE);
                                         _emergeTimer = 90000;
                                     }
                                 }

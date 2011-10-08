@@ -307,8 +307,8 @@ public:
                     } else m_uiSubmergeTimer -= uiDiff;
                     break;
                 case 1:
-                    DoCast(me, SPELL_SUBMERGE_ANUBARAK);
-                    DoCast(me, SPELL_CLEAR_ALL_DEBUFFS);
+                    DoCast (me, SPELL_SUBMERGE_ANUBARAK);
+                    DoCast (me, SPELL_CLEAR_ALL_DEBUFFS);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     DoScriptText(SAY_BURROWER, me);
                     m_uiScarabSummoned = 0;
@@ -318,7 +318,7 @@ public:
                 case 2:
                     if (m_uiPursuingSpikeTimer <= uiDiff)
                     {
-                        DoCast(SPELL_SPIKE_CALL);
+                        DoCast (SPELL_SPIKE_CALL);
                         // Just to make sure it won't happen again in this phase
                         m_uiPursuingSpikeTimer = 90*IN_MILLISECONDS;
                     } else m_uiPursuingSpikeTimer -= uiDiff;
@@ -340,7 +340,7 @@ public:
 
                         /*It seems that this spell have something more that needs to be taken into account
                         //Need more sniff info
-                        DoCast(SPELL_SUMMON_BEATLES);
+                        DoCast (SPELL_SUMMON_BEATLES);
                         // Just to make sure it won't happen again in this phase
                         m_uiSummonScarabTimer = 90*IN_MILLISECONDS;*/
                     } else m_uiSummonScarabTimer -= uiDiff;
@@ -353,11 +353,11 @@ public:
                     break;
                 case 3:
                     m_uiStage = 0;
-                    DoCast(SPELL_SPIKE_TELE);
+                    DoCast (SPELL_SPIKE_TELE);
                     Summons.DespawnEntry(NPC_SPIKE);
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_ANUBARAK);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                    DoCast(me, SPELL_EMERGE_ANUBARAK);
+                    DoCast (me, SPELL_EMERGE_ANUBARAK);
                     me->GetMotionMaster()->MoveChase(me->getVictim());
                     m_uiSummonNerubianTimer = 10*IN_MILLISECONDS;
                     m_uiNerubianShadowStrikeTimer = 30*IN_MILLISECONDS;
@@ -398,7 +398,7 @@ public:
 
             if (m_uiBerserkTimer <= uiDiff && !me->HasAura(SPELL_BERSERK))
             {
-                DoCast(me, SPELL_BERSERK);
+                DoCast (me, SPELL_BERSERK);
             } else m_uiBerserkTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
@@ -432,7 +432,7 @@ public:
         {
             me->SetCorpseDelay(0);
             m_uiDeterminationTimer = urand(5*IN_MILLISECONDS, 60*IN_MILLISECONDS);
-            DoCast(me, SPELL_ACID_MANDIBLE);
+            DoCast (me, SPELL_ACID_MANDIBLE);
             me->SetInCombatWithZone();
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                 me->AddThreat(target, 20000.0f);
@@ -445,7 +445,7 @@ public:
             switch (actionId)
             {
                 case ACTION_SCARAB_SUBMERGE:
-                    DoCast(SPELL_SUBMERGE_EFFECT);
+                    DoCast (SPELL_SUBMERGE_EFFECT);
                     me->DespawnOrUnsummon(1000);
                     break;
             }
@@ -453,7 +453,7 @@ public:
 
         void JustDied(Unit* killer)
         {
-            DoCast(killer, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
+            DoCast (killer, RAID_MODE(SPELL_TRAITOR_KING_10, SPELL_TRAITOR_KING_25));
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -464,7 +464,7 @@ public:
             /* Bosskillers don't recognize */
             if (m_uiDeterminationTimer <= uiDiff)
             {
-                DoCast(me, SPELL_DETERMINATION);
+                DoCast (me, SPELL_DETERMINATION);
                 m_uiDeterminationTimer = urand(10*IN_MILLISECONDS, 60*IN_MILLISECONDS);
             } else m_uiDeterminationTimer -= uiDiff;
 
@@ -501,8 +501,8 @@ public:
             me->SetCorpseDelay(0);
             m_uiSpiderFrenzyTimer = urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS);
             m_uiSubmergeTimer = 30*IN_MILLISECONDS;
-            DoCast(me, SPELL_EXPOSE_WEAKNESS);
-            DoCast(me, SPELL_SPIDER_FRENZY);
+            DoCast (me, SPELL_EXPOSE_WEAKNESS);
+            DoCast (me, SPELL_SPIDER_FRENZY);
             me->SetInCombatWithZone();
             if (!me->isInCombat())
                 me->DisappearAndDie();
@@ -514,7 +514,7 @@ public:
             {
                 case ACTION_SHADOW_STRIKE:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_SHADOW_STRIKE);
+                        DoCast (target, SPELL_SHADOW_STRIKE);
                     break;
             }
         }
@@ -529,7 +529,7 @@ public:
                 if (me->HasAura(SPELL_SUBMERGE_EFFECT))
                 {
                     me->RemoveAurasDueToSpell(SPELL_SUBMERGE_EFFECT);
-                    DoCast(me, SPELL_EMERGE_EFFECT);
+                    DoCast (me, SPELL_EMERGE_EFFECT);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     me->CombatStart(me->SelectNearestTarget());
                 }
@@ -537,7 +537,7 @@ public:
                 {
                     if (!me->HasAura(SPELL_PERMAFROST_HELPER))
                     {
-                        DoCast(me, SPELL_SUBMERGE_EFFECT);
+                        DoCast (me, SPELL_SUBMERGE_EFFECT);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         me->CombatStop();
                     }
@@ -579,7 +579,7 @@ public:
             me->SetDisplayId(25144);
             me->SetSpeed(MOVE_RUN, 0.5, false);
             me->GetMotionMaster()->MoveRandom(20.0f);
-            DoCast(SPELL_FROST_SPHERE);
+            DoCast (SPELL_FROST_SPHERE);
         }
 
         void DamageTaken(Unit* /*who*/, uint32& uiDamage)
@@ -622,8 +622,8 @@ public:
                     me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
                     me->SetDisplayId(11686);
                     me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
-                    DoCast(SPELL_PERMAFROST_VISUAL);
-                    DoCast(SPELL_PERMAFROST);
+                    DoCast (SPELL_PERMAFROST_VISUAL);
+                    DoCast (SPELL_PERMAFROST);
                 } else m_uiPermafrostTimer -= uiDiff;
             }
         }
@@ -663,7 +663,7 @@ public:
         void EnterCombat(Unit* who)
         {
             m_uiTargetGUID = who->GetGUID();
-            DoCast(who, SPELL_MARK);
+            DoCast (who, SPELL_MARK);
             me->SetSpeed(MOVE_RUN, 0.5f);
             m_uiSpeed = 0;
             m_uiIncreaseSpeedTimer = 1*IN_MILLISECONDS;
@@ -693,18 +693,18 @@ public:
                     switch (m_uiSpeed)
                     {
                         case 0:
-                            DoCast(me, SPELL_SPIKE_SPEED1);
-                            DoCast(me, SPELL_SPIKE_TRAIL);
+                            DoCast (me, SPELL_SPIKE_SPEED1);
+                            DoCast (me, SPELL_SPIKE_TRAIL);
                             m_uiSpeed = 1;
                             m_uiIncreaseSpeedTimer = 7*IN_MILLISECONDS;
                             break;
                         case 1:
-                            DoCast(me, SPELL_SPIKE_SPEED2);
+                            DoCast (me, SPELL_SPIKE_SPEED2);
                             m_uiSpeed = 2;
                             m_uiIncreaseSpeedTimer = 7*IN_MILLISECONDS;
                             break;
                         case 2:
-                            DoCast(me, SPELL_SPIKE_SPEED3);
+                            DoCast (me, SPELL_SPIKE_SPEED3);
                             m_uiIncreaseSpeedTimer = 0;
                             break;
                     }

@@ -124,7 +124,7 @@ public:
 
         void Reset()
         {
-            DoCast(me, SPELL_SPIRIT_SPAWNIN);
+            DoCast (me, SPELL_SPIRIT_SPAWNIN);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 

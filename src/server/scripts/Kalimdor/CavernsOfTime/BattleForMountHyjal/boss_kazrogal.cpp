@@ -155,13 +155,13 @@ public:
 
             if (CleaveTimer <= diff)
             {
-                DoCast(me, SPELL_CLEAVE);
+                DoCast (me, SPELL_CLEAVE);
                 CleaveTimer = 6000+rand()%15000;
             } else CleaveTimer -= diff;
 
             if (WarStompTimer <= diff)
             {
-                DoCast(me, SPELL_WARSTOMP);
+                DoCast (me, SPELL_WARSTOMP);
                 WarStompTimer = 60000;
             } else WarStompTimer -= diff;
 

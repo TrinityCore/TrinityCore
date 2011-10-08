@@ -688,7 +688,7 @@ namespace Trinity
             : i_data(&data), i_push_type(type), i_radius(radius), i_TargetType(TargetType),
             i_source(source), i_entry(entry), i_pos(pos), i_spellProto(spellProto)
         {
-            ASSERT(i_source);
+            ASSERT (i_source);
         }
 
         template<class T> inline void Visit(GridRefManager<T>& m)

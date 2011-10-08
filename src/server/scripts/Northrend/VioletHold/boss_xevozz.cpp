@@ -163,7 +163,7 @@ public:
 
             if (uiArcaneBarrageVolley_Timer < uiDiff)
             {
-                DoCast(me, SPELL_ARCANE_BARRAGE_VOLLEY);
+                DoCast (me, SPELL_ARCANE_BARRAGE_VOLLEY);
                 uiArcaneBarrageVolley_Timer = urand(20000, 22000);
             }
             else uiArcaneBarrageVolley_Timer -= uiDiff;
@@ -172,7 +172,7 @@ public:
             {
                 if (uiArcaneBuffet_Timer < uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_ARCANE_BUFFET);
+                    DoCast (me->getVictim(), SPELL_ARCANE_BUFFET);
                     uiArcaneBuffet_Timer = 0;
                 }
                 else uiArcaneBuffet_Timer -= uiDiff;
@@ -181,7 +181,7 @@ public:
             if (uiSummonEtherealSphere_Timer < uiDiff)
             {
                 DoScriptText(SAY_SPAWN, me);
-                DoCast(me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
+                DoCast (me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
                 if (IsHeroic()) // extra one for heroic
                     me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX()-5+rand()%10, me->GetPositionY()-5+rand()%10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
 
@@ -259,7 +259,7 @@ public:
                 return;
 
             if (!me->HasAura(SPELL_POWER_BALL_VISUAL))
-                DoCast(me, SPELL_POWER_BALL_VISUAL);
+                DoCast (me, SPELL_POWER_BALL_VISUAL);
 
             if (uiRangeCheck_Timer < uiDiff)
             {
@@ -269,9 +269,9 @@ public:
                     {
                         float fDistance = me->GetDistance2d(pXevozz);
                         if (fDistance <= 3)
-                            DoCast(pXevozz, SPELL_ARCANE_POWER);
+                            DoCast (pXevozz, SPELL_ARCANE_POWER);
                         else
-                            DoCast(me, 35845); //Is it blizzlike?
+                            DoCast (me, 35845); //Is it blizzlike?
                     }
                 }
                 uiRangeCheck_Timer = 1000;
@@ -280,7 +280,7 @@ public:
 
             if (uiSummonPlayers_Timer < uiDiff)
             {
-                DoCast(me, SPELL_SUMMON_PLAYERS); // not working right
+                DoCast (me, SPELL_SUMMON_PLAYERS); // not working right
 
                 Map* map = me->GetMap();
                 if (map && map->IsDungeon())

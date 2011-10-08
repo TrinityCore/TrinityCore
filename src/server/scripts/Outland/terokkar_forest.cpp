@@ -125,7 +125,7 @@ public:
             {
                 if (!UnkorUnfriendly_Timer)
                 {
-                    //DoCast(me, SPELL_QUID9889);        //not using spell for now
+                    //DoCast (me, SPELL_QUID9889);        //not using spell for now
                     DoNice();
                 }
                 else
@@ -143,7 +143,7 @@ public:
 
             if (Pulverize_Timer <= diff)
             {
-                DoCast(me, SPELL_PULVERIZE);
+                DoCast (me, SPELL_PULVERIZE);
                 Pulverize_Timer = 9000;
             } else Pulverize_Timer -= diff;
 
@@ -180,7 +180,7 @@ public:
                 if (me->GetHealth() <= damage)
                     if (rand()%100 < 75)
                         //Summon Wood Mites
-                        DoCast(me, 39130, true);
+                        DoCast (me, 39130, true);
         }
     };
 
@@ -275,7 +275,7 @@ public:
                 if (me->GetHealth() <= damage)
                     if (rand()%100 < 75)
                         //Summon Lots of Wood Mights
-                        DoCast(me, 39134, true);
+                        DoCast (me, 39134, true);
         }
     };
 
@@ -420,19 +420,19 @@ public:
 
             if (Silence_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SILENCE);
+                DoCast (me->getVictim(), SPELL_SILENCE);
                 Silence_Timer = 30000;
             } else Silence_Timer -= diff;
 
             if (FrostNova_Timer <= diff)
             {
-                DoCast(me, SPELL_FROST_NOVA);
+                DoCast (me, SPELL_FROST_NOVA);
                 FrostNova_Timer = 20000;
             } else FrostNova_Timer -= diff;
 
             if (Frostbolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROSTBOLT);
+                DoCast (me->getVictim(), SPELL_FROSTBOLT);
                 Frostbolt_Timer = 5000;
             } else Frostbolt_Timer -= diff;
 
@@ -496,7 +496,7 @@ public:
                 }
                 me->SetInFront(player); break;
             case 30: me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE); break;
-            case 31: DoCast(me, SPELL_CAT);
+            case 31: DoCast (me, SPELL_CAT);
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
             }
         }

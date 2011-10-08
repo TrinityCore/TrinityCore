@@ -77,14 +77,14 @@ class boss_ayamiss : public CreatureScript
                 //STINGERSPRAY_Timer (only in phase2)
                 if (phase == 2 && STINGERSPRAY_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_STINGERSPRAY);
+                    DoCast (me->getVictim(), SPELL_STINGERSPRAY);
                     STINGERSPRAY_Timer = 30000;
                 } else STINGERSPRAY_Timer -= diff;
 
                 //POISONSTINGER_Timer (only in phase1)
                 if (phase == 1 && POISONSTINGER_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_POISONSTINGER);
+                    DoCast (me->getVictim(), SPELL_POISONSTINGER);
                     POISONSTINGER_Timer = 30000;
                 } else POISONSTINGER_Timer -= diff;
 

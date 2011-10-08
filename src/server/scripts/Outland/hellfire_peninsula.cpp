@@ -111,13 +111,13 @@ public:
 
             if (Shock_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHOCK);
+                DoCast (me->getVictim(), SPELL_SHOCK);
                 Shock_Timer = 10000;
             } else Shock_Timer -= diff;
 
             if (EnvelopingWinds_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ENVELOPING_WINDS);
+                DoCast (me->getVictim(), SPELL_ENVELOPING_WINDS);
                 EnvelopingWinds_Timer = 25000;
             } else EnvelopingWinds_Timer -= diff;
 
@@ -170,7 +170,7 @@ public:
         void Reset()
         {
             pRyga = NULL;
-            DoCast(me, SPELL_ANCESTRAL_WOLF_BUFF, true);
+            DoCast (me, SPELL_ANCESTRAL_WOLF_BUFF, true);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -501,7 +501,7 @@ public:
             if (Creature* pHelboar = me->GetCreature(*me, uiHelboarGUID))
             {
                 pHelboar->RemoveCorpse();
-                DoCast(SPELL_SUMMON_POO);
+                DoCast (SPELL_SUMMON_POO);
 
                 if (Player* owner = me->GetCharmerOrOwnerPlayerOrPlayerItself())
                     me->GetMotionMaster()->MoveFollow(owner, 0.0f, 0.0f);

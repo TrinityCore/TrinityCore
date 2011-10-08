@@ -177,7 +177,7 @@ public:
             {
                 if (!Earthquake)
                 {
-                    DoCast(me->getVictim(), SPELL_EARTHQUAKE);
+                    DoCast (me->getVictim(), SPELL_EARTHQUAKE);
                     Earthquake = true;
                     Earthquake_Timer = 10000;
                 }
@@ -201,7 +201,7 @@ public:
             //TidalWave_Timer
             if (TidalWave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TIDAL_WAVE);
+                DoCast (me->getVictim(), SPELL_TIDAL_WAVE);
                 TidalWave_Timer = 20000;
             } else TidalWave_Timer -= diff;
 
@@ -334,7 +334,7 @@ public:
             {
                 if (me->IsWithinDistInMap(me->getVictim(), 5))
                 {
-                    DoCast(me->getVictim(), SPELL_GLOBULE_EXPLOSION);
+                    DoCast (me->getVictim(), SPELL_GLOBULE_EXPLOSION);
 
                     //despawn
                     me->DespawnOrUnsummon();

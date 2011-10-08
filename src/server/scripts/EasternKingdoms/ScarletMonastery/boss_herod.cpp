@@ -69,7 +69,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            DoCast(me, SPELL_RUSHINGCHARGE);
+            DoCast (me, SPELL_RUSHINGCHARGE);
         }
 
          void KilledUnit(Unit* /*victim*/)
@@ -93,14 +93,14 @@ public:
             {
                 DoScriptText(EMOTE_ENRAGE, me);
                 DoScriptText(SAY_ENRAGE, me);
-                DoCast(me, SPELL_FRENZY);
+                DoCast (me, SPELL_FRENZY);
                 Enrage = true;
             }
 
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 12000;
             } else Cleave_Timer -= diff;
 
@@ -108,7 +108,7 @@ public:
             if (Whirlwind_Timer <= diff)
             {
                 DoScriptText(SAY_WHIRLWIND, me);
-                DoCast(me->getVictim(), SPELL_WHIRLWIND);
+                DoCast (me->getVictim(), SPELL_WHIRLWIND);
                 Whirlwind_Timer = 30000;
             } else Whirlwind_Timer -= diff;
 

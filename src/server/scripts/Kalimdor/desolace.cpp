@@ -130,7 +130,7 @@ public:
                     DoScriptText(RAND(SAY_SMEED_HOME_1, SAY_SMEED_HOME_2, SAY_SMEED_HOME_3), who);
 
                     //spell have no implemented effect (dummy), so useful to notify spellHit
-                    DoCast(me, SPELL_KODO_KOMBO_GOSSIP, true);
+                    DoCast (me, SPELL_KODO_KOMBO_GOSSIP, true);
                 }
             }
         }

@@ -217,7 +217,7 @@ class boss_alar : public CreatureScript
 
                 if (Berserk_Timer <= diff)
                 {
-                    DoCast(me, SPELL_BERSERK, true);
+                    DoCast (me, SPELL_BERSERK, true);
                     Berserk_Timer = 60000;
                 }
                 else
@@ -252,7 +252,7 @@ class boss_alar : public CreatureScript
                                 Platforms_Move_Timer = 30000+rand()%5000;
                                 break;
                             case WE_QUILL:
-                                DoCast(me, SPELL_FLAME_QUILLS, true);
+                                DoCast (me, SPELL_FLAME_QUILLS, true);
                                 Platforms_Move_Timer = 1;
                                 WaitTimer = 10000;
                                 WaitEvent = WE_DUMMY;
@@ -269,7 +269,7 @@ class boss_alar : public CreatureScript
                                 me->SetSpeed(MOVE_RUN, DefaultMoveSpeedRate);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 DoZoneInCombat();
-                                DoCast(me, SPELL_REBIRTH, true);
+                                DoCast (me, SPELL_REBIRTH, true);
                                 MeltArmor_Timer = 60000;
                                 Charge_Timer = 7000;
                                 DiveBomb_Timer = 40000+rand()%5000;
@@ -278,7 +278,7 @@ class boss_alar : public CreatureScript
                                 break;
                             case WE_METEOR:
                                 me->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, false);
-                                DoCast(me, SPELL_DIVE_BOMB_VISUAL, false);
+                                DoCast (me, SPELL_DIVE_BOMB_VISUAL, false);
                                 WaitEvent = WE_DIVE;
                                 WaitTimer = 4000;
                                 return;
@@ -286,7 +286,7 @@ class boss_alar : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
                                     me->RemoveAurasDueToSpell(SPELL_DIVE_BOMB_VISUAL);
-                                    DoCast(target, SPELL_DIVE_BOMB, true);
+                                    DoCast (target, SPELL_DIVE_BOMB, true);
                                     float dist = 3.0f;
                                     if (me->IsWithinDist3d(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 5.0f))
                                         dist = 5.0f;
@@ -310,7 +310,7 @@ class boss_alar : public CreatureScript
                                 me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 10);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetDisplayId(me->GetNativeDisplayId());
-                                DoCast(me, SPELL_REBIRTH_2, true);
+                                DoCast (me, SPELL_REBIRTH_2, true);
                                 break;
                             case WE_DUMMY:
                             default:
@@ -373,7 +373,7 @@ class boss_alar : public CreatureScript
                     {
                         Unit* target= SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
                         if (target)
-                            DoCast(target, SPELL_CHARGE);
+                            DoCast (target, SPELL_CHARGE);
                         Charge_Timer = 30000;
                     }
                     else
@@ -381,7 +381,7 @@ class boss_alar : public CreatureScript
 
                     if (MeltArmor_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_MELT_ARMOR);
+                        DoCast (me->getVictim(), SPELL_MELT_ARMOR);
                         MeltArmor_Timer = 60000;
                     }
                     else
@@ -442,7 +442,7 @@ class boss_alar : public CreatureScript
                             me->AI()->AttackStart(target);
                         else
                         {
-                            DoCast(me, SPELL_FLAME_BUFFET, true);
+                            DoCast (me, SPELL_FLAME_BUFFET, true);
                             me->setAttackTimer(BASE_ATTACK, 1500);
                         }
                     }
@@ -495,7 +495,7 @@ class mob_ember_of_alar : public CreatureScript
                 if (damage >= me->GetHealth() && killer != me && !toDie)
                 {
                     damage = 0;
-                    DoCast(me, SPELL_EMBER_BLAST, true);
+                    DoCast (me, SPELL_EMBER_BLAST, true);
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     if (instance && instance->GetData(DATA_ALAREVENT) == 2)

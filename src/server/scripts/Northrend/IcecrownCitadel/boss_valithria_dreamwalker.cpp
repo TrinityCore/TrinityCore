@@ -321,7 +321,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                 if (action != ACTION_ENTER_COMBAT)
                     return;
 
-                DoCast(me, SPELL_COPY_DAMAGE);
+                DoCast (me, SPELL_COPY_DAMAGE);
                 _instance->SendEncounterUnit(ENCOUNTER_FRAME_ADD, me);
                 _events.ScheduleEvent(EVENT_INTRO_TALK, 15000);
                 _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));
@@ -338,7 +338,7 @@ class boss_valithria_dreamwalker : public CreatureScript
                     Talk(SAY_VALITHRIA_SUCCESS);
                     _instance->SendEncounterUnit(ENCOUNTER_FRAME_REMOVE, me);
                     me->RemoveAurasDueToSpell(SPELL_CORRUPTION_VALITHRIA);
-                    DoCast(me, SPELL_ACHIEVEMENT_CHECK);
+                    DoCast (me, SPELL_ACHIEVEMENT_CHECK);
                     DoCastAOE(SPELL_DREAMWALKERS_RAGE);
                     _events.ScheduleEvent(EVENT_DREAM_SLIP, 3500);
                     if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_VALITHRIA_LICH_KING)))
@@ -383,8 +383,8 @@ class boss_valithria_dreamwalker : public CreatureScript
             {
                 if (spell->Id == SPELL_DREAM_SLIP)
                 {
-                    DoCast(me, SPELL_CLEAR_ALL);
-                    DoCast(me, SPELL_AWARD_REPUTATION_BOSS_KILL);
+                    DoCast (me, SPELL_CLEAR_ALL);
+                    DoCast (me, SPELL_AWARD_REPUTATION_BOSS_KILL);
                     // this display id was found in sniff instead of the one on aura
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -443,11 +443,11 @@ class boss_valithria_dreamwalker : public CreatureScript
                             if (!IsHeroic())
                                 Talk(SAY_VALITHRIA_DREAM_PORTAL);
                             for (uint32 i = 0; i < _portalCount; ++i)
-                                DoCast(me, SUMMON_PORTAL);
+                                DoCast (me, SUMMON_PORTAL);
                             _events.ScheduleEvent(EVENT_DREAM_PORTAL, urand(45000, 48000));
                             break;
                         case EVENT_DREAM_SLIP:
-                            DoCast(me, SPELL_DREAM_SLIP);
+                            DoCast (me, SPELL_DREAM_SLIP);
                             break;
                         default:
                             break;
@@ -634,19 +634,19 @@ class npc_the_lich_king_controller : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GLUTTONOUS_ABOMINATION_SUMMONER:
-                            DoCast(me, SPELL_TIMER_GLUTTONOUS_ABOMINATION);
+                            DoCast (me, SPELL_TIMER_GLUTTONOUS_ABOMINATION);
                             break;
                         case EVENT_SUPPRESSER_SUMMONER:
-                            DoCast(me, SPELL_TIMER_SUPPRESSER);
+                            DoCast (me, SPELL_TIMER_SUPPRESSER);
                             break;
                         case EVENT_BLISTERING_ZOMBIE_SUMMONER:
-                            DoCast(me, SPELL_TIMER_BLISTERING_ZOMBIE);
+                            DoCast (me, SPELL_TIMER_BLISTERING_ZOMBIE);
                             break;
                         case EVENT_RISEN_ARCHMAGE_SUMMONER:
-                            DoCast(me, SPELL_TIMER_RISEN_ARCHMAGE);
+                            DoCast (me, SPELL_TIMER_RISEN_ARCHMAGE);
                             break;
                         case EVENT_BLAZING_SKELETON_SUMMONER:
-                            DoCast(me, SPELL_TIMER_BLAZING_SKELETON);
+                            DoCast (me, SPELL_TIMER_BLAZING_SKELETON);
                             break;
                         default:
                             break;
@@ -734,7 +734,7 @@ class npc_risen_archmage : public CreatureScript
                 if (!me->isInCombat())
                     if (me->GetDBTableGUIDLow())
                         if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                            DoCast(me, SPELL_CORRUPTION);
+                            DoCast (me, SPELL_CORRUPTION);
 
                 if (!UpdateVictim())
                     return;
@@ -749,17 +749,17 @@ class npc_risen_archmage : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FROSTBOLT_VOLLEY:
-                            DoCast(me, SPELL_FROSTBOLT_VOLLEY);
+                            DoCast (me, SPELL_FROSTBOLT_VOLLEY);
                             _events.ScheduleEvent(EVENT_FROSTBOLT_VOLLEY, urand(8000, 15000));
                             break;
                         case EVENT_MANA_VOID:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, ManaVoidSelector(me)))
-                                DoCast(target, SPELL_MANA_VOID);
+                                DoCast (target, SPELL_MANA_VOID);
                             _events.ScheduleEvent(EVENT_MANA_VOID, urand(20000, 25000));
                             break;
                         case EVENT_COLUMN_OF_FROST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -10.0f, true))
-                                DoCast(target, SPELL_COLUMN_OF_FROST);
+                                DoCast (target, SPELL_COLUMN_OF_FROST);
                             _events.ScheduleEvent(EVENT_COLUMN_OF_FROST, urand(15000, 25000));
                             break;
                         default:
@@ -820,7 +820,7 @@ class npc_blazing_skeleton : public CreatureScript
                             _events.ScheduleEvent(EVENT_FIREBALL, urand(2000, 4000));
                             break;
                         case EVENT_LEY_WASTE:
-                            DoCast(me, SPELL_LEY_WASTE);
+                            DoCast (me, SPELL_LEY_WASTE);
                             _events.ScheduleEvent(EVENT_LEY_WASTE, urand(15000, 20000));
                             break;
                         default:
@@ -920,7 +920,7 @@ class npc_blistering_zombie : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                DoCast(me, SPELL_ACID_BURST, true);
+                DoCast (me, SPELL_ACID_BURST, true);
             }
 
             void UpdateAI(uint32 const /*diff*/)
@@ -957,7 +957,7 @@ class npc_gluttonous_abomination : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                DoCast(me, SPELL_ROT_WORM_SPAWNER, true);
+                DoCast (me, SPELL_ROT_WORM_SPAWNER, true);
             }
 
             void UpdateAI(uint32 const diff)
@@ -975,7 +975,7 @@ class npc_gluttonous_abomination : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GUT_SPRAY:
-                            DoCast(me, SPELL_GUT_SPRAY);
+                            DoCast (me, SPELL_GUT_SPRAY);
                             _events.ScheduleEvent(EVENT_GUT_SPRAY, urand(10000, 13000));
                             break;
                         default:

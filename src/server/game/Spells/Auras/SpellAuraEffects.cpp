@@ -929,7 +929,7 @@ void AuraEffect::CalculateSpellMod()
             {
                 m_spellmod = new SpellModifier(GetBase());
                 m_spellmod->op = SpellModOp(GetMiscValue());
-                ASSERT(m_spellmod->op < MAX_SPELLMOD);
+                ASSERT (m_spellmod->op < MAX_SPELLMOD);
 
                 m_spellmod->type = SpellModType(GetAuraType());    // SpellModType value == spell aura types
                 m_spellmod->spellId = GetId();
@@ -979,7 +979,7 @@ void AuraEffect::ChangeAmount(int32 newAmount, bool mark, bool onStackOrReapply)
 void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
 {
     // check if call is correct, we really don't want using bitmasks here (with 1 exception)
-    ASSERT(mode == AURA_EFFECT_HANDLE_REAL
+    ASSERT (mode == AURA_EFFECT_HANDLE_REAL
         || mode == AURA_EFFECT_HANDLE_SEND_FOR_CLIENT
         || mode == AURA_EFFECT_HANDLE_CHANGE_AMOUNT
         || mode == AURA_EFFECT_HANDLE_STAT
@@ -1023,7 +1023,7 @@ void AuraEffect::HandleEffect(AuraApplication * aurApp, uint8 mode, bool apply)
 void AuraEffect::HandleEffect(Unit* target, uint8 mode, bool apply)
 {
     AuraApplication* aurApp = GetBase()->GetApplicationOfTarget(target->GetGUID());
-    ASSERT(aurApp);
+    ASSERT (aurApp);
     HandleEffect(aurApp, mode, apply);
 }
 
@@ -1243,7 +1243,7 @@ void AuraEffect::UpdatePeriodic(Unit* caster)
 
 bool AuraEffect::IsPeriodicTickCrit(Unit* target, Unit const* caster) const
 {
-    ASSERT(caster);
+    ASSERT (caster);
     Unit::AuraEffectList const& mPeriodicCritAuras= caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
     for (Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
     {

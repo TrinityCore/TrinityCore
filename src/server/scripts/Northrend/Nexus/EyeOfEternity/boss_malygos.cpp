@@ -355,7 +355,7 @@ public:
 
             Talk(SAY_AGGRO_P_ONE);
 
-            DoCast(SPELL_BERSEKER);
+            DoCast (SPELL_BERSEKER);
         }
 
         void KilledUnit(Unit* who)
@@ -412,11 +412,11 @@ public:
 
         void ExecuteVortex()
         {
-            DoCast(me, SPELL_VORTEX_1, true);
-            DoCast(me, SPELL_VORTEX_2, true);
+            DoCast (me, SPELL_VORTEX_1, true);
+            DoCast (me, SPELL_VORTEX_2, true);
 
             // the vortex execution continues in the dummy effect of this spell (see its script)
-            DoCast(me, SPELL_VORTEX_3, true);
+            DoCast (me, SPELL_VORTEX_3, true);
         }
 
         void MovementInform(uint32 type, uint32 id)
@@ -541,11 +541,11 @@ public:
                         Talk(SAY_AGGRO_P_TWO);
                         break;
                     case EVENT_ARCANE_BREATH:
-                        DoCast(me->getVictim(), SPELL_ARCANE_BREATH);
+                        DoCast (me->getVictim(), SPELL_ARCANE_BREATH);
                         events.ScheduleEvent(EVENT_ARCANE_BREATH, urand(35, 60)*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_ARCANE_STORM:
-                        DoCast(me->getVictim(), SPELL_ARCANE_STORM);
+                        DoCast (me->getVictim(), SPELL_ARCANE_STORM);
                         events.ScheduleEvent(EVENT_ARCANE_STORM, urand(5, 10)*IN_MILLISECONDS, 0, PHASE_ONE);
                         break;
                     case EVENT_VORTEX:
@@ -559,19 +559,19 @@ public:
                     case EVENT_SURGE_POWER:
                         me->GetMotionMaster()->MoveIdle();
                         _delayedMovement = true;
-                        DoCast(SPELL_SURGE_POWER);
+                        DoCast (SPELL_SURGE_POWER);
                         events.ScheduleEvent(EVENT_SURGE_POWER, urand(60, 70)*IN_MILLISECONDS, 0, PHASE_TWO);
                         break;
                     case EVENT_SUMMON_ARCANE:
-                        DoCast(SPELL_SUMMON_ARCANE_BOMB);
+                        DoCast (SPELL_SUMMON_ARCANE_BOMB);
                         events.ScheduleEvent(EVENT_SUMMON_ARCANE, urand(12, 15)*IN_MILLISECONDS, 0, PHASE_TWO);
                         break;
                     case EVENT_SURGE_POWER_PHASE_3:
-                        DoCast(GetTargetPhaseThree(), SPELL_SURGE_POWER_PHASE_3);
+                        DoCast (GetTargetPhaseThree(), SPELL_SURGE_POWER_PHASE_3);
                         events.ScheduleEvent(EVENT_SURGE_POWER_PHASE_3, urand(7, 16)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
                     case EVENT_STATIC_FIELD:
-                        DoCast(GetTargetPhaseThree(), SPELL_STATIC_FIELD);
+                        DoCast (GetTargetPhaseThree(), SPELL_STATIC_FIELD);
                         events.ScheduleEvent(EVENT_STATIC_FIELD, urand(20, 30)*IN_MILLISECONDS, 0, PHASE_THREE);
                         break;
                     default:
@@ -741,7 +741,7 @@ public:
         {
             if (!me->HasAura(SPELL_PORTAL_VISUAL_CLOSED) &&
                 !me->HasAura(SPELL_PORTAL_OPENED))
-                DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
+                DoCast (me, SPELL_PORTAL_VISUAL_CLOSED, true);
 
             if (_instance)
             {
@@ -750,7 +750,7 @@ public:
                     if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE)
                     {
                         me->RemoveAura(SPELL_PORTAL_OPENED);
-                        DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
+                        DoCast (me, SPELL_PORTAL_VISUAL_CLOSED, true);
                     }
                 }
             }
@@ -760,7 +760,7 @@ public:
 
             if (_summonTimer <= diff)
             {
-                DoCast(SPELL_SUMMON_POWER_PARK);
+                DoCast (SPELL_SUMMON_POWER_PARK);
                 _summonTimer = urand(5, 7)*IN_MILLISECONDS;
             } else
                 _summonTimer -= diff;
@@ -842,7 +842,7 @@ public:
             if (damage > me->GetMaxHealth())
             {
                 damage = 0;
-                DoCast(me, SPELL_POWER_SPARK_DEATH, true);
+                DoCast (me, SPELL_POWER_SPARK_DEATH, true);
                 me->DespawnOrUnsummon(1000);
             }
         }
@@ -984,7 +984,7 @@ public:
 
         void Reset()
         {
-            DoCast(me, SPELL_ARCANE_OVERLOAD, false);
+            DoCast (me, SPELL_ARCANE_OVERLOAD, false);
         }
 
         void UpdateAI(uint32 const /*diff*/)

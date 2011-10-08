@@ -270,7 +270,7 @@ public:
                 if (ShadowBoltTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_SHADOWBOLT);
+                        DoCast (target, SPELL_SHADOWBOLT);
 
                     ShadowBoltTimer = urand(3000, 10000);
                 } else ShadowBoltTimer -= diff;
@@ -279,7 +279,7 @@ public:
                 if (FearTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_FEAR);
+                        DoCast (target, SPELL_FEAR);
 
                     FearTimer = 10000 + (rand()%10000);
                 } else FearTimer -= diff;
@@ -335,10 +335,10 @@ public:
                         me->InterruptNonMeleeSpells(false);
 
                         //Root self
-                        DoCast(me, 33356);
+                        DoCast (me, 33356);
 
                         //Make super invis
-                        DoCast(me, 8149);
+                        DoCast (me, 8149);
 
                         //Teleport self to a hiding spot (this causes errors in the Trinity log but no real issues)
                         DoTeleportTo(HIDE_X, HIDE_Y, HIDE_Z);

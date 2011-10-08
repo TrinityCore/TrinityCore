@@ -88,7 +88,7 @@ public:
                         if (!player->isRessurectRequested())
                         {
                             me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOMSPELL01);
-                            DoCast(player, SPELL_REVIVE, true);
+                            DoCast (player, SPELL_REVIVE, true);
                             me->MonsterWhisper(VALK_WHISPER, player->GetGUID());
                         }
                         FlyBackTimer = 5000;

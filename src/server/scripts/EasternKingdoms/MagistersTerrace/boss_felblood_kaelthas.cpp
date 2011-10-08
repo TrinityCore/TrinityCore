@@ -215,7 +215,7 @@ public:
                 if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     unit->CastSpell(unit, SPELL_TELEPORT_CENTER, true);
             }
-            DoCast(me, SPELL_TELEPORT_CENTER, true);
+            DoCast (me, SPELL_TELEPORT_CENTER, true);
         }
 
         void CastGravityLapseKnockUp()
@@ -287,15 +287,15 @@ public:
                         {
                             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                            DoCast(me, SPELL_SHOCK_BARRIER, true);
-                            DoCast(me->getVictim(), SPELL_PYROBLAST);
+                            DoCast (me, SPELL_SHOCK_BARRIER, true);
+                            DoCast (me->getVictim(), SPELL_PYROBLAST);
                             PyroblastTimer = 60000;
                         } else PyroblastTimer -= diff;
                     }
 
                     if (FireballTimer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_FIREBALL_NORMAL);
+                        DoCast (me->getVictim(), SPELL_FIREBALL_NORMAL);
                         FireballTimer = urand(2000, 6000);
                     } else FireballTimer -= diff;
 
@@ -327,7 +327,7 @@ public:
                         {
                             me->InterruptSpell(CURRENT_CHANNELED_SPELL);
                             me->InterruptSpell(CURRENT_GENERIC_SPELL);
-                            DoCast(target, SPELL_FLAMESTRIKE3, true);
+                            DoCast (target, SPELL_FLAMESTRIKE3, true);
                             DoScriptText(SAY_FLAMESTRIKE, me);
                         }
                         FlameStrikeTimer = urand(15000, 25000);
@@ -371,7 +371,7 @@ public:
                                     DoScriptText(SAY_RECAST_GRAVITY, me);
                                 }
 
-                                DoCast(me, SPELL_GRAVITY_LAPSE_INITIAL);
+                                DoCast (me, SPELL_GRAVITY_LAPSE_INITIAL);
                                 GravityLapseTimer = 2000 + diff;// Don't interrupt the visual spell
                                 GravityLapsePhase = 1;
                                 break;
@@ -408,13 +408,13 @@ public:
 
                                 }
 
-                                DoCast(me, SPELL_GRAVITY_LAPSE_CHANNEL);
+                                DoCast (me, SPELL_GRAVITY_LAPSE_CHANNEL);
                                 break;
 
                             case 4:
                                 me->InterruptNonMeleeSpells(false);
                                 DoScriptText(SAY_TIRED, me);
-                                DoCast(me, SPELL_POWER_FEEDBACK);
+                                DoCast (me, SPELL_POWER_FEEDBACK);
                                 RemoveGravityLapse();
                                 GravityLapseTimer = 10000;
                                 GravityLapsePhase = 0;
@@ -454,7 +454,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->setFaction(14);
 
-            DoCast(me, SPELL_FLAMESTRIKE2, true);
+            DoCast (me, SPELL_FLAMESTRIKE2, true);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -463,7 +463,7 @@ public:
         {
             if (FlameStrikeTimer <= diff)
             {
-                DoCast(me, SPELL_FLAMESTRIKE1_NORMAL, true);
+                DoCast (me, SPELL_FLAMESTRIKE1_NORMAL, true);
                 me->Kill(me);
             } else FlameStrikeTimer -= diff;
         }
@@ -498,7 +498,7 @@ public:
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            DoCast(me, SPELL_PHOENIX_BURN, true);
+            DoCast (me, SPELL_PHOENIX_BURN, true);
             BurnTimer = 2000;
             Death_Timer = 3000;
             Rebirth = false;
@@ -557,7 +557,7 @@ public:
             {
                 if (!Rebirth)
                 {
-                    DoCast(me, SPELL_REBIRTH_DMG);
+                    DoCast (me, SPELL_REBIRTH_DMG);
                     Rebirth = true;
                 }
 
@@ -653,7 +653,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
             me->setFaction(14);
-            DoCast(me, SPELL_ARCANE_SPHERE_PASSIVE, true);
+            DoCast (me, SPELL_ARCANE_SPHERE_PASSIVE, true);
         }
 
         void EnterCombat(Unit* /*who*/) {}

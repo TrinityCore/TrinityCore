@@ -104,13 +104,13 @@ class boss_marli : public CreatureScript
                 {
                     if (PoisonVolley_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_POISONVOLLEY);
+                        DoCast (me->getVictim(), SPELL_POISONVOLLEY);
                         PoisonVolley_Timer = 10000 + rand()%10000;
                     } else PoisonVolley_Timer -= diff;
 
                     if (!PhaseTwo && Aspect_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_ASPECT_OF_MARLI);
+                        DoCast (me->getVictim(), SPELL_ASPECT_OF_MARLI);
                         Aspect_Timer = 13000 + rand()%5000;
                     } else Aspect_Timer -= diff;
 
@@ -155,12 +155,12 @@ class boss_marli : public CreatureScript
                     if (!PhaseTwo && Transform_Timer <= diff)
                     {
                         DoScriptText(SAY_TRANSFORM, me);
-                        DoCast(me, SPELL_SPIDER_FORM);
+                        DoCast (me, SPELL_SPIDER_FORM);
                         const CreatureTemplate* cinfo = me->GetCreatureInfo();
                         me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                         me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                         me->UpdateDamagePhysical(BASE_ATTACK);
-                        DoCast(me->getVictim(), SPELL_ENVOLWINGWEB);
+                        DoCast (me->getVictim(), SPELL_ENVOLWINGWEB);
 
                         if (DoGetThreat(me->getVictim()))
                             DoModifyThreatPercent(me->getVictim(), -100);
@@ -184,7 +184,7 @@ class boss_marli : public CreatureScript
                             }
                             if (target)
                             {
-                                DoCast(target, SPELL_CHARGE);
+                                DoCast (target, SPELL_CHARGE);
                                 //me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
                                 //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
                                 AttackStart(target);
@@ -252,7 +252,7 @@ class mob_spawn_of_marli : public CreatureScript
                 //LevelUp_Timer
                 if (LevelUp_Timer <= diff)
                 {
-                    DoCast(me, SPELL_LEVELUP);
+                    DoCast (me, SPELL_LEVELUP);
                     LevelUp_Timer = 3000;
                 } else LevelUp_Timer -= diff;
 

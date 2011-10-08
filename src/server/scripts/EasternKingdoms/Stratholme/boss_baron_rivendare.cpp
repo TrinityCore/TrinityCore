@@ -141,7 +141,7 @@ public:
             if (ShadowBolt_Timer <= diff)
             {
                 if (SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(me->getVictim(), SPELL_SHADOWBOLT);
+                    DoCast (me->getVictim(), SPELL_SHADOWBOLT);
 
                 ShadowBolt_Timer = 10000;
             } else ShadowBolt_Timer -= diff;
@@ -149,7 +149,7 @@ public:
             //Cleave
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 //13 seconds until we should cast this again
                 Cleave_Timer = 7000 + (rand()%10000);
             } else Cleave_Timer -= diff;
@@ -157,14 +157,14 @@ public:
             //MortalStrike
             if (MortalStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
+                DoCast (me->getVictim(), SPELL_MORTALSTRIKE);
                 MortalStrike_Timer = 10000 + (rand()%15000);
             } else MortalStrike_Timer -= diff;
 
             //RaiseDead
             //            if (RaiseDead_Timer <= diff)
             //          {
-            //      DoCast(me, SPELL_RAISEDEAD);
+            //      DoCast (me, SPELL_RAISEDEAD);
             //                RaiseDead_Timer = 45000;
             //            } else RaiseDead_Timer -= diff;
 

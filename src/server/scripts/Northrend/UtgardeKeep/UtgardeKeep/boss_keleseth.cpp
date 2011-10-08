@@ -237,7 +237,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     if (target->isAlive())
                     {
-                        //DoCast(target, SPELL_FROST_TOMB_SUMMON, true);
+                        //DoCast (target, SPELL_FROST_TOMB_SUMMON, true);
                         if (Creature* pChains = me->SummonCreature(CREATURE_FROSTTOMB, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
                         {
                             CAST_AI(mob_frost_tomb::mob_frost_tombAI, pChains->AI())->SetPrisoner(target);
@@ -315,7 +315,7 @@ public:
             isDead = false;
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_SCOURGE_RESSURRECTION, true);
+            DoCast (me, SPELL_SCOURGE_RESSURRECTION, true);
 
             if (me->getVictim())
             {
@@ -345,7 +345,7 @@ public:
 
                     if (Decrepify_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_DECREPIFY);
+                        DoCast (me->getVictim(), SPELL_DECREPIFY);
                         Decrepify_Timer = 30000;
                     } else Decrepify_Timer -= diff;
 

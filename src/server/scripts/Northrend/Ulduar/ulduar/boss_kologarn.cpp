@@ -96,12 +96,12 @@ class boss_kologarn : public CreatureScript
             boss_kologarnAI(Creature* creature) : BossAI(creature, BOSS_KOLOGARN), vehicle(creature->GetVehicleKit()),
                 left(false), right(false)
             {
-                ASSERT(vehicle);
+                ASSERT (vehicle);
 
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
 
-                DoCast(SPELL_KOLOGARN_REDUCE_PARRY);
+                DoCast (SPELL_KOLOGARN_REDUCE_PARRY);
                 SetCombatMovement(false);
                 Reset();
             }
@@ -138,7 +138,7 @@ class boss_kologarn : public CreatureScript
             void JustDied(Unit* /*victim*/)
             {
                 DoScriptText(SAY_DEATH, me);
-                DoCast(SPELL_KOLOGARN_PACIFY);
+                DoCast (SPELL_KOLOGARN_PACIFY);
                 me->GetMotionMaster()->MoveTargetedHome();
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetCorpseDelay(604800); // Prevent corpse from despawning.
@@ -253,12 +253,12 @@ class boss_kologarn : public CreatureScript
                     {
                         case EVENT_MELEE_CHECK:
                             if (!me->IsWithinMeleeRange(me->getVictim()))
-                                DoCast(SPELL_PETRIFY_BREATH);
+                                DoCast (SPELL_PETRIFY_BREATH);
                             events.ScheduleEvent(EVENT_MELEE_CHECK, 1 * IN_MILLISECONDS);
                             break;
                         case EVENT_SWEEP:
                             if (left)
-                                DoCast(me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
+                                DoCast (me->FindNearestCreature(NPC_ARM_SWEEP_STALKER, 500.0f, true), SPELL_ARM_SWEEP, true);
                             events.ScheduleEvent(EVENT_SWEEP, 25 * IN_MILLISECONDS);
                             break;
                         case EVENT_SMASH:
@@ -269,11 +269,11 @@ class boss_kologarn : public CreatureScript
                             events.ScheduleEvent(EVENT_SMASH, 15 * IN_MILLISECONDS);
                             break;
                         case EVENT_STONE_SHOUT:
-                            DoCast(SPELL_STONE_SHOUT);
+                            DoCast (SPELL_STONE_SHOUT);
                             events.ScheduleEvent(EVENT_STONE_SHOUT, 2 * IN_MILLISECONDS);
                             break;
                         case EVENT_ENRAGE:
-                            DoCast(SPELL_BERSERK);
+                            DoCast (SPELL_BERSERK);
                             DoScriptText(SAY_BERSERK, me);
                             break;
                         case EVENT_RESPAWN_LEFT_ARM:
@@ -291,7 +291,7 @@ class boss_kologarn : public CreatureScript
                         {
                             if (right)
                             {
-                                DoCast(SPELL_STONE_GRIP);
+                                DoCast (SPELL_STONE_GRIP);
                                 DoScriptText(SAY_GRAB_PLAYER, me);
                             }
                             events.ScheduleEvent(EVENT_STONE_GRIP, 25 * IN_MILLISECONDS);
@@ -301,7 +301,7 @@ class boss_kologarn : public CreatureScript
                             if (Unit* eyebeamTargetUnit = SelectTarget(SELECT_TARGET_FARTHEST, 0, 0, true))
                             {
                                 eyebeamTarget = eyebeamTargetUnit->GetGUID();
-                                DoCast(me, SPELL_SUMMON_FOCUSED_EYEBEAM, true);
+                                DoCast (me, SPELL_SUMMON_FOCUSED_EYEBEAM, true);
                             }
                             events.ScheduleEvent(EVENT_FOCUSED_EYEBEAM, urand(15, 35) * IN_MILLISECONDS);
                             break;

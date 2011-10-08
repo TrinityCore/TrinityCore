@@ -133,7 +133,7 @@ public:
                 instance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
                 instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
             }
-            DoCast(me, SPELL_SUBMERGE);//submerge anim
+            DoCast (me, SPELL_SUBMERGE);//submerge anim
             me->SetVisible(false);//we start invis under water, submerged
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
@@ -194,7 +194,7 @@ public:
                     {
                         me->RemoveAllAuras();
                         me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 0);
-                        DoCast(me, SPELL_EMERGE, false);
+                        DoCast (me, SPELL_EMERGE, false);
                         WaitTimer2 = 60000;//never reached
                         WaitTimer = 3000;
                     }
@@ -225,7 +225,7 @@ public:
                 if (PhaseTimer <= diff)
                 {
                     me->InterruptNonMeleeSpells(false);
-                    DoCast(me, SPELL_SUBMERGE);
+                    DoCast (me, SPELL_SUBMERGE);
                     PhaseTimer = 60000;//60secs submerged
                     Submerged = true;
                 } else PhaseTimer-=diff;
@@ -245,7 +245,7 @@ public:
                 if (WhirlTimer <= diff)
                 {
                     WhirlTimer = 18000;
-                    DoCast(me, SPELL_WHIRL);
+                    DoCast (me, SPELL_WHIRL);
                 } else WhirlTimer -= diff;
 
                 if (CheckTimer <= diff)//check if there are players in melee range
@@ -273,13 +273,13 @@ public:
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         {
                             if (i->getSource() && i->getSource()->isAlive() && me->HasInArc(float(diff/20000*M_PI*2), i->getSource()) && me->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())
-                                DoCast(i->getSource(), SPELL_SPOUT, true);//only knock back palyers in arc, in 100yards, not in water
+                                DoCast (i->getSource(), SPELL_SPOUT, true);//only knock back palyers in arc, in 100yards, not in water
                         }
                     }
 
                     if (SpoutAnimTimer <= diff)
                     {
-                        DoCast(me, SPELL_SPOUT_ANIM, true);
+                        DoCast (me, SPELL_SPOUT_ANIM, true);
                         SpoutAnimTimer = 1000;
                     } else SpoutAnimTimer -= diff;
 
@@ -296,7 +296,7 @@ public:
                     if (!target && me->getVictim())
                         target = me->getVictim();
                     if (target)
-                        DoCast(target, SPELL_GEYSER, true);
+                        DoCast (target, SPELL_GEYSER, true);
                     GeyserTimer = rand()%5000 + 15000;
                 } else GeyserTimer -= diff;
 
@@ -308,7 +308,7 @@ public:
                         if (!target && me->getVictim())
                             target = me->getVictim();
                         if (target)
-                            DoCast(target, SPELL_WATERBOLT, true);
+                            DoCast (target, SPELL_WATERBOLT, true);
                         WaterboltTimer = 3000;
                     } else WaterboltTimer -= diff;
                 }
@@ -327,7 +327,7 @@ public:
                     me->RemoveAllAuras();
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                     me->RemoveFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
-                    DoCast(me, SPELL_EMERGE, true);
+                    DoCast (me, SPELL_EMERGE, true);
                     Spawned = false;
                     SpoutTimer = 3000; // directly cast Spout after emerging!
                     PhaseTimer = 120000;
@@ -435,7 +435,7 @@ public:
             if (MultiShotTimer <= diff)
             {
                 if (me->getVictim())
-                    DoCast(me->getVictim(), SPELL_SPREAD_SHOT, true);
+                    DoCast (me->getVictim(), SPELL_SPREAD_SHOT, true);
 
                 MultiShotTimer = 10000+rand()%10000;
                 ShootBowTimer += 1500;//add global cooldown

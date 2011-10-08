@@ -125,7 +125,7 @@ public:
         {
             if (damage >= me->GetHealth() && !bIsUndead)
             {
-                //DoCast(me, SPELL_INGVAR_FEIGN_DEATH, true);  // Dont work ???
+                //DoCast (me, SPELL_INGVAR_FEIGN_DEATH, true);  // Dont work ???
                 // visuel hack
                 me->SetHealth(0);
                 me->InterruptNonMeleeSpells(true);
@@ -195,8 +195,8 @@ public:
                 {
                     if (uiSpawnResTimer <= diff)
                     {
-                        DoCast(me, SPELL_SUMMON_BANSHEE); // Summons directly on caster position
-                        // DoCast(me, SPELL_SCOURG_RESURRECTION, true); // Not needed ?
+                        DoCast (me, SPELL_SUMMON_BANSHEE); // Summons directly on caster position
+                        // DoCast (me, SPELL_SCOURG_RESURRECTION, true); // Not needed ?
                         uiSpawnResTimer = 0;
                     } else uiSpawnResTimer -= diff;
                 }
@@ -209,9 +209,9 @@ public:
                 if (!me->HasUnitState(UNIT_STAT_CASTING))
                 {
                     if (bIsUndead)
-                        DoCast(me->getVictim(), SPELL_WOE_STRIKE);
+                        DoCast (me->getVictim(), SPELL_WOE_STRIKE);
                     else
-                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        DoCast (me->getVictim(), SPELL_CLEAVE);
                     uiCleaveTimer = rand()%5000 + 2000;
                 }
             } else uiCleaveTimer -= diff;
@@ -221,9 +221,9 @@ public:
                 if (!me->HasUnitState(UNIT_STAT_CASTING))
                 {
                     if (bIsUndead)
-                        DoCast(me->getVictim(), SPELL_DARK_SMASH);
+                        DoCast (me->getVictim(), SPELL_DARK_SMASH);
                     else
-                        DoCast(me->getVictim(), SPELL_SMASH);
+                        DoCast (me->getVictim(), SPELL_SMASH);
                     uiSmashTimer = 10000;
                 }
             } else uiSmashTimer -= diff;
@@ -232,7 +232,7 @@ public:
             {
                 if (uiEnrageTimer <= diff)
                 {
-                    DoCast(me, SPELL_ENRAGE);
+                    DoCast (me, SPELL_ENRAGE);
                     uiEnrageTimer = 10000;
                 } else uiEnrageTimer -= diff;
             } else // In Undead form used to summon weapon
@@ -247,7 +247,7 @@ public:
                         {
                             me->SummonCreature(ENTRY_THROW_TARGET, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 2000);
 
-                            DoCast(me, SPELL_SHADOW_AXE_SUMMON);
+                            DoCast (me, SPELL_SHADOW_AXE_SUMMON);
                         }
                         uiEnrageTimer = 30000;
                     }
@@ -259,9 +259,9 @@ public:
                 if (!me->HasUnitState(UNIT_STAT_CASTING))
                 {
                     if (bIsUndead)
-                        DoCast(me, SPELL_DREADFUL_ROAR);
+                        DoCast (me, SPELL_DREADFUL_ROAR);
                     else
-                        DoCast(me, SPELL_STAGGERING_ROAR);
+                        DoCast (me, SPELL_STAGGERING_ROAR);
                     uiRoarTimer = 10000;
                 }
             } else uiRoarTimer -= diff;
@@ -338,7 +338,7 @@ public:
                 case 1:
                     ingvar->RemoveAura(SPELL_SUMMON_BANSHEE);
                     ingvar->CastSpell(ingvar, SPELL_SCOURG_RESURRECTION_DUMMY, true);
-                    DoCast(ingvar, SPELL_SCOURG_RESURRECTION_BEAM);
+                    DoCast (ingvar, SPELL_SCOURG_RESURRECTION_BEAM);
                     uiResurectTimer = 8000;
                     uiResurectPhase = 1;
                     break;
@@ -420,7 +420,7 @@ public:
             Unit* target = me->FindNearestCreature(ENTRY_THROW_TARGET, 50);
             if (target)
             {
-                DoCast(me, SPELL_SHADOW_AXE_DAMAGE);
+                DoCast (me, SPELL_SHADOW_AXE_DAMAGE);
                 float x, y, z;
                 target->GetPosition(x, y, z);
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
