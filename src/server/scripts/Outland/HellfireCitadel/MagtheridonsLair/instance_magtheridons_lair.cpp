@@ -50,7 +50,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 
         struct instance_magtheridons_lair_InstanceMapScript : public InstanceScript
         {
-            instance_magtheridons_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+            instance_magtheridons_lair_InstanceMapScript(Map* map) : InstanceScript(map)
             {
             }
 
@@ -250,9 +250,9 @@ class instance_magtheridons_lair : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_magtheridons_lair_InstanceMapScript(pMap);
+            return new instance_magtheridons_lair_InstanceMapScript(map);
         }
 };
 

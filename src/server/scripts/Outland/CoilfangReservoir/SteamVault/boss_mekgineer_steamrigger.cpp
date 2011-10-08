@@ -62,10 +62,10 @@ public:
     {
         boss_mekgineer_steamriggerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 Shrink_Timer;
         uint32 Saw_Blade_Timer;
@@ -84,16 +84,16 @@ public:
             Summon50 = false;
             Summon25 = false;
 
-            if (pInstance)
-                pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, NOT_STARTED);
         }
 
         void JustDied(Unit* /*Killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, DONE);
+            if (instance)
+                instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -105,8 +105,8 @@ public:
         {
             DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, IN_PROGRESS);
         }
 
         //no known summon spells exist
@@ -206,10 +206,10 @@ public:
     {
         mob_steamrigger_mechanicAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 Repair_Timer;
 
@@ -229,9 +229,9 @@ public:
         {
             if (Repair_Timer <= diff)
             {
-                if (pInstance && pInstance->GetData64(DATA_MEKGINEERSTEAMRIGGER) && pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
+                if (instance && instance->GetData64(DATA_MEKGINEERSTEAMRIGGER) && instance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == IN_PROGRESS)
                 {
-                    if (Unit* pMekgineer = Unit::GetUnit((*me), pInstance->GetData64(DATA_MEKGINEERSTEAMRIGGER)))
+                    if (Unit* pMekgineer = Unit::GetUnit((*me), instance->GetData64(DATA_MEKGINEERSTEAMRIGGER)))
                     {
                         if (me->IsWithinDistInMap(pMekgineer, MAX_REPAIR_RANGE))
                         {

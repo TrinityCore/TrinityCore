@@ -80,11 +80,11 @@ public:
     {
         boss_brutallusAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             Intro = true;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 SlashTimer;
         uint32 BurnTimer;
@@ -115,16 +115,16 @@ public:
 
             DoCast(me, SPELL_DUAL_WIELD, true);
 
-            if (pInstance)
-                pInstance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(YELL_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -136,9 +136,9 @@ public:
         {
             DoScriptText(YELL_DEATH, me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_BRUTALLUS_EVENT, DONE);
+                instance->SetData(DATA_BRUTALLUS_EVENT, DONE);
                 float x, y, z;
                 me->GetPosition(x, y, z);
                 me->SummonCreature(FELMYST, x, y, z+30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
@@ -155,7 +155,7 @@ public:
         {
             if (!Intro || IsIntro)
                 return;
-            Creature* Madrigosa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
+            Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0);
             if (Madrigosa)
             {
                 Madrigosa->Respawn();
@@ -191,7 +191,7 @@ public:
 
         void DoIntro()
         {
-            Creature* Madrigosa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0);
+            Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0);
             if (!Madrigosa)
                 return;
 
@@ -271,8 +271,8 @@ public:
         {
             if (!me->IsValidAttackTarget(who))
                 return;
-            if (pInstance && Intro)
-                pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
+            if (instance && Intro)
+                instance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
 
             if (Intro && !IsIntro)
                 StartIntro();
@@ -292,7 +292,7 @@ public:
                 {
                     if (IntroFrostBoltTimer <= diff)
                     {
-                        if (Creature* Madrigosa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_MADRIGOSA) : 0))
+                        if (Creature* Madrigosa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_MADRIGOSA) : 0))
                         {
                             Madrigosa->CastSpell(me, SPELL_INTRO_FROSTBOLT, true);
                             IntroFrostBoltTimer = 2000;

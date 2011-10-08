@@ -180,14 +180,14 @@ class npc_ringo : public CreatureScript
 public:
     npc_ringo() : CreatureScript("npc_ringo") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_A_LITTLE_HELP)
+        if (quest->GetQuestId() == QUEST_A_LITTLE_HELP)
         {
             if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringo::npc_ringoAI, creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                pRingoAI->StartFollow(player, FACTION_ESCORTEE, pQuest);
+                pRingoAI->StartFollow(player, FACTION_ESCORTEE, quest);
             }
         }
 

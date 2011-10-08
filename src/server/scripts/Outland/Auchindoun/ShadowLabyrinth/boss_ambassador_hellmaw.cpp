@@ -58,10 +58,10 @@ public:
     {
         boss_ambassador_hellmawAI(Creature* creature) : npc_escortAI(creature)
         {
-            m_pInstance = creature->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         uint32 EventCheck_Timer;
         uint32 CorrosiveAcid_Timer;
@@ -81,17 +81,17 @@ public:
             IsBanished = true;
             Enraged = false;
 
-            if (m_pInstance && me->isAlive())
+            if (m_instance && me->isAlive())
             {
-                if (m_pInstance->GetData(TYPE_OVERSEER) != DONE)
+                if (m_instance->GetData(TYPE_OVERSEER) != DONE)
                     DoCast(me, SPELL_BANISH, true);
             }
         }
 
         void JustReachedHome()
         {
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_HELLMAW, FAIL);
+            if (m_instance)
+                m_instance->SetData(TYPE_HELLMAW, FAIL);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -114,15 +114,15 @@ public:
             IsBanished = false;
             Intro = true;
 
-            if (m_pInstance)
+            if (m_instance)
             {
-                if (m_pInstance->GetData(TYPE_HELLMAW) != FAIL)
+                if (m_instance->GetData(TYPE_HELLMAW) != FAIL)
                 {
                     DoScriptText(SAY_INTRO, me);
                     Start(true, false, 0, NULL, false, true);
                 }
 
-                m_pInstance->SetData(TYPE_HELLMAW, IN_PROGRESS);
+                m_instance->SetData(TYPE_HELLMAW, IN_PROGRESS);
             }
         }
 
@@ -140,8 +140,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_HELLMAW, DONE);
+            if (m_instance)
+                m_instance->SetData(TYPE_HELLMAW, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -150,9 +150,9 @@ public:
             {
                 if (EventCheck_Timer <= diff)
                 {
-                    if (m_pInstance)
+                    if (m_instance)
                     {
-                        if (m_pInstance->GetData(TYPE_OVERSEER) == DONE)
+                        if (m_instance->GetData(TYPE_OVERSEER) == DONE)
                         {
                             DoIntro();
                             return;

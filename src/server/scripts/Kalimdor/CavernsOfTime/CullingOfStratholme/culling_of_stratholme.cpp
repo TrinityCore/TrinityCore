@@ -327,11 +327,11 @@ public:
     {
         npc_arthasAI(Creature* creature) : npc_escortAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             Reset();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool bStepping;
         uint32 uiStep;
@@ -375,9 +375,9 @@ public:
             uiMalganisGUID = 0;
             uiInfiniteGUID = 0;
 
-            if (pInstance) {
-                pInstance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
-                switch (pInstance->GetData(DATA_ARTHAS_EVENT))
+            if (instance) {
+                instance->SetData(DATA_ARTHAS_EVENT, NOT_STARTED);
+                switch (instance->GetData(DATA_ARTHAS_EVENT))
                 {
                     case NOT_STARTED:
                         bStepping = true;
@@ -400,8 +400,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_ARTHAS_EVENT, FAIL);
+            if (instance)
+                instance->SetData(DATA_ARTHAS_EVENT, FAIL);
         }
 
         void SpawnTimeRift(uint32 timeRiftID, uint64* guidVector)
@@ -411,14 +411,14 @@ public:
             for (uint32 i = timeRiftID+1; i < ENCOUNTER_CHRONO_SPAWNS; ++i)
             {
                 if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_TIME_RIFT) break;
-                if (Creature* pTemp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
+                if (Creature* temp = me->SummonCreature((uint32)RiftAndSpawnsLocations[i][0], RiftAndSpawnsLocations[timeRiftID][1], RiftAndSpawnsLocations[timeRiftID][2], RiftAndSpawnsLocations[timeRiftID][3], RiftAndSpawnsLocations[timeRiftID][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                 {
-                    guidVector[i-timeRiftID-1] = pTemp->GetGUID();
-                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
-                    pTemp->SetReactState(REACT_PASSIVE);
-                    pTemp->GetMotionMaster()->MovePoint(0, RiftAndSpawnsLocations[i][1], RiftAndSpawnsLocations[i][2], RiftAndSpawnsLocations[i][3]);
+                    guidVector[i-timeRiftID-1] = temp->GetGUID();
+                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                    temp->SetReactState(REACT_PASSIVE);
+                    temp->GetMotionMaster()->MovePoint(0, RiftAndSpawnsLocations[i][1], RiftAndSpawnsLocations[i][2], RiftAndSpawnsLocations[i][3]);
                     if ((uint32)RiftAndSpawnsLocations[i][0] == NPC_EPOCH)
-                        uiEpochGUID = pTemp->GetGUID();
+                        uiEpochGUID = temp->GetGUID();
                 }
             }
         }
@@ -428,9 +428,9 @@ public:
             for (uint32 i = 0; i < ENCOUNTER_WAVES_MAX_SPAWNS; ++i)
             {
                 if ((uint32)WavesLocations[waveID][i][0] == 0) break;
-                if (Creature* pTemp = me->SummonCreature((uint32)WavesLocations[waveID][i][0], WavesLocations[waveID][i][1], WavesLocations[waveID][i][2], WavesLocations[waveID][i][3], WavesLocations[waveID][i][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
+                if (Creature* temp = me->SummonCreature((uint32)WavesLocations[waveID][i][0], WavesLocations[waveID][i][1], WavesLocations[waveID][i][2], WavesLocations[waveID][i][3], WavesLocations[waveID][i][4], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900000))
                 {
-                    guidVector[i] = pTemp->GetGUID();
+                    guidVector[i] = temp->GetGUID();
                 }
             }
         }
@@ -535,8 +535,8 @@ public:
                     DoScriptText(SAY_PHASE403, me);
                     break;
                 case 36:
-                    if (pInstance)
-                        if (GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_SHKAF_GATE)))
+                    if (instance)
+                        if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_SHKAF_GATE)))
                             pGate->SetGoState(GO_STATE_ACTIVE);
                     break;
                 case 45:
@@ -860,8 +860,8 @@ public:
                             DoScriptText(SAY_PHASE209, me);
 
                             uiBossEvent = DATA_MEATHOOK_EVENT;
-                            if (pInstance)
-                                pInstance->SetData(DATA_ARTHAS_EVENT, IN_PROGRESS);
+                            if (instance)
+                                instance->SetData(DATA_ARTHAS_EVENT, IN_PROGRESS);
 
                             me->SetReactState(REACT_DEFENSIVE);
                             SetDespawnAtFar(false);
@@ -875,7 +875,7 @@ public:
                         case 53:
                         case 55:
                         case 57:
-                            if (pInstance->GetData(uiBossEvent) != DONE)
+                            if (instance->GetData(uiBossEvent) != DONE)
                             {
                                 SpawnWaveGroup(uiWave, uiWaveGUID);
                                 uiWave++;
@@ -890,7 +890,7 @@ public:
                         case 54:
                         case 56:
                         case 58:
-                            if (pInstance->GetData(uiBossEvent) != DONE)
+                            if (instance->GetData(uiBossEvent) != DONE)
                             {
                                 uint32 mobCounter = 0;
                                 uint32 deadCounter = 0;
@@ -899,8 +899,8 @@ public:
                                     if (uiWaveGUID[i] == 0)
                                         break;
                                     ++mobCounter;
-                                    Unit* pTemp = Unit::GetCreature(*me, uiWaveGUID[i]);
-                                    if (!pTemp || pTemp->isDead())
+                                    Unit* temp = Unit::GetCreature(*me, uiWaveGUID[i]);
+                                    if (!temp || temp->isDead())
                                         ++deadCounter;
                                 }
 
@@ -914,7 +914,7 @@ public:
                             break;
                         case 49: //Summon Boss
                         case 59:
-                            if (pInstance->GetData(uiBossEvent) != DONE)
+                            if (instance->GetData(uiBossEvent) != DONE)
                             {
                                 uint32 uiBossID = 0;
                                 if (uiBossEvent == DATA_MEATHOOK_EVENT)
@@ -933,9 +933,9 @@ public:
                             break;
                         case 50: //Wait Boss death
                         case 60:
-                            if (pInstance)
+                            if (instance)
                             {
-                                if (pInstance->GetData(uiBossEvent) == DONE)
+                                if (instance->GetData(uiBossEvent) == DONE)
                                 {
                                     JumpToNextStep(1000);
                                     if (uiBossEvent == DATA_MEATHOOK_EVENT)
@@ -947,7 +947,7 @@ public:
                                         uiBossEvent = DATA_EPOCH_EVENT;
                                     }
                                 }
-                                else if (pInstance->GetData(uiBossEvent) == FAIL)
+                                else if (instance->GetData(uiBossEvent) == FAIL)
                                     npc_escortAI::EnterEvadeMode();
                                 else
                                     uiPhaseTimer = 10000;
@@ -1031,10 +1031,10 @@ public:
                         case 77:
                             //Make cratures attackable
                             for (uint32 i = 0; i< ENCOUNTER_DRACONIAN_NUMBER; ++i)
-                                if (Creature* pTemp = Unit::GetCreature(*me, uiInfiniteDraconianGUID[i]))
+                                if (Creature* temp = Unit::GetCreature(*me, uiInfiniteDraconianGUID[i]))
                                 {
-                                    pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
-                                    pTemp->SetReactState(REACT_AGGRESSIVE);
+                                    temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_PASSIVE);
+                                    temp->SetReactState(REACT_AGGRESSIVE);
                                 }
                             JumpToNextStep(5000);
                             break;
@@ -1068,8 +1068,8 @@ public:
                             JumpToNextStep(1000);
                             break;
                         case 80:
-                            if (pInstance)
-                                if (pInstance->GetData(DATA_EPOCH_EVENT) != DONE)
+                            if (instance)
+                                if (instance->GetData(DATA_EPOCH_EVENT) != DONE)
                                 {
                                     SpawnTimeRift(17, &uiEpochGUID);
                                     if (Creature* pEpoch = Unit::GetCreature(*me, uiEpochGUID))
@@ -1079,14 +1079,14 @@ public:
                             JumpToNextStep(18000);
                             break;
                         case 81:
-                            if (pInstance)
-                                if (pInstance->GetData(DATA_EPOCH_EVENT) != DONE)
+                            if (instance)
+                                if (instance->GetData(DATA_EPOCH_EVENT) != DONE)
                                     DoScriptText(SAY_PHASE315, me);
                             JumpToNextStep(6000);
                             break;
                         case 82:
-                            if (pInstance)
-                                if (pInstance->GetData(DATA_EPOCH_EVENT) != DONE)
+                            if (instance)
+                                if (instance->GetData(DATA_EPOCH_EVENT) != DONE)
                                 {
                                     if (Creature* pEpoch = Unit::GetCreature(*me, uiEpochGUID))
                                     {
@@ -1100,9 +1100,9 @@ public:
                             JumpToNextStep(1000);
                             break;
                         case 83:
-                            if (pInstance)
+                            if (instance)
                             {
-                                if (pInstance->GetData(DATA_EPOCH_EVENT) == DONE)
+                                if (instance->GetData(DATA_EPOCH_EVENT) == DONE)
                                 {
                                     uiGossipStep = 3;
                                     me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -1110,7 +1110,7 @@ public:
                                     uiBossEvent = DATA_MAL_GANIS_EVENT;
                                     JumpToNextStep(15000);
                                 }
-                                else if (pInstance->GetData(DATA_EPOCH_EVENT) == FAIL)
+                                else if (instance->GetData(DATA_EPOCH_EVENT) == FAIL)
                                     npc_escortAI::EnterEvadeMode();
                                 else
                                     uiPhaseTimer = 10000;
@@ -1130,8 +1130,8 @@ public:
                                 uiMalganisGUID = pMalganis->GetGUID();
                                 pMalganis->SetReactState(REACT_PASSIVE);
                             }
-                            if (pInstance)
-                                if (GameObject* pGate = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAL_GANIS_GATE_1)))
+                            if (instance)
+                                if (GameObject* pGate = instance->instance->GetGameObject(instance->GetData64(DATA_MAL_GANIS_GATE_1)))
                                     pGate->SetGoState(GO_STATE_ACTIVE);
                             SetHoldState(false);
                             bStepping = false;
@@ -1152,14 +1152,14 @@ public:
                             JumpToNextStep(1000);
                             break;
                         case 88:
-                            if (pInstance)
+                            if (instance)
                             {
-                                if (pInstance->GetData(DATA_MAL_GANIS_EVENT) == DONE)
+                                if (instance->GetData(DATA_MAL_GANIS_EVENT) == DONE)
                                 {
                                     SetHoldState(false);
                                     JumpToNextStep(1000);
                                 }
-                                else if (pInstance->GetData(DATA_MAL_GANIS_EVENT) == FAIL)
+                                else if (instance->GetData(DATA_MAL_GANIS_EVENT) == FAIL)
                                     npc_escortAI::EnterEvadeMode();
                                 else
                                     uiPhaseTimer = 10000;
@@ -1173,10 +1173,10 @@ public:
                             JumpToNextStep(7000);
                             break;
                         case 90:
-                            if (pInstance)
+                            if (instance)
                             {
-                                pInstance->SetData(DATA_ARTHAS_EVENT, DONE); //Rewards: Achiev & Chest ;D
-                                me->SetTarget(pInstance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
+                                instance->SetData(DATA_ARTHAS_EVENT, DONE); //Rewards: Achiev & Chest ;D
+                                me->SetTarget(instance->GetData64(DATA_MAL_GANIS_GATE_2)); //Look behind
                             }
                             DoScriptText(SAY_PHASE504, me);
                             bStepping = false;

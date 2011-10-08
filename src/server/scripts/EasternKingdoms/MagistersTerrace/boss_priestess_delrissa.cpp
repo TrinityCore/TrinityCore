@@ -101,12 +101,12 @@ public:
     {
         boss_priestess_delrissaAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             memset(&m_auiLackeyGUID, 0, sizeof(m_auiLackeyGUID));
             LackeyEntryList.clear();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         std::vector<uint32> LackeyEntryList;
         uint64 m_auiLackeyGUID[MAX_ACTIVE_LACKEY];
@@ -137,8 +137,8 @@ public:
         //this mean she at some point evaded
         void JustReachedHome()
         {
-            if (pInstance)
-                 pInstance->SetData(DATA_DELRISSA_EVENT, FAIL);
+            if (instance)
+                 instance->SetData(DATA_DELRISSA_EVENT, FAIL);
         }
 
         void EnterCombat(Unit* who)
@@ -157,8 +157,8 @@ public:
                 }
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_DELRISSA_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_DELRISSA_EVENT, IN_PROGRESS);
         }
 
         void InitializeLackeys()
@@ -224,11 +224,11 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            if (pInstance->GetData(DATA_DELRISSA_DEATH_COUNT) == MAX_ACTIVE_LACKEY)
-                pInstance->SetData(DATA_DELRISSA_EVENT, DONE);
+            if (instance->GetData(DATA_DELRISSA_DEATH_COUNT) == MAX_ACTIVE_LACKEY)
+                instance->SetData(DATA_DELRISSA_EVENT, DONE);
             else
             {
                 if (me->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
@@ -342,12 +342,12 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 {
     boss_priestess_lackey_commonAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceScript();
+        instance = c->GetInstanceScript();
         memset(&m_auiLackeyGUIDs, 0, sizeof(m_auiLackeyGUIDs));
         AcquireGUIDs();
     }
 
-    InstanceScript* pInstance;
+    InstanceScript* instance;
 
     uint64 m_auiLackeyGUIDs[MAX_ACTIVE_LACKEY];
     uint32 ResetThreatTimer;
@@ -365,7 +365,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         ResetThreatTimer = urand(5000, 20000);
 
         // in case she is not alive and Reset was for some reason called, respawn her (most likely party wipe after killing her)
-        if (Creature* pDelrissa = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_DELRISSA) : 0))
+        if (Creature* pDelrissa = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_DELRISSA) : 0))
         {
             if (!pDelrissa->isAlive())
                 pDelrissa->Respawn();
@@ -377,7 +377,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (!who)
             return;
 
-        if (pInstance)
+        if (instance)
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
             {
@@ -391,7 +391,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 }
             }
 
-            if (Creature* pDelrissa = Unit::GetCreature(*me, pInstance->GetData64(DATA_DELRISSA)))
+            if (Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
             {
                 if (pDelrissa->isAlive() && !pDelrissa->getVictim())
                 {
@@ -404,11 +404,11 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
 
     void JustDied(Unit* /*killer*/)
     {
-        if (!pInstance)
+        if (!instance)
             return;
 
-        Creature* pDelrissa = Unit::GetCreature(*me, pInstance->GetData64(DATA_DELRISSA));
-        uint32 uiLackeyDeathCount = pInstance->GetData(DATA_DELRISSA_DEATH_COUNT);
+        Creature* pDelrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA));
+        uint32 uiLackeyDeathCount = instance->GetData(DATA_DELRISSA_DEATH_COUNT);
 
         if (!pDelrissa)
             return;
@@ -416,7 +416,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         //should delrissa really yell if dead?
         DoScriptText(LackeyDeath[uiLackeyDeathCount].id, pDelrissa);
 
-        pInstance->SetData(DATA_DELRISSA_DEATH_COUNT, SPECIAL);
+        instance->SetData(DATA_DELRISSA_DEATH_COUNT, SPECIAL);
 
         //increase local var, since we now may have four dead
         ++uiLackeyDeathCount;
@@ -429,26 +429,26 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
                 if (!pDelrissa->HasFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE))
                     pDelrissa->SetFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                pInstance->SetData(DATA_DELRISSA_EVENT, DONE);
+                instance->SetData(DATA_DELRISSA_EVENT, DONE);
             }
         }
     }
 
     void KilledUnit(Unit* victim)
     {
-        if (!pInstance)
+        if (!instance)
             return;
 
-        if (Creature* Delrissa = Unit::GetCreature(*me, pInstance->GetData64(DATA_DELRISSA)))
+        if (Creature* Delrissa = Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA)))
             Delrissa->AI()->KilledUnit(victim);
     }
 
     void AcquireGUIDs()
     {
-        if (!pInstance)
+        if (!instance)
             return;
 
-        if (Creature* Delrissa = (Unit::GetCreature(*me, pInstance->GetData64(DATA_DELRISSA))))
+        if (Creature* Delrissa = (Unit::GetCreature(*me, instance->GetData64(DATA_DELRISSA))))
         {
             for (uint8 i = 0; i < MAX_ACTIVE_LACKEY; ++i)
                 m_auiLackeyGUIDs[i] = CAST_AI(boss_priestess_delrissa::boss_priestess_delrissaAI, Delrissa->AI())->m_auiLackeyGUID[i];
@@ -1055,14 +1055,14 @@ public:
                 if (Freezing_Trap_Timer <= diff)
                 {
                     //attempt find go summoned from spell (casted by me)
-                    GameObject* pGo = me->GetGameObject(SPELL_FREEZING_TRAP);
+                    GameObject* go = me->GetGameObject(SPELL_FREEZING_TRAP);
 
-                    //if we have a pGo, we need to wait (only one trap at a time)
-                    if (pGo)
+                    //if we have a go, we need to wait (only one trap at a time)
+                    if (go)
                         Freezing_Trap_Timer = 2500;
                     else
                     {
-                        //if pGo does not exist, then we can cast
+                        //if go does not exist, then we can cast
                         DoCast(me->getVictim(), SPELL_FREEZING_TRAP);
                         Freezing_Trap_Timer = 15000;
                     }

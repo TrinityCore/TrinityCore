@@ -66,14 +66,14 @@ class instance_dark_portal : public InstanceMapScript
 public:
     instance_dark_portal() : InstanceMapScript("instance_dark_portal", 269) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_dark_portal_InstanceMapScript(pMap);
+        return new instance_dark_portal_InstanceMapScript(map);
     }
 
     struct instance_dark_portal_InstanceMapScript : public InstanceScript
     {
-        instance_dark_portal_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_dark_portal_InstanceMapScript(Map* map) : InstanceScript(map)
         {
         }
 
@@ -294,22 +294,22 @@ public:
 
                 CurrentRiftId = tmp;
 
-                Creature* pTemp = pMedivh->SummonCreature(C_TIME_RIFT,
+                Creature* temp = pMedivh->SummonCreature(C_TIME_RIFT,
                     PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
                     TEMPSUMMON_CORPSE_DESPAWN, 0);
-                if (pTemp)
+                if (temp)
                 {
-                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                    if (Creature* pBoss = SummonedPortalBoss(pTemp))
+                    if (Creature* pBoss = SummonedPortalBoss(temp))
                     {
                         if (pBoss->GetEntry() == C_AEONUS)
                             pBoss->AddThreat(pMedivh, 0.0f);
                         else
                         {
-                            pBoss->AddThreat(pTemp, 0.0f);
-                            pTemp->CastSpell(pBoss, SPELL_RIFT_CHANNEL, false);
+                            pBoss->AddThreat(temp, 0.0f);
+                            temp->CastSpell(pBoss, SPELL_RIFT_CHANNEL, false);
                         }
                     }
                 }

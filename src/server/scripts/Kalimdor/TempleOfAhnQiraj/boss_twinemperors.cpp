@@ -63,10 +63,10 @@ struct boss_twinemperorsAI : public ScriptedAI
 {
     boss_twinemperorsAI(Creature* c): ScriptedAI(c)
     {
-        pInstance = c->GetInstanceScript();
+        instance = c->GetInstanceScript();
     }
 
-    InstanceScript* pInstance;
+    InstanceScript* instance;
 
     uint32 Heal_Timer;
     uint32 Teleport_Timer;
@@ -97,8 +97,8 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     Creature* GetOtherBoss()
     {
-        if (pInstance)
-            return Unit::GetCreature(*me, pInstance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
+        if (instance)
+            return Unit::GetCreature(*me, instance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
         else
             return NULL;
     }
@@ -204,7 +204,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void TeleportToMyBrother()
     {
-        if (!pInstance)
+        if (!instance)
             return;
 
         Teleport_Timer = TELEPORTTIME;

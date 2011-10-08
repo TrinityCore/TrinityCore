@@ -117,14 +117,14 @@ public:
     {
         boss_kalecgosAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             SathGUID = 0;
             DoorGUID = 0;
             bJustReset = false;
             me->setActive(true);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 ArcaneBuffetTimer;
         uint32 FrostBreathTimer;
@@ -146,10 +146,10 @@ public:
 
         void Reset()
         {
-            if (pInstance)
+            if (instance)
             {
-                SathGUID = pInstance->GetData64(DATA_SATHROVARR);
-                pInstance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
+                SathGUID = instance->GetData64(DATA_SATHROVARR);
+                instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
 
             if (Creature* Sath = Unit::GetCreature(*me, SathGUID))
@@ -351,8 +351,8 @@ public:
             DoScriptText(SAY_EVIL_AGGRO, me);
             DoZoneInCombat();
 
-            if (pInstance)
-                pInstance->SetData(DATA_KALECGOS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_KALECGOS_EVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -445,7 +445,7 @@ public:
 
     struct boss_kalecAI : public ScriptedAI
     {
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 RevitalizeTimer;
         uint32 HeroicStrikeTimer;
@@ -458,13 +458,13 @@ public:
 
         boss_kalecAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         void Reset()
         {
-            if (pInstance)
-                SathGUID = pInstance->GetData64(DATA_SATHROVARR);
+            if (instance)
+                SathGUID = instance->GetData64(DATA_SATHROVARR);
 
             RevitalizeTimer = 5000;
             HeroicStrikeTimer = 3000;
@@ -540,14 +540,14 @@ class kalecgos_teleporter : public GameObjectScript
 public:
     kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         uint8 SpectralPlayers = 0;
-        Map* pMap = pGo->GetMap();
-        if (!pMap->IsDungeon())
+        Map* map = go->GetMap();
+        if (!map->IsDungeon())
             return true;
 
-        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+        Map::PlayerList const &PlayerList = map->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
             if (i->getSource() && i->getSource()->GetPositionZ() < DEMON_REALM_Z + 5)
@@ -577,12 +577,12 @@ public:
     {
         boss_sathrovarrAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             KalecGUID = 0;
             KalecgosGUID = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 CorruptionStrikeTimer;
         uint32 AgonyCurseTimer;
@@ -600,10 +600,10 @@ public:
         {
             me->SetFullHealth();//dunno why it does not resets health at evade..
             me->setActive(true);
-            if (pInstance)
+            if (instance)
             {
-                KalecgosGUID = pInstance->GetData64(DATA_KALECGOS_DRAGON);
-                pInstance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
+                KalecgosGUID = instance->GetData64(DATA_KALECGOS_DRAGON);
+                instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
             if (KalecGUID)
             {
@@ -669,15 +669,15 @@ public:
                 CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = true;
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_KALECGOS_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_KALECGOS_EVENT, DONE);
         }
 
         void TeleportAllPlayersBack()
         {
-            Map* pMap = me->GetMap();
-            if (!pMap->IsDungeon()) return;
-            Map::PlayerList const &PlayerList = pMap->GetPlayers();
+            Map* map = me->GetMap();
+            if (!map->IsDungeon()) return;
+            Map::PlayerList const &PlayerList = map->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
                 if (i->getSource()->GetPositionZ() <= DRAGON_REALM_Z-5)

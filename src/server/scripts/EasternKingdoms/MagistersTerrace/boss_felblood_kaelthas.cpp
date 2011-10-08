@@ -91,10 +91,10 @@ public:
     {
         boss_felblood_kaelthasAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 FireballTimer;
         uint32 PhoenixTimer;
@@ -138,10 +138,10 @@ public:
 
             Phase = 0;
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), true);
+                instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
+                instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
                // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
                // Small door opened after event are expected to be closed by default
             }
@@ -151,10 +151,10 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), true);
+            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
             // Open the encounter door
         }
 
@@ -166,10 +166,10 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), false);
+            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), false);
            //Close the encounter door, open it in JustDied/Reset
         }
 
@@ -361,10 +361,10 @@ public:
                                     DoScriptText(SAY_GRAVITY_LAPSE, me);
                                     FirstGravityLapse = false;
 
-                                    if (pInstance)
+                                    if (instance)
                                     {
-                                        pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_STATUE_LEFT), true);
-                                        pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
+                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_LEFT), true);
+                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
                                     }
                                 }else
                                 {
@@ -485,10 +485,10 @@ public:
     {
         mob_felkael_phoenixAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 BurnTimer;
         uint32 Death_Timer;
         bool Rebirth;
@@ -520,7 +520,7 @@ public:
 
             }
             //Don't really die in all phases of Kael'Thas
-            if (pInstance && pInstance->GetData(DATA_KAELTHAS_EVENT) == 0)
+            if (instance && instance->GetData(DATA_KAELTHAS_EVENT) == 0)
             {
                 //prevent death
                 damage = 0;

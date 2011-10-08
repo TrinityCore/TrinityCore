@@ -93,21 +93,21 @@ public:
     {
         boss_supremusAI(Creature* c) : ScriptedAI(c), summons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
         SummonList summons;
         uint32 phase;
 
         void Reset()
         {
-            if (pInstance)
+            if (instance)
             {
                 if (me->isAlive())
                 {
-                    pInstance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
+                    instance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
                     //ToggleDoors(true);
                 }
                 //else ToggleDoors(false);
@@ -121,8 +121,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
 
             ChangePhase();
             events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
@@ -157,10 +157,10 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_SUPREMUSEVENT, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
+                instance->SetData(DATA_SUPREMUSEVENT, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
             }
             summons.DespawnAll();
         }

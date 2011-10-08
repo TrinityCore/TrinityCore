@@ -548,17 +548,17 @@ class go_skull_pile : public GameObjectScript
 public:
     go_skull_pile() : GameObjectScript("go_skull_pile") { }
 
-    bool OnGossipSelect(Player* player, GameObject* pGo, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* go, uint32 uiSender, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
         switch (uiSender)
         {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, pGo, uiAction); break;
+            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, go, uiAction); break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         if ((player->GetQuestStatus(11885) == QUEST_STATUS_INCOMPLETE) || player->GetQuestRewardStatus(11885))
         {
@@ -568,11 +568,11 @@ public:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
         }
 
-        player->SEND_GOSSIP_MENU(pGo->GetGOInfo()->questgiver.gossipID, pGo->GetGUID());
+        player->SEND_GOSSIP_MENU(go->GetGOInfo()->questgiver.gossipID, go->GetGUID());
         return true;
     }
 
-    void SendActionMenu(Player* player, GameObject* /*pGo*/, uint32 uiAction)
+    void SendActionMenu(Player* player, GameObject* /*go*/, uint32 uiAction)
     {
         switch (uiAction)
         {
@@ -645,9 +645,9 @@ class npc_akuno : public CreatureScript
 public:
     npc_akuno() : CreatureScript("npc_akuno") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
+        if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
         {
             if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID());

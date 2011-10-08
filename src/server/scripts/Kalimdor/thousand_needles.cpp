@@ -54,12 +54,12 @@ class npc_kanati : public CreatureScript
 public:
     npc_kanati() : CreatureScript("npc_kanati") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_PROTECT_KANATI)
+        if (quest->GetQuestId() == QUEST_PROTECT_KANATI)
         {
             if (npc_kanatiAI* pEscortAI = CAST_AI(npc_kanati::npc_kanatiAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest, true);
+                pEscortAI->Start(false, false, player->GetGUID(), quest, true);
         }
         return true;
     }
@@ -142,15 +142,15 @@ class npc_lakota_windsong : public CreatureScript
 public:
     npc_lakota_windsong() : CreatureScript("npc_lakota_windsong") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_FREE_AT_LAST)
+        if (quest->GetQuestId() == QUEST_FREE_AT_LAST)
         {
             DoScriptText(SAY_LAKO_START, creature, player);
             creature->setFaction(FACTION_ESCORTEE_LAKO);
 
             if (npc_lakota_windsongAI* pEscortAI = CAST_AI(npc_lakota_windsong::npc_lakota_windsongAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -227,15 +227,15 @@ class npc_paoka_swiftmountain : public CreatureScript
 public:
     npc_paoka_swiftmountain() : CreatureScript("npc_paoka_swiftmountain") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_HOMEWARD)
+        if (quest->GetQuestId() == QUEST_HOMEWARD)
         {
             DoScriptText(SAY_START, creature, player);
             creature->setFaction(FACTION_ESCORTEE);
 
             if (npc_paoka_swiftmountainAI* pEscortAI = CAST_AI(npc_paoka_swiftmountain::npc_paoka_swiftmountainAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -408,12 +408,12 @@ class go_panther_cage : public GameObjectScript
 public:
     go_panther_cage() : GameObjectScript("go_panther_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
 
         if (player->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Creature* panther = pGo->FindNearestCreature(ENRAGED_PANTHER, 5, true))
+            if (Creature* panther = go->FindNearestCreature(ENRAGED_PANTHER, 5, true))
             {
                 panther->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 panther->SetReactState(REACT_AGGRESSIVE);

@@ -149,11 +149,11 @@ public:
     {
         boss_grandmaster_vorpilAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             Intro = false;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool Intro, HelpYell;
         bool sumportals;
 
@@ -172,8 +172,8 @@ public:
             HelpYell = false;
             destroyPortals();
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_GRANDMASTERVORPILEVENT, NOT_STARTED);
         }
 
         void summonPortals()
@@ -237,8 +237,8 @@ public:
             DoScriptText(SAY_DEATH, me);
             destroyPortals();
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -246,8 +246,8 @@ public:
             DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
             summonPortals();
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_GRANDMASTERVORPILEVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -284,8 +284,8 @@ public:
 
             if (DrawShadows_Timer <= diff)
             {
-                Map* pMap = me->GetMap();
-                Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                Map* map = me->GetMap();
+                Map::PlayerList const &PlayerList = map->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* i_pl = i->getSource())
                         if (i_pl->isAlive() && !i_pl->HasAura(SPELL_BANISH))
