@@ -424,4 +424,3 @@ void AddSC_boss_warbringer_omrogg()
     new boss_warbringer_omrogg();
     new mob_omrogg_heads();
 }
-

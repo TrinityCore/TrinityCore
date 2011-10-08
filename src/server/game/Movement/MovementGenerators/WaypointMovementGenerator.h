@@ -128,4 +128,3 @@ public PathMovementBase<Player, TaxiPathNodeList const*>
         float m_endGridY;
 };
 #endif
-

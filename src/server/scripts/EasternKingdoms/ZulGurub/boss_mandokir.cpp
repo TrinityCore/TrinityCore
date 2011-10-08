@@ -343,4 +343,3 @@ void AddSC_boss_mandokir()
     new boss_mandokir();
     new mob_ohgan();
 }
-

@@ -103,7 +103,6 @@ public:
             summoned->AI()->AttackStart(me);
         }
     };
-
 };
 
 /*######
@@ -197,7 +196,6 @@ public:
                 TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         }
     };
-
 };
 
 /*######
@@ -277,7 +275,6 @@ public:
                 TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         }
     };
-
 };
 
 /*#####
@@ -395,7 +392,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum ePantherCage
@@ -410,7 +406,6 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* go)
     {
-
         if (player->GetQuestStatus(5151) == QUEST_STATUS_INCOMPLETE)
         {
             if (Creature* panther = go->FindNearestCreature(ENRAGED_PANTHER, 5, true))
@@ -453,7 +448,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_thousand_needles()

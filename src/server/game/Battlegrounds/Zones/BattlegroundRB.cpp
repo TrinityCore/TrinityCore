@@ -32,7 +32,6 @@ BattlegroundRB::BattlegroundRB()
 
 BattlegroundRB::~BattlegroundRB()
 {
-
 }
 
 void BattlegroundRB::StartingEventCloseDoors()

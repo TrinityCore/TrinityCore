@@ -123,7 +123,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -238,7 +237,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_orgrimmar()

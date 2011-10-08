@@ -71,7 +71,6 @@ class boss_gatewatcher_iron_hand : public CreatureScript
                     Shadow_Power_Timer = 25000;
                     Jackhammer_Timer = 45000;
                     Stream_of_Machine_Fluid_Timer = 55000;
-
                 }
                 void EnterCombat(Unit* /*who*/)
                 {
@@ -147,4 +146,3 @@ void AddSC_boss_gatewatcher_iron_hand()
 {
     new boss_gatewatcher_iron_hand();
 }
-

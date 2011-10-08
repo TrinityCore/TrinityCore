@@ -72,7 +72,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -144,7 +143,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -216,7 +214,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -270,7 +267,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -443,7 +439,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -530,7 +525,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -679,7 +673,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -709,7 +702,6 @@ public:
         }
         return false;
     }
-
 };
 
 void AddSC_stormwind_city()

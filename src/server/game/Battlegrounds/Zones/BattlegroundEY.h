@@ -412,4 +412,3 @@ class BattlegroundEY : public Battleground
         uint32 m_HonorTics;
 };
 #endif
-

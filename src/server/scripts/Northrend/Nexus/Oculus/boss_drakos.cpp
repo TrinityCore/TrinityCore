@@ -192,7 +192,6 @@ public:
         uint32 pulseTimer;
         uint32 deathTimer;
     };
-
 };
 
 void AddSC_boss_drakos()

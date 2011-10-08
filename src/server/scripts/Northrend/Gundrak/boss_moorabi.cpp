@@ -167,7 +167,6 @@ public:
             DoScriptText(RAND(SAY_SLAY_2, SAY_SLAY_3), me);
         }
     };
-
 };
 
 class achievement_less_rabi : public AchievementCriteriaScript

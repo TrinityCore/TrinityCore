@@ -576,7 +576,6 @@ void WorldSession::SendStablePetCallback(QueryResult result, uint64 guid)
 
     data.put<uint8>(wpos, num);                             // set real data to placeholder
     SendPacket(&data);
-
 }
 
 void WorldSession::SendStableResult(uint8 res)
@@ -620,7 +619,6 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
 
     _stablePetCallback = CharacterDatabase.AsyncPQuery("SELECT owner, slot, id FROM character_pet WHERE owner = '%u'  AND slot >= '%u' AND slot <= '%u' ORDER BY slot ",
         _player->GetGUIDLow(), PET_SAVE_FIRST_STABLE_SLOT, PET_SAVE_LAST_STABLE_SLOT);
-
 }
 
 void WorldSession::HandleStablePetCallback(QueryResult result)
@@ -893,4 +891,3 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket & recv_data)
         TotalCost = _player->DurabilityRepairAll(true, discountMod, guildBank);
     }
 }
-

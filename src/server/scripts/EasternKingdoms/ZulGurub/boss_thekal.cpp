@@ -255,7 +255,6 @@ class boss_thekal : public CreatureScript
                     }
 
                     DoMeleeAttackIfReady();
-
             }
         };
 
@@ -584,4 +583,3 @@ void AddSC_boss_thekal()
     new mob_zealot_lorkhan();
     new mob_zealot_zath();
 }
-

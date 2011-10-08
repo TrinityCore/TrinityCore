@@ -636,4 +636,3 @@ inline Creature* CreatureAI::DoSummonFlyer(uint32 entry, WorldObject* obj, float
 }
 
 #endif
-

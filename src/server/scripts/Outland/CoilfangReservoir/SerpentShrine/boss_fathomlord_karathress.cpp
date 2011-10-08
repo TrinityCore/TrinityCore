@@ -154,7 +154,6 @@ public:
                     }
                 instance->SetData(DATA_KARATHRESSEVENT, NOT_STARTED);
             }
-
         }
 
         void EventSharkkisDeath()
@@ -301,7 +300,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Fathom-Guard Sharkkis AI
@@ -455,7 +453,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Fathom-Guard Tidalvess AI
@@ -582,7 +579,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Fathom-Guard Caribdis AI

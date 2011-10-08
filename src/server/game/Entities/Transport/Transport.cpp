@@ -44,7 +44,6 @@ void MapManager::LoadTransports()
 
     do
     {
-
         Field* fields = result->Fetch();
         uint32 lowguid = fields[0].GetUInt32();
         uint32 entry = fields[1].GetUInt32();

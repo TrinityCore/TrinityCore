@@ -28,7 +28,6 @@ AuthCrypt::AuthCrypt() : _clientDecrypt(SHA_DIGEST_LENGTH), _serverEncrypt(SHA_D
 
 AuthCrypt::~AuthCrypt()
 {
-
 }
 
 void AuthCrypt::Init(BigNumber* K)
@@ -76,4 +75,3 @@ void AuthCrypt::EncryptSend(uint8 *data, size_t len)
 
     _serverEncrypt.UpdateData(len, data);
 }
-

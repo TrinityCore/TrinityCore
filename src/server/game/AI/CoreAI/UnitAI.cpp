@@ -266,7 +266,6 @@ bool SpellTargetSelector::operator()(Unit const* target) const
     float max_range = _caster->GetSpellMaxRangeForTarget(target, _spellInfo);
     float min_range = _caster->GetSpellMinRangeForTarget(target, _spellInfo);
 
-
     if (target && target != _caster)
     {
         if (range_type == SPELL_RANGE_MELEE)

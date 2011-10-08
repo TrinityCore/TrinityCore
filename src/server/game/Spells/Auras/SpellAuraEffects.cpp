@@ -6788,7 +6788,6 @@ void AuraEffect::HandleRaidProcFromChargeAuraProc(AuraApplication* aurApp, ProcE
     target->CastSpell(target, triggerSpellId, true, NULL, this, GetCasterGUID());
 }
 
-
 void AuraEffect::HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& /*eventInfo*/)
 {
     Unit* target = aurApp->GetTarget();

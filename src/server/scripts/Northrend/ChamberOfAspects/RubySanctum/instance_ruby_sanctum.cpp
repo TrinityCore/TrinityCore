@@ -18,7 +18,6 @@
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
 
-
 DoorData const doorData[] =
 {
     {GO_FIRE_FIELD,     DATA_BALTHARUS_THE_WARBORN, DOOR_TYPE_PASSAGE,  BOUNDARY_E   },

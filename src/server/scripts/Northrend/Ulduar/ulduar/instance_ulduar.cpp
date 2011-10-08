@@ -271,7 +271,6 @@ class instance_ulduar : public InstanceMapScript
                             creature->UpdateEntry(NPC_BATTLE_PRIEST_GINA, HORDE);
                         break;
                 }
-
              }
 
             void OnGameObjectCreate(GameObject* gameObject)
@@ -408,7 +407,6 @@ class instance_ulduar : public InstanceMapScript
                             break;
                     }
             }
-
 
             bool SetBossState(uint32 type, EncounterState state)
             {

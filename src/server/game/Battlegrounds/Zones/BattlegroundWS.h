@@ -227,4 +227,3 @@ class BattlegroundWS : public Battleground
         virtual void PostUpdateImpl(uint32 diff);
 };
 #endif
-

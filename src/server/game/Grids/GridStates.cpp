@@ -71,4 +71,3 @@ RemovalState::Update(Map &m, NGridType &grid, GridInfo &info, const uint32 x, co
         }
     }
 }
-

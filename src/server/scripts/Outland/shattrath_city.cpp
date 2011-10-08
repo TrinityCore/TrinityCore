@@ -111,7 +111,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -187,7 +186,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*
@@ -247,7 +245,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -279,7 +276,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -572,7 +568,6 @@ public:
     {
         return new npc_dirty_larryAI (creature);
     }
-
 };
 
 /*######
@@ -610,7 +605,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -678,7 +672,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_shattrath_city()

@@ -567,6 +567,5 @@ class BattlegroundSA : public Battleground
         /// for know if second round has been init
         bool InitSecondRound;
         std::map<uint32/*id*/, uint32/*timer*/> DemoliserRespawnList;
-
 };
 #endif

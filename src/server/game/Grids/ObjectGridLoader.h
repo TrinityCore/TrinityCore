@@ -129,4 +129,3 @@ class ObjectGridCleaner
 
 typedef GridLoader<Player, AllWorldObjectTypes, AllGridObjectTypes> GridLoaderType;
 #endif
-

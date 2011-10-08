@@ -49,4 +49,3 @@ class WorldPacket : public ByteBuffer
         uint16 m_opcode;
 };
 #endif
-

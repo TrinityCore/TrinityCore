@@ -41,7 +41,6 @@ BattlegroundDS::BattlegroundDS()
 
 BattlegroundDS::~BattlegroundDS()
 {
-
 }
 
 void BattlegroundDS::PostUpdateImpl(uint32 diff)

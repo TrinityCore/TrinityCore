@@ -62,4 +62,3 @@ namespace AddonMgr
 }
 
 #endif
-

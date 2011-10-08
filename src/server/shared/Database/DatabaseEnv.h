@@ -43,4 +43,3 @@ extern CharacterDatabaseWorkerPool CharacterDatabase;
 extern LoginDatabaseWorkerPool LoginDatabase;
 
 #endif
-

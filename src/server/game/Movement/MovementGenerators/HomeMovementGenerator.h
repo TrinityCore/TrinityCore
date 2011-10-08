@@ -54,4 +54,3 @@ class HomeMovementGenerator<Creature>
         uint32 i_travel_timer;
 };
 #endif
-

@@ -96,4 +96,3 @@ typedef FactoryHolder<MovementGenerator, MovementGeneratorType> MovementGenerato
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRegistry MovementGeneratorRegistry;
 typedef FactoryHolder<MovementGenerator, MovementGeneratorType>::FactoryHolderRepository MovementGeneratorRepository;
 #endif
-

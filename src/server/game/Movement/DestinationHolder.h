@@ -59,7 +59,5 @@ class DestinationHolder
 
     private:
         void _findOffSetPoint(float x1, float y1, float x2, float y2, float offset, float &x, float &y);
-
 };
 #endif
-

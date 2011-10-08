@@ -25,7 +25,6 @@
 
 namespace AddonMgr
 {
-
 // Anonymous namespace ensures file scope of all the stuff inside it, even
 // if you add something more to this namespace somewhere else.
 namespace
@@ -87,5 +86,4 @@ SavedAddon const* GetAddonInfo(const std::string& name)
 
     return NULL;
 }
-
 } // Namespace

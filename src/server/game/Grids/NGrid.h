@@ -183,4 +183,3 @@ class NGrid
         bool i_GridObjectDataLoaded;
 };
 #endif
-

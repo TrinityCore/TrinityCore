@@ -79,7 +79,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_timmy_the_cruel()

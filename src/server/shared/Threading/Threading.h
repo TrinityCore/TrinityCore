@@ -26,7 +26,6 @@
 
 namespace ACE_Based
 {
-
     class Runnable
     {
         public:
@@ -103,6 +102,5 @@ namespace ACE_Based
             //use this object to determine current OS thread priority values mapped to enum Priority{}
             static ThreadPriority m_TpEnum;
     };
-
 }
 #endif

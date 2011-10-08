@@ -253,7 +253,6 @@ class mob_ragin_flames : public CreatureScript
 
                     DoMeleeAttackIfReady();
                 }
-
             };
             CreatureAI* GetAI(Creature* creature) const
             {
@@ -265,4 +264,3 @@ void AddSC_boss_nethermancer_sepethrea()
     new boss_nethermancer_sepethrea();
     new mob_ragin_flames();
 }
-

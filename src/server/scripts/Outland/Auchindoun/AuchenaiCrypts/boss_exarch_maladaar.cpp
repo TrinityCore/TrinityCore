@@ -122,7 +122,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SAY_INTRO                   -1558000
@@ -218,7 +217,6 @@ public:
 
                 if (Unit* target = Unit::GetUnit(*me, soulholder))
                 {
-
                 CAST_AI(mob_stolen_soul::mob_stolen_soulAI, summoned->AI())->SetMyClass(soulclass);
                  summoned->AI()->AttackStart(target);
                 }
@@ -301,7 +299,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_AV_MORTAL_STRIKE          16856
@@ -346,7 +343,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_exarch_maladaar()

@@ -365,7 +365,6 @@ void PetAI::HandleReturnMovement()
             }
         }
     }
-
 }
 
 void PetAI::DoAttack(Unit* target, bool chase)

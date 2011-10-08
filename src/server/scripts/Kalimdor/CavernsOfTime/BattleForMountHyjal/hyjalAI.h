@@ -261,4 +261,3 @@ struct hyjalAI : public npc_escortAI
         //std::list<uint64> CreatureList;
 };
 #endif
-

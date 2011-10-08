@@ -23,7 +23,6 @@
 
 namespace Trinity
 {
-
 /// Handle termination signals
 class SignalHandler : public ACE_Event_Handler
 {
@@ -35,7 +34,6 @@ class SignalHandler : public ACE_Event_Handler
         }
         virtual void HandleSignal(int /*SigNum*/) {};
 };
-
 }
 
 #endif /* __SIGNAL_HANDLER_H__ */

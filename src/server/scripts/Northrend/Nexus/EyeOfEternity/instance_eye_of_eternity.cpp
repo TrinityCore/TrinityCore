@@ -273,7 +273,6 @@ public:
                         tmpState = NOT_STARTED;
                     SetBossState(i, EncounterState(tmpState));
                 }
-
             } else OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;

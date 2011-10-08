@@ -60,7 +60,6 @@ public:
                 me->SummonCreature(11064, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
         }
     };
-
 };
 
 /*######
@@ -91,7 +90,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -129,9 +127,7 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) {}
-
     };
-
 };
 
 /*######
@@ -185,7 +181,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_eastern_plaguelands()

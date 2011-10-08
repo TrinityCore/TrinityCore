@@ -89,4 +89,3 @@ class Weather
         WeatherData const* m_weatherChances;
 };
 #endif
-

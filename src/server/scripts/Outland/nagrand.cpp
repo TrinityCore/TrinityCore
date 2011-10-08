@@ -81,7 +81,6 @@ public:
             return;
         }
     };
-
 };
 
 /*######
@@ -239,7 +238,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -339,7 +337,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -450,7 +447,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -527,7 +523,6 @@ public:
 
         return true;
     }
-
 };
 
 /*#####
@@ -648,7 +643,6 @@ public:
             summoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             summoned->AI()->AttackStart(me);
-
         }
 
         void SpellHitTarget(Unit* /*target*/, const SpellInfo* pSpell)
@@ -698,7 +692,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -743,7 +736,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -765,7 +757,6 @@ public:
 
     struct mob_sparrowhawkAI : public ScriptedAI
     {
-
         mob_sparrowhawkAI(Creature* c) : ScriptedAI(c) {}
 
         uint32 Check_Timer;

@@ -212,4 +212,3 @@ DestinationHolder<TRAVELLER>::GetLocationNowNoMicroMovement(float &x, float &y, 
 }
 
 #endif
-

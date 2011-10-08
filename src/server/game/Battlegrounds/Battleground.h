@@ -701,4 +701,3 @@ class Battleground
         uint32 ScriptId;
 };
 #endif
-

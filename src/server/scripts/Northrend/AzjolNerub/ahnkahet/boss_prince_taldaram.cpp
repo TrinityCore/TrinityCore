@@ -230,7 +230,6 @@ public:
                                 uiPhaseTimer = 500;
                                 if (Unit* pEmbraceTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                     uiEmbraceTarget = pEmbraceTarget->GetGUID();
-
                             }
                             uiVanishTimer = urand(25*IN_MILLISECONDS, 35*IN_MILLISECONDS);
                         } else uiVanishTimer -= diff;

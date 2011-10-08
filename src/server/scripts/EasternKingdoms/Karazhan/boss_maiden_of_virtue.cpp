@@ -131,9 +131,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
     };
-
 };
 
 void AddSC_boss_maiden_of_virtue()

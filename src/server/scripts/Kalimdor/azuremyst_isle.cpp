@@ -168,7 +168,6 @@ public:
             } else SayHelpTimer -= diff;
         }
     };
-
 };
 
 /*######
@@ -282,7 +281,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -323,9 +321,7 @@ public:
         void UpdateAI(const uint32 /*diff*/)
         {
         }
-
     };
-
 };
 
 /*######
@@ -402,7 +398,6 @@ public:
 
         void Reset() { }
     };
-
 };
 
 /*######
@@ -568,7 +563,6 @@ public:
             } else SayTimer -= diff;
         }
     };
-
 };
 
 enum eRavegerCage
@@ -649,7 +643,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*########

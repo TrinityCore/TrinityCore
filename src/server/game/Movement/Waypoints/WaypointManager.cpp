@@ -126,7 +126,6 @@ void WaypointMgr::ReloadPath(uint32 id)
         wp->event_chance = fields[7].GetUInt8();
 
         path.push_back(wp);
-
     }
     while (result->NextRow());
 }

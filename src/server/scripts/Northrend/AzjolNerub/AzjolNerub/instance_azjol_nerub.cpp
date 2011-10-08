@@ -196,7 +196,6 @@ public:
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (auiEncounter[i] == IN_PROGRESS)
                         auiEncounter[i] = NOT_STARTED;
-
             } else OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;

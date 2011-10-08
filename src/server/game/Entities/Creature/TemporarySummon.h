@@ -107,4 +107,3 @@ private:
     TempSummon& m_owner;
 };
 #endif
-

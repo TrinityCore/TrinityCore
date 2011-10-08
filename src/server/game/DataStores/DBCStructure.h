@@ -2068,4 +2068,3 @@ typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 #define TaxiMaskSize 14
 typedef uint32 TaxiMask[TaxiMaskSize];
 #endif
-

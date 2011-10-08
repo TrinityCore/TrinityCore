@@ -49,7 +49,6 @@ enum eDyingKodo
     SPELL_KODO_KOMBO_PLAYER_BUFF    = 18172,                //spells here have unclear function, but using them at least for visual parts and checks
     SPELL_KODO_KOMBO_DESPAWN_BUFF   = 18377,
     SPELL_KODO_KOMBO_GOSSIP         = 18362
-
 };
 
 class npc_aged_dying_ancient_kodo : public CreatureScript
@@ -164,7 +163,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -183,7 +181,6 @@ public:
 
             return true;
     }
-
 };
 
 /*######
@@ -254,7 +251,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_desolace()

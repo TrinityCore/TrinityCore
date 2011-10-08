@@ -77,4 +77,3 @@ class TimedFleeingMovementGenerator
 };
 
 #endif
-

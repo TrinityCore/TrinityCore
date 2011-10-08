@@ -289,4 +289,3 @@ void AddSC_boss_arlokk()
     new boss_arlokk();
     new go_gong_of_bethekk();
 }
-

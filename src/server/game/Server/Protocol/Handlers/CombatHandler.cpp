@@ -79,4 +79,3 @@ void WorldSession::SendAttackStop(Unit const* enemy)
     data << uint32(0);                                      // unk, can be 1 also
     SendPacket(&data);
 }
-

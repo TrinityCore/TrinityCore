@@ -125,7 +125,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_amnennar_the_coldbringer()

@@ -50,4 +50,3 @@ class GuardAI : public ScriptedAI
         TimeTracker i_tracker;
 };
 #endif
-

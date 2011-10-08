@@ -512,7 +512,6 @@ struct SmartAction
 
         struct
         {
-
             uint32 emote1;
             uint32 emote2;
             uint32 emote3;
@@ -1126,7 +1125,6 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_FOLLOW_COMPLETED,          SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_DUMMY_EFFECT,              SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_IS_BEHIND_TARGET,          SMART_SCRIPT_TYPE_MASK_CREATURE }
-
 };
 
 enum SmartEventFlags
@@ -1185,7 +1183,6 @@ struct SmartScriptHolder
     bool active;
     bool runOnce;
     bool enableTimed;
-
 };
 
 typedef UNORDERED_MAP<uint32, WayPoint*> WPPath;
