@@ -329,9 +329,9 @@ class npc_muglash : public CreatureScript
                         if (player)
                             DoScriptText(SAY_MUG_BRAZIER, me, player);
 
-                        if (GameObject* pGo = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
+                        if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
                         {
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             SetEscortPaused(true);
                         }
                         break;

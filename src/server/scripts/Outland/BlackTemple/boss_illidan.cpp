@@ -26,7 +26,7 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "black_temple.h"
 
-#define GETGO(obj, guid)      GameObject* obj = pInstance->instance->GetGameObject(guid)
+#define GETGO(obj, guid)      GameObject* obj = instance->instance->GetGameObject(guid)
 #define GETUNIT(unit, guid)   Unit* unit = Unit::GetUnit(*me, guid)
 #define GETCRE(cre, guid)     Creature* cre = Unit::GetCreature(*me, guid)
 
@@ -469,11 +469,11 @@ public:
     {
         boss_illidan_stormrageAI(Creature* c) : ScriptedAI(c), Summons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             DoCast(me, SPELL_DUAL_WIELD, true);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         PhaseIllidan Phase;
         EventIllidan Event;
@@ -551,13 +551,13 @@ public:
         {
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, DONE); // Completed
+            instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, DONE); // Completed
 
             for (uint8 i = DATA_GAMEOBJECT_ILLIDAN_DOOR_R; i < DATA_GAMEOBJECT_ILLIDAN_DOOR_L + 1; ++i)
-                pInstance->HandleGameObject(pInstance->GetData64(i), true);
+                instance->HandleGameObject(instance->GetData64(i), true);
         }
 
         void KilledUnit(Unit* victim)
@@ -1370,11 +1370,11 @@ public:
     {
         npc_akama_illidanAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             JustCreated = true;
         }
         bool JustCreated;
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         PhaseAkama Phase;
         bool Event;
@@ -1394,28 +1394,28 @@ public:
         void Reset()
         {
             WalkCount = 0;
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
+                instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
 
-                IllidanGUID = pInstance->GetData64(DATA_ILLIDANSTORMRAGE);
-                GateGUID = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE);
-                DoorGUID[0] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
-                DoorGUID[1] = pInstance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
+                IllidanGUID = instance->GetData64(DATA_ILLIDANSTORMRAGE);
+                GateGUID = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_GATE);
+                DoorGUID[0] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_R);
+                DoorGUID[1] = instance->GetData64(DATA_GAMEOBJECT_ILLIDAN_DOOR_L);
 
                 if (JustCreated)//close all doors at create
                 {
-                    pInstance->HandleGameObject(GateGUID, false);
+                    instance->HandleGameObject(GateGUID, false);
 
                     for (uint8 i = 0; i < 2; ++i)
-                        pInstance->HandleGameObject(DoorGUID[i], false);
+                        instance->HandleGameObject(DoorGUID[i], false);
                     //JustCreated = false;
                 }else
                 {//open all doors, raid wiped
-                    pInstance->HandleGameObject(GateGUID, true);
+                    instance->HandleGameObject(GateGUID, true);
                     WalkCount = 1;//skip first wp
                     for (uint8 i = 0; i < 2; ++i)
-                        pInstance->HandleGameObject(DoorGUID[i], true);
+                        instance->HandleGameObject(DoorGUID[i], true);
                 }
             }
             else
@@ -1485,12 +1485,12 @@ public:
 
         void BeginTalk()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
+            instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, IN_PROGRESS);
             for (uint8 i = 0; i < 2; ++i)
-                pInstance->HandleGameObject(DoorGUID[i], false);
+                instance->HandleGameObject(DoorGUID[i], false);
             if (GETCRE(Illidan, IllidanGUID))
             {
                 Illidan->RemoveAurasDueToSpell(SPELL_KNEEL);
@@ -1539,7 +1539,7 @@ public:
 
         void EnterPhase(PhaseAkama NextPhase)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
             switch (NextPhase)
             {
@@ -1659,8 +1659,8 @@ public:
                 me->InterruptNonMeleeSpells(true);
                 Spirit[0]->InterruptNonMeleeSpells(true);
                 Spirit[1]->InterruptNonMeleeSpells(true);
-                if (pInstance)
-                    pInstance->HandleGameObject(GateGUID, true);
+                if (instance)
+                    instance->HandleGameObject(GateGUID, true);
                 Timer = 2000;
                 break;
             case 4:
@@ -1690,8 +1690,8 @@ public:
             {
             case 6:
                 for (uint8 i = 0; i < 2; ++i)
-                    if (pInstance)
-                        pInstance->HandleGameObject(DoorGUID[i], true);
+                    if (instance)
+                        instance->HandleGameObject(DoorGUID[i], true);
                 break;
             case 8:
                 if (Phase == PHASE_WALK)
@@ -1718,7 +1718,7 @@ public:
             {
                 if (Check_Timer <= diff)
                 {
-                    if (pInstance && pInstance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
+                    if (instance && instance->GetData(DATA_ILLIDARICOUNCILEVENT) == DONE)
                         me->SetVisible(true);
 
                     Check_Timer = 5000;
@@ -1824,8 +1824,8 @@ public:
 
 void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
 {
-    if (pInstance)
-        pInstance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
+    if (instance)
+        instance->SetData(DATA_ILLIDANSTORMRAGEEVENT, NOT_STARTED);
 
     if (AkamaGUID)
     {
@@ -2051,7 +2051,7 @@ public:
                         DespawnTimer = 5000;
                         if (who->HasAura(SPELL_ENRAGE))
                             who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
-                        //if (GameObject* CageTrap = pInstance->instance->GetGameObject(pInstance->GetData64(CageTrapGUID)))
+                        //if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetData64(CageTrapGUID)))
                         //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                     }
                 }
@@ -2084,15 +2084,15 @@ class gameobject_cage_trap : public GameObjectScript
 public:
     gameobject_cage_trap() : GameObjectScript("gameobject_cage_trap") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         float x, y, z;
         player->GetPosition(x, y, z);
 
         // Grid search for nearest live Creature of entry 23304 within 10 yards
-        if (Creature* pTrigger = pGo->FindNearestCreature(23304, 10.0f))
+        if (Creature* pTrigger = go->FindNearestCreature(23304, 10.0f))
             CAST_AI(mob_cage_trap_trigger::cage_trap_triggerAI, pTrigger->AI())->Active = true;
-        pGo->SetGoState(GO_STATE_ACTIVE);
+        go->SetGoState(GO_STATE_ACTIVE);
         return true;
     }
 
@@ -2187,17 +2187,17 @@ public:
     {
         mob_parasitic_shadowfiendAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint64 IllidanGUID;
         uint32 CheckTimer;
 
         void Reset()
         {
-            if (pInstance)
-                IllidanGUID = pInstance->GetData64(DATA_ILLIDANSTORMRAGE);
+            if (instance)
+                IllidanGUID = instance->GetData64(DATA_ILLIDANSTORMRAGE);
             else
                 IllidanGUID = 0;
 

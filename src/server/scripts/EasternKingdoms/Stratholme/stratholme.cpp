@@ -19,7 +19,7 @@
 /* ScriptData
 SDName: Stratholme
 SD%Complete: 100
-SDComment: Misc mobs for instance. pGo-script to apply aura and start event for quest 8945
+SDComment: Misc mobs for instance. go-script to apply aura and start event for quest 8945
 SDCategory: Stratholme
 EndScriptData */
 
@@ -43,14 +43,14 @@ class go_gauntlet_gate : public GameObjectScript
 public:
     go_gauntlet_gate() : GameObjectScript("go_gauntlet_gate") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
-        if (!pInstance)
+        if (!instance)
             return false;
 
-        if (pInstance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
+        if (instance->GetData(TYPE_BARON_RUN) != NOT_STARTED)
             return false;
 
         if (Group* group = player->GetGroup())
@@ -63,15 +63,15 @@ public:
 
                 if (pGroupie->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
                     !pGroupie->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    pGroupie->GetMap() == pGo->GetMap())
+                    pGroupie->GetMap() == go->GetMap())
                     pGroupie->CastSpell(pGroupie, SPELL_BARON_ULTIMATUM, true);
             }
         } else if (player->GetQuestStatus(QUEST_DEAD_MAN_PLEA) == QUEST_STATUS_INCOMPLETE &&
                     !player->HasAura(SPELL_BARON_ULTIMATUM) &&
-                    player->GetMap() == pGo->GetMap())
+                    player->GetMap() == go->GetMap())
                     player->CastSpell(player, SPELL_BARON_ULTIMATUM, true);
 
-        pInstance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
+        instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
         return false;
     }
 
@@ -177,9 +177,9 @@ public:
             {
                 if (Die_Timer <= diff)
                 {
-                    if (Unit* pTemp = Unit::GetUnit(*me, Tagger))
+                    if (Unit* temp = Unit::GetUnit(*me, Tagger))
                     {
-                        CAST_PLR(pTemp)->KilledMonsterCredit(ENTRY_RESTLESS, me->GetGUID());
+                        CAST_PLR(temp)->KilledMonsterCredit(ENTRY_RESTLESS, me->GetGUID());
                         me->Kill(me);
                     }
                 } else Die_Timer -= diff;

@@ -25,14 +25,14 @@ class instance_gnomeregan : public InstanceMapScript
 public:
     instance_gnomeregan() : InstanceMapScript("instance_gnomeregan", 90) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_gnomeregan_InstanceMapScript(pMap);
+        return new instance_gnomeregan_InstanceMapScript(map);
     }
 
     struct instance_gnomeregan_InstanceMapScript : public InstanceScript
     {
-        instance_gnomeregan_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_gnomeregan_InstanceMapScript(Map* map) : InstanceScript(map)
         {
         }
 

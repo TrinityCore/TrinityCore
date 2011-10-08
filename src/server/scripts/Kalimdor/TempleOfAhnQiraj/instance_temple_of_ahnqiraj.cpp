@@ -31,14 +31,14 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 public:
     instance_temple_of_ahnqiraj() : InstanceMapScript("instance_temple_of_ahnqiraj", 531) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_temple_of_ahnqiraj_InstanceMapScript(pMap);
+        return new instance_temple_of_ahnqiraj_InstanceMapScript(map);
     }
 
     struct instance_temple_of_ahnqiraj_InstanceMapScript : public InstanceScript
     {
-        instance_temple_of_ahnqiraj_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         //If Vem is dead...
         bool IsBossDied[3];

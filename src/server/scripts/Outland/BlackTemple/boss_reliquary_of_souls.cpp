@@ -144,11 +144,11 @@ public:
     {
         boss_reliquary_of_soulsAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             EssenceGUID = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 EssenceGUID;
 
@@ -161,8 +161,8 @@ public:
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
 
             if (EssenceGUID)
             {
@@ -184,8 +184,8 @@ public:
         {
             me->AddThreat(who, 10000.0f);
             DoZoneInCombat();
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
 
             Phase = 1;
             Counter = 0;
@@ -228,8 +228,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
         }
 
         void UpdateAI(const uint32 diff)

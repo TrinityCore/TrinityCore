@@ -44,14 +44,14 @@ class instance_sunken_temple : public InstanceMapScript
 public:
     instance_sunken_temple() : InstanceMapScript("instance_sunken_temple", 109) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_sunken_temple_InstanceMapScript(pMap);
+        return new instance_sunken_temple_InstanceMapScript(map);
     }
 
     struct instance_sunken_temple_InstanceMapScript : public InstanceScript
     {
-        instance_sunken_temple_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map)
         {
         }
 

@@ -85,13 +85,13 @@ class boss_high_astromancer_solarian : public CreatureScript
         {
             boss_high_astromancer_solarianAI(Creature* creature) : ScriptedAI(creature), Summons(me)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
 
                 defaultarmor = creature->GetArmor();
                 defaultsize = creature->GetFloatValue(OBJECT_FIELD_SCALE_X);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             SummonList Summons;
 
             uint8 Phase;
@@ -130,8 +130,8 @@ class boss_high_astromancer_solarian : public CreatureScript
                 Wrath_Timer = 20000+rand()%5000;//twice in phase one
                 Phase = 1;
 
-                if (pInstance)
-                    pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, NOT_STARTED);
 
                 me->SetArmor(defaultarmor);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -152,8 +152,8 @@ class boss_high_astromancer_solarian : public CreatureScript
                 me->SetFloatValue(OBJECT_FIELD_SCALE_X, defaultsize);
                 me->SetDisplayId(MODEL_HUMAN);
                 DoScriptText(SAY_DEATH, me);
-                if (pInstance)
-                    pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, DONE);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -161,8 +161,8 @@ class boss_high_astromancer_solarian : public CreatureScript
                 DoScriptText(SAY_AGGRO, me);
                 DoZoneInCombat();
 
-                if (pInstance)
-                    pInstance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_HIGHASTROMANCERSOLARIANEVENT, IN_PROGRESS);
             }
 
             void SummonMinion(uint32 entry, float x, float y, float z)
@@ -418,10 +418,10 @@ class mob_solarium_priest : public CreatureScript
         {
             mob_solarium_priestAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 healTimer;
             uint32 holysmiteTimer;
@@ -449,8 +449,8 @@ class mob_solarium_priest : public CreatureScript
                     switch (urand(0, 1))
                     {
                         case 0:
-                            if (pInstance)
-                                target = Unit::GetUnit((*me), pInstance->GetData64(DATA_ASTROMANCER));
+                            if (instance)
+                                target = Unit::GetUnit((*me), instance->GetData64(DATA_ASTROMANCER));
                             break;
                         case 1:
                             target = me;

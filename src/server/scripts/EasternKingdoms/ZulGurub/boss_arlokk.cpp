@@ -61,10 +61,10 @@ class boss_arlokk : public CreatureScript
         {
             boss_arlokkAI(Creature* creature) : ScriptedAI(creature)
             {
-                m_pInstance = creature->GetInstanceScript();
+                m_instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* m_pInstance;
+            InstanceScript* m_instance;
 
             uint32 m_uiShadowWordPain_Timer;
             uint32 m_uiGouge_Timer;
@@ -110,8 +110,8 @@ class boss_arlokk : public CreatureScript
 
             void JustReachedHome()
             {
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_ARLOKK, NOT_STARTED);
+                if (m_instance)
+                    m_instance->SetData(DATA_ARLOKK, NOT_STARTED);
 
                 //we should be summoned, so despawn
                 me->DespawnOrUnsummon();
@@ -124,8 +124,8 @@ class boss_arlokk : public CreatureScript
                 me->SetDisplayId(MODEL_ID_NORMAL);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_ARLOKK, DONE);
+                if (m_instance)
+                    m_instance->SetData(DATA_ARLOKK, DONE);
             }
 
             void DoSummonPhanters()
@@ -269,14 +269,14 @@ class go_gong_of_bethekk : public GameObjectScript
         {
         }
 
-        bool OnGossipHello(Player* /*player*/, GameObject* pGo)
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
-            if (InstanceScript* m_pInstance = pGo->GetInstanceScript())
+            if (InstanceScript* m_instance = go->GetInstanceScript())
             {
-                if (m_pInstance->GetData(DATA_ARLOKK) == DONE || m_pInstance->GetData(DATA_ARLOKK) == IN_PROGRESS)
+                if (m_instance->GetData(DATA_ARLOKK) == DONE || m_instance->GetData(DATA_ARLOKK) == IN_PROGRESS)
                     return true;
 
-                m_pInstance->SetData(DATA_ARLOKK, IN_PROGRESS);
+                m_instance->SetData(DATA_ARLOKK, IN_PROGRESS);
                 return true;
             }
 

@@ -107,14 +107,14 @@ class instance_naxxramas : public InstanceMapScript
 public:
     instance_naxxramas() : InstanceMapScript("instance_naxxramas", 533) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_naxxramas_InstanceMapScript(pMap);
+        return new instance_naxxramas_InstanceMapScript(map);
     }
 
     struct instance_naxxramas_InstanceMapScript : public InstanceScript
     {
-        instance_naxxramas_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_naxxramas_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetBossNumber(MAX_BOSS_NUMBER);
             LoadDoorData(doorData);

@@ -38,14 +38,14 @@ class instance_halls_of_lightning : public InstanceMapScript
 public:
     instance_halls_of_lightning() : InstanceMapScript("instance_halls_of_lightning", 602) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_halls_of_lightning_InstanceMapScript(pMap);
+        return new instance_halls_of_lightning_InstanceMapScript(map);
     }
 
     struct instance_halls_of_lightning_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_lightning_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_halls_of_lightning_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 

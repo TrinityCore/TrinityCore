@@ -63,10 +63,10 @@ public:
     {
         boss_keristraszaAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         std::list<uint64> intenseColdList;
         uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
@@ -90,8 +90,8 @@ public:
 
             RemovePrison(CheckContainmentSpheres());
 
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -99,16 +99,16 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoCastAOE(SPELL_INTENSE_COLD);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -118,18 +118,18 @@ public:
 
         bool CheckContainmentSpheres(bool remove_prison = false)
         {
-            if (!pInstance)
+            if (!instance)
                 return false;
 
-            auiContainmentSphereGUIDs[0] = pInstance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[1] = pInstance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[2] = pInstance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[0] = instance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[1] = instance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[2] = instance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
 
             GameObject* ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
 
             for (uint8 i = 0; i < DATA_CONTAINMENT_SPHERES; ++i)
             {
-                ContainmentSpheres[i] = pInstance->instance->GetGameObject(auiContainmentSphereGUIDs[i]);
+                ContainmentSpheres[i] = instance->instance->GetGameObject(auiContainmentSphereGUIDs[i]);
                 if (!ContainmentSpheres[i])
                     return false;
                 if (ContainmentSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
@@ -210,9 +210,9 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        InstanceScript* pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = pGO->GetInstanceScript();
 
-        Creature* pKeristrasza = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_KERISTRASZA) : 0);
+        Creature* pKeristrasza = Unit::GetCreature(*pGO, instance ? instance->GetData64(DATA_KERISTRASZA) : 0);
         if (pKeristrasza && pKeristrasza->isAlive())
         {
             // maybe these are hacks :(

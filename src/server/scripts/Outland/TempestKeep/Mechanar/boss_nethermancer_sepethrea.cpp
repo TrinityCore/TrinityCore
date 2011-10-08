@@ -63,10 +63,10 @@ class boss_nethermancer_sepethrea : public CreatureScript
         {
             boss_nethermancer_sepethreaAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 frost_attack_Timer;
             uint32 arcane_blast_Timer;
@@ -82,14 +82,14 @@ class boss_nethermancer_sepethrea : public CreatureScript
                 knockback_Timer = 22000 + rand()%6000;
                 solarburn_Timer = 30000;
 
-                if (pInstance)
-                    pInstance->SetData(DATA_NETHERMANCER_EVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_NETHERMANCER_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_NETHERMANCER_EVENT, IN_PROGRESS);
 
                 DoScriptText(SAY_AGGRO, me);
                 DoCast(who, SPELL_SUMMON_RAGIN_FLAMES);
@@ -104,8 +104,8 @@ class boss_nethermancer_sepethrea : public CreatureScript
             void JustDied(Unit* /*Killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
-                if (pInstance)
-                    pInstance->SetData(DATA_NETHERMANCER_EVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_NETHERMANCER_EVENT, DONE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -185,10 +185,10 @@ class mob_ragin_flames : public CreatureScript
             {
                 mob_ragin_flamesAI(Creature* creature) : ScriptedAI(creature)
                 {
-                    pInstance = creature->GetInstanceScript();
+                    instance = creature->GetInstanceScript();
                 }
 
-                InstanceScript* pInstance;
+                InstanceScript* instance;
 
                 uint32 inferno_Timer;
                 uint32 flame_timer;
@@ -216,9 +216,9 @@ class mob_ragin_flames : public CreatureScript
                     //Check_Timer
                     if (Check_Timer <= diff)
                     {
-                        if (pInstance)
+                        if (instance)
                         {
-                            if (pInstance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
+                            if (instance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
                             {
                                 //remove
                                 me->setDeathState(JUST_DIED);

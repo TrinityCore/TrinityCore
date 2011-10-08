@@ -261,9 +261,9 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
         uint32 questID = qmi.QuestId;
 
-        if (Quest const* pQuest = sObjectMgr->GetQuestTemplate(questID))
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(questID))
         {
-            std::string title = pQuest->GetTitle();
+            std::string title = quest->GetTitle();
 
             int loc_idx = _session->GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
@@ -272,8 +272,8 @@ void PlayerMenu::SendQuestGiverQuestList(QEmote eEmote, const std::string& Title
 
             data << uint32(questID);
             data << uint32(qmi.QuestIcon);
-            data << int32(pQuest->GetQuestLevel());
-            data << uint32(pQuest->GetFlags());             // 3.3.3 quest flags
+            data << int32(quest->GetQuestLevel());
+            data << uint32(quest->GetFlags());             // 3.3.3 quest flags
             data << uint8(0);                               // 3.3.3 changes icon: blue question or yellow exclamation
             data << title;
         }

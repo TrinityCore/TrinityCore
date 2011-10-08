@@ -177,9 +177,9 @@ class npc_koltira_deathweaver : public CreatureScript
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_BREAKOUT)
+        if (quest->GetQuestId() == QUEST_BREAKOUT)
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -305,9 +305,9 @@ public:
                             break;
                         case 4:
                         {
-                            Creature* pTemp = Unit::GetCreature(*me, m_uiValrothGUID);
+                            Creature* temp = Unit::GetCreature(*me, m_uiValrothGUID);
 
-                            if (!pTemp || !pTemp->isAlive())
+                            if (!temp || !temp->isAlive())
                             {
                                 DoScriptText(SAY_BREAKOUT8, me);
                                 m_uiWave_Timer = 5000;

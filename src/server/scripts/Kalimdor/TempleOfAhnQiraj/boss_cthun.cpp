@@ -178,12 +178,12 @@ public:
     {
         eye_of_cthunAI(Creature* c) : Scripted_NoMovementAI(c)
         {
-            pInst = c->GetInstanceScript();
-            if (!pInst)
+            instance = c->GetInstanceScript();
+            if (!instance)
                 sLog->outError("TSCR: No Instance eye_of_cthunAI");
         }
 
-        InstanceScript* pInst;
+        InstanceScript* instance;
 
         //Global variables
         uint32 PhaseTimer;
@@ -222,8 +222,8 @@ public:
             me->SetVisible(true);
 
             //Reset Phase
-            if (pInst)
-                pInst->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
 
             //to avoid having a following void zone
             Creature* pPortal= me->FindNearestCreature(MOB_CTHUN_PORTAL, 10);
@@ -234,8 +234,8 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
-            if (pInst)
-                pInst->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
+            if (instance)
+                instance->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
         }
 
         void SpawnEyeTentacle(float x, float y)
@@ -253,10 +253,10 @@ public:
                 return;
 
             //No instance
-            if (!pInst)
+            if (!instance)
                 return;
 
-            uint32 currentPhase = pInst->GetData(DATA_CTHUN_PHASE);
+            uint32 currentPhase = instance->GetData(DATA_CTHUN_PHASE);
             if (currentPhase == PHASE_EYE_GREEN_BEAM || currentPhase == PHASE_EYE_RED_BEAM)
             {
                 // EyeTentacleTimer
@@ -319,7 +319,7 @@ public:
                     if (PhaseTimer <= diff)
                     {
                         //Switch to Dark Beam
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_EYE_RED_BEAM);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_EYE_RED_BEAM);
 
                         me->InterruptNonMeleeSpells(false);
                         me->SetReactState(REACT_PASSIVE);
@@ -379,7 +379,7 @@ public:
                     if (PhaseTimer <= diff)
                     {
                         //Switch to Eye Beam
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
 
                         BeamTimer = 3000;
                         ClawTentacleTimer = 12500;              //4 per Eye beam phase (unsure if they spawn during Dark beam)
@@ -421,10 +421,10 @@ public:
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             //No instance
-            if (!pInst)
+            if (!instance)
                 return;
 
-            switch (pInst->GetData(DATA_CTHUN_PHASE))
+            switch (instance->GetData(DATA_CTHUN_PHASE))
             {
                 case PHASE_EYE_GREEN_BEAM:
                 case PHASE_EYE_RED_BEAM:
@@ -445,7 +445,7 @@ public:
                     me->SetTarget(0);
 
                     //Death animation/respawning;
-                    pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_TRANSITION);
+                    instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_TRANSITION);
 
                     me->SetHealth(0);
                     damage = 0;
@@ -484,12 +484,12 @@ public:
         {
             SetCombatMovement(false);
 
-            pInst = c->GetInstanceScript();
-            if (!pInst)
+            instance = c->GetInstanceScript();
+            if (!instance)
                 sLog->outError("TSCR: No Instance eye_of_cthunAI");
         }
 
-        InstanceScript* pInst;
+        InstanceScript* instance;
 
         //Out of combat whisper timer
         uint32 WisperTimer;
@@ -544,8 +544,8 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->SetVisible(false);
 
-            if (pInst)
-                pInst->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -606,11 +606,11 @@ public:
                 //WisperTimer
                 if (WisperTimer <= diff)
                 {
-                    Map* pMap = me->GetMap();
-                    if (!pMap->IsDungeon()) return;
+                    Map* map = me->GetMap();
+                    if (!map->IsDungeon()) return;
 
                     //Play random sound to the zone
-                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                    Map::PlayerList const &PlayerList = map->GetPlayers();
 
                     if (!PlayerList.isEmpty())
                     {
@@ -631,10 +631,10 @@ public:
             me->SetTarget(0);
 
             //No instance
-            if (!pInst)
+            if (!instance)
                 return;
 
-            uint32 currentPhase = pInst->GetData(DATA_CTHUN_PHASE);
+            uint32 currentPhase = instance->GetData(DATA_CTHUN_PHASE);
             if (currentPhase == PHASE_CTHUN_STOMACH || currentPhase == PHASE_CTHUN_WEAK)
             {
                 // EyeTentacleTimer
@@ -663,7 +663,7 @@ public:
                     if (PhaseTimer <= diff)
                     {
                         //Switch
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_STOMACH);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_STOMACH);
 
                         //Switch to c'thun model
                         me->InterruptNonMeleeSpells(false);
@@ -711,7 +711,7 @@ public:
                     //Weaken
                     if (FleshTentaclesKilled > 1)
                     {
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_WEAK);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_WEAK);
 
                         DoScriptText(EMOTE_WEAKENED, me);
                         PhaseTimer = 45000;
@@ -855,7 +855,7 @@ public:
                     if (PhaseTimer <= diff)
                     {
                         //Switch
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_STOMACH);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_STOMACH);
 
                         //Remove purple coloration
                         me->RemoveAurasDueToSpell(SPELL_PURPLE_COLORATION);
@@ -880,17 +880,17 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInst)
-                pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
+            if (instance)
+                instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             //No instance
-            if (!pInst)
+            if (!instance)
                 return;
 
-            switch (pInst->GetData(DATA_CTHUN_PHASE))
+            switch (instance->GetData(DATA_CTHUN_PHASE))
             {
                 case PHASE_CTHUN_STOMACH:
                     //Not weakened so reduce damage by 99%
