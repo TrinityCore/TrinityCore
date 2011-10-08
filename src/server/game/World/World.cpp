@@ -2865,15 +2865,21 @@ void World::LoadCharacterNameData()
     do
     {
         Field *fields = result->Fetch();
-        CharacterNameData& data = _characterNameDataMap[fields[0].GetUInt32()];
-        data.m_name = fields[1].GetString();
-        data.m_race = fields[2].GetUInt8();
-        data.m_gender = fields[3].GetUInt8();
-        data.m_class = fields[4].GetUInt8();
+        AddCharacterNameData(fields[0].GetUInt32(), fields[1].GetString(),
+            fields[3].GetUInt8() /*gender*/, fields[2].GetUInt8() /*race*/, fields[4].GetUInt8() /*class*/);
         ++count;
     } while (result->NextRow());
 
     sLog->outString("Loaded name data for %u characters", count);
+}
+
+void World::AddCharacterNameData(uint32 guid, const std::string& name, uint8 gender, uint8 race, uint8 playerClass)
+{
+    CharacterNameData& data = _characterNameDataMap[guid];
+    data.m_name = name;
+    data.m_race = race;
+    data.m_gender = gender;
+    data.m_class = playerClass;
 }
 
 void World::UpdateCharacterNameData(uint32 guid, const std::string& name, uint8 gender, uint8 race)
