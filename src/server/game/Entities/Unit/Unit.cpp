@@ -8733,24 +8733,10 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
             if (!victim->HasAuraState(AURA_STATE_HEALTHLESS_35_PERCENT, procSpell, this))
                 return false;
             break;
-        // Deathbringer Saurfang - Rune of Blood
-        case 72408:
-            // can proc only if target is marked with rune
-            // this should be handled by targetAuraSpell, but because 72408 is not passive
-            // one failed proc will remove the entire aura
-            if (!victim->HasAura(72410))
-                return false;
-            break;
         // Deathbringer Saurfang - Blood Beast's Blood Link
         case 72176:
             basepoints0 = 3;
             break;
-        // Deathbringer Saurfang - Mark of the Fallen Champion
-        case 72256:
-            // this should be handled by targetAuraSpell, but because 72408 is not passive
-            // one failed proc will remove the entire aura
-            CastSpell((Unit*)NULL, trigger_spell_id, true, NULL, triggeredByAura);
-            return true;
         case 15337: // Improved Spirit Tap (Rank 1)
         case 15338: // Improved Spirit Tap (Rank 2)
         {
