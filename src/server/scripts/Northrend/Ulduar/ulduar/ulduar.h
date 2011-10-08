@@ -129,8 +129,6 @@ enum UlduarGameObjects
     GO_HODIR_RARE_CACHE_OF_WINTER_HERO    = 194201,
     GO_HODIR_CHEST_HERO                   = 194308,
     GO_HODIR_CHEST                        = 194307,
-    GO_FREYA_CHEST_HERO                   = 194325,
-    GO_FREYA_CHEST                        = 194324,
     GO_LEVIATHAN_DOOR                     = 194905,
     GO_LEVIATHAN_GATE                     = 194630,
     GO_XT_002_DOOR                        = 194631,
