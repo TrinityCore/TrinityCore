@@ -511,7 +511,7 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
 void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
     sLog->outDebug(LOG_FILTER_MAPS, "InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
-    Map* map = (MapInstanced*)sMapMgr->CreateBaseMap(mapid);
+    Map* map = (Mainstanced*)sMapMgr->CreateBaseMap(mapid);
     if (!map->Instanceable())
         return;
 
@@ -521,7 +521,7 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 
     DeleteInstanceFromDB(instanceId);                       // even if save not loaded
 
-    Map* iMap = ((MapInstanced*)map)->FindMap(instanceId);
+    Map* iMap = ((Mainstanced*)map)->FindMap(instanceId);
 
     if (iMap && iMap->IsDungeon())
         ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
@@ -584,8 +584,8 @@ void InstanceSaveManager::_ResetOrWarnAll(uint32 mapid, Difficulty difficulty, b
 
     // note: this isn't fast but it's meant to be executed very rarely
     Map const* map = sMapMgr->CreateBaseMap(mapid);          // _not_ include difficulty
-    MapInstanced::InstancedMaps &instMaps = ((MapInstanced*)map)->GetInstancedMaps();
-    MapInstanced::InstancedMaps::iterator mitr;
+    Mainstanced::InstancedMaps &instMaps = ((Mainstanced*)map)->GetInstancedMaps();
+    Mainstanced::InstancedMaps::iterator mitr;
     uint32 timeLeft;
 
     for (mitr = instMaps.begin(); mitr != instMaps.end(); ++mitr)

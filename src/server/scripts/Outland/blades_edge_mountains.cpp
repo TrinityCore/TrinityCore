@@ -385,11 +385,11 @@ class go_legion_obelisk : public GameObjectScript
 public:
     go_legion_obelisk() : GameObjectScript("go_legion_obelisk") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         if (player->GetQuestStatus(10821) == QUEST_STATUS_INCOMPLETE)
         {
-            switch (pGo->GetEntry())
+            switch (go->GetEntry())
             {
                 case LEGION_OBELISK_ONE:
                       obelisk_one = true;
@@ -410,7 +410,7 @@ public:
 
             if (obelisk_one == true && obelisk_two == true && obelisk_three == true && obelisk_four == true && obelisk_five == true)
             {
-                pGo->SummonCreature(19963, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                go->SummonCreature(19963, 2943.40f, 4778.20f, 284.49f, 0.94f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 //reset global var
                 obelisk_one = false;
                 obelisk_two = false;

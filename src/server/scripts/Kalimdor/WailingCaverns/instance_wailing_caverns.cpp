@@ -33,14 +33,14 @@ class instance_wailing_caverns : public InstanceMapScript
 public:
     instance_wailing_caverns() : InstanceMapScript("instance_wailing_caverns", 43) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_wailing_caverns_InstanceMapScript(pMap);
+        return new instance_wailing_caverns_InstanceMapScript(map);
     }
 
     struct instance_wailing_caverns_InstanceMapScript : public InstanceScript
     {
-        instance_wailing_caverns_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 

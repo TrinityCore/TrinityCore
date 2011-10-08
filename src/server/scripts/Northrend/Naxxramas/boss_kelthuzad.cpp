@@ -663,11 +663,11 @@ public:
         if (player->isGameMaster())
             return false;
 
-        InstanceScript* pInstance = player->GetInstanceScript();
-        if (!pInstance || pInstance->IsEncounterInProgress() || pInstance->GetBossState(BOSS_KELTHUZAD) == DONE)
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, pInstance->GetData64(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, instance->GetData64(DATA_KELTHUZAD)));
         if (!pKelthuzad)
             return false;
 
@@ -676,7 +676,7 @@ public:
             return false;
 
         pKelthuzadAI->AttackStart(player);
-        if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+        if (GameObject* trigger = instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
                 trigger->UseDoorOrButton();

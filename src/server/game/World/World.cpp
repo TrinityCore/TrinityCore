@@ -132,6 +132,10 @@ World::~World()
 
     VMAP::VMapFactory::clear();
 
+    // Clean up character name data
+    for (std::map<uint32, CharacterNameData*>::iterator itr = m_CharacterNameDataMap.begin(); itr != m_CharacterNameDataMap.end(); ++itr)
+        delete itr->second;
+
     //TODO free addSessQueue
 }
 
@@ -1723,6 +1727,8 @@ void World::SetInitialWorldSettings()
     sLog->outString("Calculate random battleground reset time..." );
     InitRandomBGResetTime();
 
+    LoadCharacterNameData();
+
     // possibly enable db logging; avoid massive startup spam by doing it here.
     if (sLog->GetLogDBLater())
     {
@@ -2841,4 +2847,71 @@ void World::ProcessQueryCallbacks()
             lResult.cancel();
         }
     }
+}
+
+void World::LoadCharacterNameData()
+{
+    sLog->outString("Loading character name data");
+
+    QueryResult result = CharacterDatabase.Query("SELECT guid, name, race, gender, class FROM characters");
+    if (!result)
+    {
+        sLog->outError("No character name data loaded, empty query");
+        return;
+    }
+
+    ACE_Guard<ACE_Thread_Mutex> guard(m_CharacterNameDataMapMutex);
+
+    uint32 count = 0;
+
+    do
+    {
+        Field *fields = result->Fetch();
+        CharacterNameData* data = new CharacterNameData;
+        data->m_name = fields[1].GetString();
+        data->m_race = fields[2].GetUInt8();
+        data->m_gender = fields[3].GetUInt8();
+        data->m_class = fields[4].GetUInt8();
+
+        m_CharacterNameDataMap[fields[0].GetUInt32()] = data;
+        ++count;
+    } while (result->NextRow());
+
+    sLog->outString("Loaded name data for %u characters", count);
+}
+
+void World::ReloadSingleCharacterNameData(uint32 guid)
+{
+    ACE_Guard<ACE_Thread_Mutex> guard(m_CharacterNameDataMapMutex);
+
+    std::map<uint32, CharacterNameData*>::iterator itr = m_CharacterNameDataMap.find(guid);
+
+    if (itr != m_CharacterNameDataMap.end())
+    {
+        delete itr->second;
+        m_CharacterNameDataMap.erase(itr);
+    }
+
+    QueryResult result = CharacterDatabase.PQuery("SELECT name, race, gender, class FROM characters WHERE guid = '%u'", guid);
+    if (result)
+    {
+        Field *fields = result->Fetch();
+        CharacterNameData* newdata = new CharacterNameData;
+        newdata->m_name = fields[0].GetString();
+        newdata->m_race = fields[1].GetUInt8();
+        newdata->m_gender = fields[2].GetUInt8();
+        newdata->m_class = fields[3].GetUInt8();
+        m_CharacterNameDataMap[guid] = newdata;
+    }
+}
+
+CharacterNameData* World::GetCharacterNameData(uint32 guid)
+{
+    ACE_Guard<ACE_Thread_Mutex> guard(m_CharacterNameDataMapMutex);
+
+    std::map<uint32, CharacterNameData*>::iterator itr = m_CharacterNameDataMap.find(guid);
+    if (itr != m_CharacterNameDataMap.end())
+        return itr->second;
+    else
+        return NULL;
 }

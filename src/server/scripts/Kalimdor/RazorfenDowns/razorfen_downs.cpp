@@ -96,11 +96,11 @@ public:
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
         //basic support, not blizzlike data is missing...
-        InstanceScript* pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = pGO->GetInstanceScript();
 
-        if (pInstance)
+        if (instance)
         {
-            pInstance->SetData(DATA_GONG_WAVES, pInstance->GetData(DATA_GONG_WAVES)+1);
+            instance->SetData(DATA_GONG_WAVES, instance->GetData(DATA_GONG_WAVES)+1);
             return true;
         }
 
@@ -128,10 +128,10 @@ public:
     {
         npc_tomb_creatureAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiWebTimer;
 
@@ -160,8 +160,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_GONG_WAVES, pInstance->GetData(DATA_GONG_WAVES)+1);
+            if (instance)
+                instance->SetData(DATA_GONG_WAVES, instance->GetData(DATA_GONG_WAVES)+1);
         }
     };
 

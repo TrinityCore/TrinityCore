@@ -68,8 +68,8 @@ public:
     {
         boss_salrammAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
-            if (pInstance)
+            instance = c->GetInstanceScript();
+            if (instance)
                 DoScriptText(SAY_SPAWN, me);
         }
 
@@ -79,7 +79,7 @@ public:
         uint32 uiStealFleshTimer;
         uint32 uiSummonGhoulsTimer;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -89,16 +89,16 @@ public:
              uiStealFleshTimer = 12345;
              uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
 
-             if (pInstance)
-                 pInstance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
+             if (instance)
+                 instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                 pInstance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
+            if (instance)
+                 instance->SetData(DATA_SALRAMM_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -147,8 +147,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_SALRAMM_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_SALRAMM_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

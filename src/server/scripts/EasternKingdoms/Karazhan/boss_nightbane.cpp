@@ -72,11 +72,11 @@ public:
     {
         boss_nightbaneAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             Intro = true;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 Phase;
 
@@ -125,12 +125,12 @@ public:
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             me->setActive(true);
 
-            if (pInstance)
+            if (instance)
             {
-                if (pInstance->GetData(TYPE_NIGHTBANE) == DONE || pInstance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
+                if (instance->GetData(TYPE_NIGHTBANE) == DONE || instance->GetData(TYPE_NIGHTBANE) == IN_PROGRESS)
                     me->DisappearAndDie();
                 else
-                    pInstance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
+                    instance->SetData(TYPE_NIGHTBANE, NOT_STARTED);
             }
 
             HandleTerraceDoors(true);
@@ -147,17 +147,17 @@ public:
 
         void HandleTerraceDoors(bool open)
         {
-            if (pInstance)
+            if (instance)
             {
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
+                instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_1), open);
+                instance->HandleGameObject(instance->GetData64(DATA_MASTERS_TERRACE_DOOR_2), open);
             }
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_NIGHTBANE, IN_PROGRESS);
 
             HandleTerraceDoors(false);
             me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
@@ -171,8 +171,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_NIGHTBANE, DONE);
+            if (instance)
+                instance->SetData(TYPE_NIGHTBANE, DONE);
 
             HandleTerraceDoors(true);
         }

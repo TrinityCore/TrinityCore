@@ -38,32 +38,32 @@ public:
     {
         boss_aku_maiAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiPoisonCloudTimer;
         bool bIsEnraged;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
             uiPoisonCloudTimer = urand(5000, 9000);
             bIsEnraged = false;
-            if (pInstance)
-                pInstance->SetData(TYPE_AKU_MAI, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_AKU_MAI, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_AKU_MAI, DONE);
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, DONE);
         }
 
         void UpdateAI(const uint32 diff)

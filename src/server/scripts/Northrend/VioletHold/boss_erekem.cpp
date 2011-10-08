@@ -57,7 +57,7 @@ public:
     {
         boss_erekemAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiBloodlustTimer;
@@ -66,7 +66,7 @@ public:
         uint32 uiLightningBoltTimer;
         uint32 uiEarthShieldTimer;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -75,20 +75,20 @@ public:
             uiEarthShockTimer = urand(2000, 8000);
             uiLightningBoltTimer = urand(5000, 10000);
             uiEarthShieldTimer = 20000;
-            if (pInstance)
+            if (instance)
             {
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
+                if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                    instance->SetData(DATA_1ST_BOSS_EVENT, NOT_STARTED);
+                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    instance->SetData(DATA_2ND_BOSS_EVENT, NOT_STARTED);
             }
 
-            if (Creature* pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
+            if (Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0))
             {
                 if (!pGuard1->isAlive())
                     pGuard1->Respawn();
             }
-            if (Creature* pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+            if (Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0))
             {
                 if (!pGuard2->isAlive())
                     pGuard2->Respawn();
@@ -107,13 +107,13 @@ public:
                 who->SetInCombatWith(me);
                 DoStartMovement(who);
 
-                if (Creature* pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
+                if (Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0))
                 {
                     pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                     if (!pGuard1->getVictim() && pGuard1->AI())
                         pGuard1->AI()->AttackStart(who);
                 }
-                if (Creature* pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+                if (Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0))
                 {
                     pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
                     if (!pGuard2->getVictim() && pGuard2->AI())
@@ -127,19 +127,19 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoCast(me, SPELL_EARTH_SHIELD);
 
-            if (pInstance)
+            if (instance)
             {
-                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_EREKEM_CELL)))
+                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_EREKEM_CELL)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
                         return;
                     }
 
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
+                if (instance->GetData(DATA_WAVE_COUNT) == 6)
+                    instance->SetData(DATA_1ST_BOSS_EVENT, IN_PROGRESS);
+                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
+                    instance->SetData(DATA_2ND_BOSS_EVENT, IN_PROGRESS);
             }
         }
 
@@ -154,9 +154,9 @@ public:
             //spam stormstrike in hc mode if spawns are dead
             if (IsHeroic())
             {
-                if (Creature* pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0))
+                if (Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0))
                 {
-                    if (Creature* pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0))
+                    if (Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0))
                     {
                         if (!pGuard1->isAlive() && !pGuard2->isAlive())
                             DoCast(me->getVictim(), SPELL_STORMSTRIKE);
@@ -178,8 +178,8 @@ public:
                         DoCast(target, SPELL_CHAIN_HEAL);
 
                     //If one of the adds is dead spawn heals faster
-                    Creature* pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
-                    Creature* pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
+                    Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0);
+                    Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0);
                     uiChainHealTimer = ((pGuard1 && !pGuard1->isAlive()) || (pGuard2 && !pGuard2->isAlive()) ? 3000 : 8000) + rand()%3000;
                 }
             } else uiChainHealTimer -= diff;
@@ -210,17 +210,17 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
+            if (instance)
             {
-                if (pInstance->GetData(DATA_WAVE_COUNT) == 6)
+                if (instance->GetData(DATA_WAVE_COUNT) == 6)
                 {
-                    pInstance->SetData(DATA_1ST_BOSS_EVENT, DONE);
-                    pInstance->SetData(DATA_WAVE_COUNT, 7);
+                    instance->SetData(DATA_1ST_BOSS_EVENT, DONE);
+                    instance->SetData(DATA_WAVE_COUNT, 7);
                 }
-                else if (pInstance->GetData(DATA_WAVE_COUNT) == 12)
+                else if (instance->GetData(DATA_WAVE_COUNT) == 12)
                 {
-                    pInstance->SetData(DATA_2ND_BOSS_EVENT, DONE);
-                    pInstance->SetData(DATA_WAVE_COUNT, 13);
+                    instance->SetData(DATA_2ND_BOSS_EVENT, DONE);
+                    instance->SetData(DATA_WAVE_COUNT, 13);
                 }
             }
         }
@@ -237,11 +237,11 @@ public:
             if (HealthBelowPct(85))
                 return me->GetGUID();
 
-            Creature* pGuard1 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_1) : 0);
+            Creature* pGuard1 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_1) : 0);
             if (pGuard1 && pGuard1->isAlive() && !pGuard1->HealthAbovePct(75))
                 return pGuard1->GetGUID();
 
-            Creature* pGuard2 = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_EREKEM_GUARD_2) : 0);
+            Creature* pGuard2 = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_EREKEM_GUARD_2) : 0);
             if (pGuard2 && pGuard2->isAlive() && !pGuard2->HealthAbovePct(75))
                 return pGuard2->GetGUID();
 
@@ -272,14 +272,14 @@ public:
     {
         mob_erekem_guardAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiGushingWoundTimer;
         uint32 uiHowlingScreechTimer;
         uint32 uiStrikeTimer;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {

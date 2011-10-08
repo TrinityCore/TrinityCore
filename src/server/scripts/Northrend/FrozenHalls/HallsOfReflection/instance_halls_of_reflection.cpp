@@ -101,14 +101,14 @@ class instance_halls_of_reflection : public InstanceMapScript
 public:
     instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection", 668) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_halls_of_reflection_InstanceMapScript(pMap);
+        return new instance_halls_of_reflection_InstanceMapScript(map);
     }
 
     struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_reflection_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {};
+        instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) {};
 
         uint64 uiFalric;
         uint64 uiMarwyn;

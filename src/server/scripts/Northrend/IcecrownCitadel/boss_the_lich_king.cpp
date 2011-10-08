@@ -712,10 +712,6 @@ class boss_the_lich_king : public CreatureScript
                         summon->SetReactState(REACT_PASSIVE);
                         summon->CastSpell(summon, SPELL_DEFILE_AURA, false);
                         break;
-                    case NPC_VALKYR_SHADOWGUARD:
-                        summon->CastSpell(summon, SPELL_WINGS_OF_THE_DAMNED, true);
-                        summon->CastSpell(summon, SPELL_VALKYR_TARGET_SEARCH, true);
-                        break;
                     case NPC_FROSTMOURNE_TRIGGER:
                     {
                         summons.Summon(summon);
@@ -1479,6 +1475,7 @@ class npc_valkyr_shadowguard : public CreatureScript
             {
                 _events.Reset();
                 me->SetReactState(REACT_PASSIVE);
+                DoCast(me, SPELL_WINGS_OF_THE_DAMNED, false);
                 me->SetSpeed(MOVE_FLIGHT, 0.642857f, true);
             }
 
@@ -1558,7 +1555,6 @@ class npc_valkyr_shadowguard : public CreatureScript
             void SetGUID(uint64 guid, int32 /* = 0*/)
             {
                 _grabbedPlayer = guid;
-                _events.Reset();
             }
 
             void UpdateAI(uint32 const diff)
@@ -1576,8 +1572,11 @@ class npc_valkyr_shadowguard : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_GRAB_PLAYER:
-                            DoCastAOE(SPELL_VALKYR_TARGET_SEARCH);
-                            _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2000);
+                            if (!_grabbedPlayer)
+                            {
+                                DoCastAOE(SPELL_VALKYR_TARGET_SEARCH);
+                                _events.ScheduleEvent(EVENT_GRAB_PLAYER, 2000);
+                            }
                             break;
                         case EVENT_MOVE_TO_DROP_POS:
                             me->GetMotionMaster()->MovePoint(POINT_DROP_PLAYER, _dropPoint);

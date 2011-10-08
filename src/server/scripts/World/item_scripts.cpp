@@ -261,24 +261,24 @@ public:
 
     bool OnUse(Player* player, Item* /*pItem*/, SpellCastTargets const & /*targets*/)
     {
-        GameObject* pGo = NULL;
+        GameObject* go = NULL;
         for (uint8 i = 0; i < CaribouTrapsNum; ++i)
         {
-            pGo = player->FindNearestGameObject(CaribouTraps[i], 5.0f);
-            if (pGo)
+            go = player->FindNearestGameObject(CaribouTraps[i], 5.0f);
+            if (go)
                 break;
         }
 
-        if (!pGo)
+        if (!go)
             return false;
 
-        if (pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || pGo->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
+        if (go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || go->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
             return true;
 
         float x, y, z;
-        pGo->GetClosePoint(x, y, z, pGo->GetObjectSize() / 3, 7.0f);
-        pGo->SummonGameObject(GO_HIGH_QUALITY_FUR, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
-        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, pGo->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
+        go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
+        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);
             summon->SetReactState(REACT_PASSIVE);

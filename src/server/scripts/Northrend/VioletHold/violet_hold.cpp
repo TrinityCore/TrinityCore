@@ -261,8 +261,8 @@ public:
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
                 CAST_AI(npc_sinclari_vh::npc_sinclariAI, (creature->AI()))->uiPhase = 1;
-                if (InstanceScript* pInstance = creature->GetInstanceScript())
-                    pInstance->SetData(DATA_MAIN_EVENT_PHASE, SPECIAL);
+                if (InstanceScript* instance = creature->GetInstanceScript())
+                    instance->SetData(DATA_MAIN_EVENT_PHASE, SPECIAL);
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
                 player->SEND_GOSSIP_MENU(13854, creature->GetGUID());
@@ -277,9 +277,9 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (InstanceScript* pInstance = creature->GetInstanceScript())
+        if (InstanceScript* instance = creature->GetInstanceScript())
         {
-            switch (pInstance->GetData(DATA_MAIN_EVENT_PHASE))
+            switch (instance->GetData(DATA_MAIN_EVENT_PHASE))
             {
                 case NOT_STARTED:
                 case FAIL: // Allow to start event if not started or wiped
@@ -307,10 +307,10 @@ public:
     {
         npc_sinclariAI(Creature* creature) : ScriptedAI(creature)
         {
-           pInstance = creature->GetInstanceScript();
+           instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8  uiPhase;
         uint32 uiTimer;
@@ -394,8 +394,8 @@ public:
                             uiPhase = 5;
                             break;
                         case 5:
-                            if (pInstance)
-                                pInstance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
+                            if (instance)
+                                instance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
                             me->SetReactState(REACT_PASSIVE);
                             uiTimer = 0;
                             uiPhase = 0;
@@ -428,20 +428,20 @@ public:
     {
         mob_azure_saboteurAI(Creature* c):npc_escortAI(c)
         {
-            pInstance           = c->GetInstanceScript();
+            instance           = c->GetInstanceScript();
             bHasGotMovingPoints = false;
             uiBoss = 0;
             Reset();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool bHasGotMovingPoints;
         uint32 uiBoss;
 
         void Reset()
         {
-            if (pInstance && !uiBoss)
-                uiBoss = pInstance->GetData(DATA_WAVE_COUNT) == 6 ? pInstance->GetData(DATA_FIRST_BOSS) : pInstance->GetData(DATA_SECOND_BOSS);
+            if (instance && !uiBoss)
+                uiBoss = instance->GetData(DATA_WAVE_COUNT) == 6 ? instance->GetData(DATA_FIRST_BOSS) : instance->GetData(DATA_SECOND_BOSS);
             me->SetReactState(REACT_PASSIVE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -480,7 +480,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
+            if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
                 me->CastStop();
 
             npc_escortAI::UpdateAI(diff);
@@ -529,10 +529,10 @@ public:
         {
             me->CastSpell(me, SABOTEUR_SHIELD_DISRUPTION, false);
             me->DisappearAndDie();
-            Creature* pSaboPort = Unit::GetCreature((*me), pInstance->GetData64(DATA_SABOTEUR_PORTAL));
+            Creature* pSaboPort = Unit::GetCreature((*me), instance->GetData64(DATA_SABOTEUR_PORTAL));
             if (pSaboPort)
                 pSaboPort->DisappearAndDie();
-            pInstance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
+            instance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
         }
     };
 
@@ -552,7 +552,7 @@ public:
     {
         npc_teleportation_portalAI(Creature* c) : ScriptedAI(c), listOfMobs(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             uiTypeOfMobsPortal = urand(0, 1);    // 0 - elite mobs   1 - portal guardian or portal keeper with regular mobs
             bPortalGuardianOrKeeperOrEliteSpawn = false;
         }
@@ -563,7 +563,7 @@ public:
 
         SummonList listOfMobs;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -577,16 +577,16 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!pInstance) //Massive usage of pInstance, global check
+            if (!instance) //Massive usage of instance, global check
                 return;
 
-            if (pInstance->GetData(DATA_REMOVE_NPC) == 1)
+            if (instance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->DespawnOrUnsummon();
-                pInstance->SetData(DATA_REMOVE_NPC, 0);
+                instance->SetData(DATA_REMOVE_NPC, 0);
             }
 
-            uint8 uiWaveCount = pInstance->GetData(DATA_WAVE_COUNT);
+            uint8 uiWaveCount = instance->GetData(DATA_WAVE_COUNT);
             if ((uiWaveCount == 6) || (uiWaveCount == 12)) //Don't spawn mobs on boss encounters
                 return;
 
@@ -624,7 +624,7 @@ public:
                     {
                         if (bPortalGuardianOrKeeperOrEliteSpawn)
                         {
-                            uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
+                            uint8 k = instance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
                             for (uint8 i = 0; i < k; ++i)
                             {
                                 uint32 entry = RAND(CREATURE_AZURE_INVADER_1, CREATURE_AZURE_INVADER_2, CREATURE_AZURE_SPELLBREAKER_1, CREATURE_AZURE_SPELLBREAKER_2, CREATURE_AZURE_MAGE_SLAYER_1, CREATURE_AZURE_MAGE_SLAYER_2, CREATURE_AZURE_BINDER_1, CREATURE_AZURE_BINDER_2);
@@ -652,22 +652,22 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_WAVE_COUNT, pInstance->GetData(DATA_WAVE_COUNT)+1);
+            if (instance)
+                instance->SetData(DATA_WAVE_COUNT, instance->GetData(DATA_WAVE_COUNT)+1);
         }
 
         void JustSummoned(Creature* summoned)
         {
             listOfMobs.Summon(summoned);
             if (summoned)
-                pInstance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
         void SummonedMobDied(Creature* summoned)
         {
             listOfMobs.Despawn(summoned);
             if (summoned)
-                pInstance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
         }
     };
 
@@ -677,15 +677,15 @@ struct violet_hold_trashAI : public npc_escortAI
 {
     violet_hold_trashAI(Creature* c):npc_escortAI(c)
     {
-        pInstance = c->GetInstanceScript();
+        instance = c->GetInstanceScript();
         bHasGotMovingPoints = false;
-        if (pInstance)
-            portalLocationID = pInstance->GetData(DATA_PORTAL_LOCATION);
+        if (instance)
+            portalLocationID = instance->GetData(DATA_PORTAL_LOCATION);
         Reset();
     }
 
     public:
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool bHasGotMovingPoints;
         uint32 portalLocationID;
         uint32 secondPortalRouteID;
@@ -723,7 +723,7 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void UpdateAI(const uint32)
     {
-        if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
+        if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
             me->CastStop();
 
         if (!bHasGotMovingPoints)
@@ -780,18 +780,18 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void JustDied(Unit* /*unit*/)
     {
-        if (Creature* portal = Unit::GetCreature((*me), pInstance->GetData64(DATA_TELEPORTATION_PORTAL)))
+        if (Creature* portal = Unit::GetCreature((*me), instance->GetData64(DATA_TELEPORTATION_PORTAL)))
             CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedMobDied(me);
-        if (pInstance)
-            pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
+        if (instance)
+            instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
     }
 
     void CreatureStartAttackDoor()
     {
         me->SetReactState(REACT_PASSIVE);
         DoCast(SPELL_DESTROY_DOOR_SEAL);
-        if (pInstance)
-            pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_ADD, 1);
+        if (instance)
+            instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_ADD, 1);
     }
 
 };
@@ -810,7 +810,7 @@ public:
     {
         mob_azure_invaderAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiCleaveTimer;
@@ -888,7 +888,7 @@ public:
     {
         mob_azure_binderAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneExplosionTimer;
@@ -966,7 +966,7 @@ public:
     {
         mob_azure_mage_slayerAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneEmpowermentTimer;
@@ -1026,7 +1026,7 @@ public:
     {
         mob_azure_raiderAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiConcussionBlowTimer;
@@ -1078,7 +1078,7 @@ public:
     {
         mob_azure_stalkerAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
         uint32 uiBackstabTimer;
         uint32 uiTacticalBlinkTimer;
@@ -1137,7 +1137,7 @@ public:
     {
         mob_azure_spellbreakerAI(Creature* c) : violet_hold_trashAI(c)
         {
-             pInstance = c->GetInstanceScript();
+             instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneBlastTimer;
@@ -1221,7 +1221,7 @@ public:
     {
         mob_azure_captainAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiMortalStrikeTimer;
@@ -1273,7 +1273,7 @@ public:
     {
         mob_azure_sorcerorAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneStreamTimer;

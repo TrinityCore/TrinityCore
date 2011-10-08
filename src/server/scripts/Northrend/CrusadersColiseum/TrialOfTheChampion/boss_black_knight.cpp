@@ -80,10 +80,10 @@ public:
     {
         boss_black_knightAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         std::list<uint64> SummonList;
 
@@ -137,9 +137,9 @@ public:
 
             for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
             {
-                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
-                    if (pTemp)
-                        pTemp->DisappearAndDie();
+                if (Creature* temp = Unit::GetCreature(*me, *itr))
+                    if (temp)
+                        temp->DisappearAndDie();
             }
             SummonList.clear();
         }
@@ -288,8 +288,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            if (instance)
+                instance->SetData(BOSS_BLACK_KNIGHT, DONE);
         }
     };
 

@@ -54,8 +54,8 @@ public:
     {
         boss_kazrogalAI(Creature* c) : hyjal_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
-            pGo = false;
+            instance = c->GetInstanceScript();
+            go = false;
             pos = 0;
         }
 
@@ -63,7 +63,7 @@ public:
         uint32 WarStompTimer;
         uint32 MarkTimer;
         uint32 MarkTimerBase;
-        bool pGo;
+        bool go;
         uint32 pos;
 
         void Reset()
@@ -74,14 +74,14 @@ public:
             MarkTimer = 45000;
             MarkTimerBase = 45000;
 
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
+            if (instance && IsEvent)
+                instance->SetData(DATA_KAZROGALEVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
+            if (instance && IsEvent)
+                instance->SetData(DATA_KAZROGALEVENT, IN_PROGRESS);
             DoPlaySoundToSet(me, SOUND_ONAGGRO);
             me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
         }
@@ -108,9 +108,9 @@ public:
         void WaypointReached(uint32 i)
         {
             pos = i;
-            if (i == 7 && pInstance)
+            if (i == 7 && instance)
             {
-                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }
@@ -119,8 +119,8 @@ public:
         void JustDied(Unit* victim)
         {
             hyjal_trashAI::JustDied(victim);
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_KAZROGALEVENT, DONE);
+            if (instance && IsEvent)
+                instance->SetData(DATA_KAZROGALEVENT, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);
         }
 
@@ -130,10 +130,10 @@ public:
             {
                 //Must update npc_escortAI
                 npc_escortAI::UpdateAI(diff);
-                if (!pGo)
+                if (!go)
                 {
-                    pGo = true;
-                    if (pInstance)
+                    go = true;
+                    if (instance)
                     {
                         AddWaypoint(0, 5492.91f,    -2404.61f,    1462.63f);
                         AddWaypoint(1, 5531.76f,    -2460.87f,    1469.55f);

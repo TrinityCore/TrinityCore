@@ -70,10 +70,10 @@ public:
     {
         mob_kilrekAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 TerestianGUID;
 
@@ -87,7 +87,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (!pInstance)
+            if (!instance)
             {
                 ERROR_INST_DATA(me);
                 return;
@@ -96,9 +96,9 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                uint64 TerestianGUID = pInstance->GetData64(DATA_TERESTIAN);
+                uint64 TerestianGUID = instance->GetData64(DATA_TERESTIAN);
                 if (TerestianGUID)
                 {
                     Unit* Terestian = Unit::GetUnit((*me), TerestianGUID);
@@ -262,10 +262,10 @@ public:
         {
             for (uint8 i = 0; i < 2; ++i)
                 PortalGUID[i] = 0;
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 PortalGUID[2];
         uint8 PortalsCount;
@@ -303,8 +303,8 @@ public:
             SummonedPortals     = false;
             Berserk             = false;
 
-            if (pInstance)
-                pInstance->SetData(TYPE_TERESTIAN, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_TERESTIAN, NOT_STARTED);
 
             me->RemoveAurasDueToSpell(SPELL_BROKEN_PACT);
 
@@ -359,8 +359,8 @@ public:
 
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_TERESTIAN, DONE);
+            if (instance)
+                instance->SetData(TYPE_TERESTIAN, DONE);
         }
 
         void UpdateAI(const uint32 diff)
