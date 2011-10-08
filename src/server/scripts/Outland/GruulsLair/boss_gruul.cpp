@@ -68,10 +68,10 @@ public:
     {
         boss_gruulAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 m_uiGrowth_Timer;
         uint32 m_uiCaveIn_Timer;
@@ -92,16 +92,16 @@ public:
             m_uiHurtfulStrike_Timer= 8000;
             m_uiReverberation_Timer= 60000+45000;
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_GRUULEVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -113,10 +113,10 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_GRUULEVENT, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GRUULDOOR), true);         // Open the encounter door
+                instance->SetData(DATA_GRUULEVENT, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GRUULDOOR), true);         // Open the encounter door
             }
         }
 

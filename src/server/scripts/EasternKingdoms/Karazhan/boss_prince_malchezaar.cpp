@@ -185,10 +185,10 @@ public:
     {
         boss_malchezaarAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 EnfeebleTimer;
         uint32 EnfeebleResetTimer;
         uint32 ShadowNovaTimer;
@@ -234,8 +234,8 @@ public:
             SunderArmorTimer = urand(5000, 10000);
             phase = 1;
 
-            if (pInstance)
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), true);
+            if (instance)
+                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -255,16 +255,16 @@ public:
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
 
-            if (pInstance)
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), true);
+            if (instance)
+                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
+            if (instance)
+                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
         }
 
         void InfernalCleanup()

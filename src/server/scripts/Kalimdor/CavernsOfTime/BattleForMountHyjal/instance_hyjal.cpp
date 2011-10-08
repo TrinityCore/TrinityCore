@@ -46,14 +46,14 @@ class instance_hyjal : public InstanceMapScript
 public:
     instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_mount_hyjal_InstanceMapScript(pMap);
+        return new instance_mount_hyjal_InstanceMapScript(map);
     }
 
     struct instance_mount_hyjal_InstanceMapScript : public InstanceScript
     {
-        instance_mount_hyjal_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -193,11 +193,11 @@ public:
                             {
                                 Creature* unit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
 
-                                Map* pMap = creature->GetMap();
-                                if (pMap->IsDungeon() && unit)
+                                Map* map = creature->GetMap();
+                                if (map->IsDungeon() && unit)
                                 {
                                     unit->SetVisible(false);
-                                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                                    Map::PlayerList const &PlayerList = map->GetPlayers();
                                     if (PlayerList.isEmpty())
                                          return;
 

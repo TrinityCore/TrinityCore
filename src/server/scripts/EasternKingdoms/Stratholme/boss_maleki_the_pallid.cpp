@@ -45,10 +45,10 @@ public:
     {
         boss_maleki_the_pallidAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 Frostbolt_Timer;
         uint32 IceTomb_Timer;
@@ -67,8 +67,8 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_PALLID, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_PALLID, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)

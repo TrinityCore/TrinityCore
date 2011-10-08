@@ -90,10 +90,10 @@ public:
     {
         boss_hydross_the_unstableAI(Creature* c) : ScriptedAI(c), Summons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 beams[2];
         uint32 PosCheck_Timer;
@@ -129,8 +129,8 @@ public:
 
             me->SetDisplayId(MODEL_CLEAN);
 
-            if (pInstance)
-                pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, NOT_STARTED);
             beam = false;
             Summons.DespawnAll();
         }
@@ -170,8 +170,8 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -214,8 +214,8 @@ public:
             else
                 DoScriptText(SAY_CLEAN_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_HYDROSSTHEUNSTABLEEVENT, DONE);
             Summons.DespawnAll();
         }
 

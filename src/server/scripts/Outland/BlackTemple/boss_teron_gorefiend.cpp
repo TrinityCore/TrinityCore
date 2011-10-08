@@ -221,10 +221,10 @@ public:
     {
         boss_teron_gorefiendAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 IncinerateTimer;
         uint32 SummonDoomBlossomTimer;
@@ -243,8 +243,8 @@ public:
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_TERONGOREFIENDEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_TERONGOREFIENDEVENT, NOT_STARTED);
 
             IncinerateTimer = 20000 + rand()%11000;
             SummonDoomBlossomTimer = 12000;
@@ -271,8 +271,8 @@ public:
             {
                 if (me->IsWithinDistInMap(who, VISIBLE_RANGE) && me->IsWithinLOSInMap(who))
                 {
-                    if (pInstance)
-                        pInstance->SetData(DATA_TERONGOREFIENDEVENT, IN_PROGRESS);
+                    if (instance)
+                        instance->SetData(DATA_TERONGOREFIENDEVENT, IN_PROGRESS);
 
                     me->GetMotionMaster()->Clear(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -293,8 +293,8 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }

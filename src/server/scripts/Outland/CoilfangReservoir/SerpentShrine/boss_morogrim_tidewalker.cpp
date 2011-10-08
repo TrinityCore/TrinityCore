@@ -91,10 +91,10 @@ public:
     {
         boss_morogrim_tidewalkerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         Map::PlayerList const* PlayerList;
 
@@ -123,16 +123,16 @@ public:
             Earthquake = false;
             Phase2 = false;
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
         }
 
         void StartEvent()
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -144,8 +144,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)

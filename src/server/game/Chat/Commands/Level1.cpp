@@ -153,9 +153,9 @@ bool ChatHandler::HandleSummonCommand(const char* args)
             return false;
         }
 
-        Map* pMap = m_session->GetPlayer()->GetMap();
+        Map* map = m_session->GetPlayer()->GetMap();
 
-        if (pMap->IsBattlegroundOrArena())
+        if (map->IsBattlegroundOrArena())
         {
             // only allow if gm mode is on
             if (!_player->isGameMaster())
@@ -175,12 +175,12 @@ bool ChatHandler::HandleSummonCommand(const char* args)
             if (!target->GetMap()->IsBattlegroundOrArena())
                 target->SetBattlegroundEntryPoint();
         }
-        else if (pMap->IsDungeon())
+        else if (map->IsDungeon())
         {
             Map* cMap = target->GetMap();
 
-            if (cMap->Instanceable() && cMap->GetInstanceId() != pMap->GetInstanceId())
-                target->UnbindInstance(pMap->GetInstanceId(), target->GetDungeonDifficulty(), true);
+            if (cMap->Instanceable() && cMap->GetInstanceId() != map->GetInstanceId())
+                target->UnbindInstance(map->GetInstanceId(), target->GetDungeonDifficulty(), true);
 
             // we are in instance, and can summon only player in our group with us as lead
             if (!m_session->GetPlayer()->GetGroup() || !target->GetGroup() ||

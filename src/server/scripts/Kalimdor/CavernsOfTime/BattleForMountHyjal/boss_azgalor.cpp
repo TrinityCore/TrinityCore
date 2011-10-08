@@ -57,8 +57,8 @@ public:
     {
         boss_azgalorAI(Creature* c) : hyjal_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
-            pGo = false;
+            instance = c->GetInstanceScript();
+            go = false;
             pos = 0;
         }
 
@@ -69,7 +69,7 @@ public:
         uint32 EnrageTimer;
         bool enraged;
 
-        bool pGo;
+        bool go;
         uint32 pos;
 
         void Reset()
@@ -82,14 +82,14 @@ public:
             EnrageTimer = 600000;
             enraged = false;
 
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
+            if (instance && IsEvent)
+                instance->SetData(DATA_AZGALOREVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
+            if (instance && IsEvent)
+                instance->SetData(DATA_AZGALOREVENT, IN_PROGRESS);
             DoPlaySoundToSet(me, SOUND_ONAGGRO);
             me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
         }
@@ -116,9 +116,9 @@ public:
         void WaypointReached(uint32 i)
         {
             pos = i;
-            if (i == 7 && pInstance)
+            if (i == 7 && instance)
             {
-                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_THRALL));
+                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }
@@ -127,8 +127,8 @@ public:
         void JustDied(Unit* victim)
         {
             hyjal_trashAI::JustDied(victim);
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_AZGALOREVENT, DONE);
+            if (instance && IsEvent)
+                instance->SetData(DATA_AZGALOREVENT, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);
         }
 
@@ -138,10 +138,10 @@ public:
             {
                 //Must update npc_escortAI
                 npc_escortAI::UpdateAI(diff);
-                if (!pGo)
+                if (!go)
                 {
-                    pGo = true;
-                    if (pInstance)
+                    go = true;
+                    if (instance)
                     {
                         AddWaypoint(0, 5492.91f,    -2404.61f,    1462.63f);
                         AddWaypoint(1, 5531.76f,    -2460.87f,    1469.55f);
@@ -217,16 +217,16 @@ public:
     {
         mob_lesser_doomguardAI(Creature* c) : hyjal_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
-            if (pInstance)
-                AzgalorGUID = pInstance->GetData64(DATA_AZGALOR);
+            instance = c->GetInstanceScript();
+            if (instance)
+                AzgalorGUID = instance->GetData64(DATA_AZGALOR);
         }
 
         uint32 CrippleTimer;
         uint32 WarstompTimer;
         uint32 CheckTimer;
         uint64 AzgalorGUID;
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {

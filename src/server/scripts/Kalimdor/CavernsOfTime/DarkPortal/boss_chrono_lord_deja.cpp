@@ -57,10 +57,10 @@ public:
     {
         boss_chrono_lord_dejaAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 ArcaneBlast_Timer;
         uint32 TimeLapse_Timer;
@@ -104,8 +104,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_RIFT, SPECIAL);
+            if (instance)
+                instance->SetData(TYPE_RIFT, SPECIAL);
         }
 
         void UpdateAI(const uint32 diff)

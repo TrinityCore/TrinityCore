@@ -141,8 +141,8 @@ public:
 
             if (goConsole)
             {
-                if (GameObject* pGo = GameObject::GetGameObject((*me), goConsole))
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                if (GameObject* go = GameObject::GetGameObject((*me), goConsole))
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             }
         }
 
@@ -277,8 +277,8 @@ public:
                         }
                         if (goConsole)
                         {
-                            if (GameObject* pGo = GameObject::GetGameObject((*me), goConsole))
-                                pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                            if (GameObject* go = GameObject::GetGameObject((*me), goConsole))
+                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                         }
                         ++Phase;
                         break;
@@ -307,17 +307,17 @@ class go_manaforge_control_console : public GameObjectScript
 public:
     go_manaforge_control_console() : GameObjectScript("go_manaforge_control_console") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (pGo->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
         {
-            player->PrepareQuestMenu(pGo->GetGUID());
-            player->SendPreparedQuest(pGo->GetGUID());
+            player->PrepareQuestMenu(go->GetGUID());
+            player->SendPreparedQuest(go->GetGUID());
         }
 
         Creature* manaforge = NULL;
 
-        switch (pGo->GetAreaId())
+        switch (go->GetAreaId())
         {
             case 3726:                                          //b'naar
                 if ((player->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
@@ -344,8 +344,8 @@ public:
         if (manaforge)
         {
             CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = player->GetGUID();
-            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = pGo->GetGUID();
-            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = go->GetGUID();
+            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         }
         return true;
     }
@@ -1032,9 +1032,9 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
+        if (quest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
         {
             if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
             {

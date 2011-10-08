@@ -60,10 +60,10 @@ public:
     {
         boss_thespiaAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 LightningCloud_Timer;
         uint32 LungBurst_Timer;
@@ -75,16 +75,16 @@ public:
             LungBurst_Timer = 7000;
             EnvelopingWinds_Timer = 9000;
 
-            if (pInstance)
-                pInstance->SetData(TYPE_HYDROMANCER_THESPIA, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_HYDROMANCER_THESPIA, NOT_STARTED);
         }
 
         void JustDied(Unit* /*Killer*/)
         {
             DoScriptText(SAY_DEAD, me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_HYDROMANCER_THESPIA, DONE);
+            if (instance)
+                instance->SetData(TYPE_HYDROMANCER_THESPIA, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -96,8 +96,8 @@ public:
         {
             DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_HYDROMANCER_THESPIA, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_HYDROMANCER_THESPIA, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)

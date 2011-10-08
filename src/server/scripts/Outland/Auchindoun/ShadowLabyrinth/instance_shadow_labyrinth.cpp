@@ -43,14 +43,14 @@ class instance_shadow_labyrinth : public InstanceMapScript
 public:
     instance_shadow_labyrinth() : InstanceMapScript("instance_shadow_labyrinth", 555) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_shadow_labyrinth_InstanceMapScript(pMap);
+        return new instance_shadow_labyrinth_InstanceMapScript(map);
     }
 
     struct instance_shadow_labyrinth_InstanceMapScript : public InstanceScript
     {
-        instance_shadow_labyrinth_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_shadow_labyrinth_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;

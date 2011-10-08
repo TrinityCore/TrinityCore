@@ -80,10 +80,10 @@ public:
     {
         boss_the_lurker_belowAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         SummonList Summons;
 
         bool Spawned;
@@ -103,7 +103,7 @@ public:
 
         bool CheckCanStart()//check if players fished
         {
-            if (pInstance && pInstance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+            if (instance && instance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
                 return false;
             return true;
         }
@@ -128,10 +128,10 @@ public:
 
             Summons.DespawnAll();
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
-                pInstance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
+                instance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
+                instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
             }
             DoCast(me, SPELL_SUBMERGE);//submerge anim
             me->SetVisible(false);//we start invis under water, submerged
@@ -141,10 +141,10 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_THELURKERBELOWEVENT, DONE);
-                pInstance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
+                instance->SetData(DATA_THELURKERBELOWEVENT, DONE);
+                instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
             }
 
             Summons.DespawnAll();
@@ -152,8 +152,8 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
             Scripted_NoMovementAI::EnterCombat(who);
         }
 
@@ -251,8 +251,8 @@ public:
                 if (CheckTimer <= diff)//check if there are players in melee range
                 {
                     InRange = false;
-                    Map* pMap = me->GetMap();
-                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                    Map* map = me->GetMap();
+                    Map::PlayerList const &PlayerList = map->GetPlayers();
                     if (!PlayerList.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -266,10 +266,10 @@ public:
 
                 if (RotTimer)
                 {
-                    Map* pMap = me->GetMap();
-                    if (pMap->IsDungeon())
+                    Map* map = me->GetMap();
+                    if (map->IsDungeon())
                     {
-                        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                        Map::PlayerList const &PlayerList = map->GetPlayers();
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         {
                             if (i->getSource() && i->getSource()->isAlive() && me->HasInArc(float(diff/20000*M_PI*2), i->getSource()) && me->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())

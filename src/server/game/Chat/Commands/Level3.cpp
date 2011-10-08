@@ -4124,7 +4124,7 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
     if (!player)
         player = m_session->GetPlayer();
 
-    char* pMap = strtok((char*)args, " ");
+    char* map = strtok((char*)args, " ");
     char* pDiff = strtok(NULL, " ");
     int8 diff = -1;
     if (pDiff)
@@ -4132,9 +4132,9 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
     uint16 counter = 0;
     uint16 MapId = 0;
 
-    if (strcmp(pMap, "all"))
+    if (strcmp(map, "all"))
     {
-        MapId = uint16(atoi(pMap));
+        MapId = uint16(atoi(map));
         if (!MapId)
             return false;
     }

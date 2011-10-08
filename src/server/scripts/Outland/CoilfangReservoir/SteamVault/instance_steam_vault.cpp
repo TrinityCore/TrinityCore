@@ -45,16 +45,16 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
-        InstanceScript* pInstance = go->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
-        if (!pInstance)
+        if (!instance)
             return false;
 
-        if (go->GetEntry() == ACCESS_PANEL_HYDRO && (pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || pInstance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
-            pInstance->SetData(TYPE_HYDROMANCER_THESPIA, SPECIAL);
+        if (go->GetEntry() == ACCESS_PANEL_HYDRO && (instance->GetData(TYPE_HYDROMANCER_THESPIA) == DONE || instance->GetData(TYPE_HYDROMANCER_THESPIA) == SPECIAL))
+            instance->SetData(TYPE_HYDROMANCER_THESPIA, SPECIAL);
 
-        if (go->GetEntry() == ACCESS_PANEL_MEK && (pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || pInstance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
-            pInstance->SetData(TYPE_MEKGINEER_STEAMRIGGER, SPECIAL);
+        if (go->GetEntry() == ACCESS_PANEL_MEK && (instance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == DONE || instance->GetData(TYPE_MEKGINEER_STEAMRIGGER) == SPECIAL))
+            instance->SetData(TYPE_MEKGINEER_STEAMRIGGER, SPECIAL);
 
         return true;
     }
@@ -66,14 +66,14 @@ class instance_steam_vault : public InstanceMapScript
 public:
     instance_steam_vault() : InstanceMapScript("instance_steam_vault", 545) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_steam_vault_InstanceMapScript(pMap);
+        return new instance_steam_vault_InstanceMapScript(map);
     }
 
     struct instance_steam_vault_InstanceMapScript : public InstanceScript
     {
-        instance_steam_vault_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
