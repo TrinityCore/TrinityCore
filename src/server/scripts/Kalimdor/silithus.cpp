@@ -659,19 +659,19 @@ public:
                         Caelestrasz->GetMotionMaster()->MoveCharge(-8050, 1473, 65, 15);
                         break; //Text: sands will stop
                     case 34:
-                        DoCast(player, 23017, true);//Arcane Channeling
+                        DoCast (player, 23017, true);//Arcane Channeling
                         break;
                     case 35:
                         me->CastSpell(-8088, 1520.43f, 2.67f, 25158, true);
                         break;
                     case 36:
-                        DoCast(player, 25159, true);
+                        DoCast (player, 25159, true);
                         break;
                     case 37:
                         me->SummonGameObject(GO_GATE_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
                         break;
                     case 38:
-                        DoCast(player, 25166, true);
+                        DoCast (player, 25166, true);
                         me->SummonGameObject(GO_GLYPH_OF_AHN_QIRAJ, -8130, 1525, 17.5f, 0, 0, 0, 0, 0, 0);
                         break;
                     case 39:
@@ -860,18 +860,18 @@ public:
             {
                 if (SpellTimer1 <= diff)
                 {
-                    DoCast(me, SpawnCast[1].SpellId);
-                    DoCast(me, 24319);
+                    DoCast (me, SpawnCast[1].SpellId);
+                    DoCast (me, 24319);
                     SpellTimer1 = SpawnCast[1].Timer2;
                 } else SpellTimer1 -= diff;
                 if (SpellTimer2 <= diff)
                 {
-                    DoCast(me, SpawnCast[2].SpellId);
+                    DoCast (me, SpawnCast[2].SpellId);
                     SpellTimer2 = SpawnCast[2].Timer2;
                 } else SpellTimer2 -= diff;
                 if (SpellTimer3 <= diff)
                 {
-                    DoCast(me, SpawnCast[3].SpellId);
+                    DoCast (me, SpawnCast[3].SpellId);
                     SpellTimer3 = SpawnCast[3].Timer2;
                 } else SpellTimer3 -= diff;
             }
@@ -881,7 +881,7 @@ public:
                 {
                     me->RemoveAllAttackers();
                     me->AttackStop();
-                    DoCast(me, 15533);
+                    DoCast (me, 15533);
                     SpellTimer4 = SpawnCast[0].Timer2;
                 } else SpellTimer4 -= diff;
             }
@@ -905,7 +905,7 @@ public:
                     me->AI()->AttackStart(target);
             }
             if (!(me->FindNearestCreature(15379, 60)))
-                DoCast(me, 33652);
+                DoCast (me, 33652);
 
             if (!UpdateVictim())
             {

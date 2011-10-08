@@ -112,7 +112,7 @@ class boss_halazzi : public CreatureScript
                 BerserkTimer = 600000;
                 CheckTimer = 1000;
 
-                DoCast(me, SPELL_DUAL_WIELD, true);
+                DoCast (me, SPELL_DUAL_WIELD, true);
 
                 Phase = PHASE_NONE;
                 EnterPhase(PHASE_LYNX);
@@ -161,7 +161,7 @@ class boss_halazzi : public CreatureScript
                 case PHASE_ENRAGE:
                     if (Phase == PHASE_MERGE)
                     {
-                        DoCast(me, SPELL_TRANSFORM_MERGE, true);
+                        DoCast (me, SPELL_TRANSFORM_MERGE, true);
                         me->Attack(me->getVictim(), true);
                         me->GetMotionMaster()->MoveChase(me->getVictim());
                     }
@@ -177,10 +177,10 @@ class boss_halazzi : public CreatureScript
                 case PHASE_SPLIT:
                     me->MonsterYell(YELL_SPLIT, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_SPLIT);
-                    DoCast(me, SPELL_TRANSFORM_SPLIT, true);
+                    DoCast (me, SPELL_TRANSFORM_SPLIT, true);
                     break;
                 case PHASE_HUMAN:
-                    //DoCast(me, SPELL_SUMMON_LYNX, true);
+                    //DoCast (me, SPELL_SUMMON_LYNX, true);
                     DoSpawnCreature(MOB_SPIRIT_LYNX, 5, 5, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                     me->SetMaxHealth(400000);
                     me->SetHealth(400000);
@@ -215,7 +215,7 @@ class boss_halazzi : public CreatureScript
                 {
                     me->MonsterYell(YELL_BERSERK, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_BERSERK);
-                    DoCast(me, SPELL_BERSERK, true);
+                    DoCast (me, SPELL_BERSERK, true);
                     BerserkTimer = 60000;
                 } else BerserkTimer -= diff;
 
@@ -224,15 +224,15 @@ class boss_halazzi : public CreatureScript
                     if (SaberlashTimer <= diff)
                     {
                         // A tank with more than 490 defense skills should receive no critical hit
-                        //DoCast(me, 41296, true);
-                        DoCast(me->getVictim(), SPELL_SABER_LASH, true);
+                        //DoCast (me, 41296, true);
+                        DoCast (me->getVictim(), SPELL_SABER_LASH, true);
                         //me->RemoveAurasDueToSpell(41296);
                         SaberlashTimer = 30000;
                     } else SaberlashTimer -= diff;
 
                     if (FrenzyTimer <= diff)
                     {
-                        DoCast(me, SPELL_FRENZY);
+                        DoCast (me, SPELL_FRENZY);
                         FrenzyTimer = urand(10000, 15000);
                     } else FrenzyTimer -= diff;
 
@@ -251,7 +251,7 @@ class boss_halazzi : public CreatureScript
                 {
                     if (TotemTimer <= diff)
                     {
-                        DoCast(me, SPELL_SUMMON_TOTEM);
+                        DoCast (me, SPELL_SUMMON_TOTEM);
                         TotemTimer = 20000;
                     } else TotemTimer -= diff;
 
@@ -260,9 +260,9 @@ class boss_halazzi : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             if (target->IsNonMeleeSpellCasted(false))
-                                DoCast(target, SPELL_EARTHSHOCK);
+                                DoCast (target, SPELL_EARTHSHOCK);
                             else
-                                DoCast(target, SPELL_FLAMESHOCK);
+                                DoCast (target, SPELL_FLAMESHOCK);
                             ShockTimer = 10000 + rand()%5000;
                         }
                     } else ShockTimer -= diff;
@@ -384,13 +384,13 @@ class mob_halazzi_lynx : public CreatureScript
 
                 if (FrenzyTimer <= diff)
                 {
-                    DoCast(me, SPELL_LYNX_FRENZY);
+                    DoCast (me, SPELL_LYNX_FRENZY);
                     FrenzyTimer = urand(30000, 50000);  //frenzy every 30-50 seconds
                 } else FrenzyTimer -= diff;
 
                 if (shredder_timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SHRED_ARMOR);
+                    DoCast (me->getVictim(), SPELL_SHRED_ARMOR);
                     shredder_timer = 4000;
                 } else shredder_timer -= diff;
 

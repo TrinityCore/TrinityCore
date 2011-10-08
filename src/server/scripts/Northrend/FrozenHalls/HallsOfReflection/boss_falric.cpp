@@ -109,19 +109,19 @@ public:
             switch (events.ExecuteEvent())
             {
                 case EVENT_QUIVERING_STRIKE:
-                    DoCast(SPELL_QUIVERING_STRIKE);
+                    DoCast (SPELL_QUIVERING_STRIKE);
                     events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 10000);
                     break;
                 case EVENT_IMPENDING_DESPAIR:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
                     {
                         DoScriptText(SAY_IMPENDING_DESPAIR, me);
-                        DoCast(target, SPELL_IMPENDING_DESPAIR);
+                        DoCast (target, SPELL_IMPENDING_DESPAIR);
                     }
                     events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 13000);
                     break;
                 case EVENT_DEFILING_HORROR:
-                    DoCast(SPELL_DEFILING_HORROR);
+                    DoCast (SPELL_DEFILING_HORROR);
                     events.ScheduleEvent(EVENT_DEFILING_HORROR, urand(25000, 45000)); // TODO adjust timer.
                     break;
             }
@@ -131,7 +131,7 @@ public:
                 || (uiHopelessnessCount < 3 && HealthBelowPct(10)))
             {
                 uiHopelessnessCount++;
-                DoCast(DUNGEON_MODE(SPELL_HOPELESSNESS, H_SPELL_HOPELESSNESS));
+                DoCast (DUNGEON_MODE(SPELL_HOPELESSNESS, H_SPELL_HOPELESSNESS));
             }
 
             DoMeleeAttackIfReady();

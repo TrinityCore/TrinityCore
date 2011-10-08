@@ -138,16 +138,16 @@ public:
 
             if (Link_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SOUL_LINK, true);
+                DoCast (me->getVictim(), SPELL_SOUL_LINK, true);
                 Link_Timer = 1000;
             } else Link_Timer -= diff;
 
             if (!me->HasAura(AURA_DEMONIC_ALIGNMENT))
-                DoCast(me, AURA_DEMONIC_ALIGNMENT, true);
+                DoCast (me, AURA_DEMONIC_ALIGNMENT, true);
 
             if (ShadowBolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWBOLT, false);
+                DoCast (me->getVictim(), SPELL_SHADOWBOLT, false);
                 ShadowBolt_Timer = 10000;
             } else ShadowBolt_Timer -= diff;
 
@@ -223,7 +223,7 @@ public:
             me->SetDisplayId(MODEL_NIGHTELF);
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID  , 0);
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
-            DoCast(me, SPELL_DUAL_WIELD, true);
+            DoCast (me, SPELL_DUAL_WIELD, true);
             me->SetCorpseDelay(1000*60*60);
             if (instance)
                 instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
@@ -316,7 +316,7 @@ public:
                 // channelers != 0 apply banish aura
                 // removing Leotheras banish immune to apply AURA_BANISH
                 me->ApplySpellImmune(AURA_BANISH, IMMUNITY_MECHANIC, MECHANIC_BANISH, false);
-                DoCast(me, AURA_BANISH);
+                DoCast (me, AURA_BANISH);
 
                 // changing model
                 me->SetDisplayId(MODEL_DEMON);
@@ -450,7 +450,7 @@ public:
             if (Berserk_Timer < diff && !EnrageUsed)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me, SPELL_BERSERK);
+                DoCast (me, SPELL_BERSERK);
                 EnrageUsed = true;
             } else Berserk_Timer -= diff;
 
@@ -461,7 +461,7 @@ public:
                 {
                     if (Whirlwind_Timer <= diff)
                     {
-                        DoCast(me, SPELL_WHIRLWIND);
+                        DoCast (me, SPELL_WHIRLWIND);
                         // while whirlwinding this variable is used to countdown target's change
                         Whirlwind_Timer = 2000;
                         NeedThreatReset = true;
@@ -498,7 +498,7 @@ public:
                     // will cast only when in range of spell
                     if (me->IsWithinDist(me->getVictim(), 30))
                     {
-                        //DoCast(me->getVictim(), SPELL_CHAOS_BLAST, true);
+                        //DoCast (me->getVictim(), SPELL_CHAOS_BLAST, true);
                         int damage = 100;
                         me->CastCustomSpell(me->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, me->GetGUID());
                     }
@@ -627,7 +627,7 @@ public:
         void JustDied(Unit* /*victim*/)
         {
             //invisibility (blizzlike, at the end of the fight he doesn't die, he disappears)
-            DoCast(me, 8149, true);
+            DoCast (me, 8149, true);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -649,7 +649,7 @@ public:
                 // will cast only when in range od spell
                 if (me->IsWithinDist(me->getVictim(), 30))
                 {
-                    //DoCast(me->getVictim(), SPELL_CHAOS_BLAST, true);
+                    //DoCast (me->getVictim(), SPELL_CHAOS_BLAST, true);
                     int damage = 100;
                     me->CastCustomSpell(me->getVictim(), SPELL_CHAOS_BLAST, &damage, NULL, NULL, false, NULL, NULL, me->GetGUID());
                     ChaosBlast_Timer = 3000;
@@ -724,7 +724,7 @@ public:
                 {
                     Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
                     if (leotheras && leotheras->isAlive())
-                        DoCast(leotheras, BANISH_BEAM);
+                        DoCast (leotheras, BANISH_BEAM);
                 }
             }
         }
@@ -762,7 +762,7 @@ public:
                 Unit* target = NULL;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
-                if (target)DoCast(target, SPELL_MINDBLAST);
+                if (target)DoCast (target, SPELL_MINDBLAST);
 
                 Mindblast_Timer = 10000 + rand()%5000;
             } else Mindblast_Timer -= diff;
@@ -782,7 +782,7 @@ public:
 
                         if (isCasting)
                         {
-                            DoCast(i_pl, SPELL_EARTHSHOCK);
+                            DoCast (i_pl, SPELL_EARTHSHOCK);
                             break;
                         }
                     }

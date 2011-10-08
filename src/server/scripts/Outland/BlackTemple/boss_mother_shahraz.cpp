@@ -183,7 +183,7 @@ public:
             if (HealthBelowPct(10) && !Enraged)
             {
                 Enraged = true;
-                DoCast(me, SPELL_ENRAGE, true);
+                DoCast (me, SPELL_ENRAGE, true);
                 DoScriptText(SAY_ENRAGE, me);
             }
 
@@ -199,16 +199,16 @@ public:
                 switch (CurrentBeam)
                 {
                     case 0:
-                        DoCast(target, SPELL_BEAM_SINISTER);
+                        DoCast (target, SPELL_BEAM_SINISTER);
                         break;
                     case 1:
-                        DoCast(target, SPELL_BEAM_VILE);
+                        DoCast (target, SPELL_BEAM_VILE);
                         break;
                     case 2:
-                        DoCast(target, SPELL_BEAM_WICKED);
+                        DoCast (target, SPELL_BEAM_WICKED);
                         break;
                     case 3:
-                        DoCast(target, SPELL_BEAM_SINFUL);
+                        DoCast (target, SPELL_BEAM_SINFUL);
                         break;
                 }
                 ++BeamCount;
@@ -224,7 +224,7 @@ public:
             {
                 uint32 random = rand()%6;
                 if (PrismaticAuras[random])
-                    DoCast(me, PrismaticAuras[random]);
+                    DoCast (me, PrismaticAuras[random]);
                 PrismaticShieldTimer = 15000;
             } else PrismaticShieldTimer -= diff;
 
@@ -269,13 +269,13 @@ public:
 
             if (ShriekTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SILENCING_SHRIEK);
+                DoCast (me->getVictim(), SPELL_SILENCING_SHRIEK);
                 ShriekTimer = 25000+rand()%10 * 1000;
             } else ShriekTimer -= diff;
 
             if (SaberTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SABER_LASH);
+                DoCast (me->getVictim(), SPELL_SABER_LASH);
                 SaberTimer = 25000+rand()%10 * 1000;
             } else SaberTimer -= diff;
 
@@ -284,7 +284,7 @@ public:
             {
                 if (EnrageTimer <= diff)
                 {
-                    DoCast(me, SPELL_BERSERK);
+                    DoCast (me, SPELL_BERSERK);
                     DoScriptText(SAY_ENRAGE, me);
                 } else EnrageTimer -= diff;
             }

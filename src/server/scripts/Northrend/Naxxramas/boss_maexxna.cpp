@@ -124,11 +124,11 @@ public:
                         events.ScheduleEvent(EVENT_SHOCK, urand(10000, 20000));
                         break;
                     case EVENT_POISON:
-                        DoCast(me->getVictim(), RAID_MODE(SPELL_NECROTIC_POISON_10, SPELL_NECROTIC_POISON_25));
+                        DoCast (me->getVictim(), RAID_MODE(SPELL_NECROTIC_POISON_10, SPELL_NECROTIC_POISON_25));
                         events.ScheduleEvent(EVENT_POISON, urand(10000, 20000));
                         break;
                     case EVENT_FRENZY:
-                        DoCast(me, RAID_MODE(SPELL_FRENZY_10, SPELL_FRENZY_25), true);
+                        DoCast (me, RAID_MODE(SPELL_FRENZY_10, SPELL_FRENZY_25), true);
                         events.ScheduleEvent(EVENT_FRENZY, 600000);
                         break;
                     case EVENT_SUMMON:

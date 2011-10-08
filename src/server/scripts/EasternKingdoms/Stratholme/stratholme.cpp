@@ -267,7 +267,7 @@ public:
                     break;
                 case TEXT_EMOTE_RUDE:
                     if (me->IsWithinDistInMap(player, 5))
-                        DoCast(player, SPELL_SLAP, false);
+                        DoCast (player, SPELL_SLAP, false);
                     else
                         me->HandleEmoteCommand(EMOTE_ONESHOT_RUDE);
                     break;

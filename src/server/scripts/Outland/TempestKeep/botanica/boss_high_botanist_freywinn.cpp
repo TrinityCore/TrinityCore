@@ -95,10 +95,10 @@ class boss_high_botanist_freywinn : public CreatureScript
             {
                 switch (rand()%4)
                 {
-                    case 0: DoCast(me, SPELL_PLANT_WHITE); break;
-                    case 1: DoCast(me, SPELL_PLANT_GREEN); break;
-                    case 2: DoCast(me, SPELL_PLANT_BLUE); break;
-                    case 3: DoCast(me, SPELL_PLANT_RED); break;
+                    case 0: DoCast (me, SPELL_PLANT_WHITE); break;
+                    case 1: DoCast (me, SPELL_PLANT_GREEN); break;
+                    case 2: DoCast (me, SPELL_PLANT_BLUE); break;
+                    case 3: DoCast (me, SPELL_PLANT_RED); break;
                 }
             }
 
@@ -126,9 +126,9 @@ class boss_high_botanist_freywinn : public CreatureScript
 
                     me->RemoveAllAuras();
 
-                    DoCast(me, SPELL_SUMMON_FRAYER, true);
-                    DoCast(me, SPELL_TRANQUILITY, true);
-                    DoCast(me, SPELL_TREE_FORM, true);
+                    DoCast (me, SPELL_SUMMON_FRAYER, true);
+                    DoCast (me, SPELL_TRANQUILITY, true);
+                    DoCast (me, SPELL_TREE_FORM, true);
 
                     me->GetMotionMaster()->MoveIdle();
                     MoveFree = false;

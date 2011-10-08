@@ -117,21 +117,21 @@ public:
             //Attack Haste
             if (Haste_Timer <= diff)
             {
-                DoCast(me, SPELL_HASTE);
+                DoCast (me, SPELL_HASTE);
                 Haste_Timer = 20000+rand()%5000;
             } else Haste_Timer -= diff;
 
             //MortalWound_Timer
             if (MortalWound_Timer <= diff)
             {
-                DoCast(me, SPELL_MORTAL_WOUND);
+                DoCast (me, SPELL_MORTAL_WOUND);
                 MortalWound_Timer = 10000+rand()%10000;
             } else MortalWound_Timer -= diff;
 
             //Wing ruffet
             if (WingBuffet_Timer <= diff)
             {
-                DoCast(me, SPELL_WING_BUFFET);
+                DoCast (me, SPELL_WING_BUFFET);
                 WingBuffet_Timer = 20000+rand()%10000;
             } else WingBuffet_Timer -= diff;
 
@@ -139,7 +139,7 @@ public:
             {
                 if (SpellReflection_Timer <= diff)
                 {
-                    DoCast(me, SPELL_REFLECT);
+                    DoCast (me, SPELL_REFLECT);
                     SpellReflection_Timer = 25000+rand()%10000;
                 } else SpellReflection_Timer -= diff;
             }

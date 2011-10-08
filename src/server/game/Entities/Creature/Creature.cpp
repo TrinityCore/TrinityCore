@@ -722,7 +722,7 @@ void Creature::Motion_Initialize()
 
 bool Creature::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data)
 {
-    ASSERT(map);
+    ASSERT (map);
     SetMap(map);
     SetPhaseMask(phaseMask, false);
 
@@ -1947,7 +1947,7 @@ bool Creature::CanAssistTo(const Unit* u, const Unit* enemy, bool checkfaction /
 // friendlies and other mobs they shouldn't attack
 bool Creature::_IsTargetAcceptable(const Unit* target) const
 {
-    ASSERT(target);
+    ASSERT (target);
 
     // if the target cannot be attacked, the target is not acceptable
     if (IsFriendlyTo(target)

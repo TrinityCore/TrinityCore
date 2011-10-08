@@ -131,7 +131,7 @@ public:
 
             if (InciteChaos_Timer <= diff)
             {
-                DoCast(me, SPELL_INCITE_CHAOS);
+                DoCast (me, SPELL_INCITE_CHAOS);
 
                 std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
@@ -151,14 +151,14 @@ public:
             if (Charge_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHARGE);
+                    DoCast (target, SPELL_CHARGE);
                 Charge_Timer = 15000 + rand()%10000;
             } else Charge_Timer -= diff;
 
             //Knockback_Timer
             if (Knockback_Timer <= diff)
             {
-                DoCast(me, SPELL_WAR_STOMP);
+                DoCast (me, SPELL_WAR_STOMP);
                 Knockback_Timer = 18000 + rand()%6000;
             } else Knockback_Timer -= diff;
 

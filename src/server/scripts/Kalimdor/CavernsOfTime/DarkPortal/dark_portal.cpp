@@ -90,11 +90,11 @@ public:
                 return;
 
             if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS)
-                DoCast(me, SPELL_CHANNEL, true);
+                DoCast (me, SPELL_CHANNEL, true);
             else if (me->HasAura(SPELL_CHANNEL))
                 me->RemoveAura(SPELL_CHANNEL);
 
-            DoCast(me, SPELL_PORTAL_RUNE, true);
+            DoCast (me, SPELL_PORTAL_RUNE, true);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -109,7 +109,7 @@ public:
 
                 DoScriptText(SAY_INTRO, me);
                 instance->SetData(TYPE_MEDIVH, IN_PROGRESS);
-                DoCast(me, SPELL_CHANNEL, false);
+                DoCast (me, SPELL_CHANNEL, false);
                 Check_Timer = 5000;
                      }
             else if (who->GetTypeId() == TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))

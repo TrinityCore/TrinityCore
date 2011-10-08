@@ -248,10 +248,10 @@ public:
                     {
                         case EVENT_BERSERK:
                             DoScriptText(EMOTE_ENRAGE, me);
-                            DoCast(me, SPELL_BERSERK);
+                            DoCast (me, SPELL_BERSERK);
                             return;
                         case EVENT_CLEAVE:
-                            DoCast(me->getVictim(), SPELL_CLEAVE);
+                            DoCast (me->getVictim(), SPELL_CLEAVE);
                             events.ScheduleEvent(EVENT_CLEAVE, 5000+rand()%10000, 0, PHASE_GROUND);
                             return;
                         case EVENT_TAIL:

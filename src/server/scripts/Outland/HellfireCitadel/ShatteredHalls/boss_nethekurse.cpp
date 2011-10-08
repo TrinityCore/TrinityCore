@@ -261,13 +261,13 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                 {
                     if (!SpinOnce)
                     {
-                        DoCast(me->getVictim(), SPELL_DARK_SPIN);
+                        DoCast (me->getVictim(), SPELL_DARK_SPIN);
                         SpinOnce = true;
                     }
 
                     if (Cleave_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_SHADOW_CLEAVE);
+                        DoCast (me->getVictim(), SPELL_SHADOW_CLEAVE);
                         Cleave_Timer = 6000+rand()%2500;
                     }
                     else
@@ -278,7 +278,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     if (ShadowFissure_Timer <= diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_SHADOW_FISSURE);
+                            DoCast (target, SPELL_SHADOW_FISSURE);
                         ShadowFissure_Timer = urand(7500, 15000);
                     }
                     else
@@ -287,7 +287,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
                     if (DeathCoil_Timer <= diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_DEATH_COIL);
+                            DoCast (target, SPELL_DEATH_COIL);
                         DeathCoil_Timer = urand(15000, 20000);
                     }
                     else
@@ -375,7 +375,7 @@ class mob_fel_orc_convert : public CreatureScript
 
                 if (Hemorrhage_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_HEMORRHAGE);
+                    DoCast (me->getVictim(), SPELL_HEMORRHAGE);
                     Hemorrhage_Timer = 15000;
                 } else Hemorrhage_Timer -= diff;
 

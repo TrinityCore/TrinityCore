@@ -6321,10 +6321,10 @@ uint32 ObjectMgr::GenerateLowGuid(HighGuid guidhigh)
             }
             return m_hiMoTransGuid++;
         default:
-            ASSERT(0);
+            ASSERT (0);
     }
 
-    ASSERT(0);
+    ASSERT (0);
     return 0;
 }
 

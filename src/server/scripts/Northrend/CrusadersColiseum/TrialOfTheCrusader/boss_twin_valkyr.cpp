@@ -290,7 +290,7 @@ struct boss_twin_baseAI : public ScriptedAI
         }
 
         DoScriptText(SAY_AGGRO, me);
-        DoCast(me, m_uiSurgeSpellId);
+        DoCast (me, m_uiSurgeSpellId);
     }
 
     void DoAction(const int32 action)
@@ -346,8 +346,8 @@ struct boss_twin_baseAI : public ScriptedAI
                         pSister->AI()->DoAction(ACTION_PACT);
                         pSister->CastSpell(pSister, SPELL_POWER_TWINS, false);
                     }
-                    DoCast(me, m_uiShieldSpellId);
-                    DoCast(me, m_uiTwinPactSpellId);
+                    DoCast (me, m_uiShieldSpellId);
+                    DoCast (me, m_uiTwinPactSpellId);
                     m_uiStage = 0;
                     m_uiSpecialAbilityTimer = MINUTE*IN_MILLISECONDS;
                 }
@@ -377,7 +377,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
         if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
         {
-            DoCast(me, SPELL_BERSERK);
+            DoCast (me, SPELL_BERSERK);
             DoScriptText(SAY_BERSERK, me);
             m_bIsBerserk = true;
         }

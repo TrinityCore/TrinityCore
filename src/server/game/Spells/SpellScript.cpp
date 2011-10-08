@@ -55,7 +55,7 @@ void _SpellScript::_Init(std::string const* scriptname, uint32 spellId)
 _SpellScript::EffectHook::EffectHook(uint8 _effIndex)
 {
     // effect index must be in range <0;2>, allow use of special effindexes
-    ASSERT(_effIndex == EFFECT_ALL || _effIndex == EFFECT_FIRST_FOUND || _effIndex < MAX_SPELL_EFFECTS);
+    ASSERT (_effIndex == EFFECT_ALL || _effIndex == EFFECT_FIRST_FOUND || _effIndex < MAX_SPELL_EFFECTS);
     effIndex = _effIndex;
 }
 
@@ -732,7 +732,7 @@ bool AuraScript::_IsDefaultActionPrevented()
         case AURA_SCRIPT_HOOK_EFFECT_PERIODIC:
             return m_defaultActionPrevented;
         default:
-            ASSERT(false && "AuraScript::_IsDefaultActionPrevented is called in a wrong place");
+            ASSERT (false && "AuraScript::_IsDefaultActionPrevented is called in a wrong place");
             return false;
     }
 }

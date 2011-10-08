@@ -158,12 +158,12 @@ public:
 
             if (FrostArmorTimer <= diff)
             {
-                DoCast(me, SPELL_FROST_ARMOR);
+                DoCast (me, SPELL_FROST_ARMOR);
                 FrostArmorTimer = 40000+rand()%20000;
             } else FrostArmorTimer -= diff;
             if (DecayTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DEATH_AND_DECAY);
+                DoCast (me->getVictim(), SPELL_DEATH_AND_DECAY);
                 DecayTimer = 60000+rand()%20000;
                 switch (urand(0, 1))
                 {
@@ -179,7 +179,7 @@ public:
             } else DecayTimer -= diff;
             if (NovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROST_NOVA);
+                DoCast (me->getVictim(), SPELL_FROST_NOVA);
                 NovaTimer = 30000+rand()%15000;
                 switch (urand(0, 1))
                 {
@@ -195,7 +195,7 @@ public:
             } else NovaTimer -= diff;
             if (IceboltTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_ICEBOLT);
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_ICEBOLT);
                 IceboltTimer = 11000+rand()%20000;
             } else IceboltTimer -= diff;
 

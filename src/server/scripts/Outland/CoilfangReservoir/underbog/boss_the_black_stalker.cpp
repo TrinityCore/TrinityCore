@@ -116,7 +116,7 @@ public:
             // Spore Striders
             if (IsHeroic() && SporeStriders_Timer <= diff)
             {
-                DoCast(me, SPELL_SUMMON_SPORE_STRIDER);
+                DoCast (me, SPELL_SUMMON_SPORE_STRIDER);
                 SporeStriders_Timer = 10000+rand()%5000;
             } else SporeStriders_Timer -= diff;
 
@@ -152,7 +152,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                 {
-                    DoCast(target, SPELL_LEVITATE);
+                    DoCast (target, SPELL_LEVITATE);
                     LevitatedTarget = target->GetGUID();
                     LevitatedTarget_Timer = 2000;
                     InAir = false;
@@ -164,7 +164,7 @@ public:
             if (ChainLightning_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_CHAIN_LIGHTNING);
+                    DoCast (target, SPELL_CHAIN_LIGHTNING);
                 ChainLightning_Timer = 7000;
             } else ChainLightning_Timer -= diff;
 
@@ -172,7 +172,7 @@ public:
             if (StaticCharge_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, true))
-                    DoCast(target, SPELL_STATIC_CHARGE);
+                    DoCast (target, SPELL_STATIC_CHARGE);
                 StaticCharge_Timer = 10000;
             } else StaticCharge_Timer -= diff;
 

@@ -66,7 +66,7 @@ public:
             if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
                 DoScriptText(RAND(SAY_GUARD_SIL_AGGRO1, SAY_GUARD_SIL_AGGRO2, SAY_GUARD_SIL_AGGRO3), me, who);
             if (SpellInfo const* spell = me->reachWithSpellAttack(who))
-                DoCast(who, spell->Id);
+                DoCast (who, spell->Id);
         }
 
         void UpdateAI(const uint32 diff)
@@ -88,7 +88,7 @@ public:
                     if (info && !globalCooldown)
                     {
                         //Cast the buff spell
-                        DoCast(me, info->Id);
+                        DoCast (me, info->Id);
 
                         //Set our global cooldown
                         globalCooldown = GENERIC_CREATURE_COOLDOWN;
@@ -128,9 +128,9 @@ public:
                     {
                         //Cast the spell
                         if (healing)
-                            DoCast(me, info->Id);
+                            DoCast (me, info->Id);
                         else
-                            DoCast(me->getVictim(), info->Id);
+                            DoCast (me->getVictim(), info->Id);
 
                         //Set our global cooldown
                         globalCooldown = GENERIC_CREATURE_COOLDOWN;
@@ -171,9 +171,9 @@ public:
 
                         //Cast spell
                         if (healing)
-                            DoCast(me, info->Id);
+                            DoCast (me, info->Id);
                         else
-                            DoCast(me->getVictim(), info->Id);
+                            DoCast (me->getVictim(), info->Id);
 
                         //Set our global cooldown
                         globalCooldown = GENERIC_CREATURE_COOLDOWN;
@@ -283,7 +283,7 @@ public:
                 Unit* temp = me->getVictim();
                 if (temp && temp->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoCast(temp, SPELL_BANISHED_SHATTRATH_A);
+                    DoCast (temp, SPELL_BANISHED_SHATTRATH_A);
                     banishTimer = 9000;
                     playerGUID = temp->GetGUID();
                     if (playerGUID)
@@ -348,7 +348,7 @@ public:
                 Unit* temp = me->getVictim();
                 if (temp && temp->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoCast(temp, SPELL_BANISHED_SHATTRATH_S);
+                    DoCast (temp, SPELL_BANISHED_SHATTRATH_S);
                     banishTimer = 9000;
                     playerGUID = temp->GetGUID();
                     if (playerGUID)

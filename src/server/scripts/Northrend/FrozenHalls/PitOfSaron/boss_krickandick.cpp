@@ -138,7 +138,7 @@ class boss_ick : public CreatureScript
         {
             boss_ickAI(Creature* creature) : BossAI(creature, DATA_ICK), _vehicle(creature->GetVehicleKit())
             {
-                ASSERT(_vehicle);
+                ASSERT (_vehicle);
             }
 
             void InitializeAI()
@@ -249,7 +249,7 @@ class boss_ick : public CreatureScript
                                 DoScriptText(SAY_KRICK_BARRAGE_1, krick);
                                 DoScriptText(SAY_KRICK_BARRAGE_2, krick);
                                 krick->CastSpell(krick, SPELL_EXPLOSIVE_BARRAGE_KRICK, true);
-                                DoCast(me, SPELL_EXPLOSIVE_BARRAGE_ICK);
+                                DoCast (me, SPELL_EXPLOSIVE_BARRAGE_ICK);
                             }
                             events.DelayEvents(20000);
                             break;
@@ -258,12 +258,12 @@ class boss_ick : public CreatureScript
                                 DoScriptText(SAY_KRICK_POISON_NOVA, krick);
 
                             DoScriptText(SAY_ICK_POISON_NOVA, me);
-                            DoCast(me, SPELL_POISON_NOVA);
+                            DoCast (me, SPELL_POISON_NOVA);
                             break;
                         case EVENT_PURSUIT:
                             if (Creature* krick = GetKrick())
                                 DoScriptText(RAND(SAY_KRICK_CHASE_1, SAY_KRICK_CHASE_2, SAY_KRICK_CHASE_3), krick);
-                            DoCast(me, SPELL_PURSUIT);
+                            DoCast (me, SPELL_PURSUIT);
                             break;
                         default:
                             break;
@@ -441,7 +441,7 @@ class boss_krick : public CreatureScript
                         case EVENT_OUTRO_8:
                             me->AddUnitMovementFlag(MOVEMENTFLAG_FLYING);
                             me->GetMotionMaster()->MovePoint(0, outroPos[5]);
-                            DoCast(me, SPELL_STRANGULATING);
+                            DoCast (me, SPELL_STRANGULATING);
                             _events.ScheduleEvent(EVENT_OUTRO_9, 2000);
                             break;
                         case EVENT_OUTRO_9:
@@ -459,7 +459,7 @@ class boss_krick : public CreatureScript
                             _events.ScheduleEvent(EVENT_OUTRO_11, 2000);
                             break;
                         case EVENT_OUTRO_11:
-                            DoCast(me, SPELL_KRICK_KILL_CREDIT); // don't really know if we need it
+                            DoCast (me, SPELL_KRICK_KILL_CREDIT); // don't really know if we need it
                             me->SetStandState(UNIT_STAND_STATE_DEAD);
                             me->SetHealth(0);
                             _events.ScheduleEvent(EVENT_OUTRO_12, 3000);

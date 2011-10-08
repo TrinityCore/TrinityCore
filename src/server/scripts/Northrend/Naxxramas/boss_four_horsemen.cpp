@@ -362,16 +362,16 @@ public:
                         if (caster)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
-                                DoCast(target, SPELL_PRIMARY(id));
+                                DoCast (target, SPELL_PRIMARY(id));
                         }
                         else
-                            DoCast(me->getVictim(), SPELL_PRIMARY(id));
+                            DoCast (me->getVictim(), SPELL_PRIMARY(id));
 
                         events.ScheduleEvent(EVENT_CAST, 15000);
                         break;
                     case EVENT_BERSERK:
                         DoScriptText(SAY_SPECIAL[id], me);
-                        DoCast(me, EVENT_BERSERK);
+                        DoCast (me, EVENT_BERSERK);
                         break;
                 }
             }

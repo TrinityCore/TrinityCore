@@ -284,7 +284,7 @@ public:
                     uiImpalePhase = 0;
                     uiImpaleTimer = 9*IN_MILLISECONDS;
 
-                    DoCast(me, SPELL_SUBMERGE, false);
+                    DoCast (me, SPELL_SUBMERGE, false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
 
                     uiPhase = PHASE_UNDERGROUND;
@@ -294,7 +294,7 @@ public:
                 if (bChanneling == true)
                 {
                     for (uint8 i = 0; i < 8; ++i)
-                    DoCast(me->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
+                    DoCast (me->getVictim(), SPELL_SUMMON_CARRION_BEETLES, true);
                     bChanneling = false;
                 }
                 else if (uiCarrionBeetlesTimer <= diff)
@@ -306,7 +306,7 @@ public:
 
                 if (uiLeechingSwarmTimer <= diff)
                 {
-                    DoCast(me, SPELL_LEECHING_SWARM, true);
+                    DoCast (me, SPELL_LEECHING_SWARM, true);
                     uiLeechingSwarmTimer = 19*IN_MILLISECONDS;
                 } else uiLeechingSwarmTimer -= diff;
 

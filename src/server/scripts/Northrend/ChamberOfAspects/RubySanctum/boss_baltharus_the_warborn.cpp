@@ -100,9 +100,9 @@ class boss_baltharus_the_warborn : public CreatureScript
                         break;
                     case ACTION_CLONE:
                     {
-                        DoCast(me, SPELL_CLEAR_DEBUFFS);
-                        DoCast(me, SPELL_CLONE);
-                        DoCast(me, SPELL_REPELLING_WAVE);
+                        DoCast (me, SPELL_CLEAR_DEBUFFS);
+                        DoCast (me, SPELL_CLONE);
+                        DoCast (me, SPELL_REPELLING_WAVE);
                         Talk(SAY_CLONE);
                         --_cloneCount;
                         break;
@@ -186,7 +186,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                             break;
                         case EVENT_OOC_CHANNEL:
                             if (Creature* channelTarget = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_CRYSTAL_CHANNEL_TARGET)))
-                                DoCast(channelTarget, SPELL_BARRIER_CHANNEL);
+                                DoCast (channelTarget, SPELL_BARRIER_CHANNEL);
                             events.ScheduleEvent(EVENT_OOC_CHANNEL, 7000, 0, PHASE_INTRO);
                             break;
                         case EVENT_CLEAVE:
@@ -194,13 +194,13 @@ class boss_baltharus_the_warborn : public CreatureScript
                             events.ScheduleEvent(EVENT_CLEAVE, 24000, 0, PHASE_COMBAT);
                             break;
                         case EVENT_BLADE_TEMPEST:
-                            DoCast(me, SPELL_BLADE_TEMPEST);
+                            DoCast (me, SPELL_BLADE_TEMPEST);
                             events.ScheduleEvent(EVENT_BLADE_TEMPEST, 24000, 0, PHASE_COMBAT);
                             break;
                         case EVENT_ENERVATING_BRAND:
                             for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
-                                    DoCast(target, SPELL_ENERVATING_BRAND);
+                                    DoCast (target, SPELL_ENERVATING_BRAND);
                             events.ScheduleEvent(EVENT_ENERVATING_BRAND, 26000, 0, PHASE_COMBAT);
                             break;
                         default:
@@ -286,7 +286,7 @@ class npc_baltharus_the_warborn_clone : public CreatureScript
                         case EVENT_ENERVATING_BRAND:
                             for (uint8 i = 0; i < RAID_MODE<uint8>(4, 8, 8, 10); i++)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f, true))
-                                    DoCast(target, SPELL_ENERVATING_BRAND);
+                                    DoCast (target, SPELL_ENERVATING_BRAND);
                             _events.ScheduleEvent(EVENT_ENERVATING_BRAND, 26000);
                             break;
                         default:

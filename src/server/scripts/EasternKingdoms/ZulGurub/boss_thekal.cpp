@@ -166,13 +166,13 @@ class boss_thekal : public CreatureScript
 
                     if (!PhaseTwo && MortalCleave_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_MORTALCLEAVE);
+                        DoCast (me->getVictim(), SPELL_MORTALCLEAVE);
                         MortalCleave_Timer = 15000 + rand()%5000;
                     } else MortalCleave_Timer -= diff;
 
                     if (!PhaseTwo && Silence_Timer <= diff)
                     {
-                        DoCast(me->getVictim(), SPELL_SILENCE);
+                        DoCast (me->getVictim(), SPELL_SILENCE);
                         Silence_Timer = 20000 + rand()%5000;
                     } else Silence_Timer -= diff;
 
@@ -196,7 +196,7 @@ class boss_thekal : public CreatureScript
                     {
                         if (Resurrect_Timer <= diff)
                         {
-                            DoCast(me, SPELL_TIGER_FORM);
+                            DoCast (me, SPELL_TIGER_FORM);
                             me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.00f);
                             me->SetStandState(UNIT_STAND_STATE_STAND);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -221,7 +221,7 @@ class boss_thekal : public CreatureScript
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                DoCast(target, SPELL_CHARGE);
+                                DoCast (target, SPELL_CHARGE);
                                 DoResetThreat();
                                 AttackStart(target);
                             }
@@ -231,25 +231,25 @@ class boss_thekal : public CreatureScript
 
                         if (Frenzy_Timer <= diff)
                         {
-                            DoCast(me, SPELL_FRENZY);
+                            DoCast (me, SPELL_FRENZY);
                             Frenzy_Timer = 30000;
                         } else Frenzy_Timer -= diff;
 
                         if (ForcePunch_Timer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_SILENCE);
+                            DoCast (me->getVictim(), SPELL_SILENCE);
                             ForcePunch_Timer = 16000 + rand()%5000;
                         } else ForcePunch_Timer -= diff;
 
                         if (SummonTigers_Timer <= diff)
                         {
-                            DoCast(me->getVictim(), SPELL_SUMMONTIGERS);
+                            DoCast (me->getVictim(), SPELL_SUMMONTIGERS);
                             SummonTigers_Timer = 10000 + rand()%4000;
                         } else SummonTigers_Timer -= diff;
 
                         if (HealthBelowPct(11) && !Enraged)
                         {
-                            DoCast(me, SPELL_ENRAGE);
+                            DoCast (me, SPELL_ENRAGE);
                             Enraged = true;
                         }
                     }
@@ -321,14 +321,14 @@ class mob_zealot_lorkhan : public CreatureScript
                 //Shield_Timer
                 if (Shield_Timer <= diff)
                 {
-                    DoCast(me, SPELL_SHIELD);
+                    DoCast (me, SPELL_SHIELD);
                     Shield_Timer = 61000;
                 } else Shield_Timer -= diff;
 
                 //BloodLust_Timer
                 if (BloodLust_Timer <= diff)
                 {
-                    DoCast(me, SPELL_BLOODLUST);
+                    DoCast (me, SPELL_BLOODLUST);
                     BloodLust_Timer = 20000+rand()%8000;
                 } else BloodLust_Timer -= diff;
 
@@ -347,11 +347,11 @@ class mob_zealot_lorkhan : public CreatureScript
                         {
                             case 0:
                                 if (me->IsWithinMeleeRange(pThekal))
-                                    DoCast(pThekal, SPELL_GREATERHEAL);
+                                    DoCast (pThekal, SPELL_GREATERHEAL);
                                 break;
                             case 1:
                                 if (me->IsWithinMeleeRange(pZath))
-                                    DoCast(pZath, SPELL_GREATERHEAL);
+                                    DoCast (pZath, SPELL_GREATERHEAL);
                                 break;
                         }
                     }
@@ -362,7 +362,7 @@ class mob_zealot_lorkhan : public CreatureScript
                 //Disarm_Timer
                 if (Disarm_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DISARM);
+                    DoCast (me->getVictim(), SPELL_DISARM);
                     Disarm_Timer = 15000+rand()%10000;
                 } else Disarm_Timer -= diff;
 
@@ -483,21 +483,21 @@ class mob_zealot_zath : public CreatureScript
                 //SweepingStrikes_Timer
                 if (SweepingStrikes_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SWEEPINGSTRIKES);
+                    DoCast (me->getVictim(), SPELL_SWEEPINGSTRIKES);
                     SweepingStrikes_Timer = 22000+rand()%4000;
                 } else SweepingStrikes_Timer -= diff;
 
                 //SinisterStrike_Timer
                 if (SinisterStrike_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SINISTERSTRIKE);
+                    DoCast (me->getVictim(), SPELL_SINISTERSTRIKE);
                     SinisterStrike_Timer = 8000+rand()%8000;
                 } else SinisterStrike_Timer -= diff;
 
                 //Gouge_Timer
                 if (Gouge_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_GOUGE);
+                    DoCast (me->getVictim(), SPELL_GOUGE);
 
                     if (DoGetThreat(me->getVictim()))
                         DoModifyThreatPercent(me->getVictim(), -100);
@@ -508,14 +508,14 @@ class mob_zealot_zath : public CreatureScript
                 //Kick_Timer
                 if (Kick_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_KICK);
+                    DoCast (me->getVictim(), SPELL_KICK);
                     Kick_Timer = 15000+rand()%10000;
                 } else Kick_Timer -= diff;
 
                 //Blind_Timer
                 if (Blind_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BLIND);
+                    DoCast (me->getVictim(), SPELL_BLIND);
                     Blind_Timer = 10000+rand()%10000;
                 } else Blind_Timer -= diff;
 

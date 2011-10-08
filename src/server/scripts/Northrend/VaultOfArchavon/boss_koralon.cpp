@@ -62,7 +62,7 @@ class boss_koralon : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoCast(me, SPELL_BURNING_FURY);
+                DoCast (me, SPELL_BURNING_FURY);
 
                 events.ScheduleEvent(EVENT_BURNING_FURY, 20000);    // TODO check timer
                 events.ScheduleEvent(EVENT_BURNING_BREATH, 15000);  // 1st after 15sec, then every 45sec
@@ -87,23 +87,23 @@ class boss_koralon : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BURNING_FURY:
-                            DoCast(me, SPELL_BURNING_FURY);
+                            DoCast (me, SPELL_BURNING_FURY);
                             events.ScheduleEvent(EVENT_BURNING_FURY, 20000);
                             break;
                         case EVENT_BURNING_BREATH:
-                            DoCast(me, SPELL_BURNING_BREATH);
+                            DoCast (me, SPELL_BURNING_BREATH);
                             events.ScheduleEvent(EVENT_BURNING_BREATH, 45000);
                             break;
                         case EVENT_METEOR_FISTS_A:
-                            DoCast(me, SPELL_METEOR_FISTS_A);
+                            DoCast (me, SPELL_METEOR_FISTS_A);
                             events.ScheduleEvent(EVENT_METEOR_FISTS_B, 1500);
                             break;
                         case EVENT_METEOR_FISTS_B:
-                            DoCast(me, SPELL_METEOR_FISTS_B);
+                            DoCast (me, SPELL_METEOR_FISTS_B);
                             events.ScheduleEvent(EVENT_METEOR_FISTS_A, 45000);
                             break;
                         case EVENT_FLAME_CINDER_A:
-                            DoCast(me, SPELL_FLAME_CINDER_A);
+                            DoCast (me, SPELL_FLAME_CINDER_A);
                             events.ScheduleEvent(EVENT_FLAME_CINDER_A, 30000);
                             break;
                         default:
@@ -164,11 +164,11 @@ class mob_flame_warder : public CreatureScript
                             events.ScheduleEvent(EVENT_FW_LAVA_BIRST, 15000);
                             break;
                         case EVENT_FW_METEOR_FISTS_A:
-                            DoCast(me, SPELL_FW_METEOR_FISTS_A);
+                            DoCast (me, SPELL_FW_METEOR_FISTS_A);
                             events.ScheduleEvent(EVENT_FW_METEOR_FISTS_B, 1500);
                             break;
                         case EVENT_FW_METEOR_FISTS_B:
-                            DoCast(me, SPELL_FW_METEOR_FISTS_B);
+                            DoCast (me, SPELL_FW_METEOR_FISTS_B);
                             events.ScheduleEvent(EVENT_FW_METEOR_FISTS_A, 20000);
                             break;
                         default:

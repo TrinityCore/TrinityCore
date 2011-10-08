@@ -134,7 +134,7 @@ class boss_elder_nadox : public CreatureScript
 
                 if (uiPlagueTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BROOD_PLAGUE);
+                    DoCast (me->getVictim(), SPELL_BROOD_PLAGUE);
                     uiPlagueTimer = 15000;
                 }
                 else
@@ -146,7 +146,7 @@ class boss_elder_nadox : public CreatureScript
                     {
                         if (Creature* Swarmer = me->FindNearestCreature(MOB_AHNKAHAR_SWARMER, 35.0f))
                         {
-                            DoCast(Swarmer, H_SPELL_BROOD_RAGE, true);
+                            DoCast (Swarmer, H_SPELL_BROOD_RAGE, true);
                             uiRagueTimer = 15000;
                         }
                     }
@@ -156,8 +156,8 @@ class boss_elder_nadox : public CreatureScript
 
                 if (uiSwarmerSpawnTimer <= diff)
                 {
-                    DoCast(me, SPELL_SUMMON_SWARMERS, true);
-                    DoCast(me, SPELL_SUMMON_SWARMERS);
+                    DoCast (me, SPELL_SUMMON_SWARMERS, true);
+                    DoCast (me, SPELL_SUMMON_SWARMERS);
                     if (urand(1, 3) == 3) // 33% chance of dialog
                         DoScriptText(RAND(SAY_EGG_SAC_1, SAY_EGG_SAC_2), me);
 
@@ -169,7 +169,7 @@ class boss_elder_nadox : public CreatureScript
                 if (!bGuardSpawned && uiGuardSpawnTimer <= diff)
                 {
                     me->MonsterTextEmote(EMOTE_HATCHES, me->GetGUID(), true);
-                    DoCast(me, SPELL_SUMMON_SWARM_GUARD);
+                    DoCast (me, SPELL_SUMMON_SWARM_GUARD);
                     bGuardSpawned = true;
                 }
                 else
@@ -184,7 +184,7 @@ class boss_elder_nadox : public CreatureScript
                     me->GetHomePosition(x, y, z, o);
                     if (z < 24)
                         if (!me->IsNonMeleeSpellCasted(false))
-                            DoCast(me, SPELL_ENRAGE, true);
+                            DoCast (me, SPELL_ENRAGE, true);
 
                     uiEnrageTimer = 5000;
                 }
@@ -225,7 +225,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
             void Reset()
             {
                 if (me->GetEntry() == MOB_AHNKAHAR_GUARDIAN_ENTRY)
-                    DoCast(me, SPELL_GUARDIAN_AURA, true);
+                    DoCast (me, SPELL_GUARDIAN_AURA, true);
                 uiSprintTimer = 10000;
             }
 
@@ -254,7 +254,7 @@ class mob_ahnkahar_nerubian : public CreatureScript
 
                 if (uiSprintTimer <= diff)
                 {
-                    DoCast(me, SPELL_SPRINT);
+                    DoCast (me, SPELL_SPRINT);
                     uiSprintTimer = 25000;
                 }
                 else

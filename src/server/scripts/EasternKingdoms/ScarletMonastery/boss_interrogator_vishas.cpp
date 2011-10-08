@@ -106,7 +106,7 @@ public:
             //ShadowWordPain_Timer
             if (ShadowWordPain_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
+                DoCast (me->getVictim(), SPELL_SHADOWWORDPAIN);
                 ShadowWordPain_Timer = 5000 + rand()%10000;
             } else ShadowWordPain_Timer -= diff;
 

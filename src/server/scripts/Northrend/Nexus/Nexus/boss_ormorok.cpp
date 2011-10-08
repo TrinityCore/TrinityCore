@@ -146,20 +146,20 @@ public:
 
             if (!bFrenzy && HealthBelowPct(25))
             {
-                DoCast(me, SPELL_FRENZY);
+                DoCast (me, SPELL_FRENZY);
                 bFrenzy = true;
             }
 
             if (uiTrampleTimer <= diff)
             {
-                DoCast(me, SPELL_TRAMPLE);
+                DoCast (me, SPELL_TRAMPLE);
                 uiTrampleTimer = 10*IN_MILLISECONDS;
             } else uiTrampleTimer -= diff;
 
             if (uiSpellReflectionTimer <= diff)
             {
                 DoScriptText(SAY_REFLECT, me);
-                DoCast(me, SPELL_SPELL_REFLECTION);
+                DoCast (me, SPELL_SPELL_REFLECTION);
                 uiSpellReflectionTimer = 30*IN_MILLISECONDS;
             } else uiSpellReflectionTimer -= diff;
 
@@ -251,13 +251,13 @@ public:
         {
             if (SpellCrystalSpikePrevisualTimer <= diff)
             {
-                DoCast(me, SPELL_CRYSTAL_SPIKE_PREVISUAL);
+                DoCast (me, SPELL_CRYSTAL_SPIKE_PREVISUAL);
                 SpellCrystalSpikePrevisualTimer = 10*IN_MILLISECONDS;
             } else SpellCrystalSpikePrevisualTimer -= diff;
 
             if (SpellCrystalSpikeDamageTimer <= diff)
             {
-                DoCast(me, SPELL_CRYSTALL_SPIKE_DAMAGE);
+                DoCast (me, SPELL_CRYSTALL_SPIKE_DAMAGE);
                 SpellCrystalSpikeDamageTimer = 10*IN_MILLISECONDS;
             } else SpellCrystalSpikeDamageTimer -= diff;
         }
@@ -292,7 +292,7 @@ public:
             {
                 if (me->IsWithinDist(me->getVictim(), 5.0f, false))
                 {
-                    DoCast(me->getVictim(), SPELL_ROOTS);
+                    DoCast (me->getVictim(), SPELL_ROOTS);
                     uiRootsTimer = 15*IN_MILLISECONDS;
                 }
             } else uiRootsTimer -= diff;

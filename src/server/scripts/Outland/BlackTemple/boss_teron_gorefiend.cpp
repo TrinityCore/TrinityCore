@@ -106,7 +106,7 @@ public:
 
             if (ShadowBoltTimer < diff && me->isInCombat())
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SHADOWBOLT);
                 ShadowBoltTimer = 10000;
             } else ShadowBoltTimer -= diff;
             return;
@@ -181,7 +181,7 @@ public:
             Unit* target = targets.front();
             if (target && me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
             {
-                DoCast(target, SPELL_ATROPHY);
+                DoCast (target, SPELL_ATROPHY);
                 me->AI()->AttackStart(target);
             }
         }
@@ -459,7 +459,7 @@ public:
                 if (target)
                 {
                     DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
-                    DoCast(target, SPELL_INCINERATE);
+                    DoCast (target, SPELL_INCINERATE);
                     IncinerateTimer = 20000 + rand()%31 * 1000;
                 }
             } else IncinerateTimer -= diff;
@@ -468,7 +468,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target && target->isAlive())
-                    DoCast(target, SPELL_CRUSHING_SHADOWS);
+                    DoCast (target, SPELL_CRUSHING_SHADOWS);
                 CrushingShadowsTimer = 10000 + rand()%16 * 1000;
             } else CrushingShadowsTimer -= diff;
 
@@ -482,7 +482,7 @@ public:
 
                 if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
                 {
-                    DoCast(target, SPELL_SHADOW_OF_DEATH);
+                    DoCast (target, SPELL_SHADOW_OF_DEATH);
                     GhostGUID = target->GetGUID();
                     ShadowOfDeathTimer = 30000;
                     SummonShadowsTimer = 53000; // Make it VERY close but slightly less so that we can check if the aura is still on the player
@@ -499,7 +499,7 @@ public:
             {
                 if (EnrageTimer <= diff)
             {
-                DoCast(me, SPELL_BERSERK);
+                DoCast (me, SPELL_BERSERK);
                 DoScriptText(SAY_ENRAGE, me);
             } else EnrageTimer -= diff;
             }

@@ -111,7 +111,7 @@ public:
             if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
             {
                 me->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
-                DoCast(me, SPELL_TIDAL_BURST, true);
+                DoCast (me, SPELL_TIDAL_BURST, true);
                 ResetTimer();
             }
         }
@@ -157,12 +157,12 @@ public:
                 switch (eventId)
                 {
                     case EVENT_SHIELD:
-                        DoCast(me, SPELL_TIDAL_SHIELD, true);
+                        DoCast (me, SPELL_TIDAL_SHIELD, true);
                         ResetTimer(45000);
                         break;
                     case EVENT_BERSERK:
                         DoScriptText(SAY_ENRAGE2, me);
-                        DoCast(me, SPELL_BERSERK, true);
+                        DoCast (me, SPELL_BERSERK, true);
                         events.DelayEvents(15000, GCD_YELL);
                         break;
                     case EVENT_SPINE:
@@ -171,7 +171,7 @@ public:
                         if (!target) target = me->getVictim();
                         if (target)
                         {
-                            DoCast(target, SPELL_IMPALING_SPINE, true);
+                            DoCast (target, SPELL_IMPALING_SPINE, true);
                             SpineTargetGUID = target->GetGUID();
                             //must let target summon, otherwise you cannot click the spine
                             target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 30);
@@ -184,7 +184,7 @@ public:
                     }
                     case EVENT_NEEDLE:
                     {
-                        //DoCast(me, SPELL_NEEDLE_SPINE, true);
+                        //DoCast (me, SPELL_NEEDLE_SPINE, true);
                         std::list<Unit*> targets;
                         SelectTargetList(targets, 3, SELECT_TARGET_RANDOM, 80, true);
                         for (std::list<Unit*>::const_iterator i = targets.begin(); i != targets.end(); ++i)

@@ -65,14 +65,14 @@ class boss_gahzranka : public CreatureScript
                 //Frostbreath_Timer
                 if (Frostbreath_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FROSTBREATH);
+                    DoCast (me->getVictim(), SPELL_FROSTBREATH);
                     Frostbreath_Timer = 7000 + rand()%4000;
                 } else Frostbreath_Timer -= diff;
 
                 //MassiveGeyser_Timer
                 if (MassiveGeyser_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_MASSIVEGEYSER);
+                    DoCast (me->getVictim(), SPELL_MASSIVEGEYSER);
                     DoResetThreat();
 
                     MassiveGeyser_Timer = 22000 + rand()%10000;
@@ -81,7 +81,7 @@ class boss_gahzranka : public CreatureScript
                 //Slam_Timer
                 if (Slam_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SLAM);
+                    DoCast (me->getVictim(), SPELL_SLAM);
                     Slam_Timer = 12000 + rand()%8000;
                 } else Slam_Timer -= diff;
 

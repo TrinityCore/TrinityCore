@@ -105,20 +105,20 @@ public:
 
             if (uiArcaneVacuumTimer <= diff)
             {
-                DoCast(SPELL_ARCANE_VACUUM);
+                DoCast (SPELL_ARCANE_VACUUM);
                 uiArcaneVacuumTimer = 10000;
             } else uiArcaneVacuumTimer -= diff;
 
             if (uiBlizzardTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_BLIZZARD);
+                    DoCast (target, SPELL_BLIZZARD);
                 uiBlizzardTimer = 15000;
             } else uiBlizzardTimer -= diff;
 
             if (uiTailSweepTimer <= diff)
             {
-                DoCast(SPELL_TAIL_SWEEP);
+                DoCast (SPELL_TAIL_SWEEP);
                 uiTailSweepTimer = 20000;
             } else uiTailSweepTimer -= diff;
 
@@ -133,7 +133,7 @@ public:
                 if (uiManaDestructionTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_MANA_DESTRUCTION);
+                        DoCast (target, SPELL_MANA_DESTRUCTION);
                     uiManaDestructionTimer = 30000;
                 } else uiManaDestructionTimer -= diff;
             }

@@ -79,11 +79,11 @@ class boss_garr : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_ANTIMAGIC_PULSE:
-                            DoCast(me, SPELL_ANTIMAGIC_PULSE);
+                            DoCast (me, SPELL_ANTIMAGIC_PULSE);
                             events.ScheduleEvent(EVENT_ANTIMAGIC_PULSE, urand(10000, 15000));
                             break;
                         case EVENT_MAGMA_SHACKLES:
-                            DoCast(me, SPELL_MAGMA_SHACKLES);
+                            DoCast (me, SPELL_MAGMA_SHACKLES);
                             events.ScheduleEvent(EVENT_MAGMA_SHACKLES, urand(8000, 12000));
                             break;
                         default:
@@ -137,7 +137,7 @@ class mob_firesworn : public CreatureScript
                 if (immolateTimer <= diff)
                 {
                      if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_IMMOLATE);
+                        DoCast (target, SPELL_IMMOLATE);
                     immolateTimer = urand(5000, 10000);
                 }
                 else

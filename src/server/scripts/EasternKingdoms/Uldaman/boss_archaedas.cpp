@@ -100,7 +100,7 @@ class boss_archaedas : public CreatureScript
 
                 if (pMinion && pMinion->isAlive())
                 {
-                    DoCast(pMinion, SPELL_AWAKEN_VAULT_WALKER, bFlag);
+                    DoCast (pMinion, SPELL_AWAKEN_VAULT_WALKER, bFlag);
                     pMinion->CastSpell(pMinion, SPELL_ARCHAEDAS_AWAKEN, true);
                 }
             }
@@ -187,7 +187,7 @@ class boss_archaedas : public CreatureScript
                 if (uiTremorTimer <= uiDiff)
                 {
                     //Cast
-                    DoCast(me->getVictim(), SPELL_GROUND_TREMOR);
+                    DoCast (me->getVictim(), SPELL_GROUND_TREMOR);
 
                     //45 seconds until we should cast this agian
                     uiTremorTimer  = 45000;

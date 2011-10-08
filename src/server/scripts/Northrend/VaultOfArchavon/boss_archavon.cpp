@@ -90,12 +90,12 @@ class boss_archavon : public CreatureScript
                     {
                         case EVENT_ROCK_SHARDS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_ROCK_SHARDS);
+                                DoCast (target, SPELL_ROCK_SHARDS);
                             events.ScheduleEvent(EVENT_ROCK_SHARDS, 15000);
                             break;
                         case EVENT_CHOKING_CLOUD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
+                                DoCast (target, SPELL_CRUSHING_LEAP, true); //10y~80y, ignore range
                             events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30000);
                             break;
                         case EVENT_STOMP:
@@ -107,7 +107,7 @@ class boss_archavon : public CreatureScript
                             DoCastVictim(SPELL_IMPALE);
                             break;
                         case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
+                            DoCast (me, SPELL_BERSERK);
                             DoScriptText(EMOTE_BERSERK, me);
                             break;
                         default:
@@ -170,7 +170,7 @@ class mob_archavon_warder : public CreatureScript
                     {
                         case EVENT_ROCK_SHOWER:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_ROCK_SHOWER);
+                                DoCast (target, SPELL_ROCK_SHOWER);
                             events.ScheduleEvent(EVENT_ROCK_SHARDS, 6000);
                             break;
                         case EVENT_SHIELD_CRUSH:

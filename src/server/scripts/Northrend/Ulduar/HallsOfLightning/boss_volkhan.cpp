@@ -265,7 +265,7 @@ public:
                     // Should he stomp even if he has no brittle golem to shatter?
                     DoScriptText(RAND(SAY_STOMP_1, SAY_STOMP_2), me);
 
-                    DoCast(me, SPELL_SHATTERING_STOMP_N);
+                    DoCast (me, SPELL_SHATTERING_STOMP_N);
 
                     DoScriptText(EMOTE_SHATTER, me);
 
@@ -323,8 +323,8 @@ public:
                     if (Unit* target = GetClosestCreatureWithEntry(me, NPC_VOLKHAN_ANVIL, 1000.0f, true))
                     {
                         me->SetOrientation(2.29f);
-                        DoCast(target, SPELL_TEMPER, false);
-                        DoCast(target, SPELL_TEMPER_DUMMY, false);
+                        DoCast (target, SPELL_TEMPER, false);
+                        DoCast (target, SPELL_TEMPER_DUMMY, false);
                     }
                     m_uiDelay_Timer = 1000;     // Delay 2 seconds before next phase can begin
                     m_uiSummonPhase = 4;        // Set Next Phase
@@ -443,7 +443,7 @@ public:
 
             if (m_uiBlast_Timer <= uiDiff)
             {
-                DoCast(me, SPELL_BLAST_WAVE);
+                DoCast (me, SPELL_BLAST_WAVE);
                 m_uiBlast_Timer = 20000;
             }
             else
@@ -451,7 +451,7 @@ public:
 
             if (m_uiImmolation_Timer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_IMMOLATION_STRIKE_N);
+                DoCast (me->getVictim(), SPELL_IMMOLATION_STRIKE_N);
                 m_uiImmolation_Timer = 5000;
             }
             else

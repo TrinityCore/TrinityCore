@@ -158,17 +158,17 @@ class npc_millhouse_manastorm : public CreatureScript
                                 break;
                             case 3:
                                 DoScriptText(SAY_WATER, me);
-                                DoCast(me, SPELL_CONJURE_WATER);
+                                DoCast (me, SPELL_CONJURE_WATER);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 4:
                                 DoScriptText(SAY_BUFFS, me);
-                                DoCast(me, SPELL_ICE_ARMOR);
+                                DoCast (me, SPELL_ICE_ARMOR);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 5:
                                 DoScriptText(SAY_DRINK, me);
-                                DoCast(me, SPELL_ARCANE_INTELLECT);
+                                DoCast (me, SPELL_ARCANE_INTELLECT);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 6:
@@ -203,7 +203,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
                     DoScriptText(SAY_PYRO, me);
 
-                    DoCast(me->getVictim(), SPELL_PYROBLAST);
+                    DoCast (me->getVictim(), SPELL_PYROBLAST);
                     Pyroblast_Timer = 40000;
                 }
                 else
@@ -211,7 +211,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
                 if (Fireball_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FIREBALL);
+                    DoCast (me->getVictim(), SPELL_FIREBALL);
                     Fireball_Timer = 4000;
                 }
                 else
@@ -302,7 +302,7 @@ class npc_warden_mellichar : public CreatureScript
                 Phase = 1;
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                DoCast(me, SPELL_TARGET_OMEGA);
+                DoCast (me, SPELL_TARGET_OMEGA);
 
                 if (instance)
                     instance->SetData(TYPE_HARBINGERSKYRISS, NOT_STARTED);
@@ -331,7 +331,7 @@ class npc_warden_mellichar : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(YELL_INTRO1, me);
-                DoCast(me, SPELL_BUBBLE_VISUAL);
+                DoCast (me, SPELL_BUBBLE_VISUAL);
 
                 if (instance)
                 {
@@ -374,20 +374,20 @@ class npc_warden_mellichar : public CreatureScript
                     switch (Phase)
                     {
                     case 2:
-                        DoCast(me, SPELL_TARGET_ALPHA);
+                        DoCast (me, SPELL_TARGET_ALPHA);
                         instance->SetData(TYPE_WARDEN_1, IN_PROGRESS);
                         instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), false);
                         break;
                     case 3:
-                        DoCast(me, SPELL_TARGET_BETA);
+                        DoCast (me, SPELL_TARGET_BETA);
                         instance->SetData(TYPE_WARDEN_2, IN_PROGRESS);
                         break;
                     case 5:
-                        DoCast(me, SPELL_TARGET_DELTA);
+                        DoCast (me, SPELL_TARGET_DELTA);
                         instance->SetData(TYPE_WARDEN_3, IN_PROGRESS);
                         break;
                     case 6:
-                        DoCast(me, SPELL_TARGET_GAMMA);
+                        DoCast (me, SPELL_TARGET_GAMMA);
                         instance->SetData(TYPE_WARDEN_4, IN_PROGRESS);
                         break;
                     case 7:
@@ -418,7 +418,7 @@ class npc_warden_mellichar : public CreatureScript
                     {
                         //continue beam omega pod, unless we are about to summon skyriss
                         if (Phase != 7)
-                            DoCast(me, SPELL_TARGET_OMEGA);
+                            DoCast (me, SPELL_TARGET_OMEGA);
 
                         switch (Phase)
                         {
@@ -544,7 +544,7 @@ class mob_zerekethvoidzone : public CreatureScript
                 me->setFaction(16);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                DoCast(me, SPELL_VOID_ZONE_DAMAGE);
+                DoCast (me, SPELL_VOID_ZONE_DAMAGE);
             }
 
             void EnterCombat(Unit* /*who*/) {}

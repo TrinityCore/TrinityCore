@@ -542,8 +542,8 @@ public:
                 {
                     switch (urand(0, 1))
                     {
-                        case 0: DoCast(unit, SPELL_BLESS_SPELLWARD);  break;
-                        case 1: DoCast(unit, SPELL_BLESS_PROTECTION); break;
+                        case 0: DoCast (unit, SPELL_BLESS_SPELLWARD);  break;
+                        case 1: DoCast (unit, SPELL_BLESS_PROTECTION); break;
                     }
                 }
                 BlessingTimer = 60000;
@@ -551,7 +551,7 @@ public:
 
             if (ConsecrationTimer <= diff)
             {
-                DoCast(me, SPELL_CONSECRATION);
+                DoCast (me, SPELL_CONSECRATION);
                 ConsecrationTimer = 40000;
             } else ConsecrationTimer -= diff;
 
@@ -562,7 +562,7 @@ public:
                     // is in ~10-40 yd range
                     if (me->IsInRange(target, 10.0f, 40.0f, false))
                     {
-                        DoCast(target, SPELL_HAMMER_OF_JUSTICE);
+                        DoCast (target, SPELL_HAMMER_OF_JUSTICE);
                         HammerOfJusticeTimer = 20000;
                     }
                 }
@@ -572,8 +572,8 @@ public:
             {
                 switch (urand(0, 1))
                 {
-                    case 0: DoCast(me, SPELL_SEAL_OF_COMMAND);  break;
-                    case 1: DoCast(me, SPELL_SEAL_OF_BLOOD);    break;
+                    case 0: DoCast (me, SPELL_SEAL_OF_COMMAND);  break;
+                    case 1: DoCast (me, SPELL_SEAL_OF_BLOOD);    break;
                 }
                 SealTimer = 40000;
             } else SealTimer -= diff;
@@ -648,7 +648,7 @@ public:
 
             if (DampenMagicTimer <= diff)
             {
-                DoCast(me, SPELL_DAMPEN_MAGIC);
+                DoCast (me, SPELL_DAMPEN_MAGIC);
                 Cooldown = 1000;
                 DampenMagicTimer = 67200;                      // almost 1, 12 minutes
                 ArcaneBoltTimer += 1000;                        // Give the Mage some time to spellsteal Dampen.
@@ -656,14 +656,14 @@ public:
 
             if (ArcaneExplosionTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
+                DoCast (me->getVictim(), SPELL_ARCANE_EXPLOSION);
                 Cooldown = 1000;
                 ArcaneExplosionTimer = 14000;
             } else ArcaneExplosionTimer -= diff;
 
             if (ArcaneBoltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_BOLT);
+                DoCast (me->getVictim(), SPELL_ARCANE_BOLT);
                 ArcaneBoltTimer = 3000;
                 Cooldown = 2000;
             } else ArcaneBoltTimer -= diff;
@@ -672,7 +672,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(target, SPELL_BLIZZARD);
+                    DoCast (target, SPELL_BLIZZARD);
                     BlizzardTimer = 45000 + rand()%46 * 1000;
                     FlamestrikeTimer += 10000;
                     Cooldown = 1000;
@@ -683,7 +683,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(target, SPELL_FLAMESTRIKE);
+                    DoCast (target, SPELL_FLAMESTRIKE);
                     FlamestrikeTimer = 55000 + rand()%46 * 1000;
                     BlizzardTimer += 10000;
                     Cooldown = 2000;
@@ -740,14 +740,14 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(target, SPELL_EMPOWERED_SMITE);
+                    DoCast (target, SPELL_EMPOWERED_SMITE);
                     EmpoweredSmiteTimer = 38000;
                 }
             } else EmpoweredSmiteTimer -= diff;
 
             if (CircleOfHealingTimer <= diff)
             {
-                DoCast(me, SPELL_CIRCLE_OF_HEALING);
+                DoCast (me, SPELL_CIRCLE_OF_HEALING);
                 CircleOfHealingTimer = 60000;
             } else CircleOfHealingTimer -= diff;
 
@@ -755,14 +755,14 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(target, SPELL_DIVINE_WRATH);
+                    DoCast (target, SPELL_DIVINE_WRATH);
                     DivineWrathTimer = 40000 + rand()%41 * 1000;
                 }
             } else DivineWrathTimer -= diff;
 
             if (ReflectiveShieldTimer <= diff)
             {
-                DoCast(me, SPELL_REFLECTIVE_SHIELD);
+                DoCast (me, SPELL_REFLECTIVE_SHIELD);
                 ReflectiveShieldTimer = 65000;
             } else ReflectiveShieldTimer -= diff;
 
@@ -826,13 +826,13 @@ public:
             {
                 if (DeadlyPoisonTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                    DoCast (me->getVictim(), SPELL_DEADLY_POISON);
                     DeadlyPoisonTimer = 15000 + rand()%31 * 1000;
                 } else DeadlyPoisonTimer -= diff;
 
                 if (AppearEnvenomTimer <= diff)                   // Cast Envenom. This is cast 4 seconds after Vanish is over
                 {
-                    DoCast(me->getVictim(), SPELL_ENVENOM);
+                    DoCast (me->getVictim(), SPELL_ENVENOM);
                     AppearEnvenomTimer = 90000;
                 } else AppearEnvenomTimer -= diff;
 
@@ -859,7 +859,7 @@ public:
                 if (VanishTimer <= diff)                          // Become attackable and poison current target
                 {
                     Unit* target = me->getVictim();
-                    DoCast(target, SPELL_DEADLY_POISON);
+                    DoCast (target, SPELL_DEADLY_POISON);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     DoResetThreat();
                     me->AddThreat(target, 3000.0f);      // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.

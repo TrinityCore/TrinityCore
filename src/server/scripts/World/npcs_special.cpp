@@ -416,8 +416,8 @@ public:
         {
             Active = true;
             CanIteract = 3500;
-            DoCast(me, SPELL_BRAZIER, true);
-            DoCast(me, SPELL_FIERY_AURA, false);
+            DoCast (me, SPELL_BRAZIER, true);
+            DoCast (me, SPELL_FIERY_AURA, false);
             float x, y, z;
             me->GetPosition(x, y, z);
             me->Relocate(x, y, z + 0.94f);
@@ -471,7 +471,7 @@ public:
                         break;
                     case TEXT_EMOTE_DANCE:
                         if (!player->HasAura(SPELL_SEDUCTION))
-                            DoCast(player, SPELL_SEDUCTION, true);
+                            DoCast (player, SPELL_SEDUCTION, true);
                         break;
                 }
             }
@@ -1123,7 +1123,7 @@ public:
 
             if (me->isAttackReady())
             {
-                DoCast(me->getVictim(), SPELL_DEATHTOUCH, true);
+                DoCast (me->getVictim(), SPELL_DEATHTOUCH, true);
                 me->resetAttackTimer();
             }
         }
@@ -1577,7 +1577,7 @@ public:
         {
             if (ExplosionTimer <= diff)
             {
-                DoCast(me, SPELL_TONK_MINE_DETONATE, true);
+                DoCast (me, SPELL_TONK_MINE_DETONATE, true);
                 me->setDeathState(DEAD); // unsummon it
             }
             else
@@ -1753,7 +1753,7 @@ public:
                         else
                             spell = SPELL_CRIPPLING_POISON;
 
-                        DoCast(me->getVictim(), spell);
+                        DoCast (me->getVictim(), spell);
                     }
 
                     SpellTimer = VIPER_TIMER;
@@ -1761,7 +1761,7 @@ public:
                 else //Venomous Snake
                 {
                     if (urand(0, 2) == 0) //33% chance to cast
-                        DoCast(me->getVictim(), SPELL_DEADLY_POISON);
+                        DoCast (me->getVictim(), SPELL_DEADLY_POISON);
                     SpellTimer = VENOMOUS_SNAKE_TIMER + (rand() % 5) * 100;
                 }
             }
@@ -1868,7 +1868,7 @@ public:
                         victim->RemoveAura(43906);//remove polymorph frog thing
                 me->AddAura(43906, player);//add polymorph frog thing
                 VictimGUID = player->GetGUID();
-                DoCast(me, 20372, true);//tag.hearts
+                DoCast (me, 20372, true);//tag.hearts
                 me->GetMotionMaster()->MoveFollow(player, 0, 0);
                 Hearts = 15000;
             }
@@ -2028,7 +2028,7 @@ public:
 
         void Reset()
         {
-            DoCast(me, 59907, false); // Spell for Lightwell Charges
+            DoCast (me, 59907, false); // Spell for Lightwell Charges
         }
     };
 

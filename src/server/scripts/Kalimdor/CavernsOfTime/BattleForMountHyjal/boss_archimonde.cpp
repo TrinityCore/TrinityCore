@@ -117,9 +117,9 @@ public:
                 if (Unit* Archimonde = Unit::GetUnit((*me), ArchimondeGUID))
                 {
                     if (Archimonde->HealthBelowPct(2) || !Archimonde->isAlive())
-                        DoCast(me, SPELL_DENOUEMENT_WISP);
+                        DoCast (me, SPELL_DENOUEMENT_WISP);
                     else
-                        DoCast(Archimonde, SPELL_ANCIENT_SPARK);
+                        DoCast (Archimonde, SPELL_ANCIENT_SPARK);
                 }
                 CheckTimer = 1000;
             } else CheckTimer -= diff;
@@ -447,7 +447,7 @@ public:
             if (me->HasAura(chargeSpell))
             {
                 me->RemoveAuraFromStack(chargeSpell);
-                DoCast(me->getVictim(), unleashSpell);
+                DoCast (me->getVictim(), unleashSpell);
                 HasCast = true;
                 SoulChargeCount--;
             }
@@ -488,7 +488,7 @@ public:
                         {
                             Nordrassil->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             Nordrassil->SetDisplayId(11686);
-                            DoCast(Nordrassil, SPELL_DRAIN_WORLD_TREE);
+                            DoCast (Nordrassil, SPELL_DRAIN_WORLD_TREE);
                             IsChanneling = true;
                         }
                     }
@@ -568,7 +568,7 @@ public:
             {
                 if (HandOfDeathTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_HAND_OF_DEATH);
+                    DoCast (me->getVictim(), SPELL_HAND_OF_DEATH);
                     HandOfDeathTimer = 2000;
                 } else HandOfDeathTimer -= diff;
                 return;                                         // Don't do anything after this point.
@@ -583,7 +583,7 @@ public:
 
             if (GripOfTheLegionTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_GRIP_OF_THE_LEGION);
                 GripOfTheLegionTimer = urand(5000, 25000);
             } else GripOfTheLegionTimer -= diff;
 
@@ -594,13 +594,13 @@ public:
                 else
                     DoScriptText(SAY_AIR_BURST2, me);
 
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 1), SPELL_AIR_BURST);//not on tank
                 AirBurstTimer = urand(25000, 40000);
             } else AirBurstTimer -= diff;
 
             if (FearTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEAR);
+                DoCast (me->getVictim(), SPELL_FEAR);
                 FearTimer = 42000;
             } else FearTimer -= diff;
 
@@ -626,7 +626,7 @@ public:
             {
                 if (CanUseFingerOfDeath())
                 {
-                    DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
+                    DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_FINGER_OF_DEATH);
                     MeleeRangeCheckTimer = 1000;
                 }
 

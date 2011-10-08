@@ -83,7 +83,7 @@ public:
                 //Cast
                 if (rand()%100 < 65) //65% chance to cast
                 {
-                    DoCast(me->getVictim(), SPELL_WAILINGDEAD);
+                    DoCast (me->getVictim(), SPELL_WAILINGDEAD);
                 }
                 //19 seconds until we should cast this again
                 WailingDead_Timer = 19000;
@@ -95,7 +95,7 @@ public:
                 //Cast
                 if (rand()%100 < 45) //45% chance to cast
                 {
-                    DoCast(me->getVictim(), SPELL_BACKHAND);
+                    DoCast (me->getVictim(), SPELL_BACKHAND);
                 }
                 //8 seconds until we should cast this again
                 Backhand_Timer = 8000;
@@ -107,7 +107,7 @@ public:
                 //Cast
                 if (rand()%100 < 3) //3% chance to cast
                 {
-                    DoCast(me->getVictim(), SPELL_CURSEOFWEAKNESS);
+                    DoCast (me->getVictim(), SPELL_CURSEOFWEAKNESS);
                 }
                 //20 seconds until we should cast this again
                 CurseOfWeakness_Timer = 20000;
@@ -119,7 +119,7 @@ public:
                 //Cast
                 if (rand()%100 < 3) //3% chance to cast
                 {
-                    DoCast(me->getVictim(), SPELL_CURSEOFTONGUES);
+                    DoCast (me->getVictim(), SPELL_CURSEOFTONGUES);
                 }
                 //22 seconds until we should cast this again
                 CurseOfTongues_Timer = 22000;
@@ -131,7 +131,7 @@ public:
                 //Cast
                 if (rand()%100 < 5) //5% chance to cast
                 {
-                    DoCast(me->getVictim(), SPELL_CALLOFTHEGRAVE);
+                    DoCast (me->getVictim(), SPELL_CALLOFTHEGRAVE);
                 }
                 //25 seconds until we should cast this again
                 CallOfTheGrave_Timer = 25000;

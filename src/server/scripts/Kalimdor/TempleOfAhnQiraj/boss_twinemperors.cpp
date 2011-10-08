@@ -196,7 +196,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             Unit* pOtherBoss = GetOtherBoss();
             if (pOtherBoss && pOtherBoss->IsWithinDist(me, 60))
             {
-                DoCast(pOtherBoss, SPELL_HEAL_BROTHER);
+                DoCast (pOtherBoss, SPELL_HEAL_BROTHER);
                 Heal_Timer = 1000;
             }
         } else Heal_Timer -= diff;
@@ -236,7 +236,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         me->InterruptNonMeleeSpells(false);
         DoStopAttack();
         DoResetThreat();
-        DoCast(me, SPELL_TWIN_TELEPORT_VISUAL);
+        DoCast (me, SPELL_TWIN_TELEPORT_VISUAL);
         me->AddUnitState(UNIT_STAT_STUNNED);
         AfterTeleport = true;
         AfterTeleportTimer = 2000;
@@ -250,7 +250,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             if (!tspellcasted)
             {
                 me->ClearUnitState(UNIT_STAT_STUNNED);
-                DoCast(me, SPELL_TWIN_TELEPORT);
+                DoCast (me, SPELL_TWIN_TELEPORT);
                 me->AddUnitState(UNIT_STAT_STUNNED);
             }
 
@@ -376,7 +376,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         {
             if (!me->IsNonMeleeSpellCasted(true))
             {
-                DoCast(me, SPELL_BERSERK);
+                DoCast (me, SPELL_BERSERK);
                 EnrageTimer = 60*60000;
             } else EnrageTimer = 0;
         } else EnrageTimer-=diff;
@@ -438,7 +438,7 @@ public:
             //UnbalancingStrike_Timer
             if (UnbalancingStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
+                DoCast (me->getVictim(), SPELL_UNBALANCING_STRIKE);
                 UnbalancingStrike_Timer = 8000+rand()%12000;
             } else UnbalancingStrike_Timer -= diff;
 
@@ -446,7 +446,7 @@ public:
             {
                 Unit* randomMelee = SelectTarget(SELECT_TARGET_RANDOM, 0, NOMINAL_MELEE_RANGE, true);
                 if (randomMelee)
-                    DoCast(randomMelee, SPELL_UPPERCUT);
+                    DoCast (randomMelee, SPELL_UPPERCUT);
                 UpperCut_Timer = 15000+rand()%15000;
             } else UpperCut_Timer -= diff;
 
@@ -535,7 +535,7 @@ public:
                 if (!me->IsWithinDist(me->getVictim(), 45.0f))
                     me->GetMotionMaster()->MoveChase(me->getVictim(), VEKLOR_DIST, 0);
                 else
-                    DoCast(me->getVictim(), SPELL_SHADOWBOLT);
+                    DoCast (me->getVictim(), SPELL_SHADOWBOLT);
                 ShadowBolt_Timer = 2000;
             } else ShadowBolt_Timer -= diff;
 
@@ -545,7 +545,7 @@ public:
                 Unit* target = NULL;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45, true);
                 if (target)
-                    DoCast(target, SPELL_BLIZZARD);
+                    DoCast (target, SPELL_BLIZZARD);
                 Blizzard_Timer = 15000+rand()%15000;
             } else Blizzard_Timer -= diff;
 
@@ -554,7 +554,7 @@ public:
                 Unit* mvic;
                 if ((mvic=SelectTarget(SELECT_TARGET_NEAREST, 0, NOMINAL_MELEE_RANGE, true)) != NULL)
                 {
-                    DoCast(mvic, SPELL_ARCANEBURST);
+                    DoCast (mvic, SPELL_ARCANEBURST);
                     ArcaneBurst_Timer = 5000;
                 }
             } else ArcaneBurst_Timer -= diff;

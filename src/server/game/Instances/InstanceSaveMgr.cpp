@@ -154,7 +154,7 @@ InstanceSave::InstanceSave(uint16 MapId, uint32 InstanceId, Difficulty difficult
 InstanceSave::~InstanceSave()
 {
     // the players and groups must be unbound before deleting the save
-    ASSERT(m_playerList.empty() && m_groupList.empty());
+    ASSERT (m_playerList.empty() && m_groupList.empty());
 }
 
 /*
@@ -169,7 +169,7 @@ void InstanceSave::SaveToDB()
     Map* map = sMapMgr->FindMap(GetMapId(), m_instanceid);
     if (map)
     {
-        ASSERT(map->IsDungeon());
+        ASSERT (map->IsDungeon());
         if (InstanceScript* instanceScript = ((InstanceMap*)map)->GetInstanceScript())
         {
             data = instanceScript->GetSaveData();

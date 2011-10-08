@@ -102,21 +102,21 @@ public:
             if (uiTrashTimer <= uiDiff)
             {
                 if (bCheckChances())
-                    DoCast(me, SPELL_TRASH);
+                    DoCast (me, SPELL_TRASH);
                 uiTrashTimer = urand(6000, 15500);
             } else uiTrashTimer -= uiDiff;
 
             if (uiSlamTimer <= uiDiff)
             {
                 if (bCheckChances())
-                    DoCast(me->getVictim(), SPELL_SMITE_SLAM);
+                    DoCast (me->getVictim(), SPELL_SMITE_SLAM);
                 uiSlamTimer = 11000;
             } else uiSlamTimer -= uiDiff;
 
             if (uiNimbleReflexesTimer <= uiDiff)
             {
                 if (bCheckChances())
-                    DoCast(me, SPELL_NIMBLE_REFLEXES);
+                    DoCast (me, SPELL_NIMBLE_REFLEXES);
                 uiNimbleReflexesTimer = urand(27300, 60100);
             } else uiNimbleReflexesTimer -= uiDiff;
         /*END ACID-AI*/

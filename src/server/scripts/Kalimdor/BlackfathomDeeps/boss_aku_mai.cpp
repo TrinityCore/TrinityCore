@@ -79,7 +79,7 @@ public:
 
             if (!bIsEnraged && HealthBelowPct(30))
             {
-                DoCast(me, SPELL_FRENZIED_RAGE);
+                DoCast (me, SPELL_FRENZIED_RAGE);
                 bIsEnraged = true;
             }
 

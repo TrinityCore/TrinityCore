@@ -72,14 +72,14 @@ public:
                 Unit* target = NULL;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
-                    DoCast(target, SPELL_WRATH);
+                    DoCast (target, SPELL_WRATH);
                 Wrath_Timer = 8000;
             } else Wrath_Timer -= diff;
 
             //EntanglingRoots
             if (EntanglingRoots_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ENTANGLINGROOTS);
+                DoCast (me->getVictim(), SPELL_ENTANGLINGROOTS);
                 EntanglingRoots_Timer = 20000;
             } else EntanglingRoots_Timer -= diff;
 
@@ -87,7 +87,7 @@ public:
             if (CorruptForces_Timer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me, SPELL_CORRUPT_FORCES);
+                DoCast (me, SPELL_CORRUPT_FORCES);
                 CorruptForces_Timer = 20000;
             } else CorruptForces_Timer -= diff;
 

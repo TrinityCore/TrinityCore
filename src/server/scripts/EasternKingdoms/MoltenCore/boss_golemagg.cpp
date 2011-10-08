@@ -66,7 +66,7 @@ class boss_golemagg : public CreatureScript
             void Reset()
             {
                 BossAI::Reset();
-                DoCast(me, SPELL_MAGMASPLASH, true);
+                DoCast (me, SPELL_MAGMASPLASH, true);
             }
 
             void EnterCombat(Unit* victim)
@@ -80,7 +80,7 @@ class boss_golemagg : public CreatureScript
                 if (HealthBelowPct(10) || me->HasAura(SPELL_ENRAGE))
                     return;
 
-                DoCast(me, SPELL_ENRAGE, true);
+                DoCast (me, SPELL_ENRAGE, true);
                 events.ScheduleEvent(EVENT_EARTHQUAKE, 3000);
             }
 
@@ -100,7 +100,7 @@ class boss_golemagg : public CreatureScript
                     {
                         case EVENT_PYROBLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_PYROBLAST);
+                                DoCast (target, SPELL_PYROBLAST);
                             events.ScheduleEvent(EVENT_PYROBLAST, 7000);
                             break;
                         case EVENT_EARTHQUAKE:
@@ -163,7 +163,7 @@ class mob_core_rager : public CreatureScript
                 // Mangle
                 if (mangleTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_MANGLE);
+                    DoCast (me->getVictim(), SPELL_MANGLE);
                     mangleTimer = 10*IN_MILLISECONDS;
                 }
                 else

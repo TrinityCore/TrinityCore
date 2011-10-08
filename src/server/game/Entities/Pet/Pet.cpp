@@ -692,7 +692,7 @@ void Pet::GivePetLevel(uint8 level)
 
 bool Pet::CreateBaseAtCreature(Creature* creature)
 {
-    ASSERT(creature);
+    ASSERT (creature);
 
     if (!CreateBaseAtTamed(creature->GetCreatureInfo(), creature->GetMap(), creature->GetPhaseMask()))
         return false;
@@ -766,7 +766,7 @@ bool Pet::CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phas
 bool Guardian::InitStatsForLevel(uint8 petlevel)
 {
     CreatureTemplate const* cinfo = GetCreatureInfo();
-    ASSERT(cinfo);
+    ASSERT (cinfo);
 
     SetLevel(petlevel);
 
@@ -1776,7 +1776,7 @@ bool Pet::IsPermanentPetFor(Player* owner)
 
 bool Pet::Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number)
 {
-    ASSERT(map);
+    ASSERT (map);
     SetMap(map);
 
     SetPhaseMask(phaseMask, false);

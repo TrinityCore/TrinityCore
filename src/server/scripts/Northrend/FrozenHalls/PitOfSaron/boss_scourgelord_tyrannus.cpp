@@ -234,7 +234,7 @@ class boss_tyrannus : public CreatureScript
                             events.SetPhase(PHASE_COMBAT);
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             me->SetReactState(REACT_AGGRESSIVE);
-                            DoCast(me, SPELL_FULL_HEAL);
+                            DoCast (me, SPELL_FULL_HEAL);
                             DoZoneInCombat();
                             events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(5000, 7000));
                             events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(14000, 16000));
@@ -242,7 +242,7 @@ class boss_tyrannus : public CreatureScript
                             break;
                         case EVENT_OVERLORD_BRAND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
-                                DoCast(target, SPELL_OVERLORD_BRAND);
+                                DoCast (target, SPELL_OVERLORD_BRAND);
                             events.ScheduleEvent(EVENT_OVERLORD_BRAND, urand(11000, 12000));
                             break;
                         case EVENT_FORCEFUL_SMASH:
@@ -252,7 +252,7 @@ class boss_tyrannus : public CreatureScript
                         case EVENT_UNHOLY_POWER:
                             DoScriptText(SAY_DARK_MIGHT_1, me);
                             DoScriptText(SAY_DARK_MIGHT_2, me);
-                            DoCast(me, SPELL_UNHOLY_POWER);
+                            DoCast (me, SPELL_UNHOLY_POWER);
                             events.ScheduleEvent(EVENT_FORCEFUL_SMASH, urand(40000, 48000));
                             break;
                         case EVENT_MARK_OF_RIMEFANG:
@@ -260,7 +260,7 @@ class boss_tyrannus : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
                                 DoScriptText(SAY_MARK_RIMEFANG_2, me, target);
-                                DoCast(target, SPELL_MARK_OF_RIMEFANG);
+                                DoCast (target, SPELL_MARK_OF_RIMEFANG);
                             }
                             events.ScheduleEvent(EVENT_MARK_OF_RIMEFANG, urand(24000, 26000));
                             break;
@@ -286,7 +286,7 @@ class boss_rimefang : public CreatureScript
         {
             boss_rimefangAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
             {
-                ASSERT(_vehicle);
+                ASSERT (_vehicle);
             }
 
             void Reset()
@@ -347,13 +347,13 @@ class boss_rimefang : public CreatureScript
                             break;
                         case EVENT_ICY_BLAST:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_ICY_BLAST);
+                                DoCast (target, SPELL_ICY_BLAST);
                             _events.ScheduleEvent(EVENT_ICY_BLAST, 15000, 0, PHASE_COMBAT);
                             break;
                         case EVENT_HOARFROST:
                             if (Unit* target = me->GetUnit(*me, _hoarfrostTargetGUID))
                             {
-                                DoCast(target, SPELL_HOARFROST);
+                                DoCast (target, SPELL_HOARFROST);
                                 _hoarfrostTargetGUID = 0;
                             }
                             break;

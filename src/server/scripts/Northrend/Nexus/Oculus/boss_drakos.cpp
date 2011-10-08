@@ -116,13 +116,13 @@ public:
                         events.ScheduleEvent(EVENT_BOMB_SUMMON, 2000);
                         break;
                     case EVENT_MAGIC_PULL:
-                        DoCast(SPELL_MAGIC_PULL);
+                        DoCast (SPELL_MAGIC_PULL);
                         postPull = true;
                         events.ScheduleEvent(EVENT_MAGIC_PULL, 15000);
                         break;
                     case EVENT_STOMP:
                         DoScriptText(RAND(SAY_STOMP_1, SAY_STOMP_2, SAY_STOMP_3), me);
-                        DoCast(SPELL_THUNDERING_STOMP);
+                        DoCast (SPELL_THUNDERING_STOMP);
                         events.ScheduleEvent(EVENT_STOMP, 17000);
                         break;
                 }
@@ -180,7 +180,7 @@ public:
         {
             if (pulseTimer <= diff)
             {
-                DoCast(SPELL_UNSTABLE_SPHERE_PULSE);
+                DoCast (SPELL_UNSTABLE_SPHERE_PULSE);
                 pulseTimer = 3*IN_MILLISECONDS;
             } else pulseTimer -= diff;
 

@@ -243,7 +243,7 @@ class boss_deathbringer_saurfang : public CreatureScript
         {
             boss_deathbringer_saurfangAI(Creature* creature) : BossAI(creature, DATA_DEATHBRINGER_SAURFANG)
             {
-                ASSERT(creature->GetVehicleKit()); // we dont actually use it, just check if exists
+                ASSERT (creature->GetVehicleKit()); // we dont actually use it, just check if exists
                 _introDone = false;
                 _fallenChampionCastCount = 0;
             }
@@ -255,11 +255,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                 events.SetPhase(PHASE_COMBAT);
                 _frenzied = false;
                 me->SetPower(POWER_ENERGY, 0);
-                DoCast(me, SPELL_ZERO_POWER, true);
-                DoCast(me, SPELL_BLOOD_LINK, true);
-                DoCast(me, SPELL_BLOOD_POWER, true);
-                DoCast(me, SPELL_MARK_OF_THE_FALLEN_CHAMPION_S, true);
-                DoCast(me, SPELL_RUNE_OF_BLOOD_S, true);
+                DoCast (me, SPELL_ZERO_POWER, true);
+                DoCast (me, SPELL_BLOOD_LINK, true);
+                DoCast (me, SPELL_BLOOD_POWER, true);
+                DoCast (me, SPELL_MARK_OF_THE_FALLEN_CHAMPION_S, true);
+                DoCast (me, SPELL_RUNE_OF_BLOOD_S, true);
                 me->RemoveAurasDueToSpell(SPELL_BERSERK);
                 me->RemoveAurasDueToSpell(SPELL_FRENZY);
             }
@@ -282,7 +282,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 if (!_introDone)
                 {
-                    DoCast(me, SPELL_GRIP_OF_AGONY);
+                    DoCast (me, SPELL_GRIP_OF_AGONY);
                     if (Creature* creature = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_SAURFANG_EVENT_NPC)))
                         creature->AI()->DoAction(ACTION_INTERRUPT_INTRO);
                 }
@@ -304,7 +304,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 _JustDied();
-                DoCast(me, SPELL_ACHIEVEMENT, true);
+                DoCast (me, SPELL_ACHIEVEMENT, true);
                 Talk(SAY_DEATH);
 
                 instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_MARK_OF_THE_FALLEN_CHAMPION);
@@ -345,7 +345,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 if (!_frenzied && HealthBelowPct(31)) // AT 30%, not below
                 {
                     _frenzied = true;
-                    DoCast(me, SPELL_FRENZY);
+                    DoCast (me, SPELL_FRENZY);
                     Talk(SAY_FRENZY);
                 }
             }
@@ -356,10 +356,10 @@ class boss_deathbringer_saurfang : public CreatureScript
                     summon->AI()->AttackStart(target);
 
                 if (IsHeroic())
-                    DoCast(summon, SPELL_SCENT_OF_BLOOD);
+                    DoCast (summon, SPELL_SCENT_OF_BLOOD);
 
-                summon->AI()->DoCast(summon, SPELL_BLOOD_LINK_BEAST, true);
-                summon->AI()->DoCast(summon, SPELL_RESISTANT_SKIN, true);
+                summon->AI()->DoCast (summon, SPELL_BLOOD_LINK_BEAST, true);
+                summon->AI()->DoCast (summon, SPELL_RESISTANT_SKIN, true);
                 summons.Summon(summon);
                 DoZoneInCombat(summon);
             }
@@ -419,7 +419,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         case EVENT_INTRO_ALLIANCE_6:
                             Talk(SAY_INTRO_ALLIANCE_6);
                             Talk(SAY_INTRO_ALLIANCE_7);
-                            DoCast(me, SPELL_GRIP_OF_AGONY);
+                            DoCast (me, SPELL_GRIP_OF_AGONY);
                             break;
                         case EVENT_INTRO_HORDE_2:
                             Talk(SAY_INTRO_HORDE_2);
@@ -428,7 +428,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             Talk(SAY_INTRO_HORDE_4);
                             break;
                         case EVENT_INTRO_HORDE_9:
-                            DoCast(me, SPELL_GRIP_OF_AGONY);
+                            DoCast (me, SPELL_GRIP_OF_AGONY);
                             Talk(SAY_INTRO_HORDE_9);
                             break;
                         case EVENT_INTRO_FINISH:
@@ -438,10 +438,10 @@ class boss_deathbringer_saurfang : public CreatureScript
                             break;
                         case EVENT_SUMMON_BLOOD_BEAST:
                             for (uint32 i10 = 0; i10 < 2; ++i10)
-                                DoCast(me, SPELL_SUMMON_BLOOD_BEAST+i10);
+                                DoCast (me, SPELL_SUMMON_BLOOD_BEAST+i10);
                             if (Is25ManRaid())
                                 for (uint32 i25 = 0; i25 < 3; ++i25)
-                                    DoCast(me, SPELL_SUMMON_BLOOD_BEAST_25_MAN+i25);
+                                    DoCast (me, SPELL_SUMMON_BLOOD_BEAST_25_MAN+i25);
                             Talk(SAY_BLOOD_BEASTS);
                             events.ScheduleEvent(EVENT_SUMMON_BLOOD_BEAST, 40000, 0, PHASE_COMBAT);
                             break;
@@ -452,7 +452,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                             if (!target)
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true);    // noone? select melee
                             if (target)
-                                DoCast(target, SPELL_BLOOD_NOVA_TRIGGER);
+                                DoCast (target, SPELL_BLOOD_NOVA_TRIGGER);
                             events.ScheduleEvent(EVENT_BLOOD_NOVA, urand(20000, 25000), 0, PHASE_COMBAT);
                             break;
                         }
@@ -461,11 +461,11 @@ class boss_deathbringer_saurfang : public CreatureScript
                             events.ScheduleEvent(EVENT_RUNE_OF_BLOOD, urand(20000, 25000), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BOILING_BLOOD:
-                            DoCast(me, SPELL_BOILING_BLOOD);
+                            DoCast (me, SPELL_BOILING_BLOOD);
                             events.ScheduleEvent(EVENT_BOILING_BLOOD, urand(15000, 20000), 0, PHASE_COMBAT);
                             break;
                         case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
+                            DoCast (me, SPELL_BERSERK);
                             Talk(SAY_BERSERK);
                             break;
                         default:
@@ -530,7 +530,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                         {
                             ++_fallenChampionCastCount;
-                            DoCast(target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
+                            DoCast (target, SPELL_MARK_OF_THE_FALLEN_CHAMPION);
                             me->SetPower(POWER_ENERGY, 0);
                             if (Aura* bloodPower = me->GetAura(SPELL_BLOOD_POWER))
                                 bloodPower->RecalculateAmountOfEffects();
@@ -563,7 +563,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
         {
             npc_high_overlord_saurfangAI(Creature* creature) : ScriptedAI(creature)
             {
-                ASSERT(creature->GetVehicleKit());
+                ASSERT (creature->GetVehicleKit());
                 _instance = me->GetInstanceScript();
             }
 

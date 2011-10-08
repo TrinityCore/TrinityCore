@@ -156,7 +156,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                     if (target_num > 0) // to prevent loops
                     {
                         Wait_Timer = 1;
-                        DoCast(me, SPELL_BLADE_DANCE, true);
+                        DoCast (me, SPELL_BLADE_DANCE, true);
                         target_num--;
                     }
                 }
@@ -267,7 +267,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                     {
                         if (Charge_timer <= diff)
                         {
-                            DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), H_SPELL_CHARGE);
+                            DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), H_SPELL_CHARGE);
                             Charge_timer = 0;
                         }
                         else

@@ -127,7 +127,7 @@ public:
             //ArcaneExplosion_Timer
             if (ArcaneExplosion_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
+                DoCast (me->getVictim(), SPELL_ARCANE_EXPLOSION);
                 ArcaneExplosion_Timer = 8000 + rand()%10000;
             } else ArcaneExplosion_Timer -= diff;
 
@@ -145,7 +145,7 @@ public:
                 //EarthShock_Timer
                 if (EarthShock_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_EARTH_SHOCK);
+                    DoCast (me->getVictim(), SPELL_EARTH_SHOCK);
                     EarthShock_Timer = 1000;
                 } else EarthShock_Timer -= diff;
             }
@@ -153,7 +153,7 @@ public:
             //Blink_Timer
             if (Blink_Timer <= diff)
             {
-                //DoCast(me, SPELL_BLINK);
+                //DoCast (me, SPELL_BLINK);
                 switch (urand(0, 2))
                 {
                     case 0:

@@ -293,7 +293,7 @@ class boss_janalai : public CreatureScript
                     if (Unit* FireBomb = Unit::GetUnit((*me), FireBombGUIDs[BombCount]))
                     {
                         FireBomb->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                        DoCast(FireBomb, SPELL_FIRE_BOMB_THROW, true);
+                        DoCast (FireBomb, SPELL_FIRE_BOMB_THROW, true);
                         FireBomb->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                     ++BombCount;
@@ -345,14 +345,14 @@ class boss_janalai : public CreatureScript
                 {
                     if (!enraged)
                     {
-                        DoCast(me, SPELL_ENRAGE, true);
+                        DoCast (me, SPELL_ENRAGE, true);
                         enraged = true;
                         EnrageTimer = 300000;
                     }
                     else
                     {
                         DoScriptText(SAY_BERSERK, me);
-                        DoCast(me, SPELL_BERSERK, true);
+                        DoCast (me, SPELL_BERSERK, true);
                         EnrageTimer = 300000;
                     }
                 } else EnrageTimer -= diff;
@@ -365,9 +365,9 @@ class boss_janalai : public CreatureScript
                     me->GetMotionMaster()->Clear();
                     DoTeleportTo(JanalainPos[0][0], JanalainPos[0][1], JanalainPos[0][2]);
                     me->StopMoving();
-                    DoCast(me, SPELL_FIRE_BOMB_CHANNEL, false);
+                    DoCast (me, SPELL_FIRE_BOMB_CHANNEL, false);
                     //DoTeleportPlayer(me, JanalainPos[0][0], JanalainPos[0][1], JanalainPos[0][2], 0);
-                    //DoCast(me, SPELL_TELE_TO_CENTER, true);
+                    //DoCast (me, SPELL_TELE_TO_CENTER, true);
 
                     FireWall();
                     SpawnBombs();
@@ -382,7 +382,7 @@ class boss_janalai : public CreatureScript
                         if (Player* i_pl = i->getSource())
                             if (i_pl->isAlive())
                                 DoTeleportPlayer(i_pl, JanalainPos[0][0]-5+rand()%10, JanalainPos[0][1]-5+rand()%10, JanalainPos[0][2], 0);
-                    //DoCast(Temp, SPELL_SUMMON_PLAYERS, true) // core bug, spell does not work if too far
+                    //DoCast (Temp, SPELL_SUMMON_PLAYERS, true) // core bug, spell does not work if too far
                     return;
                 } else BombTimer -= diff;
 
@@ -396,7 +396,7 @@ class boss_janalai : public CreatureScript
                         me->GetMotionMaster()->Clear();
                         DoTeleportTo(JanalainPos[0][0], JanalainPos[0][1], JanalainPos[0][2]);
                         me->StopMoving();
-                        DoCast(me, SPELL_HATCH_ALL, false);
+                        DoCast (me, SPELL_HATCH_ALL, false);
                         HatchAllEggs(2);
                         noeggs = true;
                     }
@@ -424,7 +424,7 @@ class boss_janalai : public CreatureScript
                     {
                         me->AttackStop();
                         me->GetMotionMaster()->Clear();
-                        DoCast(target, SPELL_FLAME_BREATH, false);
+                        DoCast (target, SPELL_FLAME_BREATH, false);
                         me->StopMoving();
                         isFlameBreathing = true;
                     }
@@ -457,7 +457,7 @@ class mob_janalai_firebomb : public CreatureScript
             void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_FIRE_BOMB_THROW)
-                    DoCast(me, SPELL_FIRE_BOMB_DUMMY, true);
+                    DoCast (me, SPELL_FIRE_BOMB_DUMMY, true);
             }
 
             void EnterCombat(Unit* /*who*/) {}
@@ -653,7 +653,7 @@ class mob_janalai_hatchling : public CreatureScript
 
                 if (BuffetTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FLAMEBUFFET, false);
+                    DoCast (me->getVictim(), SPELL_FLAMEBUFFET, false);
                     BuffetTimer = 10000;
                 } else BuffetTimer -= diff;
 
@@ -689,7 +689,7 @@ public:
         {
             if (spell->Id == SPELL_HATCH_EGG)
             {
-                DoCast(SPELL_SUMMON_HATCHLING);
+                DoCast (SPELL_SUMMON_HATCHLING);
             }
         }
     };

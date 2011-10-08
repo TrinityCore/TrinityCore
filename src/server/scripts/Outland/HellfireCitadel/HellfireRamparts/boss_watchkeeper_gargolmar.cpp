@@ -121,7 +121,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
 
                 if (MortalWound_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
+                    DoCast (me->getVictim(), SPELL_MORTAL_WOUND);
                     MortalWound_Timer = 5000+rand()%8000;
                 }
                 else
@@ -132,7 +132,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                     DoScriptText(SAY_SURGE, me);
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_SURGE);
+                        DoCast (target, SPELL_SURGE);
 
                     Surge_Timer = 5000+rand()%8000;
                 }
@@ -143,7 +143,7 @@ class boss_watchkeeper_gargolmar : public CreatureScript
                 {
                     if (Retaliation_Timer <= diff)
                     {
-                        DoCast(me, SPELL_RETALIATION);
+                        DoCast (me, SPELL_RETALIATION);
                         Retaliation_Timer = 30000;
                     }
                     else

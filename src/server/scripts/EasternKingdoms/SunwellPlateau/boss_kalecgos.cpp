@@ -519,13 +519,13 @@ public:
 
             if (RevitalizeTimer <= diff)
             {
-                DoCast(me, SPELL_REVITALIZE);
+                DoCast (me, SPELL_REVITALIZE);
                 RevitalizeTimer = 5000;
             } else RevitalizeTimer -= diff;
 
             if (HeroicStrikeTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HEROIC_STRIKE);
+                DoCast (me->getVictim(), SPELL_HEROIC_STRIKE);
                 HeroicStrikeTimer = 2000;
             } else HeroicStrikeTimer -= diff;
 
@@ -774,7 +774,7 @@ public:
             if (ShadowBoltTimer <= diff)
             {
                 if (!(rand()%5))DoScriptText(SAY_SATH_SPELL1, me);
-                DoCast(me, SPELL_SHADOW_BOLT);
+                DoCast (me, SPELL_SHADOW_BOLT);
                 ShadowBoltTimer = 7000+(rand()%3000);
             } else ShadowBoltTimer -= diff;
 
@@ -782,14 +782,14 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (!target) target = me->getVictim();
-                DoCast(target, SPELL_AGONY_CURSE);
+                DoCast (target, SPELL_AGONY_CURSE);
                 AgonyCurseTimer = 20000;
             } else AgonyCurseTimer -= diff;
 
             if (CorruptionStrikeTimer <= diff)
             {
                 if (!(rand()%5))DoScriptText(SAY_SATH_SPELL2, me);
-                DoCast(me->getVictim(), SPELL_CORRUPTION_STRIKE);
+                DoCast (me->getVictim(), SPELL_CORRUPTION_STRIKE);
                 CorruptionStrikeTimer = 13000;
             } else CorruptionStrikeTimer -= diff;
 

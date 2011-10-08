@@ -538,7 +538,7 @@ public:
                     break;
                 case 2:
                     me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                    DoCast(me, SPELL_THE_LIGHT_OF_DAWN);
+                    DoCast (me, SPELL_THE_LIGHT_OF_DAWN);
                     break;
                 case 3:
                 {
@@ -659,7 +659,7 @@ public:
 
                         case 4: // summon ghoul
                             // Dunno whats the summon spell, so workaround
-                            DoCast(me, 33271); // shack effect
+                            DoCast (me, 33271); // shack effect
                             uiPhase_timer = 500;
                             if (uiSummon_counter < ENCOUNTER_GHOUL_NUMBER)
                             {
@@ -677,7 +677,7 @@ public:
                             break;
 
                         case 5: // summon abomination
-                            DoCast(me, 33271); // shack effect
+                            DoCast (me, 33271); // shack effect
                             uiPhase_timer = 500;
                             if (uiSummon_counter < ENCOUNTER_ABOMINATION_NUMBER)
                             {
@@ -695,7 +695,7 @@ public:
                             break;
 
                         case 6: // summon warrior
-                            DoCast(me, 33271); // shack effect
+                            DoCast (me, 33271); // shack effect
                             uiPhase_timer = 500;
                             if (uiSummon_counter < ENCOUNTER_WARRIOR_NUMBER)
                             {
@@ -713,7 +713,7 @@ public:
                             break;
 
                         case 7: // summon warrior
-                            DoCast(me, 33271); // shack effect
+                            DoCast (me, 33271); // shack effect
                             uiPhase_timer = 500;
                             if (uiSummon_counter < ENCOUNTER_BEHEMOTH_NUMBER)
                             {
@@ -937,7 +937,7 @@ public:
 
                         case 33: // Darion supports to jump to lich king here
                             if (Unit::GetCreature(*me, uiLichKingGUID))
-                                DoCast(me, SPELL_MOGRAINE_CHARGE); // jumping charge
+                                DoCast (me, SPELL_MOGRAINE_CHARGE); // jumping charge
     //   doesn't make it looks well, so workarounds, Darion charges, looks better
                             me->SetSpeed(MOVE_RUN, 3.0f);
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -1351,31 +1351,31 @@ public:
             {
                 if (uiAnti_magic_zone <= diff)
                 {
-                    DoCast(me, SPELL_ANTI_MAGIC_ZONE1);
+                    DoCast (me, SPELL_ANTI_MAGIC_ZONE1);
                     uiAnti_magic_zone = 25000 + rand()%5000;
                 } else uiAnti_magic_zone -= diff;
 
                 if (uiDeath_strike <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DEATH_STRIKE);
+                    DoCast (me->getVictim(), SPELL_DEATH_STRIKE);
                     uiDeath_strike = 5000 + rand()%5000;
                 } else uiDeath_strike -= diff;
 
                 if (uiDeath_embrace <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DEATH_EMBRACE);
+                    DoCast (me->getVictim(), SPELL_DEATH_EMBRACE);
                     uiDeath_embrace = 5000 + rand()%5000;
                 } else uiDeath_embrace -= diff;
 
                 if (uiIcy_touch <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ICY_TOUCH1);
+                    DoCast (me->getVictim(), SPELL_ICY_TOUCH1);
                     uiIcy_touch = 5000 + rand()%5000;
                 } else uiIcy_touch -= diff;
 
                 if (uiUnholy_blight <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_UNHOLY_BLIGHT);
+                    DoCast (me->getVictim(), SPELL_UNHOLY_BLIGHT);
                     uiUnholy_blight = 5000 + rand()%5000;
                 } else uiUnholy_blight -= diff;
 

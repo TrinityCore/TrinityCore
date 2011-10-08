@@ -183,12 +183,12 @@ public:
                 events.Reset();
                 phase = (me->GetHealthPct() < 60.0f  && me->GetHealthPct() > 20.0f) ? PHASE_FIRST_PLANAR : PHASE_SECOND_PLANAR;
 
-                DoCast(SPELL_PLANAR_SHIFT);
+                DoCast (SPELL_PLANAR_SHIFT);
 
                 // not sure about the amount, and if we should despawn previous spawns (dragon trashs)
                 summons.DespawnAll();
                 for (uint8 i = 0; i < 6; i++)
-                    DoCast(SPELL_PLANAR_ANOMALIES);
+                    DoCast (SPELL_PLANAR_ANOMALIES);
             }
         }
 
@@ -208,7 +208,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_ARCANE_BARRAGE:
-                        DoCast(me->getVictim(), SPELL_ARCANE_BARRAGE);
+                        DoCast (me->getVictim(), SPELL_ARCANE_BARRAGE);
                         events.ScheduleEvent(EVENT_ARCANE_BARRAGE, urand(3, 10) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                     case EVENT_ARCANE_VOLLEY:
@@ -217,12 +217,12 @@ public:
                         break;
                     case EVENT_ENRAGED_ASSAULT:
                         Talk(SAY_ENRAGE);
-                        DoCast(SPELL_ENRAGED_ASSAULT);
+                        DoCast (SPELL_ENRAGED_ASSAULT);
                         events.ScheduleEvent(EVENT_ENRAGED_ASSAULT, urand(35, 50) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                     case EVENT_SUMMON_LEY_WHELP:
                         for (uint8 i = 0; i < 3; i++)
-                            DoCast(SPELL_SUMMON_LEY_WHELP);
+                            DoCast (SPELL_SUMMON_LEY_WHELP);
                         events.ScheduleEvent(EVENT_SUMMON_LEY_WHELP, urand(15, 30) * IN_MILLISECONDS, 0, PHASE_NORMAL);
                         break;
                 }

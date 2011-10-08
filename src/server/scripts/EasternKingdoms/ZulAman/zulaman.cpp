@@ -96,7 +96,7 @@ class npc_forest_frog : public CreatureScript
                 if (spell->Id == SPELL_REMOVE_AMANI_CURSE && caster->GetTypeId() == TYPEID_PLAYER && me->GetEntry() == ENTRY_FOREST_FROG)
                 {
                     //increase or decrease chance of mojo?
-                    if (rand()%99 == 50) DoCast(caster, SPELL_PUSH_MOJO, true);
+                    if (rand()%99 == 50) DoCast (caster, SPELL_PUSH_MOJO, true);
                     else DoSpawnRandom();
                 }
             }
@@ -141,7 +141,7 @@ class npc_zulaman_hostage : public CreatureScript
             void UpdateAI(const uint32 /*diff*/)
             {
                 if (IsLoot)
-                    DoCast(me, 7, false);
+                    DoCast (me, 7, false);
             }
         };
 

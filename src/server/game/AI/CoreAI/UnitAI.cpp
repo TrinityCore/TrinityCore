@@ -127,7 +127,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
         return;
 }
 
-void UnitAI::DoCast(uint32 spellId)
+void UnitAI::DoCast (uint32 spellId)
 {
     Unit* target = NULL;
     //sLog->outError("aggre %u %u", spellId, (uint32)AISpellInfo[spellId].target);
@@ -250,7 +250,7 @@ void SimpleCharmedAI::UpdateAI(const uint32 /*diff*/)
 SpellTargetSelector::SpellTargetSelector(Unit* caster, uint32 spellId) :
     _caster(caster), _spellInfo(sSpellMgr->GetSpellForDifficultyFromSpell(sSpellMgr->GetSpellInfo(spellId), caster))
 {
-    ASSERT(_spellInfo);
+    ASSERT (_spellInfo);
 }
 
 bool SpellTargetSelector::operator()(Unit const* target) const

@@ -82,14 +82,14 @@ class boss_jindo : public CreatureScript
                 //BrainWashTotem_Timer
                 if (BrainWashTotem_Timer <= diff)
                 {
-                    DoCast(me, SPELL_BRAINWASHTOTEM);
+                    DoCast (me, SPELL_BRAINWASHTOTEM);
                     BrainWashTotem_Timer = 18000 + rand()%8000;
                 } else BrainWashTotem_Timer -= diff;
 
                 //HealingWard_Timer
                 if (HealingWard_Timer <= diff)
                 {
-                    //DoCast(me, SPELL_POWERFULLHEALINGWARD);
+                    //DoCast (me, SPELL_POWERFULLHEALINGWARD);
                     me->SummonCreature(14987, me->GetPositionX()+3, me->GetPositionY()-2, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
                     HealingWard_Timer = 14000 + rand()%6000;
                 } else HealingWard_Timer -= diff;
@@ -97,7 +97,7 @@ class boss_jindo : public CreatureScript
                 //Hex_Timer
                 if (Hex_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_HEX);
+                    DoCast (me->getVictim(), SPELL_HEX);
 
                     if (DoGetThreat(me->getVictim()))
                         DoModifyThreatPercent(me->getVictim(), -80);
@@ -110,7 +110,7 @@ class boss_jindo : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        DoCast(target, SPELL_DELUSIONSOFJINDO);
+                        DoCast (target, SPELL_DELUSIONSOFJINDO);
 
                         Creature* Shade = me->SummonCreature(14986, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Shade)
@@ -214,7 +214,7 @@ class mob_healing_ward : public CreatureScript
                     {
                         Unit* pJindo = Unit::GetUnit((*me), instance->GetData64(DATA_JINDO));
                         if (pJindo)
-                            DoCast(pJindo, SPELL_HEAL);
+                            DoCast (pJindo, SPELL_HEAL);
                     }
                     Heal_Timer = 3000;
                 } else Heal_Timer -= diff;
@@ -248,7 +248,7 @@ class mob_shade_of_jindo : public CreatureScript
             void Reset()
             {
                 ShadowShock_Timer = 1000;
-                DoCast(me, SPELL_INVISIBLE, true);
+                DoCast (me, SPELL_INVISIBLE, true);
             }
 
             void EnterCombat(Unit* /*who*/){}
@@ -259,7 +259,7 @@ class mob_shade_of_jindo : public CreatureScript
                 //ShadowShock_Timer
                 if (ShadowShock_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SHADOWSHOCK);
+                    DoCast (me->getVictim(), SPELL_SHADOWSHOCK);
                     ShadowShock_Timer = 2000;
                 } else ShadowShock_Timer -= diff;
 

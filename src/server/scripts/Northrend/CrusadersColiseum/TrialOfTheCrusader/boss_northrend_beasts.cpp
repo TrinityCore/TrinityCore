@@ -199,7 +199,7 @@ public:
                 if (summon->GetEntry() == NPC_SNOBOLD_VASSAL)
                 {
                     summon->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 10.0f, 20.0f);
-                    DoCast(me, SPELL_RISING_ANGER);
+                    DoCast (me, SPELL_RISING_ANGER);
                     --m_uiSummonCount;
                 }
                 summon->AI()->AttackStart(target);
@@ -299,7 +299,7 @@ public:
         {
             m_uiTargetGUID = who->GetGUID();
             me->TauntApply(who);
-            DoCast(who, SPELL_SNOBOLLED);
+            DoCast (who, SPELL_SNOBOLLED);
         }
 
         void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
@@ -360,7 +360,7 @@ public:
             if (m_uiFireBombTimer < uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_FIRE_BOMB);
+                    DoCast (target, SPELL_FIRE_BOMB);
                 m_uiFireBombTimer = 20000;
             }
             else m_uiFireBombTimer -= uiDiff;
@@ -368,7 +368,7 @@ public:
             if (m_uiBatterTimer < uiDiff)
             {
                 if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
-                    DoCast(target, SPELL_BATTER);
+                    DoCast (target, SPELL_BATTER);
                 m_uiBatterTimer = 10000;
             }
             else m_uiBatterTimer -= uiDiff;
@@ -376,7 +376,7 @@ public:
             if (m_uiHeadCrackTimer < uiDiff)
             {
                 if (Unit* target = Unit::GetPlayer(*me, m_uiTargetGUID))
-                    DoCast(target, SPELL_HEAD_CRACK);
+                    DoCast (target, SPELL_HEAD_CRACK);
                 m_uiHeadCrackTimer = 35000;
             }
             else m_uiHeadCrackTimer -= uiDiff;
@@ -459,7 +459,7 @@ struct boss_jormungarAI : public ScriptedAI
             DoScriptText(SAY_EMERGE, me);
             me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-            DoCast(SPELL_ENRAGE);
+            DoCast (SPELL_ENRAGE);
             enraged = true;
             DoScriptText(SAY_BERSERK, me);
             switch (stage)
@@ -493,7 +493,7 @@ struct boss_jormungarAI : public ScriptedAI
                 if (slimePoolTimer <= uiDiff)
                 {
                     /* Spell summon has only 30s duration */
-                    DoCast(me, SUMMON_SLIME_POOL);
+                    DoCast (me, SUMMON_SLIME_POOL);
                     slimePoolTimer = 30*IN_MILLISECONDS;
                 } else slimePoolTimer -= uiDiff;
 
@@ -507,7 +507,7 @@ struct boss_jormungarAI : public ScriptedAI
                 break;
             case 1: // Submerge
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                DoCast(me, SPELL_SUBMERGE_0);
+                DoCast (me, SPELL_SUBMERGE_0);
                 DoScriptText(SAY_SUBMERGE, me);
                 me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionY()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionZ());
                 stage = 2;
@@ -522,7 +522,7 @@ struct boss_jormungarAI : public ScriptedAI
                 me->SetDisplayId(modelStationary);
                 DoScriptText(SAY_EMERGE, me);
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
-                DoCast(me, SPELL_EMERGE_0);
+                DoCast (me, SPELL_EMERGE_0);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 SetCombatMovement(false);
@@ -533,7 +533,7 @@ struct boss_jormungarAI : public ScriptedAI
                 if (sprayTimer <= uiDiff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, spraySpell);
+                        DoCast (target, spraySpell);
                     sprayTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else sprayTimer -= uiDiff;
 
@@ -553,7 +553,7 @@ struct boss_jormungarAI : public ScriptedAI
                 break;
             case 5: // Submerge
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                DoCast(me, SPELL_SUBMERGE_0);
+                DoCast (me, SPELL_SUBMERGE_0);
                 DoScriptText(SAY_SUBMERGE, me);
                 me->GetMotionMaster()->MovePoint(0, ToCCommonLoc[1].GetPositionX()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionY()+urand(0, 80)-40, ToCCommonLoc[1].GetPositionZ());
                 stage = 6;
@@ -568,7 +568,7 @@ struct boss_jormungarAI : public ScriptedAI
                 me->SetDisplayId(modelMobile);
                 DoScriptText(SAY_EMERGE, me);
                 me->RemoveAurasDueToSpell(SPELL_SUBMERGE_0);
-                DoCast(me, SPELL_EMERGE_0);
+                DoCast (me, SPELL_EMERGE_0);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE);
                 SetCombatMovement(true);
@@ -622,7 +622,7 @@ class boss_acidmaw : public CreatureScript
             otherWormEntry = NPC_DREADSCALE;
 
             submergeTimer = 500;
-            DoCast(me, SPELL_SUBMERGE_0);
+            DoCast (me, SPELL_SUBMERGE_0);
             stage = 2;
         }
     };
@@ -733,7 +733,7 @@ public:
             if (!casted)
             {
                 casted = true;
-                DoCast(me, SPELL_SLIME_POOL_EFFECT);
+                DoCast (me, SPELL_SLIME_POOL_EFFECT);
             }
         }
     };
@@ -866,7 +866,7 @@ public:
             {
                 if (!m_bTrampleCasted)
                 {
-                    DoCast(me, SPELL_FROTHING_RAGE, true);
+                    DoCast (me, SPELL_FROTHING_RAGE, true);
                     m_bTrampleCasted = true;
                 }
             }
@@ -889,7 +889,7 @@ public:
                     if (m_uiArticBreathTimer <= uiDiff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_ARCTIC_BREATH);
+                            DoCast (target, SPELL_ARCTIC_BREATH);
                         m_uiArticBreathTimer = urand(25*IN_MILLISECONDS, 40*IN_MILLISECONDS);
                     } else m_uiArticBreathTimer -= uiDiff;
 
@@ -976,7 +976,7 @@ public:
                 case 6:
                     if (!m_bTrampleCasted)
                     {
-                        DoCast(me, SPELL_STAGGERED_DAZE);
+                        DoCast (me, SPELL_STAGGERED_DAZE);
                         DoScriptText(SAY_TRAMPLE_FAIL, me);
                     }
                     m_bMovementStarted = false;

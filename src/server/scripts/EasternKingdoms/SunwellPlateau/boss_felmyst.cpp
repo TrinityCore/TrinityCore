@@ -154,8 +154,8 @@ public:
 
             me->setActive(true);
             DoZoneInCombat();
-            DoCast(me, AURA_SUNWELL_RADIANCE, true);
-            DoCast(me, AURA_NOXIOUS_FUMES, true);
+            DoCast (me, AURA_SUNWELL_RADIANCE, true);
+            DoCast (me, AURA_NOXIOUS_FUMES, true);
             EnterPhase(PHASE_GROUND);
 
             if (instance)
@@ -297,7 +297,7 @@ public:
                 {
                     Vapor->AI()->AttackStart(target);
                     me->InterruptNonMeleeSpells(false);
-                    DoCast(Vapor, SPELL_VAPOR_CHANNEL, false); // core bug
+                    DoCast (Vapor, SPELL_VAPOR_CHANNEL, false); // core bug
                     Vapor->CastSpell(Vapor, SPELL_VAPOR_TRIGGER, true);
                 }
 
@@ -307,7 +307,7 @@ public:
             case 3:
             {
                 DespawnSummons(MOB_VAPOR_TRAIL);
-                //DoCast(me, SPELL_VAPOR_SELECT); need core support
+                //DoCast (me, SPELL_VAPOR_SELECT); need core support
 
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if (!target)
@@ -326,7 +326,7 @@ public:
                     if (pVapor->AI())
                         pVapor->AI()->AttackStart(target);
                     me->InterruptNonMeleeSpells(false);
-                    DoCast(pVapor, SPELL_VAPOR_CHANNEL, false); // core bug
+                    DoCast (pVapor, SPELL_VAPOR_CHANNEL, false); // core bug
                     pVapor->CastSpell(pVapor, SPELL_VAPOR_TRIGGER, true);
                 }
 
@@ -364,7 +364,7 @@ public:
                 break;
             case 7:
             {
-                DoCast(me, SPELL_FOG_BREATH, true);
+                DoCast (me, SPELL_FOG_BREATH, true);
                 float x, y, z;
                 me->GetPosition(x, y, z);
                 x = 2 * breathX - x;
@@ -420,24 +420,24 @@ public:
                 {
                     case EVENT_BERSERK:
                         DoScriptText(YELL_BERSERK, me);
-                        DoCast(me, SPELL_BERSERK, true);
+                        DoCast (me, SPELL_BERSERK, true);
                         events.ScheduleEvent(EVENT_BERSERK, 10000);
                         break;
                     case EVENT_CLEAVE:
-                        DoCast(me->getVictim(), SPELL_CLEAVE, false);
+                        DoCast (me->getVictim(), SPELL_CLEAVE, false);
                         events.ScheduleEvent(EVENT_CLEAVE, urand(5000, 10000));
                         break;
                     case EVENT_CORROSION:
-                        DoCast(me->getVictim(), SPELL_CORROSION, false);
+                        DoCast (me->getVictim(), SPELL_CORROSION, false);
                         events.ScheduleEvent(EVENT_CORROSION, urand(20000, 30000));
                         break;
                     case EVENT_GAS_NOVA:
-                        DoCast(me, SPELL_GAS_NOVA, false);
+                        DoCast (me, SPELL_GAS_NOVA, false);
                         events.ScheduleEvent(EVENT_GAS_NOVA, urand(20000, 25000));
                         break;
                     case EVENT_ENCAPSULATE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true))
-                            DoCast(target, SPELL_ENCAPSULATE_CHANNEL, false);
+                            DoCast (target, SPELL_ENCAPSULATE_CHANNEL, false);
                         events.ScheduleEvent(EVENT_ENCAPSULATE, urand(25000, 30000));
                         break;
                     case EVENT_FLIGHT:
@@ -455,7 +455,7 @@ public:
                 {
                     case EVENT_BERSERK:
                         DoScriptText(YELL_BERSERK, me);
-                        DoCast(me, SPELL_BERSERK, true);
+                        DoCast (me, SPELL_BERSERK, true);
                         break;
                     case EVENT_FLIGHT_SEQUENCE:
                         HandleFlightSequence();
@@ -532,7 +532,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
-            //DoCast(me, SPELL_VAPOR_FORCE, true); core bug
+            //DoCast (me, SPELL_VAPOR_FORCE, true); core bug
         }
         void UpdateAI(const uint32 /*diff*/)
         {
@@ -559,7 +559,7 @@ public:
         mob_felmyst_trailAI(Creature* c) : ScriptedAI(c)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            DoCast(me, SPELL_TRAIL_TRIGGER, true);
+            DoCast (me, SPELL_TRAIL_TRIGGER, true);
             me->SetTarget(me->GetGUID());
             me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 0.01f); // core bug
         }

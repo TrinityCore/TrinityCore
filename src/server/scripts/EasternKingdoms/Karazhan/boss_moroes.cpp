@@ -245,7 +245,7 @@ public:
 
             if (!Enrage && HealthBelowPct(30))
             {
-                DoCast(me, SPELL_FRENZY);
+                DoCast (me, SPELL_FRENZY);
                 Enrage = true;
             }
 
@@ -270,7 +270,7 @@ public:
                 //Cast Vanish, then Garrote random victim
                 if (Vanish_Timer <= diff)
                 {
-                    DoCast(me, SPELL_VANISH);
+                    DoCast (me, SPELL_VANISH);
                     InVanish = true;
                     Vanish_Timer = 30000;
                     Wait_Timer = 5000;
@@ -429,7 +429,7 @@ public:
             MindFlay_Timer = 1000;
             ShadowWordPain_Timer = 6000;
 
-            DoCast(me, SPELL_SHADOWFORM, true);
+            DoCast (me, SPELL_SHADOWFORM, true);
 
             boss_moroes_guestAI::Reset();
         }
@@ -443,7 +443,7 @@ public:
 
             if (MindFlay_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MINDFLY);
+                DoCast (me->getVictim(), SPELL_MINDFLY);
                 MindFlay_Timer = 12000;                         // 3 sec channeled
             } else MindFlay_Timer -= diff;
 
@@ -451,7 +451,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     if (target->getPowerType() == POWER_MANA)
-                        DoCast(target, SPELL_MANABURN);
+                        DoCast (target, SPELL_MANABURN);
                 ManaBurn_Timer = 5000;                          // 3 sec cast
             } else ManaBurn_Timer -= diff;
 
@@ -459,7 +459,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    DoCast(target, SPELL_SWPAIN);
+                    DoCast (target, SPELL_SWPAIN);
                     ShadowWordPain_Timer = 7000;
                 }
             } else ShadowWordPain_Timer -= diff;
@@ -505,20 +505,20 @@ public:
 
             if (SealOfCommand_Timer <= diff)
             {
-                DoCast(me, SPELL_SEALOFCOMMAND);
+                DoCast (me, SPELL_SEALOFCOMMAND);
                 SealOfCommand_Timer = 32000;
                 JudgementOfCommand_Timer = 29000;
             } else SealOfCommand_Timer -= diff;
 
             if (JudgementOfCommand_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_JUDGEMENTOFCOMMAND);
+                DoCast (me->getVictim(), SPELL_JUDGEMENTOFCOMMAND);
                 JudgementOfCommand_Timer = SealOfCommand_Timer + 29000;
             } else JudgementOfCommand_Timer -= diff;
 
             if (HammerOfJustice_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMMEROFJUSTICE);
+                DoCast (me->getVictim(), SPELL_HAMMEROFJUSTICE);
                 HammerOfJustice_Timer = 12000;
             } else HammerOfJustice_Timer -= diff;
         }
@@ -567,7 +567,7 @@ public:
 
             if (PowerWordShield_Timer <= diff)
             {
-                DoCast(me, SPELL_PWSHIELD);
+                DoCast (me, SPELL_PWSHIELD);
                 PowerWordShield_Timer = 15000;
             } else PowerWordShield_Timer -= diff;
 
@@ -575,20 +575,20 @@ public:
             {
                 Unit* target = SelectGuestTarget();
 
-                DoCast(target, SPELL_GREATERHEAL);
+                DoCast (target, SPELL_GREATERHEAL);
                 GreaterHeal_Timer = 17000;
             } else GreaterHeal_Timer -= diff;
 
             if (HolyFire_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HOLYFIRE);
+                DoCast (me->getVictim(), SPELL_HOLYFIRE);
                 HolyFire_Timer = 22000;
             } else HolyFire_Timer -= diff;
 
             if (DispelMagic_Timer <= diff)
             {
                 if (Unit* target = RAND(SelectGuestTarget(), SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
-                    DoCast(target, SPELL_DISPELMAGIC);
+                    DoCast (target, SPELL_DISPELMAGIC);
 
                 DispelMagic_Timer = 25000;
             } else DispelMagic_Timer -= diff;
@@ -638,7 +638,7 @@ public:
 
             if (DivineShield_Timer <= diff)
             {
-                DoCast(me, SPELL_DIVINESHIELD);
+                DoCast (me, SPELL_DIVINESHIELD);
                 DivineShield_Timer = 31000;
             } else DivineShield_Timer -= diff;
 
@@ -646,7 +646,7 @@ public:
             {
                 Unit* target = SelectGuestTarget();
 
-                DoCast(target, SPELL_HOLYLIGHT);
+                DoCast (target, SPELL_HOLYLIGHT);
                 HolyLight_Timer = 10000;
             } else HolyLight_Timer -= diff;
 
@@ -654,7 +654,7 @@ public:
             {
                 Unit* target = SelectGuestTarget();
 
-                DoCast(target, SPELL_GREATERBLESSOFMIGHT);
+                DoCast (target, SPELL_GREATERBLESSOFMIGHT);
 
                 GreaterBless_Timer = 50000;
             } else GreaterBless_Timer -= diff;
@@ -663,7 +663,7 @@ public:
             {
                 Unit* target = SelectGuestTarget();
 
-                DoCast(target, SPELL_CLEANSE);
+                DoCast (target, SPELL_CLEANSE);
 
                 Cleanse_Timer = 10000;
             } else Cleanse_Timer -= diff;
@@ -709,19 +709,19 @@ public:
 
             if (Hamstring_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMSTRING);
+                DoCast (me->getVictim(), SPELL_HAMSTRING);
                 Hamstring_Timer = 12000;
             } else Hamstring_Timer -= diff;
 
             if (MortalStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
+                DoCast (me->getVictim(), SPELL_MORTALSTRIKE);
                 MortalStrike_Timer = 18000;
             } else MortalStrike_Timer -= diff;
 
             if (WhirlWind_Timer <= diff)
             {
-                DoCast(me, SPELL_WHIRLWIND);
+                DoCast (me, SPELL_WHIRLWIND);
                 WhirlWind_Timer = 21000;
             } else WhirlWind_Timer -= diff;
         }
@@ -768,25 +768,25 @@ public:
 
             if (Disarm_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DISARM);
+                DoCast (me->getVictim(), SPELL_DISARM);
                 Disarm_Timer = 12000;
             } else Disarm_Timer -= diff;
 
             if (HeroicStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HEROICSTRIKE);
+                DoCast (me->getVictim(), SPELL_HEROICSTRIKE);
                 HeroicStrike_Timer = 10000;
             } else HeroicStrike_Timer -= diff;
 
             if (ShieldBash_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHIELDBASH);
+                DoCast (me->getVictim(), SPELL_SHIELDBASH);
                 ShieldBash_Timer = 13000;
             } else ShieldBash_Timer -= diff;
 
             if (ShieldWall_Timer <= diff)
             {
-                DoCast(me, SPELL_SHIELDWALL);
+                DoCast (me, SPELL_SHIELDWALL);
                 ShieldWall_Timer = 21000;
             } else ShieldWall_Timer -= diff;
         }

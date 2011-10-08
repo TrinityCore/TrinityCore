@@ -117,7 +117,7 @@ public:
                     break;
                 case 11:
                     if (uiNpcEntry == NPC_ASH)
-                        DoCast(me, SPELL_UNLOCK);
+                        DoCast (me, SPELL_UNLOCK);
                     break;
                 case 12:
                     if (uiNpcEntry == NPC_ASH)
@@ -177,10 +177,10 @@ public:
                 if (Creature* pFriend = me->FindNearestCreature(me->GetEntry(), 25.0f, true))
                 {
                     if (pFriend)
-                        DoCast(pFriend, SPELL_DARK_OFFERING);
+                        DoCast (pFriend, SPELL_DARK_OFFERING);
                 }
                 else
-                    DoCast(me, SPELL_DARK_OFFERING);
+                    DoCast (me, SPELL_DARK_OFFERING);
                 uiDarkOffering = urand(4400, 12500);
             } else uiDarkOffering -= uiDiff;
 

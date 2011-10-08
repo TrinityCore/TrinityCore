@@ -144,7 +144,7 @@ uint32 Bag::GetFreeSlots() const
 
 void Bag::RemoveItem(uint8 slot, bool /*update*/)
 {
-    ASSERT(slot < MAX_BAG_SIZE);
+    ASSERT (slot < MAX_BAG_SIZE);
 
     if (m_bagslot[slot])
         m_bagslot[slot]->SetContainer(NULL);
@@ -155,7 +155,7 @@ void Bag::RemoveItem(uint8 slot, bool /*update*/)
 
 void Bag::StoreItem(uint8 slot, Item* pItem, bool /*update*/)
 {
-    ASSERT(slot < MAX_BAG_SIZE);
+    ASSERT (slot < MAX_BAG_SIZE);
 
     if (pItem && pItem->GetGUID() != this->GetGUID())
     {

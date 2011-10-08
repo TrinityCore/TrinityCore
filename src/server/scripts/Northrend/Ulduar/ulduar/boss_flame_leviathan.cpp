@@ -232,7 +232,7 @@ class boss_flame_leviathan : public CreatureScript
 
             void InitializeAI()
             {
-                ASSERT(vehicle);
+                ASSERT (vehicle);
                 if (!me->isDead())
                     Reset();
 
@@ -246,7 +246,7 @@ class boss_flame_leviathan : public CreatureScript
                 Shutout = true;
                 Unbroken = true;
 
-                DoCast(SPELL_INVIS_AND_STEALTH_DETECT);
+                DoCast (SPELL_INVIS_AND_STEALTH_DETECT);
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
                 me->SetReactState(REACT_PASSIVE);
@@ -393,11 +393,11 @@ class boss_flame_leviathan : public CreatureScript
                     {
                         case EVENT_PURSUE:
                             DoScriptText(RAND(SAY_TARGET_1, SAY_TARGET_2, SAY_TARGET_3), me);
-                            DoCast(SPELL_PURSUED);  // Will select target in spellscript
+                            DoCast (SPELL_PURSUED);  // Will select target in spellscript
                             events.ScheduleEvent(EVENT_PURSUE, 35*IN_MILLISECONDS);
                             break;
                         case EVENT_MISSILE:
-                            DoCast(me, SPELL_MISSILE_BARRAGE, true);
+                            DoCast (me, SPELL_MISSILE_BARRAGE, true);
                             events.ScheduleEvent(EVENT_MISSILE, 2*IN_MILLISECONDS);
                             break;
                         case EVENT_VENT:
@@ -458,7 +458,7 @@ class boss_flame_leviathan : public CreatureScript
                                 me->SummonCreature(NPC_FREYA_BEACON, FreyaBeacons[i]);
 
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
-                                DoCast(target, SPELL_FREYA_S_WARD);
+                                DoCast (target, SPELL_FREYA_S_WARD);
                             events.CancelEvent(EVENT_FREYA_S_WARD);
                             break;
                     }
@@ -546,7 +546,7 @@ class boss_flame_leviathan : public CreatureScript
                         Unit* target = ObjectAccessor::GetUnit(*me, _pursueTarget);
                         if (me->IsWithinCombatRange(target, 30.0f))
                         {
-                            DoCast(target, SPELL_BATTERING_RAM);
+                            DoCast (target, SPELL_BATTERING_RAM);
                             me->resetAttackTimer();
                         }
                     }
@@ -570,7 +570,7 @@ class boss_flame_leviathan_seat : public CreatureScript
         {
             boss_flame_leviathan_seatAI(Creature* creature) : ScriptedAI(creature), vehicle(creature->GetVehicleKit())
             {
-                ASSERT(vehicle);
+                ASSERT (vehicle);
                 me->SetReactState(REACT_PASSIVE);
                 me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
                 instance = creature->GetInstanceScript();
@@ -641,7 +641,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
             void Reset ()
             {
                 NapalmTimer = 5*IN_MILLISECONDS;
-                DoCast(me, AURA_STEALTH_DETECTION);
+                DoCast (me, AURA_STEALTH_DETECTION);
             }
 
             void UpdateAI(uint32 const diff)
@@ -653,7 +653,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         if (CanAIAttack(target))
-                            DoCast(target, SPELL_NAPALM, true);
+                            DoCast (target, SPELL_NAPALM, true);
 
                     NapalmTimer = 5000;
                 }
@@ -780,7 +780,7 @@ class npc_mechanolift : public CreatureScript
         {
             npc_mechanoliftAI(Creature* creature) : PassiveAI(creature)
             {
-                ASSERT(me->GetVehicleKit());
+                ASSERT (me->GetVehicleKit());
             }
 
             uint32 MoveTimer;
@@ -794,7 +794,7 @@ class npc_mechanolift : public CreatureScript
             void JustDied(Unit* /*killer*/)
             {
                 me->GetMotionMaster()->MoveTargetedHome();
-                DoCast(SPELL_DUSTY_EXPLOSION);
+                DoCast (SPELL_DUSTY_EXPLOSION);
                 Creature* liquid = DoSummon(NPC_LIQUID, me, 0);
                 if (liquid)
                 {
@@ -1057,8 +1057,8 @@ class npc_freyas_ward : public CreatureScript
             {
                 if (summonTimer <= diff)
                 {
-                    DoCast(SPELL_FREYA_S_WARD_EFFECT_1);
-                    DoCast(SPELL_FREYA_S_WARD_EFFECT_2);
+                    DoCast (SPELL_FREYA_S_WARD_EFFECT_1);
+                    DoCast (SPELL_FREYA_S_WARD_EFFECT_2);
                     summonTimer = 20000;
                 }
                 else
@@ -1103,7 +1103,7 @@ class npc_freya_ward_summon : public CreatureScript
 
                 if (lashTimer <= diff)
                 {
-                    DoCast(SPELL_LASH);
+                    DoCast (SPELL_LASH);
                     lashTimer = 20000;
                 }
                 else

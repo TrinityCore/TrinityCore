@@ -82,7 +82,7 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
     if (threatSpell && threatSpell->AttributesEx & SPELL_ATTR1_NO_THREAT)
         return false;
 
-    ASSERT(hatingUnit->GetTypeId() == TYPEID_UNIT);
+    ASSERT (hatingUnit->GetTypeId() == TYPEID_UNIT);
 
     return true;
 }
@@ -324,7 +324,7 @@ HostileReference* ThreatContainer::selectNextVictim(Creature* attacker, HostileR
         currentRef = (*iter);
 
         Unit* target = currentRef->getTarget();
-        ASSERT(target);                                     // if the ref has status online the target must be there !
+        ASSERT (target);                                     // if the ref has status online the target must be there !
 
         // some units are prefered in comparison to others
         if (!noPriorityTargetFound && (target->IsImmunedToDamage(attacker->GetMeleeDamageSchoolMask()) || target->HasNegativeAuraWithInterruptFlag(AURA_INTERRUPT_FLAG_TAKE_DAMAGE)))

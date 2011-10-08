@@ -361,7 +361,7 @@ class ByteBuffer
             if (!cnt)
                 return;
 
-            ASSERT(size() < 10000000);
+            ASSERT (size() < 10000000);
 
             if (_storage.size() < _wpos + cnt)
                 _storage.resize(_wpos + cnt);

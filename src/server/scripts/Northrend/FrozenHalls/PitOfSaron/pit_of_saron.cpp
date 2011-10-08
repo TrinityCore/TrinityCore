@@ -81,13 +81,13 @@ class mob_ymirjar_flamebearer : public CreatureScript
                     {
                         case EVENT_FIREBALL:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_FIREBALL);
+                                DoCast (target, SPELL_FIREBALL);
                             _events.RescheduleEvent(EVENT_FIREBALL, 5000);
                             break;
                         case EVENT_TACTICAL_BLINK:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_TACTICAL_BLINK);
-                            DoCast(me, SPELL_HELLFIRE);
+                                DoCast (target, SPELL_TACTICAL_BLINK);
+                            DoCast (me, SPELL_HELLFIRE);
                             _events.RescheduleEvent(EVENT_TACTICAL_BLINK, 12000);
                             break;
                         default:
@@ -117,7 +117,7 @@ class mob_iceborn_protodrake : public CreatureScript
         {
             mob_iceborn_protodrakeAI(Creature* creature) : ScriptedAI(creature), _vehicle(creature->GetVehicleKit())
             {
-                ASSERT(_vehicle);
+                ASSERT (_vehicle);
             }
 
             void Reset()
@@ -196,7 +196,7 @@ class mob_wrathbone_laborer : public CreatureScript
                     {
                         case EVENT_BLINDING_DIRT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 10.0f, true))
-                                DoCast(target, SPELL_BLINDING_DIRT);
+                                DoCast (target, SPELL_BLINDING_DIRT);
                             _events.RescheduleEvent(EVENT_BLINDING_DIRT, 10000);
                             return;
                         case EVENT_PUNCTURE_WOUND:
@@ -205,7 +205,7 @@ class mob_wrathbone_laborer : public CreatureScript
                             return;
                         case EVENT_SHOVELLED:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -5.0f))
-                                DoCast(target, SPELL_SHOVELLED);
+                                DoCast (target, SPELL_SHOVELLED);
                             _events.RescheduleEvent(EVENT_SHOVELLED, 7000);
                             return;
                     }
@@ -246,7 +246,7 @@ class mob_geist_ambusher : public CreatureScript
                     return;
 
                 if (me->IsWithinDistInMap(who, 30.0f))
-                    DoCast(who, SPELL_LEAPING_FACE_MAUL);
+                    DoCast (who, SPELL_LEAPING_FACE_MAUL);
             }
 
             void UpdateAI(const uint32 diff)
@@ -257,7 +257,7 @@ class mob_geist_ambusher : public CreatureScript
                 if (_leapingFaceMaulCooldown < diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 5.0f, true))
-                        DoCast(target, SPELL_LEAPING_FACE_MAUL);
+                        DoCast (target, SPELL_LEAPING_FACE_MAUL);
                     _leapingFaceMaulCooldown = urand(9000, 14000);
                 }
                 else

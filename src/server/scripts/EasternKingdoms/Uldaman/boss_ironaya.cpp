@@ -69,7 +69,7 @@ class boss_ironaya : public CreatureScript
                 //If we are <50% hp do knockaway ONCE
                 if (!bHasCastedKnockaway && HealthBelowPct(50))
                 {
-                    DoCast(me->getVictim(), SPELL_KNOCKAWAY, true);
+                    DoCast (me->getVictim(), SPELL_KNOCKAWAY, true);
 
                     // current aggro target is knocked away pick new target
                     Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0);
@@ -87,13 +87,13 @@ class boss_ironaya : public CreatureScript
                 //uiArcingTimer
                 if (uiArcingTimer <= uiDiff)
                 {
-                    DoCast(me, SPELL_ARCINGSMASH);
+                    DoCast (me, SPELL_ARCINGSMASH);
                     uiArcingTimer = 13000;
                 } else uiArcingTimer -= uiDiff;
 
                 if (!bHasCastedWstomp && HealthBelowPct(25))
                 {
-                    DoCast(me, SPELL_WSTOMP);
+                    DoCast (me, SPELL_WSTOMP);
                     bHasCastedWstomp = true;
                 }
 

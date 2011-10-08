@@ -64,7 +64,7 @@ class boss_toravon : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoCast(me, SPELL_FROZEN_MALLET);
+                DoCast (me, SPELL_FROZEN_MALLET);
 
                 events.ScheduleEvent(EVENT_FROZEN_ORB, 11000);
                 events.ScheduleEvent(EVENT_WHITEOUT, 13000);
@@ -92,12 +92,12 @@ class boss_toravon : public CreatureScript
                             events.ScheduleEvent(EVENT_FROZEN_ORB, 38000);
                             break;
                         case EVENT_WHITEOUT:
-                            DoCast(me, SPELL_WHITEOUT);
+                            DoCast (me, SPELL_WHITEOUT);
                             events.ScheduleEvent(EVENT_WHITEOUT, 38000);
                             break;
                         case EVENT_FREEZING_GROUND:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                                DoCast(target, SPELL_FREEZING_GROUND);
+                                DoCast (target, SPELL_FREEZING_GROUND);
                             events.ScheduleEvent(EVENT_FREEZING_GROUND, 20000);
                             break;
                         default:
@@ -136,7 +136,7 @@ class mob_frost_warder : public CreatureScript
             {
                 DoZoneInCombat();
 
-                DoCast(me, SPELL_FROZEN_MALLET_2);
+                DoCast (me, SPELL_FROZEN_MALLET_2);
 
                 events.ScheduleEvent(EVENT_FROST_BLAST, 5000);
             }
@@ -199,8 +199,8 @@ public:
         {
             if (!done)
             {
-                DoCast(me, SPELL_FROZEN_ORB_AURA, true);
-                DoCast(me, SPELL_FROZEN_ORB_DMG, true);
+                DoCast (me, SPELL_FROZEN_ORB_AURA, true);
+                DoCast (me, SPELL_FROZEN_ORB_DMG, true);
                 done = true;
             }
 
@@ -261,7 +261,7 @@ class mob_frozen_orb_stalker : public CreatureScript
                     Position pos;
                     me->GetNearPoint(toravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
                     me->SetPosition(pos, true);
-                    DoCast(me, SPELL_FROZEN_ORB_SUMMON);
+                    DoCast (me, SPELL_FROZEN_ORB_SUMMON);
                 }
             }
 

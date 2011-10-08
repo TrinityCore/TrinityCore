@@ -78,7 +78,7 @@ public:
             //Rend_Timer
             if (m_uiRend_Timer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_REND);
+                DoCast (me->getVictim(), SPELL_REND);
                 m_uiRend_Timer = 10000;
             }
             else
@@ -87,7 +87,7 @@ public:
             //Backhand_Timer
             if (m_uiBackhand_Timer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_BACKHAND);
+                DoCast (me->getVictim(), SPELL_BACKHAND);
                 m_uiBackhand_Timer = 10000;
             }
             else
@@ -98,7 +98,7 @@ public:
             {
                 if (m_uiFrenzy_Timer <= uiDiff)
                 {
-                    DoCast(me, SPELL_FRENZY);
+                    DoCast (me, SPELL_FRENZY);
                     DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
 
                     m_uiFrenzy_Timer = 120000;

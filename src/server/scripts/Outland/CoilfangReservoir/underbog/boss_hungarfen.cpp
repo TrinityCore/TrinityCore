@@ -68,7 +68,7 @@ public:
             {
                 if (!Root)
                 {
-                    DoCast(me, SPELL_FOUL_SPORES);
+                    DoCast (me, SPELL_FOUL_SPORES);
                     Root = true;
                 }
             }
@@ -86,7 +86,7 @@ public:
             if (AcidGeyser_Timer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_ACID_GEYSER);
+                    DoCast (target, SPELL_ACID_GEYSER);
                 AcidGeyser_Timer = 10000+rand()%7500;
             } else AcidGeyser_Timer -= diff;
 
@@ -124,8 +124,8 @@ public:
             Grow_Timer = 0;
             Shrink_Timer = 20000;
 
-            DoCast(me, SPELL_PUTRID_MUSHROOM, true);
-            DoCast(me, SPELL_SPORE_CLOUD, true);
+            DoCast (me, SPELL_PUTRID_MUSHROOM, true);
+            DoCast (me, SPELL_SPORE_CLOUD, true);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) {}
@@ -141,7 +141,7 @@ public:
 
             if (Grow_Timer <= diff)
             {
-                DoCast(me, SPELL_GROW);
+                DoCast (me, SPELL_GROW);
                 Grow_Timer = 3000;
             } else Grow_Timer -= diff;
 

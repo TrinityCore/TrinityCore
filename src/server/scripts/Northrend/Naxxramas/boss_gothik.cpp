@@ -455,11 +455,11 @@ class boss_gothik : public CreatureScript
                             }
                             break;
                         case EVENT_BOLT:
-                            DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                            DoCast (me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
                             events.ScheduleEvent(EVENT_BOLT, 1000);
                             break;
                         case EVENT_HARVEST:
-                            DoCast(me->getVictim(), SPELL_HARVEST_SOUL, true);
+                            DoCast (me->getVictim(), SPELL_HARVEST_SOUL, true);
                             events.ScheduleEvent(EVENT_HARVEST, urand(20000, 25000));
                             break;
                         case EVENT_TELEPORT:

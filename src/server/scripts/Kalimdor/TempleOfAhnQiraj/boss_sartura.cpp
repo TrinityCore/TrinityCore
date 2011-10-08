@@ -125,7 +125,7 @@ public:
             {
                 if (WhirlWind_Timer <= diff)
                 {
-                    DoCast(me, SPELL_WHIRLWIND);
+                    DoCast (me, SPELL_WHIRLWIND);
                     WhirlWind = true;
                     WhirlWindEnd_Timer = 15000;
                 } else WhirlWind_Timer -= diff;
@@ -158,7 +158,7 @@ public:
                 {
                     if (!HealthAbovePct(20) && !me->IsNonMeleeSpellCasted(false))
                     {
-                        DoCast(me, SPELL_ENRAGE);
+                        DoCast (me, SPELL_ENRAGE);
                         Enraged = true;
                     }
                 }
@@ -168,7 +168,7 @@ public:
                 {
                     if (EnrageHard_Timer <= diff)
                     {
-                        DoCast(me, SPELL_ENRAGEHARD);
+                        DoCast (me, SPELL_ENRAGEHARD);
                         EnragedHard = true;
                     } else EnrageHard_Timer -= diff;
                 }
@@ -229,7 +229,7 @@ public:
 
             if (!WhirlWind && WhirlWind_Timer <= diff)
             {
-                DoCast(me, SPELL_WHIRLWINDADD);
+                DoCast (me, SPELL_WHIRLWINDADD);
                 WhirlWind = true;
                 WhirlWind_Timer = 25000 + rand()%15000;
                 WhirlWindEnd_Timer = 15000;
@@ -274,7 +274,7 @@ public:
 
                 if (KnockBack_Timer <= diff)
                 {
-                    DoCast(me, SPELL_WHIRLWINDADD);
+                    DoCast (me, SPELL_WHIRLWINDADD);
                     KnockBack_Timer = 10000 + rand()%10000;
                 } else KnockBack_Timer -= diff;
             }

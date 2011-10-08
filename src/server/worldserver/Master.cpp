@@ -102,7 +102,7 @@ public:
             else if (getMSTimeDiff(w_lastchange, curtime) > _delaytime)
             {
                 sLog->outError("World Thread hangs, kicking out server!");
-                ASSERT(false);
+                ASSERT (false);
             }
         }
         sLog->outString("Anti-freeze thread exiting without problems.");

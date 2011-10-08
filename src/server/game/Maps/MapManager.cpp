@@ -115,13 +115,13 @@ Map* MapManager::_createBaseMap(uint32 id)
         i_maps[id] = m;
     }
 
-    ASSERT(m != NULL);
+    ASSERT (m != NULL);
     return m;
 }
 
 Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 /*instanceId*/)
 {
-    ASSERT(obj);
+    ASSERT (obj);
     //if (!obj->IsInWorld()) sLog->outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
     Map* m = _createBaseMap(id);
 

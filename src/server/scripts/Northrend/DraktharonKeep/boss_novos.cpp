@@ -126,7 +126,7 @@ public:
             Phase = PHASE_1;
             uiCrystalHandlerTimer = 30*IN_MILLISECONDS;
             uiTimer = 1*IN_MILLISECONDS;
-            DoCast(SPELL_ARCANE_FIELD);
+            DoCast (SPELL_ARCANE_FIELD);
             if (instance)
             {
                 for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
@@ -151,7 +151,7 @@ public:
                         Creature* summon = me->SummonCreature(RAND(CREATURE_FETID_TROLL_CORPSE, CREATURE_HULKING_CORPSE, CREATURE_RISEN_SHADOWCASTER), AddSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                         summon->GetMotionMaster()->MovePoint(0, AddDestinyPoint);
                         //If spell is casted stops casting arcane field so no spell casting
-                        //DoCast(me, SPELL_SUMMON_MINIONS);
+                        //DoCast (me, SPELL_SUMMON_MINIONS);
                         uiTimer = 3*IN_MILLISECONDS;
                     } else uiTimer -= diff;
                     if (crystalHandlerAmount < 4)
@@ -169,7 +169,7 @@ public:
                     if (uiTimer <= diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY),
+                            DoCast (target, DUNGEON_MODE(RAND(SPELL_ARCANE_BLAST, SPELL_BLIZZARD, SPELL_FROSTBOLT, SPELL_WRATH_OF_MISERY),
                                                          RAND(H_SPELL_ARCANE_BLAST, H_SPELL_BLIZZARD, H_SPELL_FROSTBOLT, H_SPELL_WRATH_OF_MISERY)));
                         uiTimer = urand(1*IN_MILLISECONDS, 3*IN_MILLISECONDS);
                     } else uiTimer -= diff;
@@ -287,7 +287,7 @@ public:
 
             if (uiFlashOfDarknessTimer <= diff)
             {
-                DoCast(me->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS, H_SPELL_FLASH_OF_DARKNESS));
+                DoCast (me->getVictim(), DUNGEON_MODE(SPELL_FLASH_OF_DARKNESS, H_SPELL_FLASH_OF_DARKNESS));
                 uiFlashOfDarknessTimer = 5*IN_MILLISECONDS;
             } else uiFlashOfDarknessTimer -= diff;
 

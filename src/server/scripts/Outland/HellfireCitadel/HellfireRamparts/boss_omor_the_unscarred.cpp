@@ -129,7 +129,7 @@ class boss_omor_the_unscarred : public CreatureScript
                     if (Summon_Timer <= diff)
                     {
                         me->InterruptNonMeleeSpells(false);
-                        DoCast(me, SPELL_SUMMON_FIENDISH_HOUND);
+                        DoCast (me, SPELL_SUMMON_FIENDISH_HOUND);
                         Summon_Timer = 15000+rand()%15000;
                     }
                     else
@@ -146,7 +146,7 @@ class boss_omor_the_unscarred : public CreatureScript
                             if (temp->HasUnitMovementFlag(MOVEMENTFLAG_FALLING))
                             {
                                 me->InterruptNonMeleeSpells(false);
-                                DoCast(temp, SPELL_SHADOW_WHIP);
+                                DoCast (temp, SPELL_SHADOW_WHIP);
                             }
                         }
                         PlayerGUID = 0;
@@ -166,7 +166,7 @@ class boss_omor_the_unscarred : public CreatureScript
 
                         if (temp && temp->GetTypeId() == TYPEID_PLAYER)
                         {
-                            DoCast(temp, SPELL_ORBITAL_STRIKE);
+                            DoCast (temp, SPELL_ORBITAL_STRIKE);
                             OrbitalStrike_Timer = 14000+rand()%2000;
                             PlayerGUID = temp->GetGUID();
 
@@ -181,7 +181,7 @@ class boss_omor_the_unscarred : public CreatureScript
                 {
                     if (DemonicShield_Timer <= diff)
                     {
-                        DoCast(me, SPELL_DEMONIC_SHIELD);
+                        DoCast (me, SPELL_DEMONIC_SHIELD);
                         DemonicShield_Timer = 15000;
                     }
                     else
@@ -194,7 +194,7 @@ class boss_omor_the_unscarred : public CreatureScript
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        DoCast(target, SPELL_TREACHEROUS_AURA);
+                        DoCast (target, SPELL_TREACHEROUS_AURA);
                         Aura_Timer = 8000+rand()%8000;
                     }
                 }
@@ -208,7 +208,7 @@ class boss_omor_the_unscarred : public CreatureScript
                         if (target)
                             target = me->getVictim();
 
-                        DoCast(target, SPELL_SHADOW_BOLT);
+                        DoCast (target, SPELL_SHADOW_BOLT);
                         Shadowbolt_Timer = 4000+rand()%2500;
                     }
                 }

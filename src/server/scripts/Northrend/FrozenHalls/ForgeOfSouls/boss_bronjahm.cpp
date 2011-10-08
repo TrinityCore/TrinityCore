@@ -116,7 +116,7 @@ class boss_bronjahm : public CreatureScript
                 if (events.GetPhaseMask() & (1 << PHASE_1) && !HealthAbovePct(30))
                 {
                     events.SetPhase(PHASE_2);
-                    DoCast(me, SPELL_TELEPORT);
+                    DoCast (me, SPELL_TELEPORT);
                     events.ScheduleEvent(EVENT_FEAR, urand(12000, 16000), 0, PHASE_2);
                     events.ScheduleEvent(EVENT_SOULSTORM, 700, 0, PHASE_2);
                 }
@@ -158,7 +158,7 @@ class boss_bronjahm : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
                                 DoScriptText(SAY_CORRUPT_SOUL, me);
-                                DoCast(target, SPELL_CORRUPT_SOUL);
+                                DoCast (target, SPELL_CORRUPT_SOUL);
                             }
                             events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
                             break;

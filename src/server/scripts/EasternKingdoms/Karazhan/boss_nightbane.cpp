@@ -309,20 +309,20 @@ public:
 
                 if (BellowingRoarTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BELLOWING_ROAR);
+                    DoCast (me->getVictim(), SPELL_BELLOWING_ROAR);
                     BellowingRoarTimer = urand(30000, 40000);
                 } else BellowingRoarTimer -= diff;
 
                 if (SmolderingBreathTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SMOLDERING_BREATH);
+                    DoCast (me->getVictim(), SPELL_SMOLDERING_BREATH);
                     SmolderingBreathTimer = 20000;
                 } else SmolderingBreathTimer -= diff;
 
                 if (CharredEarthTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_CHARRED_EARTH);
+                        DoCast (target, SPELL_CHARRED_EARTH);
                     CharredEarthTimer = 20000;
                 } else CharredEarthTimer -= diff;
 
@@ -330,14 +330,14 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         if (!me->HasInArc(M_PI, target))
-                            DoCast(target, SPELL_TAIL_SWEEP);
+                            DoCast (target, SPELL_TAIL_SWEEP);
                     TailSweepTimer = 15000;
                 } else TailSweepTimer -= diff;
 
                 if (SearingCindersTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_SEARING_CINDERS);
+                        DoCast (target, SPELL_SEARING_CINDERS);
                     SearingCindersTimer = 10000;
                 } else SearingCindersTimer -= diff;
 
@@ -364,14 +364,14 @@ public:
                     {
                         for (uint8 i = 0; i <= 3; ++i)
                         {
-                            DoCast(me->getVictim(), SPELL_SUMMON_SKELETON);
+                            DoCast (me->getVictim(), SPELL_SUMMON_SKELETON);
                             Skeletons = true;
                         }
                     }
 
                     if (RainofBonesTimer < diff && !RainBones) // only once at the beginning of phase 2
                     {
-                        DoCast(me->getVictim(), SPELL_RAIN_OF_BONES);
+                        DoCast (me->getVictim(), SPELL_RAIN_OF_BONES);
                         RainBones = true;
                         SmokingBlastTimer = 20000;
                     } else RainofBonesTimer -= diff;
@@ -379,7 +379,7 @@ public:
                     if (DistractingAshTimer <= diff)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                            DoCast(target, SPELL_DISTRACTING_ASH);
+                            DoCast (target, SPELL_DISTRACTING_ASH);
                         DistractingAshTimer = 2000; //timer wrong
                     } else DistractingAshTimer -= diff;
                 }
@@ -388,7 +388,7 @@ public:
                 {
                     if (SmokingBlastTimer <= diff)
                      {
-                        DoCast(me->getVictim(), SPELL_SMOKING_BLAST);
+                        DoCast (me->getVictim(), SPELL_SMOKING_BLAST);
                         SmokingBlastTimer = 1500; //timer wrong
                      } else SmokingBlastTimer -= diff;
                 }
@@ -396,7 +396,7 @@ public:
                 if (FireballBarrageTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0))
-                        DoCast(target, SPELL_FIREBALL_BARRAGE);
+                        DoCast (target, SPELL_FIREBALL_BARRAGE);
                     FireballBarrageTimer = 20000;
                 } else FireballBarrageTimer -= diff;
 

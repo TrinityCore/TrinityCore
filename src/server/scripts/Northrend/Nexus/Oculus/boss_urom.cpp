@@ -103,7 +103,7 @@ public:
         void Reset()
         {
             if (instance->GetBossState(DATA_VAROS_EVENT) != DONE)
-                DoCast(SPELL_ARCANE_SHIELD);
+                DoCast (SPELL_ARCANE_SHIELD);
 
             _Reset();
 
@@ -216,7 +216,7 @@ public:
                 return;
 
             DoScriptText(SayAggro[instance->GetData(DATA_UROM_PLATAFORM)], me);
-            DoCast(TeleportSpells[instance->GetData(DATA_UROM_PLATAFORM)]);
+            DoCast (TeleportSpells[instance->GetData(DATA_UROM_PLATAFORM)]);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -233,7 +233,7 @@ public:
                 me->InterruptNonMeleeSpells(false);
                 DoScriptText(SAY_TELEPORT, me);
                 me->GetMotionMaster()->MoveIdle();
-                DoCast(SPELL_TELEPORT);
+                DoCast (SPELL_TELEPORT);
                 teleportTimer = urand(30000, 35000);
 
             } else teleportTimer -= uiDiff;
@@ -277,7 +277,7 @@ public:
                 if (timeBombTimer <= uiDiff)
                 {
                     if (Unit* unit = SelectTarget(SELECT_TARGET_RANDOM))
-                        DoCast(unit, SPELL_TIME_BOMB);
+                        DoCast (unit, SPELL_TIME_BOMB);
 
                     timeBombTimer = urand(20000, 25000);
                 } else timeBombTimer -= uiDiff;

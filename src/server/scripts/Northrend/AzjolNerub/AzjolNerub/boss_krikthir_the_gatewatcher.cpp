@@ -157,7 +157,7 @@ public:
 
             if (uiMindFlayTimer <= diff)
             {
-                    DoCast(me->getVictim(), SPELL_MIND_FLAY);
+                    DoCast (me->getVictim(), SPELL_MIND_FLAY);
                     uiMindFlayTimer = 15*IN_MILLISECONDS;
                 } else uiMindFlayTimer -= diff;
 
@@ -165,15 +165,15 @@ public:
             {
                 //WowWiki say "Curse of Fatigue-Kirk'thir will cast Curse of Fatigue on 2-3 targets periodically."
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CURSE_OF_FATIGUE);
+                    DoCast (target, SPELL_CURSE_OF_FATIGUE);
                 if (Unit* tankTarget = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                    DoCast(tankTarget, SPELL_CURSE_OF_FATIGUE);
+                    DoCast (tankTarget, SPELL_CURSE_OF_FATIGUE);
 
                 uiCurseFatigueTimer = 10*IN_MILLISECONDS;
             } else uiCurseFatigueTimer -= diff;
 
             if (!me->HasAura(SPELL_FRENZY) && HealthBelowPct(10))
-                DoCast(me, SPELL_FRENZY, true);
+                DoCast (me, SPELL_FRENZY, true);
 
             DoMeleeAttackIfReady();
         }
@@ -217,7 +217,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             //The spell is not working propperly
-            DoCast(me->getVictim(), SPELL_ACID_SPLASH, true);
+            DoCast (me->getVictim(), SPELL_ACID_SPLASH, true);
         }
     };
 
@@ -256,14 +256,14 @@ public:
                 {
                     DoResetThreat();
                     me->AddThreat(target, 1.0f);
-                    DoCast(target, SPELL_CHARGE, true);
+                    DoCast (target, SPELL_CHARGE, true);
                 }
                 uiChargeTimer = 15*IN_MILLISECONDS;
             } else uiChargeTimer -= diff;
 
             if (uiBackstabTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_BACKSTAB);
+                DoCast (me->getVictim(), SPELL_BACKSTAB);
                 uiBackstabTimer = 12*IN_MILLISECONDS;
             } else uiBackstabTimer -= diff;
 
@@ -304,13 +304,13 @@ public:
             if (uiShadowBoltTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                     DoCast(target, SPELL_SHADOW_BOLT, true);
+                     DoCast (target, SPELL_SHADOW_BOLT, true);
                 uiShadowBoltTimer = 15*IN_MILLISECONDS;
             } else uiShadowBoltTimer -= diff;
 
             if (uiShadowNovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOW_NOVA, true);
+                DoCast (me->getVictim(), SPELL_SHADOW_NOVA, true);
                 uiShadowNovaTimer = 17*IN_MILLISECONDS;
             } else uiShadowNovaTimer -= diff;
 
@@ -349,13 +349,13 @@ public:
 
             if (uiStrikeTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STRIKE, true);
+                DoCast (me->getVictim(), SPELL_STRIKE, true);
                 uiStrikeTimer = 15*IN_MILLISECONDS;
             } else uiStrikeTimer -= diff;
 
             if (uiCleaveTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE, true);
+                DoCast (me->getVictim(), SPELL_CLEAVE, true);
                 uiCleaveTimer = 17*IN_MILLISECONDS;
             } else uiCleaveTimer -= diff;
 
@@ -389,7 +389,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me, SPELL_ENRAGE, true);
+            DoCast (me, SPELL_ENRAGE, true);
         }
 
         void UpdateAI(const uint32 diff)
@@ -400,13 +400,13 @@ public:
             if (uiWebWrapTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_WEB_WRAP, true);
+                    DoCast (target, SPELL_WEB_WRAP, true);
                 uiWebWrapTimer = 17*IN_MILLISECONDS;
             } else uiWebWrapTimer -= diff;
 
             if (uiInfectedBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
+                DoCast (me->getVictim(), SPELL_INFECTED_BITE, true);
                 uiInfectedBiteTimer = 15*IN_MILLISECONDS;
             } else uiInfectedBiteTimer -= diff;
 
@@ -448,19 +448,19 @@ public:
             if (uiWebWrapTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_WEB_WRAP, true);
+                    DoCast (target, SPELL_WEB_WRAP, true);
                 uiWebWrapTimer = 15*IN_MILLISECONDS;
             } else uiWebWrapTimer -= diff;
 
             if (uiInfectedBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
+                DoCast (me->getVictim(), SPELL_INFECTED_BITE, true);
                 uiInfectedBiteTimer = 11*IN_MILLISECONDS;
             } else uiInfectedBiteTimer -= diff;
 
             if (uiBindingWebsTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_BLINDING_WEBS, true);
+                DoCast (me->getVictim(), SPELL_BLINDING_WEBS, true);
                 uiBindingWebsTimer = 17*IN_MILLISECONDS;
             } else uiBindingWebsTimer -= diff;
 
@@ -502,20 +502,20 @@ public:
             if (uiWebWrapTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_WEB_WRAP, true);
+                    DoCast (target, SPELL_WEB_WRAP, true);
 
                 uiWebWrapTimer = 15*IN_MILLISECONDS;
             } else uiWebWrapTimer -= diff;
 
             if (uiInfectedBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_INFECTED_BITE, true);
+                DoCast (me->getVictim(), SPELL_INFECTED_BITE, true);
                 uiInfectedBiteTimer = 15*IN_MILLISECONDS;
             } else uiInfectedBiteTimer -= diff;
 
             if (uiPoisonSprayTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_POSION_SPRAY, true);
+                DoCast (me->getVictim(), SPELL_POSION_SPRAY, true);
                 uiPoisonSprayTimer = 17*IN_MILLISECONDS;
             } else uiPoisonSprayTimer -= diff;
 

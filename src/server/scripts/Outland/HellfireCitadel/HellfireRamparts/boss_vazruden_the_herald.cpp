@@ -131,7 +131,7 @@ class boss_nazan : public CreatureScript
                 if (Fireball_Timer <= diff)
                 {
                     if (Unit* victim = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(victim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
+                        DoCast (victim, DUNGEON_MODE(SPELL_FIREBALL, SPELL_FIREBALL_H), true);
                     Fireball_Timer = urand(4000, 7000);
                 }
                 else
@@ -171,7 +171,7 @@ class boss_nazan : public CreatureScript
                 {
                     if (ConeOfFire_Timer <= diff)
                     {
-                        DoCast(me, DUNGEON_MODE(SPELL_CONE_OF_FIRE, SPELL_CONE_OF_FIRE_H));
+                        DoCast (me, DUNGEON_MODE(SPELL_CONE_OF_FIRE, SPELL_CONE_OF_FIRE_H));
                         ConeOfFire_Timer = 12000;
                         Fireball_Timer = 4000;
                     }
@@ -182,7 +182,7 @@ class boss_nazan : public CreatureScript
                     {
                         if (BellowingRoar_Timer <= diff)
                         {
-                            DoCast(me, SPELL_BELLOWING_ROAR);
+                            DoCast (me, SPELL_BELLOWING_ROAR);
                             BellowingRoar_Timer = 45000;
                         }
                         else
@@ -263,7 +263,7 @@ class boss_vazruden : public CreatureScript
                 if (Revenge_Timer <= diff)
                 {
                     if (Unit* victim = me->getVictim())
-                        DoCast(victim, DUNGEON_MODE(SPELL_REVENGE, SPELL_REVENGE_H));
+                        DoCast (victim, DUNGEON_MODE(SPELL_REVENGE, SPELL_REVENGE_H));
                     Revenge_Timer = 5000;
                 }
                 else
@@ -494,7 +494,7 @@ class mob_hellfire_sentry : public CreatureScript
                 if (KidneyShot_Timer <= diff)
                 {
                     if (Unit* victim = me->getVictim())
-                        DoCast(victim, SPELL_KIDNEY_SHOT);
+                        DoCast (victim, SPELL_KIDNEY_SHOT);
                     KidneyShot_Timer = 20000;
                 }
                 else

@@ -129,7 +129,7 @@ class boss_emalon : public CreatureScript
                     {
                         case EVENT_CHAIN_LIGHTNING:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_CHAIN_LIGHTNING);
+                                DoCast (target, SPELL_CHAIN_LIGHTNING);
                             events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 25000);
                             break;
                         case EVENT_LIGHTNING_NOVA:
@@ -150,7 +150,7 @@ class boss_emalon : public CreatureScript
                             }
                             break;
                         case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK);
+                            DoCast (me, SPELL_BERSERK);
                             DoScriptText(EMOTE_BERSERK, me);
                             break;
                         default:
@@ -230,7 +230,7 @@ class mob_tempest_minion : public CreatureScript
                     {
                         if (OverchargedTimer <= diff)
                         {
-                            DoCast(me, SPELL_OVERCHARGED);
+                            DoCast (me, SPELL_OVERCHARGED);
                             OverchargedTimer = 2000;
                         }
                         else
@@ -240,7 +240,7 @@ class mob_tempest_minion : public CreatureScript
                     {
                         if (overchargedAura->GetStackAmount() == 10)
                         {
-                            DoCast(me, SPELL_OVERCHARGED_BLAST);
+                            DoCast (me, SPELL_OVERCHARGED_BLAST);
                             me->DespawnOrUnsummon();
                             DoScriptText(EMOTE_MINION_RESPAWN, me);
                         }

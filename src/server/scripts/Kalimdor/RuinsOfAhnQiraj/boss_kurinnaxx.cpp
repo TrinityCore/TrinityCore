@@ -63,7 +63,7 @@ class boss_kurinnaxx : public CreatureScript
             {
                 if (!_enraged && HealthBelowPct(30))
                 {
-                    DoCast(me, SPELL_ENRAGE);
+                    DoCast (me, SPELL_ENRAGE);
                     _enraged = true;
                 }
             }
@@ -94,11 +94,11 @@ class boss_kurinnaxx : public CreatureScript
                             events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
                             break;
                         case EVENT_WIDE_SLASH:
-                            DoCast(me, SPELL_WIDE_SLASH);
+                            DoCast (me, SPELL_WIDE_SLASH);
                             events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
                             break;
                         case EVENT_TRASH:
-                            DoCast(me, SPELL_TRASH);
+                            DoCast (me, SPELL_TRASH);
                             events.ScheduleEvent(EVENT_WIDE_SLASH, 16000);
                             break;
                         default:

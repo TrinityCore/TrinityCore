@@ -121,7 +121,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me, ENSLAVED_SOUL_PASSIVE, true);
+            DoCast (me, ENSLAVED_SOUL_PASSIVE, true);
             DoZoneInCombat();
         }
 
@@ -266,7 +266,7 @@ public:
                 case 1:
                     Timer = 2800;
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_SUBMERGE);  // Release the cube
-                    DoCast(me, SPELL_SUBMERGE);
+                    DoCast (me, SPELL_SUBMERGE);
                     DoStartNoMovement(me);
                     break;
                 case 2:
@@ -284,7 +284,7 @@ public:
                     if (Phase == 3)
                     {
                         if (!Essence->isAlive())
-                            DoCast(me, 7, true);
+                            DoCast (me, 7, true);
                         else return;
                     }
                     else
@@ -364,7 +364,7 @@ void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit* /*killer*/)
         if (Creature* Reliquary = (Unit::GetCreature((*me), ReliquaryGUID)))
             ++(CAST_AI(boss_reliquary_of_souls::boss_reliquary_of_soulsAI, Reliquary->AI())->SoulDeathCount);
 
-    DoCast(me, SPELL_SOUL_RELEASE, true);
+    DoCast (me, SPELL_SOUL_RELEASE, true);
 }
 
 class boss_essence_of_suffering : public CreatureScript
@@ -417,9 +417,9 @@ public:
                 {
                 DoScriptText(SUFF_SAY_FREED, me);
                 DoZoneInCombat();
-                DoCast(me, AURA_OF_SUFFERING, true); // linked aura need core support
-                DoCast(me, ESSENCE_OF_SUFFERING_PASSIVE, true);
-                DoCast(me, ESSENCE_OF_SUFFERING_PASSIVE2, true);
+                DoCast (me, AURA_OF_SUFFERING, true); // linked aura need core support
+                DoCast (me, ESSENCE_OF_SUFFERING_PASSIVE, true);
+                DoCast (me, ESSENCE_OF_SUFFERING_PASSIVE2, true);
                 }
             else return;
         }
@@ -475,14 +475,14 @@ public:
 
             if (EnrageTimer <= diff)
             {
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 EnrageTimer = 60000;
                 DoScriptText(SUFF_EMOTE_ENRAGE, me);
             } else EnrageTimer -= diff;
 
             if (SoulDrainTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SOUL_DRAIN);
+                DoCast (SelectTarget(SELECT_TARGET_RANDOM, 0), SPELL_SOUL_DRAIN);
                 SoulDrainTimer = 60000;
             } else SoulDrainTimer -= diff;
 
@@ -550,7 +550,7 @@ public:
         {
             DoScriptText(DESI_SAY_FREED, me);
             DoZoneInCombat();
-            DoCast(me, AURA_OF_DESIRE, true);
+            DoCast (me, AURA_OF_DESIRE, true);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -566,7 +566,7 @@ public:
             if (RuneShieldTimer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me, SPELL_RUNE_SHIELD, true);
+                DoCast (me, SPELL_RUNE_SHIELD, true);
                 SoulShockTimer += 2000;
                 DeadenTimer += 2000;
                 RuneShieldTimer = 60000;
@@ -574,14 +574,14 @@ public:
 
             if (SoulShockTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SOUL_SHOCK);
+                DoCast (me->getVictim(), SPELL_SOUL_SHOCK);
                 SoulShockTimer = 5000;
             } else SoulShockTimer -= diff;
 
             if (DeadenTimer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me->getVictim(), SPELL_DEADEN);
+                DoCast (me->getVictim(), SPELL_DEADEN);
                 DeadenTimer = 25000 + rand()%10000;
                 if (!(rand()%2))
                 {
@@ -637,7 +637,7 @@ public:
             DoScriptText(RAND(ANGER_SAY_FREED, ANGER_SAY_FREED2), me);
 
             DoZoneInCombat();
-            DoCast(me, AURA_OF_ANGER, true);
+            DoCast (me, AURA_OF_ANGER, true);
         }
 
         void JustDied(Unit* /*victim*/)
@@ -667,7 +667,7 @@ public:
                 if (me->getVictim()->GetGUID() != AggroTargetGUID)
                 {
                     DoScriptText(ANGER_SAY_BEFORE, me);
-                    DoCast(me, SPELL_SELF_SEETHE, true);
+                    DoCast (me, SPELL_SELF_SEETHE, true);
                     AggroTargetGUID = me->getVictim()->GetGUID();
                 }
                 CheckTankTimer = 2000;
@@ -675,7 +675,7 @@ public:
 
             if (SoulScreamTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SOUL_SCREAM);
+                DoCast (me->getVictim(), SPELL_SOUL_SCREAM);
                 SoulScreamTimer = 9000 + rand()%2000;
                 if (!(rand()%3))
                 {
@@ -685,7 +685,7 @@ public:
 
             if (SpiteTimer <= diff)
             {
-                DoCast(me, SPELL_SPITE_TARGET);
+                DoCast (me, SPELL_SPITE_TARGET);
                 SpiteTimer = 30000;
                 DoScriptText(ANGER_SAY_SPEC, me);
             } else SpiteTimer -= diff;

@@ -171,7 +171,7 @@ public:
             if (m_uiGrowth_Timer <= uiDiff)
             {
                 DoScriptText(EMOTE_GROW, me);
-                DoCast(me, SPELL_GROWTH);
+                DoCast (me, SPELL_GROWTH);
                 m_uiGrowth_Timer = 30000;
             }
             else
@@ -187,7 +187,7 @@ public:
                     if (m_uiReverberation_Timer < 10000)     //Give a little time to the players to undo the damage from shatter
                         m_uiReverberation_Timer += 10000;
 
-                    DoCast(me, SPELL_SHATTER);
+                    DoCast (me, SPELL_SHATTER);
                 }
                 else
                     m_uiGroundSlamTimer -= uiDiff;
@@ -200,9 +200,9 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1);
 
                     if (target && me->IsWithinMeleeRange(me->getVictim()))
-                        DoCast(target, SPELL_HURTFUL_STRIKE);
+                        DoCast (target, SPELL_HURTFUL_STRIKE);
                     else
-                        DoCast(me->getVictim(), SPELL_HURTFUL_STRIKE);
+                        DoCast (me->getVictim(), SPELL_HURTFUL_STRIKE);
 
                     m_uiHurtfulStrike_Timer= 8000;
                 }
@@ -212,7 +212,7 @@ public:
                 // Reverberation
                 if (m_uiReverberation_Timer <= uiDiff)
                 {
-                    DoCast(me->getVictim(), SPELL_REVERBERATION, true);
+                    DoCast (me->getVictim(), SPELL_REVERBERATION, true);
                     m_uiReverberation_Timer = 15000 + rand()%10000;
                 }
                 else
@@ -222,7 +222,7 @@ public:
                 if (m_uiCaveIn_Timer <= uiDiff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_CAVE_IN);
+                        DoCast (target, SPELL_CAVE_IN);
 
                     if (m_uiCaveIn_StaticTimer >= 4000)
                         m_uiCaveIn_StaticTimer -= 2000;
@@ -241,7 +241,7 @@ public:
                     m_bPerformingGroundSlam= true;
                     m_uiGroundSlamTimer = 10000;
 
-                    DoCast(me, SPELL_GROUND_SLAM);
+                    DoCast (me, SPELL_GROUND_SLAM);
                 }
                 else
                     m_uiGroundSlamTimer -= uiDiff;

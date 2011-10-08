@@ -232,7 +232,7 @@ public:
             //Spear_Throw_Timer
             if (Spear_Throw_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SPEAR_THROW);
+                DoCast (me->getVictim(), SPELL_SPEAR_THROW);
                 Spear_Throw_Timer = 20000;
             } else Spear_Throw_Timer -= diff;
 
@@ -608,7 +608,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me, SPELL_EARTHBIND_TOTEM, false);
+            DoCast (me, SPELL_EARTHBIND_TOTEM, false);
         }
 
         void WaypointReached(uint32 uiPointId)
@@ -670,7 +670,7 @@ public:
 
             if (m_uiChainLightningTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_CHAIN_LIGHTNING);
+                DoCast (me->getVictim(), SPELL_CHAIN_LIGHTNING);
                 m_uiChainLightningTimer = urand(7000, 14000);
             }
             else
@@ -680,7 +680,7 @@ public:
             {
                 if (m_uiHealTimer <= uiDiff)
                 {
-                    DoCast(me, SPELL_HEALING_WAVE);
+                    DoCast (me, SPELL_HEALING_WAVE);
                     m_uiHealTimer = 5000;
                 }
                 else
@@ -689,7 +689,7 @@ public:
 
             if (m_uiFrostShockTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_FROST_SHOCK);
+                DoCast (me->getVictim(), SPELL_FROST_SHOCK);
                 m_uiFrostShockTimer = urand(7500, 15000);
             }
             else
@@ -844,7 +844,7 @@ public:
             {
                 if (spell->Id == SPELL_SPARROWHAWK_NET && CAST_PLR(caster)->GetQuestStatus(10987) == QUEST_STATUS_INCOMPLETE)
                 {
-                    DoCast(caster, SPELL_ITEM_CAPTIVE_SPARROWHAWK, true);
+                    DoCast (caster, SPELL_ITEM_CAPTIVE_SPARROWHAWK, true);
                     me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
                 }

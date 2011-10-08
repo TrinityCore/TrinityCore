@@ -126,7 +126,7 @@ public:
             {
                 if (HellfireTimer <= diff)
                 {
-                    DoCast(me, SPELL_HELLFIRE);
+                    DoCast (me, SPELL_HELLFIRE);
                     HellfireTimer = 0;
                 }
                 else HellfireTimer -= diff;
@@ -376,7 +376,7 @@ public:
                 CAST_AI(netherspite_infernal::netherspite_infernalAI, Infernal->AI())->malchezaar=me->GetGUID();
 
                 infernals.push_back(Infernal->GetGUID());
-                DoCast(Infernal, SPELL_INFERNAL_RELAY);
+                DoCast (Infernal, SPELL_INFERNAL_RELAY);
             }
 
             DoScriptText(RAND(SAY_SUMMON1, SAY_SUMMON2), me);
@@ -408,13 +408,13 @@ public:
                     phase = 2;
 
                     //animation
-                    DoCast(me, SPELL_EQUIP_AXES);
+                    DoCast (me, SPELL_EQUIP_AXES);
 
                     //text
                     DoScriptText(SAY_AXE_TOSS1, me);
 
                     //passive thrash aura
-                    DoCast(me, SPELL_THRASH_AURA, true);
+                    DoCast (me, SPELL_THRASH_AURA, true);
 
                     //models
                     SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
@@ -476,14 +476,14 @@ public:
 
                 if (SunderArmorTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SUNDER_ARMOR);
+                    DoCast (me->getVictim(), SPELL_SUNDER_ARMOR);
                     SunderArmorTimer = urand(10000, 18000);
 
                 } else SunderArmorTimer -= diff;
 
                 if (Cleave_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CLEAVE);
+                    DoCast (me->getVictim(), SPELL_CLEAVE);
                     Cleave_Timer = urand(6000, 12000);
 
                 } else Cleave_Timer -= diff;
@@ -514,7 +514,7 @@ public:
                 if (AmplifyDamageTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                        DoCast(target, SPELL_AMPLIFY_DAMAGE);
+                        DoCast (target, SPELL_AMPLIFY_DAMAGE);
                     AmplifyDamageTimer = urand(20000, 30000);
                 } else AmplifyDamageTimer -= diff;
             }
@@ -528,7 +528,7 @@ public:
 
             if (ShadowNovaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWNOVA);
+                DoCast (me->getVictim(), SPELL_SHADOWNOVA);
                 ShadowNovaTimer = phase == 3 ? 31000 : uint32(-1);
             } else ShadowNovaTimer -= diff;
 
@@ -543,7 +543,7 @@ public:
                         target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
 
                     if (target)
-                        DoCast(target, SPELL_SW_PAIN);
+                        DoCast (target, SPELL_SW_PAIN);
 
                     SWPainTimer = 20000;
                 } else SWPainTimer -= diff;

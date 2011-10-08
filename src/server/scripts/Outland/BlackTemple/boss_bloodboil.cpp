@@ -203,13 +203,13 @@ public:
 
             if (ArcingSmashTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCING_SMASH);
+                DoCast (me->getVictim(), SPELL_ARCING_SMASH);
                 ArcingSmashTimer = 10000;
             } else ArcingSmashTimer -= diff;
 
             if (FelAcidTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FEL_ACID);
+                DoCast (me->getVictim(), SPELL_FEL_ACID);
                 FelAcidTimer = 25000;
             } else FelAcidTimer -= diff;
 
@@ -217,7 +217,7 @@ public:
             {
                 if (EnrageTimer <= diff)
                 {
-                    DoCast(me, SPELL_BERSERK);
+                    DoCast (me, SPELL_BERSERK);
                     DoScriptText(RAND(SAY_ENRAGE1, SAY_ENRAGE2), me);
                 } else EnrageTimer -= diff;
             }
@@ -226,7 +226,7 @@ public:
             {
                 if (BewilderingStrikeTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_BEWILDERING_STRIKE);
+                    DoCast (me->getVictim(), SPELL_BEWILDERING_STRIKE);
                     float mt_threat = DoGetThreat(me->getVictim());
                     if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 1))
                         me->AddThreat(target, mt_threat);
@@ -235,14 +235,14 @@ public:
 
                 if (EjectTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_EJECT1);
+                    DoCast (me->getVictim(), SPELL_EJECT1);
                     DoModifyThreatPercent(me->getVictim(), -40);
                     EjectTimer = 15000;
                 } else EjectTimer -= diff;
 
                 if (AcidicWoundTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ACIDIC_WOUND);
+                    DoCast (me->getVictim(), SPELL_ACIDIC_WOUND);
                     AcidicWoundTimer = 10000;
                 } else AcidicWoundTimer -= diff;
 
@@ -251,7 +251,7 @@ public:
                     if (BloodboilCount < 5)                      // Only cast it five times.
                     {
                         //CastBloodboil(); // Causes issues on windows, so is commented out.
-                        DoCast(me->getVictim(), SPELL_BLOODBOIL);
+                        DoCast (me->getVictim(), SPELL_BLOODBOIL);
                         ++BloodboilCount;
                         BloodboilTimer = 10000*BloodboilCount;
                     }
@@ -262,13 +262,13 @@ public:
             {
                 if (AcidGeyserTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ACID_GEYSER);
+                    DoCast (me->getVictim(), SPELL_ACID_GEYSER);
                     AcidGeyserTimer = 30000;
                 } else AcidGeyserTimer -= diff;
 
                 if (EjectTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_EJECT2);
+                    DoCast (me->getVictim(), SPELL_EJECT2);
                     EjectTimer = 15000;
                 } else EjectTimer -= diff;
             }
@@ -291,15 +291,15 @@ public:
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
                                                                 // If VMaps are disabled, this spell can call the whole instance
-                        DoCast(me, SPELL_INSIGNIFIGANCE, true);
-                        DoCast(target, SPELL_FEL_RAGE_TARGET, true);
-                        DoCast(target, SPELL_FEL_RAGE_2, true);
+                        DoCast (me, SPELL_INSIGNIFIGANCE, true);
+                        DoCast (target, SPELL_FEL_RAGE_TARGET, true);
+                        DoCast (target, SPELL_FEL_RAGE_2, true);
                         /* These spells do not work, comment them out for now.
-                        DoCast(target, SPELL_FEL_RAGE_2, true);
-                        DoCast(target, SPELL_FEL_RAGE_3, true);*/
+                        DoCast (target, SPELL_FEL_RAGE_2, true);
+                        DoCast (target, SPELL_FEL_RAGE_3, true);*/
 
                         //Cast this without triggered so that it appears in combat logs and shows visual.
-                        DoCast(me, SPELL_FEL_RAGE_SELF);
+                        DoCast (me, SPELL_FEL_RAGE_SELF);
 
                         DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
 

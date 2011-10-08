@@ -123,13 +123,13 @@ public:
 
             if (FrostShock_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROST_SHOCK);
+                DoCast (me->getVictim(), SPELL_FROST_SHOCK);
                 FrostShock_Timer = 15000;
             } else FrostShock_Timer -= diff;
 
             if (AquaJet_Timer <= diff)
             {
-                DoCast(me, SPELL_AQUA_JET);
+                DoCast (me, SPELL_AQUA_JET);
                 AquaJet_Timer = 15000;
             } else AquaJet_Timer -= diff;
 
@@ -199,7 +199,7 @@ public:
                 case 23: DoScriptText(WHISPER_CUSTODIAN_4, me, player); break;
                 case 24:
                     DoScriptText(WHISPER_CUSTODIAN_14, me, player);
-                    DoCast(player, 34883);
+                    DoCast (player, 34883);
                     // below here is temporary workaround, to be removed when spell works properly
                     player->AreaExploredOrEventHappens(10277);
                     break;

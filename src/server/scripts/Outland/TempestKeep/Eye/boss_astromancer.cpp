@@ -227,7 +227,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     {
                         me->InterruptNonMeleeSpells(false);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
-                            DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER, true);
+                            DoCast (target, SPELL_WRATH_OF_THE_ASTROMANCER, true);
                         Wrath_Timer = 20000+rand()%5000;
                     }
                     else
@@ -237,7 +237,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                     {
                         if (BlindingLight)
                         {
-                            DoCast(me->getVictim(), SPELL_BLINDING_LIGHT);
+                            DoCast (me->getVictim(), SPELL_BLINDING_LIGHT);
                             BlindingLight = false;
                         }
                         else
@@ -246,7 +246,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                             if (!me->HasInArc(2.5f, target))
                                 target = me->getVictim();
                             if (target)
-                                DoCast(target, SPELL_ARCANE_MISSILES);
+                                DoCast (target, SPELL_ARCANE_MISSILES);
                         }
                         ArcaneMissiles_Timer = 3000;
                     }
@@ -261,7 +261,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         {
                             if (target->GetTypeId() == TYPEID_PLAYER)
                             {
-                                DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER);
+                                DoCast (target, SPELL_WRATH_OF_THE_ASTROMANCER);
                                 m_uiWrathOfTheAstromancer_Timer = 25000;
                             }
                             else
@@ -368,7 +368,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 //Fear_Timer
                                 if (Fear_Timer <= diff)
                                 {
-                                    DoCast(me, SPELL_FEAR);
+                                    DoCast (me, SPELL_FEAR);
                                     Fear_Timer = 20000;
                                 }
                                 else
@@ -376,7 +376,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 //VoidBolt_Timer
                                 if (VoidBolt_Timer <= diff)
                                 {
-                                    DoCast(me->getVictim(), SPELL_VOID_BOLT);
+                                    DoCast (me->getVictim(), SPELL_VOID_BOLT);
                                     VoidBolt_Timer = 10000;
                                 }
                                 else
@@ -459,7 +459,7 @@ class mob_solarium_priest : public CreatureScript
 
                     if (target)
                     {
-                        DoCast(target, SPELL_SOLARIUM_GREAT_HEAL);
+                        DoCast (target, SPELL_SOLARIUM_GREAT_HEAL);
                         healTimer = 9000;
                     }
                 }
@@ -468,7 +468,7 @@ class mob_solarium_priest : public CreatureScript
 
                 if (holysmiteTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SOLARIUM_HOLY_SMITE);
+                    DoCast (me->getVictim(), SPELL_SOLARIUM_HOLY_SMITE);
                     holysmiteTimer = 4000;
                 }
                 else
@@ -476,7 +476,7 @@ class mob_solarium_priest : public CreatureScript
 
                 if (aoesilenceTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SOLARIUM_ARCANE_TORRENT);
+                    DoCast (me->getVictim(), SPELL_SOLARIUM_ARCANE_TORRENT);
                     aoesilenceTimer = 13000;
                 }
                 else

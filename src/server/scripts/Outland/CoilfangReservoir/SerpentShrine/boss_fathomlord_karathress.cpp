@@ -160,19 +160,19 @@ public:
         void EventSharkkisDeath()
         {
             DoScriptText(SAY_GAIN_ABILITY1, me);
-            DoCast(me, SPELL_POWER_OF_SHARKKIS);
+            DoCast (me, SPELL_POWER_OF_SHARKKIS);
         }
 
         void EventTidalvessDeath()
         {
             DoScriptText(SAY_GAIN_ABILITY2, me);
-            DoCast(me, SPELL_POWER_OF_TIDALVESS);
+            DoCast (me, SPELL_POWER_OF_TIDALVESS);
         }
 
         void EventCaribdisDeath()
         {
             DoScriptText(SAY_GAIN_ABILITY3, me);
-            DoCast(me, SPELL_POWER_OF_CARIBDIS);
+            DoCast (me, SPELL_POWER_OF_CARIBDIS);
         }
 
         void GetAdvisors()
@@ -256,21 +256,21 @@ public:
                     target = me->getVictim();
 
                 if (target)
-                    DoCast(target, SPELL_CATACLYSMIC_BOLT);
+                    DoCast (target, SPELL_CATACLYSMIC_BOLT);
                 CataclysmicBolt_Timer = 10000;
             } else CataclysmicBolt_Timer -= diff;
 
             //SearNova_Timer
             if (SearNova_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SEAR_NOVA);
+                DoCast (me->getVictim(), SPELL_SEAR_NOVA);
                 SearNova_Timer = 20000+rand()%40000;
             } else SearNova_Timer -= diff;
 
             //Enrage_Timer
             if (Enrage_Timer <= diff)
             {
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 Enrage_Timer = 90000;
             } else Enrage_Timer -= diff;
 
@@ -292,7 +292,7 @@ public:
                     }
                 if (continueTriggering)
                 {
-                    DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
+                    DoCast (me, SPELL_BLESSING_OF_THE_TIDES);
                     me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
                 }
@@ -403,21 +403,21 @@ public:
             //LeechingThrow_Timer
             if (LeechingThrow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_LEECHING_THROW);
+                DoCast (me->getVictim(), SPELL_LEECHING_THROW);
                 LeechingThrow_Timer = 20000;
             } else LeechingThrow_Timer -= diff;
 
             //Multishot_Timer
             if (Multishot_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MULTISHOT);
+                DoCast (me->getVictim(), SPELL_MULTISHOT);
                 Multishot_Timer = 20000;
             } else Multishot_Timer -= diff;
 
             //TheBeastWithin_Timer
             if (TheBeastWithin_Timer <= diff)
             {
-                DoCast(me, SPELL_THE_BEAST_WITHIN);
+                DoCast (me, SPELL_THE_BEAST_WITHIN);
                 Creature* Pet = Unit::GetCreature(*me, SummonedPet);
                 if (Pet && Pet->isAlive())
                 {
@@ -442,7 +442,7 @@ public:
                     //spell_id = SPELL_SUMMON_FATHOM_SPOREBAT;
                     pet_id = CREATURE_FATHOM_SPOREBAT;
                 }
-                //DoCast(me, spell_id, true);
+                //DoCast (me, spell_id, true);
                 Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (Pet && target)
@@ -514,7 +514,7 @@ public:
                 instance->SetData64(DATA_KARATHRESSEVENT_STARTER, who->GetGUID());
                 instance->SetData(DATA_KARATHRESSEVENT, IN_PROGRESS);
             }
-            DoCast(me, SPELL_WINDFURY_WEAPON);
+            DoCast (me, SPELL_WINDFURY_WEAPON);
         }
 
         void UpdateAI(const uint32 diff)
@@ -543,20 +543,20 @@ public:
 
             if (!me->HasAura(SPELL_WINDFURY_WEAPON))
             {
-                DoCast(me, SPELL_WINDFURY_WEAPON);
+                DoCast (me, SPELL_WINDFURY_WEAPON);
             }
 
             //FrostShock_Timer
             if (FrostShock_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FROST_SHOCK);
+                DoCast (me->getVictim(), SPELL_FROST_SHOCK);
                 FrostShock_Timer = 25000+rand()%5000;
             } else FrostShock_Timer -= diff;
 
             //Spitfire_Timer
             if (Spitfire_Timer <= diff)
             {
-                DoCast(me, SPELL_SPITFIRE_TOTEM);
+                DoCast (me, SPELL_SPITFIRE_TOTEM);
                 Unit* SpitfireTotem = Unit::GetUnit(*me, CREATURE_SPITFIRE_TOTEM);
                 if (SpitfireTotem)
                 {
@@ -568,14 +568,14 @@ public:
             //PoisonCleansing_Timer
             if (PoisonCleansing_Timer <= diff)
             {
-                DoCast(me, SPELL_POISON_CLEANSING_TOTEM);
+                DoCast (me, SPELL_POISON_CLEANSING_TOTEM);
                 PoisonCleansing_Timer = 30000;
             } else PoisonCleansing_Timer -= diff;
 
             //Earthbind_Timer
             if (Earthbind_Timer <= diff)
             {
-                DoCast(me, SPELL_EARTHBIND_TOTEM);
+                DoCast (me, SPELL_EARTHBIND_TOTEM);
                 Earthbind_Timer = 45000;
             } else Earthbind_Timer -= diff;
 
@@ -670,14 +670,14 @@ public:
             //WaterBoltVolley_Timer
             if (WaterBoltVolley_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WATER_BOLT_VOLLEY);
+                DoCast (me->getVictim(), SPELL_WATER_BOLT_VOLLEY);
                 WaterBoltVolley_Timer = 30000;
             } else WaterBoltVolley_Timer -= diff;
 
             //TidalSurge_Timer
             if (TidalSurge_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_TIDAL_SURGE);
+                DoCast (me->getVictim(), SPELL_TIDAL_SURGE);
                 // Hacky way to do it - won't trigger elseways
                 me->getVictim()->CastSpell(me->getVictim(), SPELL_TIDAL_SURGE_FREEZE, true);
                 TidalSurge_Timer = 15000+rand()%5000;
@@ -686,7 +686,7 @@ public:
             //Cyclone_Timer
             if (Cyclone_Timer <= diff)
             {
-                //DoCast(me, SPELL_SUMMON_CYCLONE); // Doesn't work
+                //DoCast (me, SPELL_SUMMON_CYCLONE); // Doesn't work
                 Cyclone_Timer = 30000+rand()%10000;
                 Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%5), TEMPSUMMON_TIMED_DESPAWN, 15000);
                 if (Cyclone)
@@ -715,7 +715,7 @@ public:
                 }
 
                 if (unit && unit->isAlive())
-                    DoCast(unit, SPELL_HEAL);
+                    DoCast (unit, SPELL_HEAL);
                 Heal_Timer = 60000;
             } else Heal_Timer -= diff;
 

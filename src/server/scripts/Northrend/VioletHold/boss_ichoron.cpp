@@ -121,7 +121,7 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
 
-            DoCast(me, SPELL_PROTECTIVE_BUBBLE);
+            DoCast (me, SPELL_PROTECTIVE_BUBBLE);
 
             if (instance)
             {
@@ -189,7 +189,7 @@ public:
             if (!HealthBelowPct(25))
             {
                 DoScriptText(SAY_BUBBLE, me);
-                DoCast(me, SPELL_PROTECTIVE_BUBBLE, true);
+                DoCast (me, SPELL_PROTECTIVE_BUBBLE, true);
             }
 
             me->SetVisible(true);
@@ -214,7 +214,7 @@ public:
             if (!bIsFrenzy && HealthBelowPct(25) && !bIsExploded)
             {
                 DoScriptText(SAY_ENRAGE, me);
-                DoCast(me, SPELL_FRENZY, true);
+                DoCast (me, SPELL_FRENZY, true);
                 bIsFrenzy = true;
             }
 
@@ -227,8 +227,8 @@ public:
                         if (!me->HasAura(SPELL_PROTECTIVE_BUBBLE, 0))
                         {
                             DoScriptText(SAY_SHATTER, me);
-                            DoCast(me, SPELL_WATER_BLAST);
-                            DoCast(me, SPELL_DRAINED);
+                            DoCast (me, SPELL_WATER_BLAST);
+                            DoCast (me, SPELL_DRAINED);
                             bIsExploded = true;
                             me->AttackStop();
                             me->SetVisible(false);
@@ -265,7 +265,7 @@ public:
             {
                 if (uiWaterBoltVolleyTimer <= uiDiff)
                 {
-                    DoCast(me, SPELL_WATER_BOLT_VOLLEY);
+                    DoCast (me, SPELL_WATER_BOLT_VOLLEY);
                     uiWaterBoltVolleyTimer = urand(10000, 15000);
                 }
                 else uiWaterBoltVolleyTimer -= uiDiff;
@@ -355,7 +355,7 @@ public:
         void Reset()
         {
             uiRangeCheck_Timer = 1000;
-            DoCast(me, SPELL_WATER_GLOBULE);
+            DoCast (me, SPELL_WATER_GLOBULE);
         }
 
         void AttackStart(Unit* /*who*/)
@@ -386,7 +386,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoCast(me, SPELL_SPLASH);
+            DoCast (me, SPELL_SPLASH);
             if (Creature* pIchoron = Unit::GetCreature(*me, instance->GetData64(DATA_ICHORON)))
                 if (pIchoron->AI())
                     pIchoron->AI()->DoAction(ACTION_WATER_ELEMENT_KILLED);

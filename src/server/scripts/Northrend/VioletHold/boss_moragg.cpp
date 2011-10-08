@@ -103,13 +103,13 @@ public:
             if (uiOpticLinkTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_OPTIC_LINK);
+                    DoCast (target, SPELL_OPTIC_LINK);
                 uiOpticLinkTimer = 15000;
             } else uiOpticLinkTimer -= diff;
 
             if (uiCorrosiveSalivaTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CORROSIVE_SALIVA);
+                DoCast (me->getVictim(), SPELL_CORROSIVE_SALIVA);
                 uiCorrosiveSalivaTimer = 10000;
             } else uiCorrosiveSalivaTimer -= diff;
 

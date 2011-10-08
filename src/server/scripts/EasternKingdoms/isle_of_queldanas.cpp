@@ -77,7 +77,7 @@ public:
                     else
                         DoScriptText(SAY_CONVERTED_2, me);
 
-                    DoCast(me, SPELL_CONVERT_CREDIT);
+                    DoCast (me, SPELL_CONVERT_CREDIT);
                     if (me->isPet())
                         me->ToPet()->SetDuration(7500);
                     Credit = true;
@@ -132,9 +132,9 @@ public:
                 {
                     Unit* player = Unit::GetUnit((*me), PlayerGUID);
                     if (player && CAST_PLR(player)->GetQuestStatus(QUESTG) == QUEST_STATUS_INCOMPLETE)
-                        DoCast(player, 45110, true);
+                        DoCast (player, 45110, true);
                 }
-                DoCast(me, ENRAGE);
+                DoCast (me, ENRAGE);
                 Unit* Myrmidon = me->FindNearestCreature(DM, 70);
                 if (Myrmidon)
                 {

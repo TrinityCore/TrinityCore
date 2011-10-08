@@ -1391,7 +1391,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
 
         // Set the dungeon difficulty
         LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(pProposal->dungeonId);
-        ASSERT(dungeon);
+        ASSERT (dungeon);
         grp->SetDungeonDifficulty(Difficulty(dungeon->difficulty));
         uint64 gguid = grp->GetGUID();
         SetDungeon(gguid, dungeon->Entry());

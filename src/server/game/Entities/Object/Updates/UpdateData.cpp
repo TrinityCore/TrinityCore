@@ -103,7 +103,7 @@ void UpdateData::Compress(void* dst, uint32 *dst_size, void* src, int src_size)
 
 bool UpdateData::BuildPacket(WorldPacket* packet)
 {
-    ASSERT(packet->empty());                                // shouldn't happen
+    ASSERT (packet->empty());                                // shouldn't happen
 
     ByteBuffer buf(4 + (m_outOfRangeGUIDs.empty() ? 0 : 1 + 4 + 9 * m_outOfRangeGUIDs.size()) + m_data.wpos());
 

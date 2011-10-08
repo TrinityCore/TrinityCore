@@ -220,7 +220,7 @@ class npc_flash_freeze : public CreatureScript
                 me->AddThreat(summoner, 250.0f);
                 if (Unit* target = ObjectAccessor::GetUnit(*me, targetGUID))
                 {
-                    DoCast(target, SPELL_BLOCK_OF_ICE, true);
+                    DoCast (target, SPELL_BLOCK_OF_ICE, true);
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                     if (target->GetTypeId() == TYPEID_PLAYER)
@@ -264,7 +264,7 @@ class npc_ice_block : public CreatureScript
                 summoner->AddThreat(me, 250.0f);
                 if (Creature* target = ObjectAccessor::GetCreature(*me, targetGUID))
                 {
-                    DoCast(target, SPELL_FLASH_FREEZE_HELPER, true);
+                    DoCast (target, SPELL_FLASH_FREEZE_HELPER, true);
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
                 }
@@ -330,7 +330,7 @@ class boss_hodir : public CreatureScript
             {
                 _EnterCombat();
                 DoScriptText(SAY_AGGRO, me);
-                DoCast(me, SPELL_BITING_COLD, true);
+                DoCast (me, SPELL_BITING_COLD, true);
 
                 gettingColdInHereTimer = 1000;
                 gettingColdInHere = true;
@@ -400,7 +400,7 @@ class boss_hodir : public CreatureScript
                             break;
                         case EVENT_ICICLE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_ICICLE);
+                                DoCast (target, SPELL_ICICLE);
                             events.ScheduleEvent(EVENT_ICICLE, RAID_MODE(5500, 3500));
                             break;
                         case EVENT_FLASH_FREEZE:
@@ -409,7 +409,7 @@ class boss_hodir : public CreatureScript
                             for (uint8 n = 0; n < RAID_MODE(2, 3); ++n)
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                                     target->CastSpell(target, SPELL_ICICLE_SNOWDRIFT, true);
-                            DoCast(SPELL_FLASH_FREEZE);
+                            DoCast (SPELL_FLASH_FREEZE);
                             events.ScheduleEvent(EVENT_FLASH_FREEZE_EFFECT, 500);
                             break;
                         case EVENT_FLASH_FREEZE_EFFECT:
@@ -426,7 +426,7 @@ class boss_hodir : public CreatureScript
                         case EVENT_BLOWS:
                             DoScriptText(SAY_STALACTITE, me);
                             DoScriptText(EMOTE_BLOWS, me);
-                            DoCast(me, SPELL_FROZEN_BLOWS);
+                            DoCast (me, SPELL_FROZEN_BLOWS);
                             events.ScheduleEvent(EVENT_BLOWS, urand(60000, 65000));
                             break;
                         case EVENT_RARE_CACHE:
@@ -437,7 +437,7 @@ class boss_hodir : public CreatureScript
                             break;
                         case EVENT_BERSERK:
                             DoScriptText(SAY_BERSERK, me);
-                            DoCast(me, SPELL_BERSERK, true);
+                            DoCast (me, SPELL_BERSERK, true);
                             events.CancelEvent(EVENT_BERSERK);
                             break;
                     }
@@ -530,13 +530,13 @@ class npc_icicle : public CreatureScript
                 {
                     if (me->GetEntry() == NPC_ICICLE_SNOWDRIFT)
                     {
-                        DoCast(me, SPELL_FALL_SNOWDRIFT);
-                        DoCast(me, SPELL_ICICLE_FALL);
+                        DoCast (me, SPELL_FALL_SNOWDRIFT);
+                        DoCast (me, SPELL_ICICLE_FALL);
                     }
                     else if (me->GetEntry() == NPC_ICICLE)
                     {
-                        DoCast(me, SPELL_ICICLE_FALL);
-                        DoCast(me, SPELL_FALL_DAMAGE, true);
+                        DoCast (me, SPELL_ICICLE_FALL);
+                        DoCast (me, SPELL_FALL_DAMAGE, true);
                     }
                     icicleTimer = 10000;
                 }
@@ -621,7 +621,7 @@ class npc_hodir_priest : public CreatureScript
                     return;
 
                 if (HealthBelowPct(30))
-                    DoCast(me, SPELL_GREATER_HEAL);
+                    DoCast (me, SPELL_GREATER_HEAL);
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -702,7 +702,7 @@ class npc_hodir_shaman : public CreatureScript
                     {
                         case EVENT_STORM_CLOUD:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_STORM_CLOUD, true);
+                                DoCast (target, SPELL_STORM_CLOUD, true);
                             events.ScheduleEvent(EVENT_STORM_CLOUD, urand(15000, 20000));
                             break;
                         default:
@@ -763,7 +763,7 @@ class npc_hodir_druid : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_STARLIGHT:
-                            DoCast(me, SPELL_STARLIGHT, true);
+                            DoCast (me, SPELL_STARLIGHT, true);
                             events.ScheduleEvent(EVENT_STARLIGHT, urand(25000, 35000));
                             break;
                         default:
@@ -840,12 +840,12 @@ class npc_hodir_mage : public CreatureScript
                         case EVENT_CONJURE_FIRE:
                             if (summons.size() >= RAID_MODE<uint64>(2, 4))
                                 break;
-                            DoCast(me, SPELL_CONJURE_FIRE, true);
+                            DoCast (me, SPELL_CONJURE_FIRE, true);
                             events.ScheduleEvent(EVENT_CONJURE_FIRE, urand(15000, 20000));
                             break;
                         case EVENT_MELT_ICE:
                             if (Creature* FlashFreeze = me->FindNearestCreature(NPC_FLASH_FREEZE, 50.0f, true))
-                                DoCast(FlashFreeze, SPELL_MELT_ICE, true);
+                                DoCast (FlashFreeze, SPELL_MELT_ICE, true);
                             events.ScheduleEvent(EVENT_MELT_ICE, urand(10000, 15000));
                             break;
                     }
@@ -886,7 +886,7 @@ class npc_toasty_fire : public CreatureScript
 
             void Reset()
             {
-                DoCast(me, SPELL_SINGED, true);
+                DoCast (me, SPELL_SINGED, true);
             }
 
             void SpellHit(Unit* /*who*/, const SpellInfo* spell)

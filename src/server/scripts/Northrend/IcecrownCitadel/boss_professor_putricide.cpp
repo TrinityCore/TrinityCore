@@ -219,7 +219,7 @@ class boss_professor_putricide : public CreatureScript
 
                 SetPhase(PHASE_COMBAT_1);
                 Talk(SAY_AGGRO);
-                DoCast(me, SPELL_OOZE_TANK_PROTECTION, true);
+                DoCast (me, SPELL_OOZE_TANK_PROTECTION, true);
                 DoZoneInCombat(me);
 
                 instance->SetBossState(DATA_PROFESSOR_PUTRICIDE, IN_PROGRESS);
@@ -335,14 +335,14 @@ class boss_professor_putricide : public CreatureScript
                             case PHASE_COMBAT_2:
                             {
                                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_CREATE_CONCOCTION);
-                                DoCast(me, SPELL_CREATE_CONCOCTION);
+                                DoCast (me, SPELL_CREATE_CONCOCTION);
                                 events.ScheduleEvent(EVENT_PHASE_TRANSITION, sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)->CalcCastTime() + 100);
                                 break;
                             }
                             case PHASE_COMBAT_3:
                             {
                                 SpellInfo const* spell = sSpellMgr->GetSpellInfo(SPELL_GUZZLE_POTIONS);
-                                DoCast(me, SPELL_GUZZLE_POTIONS);
+                                DoCast (me, SPELL_GUZZLE_POTIONS);
                                 events.ScheduleEvent(EVENT_PHASE_TRANSITION, sSpellMgr->GetSpellForDifficultyFromSpell(spell, me)->CalcCastTime() + 100);
                                 break;
                             }
@@ -370,7 +370,7 @@ class boss_professor_putricide : public CreatureScript
                         break;
                     case ACTION_FESTERGUT_GAS:
                         Talk(SAY_FESTERGUT_GASEOUS_BLIGHT);
-                        DoCast(me, SPELL_RELEASE_GAS_VISUAL, true);
+                        DoCast (me, SPELL_RELEASE_GAS_VISUAL, true);
                         break;
                     case ACTION_FESTERGUT_DEATH:
                         events.ScheduleEvent(EVENT_FESTERGUT_DIES, 4000, 0, PHASE_FESTERGUT);
@@ -426,14 +426,14 @@ class boss_professor_putricide : public CreatureScript
                         me->AttackStop();
                         if (!IsHeroic())
                         {
-                            DoCast(me, SPELL_TEAR_GAS);
+                            DoCast (me, SPELL_TEAR_GAS);
                             events.ScheduleEvent(EVENT_TEAR_GAS, 2500);
                         }
                         else
                         {
                             Talk(SAY_PHASE_TRANSITION_HEROIC);
-                            DoCast(me, SPELL_UNSTABLE_EXPERIMENT, true);
-                            DoCast(me, SPELL_UNSTABLE_EXPERIMENT, true);
+                            DoCast (me, SPELL_UNSTABLE_EXPERIMENT, true);
+                            DoCast (me, SPELL_UNSTABLE_EXPERIMENT, true);
                             // cast variables
                             if (Is25ManRaid())
                             {
@@ -526,7 +526,7 @@ class boss_professor_putricide : public CreatureScript
                             break;
                         case EVENT_FESTERGUT_GOO:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                DoCast(target, SPELL_MALLABLE_GOO_H, true); // triggered, to skip LoS check
+                                DoCast (target, SPELL_MALLABLE_GOO_H, true); // triggered, to skip LoS check
                             events.ScheduleEvent(EVENT_FESTERGUT_GOO, urand(15000, 20000), 0, PHASE_FESTERGUT);
                             break;
                         case EVENT_ROTFACE_DIES:
@@ -535,7 +535,7 @@ class boss_professor_putricide : public CreatureScript
                             break;
                         case EVENT_ROTFACE_VILE_GAS:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
-                                DoCast(target, SPELL_VILE_GAS_H, true); // triggered, to skip LoS check
+                                DoCast (target, SPELL_VILE_GAS_H, true); // triggered, to skip LoS check
                             events.ScheduleEvent(EVENT_ROTFACE_VILE_GAS, urand(15000, 20000), 0, PHASE_ROTFACE);
                             break;
                         case EVENT_ROTFACE_OOZE_FLOOD:
@@ -544,7 +544,7 @@ class boss_professor_putricide : public CreatureScript
                             break;
                         case EVENT_BERSERK:
                             Talk(SAY_BERSERK);
-                            DoCast(me, SPELL_BERSERK2);
+                            DoCast (me, SPELL_BERSERK2);
                             break;
                         case EVENT_SLIME_PUDDLE:
                         {
@@ -558,7 +558,7 @@ class boss_professor_putricide : public CreatureScript
                         }
                         case EVENT_UNSTABLE_EXPERIMENT:
                             Talk(EMOTE_UNSTABLE_EXPERIMENT);
-                            DoCast(me, SPELL_UNSTABLE_EXPERIMENT);
+                            DoCast (me, SPELL_UNSTABLE_EXPERIMENT);
                             events.ScheduleEvent(EVENT_UNSTABLE_EXPERIMENT, urand(35000, 40000));
                             break;
                         case EVENT_TEAR_GAS:
@@ -590,21 +590,21 @@ class boss_professor_putricide : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, -7.0f, true))
                                 {
                                     Talk(EMOTE_MALLEABLE_GOO);
-                                    DoCast(target, SPELL_MALLEABLE_GOO);
+                                    DoCast (target, SPELL_MALLEABLE_GOO);
                                 }
                             }
                             events.ScheduleEvent(EVENT_MALLEABLE_GOO, urand(25000, 30000));
                             break;
                         case EVENT_CHOKING_GAS_BOMB:
                             Talk(EMOTE_CHOKING_GAS_BOMB);
-                            DoCast(me, SPELL_CHOKING_GAS_BOMB);
+                            DoCast (me, SPELL_CHOKING_GAS_BOMB);
                             events.ScheduleEvent(EVENT_CHOKING_GAS_BOMB, urand(35000, 40000));
                             break;
                         case EVENT_UNBOUND_PLAGUE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, NonTankTargetSelector(me)))
                             {
                                 me->CastCustomSpell(SPELL_UNBOUND_PLAGUE, SPELLVALUE_BASE_POINT0, 775, target);
-                                DoCast(target, SPELL_UNBOUND_PLAGUE_SEARCHER);
+                                DoCast (target, SPELL_UNBOUND_PLAGUE_SEARCHER);
                             }
                             events.ScheduleEvent(EVENT_UNBOUND_PLAGUE, 90000);
                             break;

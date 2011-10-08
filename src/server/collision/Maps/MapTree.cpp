@@ -30,7 +30,7 @@
 #ifndef NO_CORE_FUNCS
     #include "Errors.h"
 #else
-    #define ASSERT(x)
+    #define ASSERT (x)
 #endif
 
 using G3D::Vector3;
@@ -161,7 +161,7 @@ namespace VMAP
     {
         float maxDist = (pos2 - pos1).magnitude();
         // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
-        ASSERT(maxDist < std::numeric_limits<float>::max());
+        ASSERT (maxDist < std::numeric_limits<float>::max());
         // prevent NaN values which can cause BIH intersection to enter infinite loop
         if (maxDist < 1e-10f)
             return true;
@@ -183,7 +183,7 @@ namespace VMAP
         bool result=false;
         float maxDist = (pPos2 - pPos1).magnitude();
         // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
-        ASSERT(maxDist < std::numeric_limits<float>::max());
+        ASSERT (maxDist < std::numeric_limits<float>::max());
         // prevent NaN values which can cause BIH intersection to enter infinite loop
         if (maxDist < 1e-10f)
         {

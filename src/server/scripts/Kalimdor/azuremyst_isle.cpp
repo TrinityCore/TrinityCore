@@ -89,7 +89,7 @@ public:
 
             CanSayHelp = true;
 
-            DoCast(me, SPELL_IRRIDATION, true);
+            DoCast (me, SPELL_IRRIDATION, true);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
@@ -118,7 +118,7 @@ public:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
 
-                DoCast(me, SPELL_STUNNED, true);
+                DoCast (me, SPELL_STUNNED, true);
 
                 pCaster = Caster->GetGUID();
 
@@ -275,7 +275,7 @@ public:
 
             if (Dynamite_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DYNAMITE);
+                DoCast (me->getVictim(), SPELL_DYNAMITE);
                 Dynamite_Timer = 8000;
             } else Dynamite_Timer -= diff;
 
@@ -634,14 +634,14 @@ public:
 
             if (RendTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_REND);
+                DoCast (me->getVictim(), SPELL_REND);
                 RendTimer = 30000;
             }
             else RendTimer -= diff;
 
             if (EnragingBiteTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ENRAGING_BITE);
+                DoCast (me->getVictim(), SPELL_ENRAGING_BITE);
                 EnragingBiteTimer = 15000;
             }
             else EnragingBiteTimer -= diff;

@@ -111,14 +111,14 @@ public:
                 {
                     me->AddAura(DUNGEON_MODE(SPELL_EMPOWERING_SHADOWS, H_SPELL_EMPOWERING_SHADOWS), Vorpil);
                     Vorpil->ModifyHealth(int32(Vorpil->CountPctFromMaxHealth(4)));
-                    DoCast(me, SPELL_SHADOW_NOVA, true);
+                    DoCast (me, SPELL_SHADOW_NOVA, true);
                     me->Kill(me);
                     return;
                 }
                 me->GetMotionMaster()->MoveFollow(Vorpil, 0, 0);
                 if (me->IsWithinDist(Vorpil, 3))
                 {
-                    DoCast(me, SPELL_SACRIFICE, false);
+                    DoCast (me, SPELL_SACRIFICE, false);
                     sacrificed = true;
                     move = 500;
                     return;
@@ -268,7 +268,7 @@ public:
 
             if (ShadowBoltVolley_Timer <= diff)
             {
-                DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
+                DoCast (me, SPELL_SHADOWBOLT_VOLLEY);
                 ShadowBoltVolley_Timer = 15000 + rand()%15000;
             } else ShadowBoltVolley_Timer -= diff;
 
@@ -277,7 +277,7 @@ public:
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 30, false);
                 if (target)
                 {
-                    DoCast(target, SPELL_BANISH);
+                    DoCast (target, SPELL_BANISH);
                     banish_Timer = 16000;
                 }
             } else banish_Timer -= diff;
@@ -292,9 +292,9 @@ public:
                             i_pl->TeleportTo(me->GetMapId(), VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0, TELE_TO_NOT_LEAVE_COMBAT);
 
                 me->GetMap()->CreatureRelocation(me, VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0.0f);
-                DoCast(me, SPELL_DRAW_SHADOWS, true);
+                DoCast (me, SPELL_DRAW_SHADOWS, true);
 
-                DoCast(me, SPELL_RAIN_OF_FIRE);
+                DoCast (me, SPELL_RAIN_OF_FIRE);
 
                 ShadowBoltVolley_Timer = 6000;
                 DrawShadows_Timer = 30000;

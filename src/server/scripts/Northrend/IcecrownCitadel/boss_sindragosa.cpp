@@ -184,7 +184,7 @@ class boss_sindragosa : public CreatureScript
             {
                 BossAI::Reset();
                 me->SetReactState(REACT_DEFENSIVE);
-                DoCast(me, SPELL_TANK_MARKER, true);
+                DoCast (me, SPELL_TANK_MARKER, true);
                 events.ScheduleEvent(EVENT_BERSERK, 600000);
                 events.ScheduleEvent(EVENT_CLEAVE, 10000, EVENT_GROUP_LAND_PHASE);
                 events.ScheduleEvent(EVENT_TAIL_SMASH, 20000, EVENT_GROUP_LAND_PHASE);
@@ -219,8 +219,8 @@ class boss_sindragosa : public CreatureScript
                 }
 
                 BossAI::EnterCombat(victim);
-                DoCast(me, SPELL_FROST_AURA);
-                DoCast(me, SPELL_PERMAEATING_CHILL);
+                DoCast (me, SPELL_FROST_AURA);
+                DoCast (me, SPELL_PERMAEATING_CHILL);
                 Talk(SAY_AGGRO);
             }
 
@@ -252,7 +252,7 @@ class boss_sindragosa : public CreatureScript
                     float moveTime = me->GetExactDist(&SindragosaFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
                     me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SindragosaLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                     me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SindragosaFlyPos);
-                    DoCast(me, SPELL_SINDRAGOSA_S_FURY);
+                    DoCast (me, SPELL_SINDRAGOSA_S_FURY);
                 }
             }
 
@@ -386,14 +386,14 @@ class boss_sindragosa : public CreatureScript
                         case EVENT_BERSERK:
                             DoScriptText(EMOTE_GENERIC_BERSERK_RAID, me);
                             Talk(SAY_BERSERK);
-                            DoCast(me, SPELL_BERSERK);
+                            DoCast (me, SPELL_BERSERK);
                             break;
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE);
                             events.ScheduleEvent(EVENT_CLEAVE, urand(15000, 20000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_TAIL_SMASH:
-                            DoCast(me, SPELL_TAIL_SMASH);
+                            DoCast (me, SPELL_TAIL_SMASH);
                             events.ScheduleEvent(EVENT_TAIL_SMASH, urand(27000, 32000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_FROST_BREATH:
@@ -402,17 +402,17 @@ class boss_sindragosa : public CreatureScript
                             break;
                         case EVENT_UNCHAINED_MAGIC:
                             Talk(SAY_UNCHAINED_MAGIC);
-                            DoCast(me, SPELL_UNCHAINED_MAGIC);
+                            DoCast (me, SPELL_UNCHAINED_MAGIC);
                             events.ScheduleEvent(EVENT_UNCHAINED_MAGIC, urand(30000, 35000), EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_ICY_GRIP:
-                            DoCast(me, SPELL_ICY_GRIP);
+                            DoCast (me, SPELL_ICY_GRIP);
                             events.ScheduleEvent(EVENT_ICY_GRIP, urand(70000, 75000), EVENT_GROUP_LAND_PHASE);
                             events.ScheduleEvent(EVENT_BLISTERING_COLD, 1000, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_BLISTERING_COLD:
                             Talk(EMOTE_WARN_BLISTERING_COLD);
-                            DoCast(me, SPELL_BLISTERING_COLD);
+                            DoCast (me, SPELL_BLISTERING_COLD);
                             events.ScheduleEvent(EVENT_BLISTERING_COLD_YELL, 5000, EVENT_GROUP_LAND_PHASE);
                             break;
                         case EVENT_BLISTERING_COLD_YELL:
@@ -442,7 +442,7 @@ class boss_sindragosa : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true, -SPELL_ICE_TOMB_UNTARGETABLE))
                             {
                                 Talk(EMOTE_WARN_FROZEN_ORB, target->GetGUID());
-                                DoCast(target, SPELL_ICE_TOMB_DUMMY, true);
+                                DoCast (target, SPELL_ICE_TOMB_DUMMY, true);
                             }
                             events.ScheduleEvent(EVENT_ICE_TOMB, urand(16000, 23000));
                             break;
@@ -461,7 +461,7 @@ class boss_sindragosa : public CreatureScript
                             if (TempSummon* summ = me->SummonCreature(NPC_FROST_BOMB, pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
                             {
                                 summ->CastSpell(summ, SPELL_FROST_BOMB_VISUAL, true);
-                                DoCast(summ, SPELL_FROST_BOMB_TRIGGER);
+                                DoCast (summ, SPELL_FROST_BOMB_TRIGGER);
                                 //me->CastSpell(destX, destY, destZ, SPELL_FROST_BOMB_TRIGGER, false);
                             }
                             events.ScheduleEvent(EVENT_FROST_BOMB, urand(5000, 10000));
@@ -480,7 +480,7 @@ class boss_sindragosa : public CreatureScript
                                 Talk(SAY_PHASE_2);
                                 events.ScheduleEvent(EVENT_ICE_TOMB, urand(7000, 10000));
                                 events.RescheduleEvent(EVENT_ICY_GRIP, urand(35000, 40000));
-                                DoCast(me, SPELL_MYSTIC_BUFFET, true);
+                                DoCast (me, SPELL_MYSTIC_BUFFET, true);
                             }
                             else
                                 events.ScheduleEvent(EVENT_THIRD_PHASE_CHECK, 5000);
@@ -668,7 +668,7 @@ class npc_spinestalker : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_BELLOWING_ROAR:
-                            DoCast(me, SPELL_BELLOWING_ROAR);
+                            DoCast (me, SPELL_BELLOWING_ROAR);
                             _events.ScheduleEvent(EVENT_BELLOWING_ROAR, urand(25000, 30000));
                             break;
                         case EVENT_CLEAVE_SPINESTALKER:
@@ -676,7 +676,7 @@ class npc_spinestalker : public CreatureScript
                             _events.ScheduleEvent(EVENT_CLEAVE_SPINESTALKER, urand(10000, 15000));
                             break;
                         case EVENT_TAIL_SWEEP:
-                            DoCast(me, SPELL_TAIL_SWEEP);
+                            DoCast (me, SPELL_TAIL_SWEEP);
                             _events.ScheduleEvent(EVENT_TAIL_SWEEP, urand(22000, 25000));
                             break;
                         default:
@@ -770,7 +770,7 @@ class npc_rimefang : public CreatureScript
 
             void EnterCombat(Unit* /*victim*/)
             {
-                DoCast(me, SPELL_FROST_AURA_RIMEFANG, true);
+                DoCast (me, SPELL_FROST_AURA_RIMEFANG, true);
             }
 
             void UpdateAI(uint32 const diff)
@@ -788,7 +788,7 @@ class npc_rimefang : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FROST_BREATH_RIMEFANG:
-                            DoCast(me, SPELL_FROST_BREATH);
+                            DoCast (me, SPELL_FROST_BREATH);
                             _events.ScheduleEvent(EVENT_FROST_BREATH_RIMEFANG, urand(35000, 40000));
                             break;
                         case EVENT_ICY_BLAST:
@@ -809,7 +809,7 @@ class npc_rimefang : public CreatureScript
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, true))
                                 {
                                     me->SetFacingToObject(target);
-                                    DoCast(target, SPELL_ICY_BLAST);
+                                    DoCast (target, SPELL_ICY_BLAST);
                                 }
                                 _events.ScheduleEvent(EVENT_ICY_BLAST_CAST, 3000);
                             }
@@ -916,11 +916,11 @@ class npc_sindragosa_trash : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_FROSTWARDEN_ORDER_WHELP:
-                            DoCast(me, SPELL_ORDER_WHELP);
+                            DoCast (me, SPELL_ORDER_WHELP);
                             _events.ScheduleEvent(EVENT_FROSTWARDEN_ORDER_WHELP, 3000);
                             break;
                         case EVENT_CONCUSSIVE_SHOCK:
-                            DoCast(me, SPELL_CONCUSSIVE_SHOCK);
+                            DoCast (me, SPELL_CONCUSSIVE_SHOCK);
                             _events.ScheduleEvent(EVENT_CONCUSSIVE_SHOCK, urand(10000, 13000));
                             break;
                         default:

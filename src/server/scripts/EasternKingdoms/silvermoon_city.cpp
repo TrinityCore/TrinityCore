@@ -91,7 +91,7 @@ public:
                 (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))
             {
                 CAST_PLR(Hitter)->AreaExploredOrEventHappens(QUEST_REDEEMING_THE_DEAD);
-                DoCast(me, SPELL_REVIVE_SELF);
+                DoCast (me, SPELL_REVIVE_SELF);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, 0);
                 //me->RemoveAllAuras();

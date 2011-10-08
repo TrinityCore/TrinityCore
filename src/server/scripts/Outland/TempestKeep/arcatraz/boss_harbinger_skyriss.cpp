@@ -149,9 +149,9 @@ class boss_harbinger_skyriss : public CreatureScript
                 DoScriptText(SAY_IMAGE, me);
 
                 if (val == 66)
-                    DoCast(me, SPELL_66_ILLUSION);
+                    DoCast (me, SPELL_66_ILLUSION);
                 else
-                    DoCast(me, SPELL_33_ILLUSION);
+                    DoCast (me, SPELL_33_ILLUSION);
             }
 
             void UpdateAI(const uint32 diff)
@@ -209,9 +209,9 @@ class boss_harbinger_skyriss : public CreatureScript
                 if (MindRend_Timer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        DoCast(target, SPELL_MIND_REND);
+                        DoCast (target, SPELL_MIND_REND);
                     else
-                        DoCast(me->getVictim(), SPELL_MIND_REND);
+                        DoCast (me->getVictim(), SPELL_MIND_REND);
 
                     MindRend_Timer = 8000;
                 }
@@ -226,9 +226,9 @@ class boss_harbinger_skyriss : public CreatureScript
                     DoScriptText(RAND(SAY_FEAR_1, SAY_FEAR_2), me);
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        DoCast(target, SPELL_FEAR);
+                        DoCast (target, SPELL_FEAR);
                     else
-                        DoCast(me->getVictim(), SPELL_FEAR);
+                        DoCast (me->getVictim(), SPELL_FEAR);
 
                     Fear_Timer = 25000;
                 }
@@ -243,9 +243,9 @@ class boss_harbinger_skyriss : public CreatureScript
                     DoScriptText(RAND(SAY_MIND_1, SAY_MIND_2), me);
 
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                        DoCast(target, SPELL_DOMINATION);
+                        DoCast (target, SPELL_DOMINATION);
                     else
-                        DoCast(me->getVictim(), SPELL_DOMINATION);
+                        DoCast (me->getVictim(), SPELL_DOMINATION);
 
                     Domination_Timer = 16000+rand()%16000;
                 }
@@ -260,7 +260,7 @@ class boss_harbinger_skyriss : public CreatureScript
                             return;
 
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                            DoCast(target, H_SPELL_MANA_BURN);
+                            DoCast (target, H_SPELL_MANA_BURN);
 
                         ManaBurn_Timer = 16000+rand()%16000;
                     }

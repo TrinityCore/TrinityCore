@@ -360,7 +360,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 if (BlastCount && BlastWave_Timer <= diff)
                 {
-                    DoCast(me, SPELL_BLAST_WAVE);
+                    DoCast (me, SPELL_BLAST_WAVE);
                     BlastWave_Timer = 5000;
                     ++BlastCount;
 
@@ -373,7 +373,7 @@ class boss_warbringer_omrogg : public CreatureScript
                 if (BurningMaul_Timer <= diff)
                 {
                     DoScriptText(EMOTE_ENRAGE, me);
-                    DoCast(me, SPELL_BURNING_MAUL);
+                    DoCast (me, SPELL_BURNING_MAUL);
                     BurningMaul_Timer = 40000;
                     BlastWave_Timer = 16000;
                     BlastCount = 1;
@@ -396,7 +396,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 if (Fear_Timer <= diff)
                 {
-                    DoCast(me, SPELL_FEAR);
+                    DoCast (me, SPELL_FEAR);
                     Fear_Timer = 15000+rand()%20000;
                 }
                 else
@@ -404,7 +404,7 @@ class boss_warbringer_omrogg : public CreatureScript
 
                 if (ThunderClap_Timer <= diff)
                 {
-                    DoCast(me, SPELL_THUNDERCLAP);
+                    DoCast (me, SPELL_THUNDERCLAP);
                     ThunderClap_Timer = 15000+rand()%15000;
                 }
                 else

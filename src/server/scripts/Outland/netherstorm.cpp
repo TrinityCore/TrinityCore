@@ -273,7 +273,7 @@ public:
                             Unit* u = Unit::GetUnit((*me), someplayer);
                             if (u && u->GetTypeId() == TYPEID_PLAYER)
                                 CAST_PLR(u)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
-                            DoCast(me, SPELL_DISABLE_VISUAL);
+                            DoCast (me, SPELL_DISABLE_VISUAL);
                         }
                         if (goConsole)
                         {
@@ -784,19 +784,19 @@ public:
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
         {
-            DoCast(me, SPELL_DE_MATERIALIZE);
+            DoCast (me, SPELL_DE_MATERIALIZE);
         }
 
         void UpdateAI(const uint32 diff)
         {
             if (!Materialize)
             {
-                DoCast(me, SPELL_MATERIALIZE);
+                DoCast (me, SPELL_MATERIALIZE);
                 Materialize = true;
             }
 
             if (me->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || me->HasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
-                DoCast(me, SPELL_PHASE_SLIP);
+                DoCast (me, SPELL_PHASE_SLIP);
 
             if (!UpdateVictim())
                 return;
@@ -817,7 +817,7 @@ public:
                 }
                 if (!UnitsWithMana.empty())
                 {
-                    DoCast(SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);
+                    DoCast (SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);
                     ManaBurnTimer = 8000 + (rand() % 10 * 1000); // 8-18 sec cd
                 }
                 else

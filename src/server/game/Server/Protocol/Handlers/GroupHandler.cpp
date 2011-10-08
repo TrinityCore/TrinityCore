@@ -231,7 +231,7 @@ void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
         }
 
         // If we're about to create a group there really should be a leader present
-        ASSERT(leader);
+        ASSERT (leader);
         group->RemoveInvite(leader);
         group->Create(leader);
         sGroupMgr->AddGroup(group);

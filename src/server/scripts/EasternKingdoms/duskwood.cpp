@@ -101,7 +101,7 @@ public:
 
                 if (KillCount == 3)
                 {
-                    DoCast(me, SPELL_LEVEL_UP, true);
+                    DoCast (me, SPELL_LEVEL_UP, true);
                     KillCount = 0;
                 }
             }
@@ -113,13 +113,13 @@ public:
                 return;
             if (SoulCorruption_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SOUL_CORRUPTION);
+                DoCast (me->getVictim(), SPELL_SOUL_CORRUPTION);
                 SoulCorruption_Timer = rand()%4000+15000; //gotta confirm Timers
             } else SoulCorruption_Timer-=diff;
 
             if (CreatureOfNightmare_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CREATURE_OF_NIGHTMARE);
+                DoCast (me->getVictim(), SPELL_CREATURE_OF_NIGHTMARE);
                 CreatureOfNightmare_Timer = 45000; //gotta confirm Timers
             } else CreatureOfNightmare_Timer-=diff;
             DoMeleeAttackIfReady();

@@ -240,7 +240,7 @@ public:
                         me->SetVisible(true);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_DISABLE_MOVE);
 
-                        DoCast(me, SPELL_SPARK_DESPAWN, false);
+                        DoCast (me, SPELL_SPARK_DESPAWN, false);
 
                         uiSplitTimer = 25*IN_MILLISECONDS;
                         bIsSplitPhase = true;
@@ -258,7 +258,7 @@ public:
             if (uiStaticOverloadTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_STATIC_OVERLOAD);
+                    DoCast (target, SPELL_STATIC_OVERLOAD);
 
                 uiStaticOverloadTimer = urand(5*IN_MILLISECONDS, 6*IN_MILLISECONDS);
             }
@@ -267,7 +267,7 @@ public:
 
             if (uiBallLightningTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_BALL_LIGHTNING);
+                DoCast (me->getVictim(), SPELL_BALL_LIGHTNING);
                 uiBallLightningTimer = urand(10*IN_MILLISECONDS, 11*IN_MILLISECONDS);
             }
             else
@@ -283,7 +283,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
 
-                DoCast(me, SPELL_DISPERSE, false);
+                DoCast (me, SPELL_DISPERSE, false);
             }
 
             DoMeleeAttackIfReady();

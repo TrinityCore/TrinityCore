@@ -36,7 +36,7 @@ GossipMenu::~GossipMenu()
 
 void GossipMenu::AddMenuItem(int32 menuItemId, uint8 icon, std::string const& message, uint32 sender, uint32 action, std::string const& boxMessage, uint32 boxMoney, bool coded /*= false*/)
 {
-    ASSERT(_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
+    ASSERT (_menuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
 
     // Find a free new id - script case
     if (menuItemId == -1)
@@ -220,7 +220,7 @@ void QuestMenu::AddMenuItem(uint32 QuestId, uint8 Icon)
     if (!sObjectMgr->GetQuestTemplate(QuestId))
         return;
 
-    ASSERT(_questMenuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
+    ASSERT (_questMenuItems.size() <= GOSSIP_MAX_MENU_ITEMS);
 
     QuestMenuItem questMenuItem;
 

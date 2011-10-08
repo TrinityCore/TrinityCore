@@ -67,14 +67,14 @@ public:
             //WhirlWind_Timer
             if (WhirlWind_Timer <= diff)
             {
-                DoCast(me, SPELL_WHIRLWIND);
+                DoCast (me, SPELL_WHIRLWIND);
                 WhirlWind_Timer = 15000;
             } else WhirlWind_Timer -= diff;
 
             //MortalStrike_Timer
             if (MortalStrike_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
+                DoCast (me->getVictim(), SPELL_MORTALSTRIKE);
                 MortalStrike_Timer = 15000;
             } else MortalStrike_Timer -= diff;
 

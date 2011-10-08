@@ -306,12 +306,12 @@ public:
                 case 0:
                     //Shoot
                     //Used in Phases 1 and 3 after Entangle or while having nobody in melee range. A shot that hits her target for 4097-5543 Physical damage.
-                    DoCast(me->getVictim(), SPELL_SHOOT);
+                    DoCast (me->getVictim(), SPELL_SHOOT);
                     break;
                 case 1:
                     //Multishot
                     //Used in Phases 1 and 3 after Entangle or while having nobody in melee range. A shot that hits 1 person and 4 people around him for 6475-7525 physical damage.
-                    DoCast(me->getVictim(), SPELL_MULTI_SHOT);
+                    DoCast (me->getVictim(), SPELL_MULTI_SHOT);
                     break;
             }
             if (rand()%3)
@@ -352,7 +352,7 @@ public:
                 {
                     //Shock Burst
                     //Randomly used in Phases 1 and 3 on Vashj's target, it's a Shock spell doing 8325-9675 nature damage and stunning the target for 5 seconds, during which she will not attack her target but switch to the next person on the aggro list.
-                    DoCast(me->getVictim(), SPELL_SHOCK_BLAST);
+                    DoCast (me->getVictim(), SPELL_SHOCK_BLAST);
                     me->TauntApply(me->getVictim());
 
                     ShockBlast_Timer = 1000+rand()%14000;       //random cooldown
@@ -368,7 +368,7 @@ public:
 
                     if (target && !target->HasAura(SPELL_STATIC_CHARGE_TRIGGER))
                                                                 //cast Static Charge every 2 seconds for 20 seconds
-                            DoCast(target, SPELL_STATIC_CHARGE_TRIGGER);
+                            DoCast (target, SPELL_STATIC_CHARGE_TRIGGER);
 
                     StaticCharge_Timer = 10000+rand()%20000;    //blizzlike
                 } else StaticCharge_Timer -= diff;
@@ -380,7 +380,7 @@ public:
                     {
                         //Entangle
                         //Used in Phases 1 and 3, it casts Entangling Roots on everybody in a 15 yard radius of Vashj, immobilzing them for 10 seconds and dealing 500 damage every 2 seconds. It's not a magic effect so it cannot be dispelled, but is removed by various buffs such as Cloak of Shadows or Blessing of Freedom.
-                        DoCast(me->getVictim(), SPELL_ENTANGLE);
+                        DoCast (me->getVictim(), SPELL_ENTANGLE);
                         Entangle = true;
                         Entangle_Timer = 10000;
                     }
@@ -484,7 +484,7 @@ public:
                     if (!target)
                         target = me->getVictim();
 
-                    DoCast(target, SPELL_FORKED_LIGHTNING);
+                    DoCast (target, SPELL_FORKED_LIGHTNING);
 
                     ForkedLightning_Timer = 2000+rand()%6000;   //blizzlike
                 } else ForkedLightning_Timer -= diff;
@@ -658,7 +658,7 @@ public:
                 {
                     me->GetMotionMaster()->MovePoint(0, MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
                     if (me->IsWithinDist3d(MIDDLE_X, MIDDLE_Y, MIDDLE_Z, 3))
-                        DoCast(me, SPELL_SURGE);
+                        DoCast (me, SPELL_SURGE);
                 }
                 if (Creature* Vashj = Unit::GetCreature(*me, VashjGUID))
                 {
@@ -731,7 +731,7 @@ public:
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                 if (target && target->IsWithinDistInMap(me, 30))
-                    DoCast(target, SPELL_POISON_BOLT);
+                    DoCast (target, SPELL_POISON_BOLT);
 
                 PoisonBolt_Timer = 5000+rand()%5000;
             } else PoisonBolt_Timer -= diff;
@@ -958,7 +958,7 @@ public:
                     //start visual channel
                     if (!Casted || !Vashj->HasAura(SPELL_MAGIC_BARRIER))
                     {
-                        DoCast(Vashj, SPELL_MAGIC_BARRIER, true);
+                        DoCast (Vashj, SPELL_MAGIC_BARRIER, true);
                         Casted = true;
                     }
                 }

@@ -129,18 +129,18 @@ public:
                         if (!pMostHPTarget)
                             pMostHPTarget = me->getVictim();
 
-                        DoCast(pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE, H_SPELL_HATEFUL_STRIKE), true);
+                        DoCast (pMostHPTarget, RAID_MODE(SPELL_HATEFUL_STRIKE, H_SPELL_HATEFUL_STRIKE), true);
 
                         events.ScheduleEvent(EVENT_HATEFUL, 1200);
                         break;
                     }
                     case EVENT_BERSERK:
-                        DoCast(me, SPELL_BERSERK, true);
+                        DoCast (me, SPELL_BERSERK, true);
                         DoScriptText(EMOTE_BERSERK, me);
                         events.ScheduleEvent(EVENT_SLIME, 2000);
                         break;
                     case EVENT_SLIME:
-                        DoCast(me->getVictim(), SPELL_SLIME_BOLT);
+                        DoCast (me->getVictim(), SPELL_SLIME_BOLT);
                         events.ScheduleEvent(EVENT_SLIME, 2000);
                         break;
                 }
@@ -148,7 +148,7 @@ public:
 
             if (!Enraged && HealthBelowPct(5))
             {
-                DoCast(me, SPELL_FRENZY, true);
+                DoCast (me, SPELL_FRENZY, true);
                 DoScriptText(EMOTE_ENRAGE, me);
                 Enraged = true;
             }

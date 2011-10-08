@@ -85,8 +85,8 @@ class mobs_risen_husk_spirit : public CreatureScript
                 {
                     if (killer->ToPlayer()->GetQuestStatus(QUEST_WHATS_HAUNTING_WITCH_HILL) == QUEST_STATUS_INCOMPLETE)
                     {
-                        DoCast(me, SPELL_SUMMON_RESTLESS_APPARITION, true);
-                        DoCast(killer, SPELL_WITCH_HILL_INFORMATION_CREDIT, true);
+                        DoCast (me, SPELL_SUMMON_RESTLESS_APPARITION, true);
+                        DoCast (killer, SPELL_WITCH_HILL_INFORMATION_CREDIT, true);
                     }
                 }
             }

@@ -231,7 +231,7 @@ public:
 
             if (IntangiblePresence_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
+                DoCast (me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
                 IntangiblePresence_Timer = 15000+rand()%15000;
             } else IntangiblePresence_Timer -= diff;
 
@@ -239,13 +239,13 @@ public:
             {
                 Unit* target = me->getVictim();
                 if (target && target->getPowerType() == POWER_MANA)
-                    DoCast(target, SPELL_MANA_BURN);
+                    DoCast (target, SPELL_MANA_BURN);
                 ManaBurn_Timer = 8000+rand()%8000;
             } else ManaBurn_Timer -= diff;
 
             if (ArcaneBlast_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_BLAST);
+                DoCast (me->getVictim(), SPELL_ARCANE_BLAST);
                 ArcaneBlast_Timer = 2500+rand()%5000;
             } else ArcaneBlast_Timer -= diff;
 
@@ -291,7 +291,7 @@ public:
                 {
                     DoScriptText(SAY_SPELL_INFLUENCE, me, who);
                     //TODO: Move the below to updateAI and run if this statement == true
-                    DoCast(who, 37028, true);
+                    DoCast (who, 37028, true);
                 }
             }
 

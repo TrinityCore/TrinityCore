@@ -67,7 +67,7 @@ class AuraApplication
         uint8 GetSlot() const { return m_slot; }
         uint8 GetFlags() const { return m_flags; }
         uint8 GetEffectMask() const { return m_flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
-        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return m_flags & (1<<effect); }
+        bool HasEffect(uint8 effect) const { ASSERT (effect < MAX_SPELL_EFFECTS);  return m_flags & (1<<effect); }
         bool IsPositive() const { return m_flags & AFLAG_POSITIVE; }
         bool IsSelfcasted() const { return m_flags & AFLAG_CASTER; }
         uint8 GetEffectsToApply() const { return m_effectsToApply; }
@@ -102,8 +102,8 @@ class Aura
         uint64 GetCasterGUID() const { return m_casterGuid; }
         Unit* GetCaster() const;
         WorldObject* GetOwner() const { return m_owner; }
-        Unit* GetUnitOwner() const { ASSERT(GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
-        DynamicObject* GetDynobjOwner() const { ASSERT(GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)m_owner; }
+        Unit* GetUnitOwner() const { ASSERT (GetType() == UNIT_AURA_TYPE); return (Unit*)m_owner; }
+        DynamicObject* GetDynobjOwner() const { ASSERT (GetType() == DYNOBJ_AURA_TYPE); return (DynamicObject*)m_owner; }
 
         AuraObjectType GetType() const;
 

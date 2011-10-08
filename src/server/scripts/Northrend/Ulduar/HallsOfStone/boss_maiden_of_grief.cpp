@@ -122,7 +122,7 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
 
                     if (target)
-                        DoCast(target, SPELL_PARTING_SORROW);
+                        DoCast (target, SPELL_PARTING_SORROW);
 
                     PartingSorrowTimer = 30000 + rand()%10000;
                 } else PartingSorrowTimer -= diff;
@@ -130,7 +130,7 @@ public:
 
             if (StormOfGriefTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STORM_OF_GRIEF_N, true);
+                DoCast (me->getVictim(), SPELL_STORM_OF_GRIEF_N, true);
                 StormOfGriefTimer = 15000 + rand()%5000;
             } else StormOfGriefTimer -= diff;
 
@@ -138,7 +138,7 @@ public:
             {
                 DoResetThreat();
                 DoScriptText(SAY_STUN, me);
-                DoCast(me, SPELL_SHOCK_OF_SORROW_N);
+                DoCast (me, SPELL_SHOCK_OF_SORROW_N);
                 ShockOfSorrowTimer = 20000 + rand()%10000;
             } else ShockOfSorrowTimer -= diff;
 
@@ -147,9 +147,9 @@ public:
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
 
                 if (target)
-                    DoCast(target, SPELL_PILLAR_OF_WOE_N);
+                    DoCast (target, SPELL_PILLAR_OF_WOE_N);
                 else
-                    DoCast(me->getVictim(), SPELL_PILLAR_OF_WOE_N);
+                    DoCast (me->getVictim(), SPELL_PILLAR_OF_WOE_N);
 
                 PillarOfWoeTimer = 5000 + rand()%20000;
             } else PillarOfWoeTimer -= diff;

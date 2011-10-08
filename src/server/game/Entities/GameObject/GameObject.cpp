@@ -156,7 +156,7 @@ void GameObject::RemoveFromWorld()
 
 bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit)
 {
-    ASSERT(map);
+    ASSERT (map);
     SetMap(map);
 
     Relocate(x, y, z, ang);
@@ -1776,7 +1776,7 @@ void GameObject::ModifyHealth(int32 change, Unit* attackerOrHealer /*= NULL*/, u
 void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player* eventInvoker /*= NULL*/, bool setHealth /*= false*/)
 {
     // the user calling this must know he is already operating on destructible gameobject
-    ASSERT(GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING);
+    ASSERT (GetGoType() == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING);
 
     switch (state)
     {

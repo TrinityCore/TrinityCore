@@ -217,7 +217,7 @@ public:
                 uint32 spell = RAND(SPELL_FIRE_VULNERABILITY, SPELL_FROST_VULNERABILITY,
                     SPELL_SHADOW_VULNERABILITY, SPELL_NATURE_VULNERABILITY, SPELL_ARCANE_VULNERABILITY);
 
-                DoCast(me, spell);
+                DoCast (me, spell);
                 CurrentVurln_Spell = spell;
 
                 DoScriptText(EMOTE_SHIMMER, me);
@@ -227,14 +227,14 @@ public:
             //Breath1_Timer
             if (Breath1_Timer <= diff)
             {
-                DoCast(me->getVictim(), Breath1_Spell);
+                DoCast (me->getVictim(), Breath1_Spell);
                 Breath1_Timer = 60000;
             } else Breath1_Timer -= diff;
 
             //Breath2_Timer
             if (Breath2_Timer <= diff)
             {
-                DoCast(me->getVictim(), Breath2_Spell);
+                DoCast (me->getVictim(), Breath2_Spell);
                 Breath2_Timer = 60000;
             } else Breath2_Timer -= diff;
 
@@ -251,7 +251,7 @@ public:
                         if (unit)
                         {
                             //Cast affliction
-                            DoCast(unit, RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
+                            DoCast (unit, RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
                                                SPELL_BROODAF_RED, SPELL_BROODAF_BRONZE, SPELL_BROODAF_GREEN), true);
 
                             //Chromatic mutation if target is effected by all afflictions
@@ -262,7 +262,7 @@ public:
                                 && unit->HasAura(SPELL_BROODAF_GREEN))
                             {
                                 //target->RemoveAllAuras();
-                                //DoCast(target, SPELL_CHROMATIC_MUT_1);
+                                //DoCast (target, SPELL_CHROMATIC_MUT_1);
 
                                 //Chromatic mutation is causing issues
                                 //Assuming it is caused by a lack of core support for Charm
@@ -282,7 +282,7 @@ public:
             //Frenzy_Timer
             if (Frenzy_Timer <= diff)
             {
-                DoCast(me, SPELL_FRENZY);
+                DoCast (me, SPELL_FRENZY);
                 DoScriptText(EMOTE_FRENZY, me);
                 Frenzy_Timer = urand(10000, 15000);
             } else Frenzy_Timer -= diff;
@@ -290,7 +290,7 @@ public:
             //Enrage if not already enraged and below 20%
             if (!Enraged && HealthBelowPct(20))
             {
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 Enraged = true;
             }
 

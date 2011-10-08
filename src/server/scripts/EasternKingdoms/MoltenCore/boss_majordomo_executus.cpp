@@ -120,18 +120,18 @@ class boss_majordomo : public CreatureScript
                         return;
 
                     if (HealthBelowPct(50))
-                        DoCast(me, SPELL_AEGIS_OF_RAGNAROS, true);
+                        DoCast (me, SPELL_AEGIS_OF_RAGNAROS, true);
 
                     while (uint32 eventId = events.ExecuteEvent())
                     {
                         switch (eventId)
                         {
                             case EVENT_MAGIC_REFLECTION:
-                                DoCast(me, SPELL_MAGIC_REFLECTION);
+                                DoCast (me, SPELL_MAGIC_REFLECTION);
                                 events.ScheduleEvent(EVENT_MAGIC_REFLECTION, 30000);
                                 break;
                             case EVENT_DAMAGE_REFLECTION:
-                                DoCast(me, SPELL_DAMAGE_REFLECTION);
+                                DoCast (me, SPELL_DAMAGE_REFLECTION);
                                 events.ScheduleEvent(EVENT_DAMAGE_REFLECTION, 30000);
                                 break;
                             case EVENT_BLAST_WAVE:
@@ -140,7 +140,7 @@ class boss_majordomo : public CreatureScript
                                 break;
                             case EVENT_TELEPORT:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
-                                    DoCast(target, SPELL_TELEPORT);
+                                    DoCast (target, SPELL_TELEPORT);
                                 events.ScheduleEvent(EVENT_TELEPORT, 20000);
                                 break;
                             default:

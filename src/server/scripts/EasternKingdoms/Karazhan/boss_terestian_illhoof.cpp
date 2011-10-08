@@ -103,7 +103,7 @@ public:
                 {
                     Unit* Terestian = Unit::GetUnit((*me), TerestianGUID);
                     if (Terestian && Terestian->isAlive())
-                        DoCast(Terestian, SPELL_BROKEN_PACT, true);
+                        DoCast (Terestian, SPELL_BROKEN_PACT, true);
                 }
             } else ERROR_INST_DATA(me);
         }
@@ -117,7 +117,7 @@ public:
             if (AmplifyTimer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me->getVictim(), SPELL_AMPLIFY_FLAMES);
+                DoCast (me->getVictim(), SPELL_AMPLIFY_FLAMES);
 
                 AmplifyTimer = urand(10000, 20000);
             } else AmplifyTimer -= diff;
@@ -236,7 +236,7 @@ public:
 
             if (FireboltTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_FIREBOLT);
+                DoCast (me->getVictim(), SPELL_FIREBOLT);
                 FireboltTimer = 2200;
             } else FireboltTimer -= diff;
 
@@ -313,10 +313,10 @@ public:
                 if (!Kilrek->isAlive())
                 {
                     Kilrek->UnSummon();
-                    DoCast(me, SPELL_SUMMON_IMP, true);
+                    DoCast (me, SPELL_SUMMON_IMP, true);
                 }
             }
-            else DoCast(me, SPELL_SUMMON_IMP, true);
+            else DoCast (me, SPELL_SUMMON_IMP, true);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -373,8 +373,8 @@ public:
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true);
                 if (target && target->isAlive())
                 {
-                    DoCast(target, SPELL_SACRIFICE, true);
-                    DoCast(target, SPELL_SUMMON_DEMONCHAINS, true);
+                    DoCast (target, SPELL_SACRIFICE, true);
+                    DoCast (target, SPELL_SUMMON_DEMONCHAINS, true);
 
                     if (Creature* Chains = me->FindNearestCreature(CREATURE_DEMONCHAINS, 5000))
                     {
@@ -388,17 +388,17 @@ public:
 
             if (ShadowboltTimer <= diff)
             {
-                DoCast(SelectTarget(SELECT_TARGET_TOPAGGRO, 0), SPELL_SHADOW_BOLT);
+                DoCast (SelectTarget(SELECT_TARGET_TOPAGGRO, 0), SPELL_SHADOW_BOLT);
                 ShadowboltTimer = 10000;
             } else ShadowboltTimer -= diff;
 
             if (SummonTimer <= diff)
             {
                 if (!PortalGUID[0])
-                    DoCast(me->getVictim(), SPELL_FIENDISH_PORTAL, false);
+                    DoCast (me->getVictim(), SPELL_FIENDISH_PORTAL, false);
 
                 if (!PortalGUID[1])
-                    DoCast(me->getVictim(), SPELL_FIENDISH_PORTAL_1, false);
+                    DoCast (me->getVictim(), SPELL_FIENDISH_PORTAL_1, false);
 
                 if (PortalGUID[0] && PortalGUID[1])
                 {
@@ -412,7 +412,7 @@ public:
             {
                 if (BerserkTimer <= diff)
                 {
-                    DoCast(me, SPELL_BERSERK);
+                    DoCast (me, SPELL_BERSERK);
                     Berserk = true;
                 } else BerserkTimer -= diff;
             }

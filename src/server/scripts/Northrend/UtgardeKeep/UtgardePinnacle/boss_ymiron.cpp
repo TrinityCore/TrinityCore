@@ -212,7 +212,7 @@ public:
                 if (m_uiPause_Timer <= diff)
                 {
                     DoScriptText(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].say, me);
-                    DoCast(me, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
+                    DoCast (me, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
                     if (Creature* temp = me->SummonCreature(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         m_uiActivedCreatureGUID = temp->GetGUID();
@@ -258,32 +258,32 @@ public:
                 // Normal spells ------------------------------------------------------------------------
                 if (m_uiBane_Timer <= diff)
                 {
-                    DoCast(me, SPELL_BANE);
+                    DoCast (me, SPELL_BANE);
                     m_uiBane_Timer = urand(20000, 25000);
                 } else m_uiBane_Timer -= diff;
 
                 if (m_uiFetidRot_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_FETID_ROT);
+                    DoCast (me->getVictim(), SPELL_FETID_ROT);
                     m_uiFetidRot_Timer = urand(10000, 15000);
                 } else m_uiFetidRot_Timer -= diff;
 
                 if (m_uiDarkSlash_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DARK_SLASH);
+                    DoCast (me->getVictim(), SPELL_DARK_SLASH);
                     m_uiDarkSlash_Timer = urand(30000, 35000);
                 } else m_uiDarkSlash_Timer -= diff;
 
                 if (m_uiAncestors_Vengeance_Timer <= diff)
                 {
-                    DoCast(me, SPELL_ANCESTORS_VENGEANCE);
+                    DoCast (me, SPELL_ANCESTORS_VENGEANCE);
                     m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(urand(60000, 65000), urand(45000, 50000));
                 } else m_uiAncestors_Vengeance_Timer -= diff;
 
                 // Abilities ------------------------------------------------------------------------------
                 if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
                 {
-                    //DoCast(me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
+                    //DoCast (me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
                     if (Creature* temp = me->SummonCreature(CREATURE_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                     {
                         temp->SetSpeed(MOVE_RUN, 0.4f);
@@ -297,13 +297,13 @@ public:
 
                 if (m_bIsActiveWithHALDOR && m_uiAbility_HALDOR_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SPIRIT_STRIKE);
+                    DoCast (me->getVictim(), SPELL_SPIRIT_STRIKE);
                     m_uiAbility_HALDOR_Timer = 5000; // overtime
                 } else m_uiAbility_HALDOR_Timer -= diff;
 
                 if (m_bIsActiveWithRANULF && m_uiAbility_RANULF_Timer <= diff)
                 {
-                    DoCast(me, SPELL_SPIRIT_BURST);
+                    DoCast (me, SPELL_SPIRIT_BURST);
                     m_uiAbility_RANULF_Timer = 10000; // overtime
                 } else m_uiAbility_RANULF_Timer -= diff;
 
@@ -315,7 +315,7 @@ public:
                     z = me->GetPositionZ();
                     for (uint8 i = 0; i < 4; ++i)
                     {
-                        //DoCast(me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
+                        //DoCast (me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
                         if (Creature* temp = me->SummonCreature(CREATURE_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -335,7 +335,7 @@ public:
                     ++m_uiHealthAmountModifier;
 
                     me->InterruptNonMeleeSpells(true);
-                    DoCast(me, SPELL_SCREAMS_OF_THE_DEAD);
+                    DoCast (me, SPELL_SCREAMS_OF_THE_DEAD);
                     me->GetMotionMaster()->Clear();
                     me->StopMoving();
                     me->AttackStop();

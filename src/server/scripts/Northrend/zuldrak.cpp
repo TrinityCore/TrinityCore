@@ -67,8 +67,8 @@ public:
             me->SetInFront(Rageclaw);
             Rageclaw->SetInFront(me);
 
-            DoCast(Rageclaw, SPELL_LEFT_CHAIN, true);
-            DoCast(Rageclaw, SPELL_RIGHT_CHAIN, true);
+            DoCast (Rageclaw, SPELL_LEFT_CHAIN, true);
+            DoCast (Rageclaw, SPELL_RIGHT_CHAIN, true);
         }
 
         void UnlockRageclaw(Unit* who)
@@ -78,7 +78,7 @@ public:
 
             Creature* Rageclaw = Unit::GetCreature(*me, RageclawGUID);
             // pointer check not needed
-            DoCast(Rageclaw, SPELL_FREE_RAGECLAW, true);
+            DoCast (Rageclaw, SPELL_FREE_RAGECLAW, true);
 
             me->setDeathState(DEAD);
         }
@@ -141,7 +141,7 @@ public:
             Despawn = false;
             DespawnTimer = 0;
             me->setFaction(35);
-            DoCast(me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
+            DoCast (me, SPELL_KNEEL, true); // Little Hack for kneel - Thanks Illy :P
         }
 
         void MoveInLineOfSight(Unit* /*who*/){}
@@ -158,7 +158,7 @@ public:
 
                 me->setFaction(me->GetCreatureInfo()->faction_H);
 
-                DoCast(me, SPELL_UNSHACKLED, true);
+                DoCast (me, SPELL_UNSHACKLED, true);
                 me->MonsterSay(SAY_RAGECLAW, LANG_UNIVERSAL, 0);
                 me->GetMotionMaster()->MoveRandom(10);
 
@@ -630,7 +630,7 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            DoCast(who, SPELL_IMPALE);
+            DoCast (who, SPELL_IMPALE);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -640,7 +640,7 @@ public:
 
             if (!bBattleShout && uiBattleShoutTimer <= uiDiff)
             {
-                DoCast(me, SPELL_BATTLE_SHOUT);
+                DoCast (me, SPELL_BATTLE_SHOUT);
                 bBattleShout = true;
             } else uiBattleShoutTimer -= uiDiff;
 
@@ -648,7 +648,7 @@ public:
             {
                 if (Unit* pAffected = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    DoCast(pAffected, SPELL_FISHY_SCENT);
+                    DoCast (pAffected, SPELL_FISHY_SCENT);
                     AffectedGUID = pAffected->GetGUID();
                 }
                 uiFishyScentTimer = 20000;
@@ -657,7 +657,7 @@ public:
             if (!bSummoned && !HealthAbovePct(50))
             {
                 DoScriptText(SAY_CALL_FOR_HELP, me);
-                //DoCast(me->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
+                //DoCast (me->getVictim(), SPELL_SUMMON_WHISKER); petai is not working correctly???
 
                 if (Creature* pWhisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     uiWhisker = pWhisker->GetGUID();
@@ -755,7 +755,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(me, SPELL_GROW);
+            DoCast (me, SPELL_GROW);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -768,20 +768,20 @@ public:
             if (uiUppercutTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0))
-                    DoCast(target, SPELL_UPPERCUT);
+                    DoCast (target, SPELL_UPPERCUT);
                 uiUppercutTimer = 12000;
             } else uiUppercutTimer -= uiDiff;
 
             if (uiChargeTimer <= uiDiff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0))
-                    DoCast(target, SPELL_CHARGE);
+                    DoCast (target, SPELL_CHARGE);
                 uiChargeTimer = 15000;
             } else uiChargeTimer -= uiDiff;
 
             if (!bEnrage && !HealthAbovePct(20))
             {
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 bEnrage = true;
             }
             DoMeleeAttackIfReady();
@@ -854,13 +854,13 @@ public:
 
             if (uiCleaveTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 uiCleaveTimer = 9000;
             } else uiCleaveTimer -= uiDiff;
 
             if (uiCorrodeFleshTimer <= uiDiff)
             {
-                DoCast(me->getVictim(), SPELL_CORRODE_FLESH);
+                DoCast (me->getVictim(), SPELL_CORRODE_FLESH);
                 uiCorrodeFleshTimer = 6000;
             } else uiCorrodeFleshTimer -= uiDiff;
 
@@ -882,7 +882,7 @@ public:
             }
 
             for (uint8 i = 0; i < 3; ++i)
-                DoCast(killer, SPELL_JORMUNGAR_SPAWN, true);
+                DoCast (killer, SPELL_JORMUNGAR_SPAWN, true);
         }
     };
 
@@ -986,7 +986,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (target && target->isAlive())
-                        DoCast(target, SPELL_KNOCK_AWAY);
+                        DoCast (target, SPELL_KNOCK_AWAY);
                 }
                 uiKnockAwayTimer = 10000;
             } else uiKnockAwayTimer -= uiDiff;
@@ -996,14 +996,14 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     if (target && target->isAlive())
-                        DoCast(target, SPELL_STINKY_BEARD);
+                        DoCast (target, SPELL_STINKY_BEARD);
                 }
                 uiStinkyBeardTimer = 15000;
             } else uiStinkyBeardTimer -= uiDiff;
 
             if (!bEnrage && !HealthAbovePct(20))
             {
-                DoCast(me, SPELL_ENRAGE_STINKBEARD);
+                DoCast (me, SPELL_ENRAGE_STINKBEARD);
                 bEnrage = true;
             }
             DoMeleeAttackIfReady();
@@ -1219,7 +1219,7 @@ public:
             {
                 if (uiMissleTimer <= uiDiff)
                 {
-                    DoCast(me, uiSpell); // this spell is not supported ... YET!
+                    DoCast (me, uiSpell); // this spell is not supported ... YET!
                     uiMissleTimer = urand(2000, 7000);
 
                 } else uiMissleTimer -= uiDiff;

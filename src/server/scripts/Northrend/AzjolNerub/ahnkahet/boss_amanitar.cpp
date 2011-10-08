@@ -97,7 +97,7 @@ public:
             if (instance)
                 instance->SetData(DATA_AMANITAR_EVENT, IN_PROGRESS);
 
-            DoCast(me, SPELL_MINI, false);
+            DoCast (me, SPELL_MINI, false);
         }
 
         void SpawnAdds()
@@ -133,7 +133,7 @@ public:
             if (uiRootTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_ENTANGLING_ROOTS);
+                    DoCast (target, SPELL_ENTANGLING_ROOTS);
                 uiRootTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiRootTimer -= diff;
 
@@ -146,7 +146,7 @@ public:
             if (uiBoltTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_VENOM_BOLT_VOLLEY);
+                    DoCast (target, SPELL_VENOM_BOLT_VOLLEY);
                 uiBoltTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             } else uiBoltTimer -= diff;
 
@@ -174,10 +174,10 @@ public:
 
         void Reset()
         {
-            DoCast(me, SPELL_PUTRID_MUSHROOM, true); // Hack, to make the mushrooms visible, can't find orig. spell...
+            DoCast (me, SPELL_PUTRID_MUSHROOM, true); // Hack, to make the mushrooms visible, can't find orig. spell...
 
             if (me->GetEntry() == NPC_POISONOUS_MUSHROOM)
-                DoCast(me, SPELL_POISONOUS_MUSHROOM_VISUAL_AURA, true);
+                DoCast (me, SPELL_POISONOUS_MUSHROOM_VISUAL_AURA, true);
 
             uiAuraTimer = 0;
             uiDeathTimer = 30*IN_MILLISECONDS;
@@ -191,7 +191,7 @@ public:
             if (me->GetEntry() == NPC_HEALTHY_MUSHROOM && killer->GetTypeId() == TYPEID_PLAYER)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(killer, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, false);
+                DoCast (killer, SPELL_HEALTHY_MUSHROOM_POTENT_FUNGUS, false);
             }
         }
 
@@ -204,8 +204,8 @@ public:
             {
                 if (uiAuraTimer <= diff)
                 {
-                    DoCast(me, SPELL_POISONOUS_MUSHROOM_VISUAL_AREA, true);
-                    DoCast(me, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD, false);
+                    DoCast (me, SPELL_POISONOUS_MUSHROOM_VISUAL_AREA, true);
+                    DoCast (me, SPELL_POISONOUS_MUSHROOM_POISON_CLOUD, false);
                     uiAuraTimer = 7*IN_MILLISECONDS;
                 } else uiAuraTimer -= diff;
             }

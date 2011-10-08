@@ -275,7 +275,7 @@ class boss_akilzon : public CreatureScript
                 {
                     me->MonsterYell(SAY_ONENRAGE, LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_ONENRAGE);
-                    DoCast(me, SPELL_BERSERK, true);
+                    DoCast (me, SPELL_BERSERK, true);
                     Enrage_Timer = 600000;
                 } else Enrage_Timer -= diff;
 
@@ -284,7 +284,7 @@ class boss_akilzon : public CreatureScript
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                     if (!target) target = me->getVictim();
                     TargetGUID = target->GetGUID();
-                    DoCast(target, SPELL_STATIC_DISRUPTION, false);
+                    DoCast (target, SPELL_STATIC_DISRUPTION, false);
                     me->SetInFront(me->getVictim());
                     StaticDisruption_Timer = (10+rand()%8)*1000; // < 20s
 
@@ -296,13 +296,13 @@ class boss_akilzon : public CreatureScript
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                     if (!target) target = me->getVictim();
-                    DoCast(target, SPELL_GUST_OF_WIND);
+                    DoCast (target, SPELL_GUST_OF_WIND);
                     GustOfWind_Timer = (20+rand()%10)*1000; //20 to 30 seconds(bosskillers)
                 } else GustOfWind_Timer -= diff;
 
                 if (CallLighting_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CALL_LIGHTNING);
+                    DoCast (me->getVictim(), SPELL_CALL_LIGHTNING);
                     CallLighting_Timer = (12 + rand()%5)*1000; //totaly random timer. can't find any info on this
                 } else CallLighting_Timer -= diff;
 
@@ -320,7 +320,7 @@ class boss_akilzon : public CreatureScript
                         return;
                     }
                     target->CastSpell(target, 44007, true);//cloud visual
-                    DoCast(target, SPELL_ELECTRICAL_STORM, false);//storm cyclon + visual
+                    DoCast (target, SPELL_ELECTRICAL_STORM, false);//storm cyclon + visual
                     float x, y, z;
                     target->GetPosition(x, y, z);
                     if (target)
@@ -423,7 +423,7 @@ class mob_akilzon_eagle : public CreatureScript
                 if (TargetGUID)
                 {
                     if (Unit* target = Unit::GetUnit(*me, TargetGUID))
-                        DoCast(target, SPELL_EAGLE_SWOOP, true);
+                        DoCast (target, SPELL_EAGLE_SWOOP, true);
                     TargetGUID = 0;
                     me->SetSpeed(MOVE_RUN, 1.2f);
                     EagleSwoop_Timer = 5000 + rand()%5000;

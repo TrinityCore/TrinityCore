@@ -148,11 +148,11 @@ public:
 
                     if (IsHeroic())
                     {
-                        DoCast(me, H_SPELL_SUMMON_PURE_ENERGY1, false);
-                        DoCast(me, H_SPELL_SUMMON_PURE_ENERGY2, false);
+                        DoCast (me, H_SPELL_SUMMON_PURE_ENERGY1, false);
+                        DoCast (me, H_SPELL_SUMMON_PURE_ENERGY2, false);
                     }
                     else
-                        DoCast(me, SPELL_SUMMON_PURE_ENERGY, false);
+                        DoCast (me, SPELL_SUMMON_PURE_ENERGY, false);
 
                     //below are workaround summons, remove when summoning spells w/implicitTarget 73 implemented in the core
                     me->SummonCreature(NPC_PURE_ENERGY, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_CORPSE_DESPAWN, 0);
@@ -164,7 +164,7 @@ public:
                 if (ChainLightningTimer <= diff)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                        DoCast(target, SPELL_CHAIN_LIGHTNING);
+                        DoCast (target, SPELL_CHAIN_LIGHTNING);
 
                     ChainLightningTimer = 8000;
                 } else ChainLightningTimer -= diff;
@@ -173,7 +173,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     if (target)
-                        DoCast(target, SPELL_ARCANE_SHOCK);
+                        DoCast (target, SPELL_ARCANE_SHOCK);
 
                     ArcaneShockTimer = 8000;
                 } else ArcaneShockTimer -= diff;
@@ -182,7 +182,7 @@ public:
             {
                 if (OverloadTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_OVERLOAD);
+                    DoCast (me->getVictim(), SPELL_OVERLOAD);
 
                     OverloadTimer = 2000;
                 } else OverloadTimer -= diff;

@@ -113,7 +113,7 @@ public:
             IsIntro = false;
             Enraged = false;
 
-            DoCast(me, SPELL_DUAL_WIELD, true);
+            DoCast (me, SPELL_DUAL_WIELD, true);
 
             if (instance)
                 instance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
@@ -215,7 +215,7 @@ public:
                     ++IntroPhase;
                     break;
                 case 3:
-                    DoCast(me, SPELL_INTRO_FROST_BLAST);
+                    DoCast (me, SPELL_INTRO_FROST_BLAST);
                     Madrigosa->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                     me->AttackStop();
                     Madrigosa->AttackStop();
@@ -231,7 +231,7 @@ public:
                 case 5:
                     Madrigosa->CastSpell(me, SPELL_INTRO_ENCAPSULATE_CHANELLING, false);
                     DoScriptText(YELL_MADR_TRAP, Madrigosa);
-                    DoCast(me, SPELL_INTRO_ENCAPSULATE);
+                    DoCast (me, SPELL_INTRO_ENCAPSULATE);
                     IntroPhaseTimer = 11000;
                     ++IntroPhase;
                     break;
@@ -309,14 +309,14 @@ public:
 
             if (SlashTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_METEOR_SLASH);
+                DoCast (me->getVictim(), SPELL_METEOR_SLASH);
                 SlashTimer = 11000;
             } else SlashTimer -= diff;
 
             if (StompTimer <= diff)
             {
                 DoScriptText(RAND(YELL_LOVE1, YELL_LOVE2, YELL_LOVE3), me);
-                DoCast(me->getVictim(), SPELL_STOMP);
+                DoCast (me->getVictim(), SPELL_STOMP);
                 StompTimer = 30000;
             } else StompTimer -= diff;
 
@@ -336,7 +336,7 @@ public:
             if (BerserkTimer < diff && !Enraged)
             {
                 DoScriptText(YELL_BERSERK, me);
-                DoCast(me, SPELL_BERSERK);
+                DoCast (me, SPELL_BERSERK);
                 Enraged = true;
             } else BerserkTimer -= diff;
 

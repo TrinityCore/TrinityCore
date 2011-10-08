@@ -102,14 +102,14 @@ public:
 
             if (uiFrenzyTimer <= diff)
             {
-                DoCast(me, SPELL_FRENZY);
+                DoCast (me, SPELL_FRENZY);
                 uiFrenzyTimer = urand(21000, 26000);
             } else uiFrenzyTimer -= diff;
 
             if (uiChainTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
+                    DoCast (target, SPELL_CONSTRICTING_CHAINS); //anyone but the tank
                 uiChainTimer = urand(2000, 4000);
             } else uiChainTimer -= diff;
 

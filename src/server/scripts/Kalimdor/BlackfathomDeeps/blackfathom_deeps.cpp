@@ -142,7 +142,7 @@ public:
                 {
                     if (uiRavageTimer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_RAVAGE);
+                        DoCast (me->getVictim(), SPELL_RAVAGE);
                         uiRavageTimer = urand(9000, 14000);
                     } else uiRavageTimer -= uiDiff;
                     break;
@@ -164,7 +164,7 @@ public:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
                             if (target)
-                                DoCast(target, SPELL_FROST_BOLT_VOLLEY);
+                                DoCast (target, SPELL_FROST_BOLT_VOLLEY);
                         }
                         uiFrostBoltVolleyTimer = urand(5000, 8000);
                     } else uiFrostBoltVolleyTimer -= uiDiff;

@@ -92,7 +92,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     DoScriptText(SAY_SLEEP, me);
-                    DoCast(target, SPELL_SLEEP);
+                    DoCast (target, SPELL_SLEEP);
                 }
                 uiSleepTimer = urand(15000, 20000);
             } else uiSleepTimer -= diff;

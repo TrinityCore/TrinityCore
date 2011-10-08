@@ -93,28 +93,28 @@ class mob_av_marshal_or_warmaster : public CreatureScript
                     switch (me->GetEntry())
                     {
                         case NPC_NORTH_MARSHAL:
-                            DoCast(me, SPELL_NORTH_MARSHAL);
+                            DoCast (me, SPELL_NORTH_MARSHAL);
                             break;
                         case NPC_SOUTH_MARSHAL:
-                            DoCast(me, SPELL_SOUTH_MARSHAL);
+                            DoCast (me, SPELL_SOUTH_MARSHAL);
                             break;
                         case NPC_STONEHEARTH_MARSHAL:
-                            DoCast(me, SPELL_STONEHEARTH_MARSHAL);
+                            DoCast (me, SPELL_STONEHEARTH_MARSHAL);
                             break;
                         case NPC_ICEWING_MARSHAL:
-                            DoCast(me, SPELL_ICEWING_MARSHAL);
+                            DoCast (me, SPELL_ICEWING_MARSHAL);
                             break;
                         case NPC_EAST_FROSTWOLF_WARMASTER:
-                            DoCast(me, SPELL_EAST_FROSTWOLF_WARMASTER);
+                            DoCast (me, SPELL_EAST_FROSTWOLF_WARMASTER);
                             break;
                         case NPC_WEST_FROSTWOLF_WARMASTER:
-                            DoCast(me, SPELL_WEST_FROSTWOLF_WARMASTER);
+                            DoCast (me, SPELL_WEST_FROSTWOLF_WARMASTER);
                             break;
                         case NPC_ICEBLOOD_WARMASTER:
-                            DoCast(me, SPELL_ICEBLOOD_WARMASTER);
+                            DoCast (me, SPELL_ICEBLOOD_WARMASTER);
                             break;
                         case NPC_TOWER_POINT_WARMASTER:
-                            DoCast(me, SPELL_TOWER_POINT_WARMASTER);
+                            DoCast (me, SPELL_TOWER_POINT_WARMASTER);
                             break;
                     }
 
@@ -126,37 +126,37 @@ class mob_av_marshal_or_warmaster : public CreatureScript
 
                 if (ChargeTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CHARGE);
+                    DoCast (me->getVictim(), SPELL_CHARGE);
                     ChargeTimer = urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
                 } else ChargeTimer -= diff;
 
                 if (CleaveTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_CLEAVE);
+                    DoCast (me->getVictim(), SPELL_CLEAVE);
                     CleaveTimer =  urand(10 * IN_MILLISECONDS, 16 * IN_MILLISECONDS);
                 } else CleaveTimer -= diff;
 
                 if (DemoralizingShoutTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_DEMORALIZING_SHOUT);
+                    DoCast (me->getVictim(), SPELL_DEMORALIZING_SHOUT);
                     DemoralizingShoutTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
                 } else DemoralizingShoutTimer -= diff;
 
                 if (Whirlwind1Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_WHIRLWIND1);
+                    DoCast (me->getVictim(), SPELL_WHIRLWIND1);
                     Whirlwind1Timer = urand(6 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
                 } else Whirlwind1Timer -= diff;
 
                 if (Whirlwind2Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_WHIRLWIND2);
+                    DoCast (me->getVictim(), SPELL_WHIRLWIND2);
                     Whirlwind2Timer = urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
                 } else Whirlwind2Timer -= diff;
 
                 if (EnrageTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ENRAGE);
+                    DoCast (me->getVictim(), SPELL_ENRAGE);
                     EnrageTimer = urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
                 }else EnrageTimer -= diff;
 

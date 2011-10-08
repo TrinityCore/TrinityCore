@@ -231,7 +231,7 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
 
 CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup)
 {
-    ASSERT(source);//should never happen
+    ASSERT (source);//should never happen
     CreatureTextRepeatIds ids;
 
     CreatureTextRepeatMap::const_iterator mapItr = mTextRepeatMap.find(source->GetGUID());

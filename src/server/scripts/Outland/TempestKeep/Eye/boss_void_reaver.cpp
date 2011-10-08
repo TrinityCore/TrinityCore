@@ -109,7 +109,7 @@ class boss_void_reaver : public CreatureScript
                 // Pounding
                 if (Pounding_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_POUNDING);
+                    DoCast (me->getVictim(), SPELL_POUNDING);
                     DoScriptText(RAND(SAY_POUNDING1, SAY_POUNDING2), me);
                     Pounding_Timer = 15000; //cast time(3000) + cooldown time(12000)
                 }
@@ -146,7 +146,7 @@ class boss_void_reaver : public CreatureScript
                 // Single Target knock back, reduces aggro
                 if (KnockAway_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_KNOCK_AWAY);
+                    DoCast (me->getVictim(), SPELL_KNOCK_AWAY);
                     //Drop 25% aggro
                     if (DoGetThreat(me->getVictim()))
                         DoModifyThreatPercent(me->getVictim(), -25);
@@ -157,7 +157,7 @@ class boss_void_reaver : public CreatureScript
                 //Berserk
                 if (Berserk_Timer < diff && !Enraged)
                 {
-                    DoCast(me, SPELL_BERSERK);
+                    DoCast (me, SPELL_BERSERK);
                     Enraged = true;
                 }
                 else

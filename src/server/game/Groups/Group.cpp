@@ -130,7 +130,7 @@ bool Group::Create(Player* leader)
             GUID_LOPART(m_looterGuid), uint32(m_lootThreshold), m_targetIcons[0], m_targetIcons[1], m_targetIcons[2], m_targetIcons[3], m_targetIcons[4], m_targetIcons[5], m_targetIcons[6],
             m_targetIcons[7], uint8(m_groupType), uint32(m_dungeonDifficulty), m_raidDifficulty);
 
-        ASSERT(AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
+        ASSERT (AddMember(leader)); // If the leader can't be added to a new group because it appears full, something is clearly wrong.
 
         Player::ConvertInstancesToGroup(leader, this, false);
     }
@@ -721,7 +721,7 @@ void Group::SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r)
 // notify group members which player is the allowed looter for the given creature
 void Group::SendLooter(Creature* creature, Player* pLooter)
 {
-    ASSERT(creature);
+    ASSERT (creature);
 
     WorldPacket data(SMSG_LOOT_LIST, (8+8));
     data << uint64(creature->GetGUID());

@@ -67,7 +67,7 @@ public:
             //GroundTremor_Timer
             if (GroundTremor_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GROUNDTREMOR);
+                DoCast (me->getVictim(), SPELL_GROUNDTREMOR);
                 GroundTremor_Timer = 8000;
             } else GroundTremor_Timer -= diff;
 
@@ -76,7 +76,7 @@ public:
             {
                 if (Frenzy_Timer <= diff)
                 {
-                    DoCast(me, SPELL_FRENZY);
+                    DoCast (me, SPELL_FRENZY);
                     DoScriptText(EMOTE_GENERIC_FRENZY_KILL, me);
 
                     Frenzy_Timer = 15000;

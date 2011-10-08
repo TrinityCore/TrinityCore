@@ -280,7 +280,7 @@ public:
             DoScriptText(RAND(TEXT_SACRIFICE_2_1, TEXT_SACRIFICE_2_2), me);
 
             me->InterruptNonMeleeSpells(false);
-            DoCast(me, SPELL_GIFT_OF_THE_HERALD, false);
+            DoCast (me, SPELL_GIFT_OF_THE_HERALD, false);
 
             bOpFerok = false;
             bCanDown = true;
@@ -312,7 +312,7 @@ public:
 
                 if (uiCycloneTimer <= diff)
                 {
-                    DoCast(me, SPELL_CYCLONE_STRIKE, false);
+                    DoCast (me, SPELL_CYCLONE_STRIKE, false);
                     uiCycloneTimer = urand(15*IN_MILLISECONDS, 30*IN_MILLISECONDS);
                 } else uiCycloneTimer -= diff;
 
@@ -383,7 +383,7 @@ public:
             }
             else
             {
-                DoCast(me, SPELL_SPHERE_VISUAL, false);
+                DoCast (me, SPELL_SPHERE_VISUAL, false);
                 me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
                 me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
@@ -491,7 +491,7 @@ public:
                     }
                     if (instance->GetData(DATA_JEDOGA_SHADOWSEEKER_EVENT) == IN_PROGRESS && !me->HasAura(SPELL_SPHERE_VISUAL))
                     {
-                        DoCast(me, SPELL_SPHERE_VISUAL, false);
+                        DoCast (me, SPELL_SPHERE_VISUAL, false);
                         me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
                         me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
@@ -566,7 +566,7 @@ public:
                 }
                 if (!bCasted)
                 {
-                    DoCast(me, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1, false);
+                    DoCast (me, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_1, false);
                     bCasted = true;
                 }
             }
@@ -574,7 +574,7 @@ public:
             {
                 if (!bCasted2 && instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))
                 {
-                    DoCast(me, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2, false);
+                    DoCast (me, SPELL_BEAM_VISUAL_JEDOGAS_AUFSEHER_2, false);
                     bCasted2 = true;
                 }
                 if (bCasted2 && !instance->GetData(DATA_JEDOGA_TRIGGER_SWITCH))

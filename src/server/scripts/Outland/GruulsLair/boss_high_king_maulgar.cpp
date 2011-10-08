@@ -145,7 +145,7 @@ public:
             Charging_Timer = 0;
             Roar_Timer = 0;
 
-            DoCast(me, SPELL_DUAL_WIELD, false);
+            DoCast (me, SPELL_DUAL_WIELD, false);
 
             Phase2 = false;
 
@@ -246,21 +246,21 @@ public:
             //ArcingSmash_Timer
             if (ArcingSmash_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCING_SMASH);
+                DoCast (me->getVictim(), SPELL_ARCING_SMASH);
                 ArcingSmash_Timer = 10000;
             } else ArcingSmash_Timer -= diff;
 
             //Whirlwind_Timer
                    if (Whirlwind_Timer <= diff)
                    {
-                        DoCast(me->getVictim(), SPELL_WHIRLWIND);
+                        DoCast (me->getVictim(), SPELL_WHIRLWIND);
                         Whirlwind_Timer = 55000;
                    } else Whirlwind_Timer -= diff;
 
             //MightyBlow_Timer
             if (MightyBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIGHTY_BLOW);
+                DoCast (me->getVictim(), SPELL_MIGHTY_BLOW);
                 MightyBlow_Timer = 30000+rand()%10000;
             } else MightyBlow_Timer -= diff;
 
@@ -270,7 +270,7 @@ public:
                 Phase2 = true;
                 DoScriptText(SAY_ENRAGE, me);
 
-                DoCast(me, SPELL_DUAL_WIELD, true);
+                DoCast (me, SPELL_DUAL_WIELD, true);
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 0);
                 me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
             }
@@ -285,7 +285,7 @@ public:
                     if (target)
                     {
                         AttackStart(target);
-                        DoCast(target, SPELL_BERSERKER_C);
+                        DoCast (target, SPELL_BERSERKER_C);
                     }
                     Charging_Timer = 20000;
                 } else Charging_Timer -= diff;
@@ -293,7 +293,7 @@ public:
                 //Intimidating Roar
                 if (Roar_Timer <= diff)
                 {
-                    DoCast(me, SPELL_ROAR);
+                    DoCast (me, SPELL_ROAR);
                     Roar_Timer = 40000+(rand()%10000);
                 } else Roar_Timer -= diff;
             }
@@ -405,14 +405,14 @@ public:
             //DarkDecay_Timer
             if (DarkDecay_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_DARK_DECAY);
+                DoCast (me->getVictim(), SPELL_DARK_DECAY);
                 DarkDecay_Timer = 20000;
             } else DarkDecay_Timer -= diff;
 
             //Summon_Timer
             if (Summon_Timer <= diff)
             {
-                DoCast(me, SPELL_SUMMON_WFH);
+                DoCast (me, SPELL_SUMMON_WFH);
                 Summon_Timer = 30000;
             } else Summon_Timer -= diff;
 
@@ -422,7 +422,7 @@ public:
                 Unit* target = NULL;
                 target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
-                    DoCast(target, SPELL_DEATH_COIL);
+                    DoCast (target, SPELL_DEATH_COIL);
                 DeathCoil_Timer = 20000;
             } else DeathCoil_Timer -= diff;
 
@@ -522,7 +522,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target)
-                    DoCast(target, SPELL_GREATER_POLYMORPH);
+                    DoCast (target, SPELL_GREATER_POLYMORPH);
 
                 GreaterPolymorph_Timer = 15000 + rand()%5000;
             } else GreaterPolymorph_Timer -= diff;
@@ -530,21 +530,21 @@ public:
             //LightningBolt_Timer
             if (LightningBolt_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_LIGHTNING_BOLT);
+                DoCast (me->getVictim(), SPELL_LIGHTNING_BOLT);
                 LightningBolt_Timer = 15000;
             } else LightningBolt_Timer -= diff;
 
             //ArcaneShock_Timer
             if (ArcaneShock_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_SHOCK);
+                DoCast (me->getVictim(), SPELL_ARCANE_SHOCK);
                 ArcaneShock_Timer = 20000;
             } else ArcaneShock_Timer -= diff;
 
             //ArcaneExplosion_Timer
             if (ArcaneExplosion_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
+                DoCast (me->getVictim(), SPELL_ARCANE_EXPLOSION);
                 ArcaneExplosion_Timer = 30000;
             } else ArcaneExplosion_Timer -= diff;
 
@@ -640,21 +640,21 @@ public:
             //GreaterPowerWordShield_Timer
             if (GreaterPowerWordShield_Timer <= diff)
             {
-                DoCast(me, SPELL_GREATER_PW_SHIELD);
+                DoCast (me, SPELL_GREATER_PW_SHIELD);
                 GreaterPowerWordShield_Timer = 40000;
             } else GreaterPowerWordShield_Timer -= diff;
 
             //Heal_Timer
             if (Heal_Timer <= diff)
             {
-                DoCast(me, SPELL_HEAL);
+                DoCast (me, SPELL_HEAL);
                 Heal_Timer = 15000 + rand()%25000;
             } else Heal_Timer -= diff;
 
             //PrayerofHealing_Timer
             if (PrayerofHealing_Timer <= diff)
             {
-                DoCast(me, SPELL_PRAYER_OH);
+                DoCast (me, SPELL_PRAYER_OH);
                 PrayerofHealing_Timer = 35000 + rand()%15000;
             } else PrayerofHealing_Timer -= diff;
 
@@ -750,7 +750,7 @@ public:
             //GreaterFireball_Timer
             if (GreaterFireball_Timer < diff || me->IsWithinDist(me->getVictim(), 30))
             {
-                DoCast(me->getVictim(), SPELL_GREATER_FIREBALL);
+                DoCast (me->getVictim(), SPELL_GREATER_FIREBALL);
                 GreaterFireball_Timer = 2000;
             } else GreaterFireball_Timer -= diff;
 
@@ -758,7 +758,7 @@ public:
             if (SpellShield_Timer <= diff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoCast(me->getVictim(), SPELL_SPELLSHIELD);
+                DoCast (me->getVictim(), SPELL_SPELLSHIELD);
                 SpellShield_Timer = 30000;
             } else SpellShield_Timer -= diff;
 
@@ -780,7 +780,7 @@ public:
                     target = *(target_list.begin()+rand()%target_list.size());
 
                 me->InterruptNonMeleeSpells(false);
-                DoCast(target, SPELL_BLAST_WAVE);
+                DoCast (target, SPELL_BLAST_WAVE);
                 BlastWave_Timer = 60000;
             } else BlastWave_Timer -= diff;
         }

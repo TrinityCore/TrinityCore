@@ -250,7 +250,7 @@ public:
                             case 5: mark_spell = SPELL_MARK_OF_CORRUPTION6; break;
                         }
 
-                        DoCast(me->getVictim(), mark_spell);
+                        DoCast (me->getVictim(), mark_spell);
 
                         if (MarkOfCorruption_Count < 5)
                             ++MarkOfCorruption_Count;
@@ -264,7 +264,7 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (target)
-                        DoCast(target, SPELL_VILE_SLUDGE);
+                        DoCast (target, SPELL_VILE_SLUDGE);
 
                     VileSludge_Timer = 15000;
                 } else VileSludge_Timer -= diff;
@@ -317,7 +317,7 @@ public:
                             case 5:  mark_spell = SPELL_MARK_OF_HYDROSS6; break;
                         }
 
-                        DoCast(me->getVictim(), mark_spell);
+                        DoCast (me->getVictim(), mark_spell);
 
                         if (MarkOfHydross_Count < 5)
                             ++MarkOfHydross_Count;
@@ -331,7 +331,7 @@ public:
                 {
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     if (target)
-                        DoCast(target, SPELL_WATER_TOMB);
+                        DoCast (target, SPELL_WATER_TOMB);
 
                     WaterTomb_Timer = 7000;
                 } else WaterTomb_Timer -= diff;
@@ -368,7 +368,7 @@ public:
             //EnrageTimer
             if (EnrageTimer <= diff)
             {
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 EnrageTimer = 60000;
             } else EnrageTimer -= diff;
 

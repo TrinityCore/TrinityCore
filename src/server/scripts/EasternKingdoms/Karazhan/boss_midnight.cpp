@@ -256,13 +256,13 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
 
     if (CleaveTimer <= diff)
     {
-        DoCast(me->getVictim(), SPELL_SHADOWCLEAVE);
+        DoCast (me->getVictim(), SPELL_SHADOWCLEAVE);
         CleaveTimer = urand(10000, 15000);
     } else CleaveTimer -= diff;
 
     if (CurseTimer <= diff)
     {
-        DoCast(me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
+        DoCast (me->getVictim(), SPELL_INTANGIBLE_PRESENCE);
         CurseTimer = 30000;
     } else CurseTimer -= diff;
 
@@ -289,7 +289,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)
             if (!target_list.empty())
                 target = *(target_list.begin()+rand()%target_list.size());
 
-            DoCast(target, SPELL_BERSERKER_CHARGE);
+            DoCast (target, SPELL_BERSERKER_CHARGE);
             ChargeTimer = 20000;
         } else ChargeTimer -= diff;
     }

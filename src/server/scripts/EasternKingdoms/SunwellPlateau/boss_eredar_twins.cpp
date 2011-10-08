@@ -235,7 +235,7 @@ public:
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_ALYTHESS_DEAD, me);
-                        DoCast(me, SPELL_EMPOWER);
+                        DoCast (me, SPELL_EMPOWER);
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
                         SisterDeath = true;
                     }
@@ -255,7 +255,7 @@ public:
                         Unit* target = NULL;
                         target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
-                            DoCast(target, SPELL_CONFLAGRATION);
+                            DoCast (target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000+(rand()%5000);
                     }
                 } else ConflagrationTimer -= diff;
@@ -269,7 +269,7 @@ public:
                         Unit* target = NULL;
                         target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
-                            DoCast(target, SPELL_SHADOW_NOVA);
+                            DoCast (target, SPELL_SHADOW_NOVA);
 
                         if (!SisterDeath)
                         {
@@ -289,7 +289,7 @@ public:
                     Unit* target = NULL;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                     if (target)
-                        DoCast(target, SPELL_CONFOUNDING_BLOW);
+                        DoCast (target, SPELL_CONFOUNDING_BLOW);
                     ConfoundingblowTimer = 20000 + (rand()%5000);
                 }
             } else ConfoundingblowTimer -=diff;
@@ -315,7 +315,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(me, SPELL_SHADOW_BLADES);
+                    DoCast (me, SPELL_SHADOW_BLADES);
                     ShadowbladesTimer = 10000;
                 }
             } else ShadowbladesTimer -=diff;
@@ -324,7 +324,7 @@ public:
             {
                 me->InterruptSpell(CURRENT_GENERIC_SPELL);
                 DoScriptText(YELL_ENRAGE, me);
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 Enraged = true;
             } else EnrageTimer -= diff;
 
@@ -571,7 +571,7 @@ public:
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_SACROLASH_DEAD, me);
-                        DoCast(me, SPELL_EMPOWER);
+                        DoCast (me, SPELL_EMPOWER);
                         me->InterruptSpell(CURRENT_GENERIC_SPELL);
                         SisterDeath = true;
                     }
@@ -603,7 +603,7 @@ public:
                         Unit* target = NULL;
                         target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
-                            DoCast(target, SPELL_SHADOW_NOVA);
+                            DoCast (target, SPELL_SHADOW_NOVA);
                         ShadownovaTimer= 30000+(rand()%5000);
                     }
                 } else ShadownovaTimer -=diff;
@@ -618,7 +618,7 @@ public:
                         Unit* target = NULL;
                         target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                         if (target)
-                            DoCast(target, SPELL_CONFLAGRATION);
+                            DoCast (target, SPELL_CONFLAGRATION);
                         ConflagrationTimer = 30000+(rand()%5000);
 
                         if (!SisterDeath)
@@ -637,7 +637,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(me, SPELL_FLAME_SEAR);
+                    DoCast (me, SPELL_FLAME_SEAR);
                     FlamesearTimer = 15000;
                 }
             } else FlamesearTimer -=diff;
@@ -646,7 +646,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(me, SPELL_PYROGENICS, true);
+                    DoCast (me, SPELL_PYROGENICS, true);
                     PyrogenicsTimer = 15000;
                 }
             } else PyrogenicsTimer -= diff;
@@ -655,7 +655,7 @@ public:
             {
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
-                    DoCast(me->getVictim(), SPELL_BLAZE);
+                    DoCast (me->getVictim(), SPELL_BLAZE);
                     BlazeTimer = 3800;
                 }
             } else BlazeTimer -= diff;
@@ -664,7 +664,7 @@ public:
             {
                 me->InterruptSpell(CURRENT_GENERIC_SPELL);
                 DoScriptText(YELL_BERSERK, me);
-                DoCast(me, SPELL_ENRAGE);
+                DoCast (me, SPELL_ENRAGE);
                 Enraged = true;
             } else EnrageTimer -= diff;
         }
@@ -722,7 +722,7 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (!me->HasAura(SPELL_IMAGE_VISUAL))
-                DoCast(me, SPELL_IMAGE_VISUAL);
+                DoCast (me, SPELL_IMAGE_VISUAL);
 
             if (KillTimer <= diff)
             {
@@ -735,7 +735,7 @@ public:
 
             if (ShadowfuryTimer <= diff)
             {
-                DoCast(me, SPELL_SHADOW_FURY);
+                DoCast (me, SPELL_SHADOW_FURY);
                 ShadowfuryTimer = 10000;
             } else ShadowfuryTimer -=diff;
 
@@ -745,7 +745,7 @@ public:
                 {
                     //If we are within range melee the target
                     if (me->IsWithinMeleeRange(me->getVictim()))
-                        DoCast(me->getVictim(), SPELL_DARK_STRIKE);
+                        DoCast (me->getVictim(), SPELL_DARK_STRIKE);
                 }
                 DarkstrikeTimer = 3000;
             } else DarkstrikeTimer -= diff;

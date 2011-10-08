@@ -154,7 +154,7 @@ class boss_arlokk : public CreatureScript
                 {
                     if (m_uiShadowWordPain_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
+                        DoCast (me->getVictim(), SPELL_SHADOWWORDPAIN);
                         m_uiShadowWordPain_Timer = 15000;
                     }
                     else
@@ -166,7 +166,7 @@ class boss_arlokk : public CreatureScript
 
                         if (pMarkedTarget)
                         {
-                            DoCast(pMarkedTarget, SPELL_MARK);
+                            DoCast (pMarkedTarget, SPELL_MARK);
                             MarkedTargetGUID = pMarkedTarget->GetGUID();
                         }
                         else
@@ -182,7 +182,7 @@ class boss_arlokk : public CreatureScript
                     //Cleave_Timer
                     if (m_uiCleave_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_CLEAVE);
+                        DoCast (me->getVictim(), SPELL_CLEAVE);
                         m_uiCleave_Timer = 16000;
                     }
                     else
@@ -191,7 +191,7 @@ class boss_arlokk : public CreatureScript
                     //Gouge_Timer
                     if (m_uiGouge_Timer <= uiDiff)
                     {
-                        DoCast(me->getVictim(), SPELL_GOUGE);
+                        DoCast (me->getVictim(), SPELL_GOUGE);
 
                         DoModifyThreatPercent(me->getVictim(), -80);
 

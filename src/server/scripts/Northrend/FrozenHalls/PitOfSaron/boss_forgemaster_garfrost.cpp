@@ -108,7 +108,7 @@ class boss_garfrost : public CreatureScript
             void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
-                DoCast(me, SPELL_PERMAFROST);
+                DoCast (me, SPELL_PERMAFROST);
                 events.ScheduleEvent(EVENT_THROW_SARONITE, 7000);
 
                 instance->SetBossState(DATA_GARFROST, IN_PROGRESS);
@@ -135,7 +135,7 @@ class boss_garfrost : public CreatureScript
                 {
                     events.SetPhase(PHASE_TWO);
                     events.DelayEvents(8000);
-                    DoCast(me, SPELL_THUNDERING_STOMP);
+                    DoCast (me, SPELL_THUNDERING_STOMP);
                     events.ScheduleEvent(EVENT_JUMP, 1500);
                     return;
                 }
@@ -144,7 +144,7 @@ class boss_garfrost : public CreatureScript
                 {
                     events.SetPhase(PHASE_THREE);
                     events.DelayEvents(8000);
-                    DoCast(me, SPELL_THUNDERING_STOMP);
+                    DoCast (me, SPELL_THUNDERING_STOMP);
                     events.ScheduleEvent(EVENT_JUMP, 1500);
                     return;
                 }
@@ -156,11 +156,11 @@ class boss_garfrost : public CreatureScript
                     return;
 
                 if (events.GetPhaseMask() & PHASE_TWO_MASK)
-                    DoCast(me, SPELL_FORGE_BLADE);
+                    DoCast (me, SPELL_FORGE_BLADE);
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
                 {
                     me->RemoveAurasDueToSpell(SPELL_FORGE_BLADE_HELPER);
-                    DoCast(me, SPELL_FORGE_MACE);
+                    DoCast (me, SPELL_FORGE_MACE);
                 }
                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
             }
@@ -199,16 +199,16 @@ class boss_garfrost : public CreatureScript
                     {
                         case EVENT_THROW_SARONITE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_THROW_SARONITE);
+                                DoCast (target, SPELL_THROW_SARONITE);
                             events.ScheduleEvent(EVENT_THROW_SARONITE, urand(12500, 20000));
                             break;
                         case EVENT_CHILLING_WAVE:
-                            DoCast(me, SPELL_CHILLING_WAVE);
+                            DoCast (me, SPELL_CHILLING_WAVE);
                             events.ScheduleEvent(EVENT_CHILLING_WAVE, 40000, 0, PHASE_TWO);
                             break;
                         case EVENT_DEEP_FREEZE:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                                DoCast(target, SPELL_DEEP_FREEZE);
+                                DoCast (target, SPELL_DEEP_FREEZE);
                             events.ScheduleEvent(EVENT_DEEP_FREEZE, 35000, 0, PHASE_THREE);
                             break;
                         case EVENT_JUMP:

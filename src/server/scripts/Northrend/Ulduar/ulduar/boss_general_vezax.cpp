@@ -120,7 +120,7 @@ class boss_general_vezax : public CreatureScript
                 _EnterCombat();
 
                 DoScriptText(SAY_AGGRO, me);
-                DoCast(me, SPELL_AURA_OF_DESPAIR);
+                DoCast (me, SPELL_AURA_OF_DESPAIR);
                 CheckShamanisticRage();
 
                 events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 10000));
@@ -151,7 +151,7 @@ class boss_general_vezax : public CreatureScript
                             if (!target)
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
                             if (target)
-                                DoCast(target, SPELL_SHADOW_CRASH);
+                                DoCast (target, SPELL_SHADOW_CRASH);
                             events.ScheduleEvent(EVENT_SHADOW_CRASH, urand(8000, 12000));
                             break;
                         }
@@ -165,26 +165,26 @@ class boss_general_vezax : public CreatureScript
                             if (!target)
                                 target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150.0f, true);
                             if (target)
-                                DoCast(target, SPELL_MARK_OF_THE_FACELESS);
+                                DoCast (target, SPELL_MARK_OF_THE_FACELESS);
                             events.ScheduleEvent(EVENT_MARK_OF_THE_FACELESS, urand(35000, 45000));
                             break;
                         }
                         case EVENT_SURGE_OF_DARKNESS:
                             DoScriptText(EMOTE_SURGE_OF_DARKNESS, me);
                             DoScriptText(SAY_SURGE_OF_DARKNESS, me);
-                            DoCast(me, SPELL_SURGE_OF_DARKNESS);
+                            DoCast (me, SPELL_SURGE_OF_DARKNESS);
                             events.ScheduleEvent(EVENT_SURGE_OF_DARKNESS, urand(50000, 70000));
                             break;
                         case EVENT_SARONITE_VAPORS:
-                            DoCast(SPELL_SUMMON_SARONITE_VAPORS);
+                            DoCast (SPELL_SUMMON_SARONITE_VAPORS);
                             events.ScheduleEvent(EVENT_SARONITE_VAPORS, urand(30000, 35000));
                             if (++vaporCount == 6 && smellSaronite)
                             {
                                 DoScriptText(SAY_HARDMODE, me);
                                 DoScriptText(EMOTE_BARRIER, me);
                                 summons.DespawnAll();
-                                DoCast(me, SPELL_SARONITE_BARRIER);
-                                DoCast(SPELL_SUMMON_SARONITE_ANIMUS);
+                                DoCast (me, SPELL_SARONITE_BARRIER);
+                                DoCast (SPELL_SUMMON_SARONITE_ANIMUS);
                                 me->AddLootMode(LOOT_MODE_HARD_MODE_1);
                                 events.CancelEvent(EVENT_SARONITE_VAPORS);
                                 events.CancelEvent(EVENT_SEARING_FLAMES);
@@ -192,7 +192,7 @@ class boss_general_vezax : public CreatureScript
                             break;
                         case EVENT_BERSERK:
                             DoScriptText(SAY_BERSERK, me);
-                            DoCast(me, SPELL_BERSERK);
+                            DoCast (me, SPELL_BERSERK);
                             break;
                     }
                 }
@@ -318,7 +318,7 @@ class boss_saronite_animus : public CreatureScript
 
             void Reset()
             {
-                DoCast(me, SPELL_VISUAL_SARONITE_ANIMUS);
+                DoCast (me, SPELL_VISUAL_SARONITE_ANIMUS);
                 events.Reset();
                 events.ScheduleEvent(EVENT_PROFOUND_OF_DARKNESS, 3000);
             }
@@ -417,7 +417,7 @@ class npc_saronite_vapors : public CreatureScript
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
                     me->SetHealth(me->GetMaxHealth());
                     me->RemoveAllAuras();
-                    DoCast(me, SPELL_SARONITE_VAPORS);
+                    DoCast (me, SPELL_SARONITE_VAPORS);
                     me->DespawnOrUnsummon(30000);
 
                     if (Creature* Vezax = me->GetCreature(*me, instance->GetData64(BOSS_VEZAX)))

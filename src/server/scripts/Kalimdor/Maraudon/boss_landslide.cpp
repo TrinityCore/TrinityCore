@@ -66,14 +66,14 @@ public:
             //KnockAway_Timer
             if (KnockAway_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_KNOCKAWAY);
+                DoCast (me->getVictim(), SPELL_KNOCKAWAY);
                 KnockAway_Timer = 15000;
             } else KnockAway_Timer -= diff;
 
             //Trample_Timer
             if (Trample_Timer <= diff)
             {
-                DoCast(me, SPELL_TRAMPLE);
+                DoCast (me, SPELL_TRAMPLE);
                 Trample_Timer = 8000;
             } else Trample_Timer -= diff;
 
@@ -83,7 +83,7 @@ public:
                 if (Landslide_Timer <= diff)
                 {
                     me->InterruptNonMeleeSpells(false);
-                    DoCast(me, SPELL_LANDSLIDE);
+                    DoCast (me, SPELL_LANDSLIDE);
                     Landslide_Timer = 60000;
                 } else Landslide_Timer -= diff;
             }

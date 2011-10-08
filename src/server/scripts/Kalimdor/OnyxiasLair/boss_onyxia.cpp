@@ -428,7 +428,7 @@ public:
                             me->InterruptNonMeleeSpells(false);
 
                         DoScriptText(EMOTE_BREATH, me);
-                        DoCast(me, m_pPointData->uiSpellId);
+                        DoCast (me, m_pPointData->uiSpellId);
                         m_uiDeepBreathTimer = 70000;
                     }
                 }
@@ -458,7 +458,7 @@ public:
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != POINT_MOTION_TYPE)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            DoCast(target, SPELL_FIREBALL);
+                            DoCast (target, SPELL_FIREBALL);
 
                         m_uiFireballTimer = 8000;
                     }

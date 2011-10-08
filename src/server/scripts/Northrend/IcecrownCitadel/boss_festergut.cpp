@@ -183,7 +183,7 @@ class boss_festergut : public CreatureScript
                             {
                                 Talk(EMOTE_WARN_PUNGENT_BLIGHT);
                                 Talk(SAY_PUNGENT_BLIGHT);
-                                DoCast(me, SPELL_PUNGENT_BLIGHT);
+                                DoCast (me, SPELL_PUNGENT_BLIGHT);
                                 _inhaleCounter = 0;
                                 if (Creature* professor = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_PROFESSOR_PUTRICIDE)))
                                     professor->AI()->DoAction(ACTION_FESTERGUT_GAS);
@@ -191,7 +191,7 @@ class boss_festergut : public CreatureScript
                             }
                             else
                             {
-                                DoCast(me, SPELL_INHALE_BLIGHT);
+                                DoCast (me, SPELL_INHALE_BLIGHT);
                                 // just cast and dont bother with target, conditions will handle it
                                 ++_inhaleCounter;
                                 if (_inhaleCounter < 3)
@@ -211,7 +211,7 @@ class boss_festergut : public CreatureScript
                                 minDist = -5.0f;
 
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, minDist, true))
-                                DoCast(target, SPELL_VILE_GAS);
+                                DoCast (target, SPELL_VILE_GAS);
                             events.ScheduleEvent(EVENT_VILE_GAS, urand(28000, 35000));
                             break;
                         }
@@ -227,7 +227,7 @@ class boss_festergut : public CreatureScript
                             events.ScheduleEvent(EVENT_GASTRIC_BLOAT, urand(15000, 17500));
                             break;
                         case EVENT_BERSERK:
-                            DoCast(me, SPELL_BERSERK2);
+                            DoCast (me, SPELL_BERSERK2);
                             Talk(SAY_BERSERK);
                             break;
                         default:
@@ -291,7 +291,7 @@ class npc_stinky_icc : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
-                DoCast(me, SPELL_PLAGUE_STENCH);
+                DoCast (me, SPELL_PLAGUE_STENCH);
             }
 
             void UpdateAI(uint32 const diff)

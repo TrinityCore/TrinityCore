@@ -110,7 +110,7 @@ public:
                 switch (eventId)
                 {
                     case EVENT_STRIKE:
-                        DoCast(me->getVictim(), SPELL_UNBALANCING_STRIKE);
+                        DoCast (me->getVictim(), SPELL_UNBALANCING_STRIKE);
                         events.ScheduleEvent(EVENT_STRIKE, 30000);
                         return;
                     case EVENT_SHOUT:
@@ -119,7 +119,7 @@ public:
                         return;
                     case EVENT_KNIFE:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
-                            DoCast(target, SPELL_JAGGED_KNIFE);
+                            DoCast (target, SPELL_JAGGED_KNIFE);
                         events.ScheduleEvent(EVENT_KNIFE, 10000);
                         return;
                     case EVENT_COMMAND:

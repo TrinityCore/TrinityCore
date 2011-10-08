@@ -162,7 +162,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     if (!eff->item_count)                                    //all items of a set were removed
     {
-        ASSERT(eff == player->ItemSetEff[setindex]);
+        ASSERT (eff == player->ItemSetEff[setindex]);
         delete eff;
         player->ItemSetEff[setindex] = NULL;
     }
@@ -708,7 +708,7 @@ void Item::AddToUpdateQueueOf(Player* player)
     if (IsInUpdateQueue())
         return;
 
-    ASSERT(player != NULL);
+    ASSERT (player != NULL);
 
     if (player->GetGUID() != GetOwnerGUID())
     {
@@ -728,7 +728,7 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
     if (!IsInUpdateQueue())
         return;
 
-    ASSERT(player != NULL)
+    ASSERT (player != NULL)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
@@ -1042,7 +1042,7 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
         if (count > pProto->GetMaxStackSize())
             count = pProto->GetMaxStackSize();
 
-        ASSERT(count !=0 && "pProto->Stackable == 0 but checked at loading already");
+        ASSERT (count !=0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item* pItem = NewItemOrBag(pProto);
         if (pItem->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), item, player))
@@ -1054,7 +1054,7 @@ Item* Item::CreateItem(uint32 item, uint32 count, Player const* player)
             delete pItem;
     }
     else
-        ASSERT(false);
+        ASSERT (false);
     return NULL;
 }
 

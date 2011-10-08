@@ -86,21 +86,21 @@ public:
             //MightyBlow_Timer
             if (MightyBlow_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
+                DoCast (me->getVictim(), SPELL_MIGHTYBLOW);
                 MightyBlow_Timer = 18000;
             } else MightyBlow_Timer -= diff;
 
             //HamString_Timer
             if (HamString_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_HAMSTRING);
+                DoCast (me->getVictim(), SPELL_HAMSTRING);
                 HamString_Timer = 15000;
             } else HamString_Timer -= diff;
 
             //Cleave_Timer
             if (Cleave_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CLEAVE);
+                DoCast (me->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 9000;
             } else Cleave_Timer -= diff;
 

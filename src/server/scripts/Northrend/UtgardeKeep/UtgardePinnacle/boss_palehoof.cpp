@@ -189,20 +189,20 @@ public:
 
             if (uiArcingSmashTimer <= diff)
             {
-                DoCast(me, SPELL_ARCING_SMASH);
+                DoCast (me, SPELL_ARCING_SMASH);
                 uiArcingSmashTimer = urand(13000, 17000);
             } else uiArcingSmashTimer -= diff;
 
             if (uiImpaleTimer <= diff)
             {
               if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                  DoCast(target, SPELL_IMPALE);
+                  DoCast (target, SPELL_IMPALE);
               uiImpaleTimer = urand(8000, 12000);
             } else uiImpaleTimer -= diff;
 
             if (uiWhiteringRoarTimer <= diff)
             {
-                DoCast(me, SPELL_WITHERING_ROAR);
+                DoCast (me, SPELL_WITHERING_ROAR);
                 uiWhiteringRoarTimer = urand(8000, 12000);
             } else uiWhiteringRoarTimer -= diff;
 
@@ -270,7 +270,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE|UNIT_FLAG_NOT_ATTACKABLE_1|UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
+            DoCast (me, SPELL_FREEZE);
         }
     };
 
@@ -333,19 +333,19 @@ public:
 
             if (uiChainLightingTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_CHAIN_LIGHTING);
+                DoCast (me->getVictim(), SPELL_CHAIN_LIGHTING);
                 uiChainLightingTimer = 5000 + rand() % 5000;
             } else uiChainLightingTimer -=  diff;
 
             if (uiCrazedTimer <= diff)
             {
-                DoCast(me, SPELL_CRAZED);
+                DoCast (me, SPELL_CRAZED);
                 uiCrazedTimer = 8000 + rand() % 4000;
             } else uiCrazedTimer -=  diff;
 
             if (uiTerrifyingRoarTimer <= diff)
             {
-                DoCast(me, SPELL_TERRIFYING_ROAR);
+                DoCast (me, SPELL_TERRIFYING_ROAR);
                 uiTerrifyingRoarTimer = 10000 + rand() % 10000;
             } else uiTerrifyingRoarTimer -=  diff;
 
@@ -383,7 +383,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
+            DoCast (me, SPELL_FREEZE);
         }
     };
 
@@ -446,19 +446,19 @@ public:
 
             if (uiMortalWoundTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
+                DoCast (me->getVictim(), SPELL_MORTAL_WOUND);
                 uiMortalWoundTimer = 3000 + rand() % 4000;
             } else uiMortalWoundTimer -= diff;
 
             if (uiEnrage1Timer <= diff)
             {
-                DoCast(me, SPELL_ENRAGE_1);
+                DoCast (me, SPELL_ENRAGE_1);
                 uiEnrage1Timer = 15000;
             } else uiEnrage1Timer -= diff;
 
             if (uiEnrage2Timer <= diff)
             {
-                DoCast(me, SPELL_ENRAGE_2);
+                DoCast (me, SPELL_ENRAGE_2);
                 uiEnrage2Timer = 10000;
             } else uiEnrage2Timer -= diff;
 
@@ -498,7 +498,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
+            DoCast (me, SPELL_FREEZE);
         }
     };
 
@@ -562,20 +562,20 @@ public:
 
             if (uiStompTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_STOMP);
+                DoCast (me->getVictim(), SPELL_STOMP);
                 uiStompTimer = 8000 + rand() % 4000;
             } else uiStompTimer -= diff;
 
             if (uiGoreTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GORE);
+                DoCast (me->getVictim(), SPELL_GORE);
                 uiGoreTimer = 13000 + rand() % 4000;
             } else uiGoreTimer -= diff;
 
             if (uiGrievousWoundTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_GRIEVOUS_WOUND);
+                    DoCast (target, SPELL_GRIEVOUS_WOUND);
                 uiGrievousWoundTimer = 18000 + rand() % 4000;
             } else uiGrievousWoundTimer -= diff;
 
@@ -613,7 +613,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
+            DoCast (me, SPELL_FREEZE);
         }
     };
 
@@ -683,20 +683,20 @@ public:
             if (uiAcidSpitTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_ACID_SPIT);
+                    DoCast (target, SPELL_ACID_SPIT);
                 uiAcidSpitTimer = 2000 + rand() % 2000;
             } else uiAcidSpitTimer -= diff;
 
             if (uiAcidSplatterTimer <= diff)
             {
-                DoCast(me, SPELL_POISON_BREATH);
+                DoCast (me, SPELL_POISON_BREATH);
                 uiAcidSplatterTimer = 10000 + rand() % 4000;
             } else uiAcidSplatterTimer -= diff;
 
             if (uiPoisonBreathTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
-                    DoCast(target, SPELL_POISON_BREATH);
+                    DoCast (target, SPELL_POISON_BREATH);
                 uiPoisonBreathTimer = 8000 + rand() % 4000;
             } else uiPoisonBreathTimer -= diff;
 
@@ -734,7 +734,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_OOC_NOT_ATTACKABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
-            DoCast(me, SPELL_FREEZE);
+            DoCast (me, SPELL_FREEZE);
         }
     };
 
@@ -821,7 +821,7 @@ public:
                 default: break;
             }
             if (pNext)
-                DoCast(pNext, SPELL_ORB_CHANNEL, false);
+                DoCast (pNext, SPELL_ORB_CHANNEL, false);
             currentPhase = (Phase)id;
             SummonTimer = 5000;
         }

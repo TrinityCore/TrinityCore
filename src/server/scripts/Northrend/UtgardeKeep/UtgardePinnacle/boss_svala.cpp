@@ -179,12 +179,12 @@ public:
                         break;
                     case 4:
                         DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, me);
-                        DoCast(me, SPELL_SVALA_TRANSFORMING1);
+                        DoCast (me, SPELL_SVALA_TRANSFORMING1);
                         ++uiIntroPhase;
                         uiIntroTimer = 2800;
                         break;
                     case 5:
-                        DoCast(me, SPELL_SVALA_TRANSFORMING2);
+                        DoCast (me, SPELL_SVALA_TRANSFORMING2);
                         ++uiIntroPhase;
                         uiIntroTimer = 200;
                         break;
@@ -228,7 +228,7 @@ public:
 
         void Reset()
         {
-            DoCast(me, SPELL_SHADOWS_IN_THE_DARK);
+            DoCast (me, SPELL_SHADOWS_IN_THE_DARK);
         }
 
         // called by svala sorrowgrave to set guid of victim
@@ -236,7 +236,7 @@ public:
         {
             if (instance)
                 if (Unit* victim = me->GetUnit(*me, instance->GetData64(DATA_SACRIFICED_PLAYER)))
-                    DoCast(victim, SPELL_PARALYZE);
+                    DoCast (victim, SPELL_PARALYZE);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -327,7 +327,7 @@ public:
 
                 if (uiSinsterStrikeTimer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_SINSTER_STRIKE);
+                    DoCast (me->getVictim(), SPELL_SINSTER_STRIKE);
                     uiSinsterStrikeTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
                 } else uiSinsterStrikeTimer -= diff;
 
@@ -335,7 +335,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     {
-                        DoCast(target, SPELL_CALL_FLAMES);
+                        DoCast (target, SPELL_CALL_FLAMES);
                         uiCallFlamesTimer = urand(8 * IN_MILLISECONDS, 12 * IN_MILLISECONDS);
                     }
                 } else uiCallFlamesTimer -= diff;
@@ -347,7 +347,7 @@ public:
                         if (Unit* pSacrificeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1, SAY_SACRIFICE_PLAYER_2, SAY_SACRIFICE_PLAYER_3, SAY_SACRIFICE_PLAYER_4, SAY_SACRIFICE_PLAYER_5), me);
-                            DoCast(pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
+                            DoCast (pSacrificeTarget, SPELL_RITUAL_OF_THE_SWORD);
                             //Spell doesn't teleport
                             DoTeleportPlayer(pSacrificeTarget, 296.632f, -346.075f, 90.63f, 4.6f);
                             me->SetUnitMovementFlags(MOVEMENTFLAG_CAN_FLY);

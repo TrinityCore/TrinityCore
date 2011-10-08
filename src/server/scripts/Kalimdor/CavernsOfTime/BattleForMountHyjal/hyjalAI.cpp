@@ -365,7 +365,7 @@ void hyjalAI::Reset()
     {
         case JAINA:
             Faction = 0;
-            DoCast(me, SPELL_BRILLIANCE_AURA, true);
+            DoCast (me, SPELL_BRILLIANCE_AURA, true);
             break;
 
         case THRALL:
@@ -743,7 +743,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
     {
         if (MassTeleportTimer < diff && DoMassTeleport)
         {
-            DoCast(me, SPELL_MASS_TELEPORT, false);
+            DoCast (me, SPELL_MASS_TELEPORT, false);
             DoMassTeleport = false;
         } else MassTeleportTimer -= diff;
         return;
@@ -901,7 +901,7 @@ void hyjalAI::UpdateAI(const uint32 diff)
 
                 if (target && target->isAlive())
                 {
-                    DoCast(target, Spells[i].SpellId);
+                    DoCast (target, Spells[i].SpellId);
                     SpellTimer[i] = Spells[i].Cooldown;
                 }
             } else SpellTimer[i] -= diff;
@@ -979,7 +979,7 @@ void hyjalAI::WaypointReached(uint32 i)
         WaitForTeleport = true;
         TeleportTimer = 20000;
         if (me->GetEntry() == JAINA)
-            DoCast(me, SPELL_MASS_TELEPORT, false);
+            DoCast (me, SPELL_MASS_TELEPORT, false);
         if (me->GetEntry() == THRALL && DummyGuid)
         {
             Unit* Dummy = Unit::GetUnit((*me), DummyGuid);
@@ -1059,7 +1059,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
                         (*itr)->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     }
                 }
-                DoCast(me, SPELL_TELEPORT_VISUAL);
+                DoCast (me, SPELL_TELEPORT_VISUAL);
                 bRetreat = true;
                 RetreatTimer = 1000;
             }

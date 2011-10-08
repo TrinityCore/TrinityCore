@@ -161,7 +161,7 @@ public:
                 if (uiResurrectTimer <= uiDiff)
                 {
                     me->SetFullHealth();
-                    DoCast(me, SPELL_BLACK_KNIGHT_RES, true);
+                    DoCast (me, SPELL_BLACK_KNIGHT_RES, true);
                     uiPhase++;
                     uiResurrectTimer = 4000;
                     bEventInProgress = false;
@@ -198,7 +198,7 @@ public:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 {
                                     if (target && target->isAlive())
-                                        DoCast(target, SPELL_DEATH_RESPITE);
+                                        DoCast (target, SPELL_DEATH_RESPITE);
                                 }
                                 uiDeathRespiteTimer = urand(15000, 16000);
                             } else uiDeathRespiteTimer -= uiDiff;
@@ -210,7 +210,7 @@ public:
                             {
                                 bSummonArmy = true;
                                 me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
-                                DoCast(me, SPELL_ARMY_DEAD);
+                                DoCast (me, SPELL_ARMY_DEAD);
                             }
                             if (!bDeathArmyDone)
                             {
@@ -226,13 +226,13 @@ public:
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 {
                                     if (target && target->isAlive())
-                                        DoCast(target, SPELL_DESECRATION);
+                                        DoCast (target, SPELL_DESECRATION);
                                 }
                                 uiDesecration = urand(15000, 16000);
                             } else uiDesecration -= uiDiff;
                             if (uiGhoulExplodeTimer <= uiDiff)
                             {
-                                DoCast(me, SPELL_GHOUL_EXPLODE);
+                                DoCast (me, SPELL_GHOUL_EXPLODE);
                                 uiGhoulExplodeTimer = 8000;
                             } else uiGhoulExplodeTimer -= uiDiff;
                             break;
@@ -253,7 +253,7 @@ public:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
                             if (target && target->isAlive())
-                                DoCast(target, SPELL_MARKED_DEATH);
+                                DoCast (target, SPELL_MARKED_DEATH);
                         }
                         uiMarkedDeathTimer = urand (5000, 7000);
                     } else uiMarkedDeathTimer -= uiDiff;
@@ -325,7 +325,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                 {
                     if (target && target->isAlive())
-                        DoCast(target, (SPELL_LEAP));
+                        DoCast (target, (SPELL_LEAP));
                 }
                 uiAttackTimer = 3500;
             } else uiAttackTimer -= uiDiff;

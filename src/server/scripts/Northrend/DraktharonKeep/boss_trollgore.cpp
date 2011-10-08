@@ -123,7 +123,7 @@ public:
             if (uiConsumeTimer <= diff)
             {
                 DoScriptText(SAY_CONSUME, me);
-                DoCast(SPELL_CONSUME);
+                DoCast (SPELL_CONSUME);
                 uiConsumeTimer = 15*IN_MILLISECONDS;
             } else uiConsumeTimer -= diff;
 
@@ -148,7 +148,7 @@ public:
 
             if (uiExplodeCorpseTimer <= diff)
             {
-                DoCast(SPELL_CORPSE_EXPLODE);
+                DoCast (SPELL_CORPSE_EXPLODE);
                 DoScriptText(SAY_EXPLODE, me);
                 uiExplodeCorpseTimer = urand(15*IN_MILLISECONDS, 19*IN_MILLISECONDS);
             } else uiExplodeCorpseTimer -= diff;

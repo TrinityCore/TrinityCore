@@ -86,7 +86,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            DoCast(me, SPELL_MOJO_FRENZY, true);
+            DoCast (me, SPELL_MOJO_FRENZY, true);
 
             if (instance)
                 instance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
@@ -108,27 +108,27 @@ public:
             {
                 DoScriptText(SAY_QUAKE, me);
                 if (bPhase)
-                    DoCast(me->getVictim(), SPELL_QUAKE, true);
+                    DoCast (me->getVictim(), SPELL_QUAKE, true);
                 else
-                    DoCast(me->getVictim(), SPELL_GROUND_TREMOR, true);
+                    DoCast (me->getVictim(), SPELL_GROUND_TREMOR, true);
                 uiGroundTremorTimer = 10*IN_MILLISECONDS;
             } else uiGroundTremorTimer -= uiDiff;
 
             if (uiNumblingShoutTimer <= uiDiff)
             {
                 if (bPhase)
-                    DoCast(me->getVictim(), SPELL_NUMBING_ROAR, true);
+                    DoCast (me->getVictim(), SPELL_NUMBING_ROAR, true);
                 else
-                    DoCast(me->getVictim(), SPELL_NUMBING_SHOUT, true);
+                    DoCast (me->getVictim(), SPELL_NUMBING_SHOUT, true);
                 uiNumblingShoutTimer = 10*IN_MILLISECONDS;
             } else uiNumblingShoutTimer -=uiDiff;
 
             if (uiDeterminedStabTimer <= uiDiff)
             {
                 if (bPhase)
-                    DoCast(me->getVictim(), SPELL_DETERMINED_GORE);
+                    DoCast (me->getVictim(), SPELL_DETERMINED_GORE);
                 else
-                    DoCast(me->getVictim(), SPELL_DETERMINED_STAB, true);
+                    DoCast (me->getVictim(), SPELL_DETERMINED_STAB, true);
                 uiDeterminedStabTimer = 8*IN_MILLISECONDS;
             } else uiDeterminedStabTimer -=uiDiff;
 
@@ -136,7 +136,7 @@ public:
             {
                 DoScriptText(EMOTE_TRANSFORM, me);
                 DoScriptText(SAY_TRANSFORM, me);
-                DoCast(me, SPELL_TRANSFORMATION, false);
+                DoCast (me, SPELL_TRANSFORMATION, false);
                 uiTransformationTImer = 10*IN_MILLISECONDS;
             } else uiTransformationTImer -= uiDiff;
 

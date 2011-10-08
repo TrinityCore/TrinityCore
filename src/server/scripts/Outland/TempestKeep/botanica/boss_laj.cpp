@@ -136,20 +136,20 @@ class boss_laj : public CreatureScript
                 switch (rand()%4)
                 {
                     case 0:
-                        DoCast(me, SPELL_SUMMON_LASHER_1, true);
-                        DoCast(me, SPELL_SUMMON_FLAYER_1, true);
+                        DoCast (me, SPELL_SUMMON_LASHER_1, true);
+                        DoCast (me, SPELL_SUMMON_FLAYER_1, true);
                         break;
                     case 1:
-                        DoCast(me, SPELL_SUMMON_LASHER_2, true);
-                        DoCast(me, SPELL_SUMMON_FLAYER_2, true);
+                        DoCast (me, SPELL_SUMMON_LASHER_2, true);
+                        DoCast (me, SPELL_SUMMON_FLAYER_2, true);
                         break;
                     case 2:
-                        DoCast(me, SPELL_SUMMON_LASHER_3, true);
-                        DoCast(me, SPELL_SUMMON_FLAYER_3, true);
+                        DoCast (me, SPELL_SUMMON_LASHER_3, true);
+                        DoCast (me, SPELL_SUMMON_FLAYER_3, true);
                         break;
                     case 3:
-                        DoCast(me, SPELL_SUMMON_LASHER_4, true);
-                        DoCast(me, SPELL_SUMMON_FLAYER_4, true);
+                        DoCast (me, SPELL_SUMMON_LASHER_4, true);
+                        DoCast (me, SPELL_SUMMON_FLAYER_4, true);
                         break;
                 }
                 CanSummon = false;
@@ -184,7 +184,7 @@ class boss_laj : public CreatureScript
 
                 if (Allergic_Timer <= diff)
                 {
-                    DoCast(me->getVictim(), SPELL_ALLERGIC_REACTION);
+                    DoCast (me->getVictim(), SPELL_ALLERGIC_REACTION);
                     Allergic_Timer = 25000+rand()%15000;
                 }
                 else
@@ -192,7 +192,7 @@ class boss_laj : public CreatureScript
 
                 if (Teleport_Timer <= diff)
                 {
-                    DoCast(me, SPELL_TELEPORT_SELF);
+                    DoCast (me, SPELL_TELEPORT_SELF);
                     Teleport_Timer = 30000+rand()%10000;
                     CanSummon = true;
                 }

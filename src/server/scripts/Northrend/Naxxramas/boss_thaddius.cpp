@@ -236,17 +236,17 @@ public:
                         events.ScheduleEvent(EVENT_SHIFT, 30000);
                         return;
                     case EVENT_CHAIN:
-                        DoCast(me->getVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
+                        DoCast (me->getVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
                         events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
                         return;
                     case EVENT_BERSERK:
-                        DoCast(me, SPELL_BERSERK);
+                        DoCast (me, SPELL_BERSERK);
                         return;
                 }
             }
 
             if (events.GetTimer() > 15000 && !me->IsWithinMeleeRange(me->getVictim()))
-                DoCast(me->getVictim(), SPELL_BALL_LIGHTNING);
+                DoCast (me->getVictim(), SPELL_BALL_LIGHTNING);
             else
                 DoMeleeAttackIfReady();
         }
@@ -288,7 +288,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(SPELL_STALAGG_TESLA);
+            DoCast (SPELL_STALAGG_TESLA);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -330,7 +330,7 @@ public:
 
             if (powerSurgeTimer <= uiDiff)
             {
-                DoCast(me, RAID_MODE(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
+                DoCast (me, RAID_MODE(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
                 powerSurgeTimer = urand(15000, 20000);
             } else powerSurgeTimer -= uiDiff;
 
@@ -372,7 +372,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoCast(SPELL_FEUGEN_TESLA);
+            DoCast (SPELL_FEUGEN_TESLA);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -390,7 +390,7 @@ public:
 
             if (staticFieldTimer <= uiDiff)
             {
-                DoCast(me, RAID_MODE(SPELL_STATICFIELD, H_SPELL_STATICFIELD));
+                DoCast (me, RAID_MODE(SPELL_STATICFIELD, H_SPELL_STATICFIELD));
                 staticFieldTimer = 5000;
             } else staticFieldTimer -= uiDiff;
 

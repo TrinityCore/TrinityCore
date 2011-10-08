@@ -69,14 +69,14 @@ public:
             //ShadowFlame_Timer
             if (ShadowFlame_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_SHADOWFLAME);
+                DoCast (me->getVictim(), SPELL_SHADOWFLAME);
                 ShadowFlame_Timer = 15000 + rand()%7000;
             } else ShadowFlame_Timer -= diff;
 
             //WingBuffet_Timer
             if (WingBuffet_Timer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_WINGBUFFET);
+                DoCast (me->getVictim(), SPELL_WINGBUFFET);
                 if (DoGetThreat(me->getVictim()))
                     DoModifyThreatPercent(me->getVictim(), -75);
 
@@ -87,7 +87,7 @@ public:
             if (Frenzy_Timer <= diff)
             {
                 DoScriptText(EMOTE_FRENZY, me);
-                DoCast(me, SPELL_FRENZY);
+                DoCast (me, SPELL_FRENZY);
                 Frenzy_Timer = urand(8000, 10000);
             } else Frenzy_Timer -= diff;
 

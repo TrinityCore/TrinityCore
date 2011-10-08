@@ -87,7 +87,7 @@ public:
                 me->HandleEmoteCommand(466);
             if (m_uiRebuffTimer <= uiDiff)
             {
-                DoCast(me, SPELL_BUFF_SLEEP);
+                DoCast (me, SPELL_BUFF_SLEEP);
                 m_uiRebuffTimer = 300000;                 //Rebuff agian in 5 minutes
             }
             else
@@ -241,7 +241,7 @@ class npc_tiger_matriarch : public CreatureScript
                 if (_tiger)
                 {
                     me->AddThreat(_tiger, 500000.0f);
-                    DoCast(me, SPELL_FURIOUS_BITE);
+                    DoCast (me, SPELL_FURIOUS_BITE);
                     events.ScheduleEvent(EVENT_POUNCE, 100);
                     events.ScheduleEvent(EVENT_NOSUMMON, 50000);
                 }
@@ -373,7 +373,7 @@ class npc_troll_volunteer : public CreatureScript
                 _complete = false;
                 me->AddAura(SPELL_VOLUNTEER_AURA, me);
                 me->AddAura(SPELL_MOUNTING_CHECK, me);
-                DoCast(me, SPELL_PETACT_AURA);
+                DoCast (me, SPELL_PETACT_AURA);
                 me->SetReactState(REACT_PASSIVE);
                 Talk(SAY_VOLUNTEER_START);
             }
@@ -397,8 +397,8 @@ class npc_troll_volunteer : public CreatureScript
                 if (spell->Id == SPELL_AOE_TURNIN && caster->GetEntry() == NPC_URUZIN && !_complete)
                 {
                     _complete = true;    // Preventing from giving credit twice
-                    DoCast(me, SPELL_TURNIN);
-                    DoCast(me, SPELL_QUEST_CREDIT);
+                    DoCast (me, SPELL_TURNIN);
+                    DoCast (me, SPELL_QUEST_CREDIT);
                     me->RemoveAurasDueToSpell(SPELL_MOUNTING_CHECK);
                     me->Unmount();
                     Talk(SAY_VOLUNTEER_END);
