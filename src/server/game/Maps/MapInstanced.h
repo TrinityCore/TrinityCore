@@ -23,14 +23,14 @@
 #include "InstanceSaveMgr.h"
 #include "DBCEnums.h"
 
-class Mainstanced : public Map
+class MapInstanced : public Map
 {
     friend class MapManager;
     public:
         typedef UNORDERED_MAP< uint32, Map*> InstancedMaps;
 
-        Mainstanced(uint32 id, time_t expiry);
-        ~Mainstanced() {}
+        MapInstanced(uint32 id, time_t expiry);
+        ~MapInstanced() {}
 
         // functions overwrite Map versions
         void Update(const uint32);

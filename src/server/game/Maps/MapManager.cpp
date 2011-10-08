@@ -106,7 +106,7 @@ Map* MapManager::_createBaseMap(uint32 id)
         const MapEntry* entry = sMapStore.LookupEntry(id);
         if (entry && entry->Instanceable())
         {
-            m = new Mainstanced(id, i_gridCleanUpDelay);
+            m = new MapInstanced(id, i_gridCleanUpDelay);
         }
         else
         {
@@ -125,7 +125,7 @@ Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 /*instanceI
     //if (!obj->IsInWorld()) sLog->outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
     Map* m = _createBaseMap(id);
 
-    if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((Mainstanced*)m)->CreateInstance(id, (Player*)obj);
+    if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj);
 
     return m;
 }
@@ -139,7 +139,7 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
     if (!map->Instanceable())
         return instanceId == 0 ? map : NULL;
 
-    return ((Mainstanced*)map)->FindMap(instanceId);
+    return ((MapInstanced*)map)->FindMap(instanceId);
 }
 
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
@@ -343,8 +343,8 @@ uint32 MapManager::GetNumInstances()
         Map* map = itr->second;
         if (!map->Instanceable())
             continue;
-        Mainstanced::InstancedMaps &maps = ((Mainstanced*)map)->GetInstancedMaps();
-        for (Mainstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
+        MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
+        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
             if (mitr->second->IsDungeon()) ret++;
     }
     return ret;
@@ -360,8 +360,8 @@ uint32 MapManager::GetNumPlayersInInstances()
         Map* map = itr->second;
         if (!map->Instanceable())
             continue;
-        Mainstanced::InstancedMaps &maps = ((Mainstanced*)map)->GetInstancedMaps();
-        for (Mainstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
+        MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
+        for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
             if (mitr->second->IsDungeon())
                 ret += ((InstanceMap*)mitr->second)->GetPlayers().getSize();
     }
