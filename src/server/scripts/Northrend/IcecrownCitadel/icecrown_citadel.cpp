@@ -158,6 +158,22 @@ enum Spells
     SPELL_FEL_IRON_BOMB_UNDEAD      = 71787,
     SPELL_MACHINE_GUN_UNDEAD        = 71788,
     SPELL_ROCKET_LAUNCH_UNDEAD      = 71786,
+    
+    // The Damned
+    SPELL_BONE_FLURRY = 70960,
+    SPELL_SHATTERED_BONES = 70961,
+    
+    // Ancient Skeletal Soilder
+    SPELL_SHIELD_BASH = 70964,
+    
+    // Deathbound Ward
+    SPELL_DISRUPTING_SHOUT = 71022,
+    SPELL_SABER_LASH = 71021,
+    
+    // Plague Scientist
+    SPELL_COMBOBULATING_SPRAY = 71103,
+    SPELL_PLAGUE_BLAST = 73079,
+    SPELL_PLAGUE_STREAM = 69871,
 };
 
 // Helper defines
@@ -248,6 +264,22 @@ enum EventTypes
     EVENT_RUPERT_FEL_IRON_BOMB          = 52,
     EVENT_RUPERT_MACHINE_GUN            = 53,
     EVENT_RUPERT_ROCKET_LAUNCH          = 54,
+    
+    // The Damned
+    EVENT_BONE_FLURRY = 55,
+    EVENT_SHATTERED_BONES = 56,
+    
+    // Ancient Skeletal Soilder
+    EVENT_SHIELD_BASH = 57,
+    
+    // Deathbound Ward
+    EVENT_DISRUPTING_SHOUT = 58,
+    EVENT_SABER_LASH = 59,
+    
+    // Plague Scientist
+    EVENT_COMBOBULATING_SPRAY = 60,
+    EVENT_PLAGUE_BLAST = 61,
+    EVENT_PLAGUE_STREAM = 62,
 };
 
 enum DataTypesICC
@@ -1938,6 +1970,239 @@ class spell_svalna_revive_champion : public SpellScriptLoader
         {
             return new spell_svalna_revive_champion_SpellScript();
         }
+};
+
+class npc_the_damned : public CreatureScript
+{
+public:
+    npc_the_damned() : CreatureScript("npc_the_damned") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_the_damnedAI(creature);
+    }
+
+    struct npc_the_damnedAI: public ScriptedAI
+    {
+        npc_the_damnedAI(Creature* c) : ScriptedAI(c)
+        {
+        }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_BONE_FLURRY, 30000); 
+            if (me->GetHealthPct() == 0)
+            {
+                DoCast(me->GetVictim(), SPELL_SHATTERED_BONES);
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_BONE_FLURRY:
+                            DoCast(me->GetVictim(), SPELL_BONE_FLURRY);
+                            events.ScheduleEvent(EVENT_BONE_FLURRY, 30000);
+                            break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
+class npc_ancient_skeletal_soilder : public CreatureScript
+{
+public:
+    npc_ancient_skeletal_soilder() : CreatureScript("npc_ancient_skeletal_soilder") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_ancient_skeletal_soilderAI(creature);
+    }
+
+    struct npc_ancient_skeletal_soilderAI: public ScriptedAI
+    {
+        npc_ancient_skeletal_soilderAI(Creature* c) : ScriptedAI(c) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_SHIELD_BASH, 15000); 
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_SHIELD_BASH:
+                            DoCast(me->GetVictim(), SPELL_SHIELD_BASH);
+                            events.ScheduleEvent(EVENT_SHIELD_BASH, 15000);
+                            break;;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
+class npc_deathbound_ward : public CreatureScript
+{
+public:
+    npc_deathbound_ward() : CreatureScript("npc_deathbound_ward") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_deathbound_wardAI(creature);
+    }
+
+    struct npc_deathbound_wardAI: public ScriptedAI
+    {
+        npc_deathbound_wardAI(Creature* c) : ScriptedAI(c) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_DISRUPTING_SHOUT, urand(15000, 30000));
+            events.ScheduleEvent(EVENT_SABER_LASH, 10000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_DISRUPTING_SHOUT:
+                            DoCast(me->GetVictim(), SPELL_DISRUPTING_SHOUT);
+                            events.ScheduleEvent(EVENT_DISRUPTING_SHOUT, urand(15000, 30000));
+                            break;
+                    case EVENT_SABER_LASH:
+                            DoCast(me->GetVictim(), SPELL_SABER_LASH);
+                            events.ScheduleEvent(EVENT_SABER_LASH, 10000);
+                            break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+};
+
+class npc_plague_scientist : public CreatureScript
+{
+public:
+    npc_plague_scientist() : CreatureScript("npc_plague_scientist") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_plague_scientistAI(creature);
+    }
+
+    struct npc_plague_scientistAI: public ScriptedAI
+    {
+        npc_ancient_skeletal_soilderAI(Creature* c) : ScriptedAI(c) { }
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            events.ScheduleEvent(EVENT_COMBOBULATING_SPRAY, urand(15000, 25000));
+            events.ScheduleEvent(EVENT_PLAGUE_BLAST, urand(8500, 13500));
+            events.ScheduleEvent(EVENT_PLAGUE_STREAM, 35000);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            while (uint32 eventId = events.ExecuteEvent())
+            {
+                switch (eventId)
+                {
+                    case EVENT_COMBOBULATING_SPRAY:
+                            DoCast(me->GetVictim(), SPELL_COMBOBULATING_SPRAY);
+                            events.ScheduleEvent(EVENT_COMBOBULATING_SPRAY, urand(15000, 25000));
+                            break;
+                    case EVENT_PLAGUE_BLAST:
+                            DoCast(me->GetVictim(), SPELL_PLAGUE_BLAST);
+                            events.ScheduleEvent(EVENT_PLAGUE_BLAST, urand(8500, 13500));
+                            break;
+                    case EVENT_PLAGUE_STREAM:
+                            DoCast(me, SPELL_PLAGUE_STREAM);
+                            events.ScheduleEvent(EVENT_PLAGUE_STREAM, 35000);
+                            break;
+                }
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
 };
 
 class spell_svalna_remove_spear : public SpellScriptLoader
