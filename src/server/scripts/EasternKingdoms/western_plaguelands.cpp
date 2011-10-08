@@ -100,7 +100,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -149,7 +148,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -229,7 +227,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -264,7 +261,6 @@ public:
                 CAST_PLR(who)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
         }
     };
-
 };
 
 /*######
@@ -395,7 +391,6 @@ public:
                 m_uiChatTimer = 6000;
         }
     };
-
 };
 
 /*######

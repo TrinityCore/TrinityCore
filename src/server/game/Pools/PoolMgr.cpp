@@ -946,7 +946,6 @@ void PoolMgr::LoadFromDB()
 
 void PoolMgr::LoadQuestPools()
 {
-
 }
 
 void PoolMgr::SaveQuestsToDB()

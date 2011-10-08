@@ -448,4 +448,3 @@ void AddSC_boss_archaedas()
     new go_altar_of_archaedas();
     new go_altar_of_the_keepers();
 }
-

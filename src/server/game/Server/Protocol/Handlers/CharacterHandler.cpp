@@ -462,7 +462,6 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 return;
             }
 
-
             ASSERT(_charCreateCallback.GetParam() == createInfo);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_SUM_CHARS);

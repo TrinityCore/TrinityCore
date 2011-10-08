@@ -226,7 +226,6 @@ struct LfgProposal
     time_t cancelTime;                                     ///< Time when we will cancel this proposal
     LfgGuidList queues;                                    ///< Queue Ids to remove/readd
     LfgProposalPlayerMap players;                          ///< Players data
-
 };
 
 /// Stores all rolecheck info of a group that wants to join

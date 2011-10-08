@@ -700,7 +700,6 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                         malygos->RemoveAura(SPELL_VORTEX_1);
                     }
                 }
-
             }
 
             void Register()
@@ -776,7 +775,6 @@ public:
         InstanceScript* _instance;
     };
 };
-
 
 class npc_power_spark: public CreatureScript
 {
@@ -961,7 +959,6 @@ public:
     };
 };
 
-
 // The reason of this AI is to make the creature able to enter in combat otherwise the spell casting of SPELL_ARCANE_OVERLOAD fails.
 class npc_arcane_overload : public CreatureScript
 {
@@ -991,7 +988,6 @@ public:
         {
             // we dont do melee damage!
         }
-
     };
 };
 

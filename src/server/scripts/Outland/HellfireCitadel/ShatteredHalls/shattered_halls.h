@@ -25,4 +25,3 @@
 
 #define TYPE_OMROGG             4
 #endif
-

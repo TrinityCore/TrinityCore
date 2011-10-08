@@ -189,4 +189,3 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         uint8       m_cleanFlag;
 };
 #endif
-

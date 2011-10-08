@@ -322,7 +322,6 @@ void AuctionHouseMgr::LoadAuctionItems()
 
     do
     {
-
         Field* fields = result->Fetch();
 
         uint32 item_guid        = fields[11].GetUInt32();
@@ -827,12 +826,10 @@ void AuctionHouseMgr::DeleteExpiredAuctionsAtStartup()
         // Release memory
         delete auction;
         ++expirecount;
-
     } while (expAuctions->NextRow());
 
     sLog->outString(">> Deleted %u expired auctions in %u ms", expirecount, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
-
 }
 
 bool AuctionEntry::LoadFromFieldList(Field* fields)

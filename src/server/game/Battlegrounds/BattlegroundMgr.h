@@ -149,4 +149,3 @@ class BattlegroundMgr
 
 #define sBattlegroundMgr ACE_Singleton<BattlegroundMgr, ACE_Null_Mutex>::instance()
 #endif
-

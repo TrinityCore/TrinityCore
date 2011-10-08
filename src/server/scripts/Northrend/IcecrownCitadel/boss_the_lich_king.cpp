@@ -1541,7 +1541,6 @@ class npc_valkyr_shadowguard : public CreatureScript
                                 DoCast(target, SPELL_VALKYR_CARRY);
                                 _dropPoint.Relocate(triggers.front());
                                 _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1500);
-
                             }
                         }
                         else

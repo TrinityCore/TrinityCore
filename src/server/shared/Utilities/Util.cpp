@@ -150,7 +150,6 @@ void stripLineInvisibleChars(std::string &str)
         str.erase(wpos, str.size());
     if (str.find("|TInterface")!=std::string::npos)
         str.clear();
-
 }
 
 std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
@@ -518,4 +517,3 @@ void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result)
     }
     result = ss.str();
 }
-

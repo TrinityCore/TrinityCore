@@ -148,9 +148,7 @@ public:
                         break;
                 }
             } else uiPhaseTimer -= diff;
-
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -282,7 +280,6 @@ public:
 
             player->CastSpell(player, SPELL_SUMMON_WYRMREST_SKYTALON, true);
             player->CastSpell(player, SPELL_WYRMREST_SKYTALON_RIDE_PERIODIC, true);
-
         }
 
         return true;
@@ -309,7 +306,6 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-
         if (player->GetQuestStatus(QUEST_SPIRITS_WATCH_OVER_US) == QUEST_STATUS_INCOMPLETE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_I, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
@@ -326,7 +322,6 @@ public:
                 player->CastSpell(player, SPELL_CREATURE_TOTEM_OF_ISSLIRUK, true);
                 player->CLOSE_GOSSIP_MENU();
                 break;
-
         }
         return true;
     }
@@ -407,7 +402,6 @@ public:
                 if (pGO->GetGoState() == GO_STATE_ACTIVE)
                     pGO->SetGoState(GO_STATE_READY);
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -2071,7 +2065,6 @@ public:
 
         void MovementInform(uint32 uiType, uint32 /*uiId*/)
         {
-
             if (uiType != POINT_MOTION_TYPE)
                 return;
             me->DisappearAndDie();
@@ -2229,7 +2222,6 @@ public:
             if (!UpdateVictim())
                 return;
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -2556,7 +2548,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_borean_tundra()

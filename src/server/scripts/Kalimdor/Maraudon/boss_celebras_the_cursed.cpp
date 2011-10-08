@@ -94,7 +94,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_celebras_the_cursed()

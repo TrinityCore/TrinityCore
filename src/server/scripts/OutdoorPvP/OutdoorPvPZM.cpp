@@ -176,7 +176,6 @@ OutdoorPvPZM::OutdoorPvPZM()
     m_GraveYard = NULL;
     m_AllianceTowersControlled = 0;
     m_HordeTowersControlled = 0;
-
 }
 
 bool OutdoorPvPZM::SetupOutdoorPvP()

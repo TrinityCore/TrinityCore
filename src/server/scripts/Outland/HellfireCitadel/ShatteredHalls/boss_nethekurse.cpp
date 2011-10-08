@@ -421,4 +421,3 @@ void AddSC_boss_grand_warlock_nethekurse()
     new mob_fel_orc_convert();
     new mob_lesser_shadow_fissure();
 }
-

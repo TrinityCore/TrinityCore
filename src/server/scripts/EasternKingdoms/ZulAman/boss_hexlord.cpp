@@ -487,7 +487,6 @@ class boss_thurg : public CreatureScript
 
         struct boss_thurgAI : public boss_hexlord_addAI
         {
-
             boss_thurgAI(Creature* c) : boss_hexlord_addAI(c) {}
 
             uint32 bloodlust_timer;
@@ -702,7 +701,6 @@ class boss_lord_raadan : public CreatureScript
                 thunderclap_timer = 13000;
 
                 boss_hexlord_addAI::Reset();
-
             }
             void UpdateAI(const uint32 diff)
             {
@@ -855,7 +853,6 @@ class boss_fenstalker : public CreatureScript
             {
                 volatileinf_timer = 15000;
                 boss_hexlord_addAI::Reset();
-
             }
             void UpdateAI(const uint32 diff)
             {
@@ -904,7 +901,6 @@ class boss_koragg : public CreatureScript
                 coldstare_timer = 15000;
                 mightyblow_timer = 10000;
                 boss_hexlord_addAI::Reset();
-
             }
             void UpdateAI(const uint32 diff)
             {
@@ -945,4 +941,3 @@ void AddSC_boss_hex_lord_malacrass()
     new boss_koragg();
     new boss_alyson_antille();
 }
-

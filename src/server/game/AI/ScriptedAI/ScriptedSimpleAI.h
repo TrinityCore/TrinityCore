@@ -70,4 +70,3 @@ protected:
 };
 
 #endif
-

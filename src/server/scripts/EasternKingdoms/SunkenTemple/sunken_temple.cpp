@@ -45,7 +45,6 @@ public:
             player->SummonCreature(15362, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
         return false;
     }
-
 };
 /*#####
 # go_atalai_statue
@@ -62,7 +61,6 @@ public:
             instance->SetData(EVENT_STATE, go->GetEntry());
         return false;
     }
-
 };
 
 void AddSC_sunken_temple()

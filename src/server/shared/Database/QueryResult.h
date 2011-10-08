@@ -100,10 +100,8 @@ class PreparedResultSet
         void FreeBindBuffer();
         void CleanUp();
         bool _NextRow();
-
 };
 
 typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet, ACE_Null_Mutex> PreparedQueryResult;
 
 #endif
-

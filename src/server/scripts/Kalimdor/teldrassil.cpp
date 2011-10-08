@@ -107,7 +107,6 @@ public:
             DoMeleeAttackIfReady();
         }*/
     };
-
 };
 
 void AddSC_teldrassil()

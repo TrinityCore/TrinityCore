@@ -79,7 +79,6 @@ GameObject::~GameObject()
 
 bool GameObject::AIM_Initialize()
 {
-
     m_AI = FactorySelector::SelectGameObjectAI(this);
     if (!m_AI) return false;
     m_AI->InitializeAI();

@@ -91,4 +91,3 @@ class BigNumber
         uint8 *_array;
 };
 #endif
-

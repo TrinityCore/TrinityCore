@@ -114,7 +114,6 @@ public:
 
         void SetTeronGUID(uint64 guid){ TeronGUID = guid; }
     };
-
 };
 
 class mob_shadowy_construct : public CreatureScript
@@ -204,7 +203,6 @@ public:
             } else CheckTeronTimer -= diff;
         }
     };
-
 };
 
 class boss_teron_gorefiend : public CreatureScript
@@ -507,7 +505,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_teron_gorefiend()

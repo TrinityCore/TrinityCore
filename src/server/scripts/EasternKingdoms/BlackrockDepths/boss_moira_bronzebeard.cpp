@@ -92,10 +92,8 @@ public:
                 DoCast(me->getVictim(), SPELL_SMITE);
                 Smite_Timer = 10000;
             } else Smite_Timer -= diff;
-
         }
     };
-
 };
 
 void AddSC_boss_moira_bronzebeard()

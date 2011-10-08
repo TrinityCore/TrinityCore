@@ -2827,7 +2827,6 @@ void SmartScript::OnMoveInLineOfSight(Unit* who)
         return;
 
     ProcessEventsFor(SMART_EVENT_IC_LOS, who);
-
 }
 
 /*

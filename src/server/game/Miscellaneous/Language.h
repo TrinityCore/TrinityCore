@@ -1063,4 +1063,3 @@ enum TrinityStrings
     // For other tables maybe             2000010000-2147483647 (max index)
 };
 #endif
-

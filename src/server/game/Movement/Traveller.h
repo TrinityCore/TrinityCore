@@ -149,4 +149,3 @@ inline void Traveller<Player>::MoveTo(float x, float y, float z, uint32 t)
 typedef Traveller<Creature> CreatureTraveller;
 typedef Traveller<Player> PlayerTraveller;
 #endif
-

@@ -66,7 +66,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -158,7 +157,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_blasted_lands()

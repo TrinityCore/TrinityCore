@@ -88,7 +88,6 @@ class mob_jadespine_basilisk : public CreatureScript
 
                     if (target)
                         me->TauntApply(target);
-
                 } else uiCslumberTimer -= uiDiff;
 
                 DoMeleeAttackIfReady();
@@ -264,4 +263,3 @@ void AddSC_uldaman()
     new AreaTrigger_at_map_chamber();
     new npc_lore_keeper_of_norgannon();
 }
-

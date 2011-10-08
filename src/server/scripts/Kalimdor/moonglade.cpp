@@ -96,7 +96,6 @@ public:
         }
         return true;
     }
-
 };
 
 /*######
@@ -154,7 +153,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -211,7 +209,6 @@ public:
         }
         return true;
     }
-
 };
 
 /*######
@@ -394,7 +391,6 @@ public:
 
             if (Event_onWait && Event_Timer <= diff)
             {
-
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
                 if (!player || (player && player->GetQuestStatus(10965) == QUEST_STATUS_NONE))
                 {
@@ -533,7 +529,6 @@ public:
                         Event_onWait = false;
                         break;
                 }
-
             } else if (Event_onWait) Event_Timer -= diff;
         }
 
@@ -545,7 +540,6 @@ public:
             Event_onWait = true;
         }
     };
-
 };
 
 /*####
@@ -569,7 +563,6 @@ public:
         }
         return true;
     }
-
 };
 
 /*####

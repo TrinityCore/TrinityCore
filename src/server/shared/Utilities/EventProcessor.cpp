@@ -96,4 +96,3 @@ uint64 EventProcessor::CalculateTime(uint64 t_offset) const
 {
     return(m_time + t_offset);
 }
-

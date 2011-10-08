@@ -70,4 +70,3 @@ class TargetedMovementGenerator
         float i_targetX, i_targetY, i_targetZ;
 };
 #endif
-

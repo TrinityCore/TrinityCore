@@ -625,7 +625,6 @@ class npc_tirion_toc : public CreatureScript
                                     temp->GetMotionMaster()->MovePoint(2, ToCCommonLoc[5].GetPositionX(), ToCCommonLoc[5].GetPositionY(), ToCCommonLoc[5].GetPositionZ());
                                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                     me->SetReactState(REACT_PASSIVE);
-
                                 }
                             }
                             m_uiUpdateTimer = 5000;

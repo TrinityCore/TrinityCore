@@ -91,4 +91,3 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         GridPair m_grid;                                    // gride for corpse position for fast search
 };
 #endif
-

@@ -428,7 +428,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
 
             if (ChannelMgr* cMgr = channelMgr(_player->GetTeam()))
             {
-
                 if (Channel* chn = cMgr->GetChannel(channel, _player))
                 {
                     sScriptMgr->OnPlayerChat(_player, type, lang, msg, chn);

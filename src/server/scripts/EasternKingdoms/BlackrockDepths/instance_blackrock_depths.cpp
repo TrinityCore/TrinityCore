@@ -459,7 +459,6 @@ public:
                 TombOfSevenEnd();
         }
     };
-
 };
 
 void AddSC_instance_blackrock_depths()

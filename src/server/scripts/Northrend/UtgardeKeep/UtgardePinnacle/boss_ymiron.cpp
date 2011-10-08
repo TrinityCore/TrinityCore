@@ -388,7 +388,6 @@ public:
             m_uiCreatureGUID = 0;
         }
     };
-
 };
 
 class achievement_kings_bane : public AchievementCriteriaScript

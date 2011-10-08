@@ -53,4 +53,3 @@ class ConfusedMovementGenerator
         uint32 i_nextMove;
 };
 #endif
-

@@ -28,7 +28,6 @@
 
 namespace WeatherMgr
 {
-
 namespace
 {
     typedef UNORDERED_MAP<uint32, ACE_Refcounted_Auto_Ptr<Weather, ACE_Null_Mutex> > WeatherMap;
@@ -164,5 +163,4 @@ void Update(uint32 diff)
             m_weathers.erase(itr);
     }
 }
-
 } // namespace

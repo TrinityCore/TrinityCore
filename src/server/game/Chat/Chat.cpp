@@ -452,7 +452,6 @@ ChatCommand* ChatHandler::getCommandTable()
                 std::string name = fields[0].GetString();
 
                 SetDataForCommandInTable(commandTableCache, name.c_str(), fields[1].GetUInt16(), fields[2].GetString(), name);
-
             } while (result->NextRow());
         }
     }

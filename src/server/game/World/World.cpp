@@ -1834,7 +1834,6 @@ void World::LoadAutobroadcasts()
 
     do
     {
-
         Field* fields = result->Fetch();
         std::string message = fields[0].GetString();
 
@@ -2530,7 +2529,6 @@ void World::UpdateSessions(uint32 diff)
             RemoveQueuedPlayer(pSession);
             m_sessions.erase(itr);
             delete pSession;
-
         }
     }
 }

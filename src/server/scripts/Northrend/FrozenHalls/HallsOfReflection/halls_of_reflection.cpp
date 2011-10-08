@@ -547,7 +547,6 @@ public:
             }
         }
     };
-
 };
 
 enum TrashSpells
@@ -700,7 +699,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_phantom_mage : public CreatureScript
@@ -777,7 +775,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_phantom_hallucination : public CreatureScript
@@ -801,7 +798,6 @@ public:
             DoCast(SPELL_HALLUCINATION_2);
         }
     };
-
 };
 
 class npc_shadowy_mercenary : public CreatureScript
@@ -872,7 +868,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_spectral_footman : public CreatureScript
@@ -937,7 +932,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_tortured_rifleman : public CreatureScript
@@ -1010,7 +1004,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_halls_of_reflection()

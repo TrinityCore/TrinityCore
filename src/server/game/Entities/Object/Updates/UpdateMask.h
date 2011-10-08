@@ -120,4 +120,3 @@ class UpdateMask
         uint32 *mUpdateMask;
 };
 #endif
-

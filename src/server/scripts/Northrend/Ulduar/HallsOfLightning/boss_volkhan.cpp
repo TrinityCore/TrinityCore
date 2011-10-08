@@ -360,7 +360,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######

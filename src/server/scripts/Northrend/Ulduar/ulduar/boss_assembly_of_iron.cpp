@@ -611,7 +611,6 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, urand(50000, 60000));
                         }
                     break;
-
                 }
             }
 

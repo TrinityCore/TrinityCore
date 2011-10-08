@@ -701,7 +701,6 @@ class mob_boombot : public CreatureScript
         };
 };
 
-
 /*-------------------------------------------------------
  *
  *        LIFE SPARK

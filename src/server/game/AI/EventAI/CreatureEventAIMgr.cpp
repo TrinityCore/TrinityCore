@@ -731,7 +731,6 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
         //Add to list
         m_CreatureEventAI_Event_Map[creature_id].push_back(temp);
         ++count;
-
     }
     while (result->NextRow());
 

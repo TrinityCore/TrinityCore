@@ -84,7 +84,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_felwood()

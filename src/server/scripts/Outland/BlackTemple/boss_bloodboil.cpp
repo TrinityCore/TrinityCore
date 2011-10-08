@@ -327,7 +327,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_gurtogg_bloodboil()

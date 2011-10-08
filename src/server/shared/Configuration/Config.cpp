@@ -23,7 +23,6 @@
 
 namespace ConfigMgr
 {
-
 namespace
 {
     typedef ACE_Thread_Mutex LockType;
@@ -110,5 +109,4 @@ const std::string & GetFilename()
     GuardType guard(m_configLock);
     return _filename;
 }
-
 } // namespace

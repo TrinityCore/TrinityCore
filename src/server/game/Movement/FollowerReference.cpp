@@ -34,4 +34,3 @@ void FollowerReference::sourceObjectDestroyLink()
 {
     getSource()->stopFollowing();
 }
-

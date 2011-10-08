@@ -236,4 +236,3 @@ void AddSC_instance_blood_furnace()
 {
     new instance_blood_furnace();
 }
-

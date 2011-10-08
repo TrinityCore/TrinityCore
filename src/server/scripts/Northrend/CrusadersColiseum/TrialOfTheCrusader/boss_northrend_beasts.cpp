@@ -245,7 +245,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_snobold_vassal : public CreatureScript
@@ -384,7 +383,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 struct boss_jormungarAI : public ScriptedAI
@@ -737,7 +735,6 @@ public:
             }
         }
     };
-
 };
 
 class boss_icehowl : public CreatureScript
@@ -989,7 +986,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_boss_northrend_beasts()

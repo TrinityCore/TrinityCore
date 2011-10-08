@@ -47,4 +47,3 @@ enum GameObjects
     GO_MR_SMITE_CHEST                                      = 144111
 };
 #endif
-

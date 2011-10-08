@@ -460,7 +460,6 @@ public:
             boss_twin_baseAI::JustReachedHome();
         }
     };
-
 };
 
 /*######
@@ -500,7 +499,6 @@ public:
             m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
         }
     };
-
 };
 
 #define ESSENCE_REMOVE 0
@@ -636,7 +634,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_unleashed_light : public CreatureScript
@@ -678,7 +675,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_bullet_controller : public CreatureScript
@@ -857,7 +853,6 @@ class spell_power_of_the_twins : public SpellScriptLoader
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_power_of_the_twins_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_power_of_the_twins_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-
             }
         };
 

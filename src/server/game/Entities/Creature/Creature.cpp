@@ -1154,7 +1154,6 @@ void Creature::SelectLevel(const CreatureTemplate* cinfo)
     SetFloatValue(UNIT_FIELD_MAXRANGEDDAMAGE, cinfo->maxrangedmg * damagemod);
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, cinfo->attackpower * damagemod);
-
 }
 
 float Creature::_GetHealthMod(int32 Rank)
@@ -1411,7 +1410,7 @@ bool Creature::canStartAttack(Unit const* who, bool force) const
 
     if (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE))
         return false;
-        
+
     // Do not attack non-combat pets
     if (who->GetTypeId() == TYPEID_UNIT && who->GetCreatureType() == CREATURE_TYPE_NON_COMBAT_PET)
         return false;

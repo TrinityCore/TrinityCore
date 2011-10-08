@@ -74,4 +74,3 @@ class GridLoader
         }
 };
 #endif
-

@@ -81,4 +81,3 @@ class TriggerAI : public NullCreatureAI
 };
 
 #endif
-

@@ -352,7 +352,6 @@ bool LFGMgr::RemoveFromQueue(uint64 guid)
         sLog->outDebug(LOG_FILTER_LFG, "LFGMgr::RemoveFromQueue: [" UI64FMTD "] not in queue", guid);
         return false;
     }
-
 }
 
 /**

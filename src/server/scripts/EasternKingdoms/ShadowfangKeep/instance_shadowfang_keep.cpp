@@ -266,13 +266,11 @@ public:
                             pArchmage->SummonCreature(NPC_ARUGAL_VOIDWALKER, SpawnLocation[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000);
                             uiPhase = 0;
                             break;
-
                     }
                 } else uiTimer -= uiDiff;
             }
         }
     };
-
 };
 
 void AddSC_instance_shadowfang_keep()

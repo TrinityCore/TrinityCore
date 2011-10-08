@@ -65,7 +65,6 @@ public:
         }
         return false;
     }
-
 };
 
 /*######
@@ -120,7 +119,6 @@ public:
         }
         return false;
     }
-
 };
 
 /*######
@@ -365,7 +363,6 @@ public:
                 npc_escortAI::UpdateAI(diff);
            }
     };
-
 };
 
 /*######
@@ -437,7 +434,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -534,7 +530,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -601,7 +596,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -707,7 +701,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
  */
@@ -771,7 +764,6 @@ public:
                     instance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
                     creature->setFaction(11);
             }
-
             }
         return false;
     }
@@ -875,7 +867,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
   */
@@ -1096,7 +1087,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 */
 /*######
@@ -1198,7 +1188,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 */
@@ -1351,7 +1340,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######

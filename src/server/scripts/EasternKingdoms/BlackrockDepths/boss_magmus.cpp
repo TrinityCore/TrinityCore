@@ -95,7 +95,6 @@ public:
                 instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
         }
     };
-
 };
 
 void AddSC_boss_magmus()

@@ -655,4 +655,3 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
 
     return DUMP_SUCCESS;
 }
-

@@ -71,4 +71,3 @@ class HostileRefManager : public RefManager<Unit, ThreatManager>
 };
 //=================================================
 #endif
-

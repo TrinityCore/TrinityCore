@@ -299,7 +299,6 @@ void SmartAI::UpdatePath(const uint32 diff)
             mWPPauseTimer = 0;
         } else {
             mWPPauseTimer -= diff;
-
         }
     }
     if (HasEscortState(SMART_ESCORT_RETURNING))
@@ -329,7 +328,6 @@ void SmartAI::UpdatePath(const uint32 diff)
                 me->GetMotionMaster()->MovePoint(wp->id, wp->x, wp->y, wp->z);
             }
         }
-
     }
 }
 
@@ -464,15 +462,15 @@ void SmartAI::MoveInLineOfSight(Unit* who)
 {
     if (!who)
         return;
-    
+
     GetScript()->OnMoveInLineOfSight(who);
-    
+
     if (me->HasReactState(REACT_PASSIVE) || AssistPlayerInCombat(who))
         return;
 
     if (!CanAIAttack(who))
         return;
-    
+
     if (!me->canStartAttack(who, false))
         return;
 

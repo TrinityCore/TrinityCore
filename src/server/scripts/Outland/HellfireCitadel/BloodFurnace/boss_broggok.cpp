@@ -130,7 +130,6 @@ class boss_broggok : public CreatureScript
                     instance->SetData(TYPE_BROGGOK_EVENT, DONE);
                 }
             }
-
         };
 
         CreatureAI* GetAI(Creature* Creature) const

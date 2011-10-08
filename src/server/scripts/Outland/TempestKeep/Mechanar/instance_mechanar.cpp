@@ -90,4 +90,3 @@ void AddSC_instance_mechanar()
 {
     new instance_mechanar;
 }
-

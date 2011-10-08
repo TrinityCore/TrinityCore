@@ -1539,7 +1539,6 @@ public:
             else
                 me->SetReactState(REACT_AGGRESSIVE);
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -2674,4 +2673,3 @@ void AddSC_npcs_special()
     new npc_tabard_vendor;
     new npc_experience;
 }
-
