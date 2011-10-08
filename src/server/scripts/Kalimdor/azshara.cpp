@@ -354,10 +354,10 @@ public:
                 if (Teleport_Timer <= diff)
                 {
                     //temp solution - unit can't be teleported by core using spelleffect 5, only players
-                    Map* pMap = me->GetMap();
-                    if (pMap)
+                    Map* map = me->GetMap();
+                    if (map)
                     {
-                        pMap->CreatureRelocation(me, 3706.39f, -3969.15f, 35.9118f, 0);
+                        map->CreatureRelocation(me, 3706.39f, -3969.15f, 35.9118f, 0);
                         me->AI_SendMoveToPacket(3706.39f, -3969.15f, 35.9118f, 0, 0, 0);
                     }
                     //begin swimming and summon depth charges

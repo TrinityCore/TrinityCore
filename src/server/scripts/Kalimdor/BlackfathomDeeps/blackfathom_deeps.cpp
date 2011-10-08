@@ -37,7 +37,7 @@ class go_blackfathom_altar : public GameObjectScript
 public:
     go_blackfathom_altar() : GameObjectScript("go_blackfathom_altar") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*pGo*/)
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
             player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
@@ -51,15 +51,15 @@ class go_blackfathom_fire : public GameObjectScript
 public:
     go_blackfathom_fire() : GameObjectScript("go_blackfathom_fire") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
-        InstanceScript* pInstance = pGo->GetInstanceScript();
+        InstanceScript* instance = go->GetInstanceScript();
 
-        if (pInstance)
+        if (instance)
         {
-            pGo->SetGoState(GO_STATE_ACTIVE);
-            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            pInstance->SetData(DATA_FIRE, pInstance->GetData(DATA_FIRE) + 1);
+            go->SetGoState(GO_STATE_ACTIVE);
+            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+            instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
             return true;
         }
         return false;
@@ -87,10 +87,10 @@ public:
                 AttackPlayer();
             }
 
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiRavageTimer;
         uint32 uiFrostNovaTimer;
@@ -183,8 +183,8 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (me->isSummon()) //we are not a normal spawn.
-                if (pInstance)
-                    pInstance->SetData(DATA_EVENT, pInstance->GetData(DATA_EVENT) + 1);
+                if (instance)
+                    instance->SetData(DATA_EVENT, instance->GetData(DATA_EVENT) + 1);
         }
     };
 

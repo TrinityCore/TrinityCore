@@ -66,10 +66,10 @@ public:
     {
         boss_talon_king_ikissAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 ArcaneVolley_Timer;
         uint32 Sheep_Timer;
@@ -122,8 +122,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_IKISSDOOREVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_IKISSDOOREVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)

@@ -30,14 +30,14 @@ class instance_onyxias_lair : public InstanceMapScript
 public:
     instance_onyxias_lair() : InstanceMapScript("instance_onyxias_lair", 249) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_onyxias_lair_InstanceMapScript(pMap);
+        return new instance_onyxias_lair_InstanceMapScript(map);
     }
 
     struct instance_onyxias_lair_InstanceMapScript : public InstanceScript
     {
-        instance_onyxias_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_onyxias_lair_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
@@ -90,9 +90,9 @@ public:
                 case GO_WHELP_SPAWNER:
                     Position goPos;
                     go->GetPosition(&goPos);
-                    if (Creature* pTemp = go->SummonCreature(NPC_WHELP, goPos, TEMPSUMMON_CORPSE_DESPAWN))
+                    if (Creature* temp = go->SummonCreature(NPC_WHELP, goPos, TEMPSUMMON_CORPSE_DESPAWN))
                     {
-                        pTemp->SetInCombatWithZone();
+                        temp->SetInCombatWithZone();
                         ++m_uiManyWhelpsCounter;
                     }
                     break;

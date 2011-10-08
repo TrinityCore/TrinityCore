@@ -79,7 +79,7 @@ public:
     {
         boss_slad_ranAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiPoisonNovaTimer;
@@ -91,7 +91,7 @@ public:
 
         SummonList lSummons;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -103,16 +103,16 @@ public:
 
             lSummons.DespawnAll();
 
-            if (pInstance)
-                pInstance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_SLAD_RAN_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_SLAD_RAN_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -172,8 +172,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_SLAD_RAN_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_SLAD_RAN_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -222,7 +222,7 @@ public:
             } else uiGripOfSladRanTimer -= diff;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
     };
 
 };
@@ -243,7 +243,7 @@ public:
 
         uint32 uiVenomousBiteTimer;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {

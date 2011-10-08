@@ -156,11 +156,11 @@ public:
     {
         npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         EventMap events;
         Phase phase;
@@ -189,7 +189,7 @@ public:
         {
             if (phase == PHASE_INTRO)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);
@@ -282,11 +282,11 @@ public:
     {
         npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         EventMap events;
         Phase phase;
@@ -315,7 +315,7 @@ public:
         {
             if (phase == PHASE_INTRO)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);

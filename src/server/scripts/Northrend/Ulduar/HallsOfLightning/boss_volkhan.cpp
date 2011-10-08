@@ -83,10 +83,10 @@ public:
     {
         boss_volkhanAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = creature->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         std::list<uint64> m_lGolemGUIDList;
 
@@ -121,16 +121,16 @@ public:
             DespawnGolem();
             m_lGolemGUIDList.clear();
 
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_VOLKHAN, NOT_STARTED);
+            if (m_instance)
+                m_instance->SetData(TYPE_VOLKHAN, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
+            if (m_instance)
+                m_instance->SetData(TYPE_VOLKHAN, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who)
@@ -151,18 +151,18 @@ public:
             DoScriptText(SAY_DEATH, me);
             DespawnGolem();
 
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_VOLKHAN, DONE);
+            if (m_instance)
+                m_instance->SetData(TYPE_VOLKHAN, DONE);
 
             if (IsHeroic() && GolemsShattered < 5)
             {
                 AchievementEntry const* AchievShatterResistant = GetAchievementStore()->LookupEntry(ACHIEVEMENT_SHATTER_RESISTANT);
                 if (AchievShatterResistant)
                 {
-                    Map* pMap = me->GetMap();
-                    if (pMap && pMap->IsDungeon())
+                    Map* map = me->GetMap();
+                    if (map && map->IsDungeon())
                     {
-                        Map::PlayerList const &players = pMap->GetPlayers();
+                        Map::PlayerList const &players = map->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             itr->getSource()->CompletedAchievement(AchievShatterResistant);
                     }
@@ -182,10 +182,10 @@ public:
 
             for (std::list<uint64>::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
             {
-                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
+                if (Creature* temp = Unit::GetCreature(*me, *itr))
                 {
-                    if (pTemp->isAlive())
-                        pTemp->DespawnOrUnsummon();
+                    if (temp->isAlive())
+                        temp->DespawnOrUnsummon();
                 }
             }
 
@@ -199,12 +199,12 @@ public:
 
             for (std::list<uint64>::const_iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
             {
-                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
+                if (Creature* temp = Unit::GetCreature(*me, *itr))
                 {
                     // Only shatter brittle golems
-                    if (pTemp->isAlive() && pTemp->GetEntry() == NPC_BRITTLE_GOLEM)
+                    if (temp->isAlive() && temp->GetEntry() == NPC_BRITTLE_GOLEM)
                     {
-                        pTemp->CastSpell(pTemp, DUNGEON_MODE(SPELL_SHATTER_N, SPELL_SHATTER_H), false);
+                        temp->CastSpell(temp, DUNGEON_MODE(SPELL_SHATTER_N, SPELL_SHATTER_H), false);
                         GolemsShattered += 1;
                     }
                 }

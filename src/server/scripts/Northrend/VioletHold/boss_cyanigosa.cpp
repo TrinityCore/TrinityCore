@@ -59,7 +59,7 @@ public:
     {
         boss_cyanigosaAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneVacuumTimer;
@@ -68,7 +68,7 @@ public:
         uint32 uiTailSweepTimer;
         uint32 uiUncontrollableEnergyTimer;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -77,26 +77,26 @@ public:
             uiManaDestructionTimer = 30000;
             uiTailSweepTimer = 20000;
             uiUncontrollableEnergyTimer = 25000;
-            if (pInstance)
-                pInstance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_CYANIGOSA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_CYANIGOSA_EVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
-            if (pInstance && pInstance->GetData(DATA_REMOVE_NPC) == 1)
+            if (instance && instance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->DespawnOrUnsummon();
-                pInstance->SetData(DATA_REMOVE_NPC, 0);
+                instance->SetData(DATA_REMOVE_NPC, 0);
             }
 
             //Return since we have no target
@@ -145,8 +145,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_CYANIGOSA_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_CYANIGOSA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

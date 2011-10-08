@@ -45,14 +45,14 @@ class instance_black_temple : public InstanceMapScript
 public:
     instance_black_temple() : InstanceMapScript("instance_black_temple", 564) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_black_temple_InstanceMapScript(pMap);
+        return new instance_black_temple_InstanceMapScript(map);
     }
 
     struct instance_black_temple_InstanceMapScript : public InstanceScript
     {
-        instance_black_temple_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_black_temple_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;

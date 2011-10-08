@@ -92,14 +92,14 @@ class instance_zulfarrak : public InstanceMapScript
 public:
     instance_zulfarrak() : InstanceMapScript("instance_zulfarrak", 209) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_zulfarrak_InstanceMapScript(pMap);
+        return new instance_zulfarrak_InstanceMapScript(map);
     }
 
     struct instance_zulfarrak_InstanceMapScript : public InstanceScript
     {
-        instance_zulfarrak_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 GahzRillaEncounter;
         uint64 ZumrahGUID;

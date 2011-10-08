@@ -50,10 +50,10 @@ class boss_broggok : public CreatureScript
         {
             boss_broggokAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 AcidSpray_Timer;
             uint32 PoisonSpawn_Timer;
@@ -64,20 +64,20 @@ class boss_broggok : public CreatureScript
                 AcidSpray_Timer = 10000;
                 PoisonSpawn_Timer = 5000;
                 PoisonBolt_Timer = 7000;
-                if (pInstance)
+                if (instance)
                 {
-                    pInstance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
-                    pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
+                    instance->SetData(TYPE_BROGGOK_EVENT, NOT_STARTED);
+                    instance->HandleGameObject(instance->GetData64(DATA_DOOR4), true);
                 }
             }
 
             void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
-                if (pInstance)
+                if (instance)
                 {
-                    pInstance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
-                    pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), false);
+                    instance->SetData(TYPE_BROGGOK_EVENT, IN_PROGRESS);
+                    instance->HandleGameObject(instance->GetData64(DATA_DOOR4), false);
                 }
             }
 
@@ -123,11 +123,11 @@ class boss_broggok : public CreatureScript
 
             void JustDied(Unit* /*who*/)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR4), true);
-                    pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR5), true);
-                    pInstance->SetData(TYPE_BROGGOK_EVENT, DONE);
+                    instance->HandleGameObject(instance->GetData64(DATA_DOOR4), true);
+                    instance->HandleGameObject(instance->GetData64(DATA_DOOR5), true);
+                    instance->SetData(TYPE_BROGGOK_EVENT, DONE);
                 }
             }
 

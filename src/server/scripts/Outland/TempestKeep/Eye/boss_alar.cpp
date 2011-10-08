@@ -82,11 +82,11 @@ class boss_alar : public CreatureScript
         {
             boss_alarAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 DefaultMoveSpeedRate = creature->GetSpeedRate(MOVE_RUN);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             WaitEventType WaitEvent;
             uint32 WaitTimer;
@@ -110,8 +110,8 @@ class boss_alar : public CreatureScript
 
             void Reset()
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_ALAREVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_ALAREVENT, NOT_STARTED);
 
                 Berserk_Timer = 1200000;
                 Platforms_Move_Timer = 0;
@@ -137,8 +137,8 @@ class boss_alar : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_ALAREVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_ALAREVENT, IN_PROGRESS);
 
                 me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING); // after enterevademode will be set walk movement
                 DoZoneInCombat();
@@ -147,8 +147,8 @@ class boss_alar : public CreatureScript
 
             void JustDied(Unit* /*victim*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_ALAREVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_ALAREVENT, DONE);
             }
 
             void JustSummoned(Creature* summon)
@@ -469,12 +469,12 @@ class mob_ember_of_alar : public CreatureScript
         {
             mob_ember_of_alarAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 creature->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
                 creature->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_FIRE, true);
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
             bool toDie;
 
             void Reset()
@@ -498,9 +498,9 @@ class mob_ember_of_alar : public CreatureScript
                     DoCast(me, SPELL_EMBER_BLAST, true);
                     me->SetDisplayId(11686);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    if (pInstance && pInstance->GetData(DATA_ALAREVENT) == 2)
+                    if (instance && instance->GetData(DATA_ALAREVENT) == 2)
                     {
-                        if (Unit* Alar = Unit::GetUnit((*me), pInstance->GetData64(DATA_ALAR)))
+                        if (Unit* Alar = Unit::GetUnit((*me), instance->GetData64(DATA_ALAR)))
                         {
                             int32 AlarHealth = int32(Alar->GetHealth()) - int32(Alar->CountPctFromMaxHealth(3));
                             if (AlarHealth > 0)

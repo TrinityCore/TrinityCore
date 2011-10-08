@@ -56,10 +56,10 @@ public:
     {
         boss_silver_hand_bossesAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 HolyLight_Timer;
         uint32 DivineShield_Timer;
@@ -69,24 +69,24 @@ public:
             HolyLight_Timer = 20000;
             DivineShield_Timer = 20000;
 
-            if (pInstance)
+            if (instance)
             {
                 switch (me->GetEntry())
                 {
                     case SH_AELMAR:
-                        pInstance->SetData(TYPE_SH_AELMAR, 0);
+                        instance->SetData(TYPE_SH_AELMAR, 0);
                         break;
                     case SH_CATHELA:
-                        pInstance->SetData(TYPE_SH_CATHELA, 0);
+                        instance->SetData(TYPE_SH_CATHELA, 0);
                         break;
                     case SH_GREGOR:
-                        pInstance->SetData(TYPE_SH_GREGOR, 0);
+                        instance->SetData(TYPE_SH_GREGOR, 0);
                         break;
                     case SH_NEMAS:
-                        pInstance->SetData(TYPE_SH_NEMAS, 0);
+                        instance->SetData(TYPE_SH_NEMAS, 0);
                         break;
                     case SH_VICAR:
-                        pInstance->SetData(TYPE_SH_VICAR, 0);
+                        instance->SetData(TYPE_SH_VICAR, 0);
                         break;
                 }
             }
@@ -98,27 +98,27 @@ public:
 
         void JustDied(Unit* Killer)
         {
-            if (pInstance)
+            if (instance)
             {
                 switch (me->GetEntry())
                 {
                     case SH_AELMAR:
-                        pInstance->SetData(TYPE_SH_AELMAR, 2);
+                        instance->SetData(TYPE_SH_AELMAR, 2);
                         break;
                     case SH_CATHELA:
-                        pInstance->SetData(TYPE_SH_CATHELA, 2);
+                        instance->SetData(TYPE_SH_CATHELA, 2);
                         break;
                     case SH_GREGOR:
-                        pInstance->SetData(TYPE_SH_GREGOR, 2);
+                        instance->SetData(TYPE_SH_GREGOR, 2);
                         break;
                     case SH_NEMAS:
-                        pInstance->SetData(TYPE_SH_NEMAS, 2);
+                        instance->SetData(TYPE_SH_NEMAS, 2);
                         break;
                     case SH_VICAR:
-                        pInstance->SetData(TYPE_SH_VICAR, 2);
+                        instance->SetData(TYPE_SH_VICAR, 2);
                         break;
                 }
-                if (pInstance->GetData(TYPE_SH_QUEST) && Killer->GetTypeId() == TYPEID_PLAYER)
+                if (instance->GetData(TYPE_SH_QUEST) && Killer->GetTypeId() == TYPEID_PLAYER)
                     CAST_PLR(Killer)->KilledMonsterCredit(SH_QUEST_CREDIT, 0);
             }
         }

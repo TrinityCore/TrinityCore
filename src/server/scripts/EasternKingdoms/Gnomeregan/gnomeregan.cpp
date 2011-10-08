@@ -113,9 +113,9 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        InstanceScript* pInstance = creature->GetInstanceScript();
+        InstanceScript* instance = creature->GetInstanceScript();
 
-        if (pInstance && pInstance->GetData(TYPE_EVENT) == NOT_STARTED)
+        if (instance && instance->GetData(TYPE_EVENT) == NOT_STARTED)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_START_EVENT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         player->SEND_GOSSIP_MENU(GOSSIP_TEXT_EMI, creature->GetGUID());
@@ -127,12 +127,12 @@ public:
     {
         npc_blastmaster_emi_shortfuseAI(Creature* creature) : npc_escortAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             creature->RestoreFaction();
             Reset();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiTimer;
@@ -170,63 +170,63 @@ public:
 
             for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
             {
-               if (GameObject* pGo = GameObject::GetGameObject(*me, *itr))
+               if (GameObject* go = GameObject::GetGameObject(*me, *itr))
                {
-                    if (pGo)
+                    if (go)
                     {
-                        if (Creature* trigger = pGo->SummonTrigger(pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 1))
+                        if (Creature* trigger = go->SummonTrigger(go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 1))
                         {
                             //visual effects are not working!
                             trigger->CastSpell(trigger, 11542, true);
                             trigger->CastSpell(trigger, 35470, true);
                         }
-                        pGo->RemoveFromWorld();
-                        //pGo->CastSpell(me, 12158); makes all die?!
+                        go->RemoveFromWorld();
+                        //go->CastSpell(me, 12158); makes all die?!
                     }
                }
             }
 
            if (bBool)
            {
-                if (pInstance)
-                    if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                        pInstance->HandleGameObject(0, false, pGo);
+                if (instance)
+                    if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+                        instance->HandleGameObject(0, false, go);
            }else
-                if (pInstance)
-                    if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                        pInstance->HandleGameObject(0, false, pGo);
+                if (instance)
+                    if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+                        instance->HandleGameObject(0, false, go);
         }
 
         void SetInFace(bool bBool)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             if (bBool)
             {
-                if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                    me->SetFacingToObject(pGo);
+                if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+                    me->SetFacingToObject(go);
             }else
-                if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                    me->SetFacingToObject(pGo);
+                if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+                    me->SetFacingToObject(go);
         }
 
         void RestoreAll()
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                pInstance->HandleGameObject(0, false, pGo);
+            if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+                instance->HandleGameObject(0, false, go);
 
-            if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                pInstance->HandleGameObject(0, false, pGo);
+            if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+                instance->HandleGameObject(0, false, go);
 
             if (!GoSummonList.empty())
                 for (std::list<uint64>::const_iterator itr = GoSummonList.begin(); itr != GoSummonList.end(); ++itr)
                 {
-                    if (GameObject* pGo = GameObject::GetGameObject(*me, *itr))
-                        pGo->RemoveFromWorld();
+                    if (GameObject* go = GameObject::GetGameObject(*me, *itr))
+                        go->RemoveFromWorld();
                 }
 
             if (!SummonList.empty())
@@ -242,7 +242,7 @@ public:
                 }
         }
 
-        void AggroAllPlayers(Creature* pTemp)
+        void AggroAllPlayers(Creature* temp)
         {
             Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
 
@@ -258,9 +258,9 @@ public:
 
                     if (player->isAlive())
                     {
-                        pTemp->SetInCombatWith(player);
-                        player->SetInCombatWith(pTemp);
-                        pTemp->AddThreat(player, 0.0f);
+                        temp->SetInCombatWith(player);
+                        player->SetInCombatWith(temp);
+                        temp->AddThreat(player, 0.0f);
                     }
                 }
             }
@@ -320,16 +320,16 @@ public:
                     NextStep(1500, true);
                     break;
                 case 2:
-                    if (!pInstance)
+                    if (!instance)
                         return;
 
                     switch (uiValue)
                     {
                         case 1:
-                            pInstance->SetData(TYPE_EVENT, IN_PROGRESS);
+                            instance->SetData(TYPE_EVENT, IN_PROGRESS);
                             break;
                         case 2:
-                            pInstance->SetData(TYPE_EVENT, DONE);
+                            instance->SetData(TYPE_EVENT, DONE);
                             NextStep(5000, false, 22);
                             break;
                     }
@@ -354,10 +354,10 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 2:
-                    if (GameObject* pGo = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0, 0, 0, 0, 0, 1000))
+                    if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0, 0, 0, 0, 0, 1000))
                     {
-                        GoSummonList.push_back(pGo->GetGUID());
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
+                        GoSummonList.push_back(go->GetGUID());
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
                     }
                     Summon(3);
                     break;
@@ -369,10 +369,10 @@ public:
                     DoScriptText(SAY_BLASTMASTER_19, me);
                     break;
                 case 4:
-                    if (GameObject* pGo = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0, 0, 0, 0, 0, 1000))
+                    if (GameObject* go = me->SummonGameObject(183410, -542.199f, -96.854f, -155.790f, 0, 0, 0, 0, 0, 1000))
                     {
-                        GoSummonList.push_back(pGo->GetGUID());
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        GoSummonList.push_back(go->GetGUID());
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
                 case 5:
@@ -389,18 +389,18 @@ public:
                     me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 7:
-                    if (GameObject* pGo = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0, 0, 0, 0, 0, 1000))
+                    if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0, 0, 0, 0, 0, 1000))
                     {
-                        GoSummonList.push_back(pGo->GetGUID());
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
+                        GoSummonList.push_back(go->GetGUID());
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
                         Summon(6);
                     }
                     break;
                 case 8:
-                    if (GameObject* pGo = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0, 0, 0, 0, 0, 1000))
+                    if (GameObject* go = me->SummonGameObject(183410, -511.829f, -86.249f, -151.431f, 0, 0, 0, 0, 0, 1000))
                     {
-                        GoSummonList.push_back(pGo->GetGUID());
-                        pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
+                        GoSummonList.push_back(go->GetGUID());
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE); //We can't use it!
                     }
                     break;
                 case 9:
@@ -444,9 +444,9 @@ public:
                             SetInFace(true);
                             DoScriptText(SAY_BLASTMASTER_5, me);
                             Summon(1);
-                            if (pInstance)
-                                if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
-                                    pInstance->HandleGameObject(0, true, pGo);
+                            if (instance)
+                                if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_GO_CAVE_IN_RIGHT)))
+                                    instance->HandleGameObject(0, true, go);
                             NextStep(3000, true);
                             break;
                         case 7:
@@ -490,9 +490,9 @@ public:
                         case 16:
                             DoScriptText(SAY_BLASTMASTER_23, me);
                             SetInFace(false);
-                            if (pInstance)
-                                if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_GO_CAVE_IN_LEFT)))
-                                    pInstance->HandleGameObject(0, true, pGo);
+                            if (instance)
+                                if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_GO_CAVE_IN_LEFT)))
+                                    instance->HandleGameObject(0, true, go);
                             NextStep(2000, true);
                             break;
                         case 17:

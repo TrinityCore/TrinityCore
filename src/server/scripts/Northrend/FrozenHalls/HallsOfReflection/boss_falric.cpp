@@ -67,15 +67,15 @@ public:
 
             uiHopelessnessCount = 0;
 
-            if (pInstance)
-                pInstance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-                pInstance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
@@ -86,8 +86,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_FALRIC_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_FALRIC_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)

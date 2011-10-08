@@ -38,14 +38,14 @@ class instance_gruuls_lair : public InstanceMapScript
 public:
     instance_gruuls_lair() : InstanceMapScript("instance_gruuls_lair", 565) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_gruuls_lair_InstanceMapScript(pMap);
+        return new instance_gruuls_lair_InstanceMapScript(map);
     }
 
     struct instance_gruuls_lair_InstanceMapScript : public InstanceScript
     {
-        instance_gruuls_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_gruuls_lair_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 

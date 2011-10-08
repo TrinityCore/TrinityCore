@@ -57,10 +57,10 @@ public:
     {
         boss_aeonusAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 SandBreath_Timer;
         uint32 TimeStop_Timer;
@@ -97,10 +97,10 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-             if (pInstance)
+             if (instance)
              {
-                 pInstance->SetData(TYPE_RIFT, DONE);
-                 pInstance->SetData(TYPE_MEDIVH, DONE);//FIXME: later should be removed
+                 instance->SetData(TYPE_RIFT, DONE);
+                 instance->SetData(TYPE_MEDIVH, DONE);//FIXME: later should be removed
              }
         }
 

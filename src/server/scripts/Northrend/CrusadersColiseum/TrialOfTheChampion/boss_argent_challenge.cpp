@@ -102,12 +102,12 @@ public:
     {
         boss_eadricAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiVenganceTimer;
         uint32 uiRadianceTimer;
@@ -142,8 +142,8 @@ public:
             if (MovementType != POINT_MOTION_TYPE)
                 return;
 
-            if (pInstance)
-                pInstance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+            if (instance)
+                instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
 
             me->DisappearAndDie();
         }
@@ -207,7 +207,7 @@ public:
     {
         boss_paletressAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             MemoryGUID = 0;
             creature->SetReactState(REACT_PASSIVE);
@@ -215,7 +215,7 @@ public:
             creature->RestoreFaction();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         Creature* pMemory;
         uint64 MemoryGUID;
@@ -268,8 +268,8 @@ public:
             if (MovementType != POINT_MOTION_TYPE || Point != 0)
                 return;
 
-            if (pInstance)
-                pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
+            if (instance)
+                instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
 
             me->DisappearAndDie();
         }
@@ -437,13 +437,13 @@ public:
     {
         npc_argent_soldierAI(Creature* creature) : npc_escortAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             me->SetReactState(REACT_DEFENSIVE);
             SetDespawnAtEnd(false);
             uiWaypoint = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiWaypoint;
 
@@ -532,8 +532,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
+            if (instance)
+                instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
         }
     };
 

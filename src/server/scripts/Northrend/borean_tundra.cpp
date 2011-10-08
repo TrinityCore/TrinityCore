@@ -598,9 +598,9 @@ public:
 
             if (TempSummon* summon = me->ToTempSummon())
                 if (summon->isSummon())
-                    if (Unit* pTemp = summon->GetSummoner())
-                        if (pTemp->GetTypeId() == TYPEID_PLAYER)
-                            CAST_PLR(pTemp)->KilledMonsterCredit(me->GetEntry(), 0);
+                    if (Unit* temp = summon->GetSummoner())
+                        if (temp->GetTypeId() == TYPEID_PLAYER)
+                            CAST_PLR(temp)->KilledMonsterCredit(me->GetEntry(), 0);
 
             if (GameObject* go_caribou = me->GetMap()->GetGameObject(go_caribouGUID))
                 go_caribou->SetGoState(GO_STATE_READY);
@@ -794,15 +794,15 @@ public:
         return new npc_lurgglbrAI(creature);
     }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
+        if (quest->GetQuestId() == QUEST_ESCAPE_WINTERFIN_CAVERNS)
         {
-            if (GameObject* pGo = creature->FindNearestGameObject(GO_CAGE, 5.0f))
+            if (GameObject* go = creature->FindNearestGameObject(GO_CAGE, 5.0f))
             {
-                pGo->SetRespawnTime(0);
-                pGo->SetGoType(GAMEOBJECT_TYPE_BUTTON);
-                pGo->UseDoorOrButton(20);
+                go->SetRespawnTime(0);
+                go->SetGoType(GAMEOBJECT_TYPE_BUTTON);
+                go->UseDoorOrButton(20);
             }
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_lurgglbr::npc_lurgglbrAI, creature->AI()))

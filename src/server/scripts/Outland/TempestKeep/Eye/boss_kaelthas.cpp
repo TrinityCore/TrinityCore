@@ -147,11 +147,11 @@ struct advisorbase_ai : public ScriptedAI
 {
     advisorbase_ai(Creature* creature) : ScriptedAI(creature)
     {
-        m_pInstance = creature->GetInstanceScript();
+        m_instance = creature->GetInstanceScript();
         m_bDoubled_Health = false;
     }
 
-    InstanceScript* m_pInstance;
+    InstanceScript* m_instance;
     bool FakeDeath;
     bool m_bDoubled_Health;
     uint32 DelayRes_Timer;
@@ -174,8 +174,8 @@ struct advisorbase_ai : public ScriptedAI
         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
         //reset encounter
-        if (m_pInstance && (m_pInstance->GetData(DATA_KAELTHASEVENT) == 1 || m_pInstance->GetData(DATA_KAELTHASEVENT) == 3))
-            if (Creature* Kaelthas = Unit::GetCreature((*me), m_pInstance->GetData64(DATA_KAELTHAS)))
+        if (m_instance && (m_instance->GetData(DATA_KAELTHASEVENT) == 1 || m_instance->GetData(DATA_KAELTHASEVENT) == 3))
+            if (Creature* Kaelthas = Unit::GetCreature((*me), m_instance->GetData64(DATA_KAELTHAS)))
                 Kaelthas->AI()->EnterEvadeMode();
     }
 
@@ -214,14 +214,14 @@ struct advisorbase_ai : public ScriptedAI
             return;
 
         //Prevent glitch if in fake death
-        if (FakeDeath && m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) != 0)
+        if (FakeDeath && m_instance && m_instance->GetData(DATA_KAELTHASEVENT) != 0)
         {
             damage = 0;
             return;
         }
 
         //Don't really die in phase 1 & 3, only die after that
-        if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) != 0)
+        if (m_instance && m_instance->GetData(DATA_KAELTHASEVENT) != 0)
         {
             //prevent death
             damage = 0;
@@ -280,11 +280,11 @@ class boss_kaelthas : public CreatureScript
         {
             boss_kaelthasAI(Creature* creature) : ScriptedAI(creature), summons(me)
             {
-                m_pInstance = creature->GetInstanceScript();
+                m_instance = creature->GetInstanceScript();
                 memset(&m_auiAdvisorGuid, 0, sizeof(m_auiAdvisorGuid));
             }
 
-            InstanceScript* m_pInstance;
+            InstanceScript* m_instance;
 
             uint32 Fireball_Timer;
             uint32 ArcaneDisruption_Timer;
@@ -335,8 +335,8 @@ class boss_kaelthas : public CreatureScript
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_KAELTHASEVENT, 0);
+                if (m_instance)
+                    m_instance->SetData(DATA_KAELTHASEVENT, 0);
             }
 
             void PrepareAdvisors()
@@ -355,13 +355,13 @@ class boss_kaelthas : public CreatureScript
 
             void StartEvent()
             {
-                if (!m_pInstance)
+                if (!m_instance)
                     return;
 
-                m_auiAdvisorGuid[0] = m_pInstance->GetData64(DATA_THALADREDTHEDARKENER);
-                m_auiAdvisorGuid[1] = m_pInstance->GetData64(DATA_LORDSANGUINAR);
-                m_auiAdvisorGuid[2] = m_pInstance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
-                m_auiAdvisorGuid[3] = m_pInstance->GetData64(DATA_MASTERENGINEERTELONICUS);
+                m_auiAdvisorGuid[0] = m_instance->GetData64(DATA_THALADREDTHEDARKENER);
+                m_auiAdvisorGuid[1] = m_instance->GetData64(DATA_LORDSANGUINAR);
+                m_auiAdvisorGuid[2] = m_instance->GetData64(DATA_GRANDASTROMANCERCAPERNIAN);
+                m_auiAdvisorGuid[3] = m_instance->GetData64(DATA_MASTERENGINEERTELONICUS);
 
                 if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
                 {
@@ -371,7 +371,7 @@ class boss_kaelthas : public CreatureScript
 
                     Phase = 4;
 
-                    m_pInstance->SetData(DATA_KAELTHASEVENT, 4);
+                    m_instance->SetData(DATA_KAELTHASEVENT, 4);
 
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -386,7 +386,7 @@ class boss_kaelthas : public CreatureScript
 
                     DoScriptText(SAY_INTRO, me);
 
-                    m_pInstance->SetData(DATA_KAELTHASEVENT, 1);
+                    m_instance->SetData(DATA_KAELTHASEVENT, 1);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
                     PhaseSubphase = 0;
@@ -412,7 +412,7 @@ class boss_kaelthas : public CreatureScript
                         }
                         else if (me->GetMap()->IsDungeon())
                         {
-                            if (m_pInstance && !m_pInstance->GetData(DATA_KAELTHASEVENT) && !Phase)
+                            if (m_instance && !m_instance->GetData(DATA_KAELTHASEVENT) && !Phase)
                                 StartEvent();
 
                             who->SetInCombatWith(me);
@@ -424,7 +424,7 @@ class boss_kaelthas : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (m_pInstance && !m_pInstance->GetData(DATA_KAELTHASEVENT) && !Phase)
+                if (m_instance && !m_instance->GetData(DATA_KAELTHASEVENT) && !Phase)
                     StartEvent();
             }
 
@@ -456,8 +456,8 @@ class boss_kaelthas : public CreatureScript
 
                 summons.DespawnAll();
 
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_KAELTHASEVENT, 0);
+                if (m_instance)
+                    m_instance->SetData(DATA_KAELTHASEVENT, 0);
 
                 for (uint8 i = 0; i < MAX_ADVISORS; ++i)
                 {
@@ -621,8 +621,8 @@ class boss_kaelthas : public CreatureScript
                                 if (Advisor && (Advisor->getStandState() == UNIT_STAND_STATE_DEAD))
                                 {
                                     Phase = 2;
-                                    if (m_pInstance)
-                                        m_pInstance->SetData(DATA_KAELTHASEVENT, 2);
+                                    if (m_instance)
+                                        m_instance->SetData(DATA_KAELTHASEVENT, 2);
 
                                     DoScriptText(SAY_PHASE2_WEAPON, me);
 
@@ -666,8 +666,8 @@ class boss_kaelthas : public CreatureScript
                             if (Phase_Timer <= diff)
                             {
                                 DoScriptText(SAY_PHASE3_ADVANCE, me);
-                                if (m_pInstance)
-                                    m_pInstance->SetData(DATA_KAELTHASEVENT, 3);
+                                if (m_instance)
+                                    m_instance->SetData(DATA_KAELTHASEVENT, 3);
                                 Phase = 3;
                                 PhaseSubphase = 0;
                             }
@@ -704,8 +704,8 @@ class boss_kaelthas : public CreatureScript
                             DoScriptText(SAY_PHASE4_INTRO2, me);
                             Phase = 4;
 
-                            if (m_pInstance)
-                                m_pInstance->SetData(DATA_KAELTHASEVENT, 4);
+                            if (m_instance)
+                                m_instance->SetData(DATA_KAELTHASEVENT, 4);
 
                             // Sometimes people can collect Aggro in Phase 1-3. Reset threat before releasing Kael.
                             DoResetThreat();
@@ -809,8 +809,8 @@ class boss_kaelthas : public CreatureScript
                         {
                             if (HealthBelowPct(50))
                             {
-                                if (m_pInstance)
-                                    m_pInstance->SetData(DATA_KAELTHASEVENT, 4);
+                                if (m_instance)
+                                    m_instance->SetData(DATA_KAELTHASEVENT, 4);
                                 Phase = 5;
                                 Phase_Timer = 10000;
 
@@ -1044,7 +1044,7 @@ class boss_thaladred_the_darkener : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
+                if (m_instance && m_instance->GetData(DATA_KAELTHASEVENT) == 3)
                     DoScriptText(SAY_THALADRED_DEATH, me);
             }
 
@@ -1136,7 +1136,7 @@ class boss_lord_sanguinar : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
+                if (m_instance && m_instance->GetData(DATA_KAELTHASEVENT) == 3)
                     DoScriptText(SAY_SANGUINAR_DEATH, me);
             }
 
@@ -1201,7 +1201,7 @@ class boss_grand_astromancer_capernian : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
+                if (m_instance && m_instance->GetData(DATA_KAELTHASEVENT) == 3)
                     DoScriptText(SAY_CAPERNIAN_DEATH, me);
             }
 
@@ -1340,7 +1340,7 @@ class boss_master_engineer_telonicus : public CreatureScript
 
             void JustDied(Unit* /*killer*/)
             {
-                if (m_pInstance && m_pInstance->GetData(DATA_KAELTHASEVENT) == 3)
+                if (m_instance && m_instance->GetData(DATA_KAELTHASEVENT) == 3)
                     DoScriptText(SAY_TELONICUS_DEATH, me);
             }
 

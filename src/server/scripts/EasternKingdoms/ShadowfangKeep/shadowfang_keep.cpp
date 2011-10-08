@@ -78,9 +78,9 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        InstanceScript* pInstance = creature->GetInstanceScript();
+        InstanceScript* instance = creature->GetInstanceScript();
 
-        if (pInstance && pInstance->GetData(TYPE_FREE_NPC) != DONE && pInstance->GetData(TYPE_RETHILGORE) == DONE)
+        if (instance && instance->GetData(TYPE_FREE_NPC) != DONE && instance->GetData(TYPE_RETHILGORE) == DONE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_DOOR, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
@@ -92,11 +92,11 @@ public:
     {
         npc_shadowfang_prisonerAI(Creature* c) : npc_escortAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             uiNpcEntry = c->GetEntry();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 uiNpcEntry;
 
         void WaypointReached(uint32 uiPoint)
@@ -125,8 +125,8 @@ public:
                     else
                         DoScriptText(SAY_POST1_DOOR_AD, me);
 
-                    if (pInstance)
-                        pInstance->SetData(TYPE_FREE_NPC, DONE);
+                    if (instance)
+                        instance->SetData(TYPE_FREE_NPC, DONE);
                     break;
                 case 13:
                     if (uiNpcEntry != NPC_ASH)
@@ -155,10 +155,10 @@ public:
     {
         npc_arugal_voidwalkerAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiDarkOffering;
 
@@ -189,8 +189,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_FENRUS, pInstance->GetData(TYPE_FENRUS) + 1);
+            if (instance)
+                instance->SetData(TYPE_FENRUS, instance->GetData(TYPE_FENRUS) + 1);
         }
     };
 

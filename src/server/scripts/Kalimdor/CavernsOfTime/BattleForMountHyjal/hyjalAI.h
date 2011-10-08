@@ -212,7 +212,7 @@ struct hyjalAI : public npc_escortAI
     void Talk(uint32 id);                                   // Searches for the appropriate yell and sound and uses it to inform the raid of various things
 
     public:
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 PlayerGUID;
         uint64 BossGUID[2];
