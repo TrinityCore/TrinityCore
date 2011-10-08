@@ -69,7 +69,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
         SendNameQueryOpcode(pChar);
     else
     {
-        if (CharacterNameData* cname = sWorld->GetCharacterNameData(guid))
+        if (const CharacterNameData* cname = sWorld->GetCharacterNameData(GUID_LOPART(guid)))
         {
             WorldPacket data(SMSG_NAME_QUERY_RESPONSE, 8+1+1+1+1+1+1+10);
             data.appendPackGUID(guid);
