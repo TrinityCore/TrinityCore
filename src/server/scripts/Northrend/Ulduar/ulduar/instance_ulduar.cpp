@@ -69,7 +69,6 @@ class instance_ulduar : public InstanceMapScript
             uint64 ThorimChestGUID;
             uint64 HodirRareCacheGUID;
             uint64 HodirChestGUID;
-            uint64 FreyaChestGUID;
             uint64 HodirDoorGUID;
             uint64 HodirIceDoorGUID;
             uint64 ArchivumDoorGUID;
@@ -107,7 +106,6 @@ class instance_ulduar : public InstanceMapScript
                 ThorimChestGUID                  = 0;
                 HodirRareCacheGUID               = 0;
                 HodirChestGUID                   = 0;
-                FreyaChestGUID                   = 0;
                 LeviathanGateGUID                = 0;
                 VezaxDoorGUID                    = 0;
                 HodirDoorGUID                    = 0;
@@ -301,10 +299,6 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_CHEST_HERO:
                     case GO_HODIR_CHEST:
                         HodirChestGUID = gameObject->GetGUID();
-                        break;
-                    case GO_FREYA_CHEST_HERO:
-                    case GO_FREYA_CHEST:
-                        FreyaChestGUID = gameObject->GetGUID();
                         break;
                     case GO_LEVIATHAN_DOOR:
                         AddDoor(gameObject, true);
