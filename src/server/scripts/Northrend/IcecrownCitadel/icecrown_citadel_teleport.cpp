@@ -78,6 +78,13 @@ class at_frozen_throne_teleport : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*areaTrigger*/)
         {
+            if (player->isInCombat())
+            {
+                if (SpellInfo const* spell = sSpellMgr->GetSpellInfo(FROZEN_THRONE_TELEPORT))
+                    Spell::SendCastResult(player, spell, 0, SPELL_FAILED_AFFECTING_COMBAT);
+                return true;
+            }
+            
             if (InstanceScript* instance = player->GetInstanceScript())
                 if (instance->GetBossState(DATA_PROFESSOR_PUTRICIDE) == DONE &&
                     instance->GetBossState(DATA_BLOOD_QUEEN_LANA_THEL) == DONE &&
