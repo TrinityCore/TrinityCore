@@ -24,11 +24,6 @@
 #include "GridNotifiersImpl.h"
 #include "ulduar.h"
 
-/*
- * **** TODO ****
- * Achievements *
- */
-
 enum FreyaYells
 {
     // Freya
@@ -188,6 +183,7 @@ enum FreyaNpcs
 enum FreyaActions
 {
     ACTION_ELDER_DEATH                           = 1,
+    ACTION_ELDER_FREYA_KILLED                    = 2,
 };
 
 enum FreyaEvents
@@ -331,7 +327,7 @@ class boss_freya : public CreatureScript
 
             void DamageTaken(Unit* /*who*/, uint32& damage)
             {
-                if (damage >= me->GetHealth() && instance)
+                if (damage >= me->GetHealth())
                 {
                     damage = 0;
                     DoScriptText(SAY_DEATH, me);
@@ -351,11 +347,11 @@ class boss_freya : public CreatureScript
                         Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
                         if (Elder[n] && Elder[n]->isAlive())
                         {
-                            Elder[n]->setFaction(35);
                             Elder[n]->RemoveAllAuras();
                             Elder[n]->AttackStop();
                             Elder[n]->CombatStop(true);
                             Elder[n]->DeleteThreatList();
+                            Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
                         }
                     }
                 }
@@ -811,6 +807,10 @@ class boss_elder_brightleaf : public CreatureScript
                         ++elderCount;
                         lumberjack = true;
                         break;
+                    case ACTION_ELDER_FREYA_KILLED:
+                        me->DespawnOrUnsummon(10000);
+                        _JustDied();
+                        break;
                 }
             }
 
@@ -933,6 +933,10 @@ class boss_elder_stonebark : public CreatureScript
                         ++elderCount;
                         lumberjack = true;
                         break;
+                    case ACTION_ELDER_FREYA_KILLED:
+                        me->DespawnOrUnsummon(10000);
+                        _JustDied();
+                        break;
                 }
             }
 
@@ -1041,6 +1045,10 @@ class boss_elder_ironbranch : public CreatureScript
                     case ACTION_ELDER_DEATH:
                         ++elderCount;
                         lumberjack = true;
+                        break;
+                    case ACTION_ELDER_FREYA_KILLED:
+                        me->DespawnOrUnsummon(10000);
+                        _JustDied();
                         break;
                 }
             }
