@@ -268,7 +268,6 @@ public:
             } else uiBackstabTimer -= diff;
 
             DoMeleeAttackIfReady();
-
         }
     };
 
@@ -520,7 +519,6 @@ public:
             } else uiPoisonSprayTimer -= diff;
 
             DoMeleeAttackIfReady();
-
         }
     };
 

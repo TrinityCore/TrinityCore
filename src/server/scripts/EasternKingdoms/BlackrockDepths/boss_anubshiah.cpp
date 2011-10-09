@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Anubshiah
-SD%Complete: 100
-SDComment:
-SDCategory: Blackrock Depths
-EndScriptData */
-
 #include "ScriptPCH.h"
 
 enum Spells
@@ -46,7 +39,7 @@ public:
 
     struct boss_anubshiahAI : public ScriptedAI
     {
-        boss_anubshiahAI(Creature* c) : ScriptedAI(c) {}
+        boss_anubshiahAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ShadowBolt_Timer;
         uint32 CurseOfTongues_Timer;
@@ -56,16 +49,14 @@ public:
 
         void Reset()
         {
-            ShadowBolt_Timer = 7000;
-            CurseOfTongues_Timer = 24000;
-            CurseOfWeakness_Timer = 12000;
-            DemonArmor_Timer = 3000;
-            EnvelopingWeb_Timer = 16000;
+            ShadowBolt_Timer           = 7000;
+            CurseOfTongues_Timer       = 24000;
+            CurseOfWeakness_Timer      = 12000;
+            DemonArmor_Timer           = 3000;
+            EnvelopingWeb_Timer        = 16000;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -113,7 +104,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_anubshiah()

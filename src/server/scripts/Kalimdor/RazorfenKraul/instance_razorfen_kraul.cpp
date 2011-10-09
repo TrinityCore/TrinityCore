@@ -92,9 +92,7 @@ public:
                 case EVENT_WARD_KEEPER: WardKeeperDeath++; break;
             }
         }
-
     };
-
 };
 
 void AddSC_instance_razorfen_kraul()

@@ -299,13 +299,11 @@ public:
                 forge_event[0] = data3;
                 forge_event[1] = data4;
                 forge_event[2] = data5;
-
             } else OUT_LOAD_INST_DATA_FAIL;
 
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_utgarde_keep()

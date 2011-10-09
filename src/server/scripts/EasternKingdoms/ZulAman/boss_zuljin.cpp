@@ -635,4 +635,3 @@ void AddSC_boss_zuljin()
     new boss_zuljin();
     new mob_zuljin_vortex();
 }
-

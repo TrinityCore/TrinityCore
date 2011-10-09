@@ -212,7 +212,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum eEnums
@@ -304,7 +303,6 @@ public:
             } else Apprentice_Timer -= diff;
         }
     };
-
 };
 
 enum eEthereal
@@ -356,7 +354,6 @@ public:
             } else Cast_Timer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_nexusprince_shaffar()

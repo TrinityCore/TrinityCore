@@ -337,7 +337,6 @@ public:
 
     static bool HandleLearnAllCraftsCommand(ChatHandler* handler, const char* /*args*/)
     {
-
         for (uint32 i = 0; i < sSkillLineStore.GetNumRows(); ++i)
         {
             SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(i);

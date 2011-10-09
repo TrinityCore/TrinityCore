@@ -161,7 +161,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_instance_temple_of_ahnqiraj()

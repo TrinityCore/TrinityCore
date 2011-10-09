@@ -193,4 +193,3 @@ void AddSC_zulaman()
     new npc_forest_frog();
     new npc_zulaman_hostage();
 }
-

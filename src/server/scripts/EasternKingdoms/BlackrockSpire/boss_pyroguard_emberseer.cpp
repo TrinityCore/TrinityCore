@@ -34,7 +34,6 @@ enum Events
     EVENT_PYROBLAST                 = 3,
 };
 
-
 class boss_pyroguard_emberseer : public CreatureScript
 {
 public:

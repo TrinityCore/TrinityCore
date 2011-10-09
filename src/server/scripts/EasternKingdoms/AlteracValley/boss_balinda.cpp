@@ -97,7 +97,7 @@ public:
 
     struct boss_balindaAI : public ScriptedAI
     {
-        boss_balindaAI(Creature* creature) : ScriptedAI(c), summons(me) {}
+        boss_balindaAI(Creature* creature) : ScriptedAI(creature), summons(me) {}
 
         uint32 arcaneExplosionTimer;
         uint32 coneOfColdTimer;

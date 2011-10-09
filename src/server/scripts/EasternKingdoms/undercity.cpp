@@ -143,7 +143,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -201,7 +200,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -252,7 +250,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######

@@ -97,7 +97,6 @@ public:
                     instance->SetData(TYPE_DISTILLER, DONE);
         }
     };
-
 };
 
 class boss_warlord_kalithresh : public CreatureScript
@@ -200,7 +199,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_warlord_kalithresh()

@@ -360,7 +360,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -401,7 +400,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -478,7 +476,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -555,7 +552,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -649,7 +645,6 @@ public:
             case 39:
                 DoScriptText(EMOTE_DISAPPEAR, me);
                 break;
-
             }
         }
 

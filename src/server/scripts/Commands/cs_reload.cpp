@@ -988,7 +988,6 @@ public:
 
     static bool HandleReloadEventAITextsCommand(ChatHandler* handler, const char* /*args*/)
     {
-
         sLog->outString("Re-Loading Texts from `creature_ai_texts`...");
         sEventAIMgr->LoadCreatureEventAI_Texts();
         handler->SendGlobalGMSysMessage("DB table `creature_ai_texts` reloaded.");

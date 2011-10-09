@@ -102,7 +102,6 @@ public:
         player->SEND_GOSSIP_MENU(6812, creature->GetGUID());
             return true;
     }
-
 };
 
 /*###
@@ -217,7 +216,6 @@ public:
 
         return true;
     }
-
 };
 
 /*####
@@ -462,7 +460,6 @@ static WaveData WavesInfo[] =
     {12, 38, 15414, 0, 0, 24000, 0},    // Qiraji Wasps
     { 6, 50, 15422, 0, 0, 24000, 0},    // Qiraji Tanks
     {15, 15, 15423, 0, 0, 24000, 0}     // Kaldorei Soldier
-
 };
 
 struct SpawnSpells
@@ -801,7 +798,6 @@ public:
                 me->AI()->EnterEvadeMode();
         }
     };
-
 };
 
 /*######
@@ -916,7 +912,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*#####
@@ -1063,7 +1058,6 @@ public:
                 EnterEvadeMode();
         };
     };
-
 };
 
 void mob_qiraj_war_spawn::mob_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
@@ -1071,7 +1065,6 @@ void mob_qiraj_war_spawn::mob_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
     me->RemoveCorpse();
     if (Creature* Mob = (Unit::GetCreature(*me, MobGUID)))
         CAST_AI(npc_anachronos_quest_trigger::npc_anachronos_quest_triggerAI, Mob->AI())->LiveCounter();
-
 };
 
 /*#####
@@ -1087,10 +1080,8 @@ public:
     {
         if (quest->GetQuestId() == QUEST_A_PAWN_ON_THE_ETERNAL_BOARD)
         {
-
             if (Unit* Anachronos_Quest_Trigger = go->FindNearestCreature(15454, 100, player))
             {
-
                 Unit* Merithra = Anachronos_Quest_Trigger->SummonCreature(15378, -8034.535f, 1535.14f, 2.61f, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
                 Unit* Caelestrasz = Anachronos_Quest_Trigger->SummonCreature(15379, -8032.767f, 1533.148f, 2.61f, 1.5f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
                 Unit* Arygos = Anachronos_Quest_Trigger->SummonCreature(15380, -8034.52f, 1537.843f, 2.61f, 5.7f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 220000);
@@ -1133,7 +1124,6 @@ public:
         }
         return true;
     }
-
 };
 
 /*###

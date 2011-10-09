@@ -299,7 +299,6 @@ class spell_rog_deadly_poison : public SpellScriptLoader
         {
             PrepareSpellScript(spell_rog_deadly_poison_SpellScript)
 
-
             bool Load()
             {
                 _stackAmount = 0;

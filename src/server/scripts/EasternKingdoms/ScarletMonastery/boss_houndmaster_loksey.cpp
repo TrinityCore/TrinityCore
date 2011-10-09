@@ -72,7 +72,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_houndmaster_loksey()

@@ -273,7 +273,6 @@ public:
             std::list<uint64> gameObjectList;
             std::list<uint64> azureDragonsList;
     };
-
 };
 
 void AddSC_instance_oculus()

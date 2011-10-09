@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Magmus
-SD%Complete: 100
-SDComment:
-SDCategory: Blackrock Depths
-EndScriptData */
-
 #include "ScriptPCH.h"
 
 enum Spells
@@ -33,7 +26,7 @@ enum Spells
 
 enum eEnums
 {
-    DATA_THRONE_DOOR                              = 24 // not id or guid of doors but number of enum in blackrock_depths.h
+    DATA_THRONE_DOOR                                       = 24 // not id or guid of doors but number of enum in blackrock_depths.h
 };
 
 class boss_magmus : public CreatureScript
@@ -48,20 +41,18 @@ public:
 
     struct boss_magmusAI : public ScriptedAI
     {
-        boss_magmusAI(Creature* c) : ScriptedAI(c) {}
+        boss_magmusAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 FieryBurst_Timer;
         uint32 WarStomp_Timer;
 
         void Reset()
         {
-            FieryBurst_Timer = 5000;
-            WarStomp_Timer =0;
+            FieryBurst_Timer    = 5000;
+            WarStomp_Timer      = 0;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -95,7 +86,6 @@ public:
                 instance->HandleGameObject(instance->GetData64(DATA_THRONE_DOOR), true);
         }
     };
-
 };
 
 void AddSC_boss_magmus()

@@ -185,7 +185,6 @@ class boss_pathaleon_the_calculator : public CreatureScript
                     DoCast(me, SPELL_FRENZY);
                     DoScriptText(SAY_ENRAGE, me);
                     Enraged = true;
-
                 }
 
                 DoMeleeAttackIfReady();
@@ -278,4 +277,3 @@ void AddSC_boss_pathaleon_the_calculator()
     new boss_pathaleon_the_calculator();
     new mob_nether_wraith();
 }
-

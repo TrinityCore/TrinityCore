@@ -906,7 +906,6 @@ class npc_darkrune_guardian : public CreatureScript
                     killedByBreath = value;
             }
 
-
             void UpdateAI(uint32 const Diff)
             {
                 if (!UpdateVictim())

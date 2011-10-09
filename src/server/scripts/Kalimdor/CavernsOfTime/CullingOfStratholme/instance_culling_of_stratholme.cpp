@@ -282,7 +282,6 @@ class instance_culling_of_stratholme : public InstanceMapScript
                     for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                         if (_encounterState[i] == IN_PROGRESS)
                             _encounterState[i] = NOT_STARTED;
-
                 }
                 else
                     OUT_LOAD_INST_DATA_FAIL;

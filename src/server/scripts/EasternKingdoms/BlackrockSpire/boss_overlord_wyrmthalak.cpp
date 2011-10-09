@@ -40,7 +40,6 @@ enum Adds
 {
     NPC_SPIRESTONE_WARLORD          = 9216,
     NPC_SMOLDERTHORN_BERSERKER      = 9268,
-
 };
 
 const Position SummonLocation1 = { -39.355f, -513.456f, 88.472f, 4.679f };

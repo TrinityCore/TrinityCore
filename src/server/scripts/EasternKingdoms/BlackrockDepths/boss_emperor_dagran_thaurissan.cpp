@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Emperor_Dagran_Thaurissan
-SD%Complete: 99
-SDComment:
-SDCategory: Blackrock Depths
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "blackrock_depths.h"
 
@@ -50,7 +43,7 @@ public:
 
     struct boss_draganthaurissanAI : public ScriptedAI
     {
-        boss_draganthaurissanAI(Creature* c) : ScriptedAI(c)
+        boss_draganthaurissanAI(Creature* creature) : ScriptedAI(creature)
         {
             instance = me->GetInstanceScript();
         }
@@ -62,9 +55,9 @@ public:
 
         void Reset()
         {
-            HandOfThaurissan_Timer = 4000;
-            AvatarOfFlame_Timer = 25000;
-            //Counter= 0;
+            HandOfThaurissan_Timer   = 4000;
+            AvatarOfFlame_Timer      = 25000;
+            //Counter                = 0;
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -107,7 +100,7 @@ public:
                 //else
                 //{
                     HandOfThaurissan_Timer = 5000;
-                    //Counter = 0;
+                    //Counter              = 0;
                 //}
             } else HandOfThaurissan_Timer -= diff;
 
@@ -121,7 +114,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_draganthaurissan()

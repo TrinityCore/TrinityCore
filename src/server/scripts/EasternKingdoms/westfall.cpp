@@ -185,7 +185,6 @@ public:
             } else uiShootTimer -= diff;
         }
     };
-
 };
 
 /*######
@@ -258,7 +257,6 @@ public:
 
         void Reset() {}
     };
-
 };
 
 void AddSC_westfall()

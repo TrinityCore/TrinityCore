@@ -49,4 +49,3 @@ enum eTypes
     TYPE_RETREAT              = 20
 };
 #endif
-

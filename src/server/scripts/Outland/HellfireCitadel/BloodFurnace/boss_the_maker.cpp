@@ -104,7 +104,6 @@ class boss_the_maker : public CreatureScript
                 instance->SetData(TYPE_THE_MAKER_EVENT, DONE);
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR2), true);
                 instance->HandleGameObject(instance->GetData64(DATA_DOOR3), true);
-
              }
 
             void UpdateAI(const uint32 diff)
@@ -163,4 +162,3 @@ void AddSC_boss_the_maker()
 {
     new boss_the_maker();
 }
-

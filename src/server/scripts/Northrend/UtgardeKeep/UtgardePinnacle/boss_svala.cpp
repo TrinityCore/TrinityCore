@@ -204,7 +204,6 @@ public:
             } else uiIntroTimer -= diff;
         }
     };
-
 };
 
 class mob_ritual_channeler : public CreatureScript
@@ -243,7 +242,6 @@ public:
         {
         }
     };
-
 };
 
 class boss_svala_sorrowgrave : public CreatureScript
@@ -408,7 +406,6 @@ public:
             DoScriptText(SAY_DEATH, me);
         }
     };
-
 };
 
 void AddSC_boss_svala()

@@ -187,7 +187,6 @@ public:
             lSummons.Summon(summoned);
         }
     };
-
 };
 
 class mob_slad_ran_constrictor : public CreatureScript
@@ -224,7 +223,6 @@ public:
 
         InstanceScript* instance;
     };
-
 };
 
 class mob_slad_ran_viper : public CreatureScript
@@ -262,7 +260,6 @@ public:
             } else uiVenomousBiteTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_slad_ran()

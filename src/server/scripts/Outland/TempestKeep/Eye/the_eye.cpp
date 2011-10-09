@@ -108,4 +108,3 @@ void AddSC_the_eye()
 {
     new mob_crystalcore_devastator();
 }
-

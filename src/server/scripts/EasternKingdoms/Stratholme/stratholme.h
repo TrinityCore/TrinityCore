@@ -39,4 +39,3 @@
 #define QUEST_DEAD_MAN_PLEA     8945
 #define SPELL_BARON_ULTIMATUM   27861
 #endif
-

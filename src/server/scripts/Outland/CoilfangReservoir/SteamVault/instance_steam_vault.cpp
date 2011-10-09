@@ -58,7 +58,6 @@ public:
 
         return true;
     }
-
 };
 
 class instance_steam_vault : public InstanceMapScript
@@ -227,7 +226,6 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_steam_vault()

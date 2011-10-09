@@ -205,7 +205,6 @@ public:
             return 0;
         }
     };
-
 };
 
 void AddSC_instance_razorfen_downs()

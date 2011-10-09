@@ -136,7 +136,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -232,7 +231,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######
@@ -265,7 +263,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -311,7 +308,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -375,7 +371,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -474,7 +469,6 @@ public:
             summoned->AI()->AttackStart(me);
         }
     };
-
 };
 
 /*####
@@ -639,7 +633,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_tanaris()

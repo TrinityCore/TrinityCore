@@ -215,7 +215,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_high_inquisitor_whitemane : public CreatureScript
@@ -355,7 +354,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_mograine_and_whitemane()
