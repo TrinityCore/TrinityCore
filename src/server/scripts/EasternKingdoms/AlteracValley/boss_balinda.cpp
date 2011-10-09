@@ -48,7 +48,7 @@ public:
 
     struct mob_water_elementalAI : public ScriptedAI
     {
-        mob_water_elementalAI(Creature* c) : ScriptedAI(c) {}
+        mob_water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 waterBoltTimer;
         uint64 balindaGUID;
@@ -56,8 +56,8 @@ public:
 
         void Reset()
         {
-            waterBoltTimer            = 3*IN_MILLISECONDS;
-            resetTimer                = 5*IN_MILLISECONDS;
+            waterBoltTimer            = 3 * IN_MILLISECONDS;
+            resetTimer                = 5 * IN_MILLISECONDS;
         }
 
         void UpdateAI(const uint32 diff)
@@ -68,7 +68,7 @@ public:
             if (waterBoltTimer < diff)
             {
                 DoCast(me->getVictim(), SPELL_WATERBOLT);
-                waterBoltTimer = 5*IN_MILLISECONDS;
+                waterBoltTimer = 5 * IN_MILLISECONDS;
             } else waterBoltTimer -= diff;
 
             // check if creature is not outside of building
@@ -77,7 +77,7 @@ public:
                 if (Creature* pBalinda = Unit::GetCreature(*me, balindaGUID))
                     if (me->GetDistance2d(pBalinda->GetHomePosition().GetPositionX(), pBalinda->GetHomePosition().GetPositionY()) > 50)
                         EnterEvadeMode();
-                    resetTimer = 5*IN_MILLISECONDS;
+                    resetTimer = 5 * IN_MILLISECONDS;
             } else resetTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -97,7 +97,7 @@ public:
 
     struct boss_balindaAI : public ScriptedAI
     {
-        boss_balindaAI(Creature* c) : ScriptedAI(c), summons(me) {}
+        boss_balindaAI(Creature* creature) : ScriptedAI(creature), summons(me) {}
 
         uint32 arcaneExplosionTimer;
         uint32 coneOfColdTimer;
@@ -110,11 +110,11 @@ public:
 
         void Reset()
         {
-            arcaneExplosionTimer      = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-            coneOfColdTimer           = 8*IN_MILLISECONDS;
-            fireBoltTimer             = 1*IN_MILLISECONDS;
-            frostboltTimer            = 4*IN_MILLISECONDS;
-            resetTimer                = 5*IN_MILLISECONDS;
+            arcaneExplosionTimer      = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+            coneOfColdTimer           = 8 * IN_MILLISECONDS;
+            fireBoltTimer             = 1 * IN_MILLISECONDS;
+            frostboltTimer            = 4 * IN_MILLISECONDS;
+            resetTimer                = 5 * IN_MILLISECONDS;
             waterElementalTimer       = 0;
 
             summons.DespawnAll();
@@ -151,32 +151,32 @@ public:
             if (waterElementalTimer < diff)
             {
                 if (summons.empty())
-                    me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45*IN_MILLISECONDS);
-                waterElementalTimer = 50*IN_MILLISECONDS;
+                    me->SummonCreature(NPC_WATER_ELEMENTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45 * IN_MILLISECONDS);
+                waterElementalTimer = 50 * IN_MILLISECONDS;
             } else waterElementalTimer -= diff;
 
             if (arcaneExplosionTimer < diff)
             {
                 DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
-                arcaneExplosionTimer =  urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
+                arcaneExplosionTimer =  urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
             } else arcaneExplosionTimer -= diff;
 
             if (coneOfColdTimer < diff)
             {
                 DoCast(me->getVictim(), SPELL_CONE_OF_COLD);
-                coneOfColdTimer = urand(10*IN_MILLISECONDS, 20*IN_MILLISECONDS);
+                coneOfColdTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
             } else coneOfColdTimer -= diff;
 
             if (fireBoltTimer < diff)
             {
                 DoCast(me->getVictim(), SPELL_FIREBALL);
-                fireBoltTimer = urand(5*IN_MILLISECONDS, 9*IN_MILLISECONDS);
+                fireBoltTimer = urand(5 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
             } else fireBoltTimer -= diff;
 
             if (frostboltTimer < diff)
             {
                 DoCast(me->getVictim(), SPELL_FROSTBOLT);
-                frostboltTimer = urand(4*IN_MILLISECONDS, 12*IN_MILLISECONDS);
+                frostboltTimer = urand(4 * IN_MILLISECONDS, 12 * IN_MILLISECONDS);
             } else frostboltTimer -= diff;
 
             // check if creature is not outside of building
@@ -187,7 +187,7 @@ public:
                     EnterEvadeMode();
                     DoScriptText(YELL_EVADE, me);
                 }
-                resetTimer = 5*IN_MILLISECONDS;
+                resetTimer = 5 * IN_MILLISECONDS;
             } else resetTimer -= diff;
 
             DoMeleeAttackIfReady();

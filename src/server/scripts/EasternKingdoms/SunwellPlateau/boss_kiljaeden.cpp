@@ -366,7 +366,6 @@ public:
             }
         }
     };
-
 };
 
 class go_orb_of_the_blue_flight : public GameObjectScript
@@ -390,7 +389,6 @@ public:
         }
         return true;
     }
-
 };
 
 //AI for Kil'jaeden Event Controller
@@ -490,7 +488,6 @@ public:
             }
         }
     };
-
 };
 
 //AI for Kil'jaeden
@@ -904,7 +901,6 @@ public:
             }
         }
     };
-
 };
 
 //AI for Hand of the Deceiver
@@ -1005,7 +1001,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //AI for Felfire Portal
@@ -1050,7 +1045,6 @@ public:
             } else uiSpawnFiendTimer -= diff;
         }
     };
-
 };
 
 //AI for Felfire Fiend
@@ -1108,7 +1102,6 @@ public:
             }
         }
     };
-
 };
 
 //AI for Armageddon target
@@ -1163,7 +1156,6 @@ public:
             } else uiTimer -=diff;
         }
     };
-
 };
 
 //AI for Shield Orbs
@@ -1251,7 +1243,6 @@ public:
             bPointReached = true;
         }
     };
-
 };
 
 //AI for Sinister Reflection
@@ -1421,7 +1412,6 @@ public:
                     uiTimer[i] -= diff;
             }
     };
-
 };
 
 void AddSC_boss_kiljaeden()

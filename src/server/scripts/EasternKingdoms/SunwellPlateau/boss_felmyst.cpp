@@ -508,7 +508,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_felmyst_vapor : public CreatureScript
@@ -541,7 +540,6 @@ public:
                     AttackStart(target);
         }
     };
-
 };
 
 class mob_felmyst_trail : public CreatureScript
@@ -569,7 +567,6 @@ public:
         void MoveInLineOfSight(Unit* /*who*/) {}
         void UpdateAI(const uint32 /*diff*/) {}
     };
-
 };
 
 void AddSC_boss_felmyst()

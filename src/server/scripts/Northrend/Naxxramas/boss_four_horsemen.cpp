@@ -392,7 +392,6 @@ public:
                 doDelayPunish = true;
         }
     };
-
 };
 
 void AddSC_boss_four_horsemen()

@@ -277,7 +277,6 @@ public:
                 SaveToDB();
                 OUT_SAVE_INST_DATA_COMPLETE;
             }
-
         }
 
         uint32 GetData(uint32 type)
@@ -319,7 +318,6 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_mount_hyjal()

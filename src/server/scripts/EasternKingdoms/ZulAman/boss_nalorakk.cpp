@@ -337,7 +337,6 @@ class boss_nalorakk : public CreatureScript
                             inMove = false;
                             return;
                     }
-
                 }
             }
 
@@ -455,4 +454,3 @@ void AddSC_boss_nalorakk()
 {
     new boss_nalorakk();
 }
-

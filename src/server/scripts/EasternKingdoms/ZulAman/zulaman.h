@@ -30,4 +30,3 @@
 #define TYPE_RAND_VENDOR_2  9
 
 #endif
-

@@ -475,4 +475,3 @@ void AddSC_boss_akilzon()
     new boss_akilzon();
     new mob_akilzon_eagle();
 }
-

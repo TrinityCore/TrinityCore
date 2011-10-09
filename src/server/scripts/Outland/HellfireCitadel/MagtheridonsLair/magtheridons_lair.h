@@ -25,4 +25,3 @@
 #define DATA_COLLAPSE                   6
 #define DATA_CHANNELER                  9
 #endif
-

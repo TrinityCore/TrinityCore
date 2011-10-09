@@ -148,7 +148,6 @@ public:
 
                         //Set our global cooldown
                         GlobalCooldown = GENERIC_CREATURE_COOLDOWN;
-
                     }//If no spells available and we arn't moving run to target
                     else if (IsSelfRooted)
                     {

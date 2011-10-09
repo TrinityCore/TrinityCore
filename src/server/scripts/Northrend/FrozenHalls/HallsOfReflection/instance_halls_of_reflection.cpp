@@ -306,7 +306,6 @@ public:
                 for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
                     if (uiEncounter[i] == IN_PROGRESS)
                         uiEncounter[i] = NOT_STARTED;
-
             } else OUT_LOAD_INST_DATA_FAIL;
 
             if (uiEncounter[0] == DONE || uiEncounter[1] == DONE)
@@ -419,7 +418,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_instance_halls_of_reflection()

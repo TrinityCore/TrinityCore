@@ -255,7 +255,6 @@ class mob_shade_of_jindo : public CreatureScript
 
             void UpdateAI (const uint32 diff)
             {
-
                 //ShadowShock_Timer
                 if (ShadowShock_Timer <= diff)
                 {
@@ -279,4 +278,3 @@ void AddSC_boss_jindo()
     new mob_healing_ward();
     new mob_shade_of_jindo();
 }
-

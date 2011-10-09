@@ -319,7 +319,6 @@ public:
                         WipeTimer = 15000;
                     } else WipeTimer -= diff;
                 }
-
             }
         }
     };
@@ -395,7 +394,6 @@ public:
     {
         return new npc_barnesAI(creature);
     }
-
 };
 
 /*###
@@ -436,7 +434,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*###
@@ -611,12 +608,10 @@ public:
                 return 5000;
             default : return 9999999;
             }
-
         }
 
         void UpdateAI(const uint32 diff)
         {
-
             if (YellTimer <= diff)
             {
                 if (EventStarted)
@@ -643,7 +638,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_karazhan()

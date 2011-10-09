@@ -138,7 +138,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -338,7 +337,6 @@ public:
             }
         }
     };
-
 };
 
 //Scarlet courier
@@ -426,7 +424,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Koltira & Valroth- Breakout
@@ -514,7 +511,6 @@ public:
             killer->CastSpell(me, SPELL_SUMMON_VALROTH_REMAINS, true);
         }
     };
-
 };
 
 /*######
@@ -978,7 +974,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_the_scarlet_enclave_c2()

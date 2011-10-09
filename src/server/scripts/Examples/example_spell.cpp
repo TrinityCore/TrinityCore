@@ -189,7 +189,6 @@ class spell_ex_66244 : public SpellScriptLoader
                 return false;
             }
 
-
             void HandleOnEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 sLog->outString("Aura Effect is about to be applied on target!");

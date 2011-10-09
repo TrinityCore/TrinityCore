@@ -77,7 +77,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -115,7 +114,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -164,7 +162,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######

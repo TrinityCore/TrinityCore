@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_High_Interrogator_Gerstahn
-SD%Complete: 100
-SDComment:
-SDCategory: Blackrock Depths
-EndScriptData */
-
 #include "ScriptPCH.h"
 
 enum Spells
@@ -45,7 +38,7 @@ public:
 
     struct boss_high_interrogator_gerstahnAI : public ScriptedAI
     {
-        boss_high_interrogator_gerstahnAI(Creature* c) : ScriptedAI(c) {}
+        boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ShadowWordPain_Timer;
         uint32 ManaBurn_Timer;
@@ -54,15 +47,13 @@ public:
 
         void Reset()
         {
-            ShadowWordPain_Timer = 4000;
-            ManaBurn_Timer = 14000;
-            PsychicScream_Timer = 32000;
-            ShadowShield_Timer = 8000;
+            ShadowWordPain_Timer     = 4000;
+            ManaBurn_Timer           = 14000;
+            PsychicScream_Timer      = 32000;
+            ShadowShield_Timer       = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -103,7 +94,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_high_interrogator_gerstahn()

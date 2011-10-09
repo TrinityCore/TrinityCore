@@ -29,4 +29,3 @@
 
 #define DATA_VORREL                     7
 #endif
-

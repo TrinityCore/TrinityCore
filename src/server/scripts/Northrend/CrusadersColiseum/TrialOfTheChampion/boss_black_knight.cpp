@@ -354,7 +354,6 @@ public:
 
         void WaypointReached(uint32 /*i*/)
         {
-
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -364,7 +363,6 @@ public:
             if (!UpdateVictim())
                 return;
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
