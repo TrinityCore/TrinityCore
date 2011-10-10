@@ -53,20 +53,20 @@ public:
         void Initialize()
         {
             SetBossNumber(MAX_ENCOUNTER);
-            HighlordOmokk = 0;
-            ShadowHunterVoshgajin = 0;
-            WarMasterVoone = 0;
-            MotherSmolderweb = 0;
-            UrokDoomhowl = 0;
-            QuartermasterZigris = 0;
-            GizrultheSlavener = 0;
-            Halycon = 0;
-            OverlordWyrmthalak = 0;
-            PyroguardEmberseer = 0;
-            WarchiefRendBlackhand = 0;
-            Gyth = 0;
-            TheBeast = 0;
-            GeneralDrakkisath = 0;
+            HighlordOmokk           = 0;
+            ShadowHunterVoshgajin   = 0;
+            WarMasterVoone          = 0;
+            MotherSmolderweb        = 0;
+            UrokDoomhowl            = 0;
+            QuartermasterZigris     = 0;
+            GizrultheSlavener       = 0;
+            Halycon                 = 0;
+            OverlordWyrmthalak      = 0;
+            PyroguardEmberseer      = 0;
+            WarchiefRendBlackhand   = 0;
+            Gyth                    = 0;
+            TheBeast                = 0;
+            GeneralDrakkisath       = 0;
         }
 
         bool IsEncounterInProgress() const
