@@ -39,23 +39,23 @@ public:
 
     struct boss_galvangarAI : public ScriptedAI
     {
-        boss_galvangarAI(Creature* c) : ScriptedAI(c) {}
+        boss_galvangarAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 uiCleaveTimer;
-        uint32 uiFrighteningShoutTimer;
-        uint32 uiWhirlwind1Timer;
-        uint32 uiWhirlwind2Timer;
-        uint32 uiMortalStrikeTimer;
-        uint32 uiResetTimer;
+        uint32 CleaveTimer;
+        uint32 FrighteningShoutTimer;
+        uint32 Whirlwind1Timer;
+        uint32 Whirlwind2Timer;
+        uint32 MortalStrikeTimer;
+        uint32 ResetTimer;
 
         void Reset()
         {
-            uiCleaveTimer                     = urand(1*IN_MILLISECONDS, 9*IN_MILLISECONDS);
-            uiFrighteningShoutTimer           = urand(2*IN_MILLISECONDS, 19*IN_MILLISECONDS);
-            uiWhirlwind1Timer                 = urand(1*IN_MILLISECONDS, 13*IN_MILLISECONDS);
-            uiWhirlwind2Timer                 = urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            uiMortalStrikeTimer               = urand(5*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            uiResetTimer                      = 5*IN_MILLISECONDS;
+            CleaveTimer                     = urand(1 * IN_MILLISECONDS, 9 * IN_MILLISECONDS);
+            FrighteningShoutTimer           = urand(2 * IN_MILLISECONDS, 19 * IN_MILLISECONDS);
+            Whirlwind1Timer                 = urand(1 * IN_MILLISECONDS, 13 * IN_MILLISECONDS);
+            Whirlwind2Timer                 = urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            MortalStrikeTimer               = urand(5 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            ResetTimer                      = 5 * IN_MILLISECONDS;
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -73,46 +73,46 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiCleaveTimer <= diff)
+            if (CleaveTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CLEAVE);
-                uiCleaveTimer =  urand(10*IN_MILLISECONDS, 16*IN_MILLISECONDS);
-            } else uiCleaveTimer -= diff;
+                CleaveTimer =  urand(10 * IN_MILLISECONDS, 16 * IN_MILLISECONDS);
+            } else CleaveTimer -= diff;
 
-            if (uiFrighteningShoutTimer <= diff)
+            if (FrighteningShoutTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FRIGHTENING_SHOUT);
-                uiFrighteningShoutTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-            } else uiFrighteningShoutTimer -= diff;
+                FrighteningShoutTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+            } else FrighteningShoutTimer -= diff;
 
-            if (uiWhirlwind1Timer <= diff)
+            if (Whirlwind1Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_WHIRLWIND1);
-                uiWhirlwind1Timer = urand(6*IN_MILLISECONDS, 10*IN_MILLISECONDS);
-            } else uiWhirlwind1Timer -= diff;
+                Whirlwind1Timer = urand(6 * IN_MILLISECONDS, 10 * IN_MILLISECONDS);
+            } else Whirlwind1Timer -= diff;
 
-            if (uiWhirlwind2Timer <= diff)
+            if (Whirlwind2Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_WHIRLWIND2);
-                uiWhirlwind2Timer = urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS);
-            } else uiWhirlwind2Timer -= diff;
+                Whirlwind2Timer = urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
+            } else Whirlwind2Timer -= diff;
 
-            if (uiMortalStrikeTimer <= diff)
+            if (MortalStrikeTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
-                uiMortalStrikeTimer = urand(10*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            } else uiMortalStrikeTimer -= diff;
+                MortalStrikeTimer = urand(10 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+            } else MortalStrikeTimer -= diff;
 
             // check if creature is not outside of building
-            if (uiResetTimer <= diff)
+            if (ResetTimer <= diff)
             {
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
                     DoScriptText(YELL_EVADE, me);
                 }
-                uiResetTimer = 5*IN_MILLISECONDS;
-            } else uiResetTimer -= diff;
+                ResetTimer = 5 * IN_MILLISECONDS;
+            } else ResetTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
