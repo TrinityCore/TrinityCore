@@ -1247,6 +1247,7 @@ class Unit : public WorldObject
         void AddToWorld();
         void RemoveFromWorld();
 
+        void CleanupBeforeRemoveFromMap(bool finalCleanup);
         void CleanupsBeforeDelete(bool finalCleanup = true);                        // used in ~Creature/~Player (or before mass creature delete to remove cross-references to already deleted units)
 
         DiminishingLevels GetDiminishing(DiminishingGroup  group);
