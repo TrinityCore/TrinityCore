@@ -185,7 +185,7 @@ class boss_marli : public CreatureScript
                             if (target)
                             {
                                 DoCast(target, SPELL_CHARGE);
-                                //me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
+                                //me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
                                 //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
                                 AttackStart(target);
                             }

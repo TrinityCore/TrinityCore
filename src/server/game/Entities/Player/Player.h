@@ -1937,8 +1937,8 @@ class Player : public Unit, public GridObject<Player>
         void SendResetInstanceFailed(uint32 reason, uint32 MapId);
         void SendResetFailedNotify(uint32 mapid);
 
-        virtual bool SetPosition(float x, float y, float z, float orientation, bool teleport = false);
-        bool SetPosition(const Position &pos, bool teleport = false) { return SetPosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
+        virtual bool UpdatePosition(float x, float y, float z, float orientation, bool teleport = false);
+        bool UpdatePosition(const Position &pos, bool teleport = false) { return UpdatePosition(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), teleport); }
         void UpdateUnderwaterState(Map* m, float x, float y, float z);
 
         void SendMessageToSet(WorldPacket* data, bool self) {SendMessageToSetInRange(data, GetVisibilityRange(), self); };// overwrite Object::SendMessageToSet

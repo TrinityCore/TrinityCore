@@ -2387,6 +2387,7 @@ const char* Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
     return GetName();
 }
 
+//TODO: This may cause crash. Creature must be removed from the original grid and added to the new grid.
 void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
 {
     InterruptNonMeleeSpells(true);
@@ -2401,7 +2402,21 @@ void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
     SetMap(map);
     AddToWorld();
 
-    SetPosition(X, Y, Z, O, true);
+    UpdatePosition(X, Y, Z, O, true);
+}
+
+void Creature::SetPosition(float x, float y, float z, float o)
+{
+    // prevent crash when a bad coord is sent by the client
+    if (!Trinity::IsValidMapCoord(x, y, z, o))
+    {
+        sLog->outDebug(LOG_FILTER_UNITS, "Creature::SetPosition(%f, %f, %f) .. bad coordinates!", x, y, z);
+        return;
+    }
+
+    GetMap()->CreatureRelocation(ToCreature(), x, y, z, o);
+    if (IsVehicle())
+        GetVehicleKit()->RelocatePassengers(x, y, z, o);
 }
 
 bool Creature::IsDungeonBoss() const

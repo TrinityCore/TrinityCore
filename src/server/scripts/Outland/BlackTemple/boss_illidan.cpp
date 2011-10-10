@@ -1967,7 +1967,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
         Summons.DespawnAll();
         break;
     case 17:
-        if (GETUNIT(Akama, AkamaGUID))
+        if (GETCRE(Akama, AkamaGUID))
         {
             if (!me->IsWithinDistInMap(Akama, 15))
             {
@@ -1976,7 +1976,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
                 x += 10; y += 10;
                 Akama->GetMotionMaster()->Clear(false);
                 //Akama->GetMotionMaster()->MoveIdle();
-                Akama->GetMap()->CreatureRelocation(me, x, y, z, 0.0f);
+                Akama->SetPosition(x, y, z, 0.0f);
                 Akama->SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_NONE, 0);//Illidan must not die until Akama arrives.
                 Akama->GetMotionMaster()->MoveChase(me);
             }
