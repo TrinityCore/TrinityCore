@@ -895,7 +895,7 @@ bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
     pet->InitPetCreateSpells();
     pet->SetFullHealth();
 
-    pet->GetMap()->Add(pet->ToCreature());
+    pet->GetMap()->AddToMap(pet->ToCreature());
 
     // visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, creatureTarget->getLevel());

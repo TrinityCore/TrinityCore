@@ -1179,7 +1179,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
                 if (!creature->LoadFromDB(*itr, map))
                     delete creature;
                 else
-                    map->Add(creature);
+                    map->AddToMap(creature);
             }
         }
     }
@@ -1210,7 +1210,7 @@ void GameEventMgr::GameEventSpawn(int16 event_id)
                 else
                 {
                     if (pGameobject->isSpawnedByDefault())
-                        map->Add(pGameobject);
+                        map->AddToMap(pGameobject);
                 }
             }
         }
