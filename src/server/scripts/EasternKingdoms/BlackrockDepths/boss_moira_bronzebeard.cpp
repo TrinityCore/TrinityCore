@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Moira_Bronzbeard
-SD%Complete: 90
-SDComment: Healing of Emperor NYI
-SDCategory: Blackrock Depths
-EndScriptData */
-
 #include "ScriptPCH.h"
 
 enum Spells
@@ -47,7 +40,7 @@ public:
 
     struct boss_moira_bronzebeardAI : public ScriptedAI
     {
-        boss_moira_bronzebeardAI(Creature* c) : ScriptedAI(c) {}
+        boss_moira_bronzebeardAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Heal_Timer;
         uint32 MindBlast_Timer;
@@ -56,15 +49,13 @@ public:
 
         void Reset()
         {
-            Heal_Timer = 12000;                                 //These times are probably wrong
-            MindBlast_Timer = 16000;
-            ShadowWordPain_Timer = 2000;
-            Smite_Timer = 8000;
+            Heal_Timer            = 12000;                 // These times are probably wrong
+            MindBlast_Timer       = 16000;
+            ShadowWordPain_Timer  = 2000;
+            Smite_Timer           = 8000;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -92,10 +83,8 @@ public:
                 DoCast(me->getVictim(), SPELL_SMITE);
                 Smite_Timer = 10000;
             } else Smite_Timer -= diff;
-
         }
     };
-
 };
 
 void AddSC_boss_moira_bronzebeard()

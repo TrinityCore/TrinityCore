@@ -46,21 +46,21 @@ public:
 
     struct boss_vanndarAI : public ScriptedAI
     {
-        boss_vanndarAI(Creature* c) : ScriptedAI(c) {}
+        boss_vanndarAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 uiAvatarTimer;
-        uint32 uiThunderclapTimer;
-        uint32 uiStormboltTimer;
-        uint32 uiResetTimer;
-        uint32 uiYellTimer;
+        uint32 AvatarTimer;
+        uint32 ThunderclapTimer;
+        uint32 StormboltTimer;
+        uint32 ResetTimer;
+        uint32 YellTimer;
 
         void Reset()
         {
-            uiAvatarTimer = 3*IN_MILLISECONDS;
-            uiThunderclapTimer = 4*IN_MILLISECONDS;
-            uiStormboltTimer = 6*IN_MILLISECONDS;
-            uiResetTimer = 5*IN_MILLISECONDS;
-            uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
+            AvatarTimer        = 3 * IN_MILLISECONDS;
+            ThunderclapTimer   = 4 * IN_MILLISECONDS;
+            StormboltTimer     = 6 * IN_MILLISECONDS;
+            ResetTimer         = 5 * IN_MILLISECONDS;
+            YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -79,40 +79,40 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiAvatarTimer <= diff)
+            if (AvatarTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_AVATAR);
-                uiAvatarTimer =  urand(15*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            } else uiAvatarTimer -= diff;
+                AvatarTimer =  urand(15 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            } else AvatarTimer -= diff;
 
-            if (uiThunderclapTimer <= diff)
+            if (ThunderclapTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_THUNDERCLAP);
-                uiThunderclapTimer = urand(5*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-            } else uiThunderclapTimer -= diff;
+                ThunderclapTimer = urand(5 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+            } else ThunderclapTimer -= diff;
 
-            if (uiStormboltTimer <= diff)
+            if (StormboltTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_STORMBOLT);
-                uiStormboltTimer = urand(10*IN_MILLISECONDS, 25*IN_MILLISECONDS);
-            } else uiStormboltTimer -= diff;
+                StormboltTimer = urand(10 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
+            } else StormboltTimer -= diff;
 
-            if (uiYellTimer <= diff)
+            if (YellTimer <= diff)
             {
                 DoScriptText(RAND(YELL_RANDOM1, YELL_RANDOM2, YELL_RANDOM3, YELL_RANDOM4, YELL_RANDOM5, YELL_RANDOM6, YELL_RANDOM7), me);
-                uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS); //20 to 30 seconds
-            } else uiYellTimer -= diff;
+                YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
+            } else YellTimer -= diff;
 
             // check if creature is not outside of building
-            if (uiResetTimer <= diff)
+            if (ResetTimer <= diff)
             {
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
                     DoScriptText(YELL_EVADE, me);
                 }
-                uiResetTimer = 5*IN_MILLISECONDS;
-            } else uiResetTimer -= diff;
+                ResetTimer = 5 * IN_MILLISECONDS;
+            } else ResetTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
