@@ -260,7 +260,7 @@ class mob_frozen_orb_stalker : public CreatureScript
                 {
                     Position pos;
                     me->GetNearPoint(toravon, pos.m_positionX, pos.m_positionY, pos.m_positionZ, 0.0f, 10.0f, 0.0f);
-                    me->SetPosition(pos, true);
+                    me->SetPosition(pos);
                     DoCast(me, SPELL_FROZEN_ORB_SUMMON);
                 }
             }

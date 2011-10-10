@@ -3368,7 +3368,7 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
         // For players just turn them
-        unitTarget->ToPlayer()->SetPosition(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), angle, false);
+        unitTarget->ToPlayer()->UpdatePosition(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), angle, false);
         unitTarget->ToPlayer()->SendTeleportAckPacket();
     }
     else

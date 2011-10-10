@@ -216,15 +216,12 @@ struct boss_twinemperorsAI : public ScriptedAI
         if (pOtherBoss)
         {
             //me->MonsterYell("Teleporting ...", LANG_UNIVERSAL, 0);
-            float other_x = pOtherBoss->GetPositionX();
-            float other_y = pOtherBoss->GetPositionY();
-            float other_z = pOtherBoss->GetPositionZ();
-            float other_o = pOtherBoss->GetOrientation();
-
-            Map* thismap = me->GetMap();
-            thismap->CreatureRelocation(pOtherBoss, me->GetPositionX(),
-                me->GetPositionY(),    me->GetPositionZ(), me->GetOrientation());
-            thismap->CreatureRelocation(me, other_x, other_y, other_z, other_o);
+            Position thisPos;
+            thisPos.Relocate(me);
+            Position otherPos;
+            otherPos.Relocate(pOtherBoss);
+            pOtherBoss->SetPosition(thisPos);
+            me->SetPosition(otherPos);
 
             SetAfterTeleport();
             CAST_AI(boss_twinemperorsAI,  pOtherBoss->AI())->SetAfterTeleport();

@@ -623,7 +623,7 @@ public:
                 const_cast<CreatureData*>(data)->posZ = z;
                 const_cast<CreatureData*>(data)->orientation = o;
             }
-            creature->GetMap()->CreatureRelocation(creature, x, y, z, o);
+            creature->SetPosition(x, y, z, o);
             creature->GetMotionMaster()->Initialize();
             if (creature->isAlive())                            // dead creature will reset movement generator at respawn
             {

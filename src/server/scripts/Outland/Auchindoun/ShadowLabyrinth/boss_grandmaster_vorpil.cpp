@@ -291,7 +291,7 @@ public:
                         if (i_pl->isAlive() && !i_pl->HasAura(SPELL_BANISH))
                             i_pl->TeleportTo(me->GetMapId(), VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0, TELE_TO_NOT_LEAVE_COMBAT);
 
-                me->GetMap()->CreatureRelocation(me, VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0.0f);
+                me->SetPosition(VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0.0f);
                 DoCast(me, SPELL_DRAW_SHADOWS, true);
 
                 DoCast(me, SPELL_RAIN_OF_FIRE);
