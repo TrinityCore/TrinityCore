@@ -13710,7 +13710,7 @@ void Unit::RemoveFromWorld()
     }
 }
 
-void Unit::CleanupsBeforeDelete(bool finalCleanup)
+void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 {
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
@@ -13734,6 +13734,11 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
+}
+
+void Unit::CleanupsBeforeDelete(bool finalCleanup)
+{
+    CleanupBeforeRemoveFromMap(finalCleanup);
 
     if (Creature* thisCreature = ToCreature())
         if (GetTransport())
