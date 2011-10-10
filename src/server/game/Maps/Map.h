@@ -244,10 +244,10 @@ class Map : public GridRefManager<NGridType>
             return false;
         }
 
-        virtual bool Add(Player*);
-        virtual void Remove(Player*, bool);
-        template<class T> void Add(T *);
-        template<class T> void Remove(T *, bool);
+        virtual bool AddToMap(Player*);
+        virtual void RemoveFromMap(Player*, bool);
+        template<class T> void AddToMap(T *);
+        template<class T> void RemoveFromMap(T *, bool);
 
         void VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer> &worldVisitor);
         virtual void Update(const uint32);
@@ -571,8 +571,8 @@ class InstanceMap : public Map
     public:
         InstanceMap(uint32 id, time_t, uint32 InstanceId, uint8 SpawnMode, Map* _parent);
         ~InstanceMap();
-        bool Add(Player*);
-        void Remove(Player*, bool);
+        bool AddToMap(Player*);
+        void RemoveFromMap(Player*, bool);
         void Update(const uint32);
         void CreateInstanceData(bool load);
         bool Reset(uint8 method);
@@ -601,8 +601,8 @@ class BattlegroundMap : public Map
         BattlegroundMap(uint32 id, time_t, uint32 InstanceId, Map* _parent, uint8 spawnMode);
         ~BattlegroundMap();
 
-        bool Add(Player*);
-        void Remove(Player*, bool);
+        bool AddToMap(Player*);
+        void RemoveFromMap(Player*, bool);
         bool CanEnter(Player* player);
         void SetUnload();
         //void UnloadAll(bool pForce);

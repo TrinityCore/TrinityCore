@@ -1636,7 +1636,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
             delete go;
             return 0;
         }
-        map->Add(go);
+        map->AddToMap(go);
     }
 
     sLog->outDebug(LOG_FILTER_MAPS, "AddGOData: dbguid %u entry %u map %u x %f y %f z %f o %f", guid, entry, mapId, x, y, z, o);
@@ -1672,7 +1672,7 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
                 delete creature;
                 return false;
             }
-            map->Add(creature);
+            map->AddToMap(creature);
         }
     }
     return true;
@@ -1725,7 +1725,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
                 delete creature;
                 return 0;
             }
-            map->Add(creature);
+            map->AddToMap(creature);
         }
     }
 

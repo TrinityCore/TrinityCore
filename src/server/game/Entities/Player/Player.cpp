@@ -2278,7 +2278,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             // remove from old map now
             if (oldmap)
-                oldmap->Remove(this, false);
+                oldmap->RemoveFromMap(this, false);
 
             // new final coordinates
             float final_x = x;
@@ -5044,7 +5044,7 @@ void Player::BuildPlayerRepop()
         sLog->outError("Error creating corpse for Player %s [%u]", GetName(), GetGUIDLow());
         return;
     }
-    GetMap()->Add(corpse);
+    GetMap()->AddToMap(corpse);
 
     // convert player body to ghost
     SetHealth(1);

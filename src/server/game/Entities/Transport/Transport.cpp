@@ -673,7 +673,7 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
         return 0;
     }
 
-    map->Add(creature);
+    map->AddToMap(creature);
     m_NPCPassengerSet.insert(creature);
 
     if (tguid == 0)
