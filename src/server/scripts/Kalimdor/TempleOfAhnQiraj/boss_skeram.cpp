@@ -157,15 +157,15 @@ public:
                 switch (urand(0, 2))
                 {
                     case 0:
-                        me->GetMap()->CreatureRelocation(me, -8340.782227f, 2083.814453f, 125.648788f, 0.0f);
+                        me->SetPosition(-8340.782227f, 2083.814453f, 125.648788f, 0.0f);
                         DoResetThreat();
                         break;
                     case 1:
-                        me->GetMap()->CreatureRelocation(me, -8341.546875f, 2118.504639f, 133.058151f, 0.0f);
+                        me->SetPosition(-8341.546875f, 2118.504639f, 133.058151f, 0.0f);
                         DoResetThreat();
                         break;
                     case 2:
-                        me->GetMap()->CreatureRelocation(me, -8318.822266f, 2058.231201f, 133.058151f, 0.0f);
+                        me->SetPosition(-8318.822266f, 2058.231201f, 133.058151f, 0.0f);
                         DoResetThreat();
                         break;
                 }
@@ -252,7 +252,7 @@ public:
             me->RemoveAllAuras();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(false);
-            me->GetMap()->CreatureRelocation(me, bossc->x, bossc->y, bossc->z, bossc->r);
+            me->SetPosition(bossc->x, bossc->y, bossc->z, bossc->r);
             Invisible = true;
             DoResetThreat();
             DoStopAttack();

@@ -357,7 +357,7 @@ public:
                     Map* map = me->GetMap();
                     if (map)
                     {
-                        map->CreatureRelocation(me, 3706.39f, -3969.15f, 35.9118f, 0);
+                        me->SetPosition(3706.39f, -3969.15f, 35.9118f, 0);
                         me->AI_SendMoveToPacket(3706.39f, -3969.15f, 35.9118f, 0, 0, 0);
                     }
                     //begin swimming and summon depth charges
