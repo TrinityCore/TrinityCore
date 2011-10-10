@@ -1353,8 +1353,8 @@ class Player : public Unit, public GridObject<Player>
         void RemoveItemFromBuyBackSlot(uint32 slot, bool del);
         uint32 GetMaxKeyringSize() const { return KEYRING_SLOT_END-KEYRING_SLOT_START; }
         void SendEquipError(InventoryResult msg, Item* pItem, Item* pItem2 = NULL, uint32 itemid = 0);
-        void SendBuyError(BuyResult msg, Creature* pCreature, uint32 item, uint32 param);
-        void SendSellError(SellResult msg, Creature* pCreature, uint64 guid, uint32 param);
+        void SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32 param);
+        void SendSellError(SellResult msg, Creature* creature, uint64 guid, uint32 param);
         void AddWeaponProficiency(uint32 newflag) { m_WeaponProficiency |= newflag; }
         void AddArmorProficiency(uint32 newflag) { m_ArmorProficiency |= newflag; }
         uint32 GetWeaponProficiency() const { return m_WeaponProficiency; }
@@ -1373,7 +1373,7 @@ class Player : public Unit, public GridObject<Player>
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
-        float GetReputationPriceDiscount(Creature const* pCreature) const;
+        float GetReputationPriceDiscount(Creature const* creature) const;
 
         Player* GetTrader() const { return m_trade ? m_trade->GetTrader() : NULL; }
         TradeData* GetTradeData() const { return m_trade; }
@@ -1418,23 +1418,23 @@ class Player : public Unit, public GridObject<Player>
         /***                    QUEST SYSTEM                   ***/
         /*********************************************************/
 
-        int32 GetQuestLevel(Quest const* pQuest) const { return pQuest && (pQuest->GetQuestLevel() > 0) ? pQuest->GetQuestLevel() : getLevel(); }
+        int32 GetQuestLevel(Quest const* quest) const { return quest && (quest->GetQuestLevel() > 0) ? quest->GetQuestLevel() : getLevel(); }
 
         void PrepareQuestMenu(uint64 guid);
         void SendPreparedQuest(uint64 guid);
         bool IsActiveQuest(uint32 quest_id) const;
-        Quest const* GetNextQuest(uint64 guid, Quest const* pQuest);
-        bool CanSeeStartQuest(Quest const* pQuest);
-        bool CanTakeQuest(Quest const* pQuest, bool msg);
-        bool CanAddQuest(Quest const* pQuest, bool msg);
+        Quest const* GetNextQuest(uint64 guid, Quest const* quest);
+        bool CanSeeStartQuest(Quest const* quest);
+        bool CanTakeQuest(Quest const* quest, bool msg);
+        bool CanAddQuest(Quest const* quest, bool msg);
         bool CanCompleteQuest(uint32 quest_id);
-        bool CanCompleteRepeatableQuest(Quest const* pQuest);
-        bool CanRewardQuest(Quest const* pQuest, bool msg);
-        bool CanRewardQuest(Quest const* pQuest, uint32 reward, bool msg);
-        void AddQuest(Quest const* pQuest, Object* questGiver);
+        bool CanCompleteRepeatableQuest(Quest const* quest);
+        bool CanRewardQuest(Quest const* quest, bool msg);
+        bool CanRewardQuest(Quest const* quest, uint32 reward, bool msg);
+        void AddQuest(Quest const* quest, Object* questGiver);
         void CompleteQuest(uint32 quest_id);
         void IncompleteQuest(uint32 quest_id);
-        void RewardQuest(Quest const* pQuest, uint32 reward, Object* questGiver, bool announce = true);
+        void RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce = true);
         void FailQuest(uint32 quest_id);
         bool SatisfyQuestSkillOrClass(Quest const* qInfo, bool msg);
         bool SatisfyQuestLevel(Quest const* qInfo, bool msg);
@@ -1450,7 +1450,7 @@ class Player : public Unit, public GridObject<Player>
         bool SatisfyQuestPrevChain(Quest const* qInfo, bool msg);
         bool SatisfyQuestDay(Quest const* qInfo, bool msg);
         bool SatisfyQuestWeek(Quest const* qInfo, bool msg);
-        bool GiveQuestSourceItem(Quest const* pQuest);
+        bool GiveQuestSourceItem(Quest const* quest);
         bool TakeQuestSourceItem(uint32 questId, bool msg);
         bool GetQuestRewardStatus(uint32 quest_id) const;
         QuestStatus GetQuestStatus(uint32 quest_id) const;
@@ -1516,15 +1516,15 @@ class Player : public Unit, public GridObject<Player>
         bool CanShareQuest(uint32 quest_id) const;
 
         void SendQuestComplete(uint32 quest_id);
-        void SendQuestReward(Quest const* pQuest, uint32 XP, Object* questGiver);
+        void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
         void SendQuestTimerFailed(uint32 quest_id);
         void SendCanTakeQuestResponse(uint32 msg);
-        void SendQuestConfirmAccept(Quest const* pQuest, Player* pReceiver);
-        void SendPushToPartyResponse(Player* pPlayer, uint32 msg);
-        void SendQuestUpdateAddItem(Quest const* pQuest, uint32 item_idx, uint16 count);
-        void SendQuestUpdateAddCreatureOrGo(Quest const* pQuest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
-        void SendQuestUpdateAddPlayer(Quest const* pQuest, uint16 old_count, uint16 add_count);
+        void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
+        void SendPushToPartyResponse(Player* player, uint32 msg);
+        void SendQuestUpdateAddItem(Quest const* quest, uint32 item_idx, uint16 count);
+        void SendQuestUpdateAddCreatureOrGo(Quest const* quest, uint64 guid, uint32 creatureOrGO_idx, uint16 old_count, uint16 add_count);
+        void SendQuestUpdateAddPlayer(Quest const* quest, uint16 old_count, uint16 add_count);
 
         uint64 GetDivider() { return m_divider; }
         void SetDivider(uint64 guid) { m_divider = guid; }
@@ -2068,7 +2068,7 @@ class Player : public Unit, public GridObject<Player>
         ReputationMgr const& GetReputationMgr() const { return m_reputationMgr; }
         ReputationRank GetReputationRank(uint32 faction_id) const;
         void RewardReputation(Unit* pVictim, float rate);
-        void RewardReputation(Quest const* pQuest);
+        void RewardReputation(Quest const* quest);
 
         void UpdateSkillsForLevel();
         void UpdateSkillsToMaxSkillsForLevel();             // for .levelup
@@ -2798,7 +2798,7 @@ class Player : public Unit, public GridObject<Player>
         void AddKnownCurrency(uint32 itemId);
 
         int32 CalculateReputationGain(uint32 creatureOrQuestLevel, int32 rep, int32 faction, bool for_quest, bool noQuestBonus = false);
-        void AdjustQuestReqItemCount(Quest const* pQuest, QuestStatusData& questStatusData);
+        void AdjustQuestReqItemCount(Quest const* quest, QuestStatusData& questStatusData);
 
         bool IsCanDelayTeleport() const { return m_bCanDelayTeleport; }
         void SetCanDelayTeleport(bool setting) { m_bCanDelayTeleport = setting; }

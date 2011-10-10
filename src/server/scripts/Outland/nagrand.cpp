@@ -565,16 +565,16 @@ class npc_maghar_captive : public CreatureScript
 public:
     npc_maghar_captive() : CreatureScript("npc_maghar_captive") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
+        if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_H)
         {
             if (npc_maghar_captiveAI* pEscortAI = dynamic_cast<npc_maghar_captiveAI*>(creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
                 creature->setFaction(232);
 
-                pEscortAI->Start(true, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(true, false, player->GetGUID(), quest);
 
                 DoScriptText(SAY_MAG_START, creature);
 
@@ -618,8 +618,8 @@ public:
                 case 7:
                     DoScriptText(SAY_MAG_MORE, me);
 
-                    if (Creature* pTemp = me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
-                        DoScriptText(SAY_MAG_MORE_REPLY, pTemp);
+                    if (Creature* temp = me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0], m_afAmbushB[1], m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                        DoScriptText(SAY_MAG_MORE_REPLY, temp);
 
                     me->SummonCreature(NPC_MURK_PUTRIFIER, m_afAmbushB[0]-2.5f, m_afAmbushB[1]-2.5f, m_afAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
 
@@ -651,7 +651,7 @@ public:
 
         }
 
-        void SpellHitTarget(Unit* /*pTarget*/, const SpellInfo* pSpell)
+        void SpellHitTarget(Unit* /*target*/, const SpellInfo* pSpell)
         {
             if (pSpell->Id == SPELL_CHAIN_LIGHTNING)
             {

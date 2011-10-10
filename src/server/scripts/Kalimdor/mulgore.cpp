@@ -160,12 +160,12 @@ public:
                     switch (uiEventPhase)
                     {
                         case 1:
-                            if (Unit* pUnit = Unit::GetUnit(*me, uiPlayerGUID))
+                            if (Unit* unit = Unit::GetUnit(*me, uiPlayerGUID))
                             {
-                                if (GameObject* pGo = pUnit->GetGameObject(SPELL_LUNCH))
+                                if (GameObject* go = unit->GetGameObject(SPELL_LUNCH))
                                 {
                                     m_bIsMovingToLunch = true;
-                                    me->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                                    me->GetMotionMaster()->MovePoint(POINT_ID, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
                                 }
                             }
                             break;
@@ -174,8 +174,8 @@ public:
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
                             break;
                         case 3:
-                            if (Player* pUnit = Unit::GetPlayer(*me, uiPlayerGUID))
-                                pUnit->TalkedToCreature(me->GetEntry(), me->GetGUID());
+                            if (Player* unit = Unit::GetPlayer(*me, uiPlayerGUID))
+                                unit->TalkedToCreature(me->GetEntry(), me->GetGUID());
 
                             me->UpdateEntry(NPC_KYLE_FRIENDLY);
                             break;

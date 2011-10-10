@@ -68,10 +68,10 @@ public:
     {
         boss_blackheart_the_inciterAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool InciteChaos;
         uint32 InciteChaos_Timer;
@@ -87,8 +87,8 @@ public:
             Charge_Timer = 5000;
             Knockback_Timer = 15000;
 
-            if (pInstance)
-                pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -100,16 +100,16 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)

@@ -48,12 +48,12 @@ class npc_mist : public CreatureScript
 public:
     npc_mist() : CreatureScript("npc_mist") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_MIST)
+        if (quest->GetQuestId() == QUEST_MIST)
         {
             if (npc_mistAI* pMistAI = CAST_AI(npc_mist::npc_mistAI, creature->AI()))
-                pMistAI->StartFollow(player, FACTION_DARNASSUS, pQuest);
+                pMistAI->StartFollow(player, FACTION_DARNASSUS, quest);
         }
 
         return true;

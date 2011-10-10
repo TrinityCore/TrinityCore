@@ -73,10 +73,10 @@ public:
     {
         boss_vexallusAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 ChainLightningTimer;
         uint32 ArcaneShockTimer;
@@ -92,8 +92,8 @@ public:
             IntervalHealthAmount = 1;
             Enraged = false;
 
-            if (pInstance)
-                pInstance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_VEXALLUS_EVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -103,16 +103,16 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_VEXALLUS_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_VEXALLUS_EVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_VEXALLUS_EVENT, IN_PROGRESS);
         }
 
         void JustSummoned(Creature* summoned)

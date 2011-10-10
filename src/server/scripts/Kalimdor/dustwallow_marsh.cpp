@@ -431,9 +431,9 @@ class npc_private_hendel : public CreatureScript
 public:
     npc_private_hendel() : CreatureScript("npc_private_hendel") { }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
+        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT16)
             creature->setFaction(FACTION_HOSTILE);
 
         return true;
@@ -535,8 +535,8 @@ public:
             SetCombatMovement(true);
 
             if (me->isInCombat())
-                if (Unit* pUnit = me->getVictim())
-                    me->GetMotionMaster()->MoveChase(pUnit);
+                if (Unit* unit = me->getVictim())
+                    me->GetMotionMaster()->MoveChase(unit);
         }
 
         void MoveToDock()
@@ -590,7 +590,7 @@ public:
 
     bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || QUEST_STINKYS_ESCAPE_A)
+         if (quest->GetQuestId() == QUEST_STINKYS_ESCAPE_H || quest->GetQuestId() == QUEST_STINKYS_ESCAPE_A)
          {
              if (npc_stinkyAI* pEscortAI = CAST_AI(npc_stinky::npc_stinkyAI, creature->AI()))
              {

@@ -31,7 +31,6 @@
 #include "ObjectMgr.h"
 #include "Group.h"
 
-
 union u_map_magic
 {
     char asChar[4];
@@ -1604,7 +1603,6 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps, float maxSearchD
                 return vmapHeight;
             else
                 return mapHeight;                           // better use .map surface height
-
         }
         else
             return vmapHeight;                              // we have only vmapHeight (if have)
@@ -2241,8 +2239,8 @@ bool InstanceMap::CanEnter(Player* player)
     }
 
     // cannot enter while an encounter is in progress on raids
-    /*Group* pGroup = player->GetGroup();
-    if (!player->isGameMaster() && pGroup && pGroup->InCombatToInstance(GetInstanceId()) && player->GetMapId() != GetId())*/
+    /*Group* group = player->GetGroup();
+    if (!player->isGameMaster() && group && group->InCombatToInstance(GetInstanceId()) && player->GetMapId() != GetId())*/
     if (IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
     {
         player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
@@ -2657,7 +2655,6 @@ void BattlegroundMap::RemoveAllPlayers()
             if (Player* plr = itr->getSource())
                 if (!plr->IsBeingTeleportedFar())
                     plr->TeleportTo(plr->GetBattlegroundEntryPoint());
-
 }
 
 Creature*

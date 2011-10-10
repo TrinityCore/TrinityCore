@@ -57,9 +57,9 @@ class npc_00x09hl : public CreatureScript
 public:
     npc_00x09hl() : CreatureScript("npc_00x09hl") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_RESQUE_OOX_09)
+        if (quest->GetQuestId() == QUEST_RESQUE_OOX_09)
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -71,7 +71,7 @@ public:
             DoScriptText(SAY_OOX_START, creature, player);
 
             if (npc_00x09hlAI* pEscortAI = CAST_AI(npc_00x09hl::npc_00x09hlAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -191,15 +191,15 @@ class npc_rinji : public CreatureScript
 public:
     npc_rinji() : CreatureScript("npc_rinji") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_RINJI_TRAPPED)
+        if (quest->GetQuestId() == QUEST_RINJI_TRAPPED)
         {
-            if (GameObject* pGo = creature->FindNearestGameObject(GO_RINJI_CAGE, INTERACTION_DISTANCE))
-                pGo->UseDoorOrButton();
+            if (GameObject* go = creature->FindNearestGameObject(GO_RINJI_CAGE, INTERACTION_DISTANCE))
+                go->UseDoorOrButton();
 
             if (npc_rinjiAI* pEscortAI = CAST_AI(npc_rinji::npc_rinjiAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
         return true;
     }

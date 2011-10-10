@@ -69,7 +69,6 @@ class instance_ulduar : public InstanceMapScript
             uint64 ThorimChestGUID;
             uint64 HodirRareCacheGUID;
             uint64 HodirChestGUID;
-            uint64 FreyaChestGUID;
             uint64 HodirDoorGUID;
             uint64 HodirIceDoorGUID;
             uint64 ArchivumDoorGUID;
@@ -104,11 +103,9 @@ class instance_ulduar : public InstanceMapScript
                 AlgalonGUID                      = 0;
                 KologarnChestGUID                = 0;
                 KologarnBridgeGUID               = 0;
-                KologarnChestGUID                = 0;
                 ThorimChestGUID                  = 0;
                 HodirRareCacheGUID               = 0;
                 HodirChestGUID                   = 0;
-                FreyaChestGUID                   = 0;
                 LeviathanGateGUID                = 0;
                 VezaxDoorGUID                    = 0;
                 HodirDoorGUID                    = 0;
@@ -303,10 +300,6 @@ class instance_ulduar : public InstanceMapScript
                     case GO_HODIR_CHEST:
                         HodirChestGUID = gameObject->GetGUID();
                         break;
-                    case GO_FREYA_CHEST_HERO:
-                    case GO_FREYA_CHEST:
-                        FreyaChestGUID = gameObject->GetGUID();
-                        break;
                     case GO_LEVIATHAN_DOOR:
                         AddDoor(gameObject, true);
                         break;
@@ -424,6 +417,7 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_XT002:
                     case BOSS_AURIAYA:
                     case BOSS_MIMIRON:
+                    case BOSS_FREYA:
                         break;
                     case BOSS_ASSEMBLY_OF_IRON:
                         if (state == DONE)
@@ -465,11 +459,6 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_THORIM:
                         if (state == DONE)
                             if (GameObject* gameObject = instance->GetGameObject(ThorimChestGUID))
-                                gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
-                        break;
-                    case BOSS_FREYA:
-                        if (state == DONE)
-                            if (GameObject* gameObject = instance->GetGameObject(FreyaChestGUID))
                                 gameObject->SetRespawnTime(gameObject->GetRespawnDelay());
                         break;
                 }

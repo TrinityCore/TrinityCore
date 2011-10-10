@@ -51,10 +51,10 @@ public:
     {
         boss_mr_smiteAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiTrashTimer;
         uint32 uiSlamTimer;
@@ -126,11 +126,11 @@ public:
                 ++uiHealth;
                 DoCastAOE(SPELL_SMITE_STOMP, false);
                 SetCombatMovement(false);
-                if (pInstance)
-                    if (GameObject* pGo = GameObject::GetGameObject((*me), pInstance->GetData64(DATA_SMITE_CHEST)))
+                if (instance)
+                    if (GameObject* go = GameObject::GetGameObject((*me), instance->GetData64(DATA_SMITE_CHEST)))
                     {
                         me->GetMotionMaster()->Clear();
-                        me->GetMotionMaster()->MovePoint(1, pGo->GetPositionX() - 3.0f, pGo->GetPositionY(), pGo->GetPositionZ());
+                        me->GetMotionMaster()->MovePoint(1, go->GetPositionX() - 3.0f, go->GetPositionY(), go->GetPositionZ());
                     }
             }
 

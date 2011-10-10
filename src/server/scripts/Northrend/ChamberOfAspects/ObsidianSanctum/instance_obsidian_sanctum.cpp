@@ -29,14 +29,14 @@ class instance_obsidian_sanctum : public InstanceMapScript
 public:
     instance_obsidian_sanctum() : InstanceMapScript("instance_obsidian_sanctum", 615) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_obsidian_sanctum_InstanceMapScript(pMap);
+        return new instance_obsidian_sanctum_InstanceMapScript(map);
     }
 
     struct instance_obsidian_sanctum_InstanceMapScript : public InstanceScript
     {
-        instance_obsidian_sanctum_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_obsidian_sanctum_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint64 m_uiSartharionGUID;

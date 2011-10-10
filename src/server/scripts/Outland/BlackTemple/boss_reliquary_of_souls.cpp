@@ -144,11 +144,11 @@ public:
     {
         boss_reliquary_of_soulsAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             EssenceGUID = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 EssenceGUID;
 
@@ -161,8 +161,8 @@ public:
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
 
             if (EssenceGUID)
             {
@@ -184,8 +184,8 @@ public:
         {
             me->AddThreat(who, 10000.0f);
             DoZoneInCombat();
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
 
             Phase = 1;
             Counter = 0;
@@ -216,20 +216,20 @@ public:
             std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                if (pUnit)
+                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                if (unit)
                 {
-                    DoModifyThreatPercent(pUnit, -100);
-                    float threat = target->getThreatManager().getThreat(pUnit);
-                    me->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
+                    DoModifyThreatPercent(unit, -100);
+                    float threat = target->getThreatManager().getThreat(unit);
+                    me->AddThreat(unit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
                 }
             }
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -438,9 +438,9 @@ public:
             std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
-                    targets.push_back(pUnit);
+                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                if (unit && unit->isAlive() && (unit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
+                    targets.push_back(unit);
             }
             if (targets.empty())
                 return; // No targets added for some reason. No point continuing.

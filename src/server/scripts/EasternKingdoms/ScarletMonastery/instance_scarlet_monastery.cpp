@@ -38,14 +38,14 @@ class instance_scarlet_monastery : public InstanceMapScript
 public:
     instance_scarlet_monastery() : InstanceMapScript("instance_scarlet_monastery", 189) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_scarlet_monastery_InstanceMapScript(pMap);
+        return new instance_scarlet_monastery_InstanceMapScript(map);
     }
 
     struct instance_scarlet_monastery_InstanceMapScript : public InstanceScript
     {
-        instance_scarlet_monastery_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_scarlet_monastery_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint64 PumpkinShrineGUID;
         uint64 HorsemanGUID;

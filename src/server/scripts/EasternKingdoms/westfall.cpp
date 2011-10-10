@@ -54,9 +54,9 @@ class npc_daphne_stilwell : public CreatureScript
 public:
     npc_daphne_stilwell() : CreatureScript("npc_daphne_stilwell") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_TOME_VALOR)
+        if (quest->GetQuestId() == QUEST_TOME_VALOR)
         {
             DoScriptText(SAY_DS_START, creature);
 

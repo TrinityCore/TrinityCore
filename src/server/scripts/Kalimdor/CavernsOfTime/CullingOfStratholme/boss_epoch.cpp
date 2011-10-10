@@ -62,7 +62,7 @@ public:
     {
         boss_epochAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint8 uiStep;
@@ -73,7 +73,7 @@ public:
         uint32 uiTimeStopTimer;
         uint32 uiCurseOfExertionTimer;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -84,16 +84,16 @@ public:
             uiTimeStopTimer = 21300;
             uiWoundingStrikeTimer = 5300;
 
-            if (pInstance)
-                pInstance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_EPOCH_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_EPOCH_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -135,8 +135,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_EPOCH_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_EPOCH_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

@@ -1964,6 +1964,7 @@ void Spell::SearchChainTarget(std::list<Unit*> &TagUnitMap, float max_range, uin
                 && !m_caster->isInFrontInMap(*next, max_range))
                 || !m_caster->canSeeOrDetect(*next)
                 || !cur->IsWithinLOSInMap(*next)
+                || (*next)->GetCreatureType() == CREATURE_TYPE_CRITTER
                 || ((GetSpellInfo()->AttributesEx6 & SPELL_ATTR6_CANT_TARGET_CROWD_CONTROLLED) && !(*next)->CanFreeMove()))
             {
                 ++next;
@@ -2811,10 +2812,10 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                         Player* targetPlayer = m_targets.GetUnitTarget() && m_targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER
                             ? (Player*)m_targets.GetUnitTarget() : NULL;
 
-                        Group* pGroup = targetPlayer ? targetPlayer->GetGroup() : NULL;
-                        if (pGroup)
+                        Group* group = targetPlayer ? targetPlayer->GetGroup() : NULL;
+                        if (group)
                         {
-                            for (GroupReference* itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                            for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                             {
                                 Player* Target = itr->getSource();
 

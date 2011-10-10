@@ -56,10 +56,10 @@ public:
     {
         boss_epoch_hunterAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 SandBreath_Timer;
         uint32 ImpendingDeath_Timer;
@@ -88,8 +88,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
-                pInstance->SetData(TYPE_THRALL_PART4, DONE);
+            if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
+                instance->SetData(TYPE_THRALL_PART4, DONE);
         }
 
         void UpdateAI(const uint32 diff)

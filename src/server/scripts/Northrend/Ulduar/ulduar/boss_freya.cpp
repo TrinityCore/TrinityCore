@@ -24,11 +24,6 @@
 #include "GridNotifiersImpl.h"
 #include "ulduar.h"
 
-/*
- * **** TODO ****
- * Achievements *
- */
-
 enum FreyaYells
 {
     // Freya
@@ -188,6 +183,7 @@ enum FreyaNpcs
 enum FreyaActions
 {
     ACTION_ELDER_DEATH                           = 1,
+    ACTION_ELDER_FREYA_KILLED                    = 2,
 };
 
 enum FreyaEvents
@@ -331,7 +327,7 @@ class boss_freya : public CreatureScript
 
             void DamageTaken(Unit* /*who*/, uint32& damage)
             {
-                if (damage >= me->GetHealth() && instance)
+                if (damage >= me->GetHealth())
                 {
                     damage = 0;
                     DoScriptText(SAY_DEATH, me);
@@ -351,11 +347,11 @@ class boss_freya : public CreatureScript
                         Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
                         if (Elder[n] && Elder[n]->isAlive())
                         {
-                            Elder[n]->setFaction(35);
                             Elder[n]->RemoveAllAuras();
                             Elder[n]->AttackStop();
                             Elder[n]->CombatStop(true);
                             Elder[n]->DeleteThreatList();
+                            Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
                         }
                     }
                 }
@@ -373,7 +369,7 @@ class boss_freya : public CreatureScript
                     {
                         me->AddAura(SPELL_DRAINED_OF_POWER, Elder[n]);
                         Elder[n]->CastSpell(me, SPELL_IRONBRANCH_ESSENCE, true);
-                        Elder[n]->RemoveLootMode(LOOT_MODE_DEFAULT);
+                        Elder[n]->RemoveLootMode(LOOT_MODE_DEFAULT); //! Why?
                         Elder[n]->AI()->AttackStart(who);
                         Elder[n]->AddThreat(who, 250.0f);
                         Elder[n]->SetInCombatWith(who);
@@ -627,6 +623,21 @@ class boss_freya : public CreatureScript
                 waveCount++;
             }
 
+            void JustDied(Unit* who)
+            {
+                //! Freya's chest is dynamically spawned on death by different spells.
+                const uint32 summonSpell[2][4] = 
+                {
+                              /* 0Elder, 1Elder, 2Elder, 3Elder */
+                    /* 10N */    {62950, 62953, 62955, 62957},
+                    /* 25N */    {62952, 62954, 62956, 62958}
+                };
+
+                who->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
+
+                _JustDied();
+            }
+
             void JustSummoned(Creature* summoned)
             {
                 switch (summoned->GetEntry())
@@ -796,6 +807,10 @@ class boss_elder_brightleaf : public CreatureScript
                         ++elderCount;
                         lumberjack = true;
                         break;
+                    case ACTION_ELDER_FREYA_KILLED:
+                        me->DespawnOrUnsummon(10000);
+                        _JustDied();
+                        break;
                 }
             }
 
@@ -918,6 +933,10 @@ class boss_elder_stonebark : public CreatureScript
                         ++elderCount;
                         lumberjack = true;
                         break;
+                    case ACTION_ELDER_FREYA_KILLED:
+                        me->DespawnOrUnsummon(10000);
+                        _JustDied();
+                        break;
                 }
             }
 
@@ -1026,6 +1045,10 @@ class boss_elder_ironbranch : public CreatureScript
                     case ACTION_ELDER_DEATH:
                         ++elderCount;
                         lumberjack = true;
+                        break;
+                    case ACTION_ELDER_FREYA_KILLED:
+                        me->DespawnOrUnsummon(10000);
+                        _JustDied();
                         break;
                 }
             }

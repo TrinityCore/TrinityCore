@@ -39,7 +39,7 @@ class instance_shattered_halls : public InstanceMapScript
         }
         struct instance_shattered_halls_InstanceMapScript : public InstanceScript
         {
-            instance_shattered_halls_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+            instance_shattered_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint64 nethekurseGUID;
@@ -111,9 +111,9 @@ class instance_shattered_halls : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_shattered_halls_InstanceMapScript(pMap);
+            return new instance_shattered_halls_InstanceMapScript(map);
         }
 };
 

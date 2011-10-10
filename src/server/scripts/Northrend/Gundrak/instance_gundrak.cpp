@@ -33,16 +33,16 @@ class instance_gundrak : public InstanceMapScript
 public:
     instance_gundrak() : InstanceMapScript("instance_gundrak", 604) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_gundrak_InstanceMapScript(pMap);
+        return new instance_gundrak_InstanceMapScript(map);
     }
 
     struct instance_gundrak_InstanceMapScript : public InstanceScript
     {
-        instance_gundrak_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_gundrak_InstanceMapScript(Map* map) : InstanceScript(map)
         {
-            bHeroicMode = pMap->IsHeroic();
+            bHeroicMode = map->IsHeroic();
         }
 
         bool bHeroicMode;
@@ -521,30 +521,30 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        InstanceScript* pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = pGO->GetInstanceScript();
         uint64 uiStatue = 0;
 
         pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         pGO->SetGoState(GO_STATE_ACTIVE);
 
-        if (pInstance)
+        if (instance)
         {
             switch (pGO->GetEntry())
             {
                 case 192518:
-                    uiStatue = pInstance->GetData64(DATA_SLAD_RAN_STATUE);
+                    uiStatue = instance->GetData64(DATA_SLAD_RAN_STATUE);
                     break;
                 case 192519:
-                    uiStatue = pInstance->GetData64(DATA_MOORABI_STATUE);
+                    uiStatue = instance->GetData64(DATA_MOORABI_STATUE);
                     break;
                 case 192520:
-                    uiStatue = pInstance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE);
+                    uiStatue = instance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE);
                     break;
             }
 
-            if (!pInstance->GetData64(DATA_STATUE_ACTIVATE))
+            if (!instance->GetData64(DATA_STATUE_ACTIVATE))
             {
-                pInstance->SetData64(DATA_STATUE_ACTIVATE, uiStatue);
+                instance->SetData64(DATA_STATUE_ACTIVATE, uiStatue);
                 pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 pGO->SetGoState(GO_STATE_ACTIVE);
             }

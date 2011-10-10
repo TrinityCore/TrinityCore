@@ -94,9 +94,9 @@ class npc_oox22fe : public CreatureScript
 public:
     npc_oox22fe() : CreatureScript("npc_oox22fe") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_RESCUE_OOX22FE)
+        if (quest->GetQuestId() == QUEST_RESCUE_OOX22FE)
         {
             DoScriptText(SAY_OOX_START, creature);
             //change that the npc is not lying dead on the ground

@@ -4163,7 +4163,7 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
     if (!player)
         player = m_session->GetPlayer();
 
-    char* pMap = strtok((char*)args, " ");
+    char* map = strtok((char*)args, " ");
     char* pDiff = strtok(NULL, " ");
     int8 diff = -1;
     if (pDiff)
@@ -4171,9 +4171,9 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
     uint16 counter = 0;
     uint16 MapId = 0;
 
-    if (strcmp(pMap, "all"))
+    if (strcmp(map, "all"))
     {
-        MapId = uint16(atoi(pMap));
+        MapId = uint16(atoi(map));
         if (!MapId)
             return false;
     }
@@ -4728,32 +4728,32 @@ bool ChatHandler::HandleGroupRemoveCommand(const char *args)
 
 bool ChatHandler::HandlePossessCommand(const char * /*args*/)
 {
-    Unit* pUnit = getSelectedUnit();
-    if (!pUnit)
+    Unit* unit = getSelectedUnit();
+    if (!unit)
         return false;
 
-    m_session->GetPlayer()->CastSpell(pUnit, 530, true);
+    m_session->GetPlayer()->CastSpell(unit, 530, true);
     return true;
 }
 
 bool ChatHandler::HandleUnPossessCommand(const char * /*args*/)
 {
-    Unit* pUnit = getSelectedUnit();
-    if (!pUnit)
-        pUnit = m_session->GetPlayer();
+    Unit* unit = getSelectedUnit();
+    if (!unit)
+        unit = m_session->GetPlayer();
 
-    pUnit->RemoveCharmAuras();
+    unit->RemoveCharmAuras();
 
     return true;
 }
 
 bool ChatHandler::HandleBindSightCommand(const char * /*args*/)
 {
-    Unit* pUnit = getSelectedUnit();
-    if (!pUnit)
+    Unit* unit = getSelectedUnit();
+    if (!unit)
         return false;
 
-    m_session->GetPlayer()->CastSpell(pUnit, 6277, true);
+    m_session->GetPlayer()->CastSpell(unit, 6277, true);
     return true;
 }
 

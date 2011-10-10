@@ -69,10 +69,10 @@ public:
     {
         boss_gurtogg_bloodboilAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 TargetGUID;
 
@@ -93,8 +93,8 @@ public:
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, NOT_STARTED);
 
             TargetGUID = 0;
 
@@ -121,8 +121,8 @@ public:
         {
             DoZoneInCombat();
             DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-                pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -132,8 +132,8 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }
@@ -185,14 +185,14 @@ public:
 
         void RevertThreatOnTarget(uint64 guid)
         {
-            Unit* pUnit = NULL;
-            pUnit = Unit::GetUnit((*me), guid);
-            if (pUnit)
+            Unit* unit = NULL;
+            unit = Unit::GetUnit((*me), guid);
+            if (unit)
             {
-                if (DoGetThreat(pUnit))
-                    DoModifyThreatPercent(pUnit, -100);
+                if (DoGetThreat(unit))
+                    DoModifyThreatPercent(unit, -100);
                 if (TargetThreat)
-                    me->AddThreat(pUnit, TargetThreat);
+                    me->AddThreat(unit, TargetThreat);
             }
         }
 
