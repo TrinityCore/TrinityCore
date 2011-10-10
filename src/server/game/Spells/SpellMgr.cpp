@@ -3266,6 +3266,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 70460: // Coldflame Jets (Traps after Saurfang)
                 spellInfo->DurationIndex = 1;   // 10 seconds
                 break;
+            case 70347: // Slime Puddle Grow Stack (Professor Putricide)
+                spellInfo->EffectBasePoints[EFFECT_0] = 9; // 10% instead of 20%
+                break;
             case 71413: // Green Ooze Summon (Professor Putricide)
             case 71414: // Orange Ooze Summon (Professor Putricide)
                 spellInfo->EffectImplicitTargetA[0] = TARGET_DEST_DEST;
