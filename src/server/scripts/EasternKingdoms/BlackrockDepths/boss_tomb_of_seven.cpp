@@ -16,30 +16,23 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Tomb_Of_Seven
-SD%Complete: 90
-SDComment: Learning Smelt Dark Iron if tribute quest rewarded. Missing event.
-SDCategory: Blackrock Depths
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "blackrock_depths.h"
 
 enum Spells
 {
-    SPELL_SMELT_DARK_IRON                                  = 14891,
-    SPELL_LEARN_SMELT                                      = 14894,
+    SPELL_SMELT_DARK_IRON                         = 14891,
+    SPELL_LEARN_SMELT                             = 14894,
 };
 
 enum Quests
 {
-    QUEST_SPECTRAL_CHALICE                                 = 4083
+    QUEST_SPECTRAL_CHALICE                        = 4083
 };
 
 enum Misc
 {
-    DATA_SKILLPOINT_MIN                                    = 230
+    DATA_SKILLPOINT_MIN                           = 230
 };
 
 #define GOSSIP_ITEM_TEACH_1 "Teach me the art of smelting dark iron"
@@ -52,10 +45,10 @@ class boss_gloomrel : public CreatureScript
 public:
     boss_gloomrel() : CreatureScript("boss_gloomrel") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*Sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TEACH_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
@@ -92,7 +85,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 enum DoomrelSpells
@@ -112,10 +104,10 @@ class boss_doomrel : public CreatureScript
 public:
     boss_doomrel() : CreatureScript("boss_doomrel") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*Sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT_DOOMREL, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
@@ -150,9 +142,9 @@ public:
 
     struct boss_doomrelAI : public ScriptedAI
     {
-        boss_doomrelAI(Creature* c) : ScriptedAI(c)
+        boss_doomrelAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -164,11 +156,11 @@ public:
 
         void Reset()
         {
-            ShadowVolley_Timer = 10000;
-            Immolate_Timer = 18000;
-            CurseOfWeakness_Timer = 5000;
-            DemonArmor_Timer = 16000;
-            Voidwalkers = false;
+            ShadowVolley_Timer      = 10000;
+            Immolate_Timer          = 18000;
+            CurseOfWeakness_Timer   = 5000;
+            DemonArmor_Timer        = 16000;
+            Voidwalkers             = false;
 
             me->setFaction(FACTION_FRIEND);
 
@@ -252,7 +244,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_tomb_of_seven()
