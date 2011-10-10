@@ -31,27 +31,44 @@
 #include "Pet.h"
 #include "MapManager.h"
 
-void WorldSession::SendNameQueryOpcode(Player* p)
+void WorldSession::SendNameQueryOpcode(uint64 guid)
 {
-    if (!p)
-        return;
+    Player* player = NULL;
+    const CharacterNameData* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
+    if (nameData)
+        player = ObjectAccessor::FindPlayer(guid);
+
                                                             // guess size
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
-    data.append(p->GetPackGUID());                          // player guid
+    data.appendPackGUID(guid);
     data << uint8(0);                                       // added in 3.1
-    data << p->GetName();                                   // played name
-    data << uint8(0);                                       // realm name for cross realm BG usage
-    data << uint8(p->getRace());
-    data << uint8(p->getGender());
-    data << uint8(p->getClass());
-    if (DeclinedName const* names = p->GetDeclinedNames())
+    if (nameData)
     {
-        data << uint8(1);                                   // is declined
-        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << names->name[i];
+        data << nameData->m_name;                                   // played name
+        data << uint8(0);                                       // realm name for cross realm BG usage
+        data << uint8(nameData->m_race);
+        data << uint8(nameData->m_gender);
+        data << uint8(nameData->m_class);
     }
     else
-        data << uint8(0);                                   // is not declined
+    {
+        data << std::string(GetTrinityString(LANG_NON_EXIST_CHARACTER));
+        data << uint32(0);
+    }
+
+    if (player)
+    {
+        if (DeclinedName const* names = player->GetDeclinedNames())
+        {
+            data << uint8(1);                                   // is declined
+            for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                data << names->name[i];
+        }
+        else
+            data << uint8(0);                                   // is not declined
+    }
+    else //TODO: decline names may also need to be stored in char name data
+        data << uint8(0);
 
     SendPacket(&data);
 }
@@ -65,32 +82,7 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
     // This is disable by default to prevent lots of console spam
     // sLog->outString("HandleNameQueryOpcode %u", guid);
 
-    if (Player* pChar = ObjectAccessor::FindPlayer(guid))
-        SendNameQueryOpcode(pChar);
-    else
-    {
-        if (const CharacterNameData* cname = sWorld->GetCharacterNameData(GUID_LOPART(guid)))
-        {
-            WorldPacket data(SMSG_NAME_QUERY_RESPONSE, 8+1+1+1+1+1+1+10);
-            data.appendPackGUID(guid);
-            data << uint8(0);
-            if (cname->m_name == "")
-            {
-                data << std::string(GetTrinityString(LANG_NON_EXIST_CHARACTER));
-                data << uint32(0);
-            }
-            else
-            {
-                data << cname->m_name;
-                data << uint8(0);
-                data << uint8(cname->m_race);
-                data << uint8(cname->m_gender);
-                data << uint8(cname->m_class);
-            }
-            data << uint8(0);
-            SendPacket(&data);
-        }
-    }
+    SendNameQueryOpcode(guid);
 }
 
 void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recv_data*/)
