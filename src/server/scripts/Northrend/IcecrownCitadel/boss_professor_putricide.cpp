@@ -825,12 +825,12 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
                 {
-                    int32 radiusMod = 4;
+                    int32 radiusMod = 400;
                     if (Aura* size = caster->GetAura(70347))
-                        radiusMod += size->GetStackAmount();
+                        radiusMod += size->GetStackAmount() * 50;
 
                     uint32 triggerSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
-                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod * 100, caster, true);
+                    caster->CastCustomSpell(triggerSpellId, SPELLVALUE_RADIUS_MOD, radiusMod, caster, true);
                 }
             }
 
