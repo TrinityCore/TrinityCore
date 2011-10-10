@@ -2387,22 +2387,15 @@ const char* Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
     return GetName();
 }
 
-//TODO: This may cause crash. Creature must be removed from the original grid and added to the new grid.
+//Do not if this works or not, moving creature to another map is very dangerous
 void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
 {
-    InterruptNonMeleeSpells(true);
-    CombatStop();
-    ClearComboPointHolders();
-    DeleteThreatList();
-    GetMotionMaster()->Clear(false);
-    DestroyForNearbyPlayers();
-
-    RemoveFromWorld();
+    CleanupBeforeRemoveFromMap(false);
+    GetMap()->RemoveFromMap(this, false);
     ResetMap();
+    Relocate(X, Y, Z, O);
     SetMap(map);
-    AddToWorld();
-
-    UpdatePosition(X, Y, Z, O, true);
+    GetMap()->AddToMap(this);
 }
 
 void Creature::SetPosition(float x, float y, float z, float o)
