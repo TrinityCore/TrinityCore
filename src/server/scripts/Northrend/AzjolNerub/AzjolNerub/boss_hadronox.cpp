@@ -53,12 +53,12 @@ public:
     {
         boss_hadronoxAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             fMaxDistance = 50.0f;
             bFirstTime = true;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiAcidTimer;
         uint32 uiLeechTimer;
@@ -83,8 +83,8 @@ public:
             uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             uiCheckDistanceTimer = 2*IN_MILLISECONDS;
 
-            if (pInstance && (pInstance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
-                pInstance->SetData(DATA_HADRONOX_EVENT, FAIL);
+            if (instance && (instance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
+                instance->SetData(DATA_HADRONOX_EVENT, FAIL);
 
             bFirstTime = false;
         }
@@ -101,14 +101,14 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HADRONOX_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_HADRONOX_EVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
             me->SetInCombatWithZone();
         }
 

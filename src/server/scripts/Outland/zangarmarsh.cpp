@@ -356,9 +356,9 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_ESCAPE_FROM)
+        if (quest->GetQuestId() == QUEST_ESCAPE_FROM)
         {
             DoScriptText(SAY_START, creature, player);
 

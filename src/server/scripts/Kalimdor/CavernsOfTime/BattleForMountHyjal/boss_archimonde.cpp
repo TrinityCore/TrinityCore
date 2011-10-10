@@ -88,11 +88,11 @@ public:
     {
         mob_ancient_wispAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             ArchimondeGUID = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint64 ArchimondeGUID;
         uint32 CheckTimer;
 
@@ -100,8 +100,8 @@ public:
         {
             CheckTimer = 1000;
 
-            if (pInstance)
-                ArchimondeGUID = pInstance->GetData64(DATA_ARCHIMONDE);
+            if (instance)
+                ArchimondeGUID = instance->GetData64(DATA_ARCHIMONDE);
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
@@ -235,10 +235,10 @@ public:
     {
         boss_archimondeAI(Creature* c) : hyjal_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 DoomfireSpiritGUID;
         uint64 WorldTreeGUID;
@@ -264,8 +264,8 @@ public:
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_ARCHIMONDEEVENT, NOT_STARTED);
 
             DoomfireSpiritGUID = 0;
             damageTaken = 0;
@@ -297,8 +297,8 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoZoneInCombat();
 
-            if (pInstance)
-                pInstance->SetData(DATA_ARCHIMONDEEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_ARCHIMONDEEVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* victim)
@@ -339,8 +339,8 @@ public:
             hyjal_trashAI::JustDied(victim);
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_ARCHIMONDEEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_ARCHIMONDEEVENT, DONE);
         }
 
         bool CanUseFingerOfDeath()
@@ -358,9 +358,9 @@ public:
             std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                if (pUnit && pUnit->isAlive())
-                    targets.push_back(pUnit);
+                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                if (unit && unit->isAlive())
+                    targets.push_back(unit);
             }
 
             if (targets.empty())
@@ -460,15 +460,15 @@ public:
         {
             if (!me->isInCombat())
             {
-                if (pInstance)
+                if (instance)
                 {
                     // Do not let the raid skip straight to Archimonde. Visible and hostile ONLY if Azagalor is finished.
-                    if ((pInstance->GetData(DATA_AZGALOREVENT) < DONE) && (me->IsVisible() || (me->getFaction() != 35)))
+                    if ((instance->GetData(DATA_AZGALOREVENT) < DONE) && (me->IsVisible() || (me->getFaction() != 35)))
                     {
                         me->SetVisible(false);
                         me->setFaction(35);
                     }
-                    else if ((pInstance->GetData(DATA_AZGALOREVENT) >= DONE) && (!me->IsVisible() || (me->getFaction() == 35)))
+                    else if ((instance->GetData(DATA_AZGALOREVENT) >= DONE) && (!me->IsVisible() || (me->getFaction() == 35)))
                     {
                         me->setFaction(1720);
                         me->SetVisible(true);

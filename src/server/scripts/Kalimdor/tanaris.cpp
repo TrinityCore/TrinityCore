@@ -506,12 +506,12 @@ class npc_tooga : public CreatureScript
 public:
     npc_tooga() : CreatureScript("npc_tooga") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_TOOGA)
+        if (quest->GetQuestId() == QUEST_TOOGA)
         {
             if (npc_toogaAI* pToogaAI = CAST_AI(npc_tooga::npc_toogaAI, creature->AI()))
-                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, pQuest);
+                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
         }
 
         return true;

@@ -249,7 +249,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            //We simply use this function to find players until we can use pMap->GetPlayers()
+            //We simply use this function to find players until we can use map->GetPlayers()
 
             if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsHostileTo(who))
             {

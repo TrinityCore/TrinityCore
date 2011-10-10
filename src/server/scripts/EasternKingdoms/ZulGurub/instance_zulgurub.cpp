@@ -36,7 +36,7 @@ class instance_zulgurub : public InstanceMapScript
 
         struct instance_zulgurub_InstanceMapScript : public InstanceScript
         {
-            instance_zulgurub_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
             uint32 m_auiEncounter[MAX_ENCOUNTERS];
@@ -153,9 +153,9 @@ class instance_zulgurub : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_zulgurub_InstanceMapScript(pMap);
+            return new instance_zulgurub_InstanceMapScript(map);
         }
 };
 

@@ -96,9 +96,9 @@ public:
         }
         void JustDied(Unit* /*victim*/)
         {
-            Unit* pUnit = Unit::GetUnit((*me), victimGUID);
-            if (pUnit && pUnit->HasAura(SPELL_INSIDIOUS_WHISPER))
-                pUnit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
+            Unit* unit = Unit::GetUnit((*me), victimGUID);
+            if (unit && unit->HasAura(SPELL_INSIDIOUS_WHISPER))
+                unit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
         }
 
         void DamageTaken(Unit* done_by, uint32 &damage)
@@ -173,14 +173,14 @@ public:
         boss_leotheras_the_blindAI(Creature* c) : ScriptedAI(c)
         {
             c->GetPosition(x, y, z);
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             Demon = 0;
 
             for (uint8 i = 0; i < 3; ++i)//clear guids
                 SpellBinderGUID[i] = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 Whirlwind_Timer;
         uint32 ChaosBlast_Timer;
@@ -225,8 +225,8 @@ public:
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, 0);
             DoCast(me, SPELL_DUAL_WIELD, true);
             me->SetCorpseDelay(1000*60*60);
-            if (pInstance)
-                pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, NOT_STARTED);
         }
 
         void CheckChannelers(/*bool DoEvade = true*/)
@@ -273,8 +273,8 @@ public:
         void StartEvent()
         {
             DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-                pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, IN_PROGRESS);
         }
 
         void CheckBanish()
@@ -302,10 +302,10 @@ public:
                 // and reseting equipment
                 me->LoadEquipment(me->GetEquipmentId());
 
-                if (pInstance && pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                if (instance && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         me->getThreatManager().addThreat(victim, 1);
                     StartEvent();
@@ -353,13 +353,13 @@ public:
             {
                 if (InnderDemon[i] > 0)
                 {
-                    Creature* pUnit = Unit::GetCreature((*me), InnderDemon[i]);
-                    if (pUnit && pUnit->isAlive())
+                    Creature* unit = Unit::GetCreature((*me), InnderDemon[i]);
+                    if (unit && unit->isAlive())
                     {
-                        Unit* unit_target = Unit::GetUnit(*pUnit, CAST_AI(mob_inner_demon::mob_inner_demonAI, pUnit->AI())->victimGUID);
+                        Unit* unit_target = Unit::GetUnit(*unit, CAST_AI(mob_inner_demon::mob_inner_demonAI, unit->AI())->victimGUID);
                         if (unit_target && unit_target->isAlive())
                         {
-                            pUnit->CastSpell(unit_target, SPELL_CONSUMING_MADNESS, true);
+                            unit->CastSpell(unit_target, SPELL_CONSUMING_MADNESS, true);
                             DoModifyThreatPercent(unit_target, -100);
                         }
                     }
@@ -392,8 +392,8 @@ public:
                 if (Creature* pDemon = Unit::GetCreature(*me, Demon))
                     pDemon->DespawnOrUnsummon();
             }
-            if (pInstance)
-                pInstance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_LEOTHERASTHEBLINDEVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -675,12 +675,12 @@ public:
     {
         mob_greyheart_spellbinderAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             leotherasGUID = 0;
             AddedBanish = false;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 leotherasGUID;
 
@@ -694,9 +694,9 @@ public:
             Mindblast_Timer  = 3000 + rand()%5000;
             Earthshock_Timer = 5000 + rand()%5000;
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
+                instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, 0);
                 Creature* leotheras = Unit::GetCreature(*me, leotherasGUID);
                 if (leotheras && leotheras->isAlive())
                     CAST_AI(boss_leotheras_the_blind::boss_leotheras_the_blindAI, leotheras->AI())->CheckChannelers(/*false*/);
@@ -706,8 +706,8 @@ public:
         void EnterCombat(Unit* who)
         {
             me->InterruptNonMeleeSpells(false);
-            if (pInstance)
-                pInstance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
+            if (instance)
+                instance->SetData64(DATA_LEOTHERAS_EVENT_STARTER, who->GetGUID());
         }
 
         void JustRespawned()
@@ -731,15 +731,15 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (pInstance)
+            if (instance)
             {
                 if (!leotherasGUID)
-                    leotherasGUID = pInstance->GetData64(DATA_LEOTHERAS);
+                    leotherasGUID = instance->GetData64(DATA_LEOTHERAS);
 
-                if (!me->isInCombat() && pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+                if (!me->isInCombat() && instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
                 {
                     Unit* victim = NULL;
-                    victim = Unit::GetUnit(*me, pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                    victim = Unit::GetUnit(*me, instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
                     if (victim)
                         AttackStart(victim);
                 }
@@ -751,7 +751,7 @@ public:
                 return;
             }
 
-            if (pInstance && !pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
+            if (instance && !instance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
             {
                 EnterEvadeMode();
                 return;
@@ -769,8 +769,8 @@ public:
 
             if (Earthshock_Timer <= diff)
             {
-                Map* pMap = me->GetMap();
-                Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                Map* map = me->GetMap();
+                Map::PlayerList const &PlayerList = map->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
                 {
                     if (Player* i_pl = itr->getSource())

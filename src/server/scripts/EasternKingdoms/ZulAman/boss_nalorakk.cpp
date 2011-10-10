@@ -105,10 +105,10 @@ class boss_nalorakk : public CreatureScript
             {
                 MoveEvent = true;
                 MovePhase = 0;
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 BrutalSwipe_Timer;
             uint32 Mangle_Timer;
@@ -142,8 +142,8 @@ class boss_nalorakk : public CreatureScript
                     (*me).GetMotionMaster()->MovePoint(0, NalorakkWay[7][0], NalorakkWay[7][1], NalorakkWay[7][2]);
                 }
 
-                if (pInstance)
-                    pInstance->SetData(DATA_NALORAKKEVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_NALORAKKEVENT, NOT_STARTED);
 
                 Surge_Timer = 15000 + rand()%5000;
                 BrutalSwipe_Timer = 7000 + rand()%5000;
@@ -269,8 +269,8 @@ class boss_nalorakk : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_NALORAKKEVENT, IN_PROGRESS);
 
                 me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_YELL_AGGRO);
@@ -279,8 +279,8 @@ class boss_nalorakk : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_NALORAKKEVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_NALORAKKEVENT, DONE);
 
                 me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_YELL_DEATH);

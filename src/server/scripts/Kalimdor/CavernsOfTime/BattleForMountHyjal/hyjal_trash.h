@@ -34,7 +34,7 @@ struct hyjal_trashAI : public npc_escortAI
     void DamageTaken(Unit* done_by, uint32 &damage);
 
     public:
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool IsEvent;
         uint32 Delay;
         uint32 LastOverronPos;

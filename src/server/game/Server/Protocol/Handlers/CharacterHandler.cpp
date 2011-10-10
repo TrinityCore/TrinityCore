@@ -689,6 +689,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             sLog->outDetail("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sLog->outChar("Account: %d (IP: %s) Create Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), createInfo->Name.c_str(), newChar.GetGUIDLow());
             sScriptMgr->OnPlayerCreate(&newChar);
+            sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass());
 
             delete createInfo;
             _charCreateCallback.SetParam(NULL);
@@ -744,6 +745,7 @@ void WorldSession::HandleCharDeleteOpcode(WorldPacket & recv_data)
     sLog->outDetail("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(guid));
     sLog->outChar("Account: %d (IP: %s) Delete Character:[%s] (GUID: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(guid));
     sScriptMgr->OnPlayerDelete(guid);
+    sWorld->DeleteCharaceterNameData(guid);
 
     if (sLog->IsOutCharDump())                                // optimize GetPlayerDump call
     {
@@ -886,8 +888,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 
     if (pCurrChar->GetGuildId() != 0)
     {
-        if (Guild* pGuild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
-            pGuild->SendLoginInfo(this);
+        if (Guild* guild = sGuildMgr->GetGuildById(pCurrChar->GetGuildId()))
+            guild->SendLoginInfo(this);
         else
         {
             // remove wrong guild data
@@ -1434,6 +1436,7 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     Player::Customize(guid, gender, skin, face, hairStyle, hairColor, facialHair);
     CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_CUSTOMIZE), GUID_LOPART(guid));
     CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", GUID_LOPART(guid));
+    sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender);
 
     WorldPacket data(SMSG_CHAR_CUSTOMIZE, 1+8+(newname.size()+1)+6);
     data << uint8(RESPONSE_SUCCESS);
@@ -1651,6 +1654,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("UPDATE `characters` SET name='%s', race='%u', at_login=at_login & ~ %u WHERE guid='%u'", newname.c_str(), race, used_loginFlag, lowGuid);
     trans->PAppend("DELETE FROM character_declinedname WHERE guid ='%u'", lowGuid);
+    sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race); 
 
     BattlegroundTeamId team = BG_TEAM_ALLIANCE;
 

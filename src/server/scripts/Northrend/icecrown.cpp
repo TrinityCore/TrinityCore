@@ -519,7 +519,7 @@ public:
 
     struct npc_vereth_the_cunningAI : public ScriptedAI
     {
-        npc_vereth_the_cunningAI(Creature* pCreature) : ScriptedAI(pCreature) {}
+        npc_vereth_the_cunningAI(Creature* creature) : ScriptedAI(creature) {}
 
         void MoveInLineOfSight(Unit* who)
         {

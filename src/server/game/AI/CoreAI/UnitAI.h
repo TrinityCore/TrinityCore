@@ -56,7 +56,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
     bool m_playerOnly;
     int32 m_aura;
 
-    // pUnit: the reference unit
+    // unit: the reference unit
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura

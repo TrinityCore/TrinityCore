@@ -45,10 +45,10 @@ public:
     {
         boss_nerubenkanAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 EncasingWebs_Timer;
         uint32 PierceArmor_Timer;
@@ -69,8 +69,8 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_NERUB, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_NERUB, IN_PROGRESS);
         }
 
         void RaiseUndeadScarab(Unit* victim)

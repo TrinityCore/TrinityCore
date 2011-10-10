@@ -69,10 +69,10 @@ public:
     {
         boss_magus_telestraAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 uiFireMagusGUID;
         uint64 uiFrostMagusGUID;
@@ -115,24 +115,24 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(true);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_MAGUS_TELESTRA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_MAGUS_TELESTRA_EVENT, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_MAGUS_TELESTRA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)

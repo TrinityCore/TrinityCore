@@ -63,7 +63,7 @@ public:
     {
         boss_trollgoreAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiConsumeTimer;
@@ -77,7 +77,7 @@ public:
 
         SummonList lSummons;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -94,16 +94,16 @@ public:
 
             me->RemoveAura(DUNGEON_MODE(SPELL_CONSUME_AURA, H_SPELL_CONSUME_AURA));
 
-            if (pInstance)
-                pInstance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_TROLLGORE_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_TROLLGORE_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -162,8 +162,8 @@ public:
 
             lSummons.DespawnAll();
 
-            if (pInstance)
-                pInstance->SetData(DATA_TROLLGORE_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_TROLLGORE_EVENT, DONE);
         }
 
         uint32 GetData(uint32 type)

@@ -126,10 +126,10 @@ public:
     {
         boss_kelesethAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 FrostTombTimer;
         uint32 SummonSkeletonsTimer;
@@ -148,8 +148,8 @@ public:
 
             ResetTimer();
 
-            if (pInstance)
-                pInstance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_PRINCEKELESETH_EVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* victim)
@@ -169,18 +169,18 @@ public:
                 AchievementEntry const* AchievOnTheRocks = GetAchievementStore()->LookupEntry(ACHIEVEMENT_ON_THE_ROCKS);
                 if (AchievOnTheRocks)
                 {
-                    Map* pMap = me->GetMap();
-                    if (pMap && pMap->IsDungeon())
+                    Map* map = me->GetMap();
+                    if (map && map->IsDungeon())
                     {
-                        Map::PlayerList const &players = pMap->GetPlayers();
+                        Map::PlayerList const &players = map->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             itr->getSource()->CompletedAchievement(AchievOnTheRocks);
                     }
                 }
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_PRINCEKELESETH_EVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -188,8 +188,8 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoZoneInCombat();
 
-            if (pInstance)
-                pInstance->SetData(DATA_PRINCEKELESETH_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_PRINCEKELESETH_EVENT, IN_PROGRESS);
         }
 
         void ResetTimer(uint32 inc = 0)
@@ -269,10 +269,10 @@ public:
     {
         mob_vrykul_skeletonAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 Respawn_Time;
         uint64 Target_Guid;
         uint32 Decrepify_Timer;
@@ -328,7 +328,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (pInstance && pInstance->GetData(DATA_PRINCEKELESETH_EVENT) == IN_PROGRESS)
+            if (instance && instance->GetData(DATA_PRINCEKELESETH_EVENT) == IN_PROGRESS)
             {
                 if (isDead)
                 {

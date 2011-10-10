@@ -77,7 +77,7 @@ public:
     {
         boss_gal_darahAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiStampedeTimer;
@@ -96,7 +96,7 @@ public:
 
         bool bStartOfTransformation;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -118,16 +118,16 @@ public:
 
             me->SetDisplayId(DISPLAY_TROLL);
 
-            if (pInstance)
-                pInstance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -269,8 +269,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_GAL_DARAH_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

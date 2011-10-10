@@ -141,8 +141,8 @@ public:
         {
             if (Phase == 2)
             {
-                if (Unit* pUnit = Unit::GetUnit(*me, Attumen))
-                DoScriptText(SAY_MIDNIGHT_KILL, pUnit);
+                if (Unit* unit = Unit::GetUnit(*me, Attumen))
+                DoScriptText(SAY_MIDNIGHT_KILL, unit);
             }
         }
 

@@ -32,14 +32,14 @@ class instance_halls_of_stone : public InstanceMapScript
 public:
     instance_halls_of_stone() : InstanceMapScript("instance_halls_of_stone", 599) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_halls_of_stone_InstanceMapScript(pMap);
+        return new instance_halls_of_stone_InstanceMapScript(map);
     }
 
     struct instance_halls_of_stone_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_stone_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_halls_of_stone_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint64 uiMaidenOfGrief;
         uint64 uiKrystallus;
