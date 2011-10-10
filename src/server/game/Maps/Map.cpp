@@ -205,7 +205,8 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
 i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
-m_activeNonPlayersIter(m_activeNonPlayers.end()), i_gridExpiry(expiry), i_scriptLock(false)
+m_activeNonPlayersIter(m_activeNonPlayers.end()), i_gridExpiry(expiry),
+i_scriptLock(false), _creatureToMoveLock(false)
 {
     m_parentMap = (_parent ? _parent : this);
     for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
@@ -435,6 +436,17 @@ bool Map::Add(Player* player)
 }
 
 template<class T>
+void Map::InitializeObject(T* obj)
+{
+}
+
+template<>
+void Map::InitializeObject(Creature* obj)
+{
+    obj->_moveState = CREATURE_CELL_MOVE_NONE;
+}
+
+template<class T>
 void
 Map::Add(T *obj)
 {
@@ -463,6 +475,7 @@ Map::Add(T *obj)
     AddToGrid(obj, grid, cell);
     //obj->SetMap(this);
     obj->AddToWorld();
+    InitializeObject(obj);
 
     if (obj->isActiveObject())
         AddToActive(obj);
@@ -791,6 +804,7 @@ Map::CreatureRelocation(Creature* creature, float x, float y, float z, float ang
     {
         creature->Relocate(x, y, z, ang);
         creature->UpdateObjectVisibility(false);
+        RemoveCreatureFromMoveList(creature);
     }
 
     ASSERT(CheckGridIntegrity(creature, true));
@@ -798,26 +812,47 @@ Map::CreatureRelocation(Creature* creature, float x, float y, float z, float ang
 
 void Map::AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang)
 {
-    if (!c)
+    if (_creatureToMoveLock) //can this happen?
         return;
 
-    i_creaturesToMove[c] = CreatureMover(x, y, z, ang);
+    if(c->_moveState == CREATURE_CELL_MOVE_NONE)
+        _creaturesToMove.push_back(c);
+    c->SetNewCellPosition(x, y, z, ang);
+}
+
+void Map::RemoveCreatureFromMoveList(Creature* c)
+{
+    if (_creatureToMoveLock) //can this happen?
+        return;
+
+    if(c->_moveState == CREATURE_CELL_MOVE_ACTIVE)
+        c->_moveState = CREATURE_CELL_MOVE_INACTIVE;
 }
 
 void Map::MoveAllCreaturesInMoveList()
 {
-    while (!i_creaturesToMove.empty())
+    _creatureToMoveLock = true;
+    for(std::vector<Creature*>::iterator itr = _creaturesToMove.begin(); itr != _creaturesToMove.end(); ++itr)
     {
-        // get data and remove element;
-        CreatureMoveList::iterator iter = i_creaturesToMove.begin();
-        Creature* c = iter->first;
-        const CreatureMover &cm = iter->second;
+        Creature* c = *itr;
+        if(c->FindMap() != this) //pet is teleported to another map
+            continue;
+
+        if(c->_moveState != CREATURE_CELL_MOVE_ACTIVE)
+        {
+            c->_moveState = CREATURE_CELL_MOVE_NONE;
+            continue;
+        }
+
+        c->_moveState = CREATURE_CELL_MOVE_NONE;
+        if(!c->IsInWorld())
+            continue;
 
         // do move or do move to respawn or remove creature if previous all fail
-        if (CreatureCellRelocation(c, Cell(Trinity::ComputeCellPair(cm.x, cm.y))))
+        if (CreatureCellRelocation(c, Cell(Trinity::ComputeCellPair(c->_newPosition.m_positionX, c->_newPosition.m_positionY))))
         {
             // update pos
-            c->Relocate(cm.x, cm.y, cm.z, cm.ang);
+            c->Relocate(c->_newPosition);
             //CreatureRelocationNotify(c, new_cell, new_cell.cellPair());
             c->UpdateObjectVisibility(false);
         }
@@ -825,7 +860,7 @@ void Map::MoveAllCreaturesInMoveList()
         {
             // if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
             // creature coordinates will be updated and notifiers send
-            if (!CreatureRespawnRelocation(c))
+            if (!CreatureRespawnRelocation(c, false))
             {
                 // ... or unload (if respawn grid also not loaded)
                 #ifdef TRINITY_DEBUG
@@ -843,9 +878,9 @@ void Map::MoveAllCreaturesInMoveList()
                     AddObjectToRemoveList(c);
             }
         }
-
-        i_creaturesToMove.erase(iter);
     }
+    _creaturesToMove.clear();
+    _creatureToMoveLock = false;
 }
 
 bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
@@ -909,13 +944,16 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
     return false;
 }
 
-bool Map::CreatureRespawnRelocation(Creature* c)
+bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
 {
     float resp_x, resp_y, resp_z, resp_o;
     c->GetRespawnCoord(resp_x, resp_y, resp_z, &resp_o);
-
     CellPair resp_val = Trinity::ComputeCellPair(resp_x, resp_y);
     Cell resp_cell(resp_val);
+
+    //creature will be unloaded with grid
+    if(diffGridOnly && !c->GetCurrentCell().DiffGrid(resp_cell))
+        return true;
 
     c->CombatStop();
     c->GetMotionMaster()->Clear();
@@ -1020,7 +1058,7 @@ void Map::RemoveAllPlayers()
 void Map::UnloadAll()
 {
     // clear all delayed moves, useless anyway do this moves before map unload.
-    i_creaturesToMove.clear();
+    _creaturesToMove.clear();
 
     for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end();)
     {
