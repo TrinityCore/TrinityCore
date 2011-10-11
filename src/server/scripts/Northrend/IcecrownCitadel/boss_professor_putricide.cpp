@@ -78,6 +78,7 @@ enum Spells
 
     // Slime Puddle
     SPELL_GROW_STACKER                  = 70345,
+    SPELL_GROW                          = 70347,
     SPELL_SLIME_PUDDLE_AURA             = 70343,
 
     // Gas Cloud
@@ -253,6 +254,9 @@ class boss_professor_putricide : public CreatureScript
                     case NPC_GROWING_OOZE_PUDDLE:
                         summon->CastSpell(summon, SPELL_GROW_STACKER, true);
                         summon->CastSpell(summon, SPELL_SLIME_PUDDLE_AURA, true);
+                        // blizzard casts this spell 7 times initially (confirmed in sniff)
+                        for (uint8 i = 0; i < 7; ++i)
+                            summon->CastSpell(summon, SPELL_GROW, true);
                         break;
                     case NPC_GAS_CLOUD:
                         // no possible aura seen in sniff adding the aurastate
@@ -1110,14 +1114,14 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
 
                 if (Aura* grow = target->GetAura(uint32(GetEffectValue())))
                 {
-                    if (grow->GetStackAmount() < 4)
+                    if (grow->GetStackAmount() < 3)
                     {
                         target->RemoveAurasDueToSpell(SPELL_GROW_STACKER);
                         target->RemoveAura(grow);
-                        target->DespawnOrUnsummon();
+                        target->DespawnOrUnsummon(1);
                     }
                     else
-                        grow->ModStackAmount(-4);
+                        grow->ModStackAmount(-3);
                 }
             }
 
