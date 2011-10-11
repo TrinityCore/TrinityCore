@@ -2392,7 +2392,6 @@ void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
 {
     CleanupBeforeRemoveFromMap(false);
     GetMap()->RemoveFromMap(this, false);
-    ResetMap();
     Relocate(X, Y, Z, O);
     SetMap(map);
     GetMap()->AddToMap(this);
