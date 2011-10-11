@@ -82,11 +82,11 @@ class ObjectWorldLoader
         uint32 i_corpses;
 };
 
-template<class T> static void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellPair const& /*cell_pair*/)
+template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellPair const& /*cell_pair*/)
 {
 }
 
-template<> static void ObjectGridLoader::SetObjectCell(Creature* obj, CellPair const& cell_pair)
+template<> void ObjectGridLoader::SetObjectCell(Creature* obj, CellPair const& cell_pair)
 {
     Cell cell(cell_pair);
 
