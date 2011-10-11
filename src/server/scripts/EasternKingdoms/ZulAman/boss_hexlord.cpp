@@ -335,7 +335,7 @@ class boss_hexlord_malacrass : public CreatureScript
                     else
                     {
                         creature->AI()->EnterEvadeMode();
-                        creature->GetMap()->CreatureRelocation(me, Pos_X[i], POS_Y, POS_Z, ORIENT);
+                        creature->SetPosition(Pos_X[i], POS_Y, POS_Z, ORIENT);
                         creature->StopMoving();
                     }
                 }

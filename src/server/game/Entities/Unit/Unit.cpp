@@ -13862,7 +13862,7 @@ void Unit::RemoveFromWorld()
     }
 }
 
-void Unit::CleanupsBeforeDelete(bool finalCleanup)
+void Unit::CleanupBeforeRemoveFromMap(bool finalCleanup)
 {
     // This needs to be before RemoveFromWorld to make GetCaster() return a valid pointer on aura removal
     InterruptNonMeleeSpells(true);
@@ -13886,6 +13886,11 @@ void Unit::CleanupsBeforeDelete(bool finalCleanup)
     DeleteThreatList();
     getHostileRefManager().setOnlineOfflineState(false);
     GetMotionMaster()->Clear(false);                    // remove different non-standard movement generators.
+}
+
+void Unit::CleanupsBeforeDelete(bool finalCleanup)
+{
+    CleanupBeforeRemoveFromMap(finalCleanup);
 
     if (Creature* thisCreature = ToCreature())
         if (GetTransport())
@@ -17309,16 +17314,16 @@ void Unit::NearTeleportTo(float x, float y, float z, float orientation, bool cas
     {
         // FIXME: this interrupts spell visual
         DestroyForNearbyPlayers();
-        SetPosition(x, y, z, orientation, true);
+        UpdatePosition(x, y, z, orientation, true);
     }
 }
 
-bool Unit::SetPosition(float x, float y, float z, float orientation, bool teleport)
+bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
     // prevent crash when a bad coord is sent by the client
     if (!Trinity::IsValidMapCoord(x, y, z, orientation))
     {
-        sLog->outDebug(LOG_FILTER_UNITS, "Unit::SetPosition(%f, %f, %f) .. bad coordinates!", x, y, z);
+        sLog->outDebug(LOG_FILTER_UNITS, "Unit::UpdatePosition(%f, %f, %f) .. bad coordinates!", x, y, z);
         return false;
     }
 

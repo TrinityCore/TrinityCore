@@ -757,7 +757,7 @@ class boss_flame_leviathan_safety_container : public CreatureScript
                 me->GetPosition(x, y, z);
                 z = me->GetMap()->GetHeight(x, y, z);
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
-                me->GetMap()->CreatureRelocation(me, x, y, z, 0);
+                me->SetPosition(x, y, z, 0);
             }
 
             void UpdateAI(uint32 const /*diff*/)

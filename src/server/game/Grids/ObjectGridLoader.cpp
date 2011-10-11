@@ -57,20 +57,8 @@ ObjectGridRespawnMover::Visit(CreatureMapType &m)
         Creature* c = iter->getSource();
         ++iter;
 
-        ASSERT(!c->isPet() && "ObjectGridRespawnMover don't must be called for pets");
-
-        Cell const& cur_cell  = c->GetCurrentCell();
-
-        float resp_x, resp_y, resp_z;
-        c->GetRespawnCoord(resp_x, resp_y, resp_z);
-        CellPair resp_val = Trinity::ComputeCellPair(resp_x, resp_y);
-        Cell resp_cell(resp_val);
-
-        if (cur_cell.DiffGrid(resp_cell))
-        {
-            c->GetMap()->CreatureRespawnRelocation(c);
-            // false result ignored: will be unload with other creatures at grid
-        }
+        ASSERT(!c->isPet() && "ObjectGridRespawnMover must not be called for pets");
+        c->GetMap()->CreatureRespawnRelocation(c, true);
     }
 }
 
@@ -94,11 +82,11 @@ class ObjectWorldLoader
         uint32 i_corpses;
 };
 
-template<class T> void AddUnitState(T* /*obj*/, CellPair const& /*cell_pair*/)
+template<class T> static void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellPair const& /*cell_pair*/)
 {
 }
 
-template<> void AddUnitState(Creature* obj, CellPair const& cell_pair)
+template<> static void ObjectGridLoader::SetObjectCell(Creature* obj, CellPair const& cell_pair)
 {
     Cell cell(cell_pair);
 
@@ -109,7 +97,7 @@ template <class T>
 void AddObjectHelper(CellPair &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
 {
     obj->GetGridRef().link(&m, obj);
-    AddUnitState(obj, cell);
+    ObjectGridLoader::SetObjectCell(obj, cell);
     obj->AddToWorld();
     if (obj->isActiveObject())
         map->AddToActive(obj);
