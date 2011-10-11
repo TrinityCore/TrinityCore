@@ -57,14 +57,14 @@ enum RollVote
 enum GroupMemberOnlineStatus
 {
     MEMBER_STATUS_OFFLINE   = 0x0000,
-    MEMBER_STATUS_ONLINE    = 0x0001,
-    MEMBER_STATUS_PVP       = 0x0002,
-    MEMBER_STATUS_UNK0      = 0x0004,                       // dead? (health=0)
-    MEMBER_STATUS_UNK1      = 0x0008,                       // ghost? (health=1)
-    MEMBER_STATUS_UNK2      = 0x0010,                       // never seen
-    MEMBER_STATUS_UNK3      = 0x0020,                       // never seen
-    MEMBER_STATUS_UNK4      = 0x0040,                       // appears with dead and ghost flags
-    MEMBER_STATUS_UNK5      = 0x0080,                       // never seen
+    MEMBER_STATUS_ONLINE    = 0x0001,                       // Lua_UnitIsConnected
+    MEMBER_STATUS_PVP       = 0x0002,                       // Lua_UnitIsPVP
+    MEMBER_STATUS_DEAD      = 0x0004,                       // Lua_UnitIsDead
+    MEMBER_STATUS_GHOST     = 0x0008,                       // Lua_UnitIsGhost
+    MEMBER_STATUS_PVP_FFA   = 0x0010,                       // Lua_UnitIsPVPFreeForAll
+    MEMBER_STATUS_UNK3      = 0x0020,                       // used in calls from Lua_GetPlayerMapPosition/Lua_GetBattlefieldFlagPosition
+    MEMBER_STATUS_AFK       = 0x0040,                       // Lua_UnitIsAFK
+    MEMBER_STATUS_DND       = 0x0080,                       // Lua_UnitIsDND
 };
 
 enum GroupMemberFlags
