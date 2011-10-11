@@ -756,7 +756,7 @@ public:
         {
             float x, y, z;
             me->GetPosition(x, y, z);   //this visual aura some under ground
-            me->GetMap()->CreatureRelocation(me, x, y, z + 0.35f, 0.0f);
+            me->SetPosition(x, y, z + 0.35f, 0.0f);
             Despawn();
             Creature* debuff = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14500);
             if (debuff)

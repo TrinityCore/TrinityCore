@@ -2291,7 +2291,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             // remove from old map now
             if (oldmap)
-                oldmap->Remove(this, false);
+                oldmap->RemoveFromMap(this, false);
 
             // new final coordinates
             float final_x = x;
@@ -5061,7 +5061,7 @@ void Player::BuildPlayerRepop()
         sLog->outError("Error creating corpse for Player %s [%u]", GetName(), GetGUIDLow());
         return;
     }
-    GetMap()->Add(corpse);
+    GetMap()->AddToMap(corpse);
 
     // convert player body to ghost
     SetHealth(1);
@@ -6744,9 +6744,9 @@ ActionButton const* Player::GetActionButton(uint8 button)
     return &buttonItr->second;
 }
 
-bool Player::SetPosition(float x, float y, float z, float orientation, bool teleport)
+bool Player::UpdatePosition(float x, float y, float z, float orientation, bool teleport)
 {
-    if (!Unit::SetPosition(x, y, z, orientation, teleport))
+    if (!Unit::UpdatePosition(x, y, z, orientation, teleport))
         return false;
 
     //if (movementInfo.flags & MOVEMENTFLAG_MOVING)
@@ -6760,7 +6760,7 @@ bool Player::SetPosition(float x, float y, float z, float orientation, bool tele
         SetGroupUpdateFlag(GROUP_UPDATE_FLAG_POSITION);
 
     // code block for underwater state update
-    // Unit::SetPosition() checks for validity and updates our coordinates
+    // Unit::UpdatePosition() checks for validity and updates our coordinates
     // so we re-fetch them instead of using "raw" coordinates from function params
     UpdateUnderwaterState(GetMap(), GetPositionX(), GetPositionY(), GetPositionZ());
 

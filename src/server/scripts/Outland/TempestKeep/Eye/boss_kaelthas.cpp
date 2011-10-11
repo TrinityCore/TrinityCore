@@ -819,7 +819,7 @@ class boss_kaelthas : public CreatureScript
                                 me->StopMoving();
                                 me->GetMotionMaster()->Clear();
                                 me->GetMotionMaster()->MoveIdle();
-                                me->GetMap()->CreatureRelocation(me, afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
+                                me->SetPosition(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
                                 me->SendMonsterMove(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0, 0, 0);
 
                                 me->InterruptNonMeleeSpells(false);
@@ -886,7 +886,7 @@ class boss_kaelthas : public CreatureScript
                                         me->StopMoving();
                                         me->GetMotionMaster()->Clear();
                                         me->GetMotionMaster()->MoveIdle();
-                                        me->GetMap()->CreatureRelocation(me, afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
+                                        me->SetPosition(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0);
                                         me->SendMonsterMove(afGravityPos[0], afGravityPos[1], afGravityPos[2], 0, MOVEMENTFLAG_NONE, 0);
 
                                         // 1) Kael'thas will portal the whole raid right into his body

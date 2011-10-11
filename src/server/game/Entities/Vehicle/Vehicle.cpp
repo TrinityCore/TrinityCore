@@ -445,7 +445,7 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
             float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
             float po = ang + passenger->m_movementInfo.t_pos.m_orientation;
 
-            passenger->SetPosition(px, py, pz, po);
+            passenger->UpdatePosition(px, py, pz, po);
         }
 }
 
@@ -526,7 +526,7 @@ void Vehicle::Relocate(Position pos)
         }
     }
 
-    _me->SetPosition(pos, true);
+    _me->UpdatePosition(pos, true);
     // problems, and impossible to do delayed enter
     //pPlayer->EnterVehicle(veh);
 }

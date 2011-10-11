@@ -143,7 +143,8 @@ m_PlayerDamageReq(0), m_lootMoney(0), m_lootRecipient(0), m_lootRecipientGroup(0
 m_respawnDelay(300), m_corpseDelay(60), m_respawnradius(0.0f), m_reactState(REACT_AGGRESSIVE),
 m_defaultMovementType(IDLE_MOTION_TYPE), m_DBTableGuid(0), m_equipmentId(0), m_AlreadyCallAssistance(false),
 m_AlreadySearchedAssistance(false), m_regenHealth(true), m_AI_locked(false), m_meleeDamageSchoolMask(SPELL_SCHOOL_MASK_NORMAL),
-m_creatureInfo(NULL), m_creatureData(NULL), m_formation(NULL)
+m_creatureInfo(NULL), m_creatureData(NULL), m_formation(NULL),
+MapCreature()
 {
     m_regenTimer = CREATURE_REGEN_INTERVAL;
     m_valuesCount = UNIT_END;
@@ -2386,21 +2387,29 @@ const char* Creature::GetNameForLocaleIdx(LocaleConstant loc_idx) const
     return GetName();
 }
 
+//Do not if this works or not, moving creature to another map is very dangerous
 void Creature::FarTeleportTo(Map* map, float X, float Y, float Z, float O)
 {
-    InterruptNonMeleeSpells(true);
-    CombatStop();
-    ClearComboPointHolders();
-    DeleteThreatList();
-    GetMotionMaster()->Clear(false);
-    DestroyForNearbyPlayers();
-
-    RemoveFromWorld();
+    CleanupBeforeRemoveFromMap(false);
+    GetMap()->RemoveFromMap(this, false);
     ResetMap();
+    Relocate(X, Y, Z, O);
     SetMap(map);
-    AddToWorld();
+    GetMap()->AddToMap(this);
+}
 
-    SetPosition(X, Y, Z, O, true);
+void Creature::SetPosition(float x, float y, float z, float o)
+{
+    // prevent crash when a bad coord is sent by the client
+    if (!Trinity::IsValidMapCoord(x, y, z, o))
+    {
+        sLog->outDebug(LOG_FILTER_UNITS, "Creature::SetPosition(%f, %f, %f) .. bad coordinates!", x, y, z);
+        return;
+    }
+
+    GetMap()->CreatureRelocation(ToCreature(), x, y, z, o);
+    if (IsVehicle())
+        GetVehicleKit()->RelocatePassengers(x, y, z, o);
 }
 
 bool Creature::IsDungeonBoss() const

@@ -1202,7 +1202,7 @@ public:
             me->GetPosition(x, y, z);
             z = me->GetMap()->GetHeight(x, y, z);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
-            me->GetMap()->CreatureRelocation(me, x, y, z, 0);
+            me->SetPosition(x, y, z, 0);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -1321,7 +1321,7 @@ public:
             me->GetPosition(x, y, z);
             z = me->GetMap()->GetHeight(x, y, z);
             me->GetMotionMaster()->MovePoint(0, x, y, z);
-            me->GetMap()->CreatureRelocation(me, x, y, z, 0);
+            me->SetPosition(x, y, z, 0);
             hyjal_trashAI::JustDied(victim);
         }
 

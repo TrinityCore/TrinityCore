@@ -69,7 +69,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     if (GetPlayer()->IsInWorld())
     {
         sLog->outCrash("Player (Name %s) is still in world when teleported from map %u to new map %u", GetPlayer()->GetName(), oldMap->GetId(), loc.GetMapId());
-        oldMap->Remove(GetPlayer(), false);
+        oldMap->RemoveFromMap(GetPlayer(), false);
     }
 
     // relocate the player to the teleport destination
@@ -89,7 +89,7 @@ void WorldSession::HandleMoveWorldportAckOpcode()
     GetPlayer()->SetMap(newMap);
 
     GetPlayer()->SendInitialPacketsBeforeAddToMap();
-    if (!GetPlayer()->GetMap()->Add(GetPlayer()))
+    if (!GetPlayer()->GetMap()->AddToMap(GetPlayer()))
     {
         sLog->outError("WORLD: failed to teleport player %s (%d) to map %d because of unknown reason!", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), loc.GetMapId());
         GetPlayer()->ResetMap();
@@ -216,7 +216,7 @@ void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 
     WorldLocation const& dest = plMover->GetTeleportDest();
 
-    plMover->SetPosition(dest, true);
+    plMover->UpdatePosition(dest, true);
 
     uint32 newzone, newarea;
     plMover->GetZoneAndAreaId(newzone, newarea);
@@ -359,7 +359,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         return;
     }
 
-    mover->SetPosition(movementInfo.pos);
+    mover->UpdatePosition(movementInfo.pos);
 
     if (plMover)                                            // nothing is charmed, or player charmed
     {
