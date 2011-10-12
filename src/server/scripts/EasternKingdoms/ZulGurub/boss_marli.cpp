@@ -53,10 +53,10 @@ class boss_marli : public CreatureScript
         {
             boss_marliAI(Creature* c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceScript();
+                m_instance = c->GetInstanceScript();
             }
 
-            InstanceScript* m_pInstance;
+            InstanceScript* m_instance;
 
             uint32 SpawnStartSpiders_Timer;
             uint32 PoisonVolley_Timer;
@@ -91,8 +91,8 @@ class boss_marli : public CreatureScript
             void JustDied(Unit* /*Killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_MARLI, DONE);
+                if (m_instance)
+                    m_instance->SetData(DATA_MARLI, DONE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -185,7 +185,7 @@ class boss_marli : public CreatureScript
                             if (target)
                             {
                                 DoCast(target, SPELL_CHARGE);
-                                //me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
+                                //me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
                                 //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
                                 AttackStart(target);
                             }

@@ -150,12 +150,12 @@ public:
         // finds and stores the GUIDs for each Council member using instance data system.
         void LoadCouncilGUIDs()
         {
-            if (InstanceScript* pInstance = me->GetInstanceScript())
+            if (InstanceScript* instance = me->GetInstanceScript())
             {
-                Council[0] = pInstance->GetData64(DATA_GATHIOSTHESHATTERER);
-                Council[1] = pInstance->GetData64(DATA_VERASDARKSHADOW);
-                Council[2] = pInstance->GetData64(DATA_LADYMALANDE);
-                Council[3] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
+                Council[0] = instance->GetData64(DATA_GATHIOSTHESHATTERER);
+                Council[1] = instance->GetData64(DATA_VERASDARKSHADOW);
+                Council[2] = instance->GetData64(DATA_LADYMALANDE);
+                Council[3] = instance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
             } else sLog->outError(ERROR_INST_DATA);
         }
 
@@ -219,12 +219,12 @@ public:
     {
         mob_illidari_councilAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             for (uint8 i = 0; i < 4; ++i)
                 Council[i] = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 Council[4];
 
@@ -257,10 +257,10 @@ public:
                 pMember->AI()->EnterEvadeMode();
             }
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, NOT_STARTED);
-                if (Creature* VoiceTrigger = (Unit::GetCreature(*me, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+                instance->SetData(DATA_ILLIDARICOUNCILEVENT, NOT_STARTED);
+                if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                     VoiceTrigger->AI()->EnterEvadeMode();
             }
 
@@ -277,18 +277,18 @@ public:
 
         void StartEvent(Unit* target)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             if (target && target->isAlive())
             {
-                Council[0] = pInstance->GetData64(DATA_GATHIOSTHESHATTERER);
-                Council[1] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-                Council[2] = pInstance->GetData64(DATA_LADYMALANDE);
-                Council[3] = pInstance->GetData64(DATA_VERASDARKSHADOW);
+                Council[0] = instance->GetData64(DATA_GATHIOSTHESHATTERER);
+                Council[1] = instance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
+                Council[2] = instance->GetData64(DATA_LADYMALANDE);
+                Council[3] = instance->GetData64(DATA_VERASDARKSHADOW);
 
                 // Start the event for the Voice Trigger
-                if (Creature* VoiceTrigger = (Unit::GetCreature(*me, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+                if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                 {
                     CAST_AI(mob_blood_elf_council_voice_trigger::mob_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->LoadCouncilGUIDs();
                     CAST_AI(mob_blood_elf_council_voice_trigger::mob_blood_elf_council_voice_triggerAI, VoiceTrigger->AI())->EventStarted = true;
@@ -305,7 +305,7 @@ public:
                     }
                 }
 
-                pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, IN_PROGRESS);
+                instance->SetData(DATA_ILLIDARICOUNCILEVENT, IN_PROGRESS);
 
                 EventBegun = true;
             }
@@ -321,11 +321,11 @@ public:
                 {
                     if (DeathCount > 3)
                     {
-                        if (pInstance)
+                        if (instance)
                         {
-                            if (Creature* VoiceTrigger = (Unit::GetCreature(*me, pInstance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
+                            if (Creature* VoiceTrigger = (Unit::GetCreature(*me, instance->GetData64(DATA_BLOOD_ELF_COUNCIL_VOICE))))
                                 VoiceTrigger->DealDamage(VoiceTrigger, VoiceTrigger->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-                            pInstance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
+                            instance->SetData(DATA_ILLIDARICOUNCILEVENT, DONE);
                             //me->SummonCreature(AKAMAID, 746.466980f, 304.394989f, 311.90208f, 6.272870f, TEMPSUMMON_DEAD_DESPAWN, 0);
                         }
                         me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -380,7 +380,7 @@ struct boss_illidari_councilAI : public ScriptedAI
 {
     boss_illidari_councilAI(Creature* c) : ScriptedAI(c)
     {
-        pInstance = c->GetInstanceScript();
+        instance = c->GetInstanceScript();
         for (uint8 i = 0; i < 4; ++i)
             Council[i] = 0;
         LoadedGUIDs = false;
@@ -388,15 +388,15 @@ struct boss_illidari_councilAI : public ScriptedAI
 
     uint64 Council[4];
 
-    InstanceScript* pInstance;
+    InstanceScript* instance;
 
     bool LoadedGUIDs;
 
     void EnterCombat(Unit* who)
     {
-        if (pInstance)
+        if (instance)
         {
-            Creature* Controller = (Unit::GetCreature(*me, pInstance->GetData64(DATA_ILLIDARICOUNCIL)));
+            Creature* Controller = (Unit::GetCreature(*me, instance->GetData64(DATA_ILLIDARICOUNCIL)));
             if (Controller)
                 CAST_AI(mob_illidari_council::mob_illidari_councilAI, Controller->AI())->StartEvent(who);
         }
@@ -419,10 +419,10 @@ struct boss_illidari_councilAI : public ScriptedAI
     {
         for (uint8 i = 0; i < 4; ++i)
         {
-            if (Unit* pUnit = Unit::GetUnit(*me, Council[i]))
-                if (pUnit != me && pUnit->getVictim())
+            if (Unit* unit = Unit::GetUnit(*me, Council[i]))
+                if (unit != me && unit->getVictim())
                 {
-                    AttackStart(pUnit->getVictim());
+                    AttackStart(unit->getVictim());
                     return;
                 }
         }
@@ -437,27 +437,27 @@ struct boss_illidari_councilAI : public ScriptedAI
         damage /= 4;
         for (uint8 i = 0; i < 4; ++i)
         {
-            if (Creature* pUnit = Unit::GetCreature(*me, Council[i]))
-                if (pUnit != me && damage < pUnit->GetHealth())
+            if (Creature* unit = Unit::GetCreature(*me, Council[i]))
+                if (unit != me && damage < unit->GetHealth())
                 {
-                    pUnit->ModifyHealth(-int32(damage));
-                    pUnit->LowerPlayerDamageReq(damage);
+                    unit->ModifyHealth(-int32(damage));
+                    unit->LowerPlayerDamageReq(damage);
                 }
         }
     }
 
     void LoadGUIDs()
     {
-        if (!pInstance)
+        if (!instance)
         {
             sLog->outError(ERROR_INST_DATA);
             return;
         }
 
-        Council[0] = pInstance->GetData64(DATA_LADYMALANDE);
-        Council[1] = pInstance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
-        Council[2] = pInstance->GetData64(DATA_GATHIOSTHESHATTERER);
-        Council[3] = pInstance->GetData64(DATA_VERASDARKSHADOW);
+        Council[0] = instance->GetData64(DATA_LADYMALANDE);
+        Council[1] = instance->GetData64(DATA_HIGHNETHERMANCERZEREVOR);
+        Council[2] = instance->GetData64(DATA_GATHIOSTHESHATTERER);
+        Council[3] = instance->GetData64(DATA_VERASDARKSHADOW);
 
         LoadedGUIDs = true;
     }
@@ -504,15 +504,15 @@ public:
 
         Unit* SelectCouncilMember()
         {
-            Unit* pUnit = me;
+            Unit* unit = me;
             uint32 member = 0;                                  // He chooses Lady Malande most often
 
             if (rand()%10 == 0)                                  // But there is a chance he picks someone else.
                 member = urand(1, 3);
 
             if (member != 2)                                     // No need to create another pointer to us using Unit::GetUnit
-                pUnit = Unit::GetUnit((*me), Council[member]);
-            return pUnit;
+                unit = Unit::GetUnit((*me), Council[member]);
+            return unit;
         }
 
         void CastAuraOnCouncil()
@@ -525,9 +525,9 @@ public:
             }
             for (uint8 i = 0; i < 4; ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), Council[i]);
-                if (pUnit)
-                    pUnit->CastSpell(pUnit, spellid, true, 0, 0, me->GetGUID());
+                Unit* unit = Unit::GetUnit((*me), Council[i]);
+                if (unit)
+                    unit->CastSpell(unit, spellid, true, 0, 0, me->GetGUID());
             }
         }
 
@@ -538,12 +538,12 @@ public:
 
             if (BlessingTimer <= diff)
             {
-                if (Unit* pUnit = SelectCouncilMember())
+                if (Unit* unit = SelectCouncilMember())
                 {
                     switch (urand(0, 1))
                     {
-                        case 0: DoCast(pUnit, SPELL_BLESS_SPELLWARD);  break;
-                        case 1: DoCast(pUnit, SPELL_BLESS_PROTECTION); break;
+                        case 0: DoCast(unit, SPELL_BLESS_SPELLWARD);  break;
+                        case 1: DoCast(unit, SPELL_BLESS_PROTECTION); break;
                     }
                 }
                 BlessingTimer = 60000;

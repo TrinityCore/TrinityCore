@@ -1597,10 +1597,10 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     if (target != caster && (caster->IsControlledByPlayer() || !IsPositive()) && target->GetTypeId() == TYPEID_PLAYER)
     {
         if (!target->ToPlayer()->IsVisible())
-            return SPELL_FAILED_BAD_TARGETS;
+            return SPELL_FAILED_BM_OR_INVISGOD;
 
         if (target->ToPlayer()->isGameMaster())
-            return SPELL_FAILED_BAD_TARGETS;
+            return SPELL_FAILED_BM_OR_INVISGOD;
     }
 
     // not allow casting on flying player

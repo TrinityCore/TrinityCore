@@ -85,10 +85,10 @@ class boss_halazzi : public CreatureScript
         {
             boss_halazziAI(Creature* c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 FrenzyTimer;
             uint32 SaberlashTimer;
@@ -105,8 +105,8 @@ class boss_halazzi : public CreatureScript
 
             void Reset()
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
 
                 TransformCount = 0;
                 BerserkTimer = 600000;
@@ -120,8 +120,8 @@ class boss_halazzi : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
 
                 me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_AGGRO);
@@ -326,8 +326,8 @@ class boss_halazzi : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_HALAZZIEVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_HALAZZIEVENT, DONE);
 
                 me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_DEATH);

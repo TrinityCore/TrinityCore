@@ -31,7 +31,6 @@
 #include "ObjectMgr.h"
 #include "Group.h"
 
-
 union u_map_magic
 {
     char asChar[4];
@@ -206,7 +205,8 @@ Map::Map(uint32 id, time_t expiry, uint32 InstanceId, uint8 SpawnMode, Map* _par
 i_mapEntry (sMapStore.LookupEntry(id)), i_spawnMode(SpawnMode), i_InstanceId(InstanceId),
 m_unloadTimer(0), m_VisibleDistance(DEFAULT_VISIBILITY_DISTANCE),
 m_VisibilityNotifyPeriod(DEFAULT_VISIBILITY_NOTIFY_PERIOD),
-m_activeNonPlayersIter(m_activeNonPlayers.end()), i_gridExpiry(expiry), i_scriptLock(false)
+m_activeNonPlayersIter(m_activeNonPlayers.end()), i_gridExpiry(expiry),
+i_scriptLock(false), _creatureToMoveLock(false)
 {
     m_parentMap = (_parent ? _parent : this);
     for (unsigned int idx=0; idx < MAX_NUMBER_OF_GRIDS; ++idx)
@@ -404,7 +404,7 @@ void Map::LoadGrid(float x, float y)
     EnsureGridLoaded(cell);
 }
 
-bool Map::Add(Player* player)
+bool Map::AddToMap(Player* player)
 {
     // Check if we are adding to correct map
     ASSERT (player->GetMap() == this);
@@ -436,8 +436,19 @@ bool Map::Add(Player* player)
 }
 
 template<class T>
+void Map::InitializeObject(T* obj)
+{
+}
+
+template<>
+void Map::InitializeObject(Creature* obj)
+{
+    obj->_moveState = CREATURE_CELL_MOVE_NONE;
+}
+
+template<class T>
 void
-Map::Add(T *obj)
+Map::AddToMap(T *obj)
 {
     CellPair p = Trinity::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
@@ -464,6 +475,7 @@ Map::Add(T *obj)
     AddToGrid(obj, grid, cell);
     //obj->SetMap(this);
     obj->AddToWorld();
+    InitializeObject(obj);
 
     if (obj->isActiveObject())
         AddToActive(obj);
@@ -670,7 +682,7 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
     }
 }
 
-void Map::Remove(Player* player, bool remove)
+void Map::RemoveFromMap(Player* player, bool remove)
 {
     player->RemoveFromWorld();
     SendRemoveTransports(player);
@@ -702,7 +714,7 @@ void Map::Remove(Player* player, bool remove)
 
 template<class T>
 void
-Map::Remove(T *obj, bool remove)
+Map::RemoveFromMap(T *obj, bool remove)
 {
     obj->RemoveFromWorld();
     if (obj->isActiveObject())
@@ -792,6 +804,7 @@ Map::CreatureRelocation(Creature* creature, float x, float y, float z, float ang
     {
         creature->Relocate(x, y, z, ang);
         creature->UpdateObjectVisibility(false);
+        RemoveCreatureFromMoveList(creature);
     }
 
     ASSERT(CheckGridIntegrity(creature, true));
@@ -799,26 +812,47 @@ Map::CreatureRelocation(Creature* creature, float x, float y, float z, float ang
 
 void Map::AddCreatureToMoveList(Creature* c, float x, float y, float z, float ang)
 {
-    if (!c)
+    if (_creatureToMoveLock) //can this happen?
         return;
 
-    i_creaturesToMove[c] = CreatureMover(x, y, z, ang);
+    if(c->_moveState == CREATURE_CELL_MOVE_NONE)
+        _creaturesToMove.push_back(c);
+    c->SetNewCellPosition(x, y, z, ang);
+}
+
+void Map::RemoveCreatureFromMoveList(Creature* c)
+{
+    if (_creatureToMoveLock) //can this happen?
+        return;
+
+    if(c->_moveState == CREATURE_CELL_MOVE_ACTIVE)
+        c->_moveState = CREATURE_CELL_MOVE_INACTIVE;
 }
 
 void Map::MoveAllCreaturesInMoveList()
 {
-    while (!i_creaturesToMove.empty())
+    _creatureToMoveLock = true;
+    for(std::vector<Creature*>::iterator itr = _creaturesToMove.begin(); itr != _creaturesToMove.end(); ++itr)
     {
-        // get data and remove element;
-        CreatureMoveList::iterator iter = i_creaturesToMove.begin();
-        Creature* c = iter->first;
-        const CreatureMover &cm = iter->second;
+        Creature* c = *itr;
+        if(c->FindMap() != this) //pet is teleported to another map
+            continue;
+
+        if(c->_moveState != CREATURE_CELL_MOVE_ACTIVE)
+        {
+            c->_moveState = CREATURE_CELL_MOVE_NONE;
+            continue;
+        }
+
+        c->_moveState = CREATURE_CELL_MOVE_NONE;
+        if(!c->IsInWorld())
+            continue;
 
         // do move or do move to respawn or remove creature if previous all fail
-        if (CreatureCellRelocation(c, Cell(Trinity::ComputeCellPair(cm.x, cm.y))))
+        if (CreatureCellRelocation(c, Cell(Trinity::ComputeCellPair(c->_newPosition.m_positionX, c->_newPosition.m_positionY))))
         {
             // update pos
-            c->Relocate(cm.x, cm.y, cm.z, cm.ang);
+            c->Relocate(c->_newPosition);
             //CreatureRelocationNotify(c, new_cell, new_cell.cellPair());
             c->UpdateObjectVisibility(false);
         }
@@ -826,7 +860,7 @@ void Map::MoveAllCreaturesInMoveList()
         {
             // if creature can't be move in new cell/grid (not loaded) move it to repawn cell/grid
             // creature coordinates will be updated and notifiers send
-            if (!CreatureRespawnRelocation(c))
+            if (!CreatureRespawnRelocation(c, false))
             {
                 // ... or unload (if respawn grid also not loaded)
                 #ifdef TRINITY_DEBUG
@@ -844,9 +878,9 @@ void Map::MoveAllCreaturesInMoveList()
                     AddObjectToRemoveList(c);
             }
         }
-
-        i_creaturesToMove.erase(iter);
     }
+    _creaturesToMove.clear();
+    _creatureToMoveLock = false;
 }
 
 bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
@@ -910,13 +944,16 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
     return false;
 }
 
-bool Map::CreatureRespawnRelocation(Creature* c)
+bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
 {
     float resp_x, resp_y, resp_z, resp_o;
     c->GetRespawnCoord(resp_x, resp_y, resp_z, &resp_o);
-
     CellPair resp_val = Trinity::ComputeCellPair(resp_x, resp_y);
     Cell resp_cell(resp_val);
+
+    //creature will be unloaded with grid
+    if(diffGridOnly && !c->GetCurrentCell().DiffGrid(resp_cell))
+        return true;
 
     c->CombatStop();
     c->GetMotionMaster()->Clear();
@@ -1021,7 +1058,7 @@ void Map::RemoveAllPlayers()
 void Map::UnloadAll()
 {
     // clear all delayed moves, useless anyway do this moves before map unload.
-    i_creaturesToMove.clear();
+    _creaturesToMove.clear();
 
     for (GridRefManager<NGridType>::iterator i = GridRefManager<NGridType>::begin(); i != GridRefManager<NGridType>::end();)
     {
@@ -1604,7 +1641,6 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps, float maxSearchD
                 return vmapHeight;
             else
                 return mapHeight;                           // better use .map surface height
-
         }
         else
             return vmapHeight;                              // we have only vmapHeight (if have)
@@ -2053,20 +2089,20 @@ void Map::RemoveAllObjectsInRemoveList()
                 if (!corpse)
                     sLog->outError("Tried to delete corpse/bones %u that is not in map.", obj->GetGUIDLow());
                 else
-                    Remove(corpse, true);
+                    RemoveFromMap(corpse, true);
                 break;
             }
         case TYPEID_DYNAMICOBJECT:
-            Remove((DynamicObject*)obj, true);
+            RemoveFromMap((DynamicObject*)obj, true);
             break;
         case TYPEID_GAMEOBJECT:
-            Remove((GameObject*)obj, true);
+            RemoveFromMap((GameObject*)obj, true);
             break;
         case TYPEID_UNIT:
             // in case triggered sequence some spell can continue casting after prev CleanupsBeforeDelete call
             // make sure that like sources auras/etc removed before destructor start
             obj->ToCreature()->CleanupsBeforeDelete();
-            Remove(obj->ToCreature(), true);
+            RemoveFromMap(obj->ToCreature(), true);
             break;
         default:
             sLog->outError("Non-grid object (TypeId: %u) is in grid object remove list, ignored.", obj->GetTypeId());
@@ -2176,15 +2212,15 @@ void Map::RemoveFromActive(Creature* c)
     }
 }
 
-template void Map::Add(Corpse*);
-template void Map::Add(Creature*);
-template void Map::Add(GameObject*);
-template void Map::Add(DynamicObject*);
+template void Map::AddToMap(Corpse*);
+template void Map::AddToMap(Creature*);
+template void Map::AddToMap(GameObject*);
+template void Map::AddToMap(DynamicObject*);
 
-template void Map::Remove(Corpse*, bool);
-template void Map::Remove(Creature*, bool);
-template void Map::Remove(GameObject*, bool);
-template void Map::Remove(DynamicObject*, bool);
+template void Map::RemoveFromMap(Corpse*, bool);
+template void Map::RemoveFromMap(Creature*, bool);
+template void Map::RemoveFromMap(GameObject*, bool);
+template void Map::RemoveFromMap(DynamicObject*, bool);
 
 /* ******* Dungeon Instance Maps ******* */
 
@@ -2240,8 +2276,8 @@ bool InstanceMap::CanEnter(Player* player)
     }
 
     // cannot enter while an encounter is in progress on raids
-    /*Group* pGroup = player->GetGroup();
-    if (!player->isGameMaster() && pGroup && pGroup->InCombatToInstance(GetInstanceId()) && player->GetMapId() != GetId())*/
+    /*Group* group = player->GetGroup();
+    if (!player->isGameMaster() && group && group->InCombatToInstance(GetInstanceId()) && player->GetMapId() != GetId())*/
     if (IsRaid() && GetInstanceScript() && GetInstanceScript()->IsEncounterInProgress())
     {
         player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
@@ -2279,7 +2315,7 @@ bool InstanceMap::CanEnter(Player* player)
 /*
     Do map specific checks and add the player to the map if successful.
 */
-bool InstanceMap::Add(Player* player)
+bool InstanceMap::AddToMap(Player* player)
 {
     // TODO: Not sure about checking player level: already done in HandleAreaTriggerOpcode
     // GMs still can teleport player in instance.
@@ -2389,7 +2425,7 @@ bool InstanceMap::Add(Player* player)
     }
 
     // this will acquire the same mutex so it cannot be in the previous block
-    Map::Add(player);
+    Map::AddToMap(player);
 
     if (i_data)
         i_data->OnPlayerEnter(player);
@@ -2405,13 +2441,13 @@ void InstanceMap::Update(const uint32 t_diff)
         i_data->Update(t_diff);
 }
 
-void InstanceMap::Remove(Player* player, bool remove)
+void InstanceMap::RemoveFromMap(Player* player, bool remove)
 {
     sLog->outDetail("MAP: Removing player '%s' from instance '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
     //if last player set unload timer
     if (!m_unloadTimer && m_mapRefManager.getSize() == 1)
         m_unloadTimer = m_unloadWhenEmpty ? MIN_UNLOAD_DELAY : std::max(sWorld->getIntConfig(CONFIG_INSTANCE_UNLOAD_DELAY), (uint32)MIN_UNLOAD_DELAY);
-    Map::Remove(player, remove);
+    Map::RemoveFromMap(player, remove);
     // for normal instances schedule the reset after all players have left
     SetResetSchedule(true);
 }
@@ -2625,7 +2661,7 @@ bool BattlegroundMap::CanEnter(Player* player)
     return Map::CanEnter(player);
 }
 
-bool BattlegroundMap::Add(Player* player)
+bool BattlegroundMap::AddToMap(Player* player)
 {
     {
         ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, Lock, false);
@@ -2635,13 +2671,13 @@ bool BattlegroundMap::Add(Player* player)
         // reset instance validity, battleground maps do not homebind
         player->m_InstanceValid = true;
     }
-    return Map::Add(player);
+    return Map::AddToMap(player);
 }
 
-void BattlegroundMap::Remove(Player* player, bool remove)
+void BattlegroundMap::RemoveFromMap(Player* player, bool remove)
 {
     sLog->outDetail("MAP: Removing player '%s' from bg '%u' of map '%s' before relocating to another map", player->GetName(), GetInstanceId(), GetMapName());
-    Map::Remove(player, remove);
+    Map::RemoveFromMap(player, remove);
 }
 
 void BattlegroundMap::SetUnload()
@@ -2656,7 +2692,6 @@ void BattlegroundMap::RemoveAllPlayers()
             if (Player* plr = itr->getSource())
                 if (!plr->IsBeingTeleportedFar())
                     plr->TeleportTo(plr->GetBattlegroundEntryPoint());
-
 }
 
 Creature*

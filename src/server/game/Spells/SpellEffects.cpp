@@ -257,16 +257,16 @@ void Spell::EffectResurrectNew(SpellEffIndex effIndex)
     if (!unitTarget->IsInWorld())
         return;
 
-    Player* pTarget = unitTarget->ToPlayer();
+    Player* target = unitTarget->ToPlayer();
 
-    if (pTarget->isRessurectRequested())       // already have one active request
+    if (target->isRessurectRequested())       // already have one active request
         return;
 
     uint32 health = damage;
     uint32 mana = m_spellInfo->Effects[effIndex].MiscValue;
-    ExecuteLogEffectResurrect(effIndex, pTarget);
-    pTarget->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
-    SendResurrectRequest(pTarget);
+    ExecuteLogEffectResurrect(effIndex, target);
+    target->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
+    SendResurrectRequest(target);
 }
 
 void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
@@ -309,7 +309,7 @@ void Spell::EffectEnvironmentalDMG(SpellEffIndex /*effIndex*/)
 
 void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 {
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
+    if (effectHandleMode != SPELL_EFFECT_HANDLE_LAUNCH_TARGET)
         return;
 
     bool apply_direct_bonus = true;
@@ -1922,18 +1922,18 @@ void Spell::EffectTeleportUnits(SpellEffIndex /*effIndex*/)
             }
             break;
         case 66550: // teleports outside (Isle of Conquest)
-            if (Player* pTarget = unitTarget->ToPlayer())
+            if (Player* target = unitTarget->ToPlayer())
             {
-                if (pTarget->GetTeamId() == TEAM_ALLIANCE)
+                if (target->GetTeamId() == TEAM_ALLIANCE)
                     m_targets.SetDst(442.24f, -835.25f, 44.30f, 0.06f, 628);
                 else
                     m_targets.SetDst(1120.43f, -762.11f, 47.92f, 2.94f, 628);
             }
             break;
         case 66551: // teleports inside (Isle of Conquest)
-            if (Player* pTarget = unitTarget->ToPlayer())
+            if (Player* target = unitTarget->ToPlayer())
             {
-                if (pTarget->GetTeamId() == TEAM_ALLIANCE)
+                if (target->GetTeamId() == TEAM_ALLIANCE)
                     m_targets.SetDst(389.57f, -832.38f, 48.65f, 3.00f, 628);
                 else
                     m_targets.SetDst(1174.85f, -763.24f, 48.72f, 6.26f, 628);
@@ -2575,7 +2575,7 @@ void Spell::EffectPersistentAA(SpellEffIndex effIndex)
             return;
         }
 
-        dynObj->GetMap()->Add(dynObj);
+        dynObj->GetMap()->AddToMap(dynObj);
 
         if (Aura* aura = Aura::TryCreate(m_spellInfo, MAX_EFFECT_MASK, dynObj, caster, &m_spellValue->EffectBasePoints[0]))
         {
@@ -3328,9 +3328,9 @@ void Spell::EffectDispel(SpellEffIndex effIndex)
         int32 heal_amount = m_spellInfo->Effects[EFFECT_1].CalcValue();
         m_caster->CastCustomSpell(m_caster, 19658, &heal_amount, NULL, NULL, true);
         // Glyph of Felhunter
-        if (Unit* pOwner = m_caster->GetOwner())
-            if (pOwner->GetAura(56249))
-                pOwner->CastCustomSpell(pOwner, 19658, &heal_amount, NULL, NULL, true);
+        if (Unit* owner = m_caster->GetOwner())
+            if (owner->GetAura(56249))
+                owner->CastCustomSpell(owner, 19658, &heal_amount, NULL, NULL, true);
     }
 }
 
@@ -3368,7 +3368,7 @@ void Spell::EffectDistract(SpellEffIndex /*effIndex*/)
     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
     {
         // For players just turn them
-        unitTarget->ToPlayer()->SetPosition(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), angle, false);
+        unitTarget->ToPlayer()->UpdatePosition(unitTarget->GetPositionX(), unitTarget->GetPositionY(), unitTarget->GetPositionZ(), angle, false);
         unitTarget->ToPlayer()->SendTeleportAckPacket();
     }
     else
@@ -3422,7 +3422,7 @@ void Spell::EffectAddFarsight(SpellEffIndex effIndex)
     dynObj->SetDuration(duration);
 
     dynObj->setActive(true);    //must before add to map to be put in world container
-    dynObj->GetMap()->Add(dynObj); //grid will also be loaded
+    dynObj->GetMap()->AddToMap(dynObj); //grid will also be loaded
     dynObj->SetCasterViewpoint();
 }
 
@@ -3812,7 +3812,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level - 1);
 
     // add to world
-    pet->GetMap()->Add(pet->ToCreature());
+    pet->GetMap()->AddToMap(pet->ToCreature());
 
     // visual effect for levelup
     pet->SetUInt32Value(UNIT_FIELD_LEVEL, level);
@@ -4378,7 +4378,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
     // Wild object not have owner and check clickable by players
-    map->Add(pGameObj);
+    map->AddToMap(pGameObj);
 
     if (pGameObj->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
@@ -4423,7 +4423,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
             ExecuteLogEffectSummonObject(effIndex, linkedGO);
 
             // Wild object not have owner and check clickable by players
-            map->Add(linkedGO);
+            map->AddToMap(linkedGO);
         }
         else
         {
@@ -5583,7 +5583,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
     m_caster->AddGameObject(pGameObj);
-    map->Add(pGameObj);
+    map->AddToMap(pGameObj);
     //END
 
     // Send request
@@ -5625,23 +5625,23 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (!sWorld->getBoolConfig(CONFIG_CAST_UNSTUCK))
         return;
 
-    Player* pTarget = (Player*)m_caster;
+    Player* target = (Player*)m_caster;
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell Effect: Stuck");
-    sLog->outDetail("Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", pTarget->GetName(), pTarget->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
+    sLog->outDetail("Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", target->GetName(), target->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
 
-    if (pTarget->isInFlight())
+    if (target->isInFlight())
         return;
 
-    pTarget->TeleportTo(pTarget->GetStartPosition(), m_caster == m_caster ? TELE_TO_SPELL : 0);
+    target->TeleportTo(target->GetStartPosition(), m_caster == m_caster ? TELE_TO_SPELL : 0);
     // homebind location is loaded always
-    // pTarget->TeleportTo(pTarget->m_homebindMapId, pTarget->m_homebindX, pTarget->m_homebindY, pTarget->m_homebindZ, pTarget->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
+    // target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
 
     // Stuck spell trigger Hearthstone cooldown
     SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(8690);
     if (!spellInfo)
         return;
-    Spell spell(pTarget, spellInfo, TRIGGERED_FULL_MASK);
+    Spell spell(target, spellInfo, TRIGGERED_FULL_MASK);
     spell.SendSpellCooldown();
 }
 
@@ -5934,7 +5934,7 @@ void Spell::EffectSummonObject(SpellEffIndex effIndex)
 
     ExecuteLogEffectSummonObject(effIndex, pGameObj);
 
-    map->Add(pGameObj);
+    map->AddToMap(pGameObj);
 
     m_caster->m_ObjectSlot[slot] = pGameObj->GetGUID();
 }
@@ -5983,18 +5983,18 @@ void Spell::EffectResurrect(SpellEffIndex effIndex)
             break;
     }
 
-    Player* pTarget = unitTarget->ToPlayer();
+    Player* target = unitTarget->ToPlayer();
 
-    if (pTarget->isRessurectRequested())       // already have one active request
+    if (target->isRessurectRequested())       // already have one active request
         return;
 
-    uint32 health = pTarget->CountPctFromMaxHealth(damage);
-    uint32 mana   = CalculatePctN(pTarget->GetMaxPower(POWER_MANA), damage);
+    uint32 health = target->CountPctFromMaxHealth(damage);
+    uint32 mana   = CalculatePctN(target->GetMaxPower(POWER_MANA), damage);
 
-    ExecuteLogEffectResurrect(effIndex, pTarget);
+    ExecuteLogEffectResurrect(effIndex, target);
 
-    pTarget->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
-    SendResurrectRequest(pTarget);
+    target->setResurrectRequestData(m_caster->GetGUID(), m_caster->GetMapId(), m_caster->GetPositionX(), m_caster->GetPositionY(), m_caster->GetPositionZ(), health, mana);
+    SendResurrectRequest(target);
 }
 
 void Spell::EffectAddExtraAttacks(SpellEffIndex effIndex)
@@ -6287,34 +6287,34 @@ void Spell::EffectQuestClear(SpellEffIndex effIndex)
 
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
-    Player* pPlayer = unitTarget->ToPlayer();
+    Player* player = unitTarget->ToPlayer();
 
     uint32 quest_id = m_spellInfo->Effects[effIndex].MiscValue;
 
-    Quest const* pQuest = sObjectMgr->GetQuestTemplate(quest_id);
+    Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
 
-    if (!pQuest)
+    if (!quest)
         return;
 
     // Player has never done this quest
-    if (pPlayer->GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
+    if (player->GetQuestStatus(quest_id) == QUEST_STATUS_NONE)
         return;
 
     // remove all quest entries for 'entry' from quest log
     for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
     {
-        uint32 quest = pPlayer->GetQuestSlotQuestId(slot);
+        uint32 quest = player->GetQuestSlotQuestId(slot);
         if (quest == quest_id)
         {
-            pPlayer->SetQuestSlot(slot, 0);
+            player->SetQuestSlot(slot, 0);
 
             // we ignore unequippable quest items in this case, its' still be equipped
-            pPlayer->TakeQuestSourceItem(quest, false);
+            player->TakeQuestSourceItem(quest, false);
         }
     }
 
-    pPlayer->RemoveActiveQuest(quest_id);
-    pPlayer->RemoveRewardedQuest(quest_id);
+    player->RemoveActiveQuest(quest_id);
+    player->RemoveRewardedQuest(quest_id);
 }
 
 void Spell::EffectSendTaxi(SpellEffIndex effIndex)
@@ -6630,7 +6630,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
     //m_caster->AddGameObject(pGameObj);
     //m_ObjToDel.push_back(pGameObj);
 
-    cMap->Add(pGameObj);
+    cMap->AddToMap(pGameObj);
 
     if (uint32 linkedEntry = pGameObj->GetGOInfo()->GetLinkedGameObjectEntry())
     {
@@ -6645,7 +6645,7 @@ void Spell::EffectTransmitted(SpellEffIndex effIndex)
 
             ExecuteLogEffectSummonObject(effIndex, linkedGO);
 
-            linkedGO->GetMap()->Add(linkedGO);
+            linkedGO->GetMap()->AddToMap(linkedGO);
         }
         else
         {
@@ -6968,7 +6968,7 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
         return;
 
     // add to world
-    pet->GetMap()->Add(pet->ToCreature());
+    pet->GetMap()->AddToMap(pet->ToCreature());
 
     // unitTarget has pet now
     unitTarget->SetMinion(pet, true);

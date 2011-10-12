@@ -110,7 +110,7 @@ public:
     {
         boss_ymironAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             for (int i = 0; i < 4; ++i)
                 m_uiActiveOrder[i] = i;
             for (int i = 0; i < 3; ++i)
@@ -150,7 +150,7 @@ public:
         uint64 m_uiActivedCreatureGUID;
         uint64 m_uiOrbGUID;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -179,16 +179,16 @@ public:
             DespawnBoatGhosts(m_uiActivedCreatureGUID);
             DespawnBoatGhosts(m_uiOrbGUID);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KING_YMIRON_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_KING_YMIRON_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_KING_YMIRON_EVENT, IN_PROGRESS);
         }
 
         void SpellHitTarget(Unit* who, SpellInfo const* spell)
@@ -213,12 +213,12 @@ public:
                 {
                     DoScriptText(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].say, me);
                     DoCast(me, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
-                    if (Creature* pTemp = me->SummonCreature(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* temp = me->SummonCreature(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
-                        m_uiActivedCreatureGUID = pTemp->GetGUID();
-                        pTemp->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                        pTemp->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        m_uiActivedCreatureGUID = temp->GetGUID();
+                        temp->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
+                        temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        temp->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         switch (m_uiActiveOrder[m_uiActivedNumber])
                         {
                             case 0: m_bIsActiveWithBJORN  = true; break;
@@ -284,13 +284,13 @@ public:
                 if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
                 {
                     //DoCast(me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
-                    if (Creature* pTemp = me->SummonCreature(CREATURE_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
+                    if (Creature* temp = me->SummonCreature(CREATURE_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                     {
-                        pTemp->SetSpeed(MOVE_RUN, 0.4f);
-                        pTemp->CastSpell(pTemp, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);
-                        pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
-                        pTemp->SetDisplayId(11686);
-                        m_uiOrbGUID = pTemp->GetGUID();
+                        temp->SetSpeed(MOVE_RUN, 0.4f);
+                        temp->CastSpell(temp, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);
+                        temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                        temp->SetDisplayId(11686);
+                        m_uiOrbGUID = temp->GetGUID();
                     }
                     m_bIsActiveWithBJORN = false; // only one orb
                 } else m_uiAbility_BJORN_Timer -= diff;
@@ -316,12 +316,12 @@ public:
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         //DoCast(me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
-                        if (Creature* pTemp = me->SummonCreature(CREATURE_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                        if (Creature* temp = me->SummonCreature(CREATURE_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
-                                pTemp->AddThreat(target, 0.0f);
-                                pTemp->AI()->AttackStart(target);
+                                temp->AddThreat(target, 0.0f);
+                                temp->AI()->AttackStart(target);
                             }
                         }
                     }
@@ -370,8 +370,8 @@ public:
             DespawnBoatGhosts(m_uiActivedCreatureGUID);
             DespawnBoatGhosts(m_uiOrbGUID);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KING_YMIRON_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_KING_YMIRON_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -382,8 +382,8 @@ public:
         void DespawnBoatGhosts(uint64 m_uiCreatureGUID)
         {
             if (m_uiCreatureGUID)
-                if (Creature* pTemp = Unit::GetCreature(*me, m_uiCreatureGUID))
-                    pTemp->DisappearAndDie();
+                if (Creature* temp = Unit::GetCreature(*me, m_uiCreatureGUID))
+                    temp->DisappearAndDie();
 
             m_uiCreatureGUID = 0;
         }

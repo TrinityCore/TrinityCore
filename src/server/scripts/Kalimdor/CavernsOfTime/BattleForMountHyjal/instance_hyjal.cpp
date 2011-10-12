@@ -46,14 +46,14 @@ class instance_hyjal : public InstanceMapScript
 public:
     instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_mount_hyjal_InstanceMapScript(pMap);
+        return new instance_mount_hyjal_InstanceMapScript(map);
     }
 
     struct instance_mount_hyjal_InstanceMapScript : public InstanceScript
     {
-        instance_mount_hyjal_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -191,13 +191,13 @@ public:
                             Creature* creature = instance->GetCreature(Azgalor);
                             if (creature)
                             {
-                                Creature* pUnit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                Creature* unit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
 
-                                Map* pMap = creature->GetMap();
-                                if (pMap->IsDungeon() && pUnit)
+                                Map* map = creature->GetMap();
+                                if (map->IsDungeon() && unit)
                                 {
-                                    pUnit->SetVisible(false);
-                                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                                    unit->SetVisible(false);
+                                    Map::PlayerList const &PlayerList = map->GetPlayers();
                                     if (PlayerList.isEmpty())
                                          return;
 
@@ -206,7 +206,7 @@ public:
                                          if (i->getSource())
                                          {
                                             WorldPacket data(SMSG_MESSAGECHAT, 200);
-                                            pUnit->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
+                                            unit->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
                                             i->getSource()->GetSession()->SendPacket(&data);
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4);

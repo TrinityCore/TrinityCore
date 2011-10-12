@@ -437,6 +437,13 @@ inline void Battleground::_ProcessJoin(uint32 diff)
     {
         m_Events |= BG_STARTING_EVENT_1;
 
+        if(!FindBgMap())
+        {
+            sLog->outError("Battleground::_ProcessJoin: map (map id: %u, instance id: %u) is not created!", m_MapId, m_InstanceID);
+            EndNow();
+            return;
+        }
+
         // Setup here, only when at least one player has ported to the map
         if (!SetupBattleground())
         {
@@ -1407,7 +1414,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     // If the assert is called, means that m_BgObjects must be resized!
     ASSERT(type < m_BgObjects.size());
 
-    Map* map = GetBgMap();
+    Map* map = FindBgMap();
     if (!map)
         return false;
     // Must be created this way, adding to godatamap would add it to the base map of the instance
@@ -1447,7 +1454,7 @@ bool Battleground::AddObject(uint32 type, uint32 entry, float x, float y, float 
     data.go_state       = 1;
 */
     // Add to world, so it can be later looked up from HashMapHolder
-    map->Add(go);
+    map->AddToMap(go);
     m_BgObjects[type] = go->GetGUID();
     return true;
 }
@@ -1504,7 +1511,7 @@ Creature* Battleground::GetBGCreature(uint32 type)
 
 void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
 {
-    if (Map* map = GetBgMap())
+    if (Map* map = FindBgMap())
         if (GameObject* obj = map->GetGameObject(m_BgObjects[type]))
         {
             if (respawntime)
@@ -1514,7 +1521,7 @@ void Battleground::SpawnBGObject(uint32 type, uint32 respawntime)
                     // Change state from GO_JUST_DEACTIVATED to GO_READY in case battleground is starting again
                     obj->SetLootState(GO_READY);
             obj->SetRespawnTime(respawntime);
-            map->Add(obj);
+            map->AddToMap(obj);
         }
 }
 
@@ -1523,40 +1530,40 @@ Creature* Battleground::AddCreature(uint32 entry, uint32 type, uint32 teamval, f
     // If the assert is called, means that m_BgCreatures must be resized!
     ASSERT(type < m_BgCreatures.size());
 
-    Map* map = GetBgMap();
+    Map* map = FindBgMap();
     if (!map)
         return NULL;
 
-    Creature* pCreature = new Creature;
-    if (!pCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, teamval, x, y, z, o))
+    Creature* creature = new Creature;
+    if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, PHASEMASK_NORMAL, entry, 0, teamval, x, y, z, o))
     {
         sLog->outError("Battleground::AddCreature: cannot create creature (entry: %u) for BG (map: %u, instance id: %u)!",
             entry, m_MapId, m_InstanceID);
-        delete pCreature;
+        delete creature;
         return NULL;
     }
 
-    pCreature->SetHomePosition(x, y, z, o);
+    creature->SetHomePosition(x, y, z, o);
 
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
     if (!cinfo)
     {
         sLog->outError("Battleground::AddCreature: creature template (entry: %u) does not exist for BG (map: %u, instance id: %u)!",
             entry, m_MapId, m_InstanceID);
-        delete pCreature;
+        delete creature;
         return NULL;
     }
     // Force using DB speeds
-    pCreature->SetSpeed(MOVE_WALK,  cinfo->speed_walk);
-    pCreature->SetSpeed(MOVE_RUN,   cinfo->speed_run);
+    creature->SetSpeed(MOVE_WALK,  cinfo->speed_walk);
+    creature->SetSpeed(MOVE_RUN,   cinfo->speed_run);
 
-    map->Add(pCreature);
-    m_BgCreatures[type] = pCreature->GetGUID();
+    map->AddToMap(creature);
+    m_BgCreatures[type] = creature->GetGUID();
 
     if (respawntime)
-        pCreature->SetRespawnDelay(respawntime);
+        creature->SetRespawnDelay(respawntime);
 
-    return  pCreature;
+    return  creature;
 }
 
 bool Battleground::DelCreature(uint32 type)
@@ -1601,18 +1608,18 @@ bool Battleground::AddSpiritGuide(uint32 type, float x, float y, float z, float 
         BG_CREATURE_ENTRY_A_SPIRITGUIDE :
         BG_CREATURE_ENTRY_H_SPIRITGUIDE;
 
-    if (Creature* pCreature = AddCreature(entry, type, team, x, y, z, o))
+    if (Creature* creature = AddCreature(entry, type, team, x, y, z, o))
     {
-        pCreature->setDeathState(DEAD);
-        pCreature->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, pCreature->GetGUID());
+        creature->setDeathState(DEAD);
+        creature->SetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT, creature->GetGUID());
         // aura
         // TODO: Fix display here
-        // pCreature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
+        // creature->SetVisibleAura(0, SPELL_SPIRIT_HEAL_CHANNEL);
         // casting visual effect
-        pCreature->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
+        creature->SetUInt32Value(UNIT_CHANNEL_SPELL, SPELL_SPIRIT_HEAL_CHANNEL);
         // correct cast speed
-        pCreature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
-        //pCreature->CastSpell(pCreature, SPELL_SPIRIT_HEAL_CHANNEL, true);
+        creature->SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
+        //creature->CastSpell(creature, SPELL_SPIRIT_HEAL_CHANNEL, true);
         return true;
     }
     sLog->outError("Battleground::AddSpiritGuide: cannot create spirit guide (type: %u, entry: %u) for BG (map: %u, instance id: %u)!",
@@ -1887,8 +1894,8 @@ bool Battleground::IsTeamScoreInRange(uint32 team, uint32 minScore, uint32 maxSc
 void Battleground::StartTimedAchievement(AchievementCriteriaTimedTypes type, uint32 entry)
 {
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
-        if (Player* pPlayer = ObjectAccessor::FindPlayer(itr->first))
-            pPlayer->GetAchievementMgr().StartTimedAchievement(type, entry);
+        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            player->GetAchievementMgr().StartTimedAchievement(type, entry);
 }
 
 void Battleground::SetBracket(PvPDifficultyEntry const* bracketEntry)

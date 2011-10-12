@@ -2102,7 +2102,7 @@ Rate.Drop.Item.ReferencedAmount = 1
 #        Description: Experience rates.
 #        Default:     1 - (Rate.XP.Kill)
 #                     1 - (Rate.XP.Quest)
-#                     1 - ( Rate.XP.Explore)
+#                     1 - (Rate.XP.Explore)
 
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
@@ -2826,6 +2826,20 @@ LevelReq.Auction = 1
 #        Default:     1
 
 LevelReq.Mail = 1
+
+#
+#     PlayerDump.DisallowPaths
+#        Description: Disallow using paths in PlayerDump output files
+#        Default:     1
+
+PlayerDump.DisallowPaths = 1
+
+#
+#     PlayerDump.DisallowOverwrite
+#        Description: Disallow overwriting existing files with PlayerDump
+#        Default:     1
+
+PlayerDump.DisallowOverwrite = 1
 
 #
 ###################################################################################################

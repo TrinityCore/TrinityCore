@@ -220,8 +220,8 @@ void PoolGroup<Creature>::Despawn1Object(uint32 guid)
     {
         sObjectMgr->RemoveCreatureFromGrid(guid, data);
 
-        if (Creature* pCreature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
-            pCreature->AddObjectToRemoveList();
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+            creature->AddObjectToRemoveList();
     }
 }
 
@@ -363,15 +363,15 @@ void PoolGroup<Creature>::Spawn1Object(PoolObject* obj)
         // We use spawn coords to spawn
         if (!map->Instanceable() && map->IsLoaded(data->posX, data->posY))
         {
-            Creature* pCreature = new Creature;
+            Creature* creature = new Creature;
             //sLog->outDebug(LOG_FILTER_POOLSYS, "Spawning creature %u", guid);
-            if (!pCreature->LoadFromDB(obj->guid, map))
+            if (!creature->LoadFromDB(obj->guid, map))
             {
-                delete pCreature;
+                delete creature;
                 return;
             }
             else
-                map->Add(pCreature);
+                map->AddToMap(creature);
         }
     }
 }
@@ -399,7 +399,7 @@ void PoolGroup<GameObject>::Spawn1Object(PoolObject* obj)
             else
             {
                 if (pGameobject->isSpawnedByDefault())
-                    map->Add(pGameobject);
+                    map->AddToMap(pGameobject);
             }
         }
     }
@@ -506,8 +506,8 @@ template <>
 void PoolGroup<Creature>::ReSpawn1Object(PoolObject* obj)
 {
     if (CreatureData const* data = sObjectMgr->GetCreatureData(obj->guid))
-        if (Creature* pCreature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
-            pCreature->GetMap()->Add(pCreature);
+        if (Creature* creature = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_UNIT), (Creature*)NULL))
+            creature->GetMap()->AddToMap(creature);
 }
 
 // Method that does the respawn job on the specified gameobject
@@ -516,7 +516,7 @@ void PoolGroup<GameObject>::ReSpawn1Object(PoolObject* obj)
 {
     if (GameObjectData const* data = sObjectMgr->GetGOData(obj->guid))
         if (GameObject* pGameobject = ObjectAccessor::GetObjectInWorld(MAKE_NEW_GUID(obj->guid, data->id, HIGHGUID_GAMEOBJECT), (GameObject*)NULL))
-            pGameobject->GetMap()->Add(pGameobject);
+            pGameobject->GetMap()->AddToMap(pGameobject);
 }
 
 // Nothing to do for a child Pool
@@ -838,8 +838,8 @@ void PoolMgr::LoadFromDB()
                 uint32 entry   = fields[0].GetUInt32();
                 uint32 pool_id = fields[1].GetUInt32();
 
-                Quest const* pQuest = sObjectMgr->GetQuestTemplate(entry);
-                if (!pQuest)
+                Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
+                if (!quest)
                 {
                     sLog->outErrorDb("`pool_quest` has a non existing quest template (Entry: %u) defined for pool id (%u), skipped.", entry, pool_id);
                     continue;
@@ -851,16 +851,16 @@ void PoolMgr::LoadFromDB()
                     continue;
                 }
 
-                if (!pQuest->IsDailyOrWeekly())
+                if (!quest->IsDailyOrWeekly())
                 {
                     sLog->outErrorDb("`pool_quest` has an quest (%u) which is not daily or weekly in pool id (%u), use ExclusiveGroup instead, skipped.", entry, pool_id);
                     continue;
                 }
 
                 if (poolTypeMap[pool_id] == QUEST_NONE)
-                    poolTypeMap[pool_id] = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
+                    poolTypeMap[pool_id] = quest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
 
-                int32 currType = pQuest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
+                int32 currType = quest->IsDaily() ? QUEST_DAILY : QUEST_WEEKLY;
 
                 if (poolTypeMap[pool_id] != currType)
                 {
@@ -980,9 +980,9 @@ void PoolMgr::ChangeDailyQuests()
 {
     for (PoolGroupQuestMap::iterator itr = mPoolQuestGroups.begin(); itr != mPoolQuestGroups.end(); ++itr)
     {
-        if (Quest const* pQuest = sObjectMgr->GetQuestTemplate(itr->GetFirstEqualChancedObjectId()))
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(itr->GetFirstEqualChancedObjectId()))
         {
-            if (pQuest->IsWeekly())
+            if (quest->IsWeekly())
                 continue;
 
             UpdatePool<Quest>(itr->GetPoolId(), 1);    // anything non-zero means don't load from db
@@ -996,9 +996,9 @@ void PoolMgr::ChangeWeeklyQuests()
 {
     for (PoolGroupQuestMap::iterator itr = mPoolQuestGroups.begin(); itr != mPoolQuestGroups.end(); ++itr)
     {
-        if (Quest const* pQuest = sObjectMgr->GetQuestTemplate(itr->GetFirstEqualChancedObjectId()))
+        if (Quest const* quest = sObjectMgr->GetQuestTemplate(itr->GetFirstEqualChancedObjectId()))
         {
-            if (pQuest->IsDaily())
+            if (quest->IsDaily())
                 continue;
 
             UpdatePool<Quest>(itr->GetPoolId(), 1);

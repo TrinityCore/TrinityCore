@@ -172,7 +172,6 @@ void Group::LoadGroupFromDB(Field* fields)
        m_raidDifficulty = RAID_DIFFICULTY_10MAN_NORMAL;
     else
        m_raidDifficulty = Difficulty(r_diff);
-
 }
 
 void Group::LoadMemberFromDB(uint32 guidLow, uint8 memberFlags, uint8 subgroup, uint8 roles)
@@ -720,12 +719,12 @@ void Group::SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r)
 }
 
 // notify group members which player is the allowed looter for the given creature
-void Group::SendLooter(Creature* pCreature, Player* pLooter)
+void Group::SendLooter(Creature* creature, Player* pLooter)
 {
-    ASSERT(pCreature);
+    ASSERT(creature);
 
     WorldPacket data(SMSG_LOOT_LIST, (8+8));
-    data << uint64(pCreature->GetGUID());
+    data << uint64(creature->GetGUID());
     data << uint8(0); // unk1
 
     if (pLooter)
@@ -770,7 +769,6 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
                 {
                     if (member->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
                     {
-
                         r->totalPlayersRolling++;
 
                         if (member->GetPassOnGroupLoot())
@@ -1255,20 +1253,20 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
     player->GetSession()->SendPacket(&data);
 }
 
-void Group::UpdatePlayerOutOfRange(Player* pPlayer)
+void Group::UpdatePlayerOutOfRange(Player* player)
 {
-    if (!pPlayer || !pPlayer->IsInWorld())
+    if (!player || !player->IsInWorld())
         return;
 
-    Player* player;
     WorldPacket data;
-    pPlayer->GetSession()->BuildPartyMemberStatsChangedPacket(pPlayer, &data);
+    player->GetSession()->BuildPartyMemberStatsChangedPacket(player, &data);
 
+    Player* member;
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        player = itr->getSource();
-        if (player && !player->IsWithinDist(pPlayer, player->GetSightRange(), false))
-            player->GetSession()->SendPacket(&data);
+        member = itr->getSource();
+        if (member && !member->IsWithinDist(player, member->GetSightRange(), false))
+            member->GetSession()->SendPacket(&data);
     }
 }
 
@@ -1276,12 +1274,12 @@ void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* pl = itr->getSource();
-        if (!pl || (ignore != 0 && pl->GetGUID() == ignore) || (ignorePlayersInBGRaid && pl->GetGroup() != this))
+        Player* plr = itr->getSource();
+        if (!plr || (ignore != 0 && plr->GetGUID() == ignore) || (ignorePlayersInBGRaid && plr->GetGroup() != this))
             continue;
 
-        if (pl->GetSession() && (group == -1 || itr->getSubGroup() == group))
-            pl->GetSession()->SendPacket(packet);
+        if (plr->GetSession() && (group == -1 || itr->getSubGroup() == group))
+            plr->GetSession()->SendPacket(packet);
     }
 }
 
@@ -1289,10 +1287,10 @@ void Group::BroadcastReadyCheck(WorldPacket* packet)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* pl = itr->getSource();
-        if (pl && pl->GetSession())
-            if (IsLeader(pl->GetGUID()) || IsAssistant(pl->GetGUID()))
-                pl->GetSession()->SendPacket(packet);
+        Player* plr = itr->getSource();
+        if (plr && plr->GetSession())
+            if (IsLeader(plr->GetGUID()) || IsAssistant(plr->GetGUID()))
+                plr->GetSession()->SendPacket(packet);
     }
 }
 
@@ -1300,8 +1298,8 @@ void Group::OfflineReadyCheck()
 {
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        Player* pl = ObjectAccessor::FindPlayer(citr->guid);
-        if (!pl || !pl->GetSession())
+        Player* plr = ObjectAccessor::FindPlayer(citr->guid);
+        if (!plr || !plr->GetSession())
         {
             WorldPacket data(MSG_RAID_READY_CHECK_CONFIRM, 9);
             data << uint64(citr->guid);
@@ -1331,6 +1329,7 @@ bool Group::SameSubGroup(Player const* member1, Player const* member2) const
 {
     if (!member1 || !member2)
         return false;
+
     if (member1->GetGroup() != this || member2->GetGroup() != this)
         return false;
     else
@@ -1367,10 +1366,8 @@ void Group::ChangeMembersGroup(uint64 guid, uint8 group)
     if (!isBGGroup())
         CharacterDatabase.PExecute("UPDATE group_member SET subgroup='%u' WHERE memberGuid='%u'", group, GUID_LOPART(guid));
 
-    Player* player = ObjectAccessor::FindPlayer(guid);
-
     // In case the moved player is online, update the player object with the new sub group references
-    if (player)
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         if (player->GetGroup() == this)
             player->GetGroupRef().setSubGroup(group);
@@ -1589,9 +1586,9 @@ bool Group::InCombatToInstance(uint32 instanceId)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* pPlayer = itr->getSource();
-        if (pPlayer && !pPlayer->getAttackers().empty() && pPlayer->GetInstanceId() == instanceId && (pPlayer->GetMap()->IsRaidOrHeroicDungeon()))
-            for (std::set<Unit*>::const_iterator i = pPlayer->getAttackers().begin(); i != pPlayer->getAttackers().end(); ++i)
+        Player* player = itr->getSource();
+        if (player && !player->getAttackers().empty() && player->GetInstanceId() == instanceId && (player->GetMap()->IsRaidOrHeroicDungeon()))
+            for (std::set<Unit*>::const_iterator i = player->getAttackers().begin(); i != player->getAttackers().end(); ++i)
                 if ((*i) && (*i)->GetTypeId() == TYPEID_UNIT && (*i)->ToCreature()->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_INSTANCE_BIND)
                     return true;
     }
@@ -1755,7 +1752,6 @@ void Group::BroadcastGroupUpdate(void)
     // -- not very efficient but safe
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-
         Player* pp = ObjectAccessor::FindPlayer(citr->guid);
         if (pp && pp->IsInWorld())
         {

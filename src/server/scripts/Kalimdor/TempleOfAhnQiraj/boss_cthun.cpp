@@ -178,12 +178,12 @@ public:
     {
         eye_of_cthunAI(Creature* c) : Scripted_NoMovementAI(c)
         {
-            pInst = c->GetInstanceScript();
-            if (!pInst)
+            instance = c->GetInstanceScript();
+            if (!instance)
                 sLog->outError("TSCR: No Instance eye_of_cthunAI");
         }
 
-        InstanceScript* pInst;
+        InstanceScript* instance;
 
         //Global variables
         uint32 PhaseTimer;
@@ -222,8 +222,8 @@ public:
             me->SetVisible(true);
 
             //Reset Phase
-            if (pInst)
-                pInst->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
 
             //to avoid having a following void zone
             Creature* pPortal= me->FindNearestCreature(MOB_CTHUN_PORTAL, 10);
@@ -234,8 +234,8 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoZoneInCombat();
-            if (pInst)
-                pInst->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
+            if (instance)
+                instance->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
         }
 
         void SpawnEyeTentacle(float x, float y)
@@ -253,10 +253,10 @@ public:
                 return;
 
             //No instance
-            if (!pInst)
+            if (!instance)
                 return;
 
-            uint32 currentPhase = pInst->GetData(DATA_CTHUN_PHASE);
+            uint32 currentPhase = instance->GetData(DATA_CTHUN_PHASE);
             if (currentPhase == PHASE_EYE_GREEN_BEAM || currentPhase == PHASE_EYE_RED_BEAM)
             {
                 // EyeTentacleTimer
@@ -319,7 +319,7 @@ public:
                     if (PhaseTimer <= diff)
                     {
                         //Switch to Dark Beam
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_EYE_RED_BEAM);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_EYE_RED_BEAM);
 
                         me->InterruptNonMeleeSpells(false);
                         me->SetReactState(REACT_PASSIVE);
@@ -379,7 +379,7 @@ public:
                     if (PhaseTimer <= diff)
                     {
                         //Switch to Eye Beam
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_EYE_GREEN_BEAM);
 
                         BeamTimer = 3000;
                         ClawTentacleTimer = 12500;              //4 per Eye beam phase (unsure if they spawn during Dark beam)
@@ -421,10 +421,10 @@ public:
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             //No instance
-            if (!pInst)
+            if (!instance)
                 return;
 
-            switch (pInst->GetData(DATA_CTHUN_PHASE))
+            switch (instance->GetData(DATA_CTHUN_PHASE))
             {
                 case PHASE_EYE_GREEN_BEAM:
                 case PHASE_EYE_RED_BEAM:
@@ -445,7 +445,7 @@ public:
                     me->SetTarget(0);
 
                     //Death animation/respawning;
-                    pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_TRANSITION);
+                    instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_TRANSITION);
 
                     me->SetHealth(0);
                     damage = 0;
@@ -484,12 +484,12 @@ public:
         {
             SetCombatMovement(false);
 
-            pInst = c->GetInstanceScript();
-            if (!pInst)
+            instance = c->GetInstanceScript();
+            if (!instance)
                 sLog->outError("TSCR: No Instance eye_of_cthunAI");
         }
 
-        InstanceScript* pInst;
+        InstanceScript* instance;
 
         //Out of combat whisper timer
         uint32 WisperTimer;
@@ -544,8 +544,8 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
             me->SetVisible(false);
 
-            if (pInst)
-                pInst->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_CTHUN_PHASE, PHASE_NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -576,11 +576,11 @@ public:
             while (i != Stomach_Map.end())
             {
                 //Check for valid player
-                Unit* pUnit = Unit::GetUnit(*me, i->first);
+                Unit* unit = Unit::GetUnit(*me, i->first);
 
                 //Only units out of stomach
-                if (pUnit && i->second == false)
-                    temp.push_back(pUnit);
+                if (unit && i->second == false)
+                    temp.push_back(unit);
 
                 ++i;
             }
@@ -606,11 +606,11 @@ public:
                 //WisperTimer
                 if (WisperTimer <= diff)
                 {
-                    Map* pMap = me->GetMap();
-                    if (!pMap->IsDungeon()) return;
+                    Map* map = me->GetMap();
+                    if (!map->IsDungeon()) return;
 
                     //Play random sound to the zone
-                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                    Map::PlayerList const &PlayerList = map->GetPlayers();
 
                     if (!PlayerList.isEmpty())
                     {
@@ -631,10 +631,10 @@ public:
             me->SetTarget(0);
 
             //No instance
-            if (!pInst)
+            if (!instance)
                 return;
 
-            uint32 currentPhase = pInst->GetData(DATA_CTHUN_PHASE);
+            uint32 currentPhase = instance->GetData(DATA_CTHUN_PHASE);
             if (currentPhase == PHASE_CTHUN_STOMACH || currentPhase == PHASE_CTHUN_WEAK)
             {
                 // EyeTentacleTimer
@@ -663,7 +663,7 @@ public:
                     if (PhaseTimer <= diff)
                     {
                         //Switch
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_STOMACH);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_STOMACH);
 
                         //Switch to c'thun model
                         me->InterruptNonMeleeSpells(false);
@@ -711,7 +711,7 @@ public:
                     //Weaken
                     if (FleshTentaclesKilled > 1)
                     {
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_WEAK);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_WEAK);
 
                         DoScriptText(EMOTE_WEAKENED, me);
                         PhaseTimer = 45000;
@@ -724,19 +724,19 @@ public:
                         while (i != Stomach_Map.end())
                         {
                             //Check for valid player
-                            Unit* pUnit = Unit::GetUnit(*me, i->first);
+                            Unit* unit = Unit::GetUnit(*me, i->first);
 
                             //Only move units in stomach
-                            if (pUnit && i->second == true)
+                            if (unit && i->second == true)
                             {
                                 //Teleport each player out
-                                DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
+                                DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
 
                                 //Cast knockback on them
-                                DoCast(pUnit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
+                                DoCast(unit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
 
                                 //Remove the acid debuff
-                                pUnit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
+                                unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
 
                                 i->second = false;
                             }
@@ -755,25 +755,25 @@ public:
                         while (i != Stomach_Map.end())
                         {
                             //Check for valid player
-                            Unit* pUnit = Unit::GetUnit(*me, i->first);
+                            Unit* unit = Unit::GetUnit(*me, i->first);
 
                             //Only apply to units in stomach
-                            if (pUnit && i->second == true)
+                            if (unit && i->second == true)
                             {
                                 //Cast digestive acid on them
-                                DoCast(pUnit, SPELL_DIGESTIVE_ACID, true);
+                                DoCast(unit, SPELL_DIGESTIVE_ACID, true);
 
                                 //Check if player should be kicked from stomach
-                                if (pUnit->IsWithinDist3d(&KickPos, 15.0f))
+                                if (unit->IsWithinDist3d(&KickPos, 15.0f))
                                 {
                                     //Teleport each player out
-                                    DoTeleportPlayer(pUnit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
+                                    DoTeleportPlayer(unit, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ()+10, float(rand()%6));
 
                                     //Cast knockback on them
-                                    DoCast(pUnit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
+                                    DoCast(unit, SPELL_EXIT_STOMACH_KNOCKBACK, true);
 
                                     //Remove the acid debuff
-                                    pUnit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
+                                    unit->RemoveAurasDueToSpell(SPELL_DIGESTIVE_ACID);
 
                                     i->second = false;
                                 }
@@ -805,11 +805,11 @@ public:
                         if (StomachEnterVisTimer <= diff)
                         {
                             //Check for valid player
-                            Unit* pUnit = Unit::GetUnit(*me, StomachEnterTarget);
+                            Unit* unit = Unit::GetUnit(*me, StomachEnterTarget);
 
-                            if (pUnit)
+                            if (unit)
                             {
-                                DoTeleportPlayer(pUnit, STOMACH_X, STOMACH_Y, STOMACH_Z, STOMACH_O);
+                                DoTeleportPlayer(unit, STOMACH_X, STOMACH_Y, STOMACH_Z, STOMACH_O);
                             }
 
                             StomachEnterTarget = 0;
@@ -855,7 +855,7 @@ public:
                     if (PhaseTimer <= diff)
                     {
                         //Switch
-                        pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_STOMACH);
+                        instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_STOMACH);
 
                         //Remove purple coloration
                         me->RemoveAurasDueToSpell(SPELL_PURPLE_COLORATION);
@@ -880,17 +880,17 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInst)
-                pInst->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
+            if (instance)
+                instance->SetData(DATA_CTHUN_PHASE, PHASE_CTHUN_DONE);
         }
 
         void DamageTaken(Unit* /*done_by*/, uint32 &damage)
         {
             //No instance
-            if (!pInst)
+            if (!instance)
                 return;
 
-            switch (pInst->GetData(DATA_CTHUN_PHASE))
+            switch (instance->GetData(DATA_CTHUN_PHASE))
             {
                 case PHASE_CTHUN_STOMACH:
                     //Not weakened so reduce damage by 99%
@@ -1073,7 +1073,7 @@ public:
 
                     if (!target->HasAura(SPELL_DIGESTIVE_ACID))
                     {
-                        me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
+                        me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
                         if (Creature* pPortal = me->SummonCreature(MOB_SMALL_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
                         {
                             pPortal->SetReactState(REACT_PASSIVE);
@@ -1185,7 +1185,7 @@ public:
 
                     if (!target->HasAura(SPELL_DIGESTIVE_ACID))
                     {
-                        me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
+                        me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
                         if (Creature* pPortal = me->SummonCreature(MOB_GIANT_PORTAL, *me, TEMPSUMMON_CORPSE_DESPAWN))
                         {
                             pPortal->SetReactState(REACT_PASSIVE);

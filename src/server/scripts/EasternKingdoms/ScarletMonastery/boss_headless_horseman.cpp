@@ -361,10 +361,10 @@ public:
     {
         boss_headless_horsemanAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 headGUID;
         uint64 PlayerGUID;
@@ -413,8 +413,8 @@ public:
                 headGUID = 0;
             }
 
-            //if (pInstance)
-            //    pInstance->SetData(DATA_HORSEMAN_EVENT, NOT_STARTED);
+            //if (instance)
+            //    instance->SetData(DATA_HORSEMAN_EVENT, NOT_STARTED);
         }
 
         void FlyMode()
@@ -450,8 +450,8 @@ public:
                     break;
                 }
                 case 6:
-                    if (pInstance)
-                        pInstance->SetData(GAMEOBJECT_PUMPKIN_SHRINE, 0);   //hide gameobject
+                    if (instance)
+                        instance->SetData(GAMEOBJECT_PUMPKIN_SHRINE, 0);   //hide gameobject
                     break;
                 case 19:
                     me->RemoveUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT | MOVEMENTFLAG_LEVITATING);
@@ -473,8 +473,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
             DoZoneInCombat();
         }
         void AttackStart(Unit* who) {ScriptedAI::AttackStart(who);}
@@ -503,10 +503,10 @@ public:
 
         Player* SelectRandomPlayer(float range = 0.0f, bool checkLoS = true)
         {
-            Map* pMap = me->GetMap();
-            if (!pMap->IsDungeon()) return NULL;
+            Map* map = me->GetMap();
+            if (!map->IsDungeon()) return NULL;
 
-            Map::PlayerList const &PlayerList = pMap->GetPlayers();
+            Map::PlayerList const &PlayerList = map->GetPlayers();
             Map::PlayerList::const_iterator i;
             if (PlayerList.isEmpty()) return NULL;
 
@@ -542,8 +542,8 @@ public:
                 flame->CastSpell(flame, SPELL_BODY_FLAME, false);
             if (Creature* wisp = DoSpawnCreature(WISP_INVIS, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
                 CAST_AI(mob_wisp_invis::mob_wisp_invisAI, wisp->AI())->SetType(4);
-            if (pInstance)
-                pInstance->SetData(DATA_HORSEMAN_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_HORSEMAN_EVENT, DONE);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
@@ -569,9 +569,9 @@ public:
                 std::list<HostileReference*>::const_iterator itr;
                 for (itr = caster->getThreatManager().getThreatList().begin(); itr != caster->getThreatManager().getThreatList().end(); ++itr)
                 {
-                    Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                    if (pUnit && pUnit->isAlive() && pUnit != caster)
-                        me->AddThreat(pUnit, caster->getThreatManager().getThreat(pUnit));
+                    Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                    if (unit && unit->isAlive() && unit != caster)
+                        me->AddThreat(unit, caster->getThreatManager().getThreat(unit));
                 }
             }
         }
@@ -756,7 +756,7 @@ public:
         {
             float x, y, z;
             me->GetPosition(x, y, z);   //this visual aura some under ground
-            me->GetMap()->CreatureRelocation(me, x, y, z + 0.35f, 0.0f);
+            me->SetPosition(x, y, z + 0.35f, 0.0f);
             Despawn();
             Creature* debuff = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14500);
             if (debuff)
@@ -824,12 +824,12 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* soil)
     {
-        InstanceScript* pInstance = player->GetInstanceScript();
-        if (pInstance)
+        InstanceScript* instance = player->GetInstanceScript();
+        if (instance)
         {
-            if (pInstance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED)
+            if (instance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED)
                 return true;
-            pInstance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
+            instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
         }
     /*  if (soil->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER && player->getLevel() > 64)
         {

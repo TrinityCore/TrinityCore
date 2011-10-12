@@ -489,7 +489,7 @@ bool Guild::BankTab::SetItem(SQLTransaction& trans, uint8 slotId, Item* pItem)
     return true;
 }
 
-void Guild::BankTab::SendText(const Guild* pGuild, WorldSession* session) const
+void Guild::BankTab::SendText(const Guild* guild, WorldSession* session) const
 {
     WorldPacket data(MSG_QUERY_GUILD_BANK_TEXT, 1 + m_text.size() + 1);
     data << uint8(m_tabId);
@@ -498,7 +498,7 @@ void Guild::BankTab::SendText(const Guild* pGuild, WorldSession* session) const
     if (session)
         session->SendPacket(&data);
     else
-        pGuild->BroadcastPacket(&data);
+        guild->BroadcastPacket(&data);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -671,7 +671,7 @@ void Guild::Member::DecreaseBankRemainingValue(SQLTransaction& trans, uint8 tabI
 // If (tabId == GUILD_BANK_MAX_TABS) return money amount.
 // Otherwise return remaining items amount for specified tab.
 // If reset time was more than 24 hours ago, renew reset time and reset amount to maximum value.
-uint32 Guild::Member::GetBankRemainingValue(uint8 tabId, const Guild* pGuild) const
+uint32 Guild::Member::GetBankRemainingValue(uint8 tabId, const Guild* guild) const
 {
     // Guild master has unlimited amount.
     if (IsRank(GR_GUILDMASTER))
@@ -679,7 +679,7 @@ uint32 Guild::Member::GetBankRemainingValue(uint8 tabId, const Guild* pGuild) co
 
     // Check rights for non-money tab.
     if (tabId != GUILD_BANK_MAX_TABS)
-        if ((pGuild->_GetRankBankTabRights(m_rankId, tabId) & GUILD_BANK_RIGHT_VIEW_TAB) != GUILD_BANK_RIGHT_VIEW_TAB)
+        if ((guild->_GetRankBankTabRights(m_rankId, tabId) & GUILD_BANK_RIGHT_VIEW_TAB) != GUILD_BANK_RIGHT_VIEW_TAB)
             return 0;
 
     uint32 curTime = uint32(::time(NULL) / MINUTE); // minutes
@@ -688,8 +688,8 @@ uint32 Guild::Member::GetBankRemainingValue(uint8 tabId, const Guild* pGuild) co
         RemainingValue& rv = const_cast <RemainingValue&> (m_bankRemaining[tabId]);
         rv.resetTime = curTime;
         rv.value = tabId == GUILD_BANK_MAX_TABS ?
-            pGuild->_GetRankBankMoneyPerDay(m_rankId) :
-            pGuild->_GetRankBankTabSlotsPerDay(m_rankId, tabId);
+            guild->_GetRankBankMoneyPerDay(m_rankId) :
+            guild->_GetRankBankTabSlotsPerDay(m_rankId, tabId);
 
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(
             tabId == GUILD_BANK_MAX_TABS ?
@@ -1293,7 +1293,7 @@ void Guild::HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo)
 {
     Player* player = session->GetPlayer();
     if (!_IsLeader(player))
-        // "Only pGuild leaders can create emblems."
+        // "Only guild leaders can create emblems."
         SendSaveEmblemResult(session, ERR_GUILDEMBLEM_NOTGUILDMASTER);
     else if (!player->HasEnoughMoney(EMBLEM_PRICE))
         // "You can't afford to do that."
@@ -1634,7 +1634,7 @@ void Guild::HandleMemberDepositMoney(WorldSession* session, uint32 amount)
     if (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && sWorld->getBoolConfig(CONFIG_GM_LOG_TRADE))
     {
         sLog->outCommand(player->GetSession()->GetAccountId(),
-            "GM %s (Account: %u) deposit money (Amount: %u) to pGuild bank (Guild ID %u)",
+            "GM %s (Account: %u) deposit money (Amount: %u) to guild bank (Guild ID %u)",
             player->GetName(), player->GetSession()->GetAccountId(), amount, m_id);
     }
     // Log guild bank event

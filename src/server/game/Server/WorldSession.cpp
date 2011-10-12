@@ -458,8 +458,8 @@ void WorldSession::LogoutPlayer(bool Save)
             HandleMoveWorldportAckOpcode();
 
         ///- If the player is in a guild, update the guild roster and broadcast a logout message to other guild members
-        if (Guild* pGuild = sGuildMgr->GetGuildById(_player->GetGuildId()))
-            pGuild->HandleMemberLogout(this);
+        if (Guild* guild = sGuildMgr->GetGuildById(_player->GetGuildId()))
+            guild->HandleMemberLogout(this);
 
         ///- Remove pet
         _player->RemovePet(NULL, PET_SAVE_AS_CURRENT, true);
@@ -511,7 +511,7 @@ void WorldSession::LogoutPlayer(bool Save)
         _player->CleanupsBeforeDelete();
         sLog->outChar("Account: %d (IP: %s) Logout Character:[%s] (GUID: %u)", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUIDLow());
         Map* _map = _player->GetMap();
-        _map->Remove(_player, true);
+        _map->RemoveFromMap(_player, true);
         SetPlayer(NULL);                                    // deleted in Remove call
 
         ///- Send the 'logout complete' packet to the client
@@ -1000,22 +1000,6 @@ void WorldSession::InitializeQueryCallbackParameters()
 void WorldSession::ProcessQueryCallbacks()
 {
     QueryResult result;
-
-    //! HandleNameQueryOpcode
-    while (!_nameQueryCallbacks.is_empty())
-    {
-        QueryResultFuture lResult;
-        ACE_Time_Value timeout = ACE_Time_Value::zero;
-        if (_nameQueryCallbacks.next_readable(lResult, &timeout) != 1)
-           break;
-
-        if (lResult.ready())
-        {
-            lResult.get(result);
-            SendNameQueryOpcodeFromDBCallBack(result);
-            lResult.cancel();
-        }
-    }
 
     //! HandleCharEnumOpcode
     if (_charEnumCallback.ready())

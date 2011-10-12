@@ -31,91 +31,44 @@
 #include "Pet.h"
 #include "MapManager.h"
 
-void WorldSession::SendNameQueryOpcode(Player* p)
+void WorldSession::SendNameQueryOpcode(uint64 guid)
 {
-    if (!p)
-        return;
+    Player* player = NULL;
+    const CharacterNameData* nameData = sWorld->GetCharacterNameData(GUID_LOPART(guid));
+    if (nameData)
+        player = ObjectAccessor::FindPlayer(guid);
+
                                                             // guess size
     WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+10));
-    data.append(p->GetPackGUID());                          // player guid
+    data.appendPackGUID(guid);
     data << uint8(0);                                       // added in 3.1
-    data << p->GetName();                                   // played name
-    data << uint8(0);                                       // realm name for cross realm BG usage
-    data << uint8(p->getRace());
-    data << uint8(p->getGender());
-    data << uint8(p->getClass());
-    if (DeclinedName const* names = p->GetDeclinedNames())
+    if (nameData)
     {
-        data << uint8(1);                                   // is declined
-        for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
-            data << names->name[i];
+        data << nameData->m_name;                                   // played name
+        data << uint8(0);                                       // realm name for cross realm BG usage
+        data << uint8(nameData->m_race);
+        data << uint8(nameData->m_gender);
+        data << uint8(nameData->m_class);
     }
     else
-        data << uint8(0);                                   // is not declined
-
-    SendPacket(&data);
-}
-
-void WorldSession::SendNameQueryOpcodeFromDB(uint64 guid)
-{
-    QueryResultFuture lFutureResult =
-        CharacterDatabase.AsyncPQuery(
-            !sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) ?
-        //   ------- Query Without Declined Names --------
-        //          0     1     2     3       4
-            "SELECT guid, name, race, gender, class "
-            "FROM characters WHERE guid = '%u'"
-            :
-        //   --------- Query With Declined Names ---------
-        //          0                1     2     3       4
-            "SELECT characters.guid, name, race, gender, class, "
-        //   5         6       7           8             9
-            "genitive, dative, accusative, instrumental, prepositional "
-            "FROM characters LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid WHERE characters.guid = '%u'",
-            GUID_LOPART(guid)
-        );
-
-    _nameQueryCallbacks.insert(lFutureResult);
-
-// CharacterDatabase.AsyncPQuery(&WorldSession::SendNameQueryOpcodeFromDBCallBack, GetAccountId(),
-}
-
-void WorldSession::SendNameQueryOpcodeFromDBCallBack(QueryResult result)
-{
-    if (!result)
-        return;
-
-    Field* fields = result->Fetch();
-    uint32 guid      = fields[0].GetUInt32();
-    std::string name = fields[1].GetString();
-    uint8 pRace = 0, pGender = 0, pClass = 0;
-    if (name == "")
-        name         = GetTrinityString(LANG_NON_EXIST_CHARACTER);
-    else
     {
-        pRace        = fields[2].GetUInt8();
-        pGender      = fields[3].GetUInt8();
-        pClass       = fields[4].GetUInt8();
+        data << std::string(GetTrinityString(LANG_NON_EXIST_CHARACTER));
+        data << uint32(0);
     }
-                                                            // guess size
-    WorldPacket data(SMSG_NAME_QUERY_RESPONSE, (8+1+1+1+1+1+1+10));
-    data.appendPackGUID(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
-    data << uint8(0);                                       // added in 3.1
-    data << name;
-    data << uint8(0);                                       // realm name for cross realm BG usage
-    data << uint8(pRace);                                   // race
-    data << uint8(pGender);                                 // gender
-    data << uint8(pClass);                                  // class
 
-    // if the first declined name field (5) is empty, the rest must be too
-    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) && fields[5].GetString() != "")
+    if (player)
     {
-        data << uint8(1);                                   // is declined
-        for (int i = 5; i < MAX_DECLINED_NAME_CASES+5; ++i)
-            data << fields[i].GetString();
+        if (DeclinedName const* names = player->GetDeclinedNames())
+        {
+            data << uint8(1);                                   // is declined
+            for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+                data << names->name[i];
+        }
+        else
+            data << uint8(0);                                   // is not declined
     }
-    else
-        data << uint8(0);                                   // is not declined
+    else //TODO: decline names may also need to be stored in char name data
+        data << uint8(0);
 
     SendPacket(&data);
 }
@@ -126,10 +79,10 @@ void WorldSession::HandleNameQueryOpcode(WorldPacket& recv_data)
 
     recv_data >> guid;
 
-    if (Player* pChar = ObjectAccessor::FindPlayer(guid))
-        SendNameQueryOpcode(pChar);
-    else
-        SendNameQueryOpcodeFromDB(guid);
+    // This is disable by default to prevent lots of console spam
+    // sLog->outString("HandleNameQueryOpcode %u", guid);
+
+    SendNameQueryOpcode(guid);
 }
 
 void WorldSession::HandleQueryTimeOpcode(WorldPacket & /*recv_data*/)

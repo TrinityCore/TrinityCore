@@ -91,10 +91,10 @@ public:
     {
         boss_felblood_kaelthasAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 FireballTimer;
         uint32 PhoenixTimer;
@@ -138,10 +138,10 @@ public:
 
             Phase = 0;
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), true);
+                instance->SetData(DATA_KAELTHAS_EVENT, NOT_STARTED);
+                instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
                // Open the big encounter door. Close it in Aggro and open it only in JustDied(and here)
                // Small door opened after event are expected to be closed by default
             }
@@ -151,10 +151,10 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), true);
+            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), true);
             // Open the encounter door
         }
 
@@ -166,10 +166,10 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
-            pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_DOOR), false);
+            instance->HandleGameObject(instance->GetData64(DATA_KAEL_DOOR), false);
            //Close the encounter door, open it in JustDied/Reset
         }
 
@@ -193,11 +193,11 @@ public:
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && pUnit->isAlive())
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && unit->isAlive())
                 {
-                    float threat = me->getThreatManager().getThreat(pUnit);
-                    SummonedUnit->AddThreat(pUnit, threat);
+                    float threat = me->getThreatManager().getThreat(unit);
+                    SummonedUnit->AddThreat(unit, threat);
                 }
             }
         }
@@ -206,14 +206,14 @@ public:
         {
             float x = KaelLocations[0][0];
             float y = KaelLocations[0][1];
-            me->GetMap()->CreatureRelocation(me, x, y, LOCATION_Z, 0.0f);
+            me->SetPosition(x, y, LOCATION_Z, 0.0f);
             //me->SendMonsterMove(x, y, LOCATION_Z, 0, 0, 0); // causes some issues...
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
-                    pUnit->CastSpell(pUnit, SPELL_TELEPORT_CENTER, true);
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                    unit->CastSpell(unit, SPELL_TELEPORT_CENTER, true);
             }
             DoCast(me, SPELL_TELEPORT_CENTER, true);
         }
@@ -223,10 +223,10 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                     // Knockback into the air
-                    pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, me->GetGUID());
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_DOT, true, 0, 0, me->GetGUID());
             }
         }
 
@@ -235,17 +235,17 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
                     // Also needs an exception in spell system.
-                    pUnit->CastSpell(pUnit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, me->GetGUID());
+                    unit->CastSpell(unit, SPELL_GRAVITY_LAPSE_FLY, true, 0, 0, me->GetGUID());
                     // Use packet hack
                     WorldPacket data(12);
                     data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
-                    data.append(pUnit->GetPackGUID());
+                    data.append(unit->GetPackGUID());
                     data << uint32(0);
-                    pUnit->SendMessageToSet(&data, true);
+                    unit->SendMessageToSet(&data, true);
                 }
             }
         }
@@ -255,17 +255,17 @@ public:
             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
             for (i = me->getThreatManager().getThreatList().begin(); i!= me->getThreatManager().getThreatList().end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && (pUnit->GetTypeId() == TYPEID_PLAYER))
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
                 {
-                    pUnit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
-                    pUnit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
+                    unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_FLY);
+                    unit->RemoveAurasDueToSpell(SPELL_GRAVITY_LAPSE_DOT);
 
                     WorldPacket data(12);
                     data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
-                    data.append(pUnit->GetPackGUID());
+                    data.append(unit->GetPackGUID());
                     data << uint32(0);
-                    pUnit->SendMessageToSet(&data, true);
+                    unit->SendMessageToSet(&data, true);
                 }
             }
         }
@@ -361,10 +361,10 @@ public:
                                     DoScriptText(SAY_GRAVITY_LAPSE, me);
                                     FirstGravityLapse = false;
 
-                                    if (pInstance)
+                                    if (instance)
                                     {
-                                        pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_STATUE_LEFT), true);
-                                        pInstance->HandleGameObject(pInstance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
+                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_LEFT), true);
+                                        instance->HandleGameObject(instance->GetData64(DATA_KAEL_STATUE_RIGHT), true);
                                     }
                                 }else
                                 {
@@ -485,10 +485,10 @@ public:
     {
         mob_felkael_phoenixAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint32 BurnTimer;
         uint32 Death_Timer;
         bool Rebirth;
@@ -520,7 +520,7 @@ public:
 
             }
             //Don't really die in all phases of Kael'Thas
-            if (pInstance && pInstance->GetData(DATA_KAELTHAS_EVENT) == 0)
+            if (instance && instance->GetData(DATA_KAELTHAS_EVENT) == 0)
             {
                 //prevent death
                 damage = 0;

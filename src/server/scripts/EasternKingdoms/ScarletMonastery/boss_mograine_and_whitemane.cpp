@@ -67,10 +67,10 @@ public:
     {
         boss_scarlet_commander_mograineAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = creature->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         uint32 m_uiCrusaderStrike_Timer;
         uint32 m_uiHammerOfJustice_Timer;
@@ -89,9 +89,9 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetStandState(UNIT_STAND_STATE_STAND);
 
-            if (m_pInstance)
+            if (m_instance)
                 if (me->isAlive())
-                    m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
+                    m_instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
 
             m_bHasDied = false;
             m_bHeal = false;
@@ -100,10 +100,10 @@ public:
 
         void JustReachedHome()
         {
-            if (m_pInstance)
+            if (m_instance)
             {
-                if (m_pInstance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT != NOT_STARTED))
-                    m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, FAIL);
+                if (m_instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT != NOT_STARTED))
+                    m_instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, FAIL);
             }
         }
 
@@ -125,13 +125,13 @@ public:
             if (uiDamage < me->GetHealth() || m_bHasDied || m_bFakeDeath)
                 return;
 
-            if (!m_pInstance)
+            if (!m_instance)
                 return;
 
             //On first death, fake death and open door, as well as initiate whitemane if exist
-            if (Unit* Whitemane = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_WHITEMANE)))
+            if (Unit* Whitemane = Unit::GetUnit((*me), m_instance->GetData64(DATA_WHITEMANE)))
             {
-                m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
+                m_instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, IN_PROGRESS);
 
                 Whitemane->GetMotionMaster()->MovePoint(1, 1163.113370f, 1398.856812f, 32.527786f);
 
@@ -165,8 +165,8 @@ public:
                 DoScriptText(SAY_MO_RESSURECTED, me);
                 m_bFakeDeath = false;
 
-                if (m_pInstance)
-                    m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, SPECIAL);
+                if (m_instance)
+                    m_instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, SPECIAL);
             }
         }
 
@@ -175,10 +175,10 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (m_bHasDied && !m_bHeal && m_pInstance && m_pInstance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
+            if (m_bHasDied && !m_bHeal && m_instance && m_instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == SPECIAL)
             {
                 //On ressurection, stop fake death and heal whitemane and resume fight
-                if (Unit* Whitemane = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_WHITEMANE)))
+                if (Unit* Whitemane = Unit::GetUnit((*me), m_instance->GetData64(DATA_WHITEMANE)))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     me->SetStandState(UNIT_STAND_STATE_STAND);
@@ -232,10 +232,10 @@ public:
     {
         boss_high_inquisitor_whitemaneAI(Creature* creature) : ScriptedAI(creature)
         {
-            m_pInstance = creature->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         uint32 m_uiHeal_Timer;
         uint32 m_uiPowerWordShield_Timer;
@@ -255,14 +255,14 @@ public:
             m_bCanResurrectCheck = false;
             m_bCanResurrect = false;
 
-            if (m_pInstance)
+            if (m_instance)
                 if (me->isAlive())
-                    m_pInstance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
+                    m_instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, NOT_STARTED);
         }
 
         void AttackStart(Unit* who)
         {
-            if (m_pInstance && m_pInstance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == NOT_STARTED)
+            if (m_instance && m_instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) == NOT_STARTED)
                 return;
 
             ScriptedAI::AttackStart(who);
@@ -286,9 +286,9 @@ public:
             if (m_bCanResurrect)
             {
                 //When casting resuruction make sure to delay so on rez when reinstate battle deepsleep runs out
-                if (m_pInstance && m_uiWait_Timer <= uiDiff)
+                if (m_instance && m_uiWait_Timer <= uiDiff)
                 {
-                    if (Unit* Mograine = Unit::GetUnit((*me), m_pInstance->GetData64(DATA_MOGRAINE)))
+                    if (Unit* Mograine = Unit::GetUnit((*me), m_instance->GetData64(DATA_MOGRAINE)))
                     {
                         DoCast(Mograine, SPELL_SCARLETRESURRECTION);
                         DoScriptText(SAY_WH_RESSURECT, me);
@@ -322,9 +322,9 @@ public:
                 if (!HealthAbovePct(75))
                     target = me;
 
-                if (m_pInstance)
+                if (m_instance)
                 {
-                    if (Creature* pMograine = Unit::GetCreature((*me), m_pInstance->GetData64(DATA_MOGRAINE)))
+                    if (Creature* pMograine = Unit::GetCreature((*me), m_instance->GetData64(DATA_MOGRAINE)))
                     {
                         // checking m_bCanResurrectCheck prevents her healing Mograine while he is "faking death"
                         if (m_bCanResurrectCheck && pMograine->isAlive() && !pMograine->HealthAbovePct(75))

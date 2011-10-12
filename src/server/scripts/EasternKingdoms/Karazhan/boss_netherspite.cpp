@@ -72,7 +72,7 @@ public:
     {
         boss_netherspiteAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
 
             for (int i=0; i<3; ++i)
             {
@@ -82,7 +82,7 @@ public:
             }
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool PortalPhase;
         bool Berserk;
@@ -247,7 +247,7 @@ public:
 
         void HandleDoors(bool open) // Massive Door switcher
         {
-            if (GameObject* Door = GameObject::GetGameObject(*me, pInstance ? pInstance->GetData64(DATA_GO_MASSIVE_DOOR) : 0))
+            if (GameObject* Door = GameObject::GetGameObject(*me, instance ? instance->GetData64(DATA_GO_MASSIVE_DOOR) : 0))
                 Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
         }
 

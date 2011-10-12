@@ -38,12 +38,12 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        if (InstanceScript* pInstance = pGO->GetInstanceScript())
+        if (InstanceScript* instance = pGO->GetInstanceScript())
         {
-            if (pInstance->GetData(TYPE_BARREL_DIVERSION) == DONE)
+            if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
                 return false;
 
-            pInstance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+            instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
         }
 
         return false;

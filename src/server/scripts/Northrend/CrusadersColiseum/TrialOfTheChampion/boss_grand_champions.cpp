@@ -91,9 +91,9 @@ const Point MovementPoint[] =
   {750.23f, 618.35f, 411.09f}
 };
 */
-void AggroAllPlayers(Creature* pTemp)
+void AggroAllPlayers(Creature* temp)
 {
-    Map::PlayerList const &PlList = pTemp->GetMap()->GetPlayers();
+    Map::PlayerList const &PlList = temp->GetMap()->GetPlayers();
 
     if (PlList.isEmpty())
             return;
@@ -107,11 +107,11 @@ void AggroAllPlayers(Creature* pTemp)
 
             if (player->isAlive())
             {
-                pTemp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                pTemp->SetReactState(REACT_AGGRESSIVE);
-                pTemp->SetInCombatWith(player);
-                player->SetInCombatWith(pTemp);
-                pTemp->AddThreat(player, 0.0f);
+                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                temp->SetReactState(REACT_AGGRESSIVE);
+                temp->SetInCombatWith(player);
+                player->SetInCombatWith(temp);
+                temp->AddThreat(player, 0.0f);
             }
         }
     }
@@ -119,14 +119,14 @@ void AggroAllPlayers(Creature* pTemp)
 
 bool GrandChampionsOutVehicle(Creature* me)
 {
-    InstanceScript* pInstance = me->GetInstanceScript();
+    InstanceScript* instance = me->GetInstanceScript();
 
-    if (!pInstance)
+    if (!instance)
         return false;
 
-    Creature* pGrandChampion1 = Unit::GetCreature(*me, pInstance->GetData64(DATA_GRAND_CHAMPION_1));
-    Creature* pGrandChampion2 = Unit::GetCreature(*me, pInstance->GetData64(DATA_GRAND_CHAMPION_2));
-    Creature* pGrandChampion3 = Unit::GetCreature(*me, pInstance->GetData64(DATA_GRAND_CHAMPION_3));
+    Creature* pGrandChampion1 = Unit::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_1));
+    Creature* pGrandChampion2 = Unit::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_2));
+    Creature* pGrandChampion3 = Unit::GetCreature(*me, instance->GetData64(DATA_GRAND_CHAMPION_3));
 
     if (pGrandChampion1 && pGrandChampion2 && pGrandChampion3)
     {
@@ -156,10 +156,10 @@ public:
             SetDespawnAtEnd(false);
             uiWaypointPath = 0;
 
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiChargeTimer;
         uint32 uiShieldBreakerTimer;
@@ -208,12 +208,12 @@ public:
             switch (i)
             {
                 case 2:
-                    if ((pInstance && uiWaypointPath == 3) || uiWaypointPath == 2)
-                        pInstance->SetData(DATA_MOVEMENT_DONE, pInstance->GetData(DATA_MOVEMENT_DONE)+1);
+                    if ((instance && uiWaypointPath == 3) || uiWaypointPath == 2)
+                        instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE)+1);
                     break;
                 case 3:
-                    if (pInstance)
-                        pInstance->SetData(DATA_MOVEMENT_DONE, pInstance->GetData(DATA_MOVEMENT_DONE)+1);
+                    if (instance)
+                        instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE)+1);
                     break;
             }
         }
@@ -310,7 +310,7 @@ public:
     {
         boss_warrior_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -323,7 +323,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -362,11 +362,11 @@ public:
             {
                 bDone = true;
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                     me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
                 EnterEvadeMode();
@@ -422,8 +422,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            if (instance)
+                instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -443,7 +443,7 @@ public:
     {
         boss_mage_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -456,7 +456,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -496,15 +496,15 @@ public:
             {
                 bDone = true;
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                     me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -561,8 +561,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            if (instance)
+                instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -582,7 +582,7 @@ public:
     {
         boss_shaman_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -595,7 +595,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -641,15 +641,15 @@ public:
             {
                 bDone = true;
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                     me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -708,8 +708,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            if (instance)
+                instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -729,7 +729,7 @@ public:
     {
         boss_hunter_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -742,7 +742,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -787,15 +787,15 @@ public:
             {
                 bDone = true;
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                     me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -863,8 +863,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            if (instance)
+                instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 
@@ -884,7 +884,7 @@ public:
     {
         boss_rouge_toc5AI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             bDone = false;
             bHome = false;
@@ -897,7 +897,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiPhase;
         uint32 uiPhaseTimer;
@@ -934,15 +934,15 @@ public:
             {
                 bDone = true;
 
-                if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_1))
+                if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_1))
                     me->SetHomePosition(739.678f, 662.541f, 412.393f, 4.49f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_2))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_2))
                     me->SetHomePosition(746.71f, 661.02f, 411.69f, 4.6f);
-                else if (pInstance && me->GetGUID() == pInstance->GetData64(DATA_GRAND_CHAMPION_3))
+                else if (instance && me->GetGUID() == instance->GetData64(DATA_GRAND_CHAMPION_3))
                     me->SetHomePosition(754.34f, 660.70f, 412.39f, 4.79f);
 
-                if (pInstance)
-                    pInstance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(BOSS_GRAND_CHAMPIONS, IN_PROGRESS);
 
                 EnterEvadeMode();
                 bHome = true;
@@ -984,8 +984,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
+            if (instance)
+                instance->SetData(BOSS_GRAND_CHAMPIONS, DONE);
         }
     };
 

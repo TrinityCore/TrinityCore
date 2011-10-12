@@ -54,10 +54,10 @@ public:
     {
         boss_captain_skarlocAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 Holy_Light_Timer;
         uint32 Cleanse_Timer;
@@ -92,8 +92,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
-                pInstance->SetData(TYPE_THRALL_PART1, DONE);
+            if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
+                instance->SetData(TYPE_THRALL_PART1, DONE);
         }
 
         void UpdateAI(const uint32 diff)

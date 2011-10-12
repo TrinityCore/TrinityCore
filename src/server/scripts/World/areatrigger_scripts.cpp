@@ -99,9 +99,9 @@ class AreaTrigger_at_coilfang_waterfall : public AreaTriggerScript
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
-            if (GameObject* pGo = GetClosestGameObjectWithEntry(player, GO_COILFANG_WATERFALL, 35.0f))
-                if (pGo->getLootState() == GO_READY)
-                    pGo->UseDoorOrButton();
+            if (GameObject* go = GetClosestGameObjectWithEntry(player, GO_COILFANG_WATERFALL, 35.0f))
+                if (go->getLootState() == GO_READY)
+                    go->UseDoorOrButton();
 
             return false;
         }
