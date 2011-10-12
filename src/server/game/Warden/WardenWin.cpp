@@ -242,6 +242,11 @@ void WardenWin::RequestData()
         _currentChecks.push_back(id);
 
         wd = sWardenCheckMgr->GetWardenDataById(id);
+
+        // Skip if checks aren't in the stores anymore (e.g. by database edit & reload during runtime)
+        if (!wd)
+            continue;
+
         switch (wd->Type)
         {
             case MPQ_CHECK:
@@ -264,7 +269,11 @@ void WardenWin::RequestData()
 
     for (std::list<uint32>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
     {
+        // Skip if checks aren't in the stores anymore (e.g. by database edit & reload during runtime)
         wd = sWardenCheckMgr->GetWardenDataById(*itr);
+
+        if (!wd)
+            continue;
 
         type = wd->Type;
         buff << uint8(type ^ xorByte);
@@ -404,6 +413,10 @@ void WardenWin::HandleData(ByteBuffer &buff)
     {
         rd = sWardenCheckMgr->GetWardenDataById(*itr);
         rs = sWardenCheckMgr->GetWardenResultById(*itr);
+
+        // Skip if checks aren't in the stores anymore (e.g. by database edit & reload during runtime)
+        if (!rd || !rs)
+            continue;
 
         type = rd->Type;
         switch (type)
