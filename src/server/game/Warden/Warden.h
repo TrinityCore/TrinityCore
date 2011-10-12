@@ -124,7 +124,7 @@ class Warden
         uint32 _checkTimer;                          // Timer for sending check requests
         bool _dataSent;
         uint32 _clientResponseTimer;                 // Timer for client response delay
-        uint32 _clientRespExceedCounter;             // DEBUG CODE:
+        time_t _requestSent;                         // DEBUG CODE
         uint32 _previousTimestamp;
         ClientWardenModule *_module;
         bool _initialized;

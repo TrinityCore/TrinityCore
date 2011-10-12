@@ -330,6 +330,9 @@ void WardenWin::RequestData()
     pkt.append(buff);
     _session->SendPacket(&pkt);
 
+    // DEBUG CODE: Save time the request was sent for later comparison
+    _requestSent = time(NULL);
+
     _dataSent = true;
 
     std::stringstream stream;
@@ -347,11 +350,10 @@ void WardenWin::HandleData(ByteBuffer &buff)
     _clientResponseTimer = 0;
 
     // DEBUG CODE
-    if (_clientRespExceedCounter > 0)
+    if (_requestSent < time(NULL) - 30)
     {
-        sLog->outError("WARDEN: Player %s (guid: %u, account: %u) exceeded max check delay %u times before reporting back",
-            _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), _clientRespExceedCounter);
-        _clientRespExceedCounter = 0;
+        sLog->outError("WARDEN: Player %s (guid: %u, account: %u) took %s to respond to warden check request",
+            _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), secsToTimeString(uint32(time(NULL)- _requestSent), true).c_str());
     }
 
     uint16 Length;

@@ -1438,10 +1438,10 @@ Warden.DebugLogFile = ""
 #
 #    Warden.ClientResponseDelay
 #        Description: Time (in seconds) before client is getting disconnecting for not responding.
-#        Default:     90 - (90 Seconds)
+#        Default:     3600 - (1 Hour)
 #                      0 - (Disabled, client won't be kicked)
 
-Warden.ClientResponseDelay = 90
+Warden.ClientResponseDelay = 3600
 
 #
 #    Warden.ClientCheckPeriod

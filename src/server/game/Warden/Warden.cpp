@@ -32,7 +32,7 @@
 
 Warden::Warden() : _inputCrypto(16), _outputCrypto(16), _checkTimer(10000/*10 sec*/), _clientResponseTimer(0), _dataSent(false), _initialized(false)
 {
-    _clientRespExceedCounter = 0;       // DEBUG CODE
+    _requestSent = 0;       // DEBUG CODE
 }
 
 Warden::~Warden()
@@ -142,16 +142,10 @@ void Warden::Update()
                 // Kick player if client response delays more than set in config
                 if (_clientResponseTimer > maxClientResponseDelay * IN_MILLISECONDS)
                 {
-                    sLog->outError("WARDEN: Player %s (guid: %u, account: %u) exceeded Warden module response delay. Action: %s (Latency: %u, IP: %s)",
-                                    _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), Penalty().c_str(), _session->GetLatency(),
-                                    _session->GetRemoteAddress().c_str());
-
-                    // If action is set to "none" we reset the client response timer to prevent this condition from triggering repeatedly
-                    if (sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION) == 0)
-                    {
-                        _clientResponseTimer = 0;
-                        _clientRespExceedCounter++; // DEBUG CODE
-                    }
+                    sLog->outError("WARDEN: Player %s (guid: %u, account: %u, latency: %u, IP: %s) exceeded Warden module response delay for more than %s - disconnecting client",
+                                   _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), _session->GetLatency(), _session->GetRemoteAddress().c_str(),
+                                   secsToTimeString(maxClientResponseDelay, true).c_str());
+                    _session->KickPlayer();
                 }
                 else
                     _clientResponseTimer += diff;
