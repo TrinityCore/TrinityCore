@@ -1984,6 +1984,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
 
                 // Akama->GetMotionMaster()->MoveIdle();
                 Akama->SetPosition(x, y, z, 0.0f);
+                Akama->GetMotionMaster()->MoveChase(me);
                 Akama->SendMonsterMove(x, y, z, 0, MOVEMENTFLAG_NONE, 0); // Illidan must not die until Akama arrives.
 
             }
