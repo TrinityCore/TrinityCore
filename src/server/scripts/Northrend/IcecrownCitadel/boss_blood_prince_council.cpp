@@ -241,23 +241,7 @@ class boss_blood_council_controller : public CreatureScript
                 }
 
                 if (IsHeroic())
-                {
-                    Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
-                    if (PlList.isEmpty())
-                        return;
-
-                    for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
-                    {
-                        if (Player* player = i->getSource())
-                        {
-                            if (player->isGameMaster())
-                                continue;
-
-                            if (player->isAlive())
-                                player->AddAura(SPELL_SHADOW_PRISON_DUMMY, player);
-                        }
-                    }
-                }
+                    me->AddAura(SPELL_SHADOW_PRISON_DUMMY, me);
             }
 
             void SetData(uint32 /*type*/, uint32 data)
@@ -297,8 +281,6 @@ class boss_blood_council_controller : public CreatureScript
                         killer->Kill(prince);
                     }
                 }
-
-                instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SHADOW_PRISON_DUMMY);
             }
 
             void UpdateAI(uint32 const diff)
