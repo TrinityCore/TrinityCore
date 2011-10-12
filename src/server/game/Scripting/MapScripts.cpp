@@ -539,8 +539,8 @@ void Map::ScriptsProcess()
 
                 // when script called for item spell casting then target == (unit or GO) and source is player
                 WorldObject* worldObject;
-                Player* pTarget = target->ToPlayer();
-                if (pTarget)
+                Player* plrTarget = target->ToPlayer();
+                if (plrTarget)
                 {
                     if (source->GetTypeId() != TYPEID_UNIT && source->GetTypeId() != TYPEID_GAMEOBJECT && source->GetTypeId() != TYPEID_PLAYER)
                     {
@@ -552,8 +552,8 @@ void Map::ScriptsProcess()
                 }
                 else
                 {
-                    pTarget = source->ToPlayer();
-                    if (target)
+                    plrTarget = source->ToPlayer();
+                    if (plrTarget)
                     {
                         if (target->GetTypeId() != TYPEID_UNIT && target->GetTypeId() != TYPEID_GAMEOBJECT && target->GetTypeId() != TYPEID_PLAYER)
                         {
@@ -566,19 +566,18 @@ void Map::ScriptsProcess()
                     else
                     {
                         sLog->outError("%s neither source nor target is player (source: TypeId: %u, Entry: %u, GUID: %u; target: TypeId: %u, Entry: %u, GUID: %u), skipping.",
-                            step.script->GetDebugInfo().c_str(),
-                            source ? source->GetTypeId() : 0, source ? source->GetEntry() : 0, source ? source->GetGUIDLow() : 0,
-                            target ? target->GetTypeId() : 0, target ? target->GetEntry() : 0, target ? target->GetGUIDLow() : 0);
+                            step.script->GetDebugInfo().c_str(), source->GetTypeId(), source->GetEntry(), source->GetGUIDLow(),
+                            target->GetTypeId(), target->GetEntry(), target->GetGUIDLow());
                         break;
                     }
                 }
 
                 // quest id and flags checked at script loading
                 if ((worldObject->GetTypeId() != TYPEID_UNIT || ((Unit*)worldObject)->isAlive()) &&
-                    (step.script->QuestExplored.Distance == 0 || worldObject->IsWithinDistInMap(pTarget, float(step.script->QuestExplored.Distance))))
-                    pTarget->AreaExploredOrEventHappens(step.script->QuestExplored.QuestID);
+                    (step.script->QuestExplored.Distance == 0 || worldObject->IsWithinDistInMap(plrTarget, float(step.script->QuestExplored.Distance))))
+                    plrTarget->AreaExploredOrEventHappens(step.script->QuestExplored.QuestID);
                 else
-                    pTarget->FailQuest(step.script->QuestExplored.QuestID);
+                    plrTarget->FailQuest(step.script->QuestExplored.QuestID);
 
                 break;
             }
