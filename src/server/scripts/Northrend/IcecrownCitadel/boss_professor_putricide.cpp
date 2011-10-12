@@ -851,7 +851,7 @@ class spell_putricide_slime_puddle : public SpellScriptLoader
             }
         };
 
-        AuraScript* GetAuraScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_putricide_slime_puddle_SpellScript();
         }
