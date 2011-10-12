@@ -62,12 +62,12 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_SNAP_KICK, 8*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE, 14*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_UPPERCUT, 20*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_PUMMEL, 32*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_THROW_AXE, 1*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SNAP_KICK, 8 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE,   14 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_UPPERCUT, 20 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_PUMMEL,   32 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_THROW_AXE, 1 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*who*/)
@@ -91,27 +91,27 @@ public:
                 {
                     case EVENT_SNAP_KICK:
                         DoCast(me->getVictim(), SPELL_SNAPKICK);
-                        events.ScheduleEvent(EVENT_SNAP_KICK, 6*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SNAP_KICK, 6 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
                         DoCast(me->getVictim(), SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 12*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CLEAVE, 12 * IN_MILLISECONDS);
                         break;
                     case EVENT_UPPERCUT:
                         DoCast(me->getVictim(), SPELL_UPPERCUT);
-                        events.ScheduleEvent(EVENT_UPPERCUT, 14*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_UPPERCUT, 14 * IN_MILLISECONDS);
                         break;
                     case EVENT_MORTAL_STRIKE:
                         DoCast(me->getVictim(), SPELL_MORTALSTRIKE);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 10*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_PUMMEL:
                         DoCast(me->getVictim(), SPELL_PUMMEL);
-                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 16*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_MORTAL_STRIKE, 16 * IN_MILLISECONDS);
                         break;
                     case EVENT_THROW_AXE:
                         DoCast(me->getVictim(), SPELL_THROWAXE);
-                        events.ScheduleEvent(EVENT_THROW_AXE, 8*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_THROW_AXE, 8 * IN_MILLISECONDS);
                         break;
                 }
             }

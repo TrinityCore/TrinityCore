@@ -74,9 +74,9 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_SUMMON_DRAGON_PACK, 3*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SUMMON_ORC_PACK, 60*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_AGGRO, 60*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUMMON_DRAGON_PACK, 3 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUMMON_ORC_PACK, 60 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_AGGRO, 60 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*who*/)
@@ -87,7 +87,7 @@ public:
         void SummonCreatureWithRandomTarget(uint32 creatureId, uint8 count)
         {
             for (uint8 n = 0; n < count; n++)
-                if (Unit* Summoned = me->SummonCreature(creatureId, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 240*IN_MILLISECONDS))
+                if (Unit* Summoned = me->SummonCreature(creatureId, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 240 * IN_MILLISECONDS))
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
                         Summoned->AddThreat(target, 250.0f);
         }
@@ -99,7 +99,7 @@ public:
 
             if (!SummonedRend && HealthBelowPct(11))
             {
-                events.ScheduleEvent(EVENT_SUMMON_REND, 8*IN_MILLISECONDS);
+                events.ScheduleEvent(EVENT_SUMMON_REND, 8 * IN_MILLISECONDS);
                 SummonedRend = true;
             }
 
@@ -118,10 +118,10 @@ public:
                         me->InterruptNonMeleeSpells(false);
                         // Gyth model
                         me->SetDisplayId(me->GetCreatureInfo()->Modelid1);
-                        me->SummonCreature(NPC_WARCHIEF_REND_BLACKHAND, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900*IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 8*IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_FREEZE, 11*IN_MILLISECONDS);
-                        events.ScheduleEvent(EVENT_FLAME_BREATH, 4*IN_MILLISECONDS);
+                        me->SummonCreature(NPC_WARCHIEF_REND_BLACKHAND, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 8 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_FREEZE, 11 * IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_FLAME_BREATH, 4 * IN_MILLISECONDS);
                         events.CancelEvent(EVENT_SUMMON_REND);
                         break;
                     case EVENT_AGGRO:
@@ -152,11 +152,11 @@ public:
                         break;
                     case EVENT_CORROSIVE_ACID:
                         DoCast(me->getVictim(), SPELL_CORROSIVE_ACID);
-                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 7*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CORROSIVE_ACID, 7 * IN_MILLISECONDS);
                         break;
                     case EVENT_FREEZE:
                         DoCast(me->getVictim(), SPELL_FREEZE);
-                        events.ScheduleEvent(EVENT_FREEZE, 16*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_FREEZE, 16 * IN_MILLISECONDS);
                         break;
                     case EVENT_FLAME_BREATH:
                         DoCast(me->getVictim(), SPELL_FLAMEBREATH);
