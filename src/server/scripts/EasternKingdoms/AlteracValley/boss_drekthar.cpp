@@ -48,23 +48,23 @@ public:
 
     struct boss_drektharAI : public ScriptedAI
     {
-        boss_drektharAI(Creature* c) : ScriptedAI(c) {}
+        boss_drektharAI(Creature* creature) : ScriptedAI(creature) {}
 
-        uint32 uiWhirlwindTimer;
-        uint32 uiWhirlwind2Timer;
-        uint32 uiKnockdownTimer;
-        uint32 uiFrenzyTimer;
-        uint32 uiYellTimer;
-        uint32 uiResetTimer;
+        uint32 WhirlwindTimer;
+        uint32 Whirlwind2Timer;
+        uint32 KnockdownTimer;
+        uint32 FrenzyTimer;
+        uint32 YellTimer;
+        uint32 ResetTimer;
 
         void Reset()
         {
-            uiWhirlwindTimer = urand(1*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            uiWhirlwind2Timer = urand(1*IN_MILLISECONDS, 20*IN_MILLISECONDS);
-            uiKnockdownTimer = 12*IN_MILLISECONDS;
-            uiFrenzyTimer = 6*IN_MILLISECONDS;
-            uiResetTimer = 5*IN_MILLISECONDS;
-            uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS); //20 to 30 seconds
+            WhirlwindTimer    = urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            Whirlwind2Timer   = urand(1 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
+            KnockdownTimer    = 12 * IN_MILLISECONDS;
+            FrenzyTimer       = 6 * IN_MILLISECONDS;
+            ResetTimer        = 5 * IN_MILLISECONDS;
+            YellTimer         = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -83,46 +83,46 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiWhirlwindTimer <= diff)
+            if (WhirlwindTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_WHIRLWIND);
-                uiWhirlwindTimer =  urand(8*IN_MILLISECONDS, 18*IN_MILLISECONDS);
-            } else uiWhirlwindTimer -= diff;
+                WhirlwindTimer =  urand(8 * IN_MILLISECONDS, 18 * IN_MILLISECONDS);
+            } else WhirlwindTimer -= diff;
 
-            if (uiWhirlwind2Timer <= diff)
+            if (Whirlwind2Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_WHIRLWIND2);
-                uiWhirlwind2Timer = urand(7*IN_MILLISECONDS, 25*IN_MILLISECONDS);
-            } else uiWhirlwind2Timer -= diff;
+                Whirlwind2Timer = urand(7 * IN_MILLISECONDS, 25 * IN_MILLISECONDS);
+            } else Whirlwind2Timer -= diff;
 
-            if (uiKnockdownTimer <= diff)
+            if (KnockdownTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_KNOCKDOWN);
-                uiKnockdownTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-            } else uiKnockdownTimer -= diff;
+                KnockdownTimer = urand(10 * IN_MILLISECONDS, 15 * IN_MILLISECONDS);
+            } else KnockdownTimer -= diff;
 
-            if (uiFrenzyTimer <= diff)
+            if (FrenzyTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FRENZY);
-                uiFrenzyTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
-            } else uiFrenzyTimer -= diff;
+                FrenzyTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS);
+            } else FrenzyTimer -= diff;
 
-            if (uiYellTimer <= diff)
+            if (YellTimer <= diff)
             {
                 DoScriptText(RAND(YELL_RANDOM1, YELL_RANDOM2, YELL_RANDOM3, YELL_RANDOM4, YELL_RANDOM5), me);
-                uiYellTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS); //20 to 30 seconds
-            } else uiYellTimer -= diff;
+                YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
+            } else YellTimer -= diff;
 
             // check if creature is not outside of building
-            if (uiResetTimer <= diff)
+            if (ResetTimer <= diff)
             {
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
                     DoScriptText(YELL_EVADE, me);
                 }
-                uiResetTimer = 5*IN_MILLISECONDS;
-            } else uiResetTimer -= diff;
+                ResetTimer = 5 * IN_MILLISECONDS;
+            } else ResetTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

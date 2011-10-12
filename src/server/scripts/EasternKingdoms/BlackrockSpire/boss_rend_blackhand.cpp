@@ -56,9 +56,9 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WHIRLWIND, 20*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE, 5*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_THUNDERCLAP, 9*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_WHIRLWIND,  20 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE,      5 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_THUNDERCLAP, 9 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*who*/)
@@ -82,15 +82,15 @@ public:
                 {
                     case EVENT_WHIRLWIND:
                         DoCast(me->getVictim(), SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, 18*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 18 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
                         DoCast(me->getVictim(), SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 10*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CLEAVE, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_THUNDERCLAP:
                         DoCast(me->getVictim(), SPELL_THUNDERCLAP);
-                        events.ScheduleEvent(EVENT_THUNDERCLAP, 16*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_THUNDERCLAP, 16 * IN_MILLISECONDS);
                         break;
                 }
             }
