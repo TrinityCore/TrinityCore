@@ -1206,7 +1206,6 @@ void AddSC_go_scripts()
     new go_resonite_cask;
     new go_sacred_fire_of_life;
     new go_tele_to_dalaran_crystal;
-    new go_tele_to_violet_stand;
     new go_fel_crystalforge;
     new go_bashir_crystalforge;
     new go_matrix_punchograph;
