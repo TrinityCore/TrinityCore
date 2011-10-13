@@ -2326,7 +2326,7 @@ class Player : public Unit, public GridObject<Player>
 
         bool HaveAtClient(WorldObject const* u) const { return u == this || m_clientGUIDs.find(u->GetGUID()) != m_clientGUIDs.end(); }
 
-        bool isValid() const;
+        bool IsNeverVisible() const;
 
         bool IsVisibleGloballyFor(Player* pl) const;
 
