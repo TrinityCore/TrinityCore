@@ -33,7 +33,7 @@ public:
     {
         instance_blackrock_spireMapScript(InstanceMap* map) : InstanceScript(map) {}
 
-        uint32 Encounter[MAX_ENCOUNTER];
+        uint32 encounter[MAX_ENCOUNTER];
         std::string m_strInstData;
         uint64 HighlordOmokk;
         uint64 ShadowHunterVoshgajin;
@@ -53,27 +53,27 @@ public:
         void Initialize()
         {
             SetBossNumber(MAX_ENCOUNTER);
-            HighlordOmokk = 0;
-            ShadowHunterVoshgajin = 0;
-            WarMasterVoone = 0;
-            MotherSmolderweb = 0;
-            UrokDoomhowl = 0;
-            QuartermasterZigris = 0;
-            GizrultheSlavener = 0;
-            Halycon = 0;
-            OverlordWyrmthalak = 0;
-            PyroguardEmberseer = 0;
-            WarchiefRendBlackhand = 0;
-            Gyth = 0;
-            TheBeast = 0;
-            GeneralDrakkisath = 0;
+            HighlordOmokk           = 0;
+            ShadowHunterVoshgajin   = 0;
+            WarMasterVoone          = 0;
+            MotherSmolderweb        = 0;
+            UrokDoomhowl            = 0;
+            QuartermasterZigris     = 0;
+            GizrultheSlavener       = 0;
+            Halycon                 = 0;
+            OverlordWyrmthalak      = 0;
+            PyroguardEmberseer      = 0;
+            WarchiefRendBlackhand   = 0;
+            Gyth                    = 0;
+            TheBeast                = 0;
+            GeneralDrakkisath       = 0;
         }
 
         bool IsEncounterInProgress() const
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             {
-                if (Encounter[i] == IN_PROGRESS)
+                if (encounter[i] == IN_PROGRESS)
                     return true;
             }
             return false;

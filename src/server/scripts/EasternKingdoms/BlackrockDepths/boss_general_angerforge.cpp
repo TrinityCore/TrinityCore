@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_General_Angerforge
-SD%Complete: 100
-SDComment:
-SDCategory: Blackrock Depths
-EndScriptData */
-
 #include "ScriptPCH.h"
 
 enum Spells
@@ -44,7 +37,7 @@ public:
 
     struct boss_general_angerforgeAI : public ScriptedAI
     {
-        boss_general_angerforgeAI(Creature* c) : ScriptedAI(c) {}
+        boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 MightyBlow_Timer;
         uint32 HamString_Timer;
@@ -54,16 +47,14 @@ public:
 
         void Reset()
         {
-            MightyBlow_Timer = 8000;
-            HamString_Timer = 12000;
-            Cleave_Timer = 16000;
-            Adds_Timer = 0;
-            Medics = false;
+            MightyBlow_Timer   = 8000;
+            HamString_Timer    = 12000;
+            Cleave_Timer       = 16000;
+            Adds_Timer         = 0;
+            Medics             = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void SummonAdds(Unit* victim)
         {
@@ -129,7 +120,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_general_angerforge()
