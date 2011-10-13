@@ -1383,15 +1383,15 @@ void Creature::DeleteFromDB()
     WorldDatabase.CommitTransaction(trans);
 }
 
-bool Creature::isVisibleForInState(WorldObject const* seer) const
+bool Creature::IsInvisibleDueToDespawn() const
 {
-    if (!Unit::isVisibleForInState(seer))
-        return false;
-
-    if (isAlive() || m_corpseRemoveTime > time(NULL))
+    if (Unit::IsInvisibleDueToDespawn())
         return true;
 
-    return false;
+    if (isAlive() || m_corpseRemoveTime > time(NULL))
+        return false;
+
+    return true;
 }
 
 bool Creature::canSeeAlways(WorldObject const* obj) const

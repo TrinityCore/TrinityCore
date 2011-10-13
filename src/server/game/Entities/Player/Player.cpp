@@ -21077,15 +21077,15 @@ WorldLocation Player::GetStartPosition() const
     return WorldLocation(mapId, info->positionX, info->positionY, info->positionZ, 0);
 }
 
-bool Player::isValid() const
+bool Player::IsNeverVisible() const
 {
-    if (!Unit::isValid())
-        return false;
+    if (Unit::IsNeverVisible())
+        return true;
 
     if (GetSession()->PlayerLogout() || GetSession()->PlayerLoading())
-        return false;
+        return true;
 
-    return true;
+    return false;
 }
 
 bool Player::canSeeAlways(WorldObject const* obj) const

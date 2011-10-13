@@ -419,7 +419,7 @@ class MapCreature
     friend class Map; //map for moving creatures
     friend class ObjectGridLoader; //grid loader for loading creatures
 
-public:
+protected:
     MapCreature() : _moveState(CREATURE_CELL_MOVE_NONE) {}
 
 private:
@@ -752,7 +752,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
         uint32 guid_transport;
 
-        bool isVisibleForInState(WorldObject const* seer) const;
+        bool IsInvisibleDueToDespawn() const;
         bool canSeeAlways(WorldObject const* obj) const;
     private:
         //WaypointMovementGenerator vars
