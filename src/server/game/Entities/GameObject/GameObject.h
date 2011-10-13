@@ -753,7 +753,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void TriggeringLinkedGameObject(uint32 trapEntry, Unit* target);
 
         bool isAlwaysVisibleFor(WorldObject const* seer) const;
-        bool isVisibleForInState(WorldObject const* seer) const;
+        bool IsInvisibleDueToDespawn() const;
 
         uint8 getLevelForTarget(WorldObject const* target) const
         {
