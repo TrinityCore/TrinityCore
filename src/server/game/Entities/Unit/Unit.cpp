@@ -12294,6 +12294,7 @@ bool Unit::_IsValidAssistTarget(Unit const* target, SpellInfo const* bySpell) co
     return true;
 }
 
+// returns negative amount on health reduction
 int32 Unit::ModifyHealth(int32 dVal)
 {
     int32 gain = 0;
@@ -12324,6 +12325,15 @@ int32 Unit::ModifyHealth(int32 dVal)
     }
 
     return gain;
+}
+
+// returns negative amount on health reduction
+int32 Unit::ModifyHealthPct(float pct, bool apply)
+{
+    float amount = (float)GetMaxHealth();
+    ApplyPercentModFloatVar(amount, pct, apply);
+
+    return ModifyHealth((int32)amount - (int32)GetMaxHealth());
 }
 
 int32 Unit::GetHealthGain(int32 dVal)

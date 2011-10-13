@@ -1361,6 +1361,7 @@ class Unit : public WorldObject
         void SetMaxHealth(uint32 val);
         inline void SetFullHealth() { SetHealth(GetMaxHealth()); }
         int32 ModifyHealth(int32 val);
+        int32 ModifyHealthPct(float pct, bool apply = true);
         int32 GetHealthGain(int32 dVal);
 
         Powers getPowerType() const { return Powers(GetByteValue(UNIT_FIELD_BYTES_0, 3)); }
