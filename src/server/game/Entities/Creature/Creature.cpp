@@ -1394,7 +1394,7 @@ bool Creature::IsInvisibleDueToDespawn() const
     return true;
 }
 
-bool Creature::_CanAlwaysSee(WorldObject const* obj) const
+bool Creature::CanAlwaysSee(WorldObject const* obj) const
 {
     if (IsAIEnabled && AI()->CanSeeAlways(obj))
         return true;

@@ -729,11 +729,6 @@ class WorldObject : public Object, public WorldLocation
         virtual void SaveRespawnTime() {}
         void AddObjectToRemoveList();
 
-        virtual bool IsAlwaysVisibleFor(WorldObject const* /*seer*/) const { return false; }
-        virtual bool IsInvisibleDueToDespawn() const { return false; }
-        //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
-        virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
-
         float GetGridActivationRange() const;
         float GetVisibilityRange() const;
         float GetSightRange(const WorldObject* target = NULL) const;
@@ -840,6 +835,10 @@ class WorldObject : public Object, public WorldLocation
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
 
         virtual bool IsNeverVisible() const { return !IsInWorld(); }
+        virtual bool IsAlwaysVisibleFor(WorldObject const* /*seer*/) const { return false; }
+        virtual bool IsInvisibleDueToDespawn() const { return false; }
+        //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
+        virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
     private:
         Map* m_currMap;                                    //current object's Map location
 
@@ -852,11 +851,11 @@ class WorldObject : public Object, public WorldLocation
 
         virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
 
-        bool _CanNeverSee(WorldObject const* obj) const { return GetMap() != obj->GetMap() || !InSamePhase(obj); }
-        virtual bool _CanAlwaysSee(WorldObject const* /*obj*/) const { return false; }
-        bool _CanDetect(WorldObject const* obj, bool ignoreStealth) const;
-        bool _CanDetectInvisibilityOf(WorldObject const* obj) const;
-        bool _CanDetectStealthOf(WorldObject const* obj) const;
+        bool CanNeverSee(WorldObject const* obj) const { return GetMap() != obj->GetMap() || !InSamePhase(obj); }
+        virtual bool CanAlwaysSee(WorldObject const* /*obj*/) const { return false; }
+        bool CanDetect(WorldObject const* obj, bool ignoreStealth) const;
+        bool CanDetectInvisibilityOf(WorldObject const* obj) const;
+        bool CanDetectStealthOf(WorldObject const* obj) const;
 };
 
 namespace Trinity

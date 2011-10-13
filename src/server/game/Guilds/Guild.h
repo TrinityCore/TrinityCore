@@ -524,7 +524,7 @@ private:
         uint8 GetContainer() const { return m_container; }
         uint8 GetSlotId() const { return m_slotId; }
     protected:
-        virtual InventoryResult _CanStore(Item* pItem, bool swap) = 0;
+        virtual InventoryResult CanStore(Item* pItem, bool swap) = 0;
 
         Guild* m_pGuild;
         Player* m_pPlayer;
@@ -547,7 +547,7 @@ private:
         Item* StoreItem(SQLTransaction& trans, Item* pItem);
         void LogBankEvent(SQLTransaction& trans, MoveItemData* pFrom, uint32 count) const;
     protected:
-        InventoryResult _CanStore(Item* pItem, bool swap);
+        InventoryResult CanStore(Item* pItem, bool swap);
     };
 
     class BankMoveItemData : public MoveItemData
@@ -566,12 +566,12 @@ private:
         void LogAction(MoveItemData* pFrom) const;
 
     protected:
-        InventoryResult _CanStore(Item* pItem, bool swap);
+        InventoryResult CanStore(Item* pItem, bool swap);
 
     private:
         Item* _StoreItem(SQLTransaction& trans, BankTab* pTab, Item* pItem, ItemPosCount& pos, bool clone) const;
         bool _ReserveSpace(uint8 slotId, Item* pItem, Item* pItemDest, uint32& count);
-        void _CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
+        void CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count);
     };
 
     typedef UNORDERED_MAP<uint32, Member*> Members;
