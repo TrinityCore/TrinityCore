@@ -4023,12 +4023,18 @@ void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurAp
         return;
 
     Unit* target = aurApp->GetTarget();
+    float amount = float(GetAmount());
 
-    // Unit will keep hp% after MaxHealth being modified if unit is alive.
-    float percent = target->GetHealthPct();
-    target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(GetAmount()), apply);
-    if (target->isAlive())
-        target->SetHealth(target->CountPctFromMaxHealth(int32(percent)));
+    if (apply)
+    {
+        target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, amount, apply);
+        target->ModifyHealthPct(amount, apply);
+    }
+    else
+    {
+        target->ModifyHealthPct(amount, apply);
+        target->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, amount, apply);
+    }
 }
 
 void AuraEffect::HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
