@@ -682,7 +682,6 @@ class WorldObject : public Object, public WorldLocation
             { return IsInDist2d(x, y, dist + GetObjectSize()); }
         bool IsWithinDist2d(const Position* pos, float dist) const
             { return IsInDist2d(pos, dist + GetObjectSize()); }
-        virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
         // use only if you will sure about placing both object at same map
         bool IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D = true) const
         {
@@ -730,16 +729,10 @@ class WorldObject : public Object, public WorldLocation
         virtual void SaveRespawnTime() {}
         void AddObjectToRemoveList();
 
-        virtual bool IsNeverVisible() const { return !IsInWorld(); }
-        virtual bool isAlwaysVisibleFor(WorldObject const* /*seer*/) const { return false; }
+        virtual bool IsAlwaysVisibleFor(WorldObject const* /*seer*/) const { return false; }
         virtual bool IsInvisibleDueToDespawn() const { return false; }
-        virtual bool canSeeAlways(WorldObject const* /*obj*/) const { return false; }
-        bool canDetect(WorldObject const* obj, bool ignoreStealth) const;
-
-        bool canDetectInvisibilityOf(WorldObject const* obj) const;
-        bool canDetectStealthOf(WorldObject const* obj) const;
-
-        virtual bool isAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
+        //difference from IsAlwaysVisibleFor: 1. after distance check; 2. use owner or charmer as seer
+        virtual bool IsAlwaysDetectableFor(WorldObject const* /*seer*/) const { return false; }
 
         float GetGridActivationRange() const;
         float GetVisibilityRange() const;
@@ -846,6 +839,7 @@ class WorldObject : public Object, public WorldLocation
         void SetLocationMapId(uint32 _mapId) { m_mapId = _mapId; }
         void SetLocationInstanceId(uint32 _instanceId) { m_InstanceId = _instanceId; }
 
+        virtual bool IsNeverVisible() const { return !IsInWorld(); }
     private:
         Map* m_currMap;                                    //current object's Map location
 
@@ -855,6 +849,14 @@ class WorldObject : public Object, public WorldLocation
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;
+
+        virtual bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool is3D) const;
+
+        bool _CanNeverSee(WorldObject const* obj) const { return GetMap() != obj->GetMap() || !InSamePhase(obj); }
+        virtual bool _CanAlwaysSee(WorldObject const* /*obj*/) const { return false; }
+        bool _CanDetect(WorldObject const* obj, bool ignoreStealth) const;
+        bool _CanDetectInvisibilityOf(WorldObject const* obj) const;
+        bool _CanDetectStealthOf(WorldObject const* obj) const;
 };
 
 namespace Trinity

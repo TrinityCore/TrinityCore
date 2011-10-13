@@ -753,7 +753,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         uint32 guid_transport;
 
         bool IsInvisibleDueToDespawn() const;
-        bool canSeeAlways(WorldObject const* obj) const;
+        bool _CanAlwaysSee(WorldObject const* obj) const;
     private:
         //WaypointMovementGenerator vars
         uint32 m_waypointID;

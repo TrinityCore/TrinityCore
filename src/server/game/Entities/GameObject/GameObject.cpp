@@ -843,9 +843,9 @@ void GameObject::SaveRespawnTime()
         sObjectMgr->SaveGORespawnTime(m_DBTableGuid, GetInstanceId(), m_respawnTime);
 }
 
-bool GameObject::isAlwaysVisibleFor(WorldObject const* seer) const
+bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
 {
-    if (WorldObject::isAlwaysVisibleFor(seer))
+    if (WorldObject::IsAlwaysVisibleFor(seer))
         return true;
 
     if (IsTransport())
