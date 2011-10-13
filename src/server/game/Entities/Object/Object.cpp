@@ -1630,19 +1630,10 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (this == obj)
         return true;
 
-    if (obj->IsNeverVisible())
+    if (obj->IsNeverVisible() || _CanNeverSee(obj))
         return false;
 
-    if (GetMap() != obj->GetMap())
-        return false;
-
-    if (!InSamePhase(obj))
-        return false;
-
-    if (obj->isAlwaysVisibleFor(this))
-        return true;
-
-    if (canSeeAlways(obj))
+    if (obj->IsAlwaysVisibleFor(this) || _CanAlwaysSee(obj))
         return true;
 
     bool corpseCheck = false;
@@ -1699,13 +1690,13 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
     if (obj->IsInvisibleDueToDespawn())
         return false;
 
-    if (!canDetect(obj, ignoreStealth))
+    if (!_CanDetect(obj, ignoreStealth))
         return false;
 
     return true;
 }
 
-bool WorldObject::canDetect(WorldObject const* obj, bool ignoreStealth) const
+bool WorldObject::_CanDetect(WorldObject const* obj, bool ignoreStealth) const
 {
     const WorldObject* seer = this;
 
@@ -1714,19 +1705,19 @@ bool WorldObject::canDetect(WorldObject const* obj, bool ignoreStealth) const
         if (Unit* controller = thisUnit->GetCharmerOrOwner())
             seer = controller;
 
-    if (obj->isAlwaysDetectableFor(seer))
+    if (obj->IsAlwaysDetectableFor(seer))
         return true;
 
-    if (!seer->canDetectInvisibilityOf(obj))
+    if (!seer->_CanDetectInvisibilityOf(obj))
         return false;
 
-    if (!ignoreStealth && !seer->canDetectStealthOf(obj))
+    if (!ignoreStealth && !seer->_CanDetectStealthOf(obj))
         return false;
 
     return true;
 }
 
-bool WorldObject::canDetectInvisibilityOf(WorldObject const* obj) const
+bool WorldObject::_CanDetectInvisibilityOf(WorldObject const* obj) const
 {
     uint32 mask = obj->m_invisibility.GetFlags() & m_invisibilityDetect.GetFlags();
 
@@ -1757,7 +1748,7 @@ bool WorldObject::canDetectInvisibilityOf(WorldObject const* obj) const
     return true;
 }
 
-bool WorldObject::canDetectStealthOf(WorldObject const* obj) const
+bool WorldObject::_CanDetectStealthOf(WorldObject const* obj) const
 {
     // Combat reach is the minimal distance (both in front and behind),
     //   and it is also used in the range calculation.

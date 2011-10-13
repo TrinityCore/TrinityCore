@@ -2283,8 +2283,8 @@ class Unit : public WorldObject
 
         uint32 m_unitTypeMask;
 
-        bool isAlwaysVisibleFor(WorldObject const* seer) const;
-        bool isAlwaysDetectableFor(WorldObject const* seer) const;
+        bool IsAlwaysVisibleFor(WorldObject const* seer) const;
+        bool IsAlwaysDetectableFor(WorldObject const* seer) const;
     private:
         bool IsTriggeredAtSpellProcEvent(Unit* pVictim, Aura* aura, SpellInfo const* procSpell, uint32 procFlag, uint32 procExtra, WeaponAttackType attType, bool isVictim, bool active, SpellProcEventEntry const* & spellProcEvent);
         bool HandleDummyAuraProc(Unit* pVictim, uint32 damage, AuraEffect* triggeredByAura, SpellInfo const* procSpell, uint32 procFlag, uint32 procEx, uint32 cooldown);

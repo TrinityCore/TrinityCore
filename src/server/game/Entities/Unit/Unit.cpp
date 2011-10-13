@@ -12393,9 +12393,9 @@ int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
     return ModifyPower(power, (int32)amount - (int32)GetMaxPower(power));
 }
 
-bool Unit::isAlwaysVisibleFor(WorldObject const* seer) const
+bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
 {
-    if (WorldObject::isAlwaysVisibleFor(seer))
+    if (WorldObject::IsAlwaysVisibleFor(seer))
         return true;
 
     // Always seen by owner
@@ -12406,9 +12406,9 @@ bool Unit::isAlwaysVisibleFor(WorldObject const* seer) const
     return false;
 }
 
-bool Unit::isAlwaysDetectableFor(WorldObject const* seer) const
+bool Unit::IsAlwaysDetectableFor(WorldObject const* seer) const
 {
-    if (WorldObject::isAlwaysDetectableFor(seer))
+    if (WorldObject::IsAlwaysDetectableFor(seer))
         return true;
 
     if (HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, seer->GetGUID()))

@@ -21088,11 +21088,8 @@ bool Player::IsNeverVisible() const
     return false;
 }
 
-bool Player::canSeeAlways(WorldObject const* obj) const
+bool Player::_CanAlwaysSee(WorldObject const* obj) const
 {
-    if (Unit::canSeeAlways(obj))
-        return true;
-
     // Always can see self
     if (m_mover == obj)
         return true;
@@ -21104,9 +21101,9 @@ bool Player::canSeeAlways(WorldObject const* obj) const
     return false;
 }
 
-bool Player::isAlwaysDetectableFor(WorldObject const* seer) const
+bool Player::IsAlwaysDetectableFor(WorldObject const* seer) const
 {
-    if (Unit::isAlwaysDetectableFor(seer))
+    if (Unit::IsAlwaysDetectableFor(seer))
         return true;
 
     if (const Player* seerPlayer = seer->ToPlayer())
