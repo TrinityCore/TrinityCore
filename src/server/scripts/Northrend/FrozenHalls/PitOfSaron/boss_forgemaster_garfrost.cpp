@@ -270,7 +270,7 @@ class spell_garfrost_permafrost : public SpellScriptLoader
                     {
                         for (std::list<GameObject*>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
                         {
-                            if ((*itr)->isVisibleForInState(target))
+                            if (!(*itr)->IsInvisibleDueToDespawn())
                             {
                                 if ((*itr)->IsInBetween(caster, target, 4.0f))
                                 {
