@@ -1412,11 +1412,10 @@ public:
                     instance->HandleGameObject(GateGUID, false);
 
                     for (uint8 i = 0; i < 2; ++i)
-
-                        Instance->HandleGameObject(DoorGUID[i], false);
-                    // JustCreated = false;
-                }else
-                { // open all doors, raid wiped
+                        instance->HandleGameObject(DoorGUID[i], false);
+                }
+                else // open all doors, raid wiped
+                {
                     instance->HandleGameObject(GateGUID, true);
                     WalkCount = 1; // skip first wp
 
