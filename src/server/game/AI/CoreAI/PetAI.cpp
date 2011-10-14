@@ -180,7 +180,7 @@ void PetAI::UpdateAI(const uint32 diff)
                 if (!spellUsed)
                     delete spell;
             }
-            else if (me->getVictim() && _CanAttack(me->getVictim()) && spellInfo->CanBeUsedInCombat())
+            else if (me->getVictim() && CanAttack(me->getVictim()) && spellInfo->CanBeUsedInCombat())
             {
                 Spell* spell = new Spell(me, spellInfo, TRIGGERED_NONE, 0);
                 if (spell->CanAutoCast(me->getVictim()))
@@ -290,7 +290,7 @@ void PetAI::AttackStart(Unit* target)
     // Overrides Unit::AttackStart to correctly evaluate Pet states
 
     // Check all pet states to decide if we can attack this target
-    if (!_CanAttack(target))
+    if (!CanAttack(target))
         return;
 
     targetHasCC = _CheckTargetCC(target);
@@ -440,7 +440,7 @@ void PetAI::MovementInform(uint32 moveType, uint32 data)
     }
 }
 
-bool PetAI::_CanAttack(Unit* target)
+bool PetAI::CanAttack(Unit* target)
 {
     // Evaluates wether a pet can attack a specific
     // target based on CommandState, ReactState and other flags
