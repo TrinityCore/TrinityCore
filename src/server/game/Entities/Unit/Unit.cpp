@@ -1595,7 +1595,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         float ignoredResistance = float(GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask));
         if (Player* player = ToPlayer())
             ignoredResistance += float(player->GetSpellPenetrationItemMod());
-        float victimResistance = baseVictimResistance + ignoredResistance;
+        float victimResistance = baseVictimResistance - ignoredResistance;
 
         static const uint32 BOSS_LEVEL = 83;
         static const float BOSS_RESISTANCE_CONSTANT = 510.0;
