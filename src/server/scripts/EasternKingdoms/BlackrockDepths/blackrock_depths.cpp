@@ -15,35 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Blackrock_Depths
-SD%Complete: 95
-SDComment: Quest support: 4001, 4342, 7604, 4322. Vendor Lokhtos Darkbargainer. Need to rewrite the Jail Break support
-SDCategory: Blackrock Depths
-EndScriptData */
-
-/* ContentData
-go_shadowforge_brazier
-at_ring_of_law
-npc_grimstone
-mob_phalanx
-npc_kharan_mighthammer
-npc_lokhtos_darkbargainer
-npc_dughal_stormwing
-npc_marshal_windsor
-npc_marshal_reginald_windsor
-npc_tobias_seecher
-npc_rocknot
-EndContentData */
-
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 #include "blackrock_depths.h"
 
-/*######
-+## go_shadowforge_brazier
-+######*/
-
+//go_shadowforge_brazier
 class go_shadowforge_brazier : public GameObjectScript
 {
 public:
@@ -65,13 +41,9 @@ public:
         }
         return false;
     }
-
 };
 
-/*######
-## npc_grimstone
-######*/
-
+// npc_grimstone
 enum eGrimstone
 {
     NPC_GRIMSTONE                                          = 10096,
@@ -120,21 +92,17 @@ public:
         }
         return false;
     }
-
 };
 
-/*######
-## npc_grimstone
-######*/
-
+// npc_grimstone
 enum GrimstoneTexts
 {
-    SCRIPT_TEXT1 = -1230003,
-    SCRIPT_TEXT2 = -1230004,
-    SCRIPT_TEXT3 = -1230005,
-    SCRIPT_TEXT4 = -1230006,
-    SCRIPT_TEXT5 = -1230007,
-    SCRIPT_TEXT6 = -1230008
+    SCRIPT_TEXT1          = -1230003,
+    SCRIPT_TEXT2          = -1230004,
+    SCRIPT_TEXT3          = -1230005,
+    SCRIPT_TEXT4          = -1230006,
+    SCRIPT_TEXT5          = -1230007,
+    SCRIPT_TEXT6          = -1230008
 };
 
 //TODO: implement quest part of event (different end boss)
@@ -150,19 +118,19 @@ public:
 
     struct npc_grimstoneAI : public npc_escortAI
     {
-        npc_grimstoneAI(Creature* c) : npc_escortAI(c)
+        npc_grimstoneAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             MobSpawnId = rand()%6;
         }
 
         InstanceScript* instance;
 
-        uint8 EventPhase;
+        uint8  EventPhase;
         uint32 Event_Timer;
 
-        uint8 MobSpawnId;
-        uint8 MobCount;
+        uint8  MobSpawnId;
+        uint8  MobCount;
         uint32 MobDeath_Timer;
 
         uint64 RingMobGUID[4];
@@ -174,16 +142,16 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
-            EventPhase = 0;
-            Event_Timer = 1000;
+            EventPhase         = 0;
+            Event_Timer        = 1000;
 
-            MobCount = 0;
-            MobDeath_Timer = 0;
+            MobCount           = 0;
+            MobDeath_Timer     = 0;
 
             for (uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
                 RingMobGUID[i] = 0;
 
-            RingBossGUID = 0;
+            RingBossGUID       = 0;
 
             CanWalk = false;
         }
@@ -215,24 +183,24 @@ public:
             {
             case 0:
                 DoScriptText(SCRIPT_TEXT1, me);//2
-                CanWalk = false;
-                Event_Timer = 5000;
+                CanWalk      = false;
+                Event_Timer  = 5000;
                 break;
             case 1:
                 DoScriptText(SCRIPT_TEXT2, me);//4
-                CanWalk = false;
-                Event_Timer = 5000;
+                CanWalk      = false;
+                Event_Timer  = 5000;
                 break;
             case 2:
-                CanWalk = false;
+                CanWalk      = false;
                 break;
             case 3:
                 DoScriptText(SCRIPT_TEXT3, me);//5
                 break;
             case 4:
                 DoScriptText(SCRIPT_TEXT4, me);//6
-                CanWalk = false;
-                Event_Timer = 5000;
+                CanWalk      = false;
+                Event_Timer  = 5000;
                 break;
             case 5:
                 if (instance)
@@ -259,16 +227,16 @@ public:
             {
                 if (MobDeath_Timer <= diff)
                 {
-                    MobDeath_Timer = 2500;
+                    MobDeath_Timer           = 2500;
 
                     if (RingBossGUID)
                     {
                         Creature* boss = Unit::GetCreature(*me, RingBossGUID);
                         if (boss && !boss->isAlive() && boss->isDead())
                         {
-                            RingBossGUID = 0;
-                            Event_Timer = 5000;
-                            MobDeath_Timer = 0;
+                            RingBossGUID    = 0;
+                            Event_Timer     = 5000;
+                            MobDeath_Timer  = 0;
                             return;
                         }
                         return;
@@ -279,7 +247,7 @@ public:
                         Creature* mob = Unit::GetCreature(*me, RingMobGUID[i]);
                         if (mob && !mob->isAlive() && mob->isDead())
                         {
-                            RingMobGUID[i] = 0;
+                            RingMobGUID[i]  = 0;
                             --MobCount;
 
                             //seems all are gone, so set timer to continue and discontinue this
@@ -365,18 +333,14 @@ public:
                 npc_escortAI::UpdateAI(diff);
            }
     };
-
 };
 
-/*######
-## mob_phalanx
-######*/
-
+// mob_phalanx
 enum PhalanxSpells
 {
-    SPELL_THUNDERCLAP                                      = 8732,
-    SPELL_FIREBALLVOLLEY                                   = 22425,
-    SPELL_MIGHTYBLOW                                       = 14099
+    SPELL_THUNDERCLAP                   = 8732,
+    SPELL_FIREBALLVOLLEY                = 22425,
+    SPELL_MIGHTYBLOW                    = 14099
 };
 
 class mob_phalanx : public CreatureScript
@@ -399,9 +363,9 @@ public:
 
         void Reset()
         {
-            ThunderClap_Timer = 12000;
-            FireballVolley_Timer =0;
-            MightyBlow_Timer = 15000;
+            ThunderClap_Timer       = 12000;
+            FireballVolley_Timer    = 0;
+            MightyBlow_Timer        = 15000;
         }
 
         void UpdateAI(const uint32 diff)
@@ -437,22 +401,17 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
-/*######
-## npc_kharan_mighthammer
-######*/
-
+// npc_kharan_mighthammer
 enum KharamQuests
 {
-    QUEST_4001                                             = 4001,
-    QUEST_4342                                             = 4342
+    QUEST_4001                          = 4001,
+    QUEST_4342                          = 4342
 };
 
 #define GOSSIP_ITEM_KHARAN_1    "I need to know where the princess are, Kharan!"
 #define GOSSIP_ITEM_KHARAN_2    "All is not lost, Kharan!"
-
 #define GOSSIP_ITEM_KHARAN_3    "Gor'shak is my friend, you can trust me."
 #define GOSSIP_ITEM_KHARAN_4    "Not enough, you need to tell me more."
 #define GOSSIP_ITEM_KHARAN_5    "So what happened?"
@@ -467,13 +426,13 @@ class npc_kharan_mighthammer : public CreatureScript
 public:
     npc_kharan_mighthammer() : CreatureScript("npc_kharan_mighthammer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*Sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
+        switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
-                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KHARAN_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                 player->SEND_GOSSIP_MENU(2475, creature->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
@@ -534,13 +493,9 @@ public:
 
         return true;
     }
-
 };
 
-/*######
-## npc_lokhtos_darkbargainer
-######*/
-
+// npc_lokhtos_darkbargainer
 enum LokhtosItems
 {
     ITEM_THRORIUM_BROTHERHOOD_CONTRACT                     = 18628,
@@ -565,15 +520,15 @@ class npc_lokhtos_darkbargainer : public CreatureScript
 public:
     npc_lokhtos_darkbargainer() : CreatureScript("npc_lokhtos_darkbargainer") { }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*Sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CLOSE_GOSSIP_MENU();
             player->CastSpell(player, SPELL_CREATE_THORIUM_BROTHERHOOD_CONTRACT_DND, false);
         }
-        if (uiAction == GOSSIP_ACTION_TRADE)
+        if (action == GOSSIP_ACTION_TRADE)
             player->GetSession()->SendListInventory(creature->GetGUID());
 
         return true;
@@ -601,18 +556,15 @@ public:
 
         return true;
     }
-
 };
 
-/*######
-## npc_dughal_stormwing
-######*/
-
+// npc_dughal_stormwing
 enum DughalQuests
 {
-    QUEST_JAIL_BREAK                                       = 4322
+    QUEST_JAIL_BREAK                      = 4322
 };
 
+// DELETE THIS IF IT IS NOT NEEDED!
 #define SAY_DUGHAL_FREE         "Thank you, $N! I'm free!!!"
 #define GOSSIP_DUGHAL           "You're free, Dughal! Get out of here!"
 
@@ -633,10 +585,10 @@ public:
         return dughal_stormwingAI;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_escort::npc_escortAI, (creature->AI()))->Start(false, true, player->GetGUID());
@@ -707,14 +659,11 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
  */
-/*######
-## npc_marshal_windsor
-######*/
 
+// npc_marshal_windsor
 #define SAY_WINDSOR_AGGRO1          "You locked up the wrong Marshal. Prepare to be destroyed!"
 #define SAY_WINDSOR_AGGRO2          "I bet you're sorry now, aren't you !?!!"
 #define SAY_WINDSOR_AGGRO3          "You better hold me back $N or they are going to feel some prison house beatings."
@@ -771,7 +720,6 @@ public:
                     instance->SetData(DATA_QUEST_JAIL_BREAK, ENCOUNTER_STATE_IN_PROGRESS);
                     creature->setFaction(11);
             }
-
             }
         return false;
     }
@@ -875,14 +823,11 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
   */
-/*######
-## npc_marshal_reginald_windsor
-######*/
 
+// npc_marshal_reginald_windsor
 #define SAY_REGINALD_WINDSOR_0_1    "Can you feel the power, $N??? It's time to ROCK!"
 #define SAY_REGINALD_WINDSOR_0_2    "Now we just have to free Tobias and we can get out of here. This way!"
 #define SAY_REGINALD_WINDSOR_5_1    "Open it."
@@ -1096,13 +1041,10 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 */
-/*######
-## npc_tobias_seecher
-######*/
 
+// npc_tobias_seecher
 #define SAY_TOBIAS_FREE         "Thank you! I will run for safety immediately!"
 /*
 class npc_tobias_seecher : public CreatureScript
@@ -1123,10 +1065,10 @@ public:
         return tobias_seecherAI;
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
         {
             player->CLOSE_GOSSIP_MENU();
             CAST_AI(npc_escort::npc_escortAI, (creature->AI()))->Start(false, true, player->GetGUID());
@@ -1198,28 +1140,24 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 */
 
-/*######
-## npc_rocknot
-######*/
-
+// npc_rocknot
 enum RocknotSays
 {
-    SAY_GOT_BEER                                           = -1230000
+    SAY_GOT_BEER                       = -1230000
 };
 
 enum RocknotSpells
 {
-    SPELL_DRUNKEN_RAGE                                     = 14872
+    SPELL_DRUNKEN_RAGE                 = 14872
 };
 
 enum RocknotQuests
 {
-    QUEST_ALE                                              = 4295
+    QUEST_ALE                          = 4295
 };
 
 class npc_rocknot : public CreatureScript
@@ -1248,6 +1186,7 @@ public:
             {
                 DoScriptText(SAY_GOT_BEER, creature);
                 creature->CastSpell(creature, SPELL_DRUNKEN_RAGE, false);
+
                 if (npc_escortAI* escortAI = CAST_AI(npc_rocknot::npc_rocknotAI, creature->AI()))
                     escortAI->Start(false, false);
             }
@@ -1263,9 +1202,9 @@ public:
 
     struct npc_rocknotAI : public npc_escortAI
     {
-        npc_rocknotAI(Creature* c) : npc_escortAI(c)
+        npc_rocknotAI(Creature* creature) : npc_escortAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -1278,8 +1217,8 @@ public:
             if (HasEscortState(STATE_ESCORT_ESCORTING))
                 return;
 
-            BreakKeg_Timer = 0;
-            BreakDoor_Timer = 0;
+            BreakKeg_Timer    = 0;
+            BreakDoor_Timer   = 0;
         }
 
         void DoGo(uint32 id, uint32 state)
@@ -1324,8 +1263,8 @@ public:
                 if (BreakKeg_Timer <= diff)
                 {
                     DoGo(DATA_GO_BAR_KEG, 0);
-                    BreakKeg_Timer = 0;
-                    BreakDoor_Timer = 1000;
+                    BreakKeg_Timer     = 0;
+                    BreakDoor_Timer    = 1000;
                 } else BreakKeg_Timer -= diff;
             }
 
@@ -1351,12 +1290,7 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
-
-/*######
-##
-######*/
 
 void AddSC_blackrock_depths()
 {
@@ -1366,9 +1300,11 @@ void AddSC_blackrock_depths()
     new mob_phalanx();
     new npc_kharan_mighthammer();
     new npc_lokhtos_darkbargainer();
-    //new npc_dughal_stormwing();
-    //new npc_tobias_seecher();
-    //new npc_marshal_windsor();
-    //new npc_marshal_reginald_windsor();
     new npc_rocknot();
+	// Fix us
+    /*new npc_dughal_stormwing();
+      new npc_tobias_seecher();
+      new npc_marshal_windsor();
+      new npc_marshal_reginald_windsor();
+    */
 }

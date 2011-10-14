@@ -1596,7 +1596,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         float ignoredResistance = float(GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask));
         if (Player* player = ToPlayer())
             ignoredResistance += float(player->GetSpellPenetrationItemMod());
-        float victimResistance = baseVictimResistance + ignoredResistance;
+        float victimResistance = baseVictimResistance - ignoredResistance;
 
         static const uint32 BOSS_LEVEL = 83;
         static const float BOSS_RESISTANCE_CONSTANT = 510.0;
@@ -12533,9 +12533,18 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     return gain;
 }
 
-bool Unit::isAlwaysVisibleFor(WorldObject const* seer) const
+// returns negative amount on power reduction
+int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
 {
-    if (WorldObject::isAlwaysVisibleFor(seer))
+    float amount = (float)GetMaxPower(power);
+    ApplyPercentModFloatVar(amount, pct, apply);
+
+    return ModifyPower(power, (int32)amount - (int32)GetMaxPower(power));
+}
+
+bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
+{
+    if (WorldObject::IsAlwaysVisibleFor(seer))
         return true;
 
     // Always seen by owner
@@ -12546,9 +12555,9 @@ bool Unit::isAlwaysVisibleFor(WorldObject const* seer) const
     return false;
 }
 
-bool Unit::isAlwaysDetectableFor(WorldObject const* seer) const
+bool Unit::IsAlwaysDetectableFor(WorldObject const* seer) const
 {
-    if (WorldObject::isAlwaysDetectableFor(seer))
+    if (WorldObject::IsAlwaysDetectableFor(seer))
         return true;
 
     if (HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, seer->GetGUID()))

@@ -911,25 +911,6 @@ void AuraEffect::CalculateSpellMod()
                 default:
                     break;
             }
-        case SPELL_AURA_MOD_SPELL_CRIT_CHANCE:
-            switch (GetId())
-            {
-                case 51466: // Elemental oath
-                case 51470: // Elemental oath
-                    // "while Clearcasting from Elemental Focus is active, you deal 5%/10% more spell damage."
-                    if (!m_spellmod)
-                    {
-                        m_spellmod = new SpellModifier(GetBase());
-                        m_spellmod->op = SPELLMOD_EFFECT2;
-                        m_spellmod->type = SPELLMOD_FLAT;
-                        m_spellmod->spellId = GetId();
-                        m_spellmod->mask[1] = 0x0004000;
-                    }
-                    m_spellmod->value = GetBase()->GetUnitOwner()->CalculateSpellDamage(GetBase()->GetUnitOwner(), GetSpellInfo(), 1);
-                    break;
-                default:
-                    break;
-            }
             break;
         case SPELL_AURA_ADD_FLAT_MODIFIER:
         case SPELL_AURA_ADD_PCT_MODIFIER:
@@ -4011,8 +3992,18 @@ void AuraEffect::HandleAuraModIncreaseEnergyPercent(AuraApplication const* aurAp
     //    return;
 
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + powerType);
+    float amount = float(GetAmount());
 
-    target->HandleStatModifier(unitMod, TOTAL_PCT, float(GetAmount()), apply);
+    if (apply)
+    {
+        target->HandleStatModifier(unitMod, TOTAL_PCT, amount, apply);
+        target->ModifyPowerPct(powerType, amount, apply);
+    }
+    else
+    {
+        target->ModifyPowerPct(powerType, amount, apply);
+        target->HandleStatModifier(unitMod, TOTAL_PCT, amount, apply);
+    }
 }
 
 void AuraEffect::HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const
