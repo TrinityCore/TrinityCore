@@ -1298,55 +1298,55 @@ public:
             case 4732:                                          //Randal Hunter
                 if (player->GetReputationRank(72) != REP_EXALTED && race != RACE_HUMAN)
                     player->SEND_GOSSIP_MENU(5855, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 4772:                                          //Ultham Ironhorn
                 if (player->GetReputationRank(47) != REP_EXALTED && race != RACE_DWARF)
                     player->SEND_GOSSIP_MENU(5856, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 4752:                                          //Kildar
                 if (player->GetReputationRank(76) != REP_EXALTED && race != RACE_ORC)
                     player->SEND_GOSSIP_MENU(5841, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 3690:                                          //Kar Stormsinger
                 if (player->GetReputationRank(81) != REP_EXALTED && race != RACE_TAUREN)
                     player->SEND_GOSSIP_MENU(5843, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 4753:                                          //Jartsam
                 if (player->GetReputationRank(69) != REP_EXALTED && race != RACE_NIGHTELF)
                     player->SEND_GOSSIP_MENU(5844, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 4773:                                          //Velma Warnam
                 if (player->GetReputationRank(68) != REP_EXALTED && race != RACE_UNDEAD_PLAYER)
                     player->SEND_GOSSIP_MENU(5840, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 7953:                                          //Xar'Ti
                 if (player->GetReputationRank(530) != REP_EXALTED && race != RACE_TROLL)
                     player->SEND_GOSSIP_MENU(5842, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 7954:                                          //Binjy Featherwhistle
                 if (player->GetReputationRank(54) != REP_EXALTED && race != RACE_GNOME)
                     player->SEND_GOSSIP_MENU(5857, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 16280:                                         //Perascamin
                 if (player->GetReputationRank(911) != REP_EXALTED && race != RACE_BLOODELF)
                     player->SEND_GOSSIP_MENU(10305, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
             case 20914:                                         //Aalun
                 if (player->GetReputationRank(930) != REP_EXALTED && race != RACE_DRAENEI)
                     player->SEND_GOSSIP_MENU(10239, creature->GetGUID());
-                else canLearn = true;
+                canLearn = true;
                 break;
         }
-// Here is something wrong :P
+
         if (canLearn)
         {
             if (creature->isTrainer())
