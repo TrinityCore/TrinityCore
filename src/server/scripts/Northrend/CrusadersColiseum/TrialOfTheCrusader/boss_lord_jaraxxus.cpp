@@ -490,11 +490,14 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
+            if (m_instance && m_instance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
+            {
+                me->DespawnOrUnsummon();
+                return;
+            }
+
             if (!UpdateVictim())
                 return;
-
-            if (m_instance && m_instance->GetData(TYPE_JARAXXUS) != IN_PROGRESS)
-                me->DespawnOrUnsummon();
 
             if (m_uiShivanSlashTimer <= uiDiff)
             {
