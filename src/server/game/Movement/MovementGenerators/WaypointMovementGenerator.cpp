@@ -206,7 +206,13 @@ WaypointMovementGenerator<Creature>::Update(Creature &unit, const uint32 diff)
             MovementInform(unit);
             unit.UpdateWaypointID(i_currentNode);
             unit.ClearUnitState(UNIT_STAT_ROAMING);
-            unit.Relocate(node->x, node->y, node->z);
+            if (node->orientation)
+            {
+                unit.Relocate(node->x, node->y, node->z, node->orientation);
+                unit.SetFacing(node->orientation, NULL);
+            }
+            else
+                unit.Relocate(node->x, node->y, node->z);
         }
     }
     else
