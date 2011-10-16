@@ -7731,6 +7731,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Guard Dog
                 case 201:
                 {
+                    if (!victim)
+                        return false;
+
                     triggered_spell_id = 54445;
                     target = this;
                     float addThreat = float(CalculatePctN(procSpell->Effects[0].CalcValue(this), triggerAmount));
