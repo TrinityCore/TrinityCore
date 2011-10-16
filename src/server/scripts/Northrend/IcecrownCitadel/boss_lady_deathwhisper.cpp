@@ -375,7 +375,7 @@ class boss_lady_deathwhisper : public CreatureScript
                     {
                         me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                         me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
-                        events.ScheduleEvent(EVENT_P2_SUMMON_WAVE, urand(30000, 60000), 0, PHASE_TWO);
+                        events.ScheduleEvent(EVENT_P2_SUMMON_WAVE, 45000, 0, PHASE_TWO);
                     }
                 }
             }
@@ -449,7 +449,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             break;
                         case EVENT_P1_SUMMON_WAVE:
                             SummonWaveP1();
-                            events.ScheduleEvent(EVENT_P1_SUMMON_WAVE, 60000, 0, PHASE_ONE);
+                            events.ScheduleEvent(EVENT_P1_SUMMON_WAVE, IsHeroic() ? 45000 : 60000, 0, PHASE_ONE);
                             break;
                         case EVENT_P1_SHADOW_BOLT:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM))
@@ -485,7 +485,7 @@ class boss_lady_deathwhisper : public CreatureScript
                             break;
                         case EVENT_P2_SUMMON_WAVE:
                             SummonWaveP2();
-                            events.ScheduleEvent(EVENT_P2_SUMMON_WAVE, 60000, 0, PHASE_TWO);
+                            events.ScheduleEvent(EVENT_P2_SUMMON_WAVE, 45000, 0, PHASE_TWO);
                             break;
                         case EVENT_BERSERK:
                             DoCast(me, SPELL_BERSERK);
