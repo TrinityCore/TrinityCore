@@ -391,8 +391,8 @@ void ArenaTeam::Roster(WorldSession* session)
         data << uint32(itr->PersonalRating);               // personal rating
         if (unk308)
         {
-            data << float(0.0);                             // 308 unk
-            data << float(0.0);                             // 308 unk
+            data << float(0.0f);                           // 308 unk
+            data << float(0.0f);                           // 308 unk
         }
     }
 
@@ -800,7 +800,7 @@ void ArenaTeam::UpdateArenaPointsHelper(std::map<uint32, uint32>& playerPoints)
         return;
 
     // To get points, a player has to participate in at least 30% of the matches
-    uint32 requiredGames = (uint32) ceil(Stats.WeekGames * 0.3);
+    uint32 requiredGames = (uint32)ceil(Stats.WeekGames * 0.3f);
 
     for (MemberList::const_iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
     {

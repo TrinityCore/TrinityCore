@@ -133,8 +133,8 @@ namespace Trinity
         double x_offset = (double(x) - center_offset)/size;
         double y_offset = (double(y) - center_offset)/size;
 
-        int x_val = int(x_offset+CENTER_VAL + 0.5);
-        int y_val = int(y_offset+CENTER_VAL + 0.5);
+        int x_val = int(x_offset+CENTER_VAL + 0.5f);
+        int y_val = int(y_offset+CENTER_VAL + 0.5f);
         return RET_TYPE(x_val, y_val);
     }
 
@@ -153,8 +153,8 @@ namespace Trinity
         double x_offset = (double(x) - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
         double y_offset = (double(y) - CENTER_GRID_CELL_OFFSET)/SIZE_OF_GRID_CELL;
 
-        int x_val = int(x_offset + CENTER_GRID_CELL_ID + 0.5);
-        int y_val = int(y_offset + CENTER_GRID_CELL_ID + 0.5);
+        int x_val = int(x_offset + CENTER_GRID_CELL_ID + 0.5f);
+        int y_val = int(y_offset + CENTER_GRID_CELL_ID + 0.5f);
         x_off = (float(x_offset) - x_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
         y_off = (float(y_offset) - y_val + CENTER_GRID_CELL_ID) * SIZE_OF_GRID_CELL;
         return CellPair(x_val, y_val);
@@ -162,15 +162,15 @@ namespace Trinity
 
     inline void NormalizeMapCoord(float &c)
     {
-        if (c > MAP_HALFSIZE - 0.5)
-            c = MAP_HALFSIZE - 0.5;
-        else if (c < -(MAP_HALFSIZE - 0.5))
-            c = -(MAP_HALFSIZE - 0.5);
+        if (c > MAP_HALFSIZE - 0.5f)
+            c = MAP_HALFSIZE - 0.5f;
+        else if (c < -(MAP_HALFSIZE - 0.5f))
+            c = -(MAP_HALFSIZE - 0.5f);
     }
 
     inline bool IsValidMapCoord(float c)
     {
-        return finite(c) && (std::fabs(c) <= MAP_HALFSIZE - 0.5);
+        return finite(c) && (std::fabs(c) <= MAP_HALFSIZE - 0.5f);
     }
 
     inline bool IsValidMapCoord(float x, float y)
