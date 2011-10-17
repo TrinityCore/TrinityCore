@@ -291,6 +291,10 @@ class npc_stinky_icc : public CreatureScript
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_DECIMATE, urand(20000, 25000));
                 _events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(3000, 7000));
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
                 DoCast(me, SPELL_PLAGUE_STENCH);
             }
 
