@@ -1286,7 +1286,7 @@ bool Creature::LoadFromDB(uint32 guid, Map* map)
         if (canFly())
         {
             float tz = map->GetHeight(data->posX, data->posY, data->posZ, false);
-            if (data->posZ - tz > 0.1)
+            if (data->posZ - tz > 0.1f)
                 Relocate(data->posX, data->posY, tz);
         }
     }
