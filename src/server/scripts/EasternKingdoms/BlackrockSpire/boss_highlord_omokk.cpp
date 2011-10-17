@@ -64,13 +64,13 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WARSTOMP, 15*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE, 6*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_STRIKE, 10*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_REND, 14*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SUNDER_ARMOR, 2*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_KNOCK_AWAY, 18*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SLOW, 24*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_WARSTOMP, 15 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE,    6 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_STRIKE,   10 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_REND,     14 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SUNDER_ARMOR, 2 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY,  18 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SLOW, 24 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*who*/)
@@ -94,31 +94,31 @@ public:
                 {
                     case EVENT_WARSTOMP:
                         DoCast(me->getVictim(), SPELL_WARSTOMP);
-                        events.ScheduleEvent(EVENT_WARSTOMP, 14*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_WARSTOMP, 14 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
                         DoCast(me->getVictim(), SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 8*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CLEAVE, 8 * IN_MILLISECONDS);
                         break;
                     case EVENT_STRIKE:
                         DoCast(me->getVictim(), SPELL_STRIKE);
-                        events.ScheduleEvent(EVENT_STRIKE, 10*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_STRIKE, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_REND:
                         DoCast(me->getVictim(), SPELL_REND);
-                        events.ScheduleEvent(EVENT_REND, 18*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_REND, 18 * IN_MILLISECONDS);
                         break;
                     case EVENT_SUNDER_ARMOR:
                         DoCast(me->getVictim(), SPELL_SUNDERARMOR);
-                        events.ScheduleEvent(EVENT_SUNDER_ARMOR, 25*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SUNDER_ARMOR, 25 * IN_MILLISECONDS);
                         break;
                     case EVENT_KNOCK_AWAY:
                         DoCast(me->getVictim(), SPELL_KNOCKAWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 12 * IN_MILLISECONDS);
                         break;
                     case EVENT_SLOW:
                         DoCast(me->getVictim(), SPELL_SLOW);
-                        events.ScheduleEvent(EVENT_SLOW, 18*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SLOW, 18 * IN_MILLISECONDS);
                         break;
                 }
             }

@@ -762,7 +762,7 @@ bool Guild::MoveItemData::CheckItem(uint32& splitedAmount)
 bool Guild::MoveItemData::CanStore(Item* pItem, bool swap, bool sendError)
 {
     m_vec.clear();
-    InventoryResult msg = _CanStore(pItem, swap);
+    InventoryResult msg = CanStore(pItem, swap);
     if (sendError && msg != EQUIP_ERR_OK)
         m_pPlayer->SendEquipError(msg, pItem);
     return (msg == EQUIP_ERR_OK);
@@ -850,7 +850,7 @@ void Guild::PlayerMoveItemData::LogBankEvent(SQLTransaction& trans, MoveItemData
         pFrom->GetItem()->GetEntry(), count);
 }
 
-inline InventoryResult Guild::PlayerMoveItemData::_CanStore(Item* pItem, bool swap)
+inline InventoryResult Guild::PlayerMoveItemData::CanStore(Item* pItem, bool swap)
 {
     return m_pPlayer->CanStoreItem(m_container, m_slotId, m_vec, pItem, swap);
 }
@@ -1002,11 +1002,11 @@ bool Guild::BankMoveItemData::_ReserveSpace(uint8 slotId, Item* pItem, Item* pIt
     return true;
 }
 
-void Guild::BankMoveItemData::_CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count)
+void Guild::BankMoveItemData::CanStoreItemInTab(Item* pItem, uint8 skipSlotId, bool merge, uint32& count)
 {
     for (uint8 slotId = 0; (slotId < GUILD_BANK_MAX_SLOTS) && (count > 0); ++slotId)
     {
-        // Skip slot already processed in _CanStore (when destination slot was specified)
+        // Skip slot already processed in CanStore (when destination slot was specified)
         if (slotId == skipSlotId)
             continue;
 
@@ -1022,7 +1022,7 @@ void Guild::BankMoveItemData::_CanStoreItemInTab(Item* pItem, uint8 skipSlotId, 
     }
 }
 
-InventoryResult Guild::BankMoveItemData::_CanStore(Item* pItem, bool swap)
+InventoryResult Guild::BankMoveItemData::CanStore(Item* pItem, bool swap)
 {
     sLog->outDebug(LOG_FILTER_GUILD, "GUILD STORAGE: CanStore() tab = %u, slot = %u, item = %u, count = %u",
         m_container, m_slotId, pItem->GetEntry(), pItem->GetCount());
@@ -1055,13 +1055,13 @@ InventoryResult Guild::BankMoveItemData::_CanStore(Item* pItem, bool swap)
     // Search for stacks to merge with
     if (pItem->GetMaxStackCount() > 1)
     {
-        _CanStoreItemInTab(pItem, m_slotId, true, count);
+        CanStoreItemInTab(pItem, m_slotId, true, count);
         if (count == 0)
             return EQUIP_ERR_OK;
     }
 
     // Search free slot for item
-    _CanStoreItemInTab(pItem, m_slotId, false, count);
+    CanStoreItemInTab(pItem, m_slotId, false, count);
     if (count == 0)
         return EQUIP_ERR_OK;
 

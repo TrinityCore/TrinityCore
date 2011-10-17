@@ -585,7 +585,7 @@ bool Unit::IsWithinMeleeRange(const Unit* obj, float dist) const
 void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, float distance2dMin, float distance2dMax) const
 {
     float combat_reach = GetCombatReach();
-    if (combat_reach < 0.1) // sometimes bugged for players
+    if (combat_reach < 0.1f) // sometimes bugged for players
         combat_reach = DEFAULT_COMBAT_REACH;
 
     uint32 attacker_number = getAttackers().size();
@@ -1573,7 +1573,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     return (newdamage > 1) ? newdamage : 1;
 }
 
-void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, const uint32 damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo)
+void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32 *absorb, uint32 *resist, SpellInfo const* spellInfo)
 {
     if (!victim || !victim->isAlive() || !damage)
         return;
@@ -1583,14 +1583,18 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     // Magic damage, check for resists
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
     {
-        float baseVictimResistance = float(victim->GetResistance(GetFirstSchoolInMask(schoolMask)));
-        float ignoredResistance = float(GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask));
-        if (Player* player = ToPlayer())
-            ignoredResistance += float(player->GetSpellPenetrationItemMod());
-        float victimResistance = baseVictimResistance + ignoredResistance;
+        float victimResistance = float(victim->GetResistance(GetFirstSchoolInMask(schoolMask)));
+        victimResistance += float(GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask));
 
-        static const uint32 BOSS_LEVEL = 83;
-        static const float BOSS_RESISTANCE_CONSTANT = 510.0;
+        if (Player* player = ToPlayer())
+            victimResistance -= float(player->GetSpellPenetrationItemMod());
+
+        // Resistance can't be lower then 0.
+        if (victimResistance < 0.0f)
+            victimResistance = 0.0f;
+
+        static uint32 const BOSS_LEVEL = 83;
+        static float const BOSS_RESISTANCE_CONSTANT = 510.0f;
         uint32 level = getLevel();
         float resistanceConstant = 0.0f;
 
@@ -7731,6 +7735,9 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Guard Dog
                 case 201:
                 {
+                    if (!victim)
+                        return false;
+
                     triggered_spell_id = 54445;
                     target = this;
                     float addThreat = float(CalculatePctN(procSpell->Effects[0].CalcValue(this), triggerAmount));
@@ -12384,9 +12391,18 @@ int32 Unit::ModifyPower(Powers power, int32 dVal)
     return gain;
 }
 
-bool Unit::isAlwaysVisibleFor(WorldObject const* seer) const
+// returns negative amount on power reduction
+int32 Unit::ModifyPowerPct(Powers power, float pct, bool apply)
 {
-    if (WorldObject::isAlwaysVisibleFor(seer))
+    float amount = (float)GetMaxPower(power);
+    ApplyPercentModFloatVar(amount, pct, apply);
+
+    return ModifyPower(power, (int32)amount - (int32)GetMaxPower(power));
+}
+
+bool Unit::IsAlwaysVisibleFor(WorldObject const* seer) const
+{
+    if (WorldObject::IsAlwaysVisibleFor(seer))
         return true;
 
     // Always seen by owner
@@ -12397,9 +12413,9 @@ bool Unit::isAlwaysVisibleFor(WorldObject const* seer) const
     return false;
 }
 
-bool Unit::isAlwaysDetectableFor(WorldObject const* seer) const
+bool Unit::IsAlwaysDetectableFor(WorldObject const* seer) const
 {
-    if (WorldObject::isAlwaysDetectableFor(seer))
+    if (WorldObject::IsAlwaysDetectableFor(seer))
         return true;
 
     if (HasAuraTypeWithCaster(SPELL_AURA_MOD_STALKED, seer->GetGUID()))

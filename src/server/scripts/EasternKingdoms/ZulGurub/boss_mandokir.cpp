@@ -91,9 +91,9 @@ class boss_mandokir : public CreatureScript
                 MortalStrike_Timer = 1000;
                 Check_Timer = 1000;
 
-                targetX = 0.0;
-                targetY = 0.0;
-                targetZ = 0.0;
+                targetX = 0.0f;
+                targetY = 0.0f;
+                targetZ = 0.0f;
                 TargetInRange = 0;
 
                 WatchTarget = 0;
