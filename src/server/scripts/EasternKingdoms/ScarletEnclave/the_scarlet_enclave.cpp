@@ -51,7 +51,9 @@ public:
             phase = 0;
 
             me->GetPosition(x, y, z);
-            z += 4; x -= 3.5; y -= 5;
+            z += 4.0f;
+            x -= 3.5f;
+            y -= 5.0f;
             me->GetMotionMaster()->Clear(false);
             me->SetPosition(x, y, z, 0.0f);
         }
@@ -78,7 +80,9 @@ public:
                         break;
                     case 1:
                         player->GetClosePoint(x, y, z, me->GetObjectSize());
-                        z += 2.5; x -= 2; y -= 1.5;
+                        z += 2.5f;
+                        x -= 2.0f;
+                        y -= 1.5f;
                         me->GetMotionMaster()->MovePoint(0, x, y, z);
                         me->SetTarget(player->GetGUID());
                         me->SetVisible(true);
