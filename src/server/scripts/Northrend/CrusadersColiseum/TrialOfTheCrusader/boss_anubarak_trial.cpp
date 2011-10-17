@@ -577,7 +577,7 @@ public:
             me->SetReactState(REACT_PASSIVE);
             me->SetFlying(true);
             me->SetDisplayId(25144);
-            me->SetSpeed(MOVE_RUN, 0.5, false);
+            me->SetSpeed(MOVE_RUN, 0.5f, false);
             me->GetMotionMaster()->MoveRandom(20.0f);
             DoCast(SPELL_FROST_SPHERE);
         }

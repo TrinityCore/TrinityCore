@@ -193,7 +193,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!HasTaunted && me->IsWithinDistInMap(who, 150.0))
+            if (!HasTaunted && me->IsWithinDistInMap(who, 150.0f))
             {
                 DoScriptText(SAY_INTRO, me);
                 HasTaunted = true;
