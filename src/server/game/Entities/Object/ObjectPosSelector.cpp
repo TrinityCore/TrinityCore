@@ -55,10 +55,10 @@ ObjectPosSelector::UsedPosList::value_type const* ObjectPosSelector::nextUsedPos
 
 void ObjectPosSelector::AddUsedPos(float size, float angle, float dist)
 {
-    if (angle>=0)
-        m_UsedPosLists[USED_POS_PLUS].insert(UsedPosList::value_type(angle, UsedPos(1.0, size, dist)));
+    if (angle >= 0)
+        m_UsedPosLists[USED_POS_PLUS].insert(UsedPosList::value_type(angle, UsedPos(1.0f, size, dist)));
     else
-        m_UsedPosLists[USED_POS_MINUS].insert(UsedPosList::value_type(-angle, UsedPos(-1.0, size, dist)));
+        m_UsedPosLists[USED_POS_MINUS].insert(UsedPosList::value_type(-angle, UsedPos(-1.0f, size, dist)));
 }
 
 void ObjectPosSelector::InitializeAngle()
@@ -76,9 +76,9 @@ void ObjectPosSelector::InitializeAngle()
 bool ObjectPosSelector::FirstAngle(float& angle)
 {
     if (m_UsedPosLists[USED_POS_PLUS].empty() && !m_UsedPosLists[USED_POS_MINUS].empty() )
-        return NextAngleFor(*m_UsedPosLists[USED_POS_MINUS].begin(), 1.0, USED_POS_PLUS, angle);
+        return NextAngleFor(*m_UsedPosLists[USED_POS_MINUS].begin(), 1.0f, USED_POS_PLUS, angle);
     else if (m_UsedPosLists[USED_POS_MINUS].empty() && !m_UsedPosLists[USED_POS_PLUS].empty() )
-        return NextAngleFor(*m_UsedPosLists[USED_POS_PLUS].begin(), -1.0, USED_POS_MINUS, angle);
+        return NextAngleFor(*m_UsedPosLists[USED_POS_PLUS].begin(), -1.0f, USED_POS_MINUS, angle);
 
     return false;
 }
@@ -118,9 +118,9 @@ bool ObjectPosSelector::NextPosibleAngle(float& angle)
     {
         bool ok;
         if (m_smallStepOk[USED_POS_PLUS])
-            ok = NextSmallStepAngle(1.0, USED_POS_PLUS, angle);
+            ok = NextSmallStepAngle(1.0f, USED_POS_PLUS, angle);
         else
-            ok = NextAngleFor(*m_nextUsedPos[USED_POS_PLUS], 1.0, USED_POS_PLUS, angle);
+            ok = NextAngleFor(*m_nextUsedPos[USED_POS_PLUS], 1.0f, USED_POS_PLUS, angle);
 
         if (!ok)
             ++m_nextUsedPos[USED_POS_PLUS];                 // increase. only at fail (original or checked)
@@ -131,9 +131,9 @@ bool ObjectPosSelector::NextPosibleAngle(float& angle)
     {
         bool ok;
         if (m_smallStepOk[USED_POS_MINUS])
-            ok = NextSmallStepAngle(-1.0, USED_POS_MINUS, angle);
+            ok = NextSmallStepAngle(-1.0f, USED_POS_MINUS, angle);
         else
-            ok =  NextAngleFor(*m_nextUsedPos[USED_POS_MINUS], -1.0, USED_POS_MINUS, angle);
+            ok =  NextAngleFor(*m_nextUsedPos[USED_POS_MINUS], -1.0f, USED_POS_MINUS, angle);
 
         if (!ok)
             ++m_nextUsedPos[USED_POS_MINUS];
@@ -142,10 +142,10 @@ bool ObjectPosSelector::NextPosibleAngle(float& angle)
     else                                                    // both list empty
     {
         if (m_smallStepOk[USED_POS_PLUS] && (!m_smallStepOk[USED_POS_MINUS] || m_smallStepAngle[USED_POS_PLUS] <= m_smallStepAngle[USED_POS_MINUS]))
-            return NextSmallStepAngle(1.0, USED_POS_PLUS, angle);
+            return NextSmallStepAngle(1.0f, USED_POS_PLUS, angle);
         // -- direction less updated
         else if (m_smallStepOk[USED_POS_MINUS])
-            return NextSmallStepAngle(-1.0, USED_POS_MINUS, angle);
+            return NextSmallStepAngle(-1.0f, USED_POS_MINUS, angle);
     }
 
     // no angles
