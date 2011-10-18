@@ -35,6 +35,17 @@ inline Cell::Cell(CellCoord const& p)
     data.Part.reserved = 0;
 }
 
+inline Cell::Cell(float x, float y)
+{
+    CellCoord p = Trinity::ComputeCellCoord(x, y);
+    data.Part.grid_x = p.x_coord / MAX_NUMBER_OF_CELLS;
+    data.Part.grid_y = p.y_coord / MAX_NUMBER_OF_CELLS;
+    data.Part.cell_x = p.x_coord % MAX_NUMBER_OF_CELLS;
+    data.Part.cell_y = p.y_coord % MAX_NUMBER_OF_CELLS;
+    data.Part.nocreate = 0;
+    data.Part.reserved = 0;
+}
+
 template<class T, class CONTAINER>
 inline void
 Cell::Visit(const CellCoord& standing_cell, TypeContainerVisitor<T, CONTAINER> &visitor, Map &m) const
