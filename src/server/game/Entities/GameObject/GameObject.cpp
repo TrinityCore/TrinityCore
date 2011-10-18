@@ -16,26 +16,14 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Common.h"
-#include "QuestDef.h"
 #include "GameObjectAI.h"
 #include "ObjectMgr.h"
 #include "GroupMgr.h"
 #include "PoolMgr.h"
 #include "SpellMgr.h"
-#include "Spell.h"
-#include "UpdateMask.h"
-#include "Opcodes.h"
-#include "WorldPacket.h"
 #include "World.h"
-#include "DatabaseEnv.h"
-#include "LootMgr.h"
-#include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
-#include "InstanceScript.h"
-#include "Battleground.h"
-#include "Util.h"
 #include "OutdoorPvPMgr.h"
 #include "BattlegroundAV.h"
 #include "ScriptMgr.h"
@@ -73,15 +61,21 @@ GameObject::GameObject() : WorldObject(), m_goValue(new GameObjectValue), m_AI(N
 GameObject::~GameObject()
 {
     delete m_goValue;
+    delete m_AI;
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     //    CleanupsBeforeDelete();
 }
 
 bool GameObject::AIM_Initialize()
 {
+    if (m_AI)
+        delete m_AI;
 
     m_AI = FactorySelector::SelectGameObjectAI(this);
-    if (!m_AI) return false;
+
+    if (!m_AI)
+        return false;
+
     m_AI->InitializeAI();
     return true;
 }
