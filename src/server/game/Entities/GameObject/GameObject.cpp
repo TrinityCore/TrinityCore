@@ -602,10 +602,12 @@ void GameObject::Delete()
 {
     SetLootState(GO_NOT_READY);
     if (GetOwnerGUID())
+    {
         if (Unit* owner = GetOwner())
             owner->RemoveGameObject(this, false);
         else    //! Owner not in world anymore
             SetOwnerGUID(0);
+    }
 
     ASSERT (!GetOwnerGUID());
     SendObjectDeSpawnAnim(GetGUID());
