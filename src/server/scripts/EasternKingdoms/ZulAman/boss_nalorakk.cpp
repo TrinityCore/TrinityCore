@@ -162,7 +162,7 @@ class boss_nalorakk : public CreatureScript
                 me->GetPosition(x, y, z);
 
                 {
-                    CellPair pair(Trinity::ComputeCellPair(x, y));
+                    CellCoord pair(Trinity::ComputeCellCoord(x, y));
                     Cell cell(pair);
                     cell.data.Part.reserved = ALL_DISTRICT;
                     cell.SetNoCreate();

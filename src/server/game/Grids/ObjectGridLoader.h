@@ -44,7 +44,7 @@ class ObjectGridLoader
 
         void LoadN(void);
 
-        template<class T> static void SetObjectCell(T* obj, CellPair const& cellPair);
+        template<class T> static void SetObjectCell(T* obj, CellCoord const& cellCoord);
 
     private:
         Cell i_cell;

@@ -218,7 +218,7 @@ void npc_escortAI::UpdateAI(uint32 const diff)
                     if (m_bCanReturnToStart)
                     {
                         float fRetX, fRetY, fRetZ;
-                        me->GetRespawnCoord(fRetX, fRetY, fRetZ);
+                        me->GetRespawnPosition(fRetX, fRetY, fRetZ);
 
                         me->GetMotionMaster()->MovePoint(POINT_HOME, fRetX, fRetY, fRetZ);
 

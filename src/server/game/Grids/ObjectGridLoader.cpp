@@ -82,19 +82,19 @@ class ObjectWorldLoader
         uint32 i_corpses;
 };
 
-template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellPair const& /*cell_pair*/)
+template<class T> void ObjectGridLoader::SetObjectCell(T* /*obj*/, CellCoord const& /*cellCoord*/)
 {
 }
 
-template<> void ObjectGridLoader::SetObjectCell(Creature* obj, CellPair const& cell_pair)
+template<> void ObjectGridLoader::SetObjectCell(Creature* obj, CellCoord const& cellCoord)
 {
-    Cell cell(cell_pair);
+    Cell cell(cellCoord);
 
     obj->SetCurrentCell(cell);
 }
 
 template <class T>
-void AddObjectHelper(CellPair &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
+void AddObjectHelper(CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map, T *obj)
 {
     obj->GetGridRef().link(&m, obj);
     ObjectGridLoader::SetObjectCell(obj, cell);
@@ -106,7 +106,7 @@ void AddObjectHelper(CellPair &cell, GridRefManager<T> &m, uint32 &count, Map* m
 }
 
 template <class T>
-void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &m, uint32 &count, Map* map)
+void LoadHelper(CellGuidSet const& guid_set, CellCoord &cell, GridRefManager<T> &m, uint32 &count, Map* map)
 {
     for (CellGuidSet::const_iterator i_guid = guid_set.begin(); i_guid != guid_set.end(); ++i_guid)
     {
@@ -123,7 +123,7 @@ void LoadHelper(CellGuidSet const& guid_set, CellPair &cell, GridRefManager<T> &
     }
 }
 
-void LoadHelper(CellCorpseSet const& cell_corpses, CellPair &cell, CorpseMapType &m, uint32 &count, Map* map)
+void LoadHelper(CellCorpseSet const& cell_corpses, CellCoord &cell, CorpseMapType &m, uint32 &count, Map* map)
 {
     if (cell_corpses.empty())
         return;
@@ -154,12 +154,12 @@ ObjectGridLoader::Visit(GameObjectMapType &m)
 {
     uint32 x = (i_cell.GridX()*MAX_NUMBER_OF_CELLS) + i_cell.CellX();
     uint32 y = (i_cell.GridY()*MAX_NUMBER_OF_CELLS) + i_cell.CellY();
-    CellPair cell_pair(x, y);
-    uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
+    CellCoord cellCoord(x, y);
+    uint32 cell_id = (cellCoord.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
 
     CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetSpawnMode(), cell_id);
 
-    LoadHelper(cell_guids.gameobjects, cell_pair, m, i_gameObjects, i_map);
+    LoadHelper(cell_guids.gameobjects, cellCoord, m, i_gameObjects, i_map);
 }
 
 void
@@ -167,12 +167,12 @@ ObjectGridLoader::Visit(CreatureMapType &m)
 {
     uint32 x = (i_cell.GridX()*MAX_NUMBER_OF_CELLS) + i_cell.CellX();
     uint32 y = (i_cell.GridY()*MAX_NUMBER_OF_CELLS) + i_cell.CellY();
-    CellPair cell_pair(x, y);
-    uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
+    CellCoord cellCoord(x, y);
+    uint32 cell_id = (cellCoord.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
 
     CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), i_map->GetSpawnMode(), cell_id);
 
-    LoadHelper(cell_guids.creatures, cell_pair, m, i_creatures, i_map);
+    LoadHelper(cell_guids.creatures, cellCoord, m, i_creatures, i_map);
 }
 
 void
@@ -180,12 +180,12 @@ ObjectWorldLoader::Visit(CorpseMapType &m)
 {
     uint32 x = (i_cell.GridX()*MAX_NUMBER_OF_CELLS) + i_cell.CellX();
     uint32 y = (i_cell.GridY()*MAX_NUMBER_OF_CELLS) + i_cell.CellY();
-    CellPair cell_pair(x, y);
-    uint32 cell_id = (cell_pair.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cell_pair.x_coord;
+    CellCoord cellCoord(x, y);
+    uint32 cell_id = (cellCoord.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
 
     // corpses are always added to spawn mode 0 and they are spawned by their instance id
     CellObjectGuids const& cell_guids = sObjectMgr->GetCellObjectGuids(i_map->GetId(), 0, cell_id);
-    LoadHelper(cell_guids.corpses, cell_pair, m, i_corpses, i_map);
+    LoadHelper(cell_guids.corpses, cellCoord, m, i_corpses, i_map);
 }
 
 void
