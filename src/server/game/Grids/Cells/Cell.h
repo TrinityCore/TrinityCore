@@ -49,7 +49,7 @@ struct CellArea
     CellArea(int right, int left, int upper, int lower) : right_offset(right), left_offset(left), upper_offset(upper), lower_offset(lower) {}
     bool operator!() const { return !right_offset && !left_offset && !upper_offset && !lower_offset; }
 
-    void ResizeBorders(CellPair& begin_cell, CellPair& end_cell) const
+    void ResizeBorders(CellCoord& begin_cell, CellCoord& end_cell) const
     {
         begin_cell.dec_x(left_offset);
         begin_cell.dec_y(lower_offset);
@@ -67,7 +67,7 @@ struct Cell
 {
     Cell() { data.All = 0; }
     Cell(const Cell &cell) { data.All = cell.data.All; }
-    explicit Cell(CellPair const& p);
+    explicit Cell(CellCoord const& p);
 
     void operator|=(Cell &cell)
     {
@@ -131,9 +131,9 @@ struct Cell
     bool NoCreate() const { return data.Part.nocreate; }
     void SetNoCreate() { data.Part.nocreate = 1; }
 
-    CellPair cellPair() const
+    CellCoord GetCellCoord() const
     {
-        return CellPair(
+        return CellCoord(
             data.Part.grid_x*MAX_NUMBER_OF_CELLS+data.Part.cell_x,
             data.Part.grid_y*MAX_NUMBER_OF_CELLS+data.Part.cell_y);
     }
@@ -160,15 +160,15 @@ struct Cell
         uint32 All;
     } data;
 
-    template<class T, class CONTAINER> void Visit(const CellPair&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &) const;
-    template<class T, class CONTAINER> void Visit(const CellPair&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &, const WorldObject&, float) const;
-    template<class T, class CONTAINER> void Visit(const CellPair&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &, float, float, float) const;
+    template<class T, class CONTAINER> void Visit(const CellCoord&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &) const;
+    template<class T, class CONTAINER> void Visit(const CellCoord&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &, const WorldObject&, float) const;
+    template<class T, class CONTAINER> void Visit(const CellCoord&, TypeContainerVisitor<T, CONTAINER> &visitor, Map &, float, float, float) const;
 
     static CellArea CalculateCellArea(const WorldObject &obj, float radius);
     static CellArea CalculateCellArea(float x, float y, float radius);
 
 private:
-    template<class T, class CONTAINER> void VisitCircle(TypeContainerVisitor<T, CONTAINER> &, Map &, const CellPair&, const CellPair&) const;
+    template<class T, class CONTAINER> void VisitCircle(TypeContainerVisitor<T, CONTAINER> &, Map &, const CellCoord&, const CellCoord&) const;
 };
 
 #endif

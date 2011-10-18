@@ -189,7 +189,7 @@ class boss_akilzon : public CreatureScript
                     for (uint8 i = 2; i < StormCount; ++i)
                         bp0 *= 2;
 
-                    CellPair p(Trinity::ComputeCellPair(me->GetPositionX(), me->GetPositionY()));
+                    CellCoord p(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
                     Cell cell(p);
                     cell.data.Part.reserved = ALL_DISTRICT;
                     cell.SetNoCreate();
