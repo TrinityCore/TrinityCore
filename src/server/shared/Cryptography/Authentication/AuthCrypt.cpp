@@ -18,12 +18,11 @@
 
 #include "AuthCrypt.h"
 #include "Cryptography/HMACSHA1.h"
-#include "Logging/Log.h"
 #include "Cryptography/BigNumber.h"
 
 AuthCrypt::AuthCrypt() : _clientDecrypt(SHA_DIGEST_LENGTH), _serverEncrypt(SHA_DIGEST_LENGTH)
+    , _initialized(false)
 {
-    _initialized = false;
 }
 
 AuthCrypt::~AuthCrypt()

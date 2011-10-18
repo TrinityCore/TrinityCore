@@ -19,7 +19,6 @@
 #ifndef _AUTHCRYPT_H
 #define _AUTHCRYPT_H
 
-#include <Common.h>
 #include "Cryptography/ARC4.h"
 
 class BigNumber;
