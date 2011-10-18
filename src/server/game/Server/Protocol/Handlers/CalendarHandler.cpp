@@ -25,12 +25,14 @@
 #include "Opcodes.h"
 #include "Player.h"
 
-void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
+void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_GET_CALENDAR");     // empty
+    uint64 guid = _player->GetGUID();
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_GET_CALENDAR [" UI64FMTD "]", guid);
 
-    time_t cur_time = time(NULL);
+    time_t cur_time = time_t(time(NULL));
 
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_SEND_CALENDAR [" UI64FMTD "]", guid);
     WorldPacket data(SMSG_CALENDAR_SEND_CALENDAR, 4+4*0+4+4*0+4+4);
 
     data << uint32(0);                                      // invite count
@@ -58,48 +60,52 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
     }
     */
 
-    data << uint32(0);                                      // unk
-    data << uint32(secsToTimeBitFields(cur_time));          // current time
+    data << uint32(cur_time);                              // server time
+    data << uint32(secsToTimeBitFields(cur_time));         // server time
 
     uint32 counter = 0;
     size_t p_counter = data.wpos();
-    data << uint32(counter);                                // instance save count
+    data << uint32(counter);                               // instance save count
 
-    for (int i = 0; i < MAX_DIFFICULTY; ++i)
-    {
+    for (uint8 i = 0; i < MAX_DIFFICULTY; ++i)
         for (Player::BoundInstancesMap::const_iterator itr = _player->m_boundInstances[i].begin(); itr != _player->m_boundInstances[i].end(); ++itr)
-        {
             if (itr->second.perm)
             {
-                InstanceSave* save = itr->second.save;
+                InstanceSave const* save = itr->second.save;
                 data << uint32(save->GetMapId());
                 data << uint32(save->GetDifficulty());
                 data << uint32(save->GetResetTime() - cur_time);
-                data << uint64(save->GetInstanceId());      // instance save id as unique instance copy id
+                data << uint64(save->GetInstanceId());     // instance save id as unique instance copy id
                 ++counter;
             }
-        }
-    }
 
     data.put<uint32>(p_counter, counter);
 
-    data << uint32(1135753200);                             // unk (28.12.2005 12:00)
+    data << uint32(1135753200);                            // unk (28.12.2005 07:00)
 
     counter = 0;
     p_counter = data.wpos();
-    data << uint32(counter);                                // raid reset count
+    data << uint32(counter);                               // raid reset count
 
+    std::set<uint32> sentMaps;
+    
     ResetTimeByMapDifficultyMap const& resets = sInstanceSaveMgr->GetResetTimeMap();
     for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
     {
-        uint32 mapid = PAIR32_LOPART(itr->first);
-        MapEntry const* mapEnt = sMapStore.LookupEntry(mapid);
-        if (!mapEnt || !mapEnt->IsRaid())
+        uint32 mapId = PAIR32_LOPART(itr->first);
+
+        if (sentMaps.find(mapId) != sentMaps.end())
             continue;
 
-        data << uint32(mapid);
+        MapEntry const* mapEntry = sMapStore.LookupEntry(mapId);
+        if (!mapEntry || !mapEntry->IsRaid())
+            continue;
+
+        sentMaps.insert(mapId);
+        
+        data << uint32(mapId);
         data << uint32(itr->second - cur_time);
-        data << uint32(mapEnt->unk_time);
+        data << uint32(mapEntry->unk_time);
         ++counter;
     }
 
@@ -126,17 +132,16 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket & /*recv_data*/)
     }
     */
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "Sending calendar");
     SendPacket(&data);
 }
 
-void WorldSession::HandleCalendarGetEvent(WorldPacket &recv_data)
+void WorldSession::HandleCalendarGetEvent(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_GET_EVENT");
     recv_data.read_skip<uint64>();                          // unk
 }
 
-void WorldSession::HandleCalendarGuildFilter(WorldPacket &recv_data)
+void WorldSession::HandleCalendarGuildFilter(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_GUILD_FILTER");
     recv_data.read_skip<uint32>();                          // unk1
@@ -144,13 +149,13 @@ void WorldSession::HandleCalendarGuildFilter(WorldPacket &recv_data)
     recv_data.read_skip<uint32>();                          // unk3
 }
 
-void WorldSession::HandleCalendarArenaTeam(WorldPacket &recv_data)
+void WorldSession::HandleCalendarArenaTeam(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_ARENA_TEAM");
     recv_data.read_skip<uint32>();                          // unk
 }
 
-void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
+void WorldSession::HandleCalendarAddEvent(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_ADD_EVENT");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -185,7 +190,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket &recv_data)
     //}
 }
 
-void WorldSession::HandleCalendarUpdateEvent(WorldPacket &recv_data)
+void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_UPDATE_EVENT");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -203,7 +208,7 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket &recv_data)
     //recv_data >> uint32
 }
 
-void WorldSession::HandleCalendarRemoveEvent(WorldPacket &recv_data)
+void WorldSession::HandleCalendarRemoveEvent(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_REMOVE_EVENT");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -214,7 +219,7 @@ void WorldSession::HandleCalendarRemoveEvent(WorldPacket &recv_data)
 
 }
 
-void WorldSession::HandleCalendarCopyEvent(WorldPacket &recv_data)
+void WorldSession::HandleCalendarCopyEvent(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_COPY_EVENT");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -225,7 +230,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket &recv_data)
 
 }
 
-void WorldSession::HandleCalendarEventInvite(WorldPacket &recv_data)
+void WorldSession::HandleCalendarEventInvite(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_INVITE");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -238,7 +243,7 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket &recv_data)
 
 }
 
-void WorldSession::HandleCalendarEventRsvp(WorldPacket &recv_data)
+void WorldSession::HandleCalendarEventRsvp(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_RSVP");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -249,7 +254,7 @@ void WorldSession::HandleCalendarEventRsvp(WorldPacket &recv_data)
 
 }
 
-void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket &recv_data)
+void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_REMOVE_INVITE");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -260,7 +265,7 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket &recv_data)
     //recv_data >> uint64
 }
 
-void WorldSession::HandleCalendarEventStatus(WorldPacket &recv_data)
+void WorldSession::HandleCalendarEventStatus(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_STATUS");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -272,7 +277,7 @@ void WorldSession::HandleCalendarEventStatus(WorldPacket &recv_data)
     //recv_data >> uint32
 }
 
-void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket &recv_data)
+void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_EVENT_MODERATOR_STATUS");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -284,7 +289,7 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket &recv_data)
     //recv_data >> uint32
 }
 
-void WorldSession::HandleCalendarComplain(WorldPacket &recv_data)
+void WorldSession::HandleCalendarComplain(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_COMPLAIN");
     recv_data.rfinish();                       // set to end to avoid warnings spam
@@ -294,7 +299,7 @@ void WorldSession::HandleCalendarComplain(WorldPacket &recv_data)
     //recv_data >> uint64
 }
 
-void WorldSession::HandleCalendarGetNumPending(WorldPacket & /*recv_data*/)
+void WorldSession::HandleCalendarGetNumPending(WorldPacket& /*recv_data*/)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_GET_NUM_PENDING");  // empty
 

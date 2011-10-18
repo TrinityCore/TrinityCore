@@ -23128,7 +23128,7 @@ void Player::InitRunes()
     m_runes->runeState = 0;
     m_runes->lastUsedRune = RUNE_BLOOD;
 
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
     {
         SetBaseRune(i, runeSlotTypes[i]);                              // init base types
         SetCurrentRune(i, runeSlotTypes[i]);                           // init current types
@@ -23137,13 +23137,13 @@ void Player::InitRunes()
         m_runes->SetRuneState(i);
     }
 
-    for (uint32 i = 0; i < NUM_RUNE_TYPES; ++i)
+    for (uint8 i = 0; i < NUM_RUNE_TYPES; ++i)
         SetFloatValue(PLAYER_RUNE_REGEN_1 + i, 0.1f);
 }
 
 bool Player::IsBaseRuneSlotsOnCooldown(RuneType runeType) const
 {
-    for (uint32 i = 0; i < MAX_RUNES; ++i)
+    for (uint8 i = 0; i < MAX_RUNES; ++i)
         if (GetBaseRune(i) == runeType && GetRuneCooldown(i) == 0)
             return false;
 
