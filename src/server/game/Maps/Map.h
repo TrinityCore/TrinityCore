@@ -267,10 +267,9 @@ class Map : public GridRefManager<NGridType>
             return !getNGrid(p.x_coord, p.y_coord) || getNGrid(p.x_coord, p.y_coord)->GetGridState() == GRID_STATE_REMOVAL;
         }
 
-        bool IsLoaded(float x, float y) const
+        bool IsGridLoaded(float x, float y) const
         {
-            GridCoord p = Trinity::ComputeGridCoord(x, y);
-            return loaded(p);
+            return IsGridLoaded(Trinity::ComputeGridCoord(x, y));
         }
 
         bool GetUnloadLock(const GridCoord &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
@@ -447,10 +446,10 @@ class Map : public GridRefManager<NGridType>
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
 
-        bool loaded(const GridCoord &) const;
+        bool IsGridLoaded(const GridCoord &) const;
         void EnsureGridCreated(const GridCoord &);
         bool EnsureGridLoaded(Cell const&);
-        void EnsureGridLoadedAtEnter(Cell const&, Player* player = NULL);
+        void EnsureGridLoadedForActiveObject(Cell const&, WorldObject* object);
 
         void buildNGridLinkage(NGridType* pNGridType) { pNGridType->link(this); }
 
@@ -524,10 +523,10 @@ class Map : public GridRefManager<NGridType>
 
         // Type specific code for add/remove to/from grid
         template<class T>
-            void AddToGrid(T*, NGridType *, Cell const&);
+            void AddToGrid(T* object, Cell const& cell);
 
         template<class T>
-            void RemoveFromGrid(T*, NGridType *, Cell const&);
+            void RemoveFromGrid(T* object, Cell const& cell);
 
         template<class T>
             void DeleteFromWorld(T*);
@@ -624,7 +623,7 @@ Map::Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor)
     const uint32 cell_x = cell.CellX();
     const uint32 cell_y = cell.CellY();
 
-    if (!cell.NoCreate() || loaded(GridCoord(x, y)))
+    if (!cell.NoCreate() || IsGridLoaded(GridCoord(x, y)))
     {
         EnsureGridLoaded(cell);
         getNGrid(x, y)->Visit(cell_x, cell_y, visitor);
