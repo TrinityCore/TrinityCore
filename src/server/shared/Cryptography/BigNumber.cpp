@@ -18,31 +18,30 @@
 
 #include "Cryptography/BigNumber.h"
 #include <openssl/bn.h>
+#include <openssl/crypto.h>
 #include <algorithm>
 
 BigNumber::BigNumber()
-{
-    _bn = BN_new();
-    _array = NULL;
-}
+    : _bn(BN_new())
+    , _array(NULL)
+{ }
 
 BigNumber::BigNumber(const BigNumber &bn)
-{
-    _bn = BN_dup(bn._bn);
-    _array = NULL;
-}
+    : _bn(BN_dup(bn._bn))
+    , _array(NULL)
+{ }
 
 BigNumber::BigNumber(uint32 val)
+    : _bn(BN_new())
+    , _array(NULL)
 {
-    _bn = BN_new();
     BN_set_word(_bn, val);
-    _array = NULL;
 }
 
 BigNumber::~BigNumber()
 {
     BN_free(_bn);
-    if (_array) delete[] _array;
+    delete[] _array;
 }
 
 void BigNumber::SetDword(uint32 val)
@@ -76,6 +75,8 @@ void BigNumber::SetRand(int numbits)
 
 BigNumber BigNumber::operator=(const BigNumber &bn)
 {
+    if (this == &bn)
+        return *this;
     BN_copy(_bn, bn._bn);
     return *this;
 }

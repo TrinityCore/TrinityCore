@@ -88,6 +88,7 @@ class BIH
         {
             if (primitives.empty())
                 return;
+
             buildData dat;
             dat.maxPrims = leafSize;
             dat.numPrims = primitives.size();

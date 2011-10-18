@@ -139,7 +139,7 @@ void Log::Initialize()
         {
             bool m_gmlog_timestamp = ConfigMgr::GetBoolDefault("GmLogTimestamp", false);
 
-            size_t dot_pos = m_gmlog_filename_format.find_last_of(".");
+            size_t dot_pos = m_gmlog_filename_format.find_last_of('.');
             if (dot_pos!=m_gmlog_filename_format.npos)
             {
                 if (m_gmlog_timestamp)

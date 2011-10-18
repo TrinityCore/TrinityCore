@@ -362,6 +362,7 @@ namespace VMAP
     {
         if (triangles.empty())
             return false;
+
         GModelRayCallback callback(triangles, vertices);
         meshTree.intersectRay(ray, callback, distance, stopAtFirstHit);
         return callback.hit;
@@ -470,6 +471,7 @@ namespace VMAP
     {
         if (groupModels.empty())
             return false;
+
         WModelAreaCallback callback(groupModels, down);
         groupTree.intersectPoint(p, callback);
         if (callback.hit != groupModels.end())
@@ -488,6 +490,7 @@ namespace VMAP
     {
         if (groupModels.empty())
             return false;
+
         WModelAreaCallback callback(groupModels, down);
         groupTree.intersectPoint(p, callback);
         if (callback.hit != groupModels.end())

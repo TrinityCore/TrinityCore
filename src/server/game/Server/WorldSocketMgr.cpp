@@ -192,7 +192,7 @@ class ReactorRunnable : protected ACE_Task_Base
                 }
             }
 
-            sLog->outStaticDebug ("Network Thread Exitting");
+            sLog->outStaticDebug ("Network Thread exits");
 
             return 0;
         }
