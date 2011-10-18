@@ -727,7 +727,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
         case SPELL_AURA_MOD_THREAT:
         {
             uint8 level_diff = 0;
-            float multiplier = 0.0;
+            float multiplier = 0.0f;
             switch (GetId())
             {
                 // Arcane Shroud
