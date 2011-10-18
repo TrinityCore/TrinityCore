@@ -322,6 +322,7 @@ typedef UNORDERED_MAP<uint32, SpellBonusEntry>     SpellBonusMap;
 
 enum SpellGroup
 {
+	SPELL_GROUP_NONE = 0,
     SPELL_GROUP_ELIXIR_BATTLE = 1,
     SPELL_GROUP_ELIXIR_GUARDIAN = 2,
     SPELL_GROUP_ELIXIR_UNSTABLE = 3,
@@ -344,8 +345,9 @@ enum SpellGroupStackRule
     SPELL_GROUP_STACK_RULE_DEFAULT = 0,
     SPELL_GROUP_STACK_RULE_EXCLUSIVE = 1,
     SPELL_GROUP_STACK_RULE_EXCLUSIVE_FROM_SAME_CASTER = 2,
+	SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT = 3,
 };
-#define SPELL_GROUP_STACK_RULE_MAX 3
+#define SPELL_GROUP_STACK_RULE_MAX 4
 
 typedef std::map<SpellGroup, SpellGroupStackRule> SpellGroupStackMap;
 
@@ -596,6 +598,7 @@ class SpellMgr
         void GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>& foundSpells, std::set<SpellGroup>& usedGroups) const;
 
         // Spell Group Stack Rules table
+		bool AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, int32 amount, std::map<SpellGroup, int32>& groups) const;
         SpellGroupStackRule CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const;
 
         // Spell proc event table
