@@ -71,7 +71,7 @@ typedef NGrid<MAX_NUMBER_OF_CELLS, Player, AllWorldObjectTypes, AllGridObjectTyp
 typedef TypeMapContainer<AllGridObjectTypes> GridTypeMapContainer;
 typedef TypeMapContainer<AllWorldObjectTypes> WorldTypeMapContainer;
 
-template<const unsigned int LIMIT>
+template<uint32 LIMIT>
 struct CoordPair
 {
     CoordPair(uint32 x=0, uint32 y=0)
@@ -123,17 +123,22 @@ struct CoordPair
             y_coord = LIMIT - 1;
     }
 
+    bool IsCoordValid() const
+    {
+        return x_coord < LIMIT && y_coord < LIMIT;
+    }
+
     uint32 x_coord;
     uint32 y_coord;
 };
 
-template<const unsigned int LIMIT>
+template<uint32 LIMIT>
 bool operator==(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
 {
     return (p1.x_coord == p2.x_coord && p1.y_coord == p2.y_coord);
 }
 
-template<const unsigned int LIMIT>
+template<uint32 LIMIT>
 bool operator!=(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
 {
     return !(p1 == p2);
