@@ -815,7 +815,7 @@ void Map::AddCreatureToMoveList(Creature* c, float x, float y, float z, float an
     if (_creatureToMoveLock) //can this happen?
         return;
 
-    if(c->_moveState == CREATURE_CELL_MOVE_NONE)
+    if (c->_moveState == CREATURE_CELL_MOVE_NONE)
         _creaturesToMove.push_back(c);
     c->SetNewCellPosition(x, y, z, ang);
 }
@@ -825,7 +825,7 @@ void Map::RemoveCreatureFromMoveList(Creature* c)
     if (_creatureToMoveLock) //can this happen?
         return;
 
-    if(c->_moveState == CREATURE_CELL_MOVE_ACTIVE)
+    if (c->_moveState == CREATURE_CELL_MOVE_ACTIVE)
         c->_moveState = CREATURE_CELL_MOVE_INACTIVE;
 }
 
@@ -952,7 +952,7 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
     Cell resp_cell(resp_val);
 
     //creature will be unloaded with grid
-    if(diffGridOnly && !c->GetCurrentCell().DiffGrid(resp_cell))
+    if (diffGridOnly && !c->GetCurrentCell().DiffGrid(resp_cell))
         return true;
 
     c->CombatStop();
@@ -2142,10 +2142,10 @@ bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
     float viewDist = GetVisibilityRange();
     int cell_range = (int)ceilf(viewDist / SIZE_OF_GRID_CELL) + 1;
 
-    cell_min << cell_range;
-    cell_min -= cell_range;
-    cell_max >> cell_range;
-    cell_max += cell_range;
+    cell_min.dec_x(cell_range);
+    cell_min.dec_y(cell_range);
+    cell_max.inc_x(cell_range);
+    cell_max.inc_y(cell_range);
 
     for (MapRefManager::const_iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
     {

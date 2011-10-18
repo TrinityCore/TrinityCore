@@ -74,18 +74,24 @@ typedef TypeMapContainer<AllWorldObjectTypes> WorldTypeMapContainer;
 template<const unsigned int LIMIT>
 struct CoordPair
 {
-    CoordPair(uint32 x=0, uint32 y=0) : x_coord(x), y_coord(y) {}
-    CoordPair(const CoordPair<LIMIT> &obj) : x_coord(obj.x_coord), y_coord(obj.y_coord) {}
-    bool operator == (const CoordPair<LIMIT> &obj) const { return (obj.x_coord == x_coord && obj.y_coord == y_coord); }
-    bool operator != (const CoordPair<LIMIT> &obj) const { return !operator == (obj); }
-    CoordPair<LIMIT>& operator=(const CoordPair<LIMIT> &obj)
+    CoordPair(uint32 x=0, uint32 y=0)
+        : x_coord(x)
+        , y_coord(y)
+    {}
+
+    CoordPair(const CoordPair<LIMIT> &obj)
+        : x_coord(obj.x_coord)
+        , y_coord(obj.y_coord)
+    {}
+
+    CoordPair<LIMIT> & operator=(const CoordPair<LIMIT> &obj)
     {
         x_coord = obj.x_coord;
         y_coord = obj.y_coord;
         return *this;
     }
 
-    void operator<<(const uint32 val)
+    void dec_x(uint32 val)
     {
         if (x_coord > val)
             x_coord -= val;
@@ -93,15 +99,15 @@ struct CoordPair
             x_coord = 0;
     }
 
-    void operator>>(const uint32 val)
+    void inc_x(uint32 val)
     {
-        if (x_coord+val < LIMIT)
+        if (x_coord + val < LIMIT)
             x_coord += val;
         else
             x_coord = LIMIT - 1;
     }
 
-    void operator-=(const uint32 val)
+    void dec_y(uint32 val)
     {
         if (y_coord > val)
             y_coord -= val;
@@ -109,9 +115,9 @@ struct CoordPair
             y_coord = 0;
     }
 
-    void operator+=(const uint32 val)
+    void inc_y(uint32 val)
     {
-        if (y_coord+val < LIMIT)
+        if (y_coord + val < LIMIT)
             y_coord += val;
         else
             y_coord = LIMIT - 1;
@@ -120,6 +126,18 @@ struct CoordPair
     uint32 x_coord;
     uint32 y_coord;
 };
+
+template<const unsigned int LIMIT>
+bool operator==(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
+{
+    return (p1.x_coord == p2.x_coord && p1.y_coord == p2.y_coord);
+}
+
+template<const unsigned int LIMIT>
+bool operator!=(const CoordPair<LIMIT> &p1, const CoordPair<LIMIT> &p2)
+{
+    return !(p1 == p2);
+}
 
 typedef CoordPair<MAX_NUMBER_OF_GRIDS> GridPair;
 typedef CoordPair<TOTAL_NUMBER_OF_CELLS_PER_MAP> CellPair;
