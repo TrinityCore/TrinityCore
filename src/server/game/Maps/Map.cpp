@@ -234,8 +234,9 @@ void Map::InitVisibilityDistance()
 
 // Template specialization of utility methods
 template<class T>
-void Map::AddToGrid(T* obj, NGridType *grid, Cell const& cell)
+void Map::AddToGrid(T* obj, Cell const& cell)
 {
+    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     if (obj->m_isWorldObject)
         (*grid)(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
     else
@@ -243,8 +244,9 @@ void Map::AddToGrid(T* obj, NGridType *grid, Cell const& cell)
 }
 
 template<>
-void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
+void Map::AddToGrid(Creature* obj, Cell const& cell)
 {
+    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     if (obj->m_isWorldObject)
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
@@ -254,8 +256,9 @@ void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 }
 
 template<class T>
-void Map::RemoveFromGrid(T* obj, NGridType *grid, Cell const& cell)
+void Map::RemoveFromGrid(T* obj, Cell const& cell)
 {
+    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     if (obj->m_isWorldObject)
         (*grid)(cell.CellX(), cell.CellY()).template RemoveWorldObject<T>(obj);
     else
@@ -273,7 +276,7 @@ void Map::SwitchGridContainers(T* obj, bool on)
     }
 
     Cell cell(p);
-    if (!loaded(GridCoord(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+    if (!IsGridLoaded(GridCoord(cell.data.Part.grid_x, cell.data.Part.grid_y)))
         return;
 
     sLog->outStaticDebug("Switch object " UI64FMTD " from grid[%u, %u] %u", obj->GetGUID(), cell.data.Part.grid_x, cell.data.Part.grid_y, on);
@@ -322,8 +325,9 @@ void Map::DeleteFromWorld(Player* pl)
     delete pl;
 }
 
-void
-Map::EnsureGridCreated(const GridCoord &p)
+//Create NGrid so the object can be added to it
+//But object data is not loaded here
+void Map::EnsureGridCreated(const GridCoord &p)
 {
     if (!getNGrid(p.x_coord, p.y_coord))
     {
@@ -350,8 +354,8 @@ Map::EnsureGridCreated(const GridCoord &p)
     }
 }
 
-void
-Map::EnsureGridLoadedAtEnter(const Cell &cell, Player* player)
+//Load NGrid and make it active
+void Map::EnsureGridLoadedForActiveObject(const Cell &cell, WorldObject* object)
 {
     EnsureGridLoaded(cell);
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
@@ -360,20 +364,13 @@ Map::EnsureGridLoadedAtEnter(const Cell &cell, Player* player)
     // refresh grid state & timer
     if (grid->GetGridState() != GRID_STATE_ACTIVE)
     {
-        if (player)
-        {
-            sLog->outStaticDebug("Player %s enter cell[%u, %u] triggers loading of grid[%u, %u] on map %u", player->GetName(), cell.CellX(), cell.CellY(), cell.GridX(), cell.GridY(), GetId());
-        }
-        else
-        {
-            sLog->outStaticDebug("Active object nearby triggers loading of grid [%u, %u] on map %u", cell.GridX(), cell.GridY(), GetId());
-        }
-
+        sLog->outStaticDebug("Active object "UI64FMTD" triggers loading of grid [%u, %u] on map %u", object->GetGUID(), cell.GridX(), cell.GridY(), GetId());
         ResetGridExpiry(*grid, 0.1f);
         grid->SetGridState(GRID_STATE_ACTIVE);
     }
 }
 
+//Create NGrid and load the object data in it
 bool Map::EnsureGridLoaded(const Cell &cell)
 {
     EnsureGridCreated(GridCoord(cell.GridX(), cell.GridY()));
@@ -416,10 +413,8 @@ bool Map::AddToMap(Player* player)
     player->SetMap(this);
 
     Cell cell(p);
-    EnsureGridLoadedAtEnter(cell, player);
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    ASSERT(grid != NULL);
-    AddToGrid(player, grid, cell);
+    EnsureGridLoadedForActiveObject(cell, player);
+    AddToGrid(player, cell);
 
     player->AddToWorld();
 
@@ -463,14 +458,11 @@ Map::AddToMap(T *obj)
     }
 
     if (obj->isActiveObject())
-        EnsureGridLoadedAtEnter(cell);
+        EnsureGridLoadedForActiveObject(cell, obj);
     else
         EnsureGridCreated(GridCoord(cell.GridX(), cell.GridY()));
 
-    NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    ASSERT(grid != NULL);
-
-    AddToGrid(obj, grid, cell);
+    AddToGrid(obj, cell);
     //obj->SetMap(this);
     obj->AddToWorld();
     InitializeObject(obj);
@@ -485,7 +477,7 @@ Map::AddToMap(T *obj)
     obj->UpdateObjectVisibility(true);
 }
 
-bool Map::loaded(const GridCoord &p) const
+bool Map::IsGridLoaded(const GridCoord &p) const
 {
     return (getNGrid(p.x_coord, p.y_coord) && isGridObjectDataLoaded(p.x_coord, p.y_coord));
 }
@@ -696,11 +688,8 @@ void Map::RemoveFromMap(Player* player, bool remove)
         else
         {
             sLog->outStaticDebug("Remove player %s from grid[%u, %u]", player->GetName(), cell.GridX(), cell.GridY());
-            NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-            ASSERT(grid != NULL);
-
             player->UpdateObjectVisibility(true);
-            RemoveFromGrid(player, grid, cell);
+            RemoveFromGrid(player, cell);
         }
     }
 
@@ -724,14 +713,11 @@ Map::RemoveFromMap(T *obj, bool remove)
     else
     {
         Cell cell(p);
-        if (loaded(GridCoord(cell.data.Part.grid_x, cell.data.Part.grid_y)))
+        if (IsGridLoaded(GridCoord(cell.data.Part.grid_x, cell.data.Part.grid_y)))
         {
             sLog->outStaticDebug("Remove object " UI64FMTD " from grid[%u, %u]", obj->GetGUID(), cell.data.Part.grid_x, cell.data.Part.grid_y);
-            NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-            ASSERT(grid != NULL);
-
             obj->UpdateObjectVisibility(true);
-            RemoveFromGrid(obj, grid, cell);
+            RemoveFromGrid(obj, cell);
         }
     }
 
@@ -760,14 +746,12 @@ Map::PlayerRelocation(Player* player, float x, float y, float z, float orientati
     {
         sLog->outStaticDebug("Player %s relocation grid[%u, %u]cell[%u, %u]->grid[%u, %u]cell[%u, %u]", player->GetName(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
 
-        NGridType* oldGrid = getNGrid(old_cell.GridX(), old_cell.GridY());
-        RemoveFromGrid(player, oldGrid, old_cell);
+        RemoveFromGrid(player, old_cell);
 
         if (old_cell.DiffGrid(new_cell))
-            EnsureGridLoadedAtEnter(new_cell, player);
+            EnsureGridLoadedForActiveObject(new_cell, player);
 
-        NGridType* newGrid = getNGrid(new_cell.GridX(), new_cell.GridY());
-        AddToGrid(player, newGrid, new_cell);
+        AddToGrid(player, new_cell);
     }
 
     player->UpdateObjectVisibility(false);
@@ -888,8 +872,8 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
                 sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
             #endif
 
-            RemoveFromGrid(c, getNGrid(old_cell.GridX(), old_cell.GridY()), old_cell);
-            AddToGrid(c, getNGrid(new_cell.GridX(), new_cell.GridY()), new_cell);
+            RemoveFromGrid(c, old_cell);
+            AddToGrid(c, new_cell);
         }
         else
         {
@@ -904,28 +888,28 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
     // in diff. grids but active creature
     if (c->isActiveObject())
     {
-        EnsureGridLoadedAtEnter(new_cell);
+        EnsureGridLoadedForActiveObject(new_cell, c);
 
         #ifdef TRINITY_DEBUG
             sLog->outDebug(LOG_FILTER_MAPS, "Active creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
 
-        RemoveFromGrid(c, getNGrid(old_cell.GridX(), old_cell.GridY()), old_cell);
-        AddToGrid(c, getNGrid(new_cell.GridX(), new_cell.GridY()), new_cell);
+        RemoveFromGrid(c, old_cell);
+        AddToGrid(c, new_cell);
 
         return true;
     }
 
     // in diff. loaded grid normal creature
-    if (loaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
+    if (IsGridLoaded(GridCoord(new_cell.GridX(), new_cell.GridY())))
     {
         #ifdef TRINITY_DEBUG
             sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
 
-        RemoveFromGrid(c, getNGrid(old_cell.GridX(), old_cell.GridY()), old_cell);
+        RemoveFromGrid(c, old_cell);
         EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
-        AddToGrid(c, getNGrid(new_cell.GridX(), new_cell.GridY()), new_cell);
+        AddToGrid(c, new_cell);
 
         return true;
     }
