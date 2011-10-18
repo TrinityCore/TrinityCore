@@ -399,9 +399,7 @@ bool Map::EnsureGridLoaded(const Cell &cell)
 
 void Map::LoadGrid(float x, float y)
 {
-    CellCoord pair = Trinity::ComputeCellCoord(x, y);
-    Cell cell(pair);
-    EnsureGridLoaded(cell);
+    EnsureGridLoaded(Cell(x, y));
 }
 
 bool Map::AddToMap(Player* player)
@@ -494,7 +492,7 @@ bool Map::loaded(const GridCoord &p) const
 
 void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer> &worldVisitor)
 {
-    CellCoord standing_cell(Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY()));
+    CellCoord standing_cell(obj->GetPositionX(), obj->GetPositionY());
 
     // Check for correctness of standing_cell, it also avoids problems with update_cell
     if (!standing_cell.IsCoordValid())
@@ -753,11 +751,8 @@ Map::PlayerRelocation(Player* player, float x, float y, float z, float orientati
 {
     ASSERT(player);
 
-    CellCoord old_val = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
-    CellCoord new_val = Trinity::ComputeCellCoord(x, y);
-
-    Cell old_cell(old_val);
-    Cell new_cell(new_val);
+    Cell old_cell(player->GetPositionX(), player->GetPositionY());
+    Cell new_cell(x, y);
 
     player->Relocate(x, y, z, orientation);
 
@@ -784,9 +779,7 @@ Map::CreatureRelocation(Creature* creature, float x, float y, float z, float ang
     ASSERT(CheckGridIntegrity(creature, false));
 
     Cell old_cell = creature->GetCurrentCell();
-
-    CellCoord new_val = Trinity::ComputeCellCoord(x, y);
-    Cell new_cell(new_val);
+    Cell new_cell(x, y);
 
     if (!respawnRelocationOnFail && !getNGrid(new_cell.GridX(), new_cell.GridY()))
         return;
@@ -849,7 +842,7 @@ void Map::MoveAllCreaturesInMoveList()
             continue;
 
         // do move or do move to respawn or remove creature if previous all fail
-        if (CreatureCellRelocation(c, Cell(Trinity::ComputeCellCoord(c->_newPosition.m_positionX, c->_newPosition.m_positionY))))
+        if (CreatureCellRelocation(c, Cell(c->_newPosition.m_positionX, c->_newPosition.m_positionY)))
         {
             // update pos
             c->Relocate(c->_newPosition);
@@ -948,8 +941,7 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
 {
     float resp_x, resp_y, resp_z, resp_o;
     c->GetRespawnPosition(resp_x, resp_y, resp_z, &resp_o);
-    CellCoord resp_val = Trinity::ComputeCellCoord(resp_x, resp_y);
-    Cell resp_cell(resp_val);
+    Cell resp_cell(resp_x, resp_y);
 
     //creature will be unloaded with grid
     if (diffGridOnly && !c->GetCurrentCell().DiffGrid(resp_cell))
@@ -1876,9 +1868,7 @@ bool Map::IsUnderWater(float x, float y, float z) const
 bool Map::CheckGridIntegrity(Creature* c, bool moved) const
 {
     Cell const& cur_cell = c->GetCurrentCell();
-
-    CellCoord xy_val = Trinity::ComputeCellCoord(c->GetPositionX(), c->GetPositionY());
-    Cell xy_cell(xy_val);
+    Cell xy_cell(c->GetPositionX(), c->GetPositionY());
     if (xy_cell != cur_cell)
     {
         sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u) X: %f Y: %f (%s) is in grid[%u, %u]cell[%u, %u] instead of grid[%u, %u]cell[%u, %u]",
