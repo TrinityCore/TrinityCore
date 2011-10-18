@@ -694,6 +694,38 @@ void SpellMgr::GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>&
     }
 }
 
+bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, int32 amount, std::map<SpellGroup, int32>& groups) const
+{
+	uint32 spellId = spellInfo->GetFirstRankSpell()->Id;
+	SpellSpellGroupMapBounds spellGroup = GetSpellSpellGroupMapBounds(spellId);
+	// Find group with SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT if it belongs to one
+	for (SpellSpellGroupMap::const_iterator itr = spellGroup.first; itr != spellGroup.second ; ++itr)
+	{
+		SpellGroup group = itr->second;
+		SpellGroupStackMap::const_iterator found = mSpellGroupStack.find(group);
+        if (found != mSpellGroupStack.end())
+		{
+			if (found->second == SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT)
+			{
+				// Put the highest amount in the map
+				if (groups.find(group) == groups.end())
+				    groups[group] = amount;
+				else
+				{
+					int32 curr_amount = groups[group];
+					// Take absolute value because this also counts for the highest negative aura
+					if (abs(curr_amount) < abs(amount))
+						groups[group] = amount;
+				}
+				// return because a spell should be in only one SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT group
+				return true;
+			}
+		}
+	}
+	// Not in a SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT group, so return false
+	return false;
+}
+
 SpellGroupStackRule SpellMgr::CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const
 {
     uint32 spellid_1 = spellInfo1->GetFirstRankSpell()->Id;
@@ -3116,6 +3148,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 51726:
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->SpellFamilyFlags[2] = 0x10;
+				spellInfo->EffectApplyAuraName[1] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
                 break;
             case 41913: // Parasitic Shadowfiend Passive
                 spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends

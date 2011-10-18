@@ -4425,14 +4425,26 @@ int32 Unit::GetTotalAuraModifierByMiscMask(AuraType auratype, uint32 misc_mask) 
 
 float Unit::GetTotalAuraMultiplierByMiscMask(AuraType auratype, uint32 misc_mask) const
 {
+	std::map<SpellGroup, int32> SameEffectSpellGroup;
     float multiplier = 1.0f;
 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->GetMiscValue()& misc_mask)
-            AddPctN(multiplier, (*i)->GetAmount());
+        if (((*i)->GetMiscValue() & misc_mask))
+		{
+			// Check if the Aura Effect has a the Same Effect Stack Rule and if so, use the highest amount of that SpellGroup
+			// If the Aura Effect does not have this Stack Rule, it returns false so we can add to the multiplier as usual
+			if (!sSpellMgr->AddSameEffectStackRuleSpellGroups((*i)->GetSpellInfo(), (*i)->GetAmount(), SameEffectSpellGroup))
+                AddPctN(multiplier, (*i)->GetAmount());
+		}
     }
+	// Add the highest of the Same Effect Stack Rule SpellGroups to the multiplier
+	for (std::map<SpellGroup, int32>::const_iterator itr = SameEffectSpellGroup.begin(); itr != SameEffectSpellGroup.end(); ++itr)
+	{
+		AddPctN(multiplier, itr->second);
+	}
+
     return multiplier;
 }
 
