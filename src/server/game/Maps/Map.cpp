@@ -266,7 +266,7 @@ template<class T>
 void Map::SwitchGridContainers(T* obj, bool on)
 {
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (!p.IsCoordValid())
     {
         sLog->outError("Map::SwitchGridContainers: Object " UI64FMTD " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
@@ -409,7 +409,7 @@ bool Map::AddToMap(Player* player)
     // Check if we are adding to correct map
     ASSERT (player->GetMap() == this);
     CellCoord p = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (!p.IsCoordValid())
     {
         sLog->outError("Map::Add: Player (GUID: %u) has invalid coordinates X:%f Y:%f grid cell [%u:%u]", player->GetGUIDLow(), player->GetPositionX(), player->GetPositionY(), p.x_coord, p.y_coord);
         return false;
@@ -451,7 +451,7 @@ void
 Map::AddToMap(T *obj)
 {
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (!p.IsCoordValid())
     {
         sLog->outError("Map::Add: Object " UI64FMTD " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
         return;
@@ -497,7 +497,7 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
     CellCoord standing_cell(Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY()));
 
     // Check for correctness of standing_cell, it also avoids problems with update_cell
-    if (standing_cell.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || standing_cell.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (!standing_cell.IsCoordValid())
         return;
 
     // the overloaded operators handle range checking
@@ -688,7 +688,7 @@ void Map::RemoveFromMap(Player* player, bool remove)
     SendRemoveTransports(player);
 
     CellCoord p = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (!p.IsCoordValid())
         sLog->outCrash("Map::Remove: Player is in invalid cell!");
     else
     {
@@ -721,7 +721,7 @@ Map::RemoveFromMap(T *obj, bool remove)
         RemoveFromActive(obj);
 
     CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
-    if (p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP)
+    if (!p.IsCoordValid())
         sLog->outError("Map::Remove: Object " UI64FMTD " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
     else
     {
@@ -2132,8 +2132,7 @@ void Map::SendToPlayers(WorldPacket const* data) const
 
 bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
 {
-    ASSERT(x < MAX_NUMBER_OF_GRIDS);
-    ASSERT(y < MAX_NUMBER_OF_GRIDS);
+    ASSERT(x < MAX_NUMBER_OF_GRIDS && y < MAX_NUMBER_OF_GRIDS);
 
     CellCoord cell_min(x*MAX_NUMBER_OF_CELLS, y*MAX_NUMBER_OF_CELLS);
     CellCoord cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
