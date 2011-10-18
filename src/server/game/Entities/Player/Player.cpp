@@ -11898,8 +11898,14 @@ void Player::RemoveAmmo()
         UpdateDamagePhysical(RANGED_ATTACK);
 }
 
+Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId)
+{
+    AllowedLooterSet allowedLooters;
+    return StoreNewItem(dest, item, update, randomPropertyId, allowedLooters);
+}
+
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId, AllowedLooterSet* allowedLooters)
+Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId, AllowedLooterSet& allowedLooters)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
@@ -11919,16 +11925,18 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
                 CastSpell(this, proto->Spells[i].SpellId, true, pItem);
 
-        if (allowedLooters && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
+        if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
-            pItem->SetSoulboundTradeable(allowedLooters, this, true);
+            pItem->SetSoulboundTradeable(allowedLooters);
             pItem->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, GetTotalPlayedTime());
             m_itemSoulboundTradeable.push_back(pItem);
 
             // save data
             std::ostringstream ss;
-            for (AllowedLooterSet::iterator itr = allowedLooters->begin(); itr != allowedLooters->end(); ++itr)
-                ss << *itr << ' ';
+            AllowedLooterSet::const_iterator itr = allowedLooters.begin();
+            ss << *itr;
+            for (++itr; itr != allowedLooters.end(); ++itr)
+                ss << ' ' << *itr;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_ITEM_BOP_TRADE);
             stmt->setUInt32(0, pItem->GetGUIDLow());
@@ -12051,7 +12059,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
             pItem->SetOwnerGUID(GetGUID());                 // prevent error at next SetState in case trade/mail/buy from vendor
             pItem->SetNotRefundable(this);
-            pItem->SetSoulboundTradeable(NULL, this, false);
+            pItem->ClearSoulboundTradeable(this);
             RemoveTradeableItem(pItem);
             pItem->SetState(ITEM_REMOVED, this);
         }
@@ -12168,7 +12176,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
         pItem->SetOwnerGUID(GetGUID());                     // prevent error at next SetState in case trade/mail/buy from vendor
         pItem->SetNotRefundable(this);
-        pItem->SetSoulboundTradeable(NULL, this, false);
+        pItem->ClearSoulboundTradeable(this);
         RemoveTradeableItem(pItem);
         pItem->SetState(ITEM_REMOVED, this);
         pItem2->SetState(ITEM_CHANGED, this);
@@ -12388,7 +12396,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         RemoveItemDurations(pItem);
 
         pItem->SetNotRefundable(this);
-        pItem->SetSoulboundTradeable(NULL, this, false);
+        pItem->ClearSoulboundTradeable(this);
         RemoveTradeableItem(pItem);
 
         const ItemTemplate* proto = pItem->GetTemplate();
@@ -17474,7 +17482,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     AllowedLooterSet looters;
                     for (Tokens::iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
                         looters.insert(atol(*itr));
-                    item->SetSoulboundTradeable(&looters, this, true);
+                    item->SetSoulboundTradeable(looters);
                     m_itemSoulboundTradeable.push_back(item);
                 }
                 else
@@ -23202,8 +23210,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
     {
-        AllowedLooterSet* looters = item->GetAllowedLooters();
-        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
+        AllowedLooterSet looters = item->GetAllowedLooters();
+        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, looters);
 
         if (qitem)
         {

@@ -149,7 +149,7 @@ struct LootItem
     bool AllowedForPlayer(Player const* player) const;
 
     void AddAllowedLooter(Player const* player);
-    AllowedLooterSet* GetAllowedLooters() { return &allowedGUIDs; }
+    const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
 };
 
 struct QuestItem
