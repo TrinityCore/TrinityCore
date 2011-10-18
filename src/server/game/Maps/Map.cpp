@@ -484,7 +484,7 @@ bool Map::IsGridLoaded(const GridCoord &p) const
 
 void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer> &worldVisitor)
 {
-    CellCoord standing_cell(obj->GetPositionX(), obj->GetPositionY());
+    CellCoord standing_cell(Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY()));
 
     // Check for correctness of standing_cell, it also avoids problems with update_cell
     if (!standing_cell.IsCoordValid())
