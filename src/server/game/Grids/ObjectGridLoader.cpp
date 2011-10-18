@@ -28,26 +28,7 @@
 #include "CellImpl.h"
 #include "CreatureAI.h"
 
-class ObjectGridRespawnMover
-{
-    public:
-        ObjectGridRespawnMover() {}
-
-        void Move(GridType &grid);
-
-        template<class T> void Visit(GridRefManager<T> &) {}
-        void Visit(CreatureMapType &m);
-};
-
-void
-ObjectGridRespawnMover::Move(GridType &grid)
-{
-    TypeContainerVisitor<ObjectGridRespawnMover, GridTypeMapContainer > mover(*this);
-    grid.Visit(mover);
-}
-
-void
-ObjectGridRespawnMover::Visit(CreatureMapType &m)
+void ObjectGridEvacuator::Visit(CreatureMapType &m)
 {
     // creature in unloading grid can have respawn point in another grid
     // if it will be unloaded then it will not respawn in original grid until unload/load original grid
@@ -188,22 +169,6 @@ ObjectWorldLoader::Visit(CorpseMapType &m)
     LoadHelper(cell_guids.corpses, cellCoord, m, i_corpses, i_map);
 }
 
-void
-ObjectGridLoader::Load(GridType &grid)
-{
-    {
-        TypeContainerVisitor<ObjectGridLoader, GridTypeMapContainer > loader(*this);
-        grid.Visit(loader);
-    }
-
-    {
-        ObjectWorldLoader wloader(*this);
-        TypeContainerVisitor<ObjectWorldLoader, WorldTypeMapContainer > loader(wloader);
-        grid.Visit(loader);
-        i_corpses = wloader.i_corpses;
-    }
-}
-
 void ObjectGridLoader::LoadN(void)
 {
     i_gameObjects = 0; i_creatures = 0; i_corpses = 0;
@@ -214,35 +179,27 @@ void ObjectGridLoader::LoadN(void)
         for (unsigned int y=0; y < MAX_NUMBER_OF_CELLS; ++y)
         {
             i_cell.data.Part.cell_y = y;
-            GridLoader<Player, AllWorldObjectTypes, AllGridObjectTypes> loader;
-            loader.Load(i_grid(x, y), *this);
+
+            //Load creatures and game objects
+            {
+                TypeContainerVisitor<ObjectGridLoader, GridTypeMapContainer> visitor(*this);
+                i_grid.VisitGrid(x, y, visitor);
+            }
+
+            //Load corpses (not bones)
+            {
+                ObjectWorldLoader worker(*this);
+                TypeContainerVisitor<ObjectWorldLoader, WorldTypeMapContainer> visitor(worker);
+                i_grid.VisitGrid(x, y, visitor);
+                i_corpses += worker.i_corpses;
+            }
         }
     }
     sLog->outDebug(LOG_FILTER_MAPS, "%u GameObjects, %u Creatures, and %u Corpses/Bones loaded for grid %u on map %u", i_gameObjects, i_creatures, i_corpses, i_grid.GetGridId(), i_map->GetId());
 }
 
-void ObjectGridUnloader::MoveToRespawnN()
-{
-    for (unsigned int x=0; x < MAX_NUMBER_OF_CELLS; ++x)
-    {
-        for (unsigned int y=0; y < MAX_NUMBER_OF_CELLS; ++y)
-        {
-            ObjectGridRespawnMover mover;
-            mover.Move(i_grid(x, y));
-        }
-    }
-}
-
-void
-ObjectGridUnloader::Unload(GridType &grid)
-{
-    TypeContainerVisitor<ObjectGridUnloader, GridTypeMapContainer > unloader(*this);
-    grid.Visit(unloader);
-}
-
 template<class T>
-void
-ObjectGridUnloader::Visit(GridRefManager<T> &m)
+void ObjectGridUnloader::Visit(GridRefManager<T> &m)
 {
     while (!m.isEmpty())
     {
@@ -255,15 +212,7 @@ ObjectGridUnloader::Visit(GridRefManager<T> &m)
     }
 }
 
-void
-ObjectGridStoper::Stop(GridType &grid)
-{
-    TypeContainerVisitor<ObjectGridStoper, GridTypeMapContainer > stoper(*this);
-    grid.Visit(stoper);
-}
-
-void
-ObjectGridStoper::Visit(CreatureMapType &m)
+void ObjectGridStoper::Visit(CreatureMapType &m)
 {
     // stop any fights at grid de-activation and remove dynobjects created at cast by creatures
     for (CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
@@ -278,23 +227,14 @@ ObjectGridStoper::Visit(CreatureMapType &m)
     }
 }
 
-void
-ObjectGridCleaner::Stop(GridType &grid)
-{
-    TypeContainerVisitor<ObjectGridCleaner, GridTypeMapContainer > stoper(*this);
-    grid.Visit(stoper);
-}
-
-void
-ObjectGridCleaner::Visit(CreatureMapType &m)
+void ObjectGridCleaner::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
         iter->getSource()->CleanupsBeforeDelete();
 }
 
 template<class T>
-void
-ObjectGridCleaner::Visit(GridRefManager<T> &m)
+void ObjectGridCleaner::Visit(GridRefManager<T> &m)
 {
     for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
         iter->getSource()->RemoveFromWorld();
