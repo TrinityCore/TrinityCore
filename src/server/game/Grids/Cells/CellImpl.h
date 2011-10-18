@@ -50,7 +50,6 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER> &v
     }
 
     // set up the cell range based on the district
-    // the overloaded operators handle range checking
     CellPair begin_cell = standing_cell;
     CellPair end_cell = standing_cell;
 
@@ -58,54 +57,54 @@ Cell::Visit(const CellPair& standing_cell, TypeContainerVisitor<T, CONTAINER> &v
     {
         case ALL_DISTRICT:
         {
-            begin_cell << 1; begin_cell -= 1;               // upper left
-            end_cell >> 1; end_cell += 1;                   // lower right
+            begin_cell.dec_x(1); begin_cell.dec_y(1);       // upper left
+            end_cell.inc_x(1); end_cell.inc_y(1);           // lower right
             break;
         }
         case UPPER_LEFT_DISTRICT:
         {
-            begin_cell << 1; begin_cell -= 1;               // upper left
+            begin_cell.dec_x(1); begin_cell.dec_y(1);       // upper left
             break;
         }
         case UPPER_RIGHT_DISTRICT:
         {
-            begin_cell -= 1;                                // up
-            end_cell >> 1;                                  // right
+            begin_cell.dec_y(1);                            // up
+            end_cell.inc_x(1);                              // right
             break;
         }
         case LOWER_LEFT_DISTRICT:
         {
-            begin_cell << 1;                                // left
-            end_cell += 1;                                  // down
+            begin_cell.dec_x(1);                            // left
+            end_cell.inc_y(1);                              // down
             break;
         }
         case LOWER_RIGHT_DISTRICT:
         {
-            end_cell >> 1; end_cell += 1;                   // lower right
+            end_cell.inc_x(1); end_cell.inc_y(1);           // lower right
             break;
         }
         case LEFT_DISTRICT:
         {
-            begin_cell -= 1;                                // up
-            end_cell >> 1; end_cell += 1;                   // lower right
+            begin_cell.dec_y(1);                            // up
+            end_cell.inc_x(1); end_cell.inc_y(1);           // lower right
             break;
         }
         case RIGHT_DISTRICT:
         {
-            begin_cell << 1; begin_cell -= 1;               // upper left
-            end_cell += 1;                                  // down
+            begin_cell.dec_x(1); begin_cell.dec_y(1);       // upper left
+            end_cell.inc_y(1);                              // down
             break;
         }
         case UPPER_DISTRICT:
         {
-            begin_cell << 1; begin_cell -= 1;               // upper left
-            end_cell >> 1;                                  // right
+            begin_cell.dec_x(1); begin_cell.dec_y(1);       // upper left
+            end_cell.inc_x(1);                              // right
             break;
         }
         case LOWER_DISTRICT:
         {
-            begin_cell << 1;                                // left
-            end_cell >> 1; end_cell += 1;                   // lower right
+            begin_cell.dec_x(1);                            // left
+            end_cell.inc_x(1); end_cell.inc_y(1);           // lower right
             break;
         }
         default:
