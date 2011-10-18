@@ -141,34 +141,36 @@ void InstanceScript::AddDoor(GameObject* door, bool add)
 
     for (DoorInfoMap::iterator itr = lower; itr != upper; ++itr)
     {
+        DoorInfo const& data = itr->second;
+
         if (add)
         {
-            itr->second.bossInfo->door[itr->second.type].insert(door);
-            switch (itr->second.boundary)
+            data.bossInfo->door[data.type].insert(door);
+            switch (data.boundary)
             {
                 default:
                 case BOUNDARY_NONE:
                     break;
                 case BOUNDARY_N:
                 case BOUNDARY_S:
-                    itr->second.bossInfo->boundary[itr->second.boundary] = door->GetPositionX();
+                    data.bossInfo->boundary[data.boundary] = door->GetPositionX();
                     break;
                 case BOUNDARY_E:
                 case BOUNDARY_W:
-                    itr->second.bossInfo->boundary[itr->second.boundary] = door->GetPositionY();
+                    data.bossInfo->boundary[data.boundary] = door->GetPositionY();
                     break;
                 case BOUNDARY_NW:
                 case BOUNDARY_SE:
-                    itr->second.bossInfo->boundary[itr->second.boundary] = door->GetPositionX() + door->GetPositionY();
+                    data.bossInfo->boundary[data.boundary] = door->GetPositionX() + door->GetPositionY();
                     break;
                 case BOUNDARY_NE:
                 case BOUNDARY_SW:
-                    itr->second.bossInfo->boundary[itr->second.boundary] = door->GetPositionX() - door->GetPositionY();
+                    data.bossInfo->boundary[data.boundary] = door->GetPositionX() - door->GetPositionY();
                     break;
             }
         }
         else
-            itr->second.bossInfo->door[itr->second.type].erase(door);
+            data.bossInfo->door[data.type].erase(door);
     }
 
     if (add)

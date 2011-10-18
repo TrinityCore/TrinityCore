@@ -3690,7 +3690,7 @@ void Spell::EffectEnchantItemPerm(SpellEffIndex effIndex)
         // add new enchanting if equipped
         item_owner->ApplyEnchantment(itemTarget, PERM_ENCHANTMENT_SLOT, true);
 
-        itemTarget->SetSoulboundTradeable(NULL, item_owner, false);
+        itemTarget->ClearSoulboundTradeable(item_owner);
     }
 }
 
@@ -3754,7 +3754,7 @@ void Spell::EffectEnchantItemPrismatic(SpellEffIndex effIndex)
     // add new enchanting if equipped
     item_owner->ApplyEnchantment(itemTarget, PRISMATIC_ENCHANTMENT_SLOT, true);
 
-    itemTarget->SetSoulboundTradeable(NULL, item_owner, false);
+    itemTarget->ClearSoulboundTradeable(item_owner);
 }
 
 void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
