@@ -1149,7 +1149,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
         }
     }
 
-    for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr != info->item.end(); ++item_id_itr++)
+    for (PlayerCreateInfoItems::const_iterator item_id_itr = info->item.begin(); item_id_itr != info->item.end(); ++item_id_itr)
         StoreNewItemInBestSlots(item_id_itr->item_id, item_id_itr->item_amount);
 
     // bags and main-hand weapon must equipped at this moment
@@ -2464,7 +2464,7 @@ void Player::RegenerateAll()
 
     // Runes act as cooldowns, and they don't need to send any data
     if (getClass() == CLASS_DEATH_KNIGHT)
-        for (uint32 i = 0; i < MAX_RUNES; ++i)
+        for (uint8 i = 0; i < MAX_RUNES; ++i)
             if (uint32 cd = GetRuneCooldown(i))
                 SetRuneCooldown(i, (cd > m_regenTimer) ? cd - m_regenTimer : 0);
 
@@ -2868,7 +2868,6 @@ void Player::SetGMVisible(bool on)
     if (on)
     {
         m_ExtraFlags &= ~PLAYER_EXTRA_GM_INVISIBLE;         //remove flag
-
         m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GM, SEC_PLAYER);
     }
     else
@@ -5075,7 +5074,7 @@ void Player::BuildPlayerRepop()
 
     StopMirrorTimers();                                     //disable timers(bars)
 
-    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, (float)1.0f);   //see radius of death player?
+    SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, float(1.0f));   //see radius of death player?
 
     // set and clear other
     SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND);
@@ -9632,7 +9631,7 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 // End Round (timer), better explain this by example, eg. ends in 19:59 -> A:BC
                 data << uint32(0xde9) << uint32(0x0);       // 16 3561 C
                 data << uint32(0xde8) << uint32(0x0);       // 17 3560 B
-                data << uint32(0xde7) << uint32(0x0);      // 18 3559 A
+                data << uint32(0xde7) << uint32(0x0);       // 18 3559 A
                 data << uint32(0xe35) << uint32(0x0);       // 19 3637 East g - Horde control
                 data << uint32(0xe34) << uint32(0x0);       // 20 3636 West g - Horde control
                 data << uint32(0xe33) << uint32(0x0);       // 21 3635 South g - Horde control
@@ -11997,8 +11996,14 @@ void Player::RemoveAmmo()
         UpdateDamagePhysical(RANGED_ATTACK);
 }
 
+Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId)
+{
+    AllowedLooterSet allowedLooters;
+    return StoreNewItem(dest, item, update, randomPropertyId, allowedLooters);
+}
+
 // Return stored item (if stored to stack, it can diff. from pItem). And pItem ca be deleted in this case.
-Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId, AllowedLooterSet* allowedLooters)
+Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update, int32 randomPropertyId, AllowedLooterSet& allowedLooters)
 {
     uint32 count = 0;
     for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end(); ++itr)
@@ -12018,16 +12023,18 @@ Item* Player::StoreNewItem(ItemPosCountVec const& dest, uint32 item, bool update
             if (proto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE && proto->Spells[i].SpellId > 0) // On obtain trigger
                 CastSpell(this, proto->Spells[i].SpellId, true, pItem);
 
-        if (allowedLooters && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
+        if (allowedLooters.size() > 1 && pItem->GetTemplate()->GetMaxStackSize() == 1 && pItem->IsSoulBound())
         {
-            pItem->SetSoulboundTradeable(allowedLooters, this, true);
+            pItem->SetSoulboundTradeable(allowedLooters);
             pItem->SetUInt32Value(ITEM_FIELD_CREATE_PLAYED_TIME, GetTotalPlayedTime());
             m_itemSoulboundTradeable.push_back(pItem);
 
             // save data
             std::ostringstream ss;
-            for (AllowedLooterSet::iterator itr = allowedLooters->begin(); itr != allowedLooters->end(); ++itr)
-                ss << *itr << ' ';
+            AllowedLooterSet::const_iterator itr = allowedLooters.begin();
+            ss << *itr;
+            for (++itr; itr != allowedLooters.end(); ++itr)
+                ss << ' ' << *itr;
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_ITEM_BOP_TRADE);
             stmt->setUInt32(0, pItem->GetGUIDLow());
@@ -12150,7 +12157,7 @@ Item* Player::_StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool
 
             pItem->SetOwnerGUID(GetGUID());                 // prevent error at next SetState in case trade/mail/buy from vendor
             pItem->SetNotRefundable(this);
-            pItem->SetSoulboundTradeable(NULL, this, false);
+            pItem->ClearSoulboundTradeable(this);
             RemoveTradeableItem(pItem);
             pItem->SetState(ITEM_REMOVED, this);
         }
@@ -12267,7 +12274,7 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
 
         pItem->SetOwnerGUID(GetGUID());                     // prevent error at next SetState in case trade/mail/buy from vendor
         pItem->SetNotRefundable(this);
-        pItem->SetSoulboundTradeable(NULL, this, false);
+        pItem->ClearSoulboundTradeable(this);
         RemoveTradeableItem(pItem);
         pItem->SetState(ITEM_REMOVED, this);
         pItem2->SetState(ITEM_CHANGED, this);
@@ -12487,7 +12494,7 @@ void Player::DestroyItem(uint8 bag, uint8 slot, bool update)
         RemoveItemDurations(pItem);
 
         pItem->SetNotRefundable(this);
-        pItem->SetSoulboundTradeable(NULL, this, false);
+        pItem->ClearSoulboundTradeable(this);
         RemoveTradeableItem(pItem);
 
         const ItemTemplate* proto = pItem->GetTemplate();
@@ -13434,17 +13441,17 @@ void Player::UpdateSoulboundTradeItems()
     {
         if (!*itr)
         {
-            itr = m_itemSoulboundTradeable.erase(itr++);
+            m_itemSoulboundTradeable.erase(itr++);
             continue;
         }
         if ((*itr)->GetOwnerGUID() != GetGUID())
         {
-            itr = m_itemSoulboundTradeable.erase(itr++);
+            m_itemSoulboundTradeable.erase(itr++);
             continue;
         }
         if ((*itr)->CheckSoulboundTradeExpire())
         {
-            itr = m_itemSoulboundTradeable.erase(itr++);
+            m_itemSoulboundTradeable.erase(itr++);
             continue;
         }
         ++itr;
@@ -13690,7 +13697,7 @@ void Player::ApplyEnchantment(Item* item, EnchantmentSlot slot, bool apply, bool
                                     }
                                 }
                             }
-                            // Cast custom spell vs all equal basepoints getted from enchant_amount
+                            // Cast custom spell vs all equal basepoints got from enchant_amount
                             if (basepoints)
                                 CastCustomSpell(this, enchant_spell_id, &basepoints, &basepoints, &basepoints, true, item);
                             else
@@ -14680,8 +14687,7 @@ bool Player::CanCompleteQuest(uint32 quest_id)
         if (!qInfo)
             return false;
 
-        RewardedQuestSet::iterator rewItr = m_RewardedQuests.find(quest_id);
-        if (!qInfo->IsRepeatable() && rewItr != m_RewardedQuests.end())
+        if (!qInfo->IsRepeatable() && m_RewardedQuests.find(quest_id) != m_RewardedQuests.end())
             return false;                                   // not allow re-complete quest
 
         // auto complete quest
@@ -15010,8 +15016,7 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     if (log_slot < MAX_QUEST_LOG_SIZE)
         SetQuestSlot(log_slot, 0);
 
-    RewardedQuestSet::const_iterator rewItr = m_RewardedQuests.find(quest_id);
-    bool rewarded = (rewItr != m_RewardedQuests.end());
+    bool rewarded = (m_RewardedQuests.find(quest_id) != m_RewardedQuests.end());
 
     // Not give XP in case already completed once repeatable quest
     uint32 XP = rewarded ? 0 : uint32(quest->XPValue(this)*sWorld->getRate(RATE_XP_QUEST));
@@ -15760,11 +15765,11 @@ void Player::GroupEventHappens(uint32 questId, WorldObject const* pEventObject)
     {
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* pGroupGuy = itr->getSource();
+            Player* player = itr->getSource();
 
             // for any leave or dead (with not released body) group member at appropriate distance
-            if (pGroupGuy && pGroupGuy->IsAtGroupRewardDistance(pEventObject) && !pGroupGuy->GetCorpse())
-                pGroupGuy->AreaExploredOrEventHappens(questId);
+            if (player && player->IsAtGroupRewardDistance(pEventObject) && !player->GetCorpse())
+                player->AreaExploredOrEventHappens(questId);
         }
     }
     else
@@ -17580,7 +17585,7 @@ Item* Player::_LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, F
                     AllowedLooterSet looters;
                     for (Tokens::iterator itr = GUIDlist.begin(); itr != GUIDlist.end(); ++itr)
                         looters.insert(atol(*itr));
-                    item->SetSoulboundTradeable(&looters, this, true);
+                    item->SetSoulboundTradeable(looters);
                     m_itemSoulboundTradeable.push_back(item);
                 }
                 else
@@ -19936,7 +19941,7 @@ void Player::RemoveSpellMods(Spell* spell)
 
     for (uint8 i=0; i<MAX_SPELLMOD; ++i)
     {
-        for (SpellModList::iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();)
+        for (SpellModList::const_iterator itr = m_spellMods[i].begin(); itr != m_spellMods[i].end();)
         {
             SpellModifier* mod = *itr;
             ++itr;
@@ -19968,8 +19973,7 @@ void Player::DropModCharge(SpellModifier* mod, Spell* spell)
 
     if (spell && mod->ownerAura && mod->charges > 0)
     {
-        --mod->charges;
-        if (mod->charges == 0)
+        if (--mod->charges == 0)
             mod->charges = -1;
 
         spell->m_appliedMods.insert(mod->ownerAura);
@@ -21637,7 +21641,7 @@ void Player::SendInitialPacketsBeforeAddToMap()
 
     data.Initialize(SMSG_LOGIN_SETTIMESPEED, 4 + 4 + 4);
     data << uint32(secsToTimeBitFields(sWorld->GetGameTime()));
-    data << (float)0.01666667f;                             // game speed
+    data << float(0.01666667f);                             // game speed
     data << uint32(0);                                      // added in 3.1.2
     GetSession()->SendPacket(&data);
 
@@ -21682,7 +21686,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     if (HasAuraType(SPELL_AURA_MOD_STUN))
         SetMovement(MOVE_ROOT);
 
-    // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that don't must be re-applied.
+    // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
     {
         WorldPacket data2(SMSG_FORCE_MOVE_ROOT, 10);
@@ -22460,27 +22464,27 @@ bool Player::GetsRecruitAFriendBonus(bool forXP)
         {
             for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
             {
-                Player* pGroupGuy = itr->getSource();
-                if (!pGroupGuy)
+                Player* player = itr->getSource();
+                if (!player)
                     continue;
 
-                if (!pGroupGuy->IsAtRecruitAFriendDistance(this))
+                if (!player->IsAtRecruitAFriendDistance(this))
                     continue;                               // member (alive or dead) or his corpse at req. distance
 
                 if (forXP)
                 {
                     // level must be allowed to get RaF bonus
-                    if (pGroupGuy->getLevel() > sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+                    if (player->getLevel() > sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
                         continue;
 
                     // level difference must be small enough to get RaF bonus, UNLESS we are lower level
-                    if (pGroupGuy->getLevel() < getLevel())
-                        if (uint8(getLevel() - pGroupGuy->getLevel()) > sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE))
+                    if (player->getLevel() < getLevel())
+                        if (uint8(getLevel() - player->getLevel()) > sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL_DIFFERENCE))
                             continue;
                 }
 
-                bool ARecruitedB = (pGroupGuy->GetSession()->GetRecruiterId() == GetSession()->GetAccountId());
-                bool BRecruitedA = (GetSession()->GetRecruiterId() == pGroupGuy->GetSession()->GetAccountId());
+                bool ARecruitedB = (player->GetSession()->GetRecruiterId() == GetSession()->GetAccountId());
+                bool BRecruitedA = (GetSession()->GetRecruiterId() == player->GetSession()->GetAccountId());
                 if (ARecruitedB || BRecruitedA)
                 {
                     recruitAFriend = true;
@@ -22508,16 +22512,16 @@ void Player::RewardPlayerAndGroupAtEvent(uint32 creature_id, WorldObject* pRewar
     {
         for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* pGroupGuy = itr->getSource();
-            if (!pGroupGuy)
+            Player* player = itr->getSource();
+            if (!player)
                 continue;
 
-            if (!pGroupGuy->IsAtGroupRewardDistance(pRewardSource))
+            if (!player->IsAtGroupRewardDistance(pRewardSource))
                 continue;                               // member (alive or dead) or his corpse at req. distance
 
             // quest objectives updated only for alive group member or dead but with not released body
-            if (pGroupGuy->isAlive()|| !pGroupGuy->GetCorpse())
-                pGroupGuy->KilledMonsterCredit(creature_id, creature_guid);
+            if (player->isAlive()|| !player->GetCorpse())
+                player->KilledMonsterCredit(creature_id, creature_guid);
         }
     }
     else                                                    // if (!group)
@@ -22918,10 +22922,6 @@ bool ItemPosCount::isContainedIn(ItemPosCountVec const& vec) const
             return true;
     return false;
 }
-
-// ***********************************
-// -------------TRINITY---------------
-// ***********************************
 
 void Player::StopCastingBindSight()
 {
@@ -23342,8 +23342,8 @@ void Player::StoreLootItem(uint8 lootSlot, Loot* loot)
     InventoryResult msg = CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, item->itemid, item->count);
     if (msg == EQUIP_ERR_OK)
     {
-        AllowedLooterSet* looters = item->GetAllowedLooters();
-        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, (looters->size() > 1) ? looters : NULL);
+        AllowedLooterSet looters = item->GetAllowedLooters();
+        Item* newitem = StoreNewItem(dest, item->itemid, true, item->randomPropertyId, looters);
 
         if (qitem)
         {
@@ -24856,7 +24856,7 @@ float Player::GetAverageItemLevel()
         if (m_items[i] && m_items[i]->GetTemplate())
             sum += m_items[i]->GetTemplate()->GetItemLevelIncludingQuality();
 
-        count++;
+        ++count;
     }
 
     return ((float)sum) / count;

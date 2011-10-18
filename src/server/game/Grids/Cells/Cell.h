@@ -51,10 +51,10 @@ struct CellArea
 
     void ResizeBorders(CellPair& begin_cell, CellPair& end_cell) const
     {
-        begin_cell << left_offset;
-        begin_cell -= lower_offset;
-        end_cell >> right_offset;
-        end_cell += upper_offset;
+        begin_cell.dec_x(left_offset);
+        begin_cell.dec_y(lower_offset);
+        end_cell.inc_x(right_offset);
+        end_cell.inc_y(upper_offset);
     }
 
     int right_offset;
