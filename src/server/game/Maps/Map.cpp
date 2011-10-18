@@ -962,8 +962,6 @@ bool Map::UnloadGrid(const uint32 x, const uint32 y, bool unloadAll)
 
         sLog->outDebug(LOG_FILTER_MAPS, "Unloading grid[%u, %u] for map %u", x, y, GetId());
 
-        ObjectGridUnloader unloader(*grid);
-
         if (!unloadAll)
         {
             // Finish creature moves, remove and delete all creatures with delayed remove before moving to respawn grids
@@ -971,18 +969,27 @@ bool Map::UnloadGrid(const uint32 x, const uint32 y, bool unloadAll)
             MoveAllCreaturesInMoveList();
 
             // move creatures to respawn grids if this is diff.grid or to remove list
-            unloader.MoveToRespawnN();
+            ObjectGridEvacuator worker;
+            TypeContainerVisitor<ObjectGridEvacuator, GridTypeMapContainer> visitor(worker);
+            grid->VisitAllGrids(visitor);
 
             // Finish creature moves, remove and delete all creatures with delayed remove before unload
             MoveAllCreaturesInMoveList();
         }
 
-        ObjectGridCleaner cleaner(*grid);
-        cleaner.CleanN();
+        {
+            ObjectGridCleaner worker;
+            TypeContainerVisitor<ObjectGridCleaner, GridTypeMapContainer> visitor(worker);
+            grid->VisitAllGrids(visitor);
+        }
 
         RemoveAllObjectsInRemoveList();
 
-        unloader.UnloadN();
+        {
+            ObjectGridUnloader worker;
+            TypeContainerVisitor<ObjectGridUnloader, GridTypeMapContainer> visitor(worker);
+            grid->VisitAllGrids(visitor);
+        }
 
         ASSERT(i_objectsToRemove.empty());
 
