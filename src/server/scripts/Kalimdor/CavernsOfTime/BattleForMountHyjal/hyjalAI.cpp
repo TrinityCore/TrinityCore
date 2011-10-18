@@ -934,7 +934,7 @@ void hyjalAI::JustDied(Unit* /*killer*/)
 }
 void hyjalAI::HideNearPos(float x, float y)
 {
-    CellPair pair(Trinity::ComputeCellPair(x, y));
+    CellCoord pair(Trinity::ComputeCellCoord(x, y));
     Cell cell(pair);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -961,7 +961,7 @@ void hyjalAI::HideNearPos(float x, float y)
 }
 void hyjalAI::RespawnNearPos(float x, float y)
 {
-    CellPair p(Trinity::ComputeCellPair(x, y));
+    CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -992,7 +992,7 @@ void hyjalAI::WaypointReached(uint32 i)
         }
         //do some talking
         //all alive guards walk near here
-        CellPair pair(Trinity::ComputeCellPair(me->GetPositionX(), me->GetPositionY()));
+        CellCoord pair(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
         Cell cell(pair);
         cell.data.Part.reserved = ALL_DISTRICT;
         cell.SetNoCreate();
@@ -1034,7 +1034,7 @@ void hyjalAI::DoOverrun(uint32 faction, const uint32 diff)
     {
         if (TeleportTimer <= diff)
         {
-            CellPair pair(Trinity::ComputeCellPair(me->GetPositionX(), me->GetPositionY()));
+            CellCoord pair(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
             Cell cell(pair);
             cell.data.Part.reserved = ALL_DISTRICT;
             cell.SetNoCreate();

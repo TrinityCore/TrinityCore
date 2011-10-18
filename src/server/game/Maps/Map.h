@@ -263,18 +263,18 @@ class Map : public GridRefManager<NGridType>
 
         bool IsRemovalGrid(float x, float y) const
         {
-            GridPair p = Trinity::ComputeGridPair(x, y);
+            GridCoord p = Trinity::ComputeGridCoord(x, y);
             return !getNGrid(p.x_coord, p.y_coord) || getNGrid(p.x_coord, p.y_coord)->GetGridState() == GRID_STATE_REMOVAL;
         }
 
         bool IsLoaded(float x, float y) const
         {
-            GridPair p = Trinity::ComputeGridPair(x, y);
+            GridCoord p = Trinity::ComputeGridCoord(x, y);
             return loaded(p);
         }
 
-        bool GetUnloadLock(const GridPair &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
-        void SetUnloadLock(const GridPair &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
+        bool GetUnloadLock(const GridCoord &p) const { return getNGrid(p.x_coord, p.y_coord)->getUnloadLock(); }
+        void SetUnloadLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadExplicitLock(on); }
         void LoadGrid(float x, float y);
         bool UnloadGrid(const uint32 x, const uint32 y, bool pForce);
         virtual void UnloadAll();
@@ -371,8 +371,8 @@ class Map : public GridRefManager<NGridType>
         void AddObjectToSwitchList(WorldObject* obj, bool on);
         virtual void DelayedUpdate(const uint32 diff);
 
-        void UpdateObjectVisibility(WorldObject* obj, Cell cell, CellPair cellpair);
-        void UpdateObjectsVisibilityFor(Player* player, Cell cell, CellPair cellpair);
+        void UpdateObjectVisibility(WorldObject* obj, Cell cell, CellCoord cellpair);
+        void UpdateObjectsVisibilityFor(Player* player, Cell cell, CellCoord cellpair);
 
         void resetMarkedCells() { marked_cells.reset(); }
         bool isCellMarked(uint32 pCellId) { return marked_cells.test(pCellId); }
@@ -447,8 +447,8 @@ class Map : public GridRefManager<NGridType>
         bool _creatureToMoveLock;
         std::vector<Creature*> _creaturesToMove;
 
-        bool loaded(const GridPair &) const;
-        void EnsureGridCreated(const GridPair &);
+        bool loaded(const GridCoord &) const;
+        void EnsureGridCreated(const GridCoord &);
         bool EnsureGridLoaded(Cell const&);
         void EnsureGridLoadedAtEnter(Cell const&, Player* player = NULL);
 
@@ -471,7 +471,7 @@ class Map : public GridRefManager<NGridType>
 
         void UpdateActiveCells(const float &x, const float &y, const uint32 t_diff);
     protected:
-        void SetUnloadReferenceLock(const GridPair &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
+        void SetUnloadReferenceLock(const GridCoord &p, bool on) { getNGrid(p.x_coord, p.y_coord)->setUnloadReferenceLock(on); }
 
         ACE_Thread_Mutex Lock;
 
@@ -624,7 +624,7 @@ Map::Visit(const Cell& cell, TypeContainerVisitor<T, CONTAINER> &visitor)
     const uint32 cell_x = cell.CellX();
     const uint32 cell_y = cell.CellY();
 
-    if (!cell.NoCreate() || loaded(GridPair(x, y)))
+    if (!cell.NoCreate() || loaded(GridCoord(x, y)))
     {
         EnsureGridLoaded(cell);
         getNGrid(x, y)->Visit(cell_x, cell_y, visitor);
@@ -635,7 +635,7 @@ template<class NOTIFIER>
 inline void
 Map::VisitAll(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
-    CellPair p(Trinity::ComputeCellPair(x, y));
+    CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -651,7 +651,7 @@ template<class NOTIFIER>
 inline void
 Map::VisitFirstFound(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
-    CellPair p(Trinity::ComputeCellPair(x, y));
+    CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -669,7 +669,7 @@ template<class NOTIFIER>
 inline void
 Map::VisitWorld(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
-    CellPair p(Trinity::ComputeCellPair(x, y));
+    CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
@@ -682,7 +682,7 @@ template<class NOTIFIER>
 inline void
 Map::VisitGrid(const float &x, const float &y, float radius, NOTIFIER &notifier)
 {
-    CellPair p(Trinity::ComputeCellPair(x, y));
+    CellCoord p(Trinity::ComputeCellCoord(x, y));
     Cell cell(p);
     cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();

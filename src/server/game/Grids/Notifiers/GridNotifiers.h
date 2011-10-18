@@ -81,9 +81,9 @@ namespace Trinity
     {
         Map &i_map;
         Cell &cell;
-        CellPair &p;
+        CellCoord &p;
         const float i_radius;
-        DelayedUnitRelocation(Cell &c, CellPair &pair, Map &map, float radius) :
+        DelayedUnitRelocation(Cell &c, CellCoord &pair, Map &map, float radius) :
             i_map(map), cell(c), p(pair), i_radius(radius) {}
         template<class T> void Visit(GridRefManager<T> &) {}
         void Visit(CreatureMapType &);
