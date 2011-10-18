@@ -115,6 +115,7 @@ void commandFinished(void*, bool /*success*/)
     printf("TC> ");
     fflush(stdout);
 }
+
 /**
  * Collects all GUIDs (and related info) from deleted characters which are still in the database.
  *
@@ -562,10 +563,11 @@ void CliRunnable::run()
 {
     ///- Display the list of available CLI functions then beep
     //sLog->outString("");
-    #if PLATFORM != PLATFORM_WINDOWS
+#if PLATFORM != PLATFORM_WINDOWS
     rl_attempted_completion_function = cli_completion;
     rl_event_hook = cli_hook_func;
-    #endif
+#endif
+
     if (ConfigMgr::GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
@@ -580,49 +582,49 @@ void CliRunnable::run()
 
         char *command_str ;             // = fgets(commandbuf, sizeof(commandbuf), stdin);
 
-        #if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS
         char commandbuf[256];
         command_str = fgets(commandbuf, sizeof(commandbuf), stdin);
-        #else
+#else
         command_str = readline("TC>");
         rl_bind_key('\t', rl_complete);
-        #endif
+#endif
+
         if (command_str != NULL)
         {
-            for (int x=0; command_str[x]; x++)
-                if (command_str[x]=='\r'||command_str[x]=='\n')
+            for (int x=0; command_str[x]; ++x)
+                if (command_str[x] == '\r' || command_str[x] == '\n')
                 {
-                    command_str[x]=0;
+                    command_str[x] = 0;
                     break;
                 }
 
             if (!*command_str)
             {
-                #if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS
                 printf("TC>");
-                #endif
+#endif
                 continue;
             }
 
             std::string command;
             if (!consoleToUtf8(command_str, command))         // convert from console encoding to utf8
             {
-                #if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS
                 printf("TC>");
-                #endif
+#endif
                 continue;
             }
+
             fflush(stdout);
             sWorld->QueueCliCommand(new CliCommandHolder(NULL, command.c_str(), &utf8print, &commandFinished));
-            #if PLATFORM != PLATFORM_WINDOWS
+#if PLATFORM != PLATFORM_WINDOWS
             add_history(command.c_str());
-            #endif
-
+#endif
         }
         else if (feof(stdin))
         {
             World::StopNow(SHUTDOWN_EXIT_CODE);
         }
-
     }
 }

@@ -103,6 +103,7 @@ class BattlegroundQueue
         class SelectionPool
         {
         public:
+            SelectionPool(): PlayerCount(0) {};
             void Init();
             bool AddGroup(GroupQueueInfo* ginfo, uint32 desiredCount);
             bool KickGroup(uint32 size);
