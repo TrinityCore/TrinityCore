@@ -1859,6 +1859,12 @@ bool ChatHandler::HandleDamageCommand(const char * args)
         return false;
     }
 
+    if (target->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (HasLowerSecurity((Player*)target, 0, false))
+            return false;
+    }
+
     if (!target->isAlive())
         return true;
 
