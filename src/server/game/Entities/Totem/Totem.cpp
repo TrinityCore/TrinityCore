@@ -86,9 +86,15 @@ void Totem::InitStats(uint32 duration)
 
 void Totem::InitSummon()
 {
-    // use AddAura instead of CastSpell - this in fact should be an AddSpell equivalent for creatures, but nothing like that exists so far.
     if (m_type == TOTEM_PASSIVE)
-        AddAura(GetSpell(), this);
+    {
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(GetSpell());
+        // use AddAura instead of CastSpell if it's a passive aura - this in fact should be an AddSpell equivalent for creatures, but nothing like that exists so far.
+        if (spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
+            AddAura(spellInfo->Id, this);
+        else
+            CastSpell(this, spellInfo->Id, true);
+    }
 
     // Some totems can have both instant effect and passive spell
     if (GetSpell(1))
