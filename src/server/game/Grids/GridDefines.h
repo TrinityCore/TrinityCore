@@ -128,6 +128,13 @@ struct CoordPair
         return x_coord < LIMIT && y_coord < LIMIT;
     }
 
+    CoordPair& normalize()
+    {
+        x_coord = std::min(x_coord, LIMIT - 1);
+        y_coord = std::min(y_coord, LIMIT - 1);
+        return *this;
+    }
+
     uint32 x_coord;
     uint32 y_coord;
 };

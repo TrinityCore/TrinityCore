@@ -2877,10 +2877,11 @@ uint32 SmartScript::DoChat(int8 id, uint64 whisperGuid)
 
 Unit* SmartScript::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 {
-    if (!me) return NULL;
+    if (!me)
+        return NULL;
+
     CellCoord p(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     Unit* unit = NULL;
@@ -2896,10 +2897,11 @@ Unit* SmartScript::DoSelectLowestHpFriendly(float range, uint32 MinHPDiff)
 
 void SmartScript::DoFindFriendlyCC(std::list<Creature*>& _list, float range)
 {
-    if (!me) return;
+    if (!me)
+        return;
+
     CellCoord p(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     Trinity::FriendlyCCedInRange u_check(me, range);
@@ -2907,15 +2909,16 @@ void SmartScript::DoFindFriendlyCC(std::list<Creature*>& _list, float range)
 
     TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::FriendlyCCedInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
-    cell.Visit(p, grid_creature_searcher, *me->GetMap());
+    cell.Visit(p, grid_creature_searcher, *me->GetMap(), *me, range);
 }
 
 void SmartScript::DoFindFriendlyMissingBuff(std::list<Creature*>& list, float range, uint32 spellid)
 {
-    if (!me) return;
+    if (!me)
+        return;
+
     CellCoord p(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
 
     Trinity::FriendlyMissingBuffInRange u_check(me, range, spellid);
@@ -2923,7 +2926,7 @@ void SmartScript::DoFindFriendlyMissingBuff(std::list<Creature*>& list, float ra
 
     TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::FriendlyMissingBuffInRange>, GridTypeMapContainer >  grid_creature_searcher(searcher);
 
-    cell.Visit(p, grid_creature_searcher, *me->GetMap());
+    cell.Visit(p, grid_creature_searcher, *me->GetMap(), *me, range);
 }
 
 void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)

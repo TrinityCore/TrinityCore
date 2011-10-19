@@ -933,7 +933,6 @@ void GameObject::TriggeringLinkedGameObject(uint32 trapEntry, Unit* target)
         // using original GO distance
         CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
         Cell cell(p);
-        cell.data.Part.reserved = ALL_DISTRICT;
 
         Trinity::NearestGameObjectEntryInObjectRangeCheck go_check(*target, trapEntry, range);
         Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO, go_check);
@@ -953,7 +952,6 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
 
     CellCoord p(Trinity::ComputeCellCoord(GetPositionX(), GetPositionY()));
     Cell cell(p);
-    cell.data.Part.reserved = ALL_DISTRICT;
     Trinity::NearestGameObjectFishingHole u_check(*this, range);
     Trinity::GameObjectSearcher<Trinity::NearestGameObjectFishingHole> checker(this, ok, u_check);
 
