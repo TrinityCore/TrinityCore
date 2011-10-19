@@ -33,6 +33,8 @@ enum PriestSpells
     PRIEST_SPELL_PENANCE_R1_HEAL                = 47757,
     PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED    = 33619,
     PRIEST_SPELL_REFLECTIVE_SHIELD_R1           = 33201,
+    PRIEST_SPELL_SHADOWFIEND                    = 34433,
+    PRIEST_SPELL_SHADOWFIEND_TRIGGERED          = 28305,
 };
 
 // Guardian Spirit
@@ -273,6 +275,44 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
         }
 };
 
+class spell_pri_shadowfiend : public SpellScriptLoader
+{
+    public:
+        spell_pri_shadowfiend() : SpellScriptLoader("spell_pri_shadowfiend") { }
+
+        class spell_pri_shadowfiend_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_pri_shadowfiend_SpellScript);
+
+            bool Validate(SpellInfo const* spellEntry)
+            {
+                return sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOWFIEND) && sSpellMgr->GetSpellInfo(PRIEST_SPELL_SHADOWFIEND_TRIGGERED);
+            }
+
+            void HandleTriggerSpell(SpellEffIndex /*effIndex*/)
+            {
+                Unit* unitTarget = GetHitUnit();
+                if (!unitTarget)
+                    return;
+
+                if (Unit* pet = unitTarget->GetGuardianPet())
+                {
+                    pet->CastSpell(pet, PRIEST_SPELL_SHADOWFIEND_TRIGGERED, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_pri_shadowfiend_SpellScript::HandleTriggerSpell, EFFECT_1, SPELL_EFFECT_TRIGGER_SPELL);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_pri_shadowfiend_SpellScript;
+        }
+};
+
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_guardian_spirit();
@@ -281,4 +321,5 @@ void AddSC_priest_spell_scripts()
     new spell_pri_penance;
     new spell_pri_reflective_shield_trigger();
     new spell_pri_mind_sear();
+    new spell_pri_shadowfiend();
 }
