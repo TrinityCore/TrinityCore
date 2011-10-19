@@ -484,22 +484,16 @@ bool Map::IsGridLoaded(const GridCoord &p) const
 
 void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::ObjectUpdater, GridTypeMapContainer> &gridVisitor, TypeContainerVisitor<Trinity::ObjectUpdater, WorldTypeMapContainer> &worldVisitor)
 {
-    CellCoord standing_cell(Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY()));
-
-    // Check for correctness of standing_cell, it also avoids problems with update_cell
-    if (!standing_cell.IsCoordValid())
+    // Check for valid position
+    if (!obj->IsPositionValid())
         return;
 
-    // the overloaded operators handle range checking
-    // so there's no need for range checking inside the loop
-    CellCoord begin_cell(standing_cell), end_cell(standing_cell);
-    //lets update mobs/objects in ALL visible cells around object!
-    CellArea area = Cell::CalculateCellArea(*obj, obj->GetGridActivationRange());
-    area.ResizeBorders(begin_cell, end_cell);
+    // Update mobs/objects in ALL visible cells around object!
+    CellArea area = Cell::CalculateCellArea(obj->GetPositionX(), obj->GetPositionY(), obj->GetGridActivationRange());
 
-    for (uint32 x = begin_cell.x_coord; x <= end_cell.x_coord; ++x)
+    for (uint32 x = area.low_bound.x_coord; x <= area.high_bound.x_coord; ++x)
     {
-        for (uint32 y = begin_cell.y_coord; y <= end_cell.y_coord; ++y)
+        for (uint32 y = area.low_bound.y_coord; y <= area.high_bound.y_coord; ++y)
         {
             // marked cells are those that have been visited
             // don't visit the same cell twice
@@ -510,9 +504,8 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
             markCell(cell_id);
             CellCoord pair(x, y);
             Cell cell(pair);
-            cell.data.Part.reserved = CENTER_DISTRICT;
-            cell.Visit(pair, gridVisitor,  *this);
-            cell.Visit(pair, worldVisitor, *this);
+            Visit(cell, gridVisitor);
+            Visit(cell, worldVisitor);
         }
     }
 }
@@ -1841,7 +1834,7 @@ bool Map::IsInWater(float x, float y, float pZ, LiquidData* data) const
         LiquidData liquid_status;
         LiquidData* liquid_ptr = data ? data : &liquid_status;
         if (getLiquidStatus(x, y, pZ, MAP_ALL_LIQUIDS, liquid_ptr))
-                return true;
+            return true;
     }
     return false;
 }
@@ -1880,7 +1873,6 @@ const char* Map::GetMapName() const
 
 void Map::UpdateObjectVisibility(WorldObject* obj, Cell cell, CellCoord cellpair)
 {
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
     Trinity::VisibleChangesNotifier notifier(*obj);
     TypeContainerVisitor<Trinity::VisibleChangesNotifier, WorldTypeMapContainer > player_notifier(notifier);
@@ -1891,7 +1883,6 @@ void Map::UpdateObjectsVisibilityFor(Player* player, Cell cell, CellCoord cellpa
 {
     Trinity::VisibleNotifier notifier(*player);
 
-    cell.data.Part.reserved = ALL_DISTRICT;
     cell.SetNoCreate();
     TypeContainerVisitor<Trinity::VisibleNotifier, WorldTypeMapContainer > world_notifier(notifier);
     TypeContainerVisitor<Trinity::VisibleNotifier, GridTypeMapContainer  > grid_notifier(notifier);
