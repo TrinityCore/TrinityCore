@@ -1503,6 +1503,20 @@ class Unit : public WorldObject
         }
 
         virtual uint32 GetShieldBlockValue() const =0;
+        uint32 GetShieldBlockValue(uint32 soft_cap, uint32 hard_cap) const
+        {
+            uint32 value = GetShieldBlockValue();
+            if (value >= hard_cap)
+            {
+                value = (soft_cap + hard_cap) / 2;
+            }
+            else if (value > soft_cap)
+            {
+                value = soft_cap + ((value - soft_cap) / 2);
+            }
+        
+            return value;
+        }
         uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         uint32 GetDefenseSkillValue(Unit const* target = NULL) const;
         uint32 GetWeaponSkillValue(WeaponAttackType attType, Unit const* target = NULL) const;
