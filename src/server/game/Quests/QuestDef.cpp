@@ -205,6 +205,11 @@ int32  Quest::GetRewOrReqMoney() const
     return int32(RewOrReqMoney * sWorld->getRate(RATE_DROP_MONEY));
 }
 
+bool Quest::IsAutoComplete() const
+{
+    return QuestMethod == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
+}
+
 bool Quest::IsAllowedInRaid() const
 {
     if (IsRaidQuest())
