@@ -409,7 +409,7 @@ enum SpellAttr3
 enum SpellAttr4
 {
     SPELL_ATTR4_UNK0                             = 0x00000001, //  0
-    SPELL_ATTR4_UNK1                             = 0x00000002, //  1 proc on finishing move?
+    SPELL_ATTR4_PROC_ONLY_ON_DUMMY               = 0x00000002, //  1 proc only on SPELL_EFFECT_DUMMY?
     SPELL_ATTR4_UNK2                             = 0x00000004, //  2
     SPELL_ATTR4_UNK3                             = 0x00000008, //  3
     SPELL_ATTR4_UNK4                             = 0x00000010, //  4 This will no longer cause guards to attack on use??

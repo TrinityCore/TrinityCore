@@ -999,6 +999,7 @@ void WorldSession::ProcessQueryCallbacks()
         HandleCharCreateCallback(pResult, _charCreateCallback.GetParam());
         // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
+
     //! HandlePlayerLoginOpcode
     if (_charLoginCallback.ready())
     {

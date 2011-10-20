@@ -189,22 +189,21 @@ class boss_akilzon : public CreatureScript
                     for (uint8 i = 2; i < StormCount; ++i)
                         bp0 *= 2;
 
-                    CellPair p(Trinity::ComputeCellPair(me->GetPositionX(), me->GetPositionY()));
+                    CellCoord p(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
                     Cell cell(p);
-                    cell.data.Part.reserved = ALL_DISTRICT;
                     cell.SetNoCreate();
 
                     std::list<Unit*> tempUnitMap;
 
                     {
-                        Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, 999);
+                        Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(me, me, SIZE_OF_GRIDS);
                         Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(me, tempUnitMap, u_check);
 
                         TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, WorldTypeMapContainer > world_unit_searcher(searcher);
                         TypeContainerVisitor<Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck>, GridTypeMapContainer >  grid_unit_searcher(searcher);
 
-                        cell.Visit(p, world_unit_searcher, *(me->GetMap()));
-                        cell.Visit(p, grid_unit_searcher, *(me->GetMap()));
+                        cell.Visit(p, world_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
+                        cell.Visit(p, grid_unit_searcher, *me->GetMap(), *me, SIZE_OF_GRIDS);
                     }
                     //dealdamege
                     for (std::list<Unit*>::const_iterator i = tempUnitMap.begin(); i != tempUnitMap.end(); ++i)
