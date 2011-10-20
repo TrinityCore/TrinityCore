@@ -72,26 +72,26 @@ class Grid
 
         /** Refreshes/update the grid. This required for remote grids.
          */
-        void RefreshGrid(void) { /* TBI */}
+        //void RefreshGrid(void) { /* TBI */}
 
         /** Locks a grid.  Any object enters must wait until the grid is unlock.
          */
-        void LockGrid(void) { /* TBI */ }
+        //void LockGrid(void) { /* TBI */ }
 
         /** Unlocks the grid.
          */
-        void UnlockGrid(void) { /* TBI */ }
+        //void UnlockGrid(void) { /* TBI */ }
 
-        /** Grid visitor for grid objects
-         */
-        template<class T> void Visit(TypeContainerVisitor<T, TypeMapContainer<GRID_OBJECT_TYPES> > &visitor)
+        // Visit grid objects
+        template<class T>
+        void Visit(TypeContainerVisitor<T, TypeMapContainer<GRID_OBJECT_TYPES> > &visitor)
         {
             visitor.Visit(i_container);
         }
 
-        /** Grid visitor for world objects
-         */
-        template<class T> void Visit(TypeContainerVisitor<T, TypeMapContainer<WORLD_OBJECT_TYPES> > &visitor)
+        // Visit world objects
+        template<class T>
+        void Visit(TypeContainerVisitor<T, TypeMapContainer<WORLD_OBJECT_TYPES> > &visitor)
         {
             visitor.Visit(i_objects);
         }

@@ -696,6 +696,38 @@ void SpellMgr::GetSetOfSpellsInSpellGroup(SpellGroup group_id, std::set<uint32>&
     }
 }
 
+bool SpellMgr::AddSameEffectStackRuleSpellGroups(SpellInfo const* spellInfo, int32 amount, std::map<SpellGroup, int32>& groups) const
+{
+    uint32 spellId = spellInfo->GetFirstRankSpell()->Id;
+    SpellSpellGroupMapBounds spellGroup = GetSpellSpellGroupMapBounds(spellId);
+    // Find group with SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT if it belongs to one
+    for (SpellSpellGroupMap::const_iterator itr = spellGroup.first; itr != spellGroup.second ; ++itr)
+    {
+        SpellGroup group = itr->second;
+        SpellGroupStackMap::const_iterator found = mSpellGroupStack.find(group);
+        if (found != mSpellGroupStack.end())
+        {
+            if (found->second == SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT)
+            {
+                // Put the highest amount in the map
+                if (groups.find(group) == groups.end())
+                    groups[group] = amount;
+                else
+                {
+                    int32 curr_amount = groups[group];
+                    // Take absolute value because this also counts for the highest negative aura
+                    if (abs(curr_amount) < abs(amount))
+                        groups[group] = amount;
+                }
+                // return because a spell should be in only one SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT group
+                return true;
+            }
+        }
+    }
+    // Not in a SPELL_GROUP_STACK_RULE_EXCLUSIVE_SAME_EFFECT group, so return false
+    return false;
+}
+
 SpellGroupStackRule SpellMgr::CheckSpellGroupStackRules(SpellInfo const* spellInfo1, SpellInfo const* spellInfo2) const
 {
     uint32 spellid_1 = spellInfo1->GetFirstRankSpell()->Id;
@@ -3175,6 +3207,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 51726:
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 spellInfo->SpellFamilyFlags[2] = 0x10;
+                spellInfo->EffectApplyAuraName[1] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
                 break;
             case 41913: // Parasitic Shadowfiend Passive
                 spellInfo->EffectApplyAuraName[0] = 4; // proc debuff, and summon infinite fiends
@@ -3223,6 +3256,24 @@ void SpellMgr::LoadDbcDataCorrections()
             case 8145: // Tremor Totem (instant pulse)
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
+                break;
+            case 2895:  // Wrath of Air Totem rank 1 (Aura)
+            case 68933: // Wrath of Air Totem rank 2 (Aura)
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                spellInfo->EffectImplicitTargetB[0] = 0;
+                break;
+            case 52109: // Flametongue Totem rank 1 (Aura)
+            case 52110: // Flametongue Totem rank 2 (Aura)
+            case 52111: // Flametongue Totem rank 3 (Aura)
+            case 52112: // Flametongue Totem rank 4 (Aura)
+            case 52113: // Flametongue Totem rank 5 (Aura)
+            case 58651: // Flametongue Totem rank 6 (Aura)
+            case 58654: // Flametongue Totem rank 7 (Aura)
+            case 58655: // Flametongue Totem rank 8 (Aura)
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                spellInfo->EffectImplicitTargetB[0] = 0;
+                spellInfo->EffectImplicitTargetB[1] = 0;
                 break;
             case 53241: // Marked for Death (Rank 1)
             case 53243: // Marked for Death (Rank 2)
