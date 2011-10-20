@@ -167,6 +167,25 @@ enum eCannibalizeSpells
     SPELL_CANNIBALIZE_TRIGGERED = 20578,
 };
 
+class CannibalizeClassCheck
+{
+    public:
+        bool operator() (WorldObject* object)
+        {
+            WorldObject *target = object;
+            if (Corpse *pCorpse = target->ToCorpse())
+                target = ObjectAccessor::FindPlayer(pCorpse->GetOwnerGUID());
+
+            if (target->GetTypeId() == TYPEID_PLAYER)
+                return false;
+            else if (Creature *cTarget = target->ToCreature())
+                if (cTarget->GetCreatureType()==CREATURE_TYPE_UNDEAD || cTarget->GetCreatureType()==CREATURE_TYPE_HUMANOID)
+                    return false;
+
+            return true;
+        }
+};
+
 class spell_gen_cannibalize : public SpellScriptLoader
 {
     public:
@@ -187,12 +206,13 @@ class spell_gen_cannibalize : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 float max_range = GetSpellInfo()->GetMaxRange(false);
-                WorldObject* result = NULL;
+                std::list<WorldObject*> result;
                 // search for nearby enemy corpse in range
                 Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_SELECT_CHECK_ENEMY);
-                Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
-                caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
-                if (!result)
+                Trinity::WorldObjectListSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
+                caster->GetMap()->VisitAll(caster->m_positionX, caster->m_positionY, max_range, searcher);
+                result.remove_if(CannibalizeClassCheck());
+                if (result.empty())
                     return SPELL_FAILED_NO_EDIBLE_CORPSES;
                 return SPELL_CAST_OK;
             }
