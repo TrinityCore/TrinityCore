@@ -48,23 +48,23 @@ class HashMapHolder
     public:
 
         typedef UNORDERED_MAP<uint64, T*> MapType;
-        typedef ACE_Thread_Mutex LockType;
+        typedef ACE_RW_Thread_Mutex LockType;
 
         static void Insert(T* o)
         {
-            ACE_GUARD(LockType, Guard, i_lock);
+            ACE_WRITE_GUARD(LockType, Guard, i_lock);
             m_objectMap[o->GetGUID()] = o;
         }
 
         static void Remove(T* o)
         {
-            ACE_GUARD(LockType, Guard, i_lock);
+            ACE_WRITE_GUARD(LockType, Guard, i_lock);
             m_objectMap.erase(o->GetGUID());
         }
 
         static T* Find(uint64 guid)
         {
-            ACE_GUARD_RETURN(LockType, Guard, i_lock, NULL);
+            ACE_READ_GUARD_RETURN(LockType, Guard, i_lock, NULL);
             typename MapType::iterator itr = m_objectMap.find(guid);
             return (itr != m_objectMap.end()) ? itr->second : NULL;
         }
@@ -198,22 +198,22 @@ class ObjectAccessor
         Player* FindPlayerByName(const char* name);
 
         // when using this, you must use the hashmapholder's lock
-        HashMapHolder<Player>::MapType& GetPlayers()
+        HashMapHolder<Player>::MapType const& GetPlayers() const
         {
             return HashMapHolder<Player>::GetContainer();
         }
 
         // when using this, you must use the hashmapholder's lock
-        HashMapHolder<Creature>::MapType& GetCreatures()
-        {
-            return HashMapHolder<Creature>::GetContainer();
-        }
+        //HashMapHolder<Creature>::MapType& GetCreatures()
+        //{
+        //    return HashMapHolder<Creature>::GetContainer();
+        //}
 
-        // when using this, you must use the hashmapholder's lock
-        HashMapHolder<GameObject>::MapType& GetGameObjects()
-        {
-            return HashMapHolder<GameObject>::GetContainer();
-        }
+        //// when using this, you must use the hashmapholder's lock
+        //HashMapHolder<GameObject>::MapType& GetGameObjects()
+        //{
+        //    return HashMapHolder<GameObject>::GetContainer();
+        //}
 
         template<class T> void AddObject(T* object)
         {
