@@ -172,13 +172,14 @@ class CannibalizeClassCheck
     public:
         bool operator() (WorldObject* object)
         {
-            WorldObject *target = object;
-            if (Corpse *pCorpse = target->ToCorpse())
+            WorldObject* target = object;
+            if (Corpse* pCorpse = target->ToCorpse())
                 target = ObjectAccessor::FindPlayer(pCorpse->GetOwnerGUID());
+            else return true; // to avoid some crashes
 
             if (target->GetTypeId() == TYPEID_PLAYER)
                 return false;
-            else if (Creature *cTarget = target->ToCreature())
+            else if (Creature* cTarget = target->ToCreature())
                 if (cTarget->GetCreatureType()==CREATURE_TYPE_UNDEAD || cTarget->GetCreatureType()==CREATURE_TYPE_HUMANOID)
                     return false;
 
