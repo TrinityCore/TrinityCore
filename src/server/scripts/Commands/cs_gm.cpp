@@ -117,8 +117,8 @@ public:
         bool first = true;
         bool footer = false;
 
-        ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, *HashMapHolder<Player>::GetLock(), true);
-        HashMapHolder<Player>::MapType& m = sObjectAccessor->GetPlayers();
+        ACE_READ_GUARD_RETURN(HashMapHolder<Player>::LockType, guard, *HashMapHolder<Player>::GetLock(), true);
+        HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itrSec = itr->second->GetSession()->GetSecurity();
