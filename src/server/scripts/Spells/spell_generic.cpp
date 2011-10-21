@@ -175,7 +175,9 @@ class CannibalizeClassCheck
             WorldObject* target = object;
             if (Corpse* pCorpse = target->ToCorpse())
                 target = ObjectAccessor::FindPlayer(pCorpse->GetOwnerGUID());
-            else return true; // to avoid some crashes
+
+            if (!target)
+                return true; // to avoid some crashes
 
             if (target->GetTypeId() == TYPEID_PLAYER)
                 return false;
