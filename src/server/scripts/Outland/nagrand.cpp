@@ -1156,6 +1156,45 @@ public:
     };
 };
 
+/*######
+## go_warmaul_prison
+######*/
+
+enum FindingTheSurvivorsData
+{
+    QUEST_FINDING_THE_SURVIVORS                     = 9948,
+    NPC_MAGHAR_PRISONER                             = 18428,
+
+    SAY_FREE_0                                      = 0,
+    SAY_FREE_1                                      = 1,
+    SAY_FREE_2                                      = 2,
+    SAY_FREE_3                                      = 3,
+    SAY_FREE_4                                      = 4,
+};
+
+class go_warmaul_prison : public GameObjectScript
+{
+public:
+    go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
+
+    bool OnGossipHello(Player* player, GameObject* go)
+    {
+        if (Creature* prisoner = go->FindNearestCreature(NPC_MAGHAR_PRISONER, 1.0f))
+        {
+            if (prisoner)
+            {
+                go->UseDoorOrButton();
+                if (player)
+                    player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, 0);
+
+                prisoner->AI()->Talk(RAND(SAY_FREE_0, SAY_FREE_1, SAY_FREE_2, SAY_FREE_3, SAY_FREE_4), player->GetGUID());
+                prisoner->ForcedDespawn(6000);
+            }
+        }
+        return true;
+    }
+};
+
 void AddSC_nagrand()
 {
     new mob_shattered_rumbler();
@@ -1169,4 +1208,5 @@ void AddSC_nagrand()
     new npc_corki();
     new go_corkis_prison();
     new npc_kurenai_captive();
+    new go_warmaul_prison();
 }
