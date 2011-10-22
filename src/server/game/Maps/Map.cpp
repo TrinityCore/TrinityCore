@@ -934,13 +934,13 @@ bool Map::CreatureRespawnRelocation(Creature* c, bool diffGridOnly)
     return false;
 }
 
-bool Map::UnloadGrid(const uint32 x, const uint32 y, bool unloadAll)
+bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
 {
-    NGridType *grid = getNGrid(x, y);
-    ASSERT(grid != NULL);
+    const uint32 x = ngrid.getX();
+    const uint32 y = ngrid.getY();
 
     {
-        if (!unloadAll && ActiveObjectsNearGrid(x, y))
+        if (!unloadAll && ActiveObjectsNearGrid(ngrid))
              return false;
 
         sLog->outDebug(LOG_FILTER_MAPS, "Unloading grid[%u, %u] for map %u", x, y, GetId());
@@ -954,7 +954,7 @@ bool Map::UnloadGrid(const uint32 x, const uint32 y, bool unloadAll)
             // move creatures to respawn grids if this is diff.grid or to remove list
             ObjectGridEvacuator worker;
             TypeContainerVisitor<ObjectGridEvacuator, GridTypeMapContainer> visitor(worker);
-            grid->VisitAllGrids(visitor);
+            ngrid.VisitAllGrids(visitor);
 
             // Finish creature moves, remove and delete all creatures with delayed remove before unload
             MoveAllCreaturesInMoveList();
@@ -963,7 +963,7 @@ bool Map::UnloadGrid(const uint32 x, const uint32 y, bool unloadAll)
         {
             ObjectGridCleaner worker;
             TypeContainerVisitor<ObjectGridCleaner, GridTypeMapContainer> visitor(worker);
-            grid->VisitAllGrids(visitor);
+            ngrid.VisitAllGrids(visitor);
         }
 
         RemoveAllObjectsInRemoveList();
@@ -971,12 +971,12 @@ bool Map::UnloadGrid(const uint32 x, const uint32 y, bool unloadAll)
         {
             ObjectGridUnloader worker;
             TypeContainerVisitor<ObjectGridUnloader, GridTypeMapContainer> visitor(worker);
-            grid->VisitAllGrids(visitor);
+            ngrid.VisitAllGrids(visitor);
         }
 
         ASSERT(i_objectsToRemove.empty());
 
-        delete grid;
+        delete &ngrid;
         setNGrid(NULL, x, y);
     }
     int gx = (MAX_NUMBER_OF_GRIDS - 1) - x;
@@ -1030,7 +1030,7 @@ void Map::UnloadAll()
     {
         NGridType &grid(*i->getSource());
         ++i;
-        UnloadGrid(grid.getX(), grid.getY(), true);       // deletes the grid and removes it from the GridRefManager
+        UnloadGrid(grid, true);       // deletes the grid and removes it from the GridRefManager
     }
 }
 
@@ -1989,7 +1989,7 @@ void Map::DelayedUpdate(const uint32 t_diff)
             GridInfo* info = i->getSource()->getGridInfoRef();
             ++i;                                                // The update might delete the map and we need the next map before the iterator gets invalid
             ASSERT(grid->GetGridState() >= 0 && grid->GetGridState() < MAX_GRID_STATE);
-            si_GridStates[grid->GetGridState()]->Update(*this, *grid, *info, grid->getX(), grid->getY(), t_diff);
+            si_GridStates[grid->GetGridState()]->Update(*this, *grid, *info, t_diff);
         }
     }
 }
@@ -2092,11 +2092,9 @@ void Map::SendToPlayers(WorldPacket const* data) const
         itr->getSource()->GetSession()->SendPacket(data);
 }
 
-bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
+bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
 {
-    ASSERT(x < MAX_NUMBER_OF_GRIDS && y < MAX_NUMBER_OF_GRIDS);
-
-    CellCoord cell_min(x*MAX_NUMBER_OF_CELLS, y*MAX_NUMBER_OF_CELLS);
+    CellCoord cell_min(ngrid.getX() * MAX_NUMBER_OF_CELLS, ngrid.getY() * MAX_NUMBER_OF_CELLS);
     CellCoord cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
 
     //we must find visible range in cells so we unload only non-visible cells...
