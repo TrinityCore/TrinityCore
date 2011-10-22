@@ -1180,7 +1180,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go)
     {
         if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
-            return;
+            return false;
         
         if (Creature* prisoner = go->FindNearestCreature(NPC_MAGHAR_PRISONER, 1.0f))
         {
