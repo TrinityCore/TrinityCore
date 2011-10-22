@@ -970,6 +970,192 @@ public:
   };
 };
 
+/*#####
+## npc_kurenai_captive
+#####*/
+
+enum KurenaiCaptive
+{
+    SAY_KUR_START                   = 0,
+    SAY_KUR_NO_ESCAPE               = 1,
+    SAY_KUR_MORE                    = 2,
+    SAY_KUR_MORE_TWO                = 3,
+    SAY_KUR_LIGHTNING               = 4,
+    SAY_KUR_SHOCK                   = 5,
+    SAY_KUR_COMPLETE                = 6,
+
+    SPELL_KUR_CHAIN_LIGHTNING       = 16006,
+    SPELL_KUR_EARTHBIND_TOTEM       = 15786,
+    SPELL_KUR_FROST_SHOCK           = 12548,
+    SPELL_KUR_HEALING_WAVE          = 12491,
+
+    QUEST_TOTEM_KARDASH_A           = 9879,
+
+    NPC_KUR_MURK_RAIDER             = 18203,
+    NPC_KUR_MURK_BRUTE              = 18211,
+    NPC_KUR_MURK_SCAVENGER          = 18207,
+    NPC_KUR_MURK_PUTRIFIER          = 18202,
+};
+
+static float kurenaiAmbushA[]= {-1568.805786f, 8533.873047f, 1.958f};
+static float kurenaiAmbushB[]= {-1491.554321f, 8506.483398f, 1.248f};
+
+class npc_kurenai_captive : public CreatureScript
+{
+public:
+    npc_kurenai_captive() : CreatureScript("npc_kurenai_captive") { }
+
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
+    {
+        if (quest->GetQuestId() == QUEST_TOTEM_KARDASH_A)
+        {
+            if (npc_kurenai_captiveAI* EscortAI = dynamic_cast<npc_kurenai_captiveAI*>(creature->AI()))
+            {
+                creature->SetStandState(UNIT_STAND_STATE_STAND);
+                EscortAI->Start(true, false, player->GetGUID(), quest);
+                DoScriptText(SAY_KUR_START, creature);
+
+                creature->SummonCreature(NPC_KUR_MURK_RAIDER, kurenaiAmbushA[0]+2.5f, kurenaiAmbushA[1]-2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                creature->SummonCreature(NPC_KUR_MURK_BRUTE, kurenaiAmbushA[0]-2.5f, kurenaiAmbushA[1]+2.5f, kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                creature->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushA[0], kurenaiAmbushA[1], kurenaiAmbushA[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+            }
+        }
+        return true;
+    }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_kurenai_captiveAI(creature);
+    }
+
+    struct npc_kurenai_captiveAI : public npc_escortAI
+    {
+        npc_kurenai_captiveAI(Creature* creature) : npc_escortAI(creature) { }
+
+        uint32 ChainLightningTimer;
+        uint32 HealTimer;
+        uint32 FrostShockTimer;
+
+        void Reset()
+        {
+            ChainLightningTimer = 1000;
+            HealTimer = 0;
+            FrostShockTimer = 6000;
+        }
+
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoCast(me, SPELL_KUR_EARTHBIND_TOTEM, false);
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            if (!HasEscortState(STATE_ESCORT_ESCORTING))
+                return;
+
+            if (Player* player = GetPlayerForEscort())
+            {
+                if (player->GetQuestStatus(QUEST_TOTEM_KARDASH_A) != QUEST_STATUS_COMPLETE)
+                    player->FailQuest(QUEST_TOTEM_KARDASH_A);
+            }
+        }
+
+        void WaypointReached(uint32 PointId)
+        {
+            switch(PointId)
+            {
+                case 3:
+                {
+                    Talk(SAY_KUR_MORE);
+
+                    if (Creature* temp = me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0], kurenaiAmbushB[1], kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                        Talk(SAY_KUR_MORE_TWO);
+
+                    me->SummonCreature(NPC_KUR_MURK_PUTRIFIER, kurenaiAmbushB[0]-2.5f, kurenaiAmbushB[1]-2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0]+2.5f, kurenaiAmbushB[1]+2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_KUR_MURK_SCAVENGER, kurenaiAmbushB[0]+2.5f, kurenaiAmbushB[1]-2.5f, kurenaiAmbushB[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    break;
+                }
+                case 7:
+                {
+                    Talk(SAY_KUR_COMPLETE);
+
+                    if (Player* player = GetPlayerForEscort())
+                        player->GroupEventHappens(QUEST_TOTEM_KARDASH_A, me);
+
+                    SetRun();
+                    break;
+                }
+            }
+        }
+
+        void JustSummoned(Creature* summoned)
+        {
+            if (summoned->GetEntry() == NPC_KUR_MURK_BRUTE)
+                Talk(SAY_KUR_NO_ESCAPE);
+
+            // This function is for when we summoned enemies to fight - so that does NOT mean we should make our totem count in this!
+            if (summoned->isTotem())
+                return;
+
+            summoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+            summoned->AI()->AttackStart(me);
+        }
+
+        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell)
+        {
+            if (spell->Id == SPELL_KUR_CHAIN_LIGHTNING)
+            {
+                if (rand()%30)
+                    return;
+
+                Talk(SAY_KUR_LIGHTNING);
+            }
+
+            if (spell->Id == SPELL_KUR_FROST_SHOCK)
+            {
+                if (rand()%30)
+                    return;
+
+                Talk(SAY_KUR_SHOCK);
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            if (me->HasUnitState(UNIT_STAT_CASTING))
+                return;
+
+            if (ChainLightningTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_KUR_CHAIN_LIGHTNING);
+                ChainLightningTimer = urand(7000,14000);
+            } else ChainLightningTimer -= diff;
+
+            if (HealthBelowPct(30))
+            {
+                if (HealTimer <= diff)
+                {
+                    DoCast(me, SPELL_KUR_HEALING_WAVE);
+                    HealTimer = 5000;
+                } else HealTimer -= diff;
+            }
+
+            if (FrostShockTimer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_KUR_FROST_SHOCK);
+                FrostShockTimer = urand(7500,15000);
+            } else FrostShockTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+    };
+};
+
 void AddSC_nagrand()
 {
     new mob_shattered_rumbler();
@@ -982,4 +1168,5 @@ void AddSC_nagrand()
     new mob_sparrowhawk();
     new npc_corki();
     new go_corkis_prison();
+    new npc_kurenai_captive();
 }
