@@ -284,7 +284,7 @@ public:
 
                     if (m_uiPenetratingColdTimer <= uiDiff)
                     {
-                        me->CastCustomSpell(SPELL_PENETRATING_COLD, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5));
+                        me->CastCustomSpell(SPELL_PENETRATING_COLD, SPELLVALUE_MAX_TARGETS, RAID_MODE(2, 5, 2, 5));
                         m_uiPenetratingColdTimer = 20*IN_MILLISECONDS;
                     } else m_uiPenetratingColdTimer -= uiDiff;
 
