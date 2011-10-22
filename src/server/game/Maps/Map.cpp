@@ -238,9 +238,9 @@ void Map::AddToGrid(T* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     if (obj->m_isWorldObject)
-        (*grid)(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
+        grid->GetGridType(cell.CellX(), cell.CellY()).template AddWorldObject<T>(obj);
     else
-        (*grid)(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
+        grid->GetGridType(cell.CellX(), cell.CellY()).template AddGridObject<T>(obj);
 }
 
 template<>
@@ -248,9 +248,9 @@ void Map::AddToGrid(Creature* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     if (obj->m_isWorldObject)
-        (*grid)(cell.CellX(), cell.CellY()).AddWorldObject(obj);
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddWorldObject(obj);
     else
-        (*grid)(cell.CellX(), cell.CellY()).AddGridObject(obj);
+        grid->GetGridType(cell.CellX(), cell.CellY()).AddGridObject(obj);
 
     obj->SetCurrentCell(cell);
 }
@@ -260,9 +260,9 @@ void Map::RemoveFromGrid(T* obj, Cell const& cell)
 {
     NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
     if (obj->m_isWorldObject)
-        (*grid)(cell.CellX(), cell.CellY()).template RemoveWorldObject<T>(obj);
+        grid->GetGridType(cell.CellX(), cell.CellY()).template RemoveWorldObject<T>(obj);
     else
-        (*grid)(cell.CellX(), cell.CellY()).template RemoveGridObject<T>(obj);
+        grid->GetGridType(cell.CellX(), cell.CellY()).template RemoveGridObject<T>(obj);
 }
 
 template<class T>
@@ -283,27 +283,17 @@ void Map::SwitchGridContainers(T* obj, bool on)
     NGridType *ngrid = getNGrid(cell.GridX(), cell.GridY());
     ASSERT(ngrid != NULL);
 
-    GridType &grid = (*ngrid)(cell.CellX(), cell.CellY());
+    GridType &grid = ngrid->GetGridType(cell.CellX(), cell.CellY());
 
     if (on)
     {
         grid.RemoveGridObject<T>(obj);
         grid.AddWorldObject<T>(obj);
-        /*if (!grid.RemoveGridObject<T>(obj, obj->GetGUID())
-            || !grid.AddWorldObject<T>(obj, obj->GetGUID()))
-        {
-            ASSERT(false);
-        }*/
     }
     else
     {
         grid.RemoveWorldObject<T>(obj);
         grid.AddGridObject<T>(obj);
-        /*if (!grid.RemoveWorldObject<T>(obj, obj->GetGUID())
-            || !grid.AddGridObject<T>(obj, obj->GetGUID()))
-        {
-            ASSERT(false);
-        }*/
     }
     obj->m_isWorldObject = on;
 }
@@ -387,7 +377,7 @@ bool Map::EnsureGridLoaded(const Cell &cell)
         loader.LoadN();
 
         // Add resurrectable corpses to world object list in grid
-        sObjectAccessor->AddCorpsesToGrid(GridCoord(cell.GridX(), cell.GridY()), (*grid)(cell.CellX(), cell.CellY()), this);
+        sObjectAccessor->AddCorpsesToGrid(GridCoord(cell.GridX(), cell.GridY()), grid->GetGridType(cell.CellX(), cell.CellY()), this);
         return true;
     }
 
