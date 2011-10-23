@@ -19,12 +19,11 @@
 /* ScriptData
 SDName: Nagrand
 SD%Complete: 90
-SDComment: Quest support: 9868, 9874, 9991, 10044, 10172, 10646, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
+SDComment: Quest support: 9868, 9874, 10044, 10172, 10085. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
 SDCategory: Nagrand
 EndScriptData */
 
 /* ContentData
-npc_altruis_the_sufferer
 npc_greatmother_geyah
 npc_maghar_captive
 npc_creditmarker_visit_with_ancestors
@@ -32,106 +31,6 @@ EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
-
-/*######
-## npc_altruis_the_sufferer
-######*/
-
-#define GOSSIP_HATS1 "I see twisted steel and smell sundered earth."
-#define GOSSIP_HATS2 "Well...?"
-#define GOSSIP_HATS3 "[PH] Story about Illidan's Pupil"
-
-#define GOSSIP_SATS1 "Legion?"
-#define GOSSIP_SATS2 "And now?"
-#define GOSSIP_SATS3 "How do you see them now?"
-#define GOSSIP_SATS4 "Forge camps?"
-#define GOSSIP_SATS5 "Ok."
-#define GOSSIP_SATS6 "[PH] Story done"
-
-class npc_altruis_the_sufferer : public CreatureScript
-{
-public:
-    npc_altruis_the_sufferer() : CreatureScript("npc_altruis_the_sufferer") { }
-
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* /*quest*/)
-    {
-        if (!player->GetQuestRewardStatus(9991))              //Survey the Land, q-id 9991
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->ActivateTaxiPathTo(532);                  //TaxiPath 532
-        }
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF+10:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SATS1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
-                player->SEND_GOSSIP_MENU(9420, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+11:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SATS2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 12);
-                player->SEND_GOSSIP_MENU(9421, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+12:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SATS3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 13);
-                player->SEND_GOSSIP_MENU(9422, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+13:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SATS4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 14);
-                player->SEND_GOSSIP_MENU(9423, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+14:
-                player->SEND_GOSSIP_MENU(9424, creature->GetGUID());
-                break;
-
-            case GOSSIP_ACTION_INFO_DEF+20:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SATS5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
-                player->SEND_GOSSIP_MENU(9427, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+21:
-                player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(9991);
-                break;
-
-            case GOSSIP_ACTION_INFO_DEF+30:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SATS6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 31);
-                player->SEND_GOSSIP_MENU(384, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+31:
-                player->CLOSE_GOSSIP_MENU();
-                player->AreaExploredOrEventHappens(10646);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        //gossip before obtaining Survey the Land
-        if (player->GetQuestStatus(9991) == QUEST_STATUS_NONE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HATS1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+10);
-
-        //gossip when Survey the Land is incomplete (technically, after the flight)
-        if (player->GetQuestStatus(9991) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HATS2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+20);
-
-        //wowwiki.com/Varedis
-        if (player->GetQuestStatus(10646) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HATS3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+30);
-
-        player->SEND_GOSSIP_MENU(9419, creature->GetGUID());
-
-        return true;
-    }
-
-};
 
 /*######
 ## npc_greatmother_geyah
@@ -806,7 +705,6 @@ public:
 
 void AddSC_nagrand()
 {
-    new npc_altruis_the_sufferer();
     new npc_greatmother_geyah();
     new npc_maghar_captive();
     new npc_creditmarker_visit_with_ancestors();
