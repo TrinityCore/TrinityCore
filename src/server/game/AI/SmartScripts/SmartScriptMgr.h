@@ -460,7 +460,7 @@ enum SMART_ACTION
     SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
     SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
 
-    SMART_ACTION_END                                = 98,
+    SMART_ACTION_END                                = 99,
 };
 
 struct SmartAction
