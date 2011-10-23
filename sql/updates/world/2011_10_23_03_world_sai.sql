@@ -73,7 +73,7 @@ DELETE FROM `gossip_menu` WHERE `entry`=@GOSSIP+5 AND `text_id`=9356;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (@GOSSIP+5,9356);
 
 -- Insert option menu
-DELETE FROM `gossip_menu_option` WHERE `menu_id` BETWEEN @GOSSIP+0 AND @GOSSIP+4;
+DELETE FROM `gossip_menu_option` WHERE `menu_id` BETWEEN @GOSSIP+1 AND @GOSSIP+4;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`) VALUES
 (@GOSSIP+1,0,0,"I need answers, ogre!",1,1,@GOSSIP+2),
 (@GOSSIP+2,1,0,"Why are the Boulderfist out this far? You know that this is Kurenai territory.",1,1,@GOSSIP+3),
