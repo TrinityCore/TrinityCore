@@ -450,18 +450,15 @@ enum SMART_ACTION
     SMART_ACTION_CALL_RANDOM_TIMED_ACTIONLIST       = 87,     // script9 ids 1-9
     SMART_ACTION_CALL_RANDOM_RANGE_TIMED_ACTIONLIST = 88,     // script9 id min, max
     SMART_ACTION_RANDOM_MOVE                        = 89,     // maxDist
-
     SMART_ACTION_SET_UNIT_FIELD_BYTES_1             = 90,     // bytes, target
     SMART_ACTION_REMOVE_UNIT_FIELD_BYTES_1          = 91,     // bytes, target
-
     SMART_ACTION_INTERRUPT_SPELL                    = 92,
-
     SMART_ACTION_SEND_GO_CUSTOM_ANIM                = 93,     // anim id
-
     SMART_ACTION_SET_DYNAMIC_FLAG                   = 94,     // Flags
     SMART_ACTION_ADD_DYNAMIC_FLAG                   = 95,     // Flags
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
     SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
+    SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
 
     SMART_ACTION_END                                = 98,
 };
@@ -859,8 +856,14 @@ struct SmartAction
 
         struct
         {
-            uint32 GoRespawnTime;
+            uint32 goRespawnTime;
         } RespawnTarget;
+        
+        struct
+        {
+            uint32 gossipMenuId;
+            uint32 gossipOptionId;
+        } sendGossipMenu;
 
         struct
         {
