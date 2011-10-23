@@ -1595,7 +1595,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
         static uint32 const BOSS_LEVEL = 83;
         static float const BOSS_RESISTANCE_CONSTANT = 510.0f;
-        uint32 level = getLevel();
+        uint32 level = victim->getLevel();
         float resistanceConstant = 0.0f;
 
         if (level == BOSS_LEVEL)
