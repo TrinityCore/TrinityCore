@@ -2632,6 +2632,19 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
 
     if (e.timer < diff)
     {
+        // delay spell cast event if another spell is being casted
+        if (e.GetActionType() == SMART_ACTION_CAST)
+        {
+            if (!(e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS))
+            {
+                if (me && me->HasUnitState(UNIT_STAT_CASTING))
+                {
+                    e.timer = 1;
+                    return;
+                }
+            }
+        }
+
         e.active = true;//activate events with cooldown
         switch (e.GetEventType())//process ONLY timed events
         {
