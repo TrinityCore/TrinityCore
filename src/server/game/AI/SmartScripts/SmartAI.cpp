@@ -717,14 +717,13 @@ void SmartAI::SetFly(bool fly)
     {
         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
-        me->SetFlying(true);
     }
     else
     {
         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
-        me->SetFlying(false);
     }
+    me->SetFlying(fly);
     me->SendMovementFlagUpdate();
 }
 
