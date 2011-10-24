@@ -126,7 +126,7 @@ static const char* Text[]=
     "Now, know demise!"
 };
 
-#define EMOTE_LAUGHS    "Headless Horseman laughs"
+#define EMOTE_LAUGHS    "Headless Horseman laughs."
 
 class mob_wisp_invis : public CreatureScript
 {
@@ -149,7 +149,7 @@ public:
         uint32 delay;
         uint32 spell;
         uint32 spell2;
-        void Reset(){}
+		void Reset(){}
         void EnterCombat(Unit* /*who*/){}
         void SetType(uint32 _type)
         {
@@ -464,7 +464,8 @@ public:
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     SaySound(SAY_ENTRANCE);
                     if (Unit* player = Unit::GetUnit((*me), PlayerGUID))
-                        DoStartMovement(player);
+                        AttackStart(player);
+						
                     break;
                 }
             }
@@ -544,6 +545,7 @@ public:
                 CAST_AI(mob_wisp_invis::mob_wisp_invisAI, wisp->AI())->SetType(4);
             if (instance)
                 instance->SetData(DATA_HORSEMAN_EVENT, DONE);
+			me->SummonCreature (23904, 1762.756226f, 1344.992432f, 17.561937f, 0.021202f, TEMPSUMMON_TIMED_DESPAWN, 1000000000000);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
