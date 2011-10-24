@@ -276,6 +276,18 @@ struct boss_twin_baseAI : public ScriptedAI
         return Unit::GetCreature((*me), m_instance->GetData64(m_uiSisterNpcId));
     }
 
+    //From wowpedia: For the Twin Val'kyr, Fjola and Edyis both die at the same time (they share hp)
+    void DamageTaken(Unit* who, uint32& uiDamage)
+    {
+        if (who != me) //Redundant check
+            if (Creature* pSister = GetSister())
+            {
+                uiDamage /= 2; //Half damage to first sister...
+                pSister->DealDamage(pSister, uiDamage); //... and half damage to second sister
+                pSister->LowerPlayerDamageReq(uiDamage); //Count toward damage done by players
+            }
+    }
+
     void EnterCombat(Unit* /*who*/)
     {
         me->SetInCombatWithZone();
