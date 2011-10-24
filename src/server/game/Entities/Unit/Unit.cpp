@@ -13042,16 +13042,16 @@ int32 Unit::CalcSpellDuration(SpellInfo const* spellProto)
     return duration;
 }
 
-int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive)
+int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask)
 {
-    // don't mod permament auras duration
+    // don't mod permanent auras duration
     if (duration < 0)
         return duration;
 
     // cut duration only of negative effects
     if (!positive)
     {
-        int32 mechanic = spellProto->GetAllEffectsMechanicMask();
+        int32 mechanic = spellProto->GetSpellMechanicMaskByEffectMask(effectMask);
 
         int32 durationMod;
         int32 durationMod_always = 0;
