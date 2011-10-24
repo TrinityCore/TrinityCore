@@ -450,12 +450,14 @@ void SmartAI::EnterEvadeMode()
     {
         AddEscortState(SMART_ESCORT_RETURNING);
         ReturnToLastOOCPos();
-    } else if (mFollowGuid){
+    }
+    else if (mFollowGuid)
+    {
         if (Unit* target = me->GetUnit(*me, mFollowGuid))
             me->GetMotionMaster()->MoveFollow(target, mFollowDist, mFollowAngle);
-    } else {
-        me->GetMotionMaster()->MoveTargetedHome();
     }
+    else
+        me->GetMotionMaster()->MoveTargetedHome();
 
     Reset();
 }
@@ -705,12 +707,25 @@ void SmartAI::SetRun(bool run)
         me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
     else
         me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+    me->SendMovementFlagUpdate();
     mRun = run;
 }
 
 void SmartAI::SetFly(bool fly)
 {
-    me->SetFlying(fly);
+    if (fly)
+    {
+        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+        me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+        me->SetFlying(true);
+    }
+    else
+    {
+        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+        me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
+        me->SetFlying(false);
+    }
+    me->SendMovementFlagUpdate();
 }
 
 void SmartAI::SetSwim(bool swim)
@@ -719,6 +734,7 @@ void SmartAI::SetSwim(bool swim)
         me->AddUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
     else
         me->RemoveUnitMovementFlag(MOVEMENTFLAG_SWIMMING);
+    me->SendMovementFlagUpdate();
 }
 
 void SmartAI::sGossipHello(Player* player)
