@@ -32,6 +32,7 @@
 #include "SmartAI.h"
 #include "Group.h"
 #include "Vehicle.h"
+#include "ScriptedGossip.h"
 
 SmartScript::SmartScript()
 {
@@ -1323,7 +1324,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (IsCreature(*itr))
                     (*itr)->ToCreature()->Respawn();
                 else if (IsGameObject(*itr))
-                    (*itr)->ToGameObject()->SetRespawnTime(e.action.RespawnTarget.GoRespawnTime);
+                    (*itr)->ToGameObject()->SetRespawnTime(e.action.RespawnTarget.goRespawnTime);
             }
 
             delete targets;
@@ -1782,6 +1783,29 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_JUMP_TO_POS:
         {
             me->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
+            break;
+        }
+        case SMART_ACTION_SEND_GOSSIP_MENU:
+        {
+            sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SEND_GOSSIP_MENU: gossipMenuId %d, gossip_option_id %d",
+                e.action.sendGossipMenu.gossipMenuId, e.action.sendGossipMenu.gossipOptionId);
+
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                return;
+
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if(Player* player = (*itr)->ToPlayer())
+                {
+                    if (e.action.sendGossipMenu.gossipMenuId)
+                        player->PrepareGossipMenu(GetBaseObject(), e.action.sendGossipMenu.gossipMenuId, true);
+                    else
+                        player->PlayerTalkClass->ClearMenus();
+
+                    player->SEND_GOSSIP_MENU(e.action.sendGossipMenu.gossipOptionId, GetBaseObject()->GetGUID());
+                }
+
+            delete targets;
             break;
         }
         default:
@@ -2608,6 +2632,19 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
 
     if (e.timer < diff)
     {
+        // delay spell cast event if another spell is being casted
+        if (e.GetActionType() == SMART_ACTION_CAST)
+        {
+            if (!(e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS))
+            {
+                if (me && me->HasUnitState(UNIT_STAT_CASTING))
+                {
+                    e.timer = 1;
+                    return;
+                }
+            }
+        }
+
         e.active = true;//activate events with cooldown
         switch (e.GetEventType())//process ONLY timed events
         {

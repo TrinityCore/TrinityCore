@@ -165,9 +165,9 @@ Unit* ObjectAccessor::FindUnit(uint64 guid)
 
 Player* ObjectAccessor::FindPlayerByName(const char* name)
 {
-    ACE_GUARD_RETURN(LockType, g, *HashMapHolder<Player>::GetLock(), NULL);
-    HashMapHolder<Player>::MapType& m = HashMapHolder<Player>::GetContainer();
-    for (HashMapHolder<Player>::MapType::iterator iter = m.begin(); iter != m.end(); ++iter)
+    ACE_READ_GUARD_RETURN(HashMapHolder<Player>::LockType, g, *HashMapHolder<Player>::GetLock(), NULL);
+    HashMapHolder<Player>::MapType const& m = GetPlayers();
+    for (HashMapHolder<Player>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
         if (iter->second->IsInWorld() && strcmp(name, iter->second->GetName()) == 0)
             return iter->second;
 
@@ -176,9 +176,9 @@ Player* ObjectAccessor::FindPlayerByName(const char* name)
 
 void ObjectAccessor::SaveAllPlayers()
 {
-    ACE_GUARD(LockType, g, *HashMapHolder<Player>::GetLock());
-    HashMapHolder<Player>::MapType& m = HashMapHolder<Player>::GetContainer();
-    for (HashMapHolder<Player>::MapType::iterator itr = m.begin(); itr != m.end(); ++itr)
+    ACE_READ_GUARD(HashMapHolder<Player>::LockType, g, *HashMapHolder<Player>::GetLock());
+    HashMapHolder<Player>::MapType const& m = GetPlayers();
+    for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         itr->second->SaveToDB();
 }
 
@@ -380,7 +380,7 @@ void ObjectAccessor::UnloadAll()
 /// Define the static members of HashMapHolder
 
 template <class T> UNORDERED_MAP< uint64, T* > HashMapHolder<T>::m_objectMap;
-template <class T> ACE_Thread_Mutex HashMapHolder<T>::i_lock;
+template <class T> typename HashMapHolder<T>::LockType HashMapHolder<T>::i_lock;
 
 /// Global definitions for the hashmap storage
 
