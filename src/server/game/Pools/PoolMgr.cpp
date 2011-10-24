@@ -260,7 +260,7 @@ void PoolGroup<Quest>::Despawn1Object(uint32 quest_id)
         QuestRelations::iterator lastElement = questMap->upper_bound(itr->second);
         for (; qitr != lastElement; ++qitr)
         {
-            if (qitr->first == itr->second)
+            if (qitr->first == itr->second && qitr->second == itr->first)
             {
                 questMap->erase(qitr);                  // iterator is now no more valid
                 break;                                  // but we can exit loop since the element is found
@@ -279,7 +279,7 @@ void PoolGroup<Quest>::Despawn1Object(uint32 quest_id)
         QuestRelations::iterator lastElement = questMap->upper_bound(itr->second);
         for (; qitr != lastElement; ++qitr)
         {
-            if (qitr->first == itr->second)
+            if (qitr->first == itr->second && qitr->second == itr->first)
             {
                 questMap->erase(qitr);                  // iterator is now no more valid
                 break;                                  // but we can exit loop since the element is found

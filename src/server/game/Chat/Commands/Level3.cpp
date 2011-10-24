@@ -1859,6 +1859,12 @@ bool ChatHandler::HandleDamageCommand(const char * args)
         return false;
     }
 
+    if (target->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (HasLowerSecurity((Player*)target, 0, false))
+            return false;
+    }
+
     if (!target->isAlive())
         return true;
 
@@ -2671,7 +2677,7 @@ bool ChatHandler::HandleResetAllCommand(const char * args)
 
     CharacterDatabase.PExecute("UPDATE characters SET at_login = at_login | '%u' WHERE (at_login & '%u') = '0'", atLogin, atLogin);
 
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, *HashMapHolder<Player>::GetLock(), true);
+    ACE_READ_GUARD_RETURN(HashMapHolder<Player>::LockType, guard, *HashMapHolder<Player>::GetLock(), true);
     HashMapHolder<Player>::MapType const& plist = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
         itr->second->SetAtLoginFlag(atLogin);
