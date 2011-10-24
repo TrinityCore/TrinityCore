@@ -641,20 +641,21 @@ const float m_diminishing_k[MAX_CLASSES] =
 
 float Player::GetMissPercentageFromDefence() const
 {
-    const float miss_cap[MAX_CLASSES] =
+    float const miss_cap[MAX_CLASSES] =
     {
-         16.00f,  // Warrior //correct
-         16.00f,  // Paladin //correct
-         16.00f,  // Hunter  //?
-         16.00f,  // Rogue   //?
-         16.00f,  // Priest  //?
-         16.00f,  // DK      //correct
-         16.00f,  // Shaman  //?
-         16.00f,  // Mage    //?
-         16.00f,  // Warlock //?
-          0.0f,   // ??
-         16.00f   // Druid   //?
+        16.00f,     // Warrior //correct
+        16.00f,     // Paladin //correct
+        16.00f,     // Hunter  //?
+        16.00f,     // Rogue   //?
+        16.00f,     // Priest  //?
+        16.00f,     // DK      //correct
+        16.00f,     // Shaman  //?
+        16.00f,     // Mage    //?
+        16.00f,     // Warlock //?
+        0.0f,       // ??
+        16.00f      // Druid   //?
     };
+
     float diminishing = 0.0f, nondiminishing = 0.0f;
     // Modify value from defense skill (only bonus from defense rating diminishes)
     nondiminishing += (GetSkillValue(SKILL_DEFENSE) - GetMaxSkillValueForLevel()) * 0.04f;
@@ -669,17 +670,17 @@ void Player::UpdateParryPercentage()
 {
     const float parry_cap[MAX_CLASSES] =
     {
-         47.003525f,  // Warrior
-         47.003525f,  // Paladin
-        145.560408f,  // Hunter
-        145.560408f,  // Rogue
-          0.0f,       // Priest
-         47.003525f,  // DK
-        145.560408f,  // Shaman
-          0.0f,       // Mage
-          0.0f,       // Warlock
-          0.0f,       // ??
-          0.0f        // Druid
+        47.003525f,     // Warrior
+        47.003525f,     // Paladin
+        145.560408f,    // Hunter
+        145.560408f,    // Rogue
+        0.0f,           // Priest
+        47.003525f,     // DK
+        145.560408f,    // Shaman
+        0.0f,           // Mage
+        0.0f,           // Warlock
+        0.0f,           // ??
+        0.0f            // Druid
     };
 
     // No parry
@@ -706,17 +707,17 @@ void Player::UpdateDodgePercentage()
 {
     const float dodge_cap[MAX_CLASSES] =
     {
-         88.129021f,  // Warrior
-         88.129021f,  // Paladin
-        145.560408f,  // Hunter
-        145.560408f,  // Rogue
-        150.375940f,  // Priest
-         88.129021f,  // DK
-        145.560408f,  // Shaman
-        150.375940f,  // Mage
-        150.375940f,  // Warlock
-          0.0f,       // ??
-        116.890707f   // Druid
+        88.129021f,     // Warrior
+        88.129021f,     // Paladin
+        145.560408f,    // Hunter
+        145.560408f,    // Rogue
+        150.375940f,    // Priest
+        88.129021f,     // DK
+        145.560408f,    // Shaman
+        150.375940f,    // Mage
+        150.375940f,    // Warlock
+        0.0f,           // ??
+        116.890707f     // Druid
     };
 
     float diminishing = 0.0f, nondiminishing = 0.0f;
