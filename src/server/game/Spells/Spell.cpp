@@ -5200,6 +5200,13 @@ SpellCastResult Spell::CheckCast(bool strict)
 
                 break;
             }
+            case SPELL_EFFECT_TRANS_DOOR:
+            {
+                // Ritual of Summoning shouldn't be used in Battlegrounds or Arenas
+                if (m_spellInfo->Id == 698 && m_caster->GetTypeId() == TYPEID_PLAYER && m_caster->ToPlayer()->InBattleground())
+                    return SPELL_FAILED_NOT_HERE;
+                break;
+            }
             case SPELL_EFFECT_SUMMON_PLAYER:
             {
                 if (m_caster->GetTypeId() != TYPEID_PLAYER)
