@@ -106,8 +106,8 @@ void AddSC_boss_high_interrogator_gerstahn();
 void AddSC_boss_magmus();
 void AddSC_boss_moira_bronzebeard();
 void AddSC_boss_tomb_of_seven();
-void AddSC_boss_coren_direbrew();
 void AddSC_instance_blackrock_depths();
+void AddSC_boss_coren_direbrew();
 void AddSC_boss_drakkisath();                //Blackrock Spire
 void AddSC_boss_halycon();
 void AddSC_boss_highlordomokk();
@@ -723,8 +723,8 @@ void AddEasternKingdomsScripts()
     AddSC_boss_magmus();
     AddSC_boss_moira_bronzebeard();
     AddSC_boss_tomb_of_seven();
-    AddSC_boss_coren_direbrew();
     AddSC_instance_blackrock_depths();
+    AddSC_boss_coren_direbrew();
     AddSC_boss_drakkisath();                //Blackrock Spire
     AddSC_boss_halycon();
     AddSC_boss_highlordomokk();

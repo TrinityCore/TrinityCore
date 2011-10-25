@@ -368,6 +368,61 @@ class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
         }
 };
 
+/*####
+## at_brewfest trigger 1
+####*/
+
+enum Brewfest
+{
+        NPC_TAPPER_SWINDLEKEG     = 24711,
+        NPC_IPFELKOFER_IRONKEG    = 24710,
+
+        AT_BREWFEST_DUROTAR       = 4829,
+        AT_BREWFEST_DUN_MOROGH    = 4820,
+
+        SAY_WELCOME               = 4,
+
+        AREATRIGGER_TALK_COOLDOWN = 5, // in seconds
+};
+
+class AreaTrigger_at_brewfest : public AreaTriggerScript
+{
+        public:
+                AreaTrigger_at_brewfest() : AreaTriggerScript("at_brewfest")
+                {
+                        // Initialize for cooldown
+                        _triggerTimes[AT_BREWFEST_DUROTAR] = _triggerTimes[AT_BREWFEST_DUN_MOROGH] = 0;
+                }
+
+                bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+                {
+                        uint32 triggerId = trigger->id;
+                        // Second trigger happened too early after first, skip for now
+                        if (sWorld->GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
+                                return false;
+
+                        switch (triggerId)
+                        {
+                                case AT_BREWFEST_DUROTAR:
+                                        if (Creature* tapper = player->FindNearestCreature(NPC_TAPPER_SWINDLEKEG, 20.0f))
+                                                tapper->AI()->Talk(SAY_WELCOME, player->GetGUID());
+                                        break;
+                                case AT_BREWFEST_DUN_MOROGH:
+                                        if (Creature* ipfelkofer = player->FindNearestCreature(NPC_IPFELKOFER_IRONKEG, 20.0f))
+                                                ipfelkofer->AI()->Talk(SAY_WELCOME, player->GetGUID());
+                                        break;
+                                default:
+                                        break;
+                        }
+
+                        _triggerTimes[triggerId] = sWorld->GetGameTime();
+                        return false;
+                }
+
+        private:
+                std::map<uint32, time_t> _triggerTimes;
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_aldurthar_gate();
@@ -379,4 +434,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_scent_larkorwi();
     new AreaTrigger_at_last_rites();
     new AreaTrigger_at_sholazar_waygate();
+    new AreaTrigger_at_brewfest();
 }
