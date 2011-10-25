@@ -2151,6 +2151,16 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
                 l->push_back(target);
             break;
         }
+        case SMART_TARGET_CLOSEST_PLAYER:
+        {
+            if (me)
+            {
+                Player* target = me->SelectNearestPlayer((float)(e.target.closest.dist ? e.target.closest.dist : 100));
+                if (target)
+                    l->push_back(target);
+            }
+            break;
+        }
         case SMART_TARGET_OWNER_OR_SUMMONER:
         {
             if (me)
