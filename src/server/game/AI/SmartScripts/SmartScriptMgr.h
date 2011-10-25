@@ -387,7 +387,7 @@ enum SMART_ACTION
     SMART_ACTION_CALL_GROUPEVENTHAPPENS             = 26,     // QuestID
     SMART_ACTION_CALL_CASTEDCREATUREORGO            = 27,     // CreatureId, SpellId
     SMART_ACTION_REMOVEAURASFROMSPELL               = 28,     // Spellid
-    SMART_ACTION_FOLLOW                             = 29,     // Distance, Angle, EndCreatureEntry, credit, creditType (0monsterkill, 1event)
+    SMART_ACTION_FOLLOW                             = 29,     // Distance (0 = default), Angle (0 = default), EndCreatureEntry, credit, creditType (0monsterkill, 1event)
     SMART_ACTION_RANDOM_PHASE                       = 30,     // PhaseId1, PhaseId2, PhaseId3...
     SMART_ACTION_RANDOM_PHASE_RANGE                 = 31,     // PhaseMin, PhaseMax
     SMART_ACTION_RESET_GOBJECT                      = 32,     //
