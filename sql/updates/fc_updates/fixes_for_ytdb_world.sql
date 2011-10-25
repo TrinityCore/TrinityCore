@@ -160,24 +160,9 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 -- Fix ICC blood princes loot
 UPDATE creature_template set dynamicflags = 8 where entry in (37970, 38401, 38784, 38785);
 
--- fix spawn for NPC 6090
-UPDATE `creature` SET position_x = "8603.88", position_y = "390.43" WHERE id = 6090;
-
 -- Increased drop chance for some cook recipes
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 15 WHERE `item` IN (33873, 33870); 
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 10 WHERE `item` IN (33875, 33869);
 
--- Fix Gossips for Archivum Console in Ulduar
-DELETE FROM `gossip_menu_option` WHERE `menu_id` = 10368 AND `option_id` = 2;
-INSERT INTO `gossip_menu_option` (`menu_id`, `id`, `option_icon`, `option_text`, `option_id`, `npc_option_npcflag`, `action_menu_id`, `action_poi_id`, `box_coded`, `box_money`, `box_text`) 
- VALUES (10368, 0, 0, 'GOSSIP_OPTION_QUESTGIVER', 2, 2, 0, 0, 0, 0, NULL);
-
 -- Delete non-attackable flag from Army of the Dead Ghoul NPC (24207)
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry` =24207;
-
--- Fix gossips for Dread Captain DeMeza NPC (28048)
-DELETE FROM `conditions` WHERE `SourceGroup`=9647;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`, `SourceGroup`, `SourceEntry`, `ElseGroup`, `ConditionTypeOrReference`, `ConditionValue1`, `ConditionValue2`, `ConditionValue3`, `ErrorTextId`, `ScriptName`, `Comment`) VALUES
-(14, 9647, 13059, 0, 11, 50517, 0, 0, 0, '', 'Pirates Day: DeMeza gossip'),
-(14, 9647, 13065, 0, 1, 50517, 0, 0, 0, '', 'Pirates Day: DeMeza gossip'),
-(15, 9647, 0, 0, 11, 50517, 0, 0, 0, '', 'Pirates Day: DeMeza gossip');
