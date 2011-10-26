@@ -670,37 +670,33 @@ enum FindingTheSurvivorsData
     QUEST_FINDING_THE_SURVIVORS                     = 9948,
     NPC_MAGHAR_PRISONER                             = 18428,
 
-    SAY_FREE_0                                      = 0,
-    SAY_FREE_1                                      = 1,
-    SAY_FREE_2                                      = 2,
-    SAY_FREE_3                                      = 3,
-    SAY_FREE_4                                      = 4,
+    SAY_FREE                                        = 0,
 };
 
 class go_warmaul_prison : public GameObjectScript
 {
-public:
-    go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
+    public:
+        go_warmaul_prison() : GameObjectScript("go_warmaul_prison") { }
 
-    bool OnGossipHello(Player* player, GameObject* go)
-    {
-        if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
-            return false;
-        
-        if (Creature* prisoner = go->FindNearestCreature(NPC_MAGHAR_PRISONER, 1.0f))
+        bool OnGossipHello(Player* player, GameObject* go)
         {
-            if (prisoner)
-            {
-                go->UseDoorOrButton();
-                if (player)
-                    player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, 0);
+            if (player->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) != QUEST_STATUS_INCOMPLETE)
+                return false;
 
-                prisoner->AI()->Talk(RAND(SAY_FREE_0, SAY_FREE_1, SAY_FREE_2, SAY_FREE_3, SAY_FREE_4), player->GetGUID());
-                prisoner->ForcedDespawn(6000);
+            if (Creature* prisoner = go->FindNearestCreature(NPC_MAGHAR_PRISONER, 5.0f))
+            {
+                if (prisoner)
+                {
+                    go->UseDoorOrButton();
+                    if (player)
+                        player->KilledMonsterCredit(NPC_MAGHAR_PRISONER, 0);
+
+                    prisoner->AI()->Talk(SAY_FREE, player->GetGUID());
+                    prisoner->ForcedDespawn(6000);
+                }
             }
+            return true;
         }
-        return true;
-    }
 };
 
 void AddSC_nagrand()
