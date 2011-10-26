@@ -1470,9 +1470,56 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                if (IsUnit(*itr) && (*itr)->ToUnit()->GetVehicleKit())
+                if (Unit* target = (*itr)->ToUnit())
                 {
-                    me->EnterVehicle((*itr)->ToUnit(), e.action.enterVehicle.seat);
+                    if (target->GetVehicleKit())
+                    {
+                        me->EnterVehicle(target, e.action.enterVehicle.seat);
+                        delete targets;
+                        return;
+                    }
+                }
+            }
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_LEAVE_VEHICLE:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                return;
+
+            for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (Unit* target = (*itr)->ToUnit())
+                {
+                    if (!target->GetVehicle())
+                        continue;
+
+                    target->ExitVehicle();
+                    delete targets;
+                    return;
+                }
+            }
+
+            delete targets;
+            break;
+        }
+        case SMART_ACTION_REMOVE_PASSENGERS:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            if (!targets)
+                return;
+
+            for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                if (!IsUnit(*itr))
+                    continue;
+    
+                if (Vehicle* veh = (*itr)->ToUnit()->GetVehicle())
+                {
+                    veh->RemoveAllPassengers();
                     delete targets;
                     return;
                 }
@@ -2149,6 +2196,16 @@ ObjectList* SmartScript::GetTargets(SmartScriptHolder const& e, Unit* invoker /*
             GameObject* target = GetClosestGameObjectWithEntry(GetBaseObject(), e.target.closest.entry, (float)(e.target.closest.dist ? e.target.closest.dist : 100));
             if (target)
                 l->push_back(target);
+            break;
+        }
+        case SMART_TARGET_CLOSEST_PLAYER:
+        {
+            if (me)
+            {
+                Player* target = me->SelectNearestPlayer((float)e.target.playerDistance.dist);
+                if (target)
+                    l->push_back(target);
+            }
             break;
         }
         case SMART_TARGET_OWNER_OR_SUMMONER:
