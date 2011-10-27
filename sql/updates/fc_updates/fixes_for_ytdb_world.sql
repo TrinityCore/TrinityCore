@@ -1,11 +1,10 @@
--- fix Saurfang spawn time
-UPDATE `creature` SET `spawntimesecs` = 86400 WHERE `id` = 37813;
-
 -- fix spam in log
 UPDATE `waypoint_scripts` SET `datalong2`='1' WHERE datalong IN (39950,76221,54324,50036,48310,46906,61615,45940,70153,46400,55838,35782,54324,46960,49119,46400,70602);
 
+
 -- fix crash with use .gob near command and russian locale
 UPDATE `trinity_string` SET `content_loc8` = '%d (Entry: %d) - |cffffffff|Hgameobject:%d|h[%s X:%f Y:%f Z:%f MapId:%d]|h|r' WHERE `entry` = '517';
+
 
 -- Anub'arak, fix of incorrect YTDB flag
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34564;
@@ -13,14 +12,18 @@ UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34566;
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35615;
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35616;
 
+
 -- fix crash with NPC 38068 cast spel (recursion)
 UPDATE `creature_template` SET `ScriptName`="", `spell1`="" WHERE `entry` = 38068;
+
 
 -- fix aggro for Rimefang and Spinestalker
 UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry` IN (37533, 37534);
 
+
 -- Fix start Valithria encounter while enconter is DONE
 UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (38752, 16980);
+
 
 -- Add lost data
 DELETE FROM `creature` WHERE `guid` in (85584, 85585, 85586);
@@ -157,12 +160,21 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (26917,0,0,1,38,0,100,0,0,1,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,1.6049, 'On dataset 0 1 turn'),
 (26917,0,1,1,38,0,100,0,0,2,0,0,66,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'On dataset 0 2 turn');
 
--- Fix ICC blood princes loot
+
+-- Fix can not take a loot at the ICC blood princes
 UPDATE creature_template set dynamicflags = 8 where entry in (37970, 38401, 38784, 38785);
+
 
 -- Increased drop chance for some cook recipes
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 15 WHERE `item` IN (33873, 33870); 
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 10 WHERE `item` IN (33875, 33869);
 
+
 -- Delete non-attackable flag from Army of the Dead Ghoul NPC (24207)
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry` =24207;
+
+
+-- Restore data deleted in 2011_10_23_08_world_sai.sql TC update (27.10.2011)
+DELETE FROM `creature` WHERE `guid` =56995;
+INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
+(56995, 16933, 530, 1, 1, 0, 0, -1545.9, 3627.48, 35.0149, 2.96104, 600, 5, 0, 5000, 0, 1, 0, 0, 0);
