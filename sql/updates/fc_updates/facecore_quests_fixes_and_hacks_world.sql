@@ -38,10 +38,12 @@ UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=29709;
 -- hack quest "An End To All Things..."
 UPDATE `quest_template` SET Method = 0 WHERE `entry` = 12779;
 
--- Argent Tournament quests fixes
+
+-- Argent Tournament quests fixes start
 UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33229;
 UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33272;
 UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33243;
+
 -- npc_lake_frog
 UPDATE `creature_template` SET `ScriptName` = 'npc_lake_frog' WHERE `entry` IN (33211,33224);
 SET @GOSSIP := 33220;
@@ -52,6 +54,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (33220,0,1,0,61,0,100,0,0,0,0,0,85,62554,0,0,0,0,0,7,0,0,0,0,0,0,0, 'Maiden of Ashwood Lake - On gossip option 0 select - Player cast Summon Ashwood Brand on self');
 UPDATE `creature_template` SET `gossip_menu_id` = @GOSSIP, `AIName`= 'SmartAI',`ScriptName`= '' WHERE `entry` = 33220;
 REPLACE INTO `gossip_menu_option` (`menu_id`, `id`, `option_text`, `option_id`, `npc_option_npcflag`) VALUES (@GOSSIP, @MENUID, 'Do you know, where I can find Ashwood Brand Sword?', '1', '1');
+
 -- fix The Black Knight's Orders quest
 UPDATE `creature_template` SET `VehicleId` = 369, `InhabitType` = 7 WHERE `entry` = 33519;
 SET @ENTRY :=33519;
@@ -109,7 +112,16 @@ INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z
 (33519,43,9093.364,2128.384,99.38685,'Black Knight''s Gryphon'),
 (33519,44,9050.709,2123.656,60.24802,'Black Knight''s Gryphon');
 
--- Battered Hilt quest chains fixes
+-- The Valiant's Challenge
+UPDATE `creature_template` SET `ScriptName` = 'npc_squire_danny' WHERE `entry` = 33518;
+UPDATE `creature_template` SET `KillCredit1` = 33708 WHERE `entry` = 33707;
+UPDATE `creature_template` SET `ScriptName` = 'npc_argent_champion' WHERE `entry` = 33707;
+DELETE FROM `creature_template_addon` WHERE `entry` = 33707;
+INSERT INTO `creature_template_addon` (`entry`, `mount`) VALUES ('33707', '14337');
+-- Argent Tournament quests fixes end
+
+
+-- Battered Hilt quest chains fixes start
 -- Quests 20438,24556
 DELETE FROM gameobject WHERE id=201384;
 SET @ENTRY := 36856;
@@ -150,3 +162,4 @@ INSERT INTO `smart_scripts`  (`entryorguid`,`source_type`,`id`,`link`,`event_typ
 (@ENTRY,@SOURCETYPE,3,0,62,0,100,0,37523,3,0,0,11,70746,0,0,0,0,0,7,0,0,0,0.0,0.0,0.0,0.0,"Script for http://ru.wowhead.com/npc=37523"),
 (@ENTRY,@SOURCETYPE,4,0,62,0,100,0,37523,4,0,0,11,70746,0,0,0,0,0,7,0,0,0,0.0,0.0,0.0,0.0,"Script for http://ru.wowhead.com/npc=37523"),
 (@ENTRY,@SOURCETYPE,5,0,62,0,100,0,37523,5,0,0,11,70746,0,0,0,0,0,7,0,0,0,0.0,0.0,0.0,0.0,"Script for http://ru.wowhead.com/npc=37523");
+-- Battered Hilt quest chains fixes end
