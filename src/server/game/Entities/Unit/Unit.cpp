@@ -13196,10 +13196,6 @@ int32 Unit::ModSpellDuration(SpellInfo const* spellProto, Unit const* target, in
     if (duration < 0)
         return duration;
         
-    // Envenom duration    
-    if (spellProto->SpellFamilyName == SPELLFAMILY_ROGUE && spellProto->SpellFamilyFlags[1] & 0x8)
-        return duration;
-
     // cut duration only of negative effects
     if (!positive)
     {
