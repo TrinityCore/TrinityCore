@@ -84,8 +84,6 @@ INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`
 UPDATE `spell_bonus_data` SET `direct_bonus` = 0, `dot_bonus` = 0 WHERE `entry` IN (2818,2819,11353,11354,25349,26968,27187,57969,57970);
 -- Envenom fix
 DELETE FROM `spell_bonus_data` WHERE `entry` IN ('32645');
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
-('32645','0','0','0','0','Rogue - Envenom');
 
 -- Shaman spells
 -- Fixed spell bonus coefficient for spell Healing Stream Totem.
