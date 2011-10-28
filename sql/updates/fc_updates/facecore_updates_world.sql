@@ -712,3 +712,7 @@ DELETE FROM `disables` WHERE `sourceType`=0 and `entry` = 51804;
 INSERT INTO `disables` (`sourceType` , `entry` , `flags` , `comment`) VALUES 
 ('0', '51804', '8', 'Power Siphon'); 
 
+-- Fix Paladin Righteous Defense spell (28.10.2011)
+DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pal_righteous_defense';
+INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
+(31789,'spell_pal_righteous_defense');
