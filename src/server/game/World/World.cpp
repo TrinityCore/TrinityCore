@@ -2746,22 +2746,18 @@ void World::UpdateMaxSessionCounters()
 
 void World::LoadDBVersion()
 {
-    QueryResult result = WorldDatabase.Query("SELECT db_version, script_version, cache_id FROM version LIMIT 1");
+    QueryResult result = WorldDatabase.Query("SELECT db_version, cache_id FROM version LIMIT 1");
     if (result)
     {
         Field* fields = result->Fetch();
         m_DBVersion              = fields[0].GetString();
-        m_CreatureEventAIVersion = fields[1].GetString();
 
         // will be overwrite by config values if different and non-0
-        m_int_configs[CONFIG_CLIENTCACHE_VERSION] = fields[2].GetUInt32();
+        m_int_configs[CONFIG_CLIENTCACHE_VERSION] = fields[1].GetUInt32();
     }
 
     if (m_DBVersion.empty())
         m_DBVersion = "Unknown world database.";
-
-    if (m_CreatureEventAIVersion.empty())
-        m_CreatureEventAIVersion = "Unknown creature EventAI.";
 }
 
 void World::ProcessStartEvent()
