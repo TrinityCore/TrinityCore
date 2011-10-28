@@ -20,6 +20,8 @@
 /// @{
 /// \file
 
+#include <iostream>
+
 #include <openssl/opensslv.h>
 #include <openssl/crypto.h>
 #include <ace/Version.h>
@@ -133,6 +135,14 @@ extern int main(int argc, char **argv)
     {
         sLog->outError("Invalid or missing configuration file : %s", cfg_file);
         sLog->outError("Verify that the file exists and has \'[worldserver]' written in the top of the file!");
+
+        char *path=NULL;
+        size_t size = 0;
+        int a;
+        path=getcwd(path,size);
+        std::cout<<"\n current Path"<<path;
+        std::cin >> a;
+
         return 1;
     }
     sLog->outString("Using configuration file %s.", cfg_file);
