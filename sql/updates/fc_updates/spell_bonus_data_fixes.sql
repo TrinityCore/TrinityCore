@@ -88,11 +88,13 @@ DELETE FROM `spell_bonus_data` WHERE `entry` IN ('32645');
 -- Shaman spells
 -- Fixed spell bonus coefficient for spell Healing Stream Totem.
 DELETE FROM `spell_bonus_data` WHERE `entry` = 52042;
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
+(52042, 0.0445, 0.0445, -1, -1, 'Shaman - Healing Stream Totem Triggered Heal');
 DELETE FROM `spell_proc_event` WHERE `entry` IN (20335,20336,20337);
 INSERT INTO `spell_proc_event` VALUES
-(20335,0x00,10,0x00800000,0x00000000,0x00000008,0x00000100,0x00000000,0.000000,100.000000,0),
-(20336,0x00,10,0x00800000,0x00000000,0x00000008,0x00000100,0x00000000,0.000000,100.000000,0),
-(20337,0x00,10,0x00800000,0x00000000,0x00000008,0x00000100,0x00000000,0.000000,100.000000,0);
+(20335, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0),
+(20336, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0),
+(20337, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0);
 
 -- Warrior spells
 REPLACE INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
