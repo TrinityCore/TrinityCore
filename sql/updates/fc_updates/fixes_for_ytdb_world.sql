@@ -1,5 +1,5 @@
 -- fix spam in log
-UPDATE `waypoint_scripts` SET `datalong2`='1' WHERE datalong IN (39950,76221,54324,50036,48310,46906,61615,45940,70153,46400,55838,35782,54324,46960,49119,46400,70602);
+UPDATE `waypoint_scripts` SET `datalong2`='1' WHERE datalong IN (39550,76221,54324,50036,48310,46906,61615,45940,70153,46400,55838,35782,54324,46960,49119,46400,70602);
 
 
 -- fix crash with use .gob near command and russian locale
