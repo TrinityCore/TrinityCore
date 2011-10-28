@@ -23,25 +23,6 @@
 
 ScriptPointVector const SystemMgr::_empty;
 
-void SystemMgr::LoadVersion()
-{
-    // Get Version information
-    QueryResult result = WorldDatabase.Query("SELECT script_version FROM version LIMIT 1");
-
-    if (result)
-    {
-        Field* fields = result->Fetch();
-
-        sLog->outString("TSCR: Database version is: %s", fields[0].GetCString());
-        sLog->outString();
-    }
-    else
-    {
-        sLog->outError("TSCR: Missing `version`.`script_version` information.");
-        sLog->outString();
-    }
-}
-
 void SystemMgr::LoadScriptTexts()
 {
     sLog->outString("TSCR: Loading Script Texts...");
