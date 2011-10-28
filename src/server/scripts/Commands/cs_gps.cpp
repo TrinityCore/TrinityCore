@@ -43,16 +43,16 @@ public:
         return commandTable;
     }
 
-    static bool HandleGPSCommand(ChatHandler* handler, const char *args)
+    static bool HandleGPSCommand(ChatHandler* handler, char const* args)
     {
-        WorldObject* obj = NULL;
+        WorldObject* object = NULL;
         if (*args)
         {
             uint64 guid = handler->extractGuidFromLink((char*)args);
             if (guid)
-                obj = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
+                object = (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*handler->GetSession()->GetPlayer(), guid, TYPEMASK_UNIT | TYPEMASK_GAMEOBJECT);
 
-            if (!obj)
+            if (!object)
             {
                 handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
                 handler->SetSentErrorMessage(true);
@@ -61,71 +61,73 @@ public:
         }
         else
         {
-            obj = handler->getSelectedUnit();
+            object = handler->getSelectedUnit();
 
-            if (!obj)
+            if (!object)
             {
                 handler->SendSysMessage(LANG_SELECT_CHAR_OR_CREATURE);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
         }
-        CellCoord cell_val = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
-        Cell cell(cell_val);
 
-        uint32 zone_id, area_id;
-        obj->GetZoneAndAreaId(zone_id, area_id);
+        CellCoord cellCoord = Trinity::ComputeCellCoord(object->GetPositionX(), object->GetPositionY());
+        Cell cell(cellCoord);
 
-        MapEntry const* mapEntry = sMapStore.LookupEntry(obj->GetMapId());
-        AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zone_id);
-        AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(area_id);
+        uint32 zoneId, areaId;
+        object->GetZoneAndAreaId(zoneId, areaId);
 
-        float zone_x = obj->GetPositionX();
-        float zone_y = obj->GetPositionY();
+        MapEntry const* mapEntry = sMapStore.LookupEntry(object->GetMapId());
+        AreaTableEntry const* zoneEntry = GetAreaEntryByAreaID(zoneId);
+        AreaTableEntry const* areaEntry = GetAreaEntryByAreaID(areaId);
 
-        Map2ZoneCoordinates(zone_x, zone_y, zone_id);
+        float zoneX = object->GetPositionX();
+        float zoneY = object->GetPositionY();
 
-        Map const* map = obj->GetMap();
-        float ground_z = map->GetHeight(obj->GetPositionX(), obj->GetPositionY(), MAX_HEIGHT);
-        float floor_z = map->GetHeight(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ());
+        Map2ZoneCoordinates(zoneX, zoneY, zoneId);
 
-        GridCoord p = Trinity::ComputeGridCoord(obj->GetPositionX(), obj->GetPositionY());
+        Map const* map = object->GetMap();
+        float groundZ = map->GetHeight(object->GetPositionX(), object->GetPositionY(), MAX_HEIGHT);
+        float floorZ = map->GetHeight(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ());
+
+        GridCoord gridCoord = Trinity::ComputeGridCoord(object->GetPositionX(), object->GetPositionY());
 
         // 63? WHY?
-        int gx = 63 - p.x_coord;
-        int gy = 63 - p.y_coord;
+        int gridX = 63 - gridCoord.x_coord;
+        int gridY = 63 - gridCoord.y_coord;
 
-        uint32 have_map = Map::ExistMap(obj->GetMapId(), gx, gy) ? 1 : 0;
-        uint32 have_vmap = Map::ExistVMap(obj->GetMapId(), gx, gy) ? 1 : 0;
+        uint32 haveMap = Map::ExistMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
+        uint32 haveVMap = Map::ExistVMap(object->GetMapId(), gridX, gridY) ? 1 : 0;
 
-        if (have_vmap)
+        if (haveVMap)
         {
-            if (map->IsOutdoors(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ()))
+            if (map->IsOutdoors(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ()))
                 handler->PSendSysMessage("You are outdoors");
             else
                 handler->PSendSysMessage("You are indoors");
         }
-        else handler->PSendSysMessage("no VMAP available for area info");
+        else
+            handler->PSendSysMessage("no VMAP available for area info");
 
         handler->PSendSysMessage(LANG_MAP_POSITION,
-            obj->GetMapId(), (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            zone_id, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            area_id, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
-            obj->GetPhaseMask(),
-            obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation(),
-            cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), obj->GetInstanceId(),
-            zone_x, zone_y, ground_z, floor_z, have_map, have_vmap);
+            object->GetMapId(), (mapEntry ? mapEntry->name[handler->GetSessionDbcLocale()] : "<unknown>"),
+            zoneId, (zoneEntry ? zoneEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
+            areaId, (areaEntry ? areaEntry->area_name[handler->GetSessionDbcLocale()] : "<unknown>"),
+            object->GetPhaseMask(),
+            object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), object->GetOrientation(),
+            cell.GridX(), cell.GridY(), cell.CellX(), cell.CellY(), object->GetInstanceId(),
+            zoneX, zoneY, groundZ, floorZ, haveMap, haveVMap);
 
-        LiquidData liquid_status;
-        ZLiquidStatus res = map->getLiquidStatus(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), MAP_ALL_LIQUIDS, &liquid_status);
-        if (res)
-        {
-            handler->PSendSysMessage(LANG_LIQUID_STATUS, liquid_status.level, liquid_status.depth_level, liquid_status.type, res);
-        }
+        LiquidData liquidStatus;
+        ZLiquidStatus status = map->getLiquidStatus(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), MAP_ALL_LIQUIDS, &liquidStatus);
+
+        if (status)
+            handler->PSendSysMessage(LANG_LIQUID_STATUS, liquidStatus.level, liquidStatus.depth_level, liquidStatus.type, status);
+
         return true;
     }
 
-    static bool HandleWPGPSCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleWPGPSCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* player = handler->GetSession()->GetPlayer();
 
