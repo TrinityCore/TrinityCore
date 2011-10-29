@@ -1,0 +1,7 @@
+DELETE FROM `linked_respawn` WHERE `linkedGuid`=126982 AND `guid` IN (126978,126971,126977,126969,126968);
+INSERT INTO `linked_respawn` (`guid`, `linkedGuid`) VALUES
+(126978, 126982),
+(126971, 126982),
+(126977, 126982),
+(126969, 126982),
+(126968, 126982);
