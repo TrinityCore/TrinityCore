@@ -6248,7 +6248,7 @@ void Player::UpdateWeaponSkill(WeaponAttackType attType)
     Item* tmpitem = GetWeaponForAttack(attType, true);
     if (!tmpitem && attType == BASE_ATTACK)
         UpdateSkill(SKILL_UNARMED, weapon_skill_gain);
-    else if (tmpitem->GetTemplate()->SubClass != ITEM_SUBCLASS_WEAPON_FISHING_POLE)
+    else if (tmpitem && tmpitem->GetTemplate()->SubClass != ITEM_SUBCLASS_WEAPON_FISHING_POLE)
         UpdateSkill(tmpitem->GetSkill(), weapon_skill_gain);
 
     UpdateAllCritPercentages();
