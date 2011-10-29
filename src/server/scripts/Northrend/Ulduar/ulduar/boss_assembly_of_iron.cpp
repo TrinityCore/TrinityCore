@@ -56,8 +56,9 @@ enum AssemblySpells
     SPELL_CHAIN_LIGHTNING                        = 61879,
     SPELL_OVERLOAD                               = 61869,
     SPELL_LIGHTNING_WHIRL                        = 61915,
-    SPELL_LIGHTNING_TENDRILS                     = 61887,
-    SPELL_LIGHTNING_TENDRILS_SELF_VISUAL         = 61883,
+    SPELL_LIGHTNING_TENDRILS_10M                 = 61887,
+    SPELL_LIGHTNING_TENDRILS_25M                 = 63486,
+    SPELL_LIGHTNING_TENDRILS_VISUAL              = 61883,
     SPELL_STORMSHIELD                            = 64187,
 };
 
@@ -215,7 +216,6 @@ class boss_steelbreaker : public CreatureScript
             {
                 _Reset();
                 phase = 0;
-                me->ResetLootMode();
                 me->RemoveAllAuras();
                 RespawnEncounter(instance, me);
             }
@@ -342,7 +342,6 @@ class boss_runemaster_molgeim : public CreatureScript
             {
                 _Reset();
                 phase = 0;
-                me->ResetLootMode();
                 me->RemoveAllAuras();
                 RespawnEncounter(instance, me);
             }
@@ -575,9 +574,10 @@ class boss_stormcaller_brundir : public CreatureScript
             {
                 _Reset();
                 phase = 0;
-                me->ResetLootMode();
                 me->RemoveAllAuras();
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_INTERRUPT, false);  // Should be interruptable unless overridden by spell (Overload)
+                me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, false);   // Reset immumity, Brundir should be stunnable by default
                 RespawnEncounter(instance, me);
             }
 
@@ -609,6 +609,7 @@ class boss_stormcaller_brundir : public CreatureScript
                         {
                             DoCast(me, SPELL_STORMSHIELD);
                             events.RescheduleEvent(EVENT_LIGHTNING_TENDRILS, urand(50000, 60000));
+                            me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_STUN, true);    // Apply immumity to stuns
                         }
                     break;
 
@@ -677,10 +678,10 @@ class boss_stormcaller_brundir : public CreatureScript
                             break;
                         case EVENT_LIGHTNING_TENDRILS:
                             DoScriptText(SAY_BRUNDIR_FLIGHT, me);
-                            DoCast(SPELL_LIGHTNING_TENDRILS);
+                            DoCast(RAID_MODE(SPELL_LIGHTNING_TENDRILS_10M, SPELL_LIGHTNING_TENDRILS_25M));
+                            DoCast(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             me->AttackStop();
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                            DoCast(SPELL_LIGHTNING_TENDRILS_SELF_VISUAL);
+                            //me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                             me->GetMotionMaster()->Initialize();
                             me->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), FINAL_FLIGHT_Z);
                             events.DelayEvents(35000);
@@ -707,11 +708,12 @@ class boss_stormcaller_brundir : public CreatureScript
                             events.ScheduleEvent(EVENT_GROUND, 2500);
                             break;
                         case EVENT_GROUND:
-                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                            me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS);
-                            me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_SELF_VISUAL);
+                            //me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->RemoveAurasDueToSpell(RAID_MODE(SPELL_LIGHTNING_TENDRILS_10M, SPELL_LIGHTNING_TENDRILS_25M));
+                            me->RemoveAurasDueToSpell(SPELL_LIGHTNING_TENDRILS_VISUAL);
                             DoStartMovement(me->getVictim());
                             events.CancelEvent(EVENT_GROUND);
+                            me->getThreatManager().resetAllAggro();
                             break;
                         case EVENT_MOVE_POSITION:
                             if (me->IsWithinMeleeRange(me->getVictim()))
