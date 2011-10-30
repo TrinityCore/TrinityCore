@@ -114,6 +114,8 @@ struct outroPosition
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
 };
 
+Position const CrucibleSummonPos = {5672.294f,2520.686f, 713.4386f, 0.9599311f};
+
 #define DATA_THREE_FACED        1
 
 class boss_devourer_of_souls : public CreatureScript
