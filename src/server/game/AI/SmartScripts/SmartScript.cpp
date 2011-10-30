@@ -140,6 +140,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             ObjectList* targets = GetTargets(e, unit);
             Creature* talker = me;
+            Player* targetPlayer;
             if (targets)
             {
                 for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
@@ -149,14 +150,26 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         talker = (*itr)->ToCreature();
                         break;
                     }
+                    else if (IsPlayer((*itr)))
+                    {
+                        targetPlayer = (*itr)->ToPlayer();
+                        break;
+                    }
                 }
 
                 delete targets;
             }
+
             mTalkerEntry = talker->GetEntry();
             mLastTextID = e.action.talk.textGroupID;
             mTextTimer = e.action.talk.duration;
-            mTextGUID = IsPlayer(GetLastInvoker()) ? GetLastInvoker()->GetGUID() : 0;//invoker, used for $vars in texts
+            if (IsPlayer(GetLastInvoker())) // used for $vars in texts and whisper target
+                mTextGUID = GetLastInvoker()->GetGUID();
+            else if (targetPlayer)
+                mTextGUID = targetPlayer->GetGUID();
+            else
+                mTextGUID = 0;
+
             mUseTextTimer = true;
             sCreatureTextMgr->SendChat(talker, uint8(e.action.talk.textGroupID), mTextGUID);
             sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction: SMART_ACTION_TALK: talker: %s (GuidLow: %u), textGuid: %u",
