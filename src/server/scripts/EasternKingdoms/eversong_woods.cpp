@@ -35,91 +35,6 @@ EndContentData */
 #include "ScriptedEscortAI.h"
 
 /*######
-## npc_prospector_anvilward
-######*/
-
-#define GOSSIP_HELLO    "I need a moment of your time, sir."
-#define GOSSIP_SELECT   "Why... yes, of course. I've something to show you right inside this building, Mr. Anvilward."
-
-enum eProspectorAnvilward
-{
-    SAY_ANVIL1                                  = -1000209,
-    SAY_ANVIL2                                  = -1000210,
-    QUEST_THE_DWARVEN_SPY                       = 8483,
-};
-
-class npc_prospector_anvilward : public CreatureScript
-{
-public:
-    npc_prospector_anvilward() : CreatureScript("npc_prospector_anvilward") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(8240, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->CLOSE_GOSSIP_MENU();
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_prospector_anvilward::npc_prospector_anvilwardAI, creature->AI()))
-                    pEscortAI->Start(true, false, player->GetGUID());
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_THE_DWARVEN_SPY) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(8239, creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_prospector_anvilwardAI(creature);
-    }
-
-    struct npc_prospector_anvilwardAI : public npc_escortAI
-    {
-        // CreatureAI functions
-        npc_prospector_anvilwardAI(Creature* c) : npc_escortAI(c) {}
-
-        // Pure Virtual Functions
-        void WaypointReached(uint32 i)
-        {
-            Player* player = GetPlayerForEscort();
-
-            if (!player)
-                return;
-
-            switch (i)
-            {
-                case 0: DoScriptText(SAY_ANVIL1, me, player); break;
-                case 5: DoScriptText(SAY_ANVIL2, me, player); break;
-                case 6: me->setFaction(24); break;
-            }
-        }
-
-        void Reset()
-        {
-            me->RestoreFaction();
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            me->RestoreFaction();
-        }
-    };
-
-};
-
-/*######
 ## Quest 9686 Second Trial
 ######*/
 
@@ -711,7 +626,6 @@ public:
 
 void AddSC_eversong_woods()
 {
-    new npc_prospector_anvilward();
     new npc_second_trial_controller();
     new npc_second_trial_paladin();
     new go_second_trial();

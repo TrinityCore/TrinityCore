@@ -28,6 +28,7 @@
 #include "AuthSocket.h"
 #include "AuthCodes.h"
 #include "SHA1.h"
+#include "openssl/crypto.h"
 
 #define ChunkSize 2048
 

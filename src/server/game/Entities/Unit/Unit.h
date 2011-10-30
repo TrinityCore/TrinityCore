@@ -1503,6 +1503,20 @@ class Unit : public WorldObject
         }
 
         virtual uint32 GetShieldBlockValue() const =0;
+        uint32 GetShieldBlockValue(uint32 soft_cap, uint32 hard_cap) const
+        {
+            uint32 value = GetShieldBlockValue();
+            if (value >= hard_cap)
+            {
+                value = (soft_cap + hard_cap) / 2;
+            }
+            else if (value > soft_cap)
+            {
+                value = soft_cap + ((value - soft_cap) / 2);
+            }
+        
+            return value;
+        }
         uint32 GetUnitMeleeSkill(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         uint32 GetDefenseSkillValue(Unit const* target = NULL) const;
         uint32 GetWeaponSkillValue(WeaponAttackType attType, Unit const* target = NULL) const;
@@ -2054,7 +2068,7 @@ class Unit : public WorldObject
         float ApplyEffectModifiers(SpellInfo const* spellProto, uint8 effect_index, float value) const;
         int32 CalculateSpellDamage(Unit const* target, SpellInfo const* spellProto, uint8 effect_index, int32 const* basePoints = NULL) const;
         int32 CalcSpellDuration(SpellInfo const* spellProto);
-        int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive);
+        int32 ModSpellDuration(SpellInfo const* spellProto, Unit const* target, int32 duration, bool positive, uint32 effectMask);
         void  ModSpellCastTime(SpellInfo const* spellProto, int32 & castTime, Spell* spell=NULL);
         float CalculateLevelPenalty(SpellInfo const* spellProto) const;
 

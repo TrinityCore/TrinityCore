@@ -802,7 +802,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     recvPacket >> clientSeed;
     recvPacket >> unk5 >> unk6 >> unk7;
     recvPacket >> unk4;
-    recvPacket.read (digest, 20);
+    recvPacket.read(digest, 20);
 
     sLog->outStaticDebug ("WorldSocket::HandleAuthSession: client %u, unk2 %u, account %s, unk3 %u, clientseed %u",
                 BuiltNumberClient,

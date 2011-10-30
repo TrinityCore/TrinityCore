@@ -239,8 +239,8 @@ void WorldSession::HandleWhoOpcode(WorldPacket & recv_data)
     data << uint32(matchcount);                           // placeholder, count of players matching criteria
     data << uint32(displaycount);                         // placeholder, count of players displayed
 
-    ACE_GUARD(ACE_Thread_Mutex, g, *HashMapHolder<Player>::GetLock());
-    HashMapHolder<Player>::MapType& m = sObjectAccessor->GetPlayers();
+    ACE_READ_GUARD(HashMapHolder<Player>::LockType, g, *HashMapHolder<Player>::GetLock());
+    HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
     for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
     {
         if (AccountMgr::IsPlayerAccount(security))

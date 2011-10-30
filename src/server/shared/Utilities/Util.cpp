@@ -18,7 +18,6 @@
 
 #include <iostream>
 #include "Util.h"
-
 #include "utf8.h"
 #ifdef USE_SFMT_FOR_RNG
 #include "SFMT.h"
@@ -163,13 +162,13 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
 
     std::ostringstream ss;
     if (days)
-        ss << days << (shortText ? "d " : " Day(s) ");
+        ss << days << (shortText ? "d" : " Day(s) ");
     if (hours || hoursOnly)
-        ss << hours << (shortText ? "h " : " Hour(s) ");
+        ss << hours << (shortText ? "h" : " Hour(s) ");
     if (!hoursOnly)
     {
         if (minutes)
-            ss << minutes << (shortText ? "m " : " Minute(s) ");
+            ss << minutes << (shortText ? "m" : " Minute(s) ");
         if (secs || (!days && !hours && !minutes) )
             ss << secs << (shortText ? "s" : " Second(s).");
     }
