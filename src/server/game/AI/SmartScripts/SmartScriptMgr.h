@@ -911,9 +911,9 @@ enum SMARTAI_TARGETS
     SMART_TARGET_INVOKER_PARTY                  = 16,   // invoker's party members
     SMART_TARGET_PLAYER_RANGE                   = 17,   // min, max
     SMART_TARGET_PLAYER_DISTANCE                = 18,   // maxDist
-    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any)
-    SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any)
-    SMART_TARGET_CLOSEST_PLAYER                 = 21,   // none
+    SMART_TARGET_CLOSEST_CREATURE               = 19,   // CreatureEntry(0any), maxDist, dead?
+    SMART_TARGET_CLOSEST_GAMEOBJECT             = 20,   // entry(0any), maxDist
+    SMART_TARGET_CLOSEST_PLAYER                 = 21,   // maxDist
     SMART_TARGET_ACTION_INVOKER_VEHICLE         = 22,   // Unit's vehicle who caused this Event to occur
     SMART_TARGET_OWNER_OR_SUMMONER              = 23,   // Unit's owner or summoner
     SMART_TARGET_THREAT_LIST                    = 24,   // All units on creature's threat list

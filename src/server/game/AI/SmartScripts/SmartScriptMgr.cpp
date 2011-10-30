@@ -158,7 +158,8 @@ void SmartAIMgr::LoadSmartAIFromDB()
                     sLog->outErrorDb("SmartAIMgr::LoadSmartAIFromDB: not yet implemented source_type %u", (uint32)source_type);
                     continue;
             }
-        }else
+        }
+        else
         {
             if (!sObjectMgr->GetCreatureData(uint32(abs(temp.entryOrGuid))))
             {
@@ -166,6 +167,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
                 continue;
             }
         }
+
         temp.source_type = source_type;
         temp.event_id = fields[2].GetUInt16();
         temp.link = fields[3].GetUInt16();
@@ -224,41 +226,50 @@ void SmartAIMgr::LoadSmartAIFromDB()
 bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
 {
     if (e.GetActionType() == SMART_ACTION_INSTALL_AI_TEMPLATE)
-        return true; //AI template has special handling
+        return true; // AI template has special handling
     switch (e.GetTargetType())
     {
         case SMART_TARGET_CREATURE_DISTANCE:
         case SMART_TARGET_CREATURE_RANGE:
+        {
+            if (e.target.unitDistance.creature && !sObjectMgr->GetCreatureTemplate(e.target.unitDistance.creature))
             {
-                if (e.target.unitDistance.creature && !sObjectMgr->GetCreatureTemplate(e.target.unitDistance.creature))
-                {
-                    sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Creature entry %u as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.unitDistance.creature);
-                    return false;
-                }
-                break;
+                sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent Creature entry %u as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.unitDistance.creature);
+                return false;
             }
+            break;
+        }
         case SMART_TARGET_GAMEOBJECT_DISTANCE:
         case SMART_TARGET_GAMEOBJECT_RANGE:
+        {
+            if (e.target.goDistance.entry && !sObjectMgr->GetGameObjectTemplate(e.target.goDistance.entry))
             {
-                if (e.target.goDistance.entry && !sObjectMgr->GetGameObjectTemplate(e.target.goDistance.entry))
-                {
-                    sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent GameObject entry %u as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.goDistance.entry);
-                    return false;
-                }
-                break;
+                sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u uses non-existent GameObject entry %u as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType(), e.target.goDistance.entry);
+                return false;
             }
+            break;
+        }
         case SMART_TARGET_CREATURE_GUID:
-            {
-                if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry)) return false;
-                break;
-            }
+        {
+            if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry)) return false;
+            break;
+        }
         case SMART_TARGET_GAMEOBJECT_GUID:
-            {
-                if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry)) return false;
-                break;
-            }
-        case SMART_TARGET_PLAYER_RANGE:
+        {
+            if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry)) return false;
+            break;
+        }
         case SMART_TARGET_PLAYER_DISTANCE:
+        case SMART_TARGET_CLOSEST_PLAYER:
+        {
+            if (e.target.playerDistance.dist == 0)
+            {
+                sLog->outErrorDb("SmartAIMgr: Entry %d SourceType %u Event %u Action %u has maxDist 0 as target_param1, skipped.", e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
+                return false;
+            }
+            break;
+        }
+        case SMART_TARGET_PLAYER_RANGE:
         case SMART_TARGET_SELF:
         case SMART_TARGET_VICTIM:
         case SMART_TARGET_HOSTILE_SECOND_AGGRO:
@@ -268,12 +279,11 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_ACTION_INVOKER:
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
-        case SMART_TARGET_CLOSEST_CREATURE:
-        case SMART_TARGET_CLOSEST_GAMEOBJECT:
-        case SMART_TARGET_CLOSEST_PLAYER:
         case SMART_TARGET_ACTION_INVOKER_VEHICLE:
         case SMART_TARGET_OWNER_OR_SUMMONER:
         case SMART_TARGET_THREAT_LIST:
+        case SMART_TARGET_CLOSEST_GAMEOBJECT:
+        case SMART_TARGET_CLOSEST_CREATURE:
             break;
         default:
             sLog->outErrorDb("SmartAIMgr: Not handled target_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
