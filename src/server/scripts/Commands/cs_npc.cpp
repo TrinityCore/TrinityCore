@@ -168,7 +168,11 @@ public:
             return false;
         }
 
-        uint32 itemId = atol(pitem);
+        int32 item_int = atol(pitem);
+        if (item_int <= 0)
+            return true;
+
+        uint32 itemId = item_int;
 
         char* fmaxcount = strtok(NULL, " ");                    //add maxcount, default: 0
         uint32 maxcount = 0;
