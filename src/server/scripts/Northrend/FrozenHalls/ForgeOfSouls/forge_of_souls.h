@@ -46,5 +46,6 @@ enum Creatures
     NPC_CHAMPION_3_HORDE                          = 37588,
     NPC_CHAMPION_1_ALLIANCE                       = 37496,
     NPC_CHAMPION_2_ALLIANCE                       = 37497,
+    NPC_CRUCIBLE_OF_SOULS                         = 37094,
 };
 #endif
