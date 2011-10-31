@@ -815,6 +815,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
     private:
+        void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
 
         //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
