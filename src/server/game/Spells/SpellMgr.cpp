@@ -3143,6 +3143,9 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->procCharges = 2;
                 spellInfo->StackAmount = 0;
                 break;
+            case 24259: // Spell Lock silence (temporary hack)
+                spellInfo->speed = 80;
+                break;
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->procCharges = 6;
                 break;
