@@ -917,13 +917,13 @@ class SmartTrigger : public AreaTriggerScript
 {
     public:
 
-        SmartTrigger()
-            : AreaTriggerScript("SmartTrigger")
-        {
-        }
+        SmartTrigger() : AreaTriggerScript("SmartTrigger") {}
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
+            if (!player->isAlive())
+                return false;
+
             sLog->outDebug(LOG_FILTER_DATABASE_AI, "AreaTrigger %u is using SmartTrigger script", trigger->id);
             SmartScript script;
             script.OnInitialize(NULL, trigger);

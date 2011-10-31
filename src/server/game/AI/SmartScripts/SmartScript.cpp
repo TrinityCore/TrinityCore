@@ -1472,75 +1472,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_CALL_SCRIPT_RESET:
             OnReset();
             break;
-        case SMART_ACTION_ENTER_VEHICLE:
-        {
-            if (!me)
-                return;
-
-            ObjectList* targets = GetTargets(e, unit);
-            if (!targets)
-                return;
-
-            for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
-                if (Unit* target = (*itr)->ToUnit())
-                {
-                    if (target->GetVehicleKit())
-                    {
-                        me->EnterVehicle(target, e.action.enterVehicle.seat);
-                        delete targets;
-                        return;
-                    }
-                }
-            }
-
-            delete targets;
-            break;
-        }
-        case SMART_ACTION_LEAVE_VEHICLE:
-        {
-            ObjectList* targets = GetTargets(e, unit);
-            if (!targets)
-                return;
-
-            for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
-                if (Unit* target = (*itr)->ToUnit())
-                {
-                    if (!target->GetVehicle())
-                        continue;
-
-                    target->ExitVehicle();
-                    delete targets;
-                    return;
-                }
-            }
-
-            delete targets;
-            break;
-        }
-        case SMART_ACTION_REMOVE_PASSENGERS:
-        {
-            ObjectList* targets = GetTargets(e, unit);
-            if (!targets)
-                return;
-
-            for (ObjectList::iterator itr = targets->begin(); itr != targets->end(); ++itr)
-            {
-                if (!IsUnit(*itr))
-                    continue;
-    
-                if (Vehicle* veh = (*itr)->ToUnit()->GetVehicle())
-                {
-                    veh->RemoveAllPassengers();
-                    delete targets;
-                    return;
-                }
-            }
-
-            delete targets;
-            break;
-        }
         case SMART_ACTION_CALL_TIMED_ACTIONLIST:
         {
             if (e.GetTargetType() == SMART_TARGET_NONE)
@@ -1852,6 +1783,9 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         }
         case SMART_ACTION_SEND_GOSSIP_MENU:
         {
+            if (!GetBaseObject())
+                return;
+
             sLog->outDebug(LOG_FILTER_DATABASE_AI, "SmartScript::ProcessAction:: SMART_ACTION_SEND_GOSSIP_MENU: gossipMenuId %d, gossip_option_id %d",
                 e.action.sendGossipMenu.gossipMenuId, e.action.sendGossipMenu.gossipOptionId);
 
