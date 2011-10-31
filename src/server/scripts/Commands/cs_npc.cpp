@@ -155,7 +155,7 @@ public:
     }
 
     //add item in vendorlist
-    static bool HandleNpcAddVendorItemCommand(ChatHandler* handler, const char* args)
+    static bool HandleNpcAddVendorItemCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -170,7 +170,7 @@ public:
 
         int32 item_int = atol(pitem);
         if (item_int <= 0)
-            return true;
+            return false;
 
         uint32 itemId = item_int;
 
