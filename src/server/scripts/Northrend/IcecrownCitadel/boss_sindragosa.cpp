@@ -968,7 +968,7 @@ class spell_sindragosa_s_fury : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
 
-                if (!GetHitUnit()->isAlive())
+                if (!GetHitUnit()->isAlive() || !_targetCount)
                     return;
 
                 float resistance = float(GetHitUnit()->GetResistance(GetFirstSchoolInMask(SpellSchoolMask(GetSpellInfo()->SchoolMask))));
