@@ -48,6 +48,12 @@ INSERT INTO `spell_dbc` (`Id`, `Dispel`, `Mechanic`, `Attributes`, `AttributesEx
 DELETE FROM `spell_proc_event` WHERE `entry` IN ('199997');
 INSERT INTO `spell_proc_event` (`entry`, `SchoolMask`, `SpellFamilyName`, `SpellFamilyMask0`, `SpellFamilyMask1`, `SpellFamilyMask2`, `procFlags`, `procEx`, `ppmRate`, `CustomChance`, `Cooldown`) VALUES
 ('199997','0','10','0','131072','0','16','0','0','100','0');
+-- Heart of the Crusader
+DELETE FROM `spell_proc_event` WHERE `entry` IN (20335,20336,20337);
+INSERT INTO `spell_proc_event` VALUES
+(20335, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0),
+(20336, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0),
+(20337, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0);
 
 -- Druid spells
 UPDATE `spell_bonus_data` SET `direct_bonus` = 0, `dot_bonus` = 0 WHERE `entry` IN (779,1822,60089);
@@ -87,14 +93,9 @@ DELETE FROM `spell_bonus_data` WHERE `entry` IN ('32645');
 
 -- Shaman spells
 -- Fixed spell bonus coefficient for spell Healing Stream Totem.
-DELETE FROM `spell_bonus_data` WHERE `entry` = 52042;
-INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
-(52042, 0.0445, 0.0445, -1, -1, 'Shaman - Healing Stream Totem Triggered Heal');
-DELETE FROM `spell_proc_event` WHERE `entry` IN (20335,20336,20337);
-INSERT INTO `spell_proc_event` VALUES
-(20335, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0),
-(20336, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0),
-(20337, 0, 10, 8388608, 0, 8, 256, 0, 0, 100, 0);
+DELETE FROM `spell_bonus_data` WHERE `entry` IN (52042,5672);
+INSERT INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`,`ap_bonus`, `ap_dot_bonus`, `comments`) VALUES
+('5672','0.0827','-1','-1','-1','Shaman - Healing Stream Totem Rank 1');
 
 -- Warrior spells
 REPLACE INTO `spell_bonus_data` (`entry`, `direct_bonus`, `dot_bonus`, `ap_bonus`, `ap_dot_bonus`, `comments`) VALUES 
