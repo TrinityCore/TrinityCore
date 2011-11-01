@@ -117,7 +117,7 @@ public:
         bool first = true;
         bool footer = false;
 
-        ACE_READ_GUARD_RETURN(HashMapHolder<Player>::LockType, guard, *HashMapHolder<Player>::GetLock(), true);
+        TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
         HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {

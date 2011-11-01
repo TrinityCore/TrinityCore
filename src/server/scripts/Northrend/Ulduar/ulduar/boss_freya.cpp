@@ -282,7 +282,6 @@ class boss_freya : public CreatureScript
             uint32 deforestation[6][2];
             uint32 elementalTimer[2];
             uint32 diffTimer;
-            uint32 waveTime;
             uint8 trioWaveCount;
             uint8 trioWaveController;
             uint8 waveCount;
@@ -291,14 +290,12 @@ class boss_freya : public CreatureScript
 
             bool checkElementalAlive[2];
             bool trioDefeated[2];
-            bool waveInProgress;
             bool random[3];
 
             void Reset()
             {
                 _Reset();
                 summons.clear();
-                waveTime = 0;
                 trioWaveCount = 0;
                 trioWaveController = 0;
                 waveCount = 0;
@@ -315,7 +312,6 @@ class boss_freya : public CreatureScript
                     checkElementalAlive[n] = true;
                     trioDefeated[n] = false;
                 }
-                waveInProgress = false;
                 for (uint8 n = 0; n < 3; ++n)
                     random[n] = false;
             }
@@ -462,8 +458,6 @@ class boss_freya : public CreatureScript
                             events.ScheduleEvent(EVENT_UNSTABLE_ENERGY, urand(15000, 20000));
                             break;
                         case EVENT_WAVE:
-                            waveTime = 0;
-                            waveInProgress = true;
                             SpawnWave();
                             if (waveCount < 6)
                                 events.ScheduleEvent(EVENT_WAVE, WAVE_TIME);
@@ -496,9 +490,6 @@ class boss_freya : public CreatureScript
                     attunedToNature = 0;
 
                 diffTimer += diff;                                               // For getting time difference for Deforestation achievement
-
-                if (waveInProgress)
-                    waveTime += diff;                                            // Time from the last wave
 
                 // Elementals must be killed within 12 seconds of each other, or they will all revive and heal
                 Creature* Elemental[3][2];
@@ -543,7 +534,6 @@ class boss_freya : public CreatureScript
                                             trioDefeated[i] = true;
                                             Elemental[n][i]->CastSpell(me, SPELL_REMOVE_10STACK, true);
                                         }
-                                        TimeCheck();
                                     }
                                 }
                             }
@@ -633,7 +623,7 @@ class boss_freya : public CreatureScript
                     /* 25N */    {62952, 62954, 62956, 62958}
                 };
 
-                who->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
+                me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
 
                 _JustDied();
             }
@@ -653,6 +643,7 @@ class boss_freya : public CreatureScript
                         break;
                     case NPC_DETONATING_LASHER:
                     case NPC_ANCIENT_CONSERVATOR:
+                    default:
                         summons.push_back(summoned->GetGUID());
                         break;
                 }
@@ -675,28 +666,13 @@ class boss_freya : public CreatureScript
                         summoned->CastSpell(who, SPELL_DETONATE, true);
                         summoned->ForcedDespawn(5000);
                         summons.remove(summoned->GetGUID());
-                        TimeCheck();
                         break;
                     case NPC_ANCIENT_CONSERVATOR:
                         summoned->CastSpell(me, SPELL_REMOVE_25STACK, true);
                         summoned->ForcedDespawn(5000);
                         summons.remove(summoned->GetGUID());
-                        TimeCheck();
                         break;
                 }
-            }
-
-            void TimeCheck()
-            {
-                if (waveCount >= 6)
-                    return;
-
-                waveInProgress = false;
-                uint32 timeDifference = WAVE_TIME - waveTime;
-                if (timeDifference <= TIME_DIFFERENCE)
-                    events.RescheduleEvent(EVENT_WAVE, timeDifference);
-                else
-                    events.RescheduleEvent(EVENT_WAVE, TIME_DIFFERENCE);
             }
         };
 
