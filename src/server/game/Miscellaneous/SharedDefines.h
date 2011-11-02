@@ -2378,7 +2378,7 @@ enum QuestSort
     QUEST_SORT_ROGUE               = 162,
     QUEST_SORT_ALCHEMY             = 181,
     QUEST_SORT_LEATHERWORKING      = 182,
-    QUEST_SORT_ENGINERING          = 201,
+    QUEST_SORT_ENGINEERING         = 201,
     QUEST_SORT_TREASURE_MAP        = 221,
     QUEST_SORT_SUNKEN_TEMPLE_OLD   = 241,
     QUEST_SORT_HUNTER              = 261,
@@ -2480,7 +2480,7 @@ enum SkillType
     SKILL_PET_IMP                  = 188,
     SKILL_PET_FELHUNTER            = 189,
     SKILL_TAILORING                = 197,
-    SKILL_ENGINERING               = 202,
+    SKILL_ENGINEERING              = 202,
     SKILL_PET_SPIDER               = 203,
     SKILL_PET_VOIDWALKER           = 204,
     SKILL_PET_SUCCUBUS             = 205,
@@ -2600,7 +2600,7 @@ inline uint32 SkillByQuestSort(int32 QuestSort)
         case QUEST_SORT_BLACKSMITHING:  return SKILL_BLACKSMITHING;
         case QUEST_SORT_ALCHEMY:        return SKILL_ALCHEMY;
         case QUEST_SORT_LEATHERWORKING: return SKILL_LEATHERWORKING;
-        case QUEST_SORT_ENGINERING:     return SKILL_ENGINERING;
+        case QUEST_SORT_ENGINEERING:    return SKILL_ENGINEERING;
         case QUEST_SORT_TAILORING:      return SKILL_TAILORING;
         case QUEST_SORT_COOKING:        return SKILL_COOKING;
         case QUEST_SORT_FIRST_AID:      return SKILL_FIRST_AID;
