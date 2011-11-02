@@ -2237,6 +2237,13 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
 
             addhealth += damageAmount;
         }
+        // Runic Healing Injector (heal increased by 25% for engineers - 3.2.0 patch change)
+        else if (m_spellInfo->Id == 67489)
+        {
+            if (Player* player = m_caster->ToPlayer())
+                if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) >= 410)
+                    AddPctN(addhealth, 25);
+        }
         // Swiftmend - consumes Regrowth or Rejuvenation
         else if (m_spellInfo->TargetAuraState == AURA_STATE_SWIFTMEND && unitTarget->HasAuraState(AURA_STATE_SWIFTMEND, m_spellInfo, m_caster))
         {
@@ -2629,6 +2636,13 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         case 48542:                                         // Revitalize
             damage = int32(CalculatePctN(unitTarget->GetMaxPower(power), damage));
             break;
+        case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
+        {
+            if (Player* player = m_caster->ToPlayer())
+                if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) >= 410)
+                    AddPctN(damage, 25);
+            break;
+        }
         case 71132:                                         // Glyph of Shadow Word: Pain
             damage = int32(CalculatePctN(unitTarget->GetCreateMana(), 1));  // set 1 as value, missing in dbc
             break;
