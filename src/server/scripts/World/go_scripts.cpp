@@ -165,7 +165,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (player->HasSkill(SKILL_ENGINERING) && player->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !player->HasSpell(22704))
+        if (player->HasSkill(SKILL_ENGINEERING) && player->GetBaseSkillValue(SKILL_ENGINEERING) >= 300 && !player->HasSpell(22704))
         {
             player->CastSpell(player, 22864, false);
         }
