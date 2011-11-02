@@ -184,7 +184,7 @@ void ObjectAccessor::SaveAllPlayers()
 
 Corpse* ObjectAccessor::GetCorpseForPlayerGUID(uint64 guid)
 {
-    ACE_GUARD_RETURN(LockType, guard, i_corpseGuard, NULL);
+    TRINITY_READ_GUARD(ACE_RW_Thread_Mutex, i_corpseLock);
 
     Player2CorpsesMapType::iterator iter = i_player2corpse.find(guid);
     if (iter == i_player2corpse.end())
@@ -209,7 +209,7 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 
     // Critical section
     {
-        ACE_GUARD(LockType, g, i_corpseGuard);
+        TRINITY_WRITE_GUARD(ACE_RW_Thread_Mutex, i_corpseLock);
 
         Player2CorpsesMapType::iterator iter = i_player2corpse.find(corpse->GetOwnerGUID());
         if (iter == i_player2corpse.end()) // TODO: Fix this
@@ -231,7 +231,7 @@ void ObjectAccessor::AddCorpse(Corpse* corpse)
 
     // Critical section
     {
-        ACE_GUARD(LockType, g, i_corpseGuard);
+        TRINITY_WRITE_GUARD(ACE_RW_Thread_Mutex, i_corpseLock);
 
         ASSERT(i_player2corpse.find(corpse->GetOwnerGUID()) == i_player2corpse.end());
         i_player2corpse[corpse->GetOwnerGUID()] = corpse;
@@ -246,7 +246,7 @@ void ObjectAccessor::AddCorpse(Corpse* corpse)
 
 void ObjectAccessor::AddCorpsesToGrid(GridCoord const& gridpair, GridType& grid, Map* map)
 {
-    ACE_GUARD(LockType, g, i_corpseGuard);
+    TRINITY_READ_GUARD(ACE_RW_Thread_Mutex, i_corpseLock);
 
     for (Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
     {
@@ -346,17 +346,12 @@ void ObjectAccessor::Update(uint32 /*diff*/)
 {
     UpdateDataMapType update_players;
 
-    // Critical section
+    while (!i_objects.empty())
     {
-        ACE_GUARD(LockType, g, i_updateGuard);
-
-        while (!i_objects.empty())
-        {
-            Object* obj = *i_objects.begin();
-            ASSERT(obj && obj->IsInWorld());
-            i_objects.erase(i_objects.begin());
-            obj->BuildUpdate(update_players);
-        }
+        Object* obj = *i_objects.begin();
+        ASSERT(obj && obj->IsInWorld());
+        i_objects.erase(i_objects.begin());
+        obj->BuildUpdate(update_players);
     }
 
     WorldPacket packet;                                     // here we allocate a std::vector with a size of 0x10000
