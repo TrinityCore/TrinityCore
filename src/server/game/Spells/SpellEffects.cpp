@@ -2241,7 +2241,7 @@ void Spell::EffectHeal(SpellEffIndex /*effIndex*/)
         else if (m_spellInfo->Id == 67489)
         {
             if (Player* player = m_caster->ToPlayer())
-                if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) >= 410)
+                if (player->HasSkill(SKILL_ENGINEERING))
                     AddPctN(addhealth, 25);
         }
         // Swiftmend - consumes Regrowth or Rejuvenation
@@ -2639,7 +2639,7 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
         case 67490:                                         // Runic Mana Injector (mana gain increased by 25% for engineers - 3.2.0 patch change)
         {
             if (Player* player = m_caster->ToPlayer())
-                if (player->HasSkill(SKILL_ENGINEERING) && player->GetSkillValue(SKILL_ENGINEERING) >= 410)
+                if (player->HasSkill(SKILL_ENGINEERING))
                     AddPctN(damage, 25);
             break;
         }
