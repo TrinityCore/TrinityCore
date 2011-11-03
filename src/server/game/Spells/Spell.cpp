@@ -6419,7 +6419,8 @@ bool Spell::IsNextMeleeSwingSpell() const
 
 bool Spell::IsAutoActionResetSpell() const
 {
-    return !IsTriggered() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_AUTOATTACK);
+    // TODO: changed SPELL_INTERRUPT_FLAG_AUTOATTACK -> SPELL_INTERRUPT_FLAG_INTERRUPT to fix compile - is this check correct at all?
+    return !IsTriggered() && (m_spellInfo->InterruptFlags & SPELL_INTERRUPT_FLAG_INTERRUPT);
 }
 
 bool Spell::IsNeedSendToClient() const
