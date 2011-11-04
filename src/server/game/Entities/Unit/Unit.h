@@ -53,7 +53,8 @@ enum SpellInterruptFlags
 // See SpellAuraInterruptFlags for other values definitions
 enum SpellChannelInterruptFlags
 {
-    CHANNEL_FLAG_DELAY       = 0x4000
+    CHANNEL_INTERRUPT_FLAG_INTERRUPT    = 0x08,  // interrupt
+    CHANNEL_FLAG_DELAY                  = 0x4000
 };
 
 enum SpellAuraInterruptFlags
@@ -1007,8 +1008,8 @@ enum CurrentSpellTypes
 {
     CURRENT_MELEE_SPELL             = 0,
     CURRENT_GENERIC_SPELL           = 1,
-    CURRENT_AUTOREPEAT_SPELL        = 2,
-    CURRENT_CHANNELED_SPELL         = 3
+    CURRENT_CHANNELED_SPELL         = 2,
+    CURRENT_AUTOREPEAT_SPELL        = 3
 };
 
 #define CURRENT_FIRST_NON_MELEE_SPELL 1
