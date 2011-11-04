@@ -3012,7 +3012,7 @@ void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool wi
     Spell* spell = m_currentSpells[spellType];
     if (spell
         && (withDelayed || spell->getState() != SPELL_STATE_DELAYED)
-        && (withInstant || spell->CalcCastTime() > 0))
+        && (withInstant || spell->GetCastTime() > 0))
     {
         // for example, do not let self-stun aura interrupt itself
         if (!spell->IsInterruptable())
@@ -3049,7 +3049,7 @@ bool Unit::IsNonMeleeSpellCasted(bool withDelayed, bool skipChanneled, bool skip
     // Maybe later some special spells will be excluded too.
 
     // if skipInstant then instant spells shouldn't count as being casted
-    if (skipInstant && m_currentSpells[CURRENT_GENERIC_SPELL] && !m_currentSpells[CURRENT_GENERIC_SPELL]->CalcCastTime())
+    if (skipInstant && m_currentSpells[CURRENT_GENERIC_SPELL] && !m_currentSpells[CURRENT_GENERIC_SPELL]->GetCastTime())
         return false;
 
     // generic spells are casted when they are not finished and not delayed
@@ -3100,7 +3100,7 @@ Spell* Unit::FindCurrentSpellBySpellId(uint32 spell_id) const
 int32 Unit::GetCurrentSpellCastTime(uint32 spell_id) const
 {
     if (Spell const* spell = FindCurrentSpellBySpellId(spell_id))
-        return spell->CalcCastTime();
+        return spell->GetCastTime();
     return 0;
 }
 
