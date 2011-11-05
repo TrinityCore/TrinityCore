@@ -526,7 +526,7 @@ bool ChatHandler::HandleListItemCommand(const char *args)
             "SELECT  ah.itemguid, ah.itemowner, c.account, c.name FROM auctionhouse ah "
             "INNER JOIN characters c ON c.guid = ah.itemowner "
             "INNER JOIN item_instance ii ON ii.guid = ah.itemguid "
-            "WHERE ii.itemEntry = '%u' AND LIMIT %u", item_id, count);
+            "WHERE ii.itemEntry = '%u' LIMIT %u", item_id, count);
     }
     else
         result = QueryResult(NULL);
