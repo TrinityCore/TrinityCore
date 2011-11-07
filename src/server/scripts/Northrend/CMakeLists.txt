@@ -18,23 +18,23 @@ set(scripts_STAT_SRCS
   Northrend/Ulduar/HallsOfLightning/boss_ionar.cpp
   Northrend/Ulduar/HallsOfLightning/boss_volkhan.cpp
   Northrend/Ulduar/HallsOfLightning/boss_loken.cpp
-  Northrend/Ulduar/ulduar/boss_general_vezax.cpp
-  Northrend/Ulduar/ulduar/ulduar_teleporter.cpp
-  Northrend/Ulduar/ulduar/boss_thorim.cpp
-  Northrend/Ulduar/ulduar/boss_ignis.cpp
-  Northrend/Ulduar/ulduar/boss_algalon.cpp
-  Northrend/Ulduar/ulduar/instance_ulduar.cpp
-  Northrend/Ulduar/ulduar/boss_auriaya.cpp
-  Northrend/Ulduar/ulduar/boss_yoggsaron.cpp
-  Northrend/Ulduar/ulduar/boss_hodir.cpp
-  Northrend/Ulduar/ulduar/boss_assembly_of_iron.cpp
-  Northrend/Ulduar/ulduar/boss_flame_leviathan.cpp
-  Northrend/Ulduar/ulduar/boss_xt002.cpp
-  Northrend/Ulduar/ulduar/boss_mimiron.cpp
-  Northrend/Ulduar/ulduar/ulduar.h
-  Northrend/Ulduar/ulduar/boss_freya.cpp
-  Northrend/Ulduar/ulduar/boss_razorscale.cpp
-  Northrend/Ulduar/ulduar/boss_kologarn.cpp
+  Northrend/Ulduar/Ulduar/boss_general_vezax.cpp
+  Northrend/Ulduar/Ulduar/ulduar_teleporter.cpp
+  Northrend/Ulduar/Ulduar/boss_thorim.cpp
+  Northrend/Ulduar/Ulduar/boss_ignis.cpp
+  Northrend/Ulduar/Ulduar/boss_algalon.cpp
+  Northrend/Ulduar/Ulduar/instance_ulduar.cpp
+  Northrend/Ulduar/Ulduar/boss_auriaya.cpp
+  Northrend/Ulduar/Ulduar/boss_yoggsaron.cpp
+  Northrend/Ulduar/Ulduar/boss_hodir.cpp
+  Northrend/Ulduar/Ulduar/boss_assembly_of_iron.cpp
+  Northrend/Ulduar/Ulduar/boss_flame_leviathan.cpp
+  Northrend/Ulduar/Ulduar/boss_xt002.cpp
+  Northrend/Ulduar/Ulduar/boss_mimiron.cpp
+  Northrend/Ulduar/Ulduar/ulduar.h
+  Northrend/Ulduar/Ulduar/boss_freya.cpp
+  Northrend/Ulduar/Ulduar/boss_razorscale.cpp
+  Northrend/Ulduar/Ulduar/boss_kologarn.cpp
   Northrend/Ulduar/HallsOfStone/boss_krystallus.cpp
   Northrend/Ulduar/HallsOfStone/halls_of_stone.h
   Northrend/Ulduar/HallsOfStone/instance_halls_of_stone.cpp
@@ -142,13 +142,13 @@ set(scripts_STAT_SRCS
   Northrend/AzjolNerub/AzjolNerub/boss_krikthir_the_gatewatcher.cpp
   Northrend/AzjolNerub/AzjolNerub/boss_hadronox.cpp
   Northrend/AzjolNerub/AzjolNerub/boss_anubarak.cpp
-  Northrend/AzjolNerub/ahnkahet/boss_herald_volazj.cpp
-  Northrend/AzjolNerub/ahnkahet/boss_prince_taldaram.cpp
-  Northrend/AzjolNerub/ahnkahet/instance_ahnkahet.cpp
-  Northrend/AzjolNerub/ahnkahet/boss_jedoga_shadowseeker.cpp
-  Northrend/AzjolNerub/ahnkahet/boss_elder_nadox.cpp
-  Northrend/AzjolNerub/ahnkahet/boss_amanitar.cpp
-  Northrend/AzjolNerub/ahnkahet/ahnkahet.h
+  Northrend/AzjolNerub/Ahnkahet/boss_herald_volazj.cpp
+  Northrend/AzjolNerub/Ahnkahet/boss_prince_taldaram.cpp
+  Northrend/AzjolNerub/Ahnkahet/instance_ahnkahet.cpp
+  Northrend/AzjolNerub/Ahnkahet/boss_jedoga_shadowseeker.cpp
+  Northrend/AzjolNerub/Ahnkahet/boss_elder_nadox.cpp
+  Northrend/AzjolNerub/Ahnkahet/boss_amanitar.cpp
+  Northrend/AzjolNerub/Ahnkahet/ahnkahet.h
   Northrend/VioletHold/boss_zuramat.cpp
   Northrend/VioletHold/instance_violet_hold.cpp
   Northrend/VioletHold/boss_lavanthor.cpp
