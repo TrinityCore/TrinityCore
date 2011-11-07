@@ -584,13 +584,13 @@ void Transport::Update(uint32 p_diff)
 
 void Transport::UpdateForMap(Map const* targetMap)
 {
-    Map::PlayerList const& pl = targetMap->GetPlayers();
-    if (pl.isEmpty())
+    Map::PlayerList const& player = targetMap->GetPlayers();
+    if (player.isEmpty())
         return;
 
     if (GetMapId() == targetMap->GetId())
     {
-        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = player.begin(); itr != player.end(); ++itr)
         {
             if (this != itr->getSource()->GetTransport())
             {
@@ -609,7 +609,7 @@ void Transport::UpdateForMap(Map const* targetMap)
         WorldPacket out_packet;
         transData.BuildPacket(&out_packet);
 
-        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = player.begin(); itr != player.end(); ++itr)
             if (this != itr->getSource()->GetTransport())
                 itr->getSource()->SendDirectMessage(&out_packet);
     }

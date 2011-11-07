@@ -156,12 +156,12 @@ void CreatureRelocationNotifier::Visit(PlayerMapType &m)
 {
     for (PlayerMapType::iterator iter=m.begin(); iter != m.end(); ++iter)
     {
-        Player* pl = iter->getSource();
+        Player* player = iter->getSource();
 
-        if (!pl->m_seer->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
-            pl->UpdateVisibilityOf(&i_creature);
+        if (!player->m_seer->isNeedNotify(NOTIFY_VISIBILITY_CHANGED))
+            player->UpdateVisibilityOf(&i_creature);
 
-        CreatureUnitRelocationWorker(&i_creature, pl);
+        CreatureUnitRelocationWorker(&i_creature, player);
     }
 }
 
