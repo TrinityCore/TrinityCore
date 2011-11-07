@@ -4635,7 +4635,7 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     return;
                         
                 }
-                //Teleport to Lake Wintergrasp
+                // Teleport to Lake Wintergrasp
                 case 58622:
                 {
                   if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
