@@ -1,6 +1,6 @@
 -- by Aok
 -- Removes save to instance flag from Hellfire Channeler
-UPDATE `creature_template` SET `flags_extra`=`flags_extra` &~ 0 WHERE `entry`=17256;
+UPDATE `creature_template` SET `flags_extra`=`flags_extra` &~ 1 WHERE `entry`=17256;
 
 -- by Nay
 DELETE FROM `spell_dbc` WHERE `Id` IN (12507,31982,33134);
