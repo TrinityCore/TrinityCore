@@ -4398,8 +4398,8 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
 
     if (pGameObj->GetGoType() == GAMEOBJECT_TYPE_FLAGDROP && m_caster->GetTypeId() == TYPEID_PLAYER)
     {
-        Player* pl = m_caster->ToPlayer();
-        Battleground* bg = pl->GetBattleground();
+        Player* player = m_caster->ToPlayer();
+        Battleground* bg = player->GetBattleground();
 
         switch (pGameObj->GetMapId())
         {
@@ -4409,7 +4409,7 @@ void Spell::EffectSummonObjectWild(SpellEffIndex effIndex)
                 {
                     uint32 team = ALLIANCE;
 
-                    if (pl->GetTeam() == team)
+                    if (player->GetTeam() == team)
                         team = HORDE;
 
                     ((BattlegroundWS*)bg)->SetDroppedFlagGUID(pGameObj->GetGUID(), team);

@@ -1425,10 +1425,10 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
     Player* pNewLooter = NULL;
     for (member_citerator itr = guid_itr; itr != m_memberSlots.end(); ++itr)
     {
-        if (Player* pl = ObjectAccessor::FindPlayer(itr->guid))
-            if (pl->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+        if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+            if (player->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
             {
-                pNewLooter = pl;
+                pNewLooter = player;
                 break;
             }
     }
@@ -1438,10 +1438,10 @@ void Group::UpdateLooterGuid(WorldObject* pLootedObject, bool ifneed)
         // search from start
         for (member_citerator itr = m_memberSlots.begin(); itr != guid_itr; ++itr)
         {
-            if (Player* pl = ObjectAccessor::FindPlayer(itr->guid))
-                if (pl->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
+            if (Player* player = ObjectAccessor::FindPlayer(itr->guid))
+                if (player->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
                 {
-                    pNewLooter = pl;
+                    pNewLooter = player;
                     break;
                 }
         }
