@@ -137,16 +137,16 @@ namespace Trinity
         void Visit(DynamicObjectMapType &m);
         template<class SKIP> void Visit(GridRefManager<SKIP> &) {}
 
-        void SendPacket(Player* plr)
+        void SendPacket(Player* player)
         {
             // never send packet to self
-            if (plr == i_source || (team && plr->GetTeam() != team) || skipped_receiver == plr)
+            if (player == i_source || (team && player->GetTeam() != team) || skipped_receiver == player)
                 return;
 
-            if (!plr->HaveAtClient(i_source))
+            if (!player->HaveAtClient(i_source))
                 return;
 
-            if (WorldSession* session = plr->GetSession())
+            if (WorldSession* session = player->GetSession())
                 session->SendPacket(i_message);
         }
     };
