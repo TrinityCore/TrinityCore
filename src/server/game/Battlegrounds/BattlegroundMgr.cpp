@@ -868,35 +868,35 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     }
 }
 
-void BattlegroundMgr::SendToBattleground(Player* pl, uint32 instanceId, BattlegroundTypeId bgTypeId)
+void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     Battleground* bg = GetBattleground(instanceId, bgTypeId);
     if (bg)
     {
         uint32 mapid = bg->GetMapId();
         float x, y, z, O;
-        uint32 team = pl->GetBGTeam();
+        uint32 team = player->GetBGTeam();
         if (team == 0)
-            team = pl->GetTeam();
+            team = player->GetTeam();
         bg->GetTeamStartLoc(team, x, y, z, O);
 
-        sLog->outDetail("BATTLEGROUND: Sending %s to map %u, X %f, Y %f, Z %f, O %f", pl->GetName(), mapid, x, y, z, O);
-        pl->TeleportTo(mapid, x, y, z, O);
+        sLog->outDetail("BATTLEGROUND: Sending %s to map %u, X %f, Y %f, Z %f, O %f", player->GetName(), mapid, x, y, z, O);
+        player->TeleportTo(mapid, x, y, z, O);
     }
     else
     {
-        sLog->outError("player %u is trying to port to non-existent bg instance %u", pl->GetGUIDLow(), instanceId);
+        sLog->outError("player %u is trying to port to non-existent bg instance %u", player->GetGUIDLow(), instanceId);
     }
 }
 
-void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* pl, Battleground* bg, uint64 guid)
+void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
     if (time_ == uint32(-1))
         time_ = 0;
     data << guid << time_;
-    pl->GetSession()->SendPacket(&data);
+    player->GetSession()->SendPacket(&data);
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)

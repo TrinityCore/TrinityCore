@@ -129,16 +129,16 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
     uint64 guid;
     data >> guid;
 
-    if (Player* pl = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
-        if (!pl->GetVehicleKit())
+        if (!player->GetVehicleKit())
             return;
-        if (!pl->IsInRaidWith(_player))
+        if (!player->IsInRaidWith(_player))
             return;
-        if (!pl->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        if (!player->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
             return;
 
-        _player->EnterVehicle(pl);
+        _player->EnterVehicle(player);
     }
 }
 

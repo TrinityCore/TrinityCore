@@ -309,11 +309,11 @@ void Map::DeleteFromWorld(T* obj)
 }
 
 template<>
-void Map::DeleteFromWorld(Player* pl)
+void Map::DeleteFromWorld(Player* player)
 {
-    sObjectAccessor->RemoveObject(pl);
-    sObjectAccessor->RemoveUpdateObject(pl); //TODO: I do not know why we need this, it should be removed in ~Object anyway
-    delete pl;
+    sObjectAccessor->RemoveObject(player);
+    sObjectAccessor->RemoveUpdateObject(player); //TODO: I do not know why we need this, it should be removed in ~Object anyway
+    delete player;
 }
 
 //Create NGrid so the object can be added to it

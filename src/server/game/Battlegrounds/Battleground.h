@@ -329,7 +329,7 @@ class Battleground
         {
         }
 
-        virtual void DestroyGate(Player* /*pl*/, GameObject* /*go*/) {}
+        virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) {}
 
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
