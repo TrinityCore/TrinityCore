@@ -2020,21 +2020,20 @@ bool Player::ToggleDND()
     return HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DND);
 }
 
-uint8 Player::chatTag() const
+uint8 Player::GetChatTag() const
 {
-    // it's bitmask
-    // 0x8 - ??
-    // 0x4 - gm
-    // 0x2 - dnd
-    // 0x1 - afk
+    uint8 tag = CHAT_TAG_NONE;
+
     if (isGMChat())
-        return 4;
-    else if (isDND())
-        return 3;
+        tag |= CHAT_TAG_GM;
+    if (isDND())
+        tag |= CHAT_TAG_DND;
     if (isAFK())
-        return 1;
-    else
-        return 0;
+        tag |= CHAT_TAG_AFK;
+    if (HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_DEVELOPER))
+        tag |= CHAT_TAG_DEV;
+
+    return tag;
 }
 
 void Player::SendTeleportPacket(Position &oldPos)
@@ -19340,7 +19339,7 @@ inline void Player::BuildPlayerChat(WorldPacket* data, uint8 msgtype, const std:
     *data << uint64(GetGUID());
     *data << uint32(text.length() + 1);
     *data << text;
-    *data << uint8(chatTag());
+    *data << uint8(GetChatTag());
 }
 
 void Player::Say(const std::string& text, const uint32 language)
