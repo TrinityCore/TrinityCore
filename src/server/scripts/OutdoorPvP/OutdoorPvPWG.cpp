@@ -1719,9 +1719,9 @@ void OutdoorPvPWG::StartBattle()
         }
     }
 
-    if (sWorld->getBoolConfig(CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE))
+    if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE))
     {
-        if ((CountAtk < sWorld->getIntConfig(CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK)) || (CountDef < sWorld->getIntConfig(CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF)))
+        if ((CountAtk < sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK)) || (CountDef < sWorld->getIntConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF)))
         {
             if (CountAtk<=CountDef)
                 sWorld->SendWorldText(LANG_BG_WG_WORLD_NO_ATK);
