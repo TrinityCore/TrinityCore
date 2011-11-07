@@ -135,7 +135,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
             if (nodePoint[i].nodeState == NODE_STATE_CONTROLLED_A ||
                 nodePoint[i].nodeState == NODE_STATE_CONTROLLED_H)
             {
-                if (nodePoint[i].timer <= diff)
+                if (docksTimer <= diff)
                 {
                     // we need to confirm this, i am not sure if this every 3 minutes
                     for (uint8 u = (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_1_A : BG_IC_NPC_CATAPULT_1_H); u < (nodePoint[i].faction  == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_4_A : BG_IC_NPC_CATAPULT_4_H); u++)
@@ -158,7 +158,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     }
 
                     docksTimer = DOCKS_UPDATE_TIME;
-                } else nodePoint[i].timer -= diff;
+                } else docksTimer -= diff;
             }
         }
 

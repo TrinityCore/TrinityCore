@@ -122,7 +122,7 @@ void PlayerSocial::SendSocialList(Player* plr)
     uint32 size = m_playerSocialMap.size();
 
     WorldPacket data(SMSG_CONTACT_LIST, (4+4+size*25));     // just can guess size
-    data << uint32(7);                                      // unk flag (0x1, 0x2, 0x4), 0x7 if it include ignore list
+    data << uint32(7);                                      // 0x1 = Friendlist update. 0x2 = Ignorelist update. 0x4 = Mutelist update.
     data << uint32(size);                                   // friends count
 
     for (PlayerSocialMap::iterator itr = m_playerSocialMap.begin(); itr != m_playerSocialMap.end(); ++itr)
