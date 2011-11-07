@@ -1274,12 +1274,12 @@ void Group::BroadcastPacket(WorldPacket* packet, bool ignorePlayersInBGRaid, int
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* plr = itr->getSource();
-        if (!plr || (ignore != 0 && plr->GetGUID() == ignore) || (ignorePlayersInBGRaid && plr->GetGroup() != this))
+        Player* player = itr->getSource();
+        if (!player || (ignore != 0 && player->GetGUID() == ignore) || (ignorePlayersInBGRaid && player->GetGroup() != this))
             continue;
 
-        if (plr->GetSession() && (group == -1 || itr->getSubGroup() == group))
-            plr->GetSession()->SendPacket(packet);
+        if (player->GetSession() && (group == -1 || itr->getSubGroup() == group))
+            player->GetSession()->SendPacket(packet);
     }
 }
 
@@ -1287,10 +1287,10 @@ void Group::BroadcastReadyCheck(WorldPacket* packet)
 {
     for (GroupReference* itr = GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        Player* plr = itr->getSource();
-        if (plr && plr->GetSession())
-            if (IsLeader(plr->GetGUID()) || IsAssistant(plr->GetGUID()))
-                plr->GetSession()->SendPacket(packet);
+        Player* player = itr->getSource();
+        if (player && player->GetSession())
+            if (IsLeader(player->GetGUID()) || IsAssistant(player->GetGUID()))
+                player->GetSession()->SendPacket(packet);
     }
 }
 
@@ -1298,8 +1298,8 @@ void Group::OfflineReadyCheck()
 {
     for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
     {
-        Player* plr = ObjectAccessor::FindPlayer(citr->guid);
-        if (!plr || !plr->GetSession())
+        Player* player = ObjectAccessor::FindPlayer(citr->guid);
+        if (!player || !player->GetSession())
         {
             WorldPacket data(MSG_RAID_READY_CHECK_CONFIRM, 9);
             data << uint64(citr->guid);

@@ -65,9 +65,9 @@ class BattlegroundMgr
         void Update(uint32 diff);
 
         /* Packet Building */
-        void BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, Player* plr);
+        void BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, Player* player);
         void BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint64 guid);
-        void BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* plr, BattlegroundTypeId bgTypeId, uint8 fromWhere);
+        void BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId, uint8 fromWhere);
         void BuildGroupJoinedBattlegroundPacket(WorldPacket* data, GroupJoinBattlegroundResult result);
         void BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value);
         void BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg);

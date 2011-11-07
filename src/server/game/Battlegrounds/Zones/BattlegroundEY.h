@@ -336,7 +336,7 @@ class BattlegroundEY : public Battleground
         ~BattlegroundEY();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* plr);
+        virtual void AddPlayer(Player* player);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 
@@ -348,7 +348,7 @@ class BattlegroundEY : public Battleground
         void RespawnFlag(bool send_message);
         void RespawnFlagAfterDrop();
 
-        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleBuffUse(uint64 buff_guid);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         void HandleKillPlayer(Player* player, Player* killer);
