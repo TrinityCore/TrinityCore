@@ -1076,14 +1076,14 @@ class ObjectMgr
 
         time_t GetCreatureRespawnTime(uint32 loguid, uint32 instance)
         {
-            ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, m_CreatureRespawnTimesMtx, 0);
+            TRINITY_GUARD(ACE_Thread_Mutex, m_CreatureRespawnTimesMtx);
             return mCreatureRespawnTimes[MAKE_PAIR64(loguid, instance)];
         }
         void SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t);
         void RemoveCreatureRespawnTime(uint32 loguid, uint32 instance);
         time_t GetGORespawnTime(uint32 loguid, uint32 instance)
         {
-            ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, m_GORespawnTimesMtx, 0);
+            TRINITY_GUARD(ACE_Thread_Mutex, m_GORespawnTimesMtx);
             return mGORespawnTimes[MAKE_PAIR64(loguid, instance)];
         }
         void SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t);
