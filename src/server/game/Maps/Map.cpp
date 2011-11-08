@@ -322,7 +322,7 @@ void Map::EnsureGridCreated(const GridCoord &p)
 {
     if (!getNGrid(p.x_coord, p.y_coord))
     {
-        ACE_GUARD(ACE_Thread_Mutex, Guard, Lock);
+        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
         if (!getNGrid(p.x_coord, p.y_coord))
         {
             sLog->outDebug(LOG_FILTER_MAPS, "Creating grid[%u, %u] for map %u instance %u", p.x_coord, p.y_coord, GetId(), i_InstanceId);
@@ -2282,7 +2282,7 @@ bool InstanceMap::AddToMap(Player* player)
     // Is it needed?
 
     {
-        ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, Lock, false);
+        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
         // Check moved to void WorldSession::HandleMoveWorldportAckOpcode()
         //if (!CanEnter(player))
             //return false;
@@ -2624,7 +2624,7 @@ bool BattlegroundMap::CanEnter(Player* player)
 bool BattlegroundMap::AddToMap(Player* player)
 {
     {
-        ACE_GUARD_RETURN(ACE_Thread_Mutex, guard, Lock, false);
+        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
         //Check moved to void WorldSession::HandleMoveWorldportAckOpcode()
         //if (!CanEnter(player))
             //return false;

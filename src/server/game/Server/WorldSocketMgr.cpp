@@ -109,7 +109,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         int AddSocket (WorldSocket* sock)
         {
-            ACE_GUARD_RETURN (ACE_Thread_Mutex, Guard, m_NewSockets_Lock, -1);
+            TRINITY_GUARD(ACE_Thread_Mutex, m_NewSockets_Lock);
 
             ++m_Connections;
             sock->AddReference();
@@ -130,7 +130,7 @@ class ReactorRunnable : protected ACE_Task_Base
 
         void AddNewSockets()
         {
-            ACE_GUARD (ACE_Thread_Mutex, Guard, m_NewSockets_Lock);
+            TRINITY_GUARD(ACE_Thread_Mutex, m_NewSockets_Lock);
 
             if (m_NewSockets.empty())
                 return;
