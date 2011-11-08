@@ -173,7 +173,7 @@ Map* MapInstanced::CreateInstance(const uint32 mapId, Player* player)
 InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save, Difficulty difficulty)
 {
     // load/create a map
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
+    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
     // make sure we have a valid map id
     const MapEntry* entry = sMapStore.LookupEntry(GetId());
@@ -207,7 +207,7 @@ InstanceMap* MapInstanced::CreateInstance(uint32 InstanceId, InstanceSave* save,
 BattlegroundMap* MapInstanced::CreateBattleground(uint32 InstanceId, Battleground* bg)
 {
     // load/create a map
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
+    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
     sLog->outDebug(LOG_FILTER_MAPS, "MapInstanced::CreateBattleground: map bg %d for %d created.", InstanceId, GetId());
 
