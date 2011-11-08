@@ -48,7 +48,7 @@ enum Yells
 };
 enum Creatures
 {
-    CREATURE_ARTHAS                               = 24266, // Image of Arthas
+    CREATURE_ARTHAS                               = 29280, // Image of Arthas
     CREATURE_SVALA_SORROWGRAVE                    = 26668, // Svala after transformation
     CREATURE_SVALA                                = 29281, // Svala before transformation
     CREATURE_RITUAL_CHANNELER                     = 27281
