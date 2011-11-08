@@ -312,6 +312,7 @@ template<>
 void Map::DeleteFromWorld(Player* pl)
 {
     sObjectAccessor->RemoveObject(pl);
+    sObjectAccessor->RemoveUpdateObject(pl); //TODO: I do not know why we need this, it should be removed in ~Object anyway
     delete pl;
 }
 
