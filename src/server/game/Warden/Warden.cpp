@@ -156,9 +156,6 @@ void Warden::Update()
             if (diff >= _checkTimer)
             {
                 RequestData();
-
-                uint32 period = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_CHECK_PERIOD);
-                _checkTimer = irand(period - 5, period + 5) * IN_MILLISECONDS;
             }
             else
                 _checkTimer -= diff;

@@ -996,7 +996,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     m_Session->ReadAddonsInfo(recvPacket);
 
     // Initialize Warden system only if it is enabled by config
-    if (sWorld->getBoolConfig(CONFIG_BOOL_WARDEN_ENABLED))
+    if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
         m_Session->InitWarden(&k, os);
 
     // Sleep this Network thread for

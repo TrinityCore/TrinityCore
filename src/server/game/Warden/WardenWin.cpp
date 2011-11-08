@@ -210,8 +210,8 @@ void WardenWin::RequestData()
     WardenCheck* wd;
     _currentChecks.clear();
 
-    // Build check request (3 mem checks + 7 other checks)
-    for (int i = 0; i < 3; ++i)
+    // Build check request
+    for (uint32 i = 0; i < sWorld->getIntConfig(CONFIG_WARDEN_NUM_MEM_CHECKS); ++i)
     {
         // If todo list is done break loop (will be filled on next Update() run)
         if (_memChecksTodo.empty())
@@ -228,7 +228,7 @@ void WardenWin::RequestData()
     ByteBuffer buff;
     buff << uint8(WARDEN_SMSG_CHEAT_CHECKS_REQUEST);
 
-    for (int i = 0; i < 7; ++i)
+    for (uint32 i = 0; i < sWorld->getIntConfig(CONFIG_WARDEN_NUM_OTHER_CHECKS); ++i)
     {
         // If todo list is done break loop (will be filled on next Update() run)
         if (_otherChecksTodo.empty())
@@ -242,10 +242,6 @@ void WardenWin::RequestData()
         _currentChecks.push_back(id);
 
         wd = sWardenCheckMgr->GetWardenDataById(id);
-
-        // Skip if checks aren't in the stores anymore (e.g. by database edit & reload during runtime)
-        if (!wd)
-            continue;
 
         switch (wd->Type)
         {
@@ -269,11 +265,7 @@ void WardenWin::RequestData()
 
     for (std::list<uint32>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
     {
-        // Skip if checks aren't in the stores anymore (e.g. by database edit & reload during runtime)
         wd = sWardenCheckMgr->GetWardenDataById(*itr);
-
-        if (!wd)
-            continue;
 
         type = wd->Type;
         buff << uint8(type ^ xorByte);
@@ -530,4 +522,7 @@ void WardenWin::HandleData(ByteBuffer &buff)
         sLog->outError("WARDEN: Player %s (guid: %u, account: %u) failed Warden check %u. Action: %s",
             _session->GetPlayerName(), _session->GetGuidLow(), _session->GetAccountId(), checkFailed, Penalty().c_str());
     }
+
+    // Set hold off timer
+    _checkTimer = sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF);
 }

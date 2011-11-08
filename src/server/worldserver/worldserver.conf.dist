@@ -1426,6 +1426,23 @@ AccountInstancesPerHour = 5
 Warden.Enabled = 0
 
 #
+#    Warden.NumMemChecks
+#        Description: Number of Warden memory checks that are sent to the client each cycle.
+#        Default:     3 - (Enabled)
+#                     0 - (Disabled)
+
+Warden.NumMemChecks = 3
+
+#
+#    Warden.NumOtherChecks
+#        Description: Number of Warden checks other than memory checks that are added to request
+#                     each checking cycle.
+#        Default:     7 - (Enabled)
+#                     0 - (Disabled)
+
+Warden.NumMemChecks = 7
+
+#
 #    Warden.DebugLogFile
 #        Description: Debug log file for Warden, ClientCheckFailAction will be sent to regular
 #                     server log.
@@ -1438,18 +1455,19 @@ Warden.DebugLogFile = ""
 #
 #    Warden.ClientResponseDelay
 #        Description: Time (in seconds) before client is getting disconnecting for not responding.
-#        Default:     3600 - (1 Hour)
-#                      0 - (Disabled, client won't be kicked)
+#        Default:     600 - (10 Minutes)
+#                     0 - (Disabled, client won't be kicked)
 
-Warden.ClientResponseDelay = 3600
+Warden.ClientResponseDelay = 600
 
 #
-#    Warden.ClientCheckPeriod
-#        Description: Time (in seconds) +/- 5 seconds between sending check requests to the client.
+#    Warden.ClientCheckHoldOff
+#        Description: Time (in seconds) to wait before sending the next check request to the client.
 #                     A low number increases traffic and load on client and server side.
-#        Default:     30 - (25-35 seconds)
+#        Default:     30 - (30 Seconds)
+#                     0  - (Send check as soon as possible)
 
-Warden.ClientCheckPeriod = 30
+Warden.ClientCheckHoldOff = 30
 
 #
 #    Warden.ClientCheckFailAction

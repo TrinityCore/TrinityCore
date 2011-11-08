@@ -42,7 +42,7 @@ WardenCheckMgr::~WardenCheckMgr()
 void WardenCheckMgr::LoadWardenChecks()
 {
     // Check if Warden is enabled by config before loading anything
-    if (!sWorld->getBoolConfig(CONFIG_BOOL_WARDEN_ENABLED))
+    if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
     {
         sLog->outString(">> Warden disabled, loading checks skipped.");
         sLog->outString();
