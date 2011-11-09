@@ -146,20 +146,20 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
             uint8 j = 0;
             while (j < m_PlayersNearPoint[EY_POINTS_MAX].size())
             {
-                Player* plr = ObjectAccessor::FindPlayer(m_PlayersNearPoint[EY_POINTS_MAX][j]);
-                if (!plr)
+                Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[EY_POINTS_MAX][j]);
+                if (!player)
                 {
                     sLog->outError("BattlegroundEY:CheckSomeoneJoinedPoint: Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[EY_POINTS_MAX][j]));
                     ++j;
                     continue;
                 }
-                if (plr->CanCaptureTowerPoint() && plr->IsWithinDistInMap(obj, BG_EY_POINT_RADIUS))
+                if (player->CanCaptureTowerPoint() && player->IsWithinDistInMap(obj, BG_EY_POINT_RADIUS))
                 {
                     //player joined point!
                     //show progress bar
-                    UpdateWorldStateForPlayer(PROGRESS_BAR_PERCENT_GREY, BG_EY_PROGRESS_BAR_PERCENT_GREY, plr);
-                    UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[i], plr);
-                    UpdateWorldStateForPlayer(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_SHOW, plr);
+                    UpdateWorldStateForPlayer(PROGRESS_BAR_PERCENT_GREY, BG_EY_PROGRESS_BAR_PERCENT_GREY, player);
+                    UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[i], player);
+                    UpdateWorldStateForPlayer(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_SHOW, player);
                     //add player to point
                     m_PlayersNearPoint[i].push_back(m_PlayersNearPoint[EY_POINTS_MAX][j]);
                     //remove player from "free space"
@@ -186,8 +186,8 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
             uint8 j = 0;
             while (j < m_PlayersNearPoint[i].size())
             {
-                Player* plr = ObjectAccessor::FindPlayer(m_PlayersNearPoint[i][j]);
-                if (!plr)
+                Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[i][j]);
+                if (!player)
                 {
                     sLog->outError("BattlegroundEY:CheckSomeoneLeftPoint Player (GUID: %u) not found!", GUID_LOPART(m_PlayersNearPoint[i][j]));
                     //move not existed player to "free space" - this will cause many error showing in log, but it is a very important bug
@@ -196,17 +196,17 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
                     ++j;
                     continue;
                 }
-                if (!plr->CanCaptureTowerPoint() || !plr->IsWithinDistInMap(obj, BG_EY_POINT_RADIUS))
+                if (!player->CanCaptureTowerPoint() || !player->IsWithinDistInMap(obj, BG_EY_POINT_RADIUS))
                     //move player out of point (add him to players that are out of points
                 {
                     m_PlayersNearPoint[EY_POINTS_MAX].push_back(m_PlayersNearPoint[i][j]);
                     m_PlayersNearPoint[i].erase(m_PlayersNearPoint[i].begin() + j);
-                    this->UpdateWorldStateForPlayer(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_DONT_SHOW, plr);
+                    this->UpdateWorldStateForPlayer(PROGRESS_BAR_SHOW, BG_EY_PROGRESS_BAR_DONT_SHOW, player);
                 }
                 else
                 {
                     //player is neat flag, so update count:
-                    m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(plr->GetTeam())]++;
+                    m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(player->GetTeam())]++;
                     ++j;
                 }
             }
@@ -241,20 +241,20 @@ void BattlegroundEY::UpdatePointStatuses()
 
         for (uint8 i = 0; i < m_PlayersNearPoint[point].size(); ++i)
         {
-            Player* plr = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
-            if (plr)
+            Player* player = ObjectAccessor::FindPlayer(m_PlayersNearPoint[point][i]);
+            if (player)
             {
-                this->UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[point], plr);
+                this->UpdateWorldStateForPlayer(PROGRESS_BAR_STATUS, m_PointBarStatus[point], player);
                                                             //if point owner changed we must evoke event!
                 if (pointOwnerTeamId != m_PointOwnedByTeam[point])
                 {
                     //point was uncontrolled and player is from team which captured point
-                    if (m_PointState[point] == EY_POINT_STATE_UNCONTROLLED && plr->GetTeam() == pointOwnerTeamId)
-                        this->EventTeamCapturedPoint(plr, point);
+                    if (m_PointState[point] == EY_POINT_STATE_UNCONTROLLED && player->GetTeam() == pointOwnerTeamId)
+                        this->EventTeamCapturedPoint(player, point);
 
                     //point was under control and player isn't from team which controlled it
-                    if (m_PointState[point] == EY_POINT_UNDER_CONTROL && plr->GetTeam() != m_PointOwnedByTeam[point])
-                        this->EventTeamLostPoint(plr, point);
+                    if (m_PointState[point] == EY_POINT_UNDER_CONTROL && player->GetTeam() != m_PointOwnedByTeam[point])
+                        this->EventTeamLostPoint(player, point);
                 }
             }
         }
@@ -330,18 +330,18 @@ void BattlegroundEY::UpdatePointsIcons(uint32 Team, uint32 Point)
     }
 }
 
-void BattlegroundEY::AddPlayer(Player* plr)
+void BattlegroundEY::AddPlayer(Player* player)
 {
-    Battleground::AddPlayer(plr);
+    Battleground::AddPlayer(player);
     //create score and add it to map
     BattlegroundEYScore* sc = new BattlegroundEYScore;
 
-    m_PlayersNearPoint[EY_POINTS_MAX].push_back(plr->GetGUID());
+    m_PlayersNearPoint[EY_POINTS_MAX].push_back(player->GetGUID());
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    m_PlayerScores[player->GetGUID()] = sc;
 }
 
-void BattlegroundEY::RemovePlayer(Player* plr, uint64 guid, uint32 /*team*/)
+void BattlegroundEY::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
 {
     // sometimes flag aura not removed :(
     for (int j = EY_POINTS_MAX; j >= 0; --j)
@@ -354,8 +354,8 @@ void BattlegroundEY::RemovePlayer(Player* plr, uint64 guid, uint32 /*team*/)
     {
         if (m_FlagKeeper == guid)
         {
-            if (plr)
-                EventPlayerDroppedFlag(plr);
+            if (player)
+                EventPlayerDroppedFlag(player);
             else
             {
                 SetFlagPicker(0);

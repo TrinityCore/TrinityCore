@@ -90,22 +90,22 @@ void BattlegroundIC::DoAction(uint32 action, uint64 var)
     if (action != ACTION_TELEPORT_PLAYER_TO_TRANSPORT)
         return;
 
-    Player* plr = ObjectAccessor::FindPlayer(var);
+    Player* player = ObjectAccessor::FindPlayer(var);
 
-    if (!plr || !gunshipAlliance || !gunshipHorde)
+    if (!player || !gunshipAlliance || !gunshipHorde)
         return;
 
-    plr->CastSpell(plr, SPELL_PARACHUTE, true); // this must be changed, there is a trigger in each transport that casts the spell.
-    plr->CastSpell(plr, SPELL_SLOW_FALL, true);
+    player->CastSpell(player, SPELL_PARACHUTE, true); // this must be changed, there is a trigger in each transport that casts the spell.
+    player->CastSpell(player, SPELL_SLOW_FALL, true);
 
-    plr->SetTransport(plr->GetTeamId() == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde);
+    player->SetTransport(player->GetTeamId() == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde);
 
-    plr->m_movementInfo.t_pos.m_positionX = TransportMovementInfo.GetPositionX();
-    plr->m_movementInfo.t_pos.m_positionY = TransportMovementInfo.GetPositionY();
-    plr->m_movementInfo.t_pos.m_positionZ = TransportMovementInfo.GetPositionZ();
-    plr->m_movementInfo.t_guid = (plr->GetTeamId() == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde)->GetGUID();
+    player->m_movementInfo.t_pos.m_positionX = TransportMovementInfo.GetPositionX();
+    player->m_movementInfo.t_pos.m_positionY = TransportMovementInfo.GetPositionY();
+    player->m_movementInfo.t_pos.m_positionZ = TransportMovementInfo.GetPositionZ();
+    player->m_movementInfo.t_guid = (player->GetTeamId() == TEAM_ALLIANCE ? gunshipAlliance : gunshipHorde)->GetGUID();
 
-    plr->TeleportTo(GetMapId(), TeleportToTransportPosition.GetPositionX(), TeleportToTransportPosition.GetPositionY(), TeleportToTransportPosition.GetPositionZ(), TeleportToTransportPosition.GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+    player->TeleportTo(GetMapId(), TeleportToTransportPosition.GetPositionX(), TeleportToTransportPosition.GetPositionY(), TeleportToTransportPosition.GetPositionZ(), TeleportToTransportPosition.GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
 }
 
 void BattlegroundIC::PostUpdateImpl(uint32 diff)
@@ -292,29 +292,29 @@ bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const
     return count == NODE_TYPE_WORKSHOP;
 }
 
-void BattlegroundIC::AddPlayer(Player* plr)
+void BattlegroundIC::AddPlayer(Player* player)
 {
-    Battleground::AddPlayer(plr);
+    Battleground::AddPlayer(player);
     //create score and add it to map, default values are set in constructor
     BattlegroundICScore* sc = new BattlegroundICScore;
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    m_PlayerScores[player->GetGUID()] = sc;
 
-    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (plr->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
-        plr->CastSpell(plr, SPELL_QUARRY, true);
+    if (nodePoint[NODE_TYPE_QUARRY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+        player->CastSpell(player, SPELL_QUARRY, true);
 
-    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (plr->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
-        plr->CastSpell(plr, SPELL_OIL_REFINERY, true);
+    if (nodePoint[NODE_TYPE_REFINERY].nodeState == (player->GetTeamId() == TEAM_ALLIANCE ? NODE_STATE_CONTROLLED_A : NODE_STATE_CONTROLLED_H))
+        player->CastSpell(player, SPELL_OIL_REFINERY, true);
 
-    SendTransportInit(plr);
+    SendTransportInit(player);
 }
 
-void BattlegroundIC::RemovePlayer(Player* plr, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundIC::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
 {
-    if (plr)
+    if (player)
     {
-        plr->RemoveAura(SPELL_QUARRY);
-        plr->RemoveAura(SPELL_OIL_REFINERY);
+        player->RemoveAura(SPELL_QUARRY);
+        player->RemoveAura(SPELL_OIL_REFINERY);
     }
 }
 
@@ -482,15 +482,15 @@ void BattlegroundIC::RealocatePlayers(ICNodePointType nodeType)
         WorldSafeLocsEntry const* ClosestGrave = NULL;
         for (std::vector<uint64>::const_iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
         {
-            Player* plr = ObjectAccessor::FindPlayer(*itr);
-            if (!plr)
+            Player* player = ObjectAccessor::FindPlayer(*itr);
+            if (!player)
                 continue;
 
             if (!ClosestGrave)                              // cache
-                ClosestGrave = GetClosestGraveYard(plr);
+                ClosestGrave = GetClosestGraveYard(player);
 
             if (ClosestGrave)
-                plr->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
+                player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
         }
     }
 }
@@ -855,7 +855,7 @@ void BattlegroundIC::DestroyGate(Player* player, GameObject* go)
     SendMessage2ToAll(lang_entry, CHAT_MSG_BG_SYSTEM_NEUTRAL, NULL, (player->GetTeamId() == TEAM_ALLIANCE ? LANG_BG_IC_HORDE_KEEP : LANG_BG_IC_ALLIANCE_KEEP));
 }
 
-void BattlegroundIC::EventPlayerDamagedGO(Player* /*plr*/, GameObject* /*go*/, uint32 /*eventType*/)
+void BattlegroundIC::EventPlayerDamagedGO(Player* /*player*/, GameObject* /*go*/, uint32 /*eventType*/)
 {
 
 }
