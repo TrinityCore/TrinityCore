@@ -309,11 +309,11 @@ void Map::DeleteFromWorld(T* obj)
 }
 
 template<>
-void Map::DeleteFromWorld(Player* pl)
+void Map::DeleteFromWorld(Player* player)
 {
-    sObjectAccessor->RemoveObject(pl);
-    sObjectAccessor->RemoveUpdateObject(pl); //TODO: I do not know why we need this, it should be removed in ~Object anyway
-    delete pl;
+    sObjectAccessor->RemoveObject(player);
+    sObjectAccessor->RemoveUpdateObject(player); //TODO: I do not know why we need this, it should be removed in ~Object anyway
+    delete player;
 }
 
 //Create NGrid so the object can be added to it
@@ -506,11 +506,11 @@ void Map::Update(const uint32 t_diff)
     /// update worldsessions for existing players
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
-        Player* plr = m_mapRefIter->getSource();
-        if (plr && plr->IsInWorld())
+        Player* player = m_mapRefIter->getSource();
+        if (player && player->IsInWorld())
         {
-            //plr->Update(t_diff);
-            WorldSession* pSession = plr->GetSession();
+            //player->Update(t_diff);
+            WorldSession* pSession = player->GetSession();
             MapSessionFilter updater(pSession);
             pSession->Update(t_diff, updater);
         }
@@ -528,15 +528,15 @@ void Map::Update(const uint32 t_diff)
     // to make sure calls to Map::Remove don't invalidate it
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
-        Player* plr = m_mapRefIter->getSource();
+        Player* player = m_mapRefIter->getSource();
 
-        if (!plr || !plr->IsInWorld())
+        if (!player || !player->IsInWorld())
             continue;
 
         // update players at tick
-        plr->Update(t_diff);
+        player->Update(t_diff);
 
-        VisitNearbyCellsOf(plr, grid_object_update, world_object_update);
+        VisitNearbyCellsOf(player, grid_object_update, world_object_update);
     }
 
     // non-player active objects, increasing iterator in the loop in case of object removal
@@ -1011,12 +1011,12 @@ void Map::RemoveAllPlayers()
     {
         for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
         {
-            Player* plr = itr->getSource();
-            if (!plr->IsBeingTeleportedFar())
+            Player* player = itr->getSource();
+            if (!player->IsBeingTeleportedFar())
             {
                 // this is happening for bg
-                sLog->outError("Map::UnloadAll: player %s is still in map %u during unload, this should not happen!", plr->GetName(), GetId());
-                plr->TeleportTo(plr->m_homebindMapId, plr->m_homebindX, plr->m_homebindY, plr->m_homebindZ, plr->GetOrientation());
+                sLog->outError("Map::UnloadAll: player %s is still in map %u during unload, this should not happen!", player->GetName(), GetId());
+                player->TeleportTo(player->m_homebindMapId, player->m_homebindX, player->m_homebindY, player->m_homebindZ, player->GetOrientation());
             }
         }
     }
@@ -2109,9 +2109,9 @@ bool Map::ActiveObjectsNearGrid(NGridType const& ngrid) const
 
     for (MapRefManager::const_iterator iter = m_mapRefManager.begin(); iter != m_mapRefManager.end(); ++iter)
     {
-        Player* plr = iter->getSource();
+        Player* player = iter->getSource();
 
-        CellCoord p = Trinity::ComputeCellCoord(plr->GetPositionX(), plr->GetPositionY());
+        CellCoord p = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
         if ((cell_min.x_coord <= p.x_coord && p.x_coord <= cell_max.x_coord) &&
             (cell_min.y_coord <= p.y_coord && p.y_coord <= cell_max.y_coord))
             return true;
@@ -2502,20 +2502,20 @@ void InstanceMap::PermBindAllPlayers(Player* player)
     // group members outside the instance group don't get bound
     for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
     {
-        Player* plr = itr->getSource();
+        Player* player = itr->getSource();
         // players inside an instance cannot be bound to other instances
         // some players may already be permanently bound, in this case nothing happens
-        InstancePlayerBind* bind = plr->GetBoundInstance(save->GetMapId(), save->GetDifficulty());
+        InstancePlayerBind* bind = player->GetBoundInstance(save->GetMapId(), save->GetDifficulty());
         if (!bind || !bind->perm)
         {
-            plr->BindToInstance(save, true);
+            player->BindToInstance(save, true);
             WorldPacket data(SMSG_INSTANCE_SAVE_CREATED, 4);
             data << uint32(0);
-            plr->GetSession()->SendPacket(&data);
+            player->GetSession()->SendPacket(&data);
         }
 
         // if the leader is not in the instance the group will not get a perm bind
-        if (group && group->GetLeaderGUID() == plr->GetGUID())
+        if (group && group->GetLeaderGUID() == player->GetGUID())
             group->BindToInstance(save, true);
     }
 }
@@ -2649,9 +2649,9 @@ void BattlegroundMap::RemoveAllPlayers()
 {
     if (HavePlayers())
         for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
-            if (Player* plr = itr->getSource())
-                if (!plr->IsBeingTeleportedFar())
-                    plr->TeleportTo(plr->GetBattlegroundEntryPoint());
+            if (Player* player = itr->getSource())
+                if (!player->IsBeingTeleportedFar())
+                    player->TeleportTo(player->GetBattlegroundEntryPoint());
 }
 
 Creature*

@@ -381,12 +381,12 @@ void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, Cha
             const SessionMap smap = sWorld->GetAllSessions();
             for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
             {
-                if (Player* plr = (*iter).second->GetPlayer())
+                if (Player* player = (*iter).second->GetPlayer())
                 {
                     if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
-                        data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(plr->GetGUID()));
-                    if (plr->GetSession()  && (!team || Team(plr->GetTeam()) == team) && (!gmOnly || plr->isGameMaster()))
-                        plr->GetSession()->SendPacket(data);
+                        data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(player->GetGUID()));
+                    if (player->GetSession()  && (!team || Team(player->GetTeam()) == team) && (!gmOnly || player->isGameMaster()))
+                        player->GetSession()->SendPacket(data);
                 }
             }
             return;

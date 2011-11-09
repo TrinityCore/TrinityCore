@@ -4330,9 +4330,9 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
     if (m_caster->GetTypeId() != TYPEID_PLAYER)
         return SPELL_CAST_OK;
 
-    Player* plr = (Player*)m_caster;
+    Player* player = (Player*)m_caster;
 
-    if (plr->getClass() != CLASS_DEATH_KNIGHT)
+    if (player->getClass() != CLASS_DEATH_KNIGHT)
         return SPELL_CAST_OK;
 
     SpellRuneCostEntry const* src = sSpellRuneCostStore.LookupEntry(runeCostID);
@@ -4356,8 +4356,8 @@ SpellCastResult Spell::CheckRuneCost(uint32 runeCostID)
 
     for (uint32 i = 0; i < MAX_RUNES; ++i)
     {
-        RuneType rune = plr->GetCurrentRune(i);
-        if ((plr->GetRuneCooldown(i) == 0) && (runeCost[rune] > 0))
+        RuneType rune = player->GetCurrentRune(i);
+        if ((player->GetRuneCooldown(i) == 0) && (runeCost[rune] > 0))
             runeCost[rune]--;
     }
 

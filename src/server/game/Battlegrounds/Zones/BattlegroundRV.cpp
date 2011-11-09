@@ -102,19 +102,19 @@ void BattlegroundRV::StartingEventOpenDoors()
     setTimer(BG_RV_FIRST_TIMER);
 }
 
-void BattlegroundRV::AddPlayer(Player* plr)
+void BattlegroundRV::AddPlayer(Player* player)
 {
-    Battleground::AddPlayer(plr);
+    Battleground::AddPlayer(player);
     //create score and add it to map, default values are set in constructor
     BattlegroundRVScore* sc = new BattlegroundRVScore;
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    m_PlayerScores[player->GetGUID()] = sc;
 
     UpdateWorldState(BG_RV_WORLD_STATE_A, GetAlivePlayersCountByTeam(ALLIANCE));
     UpdateWorldState(BG_RV_WORLD_STATE_H, GetAlivePlayersCountByTeam(HORDE));
 }
 
-void BattlegroundRV::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundRV::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;

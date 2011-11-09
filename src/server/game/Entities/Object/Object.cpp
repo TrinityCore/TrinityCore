@@ -780,13 +780,13 @@ void Object::ClearUpdateMask(bool remove)
     }
 }
 
-void Object::BuildFieldsUpdate(Player* pl, UpdateDataMapType& data_map) const
+void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) const
 {
-    UpdateDataMapType::iterator iter = data_map.find(pl);
+    UpdateDataMapType::iterator iter = data_map.find(player);
 
     if (iter == data_map.end())
     {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(pl, UpdateData()));
+        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(player, UpdateData()));
         ASSERT(p.second);
         iter = p.first;
     }
@@ -2723,19 +2723,19 @@ void WorldObject::DestroyForNearbyPlayers()
     VisitNearbyWorldObject(GetVisibilityRange(), searcher);
     for (std::list<Player*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
     {
-        Player* plr = (*iter);
+        Player* player = (*iter);
 
-        if (plr == this)
+        if (player == this)
             continue;
 
-        if (!plr->HaveAtClient(this))
+        if (!player->HaveAtClient(this))
             continue;
 
-        if (isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == plr->GetGUID()) // TODO: this is for puppet
+        if (isType(TYPEMASK_UNIT) && ((Unit*)this)->GetCharmerGUID() == player->GetGUID()) // TODO: this is for puppet
             continue;
 
-        DestroyForPlayer(plr);
-        plr->m_clientGUIDs.erase(GetGUID());
+        DestroyForPlayer(player);
+        player->m_clientGUIDs.erase(GetGUID());
     }
 }
 
@@ -2803,13 +2803,13 @@ struct WorldObjectChangeAccumulator
         }
     }
 
-    void BuildPacket(Player* plr)
+    void BuildPacket(Player* player)
     {
         // Only send update once to a player
-        if (plr_list.find(plr->GetGUID()) == plr_list.end() && plr->HaveAtClient(&i_object))
+        if (plr_list.find(player->GetGUID()) == plr_list.end() && player->HaveAtClient(&i_object))
         {
-            i_object.BuildFieldsUpdate(plr, i_updateDatas);
-            plr_list.insert(plr->GetGUID());
+            i_object.BuildFieldsUpdate(player, i_updateDatas);
+            plr_list.insert(player->GetGUID());
         }
     }
 

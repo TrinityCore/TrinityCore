@@ -1569,9 +1569,9 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
             target->RemoveAurasDueToSpell(spellId2);
 
         // Improved Barkskin - apply/remove armor bonus due to shapeshift
-        if (Player* pl=target->ToPlayer())
+        if (Player* player=target->ToPlayer())
         {
-            if (pl->HasSpell(63410) || pl->HasSpell(63411))
+            if (player->HasSpell(63410) || player->HasSpell(63411))
             {
                 target->RemoveAurasDueToSpell(66530);
                 target->CastSpell(target, 66530, true);
@@ -2847,7 +2847,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
     if (target->GetTypeId() == TYPEID_UNIT)
         target->SetFlying(apply);
 
-    if (Player* plr = target->m_movedPlayer)
+    if (Player* player = target->m_movedPlayer)
     {
         // allow flying
         WorldPacket data;
@@ -2857,7 +2857,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
             data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
         data.append(target->GetPackGUID());
         data << uint32(0);                                      // unk
-        plr->SendDirectMessage(&data);
+        player->SendDirectMessage(&data);
     }
 }
 
@@ -3246,16 +3246,16 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
         // do not remove unit flag if there are more than this auraEffect of that kind on unit on unit
         if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
-            if (Player* plr = target->m_movedPlayer)
+            if (Player* player = target->m_movedPlayer)
             {
                 WorldPacket data;
                 if (apply)
                     data.Initialize(SMSG_MOVE_SET_CAN_FLY, 12);
                 else
                     data.Initialize(SMSG_MOVE_UNSET_CAN_FLY, 12);
-                data.append(plr->GetPackGUID());
+                data.append(player->GetPackGUID());
                 data << uint32(0);                                      // unknown
-                plr->SendDirectMessage(&data);
+                player->SendDirectMessage(&data);
             }
         }
 
@@ -5394,9 +5394,9 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    Player* plr = (Player*)target;
+    Player* player = (Player*)target;
 
-    if (plr->getClass() != CLASS_DEATH_KNIGHT)
+    if (player->getClass() != CLASS_DEATH_KNIGHT)
         return;
 
     uint32 runes = m_amount;
@@ -5405,17 +5405,17 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
     {
         for (uint32 i = 0; i < MAX_RUNES && runes; ++i)
         {
-            if (GetMiscValue() != plr->GetCurrentRune(i))
+            if (GetMiscValue() != player->GetCurrentRune(i))
                 continue;
-            if (!plr->GetRuneCooldown(i))
+            if (!player->GetRuneCooldown(i))
             {
-                plr->AddRuneByAuraEffect(i, RuneType(GetMiscValueB()), this);
+                player->AddRuneByAuraEffect(i, RuneType(GetMiscValueB()), this);
                 --runes;
             }
         }
     }
     else
-        plr->RemoveRunesByAuraEffect(this);
+        player->RemoveRunesByAuraEffect(this);
 }
 
 void AuraEffect::HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, bool apply) const
