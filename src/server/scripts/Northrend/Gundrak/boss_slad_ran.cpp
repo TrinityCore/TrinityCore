@@ -92,8 +92,7 @@ public:
 
         uint8 uiPhase;
 
-        bool snakesAchievement;
-
+        std::set<uint64> lWrappedPlayers;
         SummonList lSummons;
 
         InstanceScript* instance;
@@ -105,7 +104,7 @@ public:
             uiVenomBoltTimer = 15*IN_MILLISECONDS;
             uiSpawnTimer = 5*IN_MILLISECONDS;
             uiPhase = 0;
-            snakesAchievement = true;
+            lWrappedPlayers.clear();
 
             lSummons.DespawnAll();
 
@@ -194,18 +193,15 @@ public:
             lSummons.Summon(summoned);
         }
 
-        void SetData(uint32 type, uint32 /*data*/)
+        void SetGUID(uint64 guid, int32 type)
         {
             if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
-                snakesAchievement = false;
+                lWrappedPlayers.insert(guid);
         }
 
-        uint32 GetData(uint32 type)
+        bool WasWrapped(uint64 guid)
         {
-            if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
-                return snakesAchievement ? 1 : 0;
-
-            return 0;
+            return lWrappedPlayers.count(guid);
         }
     };
 
@@ -252,7 +248,7 @@ public:
 
                     if (TempSummon* _me = me->ToTempSummon())
                         if (Creature* sladran = _me->GetSummoner()->ToCreature())
-                            sladran->AI()->SetData(DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES, 0);
+                            sladran->AI()->SetGUID(target->GetGUID() ,DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES);
 
                     me->DespawnOrUnsummon();
                 }
@@ -309,15 +305,13 @@ class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaS
         {
         }
 
-        bool OnCheck(Player* /*player*/, Unit* target)
+        bool OnCheck(Player* player, Unit* target)
         {
             if (!target)
                 return false;
 
-            if (Creature* sladran = target->ToCreature())
-                if (sladran->AI()->GetData(DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES))
-                    return true;
-
+            if (boss_slad_ran::boss_slad_ranAI* sladRanAI = CAST_AI(boss_slad_ran::boss_slad_ranAI, target->GetAI()))
+                return !sladRanAI->WasWrapped(player->GetGUID());
             return false;
         }
 };
