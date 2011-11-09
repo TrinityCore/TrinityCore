@@ -115,31 +115,31 @@ void OutdoorPvPMgr::AddZone(uint32 zoneid, OutdoorPvP* handle)
     m_OutdoorPvPMap[zoneid] = handle;
 }
 
-void OutdoorPvPMgr::HandlePlayerEnterZone(Player* plr, uint32 zoneid)
+void OutdoorPvPMgr::HandlePlayerEnterZone(Player* player, uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
     if (itr == m_OutdoorPvPMap.end())
         return;
 
-    if (itr->second->HasPlayer(plr))
+    if (itr->second->HasPlayer(player))
         return;
 
-    itr->second->HandlePlayerEnterZone(plr, zoneid);
-    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Player %u entered outdoorpvp id %u", plr->GetGUIDLow(), itr->second->GetTypeId());
+    itr->second->HandlePlayerEnterZone(player, zoneid);
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Player %u entered outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
 
-void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* plr, uint32 zoneid)
+void OutdoorPvPMgr::HandlePlayerLeaveZone(Player* player, uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
     if (itr == m_OutdoorPvPMap.end())
         return;
 
     // teleport: remove once in removefromworld, once in updatezone
-    if (!itr->second->HasPlayer(plr))
+    if (!itr->second->HasPlayer(player))
         return;
 
-    itr->second->HandlePlayerLeaveZone(plr, zoneid);
-    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Player %u left outdoorpvp id %u", plr->GetGUIDLow(), itr->second->GetTypeId());
+    itr->second->HandlePlayerLeaveZone(player, zoneid);
+    sLog->outDebug(LOG_FILTER_OUTDOORPVP, "Player %u left outdoorpvp id %u", player->GetGUIDLow(), itr->second->GetTypeId());
 }
 
 OutdoorPvP* OutdoorPvPMgr::GetOutdoorPvPToZoneId(uint32 zoneid)
@@ -164,11 +164,11 @@ void OutdoorPvPMgr::Update(uint32 diff)
     }
 }
 
-bool OutdoorPvPMgr::HandleCustomSpell(Player* plr, uint32 spellId, GameObject* go)
+bool OutdoorPvPMgr::HandleCustomSpell(Player* player, uint32 spellId, GameObject* go)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if ((*itr)->HandleCustomSpell(plr, spellId, go))
+        if ((*itr)->HandleCustomSpell(player, spellId, go))
             return true;
     }
     return false;
@@ -183,21 +183,21 @@ ZoneScript* OutdoorPvPMgr::GetZoneScript(uint32 zoneId)
         return NULL;
 }
 
-bool OutdoorPvPMgr::HandleOpenGo(Player* plr, uint64 guid)
+bool OutdoorPvPMgr::HandleOpenGo(Player* player, uint64 guid)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if ((*itr)->HandleOpenGo(plr, guid))
+        if ((*itr)->HandleOpenGo(player, guid))
             return true;
     }
     return false;
 }
 
-void OutdoorPvPMgr::HandleGossipOption(Player* plr, uint64 guid, uint32 gossipid)
+void OutdoorPvPMgr::HandleGossipOption(Player* player, uint64 guid, uint32 gossipid)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if ((*itr)->HandleGossipOption(plr, guid, gossipid))
+        if ((*itr)->HandleGossipOption(player, guid, gossipid))
             return;
     }
 }
@@ -212,21 +212,21 @@ bool OutdoorPvPMgr::CanTalkTo(Player* player, Creature* creature, GossipMenuItem
     return false;
 }
 
-void OutdoorPvPMgr::HandleDropFlag(Player* plr, uint32 spellId)
+void OutdoorPvPMgr::HandleDropFlag(Player* player, uint32 spellId)
 {
     for (OutdoorPvPSet::iterator itr = m_OutdoorPvPSet.begin(); itr != m_OutdoorPvPSet.end(); ++itr)
     {
-        if ((*itr)->HandleDropFlag(plr, spellId))
+        if ((*itr)->HandleDropFlag(player, spellId))
             return;
     }
 }
 
-void OutdoorPvPMgr::HandlePlayerResurrects(Player* plr, uint32 zoneid)
+void OutdoorPvPMgr::HandlePlayerResurrects(Player* player, uint32 zoneid)
 {
     OutdoorPvPMap::iterator itr = m_OutdoorPvPMap.find(zoneid);
     if (itr == m_OutdoorPvPMap.end())
         return;
 
-    if (itr->second->HasPlayer(plr))
-        itr->second->HandlePlayerResurrects(plr, zoneid);
+    if (itr->second->HasPlayer(player))
+        itr->second->HandlePlayerResurrects(player, zoneid);
 }

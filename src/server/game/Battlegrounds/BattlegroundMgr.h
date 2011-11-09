@@ -65,15 +65,15 @@ class BattlegroundMgr
         void Update(uint32 diff);
 
         /* Packet Building */
-        void BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, Player* plr);
+        void BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, Player* player);
         void BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint64 guid);
-        void BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* plr, BattlegroundTypeId bgTypeId, uint8 fromWhere);
+        void BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId, uint8 fromWhere);
         void BuildGroupJoinedBattlegroundPacket(WorldPacket* data, GroupJoinBattlegroundResult result);
         void BuildUpdateWorldStatePacket(WorldPacket* data, uint32 field, uint32 value);
         void BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg);
         void BuildBattlegroundStatusPacket(WorldPacket* data, Battleground* bg, uint8 QueueSlot, uint8 StatusID, uint32 Time1, uint32 Time2, uint8 arenatype, uint8 uiFrame = 1);
         void BuildPlaySoundPacket(WorldPacket* data, uint32 soundid);
-        void SendAreaSpiritHealerQueryOpcode(Player* pl, Battleground* bg, uint64 guid);
+        void SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid);
 
         /* Battlegrounds */
         Battleground* GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId);
@@ -91,7 +91,7 @@ class BattlegroundMgr
         void CreateInitialBattlegrounds();
         void DeleteAllBattlegrounds();
 
-        void SendToBattleground(Player* pl, uint32 InstanceID, BattlegroundTypeId bgTypeId);
+        void SendToBattleground(Player* player, uint32 InstanceID, BattlegroundTypeId bgTypeId);
 
         /* Battleground queues */
         //these queues are instantiated when creating BattlegroundMrg

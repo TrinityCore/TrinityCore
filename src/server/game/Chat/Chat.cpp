@@ -1551,9 +1551,9 @@ bool CliHandler::needReportToTarget(Player* /*chr*/) const
     return true;
 }
 
-bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, Group* &group, uint64 &guid, bool offline)
+bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &player, Group* &group, uint64 &guid, bool offline)
 {
-    plr  = NULL;
+    player  = NULL;
     guid = 0;
 
     if (cname)
@@ -1568,28 +1568,28 @@ bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player* &plr, G
                 return false;
             }
 
-            plr = sObjectAccessor->FindPlayerByName(name.c_str());
+            player = sObjectAccessor->FindPlayerByName(name.c_str());
             if (offline)
                 guid = sObjectMgr->GetPlayerGUIDByName(name.c_str());
         }
     }
 
-    if (plr)
+    if (player)
     {
-        group = plr->GetGroup();
+        group = player->GetGroup();
         if (!guid || !offline)
-            guid = plr->GetGUID();
+            guid = player->GetGUID();
     }
     else
     {
         if (getSelectedPlayer())
-            plr = getSelectedPlayer();
+            player = getSelectedPlayer();
         else
-            plr = m_session->GetPlayer();
+            player = m_session->GetPlayer();
 
         if (!guid || !offline)
-            guid  = plr->GetGUID();
-        group = plr->GetGroup();
+            guid  = player->GetGUID();
+        group = player->GetGroup();
     }
 
     return true;

@@ -129,16 +129,16 @@ void WorldSession::HandleEnterPlayerVehicle(WorldPacket &data)
     uint64 guid;
     data >> guid;
 
-    if (Player* pl = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
-        if (!pl->GetVehicleKit())
+        if (!player->GetVehicleKit())
             return;
-        if (!pl->IsInRaidWith(_player))
+        if (!player->IsInRaidWith(_player))
             return;
-        if (!pl->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
+        if (!player->IsWithinDistInMap(_player, INTERACTION_DISTANCE))
             return;
 
-        _player->EnterVehicle(pl);
+        _player->EnterVehicle(player);
     }
 }
 
@@ -157,23 +157,23 @@ void WorldSession::HandleEjectPassenger(WorldPacket &data)
 
     if (IS_PLAYER_GUID(guid))
     {
-        Player* plr = ObjectAccessor::FindPlayer(guid);
-        if (!plr)
+        Player* player = ObjectAccessor::FindPlayer(guid);
+        if (!player)
         {
             sLog->outError("Player %u tried to eject player %u from vehicle, but the latter was not found in world!", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
             return;
         }
 
-        if (!plr->IsOnVehicle(vehicle->GetBase()))
+        if (!player->IsOnVehicle(vehicle->GetBase()))
         {
             sLog->outError("Player %u tried to eject player %u, but they are not in the same vehicle", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
             return;
         }
 
-        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(plr);
+        VehicleSeatEntry const* seat = vehicle->GetSeatForPassenger(player);
         ASSERT(seat);
         if (seat->IsEjectable())
-            plr->ExitVehicle();
+            player->ExitVehicle();
         else
             sLog->outError("Player %u attempted to eject player %u from non-ejectable seat.", GetPlayer()->GetGUIDLow(), GUID_LOPART(guid));
     }

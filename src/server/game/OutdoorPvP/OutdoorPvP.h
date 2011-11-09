@@ -104,15 +104,15 @@ class OPvPCapturePoint
         void SendObjectiveComplete(uint32 id, uint64 guid);
 
         // used when player is activated/inactivated in the area
-        virtual bool HandlePlayerEnter(Player* plr);
-        virtual void HandlePlayerLeave(Player* plr);
+        virtual bool HandlePlayerEnter(Player* player);
+        virtual void HandlePlayerLeave(Player* player);
 
         // checks if player is in range of a capture credit marker
-        bool IsInsideObjective(Player* plr) const;
+        bool IsInsideObjective(Player* player) const;
 
-        virtual bool HandleCustomSpell(Player* plr, uint32 spellId, GameObject* go);
+        virtual bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
 
-        virtual int32 HandleOpenGo(Player* plr, uint64 guid);
+        virtual int32 HandleOpenGo(Player* player, uint64 guid);
 
         // returns true if the state of the objective has changed, in this case, the OutdoorPvP must send a world state ui update.
         virtual bool Update(uint32 diff);
@@ -123,11 +123,11 @@ class OPvPCapturePoint
 
         virtual void SendChangePhase();
 
-        virtual bool HandleGossipOption(Player* plr, uint64 guid, uint32 gossipid);
+        virtual bool HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
 
-        virtual bool CanTalkTo(Player* plr, Creature* c, GossipMenuItems const& gso);
+        virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
-        virtual bool HandleDropFlag(Player* plr, uint32 spellId);
+        virtual bool HandleDropFlag(Player* player, uint32 spellId);
 
         virtual void DeleteSpawns();
 
@@ -208,13 +208,13 @@ class OutdoorPvP : public ZoneScript
         virtual void FillInitialWorldStates(WorldPacket & /*data*/) {}
 
         // called when a player triggers an areatrigger
-        virtual bool HandleAreaTrigger(Player* plr, uint32 trigger);
+        virtual bool HandleAreaTrigger(Player* player, uint32 trigger);
 
         // called on custom spell
-        virtual bool HandleCustomSpell(Player* plr, uint32 spellId, GameObject* go);
+        virtual bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
 
         // called on go use
-        virtual bool HandleOpenGo(Player* plr, uint64 guid);
+        virtual bool HandleOpenGo(Player* player, uint64 guid);
 
         // setup stuff
         virtual bool SetupOutdoorPvP() {return true;}
@@ -234,18 +234,18 @@ class OutdoorPvP : public ZoneScript
         virtual void HandleKillImpl(Player* /*killer*/, Unit* /*killed*/) {}
 
         // checks if player is in range of a capture credit marker
-        bool IsInsideObjective(Player* plr) const;
+        bool IsInsideObjective(Player* player) const;
 
         // awards rewards for player kill
-        virtual void AwardKillBonus(Player* /*plr*/) {}
+        virtual void AwardKillBonus(Player* /*player*/) {}
 
         uint32 GetTypeId() {return m_TypeId;}
 
-        virtual bool HandleDropFlag(Player* plr, uint32 spellId);
+        virtual bool HandleDropFlag(Player* player, uint32 spellId);
 
-        virtual bool HandleGossipOption(Player* plr, uint64 guid, uint32 gossipid);
+        virtual bool HandleGossipOption(Player* player, uint64 guid, uint32 gossipid);
 
-        virtual bool CanTalkTo(Player* plr, Creature* c, GossipMenuItems const& gso);
+        virtual bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
         void TeamApplyBuff(TeamId team, uint32 spellId, uint32 spellId2 = 0);
 
@@ -261,14 +261,14 @@ class OutdoorPvP : public ZoneScript
         bool m_sendUpdate;
 
         // world state stuff
-        virtual void SendRemoveWorldStates(Player* /*plr*/) {}
+        virtual void SendRemoveWorldStates(Player* /*player*/) {}
 
         void BroadcastPacket(WorldPacket & data) const;
 
-        virtual void HandlePlayerEnterZone(Player* plr, uint32 zone);
-        virtual void HandlePlayerLeaveZone(Player* plr, uint32 zone);
+        virtual void HandlePlayerEnterZone(Player* player, uint32 zone);
+        virtual void HandlePlayerLeaveZone(Player* player, uint32 zone);
 
-        virtual void HandlePlayerResurrects(Player* plr, uint32 zone);
+        virtual void HandlePlayerResurrects(Player* player, uint32 zone);
 
         void AddCapturePoint(OPvPCapturePoint* cp)
         {
@@ -285,7 +285,7 @@ class OutdoorPvP : public ZoneScript
 
         void RegisterZone(uint32 zoneid);
 
-        bool HasPlayer(Player* plr) const;
+        bool HasPlayer(Player* player) const;
 
         void TeamCastSpell(TeamId team, int32 spellId);
 };
