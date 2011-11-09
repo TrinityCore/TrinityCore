@@ -105,17 +105,17 @@ class BattlegroundRV : public Battleground
         ~BattlegroundRV();
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player* plr);
+        virtual void AddPlayer(Player* player);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
         virtual void Reset();
         virtual void FillInitialWorldStates(WorldPacket &d);
 
-        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void HandleKillPlayer(Player* player, Player* killer);
-        bool HandlePlayerUnderMap(Player* plr);
+        bool HandlePlayerUnderMap(Player* player);
 
     private:
         uint32 Timer;

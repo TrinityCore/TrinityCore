@@ -268,8 +268,8 @@ class LFGMgr
         LfgReward const* GetRandomDungeonReward(uint32 dungeon, uint8 level);
 
         // Queue
-        void Join(Player* plr, uint8 roles, const LfgDungeonSet& dungeons, const std::string& comment);
-        void Leave(Player* plr, Group* grp = NULL);
+        void Join(Player* player, uint8 roles, const LfgDungeonSet& dungeons, const std::string& comment);
+        void Leave(Player* player, Group* grp = NULL);
 
         // Role Check
         void UpdateRoleCheck(uint64 gguid, uint64 guid = 0, uint8 roles = ROLE_NONE);
@@ -278,14 +278,14 @@ class LFGMgr
         void UpdateProposal(uint32 proposalId, uint64 guid, bool accept);
 
         // Teleportation
-        void TeleportPlayer(Player* plr, bool out, bool fromOpcode = false);
+        void TeleportPlayer(Player* player, bool out, bool fromOpcode = false);
 
         // Vote kick
         void InitBoot(Group* grp, uint64 kguid, uint64 vguid, std::string reason);
-        void UpdateBoot(Player* plr, bool accept);
+        void UpdateBoot(Player* player, bool accept);
         void OfferContinue(Group* grp);
 
-        void InitializeLockedDungeons(Player* plr);
+        void InitializeLockedDungeons(Player* player);
 
         void SetComment(uint64 guid, const std::string& comment);
         const LfgLockMap& GetLockedDungeons(uint64 guid);

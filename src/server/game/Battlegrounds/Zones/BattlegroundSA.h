@@ -423,7 +423,7 @@ class BattlegroundSA : public Battleground
 
         /* inherited from BattlegroundClass */
         /// Called when a player join battle
-        virtual void AddPlayer(Player* plr);
+        virtual void AddPlayer(Player* player);
         /// Called when battle start
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
@@ -433,7 +433,7 @@ class BattlegroundSA : public Battleground
         /// Called for generate packet contain worldstate data
         virtual void FillInitialWorldStates(WorldPacket& data);
         /// Called when a player deal damage to building (door)
-        virtual void EventPlayerDamagedGO(Player* plr, GameObject* go, uint32 eventType);
+        virtual void EventPlayerDamagedGO(Player* player, GameObject* go, uint32 eventType);
         /// Called when a player kill a unit in bg
         virtual void HandleKillUnit(Creature* unit, Player* killer);
         /// Return the nearest graveyard where player can respawn
@@ -477,7 +477,7 @@ class BattlegroundSA : public Battleground
         void EndBattleground(uint32 winner);
 
         /// CAlled when a player leave battleground
-        void RemovePlayer(Player* plr, uint64 guid, uint32 team);
+        void RemovePlayer(Player* player, uint64 guid, uint32 team);
         void HandleAreaTrigger(Player* Source, uint32 Trigger);
 
         /* Scorekeeping */

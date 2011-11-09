@@ -351,7 +351,7 @@ SpellMgr::~SpellMgr()
 }
 
 /// Some checks for spells, to prevent adding deprecated/broken spells for trainers, spell book, etc
-bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* pl, bool msg)
+bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg)
 {
     // not exist
     if (!spellInfo)
@@ -378,8 +378,8 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* pl, bool msg)
                     {
                         if (msg)
                         {
-                            if (pl)
-                                ChatHandler(pl).PSendSysMessage("Craft spell %u not have create item entry.", spellInfo->Id);
+                            if (player)
+                                ChatHandler(player).PSendSysMessage("Craft spell %u not have create item entry.", spellInfo->Id);
                             else
                                 sLog->outErrorDb("Craft spell %u not have create item entry.", spellInfo->Id);
                         }
@@ -392,8 +392,8 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* pl, bool msg)
                 {
                     if (msg)
                     {
-                        if (pl)
-                            ChatHandler(pl).PSendSysMessage("Craft spell %u create not-exist in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Effects[i].ItemType);
+                        if (player)
+                            ChatHandler(player).PSendSysMessage("Craft spell %u create not-exist in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Effects[i].ItemType);
                         else
                             sLog->outErrorDb("Craft spell %u create not-exist in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Effects[i].ItemType);
                     }
@@ -406,12 +406,12 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* pl, bool msg)
             case SPELL_EFFECT_LEARN_SPELL:
             {
                 SpellInfo const* spellInfo2 = sSpellMgr->GetSpellInfo(spellInfo->Effects[i].TriggerSpell);
-                if (!IsSpellValid(spellInfo2, pl, msg))
+                if (!IsSpellValid(spellInfo2, player, msg))
                 {
                     if (msg)
                     {
-                        if (pl)
-                            ChatHandler(pl).PSendSysMessage("Spell %u learn to broken spell %u, and then...", spellInfo->Id, spellInfo->Effects[i].TriggerSpell);
+                        if (player)
+                            ChatHandler(player).PSendSysMessage("Spell %u learn to broken spell %u, and then...", spellInfo->Id, spellInfo->Effects[i].TriggerSpell);
                         else
                             sLog->outErrorDb("Spell %u learn to invalid spell %u, and then...", spellInfo->Id, spellInfo->Effects[i].TriggerSpell);
                     }
@@ -430,8 +430,8 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* pl, bool msg)
             {
                 if (msg)
                 {
-                    if (pl)
-                        ChatHandler(pl).PSendSysMessage("Craft spell %u have not-exist reagent in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Reagent[j]);
+                    if (player)
+                        ChatHandler(player).PSendSysMessage("Craft spell %u have not-exist reagent in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Reagent[j]);
                     else
                         sLog->outErrorDb("Craft spell %u have not-exist reagent in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Reagent[j]);
                 }

@@ -115,11 +115,11 @@ class GameEventMgr
         bool StartEvent(uint16 event_id, bool overwrite = false);
         void StopEvent(uint16 event_id, bool overwrite = false);
         void HandleQuestComplete(uint32 quest_id);  // called on world event type quest completions
-        void HandleWorldEventGossip(Player* plr, Creature* c);
+        void HandleWorldEventGossip(Player* player, Creature* c);
         uint32 GetNPCFlag(Creature* cr);
         uint32 GetNpcTextId(uint32 guid);
     private:
-        void SendWorldStateUpdate(Player* plr, uint16 event_id);
+        void SendWorldStateUpdate(Player* player, uint16 event_id);
         void AddActiveEvent(uint16 event_id) { m_ActiveEvents.insert(event_id); }
         void RemoveActiveEvent(uint16 event_id) { m_ActiveEvents.erase(event_id); }
         void ApplyNewEvent(uint16 event_id);

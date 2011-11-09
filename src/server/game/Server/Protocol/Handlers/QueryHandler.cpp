@@ -379,8 +379,8 @@ void WorldSession::HandlePageTextQueryOpcode(WorldPacket & recv_data)
 
             int loc_idx = GetSessionDbLocaleIndex();
             if (loc_idx >= 0)
-                if (PageTextLocale const* pl = sObjectMgr->GetPageTextLocale(pageID))
-                    ObjectMgr::GetLocaleString(pl->Text, loc_idx, Text);
+                if (PageTextLocale const* player = sObjectMgr->GetPageTextLocale(pageID))
+                    ObjectMgr::GetLocaleString(player->Text, loc_idx, Text);
 
             data << Text;
             data << uint32(pageText->NextPage);
