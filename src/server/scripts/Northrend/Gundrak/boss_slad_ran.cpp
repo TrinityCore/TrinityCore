@@ -52,6 +52,7 @@ enum Creatures
 enum ConstrictorSpells
 {
     SPELL_GRIP_OF_SLAD_RAN                        = 55093,
+    SPELL_SNAKE_WRAP                              = 55126,
     SPELL_VENOMOUS_BITE                           = 54987,
     H_SPELL_VENOMOUS_BITE                         = 58996
 };
@@ -64,6 +65,8 @@ static Position SpawnLoc[]=
   {1765.66f, 646.542f, 134.02f,  5.11381f},
   {1716.76f, 635.159f, 129.282f, 0.191986f}
 };
+
+#define DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES 1
 
 class boss_slad_ran : public CreatureScript
 {
@@ -89,6 +92,8 @@ public:
 
         uint8 uiPhase;
 
+        bool snakesAchievement;
+
         SummonList lSummons;
 
         InstanceScript* instance;
@@ -100,6 +105,7 @@ public:
             uiVenomBoltTimer = 15*IN_MILLISECONDS;
             uiSpawnTimer = 5*IN_MILLISECONDS;
             uiPhase = 0;
+            snakesAchievement = true;
 
             lSummons.DespawnAll();
 
@@ -171,6 +177,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
+            lSummons.DespawnAll();
 
             if (instance)
                 instance->SetData(DATA_SLAD_RAN_EVENT, DONE);
@@ -185,6 +192,20 @@ public:
         {
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             lSummons.Summon(summoned);
+        }
+
+        void SetData(uint32 type, uint32 /*data*/)
+        {
+            if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
+                snakesAchievement = false;
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES)
+                return snakesAchievement ? 1 : 0;
+
+            return 0;
         }
     };
 
@@ -215,10 +236,26 @@ public:
         {
             if (!UpdateVictim())
                 return;
+
             if (uiGripOfSladRanTimer <= diff)
             {
-                DoCast(me->getVictim(), SPELL_GRIP_OF_SLAD_RAN);
-                uiGripOfSladRanTimer = 5*IN_MILLISECONDS;
+                Unit* target = me->getVictim();
+
+                DoCast(target, SPELL_GRIP_OF_SLAD_RAN);
+                uiGripOfSladRanTimer = urand(3, 6)*IN_MILLISECONDS;
+
+                Aura* grip = target->GetAura(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());
+                if (grip && grip->GetStackAmount() == 5)
+                {
+                    target->RemoveAurasDueToSpell(SPELL_GRIP_OF_SLAD_RAN, me->GetGUID());
+                    target->CastSpell(target, SPELL_SNAKE_WRAP, true);
+
+                    if (TempSummon* _me = me->ToTempSummon())
+                        if (Creature* sladran = _me->GetSummoner()->ToCreature())
+                            sladran->AI()->SetData(DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES, 0);
+
+                    me->DespawnOrUnsummon();
+                }
             } else uiGripOfSladRanTimer -= diff;
         }
 
@@ -265,9 +302,30 @@ public:
 
 };
 
+class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaScript
+{
+    public:
+        achievement_snakes_whyd_it_have_to_be_snakes() : AchievementCriteriaScript("achievement_snakes_whyd_it_have_to_be_snakes")
+        {
+        }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* sladran = target->ToCreature())
+                if (sladran->AI()->GetData(DATA_SNAKES_WHYD_IT_HAVE_TO_BE_SNAKES))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_slad_ran()
 {
     new boss_slad_ran();
     new mob_slad_ran_constrictor();
     new mob_slad_ran_viper();
+    new achievement_snakes_whyd_it_have_to_be_snakes();
 }
