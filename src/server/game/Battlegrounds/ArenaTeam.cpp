@@ -433,8 +433,8 @@ void ArenaTeam::NotifyStatsChanged()
     // This is called after a rated match ended
     // Updates arena team stats for every member of the team (not only the ones who participated!)
     for (MemberList::const_iterator itr = Members.begin(); itr != Members.end(); ++itr)
-        if (Player* plr = ObjectAccessor::FindPlayer(itr->Guid))
-            SendStats(plr->GetSession());
+        if (Player* player = ObjectAccessor::FindPlayer(itr->Guid))
+            SendStats(player->GetSession());
 }
 
 void ArenaTeam::Inspect(WorldSession* session, uint64 guid)
@@ -455,16 +455,16 @@ void ArenaTeam::Inspect(WorldSession* session, uint64 guid)
     session->SendPacket(&data);
 }
 
-void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
+void ArenaTeamMember::ModifyPersonalRating(Player* player, int32 mod, uint32 slot)
 {
     if (int32(PersonalRating) + mod < 0)
         PersonalRating = 0;
     else
         PersonalRating += mod;
 
-    if (plr)
+    if (player)
         {
-        plr->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, PersonalRating, slot);
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, PersonalRating, slot);
             // Achievements
             switch (slot)
             {
@@ -473,22 +473,22 @@ void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
                     if (PersonalRating > 2200)
                     {
                         AchievementEntry const *youandme4 = GetAchievementStore()->LookupEntry(1159);
-							plr->GetAchievementMgr().CompletedAchievement(youandme4);
+							player->GetAchievementMgr().CompletedAchievement(youandme4);
                     } else
                     if (PersonalRating > 2000)
                     {
                         AchievementEntry const *youandme3 = GetAchievementStore()->LookupEntry(401);
-							plr->GetAchievementMgr().CompletedAchievement(youandme3);
+							player->GetAchievementMgr().CompletedAchievement(youandme3);
                     } else
                     if (PersonalRating > 1750)
                     {
                         AchievementEntry const *youandme2 = GetAchievementStore()->LookupEntry(400);
-							plr->GetAchievementMgr().CompletedAchievement(youandme2);
+							player->GetAchievementMgr().CompletedAchievement(youandme2);
                     } else
                     if (PersonalRating > 1550)
                     {
                         AchievementEntry const *youandme1 = GetAchievementStore()->LookupEntry(399); 
-	    						plr->GetAchievementMgr().CompletedAchievement(youandme1);
+	    						player->GetAchievementMgr().CompletedAchievement(youandme1);
                     }
                 break;
                 // 3x3
@@ -496,22 +496,22 @@ void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
                     if (PersonalRating > 2200)
                     {
                         AchievementEntry const *trio4 = GetAchievementStore()->LookupEntry(1160);
-							plr->GetAchievementMgr().CompletedAchievement(trio4);
+							player->GetAchievementMgr().CompletedAchievement(trio4);
                     } else
                     if (PersonalRating > 2000)
                     {
                         AchievementEntry const *trio3 = GetAchievementStore()->LookupEntry(405);
-							plr->GetAchievementMgr().CompletedAchievement(trio3);
+							player->GetAchievementMgr().CompletedAchievement(trio3);
                     } else
                     if (PersonalRating > 1750)
                     {
                         AchievementEntry const *trio2 = GetAchievementStore()->LookupEntry(403);
-							plr->GetAchievementMgr().CompletedAchievement(trio2);
+							player->GetAchievementMgr().CompletedAchievement(trio2);
                     } else
                     if (PersonalRating > 1550)
                     {
                         AchievementEntry const *trio1 = GetAchievementStore()->LookupEntry(402);
-							plr->GetAchievementMgr().CompletedAchievement(trio1);
+							player->GetAchievementMgr().CompletedAchievement(trio1);
                     } 
                 break;
                 // 5x5
@@ -519,22 +519,22 @@ void ArenaTeamMember::ModifyPersonalRating(Player* plr, int32 mod, uint32 slot)
                     if (PersonalRating > 2200)
                     {
                         AchievementEntry const *bigfive4 = GetAchievementStore()->LookupEntry(1161);
-							plr->GetAchievementMgr().CompletedAchievement(bigfive4);
+							player->GetAchievementMgr().CompletedAchievement(bigfive4);
                     } else
                     if (PersonalRating > 2000)
                     {
                         AchievementEntry const *bigfive3 = GetAchievementStore()->LookupEntry(404);
-							plr->GetAchievementMgr().CompletedAchievement(bigfive3);
+							player->GetAchievementMgr().CompletedAchievement(bigfive3);
                     } else
                     if (PersonalRating > 1750)
                     {
                         AchievementEntry const *bigfive2 = GetAchievementStore()->LookupEntry(407);
-							plr->GetAchievementMgr().CompletedAchievement(bigfive2);
+							player->GetAchievementMgr().CompletedAchievement(bigfive2);
                     } else
                     if (PersonalRating > 1550)
                     {
                         AchievementEntry const *bigfive1 = GetAchievementStore()->LookupEntry(406);
-							plr->GetAchievementMgr().CompletedAchievement(bigfive1);
+							player->GetAchievementMgr().CompletedAchievement(bigfive1);
                     }
                 break;
                 default: break;
@@ -789,16 +789,16 @@ int32 ArenaTeam::LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int3
     return mod;
 }
 
-void ArenaTeam::MemberLost(Player* plr, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
+void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // Called for each participant of a match after losing
     for (MemberList::iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
     {
-        if (itr->Guid == plr->GetGUID())
+        if (itr->Guid == player->GetGUID())
         {
             // Update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, false);
-            itr->ModifyPersonalRating(plr, mod, GetSlot());
+            itr->ModifyPersonalRating(player, mod, GetSlot());
 
             // Update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
@@ -808,8 +808,8 @@ void ArenaTeam::MemberLost(Player* plr, uint32 againstMatchmakerRating, int32 Ma
             itr->SeasonGames +=1;
 
             // update the unit fields
-            plr->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK,  itr->WeekGames);
-            plr->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON,  itr->SeasonGames);
+            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK,  itr->WeekGames);
+            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON,  itr->SeasonGames);
             return;
         }
     }
@@ -837,16 +837,16 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, i
     }
 }
 
-void ArenaTeam::MemberWon(Player* plr, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
+void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange)
 {
     // called for each participant after winning a match
     for (MemberList::iterator itr = Members.begin(); itr !=  Members.end(); ++itr)
     {
-        if (itr->Guid == plr->GetGUID())
+        if (itr->Guid == player->GetGUID())
         {
             // update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, true);
-            itr->ModifyPersonalRating(plr, mod, GetSlot());
+            itr->ModifyPersonalRating(player, mod, GetSlot());
 
             // update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
@@ -857,8 +857,8 @@ void ArenaTeam::MemberWon(Player* plr, uint32 againstMatchmakerRating, int32 Mat
             itr->SeasonWins += 1;
             itr->WeekWins += 1;
             // update unit fields
-            plr->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK, itr->WeekGames);
-            plr->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, itr->SeasonGames);
+            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_WEEK, itr->WeekGames);
+            player->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_GAMES_SEASON, itr->SeasonGames);
             return;
         }
     }

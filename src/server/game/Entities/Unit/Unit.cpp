@@ -5846,11 +5846,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Glyph of Ice Block
                 case 56372:
                 {
-                    Player* plr = ToPlayer();
-                    if (!plr)
+                    Player* player = ToPlayer();
+                    if (!player)
                         return false;
 
-                    SpellCooldowns const cooldowns = plr->GetSpellCooldowns();
+                    SpellCooldowns const cooldowns = player->GetSpellCooldowns();
                     // remove cooldowns on all ranks of Frost Nova
                     for (SpellCooldowns::const_iterator itr = cooldowns.begin(); itr != cooldowns.end(); ++itr)
                     {
@@ -5858,7 +5858,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         // Frost Nova
                         if (cdSpell && cdSpell->SpellFamilyName == SPELLFAMILY_MAGE
                             && cdSpell->SpellFamilyFlags[0] & 0x00000040)
-                            plr->RemoveSpellCooldown(cdSpell->Id, true);
+                            player->RemoveSpellCooldown(cdSpell->Id, true);
                     }
                     break;
                 }
@@ -7162,26 +7162,26 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Windfury Weapon (Passive) 1-5 Ranks
                 case 33757:
                 {
-                    Player* plr = ToPlayer();
-                    if (!plr || !castItem || !castItem->IsEquipped() || !victim || !victim->isAlive())
+                    Player* player = ToPlayer();
+                    if (!player || !castItem || !castItem->IsEquipped() || !victim || !victim->isAlive())
                         return false;
 
                     // custom cooldown processing case
-                    if (cooldown && plr->HasSpellCooldown(dummySpell->Id))
+                    if (cooldown && player->HasSpellCooldown(dummySpell->Id))
                         return false;
 
                     if (triggeredByAura->GetBase() && castItem->GetGUID() != triggeredByAura->GetBase()->GetCastItemGUID())
                         return false;
 
-                    WeaponAttackType attType = WeaponAttackType(plr->GetAttackBySlot(castItem->GetSlot()));
+                    WeaponAttackType attType = WeaponAttackType(player->GetAttackBySlot(castItem->GetSlot()));
                     if ((attType != BASE_ATTACK && attType != OFF_ATTACK) || !isAttackReady(attType))
                         return false;
 
                     // Now compute real proc chance...
                     uint32 chance = 20;
-                    plr->ApplySpellMod(dummySpell->Id, SPELLMOD_CHANCE_OF_SUCCESS, chance);
+                    player->ApplySpellMod(dummySpell->Id, SPELLMOD_CHANCE_OF_SUCCESS, chance);
 
-                    Item* addWeapon = plr->GetWeaponForAttack(attType == BASE_ATTACK ? OFF_ATTACK : BASE_ATTACK, true);
+                    Item* addWeapon = player->GetWeaponForAttack(attType == BASE_ATTACK ? OFF_ATTACK : BASE_ATTACK, true);
                     uint32 enchant_id_add = addWeapon ? addWeapon->GetEnchantmentId(EnchantmentSlot(TEMP_ENCHANTMENT_SLOT)) : 0;
                     SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchant_id_add);
                     if (pEnchant && pEnchant->spellid[0] == dummySpell->Id)
@@ -7226,7 +7226,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
 
                     // apply cooldown before cast to prevent processing itself
                     if (cooldown)
-                        plr->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + cooldown);
+                        player->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + cooldown);
 
                     // Attack Twice
                     for (uint32 i = 0; i < 2; ++i)
@@ -8180,9 +8180,9 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
             {
                 *handled = true;
                 // Convert recently used Blood Rune to Death Rune
-                if (Player* plr = ToPlayer())
+                if (Player* player = ToPlayer())
                 {
-                    if (plr->getClass() != CLASS_DEATH_KNIGHT)
+                    if (player->getClass() != CLASS_DEATH_KNIGHT)
                         return false;
 
                     RuneType rune = ToPlayer()->GetLastUsedRune();
@@ -8206,22 +8206,22 @@ bool Unit::HandleAuraProc(Unit* victim, uint32 damage, Aura* triggeredByAura, Sp
                     {
                         if (dummySpell->SpellIconID == 2622)
                         {
-                            if (plr->GetCurrentRune(i) == RUNE_DEATH ||
-                                plr->GetBaseRune(i) == RUNE_BLOOD)
+                            if (player->GetCurrentRune(i) == RUNE_DEATH ||
+                                player->GetBaseRune(i) == RUNE_BLOOD)
                                 continue;
                         }
                         else
                         {
-                            if (plr->GetCurrentRune(i) == RUNE_DEATH ||
-                                plr->GetBaseRune(i) != RUNE_BLOOD)
+                            if (player->GetCurrentRune(i) == RUNE_DEATH ||
+                                player->GetBaseRune(i) != RUNE_BLOOD)
                                 continue;
                         }
-                        if (plr->GetRuneCooldown(i) != plr->GetRuneBaseCooldown(i))
+                        if (player->GetRuneCooldown(i) != player->GetRuneBaseCooldown(i))
                             continue;
 
                         --runesLeft;
                         // Mark aura as used
-                        plr->AddRuneByAuraEffect(i, RUNE_DEATH, aurEff);
+                        player->AddRuneByAuraEffect(i, RUNE_DEATH, aurEff);
                     }
                     return true;
                 }
@@ -8911,11 +8911,11 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
     // Blade Barrier
     if (auraSpellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && auraSpellInfo->SpellIconID == 85)
     {
-        Player* plr = ToPlayer();
-        if (!plr || plr->getClass() != CLASS_DEATH_KNIGHT)
+        Player* player = ToPlayer();
+        if (!player || player->getClass() != CLASS_DEATH_KNIGHT)
             return false;
 
-        if (!plr->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
+        if (!player->IsBaseRuneSlotsOnCooldown(RUNE_BLOOD))
             return false;
     }
 
@@ -10285,20 +10285,20 @@ Unit* Unit::GetNextRandomRaidMemberOrPet(float radius)
 
 // only called in Player::SetSeer
 // so move it to Player?
-void Unit::AddPlayerToVision(Player* plr)
+void Unit::AddPlayerToVision(Player* player)
 {
     if (m_sharedVision.empty())
     {
         setActive(true);
         SetWorldObject(true);
     }
-    m_sharedVision.push_back(plr);
+    m_sharedVision.push_back(player);
 }
 
 // only called in Player::SetSeer
-void Unit::RemovePlayerFromVision(Player* plr)
+void Unit::RemovePlayerFromVision(Player* player)
 {
-    m_sharedVision.remove(plr);
+    m_sharedVision.remove(player);
     if (m_sharedVision.empty())
     {
         setActive(false);
@@ -12045,7 +12045,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
 
     SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
-    if (Player* plr = ToPlayer())
+    if (Player* player = ToPlayer())
     {
         // mount as a vehicle
         if (VehicleId)
@@ -12061,7 +12061,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 SendMessageToSet(&data, true);
 
                 data.Initialize(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-                plr->GetSession()->SendPacket(&data);
+                player->GetSession()->SendPacket(&data);
 
                 // mounts can also have accessories
                 GetVehicleKit()->InstallAllAccessories(false);
@@ -12069,7 +12069,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
         }
 
         // unsummon pet
-        Pet* pet = plr->GetPet();
+        Pet* pet = player->GetPet();
         if (pet)
         {
             Battleground* bg = ToPlayer()->GetBattleground();
@@ -12077,7 +12077,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             if (bg && bg->isArena())
                 pet->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
             else
-                plr->UnsummonPetTemporaryIfAny();
+                player->UnsummonPetTemporaryIfAny();
         }
     }
 
@@ -12113,15 +12113,15 @@ void Unit::Unmount()
     // only resummon old pet if the player is already added to a map
     // this prevents adding a pet to a not created map which would otherwise cause a crash
     // (it could probably happen when logging in after a previous crash)
-    if (Player* plr = ToPlayer())
+    if (Player* player = ToPlayer())
     {
-        if (Pet* pPet = plr->GetPet())
+        if (Pet* pPet = player->GetPet())
         {
             if (pPet->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED) && !pPet->HasUnitState(UNIT_STAT_STUNNED))
                 pPet->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
         else
-            plr->ResummonPetTemporaryUnSummonedIfAny();
+            player->ResummonPetTemporaryUnSummonedIfAny();
     }
 }
 
@@ -13707,10 +13707,10 @@ void Unit::SetHealth(uint32 val)
     SetUInt32Value(UNIT_FIELD_HEALTH, val);
 
     // group update
-    if (Player* plr = ToPlayer())
+    if (Player* player = ToPlayer())
     {
-        if (plr->GetGroup())
-            plr->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_CUR_HP);
+        if (player->GetGroup())
+            player->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_CUR_HP);
     }
     else if (Pet* pet = ToCreature()->ToPet())
     {
@@ -14923,9 +14923,9 @@ void Unit::ClearComboPointHolders()
     {
         uint32 lowguid = *m_ComboPointHolders.begin();
 
-        Player* plr = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
-        if (plr && plr->GetComboTarget() == GetGUID())         // recheck for safe
-            plr->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
+        Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(lowguid, 0, HIGHGUID_PLAYER));
+        if (player && player->GetComboTarget() == GetGUID())         // recheck for safe
+            player->ClearComboPoints();                        // remove also guid from m_ComboPointHolders;
         else
             m_ComboPointHolders.erase(lowguid);             // or remove manually
     }
@@ -15492,9 +15492,9 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         return;
 
     // Inform pets (if any) when player kills target)
-    if (Player* plr = ToPlayer())
+    if (Player* player = ToPlayer())
     {
-        Pet* pet = plr->GetPet();
+        Pet* pet = player->GetPet();
         if (pet && pet->isAlive() && pet->isControlled())
             pet->AI()->KilledUnit(victim);
     }
@@ -16072,10 +16072,10 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     }
     else
     {
-        Player* plr = ToPlayer();
-        if (plr->isAFK())
-            plr->ToggleAFK();
-        plr->SetClientControl(this, 0);
+        Player* player = ToPlayer();
+        if (player->isAFK())
+            player->ToggleAFK();
+        player->SetClientControl(this, 0);
     }
 
     // charm is set by aura, and aura effect remove handler was called during apply handler execution
@@ -17138,25 +17138,25 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
     if (aurApp && aurApp->GetRemoveMode())
         return;
 
-    if (Player* plr = ToPlayer())
+    if (Player* player = ToPlayer())
     {
-        if (vehicle->GetBase()->GetTypeId() == TYPEID_PLAYER && plr->isInCombat())
+        if (vehicle->GetBase()->GetTypeId() == TYPEID_PLAYER && player->isInCombat())
             return;
 
         InterruptNonMeleeSpells(false);
-        plr->StopCastingCharm();
-        plr->StopCastingBindSight();
+        player->StopCastingCharm();
+        player->StopCastingBindSight();
         Unmount();
         RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         // drop flag at invisible in bg
-        if (Battleground* bg = plr->GetBattleground())
-            bg->EventPlayerDroppedFlag(plr);
+        if (Battleground* bg = player->GetBattleground())
+            bg->EventPlayerDroppedFlag(player);
 
         WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
-        plr->GetSession()->SendPacket(&data);
+        player->GetSession()->SendPacket(&data);
 
-        plr->UnsummonPetTemporaryIfAny();
+        player->UnsummonPetTemporaryIfAny();
     }
 
     ASSERT(!m_vehicle);
@@ -17230,8 +17230,8 @@ void Unit::_ExitVehicle(Position const* exitPosition)
     SendMonsterMoveExitVehicle(&pos);
     Relocate(&pos);
 
-    if (Player* plr = ToPlayer())
-        plr->ResummonPetTemporaryUnSummonedIfAny();
+    if (Player* player = ToPlayer())
+        player->ResummonPetTemporaryUnSummonedIfAny();
 
     WorldPacket data2;
     BuildHeartBeatMsg(&data2);

@@ -489,13 +489,13 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
     for (PlayerSet::const_iterator itr = m_passengers.begin(); itr != m_passengers.end();)
     {
-        Player* plr = *itr;
+        Player* player = *itr;
         ++itr;
 
-        if (plr->isDead() && !plr->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
-            plr->ResurrectPlayer(1.0f);
+        if (player->isDead() && !player->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+            player->ResurrectPlayer(1.0f);
 
-        plr->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
+        player->TeleportTo(newMapid, x, y, z, GetOrientation(), TELE_TO_NOT_LEAVE_TRANSPORT);
     }
 
     //we need to create and save new Map object with 'newMapid' because if not done -> lead to invalid Map object reference...
@@ -584,13 +584,13 @@ void Transport::Update(uint32 p_diff)
 
 void Transport::UpdateForMap(Map const* targetMap)
 {
-    Map::PlayerList const& pl = targetMap->GetPlayers();
-    if (pl.isEmpty())
+    Map::PlayerList const& player = targetMap->GetPlayers();
+    if (player.isEmpty())
         return;
 
     if (GetMapId() == targetMap->GetId())
     {
-        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = player.begin(); itr != player.end(); ++itr)
         {
             if (this != itr->getSource()->GetTransport())
             {
@@ -609,7 +609,7 @@ void Transport::UpdateForMap(Map const* targetMap)
         WorldPacket out_packet;
         transData.BuildPacket(&out_packet);
 
-        for (Map::PlayerList::const_iterator itr = pl.begin(); itr != pl.end(); ++itr)
+        for (Map::PlayerList::const_iterator itr = player.begin(); itr != player.end(); ++itr)
             if (this != itr->getSource()->GetTransport())
                 itr->getSource()->SendDirectMessage(&out_packet);
     }

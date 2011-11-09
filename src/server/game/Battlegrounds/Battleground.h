@@ -337,7 +337,7 @@ class Battleground
         {
         }
 
-        virtual void DestroyGate(Player* /*pl*/, GameObject* /*go*/) {}
+        virtual void DestroyGate(Player* /*player*/, GameObject* /*go*/) {}
 
         /* achievement req. */
         virtual bool IsAllNodesConrolledByTeam(uint32 /*team*/) const { return false; }
@@ -471,7 +471,7 @@ class Battleground
         void UpdateWorldState(uint32 Field, uint32 Value);
         void UpdateWorldStateForPlayer(uint32 Field, uint32 Value, Player* Source);
         void EndBattleground(uint32 winner);
-        void BlockMovement(Player* plr);
+        void BlockMovement(Player* player);
 
         void SendWarningToAll(int32 entry, ...);
         void SendMessageToAll(int32 entry, ChatMsg type, Player const* source = NULL);
@@ -523,7 +523,7 @@ class Battleground
         virtual void EventPlayerClickedOnFlag(Player* /*player*/, GameObject* /*target_obj*/) {}
         void EventPlayerLoggedIn(Player* player);
         void EventPlayerLoggedOut(Player* player);
-        virtual void EventPlayerDamagedGO(Player* /*plr*/, GameObject* /*go*/, uint32 /*eventType*/) {}
+        virtual void EventPlayerDamagedGO(Player* /*player*/, GameObject* /*go*/, uint32 /*eventType*/) {}
         virtual void EventPlayerUsedGO(Player* /*player*/, GameObject* /*go*/){}
 
         // this function can be used by spell to interact with the BG map
@@ -534,7 +534,7 @@ class Battleground
         // Death related
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
-        virtual void AddPlayer(Player* plr);                // must be implemented in BG subclass
+        virtual void AddPlayer(Player* player);                // must be implemented in BG subclass
 
         void AddOrSetPlayerToCorrectBgGroup(Player* player, uint32 team);
 
@@ -562,7 +562,7 @@ class Battleground
         //to be removed
         const char* GetTrinityString(int32 entry);
 
-        virtual bool HandlePlayerUnderMap(Player* /*plr*/) { return false; }
+        virtual bool HandlePlayerUnderMap(Player* /*player*/) { return false; }
 
         // since arenas can be AvA or Hvh, we have to get the "temporary" team of a player
         uint32 GetPlayerTeam(uint64 guid) const;
@@ -583,7 +583,7 @@ class Battleground
     protected:
         // this method is called, when BG cannot spawn its own spirit guide, or something is wrong, It correctly ends Battleground
         void EndNow();
-        void PlayerAddedToBGCheckIfBGIsRunning(Player* plr);
+        void PlayerAddedToBGCheckIfBGIsRunning(Player* player);
 
         Player* _GetPlayer(uint64 guid, bool offlineRemove, const char* context) const;
         Player* _GetPlayer(BattlegroundPlayerMap::iterator itr, const char* context);

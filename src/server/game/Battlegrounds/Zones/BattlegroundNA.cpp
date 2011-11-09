@@ -59,18 +59,18 @@ void BattlegroundNA::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 }
 
-void BattlegroundNA::AddPlayer(Player* plr)
+void BattlegroundNA::AddPlayer(Player* player)
 {
-    Battleground::AddPlayer(plr);
+    Battleground::AddPlayer(player);
     //create score and add it to map, default values are set in constructor
     BattlegroundNAScore* sc = new BattlegroundNAScore;
 
-    m_PlayerScores[plr->GetGUID()] = sc;
+    m_PlayerScores[player->GetGUID()] = sc;
 
     UpdateArenaWorldState();
 }
 
-void BattlegroundNA::RemovePlayer(Player* /*plr*/, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundNA::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
 {
     if (GetStatus() == STATUS_WAIT_LEAVE)
         return;

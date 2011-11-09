@@ -51,8 +51,8 @@ void LFGScripts::OnAddMember(Group* group, uint64 guid)
         sLFGMgr->Leave(NULL, group);
 
     if (sLFGMgr->GetState(guid) == LFG_STATE_QUEUED)
-        if (Player* plr = ObjectAccessor::FindPlayer(guid))
-            sLFGMgr->Leave(plr);
+        if (Player* player = ObjectAccessor::FindPlayer(guid))
+            sLFGMgr->Leave(player);
 }
 
 void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
@@ -82,7 +82,7 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, 
     }
 
     sLFGMgr->ClearState(guid);
-    if (Player* plr = ObjectAccessor::FindPlayer(guid))
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         /*
         if (method == GROUP_REMOVEMETHOD_LEAVE)
@@ -92,9 +92,9 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, 
         */
 
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
-        plr->GetSession()->SendLfgUpdateParty(updateData);
-        if (plr->GetMap()->IsDungeon())                    // Teleport player out the dungeon
-            sLFGMgr->TeleportPlayer(plr, true);
+        player->GetSession()->SendLfgUpdateParty(updateData);
+        if (player->GetMap()->IsDungeon())                    // Teleport player out the dungeon
+            sLFGMgr->TeleportPlayer(player, true);
     }
 
     if (sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON)// Need more players to finish the dungeon
@@ -116,17 +116,17 @@ void LFGScripts::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLe
         return;
 
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
-    Player* plr = ObjectAccessor::FindPlayer(newLeaderGuid);
+    Player* player = ObjectAccessor::FindPlayer(newLeaderGuid);
 
     LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
-    if (plr)
-        plr->GetSession()->SendLfgUpdateParty(updateData);
+    if (player)
+        player->GetSession()->SendLfgUpdateParty(updateData);
 
-    plr = ObjectAccessor::FindPlayer(oldLeaderGuid);
-    if (plr)
+    player = ObjectAccessor::FindPlayer(oldLeaderGuid);
+    if (player)
     {
         updateData.updateType = LFG_UPDATETYPE_GROUP_DISBAND;
-        plr->GetSession()->SendLfgUpdateParty(updateData);
+        player->GetSession()->SendLfgUpdateParty(updateData);
     }
 }
 
