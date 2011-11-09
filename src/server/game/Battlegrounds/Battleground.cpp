@@ -765,9 +765,9 @@ void Battleground::EndBattleground(uint32 winner)
                     for(BattlegroundScoreMap::const_iterator itr = m_PlayerScores.begin(); itr != m_PlayerScores.end(); ++itr)
                     {
                         Player* player = ObjectAccessor::FindPlayer(itr->first);
-                        if (!plr)
+                        if (!player)
                             continue;
-                        uint32 plTeamID = plr->GetArenaTeamId(winner_arena_team->GetSlot());
+                        uint32 plTeamID = player->GetArenaTeamId(winner_arena_team->GetSlot());
                         int changeType;
                         uint32 resultRating;
                         uint32 resultTeamID;
@@ -788,7 +788,7 @@ void Battleground::EndBattleground(uint32 winner)
                         }
                         std::ostringstream sql_query;
                         //                                                        gameid,              teamid,                     guid,                    changeType,             ratingChange,               teamRating,                  damageDone,                          deaths,                          healingDone,                           damageTaken,,                           healingTaken,                         killingBlows,                      mapId,                 start,                   end
-                        sql_query << "INSERT INTO armory_game_chart VALUES ('" << gameID << "', '" << resultTeamID << "', '" << plr->GetGUID() << "', '" << changeType << "', '" << ratingChange  << "', '" << resultRating << "', '" << itr->second->DamageDone << "', '" << itr->second->Deaths << "', '" << itr->second->HealingDone << "', '" << itr->second->DamageTaken << "', '" << itr->second->HealingTaken << "', '" << itr->second->KillingBlows << "', '" << m_MapId << "', '" << m_StartTime << "', '" << m_EndTime << "')";
+                        sql_query << "INSERT INTO armory_game_chart VALUES ('" << gameID << "', '" << resultTeamID << "', '" << player->GetGUID() << "', '" << changeType << "', '" << ratingChange  << "', '" << resultRating << "', '" << itr->second->DamageDone << "', '" << itr->second->Deaths << "', '" << itr->second->HealingDone << "', '" << itr->second->DamageTaken << "', '" << itr->second->HealingTaken << "', '" << itr->second->KillingBlows << "', '" << m_MapId << "', '" << m_StartTime << "', '" << m_EndTime << "')";
                         CharacterDatabase.Execute(sql_query.str().c_str());
                     }
                 }
