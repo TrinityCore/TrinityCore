@@ -291,10 +291,10 @@ void BattlegroundMgr::BuildPvpLogDataPacket(WorldPacket* data, Battleground* bg)
         }
         else
         {
-            Player* plr = ObjectAccessor::FindPlayer(itr2->first);
+            Player* player = ObjectAccessor::FindPlayer(itr2->first);
             uint32 team = bg->GetPlayerTeam(itr2->first);
-            if (!team && plr)
-                team = plr->GetBGTeam();
+            if (!team && player)
+                team = player->GetBGTeam();
             *data << uint8(team == ALLIANCE ? 1 : 0); // green or yellow
         }
         *data << uint32(itr2->second->DamageDone);              // damage done
@@ -422,10 +422,10 @@ void BattlegroundMgr::BuildPlayerLeftBattlegroundPacket(WorldPacket* data, uint6
     *data << uint64(guid);
 }
 
-void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, Player* plr)
+void BattlegroundMgr::BuildPlayerJoinedBattlegroundPacket(WorldPacket* data, Player* player)
 {
     data->Initialize(SMSG_BATTLEGROUND_PLAYER_JOINED, 8);
-    *data << uint64(plr->GetGUID());
+    *data << uint64(player->GetGUID());
 }
 
 Battleground* BattlegroundMgr::GetBattlegroundThroughClientInstance(uint32 instanceId, BattlegroundTypeId bgTypeId)
@@ -804,17 +804,17 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic Arena Point Distribution initialized.");
 }
 
-void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* plr, BattlegroundTypeId bgTypeId, uint8 fromWhere)
+void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId, uint8 fromWhere)
 {
-    if (!plr)
+    if (!player)
         return;
 
-    uint32 winner_kills = plr->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
-    uint32 winner_arena = plr->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
-    uint32 loser_kills = plr->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
+    uint32 winner_kills = player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
+    uint32 winner_arena = player->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
+    uint32 loser_kills = player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
 
-    winner_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), float(winner_kills));
-    loser_kills = Trinity::Honor::hk_honor_at_level(plr->getLevel(), float(loser_kills));
+    winner_kills = Trinity::Honor::hk_honor_at_level(player->getLevel(), float(winner_kills));
+    loser_kills = Trinity::Honor::hk_honor_at_level(player->getLevel(), float(loser_kills));
 
     data->Initialize(SMSG_BATTLEFIELD_LIST);
     *data << uint64(guid);                                  // battlemaster guid
@@ -824,7 +824,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     *data << uint8(0);                                      // unk
 
     // Rewards
-    *data << uint8(plr->GetRandomWinner());               // 3.3.3 hasWin
+    *data << uint8(player->GetRandomWinner());               // 3.3.3 hasWin
     *data << uint32(winner_kills);                           // 3.3.3 winHonor
     *data << uint32(winner_arena);                           // 3.3.3 winArena
     *data << uint32(loser_kills);                          // 3.3.3 lossHonor
@@ -835,7 +835,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     if (isRandom)
     {
         // Rewards (random)
-        *data << uint8(plr->GetRandomWinner());           // 3.3.3 hasWin_Random
+        *data << uint8(player->GetRandomWinner());           // 3.3.3 hasWin_Random
         *data << uint32(winner_kills);                       // 3.3.3 winHonor_Random
         *data << uint32(winner_arena);                       // 3.3.3 winArena_Random
         *data << uint32(loser_kills);                      // 3.3.3 lossHonor_Random
@@ -853,7 +853,7 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
         if (Battleground* bgTemplate = sBattlegroundMgr->GetBattlegroundTemplate(bgTypeId))
         {
             // expected bracket entry
-            if (PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgTemplate->GetMapId(), plr->getLevel()))
+            if (PvPDifficultyEntry const* bracketEntry = GetBattlegroundBracketByLevel(bgTemplate->GetMapId(), player->getLevel()))
             {
                 uint32 count = 0;
                 BattlegroundBracketId bracketId = bracketEntry->GetBracketId();
@@ -868,35 +868,35 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     }
 }
 
-void BattlegroundMgr::SendToBattleground(Player* pl, uint32 instanceId, BattlegroundTypeId bgTypeId)
+void BattlegroundMgr::SendToBattleground(Player* player, uint32 instanceId, BattlegroundTypeId bgTypeId)
 {
     Battleground* bg = GetBattleground(instanceId, bgTypeId);
     if (bg)
     {
         uint32 mapid = bg->GetMapId();
         float x, y, z, O;
-        uint32 team = pl->GetBGTeam();
+        uint32 team = player->GetBGTeam();
         if (team == 0)
-            team = pl->GetTeam();
+            team = player->GetTeam();
         bg->GetTeamStartLoc(team, x, y, z, O);
 
-        sLog->outDetail("BATTLEGROUND: Sending %s to map %u, X %f, Y %f, Z %f, O %f", pl->GetName(), mapid, x, y, z, O);
-        pl->TeleportTo(mapid, x, y, z, O);
+        sLog->outDetail("BATTLEGROUND: Sending %s to map %u, X %f, Y %f, Z %f, O %f", player->GetName(), mapid, x, y, z, O);
+        player->TeleportTo(mapid, x, y, z, O);
     }
     else
     {
-        sLog->outError("player %u is trying to port to non-existent bg instance %u", pl->GetGUIDLow(), instanceId);
+        sLog->outError("player %u is trying to port to non-existent bg instance %u", player->GetGUIDLow(), instanceId);
     }
 }
 
-void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* pl, Battleground* bg, uint64 guid)
+void BattlegroundMgr::SendAreaSpiritHealerQueryOpcode(Player* player, Battleground* bg, uint64 guid)
 {
     WorldPacket data(SMSG_AREA_SPIRIT_HEALER_TIME, 12);
     uint32 time_ = 30000 - bg->GetLastResurrectTime();      // resurrect every 30 seconds
     if (time_ == uint32(-1))
         time_ = 0;
     data << guid << time_;
-    pl->GetSession()->SendPacket(&data);
+    player->GetSession()->SendPacket(&data);
 }
 
 bool BattlegroundMgr::IsArenaType(BattlegroundTypeId bgTypeId)
