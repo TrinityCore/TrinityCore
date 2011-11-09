@@ -518,7 +518,7 @@ void Vehicle::Relocate(Position pos)
 
     for (std::set<Unit*>::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
     {
-        if (Unit* plr = (*itr))
+        if (Unit* player = (*itr))
         {
             // relocate/setposition doesn't work for player
             plr->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
