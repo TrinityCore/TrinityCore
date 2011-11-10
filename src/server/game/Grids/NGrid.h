@@ -120,6 +120,7 @@ class NGrid
         void ResetTimeTracker(time_t interval) { i_GridInfo.ResetTimeTracker(interval); }
         void UpdateTimeTracker(time_t diff) { i_GridInfo.UpdateTimeTracker(diff); }
 
+        /*
         template<class SPECIFIC_OBJECT> void AddWorldObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj)
         {
             GetGridType(x, y).AddWorldObject(obj);
@@ -139,6 +140,7 @@ class NGrid
         {
             GetGridType(x, y).RemoveGridObject(obj);
         }
+        */
 
         // Visit all Grids (cells) in NGrid (grid)
         template<class T, class TT>
