@@ -11751,18 +11751,6 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
                     AddPctF(TakenTotalMod, std::max(mod, float((*i)->GetAmount())));
                 }
                 break;
-            // Blessing of Sanctuary
-            // Greater Blessing of Sanctuary
-            case 19:
-            case 1804:
-            {
-                if ((*i)->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_PALADIN)
-                    continue;
-
-                if ((*i)->GetMiscValue() & (spellProto ? spellProto->GetSchoolMask() : 0))
-                    AddPctN(TakenTotalMod, (*i)->GetAmount());
-                break;
-            }
             // Ebon Plague
             case 1933:
                 if ((*i)->GetMiscValue() & (spellProto ? spellProto->GetSchoolMask() : 0))
