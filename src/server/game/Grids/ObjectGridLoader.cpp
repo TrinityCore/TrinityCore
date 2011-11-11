@@ -126,6 +126,12 @@ void LoadHelper(CellCorpseSet const& cell_corpses, CellCoord &cell, CorpseMapTyp
         // in that case map == currMap
         obj->SetMap(map);
 
+        if (obj->IsInGrid())
+        {
+            obj->AddToWorld();
+            continue;
+        }
+
         AddObjectHelper(cell, m, count, map, obj);
     }
 }
