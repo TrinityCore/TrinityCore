@@ -669,12 +669,17 @@ class WorldObject : public Object, public WorldLocation
         }
         float GetDistanceZ(const WorldObject* obj) const;
 
+        bool IsSelfOrInSameMap(const WorldObject* obj) const
+        {
+            if (this == obj)
+                return true;
+            return IsInMap(obj);
+        }
         bool IsInMap(const WorldObject* obj) const
         {
             if (obj)
                 return IsInWorld() && obj->IsInWorld() && (GetMap() == obj->GetMap()) && InSamePhase(obj);
-            else
-                return false;
+            return false;
         }
         bool IsWithinDist3d(float x, float y, float z, float dist) const
             { return IsInDist(x, y, z, dist + GetObjectSize()); }
