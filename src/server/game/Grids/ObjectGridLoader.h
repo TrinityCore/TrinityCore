@@ -74,7 +74,6 @@ class ObjectGridEvacuator
 class ObjectGridCleaner
 {
     public:
-        void Visit(CreatureMapType &m);
         template<class T> void Visit(GridRefManager<T> &);
 };
 
