@@ -34,7 +34,10 @@ enum eEnums
 {
     QUEST_RETURN_TO_AG_A    = 12499,
     QUEST_RETURN_TO_AG_H    = 12500,
-    MOVIE_ID_GATES          = 14
+    MOVIE_ID_GATES          = 14,
+    
+    NPC_WOODLANDS_WALKER = 26421,
+    QUEST_STRENGTHEN_THE_ANCIENTS = 12096
 };
 
 #define GOSSIP_ITEM_WHAT_HAPPENED   "Alexstrasza, can you show me what happened here?"
@@ -69,7 +72,23 @@ public:
     }
 };
 
+class npc_woodlands_walker : public CreatureScript
+{
+    public:
+        npc_woodlands_walker() : CreatureScript("npc_woodlands_walker") { }
+        
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (creature->HasInvolvedQuest(QUEST_STRENGTHEN_THE_ANCIENTS)
+            {
+                me->setFaction(14); // hostile //
+            }
+            return true;
+        }
+};
+
 void AddSC_dragonblight()
 {
     new npc_alexstrasza_wr_gate;
+    new npc_woodlands_walker;
 }
