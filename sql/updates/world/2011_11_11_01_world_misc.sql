@@ -11,4 +11,4 @@ UPDATE `creature` SET `spawntimesecs`=60 WHERE `id`=30560;
 -- Spellclick data for creature 30560 (The RP-GG)
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=30560;
 INSERT INTO `npc_spellclick_spells` VALUES
-(30560,57347,0,0,0,1,0,0,1);
+(30560,57347,0,0,0,1,0,57348,1);
