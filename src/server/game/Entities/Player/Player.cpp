@@ -2277,7 +2277,7 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             // remove from old map now
             if (oldmap)
-                oldmap->RemoveFromMap(this, false);
+                oldmap->RemovePlayerFromMap(this, false);
 
             // new final coordinates
             float final_x = x;
