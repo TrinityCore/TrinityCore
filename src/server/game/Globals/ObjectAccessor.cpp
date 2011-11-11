@@ -250,6 +250,13 @@ void ObjectAccessor::AddCorpsesToGrid(GridCoord const& gridpair, GridType& grid,
 
     for (Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
     {
+        if (iter->second->IsInGrid())
+        {
+            //TODO: add this assert later
+            //ASSERT(iter->second->GetGridCoord() == gridpair);
+            continue;
+        }
+
         if (iter->second->GetGridCoord() == gridpair)
         {
             // verify, if the corpse in our instance (add only corpses which are)
