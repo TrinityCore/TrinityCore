@@ -1584,7 +1584,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
     // Magic damage, check for resists
     if ((schoolMask & SPELL_SCHOOL_MASK_NORMAL) == 0)
     {
-        float victimResistance = float(victim->GetResistance(GetFirstSchoolInMask(schoolMask)));
+        float victimResistance = float(victim->GetResistance(schoolMask));
         victimResistance += float(GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, schoolMask));
 
         if (Player* player = ToPlayer())
@@ -17386,7 +17386,7 @@ uint32 Unit::GetRemainingPeriodicAmount(uint64 caster, uint32 spellId, AuraType 
     AuraEffectList const& periodicAuras = GetAuraEffectsByType(auraType);
     for (AuraEffectList::const_iterator i = periodicAuras.begin(); i != periodicAuras.end(); ++i)
     {
-        if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex || (*i)->GetTotalTicks() == 0)
+        if ((*i)->GetCasterGUID() != caster || (*i)->GetId() != spellId || (*i)->GetEffIndex() != effectIndex || !(*i)->GetTotalTicks())
             continue;
         amount += uint32(((*i)->GetAmount() * std::max<int32>((*i)->GetTotalTicks() - int32((*i)->GetTickNumber()), 0)) / (*i)->GetTotalTicks());
         break;
@@ -17400,6 +17400,17 @@ void Unit::SendClearTarget()
     WorldPacket data(SMSG_BREAK_TARGET, GetPackGUID().size());
     data.append(GetPackGUID());
     SendMessageToSet(&data, false);
+}
+
+uint32 Unit::GetResistance(SpellSchoolMask mask) const
+{
+    int32 resist = -1;
+    for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
+        if (mask & (1 << i) && (resist < 0 || resist > int32(GetResistance(SpellSchools(i)))))
+            resist = int32(GetResistance(SpellSchools(i)));
+
+    // resist value will never be negative here
+    return uint32(resist);
 }
 
 void CharmInfo::SetIsCommandAttack(bool val)
