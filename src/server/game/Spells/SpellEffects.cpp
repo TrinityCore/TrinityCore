@@ -4953,6 +4953,25 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     }
                     return;
                 }
+                case 57347: // Retrieving (Wintergrasp RP-GG pickup spell)
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    unitTarget->ToCreature()->DespawnOrUnsummon();
+
+                    return;
+                }
+                case 57349: // Drop RP-GG (Wintergrasp RP-GG at death drop spell)
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Delete item from inventory at death
+                    m_caster->ToPlayer()->DestroyItemCount(damage, 5, true);
+
+                    return;
+                }
                 case 58418:                                 // Portal to Orgrimmar
                 case 58420:                                 // Portal to Stormwind
                 {
