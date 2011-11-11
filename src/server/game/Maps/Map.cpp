@@ -255,17 +255,6 @@ void Map::AddToGrid(Creature* obj, Cell const& cell)
     obj->SetCurrentCell(cell);
 }
 
-//TODO: cell is not needed. Just an unlink is enough.
-template<class T>
-void Map::RemoveFromGrid(T* obj, Cell const& cell)
-{
-    NGridType* grid = getNGrid(cell.GridX(), cell.GridY());
-    if (obj->m_isWorldObject)
-        grid->GetGridType(cell.CellX(), cell.CellY()).template RemoveWorldObject<T>(obj);
-    else
-        grid->GetGridType(cell.CellX(), cell.CellY()).template RemoveGridObject<T>(obj);
-}
-
 template<class T>
 void Map::SwitchGridContainers(T* obj, bool on)
 {
@@ -286,16 +275,11 @@ void Map::SwitchGridContainers(T* obj, bool on)
 
     GridType &grid = ngrid->GetGridType(cell.CellX(), cell.CellY());
 
+    obj->RemoveFromGrid(); //This step is not really necessary but we want to do ASSERT in remove/add
     if (on)
-    {
-        grid.RemoveGridObject<T>(obj); //not really necessary if there were no ASSERT in remove/add
         grid.AddWorldObject<T>(obj);
-    }
     else
-    {
-        grid.RemoveWorldObject<T>(obj); //not really necessary if there were no ASSERT in remove/add
         grid.AddGridObject<T>(obj);
-    }
     obj->m_isWorldObject = on;
 }
 
@@ -662,21 +646,8 @@ void Map::RemoveFromMap(Player* player, bool remove)
     player->RemoveFromWorld();
     SendRemoveTransports(player);
 
-    CellCoord p = Trinity::ComputeCellCoord(player->GetPositionX(), player->GetPositionY());
-    if (!p.IsCoordValid())
-        sLog->outCrash("Map::Remove: Player is in invalid cell!");
-    else
-    {
-        Cell cell(p);
-        if (!getNGrid(cell.data.Part.grid_x, cell.data.Part.grid_y))
-            sLog->outError("Map::Remove() i_grids was NULL x:%d, y:%d", cell.data.Part.grid_x, cell.data.Part.grid_y);
-        else
-        {
-            sLog->outStaticDebug("Remove player %s from grid[%u, %u]", player->GetName(), cell.GridX(), cell.GridY());
-            player->UpdateObjectVisibility(true);
-            RemoveFromGrid(player, cell);
-        }
-    }
+    player->UpdateObjectVisibility(true);
+    player->RemoveFromGrid();
 
     if (remove)
         DeleteFromWorld(player);
@@ -692,19 +663,8 @@ Map::RemoveFromMap(T *obj, bool remove)
     if (obj->isActiveObject())
         RemoveFromActive(obj);
 
-    CellCoord p = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
-    if (!p.IsCoordValid())
-        sLog->outError("Map::Remove: Object " UI64FMTD " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), p.x_coord, p.y_coord);
-    else
-    {
-        Cell cell(p);
-        if (IsGridLoaded(GridCoord(cell.data.Part.grid_x, cell.data.Part.grid_y)))
-        {
-            sLog->outStaticDebug("Remove object " UI64FMTD " from grid[%u, %u]", obj->GetGUID(), cell.data.Part.grid_x, cell.data.Part.grid_y);
-            obj->UpdateObjectVisibility(true);
-            RemoveFromGrid(obj, cell);
-        }
-    }
+    obj->UpdateObjectVisibility(true);
+    obj->RemoveFromGrid();
 
     obj->ResetMap();
 
@@ -731,7 +691,7 @@ Map::PlayerRelocation(Player* player, float x, float y, float z, float orientati
     {
         sLog->outStaticDebug("Player %s relocation grid[%u, %u]cell[%u, %u]->grid[%u, %u]cell[%u, %u]", player->GetName(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
 
-        RemoveFromGrid(player, old_cell);
+        player->RemoveFromGrid();
 
         if (old_cell.DiffGrid(new_cell))
             EnsureGridLoadedForActiveObject(new_cell, player);
@@ -857,7 +817,7 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
                 sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved in grid[%u, %u] from cell[%u, %u] to cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.CellX(), new_cell.CellY());
             #endif
 
-            RemoveFromGrid(c, old_cell);
+            c->RemoveFromGrid();
             AddToGrid(c, new_cell);
         }
         else
@@ -879,7 +839,7 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
             sLog->outDebug(LOG_FILTER_MAPS, "Active creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
 
-        RemoveFromGrid(c, old_cell);
+        c->RemoveFromGrid();
         AddToGrid(c, new_cell);
 
         return true;
@@ -892,7 +852,7 @@ bool Map::CreatureCellRelocation(Creature* c, Cell new_cell)
             sLog->outDebug(LOG_FILTER_MAPS, "Creature (GUID: %u Entry: %u) moved from grid[%u, %u]cell[%u, %u] to grid[%u, %u]cell[%u, %u].", c->GetGUIDLow(), c->GetEntry(), old_cell.GridX(), old_cell.GridY(), old_cell.CellX(), old_cell.CellY(), new_cell.GridX(), new_cell.GridY(), new_cell.CellX(), new_cell.CellY());
         #endif
 
-        RemoveFromGrid(c, old_cell);
+        c->RemoveFromGrid();
         EnsureGridCreated(GridCoord(new_cell.GridX(), new_cell.GridY()));
         AddToGrid(c, new_cell);
 

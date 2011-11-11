@@ -527,9 +527,11 @@ template<class T>
 class GridObject
 {
     public:
-        GridReference<T> &GetGridRef() { return m_gridRef; }
-    protected:
-        GridReference<T> m_gridRef;
+        bool IsInGrid() const { return _gridRef.isValid(); }
+        void AddToGrid(GridRefManager<T>& m) { ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this); }
+        void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
+    private:
+        GridReference<T> _gridRef;
 };
 
 template <class T_VALUES, class T_FLAGS, class FLAG_TYPE, uint8 ARRAY_SIZE>
