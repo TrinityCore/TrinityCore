@@ -3484,6 +3484,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 25899: // Greater Blessing of Sanctuary
                 spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
                 break;
+            case 63944: // Renewed Hope
+                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
+                break;
             default:
                 break;
         }
