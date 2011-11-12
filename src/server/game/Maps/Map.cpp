@@ -648,7 +648,10 @@ void Map::RemovePlayerFromMap(Player* player, bool remove)
     SendRemoveTransports(player);
 
     player->UpdateObjectVisibility(true);
-    player->RemoveFromGrid();
+    if (player->IsInGrid())
+        player->RemoveFromGrid();
+    else
+        ASSERT(remove); //maybe deleted in logoutplayer when player is not in a map
 
     if (remove)
         DeleteFromWorld(player);
