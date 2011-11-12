@@ -96,7 +96,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
                 return DIMINISHING_CONTROLLED_ROOT;
             // Dragon's Breath
             else if (spellproto->SpellFamilyFlags[0] & 0x800000)
-                return DIMINISHING_DISORIENT;
+                return DIMINISHING_DRAGONS_BREATH;
             break;
         }
         case SPELLFAMILY_WARRIOR:
@@ -167,7 +167,7 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
         }
         case SPELLFAMILY_HUNTER:
         {
-            // Hunter's mark
+            // Hunter's Mark
             if ((spellproto->SpellFamilyFlags[0] & 0x400) && spellproto->SpellIconID == 538)
                 return DIMINISHING_LIMITONLY;
             // Scatter Shot (own diminishing)
@@ -321,20 +321,20 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group)
 {
     switch (group)
     {
-        case DIMINISHING_CONTROLLED_STUN:
-        case DIMINISHING_STUN:
-        case DIMINISHING_ENTRAPMENT:
-        case DIMINISHING_CONTROLLED_ROOT:
-        case DIMINISHING_ROOT:
-        case DIMINISHING_FEAR:
-        case DIMINISHING_MIND_CONTROL:
-        case DIMINISHING_DISORIENT:
-        case DIMINISHING_CYCLONE:
         case DIMINISHING_BANISH:
-        case DIMINISHING_LIMITONLY:
-        case DIMINISHING_OPENING_STUN:
+        case DIMINISHING_CONTROLLED_STUN:
+        case DIMINISHING_CONTROLLED_ROOT:
+        case DIMINISHING_CYCLONE:
+        case DIMINISHING_DISORIENT:
+        case DIMINISHING_ENTRAPMENT:
+        case DIMINISHING_FEAR:
         case DIMINISHING_HORROR:
+        case DIMINISHING_MIND_CONTROL:
+        case DIMINISHING_OPENING_STUN:
+        case DIMINISHING_ROOT:
+        case DIMINISHING_STUN:
         case DIMINISHING_SLEEP:
+        case DIMINISHING_LIMITONLY:
             return true;
         default:
             return false;
