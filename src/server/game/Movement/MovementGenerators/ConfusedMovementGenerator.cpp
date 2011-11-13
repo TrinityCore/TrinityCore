@@ -29,10 +29,9 @@
 #endif
 
 template<class T>
-void
-ConfusedMovementGenerator<T>::Initialize(T &unit)
+void ConfusedMovementGenerator<T>::Initialize(T &unit)
 {
-    const float wander_distance = 11;
+    float const wanderDistance = 4;
     float x, y, z;
     x = unit.GetPositionX();
     y = unit.GetPositionY();
@@ -47,8 +46,8 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     for (uint8 idx = 0; idx <= MAX_CONF_WAYPOINTS; ++idx)
     {
-        float wanderX = x + wander_distance*(float)rand_norm() - wander_distance/2;
-        float wanderY = y + wander_distance*(float)rand_norm() - wander_distance/2;
+        float wanderX = x + wanderDistance * (float)rand_norm() - wanderDistance/2;
+        float wanderY = y + wanderDistance * (float)rand_norm() - wanderDistance/2;
         Trinity::NormalizeMapCoord(wanderX);
         Trinity::NormalizeMapCoord(wanderY);
 
@@ -68,7 +67,7 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
             }
 
             // Taken from FleeingMovementGenerator
-            if (!(new_z - z) || wander_distance / fabs(new_z - z) > 1.0f)
+            if (!(new_z - z) || wanderDistance / fabs(new_z - z) > 1.0f)
             {
                 i_waypoints[idx][0] = wanderX;
                 i_waypoints[idx][1] = wanderY;
@@ -89,29 +88,26 @@ ConfusedMovementGenerator<T>::Initialize(T &unit)
     unit.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit.CastStop();
     unit.StopMoving();
-    unit.RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+    unit.AddUnitMovementFlag(MOVEMENTFLAG_WALKING); // Should actually be splineflag
     unit.AddUnitState(UNIT_STAT_CONFUSED);
 }
 
 template<>
-void
-ConfusedMovementGenerator<Creature>::_InitSpecific(Creature &creature, bool &is_water_ok, bool &is_land_ok)
+void ConfusedMovementGenerator<Creature>::_InitSpecific(Creature &creature, bool &is_water_ok, bool &is_land_ok)
 {
     is_water_ok = creature.canSwim();
     is_land_ok  = creature.canWalk();
 }
 
 template<>
-void
-ConfusedMovementGenerator<Player>::_InitSpecific(Player &, bool &is_water_ok, bool &is_land_ok)
+void ConfusedMovementGenerator<Player>::_InitSpecific(Player &, bool &is_water_ok, bool &is_land_ok)
 {
     is_water_ok = true;
     is_land_ok  = true;
 }
 
 template<class T>
-void
-ConfusedMovementGenerator<T>::Reset(T &unit)
+void ConfusedMovementGenerator<T>::Reset(T &unit)
 {
     i_nextMove = 1;
     i_nextMoveTime.Reset(0);
@@ -120,8 +116,7 @@ ConfusedMovementGenerator<T>::Reset(T &unit)
 }
 
 template<class T>
-bool
-ConfusedMovementGenerator<T>::Update(T &unit, const uint32 diff)
+bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 diff)
 {
     if (!&unit)
         return true;
@@ -141,7 +136,7 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 diff)
                 unit.ClearUnitState(UNIT_STAT_MOVE);
 
                 i_nextMove = urand(1, MAX_CONF_WAYPOINTS);
-                i_nextMoveTime.Reset(urand(0, 1500-1));     // TODO: check the minimum reset time, should be probably higher
+                i_nextMoveTime.Reset(urand(100, 1000));
             }
         }
     }
@@ -164,11 +159,11 @@ ConfusedMovementGenerator<T>::Update(T &unit, const uint32 diff)
 }
 
 template<class T>
-void
-ConfusedMovementGenerator<T>::Finalize(T &unit)
+void ConfusedMovementGenerator<T>::Finalize(T &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit.ClearUnitState(UNIT_STAT_CONFUSED);
+
     if (unit.GetTypeId() == TYPEID_UNIT && unit.getVictim())
         unit.SetTarget(unit.getVictim()->GetGUID());
 }
