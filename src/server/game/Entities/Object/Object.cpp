@@ -1273,6 +1273,8 @@ void WorldObject::setActive(bool on)
 
 void WorldObject::CleanupsBeforeDelete(bool /*finalCleanup*/)
 {
+    if (IsInWorld())
+        RemoveFromWorld();
 }
 
 void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
