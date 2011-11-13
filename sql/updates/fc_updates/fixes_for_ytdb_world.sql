@@ -178,3 +178,12 @@ UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry` =24207;
 DELETE FROM `creature` WHERE `guid` =56995;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 (56995, 16933, 530, 1, 1, 0, 0, -1545.9, 3627.48, 35.0149, 2.96104, 600, 5, 0, 5000, 0, 1, 0, 0, 0);
+
+
+-- fix creatures spawn coordinates
+REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+(97343, 25428, 571, 1, 1, 0, 0, 4457.88, 5241.73, 74.4109, 5.03238, 600, 15, 0, 7984, 3080, 0, 1),
+(111385, 31718, 571, 1, 1, 0, 0, 7930.02, 1022.7, 462.613, 5.22892, 300, 0, 0, 12600, 3994, 0, 0);
+REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES
+(98952, 30102, 571, 1, 1, 0, 0, 5823.54, -2910.77, 303.546, 3.70443, 600, 0, 0, 10635, 0, 0, 0),
+(111940, 31140, 571, 1, 1, 0, 0, 6582.88, 1116.38, 273.358, 0.355237, 300, 0, 0, 12600, 0, 0, 0);
