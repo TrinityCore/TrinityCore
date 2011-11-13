@@ -199,10 +199,10 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 {
     ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
 
-    if (Map* map = corpse->FindMap())
+    if (corpse->IsInGrid())
     {
         corpse->DestroyForNearbyPlayers();
-        map->RemoveFromMap(corpse, false);
+        corpse->GetMap()->RemoveFromMap(corpse, false);
     }
     else
         corpse->RemoveFromWorld();
@@ -250,12 +250,9 @@ void ObjectAccessor::AddCorpsesToGrid(GridCoord const& gridpair, GridType& grid,
 
     for (Player2CorpsesMapType::iterator iter = i_player2corpse.begin(); iter != i_player2corpse.end(); ++iter)
     {
+        // We need this check otherwise a corpose may be added to a grid twice
         if (iter->second->IsInGrid())
-        {
-            //TODO: add this assert later
-            //ASSERT(iter->second->GetGridCoord() == gridpair);
             continue;
-        }
 
         if (iter->second->GetGridCoord() == gridpair)
         {
