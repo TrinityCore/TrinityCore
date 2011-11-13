@@ -242,6 +242,9 @@ class boss_sindragosa : public CreatureScript
             {
                 if (action == ACTION_START_FROSTWYRM)
                 {
+                    if (TempSummon* summon = me->ToTempSummon())
+                        summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
+
                     instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 255);
                     if (me->isDead())
                         return;
