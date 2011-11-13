@@ -7250,7 +7250,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Item - Shaman T10 Elemental 4P Bonus
                 case 70817:
                 {
-                    if(!target)
+                    if (!target)
                         return false;
                     // try to find spell Flame Shock on the target
                     if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0x0, 0x0, GetGUID()))
@@ -8405,6 +8405,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount) / (TriggerPS->GetMaxDuration() / TriggerPS->Effects[0].Amplitude);
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), trigger_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
+                    break;
+                }
+                // Item - Hunter T9 4P Bonus
+                if (auraSpellInfo->Id == 67151)
+                {
+                    trigger_spell_id = 68130;
+                    target = this;
                     break;
                 }
                 break;
@@ -14329,7 +14336,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
 
         if (!handled)
-        for (uint8 effIndex = 0; effIndex<MAX_SPELL_EFFECTS; ++effIndex)
+        for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         {
             if (!(i->effMask & (1<<effIndex)))
                 continue;
