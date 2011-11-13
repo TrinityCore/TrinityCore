@@ -648,6 +648,7 @@ class boss_the_lich_king : public CreatureScript
                 {
                     events.SetPhase(PHASE_TRANSITION);
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_1, CenterPosition);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                     return;
                 }
 
@@ -655,6 +656,7 @@ class boss_the_lich_king : public CreatureScript
                 {
                     events.SetPhase(PHASE_TRANSITION);
                     me->GetMotionMaster()->MovePoint(POINT_CENTER_2, CenterPosition);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, true);
                     return;
                 }
 
@@ -816,6 +818,7 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_INFEST, 70000, 0, PHASE_TWO);
                         events.ScheduleEvent(EVENT_DEFILE, 97000, 0, PHASE_TWO);
                         events.ScheduleEvent(EVENT_SOUL_REAPER, 94000, 0, PHASE_TWO);
+                        me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                         break;
                     case POINT_CENTER_2:
                         me->SetFacing(0.0f);
@@ -834,6 +837,7 @@ class boss_the_lich_king : public CreatureScript
                         events.ScheduleEvent(EVENT_SOUL_REAPER, 99500, 0, PHASE_THREE);
                         events.ScheduleEvent(EVENT_VILE_SPIRITS, 79500, EVENT_GROUP_VILE_SPIRITS, PHASE_THREE);
                         events.ScheduleEvent(IsHeroic() ? EVENT_HARVEST_SOULS : EVENT_HARVEST_SOUL, 73500, 0, PHASE_THREE);
+                        me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_TAUNT, false);
                         break;
                     case POINT_LK_OUTRO_1:
                         events.ScheduleEvent(EVENT_OUTRO_TALK_4, 1, 0, PHASE_OUTRO);
