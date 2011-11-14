@@ -52,19 +52,19 @@ class HashMapHolder
 
         static void Insert(T* o)
         {
-            ACE_WRITE_GUARD(LockType, Guard, i_lock);
+            TRINITY_WRITE_GUARD(LockType, i_lock);
             m_objectMap[o->GetGUID()] = o;
         }
 
         static void Remove(T* o)
         {
-            ACE_WRITE_GUARD(LockType, Guard, i_lock);
+            TRINITY_WRITE_GUARD(LockType, i_lock);
             m_objectMap.erase(o->GetGUID());
         }
 
         static T* Find(uint64 guid)
         {
-            ACE_READ_GUARD_RETURN(LockType, Guard, i_lock, NULL);
+            TRINITY_READ_GUARD(LockType, i_lock);
             typename MapType::iterator itr = m_objectMap.find(guid);
             return (itr != m_objectMap.end()) ? itr->second : NULL;
         }
@@ -84,8 +84,7 @@ class HashMapHolder
 
 class ObjectAccessor
 {
-    friend class ACE_Singleton<ObjectAccessor, ACE_Thread_Mutex>;
-    friend class WorldRunnable;
+    friend class ACE_Singleton<ObjectAccessor, ACE_Null_Mutex>;
     private:
         ObjectAccessor();
         ~ObjectAccessor();
@@ -93,15 +92,13 @@ class ObjectAccessor
         ObjectAccessor& operator=(const ObjectAccessor&);
 
     public:
-        typedef UNORDERED_MAP<uint64, Corpse*> Player2CorpsesMapType;
-        typedef UNORDERED_MAP<Player*, UpdateData>::value_type UpdateDataValueType;
-
         // TODO: override these template functions for each holder type and add assertions
 
         template<class T> static T* GetObjectInOrOutOfWorld(uint64 guid, T* /*typeSpecifier*/)
         {
             return HashMapHolder<T>::Find(guid);
         }
+
         static Unit* GetObjectInOrOutOfWorld(uint64 guid, Unit* /*typeSpecifier*/)
         {
             if (IS_PLAYER_GUID(guid))
@@ -195,10 +192,10 @@ class ObjectAccessor
         static Pet* FindPet(uint64);
         static Player* FindPlayer(uint64);
         static Unit* FindUnit(uint64);
-        Player* FindPlayerByName(const char* name);
+        static Player* FindPlayerByName(const char* name);
 
         // when using this, you must use the hashmapholder's lock
-        HashMapHolder<Player>::MapType const& GetPlayers() const
+        static HashMapHolder<Player>::MapType const& GetPlayers()
         {
             return HashMapHolder<Player>::GetContainer();
         }
@@ -215,63 +212,57 @@ class ObjectAccessor
         //    return HashMapHolder<GameObject>::GetContainer();
         //}
 
-        template<class T> void AddObject(T* object)
+        template<class T> static void AddObject(T* object)
         {
             HashMapHolder<T>::Insert(object);
         }
 
-        template<class T> void RemoveObject(T* object)
+        template<class T> static void RemoveObject(T* object)
         {
             HashMapHolder<T>::Remove(object);
         }
 
-        void RemoveObject(Player* pl)
-        {
-            HashMapHolder<Player>::Remove(pl);
-            RemoveUpdateObject((Object*)pl);
-        }
+        static void SaveAllPlayers();
 
-        void SaveAllPlayers();
-
+        //non-static functions
         void AddUpdateObject(Object* obj)
         {
-            ACE_GUARD(LockType, Guard, i_updateGuard);
+            TRINITY_GUARD(ACE_Thread_Mutex, i_objectLock);
             i_objects.insert(obj);
         }
 
         void RemoveUpdateObject(Object* obj)
         {
-            ACE_GUARD(LockType, Guard, i_updateGuard);
+            TRINITY_GUARD(ACE_Thread_Mutex, i_objectLock);
             i_objects.erase(obj);
         }
 
-        void Update(uint32 diff);
-
+        //Thread safe
         Corpse* GetCorpseForPlayerGUID(uint64 guid);
         void RemoveCorpse(Corpse* corpse);
         void AddCorpse(Corpse* corpse);
         void AddCorpsesToGrid(GridCoord const& gridpair, GridType& grid, Map* map);
         Corpse* ConvertCorpseForPlayer(uint64 player_guid, bool insignia = false);
+
+        //Thread unsafe
+        void Update(uint32 diff);
         void RemoveOldCorpses();
-
-        typedef ACE_Thread_Mutex LockType;
-
-    protected:
         void UnloadAll();
 
     private:
-
-        Player2CorpsesMapType i_player2corpse;
-
         static void _buildChangeObjectForPlayer(WorldObject*, UpdateDataMapType&);
         static void _buildPacket(Player*, Object*, UpdateDataMapType&);
         void _update();
 
-        std::set<Object*> i_objects;
+        typedef UNORDERED_MAP<uint64, Corpse*> Player2CorpsesMapType;
+        typedef UNORDERED_MAP<Player*, UpdateData>::value_type UpdateDataValueType;
 
-        LockType i_updateGuard;
-        LockType i_corpseGuard;
+        std::set<Object*> i_objects;
+        Player2CorpsesMapType i_player2corpse;
+
+        ACE_Thread_Mutex i_objectLock;
+        ACE_RW_Thread_Mutex i_corpseLock;
 };
 
-#define sObjectAccessor ACE_Singleton<ObjectAccessor, ACE_Thread_Mutex>::instance()
+#define sObjectAccessor ACE_Singleton<ObjectAccessor, ACE_Null_Mutex>::instance()
 #endif

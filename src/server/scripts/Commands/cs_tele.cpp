@@ -228,38 +228,38 @@ public:
 
         for (GroupReference* itr = grp->GetFirstMember(); itr != NULL; itr = itr->next())
         {
-            Player* pl = itr->getSource();
+            Player* player = itr->getSource();
 
-            if (!pl || !pl->GetSession())
+            if (!player || !player->GetSession())
                 continue;
 
             // check online security
-            if (handler->HasLowerSecurity(pl, 0))
+            if (handler->HasLowerSecurity(player, 0))
                 return false;
 
-            std::string plNameLink = handler->GetNameLink(pl);
+            std::string plNameLink = handler->GetNameLink(player);
 
-            if (pl->IsBeingTeleported())
+            if (player->IsBeingTeleported())
             {
                 handler->PSendSysMessage(LANG_IS_TELEPORTED, plNameLink.c_str());
                 continue;
             }
 
             handler->PSendSysMessage(LANG_TELEPORTING_TO, plNameLink.c_str(), "", tele->name.c_str());
-            if (handler->needReportToTarget(pl))
-                (ChatHandler(pl)).PSendSysMessage(LANG_TELEPORTED_TO_BY, nameLink.c_str());
+            if (handler->needReportToTarget(player))
+                (ChatHandler(player)).PSendSysMessage(LANG_TELEPORTED_TO_BY, nameLink.c_str());
 
             // stop flight if need
-            if (pl->isInFlight())
+            if (player->isInFlight())
             {
-                pl->GetMotionMaster()->MovementExpired();
-                pl->CleanupAfterTaxiFlight();
+                player->GetMotionMaster()->MovementExpired();
+                player->CleanupAfterTaxiFlight();
             }
             // save only in non-flight case
             else
-                pl->SaveRecallPosition();
+                player->SaveRecallPosition();
 
-            pl->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
+            player->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
         }
 
         return true;

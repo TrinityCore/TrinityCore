@@ -57,12 +57,12 @@ bool MapSessionFilter::Process(WorldPacket* packet)
     if (opHandle.packetProcessing == PROCESS_THREADUNSAFE)
         return false;
 
-    Player* plr = m_pSession->GetPlayer();
-    if (!plr)
+    Player* player = m_pSession->GetPlayer();
+    if (!player)
         return false;
 
     //in Map::Update() we do not process packets where player is not in world!
-    return plr->IsInWorld();
+    return player->IsInWorld();
 }
 
 //we should process ALL packets when player is not in world/logged in
@@ -79,12 +79,12 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
         return true;
 
     //no player attached? -> our client! ^^
-    Player* plr = m_pSession->GetPlayer();
-    if (!plr)
+    Player* player = m_pSession->GetPlayer();
+    if (!player)
         return true;
 
     //lets process all packets for non-in-the-world player
-    return (plr->IsInWorld() == false);
+    return (player->IsInWorld() == false);
 }
 
 /// WorldSession constructor
@@ -511,7 +511,7 @@ void WorldSession::LogoutPlayer(bool Save)
         _player->CleanupsBeforeDelete();
         sLog->outChar("Account: %d (IP: %s) Logout Character:[%s] (GUID: %u)", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUIDLow());
         Map* _map = _player->GetMap();
-        _map->RemoveFromMap(_player, true);
+        _map->RemovePlayerFromMap(_player, true);
         SetPlayer(NULL);                                    // deleted in Remove call
 
         ///- Send the 'logout complete' packet to the client
@@ -981,9 +981,9 @@ void WorldSession::SendAddonsInfo()
     SendPacket(&data);
 }
 
-void WorldSession::SetPlayer(Player* plr)
+void WorldSession::SetPlayer(Player* player)
 {
-    _player = plr;
+    _player = player;
 
     // set m_GUID that can be used while player loggined and later until m_playerRecentlyLogout not reset
     if (_player)

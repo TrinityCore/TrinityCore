@@ -62,7 +62,7 @@ namespace Trinity
     template<class SPECIFIC_TYPE> SPECIFIC_TYPE* Insert(ContainerMapList<SPECIFIC_TYPE> &elements, SPECIFIC_TYPE *obj)
     {
         //elements._element[hdl] = obj;
-        obj->GetGridRef().link(&elements._element, obj);
+        obj->AddToGrid(elements._element);
         return obj;
     };
 
@@ -84,31 +84,30 @@ namespace Trinity
         return (t != NULL ? t : Insert(elements._TailElements, obj));
     }
 
-    // non-const remove method
-    template<class SPECIFIC_TYPE> SPECIFIC_TYPE* Remove(ContainerMapList<SPECIFIC_TYPE> & /*elements*/, SPECIFIC_TYPE *obj)
-    {
-        obj->GetGridRef().unlink();
-        return obj;
-    }
+    //// non-const remove method
+    //template<class SPECIFIC_TYPE> SPECIFIC_TYPE* Remove(ContainerMapList<SPECIFIC_TYPE> & /*elements*/, SPECIFIC_TYPE *obj)
+    //{
+    //    obj->GetGridRef().unlink();
+    //    return obj;
+    //}
 
-    template<class SPECIFIC_TYPE> SPECIFIC_TYPE* Remove(ContainerMapList<TypeNull> &/*elements*/, SPECIFIC_TYPE * /*obj*/)
-    {
-        return NULL;
-    }
+    //template<class SPECIFIC_TYPE> SPECIFIC_TYPE* Remove(ContainerMapList<TypeNull> &/*elements*/, SPECIFIC_TYPE * /*obj*/)
+    //{
+    //    return NULL;
+    //}
 
-    // this is a missed
-    template<class SPECIFIC_TYPE, class T> SPECIFIC_TYPE* Remove(ContainerMapList<T> &/*elements*/, SPECIFIC_TYPE * /*obj*/)
-    {
-        return NULL;                                        // a missed
-    }
+    //// this is a missed
+    //template<class SPECIFIC_TYPE, class T> SPECIFIC_TYPE* Remove(ContainerMapList<T> &/*elements*/, SPECIFIC_TYPE * /*obj*/)
+    //{
+    //    return NULL;                                        // a missed
+    //}
 
-    template<class SPECIFIC_TYPE, class T, class H> SPECIFIC_TYPE* Remove(ContainerMapList<TypeList<H, T> > &elements, SPECIFIC_TYPE *obj)
-    {
-        // The head element is bad
-        SPECIFIC_TYPE* t = Remove(elements._elements, obj);
-        return ( t != NULL ? t : Remove(elements._TailElements, obj) );
-    }
-
+    //template<class SPECIFIC_TYPE, class T, class H> SPECIFIC_TYPE* Remove(ContainerMapList<TypeList<H, T> > &elements, SPECIFIC_TYPE *obj)
+    //{
+    //    // The head element is bad
+    //    SPECIFIC_TYPE* t = Remove(elements._elements, obj);
+    //    return ( t != NULL ? t : Remove(elements._TailElements, obj) );
+    //}
 }
 #endif
 

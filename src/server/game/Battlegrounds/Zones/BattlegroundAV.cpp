@@ -422,14 +422,14 @@ void BattlegroundAV::StartingEventOpenDoors()
     DoorOpen(BG_AV_OBJECT_DOOR_A);
 }
 
-void BattlegroundAV::AddPlayer(Player* plr)
+void BattlegroundAV::AddPlayer(Player* player)
 {
-    Battleground::AddPlayer(plr);
+    Battleground::AddPlayer(player);
     //create score and add it to map, default values are set in constructor
     BattlegroundAVScore* sc = new BattlegroundAVScore;
-    m_PlayerScores[plr->GetGUID()] = sc;
+    m_PlayerScores[player->GetGUID()] = sc;
     if (m_MaxLevel == 0)
-        m_MaxLevel=(plr->getLevel()%10 == 0)? plr->getLevel() : (plr->getLevel()-(plr->getLevel()%10))+10; //TODO: just look at the code \^_^/ --but queue-info should provide this information..
+        m_MaxLevel=(player->getLevel()%10 == 0)? player->getLevel() : (player->getLevel()-(player->getLevel()%10))+10; //TODO: just look at the code \^_^/ --but queue-info should provide this information..
 
 }
 
@@ -473,17 +473,17 @@ void BattlegroundAV::EndBattleground(uint32 winner)
     Battleground::EndBattleground(winner);
 }
 
-void BattlegroundAV::RemovePlayer(Player* plr, uint64 /*guid*/, uint32 /*team*/)
+void BattlegroundAV::RemovePlayer(Player* player, uint64 /*guid*/, uint32 /*team*/)
 {
-   if (!plr)
+   if (!player)
     {
         sLog->outError("bg_AV no player at remove");
         return;
     }
     //TODO search more buffs
-    plr->RemoveAurasDueToSpell(AV_BUFF_ARMOR);
-    plr->RemoveAurasDueToSpell(AV_BUFF_A_CAPTAIN);
-    plr->RemoveAurasDueToSpell(AV_BUFF_H_CAPTAIN);
+    player->RemoveAurasDueToSpell(AV_BUFF_ARMOR);
+    player->RemoveAurasDueToSpell(AV_BUFF_A_CAPTAIN);
+    player->RemoveAurasDueToSpell(AV_BUFF_H_CAPTAIN);
 }
 
 void BattlegroundAV::HandleAreaTrigger(Player* Source, uint32 Trigger)
@@ -1029,17 +1029,17 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[node]];
             if (!ghost_list.empty())
             {
-                Player* plr;
+                Player* player;
                 WorldSafeLocsEntry const* ClosestGrave = NULL;
                 for (std::vector<uint64>::iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
                 {
-                    plr = ObjectAccessor::FindPlayer(*ghost_list.begin());
-                    if (!plr)
+                    player = ObjectAccessor::FindPlayer(*ghost_list.begin());
+                    if (!player)
                         continue;
                     if (!ClosestGrave)
-                        ClosestGrave = GetClosestGraveYard(plr);
+                        ClosestGrave = GetClosestGraveYard(player);
                     else
-                        plr->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, plr->GetOrientation());
+                        player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
                 }
                 m_ReviveQueue[m_BgCreatures[node]].clear();
             }
