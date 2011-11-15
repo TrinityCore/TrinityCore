@@ -199,10 +199,17 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 {
     ASSERT(corpse && corpse->GetType() != CORPSE_BONES);
 
-    if (corpse->IsInGrid())
+    //TODO: more works need to be done for corpse and other world object
+    if (Map* map = corpse->FindMap())
     {
         corpse->DestroyForNearbyPlayers();
-        corpse->GetMap()->RemoveFromMap(corpse, false);
+        if (corpse->IsInGrid())
+            map->RemoveFromMap(corpse, false);
+        else
+        {
+            corpse->RemoveFromWorld();
+            corpse->ResetMap();
+        }
     }
     else
         corpse->RemoveFromWorld();
