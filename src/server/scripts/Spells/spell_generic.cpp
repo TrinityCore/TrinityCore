@@ -1359,6 +1359,69 @@ public:
     }
 };
 
+enum DamageReductionAura
+{
+    SPELL_BLESSING_OF_SANCTUARY         = 20911,
+    SPELL_GREATER_BLESSING_OF_SANCTUARY = 25899,
+    SPELL_RENEWED_HOPE                  = 63944,
+    SPELL_VIGILANCE                     = 50720,
+    SPELL_DAMAGE_REDUCTION_AURA         = 68066,
+};
+
+class spell_gen_damage_reduction_aura : public SpellScriptLoader
+{
+public:
+    spell_gen_damage_reduction_aura() : SpellScriptLoader("spell_gen_damage_reduction_aura") { }
+
+    class spell_gen_damage_reduction_auraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_gen_damage_reduction_auraScript);
+
+        bool Validate(SpellInfo const* /*SpellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DAMAGE_REDUCTION_AURA))
+                return false;
+            return true;
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (!target || target->HasAura(SPELL_DAMAGE_REDUCTION_AURA))
+                return;
+
+            target->CastSpell(target, SPELL_DAMAGE_REDUCTION_AURA, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            if (!target || !target->HasAura(SPELL_DAMAGE_REDUCTION_AURA))
+                return;
+
+            if (target->HasAura(SPELL_BLESSING_OF_SANCTUARY) || 
+                target->HasAura(SPELL_GREATER_BLESSING_OF_SANCTUARY) ||
+                target->HasAura(SPELL_RENEWED_HOPE) ||
+                target->HasAura(SPELL_VIGILANCE))
+                    return;
+
+            target->RemoveAurasDueToSpell(SPELL_DAMAGE_REDUCTION_AURA);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_gen_damage_reduction_auraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(spell_gen_damage_reduction_auraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        }
+
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_gen_damage_reduction_auraScript();
+    }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1390,4 +1453,5 @@ void AddSC_generic_spell_scripts()
     new spell_gen_launch();
     new spell_gen_vehicle_scaling();
     new spell_gen_oracle_wolvar_reputation();
+    new spell_gen_damage_reduction_aura();
 }
