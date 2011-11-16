@@ -1170,6 +1170,8 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult result, std:
     data << uint64(guid);
     data << newname;
     SendPacket(&data);
+
+    sWorld->UpdateCharacterNameData(guidLow, newname);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
@@ -1634,7 +1636,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     trans->PAppend("UPDATE `characters` SET name='%s', race='%u', at_login=at_login & ~ %u WHERE guid='%u'", newname.c_str(), race, used_loginFlag, lowGuid);
     trans->PAppend("DELETE FROM character_declinedname WHERE guid ='%u'", lowGuid);
-    sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race); 
+    sWorld->UpdateCharacterNameData(GUID_LOPART(guid), newname, gender, race);
 
     BattlegroundTeamId team = BG_TEAM_ALLIANCE;
 
