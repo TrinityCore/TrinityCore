@@ -6971,7 +6971,11 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
         if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(m_spellInfo->Effects[effIndex].MiscValue))
         {
             if (m_spellInfo->Id == 45529)
+<<<<<<< HEAD
                 if (player->GetBaseRune(j) != RuneType(m_spellInfo->Effects[effIndex].MiscValueB))
+=======
+                if(player->GetBaseRune(j) != RuneType(m_spellInfo->Effects[effIndex].MiscValueB))
+>>>>>>> f425157... Core/Spells: Blood Tap (fix correct rune refreshing on spell cast)
                     continue;
             player->SetRuneCooldown(j, 0);
             --count;
@@ -6979,8 +6983,12 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     }
 
     // Blood Tap
+<<<<<<< HEAD
     if (m_spellInfo->Id == 45529 && count > 0) 
     {
+=======
+    if (m_spellInfo->Id == 45529 && count > 0) {
+>>>>>>> f425157... Core/Spells: Blood Tap (fix correct rune refreshing on spell cast)
         for (uint32 l = 0; l < MAX_RUNES && count > 0; ++l)
         {
             // Check if both runes are on cd as that is the only time when this needs to come into effect
