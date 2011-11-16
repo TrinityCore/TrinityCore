@@ -12165,17 +12165,24 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell) co
         && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
         return false;
 
+    //! since 'this' in the client's context of this function *always* resembles the _player_ (feel free to correct me),
+    //! in the server context we will ignore the this->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE) (possibly misnamed) check for non-players.
+    //! Feel free to change this if a more proper solution is found.
+    bool ignoreOwnOOCFlag = true;
     if (Player const* playerAttacker = ToPlayer())
     {
+        ignoreOwnOOCFlag = false;
         if (playerAttacker->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_UNK19))
             return false;
     }
+
     // check flags
     if (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_TAXI_FLIGHT | UNIT_FLAG_NOT_ATTACKABLE_1 | UNIT_FLAG_UNK_16)
         || (!HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE))
         || (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE))
+        //! Also notable: in CGUnit_C__CanAttack the third parameter is a boolean that determines if the following flag check is exempted or not
         || (HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
-        || (target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE)))
+        || (!ignoreOwnOOCFlag && target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE) && HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE)))
         return false;
 
     // CvC case - can attack each other only when one of them is hostile
