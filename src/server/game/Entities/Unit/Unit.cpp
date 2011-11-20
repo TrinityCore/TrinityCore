@@ -16562,6 +16562,8 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
     }
     else
     {
+        if (player->HasAura(46924))
+            return;
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
 
