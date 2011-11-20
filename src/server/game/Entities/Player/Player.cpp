@@ -74,6 +74,7 @@
 #include "InstanceScript.h"
 #include <cmath>
 #include "AccountMgr.h"
+#include "DB2Stores.h"
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -1851,8 +1852,7 @@ void Player::setDeathState(DeathState s)
         //clear aura case after resurrection by another way (spells will be applied before next death)
         SetUInt32Value(PLAYER_SELF_RES_SPELL, 0);
 }
-
-bool Player::BuildEnumData(QueryResult result, WorldPacket* data)
+bool Player::BuildEnumData(QueryResult result, ByteBuffer* data)
 {
     //             0               1                2                3                 4                  5                       6                        7
     //    "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
@@ -1861,63 +1861,87 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket* data)
     //    15                    16                   17                     18                   19               20                     21
     //    "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.data, character_banned.guid, character_declinedname.genitive "
 
-    Field* fields = result->Fetch();
+    Field *fields = result->Fetch();
 
-    uint32 guid = fields[0].GetUInt32();
+    //uint64 GuildGuid = (*result)[13].GetUInt32();//TODO: store as uin64
+
     uint8 plrRace = fields[2].GetUInt8();
     uint8 plrClass = fields[3].GetUInt8();
     uint8 gender = fields[4].GetUInt8();
-
-    PlayerInfo const* info = sObjectMgr->GetPlayerInfo(plrRace, plrClass);
-    if (!info)
-    {
-        sLog->outError("Player %u has incorrect race/class pair. Don't build enum.", guid);
-        return false;
-    }
-    else if (!IsValidGender(gender))
-    {
-        sLog->outError("Player (%u) has incorrect gender (%hu), don't build enum.", guid, gender);
-        return false;
-    }
-
-    *data << uint64(MAKE_NEW_GUID(guid, 0, HIGHGUID_PLAYER));
-    *data << fields[1].GetString();                         // name
-    *data << uint8(plrRace);                                // race
-    *data << uint8(plrClass);                               // class
-    *data << uint8(gender);                                 // gender
-
+    uint8 level = fields[7].GetUInt8();
+    uint32 GuidLow = fields[0].GetUInt32();
     uint32 playerBytes = fields[5].GetUInt32();
-    *data << uint8(playerBytes);                            // skin
-    *data << uint8(playerBytes >> 8);                       // face
-    *data << uint8(playerBytes >> 16);                      // hair style
-    *data << uint8(playerBytes >> 24);                      // hair color
-
-    uint32 playerBytes2 = fields[6].GetUInt32();
-    *data << uint8(playerBytes2 & 0xFF);                    // facial hair
-
-    *data << uint8(fields[7].GetUInt8());                   // level
-    *data << uint32(fields[8].GetUInt32());                 // zone
-    *data << uint32(fields[9].GetUInt32());                 // map
-
-    *data << fields[10].GetFloat();                         // x
-    *data << fields[11].GetFloat();                         // y
-    *data << fields[12].GetFloat();                         // z
-
-    *data << uint32(fields[13].GetUInt32());                // guild id
-
-    uint32 charFlags = 0;
     uint32 playerFlags = fields[14].GetUInt32();
     uint32 atLoginFlags = fields[15].GetUInt32();
+    uint32 zone = fields[8].GetUInt32();
+    uint32 petDisplayId = 0;
+    uint32 petLevel   = 0;
+    uint32 petFamily  = 0;
+    // show pet at selection character in character list only for non-ghost character
+    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || plrClass == CLASS_DEATH_KNIGHT))
+    {
+        uint32 entry = fields[16].GetUInt32();
+		CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
+        if (creatureInfo)
+        {
+            petDisplayId = fields[17].GetUInt32();
+            petLevel     = fields[18].GetUInt16();
+            petFamily    = creatureInfo->family;
+        }
+    }
+
+    *data << fields[1].GetString();                       // name
+    *data << uint8(playerBytes >> 8);                     // face
+    *data << uint32(fields[9].GetUInt32());               // map
+
+    uint8 Guid0 = uint8(GuidLow);
+    uint8 Guid1 = uint8(GuidLow >> 8);
+    uint8 Guid2 = uint8(GuidLow >> 16);
+    uint8 Guid3 = uint8(GuidLow >> 24);
+
+    if (Guid1)
+        *data << uint8(Guid1^1);
+
+    //if (uint8(GuildGuid))
+    //    *data << uint8(GuildGuid^1);
+
+    *data << fields[10].GetFloat();                       // x
+    *data << fields[11].GetFloat();                       // y
+    *data << fields[12].GetFloat();                       // z
+
+    if (Guid0)
+        *data << uint8(Guid0^1);
+
+    *data << uint32(zone);                                // Zone id
+    *data << uint32(petLevel);                            // pet level
+
+    if (Guid3)
+        *data << uint8(Guid3^1);
+    
+    //*data << uint8(2);                  // unk, bit 14
+
+    uint32 playerBytes2 = fields[6].GetUInt32();
+    *data << uint8(playerBytes2 & 0xFF);                  // facial hair
+    *data << uint8(playerBytes);                          // skin
+    *data << uint8(plrClass);                             // class
+    *data << uint32(petFamily);                           // Pet Family
+
+    uint32 charFlags = 0;
     if (playerFlags & PLAYER_FLAGS_HIDE_HELM)
         charFlags |= CHARACTER_FLAG_HIDE_HELM;
+
     if (playerFlags & PLAYER_FLAGS_HIDE_CLOAK)
         charFlags |= CHARACTER_FLAG_HIDE_CLOAK;
+
     if (playerFlags & PLAYER_FLAGS_GHOST)
         charFlags |= CHARACTER_FLAG_GHOST;
+
     if (atLoginFlags & AT_LOGIN_RENAME)
         charFlags |= CHARACTER_FLAG_RENAME;
+
     if (fields[20].GetUInt32())
         charFlags |= CHARACTER_FLAG_LOCKED_BY_BILLING;
+
     if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
     {
         if (!fields[21].GetString().empty())
@@ -1926,60 +1950,52 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket* data)
     else
         charFlags |= CHARACTER_FLAG_DECLINED;
 
-    *data << uint32(charFlags);                             // character flags
+    *data << uint32(charFlags);                          // character flags
 
-    // character customize flags
-    if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
-        *data << uint32(CHAR_CUSTOMIZE_FLAG_CUSTOMIZE);
-    else if (atLoginFlags & AT_LOGIN_CHANGE_FACTION)
-        *data << uint32(CHAR_CUSTOMIZE_FLAG_FACTION);
-    else if (atLoginFlags & AT_LOGIN_CHANGE_RACE)
-        *data << uint32(CHAR_CUSTOMIZE_FLAG_RACE);
-    else
-        *data << uint32(CHAR_CUSTOMIZE_FLAG_NONE);
+    if (Guid2)
+        *data << uint8(Guid2^1);
 
-    // First login
-    *data << uint8(atLoginFlags & AT_LOGIN_FIRST ? 1 : 0);
+    *data << uint32(petDisplayId);                        // Pet DisplayID
+    
+    //if (uint8(GuildGuid >> 56))
+    //    *data << uint8(GuildGuid^1 >> 56);
+    
+    *data << uint8(level);                                // Level
+    *data << uint8(playerBytes >> 16);                    // Hair style
+    
+    //if (uint8(GuildGuid >> 16))
+    //    *data << uint8(GuildGuid^1 >> 16);
+    
+    *data << uint8(plrRace);                              // Race
+    *data << uint8(playerBytes >> 24);                    // Hair color
 
-    // Pets info
-    uint32 petDisplayId = 0;
-    uint32 petLevel = 0;
-    uint32 petFamily = 0;
+    //if (uint8(GuildGuid >> 48))
+    //    *data << uint8(GuildGuid^1 >> 48);
+    
+    *data << uint8(gender);                               // Gender
 
-    // show pet at selection character in character list only for non-ghost character
-    if (result && !(playerFlags & PLAYER_FLAGS_GHOST) && (plrClass == CLASS_WARLOCK || plrClass == CLASS_HUNTER || plrClass == CLASS_DEATH_KNIGHT))
-    {
-        uint32 entry = fields[16].GetUInt32();
-        CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(entry);
-        if (creatureInfo)
-        {
-            petDisplayId = fields[17].GetUInt32();
-            petLevel = fields[18].GetUInt16();
-            petFamily = creatureInfo->family;
-        }
-    }
-
-    *data << uint32(petDisplayId);
-    *data << uint32(petLevel);
-    *data << uint32(petFamily);
-
+    //if (uint8(GuildGuid >> 24))
+    //    *data << uint8(GuildGuid^1 >> 24);
+    
+    *data << uint8(0);                                    // character order id (used for char list positioning) TODO: implement
+    
     Tokens equipment(fields[19].GetString(), ' ');
-    for (uint8 slot = 0; slot < INVENTORY_SLOT_BAG_END; ++slot)
+    for (uint8 slot = 0; slot < EQUIPMENT_SLOT_END; ++slot)
     {
-        uint32 visualBase = slot * 2;
-        uint32 itemId = GetUInt32ValueFromArray(equipment, visualBase);
+        uint32 visualbase = slot * 2;
+        uint32 itemId = GetUInt32ValueFromArray(equipment, visualbase);
         ItemTemplate const* proto = sObjectMgr->GetItemTemplate(itemId);
-        if (!proto)
+        ItemEntry const *db2Item = sItemStore.LookupEntry(itemId); // Use Item.db2.DisplayID for Char Enum
+        if (!proto || !db2Item)
         {
             *data << uint32(0);
             *data << uint8(0);
             *data << uint32(0);
             continue;
         }
-
-        SpellItemEnchantmentEntry const* enchant = NULL;
-
-        uint32 enchants = GetUInt32ValueFromArray(equipment, visualBase + 1);
+        
+        SpellItemEnchantmentEntry const *enchant = NULL;
+        uint32 enchants = GetUInt32ValueFromArray(equipment, visualbase + 1);
         for (uint8 enchantSlot = PERM_ENCHANTMENT_SLOT; enchantSlot <= TEMP_ENCHANTMENT_SLOT; ++enchantSlot)
         {
             // values stored in 2 uint16
@@ -1991,11 +2007,35 @@ bool Player::BuildEnumData(QueryResult result, WorldPacket* data)
             if (enchant)
                 break;
         }
-
-        *data << uint32(proto->DisplayInfoID);
-        *data << uint8(proto->InventoryType);
+        sLog->outError("entry %u aura %u invtype %u display %u", itemId, enchant ? enchant->aura_id : uint32(0), proto->InventoryType,db2Item->DisplayId);
         *data << uint32(enchant ? enchant->aura_id : 0);
+        *data << uint8(proto->InventoryType);
+        *data << uint32(db2Item->DisplayId);
     }
+
+    // Bags (not supported) TODO: implement
+    for (uint32 i = 0; i < 4; ++i)
+    {
+        *data << uint32(0); // enchant
+        *data << uint8(0); // invtype
+        *data << uint32(0); // displayid
+    }
+
+    // character customize flags
+    if (atLoginFlags & AT_LOGIN_CUSTOMIZE)
+        *data << uint32(CHAR_CUSTOMIZE_FLAG_CUSTOMIZE);
+
+    else if (atLoginFlags & AT_LOGIN_CHANGE_FACTION)
+        *data << uint32(CHAR_CUSTOMIZE_FLAG_FACTION);
+
+    else if (atLoginFlags & AT_LOGIN_CHANGE_RACE)
+        *data << uint32(CHAR_CUSTOMIZE_FLAG_RACE);
+
+    else
+        *data << uint32(CHAR_CUSTOMIZE_FLAG_NONE);
+    
+    //if (uint8(GuildGuid >> 8))
+    //    *data << uint8(GuildGuid^1 >> 8);
 
     return true;
 }
@@ -7242,6 +7282,154 @@ bool Player::RewardHonor(Unit* uVictim, uint32 groupsize, int32 honor, bool pvpt
     }
 
     return true;
+}
+
+
+void Player::SendCurrencies() const
+{
+   WorldPacket packet(SMSG_INIT_CURRENCY, 4 + m_currencies.size()*(5*4 + 1));
+   packet << uint32(m_currencies.size());
+
+   for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
+   {
+       const CurrencyTypesEntry* entry = sCurrencyTypesStore.LookupEntry(itr->first);
+       packet << uint32(itr->second.weekCount / PLAYER_CURRENCY_PRECISION);
+       packet << uint8(0);                     // unknown
+       packet << uint32(entry->ID);
+       packet << uint32(sWorld->GetNextWeeklyQuestsResetTime() - 1*WEEK);
+       packet << uint32(_GetCurrencyWeekCap(entry) / PLAYER_CURRENCY_PRECISION);
+       packet << uint32(itr->second.totalCount / PLAYER_CURRENCY_PRECISION);
+   }
+
+   GetSession()->SendPacket(&packet);
+}
+
+uint32 Player::GetCurrency(uint32 id) const
+{
+   PlayerCurrenciesMap::const_iterator itr = m_currencies.find(id);
+   return itr != m_currencies.end() ? itr->second.totalCount : 0;
+}
+
+bool Player::HasCurrency(uint32 id, uint32 count) const
+{
+   PlayerCurrenciesMap::const_iterator itr = m_currencies.find(id);
+   return itr != m_currencies.end() && itr->second.totalCount >= count;
+}
+
+void Player::ModifyCurrency(uint32 id, int32 count)
+{
+   if (!count)
+       return;
+
+   const CurrencyTypesEntry* currency = sCurrencyTypesStore.LookupEntry(id);
+   ASSERT(currency);
+
+   uint32 oldTotalCount = 0;
+   uint32 oldWeekCount = 0;
+   PlayerCurrenciesMap::iterator itr = m_currencies.find(id);
+   if (itr == m_currencies.end())
+   {
+       PlayerCurrency cur;
+       cur.state = PLAYERCURRENCY_NEW;
+       cur.totalCount = 0;
+       cur.weekCount = 0;
+       m_currencies[id] = cur;
+       itr = m_currencies.find(id);
+   }
+   else
+   {
+       oldTotalCount = itr->second.totalCount;
+       oldWeekCount = itr->second.weekCount;
+   }
+
+   int32 newTotalCount = int32(oldTotalCount) + count;
+   if (newTotalCount < 0)
+       newTotalCount = 0;
+
+   int32 newWeekCount = int32(oldWeekCount) + (count > 0 ? count : 0);
+   if (newWeekCount < 0)
+       newWeekCount = 0;
+
+   if (currency->TotalCap && int32(currency->TotalCap) < newTotalCount)
+   {
+       int32 delta = newTotalCount - int32(currency->TotalCap);
+       newTotalCount = int32(currency->TotalCap);
+       newWeekCount -= delta;
+   }
+
+   // TODO: fix conquest points
+   uint32 weekCap = _GetCurrencyWeekCap(currency);
+   if (weekCap && int32(weekCap) < newTotalCount)
+   {
+       int32 delta = newWeekCount - int32(weekCap);
+       newWeekCount = int32(weekCap);
+       newTotalCount -= delta;
+   }
+
+   // if we change total, we must change week
+   ASSERT(((newTotalCount-oldTotalCount) != 0) == ((newWeekCount-oldWeekCount) != 0));
+
+   if (newTotalCount != oldTotalCount)
+   {
+       if(itr->second.state != PLAYERCURRENCY_NEW)
+           itr->second.state = PLAYERCURRENCY_CHANGED;
+
+       itr->second.totalCount = newTotalCount;
+       itr->second.weekCount = newWeekCount;
+
+       // probably excessive checks
+       if (IsInWorld() && !GetSession()->PlayerLoading())
+       {
+           WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
+           packet << uint32(id);
+           packet << uint32(weekCap ? (newWeekCount / PLAYER_CURRENCY_PRECISION) : 0);
+           packet << uint32(newTotalCount / PLAYER_CURRENCY_PRECISION);
+           GetSession()->SendPacket(&packet);
+       }
+   }
+}
+
+void Player::SetCurrency(uint32 id, uint32 count)
+{
+   ModifyCurrency(id, int32(count) - GetCurrency(id));
+}
+
+uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
+{
+   uint32 cap = currency->WeekCap;
+   switch (currency->ID)
+   {
+       case CURRENCY_TYPE_CONQUEST_POINTS:
+       {
+           // TODO: implement
+           cap = 0;
+           break;
+       }
+       case CURRENCY_TYPE_HONOR_POINTS:
+       {
+           uint32 honorcap = sWorld->getIntConfig(CONFIG_MAX_HONOR_POINTS);
+           if (honorcap > 0)
+               cap = honorcap;
+           break;
+       }
+       case CURRENCY_TYPE_JUSTICE_POINTS:
+       {
+           uint32 justicecap = sWorld->getIntConfig(CONFIG_MAX_JUSTICE_POINTS);
+           if (justicecap > 0)
+               cap = justicecap;
+           break;
+       }
+   }
+
+   if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
+   {
+       WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
+       packet << uint32(cap / PLAYER_CURRENCY_PRECISION);
+       packet << uint32(currency->ID);
+       GetSession()->SendPacket(&packet);
+   }
+
+   return cap;
 }
 
 void Player::SetHonorPoints(uint32 value)
@@ -19698,7 +19886,7 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                     val += (*itr)->value;
             }
             val += apply ? mod->value : -(mod->value);
-            WorldPacket data(Opcode, (1+1+4));
+            WorldPacket data(Opcodes(Opcode), (1+1+4));
             data << uint8(eff);
             data << uint8(mod->op);
             data << int32(val);
@@ -20324,7 +20512,7 @@ void Player::InitDisplayIds()
     }
 }
 
-inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore)
+inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const *pProto, Creature *pVendor, VendorItem const* crItem, bool bStore)
 {
     ItemPosCountVec vDest;
     uint16 uiDest = 0;
@@ -20339,19 +20527,19 @@ inline bool Player::_StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 c
 
     ModifyMoney(-price);
 
-    if (crItem->ExtendedCost)                            // case for new honor system
+    if (crItem->ExtendedCost) // case for new honor system
     {
         ItemExtendedCostEntry const* iece = sItemExtendedCostStore.LookupEntry(crItem->ExtendedCost);
-        if (iece->reqhonorpoints)
-            ModifyHonorPoints(- int32(iece->reqhonorpoints * count));
-
-        if (iece->reqarenapoints)
-            ModifyArenaPoints(- int32(iece->reqarenapoints * count));
-
-        for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i)
+        for (int i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
-            if (iece->reqitem[i])
-                DestroyItemCount(iece->reqitem[i], (iece->reqitemcount[i] * count), true);
+            if (iece->RequiredItem[i])
+                DestroyItemCount(iece->RequiredItem[i], iece->RequiredItem[i], true);
+        }
+
+        for (int i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        {
+            if (iece->RequiredCurrency[i])
+                ModifyCurrency(iece->RequiredCurrency[i], -int32(iece->RequiredCurrencyCount[i]));
         }
     }
 
@@ -20460,24 +20648,10 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             return false;
         }
 
-        // honor points price
-        if (GetHonorPoints() < (iece->reqhonorpoints * count))
-        {
-            SendEquipError(EQUIP_ERR_NOT_ENOUGH_HONOR_POINTS, NULL, NULL);
-            return false;
-        }
-
-        // arena points price
-        if (GetArenaPoints() < (iece->reqarenapoints * count))
-        {
-            SendEquipError(EQUIP_ERR_NOT_ENOUGH_ARENA_POINTS, NULL, NULL);
-            return false;
-        }
-
         // item base price
-        for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
         {
-            if (iece->reqitem[i] && !HasItemCount(iece->reqitem[i], (iece->reqitemcount[i] * count)))
+            if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], (iece->RequiredItemCount[i] * count)))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
                 return false;
@@ -20485,7 +20659,7 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
         }
 
         // check for personal arena rating requirement
-        if (GetMaxPersonalArenaRatingRequirement(iece->reqarenaslot) < iece->reqpersonalarenarating)
+        if (GetMaxPersonalArenaRatingRequirement(iece->RequiredArenaSlot) < iece->RequiredPersonalArenaRating)
         {
             // probably not the proper equip err
             SendEquipError(EQUIP_ERR_CANT_EQUIP_RANK, NULL, NULL);
@@ -23755,7 +23929,7 @@ void Player::LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank)
 void Player::AddKnownCurrency(uint32 itemId)
 {
     if (CurrencyTypesEntry const* ctEntry = sCurrencyTypesStore.LookupEntry(itemId))
-        SetFlag64(PLAYER_FIELD_KNOWN_CURRENCIES, (1LL << (ctEntry->BitIndex-1)));
+        SetFlag64(0, (1LL << (ctEntry->ID-1)));
 }
 
 void Player::UpdateFallInformationIfNeed(MovementInfo const& minfo, uint16 opcode)
@@ -24491,7 +24665,7 @@ void Player::DeleteRefundReference(uint32 it)
     }
 }
 
-void Player::SendRefundInfo(Item* item)
+void Player::SendRefundInfo(Item *item)
 {
     // This function call unsets ITEM_FLAGS_REFUNDABLE if played time is over 2 hours.
     item->UpdatePlayedTime(this);
@@ -24518,13 +24692,11 @@ void Player::SendRefundInfo(Item* item)
 
     WorldPacket data(SMSG_ITEM_REFUND_INFO_RESPONSE, 8+4+4+4+4*4+4*4+4+4);
     data << uint64(item->GetGUID());                    // item guid
-    data << uint32(item->GetPaidMoney());               // money cost
-    data << uint32(iece->reqhonorpoints);               // honor point cost
-    data << uint32(iece->reqarenapoints);               // arena point cost
-    for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i)                       // item cost data
+    data << uint32(item->GetPaidMoney());               // money cost    
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)                       // item cost data
     {
-        data << uint32(iece->reqitem[i]);
-        data << uint32(iece->reqitemcount[i]);
+        data << uint32(iece->RequiredItem[i]);
+        data << uint32(iece->RequiredItemCount[i]);
     }
     data << uint32(0);
     data << uint32(GetTotalPlayedTime() - item->GetPlayedTime());
@@ -24589,8 +24761,8 @@ void Player::RefundItem(Item* item)
     bool store_error = false;
     for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i)
     {
-        uint32 count = iece->reqitemcount[i];
-        uint32 itemid = iece->reqitem[i];
+        uint32 count = iece->RequiredItemCount[i];
+        uint32 itemid = iece->RequiredItem[i];
 
         if (count && itemid)
         {
@@ -24617,12 +24789,10 @@ void Player::RefundItem(Item* item)
     data << uint64(item->GetGUID());                    // item guid
     data << uint32(0);                                  // 0, or error code
     data << uint32(item->GetPaidMoney());               // money cost
-    data << uint32(iece->reqhonorpoints);               // honor point cost
-    data << uint32(iece->reqarenapoints);               // arena point cost
-    for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i) // item cost data
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i) // item cost data
     {
-        data << uint32(iece->reqitem[i]);
-        data << uint32(iece->reqitemcount[i]);
+        data << uint32(iece->RequiredItem[i]);
+        data << uint32(iece->RequiredItemCount[i]);
     }
     GetSession()->SendPacket(&data);
 
@@ -24638,10 +24808,10 @@ void Player::RefundItem(Item* item)
     DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
 
     // Grant back extendedcost items
-    for (uint8 i = 0; i < MAX_ITEM_EXTENDED_COST_REQUIREMENTS; ++i)
+    for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
     {
-        uint32 count = iece->reqitemcount[i];
-        uint32 itemid = iece->reqitem[i];
+        uint32 count = iece->RequiredItemCount[i];
+        uint32 itemid = iece->RequiredItem[i];
         if (count && itemid)
         {
             ItemPosCountVec dest;
@@ -24657,12 +24827,12 @@ void Player::RefundItem(Item* item)
         ModifyMoney(moneyRefund); // Saved in SaveInventoryAndGoldToDB
 
     // Grant back Honor points
-    if (uint32 honorRefund = iece->reqhonorpoints)
-        ModifyHonorPoints(honorRefund, &trans);
+    //if (uint32 honorRefund = iece->reqhonorpoints)
+    //    ModifyHonorPoints(honorRefund, &trans);
 
     // Grant back Arena points
-    if (uint32 arenaRefund = iece->reqarenapoints)
-        ModifyArenaPoints(arenaRefund, &trans);
+    //if (uint32 arenaRefund = iece->reqarenapoints)
+    //    ModifyArenaPoints(arenaRefund, &trans);
 
     SaveInventoryAndGoldToDB(trans);
 

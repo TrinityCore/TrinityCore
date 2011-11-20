@@ -22,7 +22,7 @@
 #include "Utilities/ByteConverter.h"
 #include <cassert>
 
-enum
+/*enum
 {
     FT_NA='x',                                              //not used or unknown, 4 byte size
     FT_NA_BYTE='X',                                         //not used or unknown, byte
@@ -35,7 +35,7 @@ enum
     FT_LOGIC='l',                                            //Logical (boolean)
     FT_SQL_PRESENT='p',                                      //Used in sql format to mark column present in sql dbc
     FT_SQL_ABSENT='a'                                       //Used in sql format to mark column absent in sql dbc
-};
+};*/
 
 class DBCFileLoader
 {

@@ -198,29 +198,100 @@ bool LoginQueryHolder::Initialize()
 
 void WorldSession::HandleCharEnum(QueryResult result)
 {
-    WorldPacket data(SMSG_CHAR_ENUM, 100);                  // we guess size
+    WorldPacket data(SMSG_CHAR_ENUM, 270);
 
-    uint8 num = 0;
+    data << uint8(0x80); // 0 causes the client to free memory of charlist
+    data << uint32(0); // number of characters
+    data << uint32(0); // unk loop counter
 
-    data << num;
-
-    _allowedCharsToLogin.clear();
     if (result)
     {
+        typedef std::pair<uint32, uint64> Guids;
+        std::vector<Guids> guidsVect;
+        ByteBuffer buffer;
+        _allowedCharsToLogin.clear();
+
         do
         {
-            uint32 guidlow = (*result)[0].GetUInt32();
-            sLog->outDetail("Loading char guid %u from account %u.", guidlow, GetAccountId());
-            if (Player::BuildEnumData(result, &data))
+            uint32 GuidLow = (*result)[0].GetUInt32();
+            uint64 GuildGuid = (*result)[13].GetUInt32();//TODO: store as uin64
+
+            guidsVect.push_back(std::make_pair(GuidLow, GuildGuid));
+
+            sLog->outDetail("Loading char guid %u from account %u.", GuidLow, GetAccountId());
+
+            if (!Player::BuildEnumData(result, &buffer))
             {
-                _allowedCharsToLogin.insert(guidlow);
-                ++num;
+                sLog->outError("Building enum data for SMSG_CHAR_ENUM has failed, aborting");
+                return;
             }
+            _allowedCharsToLogin.insert(GuidLow);
         }
         while (result->NextRow());
-    }
 
-    data.put<uint8>(0, num);
+        for (std::vector<Guids>::iterator itr = guidsVect.begin(); itr != guidsVect.end(); ++itr)
+        {
+            uint32 GuidLow = (*itr).first;
+            uint64 GuildGuid = (*itr).second;
+
+            uint8 Guid0 = uint8(GuidLow);
+            uint8 Guid1 = uint8(GuidLow >> 8);
+            uint8 Guid2 = uint8(GuidLow >> 16);
+            uint8 Guid3 = uint8(GuidLow >> 24);
+
+            for (uint8 i = 0; i < 17; ++i)
+            {
+                switch(i)
+                {
+                    //case 14:
+                    //    data.writeBit(1);//unk
+                    //    break;
+                    case 11: data.writeBit(Guid0 ? 1 : 0); break;
+                    case 12: data.writeBit(Guid1 ? 1 : 0); break;
+                    case 9: data.writeBit(Guid2 ? 1 : 0); break;
+                    case 8: data.writeBit(Guid3 ? 1 : 0); break;
+                    /*case 15:
+                        if(uint8(GuildGuid))
+                            data.writeBit(1);
+                        break;
+                    case 4:
+                        if(uint8(GuildGuid >> 8))
+                            data.writeBit(1);
+                        break;
+                    case 13:
+                        if(uint8(GuildGuid >> 16))
+                            data.writeBit(1);
+                        break;
+                    case 2:
+                        if(uint8(GuildGuid >> 24))
+                            data.writeBit(1);
+                        break;*/
+                    /*case 0:
+                        if(uint8(GuildGuid >> 32))
+                            data.writeBit(1);
+                        break;
+                    case 0:
+                        if(uint8(GuildGuid >> 40))
+                            data.writeBit(1);
+                        break;*/
+                    /*case 5:
+                        if(uint8(GuildGuid >> 48))
+                            data.writeBit(1);
+                        break;
+                    case 3:
+                        if(uint8(GuildGuid >> 56))
+                            data.writeBit(1);
+                        break;*/
+                    default:
+                        data.writeBit(0);
+                        break;
+                }
+            }
+        }
+        data.flushBits();
+        data.append(buffer);
+        data.put<uint32>(1, guidsVect.size());
+    }
 
     SendPacket(&data);
 }

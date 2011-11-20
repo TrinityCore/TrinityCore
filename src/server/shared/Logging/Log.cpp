@@ -986,6 +986,13 @@ void Log::outCharDump(const char * str, uint32 account_id, uint32 guid, const ch
     }
 }
 
+void Log::outOpCode(uint32 op, const char * name, bool smsg)
+{
+    if (!(m_DebugLogMask & LOG_FILTER_OPCODES))
+        return;
+    outString("%s: %s 0x%.4X (%u)", smsg ? "S->C" : "C->S", name, op, op);
+}
+
 void Log::outRemote(const char * str, ...)
 {
     if (!str)

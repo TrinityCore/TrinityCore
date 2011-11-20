@@ -51,19 +51,19 @@ class ByteBuffer
         const static size_t DEFAULT_SIZE = 0x1000;
 
         // constructor
-        ByteBuffer(): _rpos(0), _wpos(0)
+        ByteBuffer(): _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
         {
             _storage.reserve(DEFAULT_SIZE);
         }
 
         // constructor
-        ByteBuffer(size_t res): _rpos(0), _wpos(0)
+        ByteBuffer(size_t res): _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
         {
             _storage.reserve(res);
         }
 
         // copy constructor
-        ByteBuffer(const ByteBuffer &buf): _rpos(buf._rpos), _wpos(buf._wpos), _storage(buf._storage) { }
+        ByteBuffer(const ByteBuffer &buf): _rpos(buf._rpos), _wpos(buf._wpos), _storage(buf._storage), _bitpos(buf._bitpos), _curbitval(buf._curbitval) { }
 
         void clear()
         {
@@ -73,8 +73,66 @@ class ByteBuffer
 
         template <typename T> void append(T value)
         {
+            flushBits();
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
+        }
+
+        void flushBits()
+        {
+            if (_bitpos == 8)
+                return;
+
+            append((uint8 *)&_curbitval, sizeof(uint8));
+            _curbitval = 0;
+            _bitpos = 8;
+        }
+
+        bool writeBit(uint32 bit)
+        {
+            --_bitpos;
+            if (bit)
+                _curbitval |= (1 << (_bitpos));
+
+            if (_bitpos == 0)
+            {
+                _bitpos = 8;
+                append((uint8 *)&_curbitval, sizeof(_curbitval));
+                _curbitval = 0;
+            }
+
+            return (bit != 0);
+        }
+
+        bool readBit()
+        {
+            ++_bitpos;
+            if (_bitpos > 7)
+            { 
+                _bitpos = 0;
+                _curbitval = read<uint8>();
+            }
+            bool bit = ((_curbitval >> (7-_bitpos)) & 1) != 0;
+            return bit;
+        }
+
+        template <typename T> void writeBits(T value, size_t bits)
+        {
+            for (int32 i = bits-1; i >= 0; --i)
+                writeBit((value >> i) & 1);
+        }
+
+        uint32 readBits(size_t bits)
+        {
+            uint32 value = 0;
+            for (int32 i = bits-1; i >= 0; --i)
+            {
+                if(readBit())
+                {
+                    value |= (1 << (_bitpos));
+                }
+            }
+            return value;
         }
 
         template <typename T> void put(size_t pos, T value)
@@ -489,7 +547,8 @@ class ByteBuffer
         }
 
     protected:
-        size_t _rpos, _wpos;
+        size_t _rpos, _wpos, _bitpos;
+        uint8 _curbitval;
         std::vector<uint8> _storage;
 };
 
