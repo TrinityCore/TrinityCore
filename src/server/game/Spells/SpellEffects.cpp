@@ -2141,6 +2141,16 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
         && effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
+    //! it's possible for spells with this spell effect to either have a target or no target
+    //! in case of a target, we will execute this handler on SPELL_EFFECT_HANDLE_HIT_TARGET
+    //! with all relevant variables, and we will skip SPELL_EFFECT_HANDLE_HIT
+    if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
+    {
+        if (GetSpellInfo()->Effects[effIndex].TargetA.GetTarget() != 0 ||
+            GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() != 0)
+            return;
+    }
+
     WorldObject* target = NULL;
 
     // call events for target if present
