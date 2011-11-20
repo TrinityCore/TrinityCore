@@ -39,7 +39,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,1,0,60,0,100,0,1000,3000,15000,20000,11,@SPELL_CONTRITION,0,0,0,0,0,11,16878,0,0,0,0,0,0,"Anchorite Relic Bunny - On Update - Cast Anchorite Contrition");
 
 -- Condition for spell Anchorite Contrition
-DELETE FROM  conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (@SPELL_CONTRITION,@SPELL_SUMMON);
+DELETE FROM  `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry` IN (@SPELL_CONTRITION,@SPELL_SUMMON);
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (13,0,@SPELL_CONTRITION,0,18,1,16878,0,0,'',"Spell Anchorite Contrition targets Shattered Hand Berserker"),
 (13,0,@SPELL_SUMMON,0,18,1,22444,0,0,'',"Spell Summon Fel Spirit targets Anchorite Relic Bunny");
