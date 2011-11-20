@@ -783,10 +783,17 @@ struct CurrencyCategoryEntry
 
 struct CurrencyTypesEntry
 {
-    //uint32    ID;                                         // 0        not used
-    uint32    ItemId;                                       // 1        used as real index
-    //uint32    Category;                                   // 2        may be category
-    uint32    BitIndex;                                     // 3        bit index in PLAYER_FIELD_KNOWN_CURRENCIES (1 << (index-1))
+    uint32    ID;                                           // 0        not used
+    //uint32    Category;                                   // 1        may be category
+    //DBCString name;                                       // 2
+    //DBCString iconName;                                   // 3
+    //uint32 unk4;                                          // 4        all 0
+    //uint32 unk5;                                          // 5        archaeology-related (?)
+    //uint32 unk6;                                          // 6        archaeology-related (?)
+    uint32 TotalCap;                                        // 7
+    uint32 WeekCap;                                         // 8
+    //int32 unk9;                                           // 9
+    //DBCString description;                                // 10
 };
 
 struct DestructibleModelDataEntry
@@ -1060,7 +1067,7 @@ struct HolidaysEntry
     //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
-struct ItemEntry
+/*struct ItemEntry
 {
    uint32   ID;                                             // 0
    uint32   Class;                                          // 1
@@ -1070,7 +1077,7 @@ struct ItemEntry
    uint32   DisplayId;                                      // 5
    uint32   InventoryType;                                  // 6
    uint32   Sheath;                                         // 7
-};
+};*/
 
 struct ItemBagFamilyEntry
 {
@@ -1105,7 +1112,7 @@ struct ItemDisplayInfoEntry
 
 #define MAX_ITEM_EXTENDED_COST_REQUIREMENTS 5
 
-struct ItemExtendedCostEntry
+/*struct ItemExtendedCostEntry
 {
     uint32      ID;                                                 // 0 extended-cost entry id
     uint32      reqhonorpoints;                                     // 1 required honor points
@@ -1114,7 +1121,7 @@ struct ItemExtendedCostEntry
     uint32      reqitem[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];       // 4-8 required item id
     uint32      reqitemcount[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];  // 9-14 required count of 1st item
     uint32      reqpersonalarenarating;                             // 15 required personal arena rating};
-};
+};*/
 
 struct ItemLimitCategoryEntry
 {

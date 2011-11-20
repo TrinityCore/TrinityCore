@@ -45,6 +45,8 @@
 #include "ScriptMgr.h"
 #include "SpellScript.h"
 #include "PoolMgr.h"
+#include "DB2Structure.h"
+#include "DB2Stores.h"
 
 ScriptMapMap sQuestEndScripts;
 ScriptMapMap sQuestStartScripts;
@@ -2253,7 +2255,7 @@ void ObjectMgr::LoadItemTemplates()
 
         // Checks
 
-        ItemEntry const* dbcitem = sItemStore.LookupEntry(entry);
+        /*ItemEntry const* dbcitem = sItemStore.LookupEntry(entry);
 
         if (dbcitem)
         {
@@ -2297,7 +2299,7 @@ void ObjectMgr::LoadItemTemplates()
 
         }
         else
-            sLog->outErrorDb("Item (Entry: %u) does not exist in item.dbc! (not correct id?).", entry);
+            sLog->outErrorDb("Item (Entry: %u) does not exist in item.dbc! (not correct id?).", entry);*/
 
         if (itemTemplate.Class >= MAX_ITEM_CLASS)
         {

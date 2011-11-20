@@ -439,4 +439,13 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000,           // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
+// CreatureType.dbc
+enum CurrencyTypes
+{
+    CURRENCY_TYPE_CONQUEST_POINTS    = 390,
+    CURRENCY_TYPE_HONOR_POINTS       = 392,
+    CURRENCY_TYPE_JUSTICE_POINTS     = 395,
+    CURRENCY_TYPE_VALOR_POINTS       = 396
+};
+
 #endif

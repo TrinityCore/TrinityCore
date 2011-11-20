@@ -472,6 +472,7 @@ LogFileLevel = 0
 #             1048576 - Anything related to loot
 #             2097152 - Anything related to guilds
 #             4194304 - Anything related to transports
+#             8388608 - Incoming/outgoing Opcodes
 #
 #                       Simply add the values together to create a bitmask.
 #                       For more info see enum DebugLogFilters in Log.h

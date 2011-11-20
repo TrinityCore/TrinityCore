@@ -31,6 +31,8 @@
 #include "Util.h"
 #include "SpellAuras.h"
 #include "Vehicle.h"
+#include "DB2Structure.h"
+#include "DB2Stores.h"
 
 class Aura;
 
