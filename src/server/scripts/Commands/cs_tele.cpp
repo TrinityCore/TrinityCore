@@ -125,15 +125,15 @@ public:
         if (!handler->extractPlayerTarget(nameStr, &target, &target_guid, &target_name))
             return false;
 
-		if (strcmp(teleStr, "$home") == 0)	// References target's homebind
-		{ 
+        if (strcmp(teleStr, "$home") == 0)    // References target's homebind
+        { 
             if (target)
                 target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation());
             else
-			{
+            {
                 QueryResult resultDB = CharacterDatabase.PQuery("SELECT mapId, zoneId, posX, posY, posZ FROM character_homebind WHERE guid = %u", target_guid);
                 if (resultDB)
-				{
+                {
                     Field* fieldsDB = resultDB->Fetch();
                     uint32 mapId = fieldsDB[0].GetUInt32();
                     uint32 zoneId = fieldsDB[1].GetUInt32();
