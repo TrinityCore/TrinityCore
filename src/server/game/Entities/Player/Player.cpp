@@ -2007,7 +2007,6 @@ bool Player::BuildEnumData(QueryResult result, ByteBuffer* data)
             if (enchant)
                 break;
         }
-        sLog->outError("entry %u aura %u invtype %u display %u", itemId, enchant ? enchant->aura_id : uint32(0), proto->InventoryType,db2Item->DisplayId);
         *data << uint32(enchant ? enchant->aura_id : 0);
         *data << uint8(proto->InventoryType);
         *data << uint32(db2Item->DisplayId);

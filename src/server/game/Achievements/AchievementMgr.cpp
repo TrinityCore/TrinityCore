@@ -1965,7 +1965,7 @@ void AchievementMgr::StartTimedAchievement(AchievementCriteriaTimedTypes type, u
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetTimedAchievementCriteriaByType(type);
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i != achievementCriteriaList.end(); ++i)
     {
-        if ((*i)->timerStartEvent != entry)
+        if ((*i)->timedCriteriaMiscId != entry)
             continue;
 
         AchievementEntry const* achievement = sAchievementStore.LookupEntry((*i)->referredAchievement);
@@ -1988,7 +1988,7 @@ void AchievementMgr::RemoveTimedAchievement(AchievementCriteriaTimedTypes type, 
     AchievementCriteriaEntryList const& achievementCriteriaList = sAchievementMgr->GetTimedAchievementCriteriaByType(type);
     for (AchievementCriteriaEntryList::const_iterator i = achievementCriteriaList.begin(); i!=achievementCriteriaList.end(); ++i)
     {
-        if ((*i)->timerStartEvent != entry)
+        if ((*i)->timedCriteriaMiscId != entry)
             continue;
 
         TimedAchievementMap::iterator timedIter = m_timedAchievements.find((*i)->ID);
@@ -2194,7 +2194,7 @@ void AchievementGlobalMgr::LoadAchievementCriteriaList()
         m_AchievementCriteriaListByAchievement[criteria->referredAchievement].push_back(criteria);
 
         if (criteria->timeLimit)
-            m_AchievementCriteriasByTimedType[criteria->timedType].push_back(criteria);
+            m_AchievementCriteriasByTimedType[criteria->timedCriteriaStartType].push_back(criteria);
     }
 
     sLog->outString(">> Loaded %lu achievement criteria in %u ms", (unsigned long)m_AchievementCriteriasByType->size(), GetMSTimeDiffToNow(oldMSTime));
