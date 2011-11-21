@@ -58,16 +58,24 @@ enum AchievementFaction
 
 enum AchievementFlags
 {
-    ACHIEVEMENT_FLAG_COUNTER           = 0x00000001,        // Just count statistic (never stop and complete)
-    ACHIEVEMENT_FLAG_HIDDEN            = 0x00000002,        // Not sent to client - internal use only
-    ACHIEVEMENT_FLAG_STORE_MAX_VALUE   = 0x00000004,        // Store only max value? used only in "Reach level xx"
-    ACHIEVEMENT_FLAG_SUMM              = 0x00000008,        // Use summ criteria value from all reqirements (and calculate max value)
-    ACHIEVEMENT_FLAG_MAX_USED          = 0x00000010,        // Show max criteria (and calculate max value ??)
-    ACHIEVEMENT_FLAG_REQ_COUNT         = 0x00000020,        // Use not zero req count (and calculate max value)
-    ACHIEVEMENT_FLAG_AVERAGE           = 0x00000040,        // Show as average value (value / time_in_days) depend from other flag (by def use last criteria value)
-    ACHIEVEMENT_FLAG_BAR               = 0x00000080,        // Show as progress bar (value / max vale) depend from other flag (by def use last criteria value)
-    ACHIEVEMENT_FLAG_REALM_FIRST_REACH = 0x00000100,        //
-    ACHIEVEMENT_FLAG_REALM_FIRST_KILL  = 0x00000200,        //
+    ACHIEVEMENT_FLAG_COUNTER                = 0x00000001,    // Just count statistic (never stop and complete)
+    ACHIEVEMENT_FLAG_HIDDEN                 = 0x00000002,    // Not sent to client - internal use only
+    ACHIEVEMENT_FLAG_STORE_MAX_VALUE        = 0x00000004,    // Store only max value? used only in "Reach level xx"
+    ACHIEVEMENT_FLAG_SUMM                   = 0x00000008,    // Use summ criteria value from all reqirements (and calculate max value)
+    ACHIEVEMENT_FLAG_MAX_USED               = 0x00000010,    // Show max criteria (and calculate max value ??)
+    ACHIEVEMENT_FLAG_REQ_COUNT              = 0x00000020,    // Use not zero req count (and calculate max value)
+    ACHIEVEMENT_FLAG_AVERAGE                = 0x00000040,    // Show as average value (value / time_in_days) depend from other flag (by def use last criteria value)
+    ACHIEVEMENT_FLAG_BAR                    = 0x00000080,    // Show as progress bar (value / max vale) depend from other flag (by def use last criteria value)
+    ACHIEVEMENT_FLAG_REALM_FIRST_REACH      = 0x00000100,    //
+    ACHIEVEMENT_FLAG_REALM_FIRST_KILL       = 0x00000200,    //
+    ACHIEVEMENT_FLAG_UNK3                   = 0x00000400,    // ACHIEVEMENT_FLAG_HIDE_NAME_IN_TIE
+    ACHIEVEMENT_FLAG_REALM_FIRST_GUILD      = 0x00000800,    // first guild on realm done something
+    ACHIEVEMENT_FLAG_UNK4                   = 0x00001000,    // as guild group?
+    ACHIEVEMENT_FLAG_UNK5                   = 0x00002000,    // as guild group?
+    ACHIEVEMENT_FLAG_GUILD                  = 0x00004000,    //
+    ACHIEVEMENT_FLAG_SHOW_GUILD_MEMBERS     = 0x00008000,    //
+    ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS  = 0x00010000,    //
+
 };
 
 #define MAX_CRITERIA_REQUIREMENTS 2
@@ -102,6 +110,7 @@ enum AchievementCriteriaTimedTypes
     ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET     = 6,    // Timer is started by being target of spell with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_CREATURE         = 7,    // Timer is started by killing creature with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_ITEM             = 9,    // Timer is started by using item with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_UNK              = 10,   // Unknown
 
     ACHIEVEMENT_TIMED_TYPE_MAX,
 };
@@ -215,16 +224,55 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LINE= 112,
     ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL = 113,
     ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS = 114,
-    // 0..115 => 116 criteria types total
     ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINTS = 115,
     ACHIEVEMENT_CRITERIA_TYPE_USE_LFD_TO_GROUP_WITH_PLAYERS = 119,
-    // 120
-    // 121
-    // 122
-    // 123
-    // 0..123 => 124 criteria types total
-    ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 124,
+    // 120 -
+    // 121 -
+    // 122 -
+    // 123 -
+    ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS = 124,
+    ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL = 125,
+    ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD = 126,
+    ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL = 127,
+    ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS = 128,
+    ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS = 129,
+    ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND = 130,
+    // 131 -
+    ACHIEVEMENT_CRITERIA_TYPE_REACH_BG_RATING = 132,
+    ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD = 133,
+    ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD = 134,
+    ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD = 135,
+    ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD = 136,
+    // 0..136 => 137 criteria types total
+    ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 137,
 };
+
+enum AchievementCriteriaMoreReqType
+{
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_ITEM_LEVEL             = 3,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_CREATURE_ID            = 4,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_SPELL                  = 8,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_SPELL_ON_TARGET        = 10,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_ITEM_QUALITY_EQUIPPED  = 14,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_ITEM_QUALITY_LOOTED    = 15,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_AREA_ID                = 17,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_AREA_ID2               = 18,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_RAID_DIFFICULTY        = 20,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_ARENA_TYPE             = 24,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_CLASS           = 26,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_RACE            = 27,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_CLASS2          = 28,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_CREATURE_TYPE          = 30,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_MAP_ID                 = 32,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_TIMED_QUEST            = 35,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_TITLE           = 38,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_LEVEL           = 39,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_LEVEL2          = 40,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_AREA_ID3               = 41,
+    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_GUILD_REP              = 62,
+};
+
+
 
 enum AchievementCategory
 {
@@ -233,7 +281,7 @@ enum AchievementCategory
 
 enum AreaFlags
 {
-    AREA_FLAG_UNK0             = 0x00000001,                // Unknown
+    AREA_FLAG_SNOW             = 0x00000001,                // snow (only Dun Morogh, Naxxramas, Razorfen Downs and Winterspring)
     AREA_FLAG_UNK1             = 0x00000002,                // Razorfen Downs, Naxxramas and Acherus: The Ebon Hold (3.3.5a)
     AREA_FLAG_UNK2             = 0x00000004,                // Only used for areas on map 571 (development before)
     AREA_FLAG_SLAVE_CAPITAL    = 0x00000008,                // city and city subsones

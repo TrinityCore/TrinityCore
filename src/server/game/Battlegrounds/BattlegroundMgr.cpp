@@ -765,7 +765,7 @@ void BattlegroundMgr::CreateInitialBattlegrounds()
 
         selectionWeight = fields[9].GetUInt8();
         data.scriptId = sObjectMgr->GetScriptId(fields[10].GetCString());
-        data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
+        //data.BattlegroundName = bl->name[sWorld->GetDefaultDbcLocale()];
         data.MapID = bl->mapid[0];
 
         if (!CreateBattleground(data))

@@ -19,24 +19,26 @@
 #ifndef TRINITY_DBCSFRM_H
 #define TRINITY_DBCSFRM_H
 
-const char Achievementfmt[]="niixssssssssssssssssxxxxxxxxxxxxxxxxxxiixixxxxxxxxxxxxxxxxxxii";
-const std::string CustomAchievementfmt="pppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapapaaaaaaaaaaaaaaaaaapp";
-const std::string CustomAchievementIndex = "ID";
-const char AchievementCriteriafmt[]="niiiiiiiixxxxxxxxxxxxxxxxxiiiix";
-const char AreaTableEntryfmt[]="iiinixxxxxissssssssssssssssxixxxxxxx";
+const char Achievementfmt[]="niixsxiixixxii";
+//const std::string CustomAchievementfmt="pppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaapapaaaaaaaaaaaaaaaaaapp";
+//const std::string CustomAchievementIndex = "ID";
+const char AchievementCriteriafmt[]="niiiiiiiisiiiiixxxxxxxx";
+const char AreaTableEntryfmt[]="iiinixxxxxisixxxxxxxxxxxxx";
 const char AreaGroupEntryfmt[]="niiiiiii";
-const char AreaPOIEntryfmt[]="niiiiiiiiiiifffixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxix";
-const char AreaTriggerEntryfmt[]="niffffffff";
-const char AuctionHouseEntryfmt[]="niiixxxxxxxxxxxxxxxxx";
+const char AreaPOIEntryfmt[]="niiiiiiiiiiiffixixxixx";
+const char AreaTriggerEntryfmt[]="nifffxxxfffff";
+const char ArmorLocationfmt[]="nfffff";
+const char AuctionHouseEntryfmt[]="niiix";
 const char BankBagSlotPricesEntryfmt[]="ni";
-const char BarberShopStyleEntryfmt[]="nixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxiii";
-const char BattlemasterListEntryfmt[]="niiiiiiiiixssssssssssssssssxiixx";
-const char CharStartOutfitEntryfmt[]="diiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-const char CharTitlesEntryfmt[]="nxssssssssssssssssxxxxxxxxxxxxxxxxxxi";
-const char ChatChannelsEntryfmt[]="nixssssssssssssssssxxxxxxxxxxxxxxxxxx";
-                                                            // ChatChannelsEntryfmt, index not used (more compact store)
-const char ChrClassesEntryfmt[]="nxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixii";
-const char ChrRacesEntryfmt[]="nxixiixixxxxixssssssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxi";
+const char BarberShopStyleEntryfmt[]="nixxxiii";
+const char BattlemasterListEntryfmt[]="niiiiiiiiixsiiiixxxx";
+const char CharStartOutfitEntryfmt[]="diiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+const char CharTitlesEntryfmt[]="nxsxix";
+const char ChatChannelsEntryfmt[]="nixsx";
+
+const char ChrClassesEntryfmt[]="nixsxxxixiixxx";
+const char ChrRacesEntryfmt[]="nxixiixixxxxixsxxxxxixxx";
+
 const char CinematicSequencesEntryfmt[]="nxxxxxxxxx";
 const char CreatureDisplayInfofmt[]="nxxxfxxxxxxxxxxx";
 const char CreatureFamilyfmt[]="nfifiiiiixssssssssssssssssxx";
