@@ -2493,6 +2493,20 @@ class Player : public Unit, public GridObject<Player>
         void AddWhisperWhiteList(uint64 guid) { WhisperList.push_back(guid); }
         bool IsInWhisperWhiteList(uint64 guid);
 
+        //! Return collision height sent to client
+        //! we currently only send this on dismount
+        float GetCollisionHeight()
+        {
+            CreatureDisplayInfoEntry const* displayInfo = sCreatureDisplayInfoStore.LookupEntry(GetNativeDisplayId());
+            ASSERT(displayInfo);
+            CreatureModelDataEntry const* modelData = sCreatureModelDataStore.LookupEntry(displayInfo->ModelId);
+            ASSERT(modelData);
+
+            return modelData->CollisionHeight;
+
+            //! TODO: Need a proper calculation for collision height when mounted
+        }
+
     protected:
         // Gamemaster whisper whitelist
         WhisperListContainer WhisperList;
