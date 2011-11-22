@@ -1329,7 +1329,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x514*/ { "SMSG_SEND_ALL_COMBAT_LOG",                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x515*/ { "SMSG_OPEN_LFG_DUNGEON_FINDER",                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x516*/ { "SMSG_MOVE_SET_COLLISION_HGT",                  STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
-    /*0x517*/ { "CMSG_MOVE_SET_COLLISION_HGT_ACK",              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
+    /*0x517*/ { "CMSG_MOVE_SET_COLLISION_HGT_ACK",              STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x518*/ { "MSG_MOVE_SET_COLLISION_HGT",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x519*/ { "CMSG_CLEAR_RANDOM_BG_WIN_TIME",                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
     /*0x51A*/ { "CMSG_CLEAR_HOLIDAY_BG_WIN_TIME",               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
