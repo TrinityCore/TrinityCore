@@ -618,7 +618,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 
                 if (itemRandProp)
                 {
-                    char* const* temp = itemRandProp->nameSuffix;
+                    DBCString temp = itemRandProp->nameSuffix;
                     //char* temp = itemRandProp->nameSuffix;
 
                     // dbc local name
