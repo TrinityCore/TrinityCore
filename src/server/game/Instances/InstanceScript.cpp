@@ -432,7 +432,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
         if ((*itr)->creditType == type && (*itr)->creditEntry == creditEntry)
         {
             completedEncounters |= 1 << (*itr)->dbcEntry->encounterIndex;
-            sLog->outDebug(LOG_FILTER_TSCR, "Instance %s (instanceId %u) completed encounter %s", instance->GetMapName(), instance->GetInstanceId(), (*itr)->dbcEntry->encounterName[0]);
+            sLog->outDebug(LOG_FILTER_TSCR, "Instance %s (instanceId %u) completed encounter %s", instance->GetMapName(), instance->GetInstanceId(), (*itr)->dbcEntry->encounterName);
             if (uint32 dungeonId = (*itr)->lastEncounterDungeon)
             {
                 Map::PlayerList const& players = instance->GetPlayers();
