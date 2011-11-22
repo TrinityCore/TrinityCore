@@ -113,7 +113,7 @@ public:
         indexTable = NULL;
         delete[] ((char*)m_dataTable);
         m_dataTable = NULL;
-            for (DataTableEx::const_iterator itr = m_dataTableEx.begin(); itr != m_dataTableEx.end(); ++itr)
+            for (typename DataTableEx::const_iterator itr = m_dataTableEx.begin(); itr != m_dataTableEx.end(); ++itr)
                 delete *itr;
             m_dataTableEx.clear();
 

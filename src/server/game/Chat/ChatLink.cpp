@@ -165,7 +165,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const* locale, char* const* suffixStrings) const
+inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const *locale, DBCString suffixStrings) const
 {
     std::stringstream ss;
     if (locale == NULL || index >= locale->Name.size())
@@ -181,7 +181,7 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
 {
     ChatLink::ValidateName(buffer, context);
 
-    char* const* suffixStrings = _suffix ? _suffix->nameSuffix : (_property ? _property->nameSuffix : NULL);
+    DBCString suffixStrings = _suffix ? _suffix->nameSuffix : (_property ? _property->nameSuffix : NULL);
 
     bool res = (FormatName(LOCALE_enUS, NULL, suffixStrings) == buffer);
     if (!res)
