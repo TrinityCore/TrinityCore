@@ -201,7 +201,8 @@ public:
                     //object already removed, not exist
                     if (!pAdd)
                     {
-                        if (Creature* pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        pAdd = me->SummonCreature((*itr), LackeyLocations[j][0], LackeyLocations[j][1], fZLocation, fOrientation, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                        if (pAdd)
                             m_auiLackeyGUID[j] = pAdd->GetGUID();
                     }
                     ++j;

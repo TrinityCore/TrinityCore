@@ -5394,7 +5394,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 // mail open and then not returned
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
-                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
                     stmt->setUInt32(0, itr2->item_guid);
                     CharacterDatabase.Execute(stmt);
                 }
@@ -7086,13 +7086,13 @@ void ObjectMgr::LoadQuestPOI()
     {
         // The first result should have the highest questId
         Field* fields = points->Fetch();
-        uint32 questId = fields[0].GetUInt32();
-        POIs.resize(questId + 1);
+        uint32 questIdMax = fields[0].GetUInt32();
+        POIs.resize(questIdMax + 1);
 
         do
         {
 
-            Field* fields = points->Fetch();
+            fields = points->Fetch();
 
             uint32 questId            = fields[0].GetUInt32();
             uint32 id                 = fields[1].GetUInt32();
