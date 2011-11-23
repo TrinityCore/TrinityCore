@@ -309,8 +309,9 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
 
                 return false;
             }
-            else if (flags & SPELL_DISABLE_DEPRECATED_SPELL)    // call not from spellcast
+            else if (spellFlags & SPELL_DISABLE_DEPRECATED_SPELL)    // call not from spellcast
                 return true;
+            break;
         }
         case DISABLE_TYPE_MAP:
             if (Player const* player = unit->ToPlayer())
