@@ -1335,7 +1335,7 @@ class npc_shambling_horror_icc : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
-                if (IsHeroic() && me->HealthBelowPctDamaged(20, damage))
+                if (!_frenzied && IsHeroic() && me->HealthBelowPctDamaged(20, damage))
                 {
                     _frenzied = true;
                     DoCast(me, SPELL_FRENZY, true);
