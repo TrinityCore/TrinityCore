@@ -309,11 +309,11 @@ void InstanceSaveManager::LoadResetTimes()
         while (result->NextRow());
 
         // update reset time for normal instances with the max creature respawn time + X hours
-        if (PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_GET_MAX_CREATURE_RESPAWNS)))
+        if (PreparedQueryResult result2 = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_GET_MAX_CREATURE_RESPAWNS)))
         {
             do
             {
-                Field* fields = result->Fetch();
+                Field* fields = result2->Fetch();
                 uint32 instance = fields[1].GetUInt32();
                 time_t resettime = time_t(fields[0].GetUInt32() + 2 * HOUR);
                 InstResetTimeMapDiffType::iterator itr = instResetTime.find(instance);

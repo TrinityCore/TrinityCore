@@ -126,7 +126,7 @@ public:
             return false;
 
         if (strcmp(teleStr, "$home") == 0)    // References target's homebind
-        { 
+        {
             if (target)
                 target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation());
             else
@@ -140,11 +140,11 @@ public:
                     float posX = fieldsDB[2].GetFloat();
                     float posY = fieldsDB[3].GetFloat();
                     float posZ = fieldsDB[4].GetFloat();
-                    
+
                     Player::SavePositionInDB(mapId, posX, posY, posZ, 0, zoneId, target_guid);
                 }
             }
-                
+
             return true;
         }
 
@@ -210,8 +210,8 @@ public:
         if (!*args)
             return false;
 
-        Player* player = handler->getSelectedPlayer();
-        if (!player)
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
         {
             handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
             handler->SetSentErrorMessage(true);
@@ -219,7 +219,7 @@ public:
         }
 
         // check online security
-        if (handler->HasLowerSecurity(player, 0))
+        if (handler->HasLowerSecurity(target, 0))
             return false;
 
         // id, or string, or [name] Shift-click form |color|Htele:id|h[name]|h|r
@@ -239,9 +239,9 @@ public:
             return false;
         }
 
-        std::string nameLink = handler->GetNameLink(player);
+        std::string nameLink = handler->GetNameLink(target);
 
-        Group* grp = player->GetGroup();
+        Group* grp = target->GetGroup();
         if (!grp)
         {
             handler->PSendSysMessage(LANG_NOT_IN_GROUP, nameLink.c_str());
