@@ -34,7 +34,7 @@ EndScriptData */
 #define LOCALE_TRICK_OR_TREAT_3 "Süßes oder Saures!"
 #define LOCALE_TRICK_OR_TREAT_6 "¡Truco o trato!"
 
-#define LOCALE_INNKEEPER_0 "Make this inn my home."
+#define LOCALE_INNKEEPER_0 "Faire de cette auberge mon foyer."
 #define LOCALE_INNKEEPER_3 "Ich möchte dieses Gasthaus zu meinem Heimatort machen."
 
 class npc_innkeeper : public CreatureScript
