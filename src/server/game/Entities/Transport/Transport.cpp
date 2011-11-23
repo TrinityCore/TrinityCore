@@ -365,9 +365,9 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
     if (keyFrames[keyFrames.size() - 1].node->mapid != keyFrames[0].node->mapid)
         teleport = true;
 
-    WayPoint pos(keyFrames[0].node->mapid, keyFrames[0].node->x, keyFrames[0].node->y, keyFrames[0].node->z, teleport, 0,
+    m_WayPoints[0] = WayPoint(keyFrames[0].node->mapid, keyFrames[0].node->x, keyFrames[0].node->y, keyFrames[0].node->z, teleport, 0,
         keyFrames[0].node->arrivalEventID, keyFrames[0].node->departureEventID);
-    m_WayPoints[0] = pos;
+
     t += keyFrames[0].node->delay * 1000;
 
     uint32 cM = keyFrames[0].node->mapid;
@@ -387,12 +387,11 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
 
                 if (d > 0)
                 {
-                    float newX, newY, newZ;
-                    newX = keyFrames[i].node->x + (keyFrames[i + 1].node->x - keyFrames[i].node->x) * d / keyFrames[i + 1].distFromPrev;
-                    newY = keyFrames[i].node->y + (keyFrames[i + 1].node->y - keyFrames[i].node->y) * d / keyFrames[i + 1].distFromPrev;
-                    newZ = keyFrames[i].node->z + (keyFrames[i + 1].node->z - keyFrames[i].node->z) * d / keyFrames[i + 1].distFromPrev;
+                    float newX = keyFrames[i].node->x + (keyFrames[i + 1].node->x - keyFrames[i].node->x) * d / keyFrames[i + 1].distFromPrev;
+                    float newY = keyFrames[i].node->y + (keyFrames[i + 1].node->y - keyFrames[i].node->y) * d / keyFrames[i + 1].distFromPrev;
+                    float newZ = keyFrames[i].node->z + (keyFrames[i + 1].node->z - keyFrames[i].node->z) * d / keyFrames[i + 1].distFromPrev;
 
-                    bool teleport = false;
+                    teleport = false;
                     if (keyFrames[i].node->mapid != cM)
                     {
                         teleport = true;
@@ -400,9 +399,8 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
                     }
 
                     //                    sLog->outString("T: %d, D: %f, x: %f, y: %f, z: %f", t, d, newX, newY, newZ);
-                    WayPoint pos(keyFrames[i].node->mapid, newX, newY, newZ, teleport, 0);
                     if (teleport)
-                        m_WayPoints[t] = pos;
+                        m_WayPoints[t] = WayPoint(keyFrames[i].node->mapid, newX, newY, newZ, teleport, 0);
                 }
 
                 if (tFrom < tTo)                            // caught in tFrom dock's "gravitational pull"
@@ -439,25 +437,18 @@ bool Transport::GenerateWaypoints(uint32 pathid, std::set<uint32> &mapids)
         else
             t += (long)keyFrames[i + 1].tTo % 100;
 
-        bool teleport = false;
+        teleport = false;
         if ((keyFrames[i + 1].node->actionFlag == 1) || (keyFrames[i + 1].node->mapid != keyFrames[i].node->mapid))
         {
             teleport = true;
             cM = keyFrames[i + 1].node->mapid;
         }
 
-        WayPoint pos(keyFrames[i + 1].node->mapid, keyFrames[i + 1].node->x, keyFrames[i + 1].node->y, keyFrames[i + 1].node->z, teleport,
+        m_WayPoints[t] = WayPoint(keyFrames[i + 1].node->mapid, keyFrames[i + 1].node->x, keyFrames[i + 1].node->y, keyFrames[i + 1].node->z, teleport,
             0, keyFrames[i + 1].node->arrivalEventID, keyFrames[i + 1].node->departureEventID);
         //        sLog->outString("T: %d, x: %f, y: %f, z: %f, t:%d", t, pos.x, pos.y, pos.z, teleport);
-/*
-        if (keyFrames[i+1].delay > 5)
-            pos.delayed = true;
-*/
-        //if (teleport)
-        m_WayPoints[t] = pos;
 
         t += keyFrames[i + 1].node->delay * 1000;
-        //        sLog->outString("------");
     }
 
     uint32 timer = t;

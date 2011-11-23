@@ -59,8 +59,8 @@ void CreatureAI::DoZoneInCombat(Creature* creature /*= NULL*/, float maxRangeToN
 
     if (!creature->HasReactState(REACT_PASSIVE) && !creature->getVictim())
     {
-        if (Unit* target = creature->SelectNearestTarget(maxRangeToNearestTarget))
-            creature->AI()->AttackStart(target);
+        if (Unit* nearTarget = creature->SelectNearestTarget(maxRangeToNearestTarget))
+            creature->AI()->AttackStart(nearTarget);
         else if (creature->isSummon())
         {
             if (Unit* summoner = creature->ToTempSummon()->GetSummoner())

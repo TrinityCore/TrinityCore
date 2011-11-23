@@ -94,7 +94,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(rand()%2 ? SAY_SLAY1 : SAY_SLAY2, me);
+            DoScriptText(urand(0, 1) ? SAY_SLAY1 : SAY_SLAY2, me);
             events.DelayEvents(5000, GCD_YELL);
         }
 
@@ -175,7 +175,7 @@ public:
                             SpineTargetGUID = target->GetGUID();
                             //must let target summon, otherwise you cannot click the spine
                             target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 30);
-                            DoScriptText(rand()%2 ? SAY_NEEDLE1 : SAY_NEEDLE2, me);
+                            DoScriptText(urand(0, 1) ? SAY_NEEDLE1 : SAY_NEEDLE2, me);
                             events.DelayEvents(1500, GCD_CAST);
                             events.DelayEvents(15000, GCD_YELL);
                         }
