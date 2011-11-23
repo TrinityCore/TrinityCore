@@ -3480,6 +3480,13 @@ void SpellMgr::LoadDbcDataCorrections()
             case 72405: // Broken Frostmourne
                 spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_200_YARDS;   // 200yd
                 break;
+            case 20911: // Blessing of Sanctuary
+            case 25899: // Greater Blessing of Sanctuary
+                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
+                break;
+            case 63944: // Renewed Hope
+                spellInfo->EffectApplyAuraName[0] = SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN;
+                break;
             default:
                 break;
         }
