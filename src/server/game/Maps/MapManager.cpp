@@ -119,6 +119,14 @@ Map* MapManager::CreateBaseMap(uint32 id)
     return m;
 }
 
+Map* MapManager::FindBaseNonInstanceMap(uint32 mapId) const
+{
+    Map* map = FindBaseMap(mapId);
+    if(map && map->Instanceable())
+        return NULL;
+    return map;
+}
+
 Map* MapManager::CreateMap(uint32 id, Player* player)
 {
     Map* m = CreateBaseMap(id);
