@@ -102,7 +102,7 @@ public:
         {
             if (m_instance)
             {
-                if (m_instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT != NOT_STARTED))
+                if (m_instance->GetData(TYPE_MOGRAINE_AND_WHITE_EVENT) != NOT_STARTED)
                     m_instance->SetData(TYPE_MOGRAINE_AND_WHITE_EVENT, FAIL);
             }
         }

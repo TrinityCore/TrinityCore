@@ -95,9 +95,9 @@ void MapManager::checkAndCorrectGridStatesArray()
         ++i_GridStateErrorCount;
 }
 
-Map* MapManager::_createBaseMap(uint32 id)
+Map* MapManager::CreateBaseMap(uint32 id)
 {
-    Map* m = _findMap(id);
+    Map* m = FindBaseMap(id);
 
     if (m == NULL)
     {
@@ -119,27 +119,34 @@ Map* MapManager::_createBaseMap(uint32 id)
     return m;
 }
 
-Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 /*instanceId*/)
+Map* MapManager::FindBaseNonInstanceMap(uint32 mapId) const
 {
-    ASSERT(obj);
-    //if (!obj->IsInWorld()) sLog->outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
-    Map* m = _createBaseMap(id);
+    Map* map = FindBaseMap(mapId);
+    if(map && map->Instanceable())
+        return NULL;
+    return map;
+}
 
-    if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj);
+Map* MapManager::CreateMap(uint32 id, Player* player)
+{
+    Map* m = CreateBaseMap(id);
+
+    if (m && m->Instanceable())
+        m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, player);
 
     return m;
 }
 
 Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 {
-    Map* map = _findMap(mapid);
+    Map* map = FindBaseMap(mapid);
     if (!map)
         return NULL;
 
     if (!map->Instanceable())
         return instanceId == 0 ? map : NULL;
 
-    return ((MapInstanced*)map)->FindMap(instanceId);
+    return ((MapInstanced*)map)->FindInstanceMap(instanceId);
 }
 
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
@@ -201,8 +208,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                 if (corpseMap == mapid)
                     break;
 
-                InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(corpseMap);
-                corpseMap = instance ? instance->Parent : 0;
+                InstanceTemplate const* corpseInstance = sObjectMgr->GetInstanceTemplate(corpseMap);
+                corpseMap = corpseInstance ? corpseInstance->Parent : 0;
             } while (corpseMap);
 
             if (!corpseMap)
@@ -248,7 +255,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             instaceIdToCheck = save->GetInstanceId();
 
         // instanceId can never be 0 - will not be found
-        if (!player->CheckInstanceCount(instaceIdToCheck))
+        if (!player->CheckInstanceCount(instaceIdToCheck) && !player->isDead())
         {
             player->SendTransferAborted(mapid, TRANSFER_ABORT_TOO_MANY_INSTANCES);
             return false;
@@ -280,8 +287,8 @@ void MapManager::Update(uint32 diff)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
-    for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
-        (*iter)->Update(uint32(i_timer.GetCurrent()));
+    for (TransportSet::iterator itr = m_Transports.begin(); itr != m_Transports.end(); ++itr)
+        (*itr)->Update(uint32(i_timer.GetCurrent()));
 
     i_timer.SetCurrent(0);
 }

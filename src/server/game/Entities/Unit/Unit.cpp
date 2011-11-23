@@ -1514,8 +1514,8 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
 
     if (GetTypeId() == TYPEID_PLAYER)
     {
-        AuraEffectList const& ResIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT);
-        for (AuraEffectList::const_iterator itr = ResIgnoreAuras.begin(); itr != ResIgnoreAuras.end(); ++itr)
+        AuraEffectList const& ArPenAuras = GetAuraEffectsByType(SPELL_AURA_MOD_ARMOR_PENETRATION_PCT);
+        for (AuraEffectList::const_iterator itr = ArPenAuras.begin(); itr != ArPenAuras.end(); ++itr)
         {
             // item neutral spell
             if ((*itr)->GetSpellInfo()->EquippedItemClass == -1)
@@ -1687,12 +1687,12 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         if (currentAbsorb < 0)
             currentAbsorb = 0;
 
-        uint32 absorb = currentAbsorb;
+        uint32 tempAbsorb = uint32(currentAbsorb);
 
         bool defaultPrevented = false;
 
-        absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, absorb, defaultPrevented);
-        currentAbsorb = absorb;
+        absorbAurEff->GetBase()->CallScriptEffectAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, tempAbsorb, defaultPrevented);
+        currentAbsorb = tempAbsorb;
 
         if (defaultPrevented)
             continue;
@@ -1705,8 +1705,8 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
         dmgInfo.AbsorbDamage(currentAbsorb);
 
-        absorb = currentAbsorb;
-        absorbAurEff->GetBase()->CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, absorb);
+        tempAbsorb = currentAbsorb;
+        absorbAurEff->GetBase()->CallScriptEffectAfterAbsorbHandlers(absorbAurEff, aurApp, dmgInfo, tempAbsorb);
 
         // Check if our aura is using amount to count damage
         if (absorbAurEff->GetAmount() >= 0)
@@ -1738,12 +1738,12 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         if (currentAbsorb < 0)
             currentAbsorb = 0;
 
-        uint32 absorb = currentAbsorb;
+        uint32 tempAbsorb = currentAbsorb;
 
         bool defaultPrevented = false;
 
-        absorbAurEff->GetBase()->CallScriptEffectManaShieldHandlers(absorbAurEff, aurApp, dmgInfo, absorb, defaultPrevented);
-        currentAbsorb = absorb;
+        absorbAurEff->GetBase()->CallScriptEffectManaShieldHandlers(absorbAurEff, aurApp, dmgInfo, tempAbsorb, defaultPrevented);
+        currentAbsorb = tempAbsorb;
 
         if (defaultPrevented)
             continue;
@@ -1766,8 +1766,8 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
         dmgInfo.AbsorbDamage(currentAbsorb);
 
-        absorb = currentAbsorb;
-        absorbAurEff->GetBase()->CallScriptEffectAfterManaShieldHandlers(absorbAurEff, aurApp, dmgInfo, absorb);
+        tempAbsorb = currentAbsorb;
+        absorbAurEff->GetBase()->CallScriptEffectAfterManaShieldHandlers(absorbAurEff, aurApp, dmgInfo, tempAbsorb);
 
         // Check if our aura is using amount to count damage
         if (absorbAurEff->GetAmount() >= 0)
@@ -3744,13 +3744,13 @@ void Unit::RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit*
             // Cast duration to unsigned to prevent permanent aura's such as Righteous Fury being permanently added to caster
             uint32 dur = std::min(2u * MINUTE * IN_MILLISECONDS, uint32(aura->GetDuration()));
 
-            if (Aura* newAura = stealer->GetAura(aura->GetId(), aura->GetCasterGUID()))
+            if (Aura* oldAura = stealer->GetAura(aura->GetId(), aura->GetCasterGUID()))
             {
                 if (stealCharge)
-                    newAura->ModCharges(1);
+                    oldAura->ModCharges(1);
                 else
-                    newAura->ModStackAmount(1);
-                newAura->SetDuration(int32(dur));
+                    oldAura->ModStackAmount(1);
+                oldAura->SetDuration(int32(dur));
             }
             else
             {
@@ -5242,6 +5242,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             break;
                         case CLASS_ROGUE:                   // 39511, 40997, 40998, 41002, 41005, 41011
                         case CLASS_WARRIOR:                 // 39511, 40997, 40998, 41002, 41005, 41011
+                        case CLASS_DEATH_KNIGHT:
                             triggered_spell_id = RAND(39511, 40997, 40998, 41002, 41005, 41011);
                             cooldown_spell_id = 39511;
                             break;
@@ -6290,7 +6291,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 {
                     if (procSpell->SpellVisual[0] == 750 && procSpell->Effects[1].ApplyAuraName == 3)
                     {
-                        if (target->GetTypeId() == TYPEID_UNIT)
+                        if (target && target->GetTypeId() == TYPEID_UNIT)
                         {
                             triggered_spell_id = 54820;
                             break;
@@ -7250,7 +7251,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Item - Shaman T10 Elemental 4P Bonus
                 case 70817:
                 {
-                    if(!target)
+                    if (!target)
                         return false;
                     // try to find spell Flame Shock on the target
                     if (AuraEffect const* aurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_SHAMAN, 0x10000000, 0x0, 0x0, GetGUID()))
@@ -8405,6 +8406,13 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount) / (TriggerPS->GetMaxDuration() / TriggerPS->Effects[0].Amplitude);
                     basepoints0 += victim->GetRemainingPeriodicAmount(GetGUID(), trigger_spell_id, SPELL_AURA_PERIODIC_DAMAGE);
+                    break;
+                }
+                // Item - Hunter T9 4P Bonus
+                if (auraSpellInfo->Id == 67151)
+                {
+                    trigger_spell_id = 68130;
+                    target = this;
                     break;
                 }
                 break;
@@ -11926,6 +11934,12 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             else
                 player->UnsummonPetTemporaryIfAny();
         }
+
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
+        data.append(GetPackGUID());
+        data << uint32(sWorld->GetGameTime());   // Packet counter
+        data << player->GetCollisionHeight(true);
+        player->GetSession()->SendPacket(&data);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -11939,6 +11953,15 @@ void Unit::Unmount()
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
+    if (Player* thisPlayer = ToPlayer())
+    {
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
+        data.append(GetPackGUID());
+        data << uint32(sWorld->GetGameTime());   // Packet counter
+        data << thisPlayer->GetCollisionHeight(false);
+        thisPlayer->GetSession()->SendPacket(&data);
+    }
+
     WorldPacket data(SMSG_DISMOUNT, 8);
     data.appendPackGUID(GetGUID());
     SendMessageToSet(&data, true);
@@ -11947,7 +11970,7 @@ void Unit::Unmount()
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
     {
         // Send other players that we are no longer a vehicle
-        WorldPacket data(SMSG_PLAYER_VEHICLE_DATA, 8+4);
+        data.Initialize(SMSG_PLAYER_VEHICLE_DATA, 8+4);
         data.appendPackGUID(GetGUID());
         data << uint32(0);
         ToPlayer()->SendMessageToSet(&data, true);
@@ -14329,7 +14352,7 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
         }
 
         if (!handled)
-        for (uint8 effIndex = 0; effIndex<MAX_SPELL_EFFECTS; ++effIndex)
+        for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         {
             if (!(i->effMask & (1<<effIndex)))
                 continue;
@@ -14355,8 +14378,8 @@ void Unit::ProcDamageAndSpellFor(bool isVictim, Unit* target, uint32 procFlag, u
 
                     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "ProcDamageAndSpell: doing %u damage from spell id %u (triggered by %s aura of spell %u)", triggeredByAura->GetAmount(), spellInfo->Id, (isVictim?"a victim's":"an attacker's"), triggeredByAura->GetId());
                     SpellNonMeleeDamage damageInfo(this, target, spellInfo->Id, spellInfo->SchoolMask);
-                    uint32 damage = SpellDamageBonus(target, spellInfo, triggeredByAura->GetAmount(), SPELL_DIRECT_DAMAGE);
-                    CalculateSpellDamageTaken(&damageInfo, damage, spellInfo);
+                    uint32 newDamage = SpellDamageBonus(target, spellInfo, triggeredByAura->GetAmount(), SPELL_DIRECT_DAMAGE);
+                    CalculateSpellDamageTaken(&damageInfo, newDamage, spellInfo);
                     DealDamageMods(damageInfo.target, damageInfo.damage, &damageInfo.absorb);
                     SendSpellNonMeleeDamageLog(&damageInfo);
                     DealSpellDamage(&damageInfo, true);
@@ -16566,10 +16589,9 @@ float Unit::GetCombatRatingReduction(CombatRating cr) const
     if (Player const* player = ToPlayer())
         return player->GetRatingBonusValue(cr);
     // Player's pet get resilience from owner
-    else if (isPet())
-        if (Unit* owner = GetOwner())
-            if (Player* player = owner->ToPlayer())
-                return player->GetRatingBonusValue(cr);
+    else if (isPet() && GetOwner())
+        if (Player* owner = GetOwner()->ToPlayer())
+            return owner->GetRatingBonusValue(cr);
 
     return 0.0f;
 }

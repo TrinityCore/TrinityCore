@@ -321,35 +321,12 @@ class boss_freya : public CreatureScript
                 DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
             }
 
-            void DamageTaken(Unit* /*who*/, uint32& damage)
+            void DamageTaken(Unit* who, uint32& damage)
             {
                 if (damage >= me->GetHealth())
                 {
                     damage = 0;
-                    DoScriptText(SAY_DEATH, me);
-                    me->SetReactState(REACT_PASSIVE);
-                    _JustDied();
-                    me->RemoveAllAuras();
-                    me->AttackStop();
-                    me->setFaction(35);
-                    me->DeleteThreatList();
-                    me->CombatStop(true);
-                    me->DespawnOrUnsummon(7500);
-                    me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
-
-                    Creature* Elder[3];
-                    for (uint8 n = 0; n < 3; ++n)
-                    {
-                        Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
-                        if (Elder[n] && Elder[n]->isAlive())
-                        {
-                            Elder[n]->RemoveAllAuras();
-                            Elder[n]->AttackStop();
-                            Elder[n]->CombatStop(true);
-                            Elder[n]->DeleteThreatList();
-                            Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
-                        }
-                    }
+                    JustDied(who);
                 }
             }
 
@@ -625,7 +602,30 @@ class boss_freya : public CreatureScript
 
                 me->CastSpell((Unit*)NULL, summonSpell[me->GetMap()->GetDifficulty()][elderCount], true);
 
+                DoScriptText(SAY_DEATH, me);
+                me->SetReactState(REACT_PASSIVE);
                 _JustDied();
+                me->RemoveAllAuras();
+                me->AttackStop();
+                me->setFaction(35);
+                me->DeleteThreatList();
+                me->CombatStop(true);
+                me->DespawnOrUnsummon(7500);
+                me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
+
+                Creature* Elder[3];
+                for (uint8 n = 0; n < 3; ++n)
+                {
+                    Elder[n] = ObjectAccessor::GetCreature(*me, instance->GetData64(BOSS_BRIGHTLEAF + n));
+                    if (Elder[n] && Elder[n]->isAlive())
+                    {
+                        Elder[n]->RemoveAllAuras();
+                        Elder[n]->AttackStop();
+                        Elder[n]->CombatStop(true);
+                        Elder[n]->DeleteThreatList();
+                        Elder[n]->GetAI()->DoAction(ACTION_ELDER_FREYA_KILLED);
+                    }
+                }
             }
 
             void JustSummoned(Creature* summoned)

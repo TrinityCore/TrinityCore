@@ -35,14 +35,14 @@ class MapManager
     friend class ACE_Singleton<MapManager, ACE_Thread_Mutex>;
 
     public:
-
-        Map* CreateMap(uint32, const WorldObject* obj, uint32 instanceId);
-        Map const* CreateBaseMap(uint32 id) const { return const_cast<MapManager*>(this)->_createBaseMap(id); }
-        Map* FindMap(uint32 mapid, uint32 instanceId = 0) const;
+        Map* CreateBaseMap(uint32 mapId);
+        Map* FindBaseNonInstanceMap(uint32 mapId) const;
+        Map* CreateMap(uint32 mapId, Player* player);
+        Map* FindMap(uint32 mapId, uint32 instanceId) const;
 
         uint16 GetAreaFlag(uint32 mapid, float x, float y, float z) const
         {
-            Map const* m = CreateBaseMap(mapid);
+            Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
             return m->GetAreaFlag(x, y, z);
         }
         uint32 GetAreaId(uint32 mapid, float x, float y, float z) const
@@ -160,15 +160,14 @@ class MapManager
         MapManager();
         ~MapManager();
 
-        MapManager(const MapManager &);
-        MapManager& operator=(const MapManager &);
-
-        Map* _createBaseMap(uint32 id);
-        Map* _findMap(uint32 id) const
+        Map* FindBaseMap(uint32 mapId) const
         {
-            MapMapType::const_iterator iter = i_maps.find(id);
+            MapMapType::const_iterator iter = i_maps.find(mapId);
             return (iter == i_maps.end() ? NULL : iter->second);
         }
+
+        MapManager(const MapManager &);
+        MapManager& operator=(const MapManager &);
 
         ACE_Thread_Mutex Lock;
         uint32 i_gridCleanUpDelay;
