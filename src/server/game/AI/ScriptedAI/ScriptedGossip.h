@@ -14,7 +14,7 @@
 
 // Gossip Item Text
 #define GOSSIP_TEXT_BROWSE_GOODS        "J'aimerais jeter un oeil sur vos marchandises."
-#define GOSSIP_TEXT_TRAIN               "Entraînnez moi!"
+#define GOSSIP_TEXT_TRAIN               "Entraînez moi!"
 
 enum eTradeskill
 {
