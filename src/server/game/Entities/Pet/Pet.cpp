@@ -382,29 +382,29 @@ void Pet::SavePetToDB(PetSaveMode mode)
     // current/stable/not_in_slot
     if (mode >= PET_SAVE_AS_CURRENT)
     {
-        uint32 owner = GUID_LOPART(GetOwnerGUID());
+        uint32 ownerLowGUID = GUID_LOPART(GetOwnerGUID());
         std::string name = m_name;
         CharacterDatabase.EscapeString(name);
-        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        trans = CharacterDatabase.BeginTransaction();
         // remove current data
         trans->PAppend("DELETE FROM character_pet WHERE owner = '%u' AND id = '%u'", owner, m_charmInfo->GetPetNumber());
 
         // prevent duplicate using slot (except PET_SAVE_NOT_IN_SLOT)
         if (mode <= PET_SAVE_LAST_STABLE_SLOT)
             trans->PAppend("UPDATE character_pet SET slot = '%u' WHERE owner = '%u' AND slot = '%u'",
-                PET_SAVE_NOT_IN_SLOT, owner, uint32(mode));
+                PET_SAVE_NOT_IN_SLOT, ownerLowGUID, uint32(mode));
 
         // prevent existence another hunter pet in PET_SAVE_AS_CURRENT and PET_SAVE_NOT_IN_SLOT
-        if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT||mode > PET_SAVE_LAST_STABLE_SLOT))
+        if (getPetType() == HUNTER_PET && (mode == PET_SAVE_AS_CURRENT || mode > PET_SAVE_LAST_STABLE_SLOT))
             trans->PAppend("DELETE FROM character_pet WHERE owner = '%u' AND (slot = '%u' OR slot > '%u')",
-                owner, PET_SAVE_AS_CURRENT, PET_SAVE_LAST_STABLE_SLOT);
+                ownerLowGUID, PET_SAVE_AS_CURRENT, PET_SAVE_LAST_STABLE_SLOT);
         // save pet
         std::ostringstream ss;
         ss  << "INSERT INTO character_pet (id, entry,  owner, modelid, level, exp, Reactstate, slot, name, renamed, curhealth, curmana, curhappiness, abdata, savetime, CreatedBySpell, PetType) "
             << "VALUES ("
             << m_charmInfo->GetPetNumber() << ','
             << GetEntry() << ','
-            << owner << ','
+            << ownerLowGUID << ','
             << GetNativeDisplayId() << ','
             << uint32(getLevel()) << ','
             << GetUInt32Value(UNIT_FIELD_PETEXPERIENCE) << ','

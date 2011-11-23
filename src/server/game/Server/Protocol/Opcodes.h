@@ -1016,6 +1016,9 @@ enum Opcodes
     SMSG_OVERRIDE_LIGHT                              = 0x00, // 
     CMSG_RANDOMIZE_CHAR_NAME                         = 35481, // 14545 byte unk, byte race
     SMSG_RANDOMIZE_CHAR_NAME                         = 61660, // 14545 byte unk(0x80), string name
+    
+    CMSG_MOVE_SET_COLLISION_HGT                      = 0, //
+    SMSG_MOVE_SET_COLLISION_HGT                      = 0, //
 };
 
 /// Player state

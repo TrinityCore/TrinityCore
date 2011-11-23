@@ -254,7 +254,7 @@ void LFGMgr::Update(uint32 diff)
     if (m_QueueTimer > LFG_QUEUEUPDATE_INTERVAL)
     {
         m_QueueTimer = 0;
-        time_t currTime = time(NULL);
+        currTime = time(NULL);
         for (LfgQueueInfoMap::const_iterator itQueue = m_QueueInfoMap.begin(); itQueue != m_QueueInfoMap.end(); ++itQueue)
         {
             LfgQueueInfo* queue = itQueue->second;
@@ -689,10 +689,9 @@ void LFGMgr::Leave(Player* player, Group* grp /* = NULL*/)
         {
             // Remove from Proposals
             LfgProposalMap::iterator it = m_Proposals.begin();
-            uint64 guid = player ? player->GetGUID() : grp->GetLeaderGUID();
             while (it != m_Proposals.end())
             {
-                LfgProposalPlayerMap::iterator itPlayer = it->second->players.find(guid);
+                LfgProposalPlayerMap::iterator itPlayer = it->second->players.find(player ? player->GetGUID() : grp->GetLeaderGUID());
                 if (itPlayer != it->second->players.end())
                 {
                     // Mark the player/leader of group who left as didn't accept the proposal
@@ -1069,10 +1068,10 @@ void LFGMgr::UpdateRoleCheck(uint64 gguid, uint64 guid /* = 0 */, uint8 roles /*
         // Set queue roles needed - As we are using check_roles will not have more that 1 tank, 1 healer, 3 dps
         for (LfgRolesMap::const_iterator it = check_roles.begin(); it != check_roles.end(); ++it)
         {
-            uint8 roles = it->second;
-            if (roles & ROLE_TANK)
+            uint8 roles2 = it->second;
+            if (roles2 & ROLE_TANK)
                 --pqInfo->tanks;
-            else if (roles & ROLE_HEALER)
+            else if (roles2 & ROLE_HEALER)
                 --pqInfo->healers;
             else
                 --pqInfo->dps;
@@ -1152,14 +1151,14 @@ void LFGMgr::GetCompatibleDungeons(LfgDungeonSet& dungeons, const PlayerSet& pla
     {
         uint64 guid = (*it)->GetGUID();
         LfgLockMap cachedLockMap = GetLockedDungeons(guid);
-        for (LfgLockMap::const_iterator it = cachedLockMap.begin(); it != cachedLockMap.end() && dungeons.size(); ++it)
+        for (LfgLockMap::const_iterator it2 = cachedLockMap.begin(); it2 != cachedLockMap.end() && dungeons.size(); ++it2)
         {
-            uint32 dungeonId = (it->first & 0x00FFFFFF); // Compare dungeon ids
+            uint32 dungeonId = (it2->first & 0x00FFFFFF); // Compare dungeon ids
             LfgDungeonSet::iterator itDungeon = dungeons.find(dungeonId);
             if (itDungeon != dungeons.end())
             {
                 dungeons.erase(itDungeon);
-                lockMap[guid][dungeonId] = it->second;
+                lockMap[guid][dungeonId] = it2->second;
             }
         }
     }
@@ -1313,8 +1312,8 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
             if (player->groupLowGuid != lowgroupguid)
                 sLog->outError("LFGMgr::UpdateProposal: [" UI64FMTD "] group mismatch: actual (%u) - queued (%u)", (*it)->GetGUID(), lowgroupguid, player->groupLowGuid);
 
-            uint64 guid = player->groupLowGuid ? MAKE_NEW_GUID(player->groupLowGuid, 0, HIGHGUID_GROUP) : (*it)->GetGUID();
-            LfgQueueInfoMap::iterator itQueue = m_QueueInfoMap.find(guid);
+            uint64 guid2 = player->groupLowGuid ? MAKE_NEW_GUID(player->groupLowGuid, 0, HIGHGUID_GROUP) : (*it)->GetGUID();
+            LfgQueueInfoMap::iterator itQueue = m_QueueInfoMap.find(guid2);
             if (itQueue == m_QueueInfoMap.end())
             {
                 sLog->outError("LFGMgr::UpdateProposal: Queue info for guid [" UI64FMTD "] not found!", guid);
@@ -1399,10 +1398,7 @@ void LFGMgr::UpdateProposal(uint32 proposalId, uint64 guid, bool accept)
 
         // Remove players/groups from Queue
         for (LfgGuidList::const_iterator it = pProposal->queues.begin(); it != pProposal->queues.end(); ++it)
-        {
-            uint64 guid = (*it);
-            RemoveFromQueue(guid);
-        }
+            RemoveFromQueue(*it);
 
         // Teleport Player
         for (LfgPlayerList::const_iterator it = playersToTeleport.begin(); it != playersToTeleport.end(); ++it)

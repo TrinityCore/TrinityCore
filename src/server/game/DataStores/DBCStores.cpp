@@ -73,6 +73,7 @@ DBCStorage <ChrPowerTypesEntry> sChrPowerTypesStore(ChrClassesXPowerTypesfmt);
 DBCStorage <CinematicSequencesEntry> sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
 DBCStorage <CreatureFamilyEntry> sCreatureFamilyStore(CreatureFamilyfmt);
+DBCStorage <CreatureModelDataEntry> sCreatureModelDataStore(CreatureModelDatafmt);
 DBCStorage <CreatureSpellDataEntry> sCreatureSpellDataStore(CreatureSpellDatafmt);
 DBCStorage <CreatureTypeEntry> sCreatureTypeStore(CreatureTypefmt);
 DBCStorage <CurrencyTypesEntry> sCurrencyTypesStore(CurrencyTypesfmt);

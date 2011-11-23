@@ -5242,6 +5242,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                             break;
                         case CLASS_ROGUE:                   // 39511, 40997, 40998, 41002, 41005, 41011
                         case CLASS_WARRIOR:                 // 39511, 40997, 40998, 41002, 41005, 41011
+                        case CLASS_DEATH_KNIGHT:                      
                             triggered_spell_id = RAND(39511, 40997, 40998, 41002, 41005, 41011);
                             cooldown_spell_id = 39511;
                             break;
@@ -11933,6 +11934,12 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
             else
                 player->UnsummonPetTemporaryIfAny();
         }
+
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
+        data.append(GetPackGUID());
+        data << uint32(sWorld->GetGameTime());   // Packet counter
+        data << player->GetCollisionHeight(true);
+        player->GetSession()->SendPacket(&data);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -11945,6 +11952,15 @@ void Unit::Unmount()
 
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
+
+    if (Player* thisPlayer = ToPlayer())
+    {
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
+        data.append(GetPackGUID());
+        data << uint32(sWorld->GetGameTime());   // Packet counter
+        data << thisPlayer->GetCollisionHeight(false);
+        thisPlayer->GetSession()->SendPacket(&data);
+    }
 
     WorldPacket data(SMSG_DISMOUNT, 8);
     data.appendPackGUID(GetGUID());

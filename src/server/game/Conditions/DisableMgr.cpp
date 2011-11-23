@@ -277,12 +277,12 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
     {
         case DISABLE_TYPE_SPELL:
         {
-            uint8 flags = itr->second.flags;
+            uint8 spellFlags = itr->second.flags;
             if (unit)
             {
 
-                if ((flags & SPELL_DISABLE_PLAYER && unit->GetTypeId() == TYPEID_PLAYER) ||
-                    (unit->GetTypeId() == TYPEID_UNIT && ((unit->ToCreature()->isPet() && flags & SPELL_DISABLE_PET) || flags & SPELL_DISABLE_CREATURE)))
+                if ((spellFlags & SPELL_DISABLE_PLAYER && unit->GetTypeId() == TYPEID_PLAYER) ||
+                    (unit->GetTypeId() == TYPEID_UNIT && ((unit->ToCreature()->isPet() && spellFlags & SPELL_DISABLE_PET) || spellFlags & SPELL_DISABLE_CREATURE)))
                 {
                     if (flags & SPELL_DISABLE_MAP)
                     {
@@ -290,13 +290,13 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                         if (mapIds.find(unit->GetMapId()) != mapIds.end())
                             return true;                                        // Spell is disabled on current map
 
-                        if (!(flags & SPELL_DISABLE_AREA))
+                        if (!(spellFlags & SPELL_DISABLE_AREA))
                             return false;                                       // Spell is disabled on another map, but not this one, return false
 
                         // Spell is disabled in an area, but not explicitly our current mapId. Continue processing.
                     }
 
-                    if (flags & SPELL_DISABLE_AREA)
+                    if (spellFlags & SPELL_DISABLE_AREA)
                     {
                         std::set<uint32> const& areaIds = itr->second.params[1];
                         if (areaIds.find(unit->GetAreaId()) != areaIds.end())
