@@ -125,7 +125,8 @@ Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 /*instanceI
     //if (!obj->IsInWorld()) sLog->outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
     Map* m = _createBaseMap(id);
 
-    if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj);
+    if (m && obj->GetTypeId() == TYPEID_PLAYER && m->Instanceable())
+        m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, (Player*)obj);
 
     return m;
 }
@@ -139,7 +140,7 @@ Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
     if (!map->Instanceable())
         return instanceId == 0 ? map : NULL;
 
-    return ((MapInstanced*)map)->FindMap(instanceId);
+    return ((MapInstanced*)map)->FindInstanceMap(instanceId);
 }
 
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
