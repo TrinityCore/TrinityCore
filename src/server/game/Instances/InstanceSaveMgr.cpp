@@ -521,7 +521,7 @@ void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 
     DeleteInstanceFromDB(instanceId);                       // even if save not loaded
 
-    Map* iMap = ((MapInstanced*)map)->FindMap(instanceId);
+    Map* iMap = ((MapInstanced*)map)->FindInstanceMap(instanceId);
 
     if (iMap && iMap->IsDungeon())
         ((InstanceMap*)iMap)->Reset(INSTANCE_RESET_RESPAWN_DELAY);
