@@ -208,8 +208,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                 if (corpseMap == mapid)
                     break;
 
-                InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(corpseMap);
-                corpseMap = instance ? instance->Parent : 0;
+                InstanceTemplate const* corpseInstance = sObjectMgr->GetInstanceTemplate(corpseMap);
+                corpseMap = corpseInstance ? corpseInstance->Parent : 0;
             } while (corpseMap);
 
             if (!corpseMap)
@@ -287,8 +287,8 @@ void MapManager::Update(uint32 diff)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
-    for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
-        (*iter)->Update(uint32(i_timer.GetCurrent()));
+    for (TransportSet::iterator itr = m_Transports.begin(); itr != m_Transports.end(); ++itr)
+        (*itr)->Update(uint32(i_timer.GetCurrent()));
 
     i_timer.SetCurrent(0);
 }
