@@ -511,7 +511,7 @@ void InstanceSaveManager::_ResetSave(InstanceSaveHashMap::iterator &itr)
 void InstanceSaveManager::_ResetInstance(uint32 mapid, uint32 instanceId)
 {
     sLog->outDebug(LOG_FILTER_MAPS, "InstanceSaveMgr::_ResetInstance %u, %u", mapid, instanceId);
-    Map* map = (MapInstanced*)sMapMgr->CreateBaseMap(mapid);
+    Map const* map = sMapMgr->CreateBaseMap(mapid);
     if (!map->Instanceable())
         return;
 
