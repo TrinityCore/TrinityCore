@@ -2244,10 +2244,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (!sMapMgr->CanPlayerEnter(mapid, this, false))
             return false;
 
+        //I think this always returns true. Correct me if I am wrong.
         // If the map is not created, assume it is possible to enter it.
         // It will be created in the WorldPortAck.
-        Map* map = sMapMgr->FindBaseMap(mapid);
-        if (!map || map->CanEnter(this))
+        //Map* map = sMapMgr->FindBaseNonInstanceMap(mapid);
+        //if (!map || map->CanEnter(this))
         {
             //lets reset near teleport flag if it wasn't reset during chained teleports
             SetSemaphoreTeleportNear(false);
@@ -2356,8 +2357,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             // code for finish transfer to new map called in WorldSession::HandleMoveWorldportAckOpcode at client packet
             SetSemaphoreTeleportFar(true);
         }
-        else
-            return false;
+        //else
+        //    return false;
     }
     return true;
 }
@@ -3523,7 +3524,7 @@ bool Player::AddTalent(uint32 spell_id, uint8 spec, bool learning)
                 if (!rankSpellId || rankSpellId == spell_id)
                     continue;
 
-                PlayerTalentMap::iterator itr = m_talents[spec]->find(rankSpellId);
+                itr = m_talents[spec]->find(rankSpellId);
                 if (itr != m_talents[spec]->end())
                     itr->second->state = PLAYERSPELL_REMOVED;
             }
@@ -4133,8 +4134,6 @@ void Player::removeSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
 
     if (uint32 prev_id = sSpellMgr->GetPrevSpellInChain(spell_id))
     {
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
-
         // if talent then lesser rank also talent and need learn
         if (talentCosts)
         {
@@ -4282,8 +4281,8 @@ void Player::RemoveArenaSpellCooldowns(bool removeActivePetCooldowns)
         if (Pet* pet = GetPet())
         {
             // notify player
-            for (CreatureSpellCooldowns::const_iterator itr = pet->m_CreatureSpellCooldowns.begin(); itr != pet->m_CreatureSpellCooldowns.end(); ++itr)
-                SendClearCooldown(itr->first, pet);
+            for (CreatureSpellCooldowns::const_iterator itr2 = pet->m_CreatureSpellCooldowns.begin(); itr2 != pet->m_CreatureSpellCooldowns.end(); ++itr2)
+                SendClearCooldown(itr2->first, pet);
 
             // actually clear cooldowns
             pet->m_CreatureSpellCooldowns.clear();
@@ -4436,9 +4435,9 @@ bool Player::resetTalents(bool no_cost)
 
     RemovePet(NULL, PET_SAVE_NOT_IN_SLOT, true);
 
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
 
         if (!talentInfo)
             continue;
@@ -4874,14 +4873,14 @@ void Player::DeleteFromDB(uint64 playerguid, uint32 accountId, bool updateRealmC
                         {
                             do
                             {
-                                Field* fields = resultItems->Fetch();
-                                uint32 item_guidlow = fields[11].GetUInt32();
-                                uint32 item_template = fields[12].GetUInt32();
+                                Field* fields2 = resultItems->Fetch();
+                                uint32 item_guidlow = fields2[11].GetUInt32();
+                                uint32 item_template = fields2[12].GetUInt32();
 
                                 ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_template);
                                 if (!itemProto)
                                 {
-                                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+                                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
                                     stmt->setUInt32(0, item_guidlow);
                                     trans->Append(stmt);
                                     continue;
@@ -16081,9 +16080,9 @@ void Player::CastedCreatureOrGO(uint32 entry, uint64 guid, uint32 spell_id)
                             if (reqTarget != entry) // if entry doesn't match, check for killcredits referenced in template
                             {
                                 CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(entry);
-                                for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
-                                    if (cinfo->KillCredit[i] == reqTarget)
-                                        entry = cinfo->KillCredit[i];
+                                for (uint8 j = 0; j < MAX_KILL_CREDIT; ++j)
+                                    if (cinfo->KillCredit[j] == reqTarget)
+                                        entry = cinfo->KillCredit[j];
                             }
                          }
                     }
@@ -17720,7 +17719,7 @@ void Player::_LoadMailedItems(Mail* mail)
         {
             sLog->outError("Player %u has unknown item_template (ProtoType) in mailed items(GUID: %u template: %u) in mail (%u), deleted.", GetGUIDLow(), item_guid_low, item_template, mail->messageID);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
             stmt->setUInt32(0, item_guid_low);
             CharacterDatabase.Execute(stmt);
             continue;
@@ -20307,9 +20306,9 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
 
     if (sWorld->getBoolConfig(CONFIG_INSTANT_TAXI))
     {
-        TaxiNodesEntry const* lastnode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
+        TaxiNodesEntry const* lastPathNode = sTaxiNodesStore.LookupEntry(nodes[nodes.size()-1]);
         m_taxi.ClearTaxiDestinations();
-        TeleportTo(lastnode->map_id, lastnode->x, lastnode->y, lastnode->z, GetOrientation());
+        TeleportTo(lastPathNode->map_id, lastPathNode->x, lastPathNode->y, lastPathNode->z, GetOrientation());
         return false;
     }
     else
@@ -24498,9 +24497,9 @@ void Player::ActivateSpec(uint8 spec)
     // Let client clear his current Actions
     SendActionButtons(2);
     // m_actionButtons.clear() is called in the next _LoadActionButtons
-    for (uint32 i = 0; i < sTalentStore.GetNumRows(); ++i)
+    for (uint32 talentId = 0; talentId < sTalentStore.GetNumRows(); ++talentId)
     {
-        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentId);
 
         if (!talentInfo)
             continue;

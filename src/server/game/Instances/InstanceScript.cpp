@@ -305,7 +305,6 @@ void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
 void InstanceScript::DoSendNotifyToInstance(const char *format, ...)
 {
     InstanceMap::PlayerList const &PlayerList = instance->GetPlayers();
-    InstanceMap::PlayerList::const_iterator i;
 
     if (!PlayerList.isEmpty())
     {
