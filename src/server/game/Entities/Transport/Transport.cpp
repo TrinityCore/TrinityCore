@@ -98,7 +98,7 @@ void MapManager::LoadTransports()
             m_TransportsByMap[*i].insert(t);
 
         //If we someday decide to use the grid to track transports, here:
-        t->SetMap(sMapMgr->CreateMap(mapid, t, 0));
+        t->SetMap(sMapMgr->CreateBaseMap(mapid));
         t->AddToWorld();
 
         ++count;
@@ -494,7 +494,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
     RemoveFromWorld();
     ResetMap();
-    Map* newMap = sMapMgr->CreateMap(newMapid, this, 0);
+    Map* newMap = sMapMgr->CreateBaseMap(newMapid);
     SetMap(newMap);
     ASSERT (GetMap());
     AddToWorld();
