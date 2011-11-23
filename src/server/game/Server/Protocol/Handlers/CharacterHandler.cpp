@@ -1409,9 +1409,9 @@ void WorldSession::HandleCharCustomize(WorldPacket& recv_data)
     }
 
     CharacterDatabase.EscapeString(newname);
-    if (QueryResult result = CharacterDatabase.PQuery("SELECT name FROM characters WHERE guid ='%u'", GUID_LOPART(guid)))
+    if (QueryResult oldNameResult = CharacterDatabase.PQuery("SELECT name FROM characters WHERE guid ='%u'", GUID_LOPART(guid)))
     {
-        std::string oldname = result->Fetch()[0].GetString();
+        std::string oldname = oldNameResult->Fetch()[0].GetString();
         std::string IP_str = GetRemoteAddress();
         sLog->outChar("Account: %d (IP: %s), Character[%s] (guid:%u) Customized to: %s", GetAccountId(), IP_str.c_str(), oldname.c_str(), GUID_LOPART(guid), newname.c_str());
     }

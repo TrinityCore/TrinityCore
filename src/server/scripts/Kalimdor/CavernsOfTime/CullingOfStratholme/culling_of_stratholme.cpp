@@ -579,13 +579,16 @@ public:
                     {
                         //After reset
                         case 0:
-                            if (Unit* pJaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 50.0f))
-                                uiJainaGUID = pJaina->GetGUID();
-                            else if (Unit* pJaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000))
+                        {
+                            Unit* pJaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 50.0f);
+                            if (!pJaina)
+                                pJaina = pJaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000);
+                            if (pJaina)
                                 uiJainaGUID = pJaina->GetGUID();
                             bStepping = false;
                             JumpToNextStep(0);
                             break;
+                        }
                         //After waypoint 0
                         case 1:
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -829,9 +832,10 @@ public:
                         case 37:
                             if (Creature* pMalganis = Unit::GetCreature(*me, uiMalganisGUID))
                             {
-                                if (Creature* pZombie = GetClosestCreatureWithEntry(pMalganis, NPC_CITY_MAN, 100.0f))
-                                    pZombie->UpdateEntry(NPC_ZOMBIE, 0);
-                                else if (Creature* pZombie = GetClosestCreatureWithEntry(pMalganis, NPC_CITY_MAN2, 100.0f))
+                                Creature* pZombie = GetClosestCreatureWithEntry(pMalganis, NPC_CITY_MAN, 100.0f);
+                                if (!pZombie)
+                                    pZombie = GetClosestCreatureWithEntry(pMalganis, NPC_CITY_MAN2, 100.0f);
+                                if (pZombie)
                                     pZombie->UpdateEntry(NPC_ZOMBIE, 0);
                                 else //There's no one else to transform
                                     uiStep++;

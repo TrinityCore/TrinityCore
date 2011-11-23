@@ -348,10 +348,10 @@ public:
                             m_bTargetDied = true;
                             me->GetMotionMaster()->MoveJump(gormok->GetPositionX(), gormok->GetPositionY(), gormok->GetPositionZ(), 15.0f, 15.0f);
                         }
-                        else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        else if (Unit* target2 = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            m_uiTargetGUID = target->GetGUID();
-                            me->GetMotionMaster()->MoveJump(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 15.0f, 15.0f);
+                            m_uiTargetGUID = target2->GetGUID();
+                            me->GetMotionMaster()->MoveJump(target2->GetPositionX(), target2->GetPositionY(), target2->GetPositionZ(), 15.0f, 15.0f);
                         }
                     }
                 }

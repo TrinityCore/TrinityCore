@@ -2451,7 +2451,7 @@ bool InstanceMap::Reset(uint8 method)
     return m_mapRefManager.isEmpty();
 }
 
-void InstanceMap::PermBindAllPlayers(Player* player)
+void InstanceMap::PermBindAllPlayers(Player* source)
 {
     if (!IsDungeon())
         return;
@@ -2459,11 +2459,11 @@ void InstanceMap::PermBindAllPlayers(Player* player)
     InstanceSave* save = sInstanceSaveMgr->GetInstanceSave(GetInstanceId());
     if (!save)
     {
-        sLog->outError("Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", player->GetGUIDLow(), player->GetName(), player->GetMap()->GetMapName(), player->GetMapId(), GetInstanceId());
+        sLog->outError("Cannot bind player (GUID: %u, Name: %s), because no instance save is available for instance map (Name: %s, Entry: %u, InstanceId: %u)!", source->GetGUIDLow(), source->GetName(), source->GetMap()->GetMapName(), source->GetMapId(), GetInstanceId());
         return;
     }
 
-    Group* group = player->GetGroup();
+    Group* group = source->GetGroup();
     // group members outside the instance group don't get bound
     for (MapRefManager::iterator itr = m_mapRefManager.begin(); itr != m_mapRefManager.end(); ++itr)
     {
