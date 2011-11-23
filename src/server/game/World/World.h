@@ -307,6 +307,12 @@ enum WorldIntConfigs
     CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION,
     CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS,
     CONFIG_MAX_INSTANCES_PER_HOUR,
+
+	/* Debut du patch Player default guild */
+	CONFIG_PLAYER_START_GUILDID,
+	CONFIG_GM_START_GUILDID,
+	/* Fin du patch Player default guild */
+
     INT_CONFIG_VALUE_COUNT
 };
 

@@ -2785,3 +2785,28 @@ PlayerDump.DisallowOverwrite = 1
 
 #
 ###################################################################################################
+
+
+###################################################################################################
+#         Ajouts faits par l'équipe de développeurs de Zone-Emu ( Http://www.zone-emu.fr )        #
+###################################################################################################
+
+###################################################################################################
+# PLAYER DEFAULT GUILD
+#
+#	Player.Start.GuildId
+#		ID de la guilde par défaut des joueurs.
+#		Default : 0 (Désactivé)
+
+Player.Start.GuildId = 0
+
+#
+#	Gm.Start.GuildId
+#		ID de la guilde par défaut des maîtres du jeu.
+#		Default : 0 (Désactivé)
+
+Gm.Start.GuildId = 0
+
+#
+# Patch par MacWarrior
+###################################################################################################

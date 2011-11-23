@@ -44,6 +44,8 @@
 #include "Battleground.h"
 #include "AccountMgr.h"
 
+#include "Config.h"
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -994,7 +996,25 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     }
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
+	{
+
+		/* Debut du patch Player default guild
+		 * Ajoute le nouveau personnage dans une guilde dès sa création.
+		 * Guilde différentiable en fonction du grade Mj ou non.
+		 * Patch par MacWarrior
+		 */
+		uint32 security = pCurrChar->GetSession()->GetSecurity();
+		uint32 defaultguildid = security < SEC_MODERATOR ? sWorld->getIntConfig(CONFIG_PLAYER_START_GUILDID) : sWorld->getIntConfig(CONFIG_GM_START_GUILDID);
+		if(defaultguildif != 0)
+		{
+			Guild *guild = sGuildMgr->GetGuildById(defaultguildid);
+			if( !guild->AddMember(pCurrChar->GetGUID(), GUILD_RANK_NONE) )
+				sLog->outError("La guilde %u n'existe pas !", defaultguildid);
+		}
+		/* Fin du patch Player default guild */
+
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
+	}
 
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShutdowning())

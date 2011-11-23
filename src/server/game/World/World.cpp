@@ -1189,6 +1189,11 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
 
+	/* Debut du patch Player default guild */
+	m_int_configs[CONFIG_PLAYER_START_GUILDID] = ConfigMgr::GetIntDefault("Player.Start.GuildId", 0);
+	m_int_configs[CONFIG_GM_START_GUILDID] = ConfigMgr::GetIntDefault("Gm.Start.GuildId", 0);
+	/* Fin du patch Player default guild */
+
     sScriptMgr->OnConfigLoad(reload);
 }
 
