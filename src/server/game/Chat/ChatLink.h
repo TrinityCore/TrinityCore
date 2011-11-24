@@ -61,7 +61,7 @@ public:
     virtual bool ValidateName(char* buffer, const char* context);
 
 protected:
-    std::string FormatName(uint8 index, ItemLocale const* locale, DBCString suffixStrings) const;
+    std::string FormatName(uint8 index, ItemLocale const* locale, char* suffixStrings) const;
 
     ItemTemplate const* _item;
     int32 _data[8];

@@ -374,8 +374,8 @@ public:
     uint32 SpellVisual[2];
     uint32 SpellIconID;
     uint32 ActiveIconID;
-    DBCString SpellName;
-    DBCString Rank;
+    char* SpellName;
+    char* Rank;
     uint32 MaxTargetLevel;
     uint32 MaxAffectedTargets;
     uint32 SpellFamilyName;

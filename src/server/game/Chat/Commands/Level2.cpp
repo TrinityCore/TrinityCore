@@ -566,7 +566,7 @@ bool ChatHandler::HandleCharacterReputationCommand(const char* args)
     {
         const FactionState& faction = itr->second;
         FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
-        char const* factionName = factionEntry ? factionEntry->name[loc] : "#Not found#";
+        char const* factionName = factionEntry ? factionEntry->name : "#Not found#";
         ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
         std::string rankName = GetTrinityString(ReputationRankStrIndex[rank]);
         std::ostringstream ss;
@@ -1007,7 +1007,7 @@ bool ChatHandler::HandleLookupTitleCommand(const char* args)
         if (titleInfo)
         {
             int loc = GetSessionDbcLocale();
-            std::string name = titleInfo->name[loc];
+            std::string name = titleInfo->name;
             if (name.empty())
                 continue;
 
@@ -1079,7 +1079,7 @@ bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
         if (titleInfo && target->HasTitle(titleInfo))
         {
-            std::string name = titleInfo->name[loc];
+            std::string name = titleInfo->name;
             if (name.empty())
                 continue;
 

@@ -480,7 +480,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
         if (areaEntry)
         {
             int loc = GetSessionDbcLocale ();
-            std::string name = areaEntry->area_name[loc];
+            std::string name = areaEntry->area_name;
             if (name.empty())
                 continue;
 
@@ -492,7 +492,7 @@ bool ChatHandler::HandleLookupAreaCommand(const char* args)
                     if (loc == GetSessionDbcLocale ())
                         continue;
 
-                    name = areaEntry->area_name[loc];
+                    name = areaEntry->area_name;
                     if (name.empty ())
                         continue;
 
