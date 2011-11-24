@@ -81,11 +81,11 @@ struct ItemSparseEntry
     int32      SpellCategory[MAX_ITEM_PROTO_SPELLS];         // 85 - 89
     int32      SpellCategoryCooldown[MAX_ITEM_PROTO_SPELLS]; // 90 - 94
     uint32     Bonding;                                      // 95
-    char*  Name;                                         // 96
-    char*  Name2;                                        // 97
-    char*  Name3;                                        // 98
-    char*  Name4;                                        // 99
-    char*  Description;                                  // 100
+    char*      Name;                                         // 96
+    char*      Name2;                                        // 97
+    char*      Name3;                                        // 98
+    char*      Name4;                                        // 99
+    char*      Description;                                  // 100
     uint32     PageText;                                     // 101
     uint32     LanguageID;                                   // 102
     uint32     PageMaterial;                                 // 103
