@@ -339,7 +339,7 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
             data << pProto->ItemStat[i].ItemStatValue;
         }
         data << pProto->ScalingStatDistribution;            // scaling stats distribution
-        data << pProto->ScalingStatValue;                   // some kind of flags used to determine stat values column
+        data << uint32(0);
         for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
         {
             data << pProto->Damage[i].DamageMin;

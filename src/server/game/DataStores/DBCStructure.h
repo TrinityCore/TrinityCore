@@ -520,7 +520,7 @@ struct AchievementCriteriaEntry
     //uint32 unk1;                                          // 15 only one value, still unknown
     //uint32 unk2;                                          // 16 all zeros
     //uint32 moreRequirement[3];                            // 17-19
-    //uint32 moreRequirementValue[3];                       // 20-22 
+    //uint32 moreRequirementValue[3];                       // 20-22
 };
 
 struct AreaTableEntry
@@ -1481,91 +1481,17 @@ struct ScalingStatDistributionEntry
 
 struct ScalingStatValuesEntry
 {
-    uint32  Id;                                             // 0
-    uint32  Level;                                          // 1
-    uint32  dpsMod[6];                                      // 2-7 DPS mod for level
-    uint32  spellBonus;                                     // 8 spell power for level
-    uint32  ssdMultiplier[5];                               // 9-13 Multiplier for ScalingStatDistribution
-    uint32  armorMod[4];                                    // 14-17 Armor for level
-    uint32  armorMod2[4];                                   // 18-21 Armor for level
-    //uint32 trash[24];                                     // 22-45
-    //uint32 unk2;                                          // 46 unk, probably also Armor for level (flag 0x80000?)
+    uint32 Id;                                              // 0
+    uint32 Level;                                           // 1
+    uint32 dpsMod[6];                                       // 2-7 DPS mod for level
+    uint32 Spellpower;                                      // 8 spell power for level
+    uint32 StatMultiplier[5];                               // 9-13 Multiplier for ScalingStatDistribution
+    uint32 Armor[8][4];                                     // 14-46 Armor for level
+    uint32 CloakArmor;                                      // 47 armor for cloak
 
-    uint32  getssdMultiplier(uint32 mask) const
-    {
-        if (mask & 0x4001F)
-        {
-            if (mask & 0x00000001)
-                return ssdMultiplier[1];
-            if (mask & 0x00000002)
-                return ssdMultiplier[2]; // 0 and 1 were duplicated
-            if (mask & 0x00000004)
-                return ssdMultiplier[3];
-            if (mask & 0x00000008)
-                return ssdMultiplier[0];
-            if (mask & 0x00000010)
-                return ssdMultiplier[4];
-            if (mask & 0x00040000)
-                return ssdMultiplier[2]; // 4.0.0
-        }
-        return 0;
-    }
-
-    uint32  getArmorMod(uint32 mask) const
-    {
-        if (mask & 0x00F001E0)
-        {
-            if (mask & 0x00000020)
-                return armorMod[0];
-            if (mask & 0x00000040)
-                return armorMod[1];
-            if (mask & 0x00000080)
-                return armorMod[2];
-            if (mask & 0x00000100)
-                return armorMod[3];
-
-            if (mask & 0x00100000)
-                return armorMod2[0];      // cloth
-            if (mask & 0x00200000)
-                return armorMod2[1];      // leather
-            if (mask & 0x00400000)
-                return armorMod2[2];      // mail
-            if (mask & 0x00800000)
-                return armorMod2[3];      // plate
-        }
-        return 0;
-    }
-    uint32 getDPSMod(uint32 mask) const
-    {
-        if (mask&0x7E00)
-        {
-            if (mask & 0x00000200)
-                return dpsMod[0];
-            if (mask & 0x00000400)
-                return dpsMod[1];
-            if (mask & 0x00000800)
-                return dpsMod[2];
-            if (mask & 0x00001000)
-                return dpsMod[3];
-            if (mask & 0x00002000)
-                return dpsMod[4];
-            if (mask & 0x00004000)
-                return dpsMod[5];         // not used?
-        }
-        return 0;
-    }
-    uint32 getSpellBonus(uint32 mask) const
-    {
-        if (mask & 0x00008000)
-            return spellBonus;
-        return 0;
-    }
-    uint32 getFeralBonus(uint32 mask) const                 // removed in 3.2.x?
-    {
-        if (mask & 0x00010000)
-            return 0;                    // not used?
-        return 0;
-    }
+    uint32 GetStatMultiplier(uint32 inventoryType) const;
+    uint32 GetArmor(uint32 inventoryType, uint32 armorType) const;
+    uint32 GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const;
 };
 
 //struct SkillLineCategoryEntry{
