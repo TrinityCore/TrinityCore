@@ -171,6 +171,10 @@ enum WorldBoolConfigs
 	CONFIG_CHATLOG_NOTIFY,
 	/* Fin patch ChatLog FR */
 
+	/* Debut patch Mute broadcast */
+	CONFIG_MUTE_BROADCAST,
+	/* Fin patch Mute broadcast */
+
     BOOL_CONFIG_VALUE_COUNT
 };
 

@@ -1063,18 +1063,28 @@ enum TrinityStrings
 	LANG_RANK_MODERATOR					= 11011, // "Modérateur"
 	LANG_RANK_GAMEMASTER				= 11012, // "Mj"
 	LANG_RANK_ADMINISTRATOR				= 11013, // "Admin"
-	LANG_RANK_SERVER					= 11014, // "Serveur"
-	LANG_COLOREDRANK_PLAYER				= 11015, // "|cFF00FEA1Joueur|r"
-	LANG_COLOREDRANK_MODERATOR			= 11016, // "|cFF43BC10Modérateur|r"
-	LANG_COLOREDRANK_GAMEMASTER			= 11017, // "|cFF9085F9Mj|r"
-	LANG_COLOREDRANK_ADMINISTRATOR		= 11018, // "|cFFA51488Admin|r"
-	LANG_COLOREDRANK_SERVER				= 11019, // "|cFFFE0000Serveur|r"
+	LANG_RANK_SYSTEM					= 11014, // "Système"
+	LANG_RANK_SERVER					= 11015, // "Serveur"
+	LANG_COLOREDRANK_PLAYER				= 11016, // "|cFF00FEA1Joueur|r"
+	LANG_COLOREDRANK_MODERATOR			= 11017, // "|cFF43BC10Modérateur|r"
+	LANG_COLOREDRANK_GAMEMASTER			= 11018, // "|cFF9085F9Mj|r"
+	LANG_COLOREDRANK_ADMINISTRATOR		= 11019, // "|cFFA51488Admin|r"
+	LANG_COLOREDRANK_SYSTEM				= 11020, // "|cFFFEC301Systeme|r"
+	LANG_COLOREDRANK_SERVER				= 11021, // "|cFFFE0000Serveur|r"
 	/* Fin Fonctions d'affichage des Grades */
 
 	/* Debut Annonces de connexion et déconnexion des Mj */
-	LANG_ANNOUNCE_GMLOGIN				= 12020, // "<%s> %s est en ligne"
-	LANG_ANNOUNCE_GMLOGOUT				= 12021, // "<%s> %s est hors ligne"
+	LANG_ANNOUNCE_GMLOGIN				= 12022, // "<%s> %s est en ligne"
+	LANG_ANNOUNCE_GMLOGOUT				= 12023, // "<%s> %s est hors ligne"
 	/* Fin Annonces de connexion et déconnexion des Mj */
+
+	/* Debut patch Mute broadcast */
+	LANG_ANNOUNCE_MUTE					= 12024, // "[%s] Le joueur %s a Ã©tÃ© mute par %s pour %d minutes. %s%s"
+	/* Fin patch Mute broadcast */
+
+	/* Debut définition des chaînes courrantes */
+	LANG_WORD_REASON					= 12025, // "Raison : "
+	/* Fin définition des chaînes courrantes */
 
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)

@@ -1084,6 +1084,8 @@ std::string WorldSession::GetRankString()
 			return GetTrinityString(LANG_RANK_GAMEMASTER);
 		case SEC_ADMINISTRATOR:
 			return GetTrinityString(LANG_RANK_ADMINISTRATOR);
+		case SEC_CONSOLE:
+			return GetTrinityString(LANG_RANK_SYSTEM);
 		default:
 			return GetTrinityString(LANG_RANK_SERVER);
 	}
@@ -1101,6 +1103,8 @@ std::string WorldSession::GetRankColoredString()
 			return GetTrinityString(LANG_COLOREDRANK_GAMEMASTER);
 		case SEC_ADMINISTRATOR:
 			return GetTrinityString(LANG_COLOREDRANK_ADMINISTRATOR);
+		case SEC_CONSOLE:
+			return GetTrinityString(LANG_COLOREDRANK_SYSTEM);
 		default:
 			return GetTrinityString(LANG_COLOREDRANK_SERVER);
 	}

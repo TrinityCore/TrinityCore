@@ -53,7 +53,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
         return false;
 
     char *mutereason = strtok(NULL, "\r");
-    std::string mutereasonstr = "No reason";
+    std::string mutereasonstr = "Pas de raison";
     if (mutereason != NULL)
          mutereasonstr = mutereason;
 
@@ -92,6 +92,11 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     }
 
     std::string nameLink = playerLink(target_name);
+
+	/* Debut patch Mute broadcast */
+	if(sWorld->getBoolConfig(CONFIG_MUTE_BROADCAST))
+		sWorld->SendWorldText(LANG_ANNOUNCE_MUTE, GetTrinityString(LANG_RANK_SERVER), nameLink.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEME), notspeaktime, GetTrinityString(LANG_WORD_REASON), mutereasonstr.c_str());
+	/* Fin patch Mute broadcast */
 
     PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
 

@@ -1204,6 +1204,10 @@ void World::LoadConfigSettings(bool reload)
 	m_bool_configs[CONFIG_CHATLOG_NOTIFY] = ConfigMgr::GetBoolDefault("Chatlog.notify", false);
 	/* Fin patch ChatLog FR */
 
+	/* Debut patch Mute broadcast */
+	m_bool_configs[CONFIG_MUTE_BROADCAST] = ConfigMgr::GetBoolDefault("Mute.broadcast", false);
+	/* Fin patch Mute broadcast */
+
     sScriptMgr->OnConfigLoad(reload);
 }
 
