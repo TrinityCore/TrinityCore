@@ -2213,18 +2213,11 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         if (!sMapMgr->CanPlayerEnter(mapid, this, false))
             return false;
 
-<<<<<<< HEAD
-        // If the map is not created, assume it is possible to enter it.
-        // It will be created in the WorldPortAck.
-        Map* map = sMapMgr->FindMap(mapid);
-        if (!map || map->CanEnter(this))
-=======
         //I think this always returns true. Correct me if I am wrong.
         // If the map is not created, assume it is possible to enter it.
         // It will be created in the WorldPortAck.
         //Map* map = sMapMgr->FindBaseNonInstanceMap(mapid);
         //if (!map || map->CanEnter(this))
->>>>>>> 414987541cb7067fb3cea52aab121cd6d36d7ace
         {
             //lets reset near teleport flag if it wasn't reset during chained teleports
             SetSemaphoreTeleportNear(false);
