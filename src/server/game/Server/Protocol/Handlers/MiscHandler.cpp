@@ -389,7 +389,7 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
     {
 
 		/* Debut Annonces de connexion et déconnexion des Mj
-		 * Annonce en jeu à la connexion d'un MJ s'il est en mode GM et visible
+		 * Annonce en jeu à la déconnexion d'un MJ s'il est en mode GM et visible
 		 * Patch adapté et amélioré par MacWarrior
 		 */
 		if( sWorld->getBoolConfig(CONFIG_LOGOUT_ANNOUNCE) && GetPlayer()->isGameMaster() && GetPlayer()->isGMVisible() && GetSecurity() >= SEC_MODERATOR )
