@@ -183,6 +183,10 @@ enum WorldBoolConfigs
 	CONFIG_TALENT_DK,
 	/* Fin patch Talents DK */
 
+	/* Debut patch Anticheat Talent */
+	CONFIG_TALENT_ANTICHEAT,
+	/* Fin patch Anticheat Talent */
+
     BOOL_CONFIG_VALUE_COUNT
 };
 

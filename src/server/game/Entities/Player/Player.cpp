@@ -3124,7 +3124,10 @@ void Player::InitTalentForLevel()
         uint32 talentPointsForLevel = CalculateTalentsPoints();
 
         // if used more that have then reset
-        if (m_usedTalentCount > talentPointsForLevel)
+
+		/* Debut patch Anticheat Talent */
+        if (m_usedTalentCount > talentPointsForLevel && !sWorld->getBoolConfig(CONFIG_TALENT_ANTICHEAT))
+		/* Fin patch Anticheat Talent */
         {
             if (!AccountMgr::IsAdminAccount(GetSession()->GetSecurity()))
                 resetTalents(true);

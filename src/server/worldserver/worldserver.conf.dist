@@ -2896,3 +2896,17 @@ Talent.At.Level.10 = 0
 #
 # Patch par MacWarrior
 ###################################################################################################
+
+###################################################################################################
+# TALENTS ANTICHEAT
+#
+#	Talent.AntiCheat.Enabled
+#		Active ou désactive le système anti-triche des talents
+#		Default : 1 (Activé)
+#				  0 (Désactivé)
+
+Talent.AntiCheat.Enabled = 1
+
+#
+# Patch par MacWarrior
+###################################################################################################

@@ -1216,6 +1216,10 @@ void World::LoadConfigSettings(bool reload)
 	m_bool_configs[CONFIG_TALENT_DK] = ConfigMgr::GetBoolDefault("Talent.At.Level.10", false);
 	/* Fin patch Talents DK */
 
+	/* Debut patch Anticheat Talent */
+	m_bool_configs[CONFIG_TALENT_ANTICHEAT] = ConfigMgr::GetBoolDefault("Talent.AntiCheat.Enabled", true);
+	/* Fin patch Anticheat Talent */
+
     sScriptMgr->OnConfigLoad(reload);
 }
 
