@@ -862,6 +862,16 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recv_data)
     _charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
 }
 
+void WorldSession::HandleLoadScreenOpcode(WorldPacket& recvPacket)
+{
+    sLog->outStaticDebug("WORLD: Recvd CMSG_LOAD_SCREEN");
+    uint8 unkMask; // Loading start: 0x80, loading end: 0x0
+    uint32 mapID;
+    recvPacket >> unkMask >> mapID;
+
+    // TODO: Do something with this packet
+}
+
 void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 {
     uint64 playerGuid = holder->GetGuid();
