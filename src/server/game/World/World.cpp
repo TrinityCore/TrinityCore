@@ -1199,6 +1199,11 @@ void World::LoadConfigSettings(bool reload)
 	m_bool_configs[CONFIG_LOGOUT_ANNOUNCE] = ConfigMgr::GetBoolDefault("Logout.announce", false);
 	/* Fin Annonces de connexion et déconnexion des Mj */
 
+	/* Debut patch ChatLog FR */
+	m_bool_configs[CONFIG_CHATLOG_ANNOUNCE] = ConfigMgr::GetBoolDefault("Chatlog.announce", false);
+	m_bool_configs[CONFIG_CHATLOG_NOTIFY] = ConfigMgr::GetBoolDefault("Chatlog.notify", false);
+	/* Fin patch ChatLog FR */
+
     sScriptMgr->OnConfigLoad(reload);
 }
 

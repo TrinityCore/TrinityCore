@@ -47,8 +47,17 @@ bool ChatHandler::HandleNameAnnounceCommand(const char* args)
         return false;
 
     std::string name("Console");
+
+	/* Debut patch ChatLog FR */
     if (WorldSession* session = GetSession())
+	{
         name = session->GetPlayer()->GetName();
+		if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) )
+			sLog->outChat("[ANNONCE] [%s][%s][ID:%d] a annoncé : %s", session->GetRankString().c_str(), name.c_str(), session->GetAccountId(), args);
+	} else if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) ){
+		sLog->outChat("[ANNONCE] [%s] a annoncé : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+	}
+	/* Fin patch ChatLog FR */
 
     sWorld->SendWorldText(LANG_ANNOUNCE_COLOR, name.c_str(), args);
     return true;
@@ -61,8 +70,17 @@ bool ChatHandler::HandleGMNameAnnounceCommand(const char* args)
         return false;
 
     std::string name("Console");
+
+	/* Debut patch ChatLog FR */
     if (WorldSession* session = GetSession())
+	{
         name = session->GetPlayer()->GetName();
+		if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) )
+			sLog->outChat("[ANNONCE] [%s][%s][ID:%d] a annoncé aux Mjs : %s", session->GetRankString().c_str(), name.c_str(), session->GetAccountId(), args);
+	} else if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) ) {
+		sLog->outChat("[ANNONCE] [%s] a annoncé aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+	}
+	/* Fin patch ChatLog FR */
 
     sWorld->SendGMText(LANG_GM_ANNOUNCE_COLOR, name.c_str(), args);
     return true;
@@ -76,6 +94,19 @@ bool ChatHandler::HandleAnnounceCommand(const char* args)
 
     char buff[2048];
     sprintf(buff, GetTrinityString(LANG_SYSTEMMESSAGE), args);
+
+	/* Debut patch ChatLog FR */
+	if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) )
+	{
+		if (WorldSession* session = GetSession())
+		{
+			sLog->outChat("[ANNONCE] [%s][%s][ID:%d] a annoncé : %s", session->GetRankString().c_str(), session->GetPlayer()->GetName(), session->GetAccountId(), args);
+		} else {
+			sLog->outChat("[ANNONCE] [%s] a annoncé : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+		}
+	}
+	/* Fin patch ChatLog FR */
+
     sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
     return true;
 }
@@ -86,6 +117,18 @@ bool ChatHandler::HandleGMAnnounceCommand(const char* args)
     if (!*args)
         return false;
 
+	/* Debut patch ChatLog FR */
+	if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) )
+	{
+		if (WorldSession* session = GetSession())
+		{
+			sLog->outChat("[ANNONCE] [%s][%s][ID:%d] a annoncé aux Mjs : %s", session->GetRankString().c_str(), session->GetPlayer()->GetName(), session->GetAccountId(), args);
+		} else {
+			sLog->outChat("[ANNONCE] [%s] a annoncé aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+		}
+	}
+	/* Fin patch ChatLog FR */
+
     sWorld->SendGMText(LANG_GM_BROADCAST, args);
     return true;
 }
@@ -95,6 +138,18 @@ bool ChatHandler::HandleNotifyCommand(const char* args)
 {
     if (!*args)
         return false;
+
+	/* Debut patch ChatLog FR */
+	if( sWorld->getBoolConfig(CONFIG_CHATLOG_NOTIFY) )
+	{
+		if (WorldSession* session = GetSession())
+		{
+			sLog->outChat("[NOTIFICATION] [%s][%s][ID:%d] a notifié : %s", session->GetRankString().c_str(), session->GetPlayer()->GetName(), session->GetAccountId(), args);
+		} else {
+			sLog->outChat("[NOTIFICATION] [%s] a notifié : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+		}
+	}
+	/* Fin patch ChatLog FR */
 
     std::string str = GetTrinityString(LANG_GLOBAL_NOTIFY);
     str += args;
@@ -111,6 +166,18 @@ bool ChatHandler::HandleGMNotifyCommand(const char* args)
 {
     if (!*args)
         return false;
+
+	/* Debut patch ChatLog FR */
+	if( sWorld->getBoolConfig(CONFIG_CHATLOG_NOTIFY) )
+	{
+		if (WorldSession* session = GetSession())
+		{
+			sLog->outChat("[NOTIFICATION] [%s][%s][ID:%d] a notifié aux Mjs : %s", session->GetRankString().c_str(), session->GetPlayer()->GetName(), session->GetAccountId(), args);
+		} else {
+			sLog->outChat("[NOTIFICATION] [%s] a notifié aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+		}
+	}
+	/* Fin patch ChatLog FR */
 
     std::string str = GetTrinityString(LANG_GM_NOTIFY);
     str += args;

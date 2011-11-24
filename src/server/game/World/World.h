@@ -166,6 +166,11 @@ enum WorldBoolConfigs
 	CONFIG_LOGOUT_ANNOUNCE,
 	/* Fin Annonces de connexion et déconnexion des Mj */
 
+	/* Debut patch ChatLog FR */
+	CONFIG_CHATLOG_ANNOUNCE,
+	CONFIG_CHATLOG_NOTIFY,
+	/* Fin patch ChatLog FR */
+
     BOOL_CONFIG_VALUE_COUNT
 };
 
