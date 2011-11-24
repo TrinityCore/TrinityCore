@@ -738,7 +738,7 @@ char const* GetPetName(uint32 petfamily, uint32 dbclang)
     CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
     if (!pet_family)
         return NULL;
-    return pet_family->Name[dbclang]?pet_family->Name[dbclang]:NULL;
+    return pet_family->Name ? pet_family->Name : NULL;
 }
 
 SpellEffectEntry const* GetSpellEffectEntry(uint32 spellId, uint32 effect)
