@@ -26,6 +26,8 @@ EndScriptData */
 #include "ObjectMgr.h"
 #include "Chat.h"
 
+#include "Creature.h"
+
 class modify_commandscript : public CommandScript
 {
 public:
@@ -1240,6 +1242,14 @@ public:
             return false;
 
         uint16 display_id = (uint16)atoi((char*)args);
+		/* Debut Vérification des displays */
+		if( !IsValidCreatureDisplay(display_id) )
+		{
+			handler->SendSysMessage(LANG_ERROR_VALUE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+		/* Fin Vérification des displays */
 
         Unit* target = handler->getSelectedUnit();
         if (!target)

@@ -2402,3 +2402,13 @@ bool Creature::IsDungeonBoss() const
     CreatureTemplate const* cinfo = sObjectMgr->GetCreatureTemplate(GetEntry());
     return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }
+
+/* Debut Fonction de vérification des displays */
+bool IsValidCreatureDisplay(uint32 displayid)
+{
+	CreatureDisplayInfoEntry const* displayEntry = sCreatureDisplayInfoStore.LookupEntry(displayid);
+	if(!displayEntry)
+		return false;
+	return true;
+}
+/* Fin Fonction de vérification des displays */

@@ -789,4 +789,8 @@ class ForcedDespawnDelayEvent : public BasicEvent
         Creature& m_owner;
 };
 
+/* Debut Fonction de vérification des displays */
+bool IsValidCreatureDisplay(uint32 displayid);
+/* Fin Fonction de vérification des displays */
+
 #endif
