@@ -102,7 +102,7 @@ enum Opcodes
     CMSG_CANCEL_MOUNT_AURA                           = 0x00, // 
     CMSG_CANCEL_TEMP_ENCHANTMENT                     = 0x00, // 
     CMSG_CANCEL_TRADE                                = 0x35A5, // 
-    CMSG_CAST_SPELL                                  = 0x00, // 
+    CMSG_CAST_SPELL                                  = 0x5E4E, // 
     CMSG_CHANGE_SEATS_ON_CONTROLLED_VEHICLE          = 0x00, //
     CMSG_CHANNEL_ANNOUNCEMENTS                       = 0x00, // 
     CMSG_CHANNEL_BAN                                 = 0x00, // 
