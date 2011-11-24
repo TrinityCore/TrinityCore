@@ -128,13 +128,13 @@ public:
         // remove all quest entries for 'entry' from quest log
         for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
         {
-            uint32 quest = player->GetQuestSlotQuestId(slot);
-            if (quest == entry)
+            uint32 logQuest = player->GetQuestSlotQuestId(slot);
+            if (logQuest == entry)
             {
                 player->SetQuestSlot(slot, 0);
 
                 // we ignore unequippable quest items in this case, its' still be equipped
-                player->TakeQuestSourceItem(quest, false);
+                player->TakeQuestSourceItem(logQuest, false);
             }
         }
 
