@@ -1,4 +1,4 @@
-build/
+build*/
 .directory
 .mailmap
 *.orig
