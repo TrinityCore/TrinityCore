@@ -504,15 +504,14 @@ public:
         Player* SelectRandomPlayer(float range = 0.0f, bool checkLoS = true)
         {
             Map* map = me->GetMap();
-            if (!map->IsDungeon()) return NULL;
+            if (!map->IsDungeon())
+                return NULL;
 
             Map::PlayerList const &PlayerList = map->GetPlayers();
-            Map::PlayerList::const_iterator i;
-            if (PlayerList.isEmpty()) return NULL;
+            if (PlayerList.isEmpty())
+                return NULL;
 
             std::list<Player*> temp;
-            std::list<Player*>::const_iterator j;
-
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                 if ((me->IsWithinLOSInMap(i->getSource()) || !checkLoS) && me->getVictim() != i->getSource() &&
                     me->IsWithinDistInMap(i->getSource(), range) && i->getSource()->isAlive())
@@ -520,7 +519,7 @@ public:
 
             if (!temp.empty())
             {
-                j = temp.begin();
+                std::list<Player*>::const_iterator j = temp.begin();
                 advance(j, rand()%temp.size());
                 return (*j);
             }

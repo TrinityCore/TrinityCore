@@ -1599,7 +1599,7 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     if (!goinfo)
         return 0;
 
-    Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(mapId));
+    Map* map = sMapMgr->CreateBaseMap(mapId);
     if (!map)
         return 0;
 
@@ -1660,7 +1660,7 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
     AddCreatureToGrid(guid, &data);
 
     // Spawn if necessary (loaded grids only)
-    if (Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(mapId)))
+    if (Map* map = sMapMgr->CreateBaseMap(mapId))
     {
         // We use spawn coords to spawn
         if (!map->Instanceable() && map->IsGridLoaded(data.posX, data.posY))
@@ -1713,7 +1713,7 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
     AddCreatureToGrid(guid, &data);
 
     // Spawn if necessary (loaded grids only)
-    if (Map* map = const_cast<Map*>(sMapMgr->CreateBaseMap(mapId)))
+    if (Map* map = sMapMgr->CreateBaseMap(mapId))
     {
         // We use spawn coords to spawn
         if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
@@ -5392,7 +5392,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 // mail open and then not returned
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
-                    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ITEM_INSTANCE);
                     stmt->setUInt32(0, itr2->item_guid);
                     CharacterDatabase.Execute(stmt);
                 }
@@ -7084,13 +7084,13 @@ void ObjectMgr::LoadQuestPOI()
     {
         // The first result should have the highest questId
         Field* fields = points->Fetch();
-        uint32 questId = fields[0].GetUInt32();
-        POIs.resize(questId + 1);
+        uint32 questIdMax = fields[0].GetUInt32();
+        POIs.resize(questIdMax + 1);
 
         do
         {
 
-            Field* fields = points->Fetch();
+            fields = points->Fetch();
 
             uint32 questId            = fields[0].GetUInt32();
             uint32 id                 = fields[1].GetUInt32();

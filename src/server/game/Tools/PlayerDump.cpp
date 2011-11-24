@@ -443,9 +443,10 @@ DumpReturn PlayerDumpReader::LoadDump(const std::string& file, uint32 account, s
     typedef PetIds::value_type PetIdsPair;
     PetIds petids;
 
-    uint8 gender;
-    uint8 race;
-    uint8 playerClass;
+    uint8 gender = GENDER_NONE;
+    uint8 race = RACE_NONE;
+    uint8 playerClass = 0;
+
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     while (!feof(fin))
     {
