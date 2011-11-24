@@ -2882,3 +2882,17 @@ Ban.broadcast = 0
 #
 # Patch par MacWarrior
 ###################################################################################################
+
+###################################################################################################
+# DEATH KNIGHT TALENT
+#
+#	Talent.At.Level.10
+#		Autorise les DK à avoir leurs points de talent sans faire les quêtes de départ
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Talent.At.Level.10 = 0
+
+#
+# Patch par MacWarrior
+###################################################################################################

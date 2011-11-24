@@ -1212,6 +1212,10 @@ void World::LoadConfigSettings(bool reload)
 	m_bool_configs[CONFIG_BAN_BROADCAST] = ConfigMgr::GetBoolDefault("Ban.broadcast", false);
 	/* Fin patch Ban broadcast */
 
+	/* Debut patch Talents DK */
+	m_bool_configs[CONFIG_TALENT_DK] = ConfigMgr::GetBoolDefault("Talent.At.Level.10", false);
+	/* Fin patch Talents DK */
+
     sScriptMgr->OnConfigLoad(reload);
 }
 

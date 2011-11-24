@@ -179,6 +179,10 @@ enum WorldBoolConfigs
 	CONFIG_BAN_BROADCAST,
 	/* Fin patch Ban broadcast */
 
+	/* Debut patch Talents DK */
+	CONFIG_TALENT_DK,
+	/* Fin patch Talents DK */
+
     BOOL_CONFIG_VALUE_COUNT
 };
 
