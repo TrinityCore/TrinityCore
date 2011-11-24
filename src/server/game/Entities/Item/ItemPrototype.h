@@ -189,7 +189,8 @@ enum ItemFlagsExtra
     ITEM_FLAGS_EXTRA_HORDE_ONLY              = 0x00000001,
     ITEM_FLAGS_EXTRA_ALLIANCE_ONLY           = 0x00000002,
     ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD  = 0x00000004, // when item uses extended cost, gold is also required
-    ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED      = 0x00000100
+    ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED      = 0x00000100,
+    ITEM_FLAGS_EXTRA_CASTER_WEAPON           = 0x00000200,
 };
 
 enum BAG_FAMILY_MASK
@@ -608,7 +609,6 @@ struct ItemTemplate
     uint32 StatsCount;
     _ItemStat ItemStat[MAX_ITEM_PROTO_STATS];
     uint32 ScalingStatDistribution;                         // id from ScalingStatDistribution.dbc
-    uint32 ScalingStatValue;                                // mask for selecting column in ScalingStatValues.dbc
     _Damage Damage[MAX_ITEM_PROTO_DAMAGES];
     uint32 Armor;
     uint32 HolyRes;
