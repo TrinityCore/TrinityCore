@@ -215,9 +215,14 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 //kick player
 bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {
+	/* Debut patch Kick Broadcast */
+	char *name = strtok((char*)args, " ");
+	char *kickreason = strtok(NULL, "\0");
+	/* Fin patch Kick Broadcast */
+
     Player* target = NULL;
     std::string playerName;
-    if (!extractPlayerTarget((char*)args, &target, NULL, &playerName))
+	if (!extractPlayerTarget((char*)name, &target, NULL, &playerName))
         return false;
 
     if (m_session && target == m_session->GetPlayer())
@@ -231,10 +236,15 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
     if (HasLowerSecurity(target, 0))
         return false;
 
-    if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-        sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
-    else
+	/* Debut patch Kick Broadcast */
+	if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD) && kickreason)
+	{
+		sWorld->SendWorldText(LANG_ANNOUNCE_KICK_REASON, GetTrinityString(LANG_RANK_SERVER), playerName.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEME), GetTrinityString(LANG_WORD_REASON), kickreason);
+	} else if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD)) {
+		sWorld->SendWorldText(LANG_ANNOUNCE_KICK, GetTrinityString(LANG_RANK_SERVER), playerName.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEME));
+	} else
         PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+	/* Fin patch Kick Broadcast */
 
     target->GetSession()->KickPlayer();
     return true;

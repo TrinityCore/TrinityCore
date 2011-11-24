@@ -1079,11 +1079,16 @@ enum TrinityStrings
 	/* Fin Annonces de connexion et déconnexion des Mj */
 
 	/* Debut patch Mute broadcast */
-	LANG_ANNOUNCE_MUTE					= 12024, // "[%s] Le joueur %s a Ã©tÃ© mute par %s pour %d minutes. %s%s"
+	LANG_ANNOUNCE_MUTE					= 12024, // "[%s] Le joueur %s a été mute par %s pour %d minutes. %s%s"
 	/* Fin patch Mute broadcast */
 
+	/* Debut patch Kick Broadcast */
+	LANG_ANNOUNCE_KICK					= 12025, // "[%s] %s a été déconnecté du serveur par %s"
+	LANG_ANNOUNCE_KICK_REASON			= 12026, // "[%s] %s a été déconnecté du serveur par %s. %s%s"
+	/* Fin patch Kick Broadcast */
+
 	/* Debut définition des chaînes courrantes */
-	LANG_WORD_REASON					= 12025, // "Raison : "
+	LANG_WORD_REASON					= 12027, // "Raison : "
 	/* Fin définition des chaînes courrantes */
 
     // NOT RESERVED IDS                   12000-1999999999
