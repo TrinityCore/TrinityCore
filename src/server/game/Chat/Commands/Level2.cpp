@@ -385,6 +385,8 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         case RACE_TROLL:            race_s = "Troll";       break;
         case RACE_BLOODELF:         race_s = "Blood Elf";   break;
         case RACE_DRAENEI:          race_s = "Draenei";     break;
+        case RACE_GOBLIN:           race_s = "Goblin";      break;
+        case RACE_WORGEN:           race_s = "Worgen";      break;
     }
     switch (Class)
     {
