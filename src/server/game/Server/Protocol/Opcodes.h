@@ -560,8 +560,8 @@ enum Opcodes
     SMSG_AUCTION_OWNER_LIST_RESULT                   = 0x00, // 
     SMSG_AUCTION_OWNER_NOTIFICATION                  = 0x00, // 
     SMSG_AUCTION_REMOVED_NOTIFICATION                = 0x00, // 
-    SMSG_AURA_UPDATE                                 = 0x00, // 
-    SMSG_AURA_UPDATE_ALL                             = 0x00, // 
+    SMSG_AURA_UPDATE                                 = 0x4C66, // 
+    SMSG_AURA_UPDATE_ALL                             = 0x18EE, // 
     SMSG_AURACASTLOG                                 = 0x00, //
     SMSG_AUTH_CHALLENGE                              = 0x1181, // 
     SMSG_AUTH_RESPONSE                               = 0x8867, // 
