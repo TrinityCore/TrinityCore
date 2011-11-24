@@ -1194,6 +1194,11 @@ void World::LoadConfigSettings(bool reload)
 	m_int_configs[CONFIG_GM_START_GUILDID] = ConfigMgr::GetIntDefault("Gm.Start.GuildId", 0);
 	/* Fin du patch Player default guild */
 
+	/* Debut Annonces de connexion et déconnexion des Mj */
+	m_bool_configs[CONFIG_LOGIN_ANNOUNCE] = ConfigMgr::GetBoolDefault("Login.announce", false);
+	m_bool_configs[CONFIG_LOGOUT_ANNOUNCE] = ConfigMgr::GetBoolDefault("Logout.announce", false);
+	/* Fin Annonces de connexion et déconnexion des Mj */
+
     sScriptMgr->OnConfigLoad(reload);
 }
 

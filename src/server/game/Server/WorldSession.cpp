@@ -1070,3 +1070,39 @@ void WorldSession::ProcessQueryCallbacks()
         _stableSwapCallback.FreeResult();
     }
 }
+
+/* Debut Fonctions d'affichage des Grades */
+std::string WorldSession::GetRankString()
+{
+	switch(GetSecurity())
+	{
+		case SEC_PLAYER:
+			return GetTrinityString(LANG_RANK_PLAYER);
+		case SEC_MODERATOR:
+			return GetTrinityString(LANG_RANK_MODERATOR);
+		case SEC_GAMEMASTER:
+			return GetTrinityString(LANG_RANK_GAMEMASTER);
+		case SEC_ADMINISTRATOR:
+			return GetTrinityString(LANG_RANK_ADMINISTRATOR);
+		default:
+			return GetTrinityString(LANG_RANK_SERVER);
+	}
+}
+
+std::string WorldSession::GetRankColoredString()
+{
+	switch(GetSecurity())
+	{
+		case SEC_PLAYER:
+			return GetTrinityString(LANG_COLOREDRANK_PLAYER);
+		case SEC_MODERATOR:
+			return GetTrinityString(LANG_COLOREDRANK_MODERATOR);
+		case SEC_GAMEMASTER:
+			return GetTrinityString(LANG_COLOREDRANK_GAMEMASTER);
+		case SEC_ADMINISTRATOR:
+			return GetTrinityString(LANG_COLOREDRANK_ADMINISTRATOR);
+		default:
+			return GetTrinityString(LANG_COLOREDRANK_SERVER);
+	}
+}
+/* Fin Fonctions d'affichage des Grades */

@@ -160,6 +160,12 @@ enum WorldBoolConfigs
     CONFIG_PRESERVE_CUSTOM_CHANNELS,
     CONFIG_PDUMP_NO_PATHS,
     CONFIG_PDUMP_NO_OVERWRITE,
+
+	/* Debut Annonces de connexion et déconnexion des Mj */
+	CONFIG_LOGIN_ANNOUNCE,
+	CONFIG_LOGOUT_ANNOUNCE,
+	/* Fin Annonces de connexion et déconnexion des Mj */
+
     BOOL_CONFIG_VALUE_COUNT
 };
 

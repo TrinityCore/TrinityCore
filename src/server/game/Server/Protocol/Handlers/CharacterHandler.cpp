@@ -1026,6 +1026,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
     if (pCurrChar->isGameMaster())
         SendNotification(LANG_GM_ON);
 
+	/* Debut Annonces de connexion et déconnexion des Mj
+	 * Annonce en jeu à la connexion d'un MJ s'il est en mode GM et visible
+	 * Patch adapté et amélioré par MacWarrior
+	 */
+	if( sWorld->getBoolConfig(CONFIG_LOGIN_ANNOUNCE) && pCurrChar->isGameMaster() && pCurrChar->isGMVisible() && GetSecurity() >= SEC_MODERATOR )
+		sWorld->SendWorldText(LANG_ANNOUNCE_GMLOGIN, pCurrChar->GetSession()->GetRankColoredString().c_str(), pCurrChar->GetName());
+	/* Fin Annonces de connexion et déconnexion des Mj */
+
     std::string IP_str = GetRemoteAddress();
     sLog->outChar("Account: %d (IP: %s) Login Character:[%s] (GUID: %u)",
         GetAccountId(), IP_str.c_str(), pCurrChar->GetName(), pCurrChar->GetGUIDLow());

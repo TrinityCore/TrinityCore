@@ -2810,3 +2810,25 @@ Gm.Start.GuildId = 0
 #
 # Patch par MacWarrior
 ###################################################################################################
+
+###################################################################################################################
+# LOGIN AND LOGOUT ANNOUNCE
+#
+#	At.login.announce
+#		Annonce en jeu lors de la connexion d'un Mj s'il est en mode GM et visible.
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Login.announce = 0
+
+#
+#	At.logout.announce
+#		Annonce en jeu lors de la déconnexion d'un Mj s'il est en mode GM et visible.
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Logout.announce = 0
+
+#
+# Patch adapté et amélioré par MacWarrior
+###################################################################################################################

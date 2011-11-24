@@ -387,6 +387,15 @@ void WorldSession::HandleLogoutRequestOpcode(WorldPacket & /*recv_data*/)
     if (GetPlayer()->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_RESTING) || GetPlayer()->isInFlight() ||
         GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_INSTANT_LOGOUT)))
     {
+
+		/* Debut Annonces de connexion et déconnexion des Mj
+		 * Annonce en jeu à la connexion d'un MJ s'il est en mode GM et visible
+		 * Patch adapté et amélioré par MacWarrior
+		 */
+		if( sWorld->getBoolConfig(CONFIG_LOGOUT_ANNOUNCE) && GetPlayer()->isGameMaster() && GetPlayer()->isGMVisible() && GetSecurity() >= SEC_MODERATOR )
+			sWorld->SendWorldText(LANG_ANNOUNCE_GMLOGOUT, GetPlayer()->GetSession()->GetRankColoredString().c_str(), GetPlayer()->GetName());
+		/* Fin Annonces de connexion et déconnexion des Mj */
+
         WorldPacket data(SMSG_LOGOUT_RESPONSE, 1+4);
         data << uint8(0);
         data << uint32(16777216);

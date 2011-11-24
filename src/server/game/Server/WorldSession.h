@@ -250,6 +250,11 @@ class WorldSession
         void SetPlayer(Player* player);
         uint8 Expansion() const { return m_expansion; }
 
+		/* Debut Fonctions d'affichage des Grades */
+		std::string GetRankString();
+		std::string GetRankColoredString();
+		/* Fin Fonctions d'affichage des Grades */
+
         /// Session in auth.queue currently
         void SetInQueue(bool state) { m_inQueue = state; }
 
