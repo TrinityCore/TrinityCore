@@ -1087,8 +1087,13 @@ enum TrinityStrings
 	LANG_ANNOUNCE_KICK_REASON			= 12026, // "[%s] %s a été déconnecté du serveur par %s. %s%s"
 	/* Fin patch Kick Broadcast */
 
+	/* Debut patch Ban Broadcast */
+	LANG_ANNOUNCE_BAN					= 12027, // "[%s] %s a été banni du serveur par %s pour %s. %s%s"
+	LANG_ANNOUNCE_BAN_PERM				= 12028, // "[%s] %s a été banni a vie par %s. %s%s"
+	/* Fin patch Ban Broadcast */
+
 	/* Debut définition des chaînes courrantes */
-	LANG_WORD_REASON					= 12027, // "Raison : "
+	LANG_WORD_REASON					= 12029, // "Raison : "
 	/* Fin définition des chaînes courrantes */
 
     // NOT RESERVED IDS                   12000-1999999999

@@ -175,6 +175,10 @@ enum WorldBoolConfigs
 	CONFIG_MUTE_BROADCAST,
 	/* Fin patch Mute broadcast */
 
+	/* Debut patch Ban broadcast */
+	CONFIG_BAN_BROADCAST,
+	/* Fin patch Ban broadcast */
+
     BOOL_CONFIG_VALUE_COUNT
 };
 

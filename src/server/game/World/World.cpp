@@ -1208,6 +1208,10 @@ void World::LoadConfigSettings(bool reload)
 	m_bool_configs[CONFIG_MUTE_BROADCAST] = ConfigMgr::GetBoolDefault("Mute.broadcast", false);
 	/* Fin patch Mute broadcast */
 
+	/* Debut patch Ban broadcast */
+	m_bool_configs[CONFIG_BAN_BROADCAST] = ConfigMgr::GetBoolDefault("Ban.broadcast", false);
+	/* Fin patch Ban broadcast */
+
     sScriptMgr->OnConfigLoad(reload);
 }
 

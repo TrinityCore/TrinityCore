@@ -2867,14 +2867,23 @@ bool ChatHandler::HandleBanCharacterCommand(const char *args)
         return false;
     }
 
-    switch (sWorld->BanCharacter(name, duration, reason, m_session ? m_session->GetPlayerName() : ""))
+    switch (sWorld->BanCharacter(name, duration, reason, m_session ? m_session->GetPlayerName() : "SOAP"))
     {
         case BAN_SUCCESS:
         {
+			/* Debut patch Ban Broadcast */
             if (atoi(duration) > 0)
-                PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), secsToTimeString(TimeStringToSecs(duration), true).c_str(), reason);
-            else
+			{
+				std::string bannedTimeString = secsToTimeString(TimeStringToSecs(duration), false);
+				if(sWorld->getBoolConfig(CONFIG_BAN_BROADCAST))
+					sWorld->SendWorldText(LANG_ANNOUNCE_BAN, GetTrinityString(LANG_RANK_SERVER), name.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEME), bannedTimeString.c_str(), GetTrinityString(LANG_WORD_REASON), reason);
+				PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), bannedTimeString.c_str(), reason);
+			} else {
+				if(sWorld->getBoolConfig(CONFIG_BAN_BROADCAST))
+					sWorld->SendWorldText(LANG_ANNOUNCE_BAN_PERM, GetTrinityString(LANG_RANK_SERVER), name.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEME), GetTrinityString(LANG_WORD_REASON), reason);
                 PSendSysMessage(LANG_BAN_YOUPERMBANNED, name.c_str(), reason);
+			}
+			/* Fin patch Ban Broadcast */
             break;
         }
         case BAN_NOTFOUND:
@@ -2938,13 +2947,22 @@ bool ChatHandler::HandleBanHelper(BanMode mode, const char *args)
             break;
     }
 
-    switch (sWorld->BanAccount(mode, nameOrIP, duration, reason, m_session ? m_session->GetPlayerName() : ""))
+    switch (sWorld->BanAccount(mode, nameOrIP, duration, reason, m_session ? m_session->GetPlayerName() : "SOAP"))
     {
         case BAN_SUCCESS:
+			/* Debut patch Ban Broadcast */
             if (atoi(duration)>0)
-                PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(duration), true).c_str(), reason);
-            else
+			{
+				std::string bannedTimeString = secsToTimeString(TimeStringToSecs(duration), false);
+				if(sWorld->getBoolConfig(CONFIG_BAN_BROADCAST))
+					sWorld->SendWorldText(LANG_ANNOUNCE_BAN, GetTrinityString(LANG_RANK_SERVER), nameOrIP.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEME), bannedTimeString.c_str(), GetTrinityString(LANG_WORD_REASON), reason);
+				PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), bannedTimeString.c_str(), reason);
+			} else {
+				if(sWorld->getBoolConfig(CONFIG_BAN_BROADCAST))
+					sWorld->SendWorldText(LANG_ANNOUNCE_BAN_PERM, GetTrinityString(LANG_RANK_SERVER), nameOrIP.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEME), GetTrinityString(LANG_WORD_REASON), reason);
                 PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reason);
+			}
+			/* Fin patch Ban Broadcast */
             break;
         case BAN_SYNTAX_ERROR:
             return false;
