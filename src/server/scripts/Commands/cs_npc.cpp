@@ -29,6 +29,8 @@ EndScriptData */
 #include "CreatureGroups.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 
+#include WaypointManager.h 
+
 class npc_commandscript : public CommandScript
 {
 public:
@@ -213,64 +215,54 @@ public:
     //add move for creature
     static bool HandleNpcAddMoveCommand(ChatHandler* handler, const char* args)
     {
-        if (!*args)
-            return false;
+		/* Debut patch Réecriture commande .npc addmove */
+		uint32 delay;
+		if (!*args)
+			delay = 0;
+		else
+			delay = atoi(args);
 
-        char* guid_str = strtok((char*)args, " ");
-        char* wait_str = strtok((char*)NULL, " ");
+		if(!delay)
+			delay = 0;
 
-        uint32 lowguid = atoi((char*)guid_str);
+		Creature* creature = handler->getSelectedCreature();
+		if (!creature)
+		{
+			handler->SendSysMessage(LANG_SELECT_CREATURE);
+			handler->SetSentErrorMessage(true);
+			return false;
+		}
+		uint32 lowguid = creature->GetDBTableGUIDLow();
 
-        Creature* creature = NULL;
+		creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
+		WorldDatabase.PExecute("UPDATE `creature` SET `MovementType` = 2 WHERE `guid` = %u", lowguid);
 
-        /* FIXME: impossible without entry
-        if (lowguid)
-            creature = ObjectAccessor::GetCreature(*handler->GetSession()->GetPlayer(), MAKE_GUID(lowguid, HIGHGUID_UNIT));
-        */
+		uint32 pathid = lowguid*10;
+		uint32 point = 0;
+		QueryResult result2 = WorldDatabase.PQuery("SELECT MAX(`point`) FROM `waypoint_data` WHERE `id` = %u", pathid);
+		if (result2)
+			point = (*result2)[0].GetUInt32();
 
-        // attempt check creature existence by DB data
-        if (!creature)
-        {
-            CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
-            if (!data)
-            {
-                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
-                handler->SetSentErrorMessage(true);
-                return false;
-            }
-        }
-        else
-        {
-            // obtain real GUID for DB operations
-            lowguid = creature->GetDBTableGUIDLow();
-        }
+		float coord_x = handler->GetPositionX();
+		float coord_y = handler->GetPositionY();
+		float coord_z = handler->GetPositionZ();
+		float coord_o = handler->GetOrientation();
+		WorldDatabase.PExecute("INSERT INTO `waypoint_data`(`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`) VALUES (%u, %u, %f, %f, %f, %f, %d)", pathid, point, coord_x, coord_y, coord_z, coord_o, delay);
 
-        int wait = wait_str ? atoi(wait_str) : 0;
+		sWaypointMgr->ReloadPath(pathid);
 
-        if (wait < 0)
-            wait = 0;
+		QueryResult result3 = WorldDatabase.PQuery("SELECT `guid` FROM `creature_addon` WHERE `guid` = %u", lowguid);
+		if (result3)
+			WorldDatabase.PExecute("UPDATE `creature_addon` SET `path_id` = %u WHERE `guid` = %u", pathid, lowguid);
+		else
+			WorldDatabase.PExecute("INSERT INTO `creature_addon`(`guid`, `path_id`) VALUES (%u, %u)", lowguid, pathid);
 
-        //Player* player = handler->GetSession()->GetPlayer();
+		creature->LoadPath(pathid);
 
-        //WaypointMgr.AddLastNode(lowguid, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), wait, 0);
-
-        // update movement type
-        WorldDatabase.PExecute("UPDATE creature SET MovementType = '%u' WHERE guid = '%u'", WAYPOINT_MOTION_TYPE, lowguid);
-        if (creature && creature->GetWaypointPath())
-        {
-            creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
-            creature->GetMotionMaster()->Initialize();
-            if (creature->isAlive())                            // dead creature will reset movement generator at respawn
-            {
-                creature->setDeathState(JUST_DIED);
-                creature->Respawn(true);
-            }
-            creature->SaveToDB();
-        }
-
-        handler->SendSysMessage(LANG_WAYPOINT_ADDED);
-
-        return true;
+		creature->GetMotionMaster()->Initialize();
+		handler->PSendSysMessage("%s%s%u%s%u%s|r", "|cff00ff00", "PathID: |r|cff00ffff", pathid, "|r|cff00ff00: Waypoint |r|cff00ffff", point+1, "|r|cff00ff00 created. ");
+		return true;
+		/* `Fin patch Réecriture commande .npc addmove */
     }
 
     static bool HandleNpcSetAllowMovementCommand(ChatHandler* handler, const char* /*args*/)
