@@ -108,7 +108,7 @@ class ByteBuffer
         {
             ++_bitpos;
             if (_bitpos > 7)
-            { 
+            {
                 _bitpos = 0;
                 _curbitval = read<uint8>();
             }

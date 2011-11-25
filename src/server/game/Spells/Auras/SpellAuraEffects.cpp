@@ -1992,7 +1992,7 @@ void AuraEffect::HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mo
                     {
                         case FORM_CAT:
                         {
-                            int32 basePoints = int32(std::min(oldPower, FurorChance));
+                            int32 basePoints = std::min<int32>(oldPower, FurorChance);
                             target->SetPower(POWER_ENERGY, 0);
                             target->CastCustomSpell(target, 17099, &basePoints, NULL, NULL, true, NULL, this);
                         }
