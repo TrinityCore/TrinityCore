@@ -9193,10 +9193,6 @@ void Unit::setPowerType(Powers new_powertype)
         case POWER_ENERGY:
             SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             break;
-        case POWER_HAPPINESS:
-            SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
-            SetPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
-            break;
     }
 }
 
@@ -13398,7 +13394,6 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_RAGE:
         case UNIT_MOD_FOCUS:
         case UNIT_MOD_ENERGY:
-        case UNIT_MOD_HAPPINESS:
         case UNIT_MOD_RUNE:
         case UNIT_MOD_RUNIC_POWER:          UpdateMaxPower(GetPowerTypeByAuraGroup(unitMod));          break;
 
@@ -13518,7 +13513,6 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
         case UNIT_MOD_RAGE:        return POWER_RAGE;
         case UNIT_MOD_FOCUS:       return POWER_FOCUS;
         case UNIT_MOD_ENERGY:      return POWER_ENERGY;
-        case UNIT_MOD_HAPPINESS:   return POWER_HAPPINESS;
         case UNIT_MOD_RUNE:        return POWER_RUNE;
         case UNIT_MOD_RUNIC_POWER: return POWER_RUNIC_POWER;
         default:
@@ -13621,12 +13615,12 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
-void Unit::SetPower(Powers power, uint32 val)
+void Unit::SetPower(Powers power, int32 val)
 {
     if (GetPower(power) == val)
         return;
 
-    uint32 maxPower = GetMaxPower(power);
+    int32 maxPower = (int32)GetMaxPower(power);
     if (maxPower < val)
         val = maxPower;
 
@@ -13634,8 +13628,9 @@ void Unit::SetPower(Powers power, uint32 val)
 
     WorldPacket data(SMSG_POWER_UPDATE);
     data.append(GetPackGUID());
+    data << int32(1); // Unk
     data << uint8(power);
-    data << uint32(val);
+    data << int32(val);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 
     // group update
@@ -13652,16 +13647,12 @@ void Unit::SetPower(Powers power, uint32 val)
             if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_POWER);
         }
-
-        // Update the pet's character sheet with happiness damage bonus
-        if (pet->getPetType() == HUNTER_PET && power == POWER_HAPPINESS)
-            pet->UpdateDamagePhysical(BASE_ATTACK);
     }
 }
 
-void Unit::SetMaxPower(Powers power, uint32 val)
+void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 cur_power = GetPower(power);
+    int32 cur_power = GetPower(power);
     SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + power, val);
 
     // group update
@@ -13684,19 +13675,32 @@ void Unit::SetMaxPower(Powers power, uint32 val)
         SetPower(power, val);
 }
 
-uint32 Unit::GetCreatePowers(Powers power) const
+int32 Unit::GetCreatePowers(Powers power) const
 {
-    // POWER_FOCUS and POWER_HAPPINESS only have hunter pet
     switch (power)
     {
-        case POWER_MANA:      return GetCreateMana();
-        case POWER_RAGE:      return 1000;
-        case POWER_FOCUS:     return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
-        case POWER_ENERGY:    return 100;
-        case POWER_HAPPINESS: return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 1050000);
-        case POWER_RUNIC_POWER: return 1000;
-        case POWER_RUNE:      return 0;
-        case POWER_HEALTH:    return 0;
+        case POWER_MANA:
+            return GetCreateMana();
+        case POWER_RAGE:
+            return 1000;
+        case POWER_FOCUS:
+            if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_HUNTER)
+                return 100;
+            return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
+        case POWER_ENERGY:
+            return 100;
+        case POWER_RUNIC_POWER:
+            return 1000;
+        case POWER_RUNE:
+            return 0;
+        case POWER_SOULSHARD:
+            return 3;
+        case POWER_ECLIPSE:
+            return 0;
+        case POWER_HOLY_POWER:
+            return 0;
+        case POWER_HEALTH:
+            return 0;
         default:
             break;
     }
