@@ -658,7 +658,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             newChar.SetAtLoginFlag(AT_LOGIN_FIRST);               // First login
 
             // Player created, save it now
-            newChar.SaveToDB();
+            newChar.SaveToDB(true);
             createInfo->CharCount += 1;
 
             SQLTransaction trans = LoginDatabase.BeginTransaction();
