@@ -1258,7 +1258,7 @@ void World::SetInitialWorldSettings()
     ///- Load the DBC files
     sLog->outString("Initialize data stores...");
     LoadDBCStores(m_dataPath);
-	LoadDB2Stores(m_dataPath);
+    LoadDB2Stores(m_dataPath);
     DetectDBCLang();
 
     sLog->outString("Loading spell dbc data corrections...");
