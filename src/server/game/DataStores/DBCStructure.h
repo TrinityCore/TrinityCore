@@ -1169,7 +1169,7 @@ struct ItemClassEntry
 struct ItemDamageEntry
 {
     uint32    Id;                                             // 0 item level
-    float     Value[7];                                       // 1-7 multiplier for item quality
+    float     DPS[7];                                         // 1-7 multiplier for item quality
     uint32    Id2;                                            // 8 item level
 };
 
@@ -1214,6 +1214,17 @@ struct ItemDisplayInfoEntry
                                                             // 9        m_texture[2]
                                                             // 10       m_itemVisual[8]
                                                             // 11       m_particleColorID
+};
+
+struct ItemDisenchantLootEntry
+{
+    uint32 Id;
+    uint32 ItemClass;
+    int32 Unk;
+    uint32 ItemQuality;
+    uint32 MinItemLevel;
+    uint32 MaxItemLevel;
+    uint32 RequiredDisenchantSkill;
 };
 
 //struct ItemCondExtCostsEntry
@@ -2317,4 +2328,3 @@ typedef std::vector<TaxiPathNodeList> TaxiPathNodesByPath;
 #define TaxiMaskSize 14
 typedef uint32 TaxiMask[TaxiMaskSize];
 #endif
-
