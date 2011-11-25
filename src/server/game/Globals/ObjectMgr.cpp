@@ -2184,7 +2184,7 @@ void ObjectMgr::LoadItemTemplates()
         }
 
         itemTemplate.ScalingStatDistribution = uint32(fields[48].GetUInt16());
-        itemTemplate.ScalingStatValue        = fields[49].GetInt32();
+        //itemTemplate.ScalingStatValue        = fields[49].GetInt32();
 
         for (uint8 i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
         {

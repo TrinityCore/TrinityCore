@@ -186,6 +186,8 @@ enum Powers
     POWER_HEALTH                        = 0xFFFFFFFE    // (-2 as signed value)
 };
 
+#define MAX_STORED_POWERS               5
+
 enum SpellSchools
 {
     SPELL_SCHOOL_NORMAL                 = 0,
