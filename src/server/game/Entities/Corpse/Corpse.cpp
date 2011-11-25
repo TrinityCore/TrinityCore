@@ -108,7 +108,7 @@ void Corpse::SaveToDB()
 
     uint16 index = 0;
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CORPSE);
-    stmt->setUInt32(index, GetGUIDLow());                                             // corpseGuid
+    stmt->setUInt32(index++, GetGUIDLow());                                           // corpseGuid
     stmt->setUInt32(index++, GUID_LOPART(GetOwnerGUID()));                            // guid
     stmt->setFloat (index++, GetPositionX());                                         // posX
     stmt->setFloat (index++, GetPositionY());                                         // posY
