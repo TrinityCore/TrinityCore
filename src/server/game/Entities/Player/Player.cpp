@@ -16520,7 +16520,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     SetInt32Value(PLAYER_FIELD_WATCHED_FACTION_INDEX, fields[48].GetUInt32());
 
     // set which actionbars the client has active - DO NOT REMOVE EVER AGAIN (can be changed though, if it does change fieldwise)
-    SetByteValue(PLAYER_FIELD_BYTES, 2, fields[62].GetUInt8());
+    SetByteValue(PLAYER_FIELD_BYTES, 2, fields[60].GetUInt8());
 
     InitDisplayIds();
 
