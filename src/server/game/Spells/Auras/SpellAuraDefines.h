@@ -403,7 +403,7 @@ enum AuraType
     SPELL_AURA_341                                          = 341,  // cooldown decrease
     SPELL_AURA_MOD_TIME_BETWEEN_ATTACKS                     = 342,  // (attack speed) NYI
     SPELL_AURA_343                                          = 343,
-    SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,  // (white damage) NYI
+    SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,
     SPELL_AURA_BYPASS_ARMOR_FOR_CASTER                      = 345,
     SPELL_AURA_PROGRESS_BAR                                 = 346,  // NYI
     SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE                  = 347,  // NYI
