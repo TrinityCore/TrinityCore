@@ -232,7 +232,7 @@ void LootStore::ReportUnusedIds(LootIdSet const& ids_set) const
 
 void LootStore::ReportNotExistedId(uint32 id) const
 {
-    sLog->outErrorDb("Table '%s' entry %d (%s) not exist but used as loot id in DB.", GetName(), id, GetEntryName());
+    sLog->outErrorDb("Table '%s' entry %d (%s) does not exist but used as loot id in DB.", GetName(), id, GetEntryName());
 }
 
 //
@@ -1461,16 +1461,17 @@ void LoadLootTemplates_Disenchant()
     LootIdSet lootIdSet, loodIdSetUsed;
     uint32 count = LootTemplates_Disenchant.LoadAndCollectLootIds(lootIdSet);
 
-    ItemTemplateContainer const* its = sObjectMgr->GetItemTemplateStore();
-    for (ItemTemplateContainer::const_iterator itr = its->begin(); itr != its->end(); ++itr)
+    for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
     {
-        if (uint32 lootid = itr->second.DisenchantID)
-        {
-            if (lootIdSet.find(lootid) == lootIdSet.end())
-                LootTemplates_Disenchant.ReportNotExistedId(lootid);
-            else
-                loodIdSetUsed.insert(lootid);
-        }
+        ItemDisenchantLootEntry const* disenchant = sItemDisenchantLootStore.LookupEntry(i);
+        if (!disenchant)
+            continue;
+
+        uint32 lootid = disenchant->Id;
+        if (lootIdSet.find(lootid) == lootIdSet.end())
+            LootTemplates_Disenchant.ReportNotExistedId(lootid);
+        else
+            loodIdSetUsed.insert(lootid);
     }
 
     for (LootIdSet::const_iterator itr = loodIdSetUsed.begin(); itr != loodIdSetUsed.end(); ++itr)

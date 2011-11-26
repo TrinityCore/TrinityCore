@@ -250,6 +250,7 @@ enum Opcodes
     CMSG_LFG_SET_ROLES                               = 0x4843, // 
     CMSG_LFG_TELEPORT                                = 0x8C7A, // 
     CMSG_LIST_INVENTORY                              = 0xDCFE, // 
+    CMSG_LOAD_SCREEN                                 = 0x4011, // 
     CMSG_LOG_DISCONNECT                              = 0x00, // 
     CMSG_LOGOUT_CANCEL                               = 0xA76, // 
     CMSG_LOGOUT_REQUEST                              = 0x4C7A, // 
@@ -432,7 +433,6 @@ enum Opcodes
     CMSG_WARDEN_DATA                                 = 0x5847, // 
     CMSG_WHO                                         = 0x9AD7, // 
     CMSG_WHOIS                                       = 0xCCE6, // 
-    CMSG_WORLD_LOGIN                                 = 0x00, // 
     CMSG_WORLD_STATE_UI_TIMER_UPDATE                 = 0x58F6, // 
     CMSG_WORLD_TELEPORT                              = 0x00, // 
     CMSG_WRAP_ITEM                                   = 0x00, //
@@ -560,8 +560,8 @@ enum Opcodes
     SMSG_AUCTION_OWNER_LIST_RESULT                   = 0x00, // 
     SMSG_AUCTION_OWNER_NOTIFICATION                  = 0x00, // 
     SMSG_AUCTION_REMOVED_NOTIFICATION                = 0x00, // 
-    SMSG_AURA_UPDATE                                 = 0x00, // 
-    SMSG_AURA_UPDATE_ALL                             = 0x00, // 
+    SMSG_AURA_UPDATE                                 = 0x4C66, // 
+    SMSG_AURA_UPDATE_ALL                             = 0x18EE, // 
     SMSG_AURACASTLOG                                 = 0x00, //
     SMSG_AUTH_CHALLENGE                              = 0x1181, // 
     SMSG_AUTH_RESPONSE                               = 0x8867, // 
