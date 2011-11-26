@@ -700,7 +700,7 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                                 damage += int32(dmg_min);
                             else
                                 damage += irand(int32(dmg_min), int32(dmg_max));
-                            damage += int32(m_caster->ToPlayer()->GetAmmoDPS()*item->GetTemplate()->Delay*0.001f);
+                            damage += int32(item->GetTemplate()->Delay*0.001f);
                         }
                     }
                 }
