@@ -127,6 +127,13 @@ struct AchievementCriteriaEntry
             uint32  questCount;                             // 4
         } complete_quests_in_zone;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_CURRENCY = 12
+        struct  
+        {
+            uint32 currency;
+            uint32 count;
+        } currencyGain;
+
         // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST   = 14
         struct
         {
