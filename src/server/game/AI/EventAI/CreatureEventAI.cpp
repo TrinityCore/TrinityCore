@@ -1312,7 +1312,7 @@ bool CreatureEventAI::CanCast(Unit* target, SpellInfo const* spell, bool trigger
         return false;
 
     //Check for power
-    if (!triggered && me->GetPower((Powers)spell->PowerType) < spell->CalcPowerCost(me, spell->GetSchoolMask()))
+    if (!triggered && (uint32)me->GetPower((Powers)spell->PowerType) < spell->CalcPowerCost(me, spell->GetSchoolMask()))
         return false;
 
     //Unit is out of range of this spell

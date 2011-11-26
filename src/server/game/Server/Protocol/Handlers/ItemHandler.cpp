@@ -280,160 +280,153 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
 // Only _static_ data send in this packet !!!
 void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_ITEM_QUERY_SINGLE");
-    uint32 item;
-    recv_data >> item;
+    uint32 count, type;
+    recv_data >> count >> type;
 
-    sLog->outDetail("STORAGE: Item Query = %u", item);
+    if (type != DB2_REPLY_SPARSE && type != DB2_REPLY_ITEM)
+        return;
 
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    if (pProto)
+    for (uint32 i = 0; i < count; ++i)
     {
-        std::string Name        = pProto->Name1;
-        std::string Description = pProto->Description;
+        uint32 item;
+        recv_data >> item;
+        recv_data.read_skip<uint64>();
+        WorldPacket data2(SMSG_DB_REPLY, 700);
+        ByteBuffer data;
+        data2 << uint32(type);
+        data2 << uint32(item);
 
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
+        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
+        if (proto)
         {
-            if (ItemLocale const* il = sObjectMgr->GetItemLocale(pProto->ItemId))
+            data << uint32(item);
+            if (type == DB2_REPLY_ITEM)
             {
-                ObjectMgr::GetLocaleString(il->Name, loc_idx, Name);
-                ObjectMgr::GetLocaleString(il->Description, loc_idx, Description);
+                data << uint32(proto->Class);
+                data << uint32(proto->SubClass);
+                data << int32(proto->Unk0);
+                data << uint32(proto->Material);
+                data << uint32(proto->DisplayInfoID);
+                data << uint32(proto->InventoryType);
+                data << uint32(proto->Sheath);
             }
-        }
-                                                            // guess size
-        WorldPacket data(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 600);
-        data << pProto->ItemId;
-        data << pProto->Class;
-        data << pProto->SubClass;
-        data << int32(pProto->Unk0);                        // new 2.0.3, not exist in wdb cache?
-        data << Name;
-        data << uint8(0x00);                                //pProto->Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
-        data << uint8(0x00);                                //pProto->Name3; // blizz not send name there, just uint8(0x00);
-        data << uint8(0x00);                                //pProto->Name4; // blizz not send name there, just uint8(0x00);
-        data << pProto->DisplayInfoID;
-        data << pProto->Quality;
-        data << pProto->Flags;
-        data << pProto->Flags2;
-        data << pProto->BuyPrice;
-        data << pProto->SellPrice;
-        data << pProto->InventoryType;
-        data << pProto->AllowableClass;
-        data << pProto->AllowableRace;
-        data << pProto->ItemLevel;
-        data << pProto->RequiredLevel;
-        data << pProto->RequiredSkill;
-        data << pProto->RequiredSkillRank;
-        data << pProto->RequiredSpell;
-        data << pProto->RequiredHonorRank;
-        data << pProto->RequiredCityRank;
-        data << pProto->RequiredReputationFaction;
-        data << pProto->RequiredReputationRank;
-        data << int32(pProto->MaxCount);
-        data << int32(pProto->Stackable);
-        data << pProto->ContainerSlots;
-        data << pProto->StatsCount;                         // item stats count
-        for (uint32 i = 0; i < pProto->StatsCount; ++i)
-        {
-            data << pProto->ItemStat[i].ItemStatType;
-            data << pProto->ItemStat[i].ItemStatValue;
-        }
-        data << pProto->ScalingStatDistribution;            // scaling stats distribution
-        data << pProto->ScalingStatValue;                   // some kind of flags used to determine stat values column
-        for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
-        {
-            data << pProto->Damage[i].DamageMin;
-            data << pProto->Damage[i].DamageMax;
-            data << pProto->Damage[i].DamageType;
-        }
-
-        // resistances (7)
-        data << pProto->Armor;
-        data << pProto->HolyRes;
-        data << pProto->FireRes;
-        data << pProto->NatureRes;
-        data << pProto->FrostRes;
-        data << pProto->ShadowRes;
-        data << pProto->ArcaneRes;
-
-        data << pProto->Delay;
-        data << pProto->AmmoType;
-        data << pProto->RangedModRange;
-
-        for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
-        {
-            // send DBC data for cooldowns in same way as it used in Spell::SendSpellCooldown
-            // use `item_template` or if not set then only use spell cooldowns
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(pProto->Spells[s].SpellId);
-            if (spell)
+            else if (type == DB2_REPLY_SPARSE)
             {
-                bool db_data = pProto->Spells[s].SpellCooldown >= 0 || pProto->Spells[s].SpellCategoryCooldown >= 0;
+                data << uint32(proto->Quality);
+                data << uint32(proto->Flags);
+                data << uint32(proto->Flags2);
+                data << int32(proto->BuyPrice);
+                data << uint32(proto->SellPrice);
+                data << uint32(proto->InventoryType);
+                data << int32(proto->AllowableClass);
+                data << int32(proto->AllowableRace);
+                data << uint32(proto->ItemLevel);
+                data << uint32(proto->RequiredLevel);
+                data << uint32(proto->RequiredSkill);
+                data << uint32(proto->RequiredSkillRank);
+                data << uint32(proto->RequiredSpell);
+                data << uint32(proto->RequiredHonorRank);
+                data << uint32(proto->RequiredCityRank);
+                data << uint32(proto->RequiredReputationFaction);
+                data << uint32(proto->RequiredReputationRank);
+                data << int32(proto->MaxCount);
+                data << int32(proto->Stackable);
+                data << uint32(proto->ContainerSlots);
 
-                data << pProto->Spells[s].SpellId;
-                data << pProto->Spells[s].SpellTrigger;
-                data << uint32(-abs(pProto->Spells[s].SpellCharges));
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+                    data << uint32(proto->ItemStat[x].ItemStatType);
 
-                if (db_data)
-                {
-                    data << uint32(pProto->Spells[s].SpellCooldown);
-                    data << uint32(pProto->Spells[s].SpellCategory);
-                    data << uint32(pProto->Spells[s].SpellCategoryCooldown);
-                }
-                else
-                {
-                    data << uint32(spell->RecoveryTime);
-                    data << uint32(spell->Category);
-                    data << uint32(spell->CategoryRecoveryTime);
-                }
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+                    data << int32(proto->ItemStat[x].ItemStatValue);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+                    data << int32(proto->ItemStat[x].ItemStatUnk1);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+                    data << int32(proto->ItemStat[x].ItemStatUnk2);
+
+                data << uint32(proto->ScalingStatDistribution);
+                data << uint32(proto->DamageType);
+                data << uint32(proto->Delay);
+                data << float(proto->RangedModRange);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                    data << int32(proto->Spells[x].SpellId);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                    data << uint32(proto->Spells[x].SpellTrigger);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                    data << int32(proto->Spells[x].SpellCharges);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                    data << int32(proto->Spells[x].SpellCooldown);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                    data << uint32(proto->Spells[x].SpellCategory);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                    data << int32(proto->Spells[x].SpellCategoryCooldown);
+
+                data << uint32(proto->Bonding);
+
+                // item name
+                std::string name = proto->Name1;
+                data << uint16(name.length() + 1);
+                data << name;
+
+                for (uint32 i = 0; i < 3; ++i) // other 3 names
+                    data << uint16(0);
+
+                std::string desc = proto->Description;
+                data << uint16(desc.length() + 1);
+                data << desc;
+
+                data << uint32(proto->PageText);
+                data << uint32(proto->LanguageID);
+                data << uint32(proto->PageMaterial);
+                data << uint32(proto->StartQuest);
+                data << uint32(proto->LockID);
+                data << int32(proto->Material);
+                data << uint32(proto->Sheath);
+                data << int32(proto->RandomProperty);
+                data << int32(proto->RandomSuffix);
+                data << uint32(proto->ItemSet);
+                data << uint32(proto->MaxDurability);
+
+                data << uint32(proto->Area);
+                data << uint32(proto->Map);
+                data << uint32(proto->BagFamily);
+                data << uint32(proto->TotemCategory);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
+                    data << uint32(proto->Socket[x].Color);
+
+                for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
+                    data << uint32(proto->Socket[x].Content);
+
+                data << uint32(proto->socketBonus);
+                data << uint32(proto->GemProperties);
+                data << float(proto->ArmorDamageModifier);
+                data << int32(proto->Duration);
+                data << uint32(proto->ItemLimitCategory);
+                data << uint32(proto->HolidayId);
+                data << float(proto->StatScalingFactor);    // StatScalingFactor
+                data << uint32(proto->Field130);            // archaeology unk
+                data << uint32(proto->Field131);            // archaeology findinds count
             }
             else
             {
+                data << uint32(item | 0x80000000); // sometimes with | 0x80000000
                 data << uint32(0);
-                data << uint32(0);
-                data << uint32(0);
-                data << uint32(-1);
-                data << uint32(0);
-                data << uint32(-1);
             }
+
+            data2 << uint32(data.size());
+            data2.append(data);
         }
-        data << pProto->Bonding;
-        data << Description;
-        data << pProto->PageText;
-        data << pProto->LanguageID;
-        data << pProto->PageMaterial;
-        data << pProto->StartQuest;
-        data << pProto->LockID;
-        data << int32(pProto->Material);
-        data << pProto->Sheath;
-        data << pProto->RandomProperty;
-        data << pProto->RandomSuffix;
-        data << pProto->Block;
-        data << pProto->ItemSet;
-        data << pProto->MaxDurability;
-        data << pProto->Area;
-        data << pProto->Map;                                // Added in 1.12.x & 2.0.1 client branch
-        data << pProto->BagFamily;
-        data << pProto->TotemCategory;
-        for (int s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
-        {
-            data << pProto->Socket[s].Color;
-            data << pProto->Socket[s].Content;
-        }
-        data << pProto->socketBonus;
-        data << pProto->GemProperties;
-        data << pProto->RequiredDisenchantSkill;
-        data << pProto->ArmorDamageModifier;
-        data << uint32(abs(pProto->Duration));              // added in 2.4.2.8209, duration (seconds)
-        data << pProto->ItemLimitCategory;                  // WotLK, ItemLimitCategory
-        data << pProto->HolidayId;                          // Holiday.dbc?
-        SendPacket(&data);
-    }
-    else
-    {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_QUERY_SINGLE - NO item INFO! (ENTRY: %u)", item);
-        WorldPacket data(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 4);
-        data << uint32(item | 0x80000000);
-        SendPacket(&data);
+
+        data2 << uint32(type);
+        _player->GetSession()->SendPacket(&data2);
     }
 }
 
@@ -979,25 +972,6 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
         _player->RemoveItem(srcbag, srcslot, true);
         _player->BankItem(dest, pItem, true);
     }
-}
-
-void WorldSession::HandleSetAmmoOpcode(WorldPacket & recv_data)
-{
-    if (!GetPlayer()->isAlive())
-    {
-        GetPlayer()->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, NULL, NULL);
-        return;
-    }
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SET_AMMO");
-    uint32 item;
-
-    recv_data >> item;
-
-    if (!item)
-        GetPlayer()->RemoveAmmo();
-    else
-        GetPlayer()->SetAmmo(item);
 }
 
 void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID)

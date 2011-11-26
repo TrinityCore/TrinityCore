@@ -412,10 +412,10 @@ enum PlayerFlags
     PLAYER_FLAGS_NO_XP_GAIN        = 0x02000000,
     PLAYER_FLAGS_UNK26             = 0x04000000,
     PLAYER_FLAGS_UNK27             = 0x08000000,
-    PLAYER_FLAGS_UNK28             = 0x01000000,
-    PLAYER_FLAGS_UNK29             = 0x02000000,
-    PLAYER_FLAGS_UNK30             = 0x04000000,
-    PLAYER_FLAGS_UNK31             = 0x08000000,
+    PLAYER_FLAGS_UNK28             = 0x10000000,
+    PLAYER_FLAGS_UNK29             = 0x20000000,
+    PLAYER_FLAGS_UNK30             = 0x40000000,
+    PLAYER_FLAGS_UNK31             = 0x80000000,
 };
 
 // used for PLAYER__FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
@@ -791,7 +791,7 @@ enum PlayerChatTag
     CHAT_TAG_AFK        = 0x01,
     CHAT_TAG_DND        = 0x02,
     CHAT_TAG_GM         = 0x04,
-    CHAT_TAG_UNK        = 0x08, // Probably battleground commentator
+    CHAT_TAG_COM        = 0x08, // Commentator
     CHAT_TAG_DEV        = 0x10,
 };
 
@@ -893,12 +893,6 @@ enum CharDeleteMethod
     CHAR_DELETE_REMOVE = 0,                      // Completely remove from the database
     CHAR_DELETE_UNLINK = 1                       // The character gets unlinked from the account,
                                                  // the name gets freed up and appears as deleted ingame
-};
-
-enum CurrencyItems
-{
-    ITEM_HONOR_POINTS_ID    = 43308,
-    ITEM_ARENA_POINTS_ID    = 43307
 };
 
 enum ReferAFriendError
@@ -1320,10 +1314,6 @@ class Player : public Unit, public GridObject<Player>
         void ModifyCurrency(uint32 id, int32 count);
 
         void ApplyEquipCooldown(Item* pItem);
-        void SetAmmo(uint32 item);
-        void RemoveAmmo();
-        float GetAmmoDPS() const { return m_ammoDPS; }
-        bool CheckAmmoCompatibility(const ItemTemplate* ammo_proto) const;
         void QuickEquipItem(uint16 pos, Item* pItem);
         void VisualizeItem(uint8 slot, Item* pItem);
         void SetVisibleItemSlot(uint8 slot, Item* pItem);
@@ -1433,10 +1423,11 @@ class Player : public Unit, public GridObject<Player>
         void IncompleteQuest(uint32 quest_id);
         void RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, bool announce = true);
         void FailQuest(uint32 quest_id);
-        bool SatisfyQuestSkillOrClass(Quest const* qInfo, bool msg);
+        bool SatisfyQuestSkill(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestLevel(Quest const* qInfo, bool msg);
         bool SatisfyQuestLog(bool msg);
         bool SatisfyQuestPreviousQuest(Quest const* qInfo, bool msg);
+        bool SatisfyQuestClass(Quest const* qInfo, bool msg) const;
         bool SatisfyQuestRace(Quest const* qInfo, bool msg);
         bool SatisfyQuestReputation(Quest const* qInfo, bool msg);
         bool SatisfyQuestStatus(Quest const* qInfo, bool msg);
@@ -1516,7 +1507,7 @@ class Player : public Unit, public GridObject<Player>
         void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
         void SendQuestTimerFailed(uint32 quest_id);
-        void SendCanTakeQuestResponse(uint32 msg);
+        void SendCanTakeQuestResponse(uint32 msg) const;
         void SendQuestConfirmAccept(Quest const* quest, Player* pReceiver);
         void SendPushToPartyResponse(Player* player, uint32 msg);
         void SendQuestUpdateAddItem(Quest const* quest, uint32 item_idx, uint16 count);
@@ -1553,7 +1544,7 @@ class Player : public Unit, public GridObject<Player>
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
 
-        void SaveToDB();
+        void SaveToDB(bool create = false);
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans);
 
@@ -1688,8 +1679,8 @@ class Player : public Unit, public GridObject<Player>
         void SetReputation(uint32 factionentry, uint32 value);
         uint32 GetReputation(uint32 factionentry);
         std::string GetGuildName();
-        uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
-        void SetFreeTalentPoints(uint32 points);
+        uint32 GetFreeTalentPoints() const { return m_freeTalentPoints; }
+        void SetFreeTalentPoints(uint32 points) { m_freeTalentPoints = points; }
         bool resetTalents(bool no_cost = false);
         uint32 resetTalentsCost() const;
         void InitTalentForLevel();
@@ -1722,8 +1713,8 @@ class Player : public Unit, public GridObject<Player>
         }
         uint32 GetGlyph(uint8 slot) { return m_Glyphs[m_activeSpec][slot]; }
 
-        uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS2); }
-        void SetFreePrimaryProfessions(uint16 profs) { SetUInt32Value(PLAYER_CHARACTER_POINTS2, profs); }
+        uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }
+        void SetFreePrimaryProfessions(uint16 profs) { SetUInt32Value(PLAYER_CHARACTER_POINTS, profs); }
         void InitPrimaryProfessions();
 
         PlayerSpellMap const& GetSpellMap() const { return m_spells; }
@@ -1843,11 +1834,24 @@ class Player : public Unit, public GridObject<Player>
         void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(), GetGUID(), method); }
         void SendUpdateToOutOfRangeGroupMembers();
 
-        void SetInGuild(uint32 GuildId) { SetUInt32Value(PLAYER_GUILDID, GuildId); }
+        void SetInGuild(uint32 GuildId)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_GUILD_ID);
+            stmt->setUInt32(0, GuildId);
+            stmt->setUInt64(1, GetGUID());
+            CharacterDatabase.Execute(stmt);
+        }
+
+        uint32 GetGuildId()
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUILD_ID);
+            stmt->setUInt64(0, GetGUIDLow());
+            PreparedQueryResult result = CharacterDatabase.Query(stmt);
+            return result ? (*result)[0].GetUInt32() : 0;
+        }
         void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
         uint8 GetRank() { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
         void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
-        uint32 GetGuildId() { return GetUInt32Value(PLAYER_GUILDID);  }
         static uint32 GetGuildIdFromDB(uint64 guid);
         static uint8 GetRankFromDB(uint64 guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
@@ -2074,15 +2078,10 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
+        // TODO: Properly implement correncies as of Cataclysm
         void UpdateHonorFields();
-        bool RewardHonor(Unit* pVictim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
-        uint32 GetHonorPoints() const { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
-        uint32 GetArenaPoints() const { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
-        void ModifyHonorPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, honor save query will be added to trans
-        void ModifyArenaPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, arena point save query will be added to trans
+        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);        
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
-        void SetHonorPoints(uint32 value);
-        void SetArenaPoints(uint32 value);
 
         //End of PvP System
 
@@ -2127,7 +2126,6 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyAllLevelScaleItemMods(bool apply);
         void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, bool only_level_scale = false);
         void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply);
-        void _ApplyAmmoBonuses();
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);
@@ -2323,6 +2321,7 @@ class Player : public Unit, public GridObject<Player>
             m_mover = target;
             m_mover->m_movedPlayer = this;
         }
+
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
         WorldObject* GetViewpoint() const;
@@ -2524,7 +2523,7 @@ class Player : public Unit, public GridObject<Player>
                 CreatureDisplayInfoEntry const* mountDisplayInfo = sCreatureDisplayInfoStore.LookupEntry(GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID));
                 if (!mountDisplayInfo)
                     return GetCollisionHeight(false);
-                    
+
                 CreatureModelDataEntry const* mountModelData = sCreatureModelDataStore.LookupEntry(mountDisplayInfo->ModelId);
                 if (!mountModelData)
                     return GetCollisionHeight(false);
@@ -2704,6 +2703,8 @@ class Player : public Unit, public GridObject<Player>
         uint8 m_activeSpec;
         uint8 m_specsCount;
 
+        uint32 m_freeTalentPoints;
+
         uint32 m_Glyphs[MAX_TALENT_SPECS][MAX_GLYPH_SLOT_INDEX];
 
         ActionButtonList m_actionButtons;
@@ -2764,7 +2765,6 @@ class Player : public Unit, public GridObject<Player>
         bool m_canBlock;
         bool m_canTitanGrip;
         uint8 m_swingErrorMsg;
-        float m_ammoDPS;
 
         ////////////////////Rest System/////////////////////
         time_t time_inn_enter;

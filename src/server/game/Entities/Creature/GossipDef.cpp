@@ -337,13 +337,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
         data << uint32(quest->GetRewChoiceItemsCount());
         for (uint32 i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
-            if (!quest->RewChoiceItemId[i])
+            if (!quest->RewardChoiceItemId[i])
                 continue;
 
-            data << uint32(quest->RewChoiceItemId[i]);
-            data << uint32(quest->RewChoiceItemCount[i]);
+            data << uint32(quest->RewardChoiceItemId[i]);
+            data << uint32(quest->RewardChoiceItemCount[i]);
 
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewChoiceItemId[i]))
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[i]))
                 data << uint32(itemTemplate->DisplayInfoID);
             else
                 data << uint32(0x00);
@@ -353,13 +353,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
 
         for (uint32 i=0; i < QUEST_REWARDS_COUNT; ++i)
         {
-            if (!quest->RewItemId[i])
+            if (!quest->RewardItemId[i])
                 continue;
 
-            data << uint32(quest->RewItemId[i]);
-            data << uint32(quest->RewItemCount[i]);
+            data << uint32(quest->RewardItemId[i]);
+            data << uint32(quest->RewardItemIdCount[i]);
 
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewItemId[i]))
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[i]))
                 data << uint32(itemTemplate->DisplayInfoID);
             else
                 data << uint32(0);
@@ -380,13 +380,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     data << uint32(0);                                      // unk
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << uint32(quest->RewRepFaction[i]);
+        data << uint32(quest->RewardFactionId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewRepValueId[i]);
+        data << int32(quest->RewardFactionValueId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewRepValue[i]);
+        data << int32(quest->RewardFactionValueIdOverride[i]);
 
     data << uint32(QUEST_EMOTE_COUNT);
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
@@ -401,11 +401,17 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
 
 void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 {
+    // SMSG_QUEST_QUERY_RESPONSE - Updated to 422
+
     std::string questTitle = quest->GetTitle();
     std::string questDetails = quest->GetDetails();
     std::string questObjectives = quest->GetObjectives();
     std::string questEndText = quest->GetEndText();
     std::string questCompletedText = quest->GetCompletedText();
+    std::string questGiverTextWindow = quest->GetQuestGiverTextWindow();
+    std::string questGiverTargetName = quest->GetQuestGiverTargetName();
+    std::string questTurnTextWindow = quest->GetQuestTurnTextWindow();
+    std::string questTurnTargetName = quest->GetQuestTurnTargetName();
 
     std::string questObjectiveText[QUEST_OBJECTIVES_COUNT];
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
@@ -421,6 +427,10 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
             ObjectMgr::GetLocaleString(localeData->Objectives, locale, questObjectives);
             ObjectMgr::GetLocaleString(localeData->EndText, locale, questEndText);
             ObjectMgr::GetLocaleString(localeData->CompletedText, locale, questCompletedText);
+            ObjectMgr::GetLocaleString(localeData->QuestGiverTextWindow, locale, questGiverTextWindow);
+            ObjectMgr::GetLocaleString(localeData->QuestGiverTargetName, locale, questGiverTargetName);
+            ObjectMgr::GetLocaleString(localeData->QuestTurnTextWindow, locale, questTurnTextWindow);
+            ObjectMgr::GetLocaleString(localeData->QuestTurnTargetName, locale, questTurnTargetName);
 
             for (int i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
                 ObjectMgr::GetLocaleString(localeData->ObjectiveText[i], locale, questObjectiveText[i]);
@@ -461,11 +471,16 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << float(0);                                       // new reward honor (multipled by ~62 at client side)
     data << uint32(quest->GetSrcItemId());                  // source item id
     data << uint32(quest->GetFlags() & 0xFFFF);             // quest flags
+    data << uint32(quest->GetMinimapTargetMark());          // minimap target mark (skull, etc. missing enum)
     data << uint32(quest->GetCharTitleId());                // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
     data << uint32(quest->GetPlayersSlain());               // players slain
     data << uint32(quest->GetBonusTalents());               // bonus talents
     data << uint32(quest->GetRewArenaPoints());             // bonus arena points
-    data << uint32(0);                                      // review rep show mask
+    data << uint32(quest->GetRewardSkillId());              // reward skill id
+    data << uint32(quest->GetRewardSkillPoints());          // reward skill points
+    data << uint32(quest->GetRewardReputationMask());       // rep mask (unsure on what it does)
+    data << uint32(quest->GetQuestGiverPortrait());         // quest giver entry ?
+    data << uint32(quest->GetQuestTurnInPortrait());        // quest turnin entry ?
 
     if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
     {
@@ -478,24 +493,24 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     {
         for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
         {
-            data << uint32(quest->RewItemId[i]);
-            data << uint32(quest->RewItemCount[i]);
+            data << uint32(quest->RewardItemId[i]);
+            data << uint32(quest->RewardItemIdCount[i]);
         }
         for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
-            data << uint32(quest->RewChoiceItemId[i]);
-            data << uint32(quest->RewChoiceItemCount[i]);
+            data << uint32(quest->RewardChoiceItemId[i]);
+            data << uint32(quest->RewardChoiceItemCount[i]);
         }
     }
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // reward factions ids
-        data << uint32(quest->RewRepFaction[i]);
+        data << uint32(quest->RewardFactionId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // columnid+1 QuestFactionReward.dbc?
-        data << int32(quest->RewRepValueId[i]);
+        data << int32(quest->RewardFactionValueId[i]);
 
-    for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)           // unk (0)
-        data << int32(quest->RewRepValue[i]);
+    for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)           // unknown usage
+        data << int32(quest->RewardFactionValueIdOverride[i]);
 
     data << quest->GetPointMapId();
     data << quest->GetPointX();
@@ -506,28 +521,49 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     data << questObjectives;
     data << questDetails;
     data << questEndText;
-    data << questCompletedText;                                  // display in quest objectives window once all objectives are completed
+    data << questCompletedText;
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        if (quest->ReqCreatureOrGOId[i] < 0)
-            data << uint32((quest->ReqCreatureOrGOId[i] * (-1)) | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
+        if (quest->RequiredNpcOrGo[i] < 0)
+            data << uint32((quest->RequiredNpcOrGo[i] * (-1)) | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
         else
-            data << uint32(quest->ReqCreatureOrGOId[i]);
+            data << uint32(quest->RequiredNpcOrGo[i]);
 
-        data << uint32(quest->ReqCreatureOrGOCount[i]);
-        data << uint32(quest->ReqSourceId[i]);
-        data << uint32(0);                                  // req source count?
+        data << uint32(quest->RequiredNpcOrGoCount[i]);
+        data << uint32(quest->RequiredSourceItemId[i]);
+        data << uint32(quest->RequiredSourceItemCount[i]);
     }
 
     for (uint32 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
-        data << uint32(quest->ReqItemId[i]);
-        data << uint32(quest->ReqItemCount[i]);
+        data << uint32(quest->RequiredItemId[i]);
+        data << uint32(quest->RequiredItemCount[i]);
     }
+
+    data << uint32(quest->GetRequiredSpell()); // Is it required to be cast, learned or what?
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         data << questObjectiveText[i];
+
+    for (uint32 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
+    {
+        data << uint32(quest->RewardCurrencyId[i]);
+        data << uint32(quest->RewardCurrencyCount[i]);
+    }
+
+    for (uint32 i = 0; i < QUEST_REQUIRED_CURRENCY_COUNT; ++i)
+    {
+        data << uint32(quest->RequiredCurrencyId[i]);
+        data << uint32(quest->RequiredCurrencyCount[i]);
+    }
+
+    data << questGiverTextWindow;
+    data << questGiverTargetName;
+    data << questTurnTextWindow;
+    data << questTurnTargetName;
+    data << uint32(quest->GetSoundAccept());
+    data << uint32(quest->GetSoundTurnIn());
 
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUEST_QUERY_RESPONSE questid=%u", quest->GetQuestId());
@@ -576,10 +612,10 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(quest->GetRewChoiceItemsCount());
     for (uint32 i=0; i < quest->GetRewChoiceItemsCount(); ++i)
     {
-        data << uint32(quest->RewChoiceItemId[i]);
-        data << uint32(quest->RewChoiceItemCount[i]);
+        data << uint32(quest->RewardChoiceItemId[i]);
+        data << uint32(quest->RewardChoiceItemCount[i]);
 
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewChoiceItemId[i]))
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
         else
             data << uint32(0);
@@ -588,10 +624,10 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(quest->GetRewItemsCount());
     for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
     {
-        data << uint32(quest->RewItemId[i]);
-        data << uint32(quest->RewItemCount[i]);
+        data << uint32(quest->RewardItemId[i]);
+        data << uint32(quest->RewardItemIdCount[i]);
 
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewItemId[i]))
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
         else
             data << uint32(0);
@@ -612,13 +648,13 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(0);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward factions ids
-        data << uint32(quest->RewRepFaction[i]);
+        data << uint32(quest->RewardFactionId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
-        data << int32(quest->RewRepValueId[i]);
+        data << int32(quest->RewardFactionValueId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
-        data << uint32(quest->RewRepValue[i]);
+        data << uint32(quest->RewardFactionValueIdOverride[i]);
 
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
@@ -676,13 +712,13 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     data << uint32(quest->GetReqItemsCount());
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
-        if (!quest->ReqItemId[i])
+        if (!quest->RequiredItemId[i])
             continue;
 
-        data << uint32(quest->ReqItemId[i]);
-        data << uint32(quest->ReqItemCount[i]);
+        data << uint32(quest->RequiredItemId[i]);
+        data << uint32(quest->RequiredItemCount[i]);
 
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ReqItemId[i]))
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
         else
             data << uint32(0);

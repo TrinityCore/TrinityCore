@@ -42,13 +42,6 @@ enum PetSaveMode
     PET_SAVE_NOT_IN_SLOT       =  100                       // for avoid conflict with stable size grow will use 100
 };
 
-enum HappinessState
-{
-    UNHAPPY = 1,
-    CONTENT = 2,
-    HAPPY   = 3
-};
-
 enum PetSpellState
 {
     PETSPELL_UNCHANGED = 0,
@@ -108,8 +101,6 @@ enum PetNameInvalidReason
 typedef UNORDERED_MAP<uint32, PetSpell> PetSpellMap;
 typedef std::vector<uint32> AutoSpellList;
 
-#define HAPPINESS_LEVEL_SIZE        333000
-
 #define ACTIVE_SPELLS_MAX           4
 
 #define PET_FOLLOW_DIST  1.0f
@@ -156,8 +147,6 @@ class Pet : public Guardian
                 return m_autospells[pos];
         }
 
-        void LoseHappiness();
-        HappinessState GetHappinessState();
         void GivePetXP(uint32 xp);
         void GivePetLevel(uint8 level);
         void SynchronizeLevelWithOwner();
@@ -226,7 +215,6 @@ class Pet : public Guardian
         Player* GetOwner() { return m_owner; }
     protected:
         Player* m_owner;
-        uint32  m_happinessTimer;
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)
         uint64  m_auraRaidUpdateMask;

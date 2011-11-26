@@ -33,14 +33,20 @@
 // Structures used to access raw DB2 data and required packing to portability
 struct ItemEntry
 {
-   uint32   ID;                                             // 0
-   uint32   Class;                                          // 1
-   uint32   SubClass;                                       // 2
-   int32    Unk0;                                           // 3
-   int32    Material;                                       // 4
-   uint32   DisplayId;                                      // 5
-   uint32   InventoryType;                                  // 6
-   uint32   Sheath;                                         // 7
+    uint32   ID;                                             // 0
+    uint32   Class;                                          // 1
+    uint32   SubClass;                                       // 2
+    int32    Unk0;                                           // 3
+    int32    Material;                                       // 4
+    uint32   DisplayId;                                      // 5
+    uint32   InventoryType;                                  // 6
+    uint32   Sheath;                                         // 7
+};
+
+struct ItemCurrencyCostEntry
+{
+    uint32  Id;
+    uint32  ItemId;
 };
 
 struct ItemSparseEntry
@@ -81,11 +87,11 @@ struct ItemSparseEntry
     int32      SpellCategory[MAX_ITEM_PROTO_SPELLS];         // 85 - 89
     int32      SpellCategoryCooldown[MAX_ITEM_PROTO_SPELLS]; // 90 - 94
     uint32     Bonding;                                      // 95
-    char*  Name;                                         // 96
-    char*  Name2;                                        // 97
-    char*  Name3;                                        // 98
-    char*  Name4;                                        // 99
-    char*  Description;                                  // 100
+    char*      Name;                                         // 96
+    char*      Name2;                                        // 97
+    char*      Name3;                                        // 98
+    char*      Name4;                                        // 99
+    char*      Description;                                  // 100
     uint32     PageText;                                     // 101
     uint32     LanguageID;                                   // 102
     uint32     PageMaterial;                                 // 103

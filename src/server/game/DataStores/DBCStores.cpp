@@ -111,20 +111,12 @@ DBCStorage <GtRegenMPPerSptEntry>         sGtRegenMPPerSptStore(GtRegenMPPerSptf
 
 DBCStorage <HolidaysEntry>                sHolidaysStore(Holidaysfmt);
 
-DBCStorage <ItemClassEntry>               sItemClassStore(ItemClassfmt);
-//DBCStorage <ItemEntry>                    sItemStore(Itemfmt);
-DBCStorage <ItemBagFamilyEntry>           sItemBagFamilyStore(ItemBagFamilyfmt);
-//DBCStorage <ItemCondExtCostsEntry> sItemCondExtCostsStore(ItemCondExtCostsEntryfmt);
-//DBCStorage <ItemDisplayInfoEntry> sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt); -- not used currently
-//DBCStorage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
-DBCStorage <ItemLimitCategoryEntry> sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
-DBCStorage <ItemRandomPropertiesEntry> sItemRandomPropertiesStore(ItemRandomPropertiesfmt);
-DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
-DBCStorage <ItemSetEntry> sItemSetStore(ItemSetEntryfmt);
-
 DBCStorage <ItemArmorQualityEntry>        sItemArmorQualityStore(ItemArmorQualityfmt);
 DBCStorage <ItemArmorShieldEntry>         sItemArmorShieldStore(ItemArmorShieldfmt);
 DBCStorage <ItemArmorTotalEntry>          sItemArmorTotalStore(ItemArmorTotalfmt);
+DBCStorage <ItemBagFamilyEntry>           sItemBagFamilyStore(ItemBagFamilyfmt);
+DBCStorage <ItemClassEntry>               sItemClassStore(ItemClassfmt);
+//DBCStorage <ItemCondExtCostsEntry> sItemCondExtCostsStore(ItemCondExtCostsEntryfmt);
 DBCStorage <ItemDamageEntry>              sItemDamageAmmoStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageOneHandStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageOneHandCasterStore(ItemDamagefmt);
@@ -133,6 +125,13 @@ DBCStorage <ItemDamageEntry>              sItemDamageThrownStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageTwoHandStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageTwoHandCasterStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageWandStore(ItemDamagefmt);
+DBCStorage <ItemDisenchantLootEntry>      sItemDisenchantLootStore(ItemDisenchantLootfmt);
+//DBCStorage <ItemDisplayInfoEntry> sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt); -- not used currently
+//DBCStorage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
+DBCStorage <ItemLimitCategoryEntry> sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
+DBCStorage <ItemRandomPropertiesEntry> sItemRandomPropertiesStore(ItemRandomPropertiesfmt);
+DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
+DBCStorage <ItemSetEntry> sItemSetStore(ItemSetEntryfmt);
 
 DBCStorage <LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
 //DBCStorage <LiquidTypeEntry> sLiquidTypeStore(LiquidTypeEntryfmt);
@@ -397,7 +396,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemRandomSuffixStore,       dbcPath, "ItemRandomSuffix.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetStore,                dbcPath, "ItemSet.dbc");//14545
 
-    
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorQualityStore,       dbcPath, "ItemArmorQuality.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorShieldStore,        dbcPath, "ItemArmorShield.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorTotalStore,         dbcPath, "ItemArmorTotal.dbc");//14545
@@ -409,6 +408,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemDamageTwoHandStore,      dbcPath, "ItemDamageTwoHand.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemDamageTwoHandCasterStore,dbcPath, "ItemDamageTwoHandCaster.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemDamageWandStore,         dbcPath, "ItemDamageWand.dbc");//14545
+    LoadDBC(availableDbcLocales, bad_dbc_files, sItemDisenchantLootStore,     dbcPath, "ItemDisenchantLoot.dbc");
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemClassStore,              dbcPath,"ItemClass.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sLFGDungeonStore,             dbcPath, "LFGDungeons.dbc");//14545
@@ -487,7 +487,7 @@ void LoadDBCStores(const std::string& dataPath)
         }
     }
 
-    
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellReagentsStore,          dbcPath,"SpellReagents.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellScalingStore,           dbcPath,"SpellScaling.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellTotemsStore,            dbcPath,"SpellTotems.dbc");//14545
@@ -501,10 +501,10 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellAuraOptionsStore,       dbcPath,"SpellAuraOptions.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellAuraRestrictionsStore,  dbcPath,"SpellAuraRestrictions.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCastingRequirementsStore, dbcPath,"SpellCastingRequirements.dbc");//14545
-    
+
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellCategoriesStore,        dbcPath,"SpellCategories.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sSpellEffectStore,            dbcPath,"SpellEffect.dbc");//14545
-    
+
     for(uint32 i = 1; i < sSpellEffectStore.GetNumRows(); ++i)
     {
         if(SpellEffectEntry const *spellEffect = sSpellEffectStore.LookupEntry(i))
@@ -973,6 +973,158 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
 uint32 const* GetTalentTabPages(uint8 cls)
 {
     return sTalentTabPages[cls];
+}
+
+uint32 ScalingStatValuesEntry::GetStatMultiplier(uint32 inventoryType) const
+{
+    if (inventoryType < MAX_INVTYPE)
+    {
+        switch (inventoryType)
+        {
+            case INVTYPE_NON_EQUIP:
+            case INVTYPE_BODY:
+            case INVTYPE_BAG:
+            case INVTYPE_TABARD:
+            case INVTYPE_AMMO:
+            case INVTYPE_QUIVER:
+                return 0;
+            case INVTYPE_HEAD:
+            case INVTYPE_CHEST:
+            case INVTYPE_LEGS:
+            case INVTYPE_2HWEAPON:
+            case INVTYPE_ROBE:
+                return StatMultiplier[0];
+            case INVTYPE_SHOULDERS:
+            case INVTYPE_WAIST:
+            case INVTYPE_FEET:
+            case INVTYPE_HANDS:
+            case INVTYPE_TRINKET:
+                return StatMultiplier[1];
+            case INVTYPE_NECK:
+            case INVTYPE_WRISTS:
+            case INVTYPE_FINGER:
+            case INVTYPE_SHIELD:
+            case INVTYPE_CLOAK:
+            case INVTYPE_HOLDABLE:
+                return StatMultiplier[2];
+            case INVTYPE_RANGED:
+            case INVTYPE_THROWN:
+            case INVTYPE_RANGEDRIGHT:
+            case INVTYPE_RELIC:
+                return StatMultiplier[3];
+            case INVTYPE_WEAPON:
+            case INVTYPE_WEAPONMAINHAND:
+            case INVTYPE_WEAPONOFFHAND:
+                return StatMultiplier[4];
+            default:
+                break;
+        }
+    }
+    return 0;
+}
+
+uint32 ScalingStatValuesEntry::GetArmor(uint32 inventoryType, uint32 armorType) const
+{
+    if (inventoryType <= INVTYPE_ROBE && armorType < 4)
+    {
+        switch (inventoryType)
+        {
+            case INVTYPE_NON_EQUIP:
+            case INVTYPE_NECK:
+            case INVTYPE_BODY:
+            case INVTYPE_FINGER:
+            case INVTYPE_TRINKET:
+            case INVTYPE_WEAPON:
+            case INVTYPE_SHIELD:
+            case INVTYPE_RANGED:
+            case INVTYPE_2HWEAPON:
+            case INVTYPE_BAG:
+            case INVTYPE_TABARD:
+                break;
+            case INVTYPE_SHOULDERS:
+                return Armor[0][armorType];
+            case INVTYPE_CHEST:
+            case INVTYPE_ROBE:
+                return Armor[1][armorType];
+            case INVTYPE_HEAD:
+                return Armor[2][armorType];
+            case INVTYPE_LEGS:
+                return Armor[3][armorType];
+            case INVTYPE_FEET:
+                return Armor[4][armorType];
+            case INVTYPE_WAIST:
+                return Armor[5][armorType];
+            case INVTYPE_HANDS:
+                return Armor[6][armorType];
+            case INVTYPE_WRISTS:
+                return Armor[7][armorType];
+            case INVTYPE_CLOAK:
+                return CloakArmor;
+            default:
+                break;
+        }
+    }
+    return 0;
+}
+
+uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const
+{
+    if (!isCasterWeapon)
+    {
+        switch (subClass)
+        {
+            case ITEM_SUBCLASS_WEAPON_AXE:
+            case ITEM_SUBCLASS_WEAPON_MACE:
+            case ITEM_SUBCLASS_WEAPON_SWORD:
+            case ITEM_SUBCLASS_WEAPON_DAGGER:
+            case ITEM_SUBCLASS_WEAPON_THROWN:
+                *damageMultiplier = 0.3f;
+                return dpsMod[0];
+            case ITEM_SUBCLASS_WEAPON_AXE2:
+            case ITEM_SUBCLASS_WEAPON_MACE2:
+            case ITEM_SUBCLASS_WEAPON_POLEARM:
+            case ITEM_SUBCLASS_WEAPON_SWORD2:
+            case ITEM_SUBCLASS_WEAPON_STAFF:
+            case ITEM_SUBCLASS_WEAPON_FISHING_POLE:
+                *damageMultiplier = 0.2f;
+                return dpsMod[1];
+            case ITEM_SUBCLASS_WEAPON_BOW:
+            case ITEM_SUBCLASS_WEAPON_GUN:
+            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
+                *damageMultiplier = 0.3f;
+                return dpsMod[4];
+            case ITEM_SUBCLASS_WEAPON_obsolete:
+            case ITEM_SUBCLASS_WEAPON_EXOTIC:
+            case ITEM_SUBCLASS_WEAPON_EXOTIC2:
+            case ITEM_SUBCLASS_WEAPON_FIST:
+            case ITEM_SUBCLASS_WEAPON_MISC:
+            case ITEM_SUBCLASS_WEAPON_SPEAR:
+            case ITEM_SUBCLASS_WEAPON_WAND:
+                break;
+        }
+    }
+    else
+    {
+        if (subClass <= ITEM_SUBCLASS_WEAPON_WAND)
+        {
+            uint32 mask = 1 << subClass;
+            // two-handed weapons
+            if (mask & 0x562)
+            {
+                *damageMultiplier = 0.2f;
+                return dpsMod[3];
+            }
+
+            if (mask & (1 << ITEM_SUBCLASS_WEAPON_WAND))
+            {
+                *damageMultiplier = 0.3f;
+                return dpsMod[5];
+            }
+        }
+        *damageMultiplier = 0.3f;
+        return dpsMod[2];
+    }
+    return 0;
 }
 
 // script support functions

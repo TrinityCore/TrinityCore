@@ -43,7 +43,7 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_3          = 0x00000004,
     CAST_FLAG_UNKNOWN_4          = 0x00000008,              // ignore AOE visual
     CAST_FLAG_UNKNOWN_5          = 0x00000010,
-    CAST_FLAG_AMMO               = 0x00000020,              // Projectiles visual
+    CAST_FLAG_UNKNOWN_6          = 0x00000020,
     CAST_FLAG_UNKNOWN_7          = 0x00000040,
     CAST_FLAG_UNKNOWN_8          = 0x00000080,
     CAST_FLAG_UNKNOWN_9          = 0x00000100,
@@ -402,7 +402,6 @@ class Spell
 
         void DoCreateItem(uint32 i, uint32 itemtype);
         void WriteSpellGoTargets(WorldPacket* data);
-        void WriteAmmoToPacket(WorldPacket* data);
 
         void InitExplicitTargets(SpellCastTargets const& targets);
         void SelectSpellTargets();

@@ -1093,7 +1093,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyHonorCommand (ChatHandler* handler, const char* args)
+    static bool HandleModifyHonorCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
@@ -1112,9 +1112,9 @@ public:
 
         int32 amount = (uint32)atoi(args);
 
-        target->ModifyHonorPoints(amount);
+        target->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, amount);
 
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetHonorPoints());
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_HONOR_POINTS));
 
         return true;
     }
@@ -1302,9 +1302,9 @@ public:
 
         int32 amount = (uint32)atoi(args);
 
-        target->ModifyArenaPoints(amount);
+        target->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, amount);
 
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_ARENA, handler->GetNameLink(target).c_str(), target->GetArenaPoints());
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_ARENA, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS));
 
         return true;
     }
