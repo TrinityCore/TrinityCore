@@ -3686,14 +3686,20 @@ void Player::RemoveSpell(uint32 spell_id, bool disabled, bool learn_low_rank)
         }
     }
 
-    if (spell_id == 46917 && m_canTitanGrip)
+    if (m_canTitanGrip)
     {
-        RemoveAurasDueToSpell(m_titanGripPenaltySpellId);
-        SetCanTitanGrip(false);
+        if (spellInfo && spellInfo->IsPassive() && spellInfo->HasEffect(SPELL_EFFECT_TITAN_GRIP))
+        {
+            RemoveAurasDueToSpell(m_titanGripPenaltySpellId);
+            SetCanTitanGrip(false);
+        }
     }
 
-    if (spell_id == 674 && m_canDualWield)
-        SetCanDualWield(false);
+    if (m_canDualWield)
+    {
+        if (spellInfo && spellInfo->IsPassive() && spellInfo->HasEffect(SPELL_EFFECT_DUAL_WIELD))
+            SetCanDualWield(false);
+    }
 
     if (sWorld->getBoolConfig(CONFIG_OFFHAND_CHECK_AT_SPELL_UNLEARN))
         AutoUnequipOffhandIfNeed();
