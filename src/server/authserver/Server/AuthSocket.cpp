@@ -616,8 +616,8 @@ bool AuthSocket::_HandleLogonProof()
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
-            proof.unk1 = 0x00800000;
-            proof.unk2 = 0x00;
+            proof.unk1 = 0x00800000;    // Accountflags. 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+            proof.unk2 = 0x00;          // SurveyId
             proof.unk3 = 0x00;
             socket().send((char *)&proof, sizeof(proof));
         }
