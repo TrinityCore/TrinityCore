@@ -2194,27 +2194,44 @@ uint32 FillItemArmor(uint32 itemlevel, uint32 itemClass, uint32 itemSubclass, ui
     return uint32(shield->Value[quality] + 0.5f);
 }
 
-void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill, uint32 itemClass, uint32 quality, uint32 itemLevel)
+void FillDisenchantFields(uint32* disenchantID, uint32* requiredDisenchantSkill, ItemTemplate const& itemTemplate)
 {
+    *disenchantID = 0;
+    *(int32*)requiredDisenchantSkill = -1;
+    if ((itemTemplate.Flags & (ITEM_PROTO_FLAG_CONJURED | ITEM_PROTO_FLAG_UNK6)) ||
+        itemTemplate.Bonding == BIND_QUEST_ITEM || itemTemplate.Area || itemTemplate.Map ||
+        itemTemplate.Stackable > 1 ||
+        !(itemTemplate.SellPrice || sItemCurrencyCostStore.LookupEntry(itemTemplate.ItemId)))
+        return;
+
     for (uint32 i = 0; i < sItemDisenchantLootStore.GetNumRows(); ++i)
     {
         ItemDisenchantLootEntry const* disenchant = sItemDisenchantLootStore.LookupEntry(i);
         if (!disenchant)
             continue;
 
-        if (disenchant->ItemClass == itemClass &&
-            disenchant->ItemQuality == quality &&
-            disenchant->MinItemLevel <= itemLevel &&
-            disenchant->MaxItemLevel >= itemLevel)
+        if (disenchant->ItemClass == itemTemplate.Class &&
+            disenchant->ItemQuality == itemTemplate.Quality &&
+            disenchant->MinItemLevel <= itemTemplate.ItemLevel &&
+            disenchant->MaxItemLevel >= itemTemplate.ItemLevel)
         {
+            // extra check for epics in range 90 - 99
+            if (disenchant->MinItemLevel < 90)
+            {
+                if (itemTemplate.RequiredLevel > 60 || itemTemplate.RequiredSkillRank > 300)
+                    continue;
+            }
+            else
+            {
+                if (itemTemplate.RequiredLevel <= 60 || itemTemplate.RequiredSkillRank <= 300)
+                    continue;
+            }
+
             *disenchantID = disenchant->Id;
             *requiredDisenchantSkill = disenchant->RequiredDisenchantSkill;
             return;
         }
     }
-
-    *disenchantID = 0;
-    *(int32*)requiredDisenchantSkill = -1;
 }
 
 void ObjectMgr::LoadItemTemplates()
@@ -2314,8 +2331,7 @@ void ObjectMgr::LoadItemTemplates()
 
         itemTemplate.socketBonus = sparse->SocketBonus;
         itemTemplate.GemProperties = sparse->GemProperties;
-        FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill,
-                             db2Data->Class, sparse->Quality, sparse->ItemLevel);
+        FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill, itemTemplate);
 
         itemTemplate.ArmorDamageModifier = sparse->ArmorDamageModifier;
         itemTemplate.Duration = sparse->Duration;
@@ -2463,8 +2479,7 @@ void ObjectMgr::LoadItemTemplates()
 
             itemTemplate.socketBonus = fields[123].GetUInt32();
             itemTemplate.GemProperties = fields[124].GetUInt32();
-            FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill,
-                                 itemTemplate.Class, itemTemplate.Quality, itemTemplate.ItemLevel);
+            FillDisenchantFields(&itemTemplate.DisenchantID, &itemTemplate.RequiredDisenchantSkill, itemTemplate);
 
             itemTemplate.ArmorDamageModifier = fields[125].GetFloat();
             itemTemplate.Duration = fields[126].GetUInt32();
@@ -3589,7 +3604,7 @@ void ObjectMgr::LoadQuests()
     QueryResult result = WorldDatabase.Query("SELECT "
         //0     1      2        3        4           5       6            7             8              9               10             11                 12
         "Id, Method, Level, MinLevel, MaxLevel, ZoneOrSort, Type, SuggestedPlayers, LimitTime, RequiredClasses, RequiredRaces, RequiredSkillId, RequiredSkillPoints, "
-        //         13                 14                    15                   16                      17                  18                         19                  20                  
+        //         13                 14                    15                   16                      17                  18                         19                  20
         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, "
         //     21         22             23                24             25              26                    27                28            29              30              31
         "PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestIdChain, RewardXPId, RewardOrRequiredMoney, RewardMoneyMaxLevel, RewardSpell, RewardSpellCast, RewardHonor, RewardHonorMultiplier, "
