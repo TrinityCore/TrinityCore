@@ -5346,6 +5346,8 @@ void Player::DurabilityLoss(Item* item, double percent)
     if (!pMaxDurability)
         return;
 
+    percent /= GetTotalAuraMultiplier(SPELL_AURA_MOD_DURABILITY_LOSS);
+
     uint32 pDurabilityLoss = uint32(pMaxDurability*percent);
 
     if (pDurabilityLoss < 1)
