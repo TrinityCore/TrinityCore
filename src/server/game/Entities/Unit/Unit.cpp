@@ -10901,12 +10901,6 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                             if (victim->HasAura(6788))
                                 crit_chance+=(*i)->GetAmount();
                             break;
-                        case   21: // Test of Faith
-                        case 6935:
-                        case 6918:
-                            if (victim->HealthBelowPct(50))
-                                crit_chance+=(*i)->GetAmount();
-                            break;
                         default:
                             break;
                     }
@@ -11130,11 +11124,6 @@ uint32 Unit::SpellHealingBonus(Unit* victim, SpellInfo const* spellProto, uint32
             case 4953:
             case 3736: // Hateful Totem of the Third Wind / Increased Lesser Healing Wave / LK Arena (4/5/6) Totem of the Third Wind / Savage Totem of the Third Wind
                 DoneTotal += (*i)->GetAmount();
-                break;
-            case 7997: // Renewed Hope
-            case 7998:
-                if (victim->HasAura(6788))
-                    AddPctN(DoneTotalMod, (*i)->GetAmount());
                 break;
             case   21: // Test of Faith
             case 6935:
@@ -11759,23 +11748,6 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
                     float mod = victim->ToPlayer()->GetRatingBonusValue(CR_CRIT_TAKEN_MELEE) * (-8.0f);
                     AddPctF(TakenTotalMod, std::max(mod, float((*i)->GetAmount())));
                 }
-                break;
-            // Blessing of Sanctuary
-            // Greater Blessing of Sanctuary
-            case 19:
-            case 1804:
-            {
-                if ((*i)->GetSpellInfo()->SpellFamilyName != SPELLFAMILY_PALADIN)
-                    continue;
-
-                if ((*i)->GetMiscValue() & (spellProto ? spellProto->GetSchoolMask() : 0))
-                    AddPctN(TakenTotalMod, (*i)->GetAmount());
-                break;
-            }
-            // Ebon Plague
-            case 1933:
-                if ((*i)->GetMiscValue() & (spellProto ? spellProto->GetSchoolMask() : 0))
-                    AddPctN(TakenTotalMod, (*i)->GetAmount());
                 break;
         }
     }
