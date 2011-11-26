@@ -467,7 +467,7 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                 Unit::AuraEffectList const& overrideClassScripts = caster->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
                 for (Unit::AuraEffectList::const_iterator itr = overrideClassScripts.begin(); itr != overrideClassScripts.end(); ++itr)
                 {
-                    if ((*itr)->IsAffectedOnSpell(m_spellInfo))
+                    if ((*itr)->IsAffectingSpell(m_spellInfo))
                     {
                         // Glyph of Fear, Glyph of Frost nova and similar auras
                         if ((*itr)->GetMiscValue() == 7801)
@@ -1228,7 +1228,7 @@ bool AuraEffect::IsPeriodicTickCrit(Unit* target, Unit const* caster) const
     Unit::AuraEffectList const& mPeriodicCritAuras= caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_PERIODIC_CRIT);
     for (Unit::AuraEffectList::const_iterator itr = mPeriodicCritAuras.begin(); itr != mPeriodicCritAuras.end(); ++itr)
     {
-        if ((*itr)->IsAffectedOnSpell(m_spellInfo) && caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask()))
+        if ((*itr)->IsAffectingSpell(m_spellInfo) && caster->isSpellCrit(target, m_spellInfo, m_spellInfo->GetSchoolMask()))
             return true;
     }
     // Rupture - since 3.3.3 can crit
@@ -1240,7 +1240,7 @@ bool AuraEffect::IsPeriodicTickCrit(Unit* target, Unit const* caster) const
     return false;
 }
 
-bool AuraEffect::IsAffectedOnSpell(SpellInfo const* spell) const
+bool AuraEffect::IsAffectingSpell(SpellInfo const* spell) const
 {
     if (!spell)
         return false;
