@@ -7364,6 +7364,9 @@ void Player::ModifyCurrency(uint32 id, int32 count)
        // probably excessive checks
        if (IsInWorld() && !GetSession()->PlayerLoading())
        {
+           if (count > 0)
+               GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CURRENCY, id, count);
+
            WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
            packet << uint32(id);
            packet << uint32(weekCap ? (newWeekCount / PLAYER_CURRENCY_PRECISION) : 0);
