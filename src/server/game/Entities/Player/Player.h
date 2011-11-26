@@ -412,10 +412,10 @@ enum PlayerFlags
     PLAYER_FLAGS_NO_XP_GAIN        = 0x02000000,
     PLAYER_FLAGS_UNK26             = 0x04000000,
     PLAYER_FLAGS_UNK27             = 0x08000000,
-    PLAYER_FLAGS_UNK28             = 0x01000000,
-    PLAYER_FLAGS_UNK29             = 0x02000000,
-    PLAYER_FLAGS_UNK30             = 0x04000000,
-    PLAYER_FLAGS_UNK31             = 0x08000000,
+    PLAYER_FLAGS_UNK28             = 0x10000000,
+    PLAYER_FLAGS_UNK29             = 0x20000000,
+    PLAYER_FLAGS_UNK30             = 0x40000000,
+    PLAYER_FLAGS_UNK31             = 0x80000000,
 };
 
 // used for PLAYER__FIELD_KNOWN_TITLES field (uint64), (1<<bit_index) without (-1)
@@ -791,7 +791,7 @@ enum PlayerChatTag
     CHAT_TAG_AFK        = 0x01,
     CHAT_TAG_DND        = 0x02,
     CHAT_TAG_GM         = 0x04,
-    CHAT_TAG_UNK        = 0x08, // Probably battleground commentator
+    CHAT_TAG_COM        = 0x08, // Commentator
     CHAT_TAG_DEV        = 0x10,
 };
 
@@ -2321,6 +2321,7 @@ class Player : public Unit, public GridObject<Player>
             m_mover = target;
             m_mover->m_movedPlayer = this;
         }
+
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
         WorldObject* GetViewpoint() const;
