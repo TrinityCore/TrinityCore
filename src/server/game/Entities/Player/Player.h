@@ -895,12 +895,6 @@ enum CharDeleteMethod
                                                  // the name gets freed up and appears as deleted ingame
 };
 
-enum CurrencyItems
-{
-    ITEM_HONOR_POINTS_ID    = 43308,
-    ITEM_ARENA_POINTS_ID    = 43307
-};
-
 enum ReferAFriendError
 {
     ERR_REFER_A_FRIEND_NONE                          = 0x00,
@@ -1320,10 +1314,6 @@ class Player : public Unit, public GridObject<Player>
         void ModifyCurrency(uint32 id, int32 count);
 
         void ApplyEquipCooldown(Item* pItem);
-        void SetAmmo(uint32 item);
-        void RemoveAmmo();
-        float GetAmmoDPS() const { return m_ammoDPS; }
-        bool CheckAmmoCompatibility(const ItemTemplate* ammo_proto) const;
         void QuickEquipItem(uint16 pos, Item* pItem);
         void VisualizeItem(uint8 slot, Item* pItem);
         void SetVisibleItemSlot(uint8 slot, Item* pItem);
@@ -2090,14 +2080,8 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         // TODO: Properly implement correncies as of Cataclysm
         void UpdateHonorFields();
-        bool RewardHonor(Unit* pVictim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
-        uint32 GetHonorPoints() const { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
-        uint32 GetArenaPoints() const { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
-        void ModifyHonorPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, honor save query will be added to trans
-        void ModifyArenaPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, arena point save query will be added to trans
+        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);        
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
-        void SetHonorPoints(uint32 value);
-        void SetArenaPoints(uint32 value);
 
         //End of PvP System
 
@@ -2780,7 +2764,6 @@ class Player : public Unit, public GridObject<Player>
         bool m_canBlock;
         bool m_canTitanGrip;
         uint8 m_swingErrorMsg;
-        float m_ammoDPS;
 
         ////////////////////Rest System/////////////////////
         time_t time_inn_enter;

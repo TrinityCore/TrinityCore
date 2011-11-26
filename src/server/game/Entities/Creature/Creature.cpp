@@ -1687,9 +1687,11 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* pVictim)
                 break;
             }
         }
-        if (bcontinue) continue;
 
-        if (spellInfo->ManaCost > GetPower(POWER_MANA))
+        if (bcontinue)
+             continue;
+
+        if (spellInfo->ManaCost > (uint32)GetPower(POWER_MANA))
             continue;
         float range = spellInfo->GetMaxRange(false);
         float minrange = spellInfo->GetMinRange(false);
@@ -1732,7 +1734,7 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* pVictim)
         }
         if (bcontinue) continue;
 
-        if (spellInfo->ManaCost > GetPower(POWER_MANA))
+        if (spellInfo->ManaCost > (uint32)GetPower(POWER_MANA))
             continue;
 
         float range = spellInfo->GetMaxRange(true);
