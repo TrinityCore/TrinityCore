@@ -35,4 +35,9 @@ ALTER TABLE `item_template`
   DROP `BuyCount`,
   DROP `FoodType`,
   DROP `minMoneyLoot`,
-  DROP `maxMoneyLoot`;
+  DROP `maxMoneyLoot`,
+  DROP `spellppmRate_1`,
+  DROP `spellppmRate_2`,
+  DROP `spellppmRate_3`,
+  DROP `spellppmRate_4`,
+  DROP `spellppmRate_5`;
