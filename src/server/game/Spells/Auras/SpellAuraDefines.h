@@ -347,7 +347,7 @@ enum AuraType
     SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR                    = 285,
     SPELL_AURA_ABILITY_PERIODIC_CRIT                        = 286,
     SPELL_AURA_DEFLECT_SPELLS                               = 287,
-    SPELL_AURA_IGNORE_HIT_DIRECTION =                       = 288,
+    SPELL_AURA_IGNORE_HIT_DIRECTION                         = 288,
     SPELL_AURA_289                                          = 289,
     SPELL_AURA_MOD_CRIT_PCT                                 = 290,
     SPELL_AURA_MOD_XP_QUEST_PCT                             = 291,
