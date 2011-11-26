@@ -376,7 +376,44 @@ enum AuraType
     SPELL_AURA_PREVENT_RESURRECTION                         = 314,
     SPELL_AURA_UNDERWATER_WALKING                           = 315,
     SPELL_AURA_PERIODIC_HASTE                               = 316,
-    TOTAL_AURAS                                             = 317
+    SPELL_AURA_MOD_SPELL_POWER_PCT                          = 317,
+    SPELL_AURA_MASTERY                                      = 318,
+    SPELL_AURA_319                                          = 319,  // (melee?) attack speed
+    SPELL_AURA_MOD_RANGED_ATTACK_SPEED                      = 320,  // NYI
+    SPELL_AURA_321                                          = 321,
+    SPELL_AURA_INTERFERE_TARGETTING                         = 322,  // NYI
+    SPELL_AURA_323                                          = 323,
+    SPELL_AURA_324                                          = 324,  // spell critical chance (probably by school mask)
+    SPELL_AURA_325                                          = 325,
+    SPELL_AURA_326                                          = 326,  // phase related
+    SPELL_AURA_327                                          = 327,
+    SPELL_AURA_328                                          = 328,
+    SPELL_AURA_MOD_RUNE_REGEN_SPEED                         = 329,  // NYI
+    SPELL_AURA_CAST_WHILE_WALKING                           = 330,  // NYI
+    SPELL_AURA_331                                          = 331,
+    SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS                    = 332,  // NYI
+    SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2                  = 333,  // NYI
+    SPELL_AURA_334                                          = 334,
+    SPELL_AURA_335                                          = 335,
+    SPELL_AURA_MOD_FLYING_RESTRICTIONS                      = 336,  // NYI
+    SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 337,  // NYI
+    SPELL_AURA_MOD_DURABILITY_LOSS                          = 338,  // NYI
+    SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE                   = 339,  // NYI
+    SPELL_AURA_340                                          = 340,
+    SPELL_AURA_341                                          = 341,  // cooldown decrease
+    SPELL_AURA_MOD_TIME_BETWEEN_ATTACKS                     = 342,  // (attack speed) NYI
+    SPELL_AURA_343                                          = 343,
+    SPELL_AURA_MOD_AUTOATTACK_DAMAGE                        = 344,  // (white damage) NYI
+    SPELL_AURA_MOD_BYPASS_ARMOR_FOR_CASTER                  = 345,  // NYI
+    SPELL_AURA_PROGRESS_BAR                                 = 346,  // NYI
+    SPELL_AURA_MOD_SPELL_COOLDOWN_BY_HASTE                  = 347,  // NYI
+    SPELL_AURA_DEPOSIT_BONUS_MONEY_IN_GUILD_BANK_ON_LOOT    = 348,  // NYI
+    SPELL_AURA_MOD_CURRENCY_GAIN                            = 349,  // NYI
+    SPELL_AURA_MOD_GATHERING_ITEMS_GAINED_PERCENT           = 350,  // NYI
+    SPELL_AURA_351                                          = 351,
+    SPELL_AURA_352                                          = 352,
+    SPELL_AURA_MOD_CAMOUFLAGE                               = 353,  // NYI
+    TOTAL_AURAS                                             = 354
 };
 
 enum AuraObjectType
