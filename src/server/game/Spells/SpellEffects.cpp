@@ -3981,9 +3981,6 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         return;
     }
 
-    if (m_spellInfo->Id == 62124)
-        m_caster->CastSpell(unitTarget, 67485, true);
-
     // Also use this effect to set the taunter's threat to the taunted creature's highest value
     if (unitTarget->getThreatManager().getCurrentVictim())
     {
