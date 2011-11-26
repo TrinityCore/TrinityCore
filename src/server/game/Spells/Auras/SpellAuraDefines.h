@@ -367,7 +367,7 @@ enum AuraType
     SPELL_AURA_MOD_MINIMUM_SPEED                            = 305,
     SPELL_AURA_306                                          = 306,
     SPELL_AURA_HEAL_ABSORB_TEST                             = 307,
-    SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER                   = 308,  // NYI
+    SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER                   = 308,
     SPELL_AURA_309                                          = 309,
     SPELL_AURA_MOD_CREATURE_AOE_DAMAGE_AVOIDANCE            = 310,
     SPELL_AURA_311                                          = 311,
