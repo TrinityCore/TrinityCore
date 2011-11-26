@@ -1036,9 +1036,8 @@ enum SpellCastResult
     SPELL_FAILED_TARGET_NOT_GROUNDED           = 200,
     SPELL_FAILED_EXCEEDED_WEEKLY_USAGE         = 201,
     SPELL_FAILED_NOT_IN_LFG_DUNGEON            = 202,
-
-    SPELL_FAILED_UNKNOWN = 254 // custom value, default case
-    SPELL_CAST_OK = 255 // custom value, must not be sent to client
+    SPELL_FAILED_UNKNOWN                       = 254, // custom value, default case
+    SPELL_CAST_OK                              = 255, // custom value, must not be sent to client
 };
 
 enum SpellCustomErrors
@@ -1155,7 +1154,7 @@ enum SpellCustomErrors
     SPELL_CUSTOM_ERROR_NEED_TO_FREE_DRAKE_FIRST         = 109, // Free the Drake from the net first!
     SPELL_CUSTOM_ERROR_DRAGONMAW_ALLIES_ALREADY_FOLLOW  = 110, // You already have three Dragonmaw allies following you.
     SPELL_CUSTOM_ERROR_REQUIRE_OPPOSABLE_THUMBS         = 111, // Requires Opposable Thumbs.
-    SPELL_CUSTOM_ERROR_NOT_ENOUGH_HEALTH                = 112, // Not enough health
+    SPELL_CUSTOM_ERROR_NOT_ENOUGH_HEALTH_2              = 112, // Not enough health
     SPELL_CUSTOM_ERROR_ENOUGH_FORSAKEN_TROOPERS         = 113, // You already have enough Forsaken Troopers.
     SPELL_CUSTOM_ERROR_CANNOT_JUMP_TO_BOULDER           = 114, // You cannot jump to another boulder yet.
     SPELL_CUSTOM_ERROR_SKILL_TOO_HIGH                   = 115, // Skill too high.
