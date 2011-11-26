@@ -774,7 +774,7 @@ enum PlayerChatTag
     CHAT_TAG_AFK        = 0x01,
     CHAT_TAG_DND        = 0x02,
     CHAT_TAG_GM         = 0x04,
-    CHAT_TAG_UNK        = 0x08, // Probably battleground commentator
+    CHAT_TAG_COM        = 0x08, // Commentator
     CHAT_TAG_DEV        = 0x10,
 };
 
@@ -2301,6 +2301,7 @@ class Player : public Unit, public GridObject<Player>
             m_mover = target;
             m_mover->m_movedPlayer = this;
         }
+
         void SetSeer(WorldObject* target) { m_seer = target; }
         void SetViewpoint(WorldObject* target, bool apply);
         WorldObject* GetViewpoint() const;

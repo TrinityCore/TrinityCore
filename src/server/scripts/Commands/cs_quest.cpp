@@ -176,8 +176,8 @@ public:
         // Add quest items for quests that require items
         for (uint8 x = 0; x < QUEST_ITEM_OBJECTIVES_COUNT; ++x)
         {
-            uint32 id = quest->ReqItemId[x];
-            uint32 count = quest->ReqItemCount[x];
+            uint32 id = quest->RequiredItemId[x];
+            uint32 count = quest->RequiredItemCount[x];
             if (!id || !count)
                 continue;
 
@@ -195,10 +195,10 @@ public:
         // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         {
-            int32 creature = quest->ReqCreatureOrGOId[i];
-            uint32 creaturecount = quest->ReqCreatureOrGOCount[i];
+            int32 creature = quest->RequiredNpcOrGo[i];
+            uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
 
-            if (uint32 spell_id = quest->ReqSpell[i])
+            if (uint32 spell_id = quest->RequiredSpellCast[i])
             {
                 for (uint16 z = 0; z < creaturecount; ++z)
                     player->CastedCreatureOrGO(creature, 0, spell_id);

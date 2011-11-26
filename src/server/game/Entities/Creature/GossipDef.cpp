@@ -337,13 +337,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
         data << uint32(quest->GetRewChoiceItemsCount());
         for (uint32 i=0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
-            if (!quest->RewChoiceItemId[i])
+            if (!quest->RewardChoiceItemId[i])
                 continue;
 
-            data << uint32(quest->RewChoiceItemId[i]);
-            data << uint32(quest->RewChoiceItemCount[i]);
+            data << uint32(quest->RewardChoiceItemId[i]);
+            data << uint32(quest->RewardChoiceItemCount[i]);
 
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewChoiceItemId[i]))
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[i]))
                 data << uint32(itemTemplate->DisplayInfoID);
             else
                 data << uint32(0x00);
@@ -353,13 +353,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
 
         for (uint32 i=0; i < QUEST_REWARDS_COUNT; ++i)
         {
-            if (!quest->RewItemId[i])
+            if (!quest->RewardItemId[i])
                 continue;
 
-            data << uint32(quest->RewItemId[i]);
-            data << uint32(quest->RewItemCount[i]);
+            data << uint32(quest->RewardItemId[i]);
+            data << uint32(quest->RewardItemIdCount[i]);
 
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewItemId[i]))
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[i]))
                 data << uint32(itemTemplate->DisplayInfoID);
             else
                 data << uint32(0);
@@ -380,13 +380,13 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     data << uint32(0);                                      // unk
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << uint32(quest->RewRepFaction[i]);
+        data << uint32(quest->RewardFactionId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewRepValueId[i]);
+        data << int32(quest->RewardFactionValueId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewRepValue[i]);
+        data << int32(quest->RewardFactionValueIdOverride[i]);
 
     data << uint32(QUEST_EMOTE_COUNT);
     for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
@@ -478,24 +478,24 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
     {
         for (uint32 i = 0; i < QUEST_REWARDS_COUNT; ++i)
         {
-            data << uint32(quest->RewItemId[i]);
-            data << uint32(quest->RewItemCount[i]);
+            data << uint32(quest->RewardItemId[i]);
+            data << uint32(quest->RewardItemIdCount[i]);
         }
         for (uint32 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         {
-            data << uint32(quest->RewChoiceItemId[i]);
-            data << uint32(quest->RewChoiceItemCount[i]);
+            data << uint32(quest->RewardChoiceItemId[i]);
+            data << uint32(quest->RewardChoiceItemCount[i]);
         }
     }
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // reward factions ids
-        data << uint32(quest->RewRepFaction[i]);
+        data << uint32(quest->RewardFactionId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)        // columnid+1 QuestFactionReward.dbc?
-        data << int32(quest->RewRepValueId[i]);
+        data << int32(quest->RewardFactionValueId[i]);
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)           // unk (0)
-        data << int32(quest->RewRepValue[i]);
+        data << int32(quest->RewardFactionValueIdOverride[i]);
 
     data << quest->GetPointMapId();
     data << quest->GetPointX();
@@ -510,20 +510,20 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
     {
-        if (quest->ReqCreatureOrGOId[i] < 0)
-            data << uint32((quest->ReqCreatureOrGOId[i] * (-1)) | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
+        if (quest->RequiredNpcOrGo[i] < 0)
+            data << uint32((quest->RequiredNpcOrGo[i] * (-1)) | 0x80000000);    // client expects gameobject template id in form (id|0x80000000)
         else
-            data << uint32(quest->ReqCreatureOrGOId[i]);
+            data << uint32(quest->RequiredNpcOrGo[i]);
 
-        data << uint32(quest->ReqCreatureOrGOCount[i]);
-        data << uint32(quest->ReqSourceId[i]);
+        data << uint32(quest->RequiredNpcOrGoCount[i]);
+        data << uint32(quest->RequiredSourceItemid[i]);
         data << uint32(0);                                  // req source count?
     }
 
     for (uint32 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
-        data << uint32(quest->ReqItemId[i]);
-        data << uint32(quest->ReqItemCount[i]);
+        data << uint32(quest->RequiredItemId[i]);
+        data << uint32(quest->RequiredItemCount[i]);
     }
 
     for (uint32 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
@@ -576,10 +576,10 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(quest->GetRewChoiceItemsCount());
     for (uint32 i=0; i < quest->GetRewChoiceItemsCount(); ++i)
     {
-        data << uint32(quest->RewChoiceItemId[i]);
-        data << uint32(quest->RewChoiceItemCount[i]);
+        data << uint32(quest->RewardChoiceItemId[i]);
+        data << uint32(quest->RewardChoiceItemCount[i]);
 
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewChoiceItemId[i]))
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
         else
             data << uint32(0);
@@ -588,10 +588,10 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(quest->GetRewItemsCount());
     for (uint32 i = 0; i < quest->GetRewItemsCount(); ++i)
     {
-        data << uint32(quest->RewItemId[i]);
-        data << uint32(quest->RewItemCount[i]);
+        data << uint32(quest->RewardItemId[i]);
+        data << uint32(quest->RewardItemIdCount[i]);
 
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewItemId[i]))
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
         else
             data << uint32(0);
@@ -612,13 +612,13 @@ void PlayerMenu::SendQuestGiverOfferReward(Quest const* quest, uint64 npcGUID, b
     data << uint32(0);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward factions ids
-        data << uint32(quest->RewRepFaction[i]);
+        data << uint32(quest->RewardFactionId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // columnid in QuestFactionReward.dbc (zero based)?
-        data << int32(quest->RewRepValueId[i]);
+        data << int32(quest->RewardFactionValueId[i]);
 
     for (uint32 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)    // reward reputation override?
-        data << uint32(quest->RewRepValue[i]);
+        data << uint32(quest->RewardFactionValueIdOverride[i]);
 
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_OFFER_REWARD NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
@@ -676,13 +676,13 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     data << uint32(quest->GetReqItemsCount());
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
     {
-        if (!quest->ReqItemId[i])
+        if (!quest->RequiredItemId[i])
             continue;
 
-        data << uint32(quest->ReqItemId[i]);
-        data << uint32(quest->ReqItemCount[i]);
+        data << uint32(quest->RequiredItemId[i]);
+        data << uint32(quest->RequiredItemCount[i]);
 
-        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->ReqItemId[i]))
+        if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RequiredItemId[i]))
             data << uint32(itemTemplate->DisplayInfoID);
         else
             data << uint32(0);
