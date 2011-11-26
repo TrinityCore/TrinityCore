@@ -1529,7 +1529,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
         {
             if ((*itr)->GetSpellInfo()->EquippedItemClass == -1)
             {
-                if (!spellInfo || (*itr)->IsAffectedOnSpell(spellInfo) || (*itr)->GetMiscValue() & spellInfo->GetSchoolMask())
+                if (!spellInfo || (*itr)->IsAffectingSpell(spellInfo) || (*itr)->GetMiscValue() & spellInfo->GetSchoolMask())
                     bonusPct += (*itr)->GetAmount();
                 else if (!(*itr)->GetMiscValue() && !(*itr)->HasSpellClassMask())
                     bonusPct += (*itr)->GetAmount();
