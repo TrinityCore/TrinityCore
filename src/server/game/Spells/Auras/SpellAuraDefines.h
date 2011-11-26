@@ -397,7 +397,7 @@ enum AuraType
     SPELL_AURA_335                                          = 335,
     SPELL_AURA_MOD_FLYING_RESTRICTIONS                      = 336,  // NYI
     SPELL_AURA_MOD_VENDOR_ITEMS_PRICES                      = 337,  // NYI
-    SPELL_AURA_MOD_DURABILITY_LOSS                          = 338,  // NYI
+    SPELL_AURA_MOD_DURABILITY_LOSS                          = 338,
     SPELL_AURA_INCREASE_SKILL_GAIN_CHANCE                   = 339,  // NYI
     SPELL_AURA_340                                          = 340,
     SPELL_AURA_341                                          = 341,  // cooldown decrease
