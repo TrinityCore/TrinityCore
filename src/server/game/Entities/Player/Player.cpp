@@ -18294,7 +18294,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_BYTES_2));
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_FLAGS));
         stmt->setUInt16(index++, (uint16)GetMapId());
-        stmt->setUInt32(index++ , (uint32)GetInstanceId());
+        stmt->setUInt32(index++, (uint32)GetInstanceId());
         stmt->setUInt8(index++, (uint8(GetDungeonDifficulty()) | uint8(GetRaidDifficulty()) << 4));
         stmt->setFloat(index++, finiteAlways(GetPositionX()));
         stmt->setFloat(index++, finiteAlways(GetPositionY()));
@@ -18320,7 +18320,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt16(index++, GetZoneId());
         stmt->setUInt32(index++, m_deathExpireTime);
 
-        ss.str().clear();
+        ss.str("");
         ss << m_taxi.SaveTaxiDestinationsToString();
         
         stmt->setString(index++, ss.str());
@@ -18345,12 +18345,12 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, m_specsCount);
         stmt->setUInt8(index++, m_activeSpec);
 
-        ss.str().clear();
+        ss.str("");
         for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
             ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << ' ';
         stmt->setString(index++, ss.str());
 
-        ss.str().clear();
+        ss.str("");
         // cache equipment...
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
             ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << ' ';
@@ -18368,9 +18368,9 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_AMMO_ID));
 
-        ss.str().clear();
+        ss.str("");
         for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
-            ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i);
+            ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i) << ' ';
 
         stmt->setString(index++, ss.str());
         stmt->setUInt8(index++, GetByteValue(PLAYER_FIELD_BYTES, 2));
@@ -18431,7 +18431,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt16(index++, GetZoneId());
         stmt->setUInt32(index++, m_deathExpireTime);
 
-        ss.str().clear();
+        ss.str("");
         ss << m_taxi.SaveTaxiDestinationsToString();
 
         stmt->setString(index++, ss.str());
@@ -18456,12 +18456,12 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setUInt8(index++, m_specsCount);
         stmt->setUInt8(index++, m_activeSpec);
 
-        ss.str().clear();
+        ss.str("");
         for (uint32 i = 0; i < PLAYER_EXPLORED_ZONES_SIZE; ++i)
             ss << GetUInt32Value(PLAYER_EXPLORED_ZONES_1 + i) << ' ';
         stmt->setString(index++, ss.str());
 
-        ss.str().clear();
+        ss.str("");
         // cache equipment...
         for (uint32 i = 0; i < EQUIPMENT_SLOT_END * 2; ++i)
             ss << GetUInt32Value(PLAYER_VISIBLE_ITEM_1_ENTRYID + i) << ' ';
@@ -18479,7 +18479,7 @@ void Player::SaveToDB(bool create /*=false*/)
         stmt->setString(index++, ss.str());
         stmt->setUInt32(index++, GetUInt32Value(PLAYER_AMMO_ID));
 
-        ss.str().clear();
+        ss.str("");
         for (uint32 i = 0; i < KNOWN_TITLES_SIZE*2; ++i)
             ss << GetUInt32Value(PLAYER__FIELD_KNOWN_TITLES + i);
 
