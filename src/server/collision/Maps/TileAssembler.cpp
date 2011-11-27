@@ -500,10 +500,10 @@ namespace VMAP
         {
             model.setGroupModels(groupsArray);
 
-            std::string filename(iSrcDir);
-            filename.push_back('/');
-            filename.append(pModelFilename).append(".vmo");
-            success = model.writeFile(filename);
+            std::string worldModelFileName(iSrcDir);
+            worldModelFileName.push_back('/');
+            worldModelFileName.append(pModelFilename).append(".vmo");
+            success = model.writeFile(worldModelFileName);
         }
 
         //std::cout << "readRawFile2: '" << pModelFilename << "' tris: " << nElements << " nodes: " << nNodes << std::endl;

@@ -110,7 +110,7 @@ class boss_ragnaros : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                if (urand(0, 99 < 25))
+                if (urand(0, 99) < 25)
                     DoScriptText(SAY_KILL, me);
             }
 

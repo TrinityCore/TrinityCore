@@ -596,11 +596,11 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
         data << uint32(0);                                   // probably changed in 3.3.3
         data << uint32((*itr)->stationery);                  // stationery (Stationery.dbc)
         data << uint32((*itr)->money);                       // Gold
-        data << uint32((*itr)->checked);                    // flags
+        data << uint32((*itr)->checked);                     // flags
         data << float(((*itr)->expire_time-time(NULL))/DAY); // Time
         data << uint32((*itr)->mailTemplateId);              // mail template (MailTemplate.dbc)
-        data << (*itr)->subject;                            // Subject string - once 00, when mail type = 3, max 256
-        data << (*itr)->body;                               // message? max 8000
+        data << (*itr)->subject;                             // Subject string - once 00, when mail type = 3, max 256
+        data << (*itr)->body;                                // message? max 8000
         data << uint8(item_count);                           // client limit is 0x10
 
         for (uint8 i = 0; i < item_count; ++i)

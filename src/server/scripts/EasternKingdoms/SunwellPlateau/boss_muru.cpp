@@ -330,14 +330,14 @@ public:
                             else
                             {
                                 DarkFiend = false;
-                                for (uint8 i = 0; i < 8; ++i)
-                                    me->SummonCreature(CREATURE_DARK_FIENDS, DarkFiends[i][0], DarkFiends[i][1], DarkFiends[i][2], DarkFiends[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                                for (uint8 j = 0; j < 8; ++j)
+                                    me->SummonCreature(CREATURE_DARK_FIENDS, DarkFiends[j][0], DarkFiends[j][1], DarkFiends[j][2], DarkFiends[j][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
                                 Timer[TIMER_DARKNESS] = 42000;
                             }
                             break;
                         case TIMER_HUMANOIDES:
-                            for (uint8 i = 0; i < 6; ++i)
-                                me->SummonCreature(uint32(Humanoides[i][0]), Humanoides[i][1], Humanoides[i][2], Humanoides[i][3], Humanoides[i][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            for (uint8 j = 0; j < 6; ++j)
+                                me->SummonCreature(uint32(Humanoides[j][0]), Humanoides[j][1], Humanoides[j][2], Humanoides[j][3], Humanoides[j][4], TEMPSUMMON_CORPSE_DESPAWN, 0);
                             Timer[TIMER_HUMANOIDES] = 60000;
                             break;
                         case TIMER_PHASE:

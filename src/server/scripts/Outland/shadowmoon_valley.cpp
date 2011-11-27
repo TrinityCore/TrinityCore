@@ -998,8 +998,7 @@ public:
                 case 50:
                     DoScriptText(SAY_WIL_END, me, player);
 
-                    if (Player* player = GetPlayerForEscort())
-                        player->GroupEventHappens(QUEST_ESCAPE_COILSCAR, me);
+                    player->GroupEventHappens(QUEST_ESCAPE_COILSCAR, me);
                     break;
             }
         }

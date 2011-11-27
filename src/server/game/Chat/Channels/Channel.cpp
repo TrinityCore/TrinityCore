@@ -85,7 +85,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             }
             else // save
             {
-                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHANNEL);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHANNEL);
                 stmt->setString(0, name);
                 stmt->setUInt32(1, m_Team);
                 CharacterDatabase.Execute(stmt);
@@ -563,12 +563,12 @@ void Channel::List(Player* player)
         uint32 count  = 0;
         for (PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
         {
-            Player* player = ObjectAccessor::FindPlayer(i->first);
+            Player* member = ObjectAccessor::FindPlayer(i->first);
 
             // PLAYER can't see MODERATOR, GAME MASTER, ADMINISTRATOR characters
             // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
-            if (player && (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) || player->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
-                player->IsVisibleGloballyFor(player))
+            if (member && (!AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) || member->GetSession()->GetSecurity() <= AccountTypes(gmLevelInWhoList)) &&
+                member->IsVisibleGloballyFor(player))
             {
                 data << uint64(i->first);
                 data << uint8(i->second.flags);             // flags seems to be changed...

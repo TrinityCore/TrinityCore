@@ -662,11 +662,13 @@ public:
             {
                 float x, y, z;
                 Unit* target = NULL;
-                for (uint8 z = 0; z < 6; ++z)
+                for (uint8 i = 0; i < 6; ++i)
                 {
                     target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
-                    if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0))break;
+                    if (!target || !target->HasAura(SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, 0))
+                        break;
                 }
+
                 if (target)
                 {
                     target->GetPosition(x, y, z);

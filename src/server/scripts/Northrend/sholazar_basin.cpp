@@ -98,8 +98,7 @@ public:
                 me->SetUnitMovementFlags(MOVEMENTFLAG_JUMPING);
                 break;
             case 28:
-                if (Player* player = GetPlayerForEscort())
-                    player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
+                player->GroupEventHappens(QUEST_FORTUNATE_MISUNDERSTANDINGS, me);
               //  me->RestoreFaction();
                 DoScriptText(SAY_END_IRO, me);
                 SetRun(false);

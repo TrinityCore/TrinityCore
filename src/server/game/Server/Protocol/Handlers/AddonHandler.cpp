@@ -107,9 +107,9 @@ bool AddonHandler::BuildAddonPacket(WorldPacket* Source, WorldPacket* Target)
             *Target << uint8(unk1);
             if (unk1)
             {
-                uint8 unk2 = (crc != 0x4c1c776d);           // If addon is Standard addon CRC
-                *Target << uint8(unk2);
-                if (unk2)
+                uint8 unk = (crc != 0x4c1c776d);           // If addon is Standard addon CRC
+                *Target << uint8(unk);
+                if (unk)
                     Target->append(tdata, sizeof(tdata));
 
                 *Target << uint32(0);

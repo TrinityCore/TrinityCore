@@ -1759,12 +1759,12 @@ void Battleground::HandleKillPlayer(Player* player, Player* killer)
 
         for (BattlegroundPlayerMap::const_iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
         {
-            Player* player = ObjectAccessor::FindPlayer(itr->first);
-            if (!player || player == killer)
+            Player* creditedPlayer = ObjectAccessor::FindPlayer(itr->first);
+            if (!creditedPlayer || creditedPlayer == killer)
                 continue;
 
-            if (player->GetTeam() == killer->GetTeam() && player->IsAtGroupRewardDistance(player))
-                UpdatePlayerScore(player, SCORE_HONORABLE_KILLS, 1);
+            if (creditedPlayer->GetTeam() == killer->GetTeam() && creditedPlayer->IsAtGroupRewardDistance(player))
+                UpdatePlayerScore(creditedPlayer, SCORE_HONORABLE_KILLS, 1);
         }
     }
 

@@ -321,11 +321,11 @@ void Map::ScriptsProcess()
                     source = HashMapHolder<Corpse>::Find(step.sourceGUID);
                     break;
                 case HIGHGUID_MO_TRANSPORT:
-                    for (MapManager::TransportSet::iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
+                    for (MapManager::TransportSet::iterator itr2 = sMapMgr->m_Transports.begin(); itr2 != sMapMgr->m_Transports.end(); ++itr2)
                     {
-                        if ((*iter)->GetGUID() == step.sourceGUID)
+                        if ((*itr2)->GetGUID() == step.sourceGUID)
                         {
-                            source = *iter;
+                            source = *itr2;
                             break;
                         }
                     }
