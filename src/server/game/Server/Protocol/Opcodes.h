@@ -28,8 +28,9 @@
 /// List of Opcodes
 enum Opcodes
 {
-    NUM_OPCODE_HANDLERS                             = (0xFFFF+1),
-    UNKNOWN_OPCODE                                  = NUM_OPCODE_HANDLERS,
+    NUM_OPCODE_HANDLERS                              = (0xFFFF+1),
+    UNKNOWN_OPCODE                                   = NUM_OPCODE_HANDLERS,
+    NULL_OPCODE                                      = 0,
     
     CMSG_ACCEPT_LEVEL_GRANT                          = 0xDC4B,
     CMSG_ACCEPT_TRADE                                = 0x00,
@@ -421,8 +422,9 @@ enum Opcodes
     CMSG_TAXISHOWNODES                               = 0x00,
     CMSG_TOGGLE_PVP                                  = 0x8ECA,
     CMSG_TOTEM_DESTROYED                             = 0x00,
-    CMSG_TRAINER_BUY_SUCCEEDED                       = 0xAF7,
+    SMSG_TRAINER_BUY_SUCCEEDED                       = 0x00,
     CMSG_TRAINER_LIST                                = 0xCC7F,
+    CMSG_TRAINER_BUY_SPELL                           = 0xAF7,
     CMSG_TRIGGER_CINEMATIC_CHEAT                     = 0x00,
     CMSG_TURN_IN_PETITION                            = 0x9C67,
     CMSG_TUTORIAL_CLEAR                              = 0x00,
