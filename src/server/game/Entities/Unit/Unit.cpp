@@ -17139,8 +17139,8 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
             break;
     }
 
-    *data << uint32(GetUnitMovementFlags()); // movement flags
-    *data << uint16(m_movementInfo.flags2);    // 2.3.0
+    (*data).writeBits(GetUnitMovementFlags(), 30);
+    (*data).writeBits(m_movementInfo.flags2, 12);
     *data << uint32(getMSTime());            // time
     *data << GetPositionX();
     *data << GetPositionY();
