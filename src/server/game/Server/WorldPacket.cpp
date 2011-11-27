@@ -21,18 +21,19 @@
 
 void WorldPacket::Compress(Opcodes opcode)
 {
-    if (opcode == UNKNOWN_OPCODE || opcode == NULL)
+    if (opcode == UNKNOWN_OPCODE || opcode == NULL_OPCODE)
     {
         sLog->outError("Tried to compress packet with unknown opcode (%u)", uint32(opcode));
         return;
     }
+
     Opcodes uncompressedOpcode = GetOpcode();
     uint32 size = wpos();
     uint32 destsize = compressBound(size);
 
     std::vector<uint8> storage(destsize);
 
-    _compress(static_cast<void*>(&storage[0]), &destsize, static_cast<const void*>(contents()), size);
+    Compress(static_cast<void*>(&storage[0]), &destsize, static_cast<const void*>(contents()), size);
     if (destsize == 0)
         return;
 
@@ -46,13 +47,13 @@ void WorldPacket::Compress(Opcodes opcode)
         uncompressedOpcode, size, opcode, destsize);
 }
 
-void WorldPacket::_compress(void* dst, uint32 *dst_size, const void* src, int src_size)
+void WorldPacket::Compress(void* dst, uint32 *dst_size, const void* src, int src_size)
 {
     z_stream c_stream;
 
-    c_stream.zalloc = (alloc_func)0;
-    c_stream.zfree = (free_func)0;
-    c_stream.opaque = (voidpf)0;
+    c_stream.zalloc = (alloc_func)NULL;
+    c_stream.zfree = (free_func)NULL;
+    c_stream.opaque = (voidpf)NULL;
 
     // default Z_BEST_SPEED (1)
     int z_res = deflateInit(&c_stream, sWorld->getIntConfig(CONFIG_COMPRESSION));

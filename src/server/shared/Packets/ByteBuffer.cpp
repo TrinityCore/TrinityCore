@@ -49,14 +49,14 @@ template <typename T> void BitStream::WriteBits(T value, size_t bits)
         WriteBit((value >> i) & 1);
 }
 
-bool BitStream::Empty ()
+bool BitStream::Empty()
 {
     return _data.empty();
 }
 
 void BitStream::Reverse()
 {
-    uint32 len = GetLenght();
+    uint32 len = GetLength();
     std::vector<uint8> b = _data;
     Clear();
 
@@ -70,7 +70,7 @@ void BitStream::Print()
         return;
     std::stringstream ss;
     ss << "BitStream: ";
-    for (uint32 i = 0; i < GetLenght(); ++i)
+    for (uint32 i = 0; i < GetLength(); ++i)
         ss << uint32(GetBit(i)) << " ";
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, ss.str().c_str());

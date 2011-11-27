@@ -17149,24 +17149,24 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
     bool splineElevation = GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION;
     bool splineData = false;
 
-    data->writeBits(GetUnitMovementFlags(), 30);
-    data->writeBits(m_movementInfo.flags2, 12);
-    data->writeBit(onTransport);
+    data->WriteBits(GetUnitMovementFlags(), 30);
+    data->WriteBits(m_movementInfo.flags2, 12);
+    data->WriteBit(onTransport);
     if (onTransport)
     {
-        data->writeBit(hasInterpolatedMovement);
-        data->writeBit(time3);
+        data->WriteBit(hasInterpolatedMovement);
+        data->WriteBit(time3);
     }
 
-    data->writeBit(swimming);
-    data->writeBit(interPolatedTurning);
+    data->WriteBit(swimming);
+    data->WriteBit(interPolatedTurning);
     if (interPolatedTurning)
-        data->writeBit(jumping);
+        data->WriteBit(jumping);
 
-    data->writeBit(splineElevation);
-    data->writeBit(splineData);
+    data->WriteBit(splineElevation);
+    data->WriteBit(splineData);
 
-    data->flushBits(); // reset bit stream
+    data->FlushBits(); // reset bit stream
 
     *data << uint64(GetGUID());
     *data << uint32(getMSTime());
