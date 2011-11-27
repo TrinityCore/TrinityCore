@@ -45,62 +45,6 @@ void UpdateData::AddUpdateBlock(const ByteBuffer &block)
     ++m_blockCount;
 }
 
-void UpdateData::Compress(void* dst, uint32 *dst_size, void* src, int src_size)
-{
-    z_stream c_stream;
-
-    c_stream.zalloc = (alloc_func)0;
-    c_stream.zfree = (free_func)0;
-    c_stream.opaque = (voidpf)0;
-
-    // default Z_BEST_SPEED (1)
-    int z_res = deflateInit(&c_stream, sWorld->getIntConfig(CONFIG_COMPRESSION));
-    if (z_res != Z_OK)
-    {
-        sLog->outError("Can't compress update packet (zlib: deflateInit) Error code: %i (%s)", z_res, zError(z_res));
-        *dst_size = 0;
-        return;
-    }
-
-    c_stream.next_out = (Bytef*)dst;
-    c_stream.avail_out = *dst_size;
-    c_stream.next_in = (Bytef*)src;
-    c_stream.avail_in = (uInt)src_size;
-
-    z_res = deflate(&c_stream, Z_NO_FLUSH);
-    if (z_res != Z_OK)
-    {
-        sLog->outError("Can't compress update packet (zlib: deflate) Error code: %i (%s)", z_res, zError(z_res));
-        *dst_size = 0;
-        return;
-    }
-
-    if (c_stream.avail_in != 0)
-    {
-        sLog->outError("Can't compress update packet (zlib: deflate not greedy)");
-        *dst_size = 0;
-        return;
-    }
-
-    z_res = deflate(&c_stream, Z_FINISH);
-    if (z_res != Z_STREAM_END)
-    {
-        sLog->outError("Can't compress update packet (zlib: deflate should report Z_STREAM_END instead %i (%s)", z_res, zError(z_res));
-        *dst_size = 0;
-        return;
-    }
-
-    z_res = deflateEnd(&c_stream);
-    if (z_res != Z_OK)
-    {
-        sLog->outError("Can't compress update packet (zlib: deflateEnd) Error code: %i (%s)", z_res, zError(z_res));
-        *dst_size = 0;
-        return;
-    }
-
-    *dst_size = c_stream.total_out;
-}
-
 bool UpdateData::BuildPacket(WorldPacket* packet)
 {
     ASSERT(packet->empty());                                // shouldn't happen
@@ -122,8 +66,8 @@ bool UpdateData::BuildPacket(WorldPacket* packet)
 
     packet->append(m_data);
 
-    //if (packet->wpos() > 100)
-    //    compress meee!!
+    if (packet->wpos() > 100)
+        packet->Compress(SMSG_COMPRESSED_UPDATE_OBJECT);
 
     return true;
 }
