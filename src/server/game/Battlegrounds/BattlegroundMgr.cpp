@@ -804,7 +804,7 @@ void BattlegroundMgr::InitAutomaticArenaPointDistribution()
     sLog->outDebug(LOG_FILTER_BATTLEGROUND, "Automatic Arena Point Distribution initialized.");
 }
 
-void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId, uint8 fromWhere)
+void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid, Player* player, BattlegroundTypeId bgTypeId)
 {
     if (!player)
         return;
@@ -817,8 +817,8 @@ void BattlegroundMgr::BuildBattlegroundListPacket(WorldPacket* data, uint64 guid
     loser_kills = Trinity::Honor::hk_honor_at_level(player->getLevel(), float(loser_kills));
 
     data->Initialize(SMSG_BATTLEFIELD_LIST);
+    // TODO: Fix guid
     *data << uint64(guid);                                  // battlemaster guid
-    *data << uint8(fromWhere);                              // from where you joined
     *data << uint32(bgTypeId);                              // battleground id
     *data << uint8(0);                                      // unk
     *data << uint8(0);                                      // unk

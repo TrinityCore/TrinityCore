@@ -3763,7 +3763,7 @@ void Spell::SendSpellStart()
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
         data << uint32(m_caster->GetPower((Powers)m_spellInfo->PowerType));
 
-    if (castFlags & CAST_FLAG_UNKNOWN_23)
+    if (castFlags & CAST_FLAG_IMMUNITY)
     {
         data << uint32(0);
         data << uint32(0);
@@ -3850,13 +3850,19 @@ void Spell::SendSpellGo()
         }
     }
 
-    if (castFlags & CAST_FLAG_UNKNOWN_18)                   // unknown wotlk
+    if (castFlags & CAST_FLAG_ADJUST_MISSILE)
     {
         data << float(0);
         data << uint32(0);
     }
 
-    if (castFlags & CAST_FLAG_UNKNOWN_20)                   // unknown wotlk
+    if (castFlags & CAST_FLAG_PROJECTILE)
+    {
+        data << uint32(0); // Ammo display ID
+        data << uint32(0); // Inventory Type
+    }
+
+    if (castFlags & CAST_FLAG_VISUAL_CHAIN)
     {
         data << uint32(0);
         data << uint32(0);
@@ -3865,6 +3871,20 @@ void Spell::SendSpellGo()
     if (m_targets.GetTargetMask() & TARGET_FLAG_DEST_LOCATION)
     {
         data << uint8(0);
+    }
+
+    if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
+    {
+        data << uint8(0); // Extra targets count
+        /*
+        for (uint8 i = 0; i < count; ++i)
+        {
+            data << float(0);   // Target Position X
+            data << float(0);   // Target Position Y
+            data << float(0);   // Target Position Z
+            data << uint64(0);  // Target Guid
+        }
+        */
     }
 
     m_caster->SendMessageToSet(&data, true);
