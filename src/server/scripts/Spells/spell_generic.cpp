@@ -1373,9 +1373,9 @@ class spell_gen_damage_reduction_aura : public SpellScriptLoader
 public:
     spell_gen_damage_reduction_aura() : SpellScriptLoader("spell_gen_damage_reduction_aura") { }
 
-    class spell_gen_damage_reduction_auraScript : public AuraScript
+    class spell_gen_damage_reduction_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_gen_damage_reduction_auraScript);
+        PrepareAuraScript(spell_gen_damage_reduction_AuraScript);
 
         bool Validate(SpellInfo const* /*SpellEntry*/)
         {
@@ -1387,19 +1387,16 @@ public:
         void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
-            if (!target || target->HasAura(SPELL_DAMAGE_REDUCTION_AURA))
-                return;
-
             target->CastSpell(target, SPELL_DAMAGE_REDUCTION_AURA, true);
         }
 
         void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
         {
             Unit* target = GetTarget();
-            if (!target || !target->HasAura(SPELL_DAMAGE_REDUCTION_AURA))
+            if (!target->HasAura(SPELL_DAMAGE_REDUCTION_AURA))
                 return;
 
-            if (target->HasAura(SPELL_BLESSING_OF_SANCTUARY) || 
+            if (target->HasAura(SPELL_BLESSING_OF_SANCTUARY) ||
                 target->HasAura(SPELL_GREATER_BLESSING_OF_SANCTUARY) ||
                 target->HasAura(SPELL_RENEWED_HOPE) ||
                 target->HasAura(SPELL_VIGILANCE))
@@ -1410,15 +1407,15 @@ public:
 
         void Register()
         {
-            OnEffectApply += AuraEffectApplyFn(spell_gen_damage_reduction_auraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(spell_gen_damage_reduction_auraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectApply += AuraEffectApplyFn(spell_gen_damage_reduction_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            OnEffectRemove += AuraEffectRemoveFn(spell_gen_damage_reduction_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         }
 
     };
 
     AuraScript* GetAuraScript() const
     {
-        return new spell_gen_damage_reduction_auraScript();
+        return new spell_gen_damage_reduction_AuraScript();
     }
 };
 

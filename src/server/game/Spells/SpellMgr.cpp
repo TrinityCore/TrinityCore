@@ -3480,6 +3480,9 @@ void SpellMgr::LoadDbcDataCorrections()
             case 72405: // Broken Frostmourne
                 spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_200_YARDS;   // 200yd
                 break;
+            case 50720: // Vigilance
+                spellInfo->SpellFamilyName = SPELLFAMILY_WARRIOR;
+                break;
             default:
                 break;
         }
