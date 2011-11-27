@@ -31,7 +31,7 @@ enum Opcodes
     NUM_OPCODE_HANDLERS                              = (0xFFFF+1),
     UNKNOWN_OPCODE                                   = NUM_OPCODE_HANDLERS,
     NULL_OPCODE                                      = 0,
-    
+
     CMSG_ACCEPT_LEVEL_GRANT                          = 0xDC4B,
     CMSG_ACCEPT_TRADE                                = 0x00,
     CMSG_ACTIVATETAXI                                = 0x00,
@@ -671,7 +671,7 @@ enum Opcodes
     SMSG_EQUIPMENT_SET_USE_RESULT                    = 0x00,
     SMSG_EXPECTED_SPAM_RECORDS                       = 0x00,
     SMSG_EXPLORATION_EXPERIENCE                      = 0x00,
-    SMSG_FEATURE_SYSTEM_STATUS                       = 0x00,
+    SMSG_FEATURE_SYSTEM_STATUS                       = 0x70CE,
     SMSG_FISH_ESCAPED                                = 0x9C66,
     SMSG_FISH_NOT_HOOKED                             = 0x18C3,
     SMSG_FORCEACTIONSHOW                             = 0x00,
@@ -1029,7 +1029,7 @@ enum Opcodes
     SMSG_QUESTUPDATE_ADD_ITEM                        = 0x00,
     SMSG_OVERRIDE_LIGHT                              = 0x00,
     SMSG_RANDOMIZE_CHAR_NAME                         = 0xF0DC, //  byte unk(0x80), string name
-    
+
     CMSG_MOVE_SET_COLLISION_HGT                      = 0x00,
     SMSG_MOVE_SET_COLLISION_HGT                      = 0x00,
 };
