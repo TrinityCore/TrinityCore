@@ -1193,7 +1193,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(SMSG_ALL_ACHIEVEMENT_DATA,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_FORCE_SAY_CHEAT,                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
      //DEFINE_OPCODE_HANDLER(SMSG_HEALTH_UPDATE,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-     //DEFINE_OPCODE_HANDLER(SMSG_POWER_UPDATE,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_POWER_UPDATE,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_GAMEOBJ_REPORT_USE,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGameobjectReportUse       );
      //DEFINE_OPCODE_HANDLER(SMSG_HIGHEST_THREAT_UPDATE,                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_THREAT_UPDATE,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
