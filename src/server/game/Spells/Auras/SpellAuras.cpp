@@ -1555,7 +1555,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
     // mods at aura apply or remove
     switch (GetSpellInfo()->SpellFamilyName)
     {
-        case SPELLFAMILY_WARRIOR:
+        case SPELLFAMILY_GENERIC:
             switch (GetId())
             {
                 case 50720: // Vigilance
