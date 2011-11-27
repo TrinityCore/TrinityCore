@@ -363,5 +363,21 @@ bool AnyDeadUnitSpellTargetInRangeCheck::operator()(Creature* u)
         && i_searchObj->IsTargetMatchingCheck(u, i_check);
 }
 
+bool AnyDeadUndeadOrHumanoidUnitSpellTargetInRangeCheck::operator()(Player* u)
+{
+    return AnyDeadUnitSpellTargetInRangeCheck::operator()(u);
+}
+
+bool AnyDeadUndeadOrHumanoidUnitSpellTargetInRangeCheck::operator()(Corpse* u)
+{
+    return AnyDeadUnitSpellTargetInRangeCheck::operator()(u);
+}
+
+bool AnyDeadUndeadOrHumanoidUnitSpellTargetInRangeCheck::operator()(Creature* u)
+{
+    return AnyDeadUnitSpellTargetInRangeCheck::operator()(u)
+        && (u->GetCreatureType() == CREATURE_TYPE_UNDEAD || u->GetCreatureType() == CREATURE_TYPE_HUMANOID);
+}
+
 template void ObjectUpdater::Visit<GameObject>(GameObjectMapType &);
 template void ObjectUpdater::Visit<DynamicObject>(DynamicObjectMapType &);
