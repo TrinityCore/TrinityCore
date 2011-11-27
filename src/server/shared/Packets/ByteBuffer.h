@@ -64,7 +64,7 @@ class BitStream
         uint8 ReadBit();
         void WriteBit(uint32 bit);
         template <typename T> void WriteBits(T value, size_t bits);
-        bool Emtpy();
+        bool Empty();
         void Reverse();
         void Print();
 

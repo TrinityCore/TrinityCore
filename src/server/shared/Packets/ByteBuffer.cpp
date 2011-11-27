@@ -49,7 +49,7 @@ template <typename T> void BitStream::WriteBits(T value, size_t bits)
         WriteBit((value >> i) & 1);
 }
 
-bool BitStream::Emtpy ()
+bool BitStream::Empty ()
 {
     return _data.empty();
 }
