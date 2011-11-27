@@ -159,9 +159,9 @@ void WorldSession::SendPacket(WorldPacket const* packet)
     if (!m_Socket)
         return;
 
-    if (packet->GetOpcode() == NULL || packet->GetOpcode() == UNKNOWN_OPCODE)
+    if (packet->GetOpcode() == NULL_OPCODE || packet->GetOpcode() == UNKNOWN_OPCODE)
     {
-        sLog->outError("Sending unknown opcode - prevented. Trace:");
+        sLog->outError("Prevented sending of %s. Trace:", packet->GetOpcode() == NULL_OPCODE ? "NULL_OPCODE" : "UNKNOWN_OPCODE");
         ACE_Stack_Trace trace;
         sLog->outError("%s", trace.c_str());
         return;
