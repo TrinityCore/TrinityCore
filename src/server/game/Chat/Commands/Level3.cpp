@@ -1725,7 +1725,7 @@ bool ChatHandler::HandleGuildUninviteCommand(const char *args)
     if (!extractPlayerTarget((char*)args, &target, &target_guid))
         return false;
 
-    uint32 glId   = target ? target->GetGuildId () : Player::GetGuildIdFromDB (target_guid);
+    uint32 glId = target ? target->GetGuildId() : Player::GetGuildIdFromGuid(target_guid);
 
     if (!glId)
         return false;
@@ -1752,11 +1752,11 @@ bool ChatHandler::HandleGuildRankCommand(const char *args)
     if (!extractPlayerTarget(nameStr, &target, &target_guid, &target_name))
         return false;
 
-    uint32 glId   = target ? target->GetGuildId () : Player::GetGuildIdFromDB (target_guid);
+    uint32 glId = target ? target->GetGuildId() : Player::GetGuildIdFromGuid(target_guid);
     if (!glId)
         return false;
 
-    Guild* targetGuild = sGuildMgr->GetGuildById (glId);
+    Guild* targetGuild = sGuildMgr->GetGuildById(glId);
     if (!targetGuild)
         return false;
 
