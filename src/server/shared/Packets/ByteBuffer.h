@@ -57,26 +57,28 @@ class BitStream
             WriteBits(val, len);
         }
 
+        BitStream(BitStream const& bs) : _rpos(bs._rpos), _wpos(bs._wpos), _data(bs._data) {}
+
         void Clear();
         uint8 GetBit(uint32 bit);
         uint8 ReadBit();
         void WriteBit(uint32 bit);
         template <typename T> void WriteBits(T value, size_t bits);
-        bool Emtpy ();
+        bool Emtpy();
         void Reverse();
-		void Print();
-        
+        void Print();
+
         size_t GetLenght () { return _data.size();}
         uint32 GetReadPosition() { return _rpos; }
         uint32 GetWritePosition() { return _wpos; }
-        void SetReadPos (uint32 pos) { _rpos = pos; }
+        void SetReadPos(uint32 pos) { _rpos = pos; }
 
-		uint8 operator[](uint32 pos) const
+        uint8 const& operator[](uint32 const pos) const
         {
-            return  _data[pos];
+            return _data[pos];
         }
 
-        uint8& operator[] (const uint32 pos)
+        uint8& operator[] (uint32 const pos)
         {
             return _data[pos];
         }
@@ -173,11 +175,11 @@ class ByteBuffer
             return value;
         }
 
-        BitStream* ReadBitStream(uint32 len)
+        BitStream ReadBitStream(uint32 len)
         {
-            BitStream* b = new BitStream();
+            BitStream b;
             for (uint32 i = 0; i < len; ++i)
-                b->WriteBit(readBit());
+                b.WriteBit(readBit());
             return b;
         }
 
@@ -343,13 +345,15 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 operator[](size_t pos) const
+        uint8& operator[](size_t const pos)
         {
-            return read<uint8>(pos);
+            if (pos >= size())
+                throw ByteBufferException(false, pos, 1, size());
+            return _storage[pos];
         }
 
-        uint8& operator[] (const size_t pos)
-        { 
+        uint8 const& operator[](size_t const pos) const
+        {
             if (pos >= size())
                 throw ByteBufferException(false, pos, 1, size());
             return _storage[pos];
@@ -447,7 +451,7 @@ class ByteBuffer
             (*this) >> u;
             return u;
         }
-        
+
         uint32 ReadUInt32()
         {
             uint32 u = 0;
@@ -475,7 +479,7 @@ class ByteBuffer
             (*this) >> u;
             return u;
         }
-        
+
         int32 ReadInt32()
         {
             uint32 u = 0;
@@ -503,7 +507,7 @@ class ByteBuffer
             (*this) >> b;
             return b > 0 ? true : false;
         }
-        
+
         float ReadSingle()
         {
             float f = 0;
@@ -791,38 +795,37 @@ inline void ByteBuffer::read_skip<std::string>()
 class BitConverter
 {
     public:
-
-        static uint8 ToUInt8(ByteBuffer buff, size_t start = 0)
+        static uint8 ToUInt8(ByteBuffer const& buff, size_t start = 0)
         {
             return buff.read<uint8>(start);
         }
 
-        static uint16 ToUInt16(ByteBuffer buff, size_t start = 0)
+        static uint16 ToUInt16(ByteBuffer const& buff, size_t start = 0)
         {
             return buff.read<uint16>(start);
         }
 
-        static uint32 ToUInt32(ByteBuffer buff, size_t start = 0)
+        static uint32 ToUInt32(ByteBuffer const& buff, size_t start = 0)
         {
             return buff.read<uint32>(start);
         }
 
-        static uint64 ToUInt64(ByteBuffer buff, size_t start = 0)
+        static uint64 ToUInt64(ByteBuffer const& buff, size_t start = 0)
         {
             return buff.read<uint64>(start);
         }
 
-        static int16 ToInt16(ByteBuffer buff, size_t start = 0)
+        static int16 ToInt16(ByteBuffer const& buff, size_t start = 0)
         {
             return buff.read<int16>(start);
         }
 
-        static int32 ToInt32(ByteBuffer buff, size_t start = 0)
+        static int32 ToInt32(ByteBuffer const& buff, size_t start = 0)
         {
             return buff.read<int32>(start);
         }
 
-        static int64 ToInt64(ByteBuffer buff, size_t start = 0)
+        static int64 ToInt64(ByteBuffer const& buff, size_t start = 0)
         {
             return buff.read<int64>(start);
         }
