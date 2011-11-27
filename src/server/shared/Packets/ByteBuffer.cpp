@@ -79,11 +79,7 @@ void BitStream::Print()
 ByteBuffer::ByteBuffer(size_t res, bool init): _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
 {
     if (init)
-    {
-        _storage.resize(res);
-        for (size_t i = 0; i < res; ++i)
-            *this << uint8(0);
-    }
+        _storage.resize(res, 0);
     else
         _storage.reserve(res);
 }
