@@ -363,7 +363,7 @@ enum Opcodes
     CMSG_REQUEST_PLAYER_VEHICLE_EXIT                 = 0xCC6,
     CMSG_REQUEST_RATED_BG_INFO                       = 0x00,
     CMSG_REQUEST_RAID_INFO                           = 0x00,
-    CMSG_REQUEST_VEHICLE_EXIT                        = 0xCC6. // New 4.x ?
+    CMSG_REQUEST_VEHICLE_EXIT                        = 0xCC6, // New 4.x ?
     CMSG_REQUEST_VEHICLE_NEXT_SEAT                   = 0xCAD6,
     CMSG_REQUEST_VEHICLE_PREV_SEAT                   = 0x1AE2,
     CMSG_REQUEST_VEHICLE_SWITCH_SEAT                 = 0x01, // temp to fix switch case value error
