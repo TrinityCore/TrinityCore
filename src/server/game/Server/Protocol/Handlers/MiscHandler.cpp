@@ -1438,7 +1438,7 @@ void WorldSession::HandleTimeSyncResp(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_TIME_SYNC_RESP");
 
     uint32 counter, clientTicks;
-    recv_data >> counter >> clientTicks;
+    recv_data >> clientTicks >> counter;
 
     if (counter != _player->m_timeSyncCounter - 1)
         sLog->outDebug(LOG_FILTER_NETWORKIO, "Wrong time sync counter from player %s (cheater?)", _player->GetName());
