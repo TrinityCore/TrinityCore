@@ -17139,40 +17139,50 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
             break;
     }
 
-    (*data).writeBits(GetUnitMovementFlags(), 30);
-    (*data).writeBits(m_movementInfo.flags2, 12);
+    bool onTransport = GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT;
+    bool hasInterpolatedMovement = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
+    bool time3 = false;
+    bool swimming = ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
+        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
+    bool interPolatedTurning = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING;
+    bool jumping = GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING;
+    bool splineElevation = GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION;
+    bool splineData = false;
 
-    if (data->writeBit(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT))
+    data->writeBits(GetUnitMovementFlags(), 30);
+    data->writeBits(m_movementInfo.flags2, 12);
+    data->writeBit(onTransport);
+    if (onTransport)
     {
-        data->writeBit(m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT);
-        data->writeBit(0); // Flag for time3
+        data->writeBit(hasInterpolatedMovement);
+        data->writeBit(time3);
     }
 
-    data->writeBit((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
+    data->writeBit(swimming);
+    data->writeBit(interPolatedTurning);
+    if (interPolatedTurning)
+        data->writeBit(jumping);
 
-    if (data->writeBit(m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING))
-        data->writeBit(GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING);
+    data->writeBit(splineElevation);
+    data->writeBit(splineData);
 
-    data->writeBit(GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION);
+    data->flushBits(); // reset bit stream
 
-    // has spline data
-    data->writeBit(0);
+    *data << uint64(GetGUID());
+    *data << uint32(getMSTime());
+    *data << float(GetPositionX());
+    *data << float(GetPositionY());
+    *data << float(GetPositionZ());
+    *data << float(GetOrientation());
 
-    *data << uint64(GetGUID()); // added in 4.2.0
-    *data << uint32(getMSTime());            // time
-    *data << GetPositionX();
-    *data << GetPositionY();
-    *data << GetPositionZ();
-    *data << GetOrientation();
-
-    if (GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
+    if (onTransport)
     {
         if (m_vehicle)
-            data->append(m_vehicle->GetBase()->GetPackGUID());
+            *data << uint64(m_vehicle->GetBase()->GetGUID());
         else if (GetTransport())
-            data->append(GetTransport()->GetPackGUID());
-        else
-            *data << (uint8)0;
+            *data << uint64(GetTransport()->GetGUID());
+        else // probably should never happen
+            *data << (uint64)0;
 
         *data << float (GetTransOffsetX());
         *data << float (GetTransOffsetY());
@@ -17180,20 +17190,20 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << float (GetTransOffsetO());
         *data << uint8 (GetTransSeat());
         *data << uint32(GetTransTime());
-
-        if (m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
-            *data << uint32(m_movementInfo.t_time2);
+        if (hasInterpolatedMovement)
+            *data << int32(0); // Transport Time 2
+        if (time3)
+            *data << int32(0); // Transport Time 3
     }
 
-    if ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+    if (swimming)
         *data << (float)m_movementInfo.pitch;
 
-    if (m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING)
+    if (interPolatedTurning)
     {
         *data << (uint32)m_movementInfo.fallTime;
         *data << (float)m_movementInfo.j_zspeed;
-
-        if (GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
+        if (jumping)
         {
             *data << (float)m_movementInfo.j_sinAngle;
             *data << (float)m_movementInfo.j_cosAngle;
@@ -17201,7 +17211,7 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         }
     }
 
-    if (GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION)
+    if (splineElevation)
         *data << (float)m_movementInfo.splineElevation;
 }
 
