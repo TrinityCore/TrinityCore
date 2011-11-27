@@ -525,7 +525,7 @@ enum Opcodes
     MSG_TABARDVENDOR_ACTIVATE                        = 0x98EB, // 
     MSG_TALENT_WIPE_CONFIRM                          = 0x00, // 
     OBSOLETE_DROP_ITEM                               = 0x00, //
-    SMSG_ACCOUNT_DATA_TIMES                          = 0x00, // 
+    SMSG_ACCOUNT_DATA_TIMES                          = 0x5EE2, // 
     SMSG_ACHIEVEMENT_DELETED                         = 0x00, // 
     SMSG_ACHIEVEMENT_EARNED                          = 0x00, // 
     SMSG_ACTION_BUTTONS                              = 0x00, // 
