@@ -68,7 +68,7 @@ class BitStream
         void Reverse();
         void Print();
 
-        size_t GetLenght () { return _data.size();}
+        size_t GetLength() { return _data.size(); }
         uint32 GetReadPosition() { return _rpos; }
         uint32 GetWritePosition() { return _wpos; }
         void SetReadPos(uint32 pos) { _rpos = pos; }
@@ -103,7 +103,10 @@ class ByteBuffer
         ByteBuffer(size_t res, bool init = false);
 
         // copy constructor
-        ByteBuffer(const ByteBuffer &buf): _rpos(buf._rpos), _wpos(buf._wpos), _storage(buf._storage), _bitpos(buf._bitpos), _curbitval(buf._curbitval) { }
+        ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+            _storage(buf._storage), _bitpos(buf._bitpos), _curbitval(buf._curbitval)
+        {
+        }
 
         void clear()
         {
@@ -113,12 +116,12 @@ class ByteBuffer
 
         template <typename T> void append(T value)
         {
-            flushBits();
+            FlushBits();
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
         }
 
-        void flushBits()
+        void FlushBits()
         {
             if (_bitpos == 8)
                 return;
@@ -128,7 +131,7 @@ class ByteBuffer
             _bitpos = 8;
         }
 
-        bool writeBit(uint32 bit)
+        bool WriteBit(uint32 bit)
         {
             --_bitpos;
             if (bit)
@@ -144,7 +147,7 @@ class ByteBuffer
             return (bit != 0);
         }
 
-        bool readBit()
+        bool ReadBit()
         {
             ++_bitpos;
             if (_bitpos > 7)
@@ -152,26 +155,23 @@ class ByteBuffer
                 _bitpos = 0;
                 _curbitval = read<uint8>();
             }
-            bool bit = ((_curbitval >> (7-_bitpos)) & 1) != 0;
-            return bit;
+
+            return ((_curbitval >> (7-_bitpos)) & 1) != 0;
         }
 
-        template <typename T> void writeBits(T value, size_t bits)
+        template <typename T> void WriteBits(T value, size_t bits)
         {
             for (int32 i = bits-1; i >= 0; --i)
-                writeBit((value >> i) & 1);
+                WriteBit((value >> i) & 1);
         }
 
-        uint32 readBits(size_t bits)
+        uint32 ReadBits(size_t bits)
         {
             uint32 value = 0;
             for (int32 i = bits-1; i >= 0; --i)
-            {
-                if(readBit())
-                {
+                if (ReadBit())
                     value |= (1 << (_bitpos));
-                }
-            }
+
             return value;
         }
 
@@ -179,7 +179,7 @@ class ByteBuffer
         {
             BitStream b;
             for (uint32 i = 0; i < len; ++i)
-                b.WriteBit(readBit());
+                b.WriteBit(ReadBit());
             return b;
         }
 

@@ -246,10 +246,10 @@ void WorldSession::HandleCharEnum(QueryResult result)
                     //case 14:
                     //    data.writeBit(1);//unk
                     //    break;
-                    case 11: data.writeBit(Guid0 ? 1 : 0); break;
-                    case 12: data.writeBit(Guid1 ? 1 : 0); break;
-                    case 9: data.writeBit(Guid2 ? 1 : 0); break;
-                    case 8: data.writeBit(Guid3 ? 1 : 0); break;
+                    case 11: data.WriteBit(Guid0 ? 1 : 0); break;
+                    case 12: data.WriteBit(Guid1 ? 1 : 0); break;
+                    case 9: data.WriteBit(Guid2 ? 1 : 0); break;
+                    case 8: data.WriteBit(Guid3 ? 1 : 0); break;
                     /*case 15:
                         if(uint8(GuildGuid))
                             data.writeBit(1);
@@ -283,12 +283,12 @@ void WorldSession::HandleCharEnum(QueryResult result)
                             data.writeBit(1);
                         break;*/
                     default:
-                        data.writeBit(0);
+                        data.WriteBit(0);
                         break;
                 }
             }
         }
-        data.flushBits();
+        data.FlushBits();
         data.append(buffer);
         data.put<uint32>(1, guidsVect.size());
     }
