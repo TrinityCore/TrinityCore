@@ -43,7 +43,7 @@ namespace Trinity
         std::set<Unit*> i_visibleNow;
         Player::ClientGUIDs vis_guids;
 
-        VisibleNotifier(Player &player) : i_player(player), vis_guids(player.m_clientGUIDs) {}
+        VisibleNotifier(Player &player) : i_player(player), vis_guids(player.m_clientGUIDs), i_data(player.GetMapId()) {}
         template<class T> void Visit(GridRefManager<T> &m);
         void SendToSelf(void);
     };
