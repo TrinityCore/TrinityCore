@@ -48,7 +48,7 @@ template <typename T> void BitStream::WriteBits(T value, size_t bits)
     for (int32 i = bits-1; i >= 0; --i)
         WriteBit((value >> i) & 1);
 }
-        
+
 bool BitStream::Emtpy ()
 {
     return _data.empty();
@@ -68,22 +68,22 @@ void BitStream::Print()
 {
     if (!sLog->IsOutDebug())
         return;
-	std::stringstream ss;
-	ss << "BitStream: ";
+    std::stringstream ss;
+    ss << "BitStream: ";
     for (uint32 i = 0; i < GetLenght(); ++i)
-		ss << uint32(GetBit(i)) << " ";
+        ss << uint32(GetBit(i)) << " ";
 
-	sLog->outDebug(LOG_FILTER_NETWORKIO, ss.str().c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, ss.str().c_str());
 }
 
 ByteBuffer::ByteBuffer(size_t res, bool init): _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
 {
     if (init)
     {
+        _storage.resize(res);
         for (size_t i = 0; i < res; ++i)
-        {
             *this << uint8(0);
-        }
-    } else
+    }
+    else
         _storage.reserve(res);
 }
