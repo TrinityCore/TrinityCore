@@ -95,6 +95,7 @@ struct CreatureTemplate
     uint8   minlevel;
     uint8   maxlevel;
     uint32  expansion;
+    uint32  expansionUnknown;                               // either 0 or 3, sent to the client / wdb
     uint32  faction_A;
     uint32  faction_H;
     uint32  npcflag;
@@ -122,6 +123,7 @@ struct CreatureTemplate
     uint32  rangedattackpower;
     uint32  type;                                           // enum CreatureType values
     uint32  type_flags;                                     // enum CreatureTypeFlags mask values
+    uint32  type_flags2;                                    // unknown enum, only set for 4 creatures (with value 1)
     uint32  lootid;
     uint32  pickpocketLootId;
     uint32  SkinLootId;
@@ -175,8 +177,8 @@ struct CreatureTemplate
 typedef UNORDERED_MAP<uint32, CreatureTemplate> CreatureTemplateContainer;
 
 // Represents max amount of expansions.
-// TODO: Add MAX_EXPANSION constant.
-#define MAX_CREATURE_BASE_HP 3
+// TODO: Update to Cata, if required
+#define MAX_CREATURE_BASE_HP MAX_EXPANSION - 1
 
 // Defines base stats for creatures (used to calculate HP/mana/armor).
 struct CreatureBaseStats
