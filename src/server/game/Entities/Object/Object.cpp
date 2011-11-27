@@ -250,7 +250,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
 void Object::SendUpdateToPlayer(Player* player)
 {
     // send create update to player
-    UpdateData upd;
+    UpdateData upd(player->GetMapId());
     WorldPacket packet;
 
     BuildCreateUpdateBlockForPlayer(&upd, player);
@@ -296,17 +296,18 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
     {
-        ((Unit*)this)->BuildMovementPacket(data);
+        const Unit* self = ToUnit();
+        self->BuildMovementPacket(data);
 
-        *data << ((Unit*)this)->GetSpeed(MOVE_WALK);
-        *data << ((Unit*)this)->GetSpeed(MOVE_RUN);
-        *data << ((Unit*)this)->GetSpeed(MOVE_SWIM_BACK);
-        *data << ((Unit*)this)->GetSpeed(MOVE_SWIM);
-        *data << ((Unit*)this)->GetSpeed(MOVE_RUN_BACK);
-        *data << ((Unit*)this)->GetSpeed(MOVE_FLIGHT);
-        *data << ((Unit*)this)->GetSpeed(MOVE_FLIGHT_BACK);
-        *data << ((Unit*)this)->GetSpeed(MOVE_TURN_RATE);
-        *data << ((Unit*)this)->GetSpeed(MOVE_PITCH_RATE);
+        *data << self->GetSpeed(MOVE_WALK);
+        *data << self->GetSpeed(MOVE_RUN);
+        *data << self->GetSpeed(MOVE_SWIM_BACK);
+        *data << self->GetSpeed(MOVE_SWIM);
+        *data << self->GetSpeed(MOVE_RUN_BACK);
+        *data << self->GetSpeed(MOVE_FLIGHT);
+        *data << self->GetSpeed(MOVE_FLIGHT_BACK);
+        *data << self->GetSpeed(MOVE_TURN_RATE);
+        *data << self->GetSpeed(MOVE_PITCH_RATE);
 
         const Player* player = ToPlayer();
 
@@ -375,19 +376,20 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     }
     else
     {
+        WorldObject* worldObj = ((WorldObject*)this);
         if (flags & UPDATEFLAG_POSITION)
         {
             *data << uint8(0);                              // unk PGUID!
-            *data << ((WorldObject*)this)->GetPositionX();
-            *data << ((WorldObject*)this)->GetPositionY();
-            *data << ((WorldObject*)this)->GetPositionZ();
-            *data << ((WorldObject*)this)->GetPositionX();
-            *data << ((WorldObject*)this)->GetPositionY();
-            *data << ((WorldObject*)this)->GetPositionZ();
-            *data << ((WorldObject*)this)->GetOrientation();
+            *data << worldObj->GetPositionX();
+            *data << worldObj->GetPositionY();
+            *data << worldObj->GetPositionZ();
+            *data << worldObj->GetPositionX();
+            *data << worldObj->GetPositionY();
+            *data << worldObj->GetPositionZ();
+            *data << worldObj->GetOrientation();
 
             if (GetTypeId() == TYPEID_CORPSE)
-                *data << float(((WorldObject*)this)->GetOrientation());
+                *data << worldObj->GetOrientation();
             else
                 *data << float(0);
         }
@@ -402,58 +404,23 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
                     *data << (float)0;
                     *data << (float)0;
                     *data << (float)0;
-                    *data << ((WorldObject*)this)->GetOrientation();
+                    *data << worldObj->GetOrientation();
                 }
                 else
                 {
-                    *data << ((WorldObject*)this)->GetPositionX();
-                    *data << ((WorldObject*)this)->GetPositionY();
-                    *data << ((WorldObject*)this)->GetPositionZ();
-                    *data << ((WorldObject*)this)->GetOrientation();
+                    *data << worldObj->GetPositionX();
+                    *data << worldObj->GetPositionY();
+                    *data << worldObj->GetPositionZ();
+                    *data << worldObj->GetOrientation();
                 }
             }
         }
     }
 
-    // 0x8
-    if (flags & UPDATEFLAG_LOWGUID)
-    {
-        switch (GetTypeId())
-        {
-            case TYPEID_OBJECT:
-            case TYPEID_ITEM:
-            case TYPEID_CONTAINER:
-            case TYPEID_GAMEOBJECT:
-            case TYPEID_DYNAMICOBJECT:
-            case TYPEID_CORPSE:
-                *data << uint32(GetGUIDLow());              // GetGUIDLow()
-                break;
-            case TYPEID_UNIT:
-                *data << uint32(0x0000000B);                // unk, can be 0xB or 0xC
-                break;
-            case TYPEID_PLAYER:
-                if (flags & UPDATEFLAG_SELF)
-                    *data << uint32(0x0000002F);            // unk, can be 0x15 or 0x22
-                else
-                    *data << uint32(0x00000008);            // unk, can be 0x7 or 0x8
-                break;
-            default:
-                *data << uint32(0x00000000);                // unk
-                break;
-        }
-    }
-
-    // 0x10
-    if (flags & UPDATEFLAG_HIGHGUID)
-    {
-        // not high guid
-        *data << uint32(GetUInt32Value(OBJECT_FIELD_GUID));                // unk
-    }
-
     // 0x4
     if (flags & UPDATEFLAG_HAS_TARGET)                       // packed guid (current target guid)
     {
-        if (Unit* victim = ((Unit*)this)->getVictim())
+        if (Unit *victim = this->ToUnit()->getVictim())
             data->append(victim->GetPackGUID());
         else
             *data << uint8(0);
@@ -472,11 +439,14 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         *data << float(((Creature*)this)->GetOrientation());  // facing adjustment
     }
 
-    // 0x200
-    if (flags & UPDATEFLAG_ROTATION)
-    {
-        *data << uint64(((GameObject*)this)->GetRotation());
-    }
+    // 0x800
+    if (flags & UPDATEFLAG_UNK2)
+	    *data << uint16(0) << uint16(0) << uint16(0); //unk
+
+    
+    // 0x1000
+    if (flags & UPDATEFLAG_UNK3)
+        *data << uint8(0);//unk counter to read uint32 values
 }
 
 void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask* updateMask, Player* target) const
@@ -774,7 +744,7 @@ void Object::BuildFieldsUpdate(Player* player, UpdateDataMapType& data_map) cons
 
     if (iter == data_map.end())
     {
-        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(player, UpdateData()));
+        std::pair<UpdateDataMapType::iterator, bool> p = data_map.insert(UpdateDataMapType::value_type(player, UpdateData(player->GetMapId())));
         ASSERT(p.second);
         iter = p.first;
     }

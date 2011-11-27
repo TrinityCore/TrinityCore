@@ -156,7 +156,7 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this)
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
 
-    m_updateFlag = (UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION);
+    m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION);
 
     m_attackTimer[BASE_ATTACK] = 0;
     m_attackTimer[OFF_ATTACK] = 0;
@@ -17141,13 +17141,30 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
 
     (*data).writeBits(GetUnitMovementFlags(), 30);
     (*data).writeBits(m_movementInfo.flags2, 12);
+
+    if (data->writeBit(GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT))
+    {
+        data->writeBit(m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT);
+        data->writeBit(0); // Flag for time3
+    }
+
+    data->writeBit((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
+
+    if (data->writeBit(m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING))
+        data->writeBit(GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING);
+
+    data->writeBit(GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION);
+
+    // has spline data
+    data->writeBit(0);
+
+    *data << uint64(GetGUID()); // added in 4.2.0
     *data << uint32(getMSTime());            // time
     *data << GetPositionX();
     *data << GetPositionY();
     *data << GetPositionZ();
     *data << GetOrientation();
 
-    // 0x00000200
     if (GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
     {
         if (m_vehicle)
@@ -17161,27 +17178,29 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << float (GetTransOffsetY());
         *data << float (GetTransOffsetZ());
         *data << float (GetTransOffsetO());
-        *data << uint32(GetTransTime());
         *data << uint8 (GetTransSeat());
+        *data << uint32(GetTransTime());
+
+        if (m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
+            *data << uint32(m_movementInfo.t_time2);
     }
 
-    // 0x02200000
-    if ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
-        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+    if ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)) || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
         *data << (float)m_movementInfo.pitch;
 
-    *data << (uint32)m_movementInfo.fallTime;
-
-    // 0x00001000
-    if (GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
+    if (m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING)
     {
+        *data << (uint32)m_movementInfo.fallTime;
         *data << (float)m_movementInfo.j_zspeed;
-        *data << (float)m_movementInfo.j_sinAngle;
-        *data << (float)m_movementInfo.j_cosAngle;
-        *data << (float)m_movementInfo.j_xyspeed;
+
+        if (GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
+        {
+            *data << (float)m_movementInfo.j_sinAngle;
+            *data << (float)m_movementInfo.j_cosAngle;
+            *data << (float)m_movementInfo.j_xyspeed;
+        }
     }
 
-    // 0x04000000
     if (GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION)
         *data << (float)m_movementInfo.splineElevation;
 }
