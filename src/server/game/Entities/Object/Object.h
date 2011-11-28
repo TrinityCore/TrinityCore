@@ -461,25 +461,26 @@ ByteBuffer& operator<<(ByteBuffer& buf, Position::PositionXYZOStreamer const& st
 struct MovementInfo
 {
     // common
-    uint64  guid;
-    uint32  flags;
-    uint16  flags2;
+    uint64 guid;
+    uint32 flags;
+    uint16 flags2;
     Position pos;
-    uint32  time;
+    uint32 time;
     // transport
-    uint64  t_guid;
+    uint64 t_guid;
     Position t_pos;
-    uint32  t_time;
-    uint32  t_time2;
-    int8    t_seat;
+    uint32 t_time;
+    uint32 t_time2;
+    uint32 t_time3;
+    int8 t_seat;
     // swimming/flying
-    float   pitch;
+    float pitch;
     // falling
-    uint32  fallTime;
+    uint32 fallTime;
     // jumping
-    float   j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed;
+    float j_zspeed, j_sinAngle, j_cosAngle, j_xyspeed;
     // spline
-    float   splineElevation;
+    float splineElevation;
 
     MovementInfo()
     {
@@ -487,7 +488,7 @@ struct MovementInfo
         guid = 0;
         flags = 0;
         flags2 = 0;
-        time = t_time = t_time2 = fallTime = 0;
+        time = t_time = t_time2 = t_time3 = fallTime = 0;
         splineElevation = 0;
         pitch = j_zspeed = j_sinAngle = j_cosAngle = j_xyspeed = 0.0f;
         t_guid = 0;
