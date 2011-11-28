@@ -1,8 +1,9 @@
 -- fix Junkboxes Needed quest available for all classes
-UPDATE `quest_template` SET `ZoneOrSort` = '0'  WHERE `entry` = '8249';
+UPDATE `quest_template` SET `ZoneOrSort` = '-162' WHERE `Id` = '8249';
+UPDATE `quest_template` SET `RequiredClasses`=0 WHERE `Id`=8249; -- Junkboxes Needed
 
 -- fix mobs aggro for keldelar quest npc
-UPDATE `quest_template` SET `SrcSpell` = '70974' WHERE `entry` =20439;
+UPDATE `quest_template` SET `SourceSpellId` = '70974' WHERE `Id` =20439;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 31885;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 31886;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 31557;
@@ -13,7 +14,7 @@ UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 32415;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 32412;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 32251;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 32252;
-UPDATE `quest_template` SET `SrcSpell` = '70972' WHERE `entry` =24451;
+UPDATE `quest_template` SET `SourceSpellId` = '70972' WHERE `Id` =24451;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 35507;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 31580;
 UPDATE `creature_template` SET `flags_extra` = '2' WHERE `entry` = 31579;
@@ -36,7 +37,7 @@ UPDATE `creature_template` SET `unit_flags`=`unit_flags`|16777216, `ScriptName`=
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=29709;
 
 -- hack quest "An End To All Things..."
-UPDATE `quest_template` SET Method = 0 WHERE `entry` = 12779;
+UPDATE `quest_template` SET Method = 0 WHERE `Id` = 12779;
 
 
 -- Argent Tournament quests fixes start
