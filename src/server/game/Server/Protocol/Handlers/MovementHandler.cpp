@@ -257,6 +257,8 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         return;
     }
 
+    return; //temp to prevent spamming of bytebuffer exceptions until correct structure is found
+
     /* extract packet */
     uint64 guid;
 
