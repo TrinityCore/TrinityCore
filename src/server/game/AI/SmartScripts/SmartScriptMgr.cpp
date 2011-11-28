@@ -68,10 +68,12 @@ void SmartWaypointMgr::LoadFromDB()
             path = new WPPath;
             last_id = 1;
         }
+
         if (last_id != id)
         {
             sLog->outErrorDb("SmartWaypointMgr::LoadFromDB: Path entry %u, unexpected point id %u, expected %u.", entry, id, last_id);
         }
+
         last_id++;
         (*path)[id] = wp;
 

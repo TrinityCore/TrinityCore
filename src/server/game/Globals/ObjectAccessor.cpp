@@ -212,6 +212,7 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
         }
     }
     else
+
         corpse->RemoveFromWorld();
 
     // Critical section
@@ -292,6 +293,7 @@ Corpse* ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia
 
     // remove corpse from player_guid -> corpse map and from current map
     RemoveCorpse(corpse);
+
     // remove corpse from DB
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     corpse->DeleteFromDB(trans);
