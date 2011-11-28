@@ -664,9 +664,9 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
         return 0;
     }
 
-    creature->m_isWorldObject = true; //so it will not be unloaded with grid
     map->AddToMap(creature);
     m_NPCPassengerSet.insert(creature);
+    creature->SetWorldObject(true); //so it will not be unloaded with grid
 
     if (tguid == 0)
     {
