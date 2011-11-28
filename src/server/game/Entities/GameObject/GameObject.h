@@ -648,7 +648,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         void SaveToDB();
         void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
-        bool LoadFromDB(uint32 guid, Map* map);
+        bool LoadFromDB(uint32 guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
+        bool LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap = true);
         void DeleteFromDB();
 
         void SetOwnerGUID(uint64 owner)

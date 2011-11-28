@@ -149,9 +149,12 @@ public:
         uint32 db_guid = creature->GetDBTableGUIDLow();
 
         // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
-        creature->LoadFromDB(db_guid, map);
+        if (!creature->LoadCreatureFromDB(db_guid, map))
+        {
+            delete creature;
+            return false;
+        }
 
-        map->AddToMap(creature);
         sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
         return true;
     }
@@ -1115,7 +1118,7 @@ public:
         }
 
         // Everything looks OK, create new pet
-        Pet* pet = player->CreateTamedPetFrom (creatureTarget);
+        Pet* pet = player->CreateTamedPetFrom(creatureTarget);
         if (!pet)
         {
             handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->Entry);
