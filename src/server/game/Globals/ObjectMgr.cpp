@@ -6489,8 +6489,10 @@ void ObjectMgr::LoadGameObjectTemplate()
     QueryResult result = WorldDatabase.Query("SELECT entry, type, displayId, name, IconName, castBarCaption, unk1, faction, flags, size, questItem1, questItem2, questItem3, "
     //                                            13          14          15       16     17     18     19     20     21     22     23     24     25      26      27      28
                                              "questItem4, questItem5, questItem6, data0, data1, data2, data3, data4, data5, data6, data7, data8, data9, data10, data11, data12, "
-    //                                          29      30      31      32      33      34      35      36      37      38      39      40        41
-                                             "data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, AIName, ScriptName "
+    //                                          29      30      31      32      33      34      35      36      37      38      39      40      41      42      43      44
+                                             "data13, data14, data15, data16, data17, data18, data19, data20, data21, data22, data23, data24, data25, data26, data27, data28, "
+    //                                          45      46      47       48       49        50
+                                             "data29, data30, data31, unkInt32, AIName, ScriptName "
                                              "FROM gameobject_template");
 
     if (!result)
@@ -6521,44 +6523,41 @@ void ObjectMgr::LoadGameObjectTemplate()
         got.size           = fields[9].GetFloat();
 
         for (uint8 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-        {
             got.questItems[i] = fields[10 + i].GetUInt32();
-        }
 
         for (uint8 i = 0; i < MAX_GAMEOBJECT_DATA; ++i)
-        {
             got.raw.data[i] = fields[16 + i].GetUInt32();
-        }
 
-        got.AIName = fields[40].GetString();
-        got.ScriptId = GetScriptId(fields[41].GetCString());
+        got.unkInt32 = fields[48].GetInt32();
+        got.AIName = fields[49].GetString();
+        got.ScriptId = GetScriptId(fields[50].GetCString());
 
         // Checks
 
         switch (got.type)
         {
-        case GAMEOBJECT_TYPE_DOOR:                      //0
+            case GAMEOBJECT_TYPE_DOOR:                      //0
             {
                 if (got.door.lockId)
                     CheckGOLockId(&got, got.door.lockId, 1);
                 CheckGONoDamageImmuneId(&got, got.door.noDamageImmune,  3);
                 break;
             }
-        case GAMEOBJECT_TYPE_BUTTON:                    //1
+            case GAMEOBJECT_TYPE_BUTTON:                    //1
             {
                 if (got.button.lockId)
                     CheckGOLockId(&got, got.button.lockId,  1);
                 CheckGONoDamageImmuneId(&got, got.button.noDamageImmune, 4);
                 break;
             }
-        case GAMEOBJECT_TYPE_QUESTGIVER:                //2
+            case GAMEOBJECT_TYPE_QUESTGIVER:                //2
             {
                 if (got.questgiver.lockId)
                     CheckGOLockId(&got, got.questgiver.lockId, 0);
                 CheckGONoDamageImmuneId(&got, got.questgiver.noDamageImmune, 5);
                 break;
             }
-        case GAMEOBJECT_TYPE_CHEST:                     //3
+            case GAMEOBJECT_TYPE_CHEST:                     //3
             {
                 if (got.chest.lockId)
                     CheckGOLockId(&got, got.chest.lockId, 0);
@@ -6569,16 +6568,16 @@ void ObjectMgr::LoadGameObjectTemplate()
                     CheckGOLinkedTrapId(&got, got.chest.linkedTrapId, 7);
                 break;
             }
-        case GAMEOBJECT_TYPE_TRAP:                      //6
+            case GAMEOBJECT_TYPE_TRAP:                      //6
             {
                 if (got.trap.lockId)
                     CheckGOLockId(&got, got.trap.lockId, 0);
                 break;
             }
-        case GAMEOBJECT_TYPE_CHAIR:                     //7
-            CheckAndFixGOChairHeightId(&got, got.chair.height, 1);
-            break;
-        case GAMEOBJECT_TYPE_SPELL_FOCUS:               //8
+            case GAMEOBJECT_TYPE_CHAIR:                     //7
+                CheckAndFixGOChairHeightId(&got, got.chair.height, 1);
+                break;
+            case GAMEOBJECT_TYPE_SPELL_FOCUS:               //8
             {
                 if (got.spellFocus.focusId)
                 {
@@ -6591,7 +6590,7 @@ void ObjectMgr::LoadGameObjectTemplate()
                     CheckGOLinkedTrapId(&got, got.spellFocus.linkedTrapId, 2);
                 break;
             }
-        case GAMEOBJECT_TYPE_GOOBER:                    //10
+            case GAMEOBJECT_TYPE_GOOBER:                    //10
             {
                 if (got.goober.lockId)
                     CheckGOLockId(&got, got.goober.lockId, 0);
@@ -6609,19 +6608,19 @@ void ObjectMgr::LoadGameObjectTemplate()
                     CheckGOLinkedTrapId(&got, got.goober.linkedTrapId, 12);
                 break;
             }
-        case GAMEOBJECT_TYPE_AREADAMAGE:                //12
+            case GAMEOBJECT_TYPE_AREADAMAGE:                //12
             {
                 if (got.areadamage.lockId)
                     CheckGOLockId(&got, got.areadamage.lockId, 0);
                 break;
             }
-        case GAMEOBJECT_TYPE_CAMERA:                    //13
+            case GAMEOBJECT_TYPE_CAMERA:                    //13
             {
                 if (got.camera.lockId)
                     CheckGOLockId(&got, got.camera.lockId, 0);
                 break;
             }
-        case GAMEOBJECT_TYPE_MO_TRANSPORT:              //15
+            case GAMEOBJECT_TYPE_MO_TRANSPORT:              //15
             {
                 if (got.moTransport.taxiPathId)
                 {
@@ -6631,37 +6630,37 @@ void ObjectMgr::LoadGameObjectTemplate()
                 }
                 break;
             }
-        case GAMEOBJECT_TYPE_SUMMONING_RITUAL:          //18
-            break;
-        case GAMEOBJECT_TYPE_SPELLCASTER:               //22
+            case GAMEOBJECT_TYPE_SUMMONING_RITUAL:          //18
+                break;
+            case GAMEOBJECT_TYPE_SPELLCASTER:               //22
             {
                 // always must have spell
                 CheckGOSpellId(&got, got.spellcaster.spellId, 0);
                 break;
             }
-        case GAMEOBJECT_TYPE_FLAGSTAND:                 //24
+            case GAMEOBJECT_TYPE_FLAGSTAND:                 //24
             {
                 if (got.flagstand.lockId)
                     CheckGOLockId(&got, got.flagstand.lockId, 0);
                 CheckGONoDamageImmuneId(&got, got.flagstand.noDamageImmune, 5);
                 break;
             }
-        case GAMEOBJECT_TYPE_FISHINGHOLE:               //25
+            case GAMEOBJECT_TYPE_FISHINGHOLE:               //25
             {
                 if (got.fishinghole.lockId)
                     CheckGOLockId(&got, got.fishinghole.lockId, 4);
                 break;
             }
-        case GAMEOBJECT_TYPE_FLAGDROP:                  //26
+            case GAMEOBJECT_TYPE_FLAGDROP:                  //26
             {
                 if (got.flagdrop.lockId)
                     CheckGOLockId(&got, got.flagdrop.lockId, 0);
                 CheckGONoDamageImmuneId(&got, got.flagdrop.noDamageImmune, 3);
                 break;
             }
-        case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
-            CheckAndFixGOChairHeightId(&got, got.barberChair.chairheight, 0);
-            break;
+            case GAMEOBJECT_TYPE_BARBER_CHAIR:              //32
+                CheckAndFixGOChairHeightId(&got, got.barberChair.chairheight, 0);
+                break;
         }
 
        ++count;

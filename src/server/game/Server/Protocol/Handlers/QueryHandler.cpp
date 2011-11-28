@@ -169,6 +169,7 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
 {
+    const int GO_DATA_FIELDS_NUMBER = 32;
     uint32 entry;
     recv_data >> entry;
     uint64 guid;
@@ -204,10 +205,11 @@ void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
         data << IconName;                                   // 2.0.3, string. Icon name to use instead of default icon for go's (ex: "Attack" makes sword)
         data << CastBarCaption;                             // 2.0.3, string. Text will appear in Cast Bar when using GO (ex: "Collecting")
         data << info->unk1;                                 // 2.0.3, string
-        data.append(info->raw.data, 24);
+        data.append(info->raw.data, MAX_GAMEOBJECT_DATA);
         data << float(info->size);                          // go size
         for (uint32 i = 0; i < MAX_GAMEOBJECT_QUEST_ITEMS; ++i)
-            data << uint32(info->questItems[i]);              // itemId[6], quest drop
+            data << uint32(info->questItems[i]);            // itemId[6], quest drop
+        data << int32(info->unkInt32);                      // 4.x, unknown
         SendPacket(&data);
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_GAMEOBJECT_QUERY_RESPONSE");
     }
