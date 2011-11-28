@@ -13646,7 +13646,7 @@ void Unit::SetPower(Powers power, int32 val)
     data.append(GetPackGUID());
     data << uint32(1);//unk
     data << uint8(GetPowerIndexByClass(power, getClass()));
-    data << uint32(val);
+    data << int32(val);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 
     // group update
