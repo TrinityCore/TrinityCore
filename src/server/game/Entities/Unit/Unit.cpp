@@ -1542,11 +1542,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
         }
 
         float maxArmorPen = 0;
-<<<<<<< HEAD
-        if (getLevel() < 60 || victim->getLevel() < 60) // Prevent negative maxArmorCap for victim < 60 and attacker >= 60
-=======
         if (victim->getLevel() < 60)
->>>>>>> df3f11dc805a552e9e2ac781adcd8f4c6ac9a075
             maxArmorPen = float(400 + 85 * victim->getLevel());
         else
             maxArmorPen = 400 + 85 * victim->getLevel() + 4.5f * 85 * (victim->getLevel() - 59);

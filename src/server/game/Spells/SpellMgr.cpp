@@ -3042,7 +3042,6 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER_AREA_PARTY;
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_10_YARDS_2;
                 break;
-<<<<<<< HEAD
             case 63944:                             // Renewed Hope hack
                 spellInfo->EffectApplyAuraName[0] = 87;
                 spellInfo->EffectMiscValue[0] = 127;
@@ -3059,16 +3058,12 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[1] = TARGET_SRC_CASTER;
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_SRC_AREA_ENEMY;
                 break;
-            case 44978: case 45001: case 45002: // Wild Magic
-            case 45004: case 45006: case 45010: // Wild Magic
-=======
             case 44978: // Wild Magic
             case 45001:
             case 45002:
             case 45004:
             case 45006:
             case 45010:
->>>>>>> df3f11dc805a552e9e2ac781adcd8f4c6ac9a075
             case 31347: // Doom
             case 41635: // Prayer of Mending
             case 44869: // Spectral Blast
