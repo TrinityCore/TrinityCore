@@ -181,9 +181,9 @@ enum Opcodes
     CMSG_GM_INVIS                                    = 0x00,
     CMSG_GMRESPONSE_RESOLVE                          = 0x00,
     CMSG_GMSURVEY_SUBMIT                             = 0x00,
-    CMSG_GMTICKET_CREATE                             = 0x0A7B,
-    CMSG_GMTICKET_DELETETICKET                       = 0x985F,
-    CMSG_GMTICKET_GETTICKET                          = 0x00,
+    CMSG_GMTICKET_CREATE                             = 0x00, // Can be 0x0A7B
+    CMSG_GMTICKET_DELETETICKET                       = 0x00,
+    CMSG_GMTICKET_GETTICKET                          = 0x00, // Can be 0x985F
     CMSG_GMTICKET_SYSTEMSTATUS                       = 0x4A7A,
     CMSG_GMTICKET_UPDATETEXT                         = 0x8A7B,
     CMSG_GM_NUKE                                     = 0x00,
@@ -454,7 +454,7 @@ enum Opcodes
     MSG_GM_SHOWLABEL                                 = 0x00,
     MSG_GM_SUMMON                                    = 0x00,
     MSG_GUILD_BANK_LOG_QUERY                         = 0x00,
-    MSG_GUILD_BANK_MONEY_WITHDRAWN                   = 0xDE77,
+    MSG_GUILD_BANK_MONEY_WITHDRAWN                   = 0x00, // Can be 0xDE77
     MSG_GUILD_EVENT_LOG_QUERY                        = 0x00,
     MSG_GUILD_PERMISSIONS                            = 0x00,
     MSG_INSPECT_ARENA_TEAMS                          = 0x00,
