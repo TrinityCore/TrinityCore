@@ -13636,7 +13636,7 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 
 void Unit::SetPower(Powers power, int32 val)
 {
-    uint32 maxPower = GetMaxPower(power);
+    int32 maxPower = GetMaxPower(power);
     if (maxPower < val)
         val = maxPower;
 
@@ -13644,7 +13644,7 @@ void Unit::SetPower(Powers power, int32 val)
 
     WorldPacket data(SMSG_POWER_UPDATE);
     data.append(GetPackGUID());
-    data << uint32(1);//unk
+    data << int32(1);//unk
     data << uint8(GetPowerIndexByClass(power, getClass()));
     data << int32(val);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
