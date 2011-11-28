@@ -426,6 +426,10 @@ void Map::AddToMap(T *obj)
     }
 
     CellCoord cellCoord = Trinity::ComputeCellCoord(obj->GetPositionX(), obj->GetPositionY());
+    //It will create many problems (including crashes) if an object is not added to grid after creation
+    //The correct way to fix it is to make AddToMap return false and delete the object if it is not added to grid
+    //But now AddToMap is used in too many places, I will just see how many ASSERT failures it will cause
+    ASSERT(cellCoord.IsCoordValid());
     if (!cellCoord.IsCoordValid())
     {
         sLog->outError("Map::Add: Object " UI64FMTD " has invalid coordinates X:%f Y:%f grid cell [%u:%u]", obj->GetGUID(), obj->GetPositionX(), obj->GetPositionY(), cellCoord.x_coord, cellCoord.y_coord);
