@@ -1126,12 +1126,11 @@ public:
         }
 
         // Everything looks OK, create new pet
-        Pet* pet = player->CreateTamedPetFrom (creatureTarget);
+        Pet* pet = player->CreateTamedPetFrom(creatureTarget);
         if (!pet)
         {
             handler->PSendSysMessage (LANG_CREATURE_NON_TAMEABLE, cInfo->Entry);
             handler->SetSentErrorMessage (true);
-            delete pet;
             return false;
         }
 
