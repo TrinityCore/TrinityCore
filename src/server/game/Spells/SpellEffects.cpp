@@ -3823,10 +3823,7 @@ void Spell::EffectTameCreature(SpellEffIndex /*effIndex*/)
 
     Pet* pet = m_caster->CreateTamedPetFrom(creatureTarget, m_spellInfo->Id);
     if (!pet)                                               // in very specific state like near world end/etc.
-    {
-        delete pet;
         return;
-    }
 
     // "kill" original creature
     creatureTarget->DespawnOrUnsummon();
@@ -7012,10 +7009,7 @@ void Spell::EffectCreateTamedPet(SpellEffIndex effIndex)
     uint32 creatureEntry = m_spellInfo->Effects[effIndex].MiscValue;
     Pet* pet = unitTarget->CreateTamedPetFrom(creatureEntry, m_spellInfo->Id);
     if (!pet)
-    {
-        delete pet;
         return;
-    }
 
     // add to world
     pet->GetMap()->AddToMap(pet->ToCreature());
