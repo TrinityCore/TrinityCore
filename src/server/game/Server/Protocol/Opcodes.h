@@ -181,9 +181,9 @@ enum Opcodes
     CMSG_GM_INVIS                                    = 0x00,
     CMSG_GMRESPONSE_RESOLVE                          = 0x00,
     CMSG_GMSURVEY_SUBMIT                             = 0x00,
-    CMSG_GMTICKET_CREATE                             = 0x00, // Can be 0x0A7B
-    CMSG_GMTICKET_DELETETICKET                       = 0x00,
-    CMSG_GMTICKET_GETTICKET                          = 0x00, // Can be 0x985F
+    CMSG_GMTICKET_CREATE                             = 0x0A7B,
+    CMSG_GMTICKET_DELETETICKET                       = 0xC87F,
+    CMSG_GMTICKET_GETTICKET                          = 0x985F,
     CMSG_GMTICKET_SYSTEMSTATUS                       = 0x4A7A,
     CMSG_GMTICKET_UPDATETEXT                         = 0x8A7B,
     CMSG_GM_NUKE                                     = 0x00,
