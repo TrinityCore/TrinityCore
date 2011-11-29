@@ -146,6 +146,9 @@ MapDifficultyMap sMapDifficultyMap;
 
 DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
 
+DBCStorage <NameGenEntry> sNameGenStore(NameGenfmt);
+GenNameVectorArraysMap sGenNameVectoArraysMap;
+
 DBCStorage <OverrideSpellDataEntry> sOverrideSpellDataStore(OverrideSpellDatafmt);
 
 DBCStorage <PvPDifficultyEntry> sPvPDifficultyStore(PvPDifficultyfmt);
@@ -424,6 +427,14 @@ void LoadDBCStores(const std::string& dataPath)
         if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
             sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
     sMapDifficultyStore.Clear();
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sNameGenStore,                dbcPath, "NameGen.dbc");//14545
+    for (uint32 i = 0; i < sNameGenStore.GetNumRows(); ++i)
+    {
+        if (NameGenEntry const* entry = sNameGenStore.LookupEntry(i))
+            sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(std::string(entry->name));
+    }
+    sNameGenStore.Clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//14545
 
@@ -720,6 +731,14 @@ void LoadDBCStores(const std::string& dataPath)
 
     sLog->outString(">> Initialized %d DBC data stores in %u ms", DBCFileCount, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
+}
+
+const std::string* GetRandomCharacterName(uint8 race, uint8 gender)
+{
+    uint32 size = sGenNameVectoArraysMap[race].stringVectorArray[gender].size();
+    uint32 randPos = urand(0,size-1);
+
+    return &sGenNameVectoArraysMap[race].stringVectorArray[gender][randPos];
 }
 
 SimpleFactionsList const* GetFactionTeamList(uint32 faction)

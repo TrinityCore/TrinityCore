@@ -2275,6 +2275,22 @@ struct WorldStateUI
 #pragma pack(pop)
 #endif
 
+// NamesGen.dbc
+struct NameGenEntry
+{
+    uint32 id;
+    char* name; 
+    uint32 race;
+    uint32 gender;
+};
+
+struct VectorArray
+{
+    std::vector<std::string> stringVectorArray[2];
+};
+
+typedef std::map<uint32, VectorArray> GenNameVectorArraysMap;
+
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty
 {

@@ -99,6 +99,7 @@ const char MailTemplateEntryfmt[]="nxs";
 const char MapEntryfmt[]="nxixxxsixxixiffxiixx";
 const char MapDifficultyEntryfmt[]="diisiix";
 const char MovieEntryfmt[]="nxxx";
+const char NameGenfmt[] = "nsii";
 const char OverrideSpellDatafmt[]="niiiiiiiiiixx";
 const char QuestSortEntryfmt[]="nx";
 const char QuestXPfmt[]="niiiiiiiiii";
