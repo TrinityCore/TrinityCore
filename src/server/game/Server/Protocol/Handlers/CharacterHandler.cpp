@@ -1993,15 +1993,15 @@ void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recv_data)
     recv_data >> gender;
     recv_data >> race;
 
-    if (!(1 << race-1) & RACEMASK_ALL_PLAYABLE)
+    if (!Player::IsValidRace(race))
     {
-        sLog->outError("Invalid race sent by accountId: %u", GetAccountId());
+        sLog->outError("Invalid race (%u) sent by accountId: %u", race, GetAccountId());
         return;
     }
 
     if (!Player::IsValidGender(gender))
     {
-        sLog->outError("Invalid gender sent by accountId: %u", GetAccountId());
+        sLog->outError("Invalid gender (%u) sent by accountId: %u", gender, GetAccountId());
         return;
     }
 
