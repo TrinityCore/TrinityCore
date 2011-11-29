@@ -408,6 +408,8 @@ class WorldSession
         void HandleCharEnum(QueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recv_data);
+        void HandleRandomizeCharNameOpcode(WorldPacket& recv_data);
+
 
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);

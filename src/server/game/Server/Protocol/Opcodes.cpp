@@ -1373,7 +1373,7 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(CMSG_VERIFY_CONNECTIVITY_RESPONSE,            STATUS_NEVER,    PROCESS_INPLACE,       &WorldSession::Handle_EarlyProccess            );
      //DEFINE_OPCODE_HANDLER(CMSG_LOG_DISCONNECT,                          STATUS_NEVER,    PROCESS_INPLACE,       &WorldSession::Handle_EarlyProccess            );
      DEFINE_OPCODE_HANDLER(CMSG_RETURN_TO_GRAVEYARD,                     STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleReturnToGraveyard          );            
-
+     DEFINE_OPCODE_HANDLER(CMSG_RANDOMIZE_CHAR_NAME,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE,  &WorldSession::HandleRandomizeCharNameOpcode   );
 
 #undef DEFINE_OPCODE_HANDLER
 };

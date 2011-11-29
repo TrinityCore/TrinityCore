@@ -43,6 +43,7 @@
 #include "ScriptMgr.h"
 #include "Battleground.h"
 #include "AccountMgr.h"
+#include "DBCStores.h"
 
 class LoginQueryHolder : public SQLQueryHolder
 {
@@ -1982,5 +1983,30 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     data << uint8(hairColor);
     data << uint8(facialHair);
     data << uint8(race);
+    SendPacket(&data);
+}
+
+void WorldSession::HandleRandomizeCharNameOpcode(WorldPacket& recv_data)
+{
+    uint8 gender, race;
+
+    recv_data >> gender;
+    recv_data >> race;
+
+    if (!(1 << race-1) & RACEMASK_ALL_PLAYABLE)
+    {
+        sLog->outError("Invalid race sent by accountId: %u", GetAccountId());
+        return;
+    }
+
+    if (!Player::IsValidGender(gender))
+    {
+        sLog->outError("Invalid gender sent by accountId: %u", GetAccountId());
+        return;
+    }
+
+    WorldPacket data(SMSG_RANDOMIZE_CHAR_NAME, 10);
+    data << uint8(128); // unk1
+    data << *GetRandomCharacterName(race, gender);
     SendPacket(&data);
 }
