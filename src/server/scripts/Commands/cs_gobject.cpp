@@ -165,13 +165,11 @@ public:
         object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), player->GetPhaseMaskForSpawn());
 
         // this will generate a new guid if the object is in an instance
-        if (!object->LoadFromDB(guidLow, map))
+        if (!object->LoadGameObjectFromDB(guidLow, map))
         {
             delete object;
             return false;
         }
-
-        map->AddToMap(object);
 
         // TODO: is it really necessary to add both the real and DB table guid here ?
         sObjectMgr->AddGameobjectToGrid(guidLow, sObjectMgr->GetGOData(guidLow));
