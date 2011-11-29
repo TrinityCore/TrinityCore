@@ -128,7 +128,7 @@ struct AchievementCriteriaEntry
         } complete_quests_in_zone;
 
         // ACHIEVEMENT_CRITERIA_TYPE_CURRENCY = 12
-        struct  
+        struct
         {
             uint32 currency;
             uint32 count;
@@ -1436,6 +1436,14 @@ struct MovieEntry
     //uint32      unk2;                                     // 3 4.0.0
 };
 
+struct NameGenEntry
+{
+    //uint32 id;
+    char*  name;
+    uint32 race;
+    uint32 gender;
+};
+
 #define MAX_OVERRIDE_SPELL 10
 
 struct OverrideSpellDataEntry
@@ -2274,15 +2282,6 @@ struct WorldStateUI
 #else
 #pragma pack(pop)
 #endif
-
-// NamesGen.dbc
-struct NameGenEntry
-{
-    uint32 id;
-    char* name; 
-    uint32 race;
-    uint32 gender;
-};
 
 struct VectorArray
 {
