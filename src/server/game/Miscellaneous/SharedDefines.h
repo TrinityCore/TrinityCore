@@ -2269,47 +2269,58 @@ uint32 const CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL = (1 << (CREATURE_TYPE_ME
 // CreatureFamily.dbc
 enum CreatureFamily
 {
-    CREATURE_FAMILY_WOLF           = 1,
-    CREATURE_FAMILY_CAT            = 2,
-    CREATURE_FAMILY_SPIDER         = 3,
-    CREATURE_FAMILY_BEAR           = 4,
-    CREATURE_FAMILY_BOAR           = 5,
-    CREATURE_FAMILY_CROCOLISK      = 6,
-    CREATURE_FAMILY_CARRION_BIRD   = 7,
-    CREATURE_FAMILY_CRAB           = 8,
-    CREATURE_FAMILY_GORILLA        = 9,
-    CREATURE_FAMILY_HORSE_CUSTOM   = 10,                    // not exist in DBC but used for horse like beasts in DB
-    CREATURE_FAMILY_RAPTOR         = 11,
-    CREATURE_FAMILY_TALLSTRIDER    = 12,
-    CREATURE_FAMILY_FELHUNTER      = 15,
-    CREATURE_FAMILY_VOIDWALKER     = 16,
-    CREATURE_FAMILY_SUCCUBUS       = 17,
-    CREATURE_FAMILY_DOOMGUARD      = 19,
-    CREATURE_FAMILY_SCORPID        = 20,
-    CREATURE_FAMILY_TURTLE         = 21,
-    CREATURE_FAMILY_IMP            = 23,
-    CREATURE_FAMILY_BAT            = 24,
-    CREATURE_FAMILY_HYENA          = 25,
-    CREATURE_FAMILY_BIRD_OF_PREY   = 26,
-    CREATURE_FAMILY_WIND_SERPENT   = 27,
-    CREATURE_FAMILY_REMOTE_CONTROL = 28,
-    CREATURE_FAMILY_FELGUARD       = 29,
-    CREATURE_FAMILY_DRAGONHAWK     = 30,
-    CREATURE_FAMILY_RAVAGER        = 31,
-    CREATURE_FAMILY_WARP_STALKER   = 32,
-    CREATURE_FAMILY_SPOREBAT       = 33,
-    CREATURE_FAMILY_NETHER_RAY     = 34,
-    CREATURE_FAMILY_SERPENT        = 35,
-    CREATURE_FAMILY_MOTH           = 37,
-    CREATURE_FAMILY_CHIMAERA       = 38,
-    CREATURE_FAMILY_DEVILSAUR      = 39,
-    CREATURE_FAMILY_GHOUL          = 40,
-    CREATURE_FAMILY_SILITHID       = 41,
-    CREATURE_FAMILY_WORM           = 42,
-    CREATURE_FAMILY_RHINO          = 43,
-    CREATURE_FAMILY_WASP           = 44,
-    CREATURE_FAMILY_CORE_HOUND     = 45,
-    CREATURE_FAMILY_SPIRIT_BEAST   = 46
+    CREATURE_FAMILY_WOLF                = 1,
+    CREATURE_FAMILY_CAT                 = 2,
+    CREATURE_FAMILY_SPIDER              = 3,
+    CREATURE_FAMILY_BEAR                = 4,
+    CREATURE_FAMILY_BOAR                = 5,
+    CREATURE_FAMILY_CROCOLISK           = 6,
+    CREATURE_FAMILY_CARRION_BIRD        = 7,
+    CREATURE_FAMILY_CRAB                = 8,
+    CREATURE_FAMILY_GORILLA             = 9,
+    CREATURE_FAMILY_HORSE_CUSTOM        = 10,   // Does not exist in DBC but used for horse like beasts in DB
+    CREATURE_FAMILY_RAPTOR              = 11,
+    CREATURE_FAMILY_TALLSTRIDER         = 12,
+    CREATURE_FAMILY_FELHUNTER           = 15,
+    CREATURE_FAMILY_VOIDWALKER          = 16,
+    CREATURE_FAMILY_SUCCUBUS            = 17,
+    CREATURE_FAMILY_DOOMGUARD           = 19,
+    CREATURE_FAMILY_SCORPID             = 20,
+    CREATURE_FAMILY_TURTLE              = 21,
+    CREATURE_FAMILY_IMP                 = 23,
+    CREATURE_FAMILY_BAT                 = 24,
+    CREATURE_FAMILY_HYENA               = 25,
+    CREATURE_FAMILY_BIRD_OF_PREY        = 26,
+    CREATURE_FAMILY_WIND_SERPENT        = 27,
+    CREATURE_FAMILY_REMOTE_CONTROL      = 28,
+    CREATURE_FAMILY_FELGUARD            = 29,
+    CREATURE_FAMILY_DRAGONHAWK          = 30,
+    CREATURE_FAMILY_RAVAGER             = 31,
+    CREATURE_FAMILY_WARP_STALKER        = 32,
+    CREATURE_FAMILY_SPOREBAT            = 33,
+    CREATURE_FAMILY_NETHER_RAY          = 34,
+    CREATURE_FAMILY_SERPENT             = 35,
+    CREATURE_FAMILY_MOTH                = 37,
+    CREATURE_FAMILY_CHIMAERA            = 38,
+    CREATURE_FAMILY_DEVILSAUR           = 39,
+    CREATURE_FAMILY_GHOUL               = 40,
+    CREATURE_FAMILY_SILITHID            = 41,
+    CREATURE_FAMILY_WORM                = 42,
+    CREATURE_FAMILY_RHINO               = 43,
+    CREATURE_FAMILY_WASP                = 44,
+    CREATURE_FAMILY_CORE_HOUND          = 45,
+    CREATURE_FAMILY_SPIRIT_BEAST        = 46,
+    CREATURE_FAMILY_WATER_ELEMENTAL     = 49,
+    CREATURE_FAMILY_FOX                 = 50,
+    CREATURE_FAMILY_MONKEY              = 51,
+    CREATURE_FAMILY_DOG                 = 52,
+    CREATURE_FAMILY_BEETLE              = 53,
+    CREATURE_FAMILY_SHALE_SPIDER        = 55,
+    CREATURE_FAMILY_ZOMBIE              = 56,
+    CREATURE_FAMILY_BEETLE_OLD          = 57,
+    CREATURE_FAMILY_SILITHID_2          = 59,
+    CREATURE_FAMILY_WASP_2              = 66,
+    CREATURE_FAMILY_HYDRA               = 68,
 };
 
 enum CreatureTypeFlags
@@ -2346,6 +2357,18 @@ enum CreatureTypeFlags
     CREATURE_TYPEFLAGS_UNK29            = 0x20000000,
     CREATURE_TYPEFLAGS_UNK30            = 0x40000000,
     CREATURE_TYPEFLAGS_UNK31            = 0x80000000,
+};
+
+enum CreatureTypeFlags2
+{
+    CREATURE_TYPEFLAGS_2_UNK1           = 0x00000001,
+    CREATURE_TYPEFLAGS_2_UNK2           = 0x00000002,
+    CREATURE_TYPEFLAGS_2_UNK3           = 0x00000004,
+    CREATURE_TYPEFLAGS_2_UNK4           = 0x00000008,
+    CREATURE_TYPEFLAGS_2_UNK5           = 0x00000010,
+    CREATURE_TYPEFLAGS_2_UNK6           = 0x00000020,
+    CREATURE_TYPEFLAGS_2_UNK7           = 0x00000040,
+    CREATURE_TYPEFLAGS_2_UNK8           = 0x00000080,
 };
 
 enum CreatureEliteType
@@ -2387,7 +2410,13 @@ enum HolidayIds
     HOLIDAY_WOTLK_LAUNCH             = 406,
     HOLIDAY_DAY_OF_DEAD              = 409,
     HOLIDAY_CALL_TO_ARMS_IC          = 420,
-    HOLIDAY_KALU_AK_FISHING_DERBY    = 424
+    HOLIDAY_LOVE_IS_IN_THE_AIR_2     = 423,
+    HOLIDAY_KALU_AK_FISHING_DERBY    = 424,
+    HOLIDAY_CALL_TO_ARMS_BFG         = 435,
+    HOLIDAY_CALL_TO_ARMS_TP          = 436,
+    HOLIDAY_RATED_BG_15_VS_15        = 442,
+    HOLIDAY_RATED_BG_25_VS_25        = 443,
+    HOLIDAY_ANNIVERSARY_7_YEARS      = 467,
 };
 
 // values based at QuestInfo.dbc
@@ -2446,7 +2475,15 @@ enum QuestSort
     QUEST_SORT_BREWFEST            = 370,
     QUEST_SORT_INSCRIPTION         = 371,
     QUEST_SORT_DEATH_KNIGHT        = 372,
-    QUEST_SORT_JEWELCRAFTING       = 373
+    QUEST_SORT_JEWELCRAFTING       = 373,
+    QUEST_SORT_NOBLEGARDEN         = 374,
+    QUEST_SORT_PILGRIMS_BOUNTY     = 375,
+    QUEST_SORT_LOVE_IS_IN_THE_AIR  = 376,
+    QUEST_SORT_ARCHAEOLOGY         = 377,
+    QUEST_SORT_CHILDRENS_WEEK      = 378,
+    QUEST_SORT_FIRELANDS_INVASION  = 379,
+    QUEST_SORT_ZANDALARI           = 380,
+    QUEST_SORT_ELEMENTAL_BONDS     = 381,
 };
 
 inline uint8 ClassByQuestSort(int32 QuestSort)
@@ -2592,7 +2629,7 @@ enum SkillType
     SKILL_RACIAL_HUMAN             = 754,
     SKILL_JEWELCRAFTING            = 755,
     SKILL_RACIAL_BLOODELF          = 756,
-    SKILL_PET_EVENT_RC             = 758,
+    SKILL_PET_EVENT_RC             = 758,   // SkillCategory = -1
     SKILL_LANG_DRAENEI             = 759,
     SKILL_RACIAL_DRAENEI           = 760,
     SKILL_PET_FELGUARD             = 761,
@@ -2620,10 +2657,34 @@ enum SkillType
     SKILL_PET_WASP                 = 785,
     SKILL_PET_EXOTIC_RHINO         = 786,
     SKILL_PET_EXOTIC_CORE_HOUND    = 787,
-    SKILL_PET_EXOTIC_SPIRIT_BEAST  = 788
+    SKILL_PET_EXOTIC_SPIRIT_BEAST  = 788,
+    SKILL_RACIAL_WORGEN            = 789,
+    SKILL_RACIAL_GOBLIN            = 790,
+    SKILL_LANG_GILNEAN             = 791,
+    SKILL_LANG_GOBLIN              = 792,
+    SKILL_ARCHAEOLOGY              = 794,
+    SKILL_GENERAL_HUNTER           = 795,
+    SKILL_GENERAL_DEATH_KNIGHT     = 796,
+    SKILL_GENERAL_ROGUE            = 797,
+    SKILL_GENERAL_DRUID            = 798,
+    SKILL_GENERAL_MAGE             = 799,
+    SKILL_GENERAL_PALADIN          = 800,
+    SKILL_GENERAL_SHAMAN           = 801,
+    SKILL_GENERAL_WARLOCK          = 802,
+    SKILL_GENERAL_WARRIOR          = 803,
+    SKILL_GENERAL_PRIEST           = 804,
+    SKILL_PET_WATER_ELEMENTAL      = 805,
+    SKILL_PET_FOX                  = 808,
+    SKILL_ALL_GLYPHS               = 810,
+    SKILL_PET_DOG                  = 811,
+    SKILL_PET_MONKEY               = 815,
+    SKILL_PET_SHALE_SPIDER         = 817,
+    SKILL_PET_BEETLE               = 818,
+    SKILL_ALL_GUILD_PERKS          = 821,
+    SKILL_PET_HYDRA                = 824,
 };
 
-#define MAX_SKILL_TYPE               789
+#define MAX_SKILL_TYPE               825
 
 inline SkillType SkillByLockType(LockType locktype)
 {
@@ -2654,12 +2715,14 @@ inline uint32 SkillByQuestSort(int32 QuestSort)
         case QUEST_SORT_FIRST_AID:      return SKILL_FIRST_AID;
         case QUEST_SORT_JEWELCRAFTING:  return SKILL_JEWELCRAFTING;
         case QUEST_SORT_INSCRIPTION:    return SKILL_INSCRIPTION;
+        case QUEST_SORT_ARCHAEOLOGY:    return SKILL_ARCHAEOLOGY;
     }
     return 0;
 }
 
 enum SkillCategory
 {
+    SKILL_CATEGORY_UNK1          = 0,
     SKILL_CATEGORY_ATTRIBUTES    = 5,
     SKILL_CATEGORY_WEAPON        = 6,
     SKILL_CATEGORY_CLASS         = 7,
@@ -2703,7 +2766,9 @@ enum TotemCategory
     TC_BLADED_PICKAXE              = 168,
     TC_FLINT_AND_TINDER            = 169,
     TC_RUNED_COBALT_ROD            = 189,
-    TC_RUNED_TITANIUM_ROD          = 190
+    TC_RUNED_TITANIUM_ROD          = 190,
+    TC_RUNED_ELEMENTIUM_ROD        = 209,
+    TC_HIGH_POWERED_BOLT_GUN       = 210,
 };
 
 enum UnitDynFlags
@@ -2809,14 +2874,14 @@ enum ChatLinkColors
 // Values from ItemPetFood (power of (value-1) used for compare with CreatureFamilyEntry.petDietMask
 enum PetDiet
 {
-    PET_DIET_MEAT     = 1,
-    PET_DIET_FISH     = 2,
-    PET_DIET_CHEESE   = 3,
-    PET_DIET_BREAD    = 4,
-    PET_DIET_FUNGAS   = 5,
-    PET_DIET_FRUIT    = 6,
-    PET_DIET_RAW_MEAT = 7,
-    PET_DIET_RAW_FISH = 8
+    PET_DIET_MEAT       = 1,
+    PET_DIET_FISH       = 2,
+    PET_DIET_CHEESE     = 3,
+    PET_DIET_BREAD      = 4,
+    PET_DIET_FUNGAS     = 5,
+    PET_DIET_FRUIT      = 6,
+    PET_DIET_RAW_MEAT   = 7,
+    PET_DIET_RAW_FISH   = 8
 };
 
 #define MAX_PET_DIET 9
@@ -2894,6 +2959,8 @@ enum SummonType
     SUMMON_TYPE_VEHICLE     = 9,
     SUMMON_TYPE_VEHICLE2    = 10,
     SUMMON_TYPE_OBJECT      = 11,
+    SUMMON_TYPE_UNK12       = 12,
+    SUMMON_TYPE_UNK13       = 13,
 };
 
 enum EventId
@@ -3019,7 +3086,7 @@ enum ResponseCodes
     CHAR_NAME_CONSECUTIVE_SPACES                           = 0x64,
     CHAR_NAME_RUSSIAN_CONSECUTIVE_SILENT_CHARACTERS        = 0x65,
     CHAR_NAME_RUSSIAN_SILENT_CHARACTER_AT_BEGINNING_OR_END = 0x66,
-    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x67
+    CHAR_NAME_DECLENSION_DOESNT_MATCH_BASE_NAME            = 0x67,
 };
 
 /// Ban function modes
@@ -3041,23 +3108,31 @@ enum BanReturn
 // indexes of BattlemasterList.dbc
 enum BattlegroundTypeId
 {
-    BATTLEGROUND_TYPE_NONE     = 0,
-    BATTLEGROUND_AV            = 1,
-    BATTLEGROUND_WS            = 2,
-    BATTLEGROUND_AB            = 3,
-    BATTLEGROUND_NA            = 4,
-    BATTLEGROUND_BE            = 5,
-    BATTLEGROUND_AA            = 6,
-    BATTLEGROUND_EY            = 7,
-    BATTLEGROUND_RL            = 8,
-    BATTLEGROUND_SA            = 9,
-    BATTLEGROUND_DS            = 10,
-    BATTLEGROUND_RV            = 11,
-    BATTLEGROUND_IC            = 30,
-    BATTLEGROUND_RB            = 32
+    BATTLEGROUND_TYPE_NONE          = 0,
+    BATTLEGROUND_AV                 = 1,
+    BATTLEGROUND_WS                 = 2,
+    BATTLEGROUND_AB                 = 3,
+    BATTLEGROUND_NA                 = 4,
+    BATTLEGROUND_BE                 = 5,
+    BATTLEGROUND_AA                 = 6,
+    BATTLEGROUND_EY                 = 7,
+    BATTLEGROUND_RL                 = 8,
+    BATTLEGROUND_SA                 = 9,
+    BATTLEGROUND_DS                 = 10,
+    BATTLEGROUND_RV                 = 11,
+    BATTLEGROUND_IC                 = 30,
+    BATTLEGROUND_RB                 = 32,
+    BATTLEGROUND_RATED_10_VS_10     = 100,
+    BATTLEGROUND_RATED_15_VS_15     = 101,
+    BATTLEGROUND_RATED_25_VS_25     = 102,
+    BATTLEGROUND_TP                 = 108,
+    BATTLEGROUND_BFG                = 120,
+    // 441 = "Icecrown Citadel"
+    // 443 = "The Ruby Sanctum"
+    // 656 = "Rated Eye of the Storm"
 };
 
-#define MAX_BATTLEGROUND_TYPE_ID 33
+#define MAX_BATTLEGROUND_TYPE_ID 121
 
 enum MailResponseType
 {
@@ -3106,7 +3181,8 @@ enum SpellFamilyNames
     // 14 - unused
     SPELLFAMILY_DEATHKNIGHT = 15,
     // 16 - unused
-    SPELLFAMILY_PET         = 17
+    SPELLFAMILY_PET         = 17,
+    SPELLFAMILY_UNK3        = 50,
 };
 
 enum TradeStatus
