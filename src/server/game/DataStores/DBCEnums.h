@@ -273,8 +273,6 @@ enum AchievementCriteriaMoreReqType
     ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_GUILD_REP              = 62,
 };
 
-
-
 enum AchievementCategory
 {
     CATEGORY_CHILDRENS_WEEK     = 163,
@@ -310,7 +308,8 @@ enum AreaFlags
     AREA_FLAG_INSIDE           = 0x02000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
     AREA_FLAG_OUTSIDE          = 0x04000000,                // used for determinating spell related inside/outside questions in Map::IsOutdoors
     AREA_FLAG_WINTERGRASP_2    = 0x08000000,                // Same as AREA_FLAG_WINTERGRASP except for The Sunken Ring and Western Bridge.
-    AREA_FLAG_NO_FLY_ZONE      = 0x20000000                 // Marks zones where you cannot fly
+    AREA_FLAG_NO_FLY_ZONE      = 0x20000000,                // Marks zones where you cannot fly
+    AREA_FLAG_UNK9             = 0x40000000,
 };
 
 enum Difficulty
