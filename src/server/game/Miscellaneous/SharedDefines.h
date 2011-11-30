@@ -831,7 +831,20 @@ enum SpellEffects
     SPELL_EFFECT_TALENT_SPEC_SELECT                 = 162,
     SPELL_EFFECT_163                                = 163,
     SPELL_EFFECT_REMOVE_AURA                        = 164,
-    TOTAL_SPELL_EFFECTS                             = 165
+    SPELL_EFFECT_165                                = 165,
+    SPELL_EFFECT_166                                = 166,
+    SPELL_EFFECT_167                                = 167,
+    SPELL_EFFECT_168                                = 168,
+    SPELL_EFFECT_169                                = 169,
+    SPELL_EFFECT_170                                = 170,
+    SPELL_EFFECT_171                                = 171,  // Summons gamebject
+    SPELL_EFFECT_172                                = 172,  // Aoe ressurection
+    SPELL_EFFECT_173                                = 173,  // Guild tab unlocked (guild perk)
+    SPELL_EFFECT_174                                = 174,  // 
+    SPELL_EFFECT_175                                = 175,  // Unused (4.2.2)
+    SPELL_EFFECT_176                                = 176,  // Some kind of sanctuary effect (Vanish)
+    SPELL_EFFECT_177                                = 177,
+    TOTAL_SPELL_EFFECTS                             = 178,
 };
 
 enum SpellCastResult
