@@ -500,7 +500,7 @@ namespace VMAP
         {
             model.setGroupModels(groupsArray);
 
-            std::string worldModelFileName(iSrcDir);
+            std::string worldModelFileName(iDestDir);
             worldModelFileName.push_back('/');
             worldModelFileName.append(pModelFilename).append(".vmo");
             success = model.writeFile(worldModelFileName);
