@@ -1074,26 +1074,26 @@ enum TrinityStrings
 	/* Fin Fonctions d'affichage des Grades */
 
 	/* Debut Annonces de connexion et déconnexion des Mj */
-	LANG_ANNOUNCE_GMLOGIN				= 12022, // "<%s> %s est en ligne"
-	LANG_ANNOUNCE_GMLOGOUT				= 12023, // "<%s> %s est hors ligne"
+	LANG_ANNOUNCE_GMLOGIN				= 11022, // "<%s> %s est en ligne"
+	LANG_ANNOUNCE_GMLOGOUT				= 11023, // "<%s> %s est hors ligne"
 	/* Fin Annonces de connexion et déconnexion des Mj */
 
 	/* Debut patch Mute broadcast */
-	LANG_ANNOUNCE_MUTE					= 12024, // "[%s] Le joueur %s a été mute par %s pour %d minutes. %s%s"
+	LANG_ANNOUNCE_MUTE					= 11024, // "[%s] Le joueur %s a été mute par %s pour %d minutes. %s%s"
 	/* Fin patch Mute broadcast */
 
 	/* Debut patch Kick Broadcast */
-	LANG_ANNOUNCE_KICK					= 12025, // "[%s] %s a été déconnecté du serveur par %s"
-	LANG_ANNOUNCE_KICK_REASON			= 12026, // "[%s] %s a été déconnecté du serveur par %s. %s%s"
+	LANG_ANNOUNCE_KICK					= 11025, // "[%s] %s a été déconnecté du serveur par %s"
+	LANG_ANNOUNCE_KICK_REASON			= 11026, // "[%s] %s a été déconnecté du serveur par %s. %s%s"
 	/* Fin patch Kick Broadcast */
 
 	/* Debut patch Ban Broadcast */
-	LANG_ANNOUNCE_BAN					= 12027, // "[%s] %s a été banni du serveur par %s pour %s. %s%s"
-	LANG_ANNOUNCE_BAN_PERM				= 12028, // "[%s] %s a été banni a vie par %s. %s%s"
+	LANG_ANNOUNCE_BAN					= 11027, // "[%s] %s a été banni du serveur par %s pour %s. %s%s"
+	LANG_ANNOUNCE_BAN_PERM				= 11028, // "[%s] %s a été banni a vie par %s. %s%s"
 	/* Fin patch Ban Broadcast */
 
 	/* Debut définition des chaînes courrantes */
-	LANG_WORD_REASON					= 12029, // "Raison : "
+	LANG_WORD_REASON					= 11029, // "Raison : "
 	/* Fin définition des chaînes courrantes */
 
     // NOT RESERVED IDS                   12000-1999999999
