@@ -516,7 +516,7 @@ void PlayerMenu::SendQuestQueryResponse(Quest const* quest) const
             data << uint32(quest->RequiredNpcOrGo[i]);
 
         data << uint32(quest->RequiredNpcOrGoCount[i]);
-        data << uint32(quest->RequiredSourceItemid[i]);
+        data << uint32(quest->RequiredSourceItemId[i]);
         data << uint32(0);                                  // req source count?
     }
 
