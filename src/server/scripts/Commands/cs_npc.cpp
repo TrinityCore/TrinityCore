@@ -246,10 +246,10 @@ public:
 		if (result2)
 			point = (*result2)[0].GetUInt32();
 
-        float coord_x = creature->GetPositionX();
-        float coord_y = creature->GetPositionY();
-        float coord_z = creature->GetPositionZ();
-        float coord_o = creature->GetOrientation();
+        float coord_x = handler->GetSession()->GetPlayer()->GetPositionX();
+        float coord_y = handler->GetSession()->GetPlayer()->GetPositionY();
+        float coord_z = handler->GetSession()->GetPlayer()->GetPositionZ();
+        float coord_o = handler->GetSession()->GetPlayer()->GetOrientation();
 		WorldDatabase.PExecute("INSERT INTO `waypoint_data`(`id`, `point`, `position_x`, `position_y`, `position_z`, `orientation`, `delay`) VALUES (%u, %u, %f, %f, %f, %f, %d)", pathid, point, coord_x, coord_y, coord_z, coord_o, delay);
 
 		sWaypointMgr->ReloadPath(pathid);

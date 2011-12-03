@@ -1245,7 +1245,7 @@ public:
 		/* Debut Vérification des displays */
 		if( !IsValidCreatureDisplay(display_id) )
 		{
-			handler->SendSysMessage(LANG_ERROR_VALUE);
+			handler->SendSysMessage(LANG_BAD_VALUE);
 			handler->SetSentErrorMessage(true);
 			return false;
 		}

@@ -55,7 +55,7 @@ bool ChatHandler::HandleNameAnnounceCommand(const char* args)
 		if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) )
 			sLog->outChat("[ANNONCE] [%s][%s][ID:%d] a annoncé : %s", session->GetRankString().c_str(), name.c_str(), session->GetAccountId(), args);
 	} else if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) ){
-		sLog->outChat("[ANNONCE] [%s] a annoncé : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+		sLog->outChat("[ANNONCE] [%s] a annoncé : %s", GetTrinityString(LANG_RANK_SYSTEM), args);
 	}
 	/* Fin patch ChatLog FR */
 
@@ -78,7 +78,7 @@ bool ChatHandler::HandleGMNameAnnounceCommand(const char* args)
 		if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) )
 			sLog->outChat("[ANNONCE] [%s][%s][ID:%d] a annoncé aux Mjs : %s", session->GetRankString().c_str(), name.c_str(), session->GetAccountId(), args);
 	} else if( sWorld->getBoolConfig(CONFIG_CHATLOG_ANNOUNCE) ) {
-		sLog->outChat("[ANNONCE] [%s] a annoncé aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+		sLog->outChat("[ANNONCE] [%s] a annoncé aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEM), args);
 	}
 	/* Fin patch ChatLog FR */
 
@@ -102,7 +102,7 @@ bool ChatHandler::HandleAnnounceCommand(const char* args)
 		{
 			sLog->outChat("[ANNONCE] [%s][%s][ID:%d] a annoncé : %s", session->GetRankString().c_str(), session->GetPlayer()->GetName(), session->GetAccountId(), args);
 		} else {
-			sLog->outChat("[ANNONCE] [%s] a annoncé : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+			sLog->outChat("[ANNONCE] [%s] a annoncé : %s", GetTrinityString(LANG_RANK_SYSTEM), args);
 		}
 	}
 	/* Fin patch ChatLog FR */
@@ -124,7 +124,7 @@ bool ChatHandler::HandleGMAnnounceCommand(const char* args)
 		{
 			sLog->outChat("[ANNONCE] [%s][%s][ID:%d] a annoncé aux Mjs : %s", session->GetRankString().c_str(), session->GetPlayer()->GetName(), session->GetAccountId(), args);
 		} else {
-			sLog->outChat("[ANNONCE] [%s] a annoncé aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+			sLog->outChat("[ANNONCE] [%s] a annoncé aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEM), args);
 		}
 	}
 	/* Fin patch ChatLog FR */
@@ -146,7 +146,7 @@ bool ChatHandler::HandleNotifyCommand(const char* args)
 		{
 			sLog->outChat("[NOTIFICATION] [%s][%s][ID:%d] a notifié : %s", session->GetRankString().c_str(), session->GetPlayer()->GetName(), session->GetAccountId(), args);
 		} else {
-			sLog->outChat("[NOTIFICATION] [%s] a notifié : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+			sLog->outChat("[NOTIFICATION] [%s] a notifié : %s", GetTrinityString(LANG_RANK_SYSTEM), args);
 		}
 	}
 	/* Fin patch ChatLog FR */
@@ -174,7 +174,7 @@ bool ChatHandler::HandleGMNotifyCommand(const char* args)
 		{
 			sLog->outChat("[NOTIFICATION] [%s][%s][ID:%d] a notifié aux Mjs : %s", session->GetRankString().c_str(), session->GetPlayer()->GetName(), session->GetAccountId(), args);
 		} else {
-			sLog->outChat("[NOTIFICATION] [%s] a notifié aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEME), args);
+			sLog->outChat("[NOTIFICATION] [%s] a notifié aux Mjs : %s", GetTrinityString(LANG_RANK_SYSTEM), args);
 		}
 	}
 	/* Fin patch ChatLog FR */
