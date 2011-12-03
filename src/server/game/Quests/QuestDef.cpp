@@ -106,10 +106,10 @@ Quest::Quest(Field* questRecord)
         RequiredNpcOrGoCount[i] = questRecord[93+i].GetUInt32();
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        RequiredSourceItemid[i] = questRecord[97+i].GetUInt32();
+        RequiredSourceItemId[i] = questRecord[97+i].GetUInt32();
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        RequiredSourceItemId[i] = questRecord[101+i].GetUInt32();
+        RequiredSourceItemIdCount[i] = questRecord[101+i].GetUInt32();
 
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         RequiredItemId[i] = questRecord[105+i].GetUInt32();
