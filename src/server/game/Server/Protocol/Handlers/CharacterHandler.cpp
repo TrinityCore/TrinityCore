@@ -1005,7 +1005,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
 		 */
 		uint32 security = pCurrChar->GetSession()->GetSecurity();
 		uint32 defaultguildid = security < SEC_MODERATOR ? sWorld->getIntConfig(CONFIG_PLAYER_START_GUILDID) : sWorld->getIntConfig(CONFIG_GM_START_GUILDID);
-		if(defaultguildif != 0)
+		if(defaultguildid != 0)
 		{
 			Guild *guild = sGuildMgr->GetGuildById(defaultguildid);
 			if( !guild->AddMember(pCurrChar->GetGUID(), GUILD_RANK_NONE) )
