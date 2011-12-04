@@ -1,5 +1,6 @@
 DELETE FROM `trinity_string` WHERE `entry` BETWEEN 11010 AND 11025;
 
+INSERT INTO `trinity_string` (`entry`,`content_loc2`) VALUES
 (11010,"Joueur"),
 (11011,"Modérateur"),
 (11012,"Mj"),
