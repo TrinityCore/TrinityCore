@@ -711,7 +711,7 @@ void AchievementMgr::SendCriteriaUpdate(AchievementCriteriaEntry const* entry, C
 void AchievementMgr::CheckAllAchievementCriteria()
 {
     // suppress sending packets
-    for (uint32 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
+    for (uint8 i=0; i<ACHIEVEMENT_CRITERIA_TYPE_TOTAL; ++i)
         UpdateAchievementCriteria(AchievementCriteriaTypes(i));
 }
 
@@ -942,7 +942,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
                 // skip wrong arena achievements, if not achievIdByArenaSlot then normal total death counter
                 bool notfit = false;
-                for (int j = 0; j < MAX_ARENA_SLOT; ++j)
+                for (uint8 j = 0; j < MAX_ARENA_SLOT; ++j)
                 {
                     if (achievIdByArenaSlot[j] == achievement->ID)
                     {
@@ -971,7 +971,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                 // search case
                 bool found = false;
-                for (int j = 0; achievIdForDungeon[j][0]; ++j)
+                for (uint8 j = 0; achievIdForDungeon[j][0]; ++j)
                 {
                     if (achievIdForDungeon[j][0] == achievement->ID)
                     {
@@ -1198,7 +1198,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     break;
 
                 bool matchFound = false;
-                for (int j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
+                for (uint8 j = 0; j < MAX_WORLD_MAP_OVERLAY_AREA_IDX; ++j)
                 {
                     uint32 area_id = worldOverlayEntry->areatableID[j];
                     if (!area_id)                            // array have 0 only in empty tail
@@ -1512,7 +1512,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 }
                 else    // login case
                 {
-                    for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
+                    for (uint8 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
                     {
                         uint32 teamId = GetPlayer()->GetArenaTeamId(arena_slot);
                         if (!teamId)
@@ -1542,7 +1542,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 }
                 else    // login case
                 {
-                    for (uint32 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
+                    for (uint8 arena_slot = 0; arena_slot < MAX_ARENA_SLOT; ++arena_slot)
                     {
                         uint32 teamId = GetPlayer()->GetArenaTeamId(arena_slot);
                         if (!teamId)
@@ -1626,12 +1626,12 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
         {
             // skip wrong class achievements
-            for (int i = 1; i < MAX_CLASSES; ++i)
+            for (uint8 i = 1; i < MAX_CLASSES; ++i)
                 if (achievIdByClass[i] == achievement->ID && i != GetPlayer()->getClass())
                     return false;
 
             // skip wrong race achievements
-            for (int i = 1; i < MAX_RACES; ++i)
+            for (uint8 i = 1; i < MAX_RACES; ++i)
                 if (achievIdByRace[i] == achievement->ID && i != GetPlayer()->getRace())
                     return false;
 
@@ -2144,7 +2144,7 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
         (achievement->requiredFaction == ACHIEVEMENT_FACTION_ALLIANCE && GetPlayer()->GetTeam() != ALLIANCE))
         return false;
 
-    for (uint32 i = 0; i < MAX_CRITERIA_REQUIREMENTS; ++i)
+    for (uint8 i = 0; i < MAX_CRITERIA_REQUIREMENTS; ++i)
     {
         if (!criteria->additionalRequirements[i].additionalRequirement_type)
             continue;
@@ -2546,7 +2546,7 @@ void AchievementGlobalMgr::LoadRewardLocales()
 
         AchievementRewardLocale& data = m_achievementRewardLocales[entry];
 
-        for (int i = 1; i < TOTAL_LOCALES; ++i)
+        for (uint8 i = 1; i < TOTAL_LOCALES; ++i)
         {
             LocaleConstant locale = (LocaleConstant) i;
             ObjectMgr::AddLocaleString(fields[1 + 2 * (i - 1)].GetString(), locale, data.subject);

@@ -397,7 +397,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                 break;
         }
 
-        for (uint32 j = 0; j < MAX_ACTIONS; j++)
+        for (uint8 j = 0; j < MAX_ACTIONS; j++)
         {
             uint16 action_type = fields[10+(j*4)].GetUInt16();
             if (action_type >= ACTION_T_END)

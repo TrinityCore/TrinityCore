@@ -30,7 +30,7 @@ const int32 ReputationMgr::PointsInRank[MAX_REPUTATION_RANK] = {36000, 3000, 300
 ReputationRank ReputationMgr::ReputationToRank(int32 standing)
 {
     int32 limit = Reputation_Cap + 1;
-    for (int i = MAX_REPUTATION_RANK-1; i >= MIN_REPUTATION_RANK; --i)
+    for (uint8 i = MAX_REPUTATION_RANK-1; i >= MIN_REPUTATION_RANK; --i)
     {
         limit -= PointsInRank[i];
         if (standing >= limit)
@@ -82,7 +82,7 @@ int32 ReputationMgr::GetBaseReputation(FactionEntry const* factionEntry) const
 
     uint32 raceMask = m_player->getRaceMask();
     uint32 classMask = m_player->getClassMask();
-    for (int i=0; i < 4; i++)
+    for (uint8 i = 0; i < 4; i++)
     {
         if ((factionEntry->BaseRepRaceMask[i] & raceMask  ||
             (factionEntry->BaseRepRaceMask[i] == 0  &&
@@ -136,7 +136,7 @@ uint32 ReputationMgr::GetDefaultStateFlags(FactionEntry const* factionEntry) con
 
     uint32 raceMask = m_player->getRaceMask();
     uint32 classMask = m_player->getClassMask();
-    for (int i=0; i < 4; i++)
+    for (uint8 i = 0; i < 4; i++)
     {
         if ((factionEntry->BaseRepRaceMask[i] & raceMask  ||
             (factionEntry->BaseRepRaceMask[i] == 0  &&
@@ -285,7 +285,7 @@ bool ReputationMgr::SetReputation(FactionEntry const* factionEntry, int32 standi
     // if spillover definition exists in DB, override DBC
     if (const RepSpilloverTemplate* repTemplate = sObjectMgr->GetRepSpilloverTemplate(factionEntry->ID))
     {
-        for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
+        for (uint8 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
         {
             if (repTemplate->faction[i])
             {

@@ -1146,7 +1146,7 @@ void Group::SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid)
 
     // clean other icons
     if (targetGuid != 0)
-        for (int i=0; i<TARGETICONCOUNT; ++i)
+        for (uint8 i = 0; i < TARGETICONCOUNT; ++i)
             if (m_targetIcons[i] == targetGuid)
                 SetTargetIcon(i, 0, 0);
 

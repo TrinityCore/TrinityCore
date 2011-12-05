@@ -340,7 +340,7 @@ bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
     dump += "IMPORTANT NOTE: THIS DUMPFILE IS MADE FOR USE WITH THE 'PDUMP' COMMAND ONLY - EITHER THROUGH INGAME CHAT OR ON CONSOLE!\n";
     dump += "IMPORTANT NOTE: DO NOT apply it directly - it will irreversibly DAMAGE and CORRUPT your database! You have been warned!\n\n";
 
-    for (int i = 0; i < DUMP_TABLE_COUNT; ++i)
+    for (uint8 i = 0; i < DUMP_TABLE_COUNT; ++i)
         if (!DumpTable(dump, guid, dumpTables[i].name, dumpTables[i].name, dumpTables[i].type))
             return false;
 

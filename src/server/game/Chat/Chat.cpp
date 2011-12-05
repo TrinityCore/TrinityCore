@@ -1191,7 +1191,7 @@ char* ChatHandler::extractKeyFromLink(char* text, char const* const* linkTypes, 
     if (!cLinkType)
         return NULL;                                        // end of data
 
-    for (int i = 0; linkTypes[i]; ++i)
+    for (uint32 i = 0; linkTypes[i]; ++i)
     {
         if (strcmp(cLinkType, linkTypes[i]) == 0)
         {

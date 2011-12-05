@@ -1252,7 +1252,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
         return;
     }
 
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
     {
         recv_data >> declinedname.name[i];
         if (!normalizePlayerName(declinedname.name[i]))
@@ -1274,7 +1274,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
         return;
     }
 
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         CharacterDatabase.EscapeString(declinedname.name[i]);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -1486,7 +1486,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
     eqSet.IconName  = iconName;
     eqSet.state     = EQUIPMENT_SET_NEW;
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         uint64 itemGuid;
         recv_data.readPackGUID(itemGuid);
@@ -1522,7 +1522,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         uint64 itemGuid;
         recv_data.readPackGUID(itemGuid);

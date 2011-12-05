@@ -314,7 +314,7 @@ template <class T>
 void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 triggerFrom)
 {
     uint32 lastDespawned = 0;
-    int count = limit - spawns.GetActiveObjectCount(poolId);
+    uint32 count = limit - spawns.GetActiveObjectCount(poolId);
 
     // If triggered from some object respawn this object is still marked as spawned
     // and also counted into m_SpawnedPoolAmount so we need increase count to be
@@ -323,7 +323,7 @@ void PoolGroup<T>::SpawnObject(ActivePoolData& spawns, uint32 limit, uint32 trig
         ++count;
 
     // This will try to spawn the rest of pool, not guaranteed
-    for (int i = 0; i < count; ++i)
+    for (uint32 i = 0; i < count; ++i)
     {
         PoolObject* obj = RollOne(spawns, triggerFrom);
         if (!obj)
@@ -775,7 +775,7 @@ void PoolMgr::LoadFromDB()
             while (result->NextRow());
 
             // Now check for circular reference
-            for (uint32 i=0; i < max_pool_id; ++i)
+            for (uint32 i = 0; i < max_pool_id; ++i)
             {
                 std::set<uint32> checkedPools;
                 for (SearchMap::iterator poolItr = mPoolSearchMap.find(i); poolItr != mPoolSearchMap.end(); poolItr = mPoolSearchMap.find(poolItr->second))

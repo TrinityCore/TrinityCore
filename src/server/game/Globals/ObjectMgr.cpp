@@ -266,11 +266,11 @@ ObjectMgr::~ObjectMgr()
         delete[] i->second;
 
     // free only if loaded
-    for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
+    for (uint8 class_ = 0; class_ < MAX_CLASSES; ++class_)
         delete[] playerClassInfo[class_].levelInfo;
 
-    for (int race = 0; race < MAX_RACES; ++race)
-        for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
+    for (uint8 race = 0; race < MAX_RACES; ++race)
+        for (uint8 class_ = 0; class_ < MAX_CLASSES; ++class_)
             delete[] playerInfo[race][class_].levelInfo;
 
     for (CacheVendorItemMap::iterator itr = m_mCacheVendorItemMap.begin(); itr != m_mCacheVendorItemMap.end(); ++itr)
@@ -601,7 +601,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         return;
 
     bool ok = true;                                     // bool to allow continue outside this loop
-    for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
+    for (uint8 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
     {
         if (!cInfo->DifficultyEntry[diff])
             continue;
@@ -616,7 +616,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
         }
 
         bool ok2 = true;
-        for (uint32 diff2 = 0; diff2 < MAX_DIFFICULTY - 1 && ok2; ++diff2)
+        for (uint8 diff2 = 0; diff2 < MAX_DIFFICULTY - 1 && ok2; ++diff2)
         {
             ok2 = false;
             if (difficultyEntries[diff2].find(cInfo->Entry) != difficultyEntries[diff2].end())
@@ -777,7 +777,7 @@ void ObjectMgr::CheckCreatureTemplate(CreatureTemplate const* cInfo)
     if (!displayScaleEntry)
         sLog->outErrorDb("Creature (Entry: %u) does not have any existing display id in Modelid1/Modelid2/Modelid3/Modelid4.", cInfo->Entry);
 
-    for (int k = 0; k < MAX_KILL_CREDIT; ++k)
+    for (uint8 k = 0; k < MAX_KILL_CREDIT; ++k)
     {
         if (cInfo->KillCredit[k])
         {
@@ -1431,7 +1431,7 @@ void ObjectMgr::LoadCreatures()
 
     CreatureTemplateContainer const* ctc = sObjectMgr->GetCreatureTemplates();
     for (CreatureTemplateContainer::const_iterator itr = ctc->begin(); itr != ctc->end(); ++itr)
-            for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1; ++diff)
+            for (uint8 diff = 0; diff < MAX_DIFFICULTY - 1; ++diff)
                 if (itr->second.DifficultyEntry[diff])
                     difficultyCreatures[diff].insert(itr->second.DifficultyEntry[diff]);
 
@@ -1439,7 +1439,7 @@ void ObjectMgr::LoadCreatures()
     std::map<uint32, uint32> spawnMasks;
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
-            for (int k = 0; k < MAX_DIFFICULTY; ++k)
+            for (uint8 k = 0; k < MAX_DIFFICULTY; ++k)
                 if (GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
@@ -1493,7 +1493,7 @@ void ObjectMgr::LoadCreatures()
             sLog->outErrorDb("Table `creature` have creature (GUID: %u) that have wrong spawn mask %u including not supported difficulty modes for map (Id: %u).", guid, data.spawnMask, data.mapid);
 
         bool ok = true;
-        for (uint32 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
+        for (uint8 diff = 0; diff < MAX_DIFFICULTY - 1 && ok; ++diff)
         {
             if (difficultyCreatures[diff].find(data.id) != difficultyCreatures[diff].end())
             {
@@ -1753,7 +1753,7 @@ void ObjectMgr::LoadGameobjects()
     std::map<uint32, uint32> spawnMasks;
     for (uint32 i = 0; i < sMapStore.GetNumRows(); ++i)
         if (sMapStore.LookupEntry(i))
-            for (int k = 0; k < MAX_DIFFICULTY; ++k)
+            for (uint8 k = 0; k < MAX_DIFFICULTY; ++k)
                 if (GetMapDifficultyData(i, Difficulty(k)))
                     spawnMasks[i] |= (1 << k);
 
@@ -2666,7 +2666,7 @@ void ObjectMgr::LoadItemTemplates()
         if (!entry)
             continue;
 
-        for (int j = 0; j < MAX_OUTFIT_ITEMS; ++j)
+        for (uint8 j = 0; j < MAX_OUTFIT_ITEMS; ++j)
         {
             if (entry->ItemId[j] <= 0)
                 continue;
@@ -2736,7 +2736,7 @@ void ObjectMgr::LoadItemSetNames()
         if (!setEntry)
             continue;
 
-        for (uint32 i = 0; i < MAX_ITEM_SET_ITEMS; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_SET_ITEMS; ++i)
             if (setEntry->itemId[i])
                 itemSetItems.insert(setEntry->itemId[i]);
     }
@@ -2960,7 +2960,7 @@ void ObjectMgr::LoadPetLevelInfo()
         pLevelInfo->mana   = fields[3].GetUInt16();
         pLevelInfo->armor  = fields[9].GetUInt16();
 
-        for (int i = 0; i < MAX_STATS; i++)
+        for (uint8 i = 0; i < MAX_STATS; i++)
         {
             pLevelInfo->stats[i] = fields[i+4].GetUInt16();
         }
@@ -3369,7 +3369,7 @@ void ObjectMgr::LoadPlayerInfo()
         while (result->NextRow());
 
         // Fill gaps and check integrity
-        for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
+        for (uint8 class_ = 0; class_ < MAX_CLASSES; ++class_)
         {
             // skip non existed classes
             if (!sChrClassesStore.LookupEntry(class_))
@@ -3454,7 +3454,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             PlayerLevelInfo* pLevelInfo = &pInfo->levelInfo[current_level-1];
 
-            for (int i = 0; i < MAX_STATS; i++)
+            for (uint8 i = 0; i < MAX_STATS; i++)
             {
                 pLevelInfo->stats[i] = fields[i+3].GetUInt8();
             }
@@ -3464,13 +3464,13 @@ void ObjectMgr::LoadPlayerInfo()
         while (result->NextRow());
 
         // Fill gaps and check integrity
-        for (int race = 0; race < MAX_RACES; ++race)
+        for (uint8 race = 0; race < MAX_RACES; ++race)
         {
             // skip non existed races
             if (!sChrRacesStore.LookupEntry(race))
                 continue;
 
-            for (int class_ = 0; class_ < MAX_CLASSES; ++class_)
+            for (uint8 class_ = 0; class_ < MAX_CLASSES; ++class_)
             {
                 // skip non existed classes
                 if (!sChrClassesStore.LookupEntry(class_))
@@ -3794,7 +3794,7 @@ void ObjectMgr::LoadQuests()
         if (qinfo->Flags & QUEST_FLAGS_AUTO_REWARDED)
         {
             // at auto-reward can be rewarded only RewardChoiceItemId[0]
-            for (int j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
+            for (uint8 j = 1; j < QUEST_REWARD_CHOICES_COUNT; ++j )
             {
                 if (uint32 id = qinfo->RewardChoiceItemId[j])
                 {
@@ -5232,7 +5232,7 @@ void ObjectMgr::LoadGossipText()
 
         GossipText& gText = mGossipText[Text_ID];
 
-        for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
+        for (uint8 i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
         {
             gText.Options[i].Text_0           = fields[cic++].GetString();
             gText.Options[i].Text_1           = fields[cic++].GetString();
@@ -5240,7 +5240,7 @@ void ObjectMgr::LoadGossipText()
             gText.Options[i].Language         = fields[cic++].GetUInt32();
             gText.Options[i].Probability      = fields[cic++].GetFloat();
 
-            for (uint8 j=0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
+            for (uint8 j = 0; j < MAX_GOSSIP_TEXT_EMOTES; ++j)
             {
                 gText.Options[i].Emotes[j]._Delay  = fields[cic++].GetUInt32();
                 gText.Options[i].Emotes[j]._Emote  = fields[cic++].GetUInt32();
@@ -6936,7 +6936,7 @@ void ObjectMgr::LoadReputationSpilloverTemplate()
             continue;
         }
 
-        for (uint32 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
+        for (uint8 i = 0; i < MAX_SPILLOVER_FACTIONS; ++i)
         {
             if (repTemplate.faction[i])
             {
@@ -8662,7 +8662,7 @@ void ObjectMgr::LoadDbScriptStrings()
         if (GetTrinityStringLocale(i))
             ids.insert(i);
 
-    for (int type = SCRIPTS_FIRST; type < SCRIPTS_LAST; ++type)
+    for (uint8 type = SCRIPTS_FIRST; type < SCRIPTS_LAST; ++type)
         CheckScripts(ScriptsType(type), ids);
 
     for (std::set<int32>::const_iterator itr = ids.begin(); itr != ids.end(); ++itr)

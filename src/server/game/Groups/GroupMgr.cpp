@@ -35,7 +35,7 @@ uint32 GroupMgr::GenerateNewGroupDbStoreId()
 {
     uint32 newStorageId = NextGroupDbStoreId;
 
-    for (uint32 i = ++NextGroupDbStoreId; i < 0xFFFFFFFF; ++i)
+    for (uint8 i = ++NextGroupDbStoreId; i < 0xFFFFFFFF; ++i)
     {
         if ((i < GroupDbStore.size() && GroupDbStore[i] == NULL) || i >= GroupDbStore.size())
         {

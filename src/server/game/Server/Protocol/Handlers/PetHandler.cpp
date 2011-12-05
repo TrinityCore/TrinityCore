@@ -300,7 +300,7 @@ void WorldSession::HandlePetActionHelper(Unit* pet, uint64 guid1, uint16 spellid
                 if (pet->GetCharmInfo() && pet->GetCharmInfo()->GetGlobalCooldownMgr().HasGlobalCooldown(spellInfo))
                     return;
 
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
                 if (spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENEMY || spellInfo->Effects[i].TargetA.GetTarget() == TARGET_DEST_DYNOBJ_ENEMY)
                     return;
@@ -835,7 +835,7 @@ void WorldSession::SendPetNameInvalid(uint32 error, const std::string& name, Dec
     if (declinedName)
     {
         data << uint8(1);
-        for (uint32 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+        for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
             data << declinedName->name[i];
     }
     else
