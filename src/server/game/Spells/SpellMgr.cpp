@@ -2824,6 +2824,13 @@ void SpellMgr::LoadSpellCustomAttr()
             case 48689:
             case 48690:
             case 48691:
+            case 6785: // Ravage
+            case 6787:
+            case 9866:
+            case 9867
+            case 27005:
+            case 48578:
+            case 48579:
             case 21987: // Lash of Pain
             case 23959: // Test Stab R50
             case 24825: // Test Backstab
