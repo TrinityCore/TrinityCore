@@ -2827,7 +2827,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 6785: // Ravage
             case 6787:
             case 9866:
-            case 9867
+            case 9867:
             case 27005:
             case 48578:
             case 48579:
