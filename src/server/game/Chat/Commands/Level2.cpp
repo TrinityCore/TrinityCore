@@ -863,10 +863,6 @@ bool ChatHandler::HandleCreatePetCommand(const char* /*args*/)
 
     // Everything looks OK, create new pet
     Pet* pet = new Pet(player, HUNTER_PET);
-
-    if (!pet)
-      return false;
-
     if (!pet->CreateBaseAtCreature(creatureTarget))
     {
         delete pet;
