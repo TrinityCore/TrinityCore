@@ -79,7 +79,7 @@ void DynamicObject::RemoveFromWorld()
     }
 }
 
-bool DynamicObject::Create(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, bool active, DynamicObjectType type)
+bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, bool active, DynamicObjectType type)
 {
     SetMap(caster->GetMap());
     Relocate(pos);
@@ -106,6 +106,12 @@ bool DynamicObject::Create(uint32 guidlow, Unit* caster, uint32 spellId, Positio
     SetUInt32Value(DYNAMICOBJECT_CASTTIME, getMSTime());
 
     m_isWorldObject = active;
+    if (active)
+        setActive(true);    //must before add to map to be put in world container
+
+    if (!GetMap()->AddToMap(this))
+        return false;
+
     return true;
 }
 
