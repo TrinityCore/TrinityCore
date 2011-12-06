@@ -263,7 +263,7 @@ class Quest
         uint32 RequiredItemId[QUEST_ITEM_OBJECTIVES_COUNT];
         uint32 RequiredItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
         uint32 RequiredSourceItemId[QUEST_SOURCE_ITEM_IDS_COUNT];
-        uint32 RequiredSourceItemIdCount[QUEST_SOURCE_ITEM_IDS_COUNT];
+        uint32 RequiredSourceItemCount[QUEST_SOURCE_ITEM_IDS_COUNT];
         int32  RequiredNpcOrGo[QUEST_OBJECTIVES_COUNT];   // >0 Creature <0 Gameobject
         uint32 RequiredNpcOrGoCount[QUEST_OBJECTIVES_COUNT];
         uint32 RequiredSpellCast[QUEST_OBJECTIVES_COUNT];

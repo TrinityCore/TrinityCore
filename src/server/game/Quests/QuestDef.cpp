@@ -109,7 +109,7 @@ Quest::Quest(Field* questRecord)
         RequiredSourceItemId[i] = questRecord[97+i].GetUInt32();
 
     for (int i = 0; i < QUEST_SOURCE_ITEM_IDS_COUNT; ++i)
-        RequiredSourceItemIdCount[i] = questRecord[101+i].GetUInt32();
+        RequiredSourceItemCount[i] = questRecord[101+i].GetUInt32();
 
     for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
         RequiredItemId[i] = questRecord[105+i].GetUInt32();
