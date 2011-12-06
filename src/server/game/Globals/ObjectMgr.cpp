@@ -1630,13 +1630,12 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     if (!map->Instanceable() && map->IsGridLoaded(x, y))
     {
         GameObject* go = new GameObject;
-        if (!go->LoadFromDB(guid, map))
+        if (!go->LoadGameObjectFromDB(guid, map))
         {
             sLog->outError("AddGOData: cannot add gameobject entry %u to map", entry);
             delete go;
             return 0;
         }
-        map->AddToMap(go);
     }
 
     sLog->outDebug(LOG_FILTER_MAPS, "AddGOData: dbguid %u entry %u map %u x %f y %f z %f o %f", guid, entry, mapId, x, y, z, o);
@@ -1666,13 +1665,12 @@ bool ObjectMgr::MoveCreData(uint32 guid, uint32 mapId, Position pos)
         if (!map->Instanceable() && map->IsGridLoaded(data.posX, data.posY))
         {
             Creature* creature = new Creature;
-            if (!creature->LoadFromDB(guid, map))
+            if (!creature->LoadCreatureFromDB(guid, map))
             {
                 sLog->outError("AddCreature: cannot add creature entry %u to map", guid);
                 delete creature;
                 return false;
             }
-            map->AddToMap(creature);
         }
     }
     return true;
@@ -1719,13 +1717,12 @@ uint32 ObjectMgr::AddCreData(uint32 entry, uint32 /*team*/, uint32 mapId, float 
         if (!map->Instanceable() && !map->IsRemovalGrid(x, y))
         {
             Creature* creature = new Creature;
-            if (!creature->LoadFromDB(guid, map))
+            if (!creature->LoadCreatureFromDB(guid, map))
             {
                 sLog->outError("AddCreature: cannot add creature entry %u to map", entry);
                 delete creature;
                 return 0;
             }
-            map->AddToMap(creature);
         }
     }
 
@@ -4027,22 +4024,22 @@ void ObjectMgr::LoadQuests()
 
         for (uint8 j = 0; j < QUEST_SOURCE_ITEM_IDS_COUNT; ++j)
         {
-            uint32 id = qinfo->RequiredSourceItemid[j];
+            uint32 id = qinfo->RequiredSourceItemId[j];
             if (id)
             {
                 if (!sObjectMgr->GetItemTemplate(id))
                 {
-                    sLog->outErrorDb("Quest %u has `RequiredSourceItemid%d` = %u but item with entry %u does not exist, quest can't be done.",
+                    sLog->outErrorDb("Quest %u has `RequiredSourceItemId%d` = %u but item with entry %u does not exist, quest can't be done.",
                         qinfo->GetQuestId(), j+1, id, id);
                     // no changes, quest can't be done for this requirement
                 }
             }
             else
             {
-                if (qinfo->RequiredSourceItemId[j]>0)
+                if (qinfo->RequiredSourceItemCount[j]>0)
                 {
-                    sLog->outErrorDb("Quest %u has `RequiredSourceItemid%d` = 0 but `RequiredSourceItemId%d` = %u.",
-                        qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredSourceItemId[j]);
+                    sLog->outErrorDb("Quest %u has `RequiredSourceItemId%d` = 0 but `RequiredSourceItemCount%d` = %u.",
+                        qinfo->GetQuestId(), j+1, j+1, qinfo->RequiredSourceItemCount[j]);
                     // no changes, quest ignore this data
                 }
             }

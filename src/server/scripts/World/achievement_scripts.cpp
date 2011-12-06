@@ -24,24 +24,6 @@
 #include "BattlegroundAV.h"
 #include "Vehicle.h"
 
-class achievement_storm_glory : public AchievementCriteriaScript
-{
-    public:
-        achievement_storm_glory() : AchievementCriteriaScript("achievement_storm_glory") { }
-
-        bool OnCheck(Player* source, Unit* /*target*/)
-        {
-            if (source->GetBattlegroundTypeId() != BATTLEGROUND_EY)
-                return false;
-
-            Battleground* pEotS = source->GetBattleground();
-            if (!pEotS)
-                return false;
-
-            return pEotS->IsAllNodesConrolledByTeam(source->GetTeam());
-        }
-};
-
 class achievement_resilient_victory : public AchievementCriteriaScript
 {
     public:
@@ -93,11 +75,14 @@ class achievement_save_the_day : public AchievementCriteriaScript
 
             if (Player const* player = target->ToPlayer())
             {
-                if (source->GetBattlegroundTypeId() != BATTLEGROUND_WS || !source->GetBattleground())
+                Battleground* bg = source->GetBattleground();
+                if (!bg)
                     return false;
 
-                BattlegroundWS* pWSG = static_cast<BattlegroundWS*>(source->GetBattleground());
-                if (pWSG->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
+                if (bg->GetTypeID(true) != BATTLEGROUND_WS)
+                    return false;
+
+                if (static_cast<BattlegroundWS*>(bg)->GetFlagState(player->GetTeam()) == BG_WS_FLAG_STATE_ON_BASE)
                     return true;
             }
             return false;
@@ -219,7 +204,7 @@ class achievement_everything_counts : public AchievementCriteriaScript
             if (!bg)
                 return false;
 
-            if (source->GetBattlegroundTypeId() != BATTLEGROUND_AV)
+            if (bg->GetTypeID(true) != BATTLEGROUND_AV)
                 return false;
 
             if (static_cast<BattlegroundAV*>(bg)->IsBothMinesControlledByTeam(source->GetTeam()))
@@ -240,7 +225,7 @@ class achievement_bg_av_perfection : public AchievementCriteriaScript
             if (!bg)
                 return false;
 
-            if (source->GetBattlegroundTypeId() != BATTLEGROUND_AV)
+            if (bg->GetTypeID(true) != BATTLEGROUND_AV)
                 return false;
 
             if (static_cast<BattlegroundAV*>(bg)->IsAllTowersControlledAndCaptainAlive(source->GetTeam()))
@@ -302,7 +287,6 @@ class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
 
 void AddSC_achievement_scripts()
 {
-    new achievement_storm_glory();
     new achievement_resilient_victory();
     new achievement_bg_control_all_nodes();
     new achievement_save_the_day();
