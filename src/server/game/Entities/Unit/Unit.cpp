@@ -11465,7 +11465,7 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
             if (!IsImmunedToSpellEffect(spellInfo, i))
                 immuneToAllEffects = false;
     }
-    if(immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
+    if (immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
         return true;
 
     if (spellInfo->Id != 42292 && spellInfo->Id !=59752)
