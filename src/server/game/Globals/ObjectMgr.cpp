@@ -535,7 +535,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 creature template addon definitions. DB table `creature_addon` is empty.");
+        sLog->outString(">> Loaded 0 creature template addon definitions. DB table `creature_template_addon` is empty.");
         sLog->outString();
         return;
     }
@@ -569,7 +569,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
             if (!AdditionalSpellInfo)
             {
-                sLog->outErrorDb("Creature (GUID: %u) has wrong spell %u defined in `auras` field in `creature_addon`.", entry, uint32(atol(*itr)));
+                sLog->outErrorDb("Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
                 continue;
             }
             creatureAddon.auras[i++] = uint32(atol(*itr));
@@ -579,13 +579,13 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         {
             if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
             {
-                sLog->outErrorDb("Creature (GUID: %u) has invalid displayInfoId (%u) for mount defined in `creature_addon`", entry, creatureAddon.mount);
+                sLog->outErrorDb("Creature (Entry: %u) has invalid displayInfoId (%u) for mount defined in `creature_template_addon`", entry, creatureAddon.mount);
                 creatureAddon.mount = 0;
             }
         }
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
-            sLog->outErrorDb("Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", entry, creatureAddon.emote);
+            sLog->outErrorDb("Creature (Entry: %u) has invalid emote (%u) defined in `creature_template_addon`.", entry, creatureAddon.emote);
 
         ++count;
     }
