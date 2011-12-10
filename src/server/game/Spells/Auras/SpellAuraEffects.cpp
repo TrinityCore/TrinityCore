@@ -4811,6 +4811,10 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
+                        break;
+                case 59628: // Tricks of the Trade
+                    target->SetReducedThreatPercent(100,caster->GetGUID());
+                    break;
             }
         }
         // AT REMOVE
@@ -4971,6 +4975,15 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (GetId() == 61777)
                         target->CastSpell(target, GetAmount(), true);
                     break;
+                case SPELLFAMILY_ROGUE:
+                    //  Tricks of the trade
+                    switch(GetId())
+                    {
+                        case 59628:
+                        case 57934:
+                            target->SetReducedThreatPercent(0,0);
+                            break;       
+                    }
                 default:
                     break;
             }
