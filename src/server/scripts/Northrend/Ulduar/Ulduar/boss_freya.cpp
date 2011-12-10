@@ -526,7 +526,7 @@ class boss_freya : public CreatureScript
             {
                 uint8 n = 0;
 
-                // Handling recieved data
+                // Handling received data
                 for (uint8 i = 0; i < 5; ++i)                                    // We have created "instances" for keeping informations about last 6 death lashers - needed because of respawning
                 {
                     deforestation[i][0] = deforestation[(i + 1)][0];             // Time
