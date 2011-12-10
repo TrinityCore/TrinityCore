@@ -2030,6 +2030,16 @@ public:
         {
             DoCast(me, 59907, false); // Spell for Lightwell Charges
         }
+
+        void EnterEvadeMode()
+        {
+            if (!me->isAlive())
+                return;
+
+            me->DeleteThreatList();
+            me->CombatStop(true);
+            me->ResetPlayerDamageReq();
+        }
     };
 
     CreatureAI* GetAI(Creature* creature) const
