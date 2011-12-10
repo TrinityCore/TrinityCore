@@ -223,7 +223,7 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
                         {
                             if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
                             {
-                                if (roll_chance_i(aur->GetBaseAmount()) && owner->HasAuraWithMechanic(1 << MECHANIC_SNARE))
+                                if (roll_chance_i(aur->GetBaseAmount()) && target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
                                 {
                                     caster->CastSpell(caster, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true, NULL, aurEff);
                                     caster->CastSpell(caster, SHAMAN_TOTEM_SPELL_EARTHEN_POWER_BUFF, true, NULL, aurEff);
