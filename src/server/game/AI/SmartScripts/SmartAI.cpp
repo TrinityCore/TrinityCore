@@ -707,7 +707,7 @@ void SmartAI::SetRun(bool run)
         me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
     else
         me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-    me->SendMovementFlagUpdate();
+
     mRun = run;
 }
 
