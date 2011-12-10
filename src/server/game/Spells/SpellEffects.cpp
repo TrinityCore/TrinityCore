@@ -6378,14 +6378,15 @@ void Spell::EffectSummonDeadPet(SpellEffIndex /*effIndex*/)
     if (effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+    Player* _player = m_caster->ToPlayer()
+
+    if (!_player)
         return;
-    Player* _player = m_caster->ToPlayer();
+
     Pet* pet = _player->GetPet();
-    if (!pet)
+    if (!pet || pet->isAlive())
         return;
-    if (pet->isAlive())
-        return;
+
     if (damage < 0)
         return;
 

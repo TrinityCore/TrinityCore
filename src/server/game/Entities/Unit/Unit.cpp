@@ -6062,6 +6062,16 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 37378;
                     break;
                 }
+                // Glyph of Succubus
+                case 56250:
+                {
+                    if (!target)
+                        return false;
+                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE, 0, target->GetAura(32409)); // SW:D shall not be removed.
+                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                    target->RemoveAurasByType(SPELL_AURA_PERIODIC_LEECH);
+                    return true;
+                }
             }
             break;
         }
@@ -6488,6 +6498,16 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     triggered_spell_id = 32747;
+                    break;
+                }
+                case 57934: // Tricks of the Trade
+                {
+                    Unit* redirectTarget = GetMisdirectionTarget();
+                    RemoveAura(57934);
+                    if (!redirectTarget)
+                        break;
+                    redirectTarget->CastSpell(this,59628,true);
+                    CastSpell(redirectTarget,57933,true);
                     break;
                 }
             }
@@ -15629,29 +15649,17 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     }
 
     // Hook for OnPVPKill Event
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* killerPlr = ToPlayer())
     {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-        {
-            Player* killer = ToPlayer();
-            Player* killed = victim->ToPlayer();
-            sScriptMgr->OnPVPKill(killer, killed);
-        }
-        else if (victim->GetTypeId() == TYPEID_UNIT)
-        {
-            Player* killer = ToPlayer();
-            Creature* killed = victim->ToCreature();
-            sScriptMgr->OnCreatureKill(killer, killed);
-        }
+        if (Player* killedPlr = victim->ToPlayer())
+            sScriptMgr->OnPVPKill(killerPlr, killedPlr);
+        else if (Creature* killedCre = victim->ToCreature())
+            sScriptMgr->OnCreatureKill(killerPlr, killedCre);
     }
-    else if (GetTypeId() == TYPEID_UNIT)
+    else if (Creature* killerCre = ToCreature())
     {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-        {
-            Creature* killer = ToCreature();
-            Player* killed = victim->ToPlayer();
-            sScriptMgr->OnPlayerKilledByCreature(killer, killed);
-        }
+        if (Player* killed = victim->ToPlayer())
+            sScriptMgr->OnPlayerKilledByCreature(killerCre, killed);
     }
 
     if (victim->GetVehicle())

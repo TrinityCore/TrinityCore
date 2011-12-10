@@ -1395,7 +1395,7 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading pet default spells additional to levelup spells...");
     sSpellMgr->LoadPetDefaultSpells();
 
-    sLog->outString("Loading Creature Template Addon Data...");
+    sLog->outString("Loading Creature Addon Data...");
     sObjectMgr->LoadCreatureAddons();                            // must be after LoadCreatureTemplates() and LoadCreatures()
 
     sLog->outString("Loading Creature Respawn Data...");         // must be after PackInstances()
