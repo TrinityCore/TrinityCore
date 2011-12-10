@@ -1493,7 +1493,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     else if (GameObject* goTarget = (*itr)->ToGameObject())
                     {
                         if (IsSmartGO(goTarget))
-                            CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
+                            CAST_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, e.action.timedActionList.id, GetLastInvoker());
                     }
                 }
 
@@ -1610,7 +1610,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     else if (GameObject* goTarget = (*itr)->ToGameObject())
                     {
                         if (IsSmartGO(goTarget))
-                            CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, id, GetLastInvoker());
+                            CAST_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
                     }
                 }
 
@@ -1640,7 +1640,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                     else if (GameObject* goTarget = (*itr)->ToGameObject())
                     {
                         if (IsSmartGO(goTarget))
-                            CAST_AI(SmartGameObjectAI, target->AI())->SetScript9(e, id, GetLastInvoker());
+                            CAST_AI(SmartGameObjectAI, goTarget->AI())->SetScript9(e, id, GetLastInvoker());
                     }
                 }
 
