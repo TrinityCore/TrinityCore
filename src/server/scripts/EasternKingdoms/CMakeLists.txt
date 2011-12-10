@@ -207,4 +207,52 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Karazhan/karazhan.h
 )
 
+SOURCE_GROUP(EasternKingdoms FILES
+  EasternKingdoms/alterac_mountains.cpp
+  EasternKingdoms/arathi_highlands.cpp
+  EasternKingdoms/blasted_lands.cpp
+  EasternKingdoms/boss_kruul.cpp
+  EasternKingdoms/burning_steppes.cpp
+  EasternKingdoms/dun_morogh.cpp
+  EasternKingdoms/duskwood.cpp
+  EasternKingdoms/eastern_plaguelands.cpp
+  EasternKingdoms/elwynn_forest.cpp
+  EasternKingdoms/eversong_woods.cpp
+  EasternKingdoms/ghostlands.cpp
+  EasternKingdoms/hinterlands.cpp
+  EasternKingdoms/ironforge.cpp
+  EasternKingdoms/isle_of_queldanas.cpp
+  EasternKingdoms/loch_modan.cpp
+  EasternKingdoms/redridge_mountains.cpp
+  EasternKingdoms/searing_gorge.cpp
+  EasternKingdoms/silvermoon_city.cpp
+  EasternKingdoms/silverpine_forest.cpp
+  EasternKingdoms/stormwind_city.cpp
+  EasternKingdoms/stranglethorn_vale.cpp
+  EasternKingdoms/swamp_of_sorrows.cpp
+  EasternKingdoms/tirisfal_glades.cpp
+  EasternKingdoms/undercity.cpp
+  EasternKingdoms/western_plaguelands.cpp
+  EasternKingdoms/westfall.cpp
+  EasternKingdoms/wetlands.cpp)
+SOURCE_GROUP(EasternKingdoms\\AlteracValley REGULAR_EXPRESSION .*/EasternKingdoms/AlteracValley/.*)
+SOURCE_GROUP(EasternKingdoms\\BlackrockDepths REGULAR_EXPRESSION .*/EasternKingdoms/BlackrockDepths/.*)
+SOURCE_GROUP(EasternKingdoms\\BlackrockSpire REGULAR_EXPRESSION .*/EasternKingdoms/BlackrockSpire/.*)
+SOURCE_GROUP(EasternKingdoms\\BlackwingLair REGULAR_EXPRESSION .*/EasternKingdoms/BlackwingLair/.*)
+SOURCE_GROUP(EasternKingdoms\\Deadmines REGULAR_EXPRESSION .*/EasternKingdoms/Deadmines/.*)
+SOURCE_GROUP(EasternKingdoms\\Gnomeregan REGULAR_EXPRESSION .*/EasternKingdoms/Gnomeregan/.*)
+SOURCE_GROUP(EasternKingdoms\\Karazhan REGULAR_EXPRESSION .*/EasternKingdoms/Karazhan/.*)
+SOURCE_GROUP(EasternKingdoms\\MagistersTerrace REGULAR_EXPRESSION .*/EasternKingdoms/MagistersTerrace/.*)
+SOURCE_GROUP(EasternKingdoms\\MoltenCore REGULAR_EXPRESSION .*/EasternKingdoms/MoltenCore/.*)
+SOURCE_GROUP(EasternKingdoms\\ScarletEnclave REGULAR_EXPRESSION .*/EasternKingdoms/ScarletEnclave/.*)
+SOURCE_GROUP(EasternKingdoms\\ScarletMonastery REGULAR_EXPRESSION .*/EasternKingdoms/ScarletMonastery/.*)
+SOURCE_GROUP(EasternKingdoms\\Scholomance REGULAR_EXPRESSION .*/EasternKingdoms/Scholomance/.*)
+SOURCE_GROUP(EasternKingdoms\\ShadowfangKeep REGULAR_EXPRESSION .*/EasternKingdoms/ShadowfangKeep/.*)
+SOURCE_GROUP(EasternKingdoms\\Stratholme REGULAR_EXPRESSION .*/EasternKingdoms/Stratholme/.*)
+SOURCE_GROUP(EasternKingdoms\\SunkenTemple REGULAR_EXPRESSION .*/EasternKingdoms/SunkenTemple/.*)
+SOURCE_GROUP(EasternKingdoms\\SunwellPlateau REGULAR_EXPRESSION .*/EasternKingdoms/SunwellPlateau/.*)
+SOURCE_GROUP(EasternKingdoms\\Uldaman REGULAR_EXPRESSION .*/EasternKingdoms/Uldaman/.*)
+SOURCE_GROUP(EasternKingdoms\\ZulAman REGULAR_EXPRESSION .*/EasternKingdoms/ZulAman/.*)
+SOURCE_GROUP(EasternKingdoms\\ZulGurub REGULAR_EXPRESSION .*/EasternKingdoms/ZulGurub/.*)
+
 message("  -> Prepared: Eastern Kingdoms")

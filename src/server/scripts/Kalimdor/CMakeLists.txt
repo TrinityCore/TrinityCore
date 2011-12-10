@@ -113,4 +113,42 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
 )
 
+SOURCE_GROUP(Kalimdor FILES
+  Kalimdor/ashenvale.cpp
+  Kalimdor/azshara.cpp
+  Kalimdor/azuremyst_isle.cpp
+  Kalimdor/bloodmyst_isle.cpp
+  Kalimdor/boss_azuregos.cpp
+  Kalimdor/darkshore.cpp
+  Kalimdor/desolace.cpp
+  Kalimdor/durotar.cpp
+  Kalimdor/dustwallow_marsh.cpp
+  Kalimdor/felwood.cpp
+  Kalimdor/feralas.cpp
+  Kalimdor/moonglade.cpp
+  Kalimdor/mulgore.cpp
+  Kalimdor/orgrimmar.cpp
+  Kalimdor/silithus.cpp
+  Kalimdor/stonetalon_mountains.cpp
+  Kalimdor/tanaris.cpp
+  Kalimdor/teldrassil.cpp
+  Kalimdor/the_barrens.cpp
+  Kalimdor/thousand_needles.cpp
+  Kalimdor/thunder_bluff.cpp
+  Kalimdor/ungoro_crater.cpp
+  Kalimdor/winterspring.cpp)
+SOURCE_GROUP(Kalimdor\\BlackfathomDeeps REGULAR_EXPRESSION .*/Kalimdor/BlackfathomDeeps/.*)
+SOURCE_GROUP(Kalimdor\\CavernsOfTime\\BattleForMountHyjal REGULAR_EXPRESSION .*/Kalimdor/CavernsOfTime/BattleForMountHyjal/.*)
+SOURCE_GROUP(Kalimdor\\CavernsOfTime\\CullingOfStratholme REGULAR_EXPRESSION .*/Kalimdor/CavernsOfTime/CullingOfStratholme/.*)
+SOURCE_GROUP(Kalimdor\\CavernsOfTime\\DarkPortal REGULAR_EXPRESSION .*/Kalimdor/CavernsOfTime/DarkPortal/.*)
+SOURCE_GROUP(Kalimdor\\CavernsOfTime\\EscapeFromDurnholdeKeep REGULAR_EXPRESSION .*/Kalimdor/CavernsOfTime/EscapeFromDurnholdeKeep/.*)
+SOURCE_GROUP(Kalimdor\\Maraudon REGULAR_EXPRESSION .*/Kalimdor/Maraudon/.*)
+SOURCE_GROUP(Kalimdor\\OnyxiasLair REGULAR_EXPRESSION .*/Kalimdor/OnyxiasLair/.*)
+SOURCE_GROUP(Kalimdor\\RazorfenDowns REGULAR_EXPRESSION .*/Kalimdor/RazorfenDowns/.*)
+SOURCE_GROUP(Kalimdor\\RazorfenKraul REGULAR_EXPRESSION .*/Kalimdor/RazorfenKraul/.*)
+SOURCE_GROUP(Kalimdor\\RuinsOfAhnQiraj REGULAR_EXPRESSION .*/Kalimdor/RuinsOfAhnQiraj/.*)
+SOURCE_GROUP(Kalimdor\\TempleOfAhnQiraj REGULAR_EXPRESSION .*/Kalimdor/TempleOfAhnQiraj/.*)
+SOURCE_GROUP(Kalimdor\\WailingCaverns REGULAR_EXPRESSION .*/Kalimdor/WailingCaverns/.*)
+SOURCE_GROUP(Kalimdor\\ZulFarrak REGULAR_EXPRESSION .*/Kalimdor/ZulFarrak/.*)
+
 message("  -> Prepared: Kalimdor")

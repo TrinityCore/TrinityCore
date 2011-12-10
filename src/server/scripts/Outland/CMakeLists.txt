@@ -105,4 +105,33 @@ set(scripts_STAT_SRCS
   Outland/zangarmarsh.cpp
 )
 
+SOURCE_GROUP(Outland FILES
+  Outland/blades_edge_mountains.cpp
+  Outland/boss_doomlord_kazzak.cpp
+  Outland/boss_doomwalker.cpp
+  Outland/hellfire_peninsula.cpp
+  Outland/nagrand.cpp
+  Outland/netherstorm.cpp
+  Outland/shadowmoon_valley.cpp
+  Outland/shattrath_city.cpp
+  Outland/terokkar_forest.cpp
+  Outland/zangarmarsh.cpp)
+SOURCE_GROUP(Outland\\Auchindoun\\AuchenaiCrypts REGULAR_EXPRESSION .*/Outland/Auchindoun/AuchenaiCrypts/.*)
+SOURCE_GROUP(Outland\\Auchindoun\\ManaTombs REGULAR_EXPRESSION .*/Outland/Auchindoun/ManaTombs/.*)
+SOURCE_GROUP(Outland\\Auchindoun\\SethekkHalls REGULAR_EXPRESSION .*/Outland/Auchindoun/SethekkHalls/.*)
+SOURCE_GROUP(Outland\\Auchindoun\\ShadowLabyrinth REGULAR_EXPRESSION .*/Outland/Auchindoun/ShadowLabyrinth/.*)
+SOURCE_GROUP(Outland\\BlackTemple REGULAR_EXPRESSION .*/Outland/BlackTemple/.*)
+SOURCE_GROUP(Outland\\CoilfangReservoir\\SerpentShrine REGULAR_EXPRESSION .*/Outland/CoilfangReservoir/SerpentShrine/.*)
+SOURCE_GROUP(Outland\\CoilfangReservoir\\SteamVault REGULAR_EXPRESSION .*/Outland/CoilfangReservoir/SteamVault/.*)
+SOURCE_GROUP(Outland\\CoilfangReservoir\\underbog REGULAR_EXPRESSION .*/Outland/CoilfangReservoir/underbog/.*)
+SOURCE_GROUP(Outland\\GruulsLair REGULAR_EXPRESSION .*/Outland/GruulsLair/.*)
+SOURCE_GROUP(Outland\\HellfireCitadel\\BloodFurnace REGULAR_EXPRESSION .*/Outland/HellfireCitadel/BloodFurnace/.*)
+SOURCE_GROUP(Outland\\HellfireCitadel\\HellfireRamparts REGULAR_EXPRESSION .*/Outland/HellfireCitadel/HellfireRamparts/.*)
+SOURCE_GROUP(Outland\\HellfireCitadel\\MagtheridonsLair REGULAR_EXPRESSION .*/Outland/HellfireCitadel/MagtheridonsLair/.*)
+SOURCE_GROUP(Outland\\HellfireCitadel\\ShatteredHalls REGULAR_EXPRESSION .*/Outland/HellfireCitadel/ShatteredHalls/.*)
+SOURCE_GROUP(Outland\\TempestKeep\\arcatraz REGULAR_EXPRESSION .*/Outland/TempestKeep/arcatraz/.*)
+SOURCE_GROUP(Outland\\TempestKeep\\botanica REGULAR_EXPRESSION .*/Outland/TempestKeep/botanica/.*)
+SOURCE_GROUP(Outland\\TempestKeep\\Eye REGULAR_EXPRESSION .*/Outland/TempestKeep/Eye/.*)
+SOURCE_GROUP(Outland\\TempestKeep\\Mechanar REGULAR_EXPRESSION .*/Outland/TempestKeep/Mechanar/.*)
+
 message("  -> Prepared: Outland")

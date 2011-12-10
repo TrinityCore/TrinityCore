@@ -25,4 +25,6 @@ set(scripts_STAT_SRCS
   Spells/spell_item.cpp
 )
 
+SOURCE_GROUP(Spells REGULAR_EXPRESSION .*/Spells/.*)
+
 message("  -> Prepared: Spells")
