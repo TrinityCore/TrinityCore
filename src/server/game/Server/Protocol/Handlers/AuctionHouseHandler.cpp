@@ -469,6 +469,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
     if (!creature)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionListBidderItems - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(guid)));
+        recv_data.rfinish();
         return;
     }
 
