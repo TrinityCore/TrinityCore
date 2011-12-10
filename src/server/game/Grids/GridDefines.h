@@ -135,6 +135,11 @@ struct CoordPair
         return *this;
     }
 
+    uint32 GetId() const
+    {
+        return y_coord * LIMIT + x_coord;
+    }
+
     uint32 x_coord;
     uint32 y_coord;
 };

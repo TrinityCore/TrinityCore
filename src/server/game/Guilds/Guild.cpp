@@ -1993,6 +1993,7 @@ bool Guild::Validate()
             }
         }
     }
+
     if (broken_ranks)
     {
         m_ranks.clear();

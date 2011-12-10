@@ -364,8 +364,8 @@ static const Animation DemonTransformation[10]=
     {0, SPELL_DEMON_TRANSFORM_3, 0, 0, 0, 8, true}
 };
 
-#define EMOTE_SETS_GAZE_ON     "sets its gaze on $N!"
-#define EMOTE_UNABLE_TO_SUMMON "is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter."
+#define EMOTE_SETS_GAZE_ON     "%s sets its gaze on $N!"
+#define EMOTE_UNABLE_TO_SUMMON "%s is unable to summon Maiev Shadowsong and enter Phase 4. Resetting Encounter."
 
 class mob_flame_of_azzinoth : public CreatureScript
 {
