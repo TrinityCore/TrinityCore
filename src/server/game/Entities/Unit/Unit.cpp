@@ -6575,16 +6575,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 case 57934: // Tricks of the Trade
                 {
-<<<<<<< HEAD
-                    if (Unit * unitTarget = GetMisdirectionTarget())
-                    {
-                        RemoveAura(dummySpell->Id, GetGUID(), 0, AURA_REMOVE_BY_DEFAULT);
-                        CastSpell(this, 59628, true);
-                        CastSpell(unitTarget, 57933, true);
-                        return true;
-                    }
-                    return false;
-=======
                     Unit* redirectTarget = GetMisdirectionTarget();
                     RemoveAura(57934);
                     if (!redirectTarget)
@@ -6592,7 +6582,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     redirectTarget->CastSpell(this,59628,true);
                     CastSpell(redirectTarget,57933,true);
                     break;
->>>>>>> 196159dbcfeaa6d3a581a2fb6119d537a4b39baf
                 }
             }
 
