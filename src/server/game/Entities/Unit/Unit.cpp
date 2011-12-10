@@ -15593,29 +15593,17 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     }
 
     // Hook for OnPVPKill Event
-    if (GetTypeId() == TYPEID_PLAYER)
+    if (Player* killerPlr = ToPlayer())
     {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-        {
-            Player* killer = ToPlayer();
-            Player* killed = victim->ToPlayer();
-            sScriptMgr->OnPVPKill(killer, killed);
-        }
-        else if (victim->GetTypeId() == TYPEID_UNIT)
-        {
-            Player* killer = ToPlayer();
-            Creature* killed = victim->ToCreature();
-            sScriptMgr->OnCreatureKill(killer, killed);
-        }
+        if (Player* killedPlr = victim->ToPlayer())
+            sScriptMgr->OnPVPKill(killerPlr, killedPlr);
+        else if (Creature* killedCre = victim->ToCreature())
+            sScriptMgr->OnCreatureKill(killerPlr, killedCre);
     }
-    else if (GetTypeId() == TYPEID_UNIT)
+    else if (Creature* killerCre = ToCreature())
     {
-        if (victim->GetTypeId() == TYPEID_PLAYER)
-        {
-            Creature* killer = ToCreature();
-            Player* killed = victim->ToPlayer();
-            sScriptMgr->OnPlayerKilledByCreature(killer, killed);
-        }
+        if (Player* killed = victim->ToPlayer())
+            sScriptMgr->OnPlayerKilledByCreature(killerCre, killed);
     }
 
     if (victim->GetVehicle())
