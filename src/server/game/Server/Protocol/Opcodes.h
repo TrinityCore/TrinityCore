@@ -368,7 +368,7 @@ enum Opcodes
     CMSG_REQUEST_VEHICLE_EXIT                        = 0xCC6, // New 4.x ?
     CMSG_REQUEST_VEHICLE_NEXT_SEAT                   = 0xCAD6,
     CMSG_REQUEST_VEHICLE_PREV_SEAT                   = 0x1AE2,
-    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                 = 0x01, // temp to fix switch case value error
+    CMSG_REQUEST_VEHICLE_SWITCH_SEAT                 = 0x9A46,
     CMSG_RESET_INSTANCES                             = 0x9EEA,
     CMSG_RESURRECT_RESPONSE                          = 0x00,
     CMSG_RETURN_TO_GRAVEYARD                         = 0x91A4,
