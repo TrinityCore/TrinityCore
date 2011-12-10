@@ -2052,28 +2052,6 @@ void Player::SendTeleportAckPacket()
     GetSession()->SendPacket(&data);
 }
 
-// this is not used anywhere
-void Player::TeleportOutOfMap(Map* oldMap)
-{
-    while (IsBeingTeleportedFar())
-        GetSession()->HandleMoveWorldportAckOpcode();
-
-    if (GetMap() != oldMap)
-        return;
-
-    TeleportTo(m_homebindMapId, m_homebindX, m_homebindY, m_homebindZ, GetOrientation());
-
-    while (IsBeingTeleportedFar())
-        GetSession()->HandleMoveWorldportAckOpcode();
-
-    if (GetMap() == oldMap)
-    {
-        sLog->outCrash("Cannot teleport player out of map!");
-        ResetMap();
-        ASSERT(false);
-    }
-}
-
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
 {
     if (!MapManager::IsValidMapCoord(mapid, x, y, z, orientation))

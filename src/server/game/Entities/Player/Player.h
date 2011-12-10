@@ -1091,13 +1091,10 @@ class Player : public Unit, public GridObject<Player>
         void RemoveFromWorld();
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
-        void TeleportOutOfMap(Map* oldMap);
-
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
         {
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
         }
-
         bool TeleportToBGEntryPoint();
 
         void SetSummonPoint(uint32 mapid, float x, float y, float z)
