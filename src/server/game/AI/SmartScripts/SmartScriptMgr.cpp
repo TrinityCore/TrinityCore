@@ -501,7 +501,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_WAYPOINT_RESUMED:
             case SMART_EVENT_WAYPOINT_STOPPED:
             case SMART_EVENT_WAYPOINT_ENDED:
-            case SMART_ACTION_PLAYMOVIE:
             case SMART_EVENT_GOSSIP_SELECT:
             case SMART_EVENT_GOSSIP_HELLO:
             case SMART_EVENT_JUST_CREATED:
