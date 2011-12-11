@@ -1620,7 +1620,7 @@ void GameEventMgr::RunSmartAIScripts(uint16 event_id, bool activate)
                 iter->second->AI()->sOnGameEvent(activate, event_id);
     }
     {
-        TRINITY_READ_GUARD(HashMapHolder<GameObject>::LockType, *HashMapHolder<Creature>::GetLock());
+        TRINITY_READ_GUARD(HashMapHolder<GameObject>::LockType, *HashMapHolder<GameObject>::GetLock());
         HashMapHolder<GameObject>::MapType const& m = ObjectAccessor::GetGameObjects();
         for (HashMapHolder<GameObject>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
             if (iter->second->IsInWorld())
