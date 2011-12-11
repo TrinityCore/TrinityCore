@@ -49,6 +49,7 @@ class GameObjectAI
         virtual uint32 GetDialogStatus(Player* /*player*/) {return 100;}
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) {}
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
+        virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
 };
 
 class NullGameObjectAI : public GameObjectAI
