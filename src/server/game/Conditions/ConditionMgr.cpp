@@ -67,11 +67,8 @@ bool Condition::Meets(Player* player, Unit* invoker)
             break;
         }
         case CONDITION_ACHIEVEMENT:
-        {
-            AchievementEntry const* achievement = GetAchievementStore()->LookupEntry(mConditionValue1);
-            condMeets = player->GetAchievementMgr().HasAchieved(achievement);
+            condMeets = player->GetAchievementMgr().HasAchieved(mConditionValue1);
             break;
-        }
         case CONDITION_TEAM:
             condMeets = player->GetTeam() == mConditionValue1;
             break;
