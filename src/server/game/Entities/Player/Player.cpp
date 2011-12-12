@@ -18121,8 +18121,14 @@ bool Player::Satisfy(AccessRequirement const* ar, uint32 target_map, bool report
             missingQuest = ar->quest_H;
 
         uint32 missingAchievement = 0;
-        if (ar->achievement && !GetAchievementMgr().HasAchieved(ar->achievement))
-            missingAchievement = ar->achievement;
+        Player* leader = this;
+        uint64 leaderGuid = GetGroup() ? GetGroup()->GetLeaderGUID() : GetGUID();
+        if (leaderGuid != GetGUID())
+            leader = ObjectAccessor::FindPlayer(leaderGuid);
+
+        if (ar->achievement)
+            if (!leader || !leader->GetAchievementMgr().HasAchieved(ar->achievement))
+                missingAchievement = ar->achievement;
 
         Difficulty target_difficulty = GetDifficulty(mapEntry->IsRaid());
         MapDifficulty const* mapDiff = GetDownscaledMapDifficultyData(target_map, target_difficulty);
