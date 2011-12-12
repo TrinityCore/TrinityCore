@@ -8041,7 +8041,7 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
     m_GameTeleMap[new_id] = tele;
 
     std::string safeName(tele.name);
-    WorldDatabase.escape_string(safeName);
+    WorldDatabase.EscapeString(safeName);
 
     WorldDatabase.PExecute("INSERT INTO game_tele (id, position_x, position_y, position_z, orientation, map, name) VALUES (%u, %f, %f, %f, %f, %d, '%s')",
         new_id, tele.position_x, tele.position_y, tele.position_z, tele.orientation, tele.mapId, safeName.c_str());
