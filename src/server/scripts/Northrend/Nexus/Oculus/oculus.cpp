@@ -50,6 +50,12 @@ enum Drakes
     NPC_ETERNOS                                   = 27659
 };
 
+enum Says
+{
+    SAY_VAROS          = 0,
+    SAY_UROM           = 1
+};
+
 class npc_oculus_drake : public CreatureScript
 {
 public:
@@ -174,7 +180,38 @@ public:
 
 };
 
+class npc_image_belgaristrasz : public CreatureScript
+{
+public:
+    npc_image_belgaristrasz() : CreatureScript("npc_image_belgaristrasz") { }
+
+    struct npc_image_belgaristraszAI : public ScriptedAI
+    {
+        npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) {}
+
+        void IsSummonedBy(Unit* summoner)
+        {
+            if (summoner->GetEntry() == NPC_VAROS)
+            {
+               Talk(SAY_VAROS);
+               me->DespawnOrUnsummon(60000);
+            }
+            if (summoner->GetEntry() == NPC_UROM)
+            {
+               Talk(SAY_UROM);
+               me->DespawnOrUnsummon(60000);
+            }
+        }            
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_image_belgaristraszAI(creature);
+    }
+};
+
 void AddSC_oculus()
 {
     new npc_oculus_drake();
+    new npc_image_belgaristrasz();
 }
