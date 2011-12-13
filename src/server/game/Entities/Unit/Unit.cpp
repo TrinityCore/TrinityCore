@@ -1478,9 +1478,13 @@ bool Unit::IsDamageReducedByArmor(SpellSchoolMask schoolMask, SpellInfo const* s
             return false;
 
         // bleeding effects are not reduced by armor
-        if (effIndex != MAX_SPELL_EFFECTS && spellInfo->Effects[effIndex].ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE)
-            if (spellInfo->GetEffectMechanicMask(effIndex) & (1<<MECHANIC_BLEED))
-                return false;
+        if (effIndex != MAX_SPELL_EFFECTS)
+        {
+            if (spellInfo->Effects[effIndex].ApplyAuraName == SPELL_AURA_PERIODIC_DAMAGE ||
+                spellInfo->Effects[effIndex].Effect == SPELL_EFFECT_SCHOOL_DAMAGE)
+                if (spellInfo->GetEffectMechanicMask(effIndex) & (1<<MECHANIC_BLEED))
+                    return false;
+        }
     }
     return true;
 }
@@ -8926,6 +8930,20 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
                         return true;
                     }
                 }
+            break;
+        }
+        case 46916:  // Slam! (Bloodsurge proc)
+        case 52437:  // Sudden Death
+        {
+            // Item - Warrior T10 Melee 4P Bonus
+            if (AuraEffect const* aurEff = GetAuraEffect(70847, 0))
+            {
+                if (!roll_chance_i(aurEff->GetAmount()))
+                    break;
+                CastSpell(this, 70849, true, castItem, triggeredByAura); // Extra Charge!
+                CastSpell(this, 71072, true, castItem, triggeredByAura); // Slam GCD Reduced
+                CastSpell(this, 71069, true, castItem, triggeredByAura); // Execute GCD Reduced
+            }
             break;
         }
         // Sword and Board
