@@ -4910,18 +4910,6 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                             caster->CastSpell(target, GetAmount(), true);
                     }
                     break;
-                case SPELLFAMILY_ROGUE:
-                    switch (GetId())
-                    {
-                        case 59628: // Tricks of the Trade
-                            caster->SetReducedThreatPercent(0, 0);
-                            break;
-                        case 57934: // Tricks of the Trade
-                            if (aurApp->GetRemoveMode() != AURA_REMOVE_BY_DEFAULT)
-                                caster->SetReducedThreatPercent(0, 0);
-                            break;
-                    }
-                    break;
                 case SPELLFAMILY_PRIEST:
                     // Vampiric Touch
                     if (m_spellInfo->SpellFamilyFlags[1] & 0x0400 && aurApp->GetRemoveMode() == AURA_REMOVE_BY_ENEMY_SPELL && GetEffIndex() == 0)
@@ -4982,7 +4970,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                         case 59628:
                         case 57934:
                             target->SetReducedThreatPercent(0,0);
-                            break;       
+                            break;
                     }
                 default:
                     break;
