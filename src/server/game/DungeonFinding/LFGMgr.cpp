@@ -389,7 +389,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
             locktype = LFG_LOCKSTATUS_TOO_HIGH_LEVEL;
         else if (locktype == LFG_LOCKSTATUS_OK && ar)
         {
-            if (ar->achievement && !player->GetAchievementMgr().HasAchieved(sAchievementStore.LookupEntry(ar->achievement)))
+            if (ar->achievement && !player->GetAchievementMgr().HasAchieved(ar->achievement))
                 locktype = LFG_LOCKSTATUS_RAID_LOCKED;       // FIXME: Check the correct lock value
             else if (player->GetTeam() == ALLIANCE && ar->quest_A && !player->GetQuestRewardStatus(ar->quest_A))
                 locktype = LFG_LOCKSTATUS_QUEST_NOT_COMPLETED;
