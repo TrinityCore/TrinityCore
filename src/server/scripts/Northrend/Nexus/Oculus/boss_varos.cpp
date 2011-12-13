@@ -144,8 +144,8 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-
             Talk(SAY_DEATH);
+            DoCast(me, SPELL_DEATH_SPELL, true); // we cast the spell as triggered or the summon effect does not occur
         }
     private:
         bool firstCoreEnergize;
