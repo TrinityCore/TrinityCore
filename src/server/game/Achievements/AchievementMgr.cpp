@@ -2381,15 +2381,16 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
         Field* fields = result->Fetch();
 
         uint32 achievement_id = fields[0].GetUInt32();
-        if (!sAchievementStore.LookupEntry(achievement_id))
+        const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievement_id);
+        if (!achievement)
         {
             // we will remove not existed achievement for all characters
             sLog->outError("Non-existing achievement %u data removed from table `character_achievement`.", achievement_id);
             CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE achievement = %u", achievement_id);
             continue;
         }
-
-        m_allCompletedAchievements.insert(achievement_id);
+        else if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
+            m_allCompletedAchievements.insert(achievement_id);
     } while (result->NextRow());
 
     sLog->outString(">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
