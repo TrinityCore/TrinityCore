@@ -94,6 +94,7 @@ public:
         boss_anub_arakAI(Creature* c) : ScriptedAI(c), lSummons(me)
         {
             instance = c->GetInstanceScript();
+            bDalayStart = false;
         }
 
         InstanceScript* instance;
@@ -102,6 +103,7 @@ public:
         bool bGuardianSummoned;
         bool bVenomancerSummoned;
         bool bDatterSummoned;
+        bool bDalayStart;
         uint8 uiPhase;
         uint32 uiUndergroundPhase;
         uint32 uiCarrionBeetlesTimer;
@@ -111,6 +113,7 @@ public:
         uint32 uiUndergroundTimer;
         uint32 uiVenomancerTimer;
         uint32 uiDatterTimer;
+        uint32 uiDalayTimer;
 
         uint32 uiImpaleTimer;
         uint32 uiImpalePhase;
@@ -128,6 +131,7 @@ public:
             uiPhase = PHASE_MELEE;
             uiUndergroundPhase = 0;
             bChanneling = false;
+            bDalayStart = false;
             uiImpalePhase = IMPALE_PHASE_TARGET;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
@@ -162,17 +166,29 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
+            bDalayStart = true;
+            uiDalayTimer = 0;
             if (instance)
-            {
-                instance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
                 instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
-            }
+        }
+
+        void DelayEventStart()
+        {
+            if (instance)
+                instance->SetData(DATA_ANUBARAK_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
                 return;
+
+            if(uiDalayTimer)
+               if(uiDalayTimer>5000)
+               {
+                  DelayEventStart();
+               }
+            else uiDalayTimer+=diff;
 
             switch (uiPhase)
             {
@@ -257,6 +273,9 @@ public:
                             bDatterSummoned = true;
                         }
                     } else uiDatterTimer -= diff;
+
+                    if(me->HasAura(SPELL_LEECHING_SWARM))
+                        me->RemoveAurasDueToSpell(SPELL_LEECHING_SWARM);
                 }
 
                 if (uiUndergroundTimer <= diff)
@@ -328,6 +347,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
+            bDalayStart = false;
             lSummons.DespawnAll();
             if (instance)
                 instance->SetData(DATA_ANUBARAK_EVENT, DONE);
