@@ -26,6 +26,7 @@
 #include "CellImpl.h"
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
+#include "GameEventMgr.h"
 
 #include "SmartScriptMgr.h"
 
@@ -466,6 +467,14 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                 if (!IsMinMaxValid(e, e.event.behindTarget.cooldownMin, e.event.behindTarget.cooldownMax))
                     return false;
                 break;
+            case SMART_EVENT_GAME_EVENT_START:
+            case SMART_EVENT_GAME_EVENT_END:
+                {
+                    GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
+                    if (e.event.gameEvent.gameEventId >= events.size() || !events[e.event.gameEvent.gameEventId].isValid())
+                        return false;
+                    break;
+                }
             case SMART_EVENT_TIMED_EVENT_TRIGGERED:
             case SMART_EVENT_INSTANCE_PLAYER_ENTER:
             case SMART_EVENT_TRANSPORT_RELOCATE:
@@ -492,7 +501,6 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
             case SMART_EVENT_WAYPOINT_RESUMED:
             case SMART_EVENT_WAYPOINT_STOPPED:
             case SMART_EVENT_WAYPOINT_ENDED:
-            case SMART_ACTION_PLAYMOVIE:
             case SMART_EVENT_GOSSIP_SELECT:
             case SMART_EVENT_GOSSIP_HELLO:
             case SMART_EVENT_JUST_CREATED:

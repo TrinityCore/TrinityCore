@@ -201,16 +201,16 @@ class ObjectAccessor
         }
 
         // when using this, you must use the hashmapholder's lock
-        //HashMapHolder<Creature>::MapType& GetCreatures()
-        //{
-        //    return HashMapHolder<Creature>::GetContainer();
-        //}
+        static HashMapHolder<Creature>::MapType const& GetCreatures()
+        {
+            return HashMapHolder<Creature>::GetContainer();
+        }
 
-        //// when using this, you must use the hashmapholder's lock
-        //HashMapHolder<GameObject>::MapType& GetGameObjects()
-        //{
-        //    return HashMapHolder<GameObject>::GetContainer();
-        //}
+        // when using this, you must use the hashmapholder's lock
+        static HashMapHolder<GameObject>::MapType const& GetGameObjects()
+        {
+            return HashMapHolder<GameObject>::GetContainer();
+        }
 
         template<class T> static void AddObject(T* object)
         {
