@@ -94,7 +94,6 @@ public:
         boss_anub_arakAI(Creature* creature) : ScriptedAI(creature), Summons(me)
         {
             instance = creature->GetInstanceScript();
-            DelayStart = false;
         }
 
         InstanceScript* instance;
@@ -149,13 +148,13 @@ public:
             Position targetPos;
             target->GetPosition(&targetPos);
 
-            if (TempSummon* pImpaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILLISECONDS))
+            if (TempSummon* impaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILLISECONDS))
             {
-                ImpaleTarget = pImpaleTarget->GetGUID();
-                pImpaleTarget->SetReactState(REACT_PASSIVE);
-                pImpaleTarget->SetDisplayId(DISPLAY_INVISIBLE);
-                pImpaleTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
-                return pImpaleTarget;
+                ImpaleTarget = impaleTarget->GetGUID();
+                impaleTarget->SetReactState(REACT_PASSIVE);
+                impaleTarget->SetDisplayId(DISPLAY_INVISIBLE);
+                impaleTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE|UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                return impaleTarget;
             }
 
             return NULL;
@@ -180,11 +179,8 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if(DelayTimer)
-               if(DelayTimer>5000)
-               {
-                  DelayEventStart();
-               }
+            if (DelayTimer && DelayTimer > 5000)
+                DelayEventStart();
             else DelayTimer+=diff;
 
             switch (Phase)
@@ -197,24 +193,24 @@ public:
                     case IMPALE_PHASE_TARGET:
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         {
-                            if (Creature* pImpaleTarget = DoSummonImpaleTarget(target))
-                                pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SHAKEGROUND, true);
+                            if (Creature* impaleTarget = DoSummonImpaleTarget(target))
+                                impaleTarget->CastSpell(impaleTarget, SPELL_IMPALE_SHAKEGROUND, true);
                             ImpaleTimer = 3*IN_MILLISECONDS;
                             ImpalePhase = IMPALE_PHASE_ATTACK;
                         }
                         break;
                     case IMPALE_PHASE_ATTACK:
-                        if (Creature* pImpaleTarget = Unit::GetCreature(*me, ImpaleTarget))
+                        if (Creature* impaleTarget = Unit::GetCreature(*me, ImpaleTarget))
                         {
-                            pImpaleTarget->CastSpell(pImpaleTarget, SPELL_IMPALE_SPIKE, false);
-                            pImpaleTarget->RemoveAurasDueToSpell(SPELL_IMPALE_SHAKEGROUND);
+                            impaleTarget->CastSpell(impaleTarget, SPELL_IMPALE_SPIKE, false);
+                            impaleTarget->RemoveAurasDueToSpell(SPELL_IMPALE_SHAKEGROUND);
                         }
                         ImpalePhase = IMPALE_PHASE_DMG;
                         ImpaleTimer = 1*IN_MILLISECONDS;
                         break;
                     case IMPALE_PHASE_DMG:
-                        if (Creature* pImpaleTarget = Unit::GetCreature(*me, ImpaleTarget))
-                            me->CastSpell(pImpaleTarget, DUNGEON_MODE(SPELL_IMPALE_DMG, SPELL_IMPALE_DMG_H), true);
+                        if (Creature* impaleTarget = Unit::GetCreature(*me, ImpaleTarget))
+                            me->CastSpell(impaleTarget, DUNGEON_MODE(SPELL_IMPALE_DMG, SPELL_IMPALE_DMG_H), true);
                         ImpalePhase = IMPALE_PHASE_TARGET;
                         ImpaleTimer = 9*IN_MILLISECONDS;
                         break;
