@@ -8,5 +8,5 @@ INSERT INTO `achievement_criteria_data` (`criteria_id`,`type`,`value1`,`value2`,
 (7177,12,1,0, ''),    -- hc mode only
 (7178,5,49346,1,''),  -- Emerald Drake
 (7178,12,1,0, ''),    -- hc mode only
-(7179,5,49464,1,'');  -- Ruby Drake
+(7179,5,49464,1,''),  -- Ruby Drake
 (7179,12,1,0, '');    -- hc mode only
