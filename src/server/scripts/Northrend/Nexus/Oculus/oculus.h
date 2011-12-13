@@ -71,6 +71,7 @@ enum OculusWorldStates
 
 enum OculusSpells
 {
-    SPELL_CENTRIFUGE_SHIELD = 50053
+    SPELL_CENTRIFUGE_SHIELD = 50053,
+    SPELL_DEATH_SPELL       = 50415
 };
 #endif
