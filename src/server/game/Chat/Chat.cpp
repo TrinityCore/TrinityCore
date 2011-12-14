@@ -303,29 +303,29 @@ ChatCommand* ChatHandler::getCommandTable()
 
     static ChatCommand ticketResponseCommandTable[] =
     {
-        { "append",         SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketResponseAppendCommand>,   "", NULL },
-        { "appendln",       SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketResponseAppendLnCommand>, "", NULL },
+        { "append",         SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketResponseAppendCommand>,   "", NULL },
+        { "appendln",       SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketResponseAppendLnCommand>, "", NULL },
         { NULL,             0,                  false, NULL,                                                "", NULL }
     };
 
     static ChatCommand ticketCommandTable[] =
     {
-        { "list",           SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketListCommand>,             "", NULL },
-        { "onlinelist",     SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketListOnlineCommand>,       "", NULL },
-        { "viewname",       SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketGetByNameCommand>,        "", NULL },
-        { "viewid",         SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketGetByIdCommand>,          "", NULL },
-        { "close",          SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketCloseByIdCommand>,        "", NULL },
-        { "closedlist",     SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketListClosedCommand>,       "", NULL },
-        { "escalatedlist",  SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandleGMTicketListEscalatedCommand>,    "", NULL },
-        { "delete",         SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleGMTicketDeleteByIdCommand>,       "", NULL },
-        { "reset",          SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleGMTicketResetCommand>,            "", NULL },
-        { "assign",         SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandleGMTicketAssignToCommand>,         "", NULL },
-        { "unassign",       SEC_GAMEMASTER,     false, OldHandler<&ChatHandler::HandleGMTicketUnAssignCommand>,         "", NULL },
-        { "comment",        SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketCommentCommand>,          "", NULL },
-        { "togglesystem",   SEC_ADMINISTRATOR,  false, OldHandler<&ChatHandler::HandleToggleGMTicketSystem>,            "", NULL },
-        { "escalate",       SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketEscalateCommand>,         "", NULL },
-        { "response",       SEC_MODERATOR,      false, NULL,                                                "", ticketResponseCommandTable },
-        { "complete",       SEC_MODERATOR,      false, OldHandler<&ChatHandler::HandleGMTicketCompleteCommand>,         "", NULL },
+        { "list",           SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketListCommand>,             "", NULL },
+        { "onlinelist",     SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketListOnlineCommand>,       "", NULL },
+        { "viewname",       SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketGetByNameCommand>,        "", NULL },
+        { "viewid",         SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketGetByIdCommand>,          "", NULL },
+        { "close",          SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketCloseByIdCommand>,        "", NULL },
+        { "closedlist",     SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketListClosedCommand>,       "", NULL },
+        { "escalatedlist",  SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleGMTicketListEscalatedCommand>,    "", NULL },
+        { "delete",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleGMTicketDeleteByIdCommand>,       "", NULL },
+        { "reset",          SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleGMTicketResetCommand>,            "", NULL },
+        { "assign",         SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleGMTicketAssignToCommand>,         "", NULL },
+        { "unassign",       SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleGMTicketUnAssignCommand>,         "", NULL },
+        { "comment",        SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketCommentCommand>,          "", NULL },
+        { "togglesystem",   SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleToggleGMTicketSystem>,            "", NULL },
+        { "escalate",       SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketEscalateCommand>,         "", NULL },
+        { "response",       SEC_MODERATOR,      true,  NULL,                                                "", ticketResponseCommandTable },
+        { "complete",       SEC_MODERATOR,      true,  OldHandler<&ChatHandler::HandleGMTicketCompleteCommand>,         "", NULL },
         { NULL,             0,                  false, NULL,                                                "", NULL }
     };
 
