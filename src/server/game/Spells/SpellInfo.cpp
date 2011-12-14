@@ -1755,6 +1755,14 @@ Mechanics SpellInfo::GetEffectMechanic(uint8 effIndex) const
     return MECHANIC_NONE;
 }
 
+bool SpellInfo::HasAnyEffectMechanic() const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (Effects[i].Mechanic)
+            return true;
+    return false;
+}
+
 uint32 SpellInfo::GetDispelMask() const
 {
     return GetDispelMask(DispelType(Dispel));
