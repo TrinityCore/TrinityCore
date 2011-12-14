@@ -997,7 +997,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
 
     // show time before shutdown if shutdown planned.
-    if (sWorld->IsShutdowning())
+    if (sWorld->IsShuttingDown())
         sWorld->ShutdownMsg(true, pCurrChar);
 
     if (sWorld->getBoolConfig(CONFIG_ALL_TAXI_PATHS))
