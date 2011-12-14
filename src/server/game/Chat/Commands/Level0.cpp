@@ -84,8 +84,8 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
 
 bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
 {
-    uint32 PlayersNum = sWorld->GetPlayerCount();
-    uint32 MaxPlayersNum = sWorld->GetMaxPlayerCount();
+    uint32 playersNum = sWorld->GetPlayerCount();
+    uint32 maxPlayersNum = sWorld->GetMaxPlayerCount();
     uint32 activeClientsNum = sWorld->GetActiveSessionCount();
     uint32 queuedClientsNum = sWorld->GetQueuedSessionCount();
     uint32 maxActiveClientsNum = sWorld->GetMaxActiveSessionCount();
@@ -94,10 +94,13 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     uint32 updateTime = sWorld->GetUpdateTime();
 
     SendSysMessage(_FULLVERSION);
-    PSendSysMessage(LANG_CONNECTED_PLAYERS, PlayersNum, MaxPlayersNum);
+    PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
-    PSendSysMessage("Update time diff: %u.", updateTime);
+    PSendSysMessage(LANG_UPDATE_DIFF, updateTime);
+    //! Can't use sWorld->ShutdownMsg here in case of console command
+    if (sWorld->IsShuttingDown())
+        PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());
 
     return true;
 }
