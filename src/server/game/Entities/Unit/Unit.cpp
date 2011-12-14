@@ -11448,7 +11448,8 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
                 return true;
     }
 
-    if (spellInfo->Mechanic)
+    // Spells that don't have effectMechanics.
+    if (!spellInfo->HasAnyEffectMechanic() && spellInfo->Mechanic)
     {
         SpellImmuneList const& mechanicList = m_spellImmune[IMMUNITY_MECHANIC];
         for (SpellImmuneList::const_iterator itr = mechanicList.begin(); itr != mechanicList.end(); ++itr)
@@ -11456,14 +11457,19 @@ bool Unit::IsImmunedToSpell(SpellInfo const* spellInfo)
                 return true;
     }
 
-    for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    bool immuneToAllEffects = true;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         // State/effect immunities applied by aura expect full spell immunity
         // Ignore effects with mechanic, they are supposed to be checked separately
-        if (!spellInfo->Effects[i].Mechanic)
-            if (IsImmunedToSpellEffect(spellInfo, i))
-                return true;
+        if (spellInfo->Effects[i].Mechanic || !IsImmunedToSpellEffect(spellInfo, i))
+        {
+            immuneToAllEffects = false;
+            break;
+        }
     }
+    if (immuneToAllEffects) //Return immune only if the target is immune to all spell effects.
+        return true;
 
     if (spellInfo->Id != 42292 && spellInfo->Id !=59752)
     {
