@@ -1752,6 +1752,27 @@ Channel.RestrictedLfg = 1
 Channel.SilentlyGMJoin = 0
 
 #
+#    Channel.GrantGMFullAccess
+#        Description: Allow GMs to join password-protected channels without having to get 
+#                     the password. You need to be under .gm on for this to work.
+#        Default:     1 - (Enabled, no password to enter for GMs)
+#                     0 - (Disabled, GMs will have to enter the password)
+
+Channel.GrantGMFullAccess = 1
+
+#
+#    Channel.PasswordBypassLevel
+#        Description: Allows you to choose which GM rank¸is at least required to be able to
+#                     bypass password checks on custom channels.
+#                     You need Channel.GrantGMFullAccess set to 1 for this option to be taken
+#                     into consideration.
+#        Default:     1 - Moderators
+#                     2 - Gamemaster
+#                     3 - Administrator
+
+Channel.PasswordBypassLevel = 1
+
+#
 #    ChatLevelReq.Channel
 #        Description: Level requirement for characters to be able to write in chat channels.
 #        Default:     1

@@ -162,14 +162,22 @@ void Channel::Join(uint64 p, const char *pass)
         return;
     }
 
+    Player* player = ObjectAccessor::FindPlayer(p);
+
     if (m_password.length() > 0 && strcmp(pass, m_password.c_str()))
     {
-        MakeWrongPassword(&data);
-        SendToOne(&data, p);
-        return;
-    }
+        bool sendReject = true;
+        if (sWorld->getBoolConfig(CONFIG_GRANT_CHANNELS_FULL_ACCESS_GM))
+            if (player && player->GetSession()->GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_GRANT_CHANNEL_ACCESS_GM_LEVEL_REQ)))
+                sendReject = false;
 
-    Player* player = ObjectAccessor::FindPlayer(p);
+        if (sendReject)
+        {
+            MakeWrongPassword(&data);
+            SendToOne(&data, p);
+            return;
+        }
+    }
 
     if (player)
     {
