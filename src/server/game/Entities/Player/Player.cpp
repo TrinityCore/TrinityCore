@@ -13300,11 +13300,7 @@ void Player::UpdateSoulboundTradeItems()
     // also checks for garbage data
     for (ItemDurationList::iterator itr = m_itemSoulboundTradeable.begin(); itr != m_itemSoulboundTradeable.end();)
     {
-        if (!*itr)
-        {
-            m_itemSoulboundTradeable.erase(itr++);
-            continue;
-        }
+        ASSERT(*itr);
         if ((*itr)->GetOwnerGUID() != GetGUID())
         {
             m_itemSoulboundTradeable.erase(itr++);
@@ -13319,16 +13315,10 @@ void Player::UpdateSoulboundTradeItems()
     }
 }
 
+//TODO: should never allow an item to be added to m_itemSoulboundTradeable twice
 void Player::RemoveTradeableItem(Item* item)
 {
-    for (ItemDurationList::iterator itr = m_itemSoulboundTradeable.begin(); itr != m_itemSoulboundTradeable.end(); ++itr)
-    {
-        if ((*itr) == item)
-        {
-            m_itemSoulboundTradeable.erase(itr);
-            break;
-        }
-    }
+    m_itemSoulboundTradeable.remove(item);
 }
 
 void Player::UpdateItemDuration(uint32 time, bool realtimeonly)
