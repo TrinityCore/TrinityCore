@@ -122,28 +122,29 @@ bool ChatHandler::HandleGMTicketCloseByIdCommand(const char* args)
         return true;
     }
 
-    // Ticket must be assigned to player, who tries to close it.
-    uint64 guid = m_session->GetPlayer()->GetGUID();
-    if (ticket->IsAssignedNotTo(guid))
+    // Ticket should be assigned to the player who tries to close it.
+    // Console can override though
+    Player* player = m_session ? m_session->GetPlayer() : NULL;
+    if (player && ticket->IsAssignedNotTo(player->GetGUID()))
     {
         PSendSysMessage(LANG_COMMAND_TICKETCANNOTCLOSE, ticket->GetId());
         return true;
     }
 
-    sTicketMgr->CloseTicket(ticket->GetId(), guid);
+    sTicketMgr->CloseTicket(ticket->GetId(), player ? player->GetGUID() : -1);
     sTicketMgr->UpdateLastChange();
 
-    std::string msg = ticket->FormatMessageString(*this, m_session->GetPlayer()->GetName(), NULL, NULL, NULL);
+    std::string msg = ticket->FormatMessageString(*this, player ? player->GetName() : "Console", NULL, NULL, NULL);
     SendGlobalGMSysMessage(msg.c_str());
 
     // Inform player, who submitted this ticket, that it is closed
-    if (Player* player = ticket->GetPlayer())
+    if (Player* submitter = ticket->GetPlayer())
     {
-        if (player->IsInWorld())
+        if (submitter->IsInWorld())
         {
             WorldPacket data(SMSG_GMTICKET_DELETETICKET, 4);
             data << uint32(GMTICKET_RESPONSE_TICKET_DELETED);
-            player->GetSession()->SendPacket(&data);
+            submitter->GetSession()->SendPacket(&data);
         }
     }
     return true;
