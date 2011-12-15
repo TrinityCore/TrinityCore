@@ -310,18 +310,22 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
             bool changeowner = (m_ownerGUID == bad->GetGUID());
 
             WorldPacket data;
+            bool notify = !(AccountMgr::IsGMAccount(sec) && sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL));
 
             if (ban && !IsBanned(bad->GetGUID()))
             {
                 banned.insert(bad->GetGUID());
-                MakePlayerBanned(&data, bad->GetGUID(), good);
-
                 UpdateChannelInDB();
+
+                if (notify)
+                    MakePlayerBanned(&data, bad->GetGUID(), good);
             }
-            else
+            else if (notify)
                 MakePlayerKicked(&data, bad->GetGUID(), good);
 
-            SendToAll(&data);
+            if (notify)
+                SendToAll(&data);
+
             players.erase(bad->GetGUID());
             bad->LeftChannel(this);
 

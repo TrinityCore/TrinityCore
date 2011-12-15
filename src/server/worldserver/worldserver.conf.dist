@@ -1745,7 +1745,8 @@ Channel.RestrictedLfg = 1
 
 #
 #    Channel.SilentlyGMJoin
-#        Description: Silently join GM characters to channels
+#        Description: Silently join GM characters to channels. If set to 1, channel kick and ban
+#                     commands issued by a GM will not be broadcasted.
 #        Default:     0 - (Disabled, Join with announcement)
 #                     1 - (Enabled, Join without announcement)
 
