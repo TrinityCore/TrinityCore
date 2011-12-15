@@ -104,7 +104,7 @@ void utf8print(void* /*arg*/, const char* str)
     printf(temp_buf);
 #else
 {
-    printf(str);
+    printf("%s", str);
     fflush(stdout);
 }
 #endif
