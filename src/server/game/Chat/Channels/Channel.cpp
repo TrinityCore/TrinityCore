@@ -168,7 +168,7 @@ void Channel::Join(uint64 p, const char *pass)
     {
         bool sendReject = true;
         if (sWorld->getBoolConfig(CONFIG_GRANT_CHANNELS_FULL_ACCESS_GM))
-            if (player && player->isGameMaster())
+            if (player && player->GetSession()->GetSecurity() >= AccountTypes(sWorld->getIntConfig(CONFIG_GRANT_CHANNEL_ACCES_GM_LEVEL_REQ)))
                 sendReject = false;
 
         if (sendReject)
