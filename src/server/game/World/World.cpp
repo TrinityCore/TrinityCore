@@ -987,7 +987,7 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_CHAT_FAKE_MESSAGE_PREVENTING] = ConfigMgr::GetBoolDefault("ChatFakeMessagePreventing", false);
     m_int_configs[CONFIG_CHAT_STRICT_LINK_CHECKING_SEVERITY] = ConfigMgr::GetIntDefault("ChatStrictLinkChecking.Severity", 0);
     m_int_configs[CONFIG_CHAT_STRICT_LINK_CHECKING_KICK] = ConfigMgr::GetIntDefault("ChatStrictLinkChecking.Kick", 0);
-    m_int_configs[CONFIG_GRANT_CHANNEL_ACCES_GM_LEVEL_REQ] = ConfigMgr::GetIntDefault("Channel.PasswordBypassLevel", 1);
+    m_int_configs[CONFIG_GRANT_CHANNEL_ACCESS_GM_LEVEL_REQ] = ConfigMgr::GetIntDefault("Channel.PasswordBypassLevel", 1);
 
     m_int_configs[CONFIG_CORPSE_DECAY_NORMAL]    = ConfigMgr::GetIntDefault("Corpse.Decay.NORMAL", 60);
     m_int_configs[CONFIG_CORPSE_DECAY_RARE]      = ConfigMgr::GetIntDefault("Corpse.Decay.RARE", 300);
