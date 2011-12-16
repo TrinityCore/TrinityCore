@@ -6497,7 +6497,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     RemoveAura(57934);
                     if (!redirectTarget)
                         break;
-                    redirectTarget->CastSpell(this,59628,true);
+                    CastSpell(this,59628,true);
                     CastSpell(redirectTarget,57933,true);
                     break;
                 }
