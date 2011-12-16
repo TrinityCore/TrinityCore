@@ -312,7 +312,8 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     uint32 type;
     std::string name = "NO_NAME_FOR_GUID";
 
-    QueryResult result = CharacterDatabase.PQuery("SELECT ownerguid, name, type"
+    // TODO: Use CHAR_LOAD_PETITION PS
+    QueryResult result = CharacterDatabase.PQuery("SELECT ownerguid, name, type "
         "FROM petition WHERE petitionguid = '%u'", GUID_LOPART(petitionguid));
 
     if (result)
