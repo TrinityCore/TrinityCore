@@ -342,10 +342,9 @@ bool AuthSocket::_HandleLogonChallenge()
 
     _login = (const char*)ch->I;
     _build = ch->build;
-    _expversion = (AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : NO_VALID_EXP_FLAG) | (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG);
 
-    pkt << (uint8)AUTH_LOGON_CHALLENGE;
-    pkt << (uint8)0x00;
+    pkt << uint8(AUTH_LOGON_CHALLENGE);
+    pkt << uint8(0x00);
 
     // Verify that this IP is not in the ip_banned table
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_SET_EXPIREDIPBANS));
@@ -356,7 +355,7 @@ bool AuthSocket::_HandleLogonChallenge()
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (result)
     {
-        pkt << (uint8)WOW_FAIL_BANNED;
+        pkt << uint8(WOW_FAIL_BANNED);
         sLog->outBasic("[AuthChallenge] Banned ip %s tried to login!", ip_address.c_str());
     }
     else
@@ -381,7 +380,7 @@ bool AuthSocket::_HandleLogonChallenge()
                 if (strcmp(fields[3].GetCString(), ip_address.c_str()))
                 {
                     sLog->outStaticDebug("[AuthChallenge] Account IP differs");
-                    pkt << (uint8) WOW_FAIL_SUSPENDED;
+                    pkt << uint8(WOW_FAIL_SUSPENDED);
                     locked = true;
                 }
                 else
@@ -403,12 +402,12 @@ bool AuthSocket::_HandleLogonChallenge()
                 {
                     if ((*banresult)[0].GetUInt64() == (*banresult)[1].GetUInt64())
                     {
-                        pkt << (uint8)WOW_FAIL_BANNED;
+                        pkt << uint8(WOW_FAIL_BANNED);
                         sLog->outBasic("[AuthChallenge] Banned account %s tried to login!", _login.c_str());
                     }
                     else
                     {
-                        pkt << (uint8)WOW_FAIL_SUSPENDED;
+                        pkt << uint8(WOW_FAIL_SUSPENDED);
                         sLog->outBasic("[AuthChallenge] Temporarily banned account %s tried to login!", _login.c_str());
                     }
                 }
@@ -442,7 +441,11 @@ bool AuthSocket::_HandleLogonChallenge()
                     unk3.SetRand(16 * 8);
 
                     // Fill the response packet with the result
-                    pkt << uint8(WOW_SUCCESS);
+                    // If the client has no valid version
+                    if (!AuthHelper::IsAcceptedClientBuild(_build))
+                        pkt << uint8(WOW_FAIL_VERSION_INVALID);
+                    else
+                        pkt << uint8(WOW_SUCCESS);
 
                     // B may be calculated < 32B so we force minimal length to 32B
                     pkt.append(B.AsByteArray(32), 32);      // 32 bytes
@@ -485,7 +488,7 @@ bool AuthSocket::_HandleLogonChallenge()
             }
         }
         else                                                //no account
-            pkt << (uint8)WOW_FAIL_UNKNOWN_ACCOUNT;
+            pkt << uint8(WOW_FAIL_UNKNOWN_ACCOUNT);
     }
 
     socket().send((char const*)pkt.contents(), pkt.size());
@@ -501,15 +504,6 @@ bool AuthSocket::_HandleLogonProof()
 
     if (!socket().recv((char *)&lp, sizeof(sAuthLogonProof_C)))
         return false;
-
-    // If the client has no valid version
-    if (_expversion == NO_VALID_EXP_FLAG)
-    {
-        // Check if we have the appropriate patch on the disk
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "Client with invalid version, patching is not implemented");
-        socket().shutdown();
-        return true;
-    }
 
     // Continue the SRP6 calculation based on data received from the client
     BigNumber A;
@@ -610,26 +604,14 @@ bool AuthSocket::_HandleLogonProof()
         sha.UpdateBigNumbers(&A, &M, &K, NULL);
         sha.Finalize();
 
-        if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
-        {
-            sAuthLogonProof_S proof;
-            memcpy(proof.M2, sha.GetDigest(), 20);
-            proof.cmd = AUTH_LOGON_PROOF;
-            proof.error = 0;
-            proof.unk1 = 0x00800000;    // Accountflags. 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
-            proof.unk2 = 0x00;          // SurveyId
-            proof.unk3 = 0x00;
-            socket().send((char *)&proof, sizeof(proof));
-        }
-        else
-        {
-            sAuthLogonProof_S_Old proof;
-            memcpy(proof.M2, sha.GetDigest(), 20);
-            proof.cmd = AUTH_LOGON_PROOF;
-            proof.error = 0;
-            proof.unk2 = 0x00;
-            socket().send((char *)&proof, sizeof(proof));
-        }
+        sAuthLogonProof_S proof;
+        memcpy(proof.M2, sha.GetDigest(), 20);
+        proof.cmd = AUTH_LOGON_PROOF;
+        proof.error = 0;
+        proof.unk1 = 0x00800000;    // Accountflags. 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+        proof.unk2 = 0x00;          // SurveyId
+        proof.unk3 = 0x00;
+        socket().send((char *)&proof, sizeof(proof));
 
         _authed = true;
     }
@@ -737,7 +719,6 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     // Reinitialize build, expansion and the account securitylevel
     _build = ch->build;
-    _expversion = (AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : NO_VALID_EXP_FLAG) | (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG);
 
     Field* fields = result->Fetch();
     uint8 secLevel = fields[2].GetUInt8();
@@ -747,11 +728,11 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     // Sending response
     ByteBuffer pkt;
-    pkt << (uint8)AUTH_RECONNECT_CHALLENGE;
-    pkt << (uint8)0x00;
+    pkt << uint8(AUTH_RECONNECT_CHALLENGE);
+    pkt << uint8(0x00);
     _reconnectProof.SetRand(16 * 8);
     pkt.append(_reconnectProof.AsByteArray(16), 16);        // 16 bytes random
-    pkt << (uint64)0x00 << (uint64)0x00;                    // 16 bytes zeros
+    pkt << uint64(0x00) << uint64(0x00);                    // 16 bytes zeros
     socket().send((char const*)pkt.contents(), pkt.size());
     return true;
 }
@@ -781,9 +762,9 @@ bool AuthSocket::_HandleReconnectProof()
     {
         // Sending response
         ByteBuffer pkt;
-        pkt << (uint8)AUTH_RECONNECT_PROOF;
-        pkt << (uint8)0x00;
-        pkt << (uint16)0x00;                               // 2 bytes zeros
+        pkt << uint8(AUTH_RECONNECT_PROOF);
+        pkt << uint8(0x00);
+        pkt << uint16(0x00);                               // 2 bytes zeros
         socket().send((char const*)pkt.contents(), pkt.size());
         _authed = true;
         return true;
@@ -830,10 +811,8 @@ bool AuthSocket::_HandleRealmList()
     for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
     {
         // don't work with realms which not compatible with the client
-        if ((_expversion & POST_BC_EXP_FLAG) && i->second.gamebuild != _build)
+        if (i->second.gamebuild != _build)
             continue;
-        else if ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(i->second.gamebuild))
-                continue;
 
         uint8 AmountOfCharacters;
 
@@ -850,44 +829,30 @@ bool AuthSocket::_HandleRealmList()
         uint8 lock = (i->second.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
 
         pkt << i->second.icon;                              // realm type
-        if ( _expversion & POST_BC_EXP_FLAG )               // only 2.x and 3.x clients
-            pkt << lock;                                    // if 1, then realm locked
+        pkt << lock;                                    // if 1, then realm locked
         pkt << i->second.color;                             // if 2, then realm is offline
         pkt << i->first;
         pkt << i->second.address;
         pkt << i->second.populationLevel;
         pkt << AmountOfCharacters;
         pkt << i->second.timezone;                          // realm category
-        if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
-            pkt << (uint8)0x2C;                             // unk, may be realm number/id?
-        else
-            pkt << (uint8)0x0;                              // 1.12.1 and 1.12.2 clients
+        pkt << uint8(0x2C);                             // unk, may be realm number/id?
 
         ++RealmListSize;
     }
-
-    if ( _expversion & POST_BC_EXP_FLAG )                   // 2.x and 3.x clients
-    {
-        pkt << (uint8)0x10;
-        pkt << (uint8)0x00;
-    }
-    else                                                    // 1.12.1 and 1.12.2 clients
-    {
-        pkt << (uint8)0x00;
-        pkt << (uint8)0x02;
-    }
+    
+    pkt << uint8(0x10);
+    pkt << uint8(0x00);
+    
 
     // make a ByteBuffer which stores the RealmList's size
     ByteBuffer RealmListSizeBuffer;
     RealmListSizeBuffer << (uint32)0;
-    if (_expversion & POST_BC_EXP_FLAG)                     // only 2.x and 3.x clients
-        RealmListSizeBuffer << (uint16)RealmListSize;
-    else
-        RealmListSizeBuffer << (uint32)RealmListSize;
+    RealmListSizeBuffer << uint16(RealmListSize);
 
     ByteBuffer hdr;
-    hdr << (uint8) REALM_LIST;
-    hdr << (uint16)(pkt.size() + RealmListSizeBuffer.size());
+    hdr << uint8(REALM_LIST);
+    hdr << uint16((pkt.size() + RealmListSizeBuffer.size()));
     hdr.append(RealmListSizeBuffer);                        // append RealmList's size buffer
     hdr.append(pkt);                                        // append realms in the realmlist
 
