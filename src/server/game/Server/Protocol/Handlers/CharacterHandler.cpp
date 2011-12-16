@@ -791,7 +791,7 @@ void WorldSession::HandlePlayerLoginOpcode(WorldPacket & recv_data)
     _charLoginCallback = CharacterDatabase.DelayQueryHolder((SQLQueryHolder*)holder);
 }
 
-void WorldSession::HandlePlayerLogin(LoginQueryHolder * holder)
+void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 {
     uint64 playerGuid = holder->GetGuid();
 
