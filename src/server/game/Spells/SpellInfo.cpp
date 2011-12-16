@@ -2304,6 +2304,18 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
             if (Id == 30708)
                 return false;
             break;
+        case SPELLFAMILY_ROGUE: 
+        // Envenom (buff is positive effect but because of the damage effect its being counted as a negative effect)
+            switch(Id) {
+                case 32645:
+                case 32684:
+                case 57992:
+                case 57993:
+                    return true;
+                default:
+                    break
+            }
+            break;
         default:
             break;
     }
