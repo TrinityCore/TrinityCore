@@ -1518,7 +1518,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                                 spellId3 = 47180;
                                 break;
                         }
-                        target->CastSpell(target, spellId, true, NULL, this);
+                        target->CastSpell(target, spellId3, true, NULL, this);
                     }
                     // Master Shapeshifter - Cat
                     if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
