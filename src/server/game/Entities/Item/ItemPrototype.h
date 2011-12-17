@@ -199,6 +199,7 @@ enum ItemFlagsExtra
     ITEM_FLAGS_EXTRA_EXT_COST_REQUIRES_GOLD  = 0x00000004, // when item uses extended cost, gold is also required
     ITEM_FLAGS_EXTRA_NEED_ROLL_DISABLED      = 0x00000100,
     ITEM_FLAGS_EXTRA_CASTER_WEAPON           = 0x00000200,
+    ITEM_FLAGS_EXTRA_BNET_ACCOUNT_BOUND      = 0x00020000,
 };
 
 enum BAG_FAMILY_MASK
