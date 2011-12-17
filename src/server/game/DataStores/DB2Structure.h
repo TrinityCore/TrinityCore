@@ -30,6 +30,13 @@
 #include <set>
 #include <vector>
 
+// GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
+#if defined(__GNUC__)
+#pragma pack(1)
+#else
+#pragma pack(push, 1)
+#endif
+
 // Structures used to access raw DB2 data and required packing to portability
 struct ItemEntry
 {
@@ -137,5 +144,12 @@ struct ItemExtendedCostEntry
     uint32      RequiredCurrencyCount[MAX_ITEM_EXT_COST_CURRENCIES];// 21-25 required curency count
     //uint32    Unknown[5];                               // 26-30
 };
+
+// GCC has alternative #pragma pack(N) syntax and old gcc version does not support pack(push, N), also any gcc version does not support it at some platform
+#if defined(__GNUC__)
+#pragma pack()
+#else
+#pragma pack(pop)
+#endif
 
 #endif
