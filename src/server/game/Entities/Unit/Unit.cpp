@@ -5543,7 +5543,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         case CLASS_DRUID:
                             RandomSpells.push_back(71484);
                             RandomSpells.push_back(71485);
-                            RandomSpells.push_back(71486);
+                            RandomSpells.push_back(71492);
                             break;
                         case CLASS_HUNTER:
                             RandomSpells.push_back(71486);
@@ -5589,7 +5589,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         case CLASS_DRUID:
                             RandomSpells.push_back(71561);
                             RandomSpells.push_back(71556);
-                            RandomSpells.push_back(71558);
+                            RandomSpells.push_back(71560);
                             break;
                         case CLASS_HUNTER:
                             RandomSpells.push_back(71558);
@@ -6578,7 +6578,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     RemoveAura(57934);
                     if (!redirectTarget)
                         break;
-                    redirectTarget->CastSpell(this,59628,true);
+                    CastSpell(this,59628,true);
                     CastSpell(redirectTarget,57933,true);
                     break;
                 }
