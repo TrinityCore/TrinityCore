@@ -717,14 +717,14 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,22,145.1794,-242.7074,110.8712,0,0,0,100,0);
 DELETE FROM `waypoint_scripts` WHERE `id` IN (@PATH+1,@PATH+2,@PATH+3);
 INSERT INTO `waypoint_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`o`,`guid`) VALUES
-(@PATH+1,0,30,0,0,5.759586,854),
-(@PATH+1,3,1,69,1,0,855),
-(@PATH+2,0,30,0,0,0.715585,856),
-(@PATH+2,4,1,133,1,0,857),
-(@PATH+2,39,1,0,1,0,858),
-(@PATH+3,0,30,0,0,1.801312,859),
-(@PATH+3,1,1,28,1,0,860),
-(@PATH+3,22,1,0,1,0,861);
+(@PATH+1,0,30,0,0,5.759586,89),
+(@PATH+1,3,1,69,1,0,90),
+(@PATH+2,0,30,0,0,0.715585,91),
+(@PATH+2,4,1,133,1,0,92),
+(@PATH+2,39,1,0,1,0,93),
+(@PATH+3,0,30,0,0,1.801312,94),
+(@PATH+3,1,1,28,1,0,95),
+(@PATH+3,22,1,0,1,0,96);
  
 -- Pathing for Rage Talon Captain Entry: 10371
 SET @NPC := @GUID+42;
@@ -826,12 +826,12 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,4,70.94958,-282.0711,60.60775,24000,0,@PATH+2,100,0);
 DELETE FROM `waypoint_scripts` WHERE `id` IN (@PATH+1,@PATH+2);
 INSERT INTO `waypoint_scripts` (`id`,`delay`,`command`,`datalong`,`datalong2`,`o`,`guid`) VALUES
-(@PATH+1,2,2,74,1,0,862),
-(@PATH+1,2,1,7,0,0,863),
-(@PATH+1,24,2,74,0,0,864),
-(@PATH+2,0,30,0,0,3.892084,865),
-(@PATH+2,7,1,69,1,0,866),
-(@PATH+2,16,1,0,1,0,867);
+(@PATH+1,2,2,74,1,0,97),
+(@PATH+1,2,1,7,0,0,98),
+(@PATH+1,24,2,74,0,0,99),
+(@PATH+2,0,30,0,0,3.892084,100),
+(@PATH+2,7,1,69,1,0,101),
+(@PATH+2,16,1,0,1,0,102);
  
 -- Pathing for Scarshield Legionnaire Entry: 9097
 SET @NPC := @GUID+209;
