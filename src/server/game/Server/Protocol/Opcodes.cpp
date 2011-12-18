@@ -517,7 +517,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(SMSG_FISH_NOT_HOOKED,                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_FISH_ESCAPED,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_BUG,                                     STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBugOpcode                 );
-     //DEFINE_OPCODE_HANDLER(SMSG_NOTIFICATION,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_NOTIFICATION,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(CMSG_PLAYED_TIME,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandlePlayedTime                );
      //DEFINE_OPCODE_HANDLER(SMSG_PLAYED_TIME,                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(CMSG_QUERY_TIME,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQueryTimeOpcode           );
@@ -580,9 +580,9 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(CMSG_GMTICKET_UPDATETEXT,                     STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGMTicketUpdateOpcode      );
      //DEFINE_OPCODE_HANDLER(SMSG_GMTICKET_UPDATETEXT,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(SMSG_ACCOUNT_DATA_TIMES,                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-     //DEFINE_OPCODE_HANDLER(CMSG_REQUEST_ACCOUNT_DATA,                    STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleRequestAccountData        );
+     DEFINE_OPCODE_HANDLER(CMSG_REQUEST_ACCOUNT_DATA,                    STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleRequestAccountData        );
      DEFINE_OPCODE_HANDLER(CMSG_UPDATE_ACCOUNT_DATA,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleUpdateAccountData         );
-     //DEFINE_OPCODE_HANDLER(SMSG_UPDATE_ACCOUNT_DATA,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_UPDATE_ACCOUNT_DATA,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE,               STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_CHANGEPLAYER_DIFFICULTY_RESULT,          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_GM_TEACH,                                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
@@ -887,7 +887,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(SMSG_DEFENSE_MESSAGE,                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_INSTANCE_DIFFICULTY,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(MSG_GM_RESETINSTANCELIMIT,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-     //DEFINE_OPCODE_HANDLER(SMSG_MOTD,                                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_MOTD,                                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, STATUS_NEVER, PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_MOVE_UNSET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY, STATUS_NEVER, PROCESS_INPLACE,    &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_MOVE_SET_CAN_TRANSITION_BETWEEN_SWIM_AND_FLY_ACK, STATUS_NEVER, PROCESS_INPLACE,  &WorldSession::Handle_NULL                     );
