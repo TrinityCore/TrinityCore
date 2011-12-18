@@ -582,7 +582,7 @@ public:
                         {
                             Unit* pJaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 50.0f);
                             if (!pJaina)
-                                pJaina = pJaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000);
+                                pJaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000);
                             if (pJaina)
                                 uiJainaGUID = pJaina->GetGUID();
                             bStepping = false;
