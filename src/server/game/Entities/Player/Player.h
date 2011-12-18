@@ -1536,8 +1536,8 @@ class Player : public Unit, public GridObject<Player>
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid);
 
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE ; }
-        static bool IsValidClass(uint8 Class) { return (1 << Class - 1) & CLASSMASK_ALL_PLAYABLE; }
-        static bool IsValidRace(uint8 Race) { return (1 << Race - 1) & RACEMASK_ALL_PLAYABLE; }
+        static bool IsValidClass(uint8 Class) { return (1 << (Class - 1)) & CLASSMASK_ALL_PLAYABLE; }
+        static bool IsValidRace(uint8 Race) { return (1 << (Race - 1)) & RACEMASK_ALL_PLAYABLE; }
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
