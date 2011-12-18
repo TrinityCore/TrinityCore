@@ -878,19 +878,18 @@ void WorldSession::HandleRepairItemOpcode(WorldPacket & recv_data)
     // reputation discount
     float discountMod = _player->GetReputationPriceDiscount(unit);
 
-    uint32 TotalCost = 0;
     if (itemGUID)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair item, itemGUID = %u, npcGUID = %u", GUID_LOPART(itemGUID), GUID_LOPART(npcGUID));
 
         Item* item = _player->GetItemByGuid(itemGUID);
         if (item)
-            TotalCost = _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank);
+            _player->DurabilityRepair(item->GetPos(), true, discountMod, guildBank);
     }
     else
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "ITEM: Repair all items, npcGUID = %u", GUID_LOPART(npcGUID));
-        TotalCost = _player->DurabilityRepairAll(true, discountMod, guildBank);
+        _player->DurabilityRepairAll(true, discountMod, guildBank);
     }
 }
 
