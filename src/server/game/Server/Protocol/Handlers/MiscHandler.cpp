@@ -613,22 +613,24 @@ void WorldSession::HandleAddIgnoreOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_ADD_IGNORE");
 
-    std::string IgnoreName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
+    std::string ignoreName = GetTrinityString(LANG_FRIEND_IGNORE_UNKNOWN);
 
-    recv_data >> IgnoreName;
+    recv_data >> ignoreName;
 
-    if (!normalizePlayerName(IgnoreName))
+    if (!normalizePlayerName(ignoreName))
         return;
 
-    CharacterDatabase.EscapeString(IgnoreName);            // prevent SQL injection - normal name must not be changed by this call
-
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to Ignore: '%s'",
-        GetPlayer()->GetName(), IgnoreName.c_str());
+        GetPlayer()->GetName(), ignoreName.c_str());
 
-    _addIgnoreCallback = CharacterDatabase.AsyncPQuery("SELECT guid FROM characters WHERE name = '%s'", IgnoreName.c_str());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_BY_NAME);
+
+    stmt->setString(0, ignoreName);
+
+    _addIgnoreCallback = CharacterDatabase.AsyncQuery(stmt);
 }
 
-void WorldSession::HandleAddIgnoreOpcodeCallBack(QueryResult result)
+void WorldSession::HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result)
 {
     if (!GetPlayer())
         return;
