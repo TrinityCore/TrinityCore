@@ -78,7 +78,7 @@ enum ItemModType
     ITEM_MOD_ARCANE_RESISTANCE        = 56,
 };
 
-#define MAX_ITEM_MOD                    49
+#define MAX_ITEM_MOD                    57
 
 enum ItemSpelltriggerType
 {
@@ -148,7 +148,7 @@ enum ItemProtoFlags
     ITEM_PROTO_FLAG_TRIGGERED_CAST              = 0x10000000, // Spell is cast with triggered flag
     ITEM_PROTO_FLAG_MILLABLE                    = 0x20000000, // Item can be milled
     ITEM_PROTO_FLAG_UNK11                       = 0x40000000, // ?
-    ITEM_PROTO_FLAG_UNK12                       = 0x80000000  // ?
+    ITEM_PROTO_FLAG_BOP_TRADEABLE               = 0x80000000  // bound item that can be traded
 };
 
 /* TODO

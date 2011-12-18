@@ -1629,7 +1629,7 @@ struct SpellEffectEntry
     uint32    EffectImplicitTargetB;                        // 23        m_implicitTargetB
     uint32    EffectSpellId;                                // 24        new 4.0.0
     uint32    EffectIndex;                                  // 25        new 4.0.0
-    //uint32  Unk0                                          // 26        4.2.0
+    //uint32  Unk0                                          // 26        4.2.0 only 0 or 1
 };
 
 #define MAX_SPELL_EFFECTS 3
