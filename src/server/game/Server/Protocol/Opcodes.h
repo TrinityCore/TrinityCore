@@ -1021,7 +1021,7 @@ enum Opcodes
     SMSG_WHO                                         = 0x4C7F,
     SMSG_WHOIS                                       = 0x00,
     SMSG_WORLD_STATE_UI_TIMER_UPDATE                 = 0x00,
-    SMSG_ZONE_UNDER_ATTACK                           = 0x00,
+    SMSG_ZONE_UNDER_ATTACK                           = 0x8CF,
 
     SMSG_VERIFY_CONNECTIVITY                         = 0x4F57,
     CMSG_VERIFY_CONNECTIVITY_RESPONSE                = 0x4C52, //1280462679, //  special opcode, client sends as uint32
