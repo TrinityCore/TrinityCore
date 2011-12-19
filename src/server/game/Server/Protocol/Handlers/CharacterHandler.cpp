@@ -196,7 +196,7 @@ bool LoginQueryHolder::Initialize()
     return res;
 }
 
-void WorldSession::HandleCharEnum(QueryResult result)
+void WorldSession::HandleCharEnum(PreparedQueryResult result)
 {
     WorldPacket data(SMSG_CHAR_ENUM, 100);                  // we guess size
 
@@ -232,35 +232,16 @@ void WorldSession::HandleCharEnumOpcode(WorldPacket & /*recv_data*/)
     CharacterDatabase.Execute(stmt);
 
     /// get all the data necessary for loading all characters (along with their pets) on the account
-    _charEnumCallback =
-        CharacterDatabase.AsyncPQuery(
-             !sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED) ?
-            //   ------- Query Without Declined Names --------
-            //           0               1                2                3                 4                  5                       6                        7
-                "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
-            //   8                9               10                     11                     12                     13                    14
-                "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-            //  15                    16                   17                     18                   19                         20
-                "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, character_banned.guid "
-                "FROM characters LEFT JOIN character_pet ON characters.guid=character_pet.owner AND character_pet.slot='%u' "
-                "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
-                "LEFT JOIN character_banned ON characters.guid = character_banned.guid AND character_banned.active = 1 "
-                "WHERE characters.account = '%u' ORDER BY characters.guid"
-                :
-            //   --------- Query With Declined Names ---------
-            //           0               1                2                3                 4                  5                       6                        7
-                "SELECT characters.guid, characters.name, characters.race, characters.class, characters.gender, characters.playerBytes, characters.playerBytes2, characters.level, "
-            //   8                9               10                     11                     12                     13                    14
-                "characters.zone, characters.map, characters.position_x, characters.position_y, characters.position_z, guild_member.guildid, characters.playerFlags, "
-            //  15                    16                   17                     18                   19                         20                     21
-                "characters.at_login, character_pet.entry, character_pet.modelid, character_pet.level, characters.equipmentCache, character_banned.guid, character_declinedname.genitive "
-                "FROM characters LEFT JOIN character_pet ON characters.guid = character_pet.owner AND character_pet.slot='%u' "
-                "LEFT JOIN character_declinedname ON characters.guid = character_declinedname.guid "
-                "LEFT JOIN guild_member ON characters.guid = guild_member.guid "
-                "LEFT JOIN character_banned ON characters.guid = character_banned.guid AND character_banned.active = 1 "
-                "WHERE characters.account = '%u' ORDER BY characters.guid",
-                PET_SAVE_AS_CURRENT, GetAccountId()
-            );
+
+    if (sWorld->getBoolConfig(CONFIG_DECLINED_NAMES_USED))
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_ENUM_DECLINED_NAME);
+    else
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_ENUM);
+
+    stmt->setUInt8(0, PET_SAVE_AS_CURRENT);
+    stmt->setUInt32(1, GetAccountId());
+
+    _charEnumCallback = CharacterDatabase.AsyncQuery(stmt);
 }
 
 void WorldSession::HandleCharCreateOpcode(WorldPacket & recv_data)
@@ -1102,13 +1083,13 @@ void WorldSession::HandleShowingCloakOpcode(WorldPacket& recv_data)
 void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
 {
     uint64 guid;
-    std::string newname;
+    std::string newName;
 
     recv_data >> guid;
-    recv_data >> newname;
+    recv_data >> newName;
 
     // prevent character rename to invalid name
-    if (!normalizePlayerName(newname))
+    if (!normalizePlayerName(newName))
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
         data << uint8(CHAR_NAME_NO_NAME);
@@ -1116,7 +1097,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
         return;
     }
 
-    uint8 res = ObjectMgr::CheckPlayerName(newname, true);
+    uint8 res = ObjectMgr::CheckPlayerName(newName, true);
     if (res != CHAR_NAME_SUCCESS)
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
@@ -1126,7 +1107,7 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
     }
 
     // check name limitations
-    if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newname))
+    if (AccountMgr::IsPlayerAccount(GetSecurity()) && sObjectMgr->IsReservedName(newName))
     {
         WorldPacket data(SMSG_CHAR_RENAME, 1);
         data << uint8(CHAR_NAME_RESERVED);
@@ -1134,21 +1115,22 @@ void WorldSession::HandleCharRenameOpcode(WorldPacket& recv_data)
         return;
     }
 
-    std::string escaped_newname = newname;
-    CharacterDatabase.EscapeString(escaped_newname);
-
-    // make sure that the character belongs to the current account, that rename at login is enabled
+    // Ensure that the character belongs to the current account, that rename at login is enabled
     // and that there is no character with the desired new name
-    _charRenameCallback.SetParam(newname);
-    _charRenameCallback.SetFutureResult(
-        CharacterDatabase.AsyncPQuery(
-        "SELECT guid, name FROM characters WHERE guid = %d AND account = %d AND (at_login & %d) = %d AND NOT EXISTS (SELECT NULL FROM characters WHERE name = '%s')",
-        GUID_LOPART(guid), GetAccountId(), AT_LOGIN_RENAME, AT_LOGIN_RENAME, escaped_newname.c_str()
-        )
-    );
+    _charRenameCallback.SetParam(newName);
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_FREE_NAME);
+
+    stmt->setUInt32(0, GUID_LOPART(guid));
+    stmt->setUInt32(1, GetAccountId());
+    stmt->setUInt16(2, AT_LOGIN_RENAME);
+    stmt->setUInt16(3, AT_LOGIN_RENAME);
+    stmt->setString(4, newName);
+
+    _charRenameCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult result, std::string newname)
+void WorldSession::HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string newName)
 {
     if (!result)
     {
@@ -1158,22 +1140,38 @@ void WorldSession::HandleChangePlayerNameOpcodeCallBack(QueryResult result, std:
         return;
     }
 
-    uint32 guidLow = result->Fetch()[0].GetUInt32();
+    Field* fields = result->Fetch();
+
+    uint32 guidLow      = fields[0].GetUInt32();
+    std::string oldName = fields[1].GetString();
+
     uint64 guid = MAKE_NEW_GUID(guidLow, 0, HIGHGUID_PLAYER);
-    std::string oldname = result->Fetch()[1].GetString();
 
-    CharacterDatabase.PExecute("UPDATE characters set name = '%s', at_login = at_login & ~ %u WHERE guid ='%u'", newname.c_str(), uint32(AT_LOGIN_RENAME), guidLow);
-    CharacterDatabase.PExecute("DELETE FROM character_declinedname WHERE guid ='%u'", guidLow);
+    // Update name and at_login flag in the db
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_NAME);
 
-    sLog->outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldname.c_str(), guidLow, newname.c_str());
+    stmt->setString(0, newName);
+    stmt->setUInt16(1, AT_LOGIN_RENAME);
+    stmt->setUInt32(2, guidLow);
 
-    WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newname.size()+1));
+    CharacterDatabase.Execute(stmt);
+
+    // Removed declined name from db
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_DECLINED_NAME);
+
+    stmt->setUInt32(0, guidLow);
+
+    CharacterDatabase.Execute(stmt);
+
+    sLog->outChar("Account: %d (IP: %s) Character:[%s] (guid:%u) Changed name to: %s", GetAccountId(), GetRemoteAddress().c_str(), oldName.c_str(), guidLow, newName.c_str());
+
+    WorldPacket data(SMSG_CHAR_RENAME, 1+8+(newName.size()+1));
     data << uint8(RESPONSE_SUCCESS);
     data << uint64(guid);
-    data << newname;
+    data << newName;
     SendPacket(&data);
 
-    sWorld->UpdateCharacterNameData(guidLow, newname);
+    sWorld->UpdateCharacterNameData(guidLow, newName);
 }
 
 void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
