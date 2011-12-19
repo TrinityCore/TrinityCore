@@ -998,12 +998,13 @@ void WorldSession::InitializeQueryCallbackParameters()
 void WorldSession::ProcessQueryCallbacks()
 {
     QueryResult result;
+    PreparedQueryResult result2;
 
     //! HandleCharEnumOpcode
     if (_charEnumCallback.ready())
     {
-        _charEnumCallback.get(result);
-        HandleCharEnum(result);
+        _charEnumCallback.get(result2);
+        HandleCharEnum(result2);
         _charEnumCallback.cancel();
     }
 
@@ -1037,16 +1038,16 @@ void WorldSession::ProcessQueryCallbacks()
     if (_charRenameCallback.IsReady())
     {
         std::string param = _charRenameCallback.GetParam();
-        _charRenameCallback.GetResult(result);
-        HandleChangePlayerNameOpcodeCallBack(result, param);
+        _charRenameCallback.GetResult(result2);
+        HandleChangePlayerNameOpcodeCallBack(result2, param);
         _charRenameCallback.FreeResult();
     }
 
     //- HandleCharAddIgnoreOpcode
     if (_addIgnoreCallback.ready())
     {
-        _addIgnoreCallback.get(result);
-        HandleAddIgnoreOpcodeCallBack(result);
+        _addIgnoreCallback.get(result2);
+        HandleAddIgnoreOpcodeCallBack(result2);
         _addIgnoreCallback.cancel();
     }
 
@@ -1062,8 +1063,8 @@ void WorldSession::ProcessQueryCallbacks()
     //- HandleStablePet
     if (_stablePetCallback.ready())
     {
-        _stablePetCallback.get(result);
-        HandleStablePetCallback(result);
+        _stablePetCallback.get(result2);
+        HandleStablePetCallback(result2);
         _stablePetCallback.cancel();
     }
 
