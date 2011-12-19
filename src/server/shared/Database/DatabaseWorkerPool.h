@@ -158,6 +158,7 @@ class DatabaseWorkerPool
         }
 
         //! Enqueues a one-way SQL operation in prepared statement format that will be executed asynchronously.
+        //! Statement must be prepared with CONNECTION_ASYNC flag.
         void Execute(PreparedStatement* stmt)
         {
             PreparedStatementTask* task = new PreparedStatementTask(stmt);
@@ -195,6 +196,7 @@ class DatabaseWorkerPool
         }
 
         //! Directly executes a one-way SQL operation in prepared statement format, that will block the calling thread until finished.
+        //! Statement must be prepared with the CONNECTION_SYNCH flag.
         void DirectExecute(PreparedStatement* stmt)
         {
             T* t = GetFreeConnection();
@@ -203,7 +205,7 @@ class DatabaseWorkerPool
         }
 
         /**
-            Syncrhonous query (with resultset) methods.
+            Synchronous query (with resultset) methods.
         */
 
         //! Directly executes an SQL query in string format that will block the calling thread until finished.
@@ -256,6 +258,7 @@ class DatabaseWorkerPool
 
         //! Directly executes an SQL query in prepared format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
+        //! Statement must be prepared with CONNECTION_SYNCH flag.
         PreparedQueryResult Query(PreparedStatement* stmt)
         {
             T* t = GetFreeConnection();
@@ -297,6 +300,7 @@ class DatabaseWorkerPool
 
         //! Enqueues a query in prepared format that will set the value of the PreparedQueryResultFuture return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
+        //! Statement must be prepared with CONNECTION_ASYNC flag.
         PreparedQueryResultFuture AsyncQuery(PreparedStatement* stmt)
         {
             PreparedQueryResultFuture res;
@@ -308,6 +312,7 @@ class DatabaseWorkerPool
         //! Enqueues a vector of SQL operations (can be both adhoc and prepared) that will set the value of the QueryResultHolderFuture
         //! return object as soon as the query is executed.
         //! The return value is then processed in ProcessQueryCallback methods.
+        //! Any prepared statements added to this holder need to be prepared with the CONNECTION_ASYNC flag.
         QueryResultHolderFuture DelayQueryHolder(SQLQueryHolder* holder)
         {
             QueryResultHolderFuture res;
