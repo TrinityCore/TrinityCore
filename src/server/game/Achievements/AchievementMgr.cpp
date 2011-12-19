@@ -1069,13 +1069,9 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         continue;
                 }
 
-                if (achievement->ID == 1282)
-                {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), unit))
+                if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
+                    if (!data->Meets(GetPlayer(), unit))
                         continue;
-                }
 
                 SetCriteriaProgress(achievementCriteria, 1);
                 break;
