@@ -608,6 +608,16 @@ void WorldSession::HandleGroupChangeSubGroupOpcode(WorldPacket & recv_data)
     group->ChangeMembersGroup(guid, groupNr);
 }
 
+void WorldSession::HandleGroupSwapSubGroupOpcode(WorldPacket & recv_data)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_SWAP_SUB_GROUP");
+    std::string unk1;
+    std::string unk2;
+
+    recv_data >> unk1;
+    recv_data >> unk2;
+}
+
 void WorldSession::HandleGroupAssistantLeaderOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_ASSISTANT_LEADER");
