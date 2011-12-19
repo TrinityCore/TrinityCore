@@ -225,7 +225,6 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //! Delete packet after processing by default
     bool deletePacket = true;
     //! To prevent infinite loop
-    bool delayedPackets = false;
     WorldPacket* firstDelayedPacket = NULL;
     //! If _recvQueue.peek() == firstDelayedPacket it means that in this Update call, we've processed all
     //! *properly timed* packets, and we're now at the part of the queue where we find

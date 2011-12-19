@@ -65,7 +65,7 @@ enum SpellAuraInterruptFlags
     AURA_INTERRUPT_FLAG_MOVE                = 0x00000008,   // 3    removed by any movement
     AURA_INTERRUPT_FLAG_TURNING             = 0x00000010,   // 4    removed by any turning
     AURA_INTERRUPT_FLAG_JUMP                = 0x00000020,   // 5    removed by entering combat
-    AURA_INTERRUPT_FLAG_NOT_MOUNTED         = 0x00000040,   // 6    removed by unmounting
+    AURA_INTERRUPT_FLAG_NOT_MOUNTED         = 0x00000040,   // 6    removed by dismounting
     AURA_INTERRUPT_FLAG_NOT_ABOVEWATER      = 0x00000080,   // 7    removed by entering water
     AURA_INTERRUPT_FLAG_NOT_UNDERWATER      = 0x00000100,   // 8    removed by leaving water
     AURA_INTERRUPT_FLAG_NOT_SHEATHED        = 0x00000200,   // 9    removed by unsheathing
@@ -1441,7 +1441,7 @@ class Unit : public WorldObject
         bool IsMounted() const { return HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT); }
         uint32 GetMountID() const { return GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID); }
         void Mount(uint32 mount, uint32 vehicleId = 0, uint32 creatureEntry = 0);
-        void Unmount();
+        void Dismount();
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* pVictim, uint32 &damage, uint32* absorb);
