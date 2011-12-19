@@ -618,39 +618,43 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
         return;
     }
 
-    _stablePetCallback = CharacterDatabase.AsyncPQuery("SELECT owner, slot, id FROM character_pet WHERE owner = '%u'  AND slot >= '%u' AND slot <= '%u' ORDER BY slot ",
-        _player->GetGUIDLow(), PET_SAVE_FIRST_STABLE_SLOT, PET_SAVE_LAST_STABLE_SLOT);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_PET_SLOTS);
 
+    stmt->setUInt32(0, _player->GetGUIDLow());
+    stmt->setUInt8(1, PET_SAVE_FIRST_STABLE_SLOT);
+    stmt->setUInt8(2, PET_SAVE_LAST_STABLE_SLOT);
+
+    _stablePetCallback = CharacterDatabase.AsyncQuery(stmt);
 }
 
-void WorldSession::HandleStablePetCallback(QueryResult result)
+void WorldSession::HandleStablePetCallback(PreparedQueryResult result)
 {
     if (!GetPlayer())
         return;
 
-    uint32 free_slot = 1;
+    uint8 freeSlot = 1;
     if (result)
     {
         do
         {
             Field* fields = result->Fetch();
 
-            uint32 slot = fields[1].GetUInt32();
+            uint8 slot = fields[1].GetUInt8();
 
             // slots ordered in query, and if not equal then free
-            if (slot != free_slot)
+            if (slot != freeSlot)
                 break;
 
             // this slot not free, skip
-            ++free_slot;
+            ++freeSlot;
         }
         while (result->NextRow());
     }
 
     WorldPacket data(SMSG_STABLE_RESULT, 1);
-    if (free_slot > 0 && free_slot <= GetPlayer()->m_stableSlots)
+    if (freeSlot > 0 && freeSlot <= GetPlayer()->m_stableSlots)
     {
-        _player->RemovePet(_player->GetPet(), PetSaveMode(free_slot));
+        _player->RemovePet(_player->GetPet(), PetSaveMode(freeSlot));
         SendStableResult(STABLE_SUCCESS_STABLE);
     }
     else
