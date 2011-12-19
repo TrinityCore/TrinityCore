@@ -1075,7 +1075,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
                     if (!data || !data->Meets(GetPlayer(), unit))
                         continue;
-                    break;
                 }
 
                 SetCriteriaProgress(achievementCriteria, 1);
