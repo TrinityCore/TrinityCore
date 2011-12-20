@@ -531,24 +531,23 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket & recv_data)
     if (!normalizePlayerName(friendName))
         return;
 
-    CharacterDatabase.EscapeString(friendName);            // prevent SQL injection - normal name must not be changed by this call
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'", GetPlayer()->GetName(), friendName.c_str());
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: %s asked to add friend : '%s'",
-        GetPlayer()->GetName(), friendName.c_str());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_RACE_ACC_BY_NAME);
+
+    stmt->setString(0, friendName);
 
     _addFriendCallback.SetParam(friendNote);
-    _addFriendCallback.SetFutureResult(
-        CharacterDatabase.AsyncPQuery("SELECT guid, race, account FROM characters WHERE name = '%s'", friendName.c_str())
-        );
+    _addFriendCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult result, std::string friendNote)
+void WorldSession::HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote)
 {
     if (!GetPlayer())
         return;
 
     uint64 friendGuid;
-    uint32 friendAcctid;
+    uint32 friendAccountId;
     uint32 team;
     FriendsResult friendResult;
 
@@ -557,11 +556,13 @@ void WorldSession::HandleAddFriendOpcodeCallBack(QueryResult result, std::string
 
     if (result)
     {
-        friendGuid = MAKE_NEW_GUID((*result)[0].GetUInt32(), 0, HIGHGUID_PLAYER);
-        team = Player::TeamForRace((*result)[1].GetUInt8());
-        friendAcctid = (*result)[2].GetUInt32();
+        Field* fields = result->Fetch();
 
-        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAcctid, realmID)))
+        friendGuid = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+        team = Player::TeamForRace(fields[1].GetUInt8());
+        friendAccountId = fields[2].GetUInt32();
+
+        if (!AccountMgr::IsPlayerAccount(GetSecurity()) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realmID)))
         {
             if (friendGuid)
             {

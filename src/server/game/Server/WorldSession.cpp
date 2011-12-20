@@ -1040,8 +1040,8 @@ void WorldSession::ProcessQueryCallbacks()
     if (_addFriendCallback.IsReady())
     {
         std::string param = _addFriendCallback.GetParam();
-        _addFriendCallback.GetResult(result);
-        HandleAddFriendOpcodeCallBack(result, param);
+        _addFriendCallback.GetResult(result2);
+        HandleAddFriendOpcodeCallBack(result2, param);
         _addFriendCallback.FreeResult();
     }
 
