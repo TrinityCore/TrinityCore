@@ -100,7 +100,12 @@ class Grid
 
         /** Returns the number of object within the grid.
          */
-        unsigned int ActiveObjectsInGrid(void) const { return /*m_activeGridObjects.size()+*/i_objects.template Count<ACTIVE_OBJECT>(); }
+        //unsigned int ActiveObjectsInGrid(void) const { return i_objects.template Count<ACTIVE_OBJECT>(); }
+        template<class T>
+        uint32 GetWorldObjectCountInGrid() const
+        {
+            return i_objects.template Count<T>();
+        }
 
         /** Inserts a container type object into the grid.
          */

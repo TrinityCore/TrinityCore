@@ -561,7 +561,7 @@ class FlaggedValuesArray32
 class WorldObject : public Object, public WorldLocation
 {
     protected:
-        explicit WorldObject();
+        explicit WorldObject(bool isWorldObject); //note: here it means if it is in grid object list or world object list
     public:
         virtual ~WorldObject();
 
@@ -800,6 +800,9 @@ class WorldObject : public Object, public WorldLocation
         bool isActiveObject() const { return m_isActive; }
         void setActive(bool isActiveObject);
         void SetWorldObject(bool apply);
+        bool IsPermanentWorldObject() const { return m_isWorldObject; }
+        bool IsWorldObject() const;
+
         template<class NOTIFIER> void VisitNearbyObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitAll(GetPositionX(), GetPositionY(), radius, notifier); }
         template<class NOTIFIER> void VisitNearbyGridObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitGrid(GetPositionX(), GetPositionY(), radius, notifier); }
         template<class NOTIFIER> void VisitNearbyWorldObject(float const& radius, NOTIFIER& notifier) const { if (IsInWorld()) GetMap()->VisitWorld(GetPositionX(), GetPositionY(), radius, notifier); }
@@ -812,7 +815,6 @@ class WorldObject : public Object, public WorldLocation
         double rand_chance() const                  { return GetMap()->mtRand.randExc(100.0);}
 #endif
 
-        bool m_isWorldObject;
         uint32  LastUsedScriptID;
 
         // Transports
@@ -830,6 +832,7 @@ class WorldObject : public Object, public WorldLocation
     protected:
         std::string m_name;
         bool m_isActive;
+        const bool m_isWorldObject;
         ZoneScript* m_zoneScript;
 
         // transports
