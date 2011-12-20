@@ -238,7 +238,7 @@ class npc_gnome_citizen : public CreatureScript
                 if (owner->IsMounted() && !me->IsMounted())
                     me->Mount(_mountModel);
                 else if (!owner->IsMounted() && me->IsMounted())
-                    me->Unmount();
+                    me->Dismount();
 
                 me->SetSpeed(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
                 me->SetSpeed(MOVE_WALK, owner->GetSpeedRate(MOVE_WALK));
