@@ -625,7 +625,7 @@ class npc_og_assistants : public CreatureScript
                         break;
                     case 49:
                         SetHoldState(true);
-                        me->Unmount();
+                        me->Dismount();
                         if (Creature* pMekkatorque = me->FindNearestCreature(NPC_MEKKATORQUE, 100.0f, true))
                             me->CastSpell(pMekkatorque, SPELL_TRIGGER, true);
                         break;
@@ -767,7 +767,7 @@ class npc_og_mekkatorque : public CreatureScript
                         break;
                     case 19:
                         SetHoldState(true);
-                        me->Unmount();
+                        me->Dismount();
                         JumpToNextStep(2000);
                         break;
                     case 21:
@@ -801,7 +801,7 @@ class npc_og_mekkatorque : public CreatureScript
                         break;
                     case 50:
                         SetHoldState(true);
-                        me->Unmount();
+                        me->Dismount();
                         JumpToNextStep(1000);
                         break;
                     case 51:
@@ -1212,7 +1212,7 @@ class npc_og_mekkatorque : public CreatureScript
                             break;
                         case 68:
                             me->MonsterSay(MEK_19_2, LANG_UNIVERSAL, NULL);
-                            me->Unmount();
+                            me->Dismount();
                             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, 25140);
                             me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_WORK_SHEATHED);
                             JumpToNextStep(10000);
