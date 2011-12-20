@@ -994,7 +994,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                         (*itr)->ToUnit()->Mount(e.action.morphOrMount.model);
                 }
                 else
-                    (*itr)->ToUnit()->Unmount();
+                    (*itr)->ToUnit()->Dismount();
             }
 
             delete targets;
