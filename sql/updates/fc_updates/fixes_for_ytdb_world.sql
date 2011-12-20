@@ -191,3 +191,7 @@ REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid
 
 -- Fix Sindragosa non aggro
 UPDATE creature_template SET unit_flags = '0' WHERE entry IN (36853,38267,38266,38265);
+
+
+-- Fix On Metzen! Achievement (20.12.2011)
+UPDATE `smart_scripts` SET `event_param1`=6763 WHERE  `entryorguid` =15664;
