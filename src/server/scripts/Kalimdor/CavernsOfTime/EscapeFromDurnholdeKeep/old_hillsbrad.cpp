@@ -498,7 +498,7 @@ public:
         }
         void DoUnmount()
         {
-            me->Unmount();
+            me->Dismount();
             me->SetSpeed(MOVE_RUN, SPEED_RUN);
         }
         void EnterCombat(Unit* /*who*/)

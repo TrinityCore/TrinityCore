@@ -12067,7 +12067,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
 }
 
-void Unit::Unmount()
+void Unit::Dismount()
 {
     if (!IsMounted())
         return;
@@ -12088,7 +12088,7 @@ void Unit::Unmount()
     data.appendPackGUID(GetGUID());
     SendMessageToSet(&data, true);
 
-    // unmount as a vehicle
+    // dismount as a vehicle
     if (GetTypeId() == TYPEID_PLAYER && GetVehicleKit())
     {
         // Send other players that we are no longer a vehicle
@@ -12210,7 +12210,7 @@ void Unit::SetInCombatState(bool PvP, Unit* enemy)
         }
 
         if (!(creature->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_MOUNTED_COMBAT))
-            Unmount();
+            Dismount();
     }
 
     for (Unit::ControlList::iterator itr = m_Controlled.begin(); itr != m_Controlled.end(); ++itr)
@@ -15986,9 +15986,9 @@ bool Unit::SetCharmedBy(Unit* charmer, CharmType type, AuraApplication const* au
     if (!charmer)
         return false;
 
-    // unmount players when charmed
+    // dismount players when charmed
     if (GetTypeId() == TYPEID_PLAYER)
-        Unmount();
+        Dismount();
 
     ASSERT(type != CHARM_TYPE_POSSESS || charmer->GetTypeId() == TYPEID_PLAYER);
     ASSERT((type == CHARM_TYPE_VEHICLE) == IsVehicle());
@@ -17137,7 +17137,7 @@ void Unit::_EnterVehicle(Vehicle* vehicle, int8 seatId, AuraApplication const* a
         InterruptNonMeleeSpells(false);
         player->StopCastingCharm();
         player->StopCastingBindSight();
-        Unmount();
+        Dismount();
         RemoveAurasByType(SPELL_AURA_MOUNTED);
 
         // drop flag at invisible in bg
@@ -17237,7 +17237,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         // Vehicle just died, we die too
         if (vehicle->GetBase()->getDeathState() == JUST_DIED)
             setDeathState(JUST_DIED);
-        // If for other reason we as minion are exiting the vehicle (ejected, master unmounted) - unsummon
+        // If for other reason we as minion are exiting the vehicle (ejected, master dismounted) - unsummon
         else
             ToTempSummon()->UnSummon(2000); // Approximation
     }
