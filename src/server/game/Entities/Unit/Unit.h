@@ -2233,7 +2233,7 @@ class Unit : public WorldObject
         }
 
     protected:
-        explicit Unit ();
+        explicit Unit (bool isWorldObject);
 
         UnitAI* i_AI, *i_disabledAI;
 
