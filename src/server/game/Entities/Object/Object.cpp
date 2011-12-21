@@ -296,7 +296,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
     {
-        const Unit* self = ToUnit();
+        Unit const* self = ToUnit();
         self->BuildMovementPacket(data);
 
         *data << self->GetSpeed(MOVE_WALK);
@@ -309,36 +309,31 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         *data << self->GetSpeed(MOVE_TURN_RATE);
         *data << self->GetSpeed(MOVE_PITCH_RATE);
 
-        const Player* player = ToPlayer();
+        Player const* player = ToPlayer();
 
         // 0x08000000
         if (player && player->isInFlight())
         {
             uint32 flags3 = SPLINEFLAG_GLIDE;
 
-            *data << uint32(flags3);                        // splines flag?
+            *data << uint32(flags3);                        // splines flag
 
-            if (flags3 & 0x20000)                            // may be orientation
+            if (flags3 & 0x00004000)                        // FinalOrientation
             {
                 *data << (float)0;
             }
-            else
+            else if (flags3 & 0x00001000)                   // FinalOrientation
             {
-                if (flags3 & 0x8000)                         // probably x, y, z coords there
-                {
-                    *data << (float)0;
-                    *data << (float)0;
-                    *data << (float)0;
-                }
-
-                if (flags3 & 0x10000)                        // probably guid there
-                {
-                    *data << uint64(0);
-                }
+                *data << (float)0;
+                *data << (float)0;
+                *data << (float)0;
+            }
+            else if (flags3 & 0x00002000)                    // FinalTarget
+            {
+                *data << uint64(0);
             }
 
-            FlightPathMovementGenerator *fmg =
-                (FlightPathMovementGenerator*)(player->GetMotionMaster()->top());
+            FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(player->GetMotionMaster()->top());
             TaxiPathNodeList const& path = fmg->GetPath();
 
             float x, y, z;
