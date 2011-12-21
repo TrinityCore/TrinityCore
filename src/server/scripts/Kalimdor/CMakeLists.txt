@@ -111,6 +111,11 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/boss_onyxia.cpp
   Kalimdor/OnyxiasLair/onyxias_lair.h
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
+  Kalimdor/Ragefire/Ragefire_boss_Bazzalan.cc
+  Kalimdor/Ragefire/Ragefire_boss_Jergosh_the_Invoker.cc
+  Kalimdor/Ragefire/Ragefire_boss_Oggleflint.cc
+  Kalimdor/Ragefire/Ragefire_boss_Taragaman_the_Hungerer.cc
+  Kalimdor/Ragefire/Neltharion_Ragefire_Chasm.h
 )
 
 SOURCE_GROUP(Kalimdor FILES
