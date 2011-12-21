@@ -805,7 +805,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
     // find swapped pet slot in stable
     _stableSwapCallback.SetParam(pet_number);
     _stableSwapCallback.SetFutureResult(
-            CharacterDatabase.PQuery("SELECT slot, entry FROM character_pet WHERE owner = '%u' AND id = '%u'",
+            CharacterDatabase.AsyncPQuery("SELECT slot, entry FROM character_pet WHERE owner = '%u' AND id = '%u'",
                 _player->GetGUIDLow(), pet_number)
             );
 }

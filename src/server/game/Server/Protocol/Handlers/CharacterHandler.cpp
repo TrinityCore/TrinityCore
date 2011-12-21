@@ -397,7 +397,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
         This is much more efficient than synchronous requests on packet handler, and much less DoS prone.
         It also prevents data syncrhonisation errors.
     */
-    switch (createInfo->Stage)
+    switch (_charCreateCallback.GetStage())
     {
         case 0:
         {
@@ -407,8 +407,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 data << uint8(CHAR_CREATE_NAME_IN_USE);
                 SendPacket(&data);
                 delete createInfo;
-                _charCreateCallback.SetParam(NULL);
-                _charCreateCallback.FreeResult();
+                _charCreateCallback.Reset();
                 return;
             }
 
@@ -419,8 +418,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             _charCreateCallback.FreeResult();
             _charCreateCallback.SetFutureResult(LoginDatabase.AsyncQuery(stmt));
-
-            createInfo->Stage++;
+            _charCreateCallback.NextStage();
         }
         break;
         case 1:
@@ -441,8 +439,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 data << uint8(CHAR_CREATE_ACCOUNT_LIMIT);
                 SendPacket(&data);
                 delete createInfo;
-                _charCreateCallback.SetParam(NULL);
-                _charCreateCallback.FreeResult();
+                _charCreateCallback.Reset();
                 return;
             }
 
@@ -454,8 +451,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
 
             _charCreateCallback.FreeResult();
             _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
-
-            createInfo->Stage++;
+            _charCreateCallback.NextStage();
         }
         break;
         case 2:
@@ -471,8 +467,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                     data << uint8(CHAR_CREATE_SERVER_LIMIT);
                     SendPacket(&data);
                     delete createInfo;
-                    _charCreateCallback.SetParam(NULL);
-                    _charCreateCallback.FreeResult();
+                    _charCreateCallback.Reset();
                     return;
                 }
             }
@@ -488,11 +483,11 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 stmt->setUInt32(0, GetAccountId());
                 stmt->setUInt32(1, (skipCinematics == 1 || createInfo->Class == CLASS_DEATH_KNIGHT) ? 10 : 1);
                 _charCreateCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
-                createInfo->Stage++;
+                _charCreateCallback.NextStage();
                 return;
             }
 
-            createInfo->Stage++;
+            _charCreateCallback.NextStage();
             HandleCharCreateCallback(PreparedQueryResult(NULL), createInfo);   // Will jump to case 3
         }
         break;
@@ -526,8 +521,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                             data << uint8(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
                             SendPacket(&data);
                             delete createInfo;
-                            _charCreateCallback.SetParam(NULL);
-                            _charCreateCallback.FreeResult();
+                            _charCreateCallback.Reset();
                             return;
                         }
                     }
@@ -554,8 +548,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                         data << uint8(CHAR_CREATE_PVP_TEAMS_VIOLATION);
                         SendPacket(&data);
                         delete createInfo;
-                        _charCreateCallback.SetParam(NULL);
-                        _charCreateCallback.FreeResult();
+                        _charCreateCallback.Reset();
                         return;
                     }
                 }
@@ -587,8 +580,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                                 data << uint8(CHAR_CREATE_UNIQUE_CLASS_LIMIT);
                                 SendPacket(&data);
                                 delete createInfo;
-                                _charCreateCallback.SetParam(NULL);
-                                _charCreateCallback.FreeResult();
+                                _charCreateCallback.Reset();
                                 return;
                             }
                         }
@@ -609,8 +601,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 data << uint8(CHAR_CREATE_LEVEL_REQUIREMENT);
                 SendPacket(&data);
                 delete createInfo;
-                _charCreateCallback.SetParam(NULL);
-                _charCreateCallback.FreeResult();
+                _charCreateCallback.Reset();
                 return;
             }
 
@@ -631,8 +622,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
                 data << uint8(CHAR_CREATE_ERROR);
                 SendPacket(&data);
                 delete createInfo;
-                _charCreateCallback.SetParam(NULL);
-                _charCreateCallback.FreeResult();
+                _charCreateCallback.Reset();
                 return;
             }
 
@@ -673,8 +663,7 @@ void WorldSession::HandleCharCreateCallback(PreparedQueryResult result, Characte
             sWorld->AddCharacterNameData(newChar.GetGUIDLow(), std::string(newChar.GetName()), newChar.getGender(), newChar.getRace(), newChar.getClass());
 
             delete createInfo;
-            _charCreateCallback.SetParam(NULL);
-            _charCreateCallback.FreeResult();
+            _charCreateCallback.Reset();
         }
         break;
     }
