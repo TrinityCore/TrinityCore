@@ -208,7 +208,7 @@ enum Opcodes
     CMSG_GUILD_ACCEPT                                = 0x00,
     CMSG_GUILD_BANKER_ACTIVATE                       = 0x4E77,
     CMSG_GUILD_BANK_BUY_TAB                          = 0x00,
-    CMSG_GUILD_BANK_DEPOSIT_MONEY                    = 0x00,
+    CMSG_GUILD_BANK_DEPOSIT_MONEY                    = 0x4847,
     CMSG_GUILD_BANK_NOTE                             = 0x00,
     CMSG_GUILD_BANK_QUERY_TAB                        = 0xDE46,
     CMSG_GUILD_BANK_SWAP_ITEMS                       = 0x85B,
@@ -222,7 +222,7 @@ enum Opcodes
     CMSG_GUILD_INVITE                                = 0x8C67,
     CMSG_GUILD_PROMOTE                               = 0x00,
     CMSG_GUILD_QUERY                                 = 0x8E57,
-    CMSG_GUILD_LEADER                                = 0x00,
+    CMSG_GUILD_LEADER                                = 0x28C4,
     CMSG_GUILD_LEAVE                                 = 0x00,
     CMSG_GUILD_MOTD                                  = 0x00,
     CMSG_GUILD_RANK                                  = 0x8D50, // New 4.x
@@ -247,7 +247,8 @@ enum Opcodes
     CMSG_LEARN_TALENT                                = 0x98F3,
     CMSG_LEAVE_BATTLEFIELD                           = 0x1AE7,
     CMSG_LEAVE_CHANNEL                               = 0x00,
-    CMSG_LFD_PARTY_LOCK_INFO_REQUEST                 = 0x00,
+    CMSG_LFG_LFR_JOIN                                = 0x8CFA,
+    CMSG_LFG_PARTY_LOCK_INFO_REQUEST                 = 0xC867,
     CMSG_LFG_GET_PLAYER_INFO                         = 0x00,
     CMSG_LFG_JOIN                                    = 0x00,
     CMSG_LFG_LEAVE                                   = 0x00,
@@ -275,8 +276,11 @@ enum Opcodes
     CMSG_MESSAGECHAT_AFK                             = 0x00,
     CMSG_MESSAGECHAT_BATTLEGROUND                    = 0x00,
     CMSG_MESSAGECHAT_BATTLEGROUND_LEADER             = 0x00,
-    //CMSG_MESSAGECHAT_ADDON_GUILD                     = 0x24D9, // Not confirmed, new on 4.x
-    //CMSG_MESSAGECHAT_ADDON_WHISPER                   = 0x20C1, // Not confirmed, new on 4.x
+    CMSG_MESSAGECHAT_ADDON_BATTLEGROUND              = 0x6059, // New on 4.x
+    CMSG_MESSAGECHAT_ADDON_GUILD                     = 0x24D9, // New on 4.x
+    CMSG_MESSAGECHAT_ADDON_PARTY                     = 0x6041, // New on 4.x
+    CMSG_MESSAGECHAT_ADDON_RAID                      = 0x3041, // New on 4.x
+    CMSG_MESSAGECHAT_ADDON_WHISPER                   = 0x20C1, // New on 4.x
     CMSG_MESSAGECHAT_CHANNEL                         = 0x7459,
     CMSG_MESSAGECHAT_DND                             = 0x00,
     CMSG_MESSAGECHAT_EMOTE                           = 0x6449,
@@ -655,7 +659,7 @@ enum Opcodes
     SMSG_DESTRUCTIBLE_BUILDING_DAMAGE                = 0x00,
     SMSG_DUEL_OUTOFBOUNDS                            = 0x00,
     SMSG_DUEL_INBOUNDS                               = 0x00,
-    SMSG_DISMOUNT                                    = 0x00,
+    SMSG_DISMOUNT                                    = 0xCEE7,
     SMSG_DISMOUNTRESULT                              = 0x00,
     SMSG_DISPEL_FAILED                               = 0x00,
     SMSG_DUEL_COMPLETE                               = 0x00,
@@ -720,6 +724,7 @@ enum Opcodes
     SMSG_GROUP_LIST                                  = 0x00,
     SMSG_GROUP_SET_LEADER                            = 0x00,
     SMSG_GROUP_UNINVITE                              = 0x00,
+    SMSG_GUILDFINDER_SEARCH_RESULT                   = 0xE0CE, // New 4.x
     SMSG_GUILD_BANK_LIST                             = 0x5EFB,
     SMSG_GUILD_COMMAND_RESULT                        = 0xDAD7,
     SMSG_GUILD_DECLINE                               = 0x00,
@@ -783,7 +788,6 @@ enum Opcodes
     SMSG_LFG_UPDATE_SEARCH                           = 0x00,
     SMSG_LFG_UPDATE_PARTY                            = 0x00,
     SMSG_LFG_UPDATE_PLAYER                           = 0x00,
-    SMSG_LFGUILD_RECRUIT_DATA                        = 0xE0CE, // New 4.x
     SMSG_LIST_INVENTORY                              = 0x264C,
     SMSG_LOGIN_SETTIMESPEED                          = 0x00,
     SMSG_LOGIN_VERIFY_WORLD                          = 0xC86E,
@@ -794,7 +798,7 @@ enum Opcodes
     SMSG_LOOT_ALL_PASSED                             = 0x00,
     SMSG_LOOT_CLEAR_MONEY                            = 0x00,
     SMSG_LOOT_ITEM_NOTIFY                            = 0x00,
-    SMSG_LOOT_LIST                                   = 0x00,
+    SMSG_LOOT_LIST                                   = 0x8C5B,
     SMSG_LOOT_MASTER_LIST                            = 0x00,
     SMSG_LOOT_MONEY_NOTIFY                           = 0x00,
     SMSG_LOOT_RELEASE_RESPONSE                       = 0x00,
@@ -933,7 +937,7 @@ enum Opcodes
     SMSG_SEND_MAIL_RESULT                            = 0x00,
     SMSG_SEND_UNLEARN_SPELLS                         = 0x00,
     SMSG_SERVERTIME                                  = 0x00,
-    SMSG_SERVER_FIRST_ACHIEVEMENT                    = 0x00,
+    SMSG_SERVER_FIRST_ACHIEVEMENT                    = 0x0CDF,
     SMSG_SERVER_MESSAGE                              = 0xC873,
     SMSG_SET_FACTION_ATWAR                           = 0x00,
     SMSG_SET_FACTION_STANDING                        = 0x00,
