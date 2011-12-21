@@ -63,12 +63,12 @@ bool WorldSession::processChatmessageFurtherAfterSecurityChecks(std::string& msg
     return true;
 }
 
-void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
+void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 {
     uint32 type = 0;
     uint32 lang;
 
-    switch(recv_data.GetOpcode())
+    switch(recvData.GetOpcode())
     {
         case CMSG_MESSAGECHAT_SAY:
             type = CHAT_MSG_SAY;
@@ -119,17 +119,17 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         //    type = CHAT_MSG_RAID_WARNING;
         //    break;
         default:
-            sLog->outDetail("HandleMessagechatOpcode : Unknown chat opcode (%u)", recv_data.GetOpcode());
-            recv_data.hexlike();
+            sLog->outDetail("HandleMessagechatOpcode : Unknown chat opcode (%u)", recvData.GetOpcode());
+            recvData.hexlike();
             return;
     }
 
-    recv_data >> lang;
+    recvData >> lang;
 
     if (type >= MAX_CHAT_MSG_TYPE)
     {
         sLog->outError("CHAT: Wrong message type received: %u", type);
-        recv_data.rfinish();
+        recvData.rfinish();
         return;
     }
 
@@ -142,7 +142,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
     if (!langDesc)
     {
         SendNotification(LANG_UNKNOWN_LANGUAGE);
-        recv_data.rfinish();
+        recvData.rfinish();
         return;
     }
     if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
@@ -161,7 +161,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         if (!foundAura)
         {
             SendNotification(LANG_NOT_LEARNED_LANGUAGE);
-            recv_data.rfinish();
+            recvData.rfinish();
             return;
         }
     }
@@ -171,7 +171,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
         {
             std::string msg = "";
-            recv_data >> msg;
+            recvData >> msg;
 
             if (msg.empty())
                 return;
@@ -226,7 +226,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         {
             std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
             SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
-            recv_data.rfinish(); // Prevent warnings
+            recvData.rfinish(); // Prevent warnings
             return;
         }
 
@@ -237,7 +237,7 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
     {
         std::string msg="";
-        recv_data >> msg;
+        recvData >> msg;
 
         SendNotification(GetTrinityString(LANG_GM_SILENCE), sender->GetName());
         return;
@@ -259,19 +259,19 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         case CHAT_MSG_RAID_WARNING:
         case CHAT_MSG_BATTLEGROUND:
         case CHAT_MSG_BATTLEGROUND_LEADER:
-            recv_data >> msg;
+            recvData >> msg;
             break;
         case CHAT_MSG_WHISPER:
-            recv_data >> to;
-            recv_data >> msg;
+            recvData >> to;
+            recvData >> msg;
             break;
         case CHAT_MSG_CHANNEL:
-            recv_data >> channel;
-            recv_data >> msg;
+            recvData >> channel;
+            recvData >> msg;
             break;
         case CHAT_MSG_AFK:
         case CHAT_MSG_DND:
-            recv_data >> msg;
+            recvData >> msg;
             ignoreChecks = true;
             break;
     }
@@ -531,6 +531,110 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket & recv_data)
         default:
             sLog->outError("CHAT: unknown message type %u, lang: %u", type, lang);
             break;
+    }
+}
+
+void WorldSession::HandleAddonMessagechatOpcode(WorldPacket& recvData)
+{
+    Player* sender = GetPlayer();
+    ChatMsg type;
+    
+    switch (recvData.GetOpcode())
+    {
+        case CMSG_MESSAGECHAT_ADDON_BATTLEGROUND:
+            type = CHAT_MSG_BATTLEGROUND;
+            break;
+        case CMSG_MESSAGECHAT_ADDON_GUILD:
+            type = CHAT_MSG_GUILD;
+            break;
+        case CMSG_MESSAGECHAT_ADDON_PARTY:
+            type = CHAT_MSG_PARTY;
+            break;
+        case CMSG_MESSAGECHAT_ADDON_RAID:
+            type = CHAT_MSG_RAID;
+            break;
+        case CMSG_MESSAGECHAT_ADDON_WHISPER:
+            type = CHAT_MSG_WHISPER;
+            break;
+        default:
+            sLog->outDetail("HandleAddonMessagechatOpcode: Unknown addon chat opcode (%u)", recvData.GetOpcode());
+            recvData.hexlike();
+            return;
+    }
+
+    std::string message = "";
+    std::string prefix = "";
+    std::string targetName = "";
+
+    if (type == CHAT_MSG_WHISPER)
+        recvData >> prefix >> targetName >> message;
+    else
+        recvData >> message >> prefix;
+
+    // Logging enabled?
+    if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
+    {
+        if (message.empty())
+            return;
+
+        // Weird way to log stuff...
+        sScriptMgr->OnPlayerChat(sender, CHAT_MSG_ADDON, LANG_ADDON, message);
+    }
+
+    // Disabled addon channel?
+    if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
+        return;
+
+    switch (type)
+    {
+        case CHAT_MSG_BATTLEGROUND:
+        {
+            Group* group = sender->GetGroup();
+            if (!group || !group->isBGGroup())
+                return;
+
+            WorldPacket data;
+            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL);
+            group->BroadcastPacket(&data, false);
+            break;
+        }
+        case CHAT_MSG_GUILD:
+        {
+            if (sender->GetGuildId())
+                if (Guild* guild = sGuildMgr->GetGuildById(sender->GetGuildId()))
+                    guild->BroadcastToGuild(this, false, message, LANG_ADDON);
+            break;
+        }
+        case CHAT_MSG_WHISPER:
+        {
+            if (!normalizePlayerName(targetName))
+                break;
+            Player* receiver = sObjectAccessor->FindPlayerByName(targetName.c_str());
+            if (!receiver)
+                break;
+
+            sender->Whisper(message, LANG_ADDON, receiver->GetGUID());
+            break;
+        }
+        // Messages sent to "RAID" while in a party will get delivered to "PARTY"
+        case CHAT_MSG_PARTY:
+        case CHAT_MSG_RAID:
+        {
+            
+            Group* group = sender->GetGroup();
+            if (!group || group->isBGGroup())
+                break;
+
+            WorldPacket data;
+            ChatHandler::FillMessageData(&data, this, type, LANG_ADDON, "", 0, message.c_str(), NULL);
+            group->BroadcastPacket(&data, true, -1, group->GetMemberGroup(sender->GetGUID()));
+            break;
+        }
+        default:
+        {
+            sLog->outError("HandleAddonMessagechatOpcode: unknown addon message type %u", type);
+            break;
+        }
     }
 }
 
