@@ -238,12 +238,32 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32  Quest::GetRewOrReqMoney() const
+int32 Quest::GetRewOrReqMoney() const
 {
     if (RewardOrRequiredMoney <= 0)
         return RewardOrRequiredMoney;
 
     return int32(RewardOrRequiredMoney * sWorld->getRate(RATE_DROP_MONEY));
+}
+
+uint32 Quest::GetRewChoiceItemsEffectiveCount() const
+{
+    uint32 count = 0;
+    for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        if (RewardChoiceItemId[i] > 0)
+            count++;
+
+    return count;
+}
+
+uint32 Quest::GetRewItemsEffectiveCount() const
+{
+    uint32 count = 0;
+    for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        if (RewardItemId[i] > 0)
+            count++;
+
+    return count;
 }
 
 bool Quest::IsAutoComplete() const
