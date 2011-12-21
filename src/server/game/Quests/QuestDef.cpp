@@ -266,6 +266,82 @@ uint32 Quest::GetRewItemsEffectiveCount() const
     return count;
 }
 
+void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
+{
+    if (HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
+    {
+        data << uint32(0);                                  // Rewarded chosen items hidden
+        data << uint32(0);                                  // Rewarded items hidden
+        data << uint32(0);                                  // Rewarded money hidden
+        data << uint32(0);                                  // Rewarded XP hidden
+    }
+    else
+    {
+        data << uint32(GetRewChoiceItemsEffectiveCount());
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+            data << uint32(RewardChoiceItemId[i]);
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+            data << uint32(RewardChoiceItemCount[i]);
+        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
+        {
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardChoiceItemId[i]))
+                data << uint32(itemTemplate->DisplayInfoID);
+            else
+                data << uint32(0);
+        }
+
+        data << uint32(GetRewChoiceItemsEffectiveCount());
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            data << uint32(RewardItemId[i]);
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+            data << uint32(RewardItemIdCount[i]);
+        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
+        {
+            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(RewardItemId[i]))
+                data << uint32(itemTemplate->DisplayInfoID);
+            else
+                data << uint32(0);
+        }
+
+        data << uint32(GetRewOrReqMoney());
+        data << uint32(XPValue(player) * sWorld->getRate(RATE_XP_QUEST));
+    }
+
+    data << uint32(GetCharTitleId());                // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
+    data << uint32(0);                                      // 4.x Unk
+    data << uint32(0);                                      // 4.x Unk
+    data << uint32(GetBonusTalents());               // bonus talents
+    data << uint32(0);                                      // 4.x Unk
+    data << uint32(0);                                      // 4.x Unk
+
+    /* These are probably some of the unks above
+    // rewarded honor points. Multiply with 10 to satisfy client
+    data << 10 * Trinity::Honor::hk_honor_at_level(_session->GetPlayer()->getLevel(), quest->GetRewHonorMultiplier());
+    data << float(0.0f);                                    // new 3.3.0, honor multiplier?
+    data << uint32(quest->GetCharTitleId());                // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)                                   // unk
+    */
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        data << uint32(RewardFactionId[i]);
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        data << int32(RewardFactionValueId[i]);
+
+    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
+        data << int32(RewardFactionValueIdOverride[i]);
+
+    data << uint32(GetRewSpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
+    data << int32(GetRewSpellCast());                // casted spell
+
+    for (uint8 i = 0; i < 4; i++)
+        data << uint32(0);                                  // 4.x Unk
+    for (uint8 i = 0; i < 4; i++)
+        data << uint32(0);                                  // 4.x Unk
+
+    data << uint32(0);                                      // 4.x Unk
+    data << uint32(0);                                      // 4.x Unk
+}
+
 bool Quest::IsAutoComplete() const
 {
     return Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE);

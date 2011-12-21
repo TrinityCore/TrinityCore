@@ -310,6 +310,8 @@ class Quest
         uint32 GetRewChoiceItemsEffectiveCount() const;
         uint32 GetRewItemsCount() const { return m_rewItemsCount; }
 
+        void BuildExtraQuestInfo(WorldPacket& data, Player* player) const;
+
         typedef std::vector<int32> PrevQuests;
         PrevQuests prevQuests;
         typedef std::vector<uint32> PrevChainQuests;

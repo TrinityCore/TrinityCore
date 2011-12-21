@@ -323,7 +323,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
 
     WorldPacket data(SMSG_QUESTGIVER_QUEST_DETAILS, 100);   // guess size
     data << uint64(npcGUID);
-    data << uint64(0);                                      // wotlk, something todo with quest sharing?
+    data << uint64(0);                                      // either 0 or a npc guid (quest giver)
     data << uint32(quest->GetQuestId());
     data << questTitle;
     data << questDetails;
@@ -341,81 +341,10 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     data << uint8(0);                                       // 4.x StartType, unknown enum
     data << uint32(quest->GetRequiredSpell());              // 4.x
 
-    if (quest->HasFlag(QUEST_FLAGS_HIDDEN_REWARDS))
-    {
-        data << uint32(0);                                  // Rewarded chosen items hidden
-        data << uint32(0);                                  // Rewarded items hidden
-        data << uint32(0);                                  // Rewarded money hidden
-        data << uint32(0);                                  // Rewarded XP hidden
-    }
-    else
-    {
-        data << uint32(quest->GetRewChoiceItemsEffectiveCount());
-        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-            data << uint32(quest->RewardChoiceItemId[i]);
-        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-            data << uint32(quest->RewardChoiceItemCount[i]);
-        for (uint8 i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
-        {
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardChoiceItemId[i]))
-                data << uint32(itemTemplate->DisplayInfoID);
-            else
-                data << uint32(0);
-        }
-
-        data << uint32(quest->GetRewChoiceItemsEffectiveCount());
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-            data << uint32(quest->RewardItemId[i]);
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-            data << uint32(quest->RewardItemIdCount[i]);
-        for (uint8 i = 0; i < QUEST_REWARDS_COUNT; ++i)
-        {
-            if (ItemTemplate const* itemTemplate = sObjectMgr->GetItemTemplate(quest->RewardItemId[i]))
-                data << uint32(itemTemplate->DisplayInfoID);
-            else
-                data << uint32(0);
-        }
-
-        data << uint32(quest->GetRewOrReqMoney());
-        data << uint32(quest->XPValue(_session->GetPlayer()) * sWorld->getRate(RATE_XP_QUEST));
-    }
-
-    data << uint32(quest->GetCharTitleId());                // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
-    data << uint32(0);                                      // 4.x Unk
-    data << uint32(0);                                      // 4.x Unk
-    data << uint32(quest->GetBonusTalents());               // bonus talents
-    data << uint32(0);                                      // 4.x Unk
-    data << uint32(0);                                      // 4.x Unk
-
-    /* There are probably some of the unks above
-    // rewarded honor points. Multiply with 10 to satisfy client
-    data << 10 * Trinity::Honor::hk_honor_at_level(_session->GetPlayer()->getLevel(), quest->GetRewHonorMultiplier());
-    data << float(0.0f);                                    // new 3.3.0, honor multiplier?
-    data << uint32(quest->GetCharTitleId());                // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)                                   // unk
-    */
-
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << uint32(quest->RewardFactionId[i]);
-
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewardFactionValueId[i]);
-
-    for (uint8 i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
-        data << int32(quest->RewardFactionValueIdOverride[i]);
-
-    data << uint32(quest->GetRewSpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
-    data << int32(quest->GetRewSpellCast());                // casted spell
-
-    for (uint8 i = 0; i < 4; i++)
-        data << uint32(0);                                  // 4.x Unk
-    for (uint8 i = 0; i < 4; i++)
-        data << uint32(0);                                  // 4.x Unk
-
-    data << uint32(0);                                      // 4.x Unk
-    data << uint32(0);                                      // 4.x Unk
+    quest->BuildExtraQuestInfo(data, _session->GetPlayer());
     
     data << uint32(QUEST_EMOTE_COUNT);
-    for (uint32 i = 0; i < QUEST_EMOTE_COUNT; ++i)
+    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
     {
         data << uint32(quest->DetailsEmote[i]);
         data << uint32(quest->DetailsEmoteDelay[i]);       // DetailsEmoteDelay (in ms)

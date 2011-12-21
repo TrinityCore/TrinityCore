@@ -14779,7 +14779,7 @@ void Player::CompleteQuest(uint32 quest_id)
             if (qInfo->HasFlag(QUEST_FLAGS_AUTO_REWARDED))
                 RewardQuest(qInfo, 0, this, false);
             else
-                SendQuestComplete(quest_id);
+                SendQuestComplete(qInfo);
         }
     }
 }
@@ -16082,15 +16082,56 @@ bool Player::HasQuestForItem(uint32 itemid) const
     return false;
 }
 
-void Player::SendQuestComplete(uint32 quest_id)
+void Player::SendQuestComplete(Quest const* quest)
 {
-    if (quest_id)
+    // SMSG_QUESTUPDATE_COMPLETE - whole new structure in 4.x
+
+    std::string title      = quest->GetTitle();
+    std::string completedText    = quest->GetCompletedText();
+    std::string questGiverTextWindow = quest->GetQuestGiverTextWindow();
+    std::string questGiverTargetName = quest->GetQuestGiverTargetName();
+    std::string questTurnTextWindow = quest->GetQuestTurnTextWindow();
+    std::string questTurnTargetName = quest->GetQuestTurnTargetName();
+
+    int32 locale = GetSession()->GetSessionDbLocaleIndex();
+    if (locale >= 0)
     {
-        WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
-        data << uint32(quest_id);
-        GetSession()->SendPacket(&data);
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest_id);
+        if (QuestLocale const* localeData = sObjectMgr->GetQuestLocale(quest->GetQuestId()))
+        {
+            ObjectMgr::GetLocaleString(localeData->Title, locale, title);
+            ObjectMgr::GetLocaleString(localeData->CompletedText, locale, completedText);
+            ObjectMgr::GetLocaleString(localeData->QuestGiverTextWindow, locale, questGiverTextWindow);
+            ObjectMgr::GetLocaleString(localeData->QuestGiverTargetName, locale, questGiverTargetName);
+            ObjectMgr::GetLocaleString(localeData->QuestTurnTextWindow, locale, questTurnTextWindow);
+            ObjectMgr::GetLocaleString(localeData->QuestTurnTargetName, locale, questTurnTargetName);
+        }
     }
+
+    WorldPacket data(SMSG_QUESTUPDATE_COMPLETE, 4);
+    data << uint64(this->GetGUID());
+    data << uint32(quest->GetQuestId());
+    data << title;
+    data << completedText;
+    data << questGiverTextWindow;
+    data << questGiverTargetName;
+    data << questTurnTextWindow;
+    data << questTurnTargetName;
+    data << uint32(quest->GetQuestGiverPortrait());
+    data << uint32(quest->GetQuestTurnInPortrait());
+    data << int8(0);                                  // Unk
+    data << uint32(quest->GetFlags());
+    data << int32(0);                                 // Unk
+    data << uint32(QUEST_EMOTE_COUNT);
+    for (uint8 i = 0; i < QUEST_EMOTE_COUNT; ++i)
+    {
+        data << uint32(quest->DetailsEmote[i]);
+        data << uint32(quest->DetailsEmoteDelay[i]);       // DetailsEmoteDelay (in ms)
+    }
+
+    quest->BuildExtraQuestInfo(data, this);
+
+    GetSession()->SendPacket(&data);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTUPDATE_COMPLETE quest = %u", quest->GetQuestId());
 }
 
 void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
