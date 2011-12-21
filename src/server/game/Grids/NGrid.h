@@ -177,7 +177,7 @@ class NGrid
             uint32 count = 0;
             for (uint32 x = 0; x < N; ++x)
                 for (uint32 y = 0; y < N; ++y)
-                    count += i_cells[x][y].GetWorldObjectCountInGrid<T>();
+                    count += i_cells[x][y].template GetWorldObjectCountInGrid<T>();
             return count;
         }
 
