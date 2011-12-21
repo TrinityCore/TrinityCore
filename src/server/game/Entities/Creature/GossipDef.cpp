@@ -330,7 +330,7 @@ void PlayerMenu::SendQuestGiverQuestDetails(Quest const* quest, uint64 npcGUID, 
     data << questObjectives;
     data << questGiverTextWindow;                           // 4.x
     data << questGiverTargetName;                           // 4.x
-    data << questGiverTextWindow;                           // 4.x
+    data << questTurnTextWindow;                            // 4.x
     data << questTurnTargetName;                            // 4.x
     data << uint32(quest->GetQuestGiverPortrait());         // 4.x
     data << uint32(quest->GetQuestTurnInPortrait());        // 4.x
