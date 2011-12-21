@@ -397,19 +397,19 @@ enum ItemEnchantmentType
 
 enum ItemLimitCategoryMode
 {
-    ITEM_LIMIT_CATEGORY_MODE_HAVE  = 0,                      // limit applied to amount items in inventory/bank
-    ITEM_LIMIT_CATEGORY_MODE_EQUIP = 1,                      // limit applied to amount equipped items (including used gems)
+    ITEM_LIMIT_CATEGORY_MODE_HAVE       = 0,                      // limit applied to amount items in inventory/bank
+    ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1,                      // limit applied to amount equipped items (including used gems)
 };
 
 enum TotemCategoryType
 {
-    TOTEM_CATEGORY_TYPE_KNIFE   = 1,
-    TOTEM_CATEGORY_TYPE_TOTEM   = 2,
-    TOTEM_CATEGORY_TYPE_ROD     = 3,
-    TOTEM_CATEGORY_TYPE_PICK    = 21,
-    TOTEM_CATEGORY_TYPE_STONE   = 22,
-    TOTEM_CATEGORY_TYPE_HAMMER  = 23,
-    TOTEM_CATEGORY_TYPE_SPANNER = 24
+    TOTEM_CATEGORY_TYPE_KNIFE           = 1,
+    TOTEM_CATEGORY_TYPE_TOTEM           = 2,
+    TOTEM_CATEGORY_TYPE_ROD             = 3,
+    TOTEM_CATEGORY_TYPE_PICK            = 21,
+    TOTEM_CATEGORY_TYPE_STONE           = 22,
+    TOTEM_CATEGORY_TYPE_HAMMER          = 23,
+    TOTEM_CATEGORY_TYPE_SPANNER         = 24
 };
 
 // SummonProperties.dbc, col 1
@@ -437,7 +437,8 @@ enum SummonPropType
     SUMMON_PROP_TYPE_SIEGE_VEH       = 9,                   // summon different vehicles, 14 spells in 3.0.3
     SUMMON_PROP_TYPE_DRAKE_VEH       = 10,                  // summon drake (vehicle), 3 spells
     SUMMON_PROP_TYPE_LIGHTWELL       = 11,                  // summon lightwell, 6 spells in 3.0.3
-    SUMMON_PROP_TYPE_JEEVES          = 12                   // summon Jeeves, 1 spell in 3.3.5a
+    SUMMON_PROP_TYPE_JEEVES          = 12,                  // summon Jeeves, 1 spell in 3.3.5a
+    SUMMON_PROP_TYPE_LASHTAIL        = 13,                  // Lashtail Hatchling, 1 spell in 4.2.2
 };
 
 // SummonProperties.dbc, col 5
@@ -460,6 +461,11 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK14           = 0x00002000,          // Guides, player follows
     SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
     SUMMON_PROP_FLAG_UNK16           = 0x00008000,          // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
+    SUMMON_PROP_FLAG_UNK17           = 0x00010000,
+    SUMMON_PROP_FLAG_UNK18           = 0x00020000,
+    SUMMON_PROP_FLAG_UNK19           = 0x00040000,
+    SUMMON_PROP_FLAG_UNK20           = 0x00080000,
+    SUMMON_PROP_FLAG_UNK21           = 0x00100000,          // Totems
 };
 
 enum VehicleSeatFlags
@@ -487,7 +493,7 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000,           // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
-// CreatureType.dbc
+// CurrencyTypes.dbc
 enum CurrencyTypes
 {
     CURRENCY_TYPE_CONQUEST_POINTS    = 390,
