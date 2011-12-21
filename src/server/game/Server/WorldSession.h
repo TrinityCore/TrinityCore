@@ -184,7 +184,7 @@ class CharacterCreateInfo
     protected:
         CharacterCreateInfo(std::string name, uint8 race, uint8 cclass, uint8 gender, uint8 skin, uint8 face, uint8 hairStyle, uint8 hairColor, uint8 facialHair, uint8 outfitId,
         WorldPacket& data) : Name(name), Race(race), Class(cclass), Gender(gender), Skin(skin), Face(face), HairStyle(hairStyle), HairColor(hairColor), FacialHair(facialHair),
-        OutfitId(outfitId), Data(data), CharCount(0), Stage(0)
+        OutfitId(outfitId), Data(data), CharCount(0)
         {}
 
         /// User specified variables
@@ -202,9 +202,6 @@ class CharacterCreateInfo
 
         /// Server side data
         uint8 CharCount;
-
-        /// Internal
-        uint8 Stage;        // Stage of the callback chain
 
     private:
         virtual ~CharacterCreateInfo(){};
@@ -904,7 +901,7 @@ class WorldSession
         QueryCallback<QueryResult, uint32> _unstablePetCallback;
         QueryCallback<QueryResult, uint32> _stableSwapCallback;
         QueryCallback<QueryResult, uint64> _sendStabledPetCallback;
-        QueryCallback<PreparedQueryResult, CharacterCreateInfo*> _charCreateCallback;
+        QueryCallback<PreparedQueryResult, CharacterCreateInfo*, true> _charCreateCallback;
         QueryResultHolderFuture _charLoginCallback;
 
     private:
