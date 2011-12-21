@@ -35,6 +35,7 @@ class QueryCallback
     public:
         QueryCallback() {}
 
+        //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(ACE_Future<Result> value)
         {
             result = value;
@@ -81,6 +82,7 @@ class QueryCallback_2
     public:
         QueryCallback_2() {}
 
+        //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(ACE_Future<Result> value)
         {
             result = value;
