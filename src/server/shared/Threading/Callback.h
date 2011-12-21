@@ -29,109 +29,177 @@ typedef ACE_Future<PreparedQueryResult> PreparedQueryResultFuture;
     issued the request. <ParamType> is variable type of parameter that is used as parameter
     for the callback function.
 */
-template <typename Result, typename ParamType>
+#define CALLBACK_STAGE_INVALID uint8(-1)
+
+template <typename Result, typename ParamType, bool chain = false>
 class QueryCallback
 {
     public:
-        QueryCallback() {}
+        QueryCallback() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID)  {}
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(ACE_Future<Result> value)
         {
-            result = value;
+            _result = value;
         }
 
         ACE_Future<Result> GetFutureResult()
         {
-            return result;
+            return _result;
         }
 
         int IsReady()
         {
-            return result.ready();
+            return _result.ready();
         }
 
         void GetResult(Result& res)
         {
-            result.get(res);
+            _result.get(res);
         }
 
         void FreeResult()
         {
-            result.cancel();
+            _result.cancel();
         }
 
         void SetParam(ParamType value)
         {
-            param = value;
+            _param = value;
         }
 
         ParamType GetParam()
         {
-            return param;
+            return _param;
+        }
+
+        //! Resets the stage of the callback chain
+        void ResetStage()
+        {
+            if (!chain)
+                return;
+
+            _stage = 0;
+        }
+
+        //! Advances the callback chain to the next stage, so upper level code can act on its results accordingly
+        void NextStage()
+        {
+            if (!chain)
+                return;
+
+            ++_stage;
+        }
+
+        //! Returns the callback stage (or CALLBACK_STAGE_INVALID if invalid)
+        uint8 GetStage()
+        {
+            return _stage;
+        }
+        
+        //! Resets all underlying variables (param, result and stage)
+        void Reset()
+        {
+            SetParam(NULL);
+            FreeResult();
+            ResetStage();
         }
 
     private:
-        ACE_Future<Result> result;
-        ParamType param;
+        ACE_Future<Result> _result;
+        ParamType _param;
+        uint8 _stage;
 };
 
-template <typename Result, typename ParamType1, typename ParamType2>
+template <typename Result, typename ParamType1, typename ParamType2, bool chain = false>
 class QueryCallback_2
 {
     public:
-        QueryCallback_2() {}
+        QueryCallback_2() : _stage(chain ? 0 : CALLBACK_STAGE_INVALID) {}
 
         //! The parameter of this function should be a resultset returned from either .AsyncQuery or .AsyncPQuery
         void SetFutureResult(ACE_Future<Result> value)
         {
-            result = value;
+            _result = value;
         }
 
         ACE_Future<Result> GetFutureResult()
         {
-            return result;
+            return _result;
         }
 
         int IsReady()
         {
-            return result.ready();
+            return _result.ready();
         }
 
         void GetResult(Result& res)
         {
-            result.get(res);
+            _result.get(res);
         }
 
         void FreeResult()
         {
-            result.cancel();
+            _result.cancel();
         }
 
         void SetFirstParam(ParamType1 value)
         {
-            param_1 = value;
+            _param_1 = value;
         }
 
         void SetSecondParam(ParamType2 value)
         {
-            param_2 = value;
+            _param_2 = value;
         }
 
         ParamType1 GetFirstParam()
         {
-            return param_1;
+            return _param_1;
         }
 
         ParamType2 GetSecondParam()
         {
-            return param_2;
+            return _param_2;
+        }
+
+        //! Resets the stage of the callback chain
+        void ResetStage()
+        {
+            if (!chain)
+                return;
+
+            _stage = 0;
+        }
+
+        //! Advances the callback chain to the next stage, so upper level code can act on its results accordingly
+        void NextStage()
+        {
+            if (!chain)
+                return;
+
+            ++_stage;
+        }
+
+        //! Returns the callback stage (or CALLBACK_STAGE_INVALID if invalid)
+        uint8 GetStage()
+        {
+            return _stage;
+        }
+
+        //! Resets all underlying variables (param, result and stage)
+        void Reset()
+        {
+            SetParam(NULL);
+            FreeResult();
+            ResetStage();
         }
 
     private:
-        ACE_Future<Result> result;
-        ParamType1 param_1;
-        ParamType2 param_2;
+        ACE_Future<Result> _result;
+        ParamType1 _param_1;
+        ParamType2 _param_2;
+        uint8 _stage;
 };
 
 #endif
