@@ -36,17 +36,23 @@ enum DataTypes
     DATA_HALION                             = 3,
 
     // Etc
-    DATA_XERESTRASZA                        = 4,
-    DATA_CRYSTAL_CHANNEL_TARGET             = 5,
-    DATA_BALTHARUS_SHARED_HEALTH            = 6,
-    DATA_ZARITHIAN_SPAWN_STALKER_1          = 7,
-    DATA_ZARITHIAN_SPAWN_STALKER_2          = 8,
-    DATA_HALION_CONTROLLER                  = 9,
-    DATA_BURNING_TREE_1                     = 10,
-    DATA_BURNING_TREE_2                     = 11,
-    DATA_BURNING_TREE_3                     = 12,
-    DATA_BURNING_TREE_4                     = 13,
-    DATA_FLAME_RING                         = 14,
+    DATA_TWILIGHT_HALION                    = 4,
+    DATA_XERESTRASZA                        = 5,
+    DATA_CRYSTAL_CHANNEL_TARGET             = 6,
+    DATA_BALTHARUS_SHARED_HEALTH            = 7,
+    DATA_ZARITHIAN_SPAWN_STALKER_1          = 8,
+    DATA_ZARITHIAN_SPAWN_STALKER_2          = 9,
+    DATA_HALION_CONTROLLER                  = 10,
+    DATA_HALION_SHARED_HEALTH               = 11,
+    DATA_BURNING_TREE_1                     = 12,
+    DATA_BURNING_TREE_2                     = 13,
+    DATA_BURNING_TREE_3                     = 14,
+    DATA_BURNING_TREE_4                     = 15,
+    DATA_FLAME_RING                         = 16,
+    DATA_TWILIGHT_FLAME_RING                = 17,
+    DATA_EXIT_PORTAL_1                      = 18,
+    DATA_EXIT_PORTAL_2                      = 19,
+    DATA_ENTER_PORTAL                       = 20,
 };
 
 enum SharedActions
@@ -73,14 +79,16 @@ enum CreaturesIds
 
     // Halion
     NPC_HALION                              = 39863,
-    NPC_HALION_TWILIGHT                     = 40142,
+    NPC_TWILIGHT_HALION                     = 40142,
     NPC_HALION_CONTROLLER                   = 40146,
     NPC_LIVING_INFERNO                      = 40681,
     NPC_LIVING_EMBER                        = 40683,
     NPC_ORB_CARRIER                         = 40081,
     NPC_ORB_ROTATION_FOCUS                  = 40091,
     NPC_SHADOW_ORB_N                        = 40083,
-    NPC_SHADOW_ORB_S                        = 40100,
+    NPC_SHADOW_ORB_S                        = 40100, // These two may be interverted
+    NPC_SHADOW_ORB_E                        = 40468, //
+    NPC_SHADOW_ORB_W                        = 40469,
     NPC_METEOR_STRIKE_MARK                  = 40029,
     NPC_METEOR_STRIKE_NORTH                 = 40041,
     NPC_METEOR_STRIKE_EAST                  = 40042,
@@ -88,6 +96,7 @@ enum CreaturesIds
     NPC_METEOR_STRIKE_SOUTH                 = 40044,
     NPC_METEOR_STRIKE_FLAME                 = 40055,
     NPC_COMBUSTION                          = 40001,
+    NPC_CONSUMPTION                         = 40135,
 
     // Xerestrasza
     NPC_XERESTRASZA                         = 40429,
@@ -101,6 +110,7 @@ enum GameObjectsIds
     GO_FIRE_FIELD                           = 203005,
     GO_FLAME_WALLS                          = 203006,
     GO_FLAME_RING                           = 203007,
+    GO_TWILIGHT_FLAME_RING                  = 203624,
     GO_BURNING_TREE_1                       = 203034,
     GO_BURNING_TREE_2                       = 203035,
     GO_BURNING_TREE_3                       = 203036,
@@ -112,6 +122,12 @@ enum WorldStatesRS
     WORLDSTATE_CORPOREALITY_MATERIAL = 5049,
     WORLDSTATE_CORPOREALITY_TWILIGHT = 5050,
     WORLDSTATE_CORPOREALITY_TOGGLE   = 5051,
+};
+
+enum InstanceSpell
+{
+    SPELL_BERSERK                       = 26662,
+    SPELL_TWILIGHT_REALM                = 74807,
 };
 
 template<class AI>

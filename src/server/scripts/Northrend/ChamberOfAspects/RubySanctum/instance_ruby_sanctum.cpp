@@ -36,18 +36,21 @@ class instance_ruby_sanctum : public InstanceMapScript
             {
                 SetBossNumber(EncounterCount);
                 LoadDoorData(doorData);
-                BaltharusTheWarbornGUID = 0;
-                GeneralZarithrianGUID   = 0;
-                SavianaRagefireGUID     = 0;
-                HalionGUID              = 0;
-                HalionControllerGUID    = 0;
+                BaltharusTheWarbornGUID  = 0;
+                GeneralZarithrianGUID    = 0;
+                SavianaRagefireGUID      = 0;
+                HalionGUID               = 0;
+                TwilightHalionGUID       = 0;
+                HalionControllerGUID     = 0;
                 CrystalChannelTargetGUID = 0;
-                XerestraszaGUID         = 0;
-                BaltharusSharedHealth   = 0;
-                FlameWallsGUID          = 0;
-                FlameRingGUID           = 0;
-                memset(ZarithianSpawnStalkerGUID, 0, 2*sizeof(uint64));
-                memset(BurningTreeGUID, 0, 4*sizeof(uint64));
+                XerestraszaGUID          = 0;
+                BaltharusSharedHealth    = 0;
+                FlameWallsGUID           = 0;
+                FlameRingGUID            = 0;
+                EnterPortalGUID = 0;
+                memset(ZarithianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
+                memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
+                memset(ExitPortalsGUID, 0, 2 * sizeof(uint64));
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -66,8 +69,12 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case NPC_HALION:
                         HalionGUID = creature->GetGUID();
                         break;
+                    case NPC_TWILIGHT_HALION:
+                        TwilightHalionGUID = creature->GetGUID();
+                        break;
                     case NPC_HALION_CONTROLLER:
                         HalionControllerGUID = creature->GetGUID();
+                        break;
                     case NPC_BALTHARUS_TARGET:
                         CrystalChannelTargetGUID = creature->GetGUID();
                         break;
@@ -100,6 +107,9 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case GO_FLAME_RING:
                         FlameRingGUID = go->GetGUID();
                         break;
+                    case GO_TWILIGHT_FLAME_RING:
+                        TwilightFlameRingGUID = go->GetGUID();
+                        break;
                     case GO_BURNING_TREE_1:
                         BurningTreeGUID[0] = go->GetGUID();
                         if (GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
@@ -119,6 +129,15 @@ class instance_ruby_sanctum : public InstanceMapScript
                         BurningTreeGUID[3] = go->GetGUID();
                         if (GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                             HandleGameObject(BurningTreeGUID[3], true);
+                        break;
+                    case GO_HALION_PORTAL_EXIT:
+                        if (!ExitPortalsGUID[0])
+                            ExitPortalsGUID[0] = go->GetGUID();
+                        else
+                            ExitPortalsGUID[1] = go->GetGUID();
+                        break;
+                    case GO_HALION_PORTAL_1:
+                        EnterPortalGUID = go->GetGUID();
                         break;
                     default:
                         break;
@@ -152,23 +171,28 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_GENERAL_ZARITHRIAN:
                         return GeneralZarithrianGUID;
                     case DATA_ZARITHIAN_SPAWN_STALKER_1:
-                        return ZarithianSpawnStalkerGUID[0];
                     case DATA_ZARITHIAN_SPAWN_STALKER_2:
-                        return ZarithianSpawnStalkerGUID[1];
+                        return ZarithianSpawnStalkerGUID[type - DATA_BURNING_TREE_1];
                     case DATA_HALION:
                         return HalionGUID;
+                    case DATA_TWILIGHT_HALION:
+                        return TwilightHalionGUID;
                     case DATA_HALION_CONTROLLER:
                         return HalionControllerGUID;
                     case DATA_BURNING_TREE_1:
-                        return BurningTreeGUID[0];
                     case DATA_BURNING_TREE_2:
-                        return BurningTreeGUID[1];
                     case DATA_BURNING_TREE_3:
-                        return BurningTreeGUID[2];
                     case DATA_BURNING_TREE_4:
                         return BurningTreeGUID[3];
                     case DATA_FLAME_RING:
                         return FlameRingGUID;
+                    case DATA_TWILIGHT_FLAME_RING:
+                        return TwilightFlameRingGUID;
+                    case DATA_EXIT_PORTAL_1:
+                    case DATA_EXIT_PORTAL_2:
+                        return ExitPortalsGUID[type - DATA_EXIT_PORTAL_1];
+                    case DATA_ENTER_PORTAL:
+                        return EnterPortalGUID;
                     default:
                         break;
                 }
@@ -206,18 +230,24 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_GENERAL_ZARITHRIAN:
                         if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                             HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
-                        /*
                         if (state == DONE)
                             if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
                                 halionController->AI()->DoAction(ACTION_INTRO_HALION);
-                        */
                         break;
                     case DATA_HALION:
-                        /*
-                        if (state != IN_PROGRESS)
-                            HandleGameObject(FlameRingGUID, true);
-                        */
+                    {
+                        switch (state)
+                        {
+                            case DONE:
+                            case FAIL:
+                            case NOT_STARTED:
+                                DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
+                                HandleGameObject(FlameRingGUID, true);
+                                HandleGameObject(TwilightFlameRingGUID, true);
+                                break;
+                        }
                         break;
+                    }
                     default:
                         break;
                 }
@@ -232,6 +262,11 @@ class instance_ruby_sanctum : public InstanceMapScript
                     case DATA_BALTHARUS_SHARED_HEALTH:
                         BaltharusSharedHealth = data;
                         break;
+                    case DATA_HALION_SHARED_HEALTH:
+                        HalionSharedHealth = data;
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -241,6 +276,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                 {
                     case DATA_BALTHARUS_SHARED_HEALTH:
                         return BaltharusSharedHealth;
+                    case DATA_HALION_SHARED_HEALTH:
+                        return HalionSharedHealth;
                     default:
                         break;
                 }
@@ -257,6 +294,13 @@ class instance_ruby_sanctum : public InstanceMapScript
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();
+            }
+
+            void FillInitialWorldStates(WorldPacket& data)
+            {
+                data << uint32(WORLDSTATE_CORPOREALITY_MATERIAL) << uint32(50);
+                data << uint32(WORLDSTATE_CORPOREALITY_TWILIGHT) << uint32(50);
+                data << uint32(WORLDSTATE_CORPOREALITY_TOGGLE) << uint32(0);
             }
 
             void Load(char const* str)
@@ -297,14 +341,20 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 GeneralZarithrianGUID;
             uint64 SavianaRagefireGUID;
             uint64 HalionGUID;
+            uint64 TwilightHalionGUID;
             uint64 HalionControllerGUID;
             uint64 CrystalChannelTargetGUID;
             uint64 XerestraszaGUID;
             uint64 FlameWallsGUID;
             uint64 ZarithianSpawnStalkerGUID[2];
             uint64 BurningTreeGUID[4];
+            uint64 ExitPortalsGUID[2];
+            uint64 EnterPortalGUID;
             uint64 FlameRingGUID;
+            uint64 TwilightFlameRingGUID;
+
             uint32 BaltharusSharedHealth;
+            uint32 HalionSharedHealth;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const
