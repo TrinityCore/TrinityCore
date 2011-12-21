@@ -42,7 +42,7 @@ enum PowerType
     POWER_PURPLE_POWER                           = 149,
     POWER_GREEN_POWER                            = 150,
     POWER_ORANGE_POWER                           = 151,
-    POWER_ENERGY                                 = 153,
+    POWER_ENERGY_2                               = 153,
     POWER_ARCANEENERGY                           = 161,
     POWER_WIND_POWER_1                           = 162,
     POWER_WIND_POWER_2                           = 163,
