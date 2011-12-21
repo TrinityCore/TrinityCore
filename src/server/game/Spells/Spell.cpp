@@ -3666,10 +3666,13 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
     data << uint8(result);                                  // problem
     switch (result)
     {
-        case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
-            data << uint32(spellInfo->RequiresSpellFocus);
+        case SPELL_FAILED_NOT_READY:
+            data << uint32(0);                              // unknown (value 1 update cooldowns on client flag)
             break;
-        case SPELL_FAILED_REQUIRES_AREA:
+        case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
+            data << uint32(spellInfo->RequiresSpellFocus);  // SpellFocusObject.dbc id
+            break;
+        case SPELL_FAILED_REQUIRES_AREA:                    // AreaTable.dbc id
             // hardcode areas limitation case
             switch (spellInfo->Id)
             {
@@ -3702,14 +3705,15 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
                 data << uint32(spellInfo->TotemCategory[1]);
             break;
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS:
+        case SPELL_FAILED_EQUIPPED_ITEM_CLASS_MAINHAND:
+        case SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND:
             data << uint32(spellInfo->EquippedItemClass);
             data << uint32(spellInfo->EquippedItemSubClassMask);
-            //data << uint32(spellInfo->EquippedItemInventoryTypeMask);
             break;
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
              uint32 item = 0;
-             for (int8 x = 0;x < 3; x++)
+             for (int8 x = 0; x < 3; x++)
                  if (spellInfo->Effects[x].ItemType)
                      item = spellInfo->Effects[x].ItemType;
              ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
@@ -3717,8 +3721,31 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
                  data << uint32(pProto->ItemLimitCategory);
              break;
         }
+        case SPELL_FAILED_PREVENTED_BY_MECHANIC:
+            data << uint32(spellInfo->GetAllEffectsMechanicMask());  // SpellMechanic.dbc id
+            break;
+        case SPELL_FAILED_NEED_EXOTIC_AMMO:
+            data << uint32(spellInfo->EquippedItemSubClassMask); // seems correct...
+            break;
+        case SPELL_FAILED_REAGENTS:
+            data << uint32(0);                              // Item id
+            break;
+        case SPELL_FAILED_NEED_MORE_ITEMS:
+            data << uint32(0);                              // Item id
+            data << uint32(0);                              // Item count?
+            break;
+        case SPELL_FAILED_MIN_SKILL:
+            data << uint32(0);                              // SkillLine.dbc id
+            data << uint32(0);                              // required skill value
+            break;
+        case SPELL_FAILED_FISHING_TOO_LOW:
+            data << uint32(0);                              // required fishing skill
+            break;
         case SPELL_FAILED_CUSTOM_ERROR:
             data << uint32(customError);
+            break;
+        case SPELL_FAILED_SILENCED:
+            data << uint32(0);                              // Unknown
             break;
         default:
             break;
