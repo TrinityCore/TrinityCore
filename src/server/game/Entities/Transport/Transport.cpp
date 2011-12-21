@@ -633,7 +633,8 @@ void Transport::BuildStopMovePacket(Map const* targetMap)
 uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, float z, float o, uint32 anim)
 {
     Map* map = GetMap();
-    Creature* creature = new Creature;
+    //make it world object so it will not be unloaded with grid
+    Creature* creature = new Creature(true);
 
     if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, GetPhaseMask(), entry, 0, GetGOInfo()->faction, 0, 0, 0, 0))
     {
@@ -666,7 +667,6 @@ uint32 Transport::AddNPCPassenger(uint32 tguid, uint32 entry, float x, float y, 
 
     map->AddToMap(creature);
     m_NPCPassengerSet.insert(creature);
-    creature->SetWorldObject(true); //so it will not be unloaded with grid
 
     if (tguid == 0)
     {
