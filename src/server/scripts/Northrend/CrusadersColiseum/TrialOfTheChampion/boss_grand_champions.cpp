@@ -846,8 +846,9 @@ public:
 
                 if (pTarget && me->IsInRange(pTarget,5.0f,30.0f,false))
                 {
-                    DoCast(pTarget,SPELL_MULTI_SHOT);
-                } else
+                    DoCast(target, SPELL_MULTI_SHOT);
+                }
+                else if (target)
                 {
                     Map::PlayerList const& players = me->GetMap()->GetPlayers();
                     if (me->GetMap()->IsDungeon() && !players.isEmpty())

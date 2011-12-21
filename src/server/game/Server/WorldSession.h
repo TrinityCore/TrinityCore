@@ -469,7 +469,7 @@ class WorldSession
         void HandleEmoteOpcode(WorldPacket& recvPacket);
         void HandleContactListOpcode(WorldPacket& recvPacket);
         void HandleAddFriendOpcode(WorldPacket& recvPacket);
-        void HandleAddFriendOpcodeCallBack(QueryResult result, std::string friendNote);
+        void HandleAddFriendOpcodeCallBack(PreparedQueryResult result, std::string friendNote);
         void HandleDelFriendOpcode(WorldPacket& recvPacket);
         void HandleAddIgnoreOpcode(WorldPacket& recvPacket);
         void HandleAddIgnoreOpcodeCallBack(PreparedQueryResult result);
@@ -900,7 +900,7 @@ class WorldSession
         PreparedQueryResultFuture _addIgnoreCallback;
         PreparedQueryResultFuture _stablePetCallback;
         QueryCallback<PreparedQueryResult, std::string> _charRenameCallback;
-        QueryCallback<QueryResult, std::string> _addFriendCallback;
+        QueryCallback<PreparedQueryResult, std::string> _addFriendCallback;
         QueryCallback<QueryResult, uint32> _unstablePetCallback;
         QueryCallback<QueryResult, uint32> _stableSwapCallback;
         QueryCallback<QueryResult, uint64> _sendStabledPetCallback;
