@@ -351,7 +351,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     unit->m_movementInfo.t_pos.m_positionZ = veSeat->m_attachmentOffsetZ;
     unit->m_movementInfo.t_pos.m_orientation = 0;
     unit->m_movementInfo.t_time = 0; // 1 for player
-    unit->m_movementInfo.t_seat = seat->first;
+    unit->m_movementInfo.t_seat = seatId;
 
     if (_me->GetTypeId() == TYPEID_UNIT
         && unit->GetTypeId() == TYPEID_PLAYER
@@ -366,7 +366,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         unit->SendClearTarget();                                // SMSG_BREAK_TARGET
         unit->SetControlled(true, UNIT_STAT_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
                                                                 // also adds MOVEMENTFLAG_ROOT
-        unit->SendMonsterMoveTransport(_me);                     // SMSG_MONSTER_MOVE_TRANSPORT
+        unit->SendMonsterMoveTransport(_me);                    // SMSG_MONSTER_MOVE_TRANSPORT
 
         if (_me->GetTypeId() == TYPEID_UNIT)
         {
@@ -444,12 +444,12 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
             ASSERT(passenger->IsOnVehicle(GetBase()));
             ASSERT(GetSeatForPassenger(passenger));
 
-            float px = x + passenger->m_movementInfo.t_pos.m_positionX;
-            float py = y + passenger->m_movementInfo.t_pos.m_positionY;
-            float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
-            float po = ang + passenger->m_movementInfo.t_pos.m_orientation;
+            x += passenger->m_movementInfo.t_pos.m_positionX;
+            y += passenger->m_movementInfo.t_pos.m_positionY;
+            z += passenger->m_movementInfo.t_pos.m_positionZ;
+            ang += passenger->m_movementInfo.t_pos.m_orientation;
 
-            passenger->UpdatePosition(px, py, pz, po);
+            passenger->UpdatePosition(x, y, z, ang);
         }
 }
 

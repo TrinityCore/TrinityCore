@@ -1873,11 +1873,11 @@ bool Aura::CanStackWith(Aura const* existingAura) const
         if (GetOwner()->ToUnit())
             veh = GetOwner()->ToUnit()->GetVehicleKit();
 
-        if (!veh)           // We should probably just let it stack. Vehicle system will prevent undefined behaviour later
+        if (!veh)                   // We should probably just let it stack. Vehicle system will prevent undefined behaviour later
             return true;
 
-        if (!veh->GetAvailableSeatCount())
-            return false;   // No empty seat available
+        if (GetCaster()->GetTypeId() != TYPEID_UNIT && !veh->GetAvailableSeatCount())       // No empty seat available
+            return false;
 
         return true;        // Empty seat available (skip rest)
     }
