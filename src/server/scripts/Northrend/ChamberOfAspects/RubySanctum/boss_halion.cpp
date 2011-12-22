@@ -95,6 +95,7 @@ enum Spells
     SPELL_TWILIGHT_CUTTER               = 74768, // Unknown dummy effect (EFFECT_0)
     SPELL_TWILIGHT_CUTTER_TRIGGERED     = 74769,
     SPELL_TWILIGHT_PULSE_PERIODIC       = 78861,
+    SPELL_TRACK_ROTATION                = 74758, // NPC_ORB_CARRIER -> NPC_ORB_ROTATION_FOCUS
 };
 
 enum Events
