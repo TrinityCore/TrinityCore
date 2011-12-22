@@ -65,7 +65,7 @@ enum Opcodes
     CMSG_AUTOEQUIP_ITEM                              = 0x8E66,
     CMSG_AUTOEQUIP_ITEM_SLOT                         = 0x00,
     CMSG_AUTO_DECLINE_GUILD_INVITES                  = 0x586F,
-    CMSG_BATTLEFIELD_LIST                            = 0x32A4, // New 4.x
+    CMSG_BATTLEFIELD_LIST                            = 0x32A4,
     CMSG_AUTOSTORE_BAG_ITEM                          = 0x0EEE,
     CMSG_AUTOSTORE_BANK_ITEM                         = 0x1C5F,
     CMSG_AUTOSTORE_GROUND_ITEM                       = 0x00,
