@@ -59,6 +59,17 @@ Guild* GuildMgr::GetGuildById(uint32 guildId) const
     return NULL;
 }
 
+Guild* GuildMgr::GetGuildByGuid(uint64 guid) const
+{
+    // Full guids are only used when receiving/sending data to client
+    // everywhere else guild id is used
+    if (IS_GUILD(guid))
+        if (uint32 guildId = GUID_LOPART(guid))
+            return GetGuildById(guildId);
+
+    return NULL;
+}
+
 Guild* GuildMgr::GetGuildByName(const std::string& guildName) const
 {
     std::string search = guildName;
