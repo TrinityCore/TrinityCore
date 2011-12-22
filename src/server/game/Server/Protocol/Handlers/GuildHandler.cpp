@@ -125,12 +125,28 @@ void WorldSession::HandleGuildInfoOpcode(WorldPacket& /*recvPacket*/)
         guild->SendInfo(this);
 }
 
-void WorldSession::HandleGuildRosterOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GUILD_ROSTER");
 
-    if (Guild* guild = _GetPlayerGuild(this))
-        guild->HandleRoster(this);
+    BitStream mask = recvPacket.ReadBitStream(8);
+
+    ByteBuffer bytes(8, true);
+
+    if (mask[0]) bytes[7] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[5]) bytes[4] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[4]) bytes[5] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[7]) bytes[0] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[3]) bytes[1] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[2]) bytes[2] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[1]) bytes[6] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[6]) bytes[3] = recvPacket.ReadUInt8() ^ 1;
+
+    uint64 guildGuid = BitConverter::ToUInt64(bytes);
+
+    if (Guild* guild = sGuildMgr->GetGuildByGuid(guildGuid))
+        if (guild->IsMember(GetPlayer()->GetGUID()))
+            guild->HandleRoster(this);
 }
 
 void WorldSession::HandleGuildPromoteOpcode(WorldPacket& recvPacket)
