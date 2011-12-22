@@ -166,8 +166,8 @@ enum OrbCarrierSeats
 {
     SEAT_NORTH            = 0,
     SEAT_SOUTH            = 1,
-    SEAT_EAST             = 2, // Heroic
-    SEAT_WEST             = 3, // Heroic
+    SEAT_EAST             = 2, // Heroic - Guess
+    SEAT_WEST             = 3, // Heroic - Guess
 };
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
