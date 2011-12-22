@@ -30,6 +30,8 @@ void InitOpcodes()
 {
 
 #define DEFINE_OPCODE_HANDLER(opcode, status, processing, handler)                              \
+    if (opcode == 0)                                                                            \
+        sLog->outError("Opcode %s got value 0", #opcode);                                       \
     if (opcode < NUM_OPCODE_HANDLERS) {                                                         \
         if (opcodeTable[opcode] != NULL)                                                        \
         {                                                                                       \
