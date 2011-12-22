@@ -127,7 +127,7 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(CMSG_PET_NAME_QUERY,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandlePetNameQuery              );
      //DEFINE_OPCODE_HANDLER(SMSG_PET_NAME_QUERY_RESPONSE,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(CMSG_GUILD_QUERY,                             STATUS_AUTHED,   PROCESS_THREADUNSAFE, &WorldSession::HandleGuildQueryOpcode          );
-     //DEFINE_OPCODE_HANDLER(SMSG_GUILD_QUERY_RESPONSE,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_GUILD_QUERY_RESPONSE,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_ITEM_QUERY_SINGLE,                       STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleItemQuerySingleOpcode     );
      //DEFINE_OPCODE_HANDLER(CMSG_ITEM_QUERY_MULTIPLE,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
      //DEFINE_OPCODE_HANDLER(SMSG_ITEM_QUERY_SINGLE_RESPONSE,              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
@@ -188,7 +188,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_DISBAND,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildDisbandOpcode        );
      DEFINE_OPCODE_HANDLER(CMSG_GUILD_LEADER,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildLeaderOpcode         );
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_MOTD,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildMOTDOpcode           );
-     //DEFINE_OPCODE_HANDLER(SMSG_GUILD_EVENT,                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_GUILD_EVENT,                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_GUILD_COMMAND_RESULT,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(UMSG_UPDATE_GUILD,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
      DEFINE_OPCODE_HANDLER(CMSG_MESSAGECHAT_ADDON_BATTLEGROUND,          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAddonMessagechatOpcode    );
