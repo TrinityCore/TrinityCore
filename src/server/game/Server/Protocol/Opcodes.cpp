@@ -457,7 +457,7 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(SMSG_QUESTGIVER_QUEST_DETAILS,                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_ACCEPT_QUEST,                 STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverAcceptQuestOpcode);
      DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_COMPLETE_QUEST,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverCompleteQuest   );
-     //DEFINE_OPCODE_HANDLER(SMSG_QUESTGIVER_REQUEST_ITEMS,                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_QUESTGIVER_REQUEST_ITEMS,                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_REQUEST_REWARD,               STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverRequestRewardOpcode);
      //DEFINE_OPCODE_HANDLER(SMSG_QUESTGIVER_OFFER_REWARD,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(CMSG_QUESTGIVER_CHOOSE_REWARD,                STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestgiverChooseRewardOpcode);
