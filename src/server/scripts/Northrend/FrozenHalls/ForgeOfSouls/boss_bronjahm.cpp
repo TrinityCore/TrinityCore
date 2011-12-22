@@ -215,7 +215,6 @@ class mob_corrupted_soul_fragment : public CreatureScript
                         if (Creature* bronjahm = ObjectAccessor::GetCreature(*me, BronjahmGUID))
                             me->CastSpell(bronjahm, SPELL_CONSUME_SOUL, true);
 
-                        summ->GetMotionMaster()->MoveIdle();
                         summ->UnSummon();
                     }
                 }
