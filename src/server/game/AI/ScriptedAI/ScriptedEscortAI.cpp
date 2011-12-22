@@ -543,7 +543,6 @@ bool npc_escortAI::GetWaypointPosition(uint32 pointId, float& x, float& y, float
     if (waypoints.empty())
         return false;
 
-    ScriptPointVector::const_iterator itrEnd = waypoints.end();
     for (ScriptPointVector::const_iterator itr = waypoints.begin(); itr != waypoints.end(); ++itr)
     {
         if (itr->uiPointId == pointId)

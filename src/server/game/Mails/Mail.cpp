@@ -171,6 +171,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
 void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
+    Player* pSender = sObjectMgr->GetPlayerByLowGUID(sender.GetSenderId());
 
     if (pReceiver)
         prepareItems(pReceiver, trans);                            // generate mail template items
@@ -188,9 +189,12 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
     // mail from battlemaster (rewardmarks) should last only one day
     else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
         expire_delay = DAY;
-     // default case: expire time if COD 3 days, if no COD 30 days
+     // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else
-        expire_delay = (m_COD > 0) ? 3 * DAY : 30 * DAY;
+        if (m_COD)
+            expire_delay = 3 * DAY;
+        else
+            expire_delay = pSender && pSender->isGameMaster() ? 90 * DAY : 30 * DAY;
 
     time_t expire_time = deliver_time + expire_delay;
 

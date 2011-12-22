@@ -3818,11 +3818,11 @@ void ObjectMgr::LoadQuests()
                 // no changes, quest not dependent from this value but can have problems at client (note some may be 0, we must allow this so no check)
             }
             //check for proper RequiredSkillId value (skill case)
-            if (int32 skill_id =  SkillByQuestSort(-int32(qinfo->ZoneOrSort)))
+            if (uint32 skill_id = SkillByQuestSort(-int32(qinfo->ZoneOrSort)))
             {
                 if (qinfo->RequiredSkillId != skill_id)
                 {
-                    sLog->outErrorDb("Quest %u has `ZoneOrSort` = %i but `RequiredSkillId` does not have a corresponding value (%i).",
+                    sLog->outErrorDb("Quest %u has `ZoneOrSort` = %i but `RequiredSkillId` does not have a corresponding value (%d).",
                         qinfo->GetQuestId(), qinfo->ZoneOrSort, skill_id);
                     //override, and force proper value here?
                 }
@@ -6721,9 +6721,15 @@ void ObjectMgr::LoadCorpses()
     {
         Field* fields = result->Fetch();
         uint32 guid = fields[16].GetUInt32();
+        CorpseType type = CorpseType(fields[13].GetUInt8());
+        if (type >= MAX_CORPSE_TYPE)
+        {
+            sLog->outError("Corpse (guid: %u) have wrong corpse type (%u), not loading.", guid, type);
+            continue;
+        }
 
-        Corpse* corpse = new Corpse();
-        if (!corpse->LoadFromDB(guid, fields))
+        Corpse* corpse = new Corpse(type);
+        if (!corpse->LoadCorpseFromDB(guid, fields))
         {
             delete corpse;
             continue;
@@ -8040,8 +8046,11 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 
     m_GameTeleMap[new_id] = tele;
 
+    std::string safeName(tele.name);
+    WorldDatabase.EscapeString(safeName);
+
     WorldDatabase.PExecute("INSERT INTO game_tele (id, position_x, position_y, position_z, orientation, map, name) VALUES (%u, %f, %f, %f, %f, %d, '%s')",
-        new_id, tele.position_x, tele.position_y, tele.position_z, tele.orientation, tele.mapId, tele.name.c_str());
+        new_id, tele.position_x, tele.position_y, tele.position_z, tele.orientation, tele.mapId, safeName.c_str());
     return true;
 }
 

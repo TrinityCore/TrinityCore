@@ -34,7 +34,8 @@ enum Spells
     H_SPELL_MIND_BLAST                          = 58850,
     SPELL_SLEEP                                 = 52721, //Puts an enemy to sleep for up to 10 sec. Any damage caused will awaken the target.
     H_SPELL_SLEEP                               = 58849,
-    SPELL_VAMPIRIC_TOUCH                        = 52723 //Heals the caster for half the damage dealt by a melee attack.
+    SPELL_VAMPIRIC_TOUCH                        = 52723, //Heals the caster for half the damage dealt by a melee attack.
+    SPELL_KILL_CREDIT                           = 58630  // Non-existing spell as encounter credit, created in spell_dbc
 };
 
 enum Yells
@@ -237,9 +238,8 @@ public:
             {
                 instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
 
-                // give achievement credit to players. criteria use spell 58630 which doesn't exist.
-                if (instance)
-                    instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 58630);
+                // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
+                DoCast(me, SPELL_KILL_CREDIT);
             }
         }
 
