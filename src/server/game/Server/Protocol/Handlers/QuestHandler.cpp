@@ -449,16 +449,26 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
     }
 }
 
-void WorldSession::HandleQuestConfirmAccept(WorldPacket& recv_data)
+void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 {
-    uint32 quest;
-    recv_data >> quest;
+    uint64 questGiverGuid;
+    uint32 questId;
+    uint32 unkInt;
+    recvData >> questGiverGuid>> questId >> unkInt;
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT quest = %u", quest);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT questId = %u", questId);
 
-    if (const Quest* pQuest = sObjectMgr->GetQuestTemplate(quest))
+    if (IS_UNIT_GUID(questGiverGuid))
+        if (!GetPlayer()->GetNPCIfCanInteractWith(questGiverGuid, UNIT_NPC_FLAG_QUESTGIVER))
+            return;
+    if (IS_GAMEOBJECT_GUID(questGiverGuid))
+        if (!GetPlayer()->GetGameObjectIfCanInteractWith(questGiverGuid, GAMEOBJECT_TYPE_QUESTGIVER))
+            return;
+    // Can items be quest giver?
+
+    if (const Quest* quest = sObjectMgr->GetQuestTemplate(questId))
     {
-        if (!pQuest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
+        if (!quest->HasFlag(QUEST_FLAGS_PARTY_ACCEPT))
             return;
 
         Player* pOriginalPlayer = ObjectAccessor::FindPlayer(_player->GetDivider());
@@ -466,7 +476,7 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recv_data)
         if (!pOriginalPlayer)
             return;
 
-        if (pQuest->IsRaidQuest())
+        if (quest->IsRaidQuest())
         {
             if (!_player->IsInSameRaidWith(pOriginalPlayer))
                 return;
@@ -477,8 +487,8 @@ void WorldSession::HandleQuestConfirmAccept(WorldPacket& recv_data)
                 return;
         }
 
-        if (_player->CanAddQuest(pQuest, true))
-            _player->AddQuest(pQuest, NULL);                // NULL, this prevent DB script from duplicate running
+        if (_player->CanAddQuest(quest, true))
+            _player->AddQuest(quest, NULL);                // NULL, this prevent DB script from duplicate running
 
         _player->SetDivider(0);
     }
@@ -765,7 +775,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
     SendPacket(&data);
 }
 
-void WorldSession::HandleQueryQuestsCompleted(WorldPacket & /*recv_data*/)
+void WorldSession::HandleQueryQuestsCompleted(WorldPacket & /*recvData*/)
 {
     size_t rew_count = _player->GetRewardedQuestCount();
 

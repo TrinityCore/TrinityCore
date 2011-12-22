@@ -350,7 +350,7 @@ enum Opcodes
     CMSG_QUESTGIVER_STATUS_MULTIPLE_QUERY            = 0xC8DB,
     CMSG_QUESTGIVER_STATUS_QUERY                     = 0x88C6,
     CMSG_QUESTLOG_REMOVE_QUEST                       = 0x8EFF,
-    CMSG_QUEST_POI_QUERY                             = 0x00,
+    CMSG_QUEST_POI_QUERY                             = 0x12A5,
     CMSG_QUEST_CONFIRM_ACCEPT                        = 0xC63,
     CMSG_RANDOMIZE_CHAR_NAME                         = 0x8A99, //  byte unk, byte race
     CMSG_READY_FOR_ACCOUNT_DATA_TIMES                = 0xCCDB,

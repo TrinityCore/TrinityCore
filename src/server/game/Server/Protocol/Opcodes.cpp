@@ -473,7 +473,7 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(SMSG_QUESTUPDATE_COMPLETE,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_QUESTUPDATE_ADD_KILL,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_QUESTUPDATE_ADD_ITEM,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-     //DEFINE_OPCODE_HANDLER(CMSG_QUEST_CONFIRM_ACCEPT,                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestConfirmAccept        );
+     DEFINE_OPCODE_HANDLER(CMSG_QUEST_CONFIRM_ACCEPT,                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestConfirmAccept        );
      //DEFINE_OPCODE_HANDLER(SMSG_QUEST_CONFIRM_ACCEPT,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_PUSHQUESTTOPARTY,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandlePushQuestToParty          );
      DEFINE_OPCODE_HANDLER(CMSG_LIST_INVENTORY,                          STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleListInventoryOpcode       );
