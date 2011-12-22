@@ -645,7 +645,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
     data << questTitle;
     data << requestItemsText;
 
-    data << uint32(0x00);                                   // unknown
+    data << uint32(0);                                   // unknown
 
     if (canComplete)
         data << quest->GetCompleteEmote();
@@ -653,10 +653,7 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
         data << quest->GetIncompleteEmote();
 
     // Close Window after cancel
-    if (closeOnCancel)
-        data << uint32(0x01);
-    else
-        data << uint32(0x00);
+    data << uint32(closeOnCancel);
 
     data << uint32(quest->GetFlags());                      // 3.3.3 questFlags
     data << uint32(quest->GetSuggestedPlayers());           // SuggestedGroupNum
@@ -679,14 +676,17 @@ void PlayerMenu::SendQuestGiverRequestItems(Quest const* quest, uint64 npcGUID, 
             data << uint32(0);
     }
 
-    if (!canComplete)
-        data << uint32(0x00);
-    else
-        data << uint32(0x03);
+    // if (!canComplete)
+    //     data << uint32(0x00);
+    // else
+    //     data << uint32(0x03);
 
-    data << uint32(0x04);
-    data << uint32(0x08);
-    data << uint32(0x10);
+    data << uint32(0x00);                                   // Unk flags
+    data << uint32(0x00);                                   // Unk flags
+    data << uint32(0x04);                                   // Unk flags
+    data << uint32(0x08);                                   // Unk flags
+    data << uint32(0x10);                                   // Unk flags 4.x
+    data << uint32(0x40);                                   // Unk flags 4.x
 
     _session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_REQUEST_ITEMS NPCGuid=%u, questid=%u", GUID_LOPART(npcGUID), quest->GetQuestId());
