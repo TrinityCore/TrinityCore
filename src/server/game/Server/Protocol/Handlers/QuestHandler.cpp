@@ -37,8 +37,8 @@ void WorldSession::HandleQuestgiverStatusQueryOpcode(WorldPacket & recv_data)
 {
     uint64 guid;
     recv_data >> guid;
-    uint8 questStatus = DIALOG_STATUS_NONE;
-    uint8 defstatus = DIALOG_STATUS_NONE;
+    uint32 questStatus = DIALOG_STATUS_NONE;
+    uint32 defstatus = DIALOG_STATUS_NONE;
 
     Object* questgiver = ObjectAccessor::GetObjectByTypeMask(*_player, guid, TYPEMASK_UNIT|TYPEMASK_GAMEOBJECT);
     if (!questgiver)
@@ -730,13 +730,13 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
 
     uint32 count = 0;
 
-    WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE, 4);
+    WorldPacket data(SMSG_QUESTGIVER_STATUS_MULTIPLE, 4 + 8 + 4);
     data << uint32(count);                                  // placeholder
 
     for (Player::ClientGUIDs::const_iterator itr = _player->m_clientGUIDs.begin(); itr != _player->m_clientGUIDs.end(); ++itr)
     {
-        uint8 questStatus = DIALOG_STATUS_NONE;
-        uint8 defstatus = DIALOG_STATUS_NONE;
+        uint32 questStatus = DIALOG_STATUS_NONE;
+        uint32 defstatus = DIALOG_STATUS_NONE;
 
         if (IS_CRE_OR_VEH_OR_PET_GUID(*itr))
         {
@@ -751,7 +751,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
                 questStatus = getDialogStatus(_player, questgiver, defstatus);
 
             data << uint64(questgiver->GetGUID());
-            data << uint8(questStatus);
+            data << uint32(questStatus);
             ++count;
         }
         else if (IS_GAMEOBJECT_GUID(*itr))
@@ -766,7 +766,7 @@ void WorldSession::HandleQuestgiverStatusMultipleQuery(WorldPacket& /*recvPacket
                 questStatus = getDialogStatus(_player, questgiver, defstatus);
 
             data << uint64(questgiver->GetGUID());
-            data << uint8(questStatus);
+            data << uint32(questStatus);
             ++count;
         }
     }
