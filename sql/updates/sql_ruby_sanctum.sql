@@ -52,7 +52,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_mark_of_consu
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_consumption_summon';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_leave_twilight_realm';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_enter_twilight_realm';
-DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter_triggered';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74641, 'spell_halion_meteor_strike_marker'),
 (74562, 'spell_halion_fiery_combustion'),
@@ -63,10 +63,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74800, 'spell_halion_combustion_consumption_summon'),
 (74812, 'spell_halion_leave_twilight_realm'),
 (74807, 'spell_halion_enter_twilight_realm'),
-(74769, 'spell_halion_twilight_cutter_triggered'),
-(77844, 'spell_halion_twilight_cutter_triggered'),
-(77845, 'spell_halion_twilight_cutter_triggered'),
-(77846, 'spell_halion_twilight_cutter_triggered');
+(74769, 'spell_halion_twilight_cutter'),
+(77844, 'spell_halion_twilight_cutter'),
+(77845, 'spell_halion_twilight_cutter'),
+(77846, 'spell_halion_twilight_cutter');
 
 -- Texts
 DELETE FROM `creature` WHERE `id`=40146;

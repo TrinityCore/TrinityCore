@@ -1491,33 +1491,34 @@ class spell_halion_enter_twilight_realm : public SpellScriptLoader
         }
 };
 
-/*class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
+class spell_halion_twilight_cutter : public SpellScriptLoader
 {
     public:
-        spell_halion_twilight_cutter_triggered() : SpellScriptLoader("spell_halion_twilight_cutter_triggered") { }
+        spell_halion_twilight_cutter() : SpellScriptLoader("spell_halion_twilight_cutter") { }
 
-        class spell_halion_twilight_cutter_triggered_SpellScript : public SpellScript
+        class spell_halion_twilight_cutter_SpellScript : public SpellScript
         {
-            PrepareSpellScript(spell_halion_twilight_cutter_triggered_SpellScript);
+            PrepareSpellScript(spell_halion_twilight_cutter_SpellScript);
 
-            void FilterTargets(std::list<Unit*>& unitList)
+            void RemoveNotBetween(std::list<Unit*>& targets)
             {
                 Unit* caster = GetCaster();
-                Unit* target = GetTargetUnit();
-                unitList.remove_if(IsNotBetweenSelector(caster, target));
+                if (Aura* cutter = GetCaster()->GetAura(SPELL_TWILIGHT_CUTTER))
+                    if (Unit* cutterCaster = cutter->GetCaster())
+                        targets.remove_if([cutterCaster, caster](Unit* target) { return !target->IsInBetween(cutterCaster, caster); }); // This is C++11 A.K.A C++0x
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_halion_twilight_cutter_triggered_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_halion_twilight_cutter_SpellScript::RemoveNotBetween, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
-            return new spell_halion_twilight_cutter_triggered_SpellScript();
+            return new spell_halion_twilight_cutter_SpellScript();
         }
-};*/
+};
 
 void AddSC_boss_halion()
 {
@@ -1540,5 +1541,5 @@ void AddSC_boss_halion()
     new spell_halion_soul_consumption();
     new spell_halion_leave_twilight_realm();
     new spell_halion_enter_twilight_realm();
-    //new spell_halion_twilight_cutter_triggered();
+    new spell_halion_twilight_cutter();
 }
