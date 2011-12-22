@@ -975,9 +975,8 @@ class npc_combustion : public CreatureScript
             npc_combustionAI(Creature* creature) : Scripted_NoMovementAI(creature),
                 _instance(creature->GetInstanceScript())
             {
-                me->SetPhaseMask(0x1, true);
-                if (me->GetMap()->IsHeroic())
-                    me->SetPhaseMask(0x21, true);
+                if (IsHeroic())
+                    me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
             }
 
             void IsSummonedBy(Unit* summoner)
@@ -999,6 +998,7 @@ class npc_combustion : public CreatureScript
             }
 
             void UpdateAI(const uint32 /*diff*/) { }
+
         private:
             InstanceScript* _instance;
         };
@@ -1020,8 +1020,8 @@ class npc_consumption : public CreatureScript
                    _instance(creature->GetInstanceScript())
             {
                 me->SetPhaseMask(0x20, true);
-                if (me->GetMap()->IsHeroic())
-                    me->SetPhaseMask(0x21, true);
+                if (IsHeroic())
+                    me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
             }
 
             void IsSummonedBy(Unit* summoner)
@@ -1043,6 +1043,7 @@ class npc_consumption : public CreatureScript
             }
 
             void UpdateAI(const uint32 /*diff*/) { }
+
         private:
             InstanceScript* _instance;
         };
