@@ -140,36 +140,23 @@ enum Actions
 
 enum Phases
 {
-    PHASE_ALL       = 0,
-    PHASE_ONE       = 1,
-    PHASE_TWO       = 2,
-    PHASE_THREE     = 3,
+    PHASE_ALL           = 0,
+    PHASE_ONE           = 1,
+    PHASE_TWO           = 2,
+    PHASE_THREE         = 3,
 
-    PHASE_ONE_MASK = 1 << PHASE_ONE,
-    PHASE_TWO_MASK = 1 << PHASE_TWO,
-    PHASE_THREE_MASK = 1 << PHASE_THREE,
+    PHASE_ONE_MASK      = 1 << PHASE_ONE,
+    PHASE_TWO_MASK      = 1 << PHASE_TWO,
+    PHASE_THREE_MASK    = 1 << PHASE_THREE,
 };
 
 enum Misc
 {
-    TWILIGHT_DAMAGE_TAKEN   = 1,
-    MATERIAL_DAMAGE_TAKEN   = 2,
-};
-
-enum GUIDs
-{
-    GUID_ORB_ROTATION_FOCUS = 0,
+    DATA_TWILIGHT_DAMAGE_TAKEN   = 1,
+    DATA_MATERIAL_DAMAGE_TAKEN   = 2,
 };
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
-
-/*Position const ShadowOrbsSpawnPos[4] =
-{
-    {3203.67f, 533.8108f, 74.6f, 3.159046f}, // North - On Heroic
-    {3109.67f, 533.8108f, 74.6f, 3.159046f}, // South - On Heroic
-    {3156.67f, 486.8108f, 74.6f, 3.159046f}, // East
-    {3156.67f, 580.8108f, 74.6f, 3.159046f} //  West
-};*/
 
 /*Position const PortalsSpawnPos[2] =
 {
@@ -185,9 +172,9 @@ struct CorporealityData
     uint8 twilightPercentage;
 };
 
-#define MAX_CORPOREALITY_DATA 11
+uint32 const MAX_CORPOREALITY_STATE = 12;
 
-CorporealityData const corporealityReference[MAX_CORPOREALITY_DATA] =
+CorporealityData const corporealityReference[MAX_CORPOREALITY_STATE] =
 {
     {  0, 74836, 74831, 100},
     { 10, 74835, 74830,  90},
@@ -255,9 +242,9 @@ class boss_halion : public CreatureScript
                     controller->AI()->DoAction(ACTION_REMOVE_EXIT_PORTALS);
                 }
 
-                if (Creature* tHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
-                    if (tHalion->isAlive())
-                        killer->Kill(tHalion);
+                if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_TWILIGHT_HALION)))
+                    if (twilightHalion->isAlive())
+                        twilightHalion->Kill(twilightHalion);
             }
 
             void JustReachedHome()
@@ -301,7 +288,7 @@ class boss_halion : public CreatureScript
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
-                        controller->AI()->SetData(MATERIAL_DAMAGE_TAKEN, damage);
+                        controller->AI()->SetData(DATA_MATERIAL_DAMAGE_TAKEN, damage);
             }
 
             void UpdateAI(uint32 const diff)
@@ -454,7 +441,7 @@ class boss_twilight_halion : public CreatureScript
 
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                        controller->AI()->SetData(TWILIGHT_DAMAGE_TAKEN, damage);
+                        controller->AI()->SetData(DATA_TWILIGHT_DAMAGE_TAKEN, damage);
             }
 
             void SpellHitTarget(Unit* /*who*/, const SpellInfo* spell)
@@ -465,7 +452,7 @@ class boss_twilight_halion : public CreatureScript
                 DoCast(me, 74826); // 50% corporeality
                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                 {
-                    halion->AI()->DoCast(halion, 74826); // 50% corporeality
+                    halion->CastSpell(halion, 74826, false); // 50% corporeality
                     halion->RemoveAurasDueToSpell(SPELL_TWILIGHT_PHASING);
                     halion->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                     if (HalionAI* halionAI = CAST_AI(HalionAI, halion->AI()))
@@ -626,14 +613,14 @@ class npc_halion_controller : public CreatureScript
                             DoCast(me, SPELL_COSMETIC_FIRE_PILLAR, true);
                             break;
                         case EVENT_INTRO_PROGRESS_1:
-                            for (uint8 i = 2; i < 4; ++i)
-                                if (GameObject* tree = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_BURNING_TREE_1 + i)))
-                                    _instance->HandleGameObject(_instance->GetData64(DATA_BURNING_TREE_1 + i), true, tree);
+                            for (uint8 i = DATA_BURNING_TREE_3; i < DATA_BURNING_TREE_4; ++i)
+                                if (GameObject* tree = ObjectAccessor::GetGameObject(*me, _instance->GetData64(i)))
+                                    _instance->HandleGameObject(_instance->GetData64(i), true, tree);
                             break;
                         case EVENT_INTRO_PROGRESS_2:
-                            for (uint8 i = 0; i < 2; ++i)
-                                if (GameObject* tree = ObjectAccessor::GetGameObject(*me, _instance->GetData64(DATA_BURNING_TREE_1 + i)))
-                                    _instance->HandleGameObject(_instance->GetData64(DATA_BURNING_TREE_1 + i), true, tree);
+                            for (uint8 i = DATA_BURNING_TREE_1; i < DATA_BURNING_TREE_2; ++i)
+                                if (GameObject* tree = ObjectAccessor::GetGameObject(*me, _instance->GetData64(i)))
+                                    _instance->HandleGameObject(_instance->GetData64(i), true, tree);
                             break;
                         case EVENT_INTRO_PROGRESS_3:
                             DoCast(me, SPELL_FIERY_EXPLOSION);
@@ -643,8 +630,8 @@ class npc_halion_controller : public CreatureScript
                         // This event can't be in the Shadow Pulsars, else Halion would yell at every world update tick.
                         case EVENT_SHADOW_PULSARS_SHOOT:
                         {
-                            if (Creature* tHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
-                                tHalion->AI()->Talk(SAY_SPHERE_PULSE);
+                            if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
+                                twilightHalion->AI()->Talk(SAY_SPHERE_PULSE);
 
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                             _events.ScheduleEvent(EVENT_WARN_LASERS, 25000);
@@ -695,15 +682,15 @@ class npc_halion_controller : public CreatureScript
 
                             if (canUpdate)
                             {
-                                uint32 tValue = 100 - corporealityValue;
-                                uint32 pValue = corporealityValue;
-                                uint32 tSpell, pSpell;
-                                for (uint8 i = 0; i < 12; i++)
+                                uint32 twilightValue = 100 - corporealityValue;
+                                uint32 physicalValue = corporealityValue;
+                                uint32 twilightSpell, physicalSpell;
+                                for (uint8 i = 0; i < MAX_CORPOREALITY_STATE; i++)
                                 {
-                                    if (corporealityReference[i].physicalPercentage == pValue && corporealityReference[i].twilightPercentage == tValue)
+                                    if (corporealityReference[i].physicalPercentage == physicalValue && corporealityReference[i].twilightPercentage == twilightValue)
                                     {
-                                        tSpell = corporealityReference[i].twilightRealmSpellId;
-                                        pSpell = corporealityReference[i].physicalRealmSpellId;
+                                        twilightSpell = corporealityReference[i].twilightRealmSpellId;
+                                        physicalSpell = corporealityReference[i].physicalRealmSpellId;
                                         break;
                                     }
                                 }
@@ -713,19 +700,19 @@ class npc_halion_controller : public CreatureScript
                                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION + i)))
                                     {
                                         RemoveAnyCorporealityBuff(halion);
-                                        halion->AI()->DoCast(halion, (i ? tSpell : pSpell), true);
+                                        halion->CastSpell(halion, (i ? twilightSpell : physicalSpell), true);
                                     }
                                 }
 
-                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, pValue);
-                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, tValue);
+                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_MATERIAL, physicalValue);
+                                _instance->DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TWILIGHT, twilightValue);
 
                                 Map::PlayerList const &PlList = me->GetMap()->GetPlayers();
                                 for (Map::PlayerList::const_iterator i = PlList.begin(); i != PlList.end(); ++i)
                                 {
                                     if (Player* player = i->getSource())
                                     {
-                                        if (pValue > tValue)
+                                        if (physicalValue > twilightValue)
                                         {
                                             if (player->HasAura(SPELL_TWILIGHT_REALM))
                                                 Talk(EMOTE_TWILIGHT_OUT_TWILIGHT, player->GetGUID());
@@ -755,10 +742,10 @@ class npc_halion_controller : public CreatureScript
             {
                 switch (id)
                 {
-                    case MATERIAL_DAMAGE_TAKEN:
+                    case DATA_MATERIAL_DAMAGE_TAKEN:
                         MaterialDamageTaken += value;
                         break;
-                    case TWILIGHT_DAMAGE_TAKEN:
+                    case DATA_TWILIGHT_DAMAGE_TAKEN:
                         TwilightDamageTaken += value;
                         break;
                 }
@@ -766,7 +753,7 @@ class npc_halion_controller : public CreatureScript
 
             void RemoveAnyCorporealityBuff(Creature* who)
             {
-                for (uint8 i = 0; i < 11; i++)
+                for (uint8 i = 0; i < MAX_CORPOREALITY_STATE; i++)
                 {
                     if (who->HasAura(74826 + i))
                     {
@@ -1053,6 +1040,34 @@ class npc_consumption : public CreatureScript
         }
 };
 
+class npc_orb_rotation_focus : public CreatureScript
+{
+    public:
+        npc_orb_rotation_focus() : CreatureScript("npc_orb_rotation_focus") { }
+
+        struct npc_orb_rotation_focusAI : public ScriptedAI
+        {
+            npc_orb_rotation_focusAI(Creature* creature) : ScriptedAI(creature),
+                _instance(creature->GetInstanceScript())
+            {
+                _canMove = false;
+            }
+
+            void UpdateAI(uint32 const /*diff*/)
+            {
+            }
+
+        private:
+            InstanceScript* _instance;
+            bool _canMove;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return GetRubySanctumAI<npc_orb_rotation_focusAI>(creature);
+        }
+};
+
 class npc_shadow_orb : public CreatureScript
 {
     public:
@@ -1125,27 +1140,17 @@ class spell_halion_fiery_combustion : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetTarget())
-                    return;
-
                 if (GetTarget()->HasAura(SPELL_MARK_OF_COMBUSTION))
                     GetTarget()->RemoveAurasDueToSpell(SPELL_MARK_OF_COMBUSTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                // Todo: Move this to spell_linked_spell ?
-                if (!GetTarget())
-                    return;
-
                 GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_COMBUSTION, true);
             }
 
             void AddMarkStack(AuraEffect const* /*aurEff*/)
             {
-                if (!GetTarget())
-                    return;
-
                 GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_COMBUSTION, true);
             }
 
@@ -1181,27 +1186,17 @@ class spell_halion_soul_consumption : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetTarget())
-                    return;
-
                 if (GetTarget()->HasAura(SPELL_MARK_OF_CONSUMPTION))
                     GetTarget()->RemoveAurasDueToSpell(SPELL_MARK_OF_CONSUMPTION, 0, 0, AURA_REMOVE_BY_ENEMY_SPELL);
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                // Todo: Move this to spell_linked_spell ?
-                if (!GetTarget())
-                    return;
-
                 GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_CONSUMPTION, true);
             }
 
             void AddMarkStack(AuraEffect const* /*aurEff*/)
             {
-                if (!GetTarget())
-                    return;
-
                 GetTarget()->CastSpell(GetTarget(), SPELL_MARK_OF_CONSUMPTION, true);
             }
 
@@ -1239,21 +1234,19 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetTarget())
-                    return;
+                Unit* target = GetTarget();
 
-                InstanceScript* instance = GetTarget()->GetInstanceScript();
+                InstanceScript* instance = target->GetInstanceScript();
                 if (!instance)
                     return;
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
                 // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
-                if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
-                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUID(), stacks);
+                if (Creature* controller = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_HALION_CONTROLLER)))
+                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(target->GetGUID(), stacks);
 
-                if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(SPELL_FIERY_COMBUSTION_SUMMON))
-                    GetTarget()->CastSpell(GetTarget(), spell, true);
+                target->CastSpell(target, SPELL_FIERY_COMBUSTION_SUMMON, true);
             }
 
             void Register()
@@ -1288,21 +1281,19 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                if (!GetTarget())
-                    return;
+                Unit* target = GetTarget();
 
-                InstanceScript* instance = GetTarget()->GetInstanceScript();
+                InstanceScript* instance = target->GetInstanceScript();
                 if (!instance)
                     return;
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
                 // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
-                if (Creature* controller = ObjectAccessor::GetCreature(*GetTarget(), instance->GetData64(DATA_HALION_CONTROLLER)))
-                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(GetTarget()->GetGUID(), stacks);
+                if (Creature* controller = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_HALION_CONTROLLER)))
+                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(target->GetGUID(), stacks);
 
-                if (const SpellInfo* spell = sSpellMgr->GetSpellInfo(SPELL_SOUL_CONSUMPTION_SUMMON))
-                    GetTarget()->CastSpell(GetTarget(), spell, true);
+                target->CastSpell(target, SPELL_SOUL_CONSUMPTION_SUMMON, true);
             }
 
             void Register()

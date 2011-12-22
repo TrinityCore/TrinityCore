@@ -43,13 +43,15 @@ enum DataTypes
     DATA_ZARITHIAN_SPAWN_STALKER_1          = 8,
     DATA_ZARITHIAN_SPAWN_STALKER_2          = 9,
     DATA_HALION_CONTROLLER                  = 10,
-    DATA_HALION_SHARED_HEALTH               = 11,
-    DATA_BURNING_TREE_1                     = 12,
-    DATA_BURNING_TREE_2                     = 13,
-    DATA_BURNING_TREE_3                     = 14,
-    DATA_BURNING_TREE_4                     = 15,
-    DATA_FLAME_RING                         = 16,
-    DATA_TWILIGHT_FLAME_RING                = 17,
+    DATA_ORB_CARRIER                        = 11,
+    DATA_ORB_ROTATION_FOCUS                 = 12,
+    DATA_HALION_SHARED_HEALTH               = 13,
+    DATA_BURNING_TREE_1                     = 14,
+    DATA_BURNING_TREE_2                     = 15,
+    DATA_BURNING_TREE_3                     = 16,
+    DATA_BURNING_TREE_4                     = 17,
+    DATA_FLAME_RING                         = 18,
+    DATA_TWILIGHT_FLAME_RING                = 19,
 };
 
 enum SharedActions

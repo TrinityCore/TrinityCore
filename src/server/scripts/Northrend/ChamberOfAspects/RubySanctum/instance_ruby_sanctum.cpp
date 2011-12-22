@@ -41,6 +41,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                 SavianaRagefireGUID      = 0;
                 HalionGUID               = 0;
                 TwilightHalionGUID       = 0;
+                OrbCarrierGUID           = 0;
+                OrbRotationFocusGUID     = 0;
                 HalionControllerGUID     = 0;
                 CrystalChannelTargetGUID = 0;
                 XerestraszaGUID          = 0;
@@ -72,6 +74,12 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case NPC_HALION_CONTROLLER:
                         HalionControllerGUID = creature->GetGUID();
+                        break;
+                    case NPC_ORB_CARRIER:
+                        OrbCarrierGUID = creature->GetGUID();
+                        break;
+                    case NPC_ORB_ROTATION_FOCUS:
+                        OrbRotationFocusGUID = creature->GetGUID();
                         break;
                     case NPC_BALTHARUS_TARGET:
                         CrystalChannelTargetGUID = creature->GetGUID();
@@ -166,6 +174,10 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return HalionGUID;
                     case DATA_TWILIGHT_HALION:
                         return TwilightHalionGUID;
+                    case DATA_ORB_CARRIER:
+                        return OrbCarrierGUID;
+                    case DATA_ORB_ROTATION_FOCUS:
+                        return OrbRotationFocusGUID;
                     case DATA_HALION_CONTROLLER:
                         return HalionControllerGUID;
                     case DATA_BURNING_TREE_1:
@@ -220,16 +232,12 @@ class instance_ruby_sanctum : public InstanceMapScript
                         break;
                     case DATA_HALION:
                     {
-                        switch (state)
-                        {
-                            case DONE:
-                            case FAIL:
-                            case NOT_STARTED:
-                                DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
-                                HandleGameObject(FlameRingGUID, true);
-                                HandleGameObject(TwilightFlameRingGUID, true);
-                                break;
-                        }
+                        if (state == IN_PROGRESS)
+                            break;
+
+                        DoUpdateWorldState(WORLDSTATE_CORPOREALITY_TOGGLE, 0);
+                        HandleGameObject(FlameRingGUID, true);
+                        HandleGameObject(TwilightFlameRingGUID, true);
                         break;
                     }
                     default:
@@ -327,6 +335,8 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 HalionGUID;
             uint64 TwilightHalionGUID;
             uint64 HalionControllerGUID;
+            uint64 OrbCarrierGUID;
+            uint64 OrbRotationFocusGUID;
             uint64 CrystalChannelTargetGUID;
             uint64 XerestraszaGUID;
             uint64 FlameWallsGUID;
