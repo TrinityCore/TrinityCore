@@ -171,6 +171,8 @@ class NGrid
         }
         */
 
+        //TODO: This does not compile in *nix. Hope somebody can find out how to write such template function.
+        /*
         template<class T>
         uint32 GetWorldObjectCountInNGrid() const
         {
@@ -178,6 +180,26 @@ class NGrid
             for (uint32 x = 0; x < N; ++x)
                 for (uint32 y = 0; y < N; ++y)
                     count += i_cells[x][y].template GetWorldObjectCountInGrid<T>();
+            return count;
+        }
+        */
+
+        //These two temporarily replace GetWorldObjectCountInNGrid
+        uint32 GetPlayerCountInNGrid() const
+        {
+            uint32 count = 0;
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    count += i_cells[x][y].GetWorldObjectCountInGrid<Player>();
+            return count;
+        }
+
+        uint32 GetWorldCreatureCountInNGrid() const
+        {
+            uint32 count = 0;
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    count += i_cells[x][y].GetWorldObjectCountInGrid<Creature>();
             return count;
         }
 
