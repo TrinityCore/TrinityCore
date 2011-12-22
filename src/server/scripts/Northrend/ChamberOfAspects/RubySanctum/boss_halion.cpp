@@ -22,6 +22,7 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "Vehicle.h"
 #include "MapManager.h"
 #include "ruby_sanctum.h"
 
@@ -139,6 +140,8 @@ enum Actions
     ACTION_REMOVE_EXIT_PORTALS  = 7,
 
     ACTION_BEGIN_ROTATION       = 8, // Orb Rotation Focus
+
+    ACTION_SHOOT                = 9, // Orb Carrier
 };
 
 enum Phases
@@ -157,6 +160,14 @@ enum Misc
 {
     DATA_TWILIGHT_DAMAGE_TAKEN   = 1,
     DATA_MATERIAL_DAMAGE_TAKEN   = 2,
+};
+
+enum OrbCarrierSeats
+{
+    SEAT_NORTH            = 0,
+    SEAT_SOUTH            = 1,
+    SEAT_EAST             = 2, // Heroic
+    SEAT_WEST             = 3, // Heroic
 };
 
 Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
@@ -331,17 +342,18 @@ class boss_halion : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
+                if (!(events.GetPhaseMask() & PHASE_ONE_MASK))
+                    me->SetHealth(instance->GetData(DATA_HALION_SHARED_HEALTH));
 
                 if (!UpdateVictim() && (events.GetPhaseMask() & (PHASE_ONE_MASK | PHASE_THREE_MASK)))
+                    return;
+
+                if (me->HasUnitState(UNIT_STAT_CASTING))
                     return;
 
                 // Events won't be updated under phase two.
                 if (!(events.GetPhaseMask() & PHASE_TWO_MASK))
                     events.Update(diff);
-
-                if (me->HasUnitState(UNIT_STAT_CASTING))
-                    return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
@@ -1092,18 +1104,18 @@ class npc_orb_rotation_focus : public CreatureScript
                 npc_escortAI::SetDespawnAtEnd(false);
             }
 
+            void Reset()
+            {
+                for (uint8 i = 0; i < MAX_PATH_ROTATION_FOCUS_WAYPOINTS; i++)
+                    AddWaypoint(i, RotationFocusWaypoints[i].GetPositionX(), RotationFocusWaypoints[i].GetPositionY(), RotationFocusWaypoints[i].GetPositionZ());
+            }
+
             void DoAction(uint32 action)
             {
                 if (action != ACTION_BEGIN_ROTATION)
                     return;
 
                 Start(true, false, 0, 0, false, true);
-            }
-
-            void AddWaypoints()
-            {
-                for (uint8 i = 0; i < MAX_PATH_ROTATION_FOCUS_WAYPOINTS; i++)
-                    AddWaypoint(i, RotationFocusWaypoints[i].GetPositionX(), RotationFocusWaypoints[i].GetPositionY(), RotationFocusWaypoints[i].GetPositionZ());
             }
         };
 
@@ -1113,29 +1125,41 @@ class npc_orb_rotation_focus : public CreatureScript
         }
 };
 
-class npc_shadow_orb : public CreatureScript
+class npc_orb_carrier : public CreatureScript
 {
     public:
-        npc_shadow_orb() : CreatureScript("npc_shadow_orb") { }
+        npc_orb_carrier() : CreatureScript("npc_orb_carrier") { }
 
-        struct npc_shadow_orbAI : public ScriptedAI
+        struct npc_orb_carrierAI : public ScriptedAI
         {
-            npc_shadow_orbAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
+            npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature)
             {
+                ASSERT(creature->GetVehicleKit());
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void DoAction(uint32 action)
             {
-            }
+                if (action == ACTION_SHOOT)
+                {
+                    Vehicle* vehicle = me->GetVehicleKit();
 
-        private:
-            InstanceScript* _instance;
+                    if (vehicle->GetVehicleInfo()->m_ID == 764 || vehicle->GetVehicleInfo()->m_ID == 718)
+                        if (Unit* southOrb = vehicle->GetPassenger(SEAT_SOUTH))
+                            if (Unit* northOrb = vehicle->GetPassenger(SEAT_NORTH))
+                                northOrb->CastSpell(southOrb, SPELL_TWILIGHT_CUTTER);
+
+                    // Doublecheck which one casts on which here. Not a big deal, but hey! « Blizzlike » :p
+                    if (vehicle->GetVehicleInfo()->m_ID == 764)
+                        if (Unit* eastOrb = vehicle->GetPassenger(SEAT_EAST))
+                            if (Unit* westOrb = vehicle->GetPassenger(SEAT_WEST))
+                                eastOrb->CastSpell(westOrb, SPELL_TWILIGHT_CUTTER);
+                }
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetRubySanctumAI<npc_shadow_orbAI>(creature);
+            return GetRubySanctumAI<npc_orb_carrierAI>(creature);
         }
 };
 
@@ -1505,7 +1529,8 @@ void AddSC_boss_halion()
     new npc_meteor_strike();
     new npc_combustion();
     new npc_consumption();
-    new npc_shadow_orb();
+    new npc_orb_rotation_focus();
+    new npc_orb_carrier();
 
     new spell_halion_meteor_strike_marker();
     new spell_halion_combustion_consumption_summon();

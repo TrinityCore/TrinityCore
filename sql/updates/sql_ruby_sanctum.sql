@@ -29,7 +29,7 @@ UPDATE `creature_template` SET `difficulty_entry_1`=40143,`difficulty_entry_2`=4
 UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35,`faction_A`=14,`faction_H`=14 WHERE `entry` IN (39863,39864,39944,39945,40142,40143,40144,40145); -- Halion & Twilight Halion
 UPDATE `creature_template` SET `mindmg`=422,`maxdmg`=586,`attackpower`=642,`dmg_multiplier`=7.5 WHERE `entry` IN (40417,40418,4049,40420,40421,40422,40423,40424); -- Trash mobs
 UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35 WHERE `entry` IN (39751,39920,39747,39823,39746,39805); -- Miniboss
-UPDATE `creature_template` SET `faction_A`=14, `faction_H`=14 WHERE `entry` IN(40143,40144,40145);
+UPDATE `creature_template` SET `faction_A`=14, `faction_H`=14, `exp`=2 WHERE `entry` IN (40143,40144,40145);
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (39863, 40142);
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
@@ -100,5 +100,5 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 SET @GUID = XXX; -- Set by TDB team (Need 2)
 DELETE FROM `creature` WHERE `id` IN (40081, 40091);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
-(@GUID  ,40091,724,1,1,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
-(@GUID+1,40081,724,1,1,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Orb Carrier
+(@GUID  ,40091,724,1,20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
+(@GUID+1,40081,724,1,20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Orb Carrier
