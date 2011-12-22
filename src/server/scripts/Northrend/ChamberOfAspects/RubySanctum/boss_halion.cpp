@@ -1359,16 +1359,24 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
     public:
         spell_halion_leave_twilight_realm() : SpellScriptLoader("spell_halion_leave_twilight_realm") { }
 
+        class spell_halion_leave_twilight_realm_AuraScript: public AuraScript
+        {
+            PrepareAuraScript(spell_halion_leave_twilight_realm_AuraScript);
+
+            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*handle*/)
+            {
+                GetTarget()->RemoveAurasDueToSpell(SPELL_TWILIGHT_REALM);
+            }
+
+            void Register()
+            {
+                AfterEffectRemove += AuraEffectRemoveFn(spell_halion_leave_twilight_realm_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL); 
+            }
+        };
+
         class spell_halion_leave_twilight_realm_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_halion_leave_twilight_realm_SpellScript);
-
-            // SPELL_AURA_DUMMY with value 32 (0x20, phase). Blizzard dev got tired this day ? SPELL_AURA_PHASE is 261.
-            void HandleAfterHit()
-            {
-                if (Player* plr = GetHitPlayer())
-                    plr->RemoveAurasDueToSpell(SPELL_TWILIGHT_REALM);
-            }
 
             void HandleBeforeHit()
             {
@@ -1380,13 +1388,17 @@ class spell_halion_leave_twilight_realm : public SpellScriptLoader
             void Register()
             {
                 BeforeHit += SpellHitFn(spell_halion_leave_twilight_realm_SpellScript::HandleBeforeHit);
-                AfterHit += SpellHitFn(spell_halion_leave_twilight_realm_SpellScript::HandleAfterHit);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_halion_leave_twilight_realm_SpellScript();
+        }
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_halion_leave_twilight_realm_AuraScript();
         }
 };
 
@@ -1418,22 +1430,7 @@ class spell_halion_enter_twilight_realm : public SpellScriptLoader
         }
 };
 
-class IsNotBetweenSelector
-{
-    public:
-        IsNotBetweenSelector(Unit* caster, Unit* target) : _caster(caster), _target(target) { }
-
-        bool operator()(Unit* unit)
-        {
-            return !unit->IsInBetween(_caster, _target);
-        }
-
-    private:
-        Unit* _caster;
-        Unit* _target;
-};
-
-class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
+/*class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
 {
     public:
         spell_halion_twilight_cutter_triggered() : SpellScriptLoader("spell_halion_twilight_cutter_triggered") { }
@@ -1459,7 +1456,7 @@ class spell_halion_twilight_cutter_triggered : public SpellScriptLoader
         {
             return new spell_halion_twilight_cutter_triggered_SpellScript();
         }
-};
+};*/
 
 void AddSC_boss_halion()
 {
@@ -1481,5 +1478,5 @@ void AddSC_boss_halion()
     new spell_halion_soul_consumption();
     new spell_halion_leave_twilight_realm();
     new spell_halion_enter_twilight_realm();
-    new spell_halion_twilight_cutter_triggered();
+    //new spell_halion_twilight_cutter_triggered();
 }

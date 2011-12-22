@@ -50,9 +50,6 @@ enum DataTypes
     DATA_BURNING_TREE_4                     = 15,
     DATA_FLAME_RING                         = 16,
     DATA_TWILIGHT_FLAME_RING                = 17,
-    DATA_EXIT_PORTAL_1                      = 18,
-    DATA_EXIT_PORTAL_2                      = 19,
-    DATA_ENTER_PORTAL                       = 20,
 };
 
 enum SharedActions
