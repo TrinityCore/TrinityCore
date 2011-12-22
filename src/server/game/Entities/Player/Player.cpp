@@ -9598,8 +9598,8 @@ void Player::SendInitWorldStates(uint32 zoneid, uint32 areaid)
                 instance->FillInitialWorldStates(data);
             else
             {
-                data << uint32(5049) << uint32(50);              // 9  WORLDSTATE_CORPOREALITY_MATERIAL
-                data << uint32(5050) << uint32(50);             // 10 WORLDSTATE_CORPOREALITY_TWILIGHT
+                data << uint32(5049) << uint32(50);            // 9  WORLDSTATE_CORPOREALITY_MATERIAL
+                data << uint32(5050) << uint32(50);            // 10 WORLDSTATE_CORPOREALITY_TWILIGHT
                 data << uint32(5051) << uint32(0);             // 11 WORLDSTATE_CORPOREALITY_TOGGLE
             }
             break;

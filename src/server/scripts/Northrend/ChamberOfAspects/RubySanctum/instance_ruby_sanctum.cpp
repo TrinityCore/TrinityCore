@@ -47,10 +47,8 @@ class instance_ruby_sanctum : public InstanceMapScript
                 BaltharusSharedHealth    = 0;
                 FlameWallsGUID           = 0;
                 FlameRingGUID            = 0;
-                EnterPortalGUID = 0;
                 memset(ZarithianSpawnStalkerGUID, 0, 2 * sizeof(uint64));
                 memset(BurningTreeGUID, 0, 4 * sizeof(uint64));
-                memset(ExitPortalsGUID, 0, 2 * sizeof(uint64));
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -130,15 +128,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                         if (GetBossState(DATA_GENERAL_ZARITHRIAN) == DONE)
                             HandleGameObject(BurningTreeGUID[3], true);
                         break;
-                    case GO_HALION_PORTAL_EXIT:
-                        if (!ExitPortalsGUID[0])
-                            ExitPortalsGUID[0] = go->GetGUID();
-                        else
-                            ExitPortalsGUID[1] = go->GetGUID();
-                        break;
-                    case GO_HALION_PORTAL_1:
-                        EnterPortalGUID = go->GetGUID();
-                        break;
                     default:
                         break;
                 }
@@ -188,11 +177,6 @@ class instance_ruby_sanctum : public InstanceMapScript
                         return FlameRingGUID;
                     case DATA_TWILIGHT_FLAME_RING:
                         return TwilightFlameRingGUID;
-                    case DATA_EXIT_PORTAL_1:
-                    case DATA_EXIT_PORTAL_2:
-                        return ExitPortalsGUID[type - DATA_EXIT_PORTAL_1];
-                    case DATA_ENTER_PORTAL:
-                        return EnterPortalGUID;
                     default:
                         break;
                 }
@@ -348,8 +332,6 @@ class instance_ruby_sanctum : public InstanceMapScript
             uint64 FlameWallsGUID;
             uint64 ZarithianSpawnStalkerGUID[2];
             uint64 BurningTreeGUID[4];
-            uint64 ExitPortalsGUID[2];
-            uint64 EnterPortalGUID;
             uint64 FlameRingGUID;
             uint64 TwilightFlameRingGUID;
 
