@@ -238,8 +238,9 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recv_data)
 {
     uint64 guid;
     uint32 spellId = 0;
+    int32 unkInt;
 
-    recv_data >> guid >> spellId;
+    recv_data >> guid >> unkInt >> spellId;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
