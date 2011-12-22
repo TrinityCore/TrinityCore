@@ -3483,7 +3483,7 @@ void Spell::update(uint32 difftime)
     {
         case SPELL_STATE_PREPARING:
         {
-            if (m_timer)
+            if (m_timer > 0)
             {
                 if (difftime >= (uint32)m_timer)
                     m_timer = 0;
@@ -3498,7 +3498,7 @@ void Spell::update(uint32 difftime)
         }
         case SPELL_STATE_CASTING:
         {
-            if (m_timer > 0)
+            if (m_timer)
             {
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
@@ -3508,10 +3508,13 @@ void Spell::update(uint32 difftime)
                     finish();
                 }
 
-                if (difftime >= (uint32)m_timer)
-                    m_timer = 0;
-                else
-                    m_timer -= difftime;
+                if (m_timer > 0)
+                {
+                    if (difftime >= (uint32)m_timer)
+                        m_timer = 0;
+                    else
+                        m_timer -= difftime;
+                }
             }
 
             if (m_timer == 0)
