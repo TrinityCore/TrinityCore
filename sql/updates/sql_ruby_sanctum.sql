@@ -95,3 +95,10 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (13,0,75509,0,18,1,39863,0,0, '', 'Spell Twilight Mending only target Halion'),
 (13,0,75509,0,18,1,40142,0,0, '', 'Spell Twilight Mending only target Twilight Halion');
+
+-- Spawns
+SET @GUID = XXX; -- Set by TDB team (Need 2)
+DELETE FROM `creature` WHERE `id` IN (40081, 40091);
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
+(@GUID  ,40091,724,1,1,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
+(@GUID+1,40081,724,1,1,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Orb Carrier

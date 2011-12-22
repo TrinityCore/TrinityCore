@@ -21,6 +21,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "ScriptedEscortAI.h"
 #include "MapManager.h"
 #include "ruby_sanctum.h"
 
@@ -136,6 +137,8 @@ enum Actions
     ACTION_DESPAWN_ADDS         = 5,
     ACTION_BERSERK              = 6,
     ACTION_REMOVE_EXIT_PORTALS  = 7,
+
+    ACTION_BEGIN_ROTATION       = 8, // Orb Rotation Focus
 };
 
 enum Phases
@@ -187,6 +190,41 @@ CorporealityData const corporealityReference[MAX_CORPOREALITY_STATE] =
     { 80, 74829, 74834,  20},
     { 90, 74830, 74835,  10},
     {100, 74831, 74836,   0},
+};
+
+uint32 const MAX_PATH_ROTATION_FOCUS_WAYPOINTS = 29;
+
+Position const RotationFocusWaypoints[MAX_PATH_ROTATION_FOCUS_WAYPOINTS] =
+{
+    {3117.590f, 547.7952f, 72.96869f, 0.0f},
+    {3124.956f, 550.5857f, 72.46869f, 0.0f},
+    {3127.461f, 558.7396f, 72.96869f, 0.0f},
+    {3131.277f, 560.5203f, 72.47587f, 0.0f},
+    {3138.042f, 567.9514f, 72.98305f, 0.0f},
+    {3144.315f, 566.3213f, 72.47660f, 0.0f},
+    {3154.090f, 574.9636f, 72.98305f, 0.0f},
+    {3162.892f, 563.1807f, 72.42181f, 0.0f},
+    {3172.565f, 567.4930f, 72.86058f, 0.0f},
+    {3172.249f, 559.6212f, 72.66829f, 0.0f},
+    {3181.981f, 555.8889f, 72.91270f, 0.0f},
+    {3183.607f, 540.6851f, 72.70807f, 0.0f},
+    {3189.923f, 533.3542f, 73.03770f, 0.0f},
+    {3178.180f, 524.1400f, 72.47688f, 0.0f},
+    {3182.315f, 513.4202f, 72.97710f, 0.0f},
+    {3181.581f, 516.2794f, 72.37074f, 0.0f},
+    {3177.168f, 504.3802f, 72.72710f, 0.0f},
+    {3172.814f, 505.5709f, 72.23853f, 0.0f},
+    {3167.878f, 496.8368f, 72.50312f, 0.0f},
+    {3159.053f, 495.9921f, 72.39587f, 0.0f},
+    {3152.238f, 490.4705f, 72.62009f, 0.0f},
+    {3149.552f, 503.7675f, 72.45136f, 0.0f},
+    {3138.174f, 499.3056f, 72.87009f, 0.0f},
+    {3134.466f, 500.9524f, 72.34216f, 0.0f},
+    {3126.830f, 506.0799f, 72.95515f, 0.0f},
+    {3130.457f, 509.2586f, 72.41802f, 0.0f},
+    {3120.680f, 515.3524f, 72.95515f, 0.0f},
+    {3118.542f, 525.5302f, 72.46192f, 0.0f},
+    {3113.711f, 533.5382f, 72.96869f, 0.0f}, // Spawn position. Should loop to the beginning from this point.
 };
 
 class boss_halion : public CreatureScript
@@ -543,11 +581,6 @@ class npc_halion_controller : public CreatureScript
                 _summons.Summon(who);
             }
 
-            uint32 GetGUID(uint32 npcId)
-            {
-                return 0;
-            }
-
             void DoAction(int32 const action)
             {
                 switch (action)
@@ -563,9 +596,12 @@ class npc_halion_controller : public CreatureScript
                     }
                     case ACTION_PHASE_TWO:
                     {
+                        // Fix the timer
                         _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 10000);
 
                         me->SummonCreature(NPC_TWILIGHT_HALION, HalionSpawnPos);
+                        if (Creature* rotationFocus = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_ROTATION_FOCUS)))
+                            rotationFocus->AI()->DoAction(ACTION_BEGIN_ROTATION);
 
                         if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION)))
                             halion->CastSpell(halion->GetPositionX(), halion->GetPositionY(), halion->GetPositionZ(), SPELL_SUMMON_TWILIGHT_PORTAL, true);
@@ -632,6 +668,9 @@ class npc_halion_controller : public CreatureScript
                         {
                             if (Creature* twilightHalion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_TWILIGHT_HALION)))
                                 twilightHalion->AI()->Talk(SAY_SPHERE_PULSE);
+
+                            if (Creature* orbCarrier = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_ORB_CARRIER)))
+                                orbCarrier->AI()->DoAction(ACTION_SHOOT);
 
                             _events.ScheduleEvent(EVENT_SHADOW_PULSARS_SHOOT, 30000);
                             _events.ScheduleEvent(EVENT_WARN_LASERS, 25000);
@@ -1046,21 +1085,26 @@ class npc_orb_rotation_focus : public CreatureScript
     public:
         npc_orb_rotation_focus() : CreatureScript("npc_orb_rotation_focus") { }
 
-        struct npc_orb_rotation_focusAI : public ScriptedAI
+        struct npc_orb_rotation_focusAI : public npc_escortAI
         {
-            npc_orb_rotation_focusAI(Creature* creature) : ScriptedAI(creature),
-                _instance(creature->GetInstanceScript())
+            npc_orb_rotation_focusAI(Creature* creature) : npc_escortAI(creature)
             {
-                _canMove = false;
+                npc_escortAI::SetDespawnAtEnd(false);
             }
 
-            void UpdateAI(uint32 const /*diff*/)
+            void DoAction(uint32 action)
             {
+                if (action != ACTION_BEGIN_ROTATION)
+                    return;
+
+                Start(true, false, 0, 0, false, true);
             }
 
-        private:
-            InstanceScript* _instance;
-            bool _canMove;
+            void AddWaypoints()
+            {
+                for (uint8 i = 0; i < MAX_PATH_ROTATION_FOCUS_WAYPOINTS; i++)
+                    AddWaypoint(i, RotationFocusWaypoints[i].GetPositionX(), RotationFocusWaypoints[i].GetPositionY(), RotationFocusWaypoints[i].GetPositionZ());
+            }
         };
 
         CreatureAI* GetAI(Creature* creature) const
