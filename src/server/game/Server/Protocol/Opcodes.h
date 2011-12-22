@@ -808,7 +808,7 @@ enum Opcodes
     SMSG_LOOT_ROLL                                   = 0x00,
     SMSG_LOOT_ROLL_WON                               = 0x00,
     SMSG_LOOT_SLOT_CHANGED                           = 0x00,
-    SMSG_LOOT_START_ROLL                             = 0x00,
+    SMSG_LOOT_START_ROLL                             = 0xC8C2,
     SMSG_MAIL_LIST_RESULT                            = 0x00,
     SMSG_MEETINGSTONE_COMPLETE                       = 0x00,
     SMSG_MEETINGSTONE_IN_PROGRESS                    = 0x00,
