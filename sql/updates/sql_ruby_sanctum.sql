@@ -26,6 +26,7 @@ UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
 UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor Strike
 UPDATE `creature_template` SET `difficulty_entry_1`=40143,`difficulty_entry_2`=40144,`difficulty_entry_3`=40145 WHERE `entry`=40142;
+UPDATE `creature_template` SET `difficulty_entry_1`=40470,`difficulty_entry_2`=40471,`difficulty_entry_3`=40472 WHERE `entry`=40081;
 UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35,`faction_A`=14,`faction_H`=14 WHERE `entry` IN (39863,39864,39944,39945,40142,40143,40144,40145); -- Halion & Twilight Halion
 UPDATE `creature_template` SET `mindmg`=422,`maxdmg`=586,`attackpower`=642,`dmg_multiplier`=7.5 WHERE `entry` IN (40417,40418,4049,40420,40421,40422,40423,40424); -- Trash mobs
 UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35 WHERE `entry` IN (39751,39920,39747,39823,39746,39805); -- Miniboss
