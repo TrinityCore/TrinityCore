@@ -1227,10 +1227,11 @@ void Guild::HandleQuery(WorldSession* session)
 {
     WorldPacket data(SMSG_GUILD_QUERY_RESPONSE, 8 * 32 + 200);      // Guess size
 
-    data << uint32(m_id);
+    data << uint64(GetGuid());
     data << m_name;
 
-    for (uint8 i = 0 ; i < GUILD_RANKS_MAX_COUNT; ++i)              // Alwayse show 10 ranks
+    // Rank name
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)               // Always show 10 ranks
     {
         if (i < _GetRanksSize())
             data << m_ranks[i].GetName();
@@ -1238,8 +1239,34 @@ void Guild::HandleQuery(WorldSession* session)
             data << uint8(0);                                       // Empty string
     }
 
+    // Rank order of creation
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
+    {
+        if (i < _GetRanksSize())
+            data << uint32(i);
+        else
+            data << uint32(0);
+    }
+
+    // Rank order of "importance" (sorting by rights)
+    Ranks ranks = m_ranks;
+    std::sort(ranks.begin(), ranks.end());
+    Ranks::iterator it;
+
+    for (uint8 i = 0; i < GUILD_RANKS_MAX_COUNT; ++i)
+    {
+        if (i < _GetRanksSize())
+        {
+            it = std::find(ranks.begin(), ranks.end(), m_ranks[i]);
+            data << std::distance(ranks.begin(), it);
+        }
+        else
+            data << uint32(0);
+    }
+
     m_emblemInfo.WritePacket(data);
-    data << uint32(0);                                              // Something new in WotLK
+
+    data << uint32(_GetRanksSize());                                // Number of ranks used
 
     session->SendPacket(&data);
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent (SMSG_GUILD_QUERY_RESPONSE)");
@@ -2083,7 +2110,7 @@ bool Guild::AddMember(uint64 guid, uint8 rankId)
 
     uint32 lowguid = GUID_LOPART(guid);
 
-    // If rank was not passed, assing lowest possible rank
+    // If rank was not passed, assign lowest possible rank
     if (rankId == GUILD_RANK_NONE)
         rankId = _GetLowestRankId();
 
