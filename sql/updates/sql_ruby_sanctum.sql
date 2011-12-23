@@ -147,7 +147,20 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=40081;
 INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`,`summontype`,`summontimer`) VALUES
 (40081,40083,0,1, 'Orb Carrier',6,30000),
-(40081,40100,1,1, 'Orb Carrier',6,30000);
+(40081,40100,1,1, 'Orb Carrier',6,30000),
+
+(40470,40083,0,1, 'Orb Carrier',6,30000),
+(40470,40100,1,1, 'Orb Carrier',6,30000),
+
+(40471,40083,0,1, 'Orb Carrier',6,30000),
+(40471,40100,1,1, 'Orb Carrier',6,30000),
+(40471,40468,2,1, 'Orb Carrier',6,30000),
+(40471,40469,3,1, 'Orb Carrier',6,30000),
+
+(40472,40083,0,1, 'Orb Carrier',6,30000),
+(40472,40100,1,1, 'Orb Carrier',6,30000),
+(40472,40468,2,1, 'Orb Carrier',6,30000),
+(40472,40469,3,1, 'Orb Carrier',6,30000);
 
 UPDATE `creature_template` SET `modelid1`=11686,`modelid2`=169 WHERE `entry`=40081;
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry` IN (40083,40081,40100);
