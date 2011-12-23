@@ -2163,19 +2163,9 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
         && effectHandleMode != SPELL_EFFECT_HANDLE_HIT)
         return;
 
-    //! it's possible for spells with this spell effect to either have a target or no target
-    //! in case of a target, we will execute this handler on SPELL_EFFECT_HANDLE_HIT_TARGET
-    //! with all relevant variables, and we will skip SPELL_EFFECT_HANDLE_HIT
-    if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
-    {
-        if (GetSpellInfo()->Effects[effIndex].TargetA.GetTarget() != 0 ||
-            GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() != 0)
-            return;
-    }
-
     WorldObject* target = NULL;
 
-    // call events for target if present
+    // call events for object target if present
     if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT_TARGET)
     {
         if (unitTarget)
@@ -2183,9 +2173,15 @@ void Spell::EffectSendEvent(SpellEffIndex effIndex)
         else if (gameObjTarget)
             target = gameObjTarget;
     }
-    // call event with no target or focus target when no targets could be found due to no dbc entry
-    else if (!m_spellInfo->Effects[effIndex].GetProvidedTargetMask())
+    else // if (effectHandleMode == SPELL_EFFECT_HANDLE_HIT)
     {
+        // let's prevent executing effect handler twice in case when spell effect is capable of targeting an object
+        // this check was requested by scripters, but it has some downsides:
+        // now it's impossible to script (using sEventScripts) a cast which misses all targets
+        // or to have an ability to script the moment spell hits dest (in a case when there are object targets present)
+        if (m_spellInfo->Effects[effIndex].GetProvidedTargetMask() & (TARGET_FLAG_UNIT_MASK | TARGET_FLAG_GAMEOBJECT_MASK))
+            return;
+        // some spells have no target entries in dbc and they use focus target
         if (focusObject)
             target = focusObject;
         // TODO: there should be a possibility to pass dest target to event script
