@@ -436,7 +436,7 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_EJECTABLE                = 0x00000020,           // ejectable
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2          = 0x00000040,
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3          = 0x00000100,
-    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x20000000,
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x02000000,
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000,           // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
