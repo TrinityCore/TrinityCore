@@ -142,3 +142,20 @@ INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`
 (@PATH,27,3120.680,515.3524,72.95515,0,0,0,100,0),
 (@PATH,28,3118.542,525.5302,72.46192,0,0,0,100,0),
 (@PATH,29,3113.711,533.5382,72.96869,0,0,0,100,0);
+
+-- Vehicle accessory for Orb Carrier
+DELETE FROM `vehicle_template_accessory` WHERE `entry`=40081;
+INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`minion`,`description`,`summontype`,`summontimer`) VALUES
+(40081,40083,0,1, 'Orb Carrier',6,30000),
+(40081,40100,1,1, 'Orb Carrier',6,30000);
+
+UPDATE `creature_template` SET `modelid1`=11686,`modelid2`=169 WHERE `entry`=40081;
+UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry` IN (40083,40081,40100);
+
+DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=40081;
+INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`cast_flags`) VALUES
+(40081,46598,0,1);
+
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry`=74758;
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`Comment`) VALUES
+(13,74758,18,1,40091, 'Track Rotation can only target Orb Rotation Focus');

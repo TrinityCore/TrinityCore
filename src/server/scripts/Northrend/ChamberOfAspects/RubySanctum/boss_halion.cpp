@@ -1062,6 +1062,17 @@ class npc_orb_carrier : public CreatureScript
             npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature)
             {
                 ASSERT(creature->GetVehicleKit());
+                channelCheckTimer = urand(1000, 2000);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                //if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                if (channelCheckTimer < diff)
+                {
+                    me->CastSpell((Unit*)NULL, SPELL_TRACK_ROTATION, false);
+                    channelCheckTimer = urand(1000, 2000);
+                } else channelCheckTimer -= diff;
             }
 
             void DoAction(uint32 action)
@@ -1082,6 +1093,9 @@ class npc_orb_carrier : public CreatureScript
                                 eastOrb->CastSpell(westOrb, SPELL_TWILIGHT_CUTTER);
                 }
             }
+
+        private:
+            uint32 channelCheckTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
