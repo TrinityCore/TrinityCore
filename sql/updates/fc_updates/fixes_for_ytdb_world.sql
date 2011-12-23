@@ -195,3 +195,6 @@ UPDATE creature_template SET unit_flags = '0' WHERE entry IN (36853,38267,38266,
 
 -- Fix On Metzen! Achievement (20.12.2011)
 UPDATE `smart_scripts` SET `event_param1`=6763 WHERE  `entryorguid` =15664;
+
+-- Fix repetable of event for object 185861 (23.12.2011)
+UPDATE `creature_ai_scripts` SET `event_flags`=1 WHERE `creature_id`=23119;
