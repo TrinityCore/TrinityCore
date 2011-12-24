@@ -1289,7 +1289,7 @@ enum MissingFriends
 {
    QUEST_MISSING_FRIENDS    = 10852,
    NPC_CAPTIVE_CHILD        = 22314,
-   SAY_FREE                 = 0,
+   SAY_FREE_0               = 0,
 };
 
 class go_veil_skith_cage : public GameObjectScript
@@ -1309,7 +1309,7 @@ class go_veil_skith_cage : public GameObjectScript
                    player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
                    (*itr)->ForcedDespawn(5000);
                    (*itr)->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
-                   (*itr)->AI()->Talk(SAY_FREE);
+                   (*itr)->AI()->Talk(SAY_FREE_0);
                    (*itr)->GetMotionMaster()->Clear();
                }
            }        

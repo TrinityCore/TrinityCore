@@ -5,5 +5,5 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (20787,0,0,"You've saved me, fleshling! Ameer will hear of this noble act.",12,0,100,0,0,0,"Captain Tyralius");
 
 -- Heroes of Old
-UPDATE `quest_template` SET `StartScript`=0,`CompleteScript`=0 WHERE `entry`=2702;
+UPDATE `quest_template` SET `StartScript`=0,`CompleteScript`=0 WHERE `id`=2702;
 DELETE FROM `quest_start_scripts` WHERE `id`=2702;
