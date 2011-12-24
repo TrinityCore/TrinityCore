@@ -601,6 +601,17 @@ namespace Trinity
             SpellTargetSelectionCheckTypes i_check;
     };
 
+    class AnyDeadUndeadOrHumanoidUnitSpellTargetInRangeCheck : public AnyDeadUnitSpellTargetInRangeCheck
+    {
+        public:
+            AnyDeadUndeadOrHumanoidUnitSpellTargetInRangeCheck(Unit const* searchObj, float range, SpellInfo const* spellInfo, SpellTargetSelectionCheckTypes check)
+                : AnyDeadUnitSpellTargetInRangeCheck(searchObj, range, spellInfo, check) {}
+            bool operator()(Player* u);
+            bool operator()(Corpse* u);
+            bool operator()(Creature* u);
+            template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
+    };
+
     // WorldObject do classes
 
     class RespawnDo
