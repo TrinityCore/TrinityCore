@@ -1301,9 +1301,9 @@ class go_veil_skith_cage : public GameObjectScript
        {
            if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
            {
-               std::list<Creature*> ChildrenList;
-               GetCreatureListWithEntryInGrid(ChildrenList, go, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
-               for (std::list<Creature*>::const_iterator itr = ChildrenList.begin(); itr != ChildrenList.end(); ++itr)
+               std::list<Creature*> childrenList;
+               GetCreatureListWithEntryInGrid(childrenList, go, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
+               for (std::list<Creature*>::const_iterator itr = childrenList.begin(); itr != childrenList.end(); ++itr)
                {
                    go->UseDoorOrButton();
                    player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
