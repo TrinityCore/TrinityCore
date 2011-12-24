@@ -24,7 +24,6 @@ SDCategory: Items
 EndScriptData */
 
 /* ContentData
-item_draenei_fishing_net(i23654)    Hacklike implements chance to spawn item or creature
 item_nether_wraith_beacon(i31742)   Summons creatures for quest Becoming a Spellfire Tailor (q10832)
 item_flying_machine(i34060, i34061)  Engineering crafted flying machines
 item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
@@ -77,45 +76,6 @@ public:
         // error
         player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
         return true;
-    }
-};
-
-/*#####
-# item_draenei_fishing_net
-#####*/
-
-class item_draenei_fishing_net : public ItemScript
-{
-public:
-    item_draenei_fishing_net() : ItemScript("item_draenei_fishing_net") { }
-
-    //This is just a hack and should be removed from here.
-    //Creature/Item are in fact created before spell are sucessfully casted, without any checks at all to ensure proper/expected behavior.
-    bool OnUse(Player* player, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
-    {
-        if (player->GetQuestStatus(9452) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (urand(0, 99) < 35)
-            {
-                Creature* Murloc = player->SummonCreature(17102, player->GetPositionX(), player->GetPositionY()+20, player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                if (Murloc)
-                    Murloc->AI()->AttackStart(player);
-            }
-            else
-            {
-                ItemPosCountVec dest;
-                uint32 itemId = 23614;
-                InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);
-                if (msg == EQUIP_ERR_OK)
-                {
-                    if (Item* item = player->StoreNewItem(dest, itemId, true))
-                        player->SendNewItem(item, 1, false, true);
-                }
-                else
-                    player->SendEquipError(msg, NULL, NULL, itemId);
-            }
-        }
-        return false;
     }
 };
 
@@ -452,7 +412,6 @@ public:
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
-    new item_draenei_fishing_net();
     new item_nether_wraith_beacon();
     new item_gor_dreks_ointment();
     new item_incendiary_explosives();
