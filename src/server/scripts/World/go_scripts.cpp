@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: GO_Scripts
-SD%Complete: 100
-SDComment: Quest support: 4285, 4287, 4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089, 12843, 12982, 2936. Soulwell
-SDCategory: Game Objects
-EndScriptData */
-
 /* ContentData
 go_cat_figurine (the "trap" version of GO, two different exist)
 go_northern_crystal_pylon
@@ -48,6 +41,15 @@ go_table_theka
 go_soulwell
 go_bashir_crystalforge
 go_ethereal_teleport_pad
+go_soulwell
+go_dragonflayer_cage
+go_tadpole_cage
+go_black_cage
+go_amberpine_outhouse
+go_hive_pod
+go_gjalerbron_cage
+go_large_gjalerbron_cage
+go_veil_skith_cage
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -1179,6 +1181,7 @@ public:
 
 /*######
 ## Quest 1126: Hive in the Tower
+## go_hive_pod
 ######*/
 
 enum eHives
@@ -1278,6 +1281,42 @@ class go_large_gjalerbron_cage : public GameObjectScript
         }
 };
 
+/*########
+#### go_veil_skith_cage
+#####*/
+
+enum MissingFriends
+{
+   QUEST_MISSING_FRIENDS    = 10852,
+   NPC_CAPTIVE_CHILD        = 22314,
+   SAY_FREE                 = 0,
+};
+
+class go_veil_skith_cage : public GameObjectScript
+{
+    public:
+       go_veil_skith_cage() : GameObjectScript("go_veil_skith_cage") { }
+
+       bool OnGossipHello(Player* player, GameObject* go)
+       {
+           if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
+           {
+               std::list<Creature*> ChildrenList;
+               GetCreatureListWithEntryInGrid(ChildrenList, go, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
+               for (std::list<Creature*>::const_iterator itr = ChildrenList.begin(); itr != ChildrenList.end(); ++itr)
+               {
+                   go->UseDoorOrButton();
+                   player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
+                   (*itr)->ForcedDespawn(5000);
+                   (*itr)->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
+                   (*itr)->AI()->Talk(SAY_FREE);
+                   (*itr)->GetMotionMaster()->Clear();
+               }
+           }        
+           return false;
+       }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1319,4 +1358,5 @@ void AddSC_go_scripts()
     new go_massive_seaforium_charge;
     new go_gjalerbron_cage;
     new go_large_gjalerbron_cage;
+    new go_veil_skith_cage;
 }
