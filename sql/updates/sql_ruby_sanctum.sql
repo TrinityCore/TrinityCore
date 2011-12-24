@@ -16,12 +16,12 @@ INSERT INTO `gameobject` (`guid`,`id`, `map`, `spawnMask`, `phaseMask`, `positio
 -- Creature Templates updates
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_consumption' WHERE `entry`=40135; -- Consumption
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 ,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
-UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 WHERE `entry`=40091; -- Orb Rotation Focus
+UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554688 WHERE `entry`=40091; -- Orb Rotation Focus
 UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion',`flags_extra`=`flags_extra`|0x1,`exp`=2 WHERE `entry`=39863; -- Halion
 UPDATE `creature_template` SET `ScriptName`= 'boss_twilight_halion',`exp`=2 WHERE `entry`=40142; -- Twilight Halion
 UPDATE `creature_template` SET `flags_extra`=130,`ScriptName`= 'npc_halion_controller', `faction_A`=35,`faction_H`=35,`exp`=2 WHERE `entry`=40146; -- Halion Controller
-UPDATE `creature_template` SET `flags_extra`=2,`unit_flags`=33554432,`baseattacktime`=2000,`speed_walk`=2.4,`speed_run`=0.85714,`faction_A`=14,`faction_H`=14,`exp`=2,`maxlevel`=80,`minlevel`=80, `ScriptName`= 'npc_shadow_orb' WHERE `entry` IN (40083, 40100, 40469, 40468);
+UPDATE `creature_template` SET `flags_extra`=2,`unit_flags`=33554432,`baseattacktime`=2000,`speed_walk`=2.4,`speed_run`=0.85714,`faction_A`=14,`faction_H`=14,`exp`=2,`maxlevel`=80,`minlevel`=80, `ScriptName`= '' WHERE `entry` IN (40083, 40100, 40469, 40468);
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike_initial',`flags_extra`=130 WHERE `entry`=40029; -- Meteor Strike Initial
 UPDATE `creature_template` SET `ScriptName`= 'npc_meteor_strike',`flags_extra`=130 WHERE `entry` IN (40041,40042,40043,40044); -- Meteor Strike
 UPDATE `creature_template` SET `flags_extra`=130 WHERE `entry`=40055; -- Meteor Strike
@@ -31,7 +31,7 @@ UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_
 UPDATE `creature_template` SET `mindmg`=422,`maxdmg`=586,`attackpower`=642,`dmg_multiplier`=7.5 WHERE `entry` IN (40417,40418,4049,40420,40421,40422,40423,40424); -- Trash mobs
 UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_multiplier`=35 WHERE `entry` IN (39751,39920,39747,39823,39746,39805); -- Miniboss
 UPDATE `creature_template` SET `faction_A`=14, `faction_H`=14, `exp`=2 WHERE `entry` IN (40143,40144,40145);
-UPDATE `creature_template` SET `VehicleId`=718 WHERE `entry` IN (40081,40470);
+UPDATE `creature_template` SET `VehicleId`=718,`unit_flags`=33554688,`ScriptName`= 'npc_orb_carrier' WHERE `entry` IN (40081,40470);
 UPDATE `creature_template` SET `VehicleId`=746 WHERE `entry` IN (40471,40472);
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (39863, 40142);
@@ -41,8 +41,8 @@ INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes
 
 -- This is INCORRECT and BREAKS TC STANDARDS by editing WDB field data10
 -- Best would be to create the sniffed spell in the spell_dbc table.
-UPDATE `gameobject_template` SET `data10`=74807,`flags`=`flags`|32 WHERE `entry` IN (202794, 202795);
-UPDATE `gameobject_template` SET `ScriptName`="go_exit_twilight_realm",`flags`=`flags`|32 WHERE `entry`=202796;
+-- UPDATE `gameobject_template` SET `data10`=74807,`flags`=`flags`|32 WHERE `entry` IN (202794, 202795);
+-- UPDATE `gameobject_template` SET `ScriptName`="go_exit_twilight_realm",`flags`=`flags`|32 WHERE `entry`=202796;
 
 -- Spell scripts
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_meteor_strike_marker';
@@ -100,48 +100,34 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (13,0,75509,0,18,1,40142,0,0, '', 'Spell Twilight Mending only target Twilight Halion');
 
 -- Spawns
-SET @GUID = XXX; -- Set by TDB team (Need 2)
+SET @GUID = 211073; -- Set by TDB team (Need 2)
 DELETE FROM `creature` WHERE `id` IN (40081, 40091);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
-(@GUID  ,40091,724,1,20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
+(@GUID,40091,724,1,20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
 (@GUID+1,40081,724,1,20,0,0,3153.75,533.1875,72.97205,0,300,0,0,1,0,0,0,0,0); -- Orb Carrier
 
--- Pathing for Orb Rotation Focus
+-- Pathing for Orb Rotation Focus Entry: 40091
 SET @PATH = @GUID * 10;
 UPDATE `creature` SET `spawndist`=0,`MovementType`=2 WHERE `guid`=@GUID;
 DELETE FROM `creature_addon` WHERE `guid`=@GUID;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`bytes2`,`mount`,`auras`) VALUES (@GUID,@PATH,1,0, '');
 DELETE FROM `waypoint_data` WHERE `id`=@PATH;
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_flag`,`action`,`action_chance`,`wpguid`) VALUES
-(@PATH,1,3117.590,547.7952,72.96869,0,0,0,100,0),
-(@PATH,2,3124.956,550.5857,72.46869,0,0,0,100,0),
-(@PATH,3,3127.461,558.7396,72.96869,0,0,0,100,0),
-(@PATH,4,3131.277,560.5203,72.47587,0,0,0,100,0),
-(@PATH,5,3138.042,567.9514,72.98305,0,0,0,100,0),
-(@PATH,6,3144.315,566.3213,72.47660,0,0,0,100,0),
-(@PATH,7,3154.090,574.9636,72.98305,0,0,0,100,0),
-(@PATH,8,3162.892,563.1807,72.42181,0,0,0,100,0),
-(@PATH,9,3172.565,567.4930,72.86058,0,0,0,100,0),
-(@PATH,10,3172.249,559.6212,72.66829,0,0,0,100,0),
-(@PATH,11,3181.981,555.8889,72.91270,0,0,0,100,0),
-(@PATH,12,3183.607,540.6851,72.70807,0,0,0,100,0),
-(@PATH,13,3189.923,533.3542,73.03770,0,0,0,100,0),
-(@PATH,14,3178.180,524.1400,72.47688,0,0,0,100,0),
-(@PATH,15,3182.315,513.4202,72.97710,0,0,0,100,0),
-(@PATH,16,3181.581,516.2794,72.37074,0,0,0,100,0),
-(@PATH,17,3177.168,504.3802,72.72710,0,0,0,100,0),
-(@PATH,18,3172.814,505.5709,72.23853,0,0,0,100,0),
-(@PATH,19,3167.878,496.8368,72.50312,0,0,0,100,0),
-(@PATH,20,3159.053,495.9921,72.39587,0,0,0,100,0),
-(@PATH,21,3152.238,490.4705,72.62009,0,0,0,100,0),
-(@PATH,22,3149.552,503.7675,72.45136,0,0,0,100,0),
-(@PATH,23,3138.174,499.3056,72.87009,0,0,0,100,0),
-(@PATH,24,3134.466,500.9524,72.34216,0,0,0,100,0),
-(@PATH,25,3126.830,506.0799,72.95515,0,0,0,100,0),
-(@PATH,26,3130.457,509.2586,72.41802,0,0,0,100,0),
-(@PATH,27,3120.680,515.3524,72.95515,0,0,0,100,0),
-(@PATH,28,3118.542,525.5302,72.46192,0,0,0,100,0),
-(@PATH,29,3113.711,533.5382,72.96869,0,0,0,100,0);
+(@PATH,1,3117.59,547.7952,72.96869,0,0,0,0,100,0),
+(@PATH,2,3127.461,558.7396,72.96869,0,0,0,0,100,0),
+(@PATH,3,3138.042,567.9514,72.98305,0,0,0,0,100,0),
+(@PATH,4,3154.09,574.9636,72.98305,0,0,0,0,100,0),
+(@PATH,5,3172.565,567.493,72.86058,0,0,0,0,100,0),
+(@PATH,6,3181.981,555.8889,72.9127,0,0,0,0,100,0),
+(@PATH,7,3189.923,533.3542,73.0377,0,0,0,0,100,0),
+(@PATH,8,3182.315,513.4202,72.9771,0,0,0,0,100,0),
+(@PATH,9,3177.168,504.3802,72.7271,0,0,0,0,100,0),
+(@PATH,10,3167.878,496.8368,72.50312,0,0,0,0,100,0),
+(@PATH,11,3152.238,490.4705,72.62009,0,0,0,0,100,0),
+(@PATH,12,3138.174,499.3056,72.87009,0,0,0,0,100,0),
+(@PATH,13,3126.83,506.0799,72.95515,0,0,0,0,100,0),
+(@PATH,14,3120.68,515.3524,72.95515,0,0,0,0,100,0),
+(@PATH,15,3113.711,533.5382,72.96869,0,0,0,0,100,0);
 
 -- Vehicle accessory for Orb Carrier
 DELETE FROM `vehicle_template_accessory` WHERE `entry`=40081;
@@ -162,7 +148,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`m
 (40472,40468,2,1, 'Orb Carrier',6,30000),
 (40472,40469,3,1, 'Orb Carrier',6,30000);
 
-UPDATE `creature_template` SET `modelid1`=11686,`modelid2`=169 WHERE `entry`=40081;
+UPDATE `creature_template` SET `modelid1`=11686,`modelid2`=169 WHERE `entry` IN (40081,40470,40471,40472,40091);
 UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry` IN (40083,40081,40100);
 
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=40081;

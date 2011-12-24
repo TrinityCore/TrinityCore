@@ -1067,10 +1067,9 @@ class npc_orb_carrier : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
-                //if (!me->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                if (_channelCheckTimer < diff)
+                if (_channelCheckTimer <= diff)
                 {
-                    me->CastSpell((Unit*)NULL, SPELL_TRACK_ROTATION, false);
+                    DoCast(me, SPELL_TRACK_ROTATION, false);
                     _channelCheckTimer = urand(1000, 2000);
                 } else _channelCheckTimer -= diff;
             }
@@ -1081,13 +1080,12 @@ class npc_orb_carrier : public CreatureScript
                 {
                     Vehicle* vehicle = me->GetVehicleKit();
 
-                    if (vehicle->GetVehicleInfo()->m_ID == 764 || vehicle->GetVehicleInfo()->m_ID == 718)
-                        if (Unit* southOrb = vehicle->GetPassenger(SEAT_SOUTH))
-                            if (Unit* northOrb = vehicle->GetPassenger(SEAT_NORTH))
-                                northOrb->CastSpell(southOrb, SPELL_TWILIGHT_CUTTER);
+                    if (Unit* southOrb = vehicle->GetPassenger(SEAT_SOUTH))
+                        if (Unit* northOrb = vehicle->GetPassenger(SEAT_NORTH))
+                            northOrb->CastSpell(southOrb, SPELL_TWILIGHT_CUTTER);
 
                     // Doublecheck which one casts on which here. Not a big deal, but hey! « Blizzlike » :p
-                    if (vehicle->GetVehicleInfo()->m_ID == 764)
+                    if (IsHeroic())
                         if (Unit* eastOrb = vehicle->GetPassenger(SEAT_EAST))
                             if (Unit* westOrb = vehicle->GetPassenger(SEAT_WEST))
                                 eastOrb->CastSpell(westOrb, SPELL_TWILIGHT_CUTTER);
@@ -1431,7 +1429,26 @@ class spell_halion_enter_twilight_realm : public SpellScriptLoader
             return new spell_halion_enter_twilight_realm_SpellScript();
         }
 };
-/*
+
+class TwilightCutterSelector
+{
+    public:
+        TwilightCutterSelector(Unit* caster, Unit* cutterCaster) : _caster(caster), _cutterCaster(cutterCaster) {}
+
+        bool operator()(Unit* unit)
+        {
+            if (unit->IsInBetween(_caster, _cutterCaster, 4.0f))
+                return false;
+
+            sLog->outError("%s is inbetween, do damage!", unit->GetName());
+            return true;
+        }
+
+    private:
+        Unit* _caster;
+        Unit* _cutterCaster;
+};
+
 class spell_halion_twilight_cutter : public SpellScriptLoader
 {
     public:
@@ -1445,8 +1462,14 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Aura* cutter = GetCaster()->GetAura(SPELL_TWILIGHT_CUTTER))
+                {
                     if (Unit* cutterCaster = cutter->GetCaster())
-                        targets.remove_if([cutterCaster, caster](Unit* target) { return !target->IsInBetween(cutterCaster, caster); }); // This is C++11 A.K.A C++0x
+                        targets.remove_if(TwilightCutterSelector(caster, cutterCaster));
+                    else
+                        sLog->outError("No cutterCaster");
+                }
+                else
+                    sLog->outError("No cutter");
             }
 
             void Register()
@@ -1460,7 +1483,7 @@ class spell_halion_twilight_cutter : public SpellScriptLoader
             return new spell_halion_twilight_cutter_SpellScript();
         }
 };
-*/
+
 void AddSC_boss_halion()
 {
     new boss_halion();
@@ -1481,5 +1504,5 @@ void AddSC_boss_halion()
     new spell_halion_soul_consumption();
     new spell_halion_leave_twilight_realm();
     new spell_halion_enter_twilight_realm();
-    // new spell_halion_twilight_cutter();
+    new spell_halion_twilight_cutter();
 }
