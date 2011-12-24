@@ -1062,16 +1062,16 @@ class npc_orb_carrier : public CreatureScript
             npc_orb_carrierAI(Creature* creature) : ScriptedAI(creature)
             {
                 ASSERT(creature->GetVehicleKit());
-                _channelCheckTimer = urand(1000, 2000);
             }
 
             void UpdateAI(uint32 const diff)
             {
-                if (_channelCheckTimer <= diff)
-                {
+                //! According to sniffs this spell is cast every 1 or 2 seconds.
+                //! However, refreshing it looks bad, so just cast the spell if
+                //! we are not channeling it. Targeting will be handled by
+                //! conditions.
+                if (!me->HasUnitState(UNIT_STAT_CASTING))
                     DoCast(me, SPELL_TRACK_ROTATION, false);
-                    _channelCheckTimer = urand(1000, 2000);
-                } else _channelCheckTimer -= diff;
             }
 
             void DoAction(uint32 action)
@@ -1084,16 +1084,13 @@ class npc_orb_carrier : public CreatureScript
                         if (Unit* northOrb = vehicle->GetPassenger(SEAT_NORTH))
                             northOrb->CastSpell(southOrb, SPELL_TWILIGHT_CUTTER);
 
-                    // Doublecheck which one casts on which here. Not a big deal, but hey! « Blizzlike » :p
+                    // Doublecheck which one casts on which here (Need moar sniffz)
                     if (IsHeroic())
                         if (Unit* eastOrb = vehicle->GetPassenger(SEAT_EAST))
                             if (Unit* westOrb = vehicle->GetPassenger(SEAT_WEST))
                                 eastOrb->CastSpell(westOrb, SPELL_TWILIGHT_CUTTER);
                 }
             }
-
-        private:
-            uint32 _channelCheckTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const
