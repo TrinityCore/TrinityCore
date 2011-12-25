@@ -186,10 +186,10 @@ class go_iruxos : public GameObjectScript
     public:
         go_iruxos() : GameObjectScript("go_iruxos") { }
 
-        bool OnGossipHello(Player* player, GameObject* /*go*/)
+        bool OnGossipHello(Player* player, GameObject* go)
         {
-            if (player->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
-                player->SummonCreature(11876, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+            if (player->GetQuestStatus(QUEST_HAND_IRUXOS) == QUEST_STATUS_INCOMPLETE)
+                player->SummonCreature(NPC_DEMON_SPIRIT, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
             return true;
         }
@@ -285,7 +285,7 @@ class go_demon_portal : public GameObjectScript
         {
             if (player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION) == QUEST_STATUS_INCOMPLETE)
             {
-                if (Creature* guardian = player->SummonCreature(NPC_DEMON_GUARDIAN, GO->GetPositionX(), GO->GetPositionY(), GO->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                if (Creature* guardian = player->SummonCreature(NPC_DEMON_GUARDIAN, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
                     guardian->AI()->AttackStart(player);
             }
 
