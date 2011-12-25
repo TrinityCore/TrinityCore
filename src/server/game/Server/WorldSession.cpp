@@ -529,7 +529,13 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
         //No SQL injection as AccountId is uint32
-        CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
+
+        stmt->setUInt32(0, GetAccountId());
+
+        CharacterDatabase.Execute(stmt);
+
         sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
     }
 
