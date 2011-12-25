@@ -2,7 +2,7 @@
 SET @ENTRY := 3693;
 SET @QUEST := 986;
 UPDATE `creature_template` SET `AIName`="SmartAI" WHERE `entry`=@ENTRY;
-UPDATE `quest_template` SET `StartScript`=0,`CompleteScript`=0 WHERE `entry`=@QUEST;
+UPDATE `quest_template` SET `StartScript`=0,`CompleteScript`=0 WHERE `id`=@QUEST;
 DELETE FROM `quest_start_scripts` WHERE `id`=@QUEST;
 DELETE FROM `quest_end_scripts` WHERE `id`=993; -- For some reason this entry was different..
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@ENTRY,@ENTRY*100,@ENTRY*100+1);
