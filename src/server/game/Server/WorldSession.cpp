@@ -231,7 +231,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //! delayed packets that were re-enqueued due to improper timing. To prevent an infinite
     //! loop caused by re-enqueueing the same packets over and over again, we stop updating this session
     //! and continue updating others. The re-enqueued packets will be handled in the next Update call for this session.
-    while (m_Socket && !m_Socket->IsClosed() && 
+    while (m_Socket && !m_Socket->IsClosed() &&
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
     {
@@ -1008,22 +1008,20 @@ void WorldSession::InitializeQueryCallbackParameters()
 
 void WorldSession::ProcessQueryCallbacks()
 {
-    QueryResult result;
-    PreparedQueryResult result2;
+    PreparedQueryResult result;
 
     //! HandleCharEnumOpcode
     if (_charEnumCallback.ready())
     {
-        _charEnumCallback.get(result2);
-        HandleCharEnum(result2);
+        _charEnumCallback.get(result);
+        HandleCharEnum(result);
         _charEnumCallback.cancel();
     }
 
     if (_charCreateCallback.IsReady())
     {
-        PreparedQueryResult pResult;
-        _charCreateCallback.GetResult(pResult);
-        HandleCharCreateCallback(pResult, _charCreateCallback.GetParam());
+        _charCreateCallback.GetResult(result);
+        HandleCharCreateCallback(result, _charCreateCallback.GetParam());
         // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
 
@@ -1040,8 +1038,8 @@ void WorldSession::ProcessQueryCallbacks()
     if (_addFriendCallback.IsReady())
     {
         std::string param = _addFriendCallback.GetParam();
-        _addFriendCallback.GetResult(result2);
-        HandleAddFriendOpcodeCallBack(result2, param);
+        _addFriendCallback.GetResult(result);
+        HandleAddFriendOpcodeCallBack(result, param);
         _addFriendCallback.FreeResult();
     }
 
@@ -1049,16 +1047,16 @@ void WorldSession::ProcessQueryCallbacks()
     if (_charRenameCallback.IsReady())
     {
         std::string param = _charRenameCallback.GetParam();
-        _charRenameCallback.GetResult(result2);
-        HandleChangePlayerNameOpcodeCallBack(result2, param);
+        _charRenameCallback.GetResult(result);
+        HandleChangePlayerNameOpcodeCallBack(result, param);
         _charRenameCallback.FreeResult();
     }
 
     //- HandleCharAddIgnoreOpcode
     if (_addIgnoreCallback.ready())
     {
-        _addIgnoreCallback.get(result2);
-        HandleAddIgnoreOpcodeCallBack(result2);
+        _addIgnoreCallback.get(result);
+        HandleAddIgnoreOpcodeCallBack(result);
         _addIgnoreCallback.cancel();
     }
 
@@ -1074,8 +1072,8 @@ void WorldSession::ProcessQueryCallbacks()
     //- HandleStablePet
     if (_stablePetCallback.ready())
     {
-        _stablePetCallback.get(result2);
-        HandleStablePetCallback(result2);
+        _stablePetCallback.get(result);
+        HandleStablePetCallback(result);
         _stablePetCallback.cancel();
     }
 
