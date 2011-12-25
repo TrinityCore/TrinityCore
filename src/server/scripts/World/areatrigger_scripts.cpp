@@ -402,11 +402,11 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
             {
                 case AT_BREWFEST_DUROTAR:
                     if (Creature* tapper = player->FindNearestCreature(NPC_TAPPER_SWINDLEKEG, 20.0f))
-                    tapper->AI()->Talk(SAY_WELCOME, player->GetGUID());
+                        tapper->AI()->Talk(SAY_WELCOME, player->GetGUID());
                     break;
                 case AT_BREWFEST_DUN_MOROGH:
                     if (Creature* ipfelkofer = player->FindNearestCreature(NPC_IPFELKOFER_IRONKEG, 20.0f))
-                    ipfelkofer->AI()->Talk(SAY_WELCOME, player->GetGUID());
+                        ipfelkofer->AI()->Talk(SAY_WELCOME, player->GetGUID());
                     break;
                 default:
                     break;
