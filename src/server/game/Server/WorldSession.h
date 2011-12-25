@@ -587,7 +587,7 @@ class WorldSession
         void HandleStablePet(WorldPacket& recvPacket);
         void HandleStablePetCallback(PreparedQueryResult result);
         void HandleUnstablePet(WorldPacket& recvPacket);
-        void HandleUnstablePetCallback(PreparedQueryResult result, uint32 petnumber);
+        void HandleUnstablePetCallback(PreparedQueryResult result, uint32 petId);
         void HandleBuyStableSlot(WorldPacket& recvPacket);
         void HandleStableRevivePet(WorldPacket& recvPacket);
         void HandleStableSwapPet(WorldPacket& recvPacket);
