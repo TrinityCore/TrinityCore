@@ -31,6 +31,7 @@ at_last_rites                   q12019
 at_sholazar_waygate             q12548
 at_nats_landing                 q11209
 at_bring_your_orphan_to         q910 q910 q1800 q1479 q1687 q1558 q10951 q10952
+at_brewfest
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -364,6 +365,61 @@ class AreaTrigger_at_bring_your_orphan_to : public AreaTriggerScript
         }
 };
 
+/*######
+## at_brewfest
+######*/
+
+enum Brewfest
+{
+    NPC_TAPPER_SWINDLEKEG       = 24711,
+    NPC_IPFELKOFER_IRONKEG      = 24710,
+
+    AT_BREWFEST_DUROTAR         = 4829,
+    AT_BREWFEST_DUN_MOROGH      = 4820,
+
+    SAY_WELCOME                 = 4,
+
+    AREATRIGGER_TALK_COOLDOWN   = 5, // in seconds
+};
+
+class AreaTrigger_at_brewfest : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_brewfest() : AreaTriggerScript("at_brewfest")
+        {
+            // Initialize for cooldown
+            _triggerTimes[AT_BREWFEST_DUROTAR] = _triggerTimes[AT_BREWFEST_DUN_MOROGH] = 0;
+        }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            uint32 triggerId = trigger->id;
+            // Second trigger happened too early after first, skip for now
+            if (sWorld->GetGameTime() - _triggerTimes[triggerId] < AREATRIGGER_TALK_COOLDOWN)
+                return false;
+
+            switch (triggerId)
+            {
+                case AT_BREWFEST_DUROTAR:
+                    if (Creature* tapper = player->FindNearestCreature(NPC_TAPPER_SWINDLEKEG, 20.0f))
+                    tapper->AI()->Talk(SAY_WELCOME, player->GetGUID());
+                    break;
+                case AT_BREWFEST_DUN_MOROGH:
+                    if (Creature* ipfelkofer = player->FindNearestCreature(NPC_IPFELKOFER_IRONKEG, 20.0f))
+                    ipfelkofer->AI()->Talk(SAY_WELCOME, player->GetGUID());
+                    break;
+                default:
+                    break;
+            }
+
+            _triggerTimes[triggerId] = sWorld->GetGameTime();
+            return false;
+        }
+
+    private:
+        std::map<uint32, time_t> _triggerTimes;
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -374,4 +430,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_sholazar_waygate();
     new AreaTrigger_at_nats_landing();
     new AreaTrigger_at_bring_your_orphan_to();
+    new AreaTrigger_at_brewfest();
 }
