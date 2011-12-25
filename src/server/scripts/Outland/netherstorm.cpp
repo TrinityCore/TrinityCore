@@ -1066,16 +1066,12 @@ class go_captain_tyralius_prison : public GameObjectScript
         {
             if (Creature* tyralius = go->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
             {
-                if (tyralius)
-                {
-                    go->UseDoorOrButton();
+                go->UseDoorOrButton();
 
-                    if (player)
-                        player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
+                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
 
-                    tyralius->AI()->Talk(SAY_FREE);
-                    tyralius->ForcedDespawn(8000);
-                }
+                tyralius->AI()->Talk(SAY_FREE);
+                tyralius->ForcedDespawn(8000);
             }
             return true;
         }
