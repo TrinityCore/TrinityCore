@@ -46,10 +46,11 @@ BattlegroundBE::~BattlegroundBE()
 
 void BattlegroundBE::StartingEventCloseDoors()
 {
-    for (uint32 i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_4; ++i)
+	uint8 i;
+    for (i = BG_BE_OBJECT_DOOR_1; i <= BG_BE_OBJECT_DOOR_4; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
 
-    for (uint32 i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
+    for (i = BG_BE_OBJECT_BUFF_1; i <= BG_BE_OBJECT_BUFF_2; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
 }
 

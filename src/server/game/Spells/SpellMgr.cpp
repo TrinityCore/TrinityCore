@@ -2638,7 +2638,7 @@ void SpellMgr::LoadSpellInfoStore()
             mSpellInfoMap[i] = new SpellInfo(spellEntry);
     }
 
-    sLog->outString(">> Loaded spell custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(">> Loaded spell infos store in %u ms", GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 

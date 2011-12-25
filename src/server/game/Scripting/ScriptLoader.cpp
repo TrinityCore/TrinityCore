@@ -230,6 +230,10 @@ void AddSC_boss_hazzarah();
 void AddSC_boss_renataki();
 void AddSC_boss_wushoolay();
 void AddSC_instance_zulgurub();
+void AddSC_boss_Bazzalan();                    //Ragefire
+void AddSC_boss_Jergosh_the_Invoker();
+void AddSC_boss_Oggleflint();
+void AddSC_boss_Taragaman_the_Hungerer();
 
 //void AddSC_alterac_mountains();
 void AddSC_arathi_highlands();

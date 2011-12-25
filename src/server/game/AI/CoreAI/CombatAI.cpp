@@ -62,7 +62,7 @@ int VehicleAI::Permissible(const Creature* /*creature*/)
 
 void CombatAI::InitializeAI()
 {
-    for (uint32 i = 0; i < CREATURE_MAX_SPELLS; ++i)
+    for (uint8 i = 0; i < CREATURE_MAX_SPELLS; ++i)
         if (me->m_spells[i] && sSpellMgr->GetSpellInfo(me->m_spells[i]))
             spells.push_back(me->m_spells[i]);
 

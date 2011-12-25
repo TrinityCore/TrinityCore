@@ -214,7 +214,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
             SaveToDB();
         }
 
-        for (uint32 type = 0; type < MAX_DOOR_TYPES; ++type)
+        for (uint8 type = 0; type < MAX_DOOR_TYPES; ++type)
             for (DoorSet::iterator i = bossInfo->door[type].begin(); i != bossInfo->door[type].end(); ++i)
                 UpdateDoorState(*i);
 

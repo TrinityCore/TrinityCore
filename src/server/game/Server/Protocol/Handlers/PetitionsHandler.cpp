@@ -81,7 +81,7 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     recv_data.read_skip<uint32>();                          // 0
     recv_data.read_skip<uint32>();                          // 0
 
-    for (int i = 0; i < 10; ++i)
+    for (uint8 i = 0; i < 10; ++i)
         recv_data.read_skip<std::string>();
 
     recv_data >> clientIndex;                               // index
@@ -355,7 +355,7 @@ void WorldSession::SendPetitionQueryOpcode(uint64 petitionguid)
     data << uint32(0);                                      // 11
     data << uint32(0);                                      // 13 count of next strings?
 
-    for (int i = 0; i < 10; ++i)
+    for (uint8 i = 0; i < 10; ++i)
         data << uint8(0);                                   // some string
 
     data << uint32(0);                                      // 14

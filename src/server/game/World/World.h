@@ -160,6 +160,33 @@ enum WorldBoolConfigs
     CONFIG_PRESERVE_CUSTOM_CHANNELS,
     CONFIG_PDUMP_NO_PATHS,
     CONFIG_PDUMP_NO_OVERWRITE,
+
+	/* Debut Annonces de connexion et déconnexion des Mj */
+	CONFIG_LOGIN_ANNOUNCE,
+	CONFIG_LOGOUT_ANNOUNCE,
+	/* Fin Annonces de connexion et déconnexion des Mj */
+
+	/* Debut patch ChatLog FR */
+	CONFIG_CHATLOG_ANNOUNCE,
+	CONFIG_CHATLOG_NOTIFY,
+	/* Fin patch ChatLog FR */
+
+	/* Debut patch Mute broadcast */
+	CONFIG_MUTE_BROADCAST,
+	/* Fin patch Mute broadcast */
+
+	/* Debut patch Ban broadcast */
+	CONFIG_BAN_BROADCAST,
+	/* Fin patch Ban broadcast */
+
+	/* Debut patch Talents DK */
+	CONFIG_TALENT_DK,
+	/* Fin patch Talents DK */
+
+	/* Debut patch Anticheat Talent */
+	CONFIG_TALENT_ANTICHEAT,
+	/* Fin patch Anticheat Talent */
+
     BOOL_CONFIG_VALUE_COUNT
 };
 
@@ -307,6 +334,12 @@ enum WorldIntConfigs
     CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION,
     CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS,
     CONFIG_MAX_INSTANCES_PER_HOUR,
+
+	/* Debut du patch Player default guild */
+	CONFIG_PLAYER_START_GUILDID,
+	CONFIG_GM_START_GUILDID,
+	/* Fin du patch Player default guild */
+
     INT_CONFIG_VALUE_COUNT
 };
 

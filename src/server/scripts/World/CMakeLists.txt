@@ -24,4 +24,6 @@ set(scripts_STAT_SRCS
   World/npcs_special.cpp
 )
 
+SOURCE_GROUP(World REGULAR_EXPRESSION .*/World/.*)
+
 message("  -> Prepared: World")

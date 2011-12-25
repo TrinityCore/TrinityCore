@@ -413,7 +413,7 @@ void Guild::BankTab::WriteSlotPacket(WorldPacket& data, uint8 slotId) const
         size_t enchCountPos = data.wpos();
 
         data << uint8(enchCount);                           // Number of enchantments
-        for (uint32 i = PERM_ENCHANTMENT_SLOT; i < MAX_ENCHANTMENT_SLOT; ++i)
+        for (uint8 i = PERM_ENCHANTMENT_SLOT; i < MAX_ENCHANTMENT_SLOT; ++i)
             if (uint32 enchId = pItem->GetEnchantmentId(EnchantmentSlot(i)))
             {
                 data << uint8(i);

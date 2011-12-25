@@ -194,4 +194,42 @@ set(scripts_STAT_SRCS
   Northrend/DraktharonKeep/boss_dred.cpp
 )
 
+SOURCE_GROUP(Northrend FILES
+  Northrend/borean_tundra.cpp
+  Northrend/crystalsong_forest.cpp
+  Northrend/dalaran.cpp
+  Northrend/dragonblight.cpp
+  Northrend/grizzly_hills.cpp
+  Northrend/howling_fjord.cpp
+  Northrend/icecrown.cpp
+  Northrend/isle_of_conquest.cpp
+  Northrend/sholazar_basin.cpp
+  Northrend/storm_peaks.cpp
+  Northrend/wintergrasp.cpp
+  Northrend/zuldrak.cpp)
+SOURCE_GROUP(Northrend\\AzjolNerub\\Ahnkahet REGULAR_EXPRESSION .*/Northrend/AzjolNerub/Ahnkahet/.*)
+SOURCE_GROUP(Northrend\\AzjolNerub\\AzjolNerub REGULAR_EXPRESSION .*/Northrend/AzjolNerub/AzjolNerub/.*)
+SOURCE_GROUP(Northrend\\ChamberOfAspects\\ObsidianSanctum REGULAR_EXPRESSION .*/Northrend/ChamberOfAspects/ObsidianSanctum/.*)
+SOURCE_GROUP(Northrend\\ChamberOfAspects\\RubySanctum REGULAR_EXPRESSION .*/Northrend/ChamberOfAspects/RubySanctum/.*)
+SOURCE_GROUP(Northrend\\CrusadersColiseum\\TrialOfTheChampion REGULAR_EXPRESSION .*/Northrend/CrusadersColiseum/TrialOfTheChampion/.*)
+SOURCE_GROUP(Northrend\\CrusadersColiseum\\TrialOfTheCrusader REGULAR_EXPRESSION .*/Northrend/CrusadersColiseum/TrialOfTheCrusader/.*)
+SOURCE_GROUP(Northrend\\DraktharonKeep REGULAR_EXPRESSION .*/Northrend/DraktharonKeep/.*)
+SOURCE_GROUP(Northrend\\FrozenHalls\\ForgeOfSouls REGULAR_EXPRESSION .*/Northrend/FrozenHalls/ForgeOfSouls/.*)
+SOURCE_GROUP(Northrend\\FrozenHalls\\HallsOfReflection REGULAR_EXPRESSION .*/Northrend/FrozenHalls/HallsOfReflection/.*)
+SOURCE_GROUP(Northrend\\FrozenHalls\\PitOfSaron REGULAR_EXPRESSION .*/Northrend/FrozenHalls/PitOfSaron/.*)
+SOURCE_GROUP(Northrend\\Gundrak REGULAR_EXPRESSION .*/Northrend/Gundrak/.*)
+SOURCE_GROUP(Northrend\\IcecrownCitadel REGULAR_EXPRESSION .*/Northrend/IcecrownCitadel/.*)
+SOURCE_GROUP(Northrend\\Naxxramas REGULAR_EXPRESSION .*/Northrend/Naxxramas/.*)
+SOURCE_GROUP(Northrend\\Nexus\\EyeOfEternity REGULAR_EXPRESSION .*/Northrend/Nexus/EyeOfEternity/.*)
+SOURCE_GROUP(Northrend\\Nexus\\Nexus REGULAR_EXPRESSION .*/Northrend/Nexus/Nexus/.*)
+SOURCE_GROUP(Northrend\\Nexus\\Oculus REGULAR_EXPRESSION .*/Northrend/Nexus/Oculus/.*)
+SOURCE_GROUP(Northrend\\ObsidianSanctum REGULAR_EXPRESSION .*/Northrend/ObsidianSanctum/.*)
+SOURCE_GROUP(Northrend\\Ulduar\\HallsOfLightning REGULAR_EXPRESSION .*/Northrend/Ulduar/HallsOfLightning/.*)
+SOURCE_GROUP(Northrend\\Ulduar\\HallsOfStone REGULAR_EXPRESSION .*/Northrend/Ulduar/HallsOfStone/.*)
+SOURCE_GROUP(Northrend\\Ulduar\\Ulduar REGULAR_EXPRESSION .*/Northrend/Ulduar/Ulduar/.*)
+SOURCE_GROUP(Northrend\\UtgardeKeep\\UtgardeKeep REGULAR_EXPRESSION .*/Northrend/UtgardeKeep/UtgardeKeep/.*)
+SOURCE_GROUP(Northrend\\UtgardeKeep\\UtgardePinnacle REGULAR_EXPRESSION .*/Northrend/UtgardeKeep/UtgardePinnacle/.*)
+SOURCE_GROUP(Northrend\\VaultOfArchavon REGULAR_EXPRESSION .*/Northrend/VaultOfArchavon/.*)
+SOURCE_GROUP(Northrend\\VioletHold REGULAR_EXPRESSION .*/Northrend/VioletHold/.*)
+
 message("  -> Prepared: Northrend")

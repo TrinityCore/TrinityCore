@@ -108,4 +108,6 @@ set(scripts_STAT_SRCS
 #  Commands/cs_playall.cpp
 )
 
+SOURCE_GROUP(Commands REGULAR_EXPRESSION .*/Commands/.*)
+
 message("  -> Prepared: Commands")

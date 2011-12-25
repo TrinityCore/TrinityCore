@@ -198,7 +198,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
 
                     // destroy not required for quest finish quest starting item
                     bool destroyItem = true;
-                    for (int i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
+                    for (uint8 i = 0; i < QUEST_ITEM_OBJECTIVES_COUNT; ++i)
                     {
                         if ((qInfo->RequiredItemId[i] == ((Item*)pObject)->GetEntry()) && (((Item*)pObject)->GetTemplate()->MaxCount > 0))
                         {

@@ -1189,6 +1189,37 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
 
+	/* Debut du patch Player default guild */
+	m_int_configs[CONFIG_PLAYER_START_GUILDID] = ConfigMgr::GetIntDefault("Player.Start.GuildId", 0);
+	m_int_configs[CONFIG_GM_START_GUILDID] = ConfigMgr::GetIntDefault("Gm.Start.GuildId", 0);
+	/* Fin du patch Player default guild */
+
+	/* Debut Annonces de connexion et déconnexion des Mj */
+	m_bool_configs[CONFIG_LOGIN_ANNOUNCE] = ConfigMgr::GetBoolDefault("Login.announce", false);
+	m_bool_configs[CONFIG_LOGOUT_ANNOUNCE] = ConfigMgr::GetBoolDefault("Logout.announce", false);
+	/* Fin Annonces de connexion et déconnexion des Mj */
+
+	/* Debut patch ChatLog FR */
+	m_bool_configs[CONFIG_CHATLOG_ANNOUNCE] = ConfigMgr::GetBoolDefault("Chatlog.announce", false);
+	m_bool_configs[CONFIG_CHATLOG_NOTIFY] = ConfigMgr::GetBoolDefault("Chatlog.notify", false);
+	/* Fin patch ChatLog FR */
+
+	/* Debut patch Mute broadcast */
+	m_bool_configs[CONFIG_MUTE_BROADCAST] = ConfigMgr::GetBoolDefault("Mute.broadcast", false);
+	/* Fin patch Mute broadcast */
+
+	/* Debut patch Ban broadcast */
+	m_bool_configs[CONFIG_BAN_BROADCAST] = ConfigMgr::GetBoolDefault("Ban.broadcast", false);
+	/* Fin patch Ban broadcast */
+
+	/* Debut patch Talents DK */
+	m_bool_configs[CONFIG_TALENT_DK] = ConfigMgr::GetBoolDefault("Talent.At.Level.10", false);
+	/* Fin patch Talents DK */
+
+	/* Debut patch Anticheat Talent */
+	m_bool_configs[CONFIG_TALENT_ANTICHEAT] = ConfigMgr::GetBoolDefault("Talent.AntiCheat.Enabled", true);
+	/* Fin patch Anticheat Talent */
+
     sScriptMgr->OnConfigLoad(reload);
 }
 

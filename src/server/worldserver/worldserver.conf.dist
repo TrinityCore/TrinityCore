@@ -2786,3 +2786,128 @@ PlayerDump.DisallowOverwrite = 1
 
 #
 ###################################################################################################
+
+
+###################################################################################################
+#         Ajouts faits par l'équipe de développeurs de Zone-Emu ( Http://www.zone-emu.fr )        #
+###################################################################################################
+
+###################################################################################################
+# PLAYER DEFAULT GUILD
+#
+#	Player.Start.GuildId
+#		ID de la guilde par défaut des joueurs.
+#		Default : 0 (Désactivé)
+
+Player.Start.GuildId = 0
+
+#
+#	Gm.Start.GuildId
+#		ID de la guilde par défaut des maîtres du jeu.
+#		Default : 0 (Désactivé)
+
+Gm.Start.GuildId = 0
+
+#
+# Patch par MacWarrior
+###################################################################################################
+
+###################################################################################################
+# LOGIN AND LOGOUT ANNOUNCE
+#
+#	At.login.announce
+#		Annonce en jeu lors de la connexion d'un Mj s'il est en mode GM et visible.
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Login.announce = 0
+
+#
+#	At.logout.announce
+#		Annonce en jeu lors de la déconnexion d'un Mj s'il est en mode GM et visible.
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Logout.announce = 0
+
+#
+# Patch adapté et amélioré par MacWarrior
+###################################################################################################
+
+###################################################################################################
+# Chatlog FR
+#
+#	Chatlog.announce
+#		Enregistre toutes les annonces dans le chatlog
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Chatlog.announce = 0
+
+#
+#	Chatlog.notify
+#		Enregistre toutes les notifications dans le chatlog
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Chatlog.notify = 0
+
+#
+# Patch par MacWarrior
+###################################################################################################
+
+###################################################################################################
+# MUTE BROADCAST
+#
+#	Mute.broadcast
+#		Annonce les déconnexions forcées de joueurs
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Mute.broadcast = 0
+
+#
+# Patch par MacWarrior
+###################################################################################################
+
+###################################################################################################
+# BAN BROADCAST
+#
+#	Ban.broadcast
+#		Annonce les bannissements
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Ban.broadcast = 0
+
+#
+# Patch par MacWarrior
+###################################################################################################
+
+###################################################################################################
+# DEATH KNIGHT TALENT
+#
+#	Talent.At.Level.10
+#		Autorise les DK à avoir leurs points de talent sans faire les quêtes de départ
+#		Default : 0 (Désactivé)
+#				  1 (Activé)
+
+Talent.At.Level.10 = 0
+
+#
+# Patch par MacWarrior
+###################################################################################################
+
+###################################################################################################
+# TALENTS ANTICHEAT
+#
+#	Talent.AntiCheat.Enabled
+#		Active ou désactive le système anti-triche des talents
+#		Default : 1 (Activé)
+#				  0 (Désactivé)
+
+Talent.AntiCheat.Enabled = 1
+
+#
+# Patch par MacWarrior
+###################################################################################################

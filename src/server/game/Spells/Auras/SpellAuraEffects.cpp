@@ -427,12 +427,12 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
                         ItemRandomSuffixEntry const* item_rand_suffix = sItemRandomSuffixStore.LookupEntry(abs(castItem->GetItemRandomPropertyId()));
                         if (item_rand_suffix)
                         {
-                            for (int k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
+                            for (uint8 k = 0; k < MAX_ITEM_ENCHANTMENT_EFFECTS; k++)
                             {
                                 SpellItemEnchantmentEntry const* pEnchant = sSpellItemEnchantmentStore.LookupEntry(item_rand_suffix->enchant_id[k]);
                                 if (pEnchant)
                                 {
-                                    for (int t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
+                                    for (uint8 t = 0; t < MAX_ITEM_ENCHANTMENT_EFFECTS; t++)
                                         if (pEnchant->spellid[t] == m_spellInfo->Id)
                                     {
                                         amount = uint32((item_rand_suffix->prefix[k]*castItem->GetItemSuffixFactor()) / 10000);
@@ -2420,7 +2420,7 @@ void AuraEffect::HandleFeignDeath(AuraApplication const* aurApp, uint8 mode, boo
             if (!(*iter)->HasUnitState(UNIT_STAT_CASTING))
                 continue;
 
-            for (uint32 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
+            for (uint8 i = CURRENT_FIRST_NON_MELEE_SPELL; i < CURRENT_MAX_SPELL; i++)
             {
                 if ((*iter)->GetCurrentSpell(i)
                 && (*iter)->GetCurrentSpell(i)->m_targets.GetUnitTargetGUID() == target->GetGUID())
@@ -2569,7 +2569,7 @@ void AuraEffect::HandleAuraModSilence(AuraApplication const* aurApp, uint8 mode,
 
         // call functions which may have additional effects after chainging state of unit
         // Stop cast only spells vs PreventionType == SPELL_PREVENTION_TYPE_SILENCE
-        for (uint32 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
+        for (uint8 i = CURRENT_MELEE_SPELL; i < CURRENT_MAX_SPELL; ++i)
             if (Spell* spell = target->GetCurrentSpell(CurrentSpellTypes(i)))
                 if (spell->m_spellInfo->PreventionType == SPELL_PREVENTION_TYPE_SILENCE)
                     // Stop spells on prepare or casting state
@@ -2812,7 +2812,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
         //some spell has one aura of mount and one of vehicle
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             if (GetSpellInfo()->Effects[i].Effect == SPELL_EFFECT_SUMMON
                 && GetSpellInfo()->Effects[i].MiscValue == GetMiscValue())
                 displayID = 0;
@@ -2977,7 +2977,7 @@ void AuraEffect::HandleModThreat(AuraApplication const* aurApp, uint8 mode, bool
         return;
 
     Unit* target = aurApp->GetTarget();
-    for (int8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (GetMiscValue() & (1 << i))
             ApplyPercentModFloatVar(target->m_threatModifier[i], float(GetAmount()), apply);
 }
@@ -3547,7 +3547,7 @@ void AuraEffect::HandleAuraModResistanceExclusive(AuraApplication const* aurApp,
 
     Unit* target = aurApp->GetTarget();
 
-    for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
+    for (uint8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
     {
         if (GetMiscValue() & int32(1<<x))
         {
@@ -3570,7 +3570,7 @@ void AuraEffect::HandleAuraModResistance(AuraApplication const* aurApp, uint8 mo
 
     Unit* target = aurApp->GetTarget();
 
-    for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
+    for (uint8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
     {
         if (GetMiscValue() & int32(1<<x))
         {
@@ -3597,7 +3597,7 @@ void AuraEffect::HandleAuraModBaseResistancePCT(AuraApplication const* aurApp, u
     }
     else
     {
-        for (int8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
+        for (uint8 x = SPELL_SCHOOL_NORMAL; x < MAX_SPELL_SCHOOL; x++)
         {
             if (GetMiscValue() & int32(1<<x))
                 target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + x), BASE_PCT, float(GetAmount()), apply);
@@ -3612,7 +3612,7 @@ void AuraEffect::HandleModResistancePercent(AuraApplication const* aurApp, uint8
 
     Unit* target = aurApp->GetTarget();
 
-    for (int8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
+    for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
     {
         if (GetMiscValue() & int32(1<<i))
         {
@@ -3642,7 +3642,7 @@ void AuraEffect::HandleModBaseResistance(AuraApplication const* aurApp, uint8 mo
     }
     else
     {
-        for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
+        for (uint8 i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; i++)
             if (GetMiscValue() & (1<<i))
                 target->HandleStatModifier(UnitMods(UNIT_MOD_RESISTANCE_START + i), TOTAL_VALUE, float(GetAmount()), apply);
     }
@@ -3683,7 +3683,7 @@ void AuraEffect::HandleAuraModStat(AuraApplication const* aurApp, uint8 mode, bo
         return;
     }
 
-    for (int32 i = STAT_STRENGTH; i < MAX_STATS; i++)
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; i++)
     {
         // -1 or -2 is all stats (misc < -2 checked in function beginning)
         if (GetMiscValue() < 0 || GetMiscValue() == i)
@@ -3713,7 +3713,7 @@ void AuraEffect::HandleModPercentStat(AuraApplication const* aurApp, uint8 mode,
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for (int32 i = STAT_STRENGTH; i < MAX_STATS; ++i)
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; ++i)
     {
         if (GetMiscValue() == i || GetMiscValue() == -1)
             target->HandleStatModifier(UnitMods(UNIT_MOD_STAT_START + i), BASE_PCT, float(m_amount), apply);
@@ -3811,7 +3811,7 @@ void AuraEffect::HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 
     float healthPct = target->GetHealthPct();
     bool alive = target->isAlive();
 
-    for (int32 i = STAT_STRENGTH; i < MAX_STATS; i++)
+    for (uint8 i = STAT_STRENGTH; i < MAX_STATS; i++)
     {
         if (GetMiscValue() == i || GetMiscValue() == -1)
         {
@@ -4080,7 +4080,7 @@ void AuraEffect::HandleAuraModWeaponCritPercent(AuraApplication const* aurApp, u
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for (int i = 0; i < MAX_ATTACK; ++i)
+    for (uint8 i = 0; i < MAX_ATTACK; ++i)
         if (Item* pItem = target->ToPlayer()->GetWeaponForAttack(WeaponAttackType(i), true))
             target->ToPlayer()->_ApplyWeaponDependentAuraCritMod(pItem, WeaponAttackType(i), this, apply);
 
@@ -4155,7 +4155,7 @@ void AuraEffect::HandleModSpellCritChanceShool(AuraApplication const* aurApp, ui
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for (int school = SPELL_SCHOOL_NORMAL; school < MAX_SPELL_SCHOOL; ++school)
+    for (uint8 school = SPELL_SCHOOL_NORMAL; school < MAX_SPELL_SCHOOL; ++school)
         if (GetMiscValue() & (1<<school))
             target->ToPlayer()->UpdateSpellCritChance(school);
 }
@@ -4279,7 +4279,7 @@ void AuraEffect::HandleModRating(AuraApplication const* aurApp, uint8 mode, bool
     if (target->GetTypeId() != TYPEID_PLAYER)
         return;
 
-    for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
+    for (uint8 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
         if (GetMiscValue() & (1 << rating))
             target->ToPlayer()->ApplyRatingMod(CombatRating(rating), GetAmount(), apply);
 }
@@ -4295,7 +4295,7 @@ void AuraEffect::HandleModRatingFromStat(AuraApplication const* aurApp, uint8 mo
         return;
 
     // Just recalculate ratings
-    for (uint32 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
+    for (uint8 rating = 0; rating < MAX_COMBAT_RATING; ++rating)
         if (GetMiscValue() & (1 << rating))
             target->ToPlayer()->ApplyRatingMod(CombatRating(rating), 0, apply);
 }
@@ -4393,7 +4393,7 @@ void AuraEffect::HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, 
     // apply item specific bonuses for already equipped weapon
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
-        for (int i = 0; i < MAX_ATTACK; ++i)
+        for (uint8 i = 0; i < MAX_ATTACK; ++i)
             if (Item* pItem = target->ToPlayer()->GetWeaponForAttack(WeaponAttackType(i), true))
                 target->ToPlayer()->_ApplyWeaponDependentAuraDamageMod(pItem, WeaponAttackType(i), this, apply);
     }
@@ -4449,7 +4449,7 @@ void AuraEffect::HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, 
     {
         if (GetAmount() > 0)
         {
-            for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
+            for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
             {
                 if ((GetMiscValue() & (1<<i)) != 0)
                     target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS+i, GetAmount(), apply);
@@ -4457,7 +4457,7 @@ void AuraEffect::HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, 
         }
         else
         {
-            for (int i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
+            for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; i++)
             {
                 if ((GetMiscValue() & (1<<i)) != 0)
                     target->ApplyModUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_NEG+i, GetAmount(), apply);
@@ -4479,7 +4479,7 @@ void AuraEffect::HandleModDamagePercentDone(AuraApplication const* aurApp, uint8
 
     if (target->GetTypeId() == TYPEID_PLAYER)
     {
-        for (int i = 0; i < MAX_ATTACK; ++i)
+        for (uint8 i = 0; i < MAX_ATTACK; ++i)
             if (Item* item = target->ToPlayer()->GetWeaponForAttack(WeaponAttackType(i), false))
                 target->ToPlayer()->_ApplyWeaponDependentAuraDamageMod(item, WeaponAttackType(i), this, apply);
     }
@@ -4536,7 +4536,7 @@ void AuraEffect::HandleModPowerCostPCT(AuraApplication const* aurApp, uint8 mode
     Unit* target = aurApp->GetTarget();
 
     float amount = CalculatePctN(1.0f, GetAmount());
-    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (GetMiscValue() & (1 << i))
             target->ApplyModSignedFloatValue(UNIT_FIELD_POWER_COST_MULTIPLIER + i, amount, apply);
 }
@@ -4548,7 +4548,7 @@ void AuraEffect::HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, b
 
     Unit* target = aurApp->GetTarget();
 
-    for (int i = 0; i < MAX_SPELL_SCHOOL; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_SCHOOL; ++i)
         if (GetMiscValue() & (1<<i))
             target->ApplyModInt32Value(UNIT_FIELD_POWER_COST_MODIFIER+i, GetAmount(), apply);
 }
@@ -5425,7 +5425,7 @@ void AuraEffect::HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode
     // convert number of runes specified in aura amount of rune type in miscvalue to runetype in miscvalueb
     if (apply)
     {
-        for (uint32 i = 0; i < MAX_RUNES && runes; ++i)
+        for (uint8 i = 0; i < MAX_RUNES && runes; ++i)
         {
             if (GetMiscValue() != player->GetCurrentRune(i))
                 continue;
@@ -6008,7 +6008,7 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                     case 38443:
                     {
                         bool all = true;
-                        for (int i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
+                        for (uint8 i = SUMMON_SLOT_TOTEM; i < MAX_TOTEM_SLOT; ++i)
                         {
                             if (!target->m_SummonSlot[i])
                             {

@@ -1745,7 +1745,7 @@ bool WorldObject::CanDetectInvisibilityOf(WorldObject const* obj) const
         if ((m_invisibility.GetFlags() & obj->m_invisibilityDetect.GetFlags()) != m_invisibility.GetFlags())
             return false;
 
-    for (uint32 i = 0; i < TOTAL_INVISIBILITY_TYPES; ++i)
+    for (uint8 i = 0; i < TOTAL_INVISIBILITY_TYPES; ++i)
     {
         if (!(mask & (1 << i)))
             continue;
@@ -1782,7 +1782,7 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
     if (!HasInArc(M_PI, obj))
         return false;
 
-    for (uint32 i = 0; i < TOTAL_STEALTH_TYPES; ++i)
+    for (uint8 i = 0; i < TOTAL_STEALTH_TYPES; ++i)
     {
         if (!(obj->m_stealth.GetFlags() & (1 << i)))
             continue;

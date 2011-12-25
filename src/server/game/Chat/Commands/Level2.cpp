@@ -53,7 +53,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
         return false;
 
     char *mutereason = strtok(NULL, "\r");
-    std::string mutereasonstr = "No reason";
+    std::string mutereasonstr = "Pas de raison";
     if (mutereason != NULL)
          mutereasonstr = mutereason;
 
@@ -101,6 +101,11 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     LoginDatabase.Execute(stmt);
 
     std::string nameLink = playerLink(target_name);
+
+	/* Debut patch Mute broadcast */
+	if(sWorld->getBoolConfig(CONFIG_MUTE_BROADCAST))
+		sWorld->SendWorldText(LANG_ANNOUNCE_MUTE, GetTrinityString(LANG_RANK_SERVER), nameLink.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEM), notspeaktime, GetTrinityString(LANG_WORD_REASON), mutereasonstr.c_str());
+	/* Fin patch Mute broadcast */
 
     PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
 
@@ -224,9 +229,14 @@ bool ChatHandler::HandleDeMorphCommand(const char* /*args*/)
 //kick player
 bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {
+	/* Debut patch Kick Broadcast */
+	char *name = strtok((char*)args, " ");
+	char *kickreason = strtok(NULL, "\0");
+	/* Fin patch Kick Broadcast */
+
     Player* target = NULL;
     std::string playerName;
-    if (!extractPlayerTarget((char*)args, &target, NULL, &playerName))
+	if (!extractPlayerTarget((char*)name, &target, NULL, &playerName))
         return false;
 
     if (m_session && target == m_session->GetPlayer())
@@ -240,10 +250,15 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
     if (HasLowerSecurity(target, 0))
         return false;
 
-    if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD))
-        sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
-    else
+	/* Debut patch Kick Broadcast */
+	if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD) && kickreason)
+	{
+		sWorld->SendWorldText(LANG_ANNOUNCE_KICK_REASON, GetTrinityString(LANG_RANK_SERVER), playerName.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEM), GetTrinityString(LANG_WORD_REASON), kickreason);
+	} else if (sWorld->getBoolConfig(CONFIG_SHOW_KICK_IN_WORLD)) {
+		sWorld->SendWorldText(LANG_ANNOUNCE_KICK, GetTrinityString(LANG_RANK_SERVER), playerName.c_str(), m_session ? m_session->GetPlayer()->GetName() : GetTrinityString(LANG_RANK_SYSTEM));
+	} else
         PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+	/* Fin patch Kick Broadcast */
 
     target->GetSession()->KickPlayer();
     return true;

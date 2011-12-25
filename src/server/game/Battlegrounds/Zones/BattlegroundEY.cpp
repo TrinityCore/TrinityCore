@@ -103,7 +103,7 @@ void BattlegroundEY::StartingEventCloseDoors()
     SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_IMMEDIATELY);
     SpawnBGObject(BG_EY_OBJECT_DOOR_H, RESPAWN_IMMEDIATELY);
 
-    for (uint32 i = BG_EY_OBJECT_A_BANNER_FEL_REAVER_CENTER; i < BG_EY_OBJECT_MAX; ++i)
+    for (uint8 i = BG_EY_OBJECT_A_BANNER_FEL_REAVER_CENTER; i < BG_EY_OBJECT_MAX; ++i)
         SpawnBGObject(i, RESPAWN_ONE_DAY);
 }
 
@@ -112,9 +112,10 @@ void BattlegroundEY::StartingEventOpenDoors()
     SpawnBGObject(BG_EY_OBJECT_DOOR_A, RESPAWN_ONE_DAY);
     SpawnBGObject(BG_EY_OBJECT_DOOR_H, RESPAWN_ONE_DAY);
 
-    for (uint32 i = BG_EY_OBJECT_N_BANNER_FEL_REAVER_CENTER; i <= BG_EY_OBJECT_FLAG_NETHERSTORM; ++i)
+	uint8 i;
+    for (i = BG_EY_OBJECT_N_BANNER_FEL_REAVER_CENTER; i <= BG_EY_OBJECT_FLAG_NETHERSTORM; ++i)
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-    for (uint32 i = 0; i < EY_POINTS_MAX; ++i)
+    for (i = 0; i < EY_POINTS_MAX; ++i)
     {
         //randomly spawn buff
         uint8 buff = urand(0, 2);
@@ -175,10 +176,11 @@ void BattlegroundEY::CheckSomeoneJoinedPoint()
 void BattlegroundEY::CheckSomeoneLeftPoint()
 {
     //reset current point counts
-    for (uint8 i = 0; i < 2*EY_POINTS_MAX; ++i)
+	uint8 i;
+    for (i = 0; i < 2*EY_POINTS_MAX; ++i)
         m_CurrentPointPlayersCount[i] = 0;
     GameObject* obj = NULL;
-    for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
+    for (i = 0; i < EY_POINTS_MAX; ++i)
     {
         obj = HashMapHolder<GameObject>::Find(m_BgObjects[BG_EY_OBJECT_TOWER_CAP_FEL_REAVER + i]);
         if (obj)
@@ -344,7 +346,7 @@ void BattlegroundEY::AddPlayer(Player* player)
 void BattlegroundEY::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
 {
     // sometimes flag aura not removed :(
-    for (int j = EY_POINTS_MAX; j >= 0; --j)
+    for (uint8 j = EY_POINTS_MAX; j >= 0; --j)
     {
         for (size_t i = 0; i < m_PlayersNearPoint[j].size(); ++i)
             if (m_PlayersNearPoint[j][i] == guid)
@@ -476,7 +478,7 @@ bool BattlegroundEY::SetupBattleground()
     }
 
     //buffs
-    for (int i = 0; i < EY_POINTS_MAX; ++i)
+    for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
     {
         AreaTriggerEntry const* at = sAreaTriggerStore.LookupEntry(m_Points_Trigger[i]);
         if (!at)
@@ -927,7 +929,7 @@ WorldSafeLocsEntry const* BattlegroundEY::GetClosestGraveYard(Player* player)
 bool BattlegroundEY::IsAllNodesConrolledByTeam(uint32 team) const
 {
     uint32 count = 0;
-    for (int i = 0; i < EY_POINTS_MAX; ++i)
+    for (uint8 i = 0; i < EY_POINTS_MAX; ++i)
         if (m_PointOwnedByTeam[i] == team && m_PointState[i] == EY_POINT_UNDER_CONTROL)
             ++count;
 

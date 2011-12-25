@@ -44,6 +44,8 @@
 #include "Battleground.h"
 #include "AccountMgr.h"
 
+#include "Config.h"
+
 class LoginQueryHolder : public SQLQueryHolder
 {
     private:
@@ -964,7 +966,25 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     }
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
+	{
+
+		/* Debut du patch Player default guild
+		 * Ajoute le nouveau personnage dans une guilde dès sa création.
+		 * Guilde différentiable en fonction du grade Mj ou non.
+		 * Patch par MacWarrior
+		 */
+		uint32 security = pCurrChar->GetSession()->GetSecurity();
+		uint32 defaultguildid = security < SEC_MODERATOR ? sWorld->getIntConfig(CONFIG_PLAYER_START_GUILDID) : sWorld->getIntConfig(CONFIG_GM_START_GUILDID);
+		if(defaultguildid != 0)
+		{
+			Guild *guild = sGuildMgr->GetGuildById(defaultguildid);
+			if( !guild->AddMember(pCurrChar->GetGUID(), GUILD_RANK_NONE) )
+				sLog->outError("La guilde %u n'existe pas !", defaultguildid);
+		}
+		/* Fin du patch Player default guild */
+
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
+	}
 
     // show time before shutdown if shutdown planned.
     if (sWorld->IsShuttingDown())
@@ -975,6 +995,14 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     if (pCurrChar->isGameMaster())
         SendNotification(LANG_GM_ON);
+
+	/* Debut Annonces de connexion et déconnexion des Mj
+	 * Annonce en jeu à la connexion d'un MJ s'il est en mode GM et visible
+	 * Patch adapté et amélioré par MacWarrior
+	 */
+	if( sWorld->getBoolConfig(CONFIG_LOGIN_ANNOUNCE) && pCurrChar->isGameMaster() && pCurrChar->isGMVisible() && GetSecurity() >= SEC_MODERATOR )
+		sWorld->SendWorldText(LANG_ANNOUNCE_GMLOGIN, pCurrChar->GetSession()->GetRankColoredString().c_str(), pCurrChar->GetName());
+	/* Fin Annonces de connexion et déconnexion des Mj */
 
     std::string IP_str = GetRemoteAddress();
     sLog->outChar("Account: %d (IP: %s) Login Character:[%s] (GUID: %u)",
@@ -1213,7 +1241,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
         return;
     }
 
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
     {
         recv_data >> declinedname.name[i];
         if (!normalizePlayerName(declinedname.name[i]))
@@ -1235,7 +1263,7 @@ void WorldSession::HandleSetPlayerDeclinedNames(WorldPacket& recv_data)
         return;
     }
 
-    for (int i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
+    for (uint8 i = 0; i < MAX_DECLINED_NAME_CASES; ++i)
         CharacterDatabase.EscapeString(declinedname.name[i]);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -1447,7 +1475,7 @@ void WorldSession::HandleEquipmentSetSave(WorldPacket &recv_data)
     eqSet.IconName  = iconName;
     eqSet.state     = EQUIPMENT_SET_NEW;
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         uint64 itemGuid;
         recv_data.readPackGUID(itemGuid);
@@ -1483,7 +1511,7 @@ void WorldSession::HandleEquipmentSetUse(WorldPacket &recv_data)
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_EQUIPMENT_SET_USE");
 
-    for (uint32 i = 0; i < EQUIPMENT_SLOT_END; ++i)
+    for (uint8 i = 0; i < EQUIPMENT_SLOT_END; ++i)
     {
         uint64 itemGuid;
         recv_data.readPackGUID(itemGuid);

@@ -1059,6 +1059,44 @@ enum TrinityStrings
     LANG_AUTO_BROADCAST                 = 11000,
     LANG_INVALID_REALMID                = 11001,
 
+	/* Debut Fonctions d'affichage des Grades */
+	LANG_RANK_PLAYER					= 11010, // "Joueur"
+	LANG_RANK_MODERATOR					= 11011, // "Modérateur"
+	LANG_RANK_GAMEMASTER				= 11012, // "Mj"
+	LANG_RANK_ADMINISTRATOR				= 11013, // "Admin"
+	LANG_RANK_SYSTEM					= 11014, // "Système"
+	LANG_RANK_SERVER					= 11015, // "Serveur"
+	LANG_COLOREDRANK_PLAYER				= 11016, // "|cFF00FEA1Joueur|r"
+	LANG_COLOREDRANK_MODERATOR			= 11017, // "|cFF43BC10Modérateur|r"
+	LANG_COLOREDRANK_GAMEMASTER			= 11018, // "|cFF9085F9Mj|r"
+	LANG_COLOREDRANK_ADMINISTRATOR		= 11019, // "|cFFA51488Admin|r"
+	LANG_COLOREDRANK_SYSTEM				= 11020, // "|cFFFEC301Systeme|r"
+	LANG_COLOREDRANK_SERVER				= 11021, // "|cFFFE0000Serveur|r"
+	/* Fin Fonctions d'affichage des Grades */
+
+	/* Debut Annonces de connexion et déconnexion des Mj */
+	LANG_ANNOUNCE_GMLOGIN				= 11022, // "<%s> %s est en ligne"
+	LANG_ANNOUNCE_GMLOGOUT				= 11023, // "<%s> %s est hors ligne"
+	/* Fin Annonces de connexion et déconnexion des Mj */
+
+	/* Debut patch Mute broadcast */
+	LANG_ANNOUNCE_MUTE					= 11024, // "[%s] Le joueur %s a été mute par %s pour %d minutes. %s%s"
+	/* Fin patch Mute broadcast */
+
+	/* Debut patch Kick Broadcast */
+	LANG_ANNOUNCE_KICK					= 11025, // "[%s] %s a été déconnecté du serveur par %s"
+	LANG_ANNOUNCE_KICK_REASON			= 11026, // "[%s] %s a été déconnecté du serveur par %s. %s%s"
+	/* Fin patch Kick Broadcast */
+
+	/* Debut patch Ban Broadcast */
+	LANG_ANNOUNCE_BAN					= 11027, // "[%s] %s a été banni du serveur par %s pour %s. %s%s"
+	LANG_ANNOUNCE_BAN_PERM				= 11028, // "[%s] %s a été banni a vie par %s. %s%s"
+	/* Fin patch Ban Broadcast */
+
+	/* Debut définition des chaînes courrantes */
+	LANG_WORD_REASON					= 11029, // "Raison : "
+	/* Fin définition des chaînes courrantes */
+
     // NOT RESERVED IDS                   12000-1999999999
     // `db_script_string` table index     2000000000-2000009999 (MIN_DB_SCRIPT_STRING_ID-MAX_DB_SCRIPT_STRING_ID)
     // For other tables maybe             2000010000-2147483647 (max index)

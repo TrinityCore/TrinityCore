@@ -460,7 +460,7 @@ void SpellCastTargets::OutDebug() const
 
 SpellValue::SpellValue(SpellInfo const* proto)
 {
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         EffectBasePoints[i] = proto->Effects[i].BasePoints;
     MaxAffectedTargets = proto->MaxAffectedTargets;
     RadiusMod = 1.0f;
@@ -691,7 +691,7 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
 void Spell::SelectSpellTargets()
 {
     uint32 processedTargets = 0;
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         // not call for empty effect.
         // Also some spells use not used effect targets for store targets for dummy effect in triggered spells
@@ -937,7 +937,7 @@ void Spell::CleanupTargetList()
 
 void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*= true*/)
 {
-    for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         if (!m_spellInfo->Effects[effIndex].IsEffect() || !CheckEffectTarget(target, effIndex))
             effectMask &= ~(1 << effIndex);
 
@@ -950,7 +950,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
             return;
 
     // Check for effect immune skip if immuned
-    for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         if (target->IsImmunedToSpellEffect(m_spellInfo, effIndex))
             effectMask &= ~(1 << effIndex);
 
@@ -1041,7 +1041,7 @@ void Spell::AddUnitTarget(Unit* target, uint32 effectMask, bool checkIfValid /*=
 
 void Spell::AddGOTarget(GameObject* go, uint32 effectMask)
 {
-    for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
     {
         if (!m_spellInfo->Effects[effIndex].IsEffect())
             effectMask &= ~(1 << effIndex);
@@ -1109,7 +1109,7 @@ void Spell::AddGOTarget(uint64 goGUID, uint32 effectMask)
 
 void Spell::AddItemTarget(Item* item, uint32 effectMask)
 {
-    for (uint32 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+    for (uint8 effIndex = 0; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
         if (!m_spellInfo->Effects[effIndex].IsEffect())
             effectMask &= ~(1 << effIndex);
 
@@ -1561,7 +1561,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
         }
     }
 
-    for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
+    for (uint8 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
             HandleEffects(unit, NULL, NULL, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
@@ -1653,7 +1653,7 @@ void Spell::DoAllEffectOnTarget(GOTargetInfo* target)
     PrepareScriptHitHandlers();
     CallScriptBeforeHitHandlers();
 
-    for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
+    for (uint8 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
             HandleEffects(NULL, NULL, go, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
@@ -1676,7 +1676,7 @@ void Spell::DoAllEffectOnTarget(ItemTargetInfo* target)
     PrepareScriptHitHandlers();
     CallScriptBeforeHitHandlers();
 
-    for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
+    for (uint8 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
         if (effectMask & (1 << effectNumber))
             HandleEffects(NULL, target->item, NULL, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
@@ -2012,7 +2012,7 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
     // ENTRY targets may have different selection lists, skip those for now until we can compare lists easily and quickly
     if (GetSpellInfo()->Effects[i].TargetA.GetSelectionCheckType() != TARGET_SELECT_CHECK_ENTRY &&
         GetSpellInfo()->Effects[i].TargetB.GetSelectionCheckType() != TARGET_SELECT_CHECK_ENTRY)
-        for (uint32 j = i + 1; j < MAX_SPELL_EFFECTS; ++j)
+        for (uint8 j = i + 1; j < MAX_SPELL_EFFECTS; ++j)
             if (GetSpellInfo()->Effects[i].TargetA.GetTarget() == GetSpellInfo()->Effects[j].TargetA.GetTarget() &&
                 GetSpellInfo()->Effects[i].TargetB.GetTarget() == GetSpellInfo()->Effects[j].TargetB.GetTarget() &&
                 GetSpellInfo()->Effects[i].CalcRadius(m_caster) == GetSpellInfo()->Effects[j].CalcRadius(m_caster))
@@ -2437,7 +2437,7 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
         if (maxTargets > 1)
         {
             //otherwise, this multiplier is used for something else
-            for (uint32 k = i; k < MAX_SPELL_EFFECTS; ++k)
+            for (uint8 k = i; k < MAX_SPELL_EFFECTS; ++k)
                 if (effectMask & (1 << k))
                     m_damageMultipliers[k] = 1.0f;
             m_applyMultiplierMask |= effectMask;
@@ -2981,7 +2981,7 @@ void Spell::prepare(SpellCastTargets const* targets, AuraEffect const* triggered
         if (!(_triggeredCastFlags & TRIGGERED_IGNORE_AURA_INTERRUPT_FLAGS) && m_spellInfo->IsBreakingStealth())
         {
             m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CAST);
-            for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
                 if (m_spellInfo->Effects[i].GetUsedTargetObjectType() == TARGET_OBJECT_TYPE_UNIT)
                 {
                     m_caster->RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_SPELL_ATTACK);
@@ -3371,7 +3371,7 @@ void Spell::_handle_immediate_phase()
     PrepareScriptHitHandlers();
 
     // handle effects with SPELL_EFFECT_HANDLE_HIT mode
-    for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
         // don't do anything for empty effect
         if (!m_spellInfo->Effects[j].IsEffect())
@@ -3718,7 +3718,7 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
         case SPELL_FAILED_TOO_MANY_OF_ITEM:
         {
              uint32 item = 0;
-             for (int8 x = 0; x < 3; x++)
+             for (uint8 x = 0;x < 3; x++)
                  if (spellInfo->Effects[x].ItemType)
                      item = spellInfo->Effects[x].ItemType;
              ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
@@ -4203,7 +4203,7 @@ void Spell::TakeCastItem()
     bool expendable = false;
     bool withoutCharges = false;
 
-    for (int i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
+    for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
     {
         if (proto->Spells[i].SpellId)
         {
@@ -4470,7 +4470,7 @@ void Spell::TakeReagents()
         // if CastItem is also spell reagent
         if (castItemTemplate && castItemTemplate->ItemId == itemid)
         {
-            for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+            for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
             {
                 // CastItem will be used up and does not count as reagent
                 int32 charges = m_CastItem->GetSpellCharges(s);
@@ -4762,7 +4762,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     }
 
     // check pet presence
-    for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
         if (m_spellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_PET)
         {
@@ -4848,7 +4848,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (castResult != SPELL_CAST_OK)
         return castResult;
 
-    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
         // for effects of spells that have only one target
         switch (m_spellInfo->Effects[i].Effect)
@@ -5241,7 +5241,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
-    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
         switch (m_spellInfo->Effects[i].ApplyAuraName)
         {
@@ -5455,7 +5455,7 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     if (!target && m_targets.GetUnitTarget())
         target = m_targets.GetUnitTarget();
 
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_UNIT_TARGET
             || m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_DEST_TARGET)
@@ -5489,7 +5489,7 @@ SpellCastResult Spell::CheckCasterAuras() const
     // We use bitmasks so the loop is done only once and not on every aura check below.
     if (m_spellInfo->AttributesEx & SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY)
     {
-        for (int i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         {
             if (m_spellInfo->Effects[i].ApplyAuraName == SPELL_AURA_SCHOOL_IMMUNITY)
                 school_immune |= uint32(m_spellInfo->Effects[i].MiscValue);
@@ -5607,7 +5607,7 @@ bool Spell::CanAutoCast(Unit* target)
 {
     uint64 targetguid = target->GetGUID();
 
-    for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
+    for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
         if (m_spellInfo->Effects[j].Effect == SPELL_EFFECT_APPLY_AURA)
         {
@@ -5761,7 +5761,7 @@ SpellCastResult Spell::CheckItems()
         if (!proto)
             return SPELL_FAILED_ITEM_NOT_READY;
 
-        for (int i = 0; i < MAX_ITEM_SPELLS; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_SPELLS; ++i)
             if (proto->Spells[i].SpellCharges)
                 if (m_CastItem->GetSpellCharges(i) == 0)
                     return SPELL_FAILED_NO_CHARGES_REMAIN;
@@ -5771,7 +5771,7 @@ SpellCastResult Spell::CheckItems()
         {
             // such items should only fail if there is no suitable effect at all - see Rejuvenation Potions for example
             SpellCastResult failReason = SPELL_CAST_OK;
-            for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+            for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
             {
                     // skip check, pet not required like checks, and for TARGET_UNIT_PET m_targets.GetUnitTarget() is not the real target but the caster
                     if (m_spellInfo->Effects[i].TargetA.GetTarget() == TARGET_UNIT_PET)
@@ -5870,7 +5870,7 @@ SpellCastResult Spell::CheckItems()
         // check reagents (ignore triggered spells with reagents processed by original spell) and special reagent ignore case.
         if (checkReagents)
         {
-            for (uint32 i = 0; i < MAX_SPELL_REAGENTS; i++)
+            for (uint8 i = 0; i < MAX_SPELL_REAGENTS; i++)
             {
                 if (m_spellInfo->Reagent[i] <= 0)
                     continue;
@@ -5884,7 +5884,7 @@ SpellCastResult Spell::CheckItems()
                     ItemTemplate const* proto = m_CastItem->GetTemplate();
                     if (!proto)
                         return SPELL_FAILED_ITEM_NOT_READY;
-                    for (int s=0; s < MAX_ITEM_PROTO_SPELLS; ++s)
+                    for (uint8 s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
                     {
                         // CastItem will be used up and does not count as reagent
                         int32 charges = m_CastItem->GetSpellCharges(s);
@@ -5902,7 +5902,7 @@ SpellCastResult Spell::CheckItems()
 
         // check totem-item requirements (items presence in inventory)
         uint32 totems = 2;
-        for (int i = 0; i < 2 ; ++i)
+        for (uint8 i = 0; i < 2 ; ++i)
         {
             if (m_spellInfo->Totem[i] != 0)
             {
@@ -5919,7 +5919,7 @@ SpellCastResult Spell::CheckItems()
 
         // Check items for TotemCategory  (items presence in inventory)
         uint32 TotemCategory = 2;
-        for (int i= 0; i < 2; ++i)
+        for (uint8 i = 0; i < 2; ++i)
         {
             if (m_spellInfo->TotemCategory[i] != 0)
             {
@@ -5937,7 +5937,7 @@ SpellCastResult Spell::CheckItems()
     }
 
     // special checks for spell effects
-    for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
         switch (m_spellInfo->Effects[i].Effect)
         {
@@ -6200,7 +6200,7 @@ SpellCastResult Spell::CheckItems()
 
                  if (Item* pitem = p_caster->GetItemByEntry(item_id))
                  {
-                     for (int x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+                     for (uint8 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
                          if (pProto->Spells[x].SpellCharges != 0 && pitem->GetSpellCharges(x) == pProto->Spells[x].SpellCharges)
                              return SPELL_FAILED_ITEM_AT_MAX_CHARGES;
                  }
@@ -6588,7 +6588,7 @@ bool Spell::IsValidDeadOrAliveTarget(Unit const* target) const
 void Spell::HandleLaunchPhase()
 {
     // handle effects with SPELL_EFFECT_HANDLE_LAUNCH mode
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         // don't do anything for empty effect
         if (!m_spellInfo->Effects[i].IsEffect())
@@ -6659,7 +6659,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
     if (!unit)
         return;
 
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
         if (targetInfo.effectMask & (1<<i))
         {
@@ -6710,7 +6710,7 @@ SpellCastResult Spell::CanOpenLock(uint32 effIndex, uint32 lockId, SkillType& sk
 
     bool reqKey = false;                                    // some locks not have reqs
 
-    for (int j = 0; j < MAX_LOCK_CASE; ++j)
+    for (uint8 j = 0; j < MAX_LOCK_CASE; ++j)
     {
         switch (lockInfo->Type[j])
         {

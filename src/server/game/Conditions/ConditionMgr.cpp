@@ -949,7 +949,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                         if (!conditions.empty())
                             break;
 
-                        for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                        for (uint8 j = 0; j < MAX_SPELL_EFFECTS; ++j)
                         {
                             if (pSpellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY ||
                                 pSpellInfo->Effects[j].TargetB.GetTarget() == TARGET_UNIT_TARGET_ENEMY ||
