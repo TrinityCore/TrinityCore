@@ -92,7 +92,7 @@ class DatabaseWorkerPool
                 ++m_connectionCount[IDX_SYNCH];
             }
 
-            sLog->outSQLDriver("Databasepool opened succesfuly. %u total connections running.", (m_connectionCount[IDX_SYNCH] + m_connectionCount[IDX_ASYNC]));
+            sLog->outSQLDriver("Databasepool opened successfully. %u total connections running.", (m_connectionCount[IDX_SYNCH] + m_connectionCount[IDX_ASYNC]));
             return res;
         }
 
