@@ -693,25 +693,25 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
     _unstablePetCallback.SetFutureResult(CharacterDatabase.AsyncQuery(stmt));
 }
 
-void WorldSession::HandleUnstablePetCallback(PreparedQueryResult result, uint32 petnumber)
+void WorldSession::HandleUnstablePetCallback(PreparedQueryResult result, uint32 petId)
 {
     if (!GetPlayer())
         return;
 
-    uint32 creature_id = 0;
+    uint32 petEntry = 0;
     if (result)
     {
         Field* fields = result->Fetch();
-        creature_id = fields[0].GetUInt32();
+        petEntry = fields[0].GetUInt32();
     }
 
-    if (!creature_id)
+    if (!petEntry)
     {
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
 
-    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(creature_id);
+    CreatureTemplate const* creatureInfo = sObjectMgr->GetCreatureTemplate(petEntry);
     if (!creatureInfo || !creatureInfo->isTameable(_player->CanTameExoticPets()))
     {
         // if problem in exotic pet
@@ -733,11 +733,11 @@ void WorldSession::HandleUnstablePetCallback(PreparedQueryResult result, uint32 
     if (pet)
         _player->RemovePet(pet, PET_SAVE_AS_DELETED);
 
-    Pet* newpet = new Pet(_player, HUNTER_PET);
-    if (!newpet->LoadPetFromDB(_player, creature_id, petnumber))
+    Pet* newPet = new Pet(_player, HUNTER_PET);
+    if (!newPet->LoadPetFromDB(_player, petEntry, petId))
     {
-        delete newpet;
-        newpet = NULL;
+        delete newPet;
+        newPet = NULL;
         SendStableResult(STABLE_ERR_STABLE);
         return;
     }
