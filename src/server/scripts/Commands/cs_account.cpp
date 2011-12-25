@@ -81,8 +81,13 @@ public:
             return false;
         }
 
-        // No SQL injection
-        LoginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'", expansion, accountId);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_EXPANSION);
+
+        stmt->setUInt8(0, uint8(expansion));
+        stmt->setUInt32(1, accountId);
+
+        LoginDatabase.Execute(stmt);
+
         handler->PSendSysMessage(LANG_ACCOUNT_ADDON, expansion);
         return true;
     }
@@ -242,17 +247,25 @@ public:
         }
 
         std::string param = (char*)args;
-        if (param == "on")
-        {
-            LoginDatabase.PExecute("UPDATE account SET locked = '1' WHERE id = '%d'", handler->GetSession()->GetAccountId());
-            handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
-            return true;
-        }
 
-        if (param == "off")
+        if (!param.empty())
         {
-            LoginDatabase.PExecute("UPDATE account SET locked = '0' WHERE id = '%d'", handler->GetSession()->GetAccountId());
-            handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_ACCOUNT_LOCK);
+
+            if (param == "on")
+            {
+                stmt->setBool(0, true);                                     // locked
+                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKLOCKED);
+            }
+            else if (param == "off")
+            {
+                stmt->setBool(0, false);                                    // unlocked
+                handler->PSendSysMessage(LANG_COMMAND_ACCLOCKUNLOCKED);
+            }
+
+            stmt->setUInt32(1, handler->GetSession()->GetAccountId());
+
+            LoginDatabase.Execute(stmt);
             return true;
         }
 
