@@ -25,6 +25,9 @@ EndScriptData */
 
 /* ContentData
 npc_aged_dying_ancient_kodo
+go_iruxos
+npc_dalinda_malem
+go_demon_portal
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -168,22 +171,28 @@ public:
 };
 
 /*######
-## go_iruxos. Quest 5381
+## go_iruxos
+## Hand of Iruxos
 ######*/
+
+enum 
+{
+    QUEST_HAND_IRUXOS   = 5381,
+    NPC_DEMON_SPIRIT    = 11876,
+};
 
 class go_iruxos : public GameObjectScript
 {
-public:
-    go_iruxos() : GameObjectScript("go_iruxos") { }
+    public:
+        go_iruxos() : GameObjectScript("go_iruxos") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*pGO*/)
-    {
+        bool OnGossipHello(Player* player, GameObject* /*go*/)
+        {
             if (player->GetQuestStatus(5381) == QUEST_STATUS_INCOMPLETE)
-                player->SummonCreature(11876, player->GetInnPosX(), player->GetInnPosY(), player->GetInnPosZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                player->SummonCreature(11876, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
             return true;
-    }
-
+        }
 };
 
 /*######
@@ -254,7 +263,34 @@ public:
             DoMeleeAttackIfReady();
         }
     };
+};
 
+/*######
+## go_demon_portal
+######*/
+
+enum DemonPortal
+{
+    NPC_DEMON_GUARDIAN          = 11937,
+
+    QUEST_PORTAL_OF_THE_LEGION  = 5581,
+};
+
+class go_demon_portal : public GameObjectScript
+{
+    public:
+        go_demon_portal() : GameObjectScript("go_demon_portal") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if (player->GetQuestStatus(QUEST_PORTAL_OF_THE_LEGION) == QUEST_STATUS_INCOMPLETE)
+            {
+                if (Creature* guardian = player->SummonCreature(NPC_DEMON_GUARDIAN, GO->GetPositionX(), GO->GetPositionY(), GO->GetPositionZ(), 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0))
+                    guardian->AI()->AttackStart(player);
+            }
+
+            return true;
+        }
 };
 
 void AddSC_desolace()
@@ -262,4 +298,5 @@ void AddSC_desolace()
     new npc_aged_dying_ancient_kodo();
     new go_iruxos();
     new npc_dalinda();
+    new go_demon_portal();
 }
