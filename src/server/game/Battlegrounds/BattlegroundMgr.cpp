@@ -116,6 +116,10 @@ void BattlegroundMgr::Update(uint32 diff)
         }
     }
 
+    // update events timer
+    for (int qtype = BATTLEGROUND_QUEUE_NONE; qtype < MAX_BATTLEGROUND_QUEUE_TYPES; ++qtype)
+        m_BattlegroundQueues[qtype].UpdateEvents(diff);
+
     // update scheduled queues
     if (!m_QueueUpdateScheduler.empty())
     {
