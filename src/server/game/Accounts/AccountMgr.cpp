@@ -37,8 +37,16 @@ AccountOpResult CreateAccount(std::string username, std::string password)
     if (GetId(username))
         return AOR_NAME_ALREDY_EXIST;                       // username does already exist
 
-    LoginDatabase.PExecute("INSERT INTO account(username, sha_pass_hash, joindate) VALUES('%s', '%s', NOW())", username.c_str(), CalculateShaPassHash(username, password).c_str());
-    LoginDatabase.Execute("INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist, account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL");
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_ACCOUNT);
+
+    stmt->setString(0, username);
+    stmt->setString(1, CalculateShaPassHash(username, password));
+
+    LoginDatabase.Execute(stmt);
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_REALM_CHARS);
+
+    LoginDatabase.Execute(stmt);
 
     return AOR_OK;                                          // everything's fine
 }
