@@ -155,14 +155,6 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
-            if (player_dead.own_team_flag > 1)
-            {
-                sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD (%u) has wrong boolean value1 (%u).",
-                    criteria->ID, criteria->requiredType, dataType, player_dead.own_team_flag);
-                return false;
-            }
-            return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA:
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA:
         {
@@ -187,14 +179,6 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             }
             return true;
         }
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA:
-            if (!GetAreaEntryByAreaID(area.id))
-            {
-                sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA (%u) has wrong area id in value1 (%u), ignored.",
-                    criteria->ID, criteria->requiredType, dataType, area.id);
-                return false;
-            }
-            return true;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_LEVEL:
             if (level.minlevel > STRONG_MAX_LEVEL)
             {
@@ -216,14 +200,6 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
             {
                 sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT (%u) does not have ScriptName set, ignored.",
                     criteria->ID, criteria->requiredType, dataType);
-                return false;
-            }
-            return true;
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
-            if (difficulty.difficulty >= MAX_DIFFICULTY)
-            {
-                sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) for data type ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY (%u) has wrong difficulty in value1 (%u), ignored.",
-                    criteria->ID, criteria->requiredType, dataType, difficulty.difficulty);
                 return false;
             }
             return true;
@@ -269,14 +245,6 @@ bool AchievementCriteriaData::IsValid(AchievementCriteriaEntry const* criteria)
                 return false;
             }
             return true;
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
-            if (!sMapStore.LookupEntry(map_id.mapId))
-            {
-                sLog->outErrorDb("Table `achievement_criteria_requirement` (Entry: %u Type: %u) for requirement ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID (%u) has unknown map id in value1 (%u), ignored.",
-                    criteria->ID, criteria->requiredType, dataType, map_id.mapId);
-                return false;
-            }
-            return true;
         default:
             sLog->outErrorDb("Table `achievement_criteria_data` (Entry: %u Type: %u) has data for non-supported data type (%u), ignored.", criteria->ID, criteria->requiredType, dataType);
             return false;
@@ -305,21 +273,8 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             if (!target || target->GetTypeId() != TYPEID_PLAYER)
                 return false;
             return !target->HealthAbovePct(health.percent);
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_PLAYER_DEAD:
-            if (target && !target->isAlive())
-                if (const Player* player = target->ToPlayer())
-                    if (player->GetDeathTimer() != 0)
-                        // flag set == must be same team, not set == different team
-                        return (player->GetTeam() == source->GetTeam()) == (player_dead.own_team_flag != 0);
-            return false;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AURA:
             return source->HasAuraEffect(aura.spell_id, aura.effect_idx);
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_S_AREA:
-        {
-            uint32 zone_id, area_id;
-            source->GetZoneAndAreaId(zone_id, area_id);
-            return area.id == zone_id || area.id == area_id;
-        }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_AURA:
             return target && target->HasAuraEffect(aura.spell_id, aura.effect_idx);
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_VALUE:
@@ -334,11 +289,6 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
             return target->getGender() == gender.gender;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_SCRIPT:
             return sScriptMgr->OnCriteriaCheck(this, const_cast<Player*>(source), const_cast<Unit*>(target));
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_DIFFICULTY:
-            if (source->GetMap()->IsRaid())
-                if (source->GetMap()->Is25ManRaid() != (difficulty.difficulty & RAID_DIFFICULTY_MASK_25MAN))
-                    return false;
-            return source->GetMap()->GetSpawnMode() >= difficulty.difficulty;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_PLAYER_COUNT:
             return source->GetMap()->GetPlayersCountExceptGMs() <= map_players.maxcount;
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_T_TEAM:
@@ -383,8 +333,6 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Un
                 return false;
             return pProto->ItemLevel >= equipped_item.item_level && pProto->Quality >= equipped_item.item_quality;
         }
-        case ACHIEVEMENT_CRITERIA_DATA_TYPE_MAP_ID:
-            return source->GetMapId() == map_id.mapId;
         default:
             break;
     }
@@ -747,7 +695,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         if (!achievement)
             continue;
 
-        if (!CanUpdateCriteria(achievementCriteria, achievement))
+        if (!CanUpdateCriteria(achievementCriteria, achievement, miscValue1, miscValue2, unit))
             continue;
 
         switch (type)
@@ -2131,12 +2079,16 @@ bool AchievementMgr::HasAchieved(uint32 achievementId) const
     return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
 }
 
-bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement)
+bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, Unit* unit)
 {
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))
         return false;
 
     if (achievement->mapID != -1 && GetPlayer()->GetMapId() != uint32(achievement->mapID))
+        return false;
+
+    // don't update already completed criteria
+    if (IsCompletedCriteria(criteria, achievement))
         return false;
 
     if ((achievement->requiredFaction == ACHIEVEMENT_FACTION_HORDE    && GetPlayer()->GetTeam() != HORDE) ||
@@ -2162,10 +2114,55 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
                 break;
         }
     }
+    
+    // additional conditions
+    for (int8 i = 0; i < MAX_ADDITIONAL_CRITERIA_CONDITIONS; ++i)
+    {
+        if (!criteria->additionalConditionType[i])
+            continue;
 
-    // don't update already completed criteria
-    if (IsCompletedCriteria(criteria, achievement))
-        return false;
+        uint32 value = criteria->additionalConditionValue[i];
+        switch (criteria->additionalConditionType[i])
+        {
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_PLAYER:
+                if (!unit || !unit->ToPlayer())
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_DEAD:
+                if (!unit || unit->isAlive())
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_MOUNTED:
+                if (!unit || !unit->IsMounted())
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY:
+                if (GetPlayer()->GetDifficulty(GetPlayer()->GetMap()->IsRaid()) != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_MAP:
+                if (GetPlayer()->GetMapId() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_ZONE:
+                if (GetPlayer()->GetZoneId() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_AREA:
+                if (GetPlayer()->GetAreaId() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_ENEMY:
+                if (!unit)
+                    return false;
+                if (const Player* player = unit->ToPlayer())
+                    if (player->GetDeathTimer() != 0 && player->GetTeam() == GetPlayer()->GetTeam())
+                        return false;
+                break;
+            default:
+                break;
+        }
+    }
 
     return true;
 }
