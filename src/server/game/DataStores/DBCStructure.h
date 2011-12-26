@@ -526,8 +526,8 @@ struct AchievementCriteriaEntry
     uint32  showOrder;                                      // 14       m_ui_order  also used in achievement shift-links as index in state bitmask
     //uint32 unk1;                                          // 15 only one value, still unknown
     //uint32 unk2;                                          // 16 all zeros
-    uint32 moreRequirement[3];                              // 17-19
-    uint32 moreRequirementValue[3];                         // 20-22
+    uint32 additionalConditionType[MAX_ADDITIONAL_CRITERIA_CONDITIONS];     // 17-19
+    uint32 additionalConditionValue[MAX_ADDITIONAL_CRITERIA_CONDITIONS];    // 20-22
 };
 
 struct AreaTableEntry
