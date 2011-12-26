@@ -619,7 +619,13 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
             {
                 // we will remove not existed criteria for all characters
                 sLog->outError("Non-existing achievement criteria %u data removed from table `character_achievement_progress`.", id);
-                CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE criteria = %u", id);
+
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+
+                stmt->setUInt16(0, uint16(id));
+
+                CharacterDatabase.Execute(stmt);
+
                 continue;
             }
 
@@ -2375,17 +2381,23 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     {
         Field* fields = result->Fetch();
 
-        uint32 achievement_id = fields[0].GetUInt32();
-        const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievement_id);
+        uint32 achievementId = fields[0].GetUInt32();
+        const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
         {
-            // we will remove not existed achievement for all characters
-            sLog->outError("Non-existing achievement %u data removed from table `character_achievement`.", achievement_id);
-            CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE achievement = %u", achievement_id);
+            // Remove non existent achievements from all characters
+            sLog->outError("Non-existing achievement %u data removed from table `character_achievement`.", achievementId);
+
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
+
+            stmt->setUInt16(0, uint16(achievementId));
+
+            CharacterDatabase.Execute(stmt);
+
             continue;
         }
         else if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-            m_allCompletedAchievements.insert(achievement_id);
+            m_allCompletedAchievements.insert(achievementId);
     } while (result->NextRow());
 
     sLog->outString(">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));
