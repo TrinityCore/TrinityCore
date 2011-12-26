@@ -698,6 +698,11 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
         if (!CanUpdateCriteria(achievementCriteria, achievement, miscValue1, miscValue2, unit))
             continue;
 
+        // requirements not found in the dbc
+        if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
+            if (!data->Meets(GetPlayer(), unit, miscValue1))
+                continue;
+
         switch (type)
         {
             // std. case: increment at 1
@@ -752,13 +757,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1)
                     continue;
 
-                if (achievement->categoryId == CATEGORY_CHILDRENS_WEEK)
-                {
-                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), NULL))
-                        continue;
-                }
-
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
@@ -768,11 +766,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1)
                     continue;
                 if (achievementCriteria->win_bg.bgMapID != GetPlayer()->GetMapId())
-                    continue;
-
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), unit))
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, miscValue1, PROGRESS_ACCUMULATE);
@@ -786,18 +779,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (achievementCriteria->kill_creature.creatureID != miscValue1)
                     continue;
 
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), unit))
-                    continue;
-
                 SetCriteriaProgress(achievementCriteria, miscValue2, PROGRESS_ACCUMULATE);
                 break;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL:
-                if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
-                    if (!data->Meets(GetPlayer(), unit))
-                        continue;
                 SetCriteriaProgress(achievementCriteria, GetPlayer()->getLevel());
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL:
@@ -985,11 +970,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1)
                     continue;
 
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), unit))
-                    continue;
-
                 // miscvalue1 is the ingame fallheight*100 as stored in dbc
                 SetCriteriaProgress(achievementCriteria, miscValue1);
                 break;
@@ -1017,15 +997,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                         continue;
                 }
 
-                if (achievement->ID == 1282)
-                {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), unit))
-                        continue;
-                    break;
-                }
-
                 SetCriteriaProgress(achievementCriteria, 1);
                 break;
             }
@@ -1035,14 +1006,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1 || miscValue1 != achievementCriteria->be_spell_target.spellID)
                     continue;
 
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data)
-                    continue;
-
-                if (!data->Meets(GetPlayer(), unit))
-                    continue;
-
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
@@ -1050,14 +1013,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_CAST_SPELL2:
             {
                 if (!miscValue1 || miscValue1 != achievementCriteria->cast_spell.spellID)
-                    continue;
-
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data)
-                    continue;
-
-                if (!data->Meets(GetPlayer(), unit))
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
@@ -1079,15 +1034,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (miscValue1 != achievementCriteria->loot_type.lootType)
                     continue;
 
-                // zone specific
-                if (achievementCriteria->loot_type.lootTypeCount == 1)
-                {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), unit))
-                        continue;
-                }
-
                 SetCriteriaProgress(achievementCriteria, miscValue2, PROGRESS_ACCUMULATE);
                 break;
             }
@@ -1102,19 +1048,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1)                            // no update at login
                     continue;
 
-                // additional requirements
-                if (achievementCriteria->additionalRequirements[0].additionalRequirement_type == ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
-                {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), unit, miscValue1))
-                    {
-                        // reset the progress as we have a win without the requirement.
-                        SetCriteriaProgress(achievementCriteria, 0);
-                        continue;
-                    }
-                }
-
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_USE_ITEM:
@@ -1124,14 +1057,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
 
                 if (achievementCriteria->use_item.itemID != miscValue1)
                     continue;
-
-                // Children's Week achievements have extra requirements
-                if (achievement->categoryId == CATEGORY_CHILDRENS_WEEK)
-                {
-                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), NULL))
-                        continue;
-                }
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
@@ -1211,11 +1136,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (miscValue2 != achievementCriteria->equip_epic_item.itemSlot)
                     continue;
 
-                // check item level and quality via achievement_criteria_data
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), 0, miscValue1))
-                    continue;
-
                 SetCriteriaProgress(achievementCriteria, 1);
                 break;
             }
@@ -1234,11 +1154,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!pProto)
                     continue;
 
-                // check item level via achievement_criteria_data
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), 0, pProto->ItemLevel))
-                    continue;
-
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
@@ -1249,13 +1164,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
                 if (miscValue1 != achievementCriteria->do_emote.emoteID)
                     continue;
-                if (achievementCriteria->do_emote.count)
-                {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data || !data->Meets(GetPlayer(), unit))
-                        continue;
-                }
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
@@ -1329,17 +1237,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 // AchievementMgr::UpdateAchievementCriteria might also be called on login - skip in this case
                 if (!miscValue1)
                     continue;
-
-                if (achievementCriteria->win_duel.duelCount)
-                {
-                    // those requirements couldn't be found in the dbc
-                    AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                    if (!data)
-                        continue;
-
-                    if (!data->Meets(GetPlayer(), unit))
-                        continue;
-                }
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
@@ -1419,11 +1316,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 if (!miscValue1 || miscValue1 != achievementCriteria->bg_objective.objectiveId)
                     continue;
 
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), unit))
-                    continue;
-
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
@@ -1433,11 +1325,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             {
                 // skip login update
                 if (!miscValue1)
-                    continue;
-
-                // those requirements couldn't be found in the dbc
-                AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria);
-                if (!data || !data->Meets(GetPlayer(), unit))
                     continue;
 
                 SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);

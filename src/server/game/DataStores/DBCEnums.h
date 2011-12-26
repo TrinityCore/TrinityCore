@@ -132,7 +132,7 @@ enum AchievementCriteriaAdditionalCondition
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_SUBCLASS                     = 34,   // NYI
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK35                             = 35,   // related to timed completing-quests achievements
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK36                             = 36,   // unused in 4.0.6a
-    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MIN_PERSONAL_RATING               = 37,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MIN_PERSONAL_RATING               = 37,   // NYI (when implementing don't forget about ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TITLE_BIT_INDEX                   = 38,   // NYI
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL                      = 39,   // NYI
     ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL                      = 40,   // NYI
