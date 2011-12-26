@@ -207,7 +207,10 @@ void TicketMgr::ResetTickets()
             sTicketMgr->RemoveTicket(itr->second->GetId());
 
     _lastTicketId = 0;
-    CharacterDatabase.PExecute("TRUNCATE TABLE gm_tickets");
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_TICKETS);
+
+    CharacterDatabase.Execute(stmt);
 }
 
 void TicketMgr::LoadTickets()
