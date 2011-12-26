@@ -2043,7 +2043,7 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
                 if (!unit)
                     return false;
                 if (const Player* player = unit->ToPlayer())
-                    if (player->GetDeathTimer() != 0 && player->GetTeam() == GetPlayer()->GetTeam())
+                    if (player->GetTeam() == GetPlayer()->GetTeam())
                         return false;
                 break;
             default:
