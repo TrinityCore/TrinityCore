@@ -1883,7 +1883,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, ByteBuffer* data)
 
     *data << fields[1].GetString();                       // name
     *data << uint8(playerBytes >> 8);                     // face
-    *data << uint32(fields[9].GetUInt32());               // map
+    *data << uint32(fields[9].GetUInt16());               // map
 
     uint8 Guid0 = uint8(GuidLow);
     uint8 Guid1 = uint8(GuidLow >> 8);
