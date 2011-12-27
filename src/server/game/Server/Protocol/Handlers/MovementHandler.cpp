@@ -295,7 +295,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
         // if we boarded a transport, add us to it
         if (plMover && !plMover->GetTransport())
         {
-            // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just unmount if the guid can be found in the transport list
+            // elevators also cause the client to send MOVEMENTFLAG_ONTRANSPORT - just dismount if the guid can be found in the transport list
             for (MapManager::TransportSet::const_iterator iter = sMapMgr->m_Transports.begin(); iter != sMapMgr->m_Transports.end(); ++iter)
             {
                 if ((*iter)->GetGUID() == movementInfo.t_guid)
@@ -593,19 +593,22 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
        HaveSpline = false;
 
    MovementStatusElements *sequence = GetMovementStatusElementsSequence(data.GetOpcode());
-   if(sequence == NULL)
+   if (sequence == NULL)
        return;
-   uint8 guid[8];
-   uint8 tguid[8];
-   *(uint64*)guid = 0;
-   *(uint64*)tguid = 0;
-   for(uint32 i=0; i < MSE_COUNT; i++)
+
+   BytesGuid guid;
+   BytesGuid tguid;
+
+   guid.guid = 0;
+   tguid.guid = 0;
+
+   for (uint32 i = 0; i < MSE_COUNT; i++)
    {
        MovementStatusElements element = sequence[i];
 
        if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
        {
-           data.ReadByteMask(guid[element - MSEGuidByte0]);
+           data.ReadByteMask(guid.bytes[element - MSEGuidByte0]);
            continue;
        }
 
@@ -613,13 +616,13 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
            element <= MSETransportGuidByte7)
        {
            if (HaveTransportData)
-               data.ReadByteMask(tguid[element - MSETransportGuidByte0]);
+               data.ReadByteMask(tguid.bytes[element - MSETransportGuidByte0]);
            continue;
        }
 
        if (element >= MSEGuidByte0_2 && element <= MSEGuidByte7_2)
        {
-           data.ReadByteSeq(guid[element - MSEGuidByte0_2]);
+           data.ReadByteSeq(guid.bytes[element - MSEGuidByte0_2]);
            continue;
        }
 
@@ -627,7 +630,7 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
            element <= MSETransportGuidByte7_2)
        {
            if (HaveTransportData)
-               data.ReadByteSeq(tguid[element - MSETransportGuidByte0_2]);
+               data.ReadByteSeq(tguid.bytes[element - MSETransportGuidByte0_2]);
            continue;
        }
 
@@ -738,8 +741,8 @@ void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
        }
    }
 
-   mi->guid = *(uint64*)guid;
-   mi->t_guid = *(uint64*)tguid;
+   mi->guid = guid.guid;
+   mi->t_guid = tguid.guid;
 
    if (HaveTransportData && mi->pos.m_positionX != mi->t_pos.m_positionX)
        if (GetPlayer()->GetTransport())

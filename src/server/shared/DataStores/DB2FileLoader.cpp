@@ -370,9 +370,6 @@ char* DB2FileLoader::AutoProduceStrings(const char* format, char* dataTable)
     if (strlen(format) != fieldCount)
         return NULL;
 
-    // each string field at load have array of string for each locale
-    size_t stringHolderSize = sizeof(char*) * TOTAL_LOCALES;
-
     char* stringPool= new char[stringSize];
     memcpy(stringPool, stringTable, stringSize);
 

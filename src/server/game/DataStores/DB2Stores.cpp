@@ -52,7 +52,7 @@ struct LocalDB2Data
 };
 
 template<class T>
-inline void LoadDB2(uint32& availableDb2Locales, StoreProblemList1& errlist, DB2Storage<T>& storage, const std::string& db2_path, const std::string& filename)
+inline void LoadDB2(StoreProblemList1& errlist, DB2Storage<T>& storage, const std::string& db2_path, const std::string& filename)
 {
     // compatibility format and C++ structure sizes
     ASSERT(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()) == sizeof(T) || LoadDB2_assert_print(DB2FileLoader::GetFormatRecordSize(storage.GetFormat()), sizeof(T), filename));
@@ -60,14 +60,10 @@ inline void LoadDB2(uint32& availableDb2Locales, StoreProblemList1& errlist, DB2
     ++DB2FilesCount;
 
     std::string db2_filename = db2_path + filename;
-    if (storage.Load(db2_filename.c_str()))
-    {
-    }
-    else
+    if (!storage.Load(db2_filename.c_str()))
     {
         // sort problematic db2 to (1) non compatible and (2) nonexistent
-        FILE * f = fopen(db2_filename.c_str(), "rb");
-        if (f)
+        if (FILE * f = fopen(db2_filename.c_str(), "rb"))
         {
             char buf[100];
             snprintf(buf, 100,"(exist, but have %d fields instead " SIZEFMTD ") Wrong client version DBC file?", storage.GetFieldCount(), strlen(storage.GetFormat()));
@@ -84,12 +80,11 @@ void LoadDB2Stores(const std::string& dataPath)
     std::string db2Path = dataPath + "dbc/";
 
     StoreProblemList1 bad_db2_files;
-    uint32 availableDb2Locales = 0xFFFFFFFF;
 
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemStore, db2Path, "Item.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
-    LoadDB2(availableDb2Locales, bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
+    LoadDB2(bad_db2_files, sItemStore, db2Path, "Item.db2");
+    LoadDB2(bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");
+    LoadDB2(bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
+    LoadDB2(bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
     {
@@ -110,7 +105,7 @@ void LoadDB2Stores(const std::string& dataPath)
     if (!sItemStore.LookupEntry(72068)             ||       // last item added in 4.2.2 (14545)
         !sItemExtendedCostStore.LookupEntry(3652)  )        // last item extended cost added in 4.2.2 (14545)
     {
-        sLog->outString("");
+        sLog->outString();
         sLog->outError("Please extract correct db2 files from client 4.2.2 14545.");
         exit(1);
     }

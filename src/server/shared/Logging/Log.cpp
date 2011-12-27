@@ -370,13 +370,17 @@ void Log::outDB(LogTypes type, const char * str)
     if (!str || type >= MAX_LOG_TYPES)
          return;
 
-    std::string new_str(str);
-    if (new_str.empty())
+    std::string logStr(str);
+    if (logStr.empty())
         return;
-    LoginDatabase.EscapeString(new_str);
 
-    LoginDatabase.PExecute("INSERT INTO logs (time, realm, type, string) "
-        "VALUES (" UI64FMTD ", %u, %u, '%s');", uint64(time(0)), realm, type, new_str.c_str());
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_LOG);
+
+    stmt->setInt32(0, realm);
+    stmt->setInt32(1, type);
+    stmt->setString(2, logStr);
+
+    LoginDatabase.Execute(stmt);
 }
 
 void Log::outString(const char * str, ...)

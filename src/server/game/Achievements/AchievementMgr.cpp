@@ -567,7 +567,13 @@ void AchievementMgr::LoadFromDB(PreparedQueryResult achievementResult, PreparedQ
             {
                 // we will remove not existed criteria for all characters
                 sLog->outError("Non-existing achievement criteria %u data removed from table `character_achievement_progress`.", id);
-                CharacterDatabase.PExecute("DELETE FROM character_achievement_progress WHERE criteria = %u", id);
+
+                PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEV_PROGRESS_CRITERIA);
+
+                stmt->setUInt16(0, uint16(id));
+
+                CharacterDatabase.Execute(stmt);
+
                 continue;
             }
 
@@ -996,6 +1002,10 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     if (!GetPlayer()->GetQuestRewardStatus(achievementCriteria->complete_quest.questID))
                         continue;
                 }
+
+                if (AchievementCriteriaDataSet const* data = sAchievementMgr->GetCriteriaDataSet(achievementCriteria))
+                    if (!data->Meets(GetPlayer(), unit))
+                        continue;
 
                 SetCriteriaProgress(achievementCriteria, 1);
                 break;
@@ -1426,6 +1436,18 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_EARNED_PVP_TITLE:
             case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE:
             case ACHIEVEMENT_CRITERIA_TYPE_TOTAL:
+            case ACHIEVEMENT_CRITERIA_TYPE_SPENT_GOLD_GUILD_REPAIRS:
+            case ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL:
+            case ACHIEVEMENT_CRITERIA_TYPE_CRAFT_ITEMS_GUILD:
+            case ACHIEVEMENT_CRITERIA_TYPE_CATCH_FROM_POOL:
+            case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_BANK_SLOTS:
+            case ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACHIEVEMENT_POINTS:
+            case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BATTLEGROUND:
+            case ACHIEVEMENT_CRITERIA_TYPE_REACH_BG_RATING:
+            case ACHIEVEMENT_CRITERIA_TYPE_BUY_GUILD_TABARD:
+            case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUESTS_GUILD:
+            case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILLS_GUILD:
+            case ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD:
                 break;                                   // Not implemented yet :(
         }
 
@@ -1966,7 +1988,7 @@ bool AchievementMgr::HasAchieved(uint32 achievementId) const
     return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
 }
 
-bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, Unit* unit)
+bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 /*miscValue1*/, uint64 /*miscValue2*/, Unit* unit)
 {
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))
         return false;
@@ -2275,17 +2297,23 @@ void AchievementGlobalMgr::LoadCompletedAchievements()
     {
         Field* fields = result->Fetch();
 
-        uint32 achievement_id = fields[0].GetUInt32();
-        const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievement_id);
+        uint32 achievementId = fields[0].GetUInt32();
+        const AchievementEntry* achievement = sAchievementStore.LookupEntry(achievementId);
         if (!achievement)
         {
-            // we will remove not existed achievement for all characters
-            sLog->outError("Non-existing achievement %u data removed from table `character_achievement`.", achievement_id);
-            CharacterDatabase.PExecute("DELETE FROM character_achievement WHERE achievement = %u", achievement_id);
+            // Remove non existent achievements from all characters
+            sLog->outError("Non-existing achievement %u data removed from table `character_achievement`.", achievementId);
+
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_ACHIEVMENT);
+
+            stmt->setUInt16(0, uint16(achievementId));
+
+            CharacterDatabase.Execute(stmt);
+
             continue;
         }
         else if (achievement->flags & (ACHIEVEMENT_FLAG_REALM_FIRST_REACH | ACHIEVEMENT_FLAG_REALM_FIRST_KILL))
-            m_allCompletedAchievements.insert(achievement_id);
+            m_allCompletedAchievements.insert(achievementId);
     } while (result->NextRow());
 
     sLog->outString(">> Loaded %lu completed achievements in %u ms", (unsigned long)m_allCompletedAchievements.size(), GetMSTimeDiffToNow(oldMSTime));

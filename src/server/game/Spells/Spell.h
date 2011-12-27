@@ -646,7 +646,7 @@ class Spell
         // -------------------------------------------
 
         uint32 m_spellState;
-        uint32 m_timer;
+        int32 m_timer;
 
         TriggerCastFlags _triggeredCastFlags;
 
