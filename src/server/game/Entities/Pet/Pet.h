@@ -181,7 +181,7 @@ class Pet : public Guardian
         void _LoadSpells();
         void _SaveSpells(SQLTransaction& trans);
 
-        bool addSpell(uint32 spell_id, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
+        bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
         bool learnSpell(uint32 spell_id);
         void learnSpellHighRank(uint32 spellid);
         void InitLevelupSpellsForLevel();

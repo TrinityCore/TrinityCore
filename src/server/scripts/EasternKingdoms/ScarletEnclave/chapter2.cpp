@@ -248,7 +248,7 @@ public:
                     me->Mount(MODEL_DEATH_KNIGHT_MOUNT);
                     break;
                 case 10:
-                    me->Unmount();
+                    me->Dismount();
                     break;
             }
         }
@@ -378,7 +378,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_TREE2, me);
-            me->Unmount();
+            me->Dismount();
             uiStage = 0;
         }
 

@@ -1367,6 +1367,8 @@ MovementStatusElements* GetMovementStatusElementsSequence(Opcodes opcode)
         return MovementStartSwimSequence;
     case MSG_MOVE_STOP_ASCEND:
         return MovementStopAscendSequence;
+    default:
+        break;
     }
     return NULL;
 }

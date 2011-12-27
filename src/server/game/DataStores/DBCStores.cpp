@@ -748,7 +748,7 @@ SimpleFactionsList const* GetFactionTeamList(uint32 faction)
     return NULL;
 }
 
-char const* GetPetName(uint32 petfamily, uint32 dbclang)
+char const* GetPetName(uint32 petfamily, uint32 /*dbclang*/)
 {
     if (!petfamily)
         return NULL;

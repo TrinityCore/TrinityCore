@@ -2698,7 +2698,10 @@ void World::InitRandomBGResetTime()
 void World::ResetDailyQuests()
 {
     sLog->outDetail("Daily quests reset for all characters.");
-    CharacterDatabase.Execute("DELETE FROM character_queststatus_daily");
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_DAILY);
+    CharacterDatabase.Execute(stmt);
+
     for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
         if (itr->second->GetPlayer())
             itr->second->GetPlayer()->ResetDailyQuestStatus();

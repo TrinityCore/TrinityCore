@@ -73,7 +73,7 @@ void BitStream::Print()
     for (uint32 i = 0; i < GetLength(); ++i)
         ss << uint32(GetBit(i)) << " ";
 
-    sLog->outDebug(LOG_FILTER_NETWORKIO, ss.str().c_str());
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", ss.str().c_str());
 }
 
 ByteBuffer::ByteBuffer(size_t res, bool init): _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
