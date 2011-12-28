@@ -1333,7 +1333,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 if (!targets)
                     return;
 
-                target = *objs->front();
+                target = *targets->front();
             }
 
             bool run = e.action.setRun.run ? true : false;
