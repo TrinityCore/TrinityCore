@@ -63,9 +63,9 @@ public:
 
         void Reset()
         {
-            MortalWound_Timer = 10000 + rand()%5000;
-            SpawnHatchlings_Timer = 6000 + rand()%6000;
-            SpawnSpawns_Timer = 15000 + rand()%30000;
+            MortalWound_Timer = urand(10000, 15000);
+            SpawnHatchlings_Timer = urand(6000, 12000);
+            SpawnSpawns_Timer = urand(15000, 45000);
         }
 
         void SummonSpawn(Unit* victim)
@@ -106,7 +106,7 @@ public:
             if (MortalWound_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MORTAL_WOUND);
-                MortalWound_Timer = 10000 + rand()%10000;
+                MortalWound_Timer = urand(10000, 20000);
             } else MortalWound_Timer -= diff;
 
             //Summon 1-3 Spawns of Fankriss at random time.
@@ -127,7 +127,7 @@ public:
                         SummonSpawn(SelectTarget(SELECT_TARGET_RANDOM, 0));
                         break;
                 }
-                SpawnSpawns_Timer = 30000 + rand()%30000;
+                SpawnSpawns_Timer = urand(30000, 60000);
             } else SpawnSpawns_Timer -= diff;
 
             // Teleporting Random Target to one of the three tunnels and spawn 4 hatchlings near the gamer.
@@ -194,7 +194,7 @@ public:
                                 break;
                         }
                     }
-                    SpawnHatchlings_Timer = 45000 + rand()%15000;
+                    SpawnHatchlings_Timer = urand(45000, 60000);
                 } else SpawnHatchlings_Timer -= diff;
             }
 
