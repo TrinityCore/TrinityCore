@@ -646,7 +646,7 @@ public:
             case PHASE_NORMAL_MAIEV:
                 AttackStart(me->getVictim());
                 Timer[EVENT_TAUNT] = 32000;
-                Timer[EVENT_SHEAR] = 10000 + rand()%15 * 1000;
+                Timer[EVENT_SHEAR] = urand(10, 25) * 1000;
                 Timer[EVENT_FLAME_CRASH] = 20000;
                 Timer[EVENT_PARASITIC_SHADOWFIEND] = 25000;
                 Timer[EVENT_PARASITE_CHECK] = 0;
@@ -657,14 +657,14 @@ public:
                 Timer[EVENT_TRANSFORM_NORMAL] = 60000;
                 if (NextPhase == PHASE_NORMAL_2)
                     break;
-                Timer[EVENT_ENRAGE] = 30000 + rand()%10 * 1000;
+                Timer[EVENT_ENRAGE] = urand(30, 40) * 1000;
                 break;
             case PHASE_FLIGHT:
                 Timer[EVENT_FIREBALL] = 1000;
                 if (!(rand()%4))
                     Timer[EVENT_DARK_BARRAGE] = 10000;
-                Timer[EVENT_EYE_BLAST] = 10000 + rand()%15 * 1000;
-                Timer[EVENT_MOVE_POINT] = 20000 + rand()%20 * 1000;
+                Timer[EVENT_EYE_BLAST] = urand(10, 25) * 1000;
+                Timer[EVENT_MOVE_POINT] = urand(20, 40) * 1000;
                 break;
             case PHASE_DEMON:
                 Timer[EVENT_SHADOW_BLAST] = 1000;
@@ -1022,7 +1022,7 @@ public:
                         if (soundid)
                             DoPlaySoundToSet(me, soundid);
                     }
-                    Timer[EVENT_TAUNT] = 25000 + rand()%10000;
+                    Timer[EVENT_TAUNT] = urand(25000, 35000);
                     break;
 
                 case EVENT_SHEAR:
@@ -1033,14 +1033,14 @@ public:
 
                 case EVENT_FLAME_CRASH:
                     DoCast(me->getVictim(), SPELL_FLAME_CRASH);
-                    Timer[EVENT_FLAME_CRASH] = 30000 + rand()%10000;
+                    Timer[EVENT_FLAME_CRASH] = urand(30000, 40000);
                     break;
 
                 case EVENT_PARASITIC_SHADOWFIEND:
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 200, true))
                             DoCast(target, SPELL_PARASITIC_SHADOWFIEND, true);
-                        Timer[EVENT_PARASITIC_SHADOWFIEND] = 35000 + rand()%10000;
+                        Timer[EVENT_PARASITIC_SHADOWFIEND] = urand(35000, 45000);
                     }
                     break;
 
@@ -1050,7 +1050,7 @@ public:
 
                 case EVENT_DRAW_SOUL:
                     DoCast(me->getVictim(), SPELL_DRAW_SOUL);
-                    Timer[EVENT_DRAW_SOUL] = 50000 + rand()%10000;
+                    Timer[EVENT_DRAW_SOUL] = urand(50000, 60000);
                     break;
 
                     // PHASE_NORMAL_2
@@ -1172,7 +1172,7 @@ public:
             Phase = PHASE_NORMAL_MAIEV;
             IllidanGUID = 0;
             Timer[EVENT_MAIEV_STEALTH] = 0;
-            Timer[EVENT_MAIEV_TAUNT] = 22000 + rand()%21 * 1000;
+            Timer[EVENT_MAIEV_TAUNT] = urand(22, 43) * 1000;
             Timer[EVENT_MAIEV_SHADOW_STRIKE] = 30000;
             SetEquipmentSlots(false, 44850, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + 2, 45738);
@@ -1321,7 +1321,7 @@ public:
                         if (MaievTaunts[random].text.size())
                             me->MonsterYell(MaievTaunts[random].text.c_str(), LANG_UNIVERSAL, 0);
                         DoPlaySoundToSet(me, sound);
-                        Timer[EVENT_MAIEV_TAUNT] = 22000 + rand()%21 * 1000;
+                        Timer[EVENT_MAIEV_TAUNT] = urand(22, 43) * 1000;
                     }
                     break;
                 case EVENT_MAIEV_SHADOW_STRIKE:
@@ -1590,7 +1590,7 @@ public:
                 break;
             case PHASE_FIGHT_MINIONS:
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                Timer = 10000 + rand()%6000; // summon minion
+                Timer = urand(10000, 16000); // summon minion
                 break;
             case PHASE_RETURN:
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -1780,7 +1780,7 @@ public:
                             AttackStart(Elite);
                             me->AddThreat(Elite, 1000000.0f);
                         }
-                        Timer = 10000 + rand()%6000;
+                        Timer = urand(10000, 16000);
                         GETUNIT(Illidan, IllidanGUID);
                         if (Illidan && Illidan->HealthBelowPct(10))
                             EnterPhase(PHASE_RETURN);

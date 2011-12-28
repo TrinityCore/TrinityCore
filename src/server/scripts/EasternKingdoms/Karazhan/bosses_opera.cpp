@@ -824,7 +824,7 @@ public:
         void Reset()
         {
             ChaseTimer = 30000;
-            FearTimer = 25000 + rand()%10000;
+            FearTimer = urand(25000, 35000);
             SwipeTimer = 5000;
 
             HoodGUID = 0;

@@ -115,10 +115,10 @@ public:
             bIsFrenzy = false;
 
             uiEncounterTimer = 0;
-            uiChainLightningTimer = 3000 + rand()%5000;
-            uiLightningShieldTimer = 20000 + rand()%5000;
-            uiStaticChargeTimer = 20000 + rand()%5000;
-            uiLightningRingTimer = 30000 + rand()%5000;
+            uiChainLightningTimer = urand(3000, 8000);
+            uiLightningShieldTimer = urand(20000, 25000);
+            uiStaticChargeTimer = urand(20000, 25000);
+            uiLightningRingTimer = urand(30000, 35000);
             uiSummonTimer = 5000;
             uiFrenzyTimer = 300000; //5 minutes
             abuseTheOoze = 0;
@@ -158,7 +158,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_CHAIN_LIGHTING);
-                uiChainLightningTimer = 10000 + rand()%5000;
+                uiChainLightningTimer = urand(10000, 15000);
             } else uiChainLightningTimer -= diff;
 
             if (uiLightningShieldTimer <= diff)
@@ -170,7 +170,7 @@ public:
             if (uiStaticChargeTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_STATIC_CHARGE);
-                uiStaticChargeTimer = 20000 + rand()%5000;
+                uiStaticChargeTimer = urand(20000, 25000);
             } uiStaticChargeTimer -= diff;
 
             if (uiLightningRingTimer <= diff)
@@ -178,7 +178,7 @@ public:
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(false);
                 DoCast(me, SPELL_LIGHTING_RING);
-                uiLightningRingTimer = 30000 + rand()%5000;
+                uiLightningRingTimer = urand(30000, 35000);
             } else uiLightningRingTimer -= diff;
 
             if (uiSummonTimer <= diff)
