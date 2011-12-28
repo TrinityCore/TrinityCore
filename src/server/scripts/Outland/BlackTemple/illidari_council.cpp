@@ -613,8 +613,8 @@ public:
 
         void Reset()
         {
-            BlizzardTimer = 30000 + rand()%61 * 1000;
-            FlamestrikeTimer = 30000 + rand()%61 * 1000;
+            BlizzardTimer = urand(30, 91) * 1000;
+            FlamestrikeTimer = urand(30, 91) * 1000;
             ArcaneBoltTimer = 10000;
             DampenMagicTimer = 2000;
             ArcaneExplosionTimer = 14000;
@@ -673,7 +673,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(target, SPELL_BLIZZARD);
-                    BlizzardTimer = 45000 + rand()%46 * 1000;
+                    BlizzardTimer = urand(45, 91) * 1000;
                     FlamestrikeTimer += 10000;
                     Cooldown = 1000;
                 }
@@ -684,7 +684,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(target, SPELL_FLAMESTRIKE);
-                    FlamestrikeTimer = 55000 + rand()%46 * 1000;
+                    FlamestrikeTimer = urand(55, 101) * 1000;
                     BlizzardTimer += 10000;
                     Cooldown = 2000;
                 }
@@ -756,7 +756,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
                     DoCast(target, SPELL_DIVINE_WRATH);
-                    DivineWrathTimer = 40000 + rand()%41 * 1000;
+                    DivineWrathTimer = urand(40, 81) * 1000;
                 }
             } else DivineWrathTimer -= diff;
 
@@ -799,7 +799,7 @@ public:
             EnvenomTargetGUID = 0;
 
             DeadlyPoisonTimer = 20000;
-            VanishTimer = 60000 + rand()%61 * 1000;
+            VanishTimer = urand(60, 121) * 1000;
             AppearEnvenomTimer = 150000;
 
             HasVanished = false;
@@ -827,7 +827,7 @@ public:
                 if (DeadlyPoisonTimer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_DEADLY_POISON);
-                    DeadlyPoisonTimer = 15000 + rand()%31 * 1000;
+                    DeadlyPoisonTimer = urand(15, 46) * 1000;
                 } else DeadlyPoisonTimer -= diff;
 
                 if (AppearEnvenomTimer <= diff)                   // Cast Envenom. This is cast 4 seconds after Vanish is over

@@ -64,9 +64,9 @@ public:
         void Reset()
         {
             SonicBoom_Timer = 30000;
-            MurmursTouch_Timer = 8000 + rand()%12000;
+            MurmursTouch_Timer = urand(8000, 20000);
             Resonance_Timer = 5000;
-            MagneticPull_Timer = 15000 + rand()%15000;
+            MagneticPull_Timer = urand(15000, 30000);
             ThunderingStorm_Timer = 15000;
             SonicShock_Timer = 10000;
             SonicBoom = false;
@@ -133,7 +133,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                     DoCast(target, SPELL_MURMURS_TOUCH);
-                MurmursTouch_Timer = 25000 + rand()%10000;
+                MurmursTouch_Timer = urand(25000, 35000);
             } else MurmursTouch_Timer -= diff;
 
             // Resonance
