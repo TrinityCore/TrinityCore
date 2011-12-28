@@ -2089,7 +2089,7 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     float max_dis = m_spellInfo->GetMaxRange(true);
                     float dis = (float)rand_norm() * (max_dis - min_dis) + min_dis;
                     float x, y, z, angle;
-                    angle = (float)rand_norm() * static_cast<float>(M_PI * 70.0f / 180.0f) - static_cast<float>(M_PI * 35.0f / 180.0f);
+                    angle = (float)rand_norm() * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
                     m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis, angle);
                     m_targets.SetDst(x, y, z, m_caster->GetOrientation());
                     break;
@@ -3546,9 +3546,9 @@ void Spell::update(uint32 difftime)
     {
         case SPELL_STATE_PREPARING:
         {
-            if (m_timer)
+            if (m_timer > 0)
             {
-                if (difftime >= m_timer)
+                if (difftime >= (uint32)m_timer)
                     m_timer = 0;
                 else
                     m_timer -= difftime;
@@ -3557,10 +3557,11 @@ void Spell::update(uint32 difftime)
             if (m_timer == 0 && !IsNextMeleeSwingSpell() && !IsAutoRepeat())
                 // don't CheckCast for instant spells - done in spell::prepare, skip duplicate checks, needed for range checks for example
                 cast(!m_casttime);
-        } break;
+            break;
+        }
         case SPELL_STATE_CASTING:
         {
-            if (m_timer > 0)
+            if (m_timer)
             {
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
@@ -3570,10 +3571,13 @@ void Spell::update(uint32 difftime)
                     finish();
                 }
 
-                if (difftime >= m_timer)
-                    m_timer = 0;
-                else
-                    m_timer -= difftime;
+                if (m_timer > 0)
+                {
+                    if (difftime >= (uint32)m_timer)
+                        m_timer = 0;
+                    else
+                        m_timer -= difftime;
+                }
             }
 
             if (m_timer == 0)
@@ -3615,10 +3619,10 @@ void Spell::update(uint32 difftime)
 
                 finish();
             }
-        } break;
+            break;
+        }
         default:
-        {
-        }break;
+            break;
     }
 }
 
@@ -5730,7 +5734,8 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (m_spellInfo->RangeEntry)
     {
-        // self cast is used for triggered spells, no range checking needed
+        // check needed by 68766 51693 - both spells are cast on enemies and have 0 max range
+        // these are triggered by other spells - possibly we should omit range check in that case?
         if (m_spellInfo->RangeEntry->ID == 1)
             return SPELL_CAST_OK;
 

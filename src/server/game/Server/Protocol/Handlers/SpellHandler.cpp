@@ -213,26 +213,26 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
     sLog->outDetail("bagIndex: %u, slot: %u", bagIndex, slot);
 
-    Item* pItem = pUser->GetItemByPos(bagIndex, slot);
-    if (!pItem)
+    Item* item = pUser->GetItemByPos(bagIndex, slot);
+    if (!item)
     {
         pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, NULL, NULL);
         return;
     }
 
-    ItemTemplate const* proto = pItem->GetTemplate();
+    ItemTemplate const* proto = item->GetTemplate();
     if (!proto)
     {
-        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, pItem, NULL);
+        pUser->SendEquipError(EQUIP_ERR_ITEM_NOT_FOUND, item, NULL);
         return;
     }
 
     // Verify that the bag is an actual bag or wrapped item that can be used "normally"
-    if (!(proto->Flags & ITEM_PROTO_FLAG_OPENABLE) && !pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
+    if (!(proto->Flags & ITEM_PROTO_FLAG_OPENABLE) && !item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))
     {
-        pUser->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
+        pUser->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, item, NULL);
         sLog->outError("Possible hacking attempt: Player %s [guid: %u] tried to open item [guid: %u, entry: %u] which is not openable!",
-                pUser->GetName(), pUser->GetGUIDLow(), pItem->GetGUIDLow(), proto->ItemId);
+                pUser->GetName(), pUser->GetGUIDLow(), item->GetGUIDLow(), proto->ItemId);
         return;
     }
 
@@ -244,43 +244,48 @@ void WorldSession::HandleOpenItemOpcode(WorldPacket& recvPacket)
 
         if (!lockInfo)
         {
-            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, pItem, NULL);
-            sLog->outError("WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", pItem->GetGUIDLow(), lockId);
+            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, item, NULL);
+            sLog->outError("WORLD::OpenItem: item [guid = %u] has an unknown lockId: %u!", item->GetGUIDLow(), lockId);
             return;
         }
 
         // was not unlocked yet
-        if (pItem->IsLocked())
+        if (item->IsLocked())
         {
-            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, pItem, NULL);
+            pUser->SendEquipError(EQUIP_ERR_ITEM_LOCKED, item, NULL);
             return;
         }
     }
 
-    if (pItem->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))// wrapped?
+    if (item->HasFlag(ITEM_FIELD_FLAGS, ITEM_FLAG_WRAPPED))// wrapped?
     {
-        QueryResult result = CharacterDatabase.PQuery("SELECT entry, flags FROM character_gifts WHERE item_guid = '%u'", pItem->GetGUIDLow());
+        QueryResult result = CharacterDatabase.PQuery("SELECT entry, flags FROM character_gifts WHERE item_guid = '%u'", item->GetGUIDLow());
         if (result)
         {
             Field* fields = result->Fetch();
             uint32 entry = fields[0].GetUInt32();
             uint32 flags = fields[1].GetUInt32();
 
-            pItem->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, 0);
-            pItem->SetEntry(entry);
-            pItem->SetUInt32Value(ITEM_FIELD_FLAGS, flags);
-            pItem->SetState(ITEM_CHANGED, pUser);
+            item->SetUInt64Value(ITEM_FIELD_GIFTCREATOR, 0);
+            item->SetEntry(entry);
+            item->SetUInt32Value(ITEM_FIELD_FLAGS, flags);
+            item->SetState(ITEM_CHANGED, pUser);
         }
         else
         {
-            sLog->outError("Wrapped item %u don't have record in character_gifts table and will deleted", pItem->GetGUIDLow());
-            pUser->DestroyItem(pItem->GetBagSlot(), pItem->GetSlot(), true);
+            sLog->outError("Wrapped item %u don't have record in character_gifts table and will deleted", item->GetGUIDLow());
+            pUser->DestroyItem(item->GetBagSlot(), item->GetSlot(), true);
             return;
         }
-        CharacterDatabase.PExecute("DELETE FROM character_gifts WHERE item_guid = '%u'", pItem->GetGUIDLow());
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_GIFT);
+
+        stmt->setUInt32(0, item->GetGUIDLow());
+
+        CharacterDatabase.Execute(stmt);
     }
     else
-        pUser->SendLoot(pItem->GetGUID(), LOOT_CORPSE);
+        pUser->SendLoot(item->GetGUID(), LOOT_CORPSE);
 }
 
 void WorldSession::HandleGameObjectUseOpcode(WorldPacket & recv_data)
