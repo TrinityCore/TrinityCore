@@ -263,7 +263,7 @@ class boss_halazzi : public CreatureScript
                                 DoCast(target, SPELL_EARTHSHOCK);
                             else
                                 DoCast(target, SPELL_FLAMESHOCK);
-                            ShockTimer = 10000 + rand()%5000;
+                            ShockTimer = urand(10000, 15000);
                         }
                     } else ShockTimer -= diff;
 

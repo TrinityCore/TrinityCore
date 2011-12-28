@@ -296,13 +296,13 @@ class boss_akilzon : public CreatureScript
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
                     if (!target) target = me->getVictim();
                     DoCast(target, SPELL_GUST_OF_WIND);
-                    GustOfWind_Timer = (20+rand()%10)*1000; //20 to 30 seconds(bosskillers)
+                    GustOfWind_Timer = urand(20, 30) * 1000; //20 to 30 seconds(bosskillers)
                 } else GustOfWind_Timer -= diff;
 
                 if (CallLighting_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_CALL_LIGHTNING);
-                    CallLighting_Timer = (12 + rand()%5)*1000; //totaly random timer. can't find any info on this
+                    CallLighting_Timer = urand(12, 17) * 1000; //totaly random timer. can't find any info on this
                 } else CallLighting_Timer -= diff;
 
                 if (!isRaining && ElectricalStorm_Timer < uint32(8000 + rand() % 5000))
@@ -406,7 +406,7 @@ class mob_akilzon_eagle : public CreatureScript
 
             void Reset()
             {
-                EagleSwoop_Timer = 5000 + rand()%5000;
+                EagleSwoop_Timer = urand(5000, 10000);
                 arrived = true;
                 TargetGUID = 0;
                 me->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
@@ -425,7 +425,7 @@ class mob_akilzon_eagle : public CreatureScript
                         DoCast(target, SPELL_EAGLE_SWOOP, true);
                     TargetGUID = 0;
                     me->SetSpeed(MOVE_RUN, 1.2f);
-                    EagleSwoop_Timer = 5000 + rand()%5000;
+                    EagleSwoop_Timer = urand(5000, 10000);
                 }
             }
 

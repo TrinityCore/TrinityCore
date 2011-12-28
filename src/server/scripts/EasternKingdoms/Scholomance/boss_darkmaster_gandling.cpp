@@ -108,14 +108,14 @@ public:
             if (ShadowShield_Timer <= diff)
             {
                 DoCast(me, SPELL_SHADOWSHIELD);
-                ShadowShield_Timer = 14000 + rand()%14000;
+                ShadowShield_Timer = urand(14000, 28000);
             } else ShadowShield_Timer -= diff;
 
             //Curse_Timer
             if (Curse_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CURSE);
-                Curse_Timer = 15000 + rand()%12000;
+                Curse_Timer = urand(15000, 27000);
             } else Curse_Timer -= diff;
 
             //Teleporting Random Target to one of the six pre boss rooms and spawn 3-4 skeletons near the gamer.
@@ -214,7 +214,7 @@ public:
                                 break;
                         }
                     }
-                    Teleport_Timer = 20000 + rand()%15000;
+                    Teleport_Timer = urand(20000, 35000);
                 } else Teleport_Timer -= diff;
             }
 
