@@ -1352,31 +1352,31 @@ public:
                 if (uiAnti_magic_zone <= diff)
                 {
                     DoCast(me, SPELL_ANTI_MAGIC_ZONE1);
-                    uiAnti_magic_zone = 25000 + rand()%5000;
+                    uiAnti_magic_zone = urand(25000, 30000);
                 } else uiAnti_magic_zone -= diff;
 
                 if (uiDeath_strike <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_DEATH_STRIKE);
-                    uiDeath_strike = 5000 + rand()%5000;
+                    uiDeath_strike = urand(5000, 10000);
                 } else uiDeath_strike -= diff;
 
                 if (uiDeath_embrace <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_DEATH_EMBRACE);
-                    uiDeath_embrace = 5000 + rand()%5000;
+                    uiDeath_embrace = urand(5000, 10000);
                 } else uiDeath_embrace -= diff;
 
                 if (uiIcy_touch <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_ICY_TOUCH1);
-                    uiIcy_touch = 5000 + rand()%5000;
+                    uiIcy_touch = urand(5000, 10000);
                 } else uiIcy_touch -= diff;
 
                 if (uiUnholy_blight <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_UNHOLY_BLIGHT);
-                    uiUnholy_blight = 5000 + rand()%5000;
+                    uiUnholy_blight = urand(5000, 10000);
                 } else uiUnholy_blight -= diff;
 
                 if (uiFight_speech <= diff)
@@ -1387,7 +1387,7 @@ public:
                                       SAY_LIGHT_OF_DAWN18, SAY_LIGHT_OF_DAWN19, SAY_LIGHT_OF_DAWN20,
                                       SAY_LIGHT_OF_DAWN21, SAY_LIGHT_OF_DAWN22, SAY_LIGHT_OF_DAWN23,
                                       SAY_LIGHT_OF_DAWN24), me);
-                    uiFight_speech = 15000 + rand()%5000;
+                    uiFight_speech = urand(15000, 20000);
                 } else uiFight_speech -= diff;
 
                 // Check spawns
