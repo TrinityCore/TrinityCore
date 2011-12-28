@@ -143,7 +143,7 @@ public:
 
             uiPhase_timer = 0;
             Ascend_Timer = 480000; //8 minutes
-            QuantumStrike_Timer = 4000 + rand()%10000;
+            QuantumStrike_Timer = urand(4000, 14000);
             Berserk_Timer = 360000; //6 minutes
             CollapsingStar_Timer = urand(15000, 20000); //Spawns between 15 to 20 seconds
             BigBang_Timer = 90000;

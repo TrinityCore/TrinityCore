@@ -70,7 +70,7 @@ public:
             if (ShadowFlame_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SHADOWFLAME);
-                ShadowFlame_Timer = 15000 + rand()%7000;
+                ShadowFlame_Timer = urand(15000, 22000);
             } else ShadowFlame_Timer -= diff;
 
             //WingBuffet_Timer

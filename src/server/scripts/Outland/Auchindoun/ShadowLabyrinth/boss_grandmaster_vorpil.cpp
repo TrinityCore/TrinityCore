@@ -165,7 +165,7 @@ public:
 
         void Reset()
         {
-            ShadowBoltVolley_Timer = 7000 + rand()%7000;
+            ShadowBoltVolley_Timer = urand(7000, 14000);
             DrawShadows_Timer = 45000;
             summonTraveler_Timer = 90000;
             banish_Timer = 17000;
@@ -269,7 +269,7 @@ public:
             if (ShadowBoltVolley_Timer <= diff)
             {
                 DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
-                ShadowBoltVolley_Timer = 15000 + rand()%15000;
+                ShadowBoltVolley_Timer = urand(15000, 30000);
             } else ShadowBoltVolley_Timer -= diff;
 
             if (IsHeroic() && banish_Timer <= diff)

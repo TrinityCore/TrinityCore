@@ -74,8 +74,8 @@ public:
         void Reset()
         {
             EventCheck_Timer = 5000;
-            CorrosiveAcid_Timer = 5000 + rand()%5000;
-            Fear_Timer = 25000 + rand()%5000;
+            CorrosiveAcid_Timer = urand(5000, 10000);
+            Fear_Timer = urand(25000, 30000);
             Enrage_Timer = 180000;
             Intro = false;
             IsBanished = true;
@@ -182,13 +182,13 @@ public:
             if (CorrosiveAcid_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CORROSIVE_ACID);
-                CorrosiveAcid_Timer = 15000 + rand()%10000;
+                CorrosiveAcid_Timer = urand(15000, 25000);
             } else CorrosiveAcid_Timer -= diff;
 
             if (Fear_Timer <= diff)
             {
                 DoCast(me, SPELL_FEAR);
-                Fear_Timer = 20000 + rand()%15000;
+                Fear_Timer = urand(20000, 35000);
             } else Fear_Timer -= diff;
 
             if (IsHeroic())
