@@ -167,13 +167,13 @@ class boss_thekal : public CreatureScript
                     if (!PhaseTwo && MortalCleave_Timer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_MORTALCLEAVE);
-                        MortalCleave_Timer = 15000 + rand()%5000;
+                        MortalCleave_Timer = urand(15000, 20000);
                     } else MortalCleave_Timer -= diff;
 
                     if (!PhaseTwo && Silence_Timer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_SILENCE);
-                        Silence_Timer = 20000 + rand()%5000;
+                        Silence_Timer = urand(20000, 25000);
                     } else Silence_Timer -= diff;
 
                     if (!PhaseTwo && !WasDead && !HealthAbovePct(5))
@@ -226,7 +226,7 @@ class boss_thekal : public CreatureScript
                                 AttackStart(target);
                             }
 
-                            Charge_Timer = 15000 + rand()%7000;
+                            Charge_Timer = urand(15000, 22000);
                         } else Charge_Timer -= diff;
 
                         if (Frenzy_Timer <= diff)
@@ -238,13 +238,13 @@ class boss_thekal : public CreatureScript
                         if (ForcePunch_Timer <= diff)
                         {
                             DoCast(me->getVictim(), SPELL_SILENCE);
-                            ForcePunch_Timer = 16000 + rand()%5000;
+                            ForcePunch_Timer = urand(16000, 21000);
                         } else ForcePunch_Timer -= diff;
 
                         if (SummonTigers_Timer <= diff)
                         {
                             DoCast(me->getVictim(), SPELL_SUMMONTIGERS);
-                            SummonTigers_Timer = 10000 + rand()%4000;
+                            SummonTigers_Timer = urand(10000, 14000);
                         } else SummonTigers_Timer -= diff;
 
                         if (HealthBelowPct(11) && !Enraged)

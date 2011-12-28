@@ -612,7 +612,7 @@ public:
                 KalecGUID = 0;
             }
 
-            ShadowBoltTimer = 7000 + rand()%3 * 1000;
+            ShadowBoltTimer = urand(7, 10) * 1000;
             AgonyCurseTimer = 20000;
             CorruptionStrikeTimer = 13000;
             CheckTimer = 1000;

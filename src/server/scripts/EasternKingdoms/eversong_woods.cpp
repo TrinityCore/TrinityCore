@@ -204,7 +204,7 @@ public:
                 if (timerJustice <= diff)
                 {
                     DoCast(me, SPELL_SEAL_OF_JUSTICE);
-                    timerJustice = 10000 + rand()%10000;
+                    timerJustice = urand(10000, 20000);
                 }
                 else
                     timerJustice -= diff;
@@ -215,7 +215,7 @@ public:
                 if (timerJudLight <= diff)
                 {
                     DoCast(me, SPELL_JUDGEMENT_OF_LIGHT);
-                    timerJudLight = 10000 + rand()%10000;
+                    timerJudLight = urand(10000, 20000);
                 }
                 else
                     timerJudLight -= diff;
@@ -226,7 +226,7 @@ public:
                   if (timerCommand <= diff)
                   {
                       DoCast(me, SPELL_SEAL_OF_COMMAND);
-                      timerCommand = 20000 + rand()%20000;
+                      timerCommand = urand(20000, 40000);
                   }
                   else
                       timerCommand -= diff;
