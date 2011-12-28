@@ -709,9 +709,12 @@ void WorldSession::HandleBugOpcode(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", type.c_str());
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", content.c_str());
 
-    CharacterDatabase.EscapeString(type);
-    CharacterDatabase.EscapeString(content);
-    CharacterDatabase.PExecute ("INSERT INTO bugreport (type, content) VALUES('%s', '%s')", type.c_str(), content.c_str());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_BUG_REPORT);
+
+    stmt->setString(0, type);
+    stmt->setString(1, content);
+
+    CharacterDatabase.Execute(stmt);
 }
 
 void WorldSession::HandleReclaimCorpseOpcode(WorldPacket &recv_data)
