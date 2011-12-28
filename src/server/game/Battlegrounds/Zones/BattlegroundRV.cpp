@@ -72,12 +72,14 @@ void BattlegroundRV::PostUpdateImpl(uint32 diff)
                     DoorOpen(i);
                 setTimer(BG_RV_FIRE_TO_PILAR_TIMER);
                 setState(BG_RV_STATE_CLOSE_PILARS);
+                SwitchDynLos();
                 break;
             case BG_RV_STATE_CLOSE_PILARS:
                 for (uint8 i = BG_RV_OBJECT_PILAR_1; i <= BG_RV_OBJECT_PULLEY_2; ++i)
                     DoorOpen(i);
                 setTimer(BG_RV_PILAR_TO_FIRE_TIMER);
                 setState(BG_RV_STATE_CLOSE_FIRE);
+                SwitchDynLos();
                 break;
         }
     }
@@ -100,6 +102,16 @@ void BattlegroundRV::StartingEventOpenDoors()
 
     setState(BG_RV_STATE_OPEN_FENCES);
     setTimer(BG_RV_FIRST_TIMER);
+
+    // Add all DynLoS to the map
+    m_DynLos[0] = GetBgMap()->AddDynLOSObject(763.632385f, -306.162384f, 25.909504f, BG_RV_PILLAR_SMALL_RADIUS, BG_RV_PILLAR_SMALL_HEIGHT);
+    m_DynLos[1] = GetBgMap()->AddDynLOSObject(763.611145f, -261.856750f, 25.909504f, BG_RV_PILLAR_SMALL_RADIUS, BG_RV_PILLAR_SMALL_HEIGHT);
+    m_DynLos[2] = GetBgMap()->AddDynLOSObject(723.644287f, -284.493256f, 24.648525f, BG_RV_PILLAR_BIG_RADIUS, BG_RV_PILLAR_BIG_RADIUS);
+    m_DynLos[3] = GetBgMap()->AddDynLOSObject(802.211609f, -284.493256f, 24.648525f, BG_RV_PILLAR_BIG_RADIUS, BG_RV_PILLAR_BIG_HEIGHT);
+
+    // Activate the small ones
+    for (uint8 i = 0; i <= 1; i++)
+        GetBgMap()->SetDynLOSObjectState(m_DynLos[i], true);
 }
 
 void BattlegroundRV::AddPlayer(Player* player)
@@ -220,4 +232,28 @@ bool BattlegroundRV::SetupBattleground()
         return false;
     }
     return true;
+}
+
+void BattlegroundRV::SwitchDynLos()
+{
+    // switch all DynLos to the opposite state
+    for (uint8 i = 0; i <= 3; i++)
+        GetBgMap()->SetDynLOSObjectState(m_DynLos[i], !GetBgMap()->GetDynLOSObjectState(m_DynLos[i]));
+
+    // Force every pillar to update their status to players
+    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+    {
+        Player *player = ObjectAccessor::FindPlayer(itr->first);
+        if (!player)
+            continue;
+
+        if(GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_1))
+            pilar->SendUpdateToPlayer(player);
+        if(GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_2))
+            pilar->SendUpdateToPlayer(player);
+        if(GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_3))
+            pilar->SendUpdateToPlayer(player);
+        if(GameObject* pilar = GetBGObject(BG_RV_OBJECT_PILAR_4))
+            pilar->SendUpdateToPlayer(player);
+    }
 }

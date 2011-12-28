@@ -325,7 +325,7 @@ class boss_akilzon : public CreatureScript
                     if (target)
                     {
                         target->SetUnitMovementFlags(MOVEMENTFLAG_LEVITATING);
-                        target->SendMonsterMove(x, y, me->GetPositionZ()+15, 0);
+                        target->MonsterMoveWithSpeed(x, y, me->GetPositionZ()+15, 0);
                     }
                     Unit* Cloud = me->SummonTrigger(x, y, me->GetPositionZ()+16, 0, 15000);
                     if (Cloud)

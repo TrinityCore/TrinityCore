@@ -1009,7 +1009,7 @@ public:
                         me->SetInFront(car);
                         me->SendMovementFlagUpdate();
                         car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1);
-                        car->SendMonsterStop();
+                        car->StopMoving();
                         car->RemoveAura(SPELL_CART_DRAG);
                     }
                     me->MonsterSay(SAY_SCARLET_MINER2, LANG_UNIVERSAL, 0);
