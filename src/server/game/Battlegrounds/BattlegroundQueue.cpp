@@ -662,6 +662,11 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
     return m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() >= minPlayers && m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() >= minPlayers;
 }
 
+void BattlegroundQueue::UpdateEvents(uint32 diff)
+{
+    m_events.Update(diff);
+}
+
 // this method will check if we can invite players to same faction skirmish match
 bool BattlegroundQueue::CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam)
 {
@@ -728,8 +733,6 @@ should be called from Battleground::RemovePlayer function in some cases
 */
 void BattlegroundQueue::BattlegroundQueueUpdate(uint32 diff, BattlegroundTypeId bgTypeId, BattlegroundBracketId bracket_id, uint8 arenaType, bool isRated, uint32 arenaRating)
 {
-    m_events.Update(diff);
-
     //if no players in queue - do nothing
     if (m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_ALLIANCE].empty() &&
         m_QueuedGroups[bracket_id][BG_QUEUE_PREMADE_HORDE].empty() &&
