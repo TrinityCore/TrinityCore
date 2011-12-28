@@ -92,7 +92,7 @@ public:
             if (FlameShock_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FLAMESHOCK);
-                FlameShock_Timer = 10000 + rand()%5000;
+                FlameShock_Timer = rand(10000, 15000);
             } else FlameShock_Timer -= diff;
 
             //FlameSpike_Timer
