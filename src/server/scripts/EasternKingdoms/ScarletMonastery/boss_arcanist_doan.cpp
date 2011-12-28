@@ -111,7 +111,7 @@ public:
             if (AoESilence_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_AOESILENCE);
-                AoESilence_Timer = rand(15000, 20000);
+                AoESilence_Timer = urand(15000, 20000);
             } else AoESilence_Timer -= diff;
 
             //ArcaneExplosion_Timer
