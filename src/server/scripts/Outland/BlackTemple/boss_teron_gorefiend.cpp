@@ -246,7 +246,7 @@ public:
             if (instance)
                 instance->SetData(DATA_TERONGOREFIENDEVENT, NOT_STARTED);
 
-            IncinerateTimer = 20000 + rand()%11000;
+            IncinerateTimer = urand(20000, 31000);
             SummonDoomBlossomTimer = 12000;
             EnrageTimer = 600000;
             CrushingShadowsTimer = 22000;
@@ -460,7 +460,7 @@ public:
                 {
                     DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
                     DoCast(target, SPELL_INCINERATE);
-                    IncinerateTimer = 20000 + rand()%31 * 1000;
+                    IncinerateTimer = urand(20, 51) * 1000;
                 }
             } else IncinerateTimer -= diff;
 
@@ -469,7 +469,7 @@ public:
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target && target->isAlive())
                     DoCast(target, SPELL_CRUSHING_SHADOWS);
-                CrushingShadowsTimer = 10000 + rand()%16 * 1000;
+                CrushingShadowsTimer = urand(10, 26) * 1000;
             } else CrushingShadowsTimer -= diff;
 
             /*** NOTE FOR FUTURE DEV: UNCOMMENT BELOW ONLY IF MIND CONTROL IS FULLY IMPLEMENTED **/
@@ -492,7 +492,7 @@ public:
             if (RandomYellTimer <= diff)
             {
                 DoScriptText(RAND(SAY_SPELL1, SAY_SPELL2), me);
-                RandomYellTimer = 50000 + rand()%51 * 1000;
+                RandomYellTimer = urand(50, 101) * 1000;
             } else RandomYellTimer -= diff;
 
             if (!me->HasAura(SPELL_BERSERK))
