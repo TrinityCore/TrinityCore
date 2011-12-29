@@ -2347,7 +2347,7 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 
 struct dtSegInterval
 {
-	dtPolyRef ref;
+	dtPolyRef* ref;
 	short tmin, tmax;
 };
 
