@@ -52,7 +52,8 @@ PathFinderMovementGenerator::~PathFinderMovementGenerator()
 
 bool PathFinderMovementGenerator::calculate(float destX, float destY, float destZ, bool forceDest)
 {
-    if (!Trinity::IsValidMapCoord(destX, destY, destZ))
+    if (!Trinity::IsValidMapCoord(destX, destY, destZ) ||
+        !Trinity::IsValidMapCoord(m_sourceUnit->GetPositionX(), m_sourceUnit->GetPositionY(), m_sourceUnit->GetPositionZ()))
         return false;
 
     Vector3 oldDest = getEndPosition();
@@ -741,7 +742,7 @@ dtStatus PathFinderMovementGenerator::findSmoothPath(const float* startPos, cons
                 // Move position at the other side of the off-mesh link.
                 dtVcopy(iterPos, endPos);
                 m_navMeshQuery->getPolyHeight(polys[0], iterPos, &iterPos[1]);
-                iterPos[1] += 0.2f;
+                iterPos[1] += 0.5f;
             }
         }
 
