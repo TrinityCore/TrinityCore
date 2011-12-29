@@ -106,7 +106,6 @@ public:
 	// Params:
 	//  nav - (in) pointer to navigation mesh data.
 	//  maxNodes - (in) Maximum number of search nodes to use (max 65536).
-	// Returns: True if succeed, else false.
 	dtStatus init(const dtNavMesh* nav, const int maxNodes);
 	
 	// Finds the nearest navigation polygon around the center location.
@@ -116,7 +115,6 @@ public:
 	//  filter - (in) path polygon filter.
 	//  nearestRef - (out) Reference to the nearest polygon.
 	//  nearestPt[3] - (out, opt) The nearest point on found polygon, null if not needed.
-	// Returns: Reference identifier for the polygon, or 0 if no polygons found.
 	dtStatus findNearestPoly(const float* center, const float* extents,
 							 const dtQueryFilter* filter,
 							 dtPolyRef* nearestRef, float* nearestPt) const;
@@ -367,7 +365,7 @@ private:
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center, const float* extents,
 									const dtQueryFilter* filter, float* nearestPt) const;
 	// Returns closest point on polygon.
-	dtStatus closestPointOnPolyInTile(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest) const;
+	void closestPointOnPolyInTile(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest) const;
 	
 	// Returns portal points between two polygons.
 	dtStatus getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
