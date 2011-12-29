@@ -189,10 +189,10 @@ dtStatus dtNavMesh::init(const dtNavMeshParams* params)
 	
 	m_tiles = (dtMeshTile*)dtAlloc(sizeof(dtMeshTile)*m_maxTiles, DT_ALLOC_PERM);
 	if (!m_tiles)
-		return DT_FAILURE;
+		return DT_FAILURE_OUT_OF_MEMORY;
 	m_posLookup = (dtMeshTile**)dtAlloc(sizeof(dtMeshTile*)*m_tileLutSize, DT_ALLOC_PERM);
 	if (!m_posLookup)
-		return DT_FAILURE;
+		return DT_FAILURE_OUT_OF_MEMORY;
 	memset(m_tiles, 0, sizeof(dtMeshTile)*m_maxTiles);
 	memset(m_posLookup, 0, sizeof(dtMeshTile*)*m_tileLutSize);
 	m_nextFree = 0;
@@ -218,9 +218,9 @@ dtStatus dtNavMesh::init(unsigned char* data, const int dataSize, const int flag
 	// Make sure the data is in right format.
 	dtMeshHeader* header = (dtMeshHeader*)data;
 	if (header->magic != DT_NAVMESH_MAGIC)
-		return DT_FAILURE;
+		return DT_FAILURE_DATA_MAGIC;
 	if (header->version != DT_NAVMESH_VERSION)
-		return DT_FAILURE;
+		return DT_FAILURE_DATA_VERSION;
 
 	dtNavMeshParams params;
 	dtVcopy(params.orig, header->bmin);
