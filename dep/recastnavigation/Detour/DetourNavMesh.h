@@ -87,9 +87,9 @@ enum dtPolyTypes
 typedef unsigned int dtStatus;
 
 // High level status.
-static const unsigned int DT_FAILURE = 1 << 31;			// Operation failed.
-static const unsigned int DT_SUCCESS = 1 << 30;			// Operation succeed.
-static const unsigned int DT_IN_PROGRESS = 1 << 29;		// Operation still in progress.
+static const unsigned int DT_FAILURE = 1u << 31;			// Operation failed.
+static const unsigned int DT_SUCCESS = 1u << 30;			// Operation succeed.
+static const unsigned int DT_IN_PROGRESS = 1u << 29;		// Operation still in progress.
 
 // Detail information for status.
 static const unsigned int DT_STATUS_DETAIL_MASK = 0x0ffffff;
