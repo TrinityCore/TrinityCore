@@ -541,11 +541,12 @@ dtStatus dtNavMeshQuery::queryPolygons(const float* center, const float* extents
 	m_nav->calcTileLoc(bmax, &maxx, &maxy);
 
 	int n = 0;
+    int z = 0;
 	for (int y = miny; y <= maxy; ++y)
 	{
 		for (int x = minx; x <= maxx; ++x)
 		{
-			const dtMeshTile* tile = m_nav->getTileAt(x,y);
+			const dtMeshTile* tile = m_nav->getTileAt(x,y,z);
 			if (!tile) continue;
 			n += queryPolygonsInTile(tile, bmin, bmax, filter, polys+n, maxPolys-n);
 			if (n >= maxPolys)

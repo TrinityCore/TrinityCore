@@ -150,6 +150,7 @@ struct dtMeshHeader
 	int magic;								// Magic number, used to identify the data.
 	int version;							// Data version number.
 	int x, y;								// Location of the time on the grid.
+    int z;
 	unsigned int userId;					// User ID of the tile.
 	int polyCount;							// Number of polygons in the tile.
 	int vertCount;							// Number of vertices in the tile.
@@ -250,7 +251,7 @@ public:
 	// Params:
 	//  x,y - (in) Location of the tile to get.
 	// Returns: pointer to tile if tile exists or 0 tile does not exists.
-	const dtMeshTile* getTileAt(int x, int y) const;
+	const dtMeshTile* getTileAt(int x, int y, int z) const;
 
 	// Returns reference to tile at specified location.
 	// Params:
