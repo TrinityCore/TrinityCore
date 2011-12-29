@@ -18,7 +18,6 @@
 
 #include "Creature.h"
 #include "MapManager.h"
-#include "Opcodes.h"
 #include "ConfusedMovementGenerator.h"
 #include "VMapFactory.h"
 #include "MoveSplineInit.h"
@@ -97,20 +96,12 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
     return true;
 }
 
-template<class T>
-void
-ConfusedMovementGenerator<T>::Finalize(T &unit)
-{
-    unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
-    unit.StopMoving();
-}
-
 template<>
 void ConfusedMovementGenerator<Player>::Finalize(Player &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
     unit.ClearUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.StopMoving();
 }
 
 template<>
