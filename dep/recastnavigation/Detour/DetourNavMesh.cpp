@@ -826,7 +826,7 @@ const dtMeshTile* dtNavMesh::getTileAt(int x, int y, int z) const
 	dtMeshTile* tile = m_posLookup[h];
 	while (tile)
 	{
-		if (tile->header && tile->header->x == x && tile->header->y == y && tile->header->z)
+		if (tile->header && tile->header->x == x && tile->header->y == y && tile->header->z == z)
 			return tile;
 		tile = tile->next;
 	}
