@@ -322,8 +322,7 @@ void rcMarkBoxArea(rcContext* ctx, const float* bmin, const float* bmax, unsigne
 				rcCompactSpan& s = chf.spans[i];
 				if ((int)s.y >= miny && (int)s.y <= maxy)
 				{
-                    if (chf.areas[i] != RC_NULL_AREA)
-                        chf.areas[i] = areaId;
+					chf.areas[i] = areaId;
 				}
 			}
 		}
@@ -394,8 +393,6 @@ void rcMarkConvexPolyArea(rcContext* ctx, const float* verts, const int nverts,
 			for (int i = (int)c.index, ni = (int)(c.index+c.count); i < ni; ++i)
 			{
 				rcCompactSpan& s = chf.spans[i];
-                if (chf.areas[i] == RC_NULL_AREA)
-                    continue;
 				if ((int)s.y >= miny && (int)s.y <= maxy)
 				{
 					float p[3];

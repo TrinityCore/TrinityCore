@@ -106,6 +106,7 @@ public:
 	// Params:
 	//  nav - (in) pointer to navigation mesh data.
 	//  maxNodes - (in) Maximum number of search nodes to use (max 65536).
+	// Returns: True if succeed, else false.
 	dtStatus init(const dtNavMesh* nav, const int maxNodes);
 	
 	// Finds the nearest navigation polygon around the center location.
@@ -115,6 +116,7 @@ public:
 	//  filter - (in) path polygon filter.
 	//  nearestRef - (out) Reference to the nearest polygon.
 	//  nearestPt[3] - (out, opt) The nearest point on found polygon, null if not needed.
+	// Returns: Reference identifier for the polygon, or 0 if no polygons found.
 	dtStatus findNearestPoly(const float* center, const float* extents,
 							 const dtQueryFilter* filter,
 							 dtPolyRef* nearestRef, float* nearestPt) const;
@@ -303,18 +305,14 @@ public:
 									int* resultCount, const int maxResult) const;
 	
 	// Returns wall segments of specified polygon.
-	// If 'segmentRefs' is specified, both the wall and portal segments are returned.
-	// Wall segments will have null (0) polyref, and portal segments store the polygon they lead to.
 	// Params:
 	//  ref - (in) ref to the polygon.
 	//  filter - (in) path polygon filter.
-	//  segmentVerts[6*maxSegments] - (out) wall segments (2 endpoints per segment).
-	//  segmentRefs[maxSegments] - (out,opt) reference to a neighbour.
+	//  segments[6*maxSegments] - (out) wall segments (2 endpoints per segment).
 	//  segmentCount - (out) number of wall segments.
 	//  maxSegments - (in) max number of segments that can be stored in 'segments'.
 	dtStatus getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
-					float* segmentVerts, dtPolyRef* segmentRefs, int* segmentCount,
-					const int maxSegments) const;
+								 float* segments, int* segmentCount, const int maxSegments) const;
 	
 	// Returns closest point on navigation polygon.
 	// Uses detail polygons to find the closest point to the navigation polygon surface. 
@@ -369,7 +367,7 @@ private:
 	dtPolyRef findNearestPolyInTile(const dtMeshTile* tile, const float* center, const float* extents,
 									const dtQueryFilter* filter, float* nearestPt) const;
 	// Returns closest point on polygon.
-	void closestPointOnPolyInTile(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest) const;
+	dtStatus closestPointOnPolyInTile(const dtMeshTile* tile, const dtPoly* poly, const float* pos, float* closest) const;
 	
 	// Returns portal points between two polygons.
 	dtStatus getPortalPoints(dtPolyRef from, dtPolyRef to, float* left, float* right,
