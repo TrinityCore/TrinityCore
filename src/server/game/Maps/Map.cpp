@@ -121,7 +121,7 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
 
 void Map::LoadMMap(int gx, int gy)
 {
-    int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(GetId(), gy, gx);
+    int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(GetId(), gx, gy);
     switch (mmapLoadResult)
     {
         case MMAP::MMAP_LOAD_RESULT_OK:
@@ -203,7 +203,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
 void Map::LoadMapAndVMap(int gx, int gy)
 {
     LoadMap(gx, gy);
-	LoadMMap(gx, gy);
+    LoadMMap(gx, gy);
     if (i_InstanceId == 0)
         LoadVMap(gx, gy);                                   // Only load the data for the base map
 }
