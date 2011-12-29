@@ -52,7 +52,7 @@ PathFinderMovementGenerator::~PathFinderMovementGenerator()
 
 bool PathFinderMovementGenerator::calculate(float destX, float destY, float destZ, bool forceDest)
 {
-    if (Trinity::IsValidMapCoord(destX, destY, destZ))
+    if (!Trinity::IsValidMapCoord(destX, destY, destZ))
         return false;
 
     Vector3 oldDest = getEndPosition();
