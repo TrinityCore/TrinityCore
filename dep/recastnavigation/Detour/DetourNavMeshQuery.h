@@ -303,14 +303,18 @@ public:
 									int* resultCount, const int maxResult) const;
 	
 	// Returns wall segments of specified polygon.
+	// If 'segmentRefs' is specified, both the wall and portal segments are returned.
+	// Wall segments will have null (0) polyref, and portal segments store the polygon they lead to.
 	// Params:
 	//  ref - (in) ref to the polygon.
 	//  filter - (in) path polygon filter.
-	//  segments[6*maxSegments] - (out) wall segments (2 endpoints per segment).
+	//  segmentVerts[6*maxSegments] - (out) wall segments (2 endpoints per segment).
+	//  segmentRefs[maxSegments] - (out,opt) reference to a neighbour.
 	//  segmentCount - (out) number of wall segments.
 	//  maxSegments - (in) max number of segments that can be stored in 'segments'.
 	dtStatus getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
-								 float* segments, int* segmentCount, const int maxSegments) const;
+					float* segmentVerts, dtPolyRef* segmentRefs, int* segmentCount,
+					const int maxSegments) const;
 	
 	// Returns closest point on navigation polygon.
 	// Uses detail polygons to find the closest point to the navigation polygon surface. 

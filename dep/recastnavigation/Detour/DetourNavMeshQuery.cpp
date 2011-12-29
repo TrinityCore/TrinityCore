@@ -2347,11 +2347,12 @@ dtStatus dtNavMeshQuery::findLocalNeighbourhood(dtPolyRef startRef, const float*
 
 struct dtSegInterval
 {
+	dtPolyRef* ref;
 	short tmin, tmax;
 };
 
 static void insertInterval(dtSegInterval* ints, int& nints, const int maxInts,
-						   const short tmin, const short tmax)
+						   const short tmin, const short tmax, const dtPolyRef ref)
 {
 	if (nints+1 > maxInts) return;
 	// Find insertion point.
@@ -2366,13 +2367,14 @@ static void insertInterval(dtSegInterval* ints, int& nints, const int maxInts,
 	if (nints-idx)
 		memmove(ints+idx+1, ints+idx, sizeof(dtSegInterval)*(nints-idx));
 	// Store
+	ints[idx].ref = ref;
 	ints[idx].tmin = tmin;
 	ints[idx].tmax = tmax;
 	nints++;
 }
 
 dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter* filter,
-											 float* segments, int* segmentCount, const int maxSegments) const
+	float* segmentVerts, dtPolyRef* segmentRefs, int* segmentCount, const int maxSegments) const
 {
 	dtAssert(m_nav);
 	
@@ -2388,6 +2390,7 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 	dtSegInterval ints[MAX_INTERVAL];
 	int nints;
 
+	const bool storePortals = segmentRefs != 0;
 	dtStatus status = DT_SUCCESS;
 
 	for (int i = 0, j = (int)poly->vertCount-1; i < (int)poly->vertCount; j = i++)
@@ -2409,58 +2412,90 @@ dtStatus dtNavMeshQuery::getPolyWallSegments(dtPolyRef ref, const dtQueryFilter*
 						m_nav->getTileAndPolyByRefUnsafe(link->ref, &neiTile, &neiPoly);
 						if (filter->passFilter(link->ref, neiTile, neiPoly))
 						{
-							insertInterval(ints, nints, MAX_INTERVAL, link->bmin, link->bmax);
+							insertInterval(ints, nints, MAX_INTERVAL, link->bmin, link->bmax, link->ref);
 						}
 					}
 				}
 			}
 		}
-		else if (poly->neis[j])
+		else
 		{
 			// Internal edge
-			const unsigned int idx = (unsigned int)(poly->neis[j]-1);
-			const dtPolyRef ref = m_nav->getPolyRefBase(tile) | idx;
-			if (filter->passFilter(ref, tile, &tile->polys[idx]))
+			dtPolyRef ref = 0;
+			if (poly->neis[j])
+			{
+				const unsigned int idx = (unsigned int)(poly->neis[j]-1);
+				ref = m_nav->getPolyRefBase(tile) | idx;
+				if (!filter->passFilter(ref, tile, &tile->polys[idx]))
+					ref = 0;
+			}
+			
+			// If the edge leads to another polygon and portals are not stored, skip.
+			if (ref != 0 && !storePortals)
 				continue;
+			
+			if (n < maxSegments)
+			{
+				const float* vj = &tile->verts[poly->verts[j]*3];
+				const float* vi = &tile->verts[poly->verts[i]*3];
+				float* seg = &segmentVerts[n*6];
+				dtVcopy(seg+0, vj);
+				dtVcopy(seg+3, vi);
+				if (segmentRefs)
+					segmentRefs[n] = ref;
+				n++;
+			}
+			else
+			{
+				status |= DT_BUFFER_TOO_SMALL;
+			}
+			continue;
 		}
 		
 		// Add sentinels
-		insertInterval(ints, nints, MAX_INTERVAL, -1, 0);
-		insertInterval(ints, nints, MAX_INTERVAL, 255, 256);
+		insertInterval(ints, nints, MAX_INTERVAL, -1, 0, 0);
+		insertInterval(ints, nints, MAX_INTERVAL, 255, 256, 0);
 		
-		// Store segment.
+		// Store segments.
 		const float* vj = &tile->verts[poly->verts[j]*3];
 		const float* vi = &tile->verts[poly->verts[i]*3];
 		for (int k = 1; k < nints; ++k)
 		{
-			// Find the space inbetween the opening areas.
-			const int imin = ints[k-1].tmax;
-			const int imax = ints[k].tmin;
-			if (imin == imax) continue;
-			if (imin == 0 && imax == 255)
+			// Portal segment.
+			if (storePortals && ints[k].ref)
 			{
+				const float tmin = ints[k].tmin/255.0f; 
+				const float tmax = ints[k].tmax/255.0f; 
 				if (n < maxSegments)
 				{
-					float* seg = &segments[n*6];
+					float* seg = &segmentVerts[n*6];
+					dtVlerp(seg+0, vj,vi, tmin);
+					dtVlerp(seg+3, vj,vi, tmax);
+					if (segmentRefs)
+						segmentRefs[n] = ints[k].ref;
 					n++;
-					dtVcopy(seg+0, vj);
-					dtVcopy(seg+3, vi);
 				}
 				else
 				{
 					status |= DT_BUFFER_TOO_SMALL;
 				}
 			}
-			else
+
+			// Wall segment.
+			const int imin = ints[k-1].tmax;
+			const int imax = ints[k].tmin;
+			if (imin != imax)
 			{
 				const float tmin = imin/255.0f; 
 				const float tmax = imax/255.0f; 
 				if (n < maxSegments)
 				{
-					float* seg = &segments[n*6];
-					n++;
+					float* seg = &segmentVerts[n*6];
 					dtVlerp(seg+0, vj,vi, tmin);
 					dtVlerp(seg+3, vj,vi, tmax);
+					if (segmentRefs)
+						segmentRefs[n] = 0;
+					n++;
 				}
 				else
 				{
