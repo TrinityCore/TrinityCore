@@ -254,12 +254,14 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         }
         case SMART_TARGET_CREATURE_GUID:
         {
-            if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry)) return false;
+            if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry))
+                return false;
             break;
         }
         case SMART_TARGET_GAMEOBJECT_GUID:
         {
-            if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry)) return false;
+            if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry)) 
+                return false;
             break;
         }
         case SMART_TARGET_PLAYER_DISTANCE:
@@ -287,6 +289,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_THREAT_LIST:
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         case SMART_TARGET_CLOSEST_CREATURE:
+        case SMART_TARGET_STORED:
             break;
         default:
             sLog->outErrorDb("SmartAIMgr: Not handled target_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());
