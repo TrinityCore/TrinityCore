@@ -219,10 +219,10 @@ public:
         if (!*args)
             return false;
 
-        char* guid_str = strtok((char*)args, " ");
-        char* wait_str = strtok((char*)NULL, " ");
+        char* guidStr = strtok((char*)args, " ");
+        char* waitStr = strtok((char*)NULL, " ");
 
-        uint32 lowguid = atoi((char*)guid_str);
+        uint32 lowGuid = atoi((char*)guidStr);
 
         Creature* creature = NULL;
 
@@ -234,10 +234,10 @@ public:
         // attempt check creature existence by DB data
         if (!creature)
         {
-            CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
+            CreatureData const* data = sObjectMgr->GetCreatureData(lowGuid);
             if (!data)
             {
-                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
+                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowGuid);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -245,20 +245,22 @@ public:
         else
         {
             // obtain real GUID for DB operations
-            lowguid = creature->GetDBTableGUIDLow();
+            lowGuid = creature->GetDBTableGUIDLow();
         }
 
-        int wait = wait_str ? atoi(wait_str) : 0;
+        int wait = waitStr ? atoi(waitStr) : 0;
 
         if (wait < 0)
             wait = 0;
 
-        //Player* player = handler->GetSession()->GetPlayer();
+        // Update movement type
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
 
-        //WaypointMgr.AddLastNode(lowguid, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), wait, 0);
+        stmt->setUInt8(0, uint8(WAYPOINT_MOTION_TYPE));
+        stmt->setUInt32(1, lowGuid);
 
-        // update movement type
-        WorldDatabase.PExecute("UPDATE creature SET MovementType = '%u' WHERE guid = '%u'", WAYPOINT_MOTION_TYPE, lowguid);
+        CharacterDatabase.Execute(stmt);
+
         if (creature && creature->GetWaypointPath())
         {
             creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
@@ -457,17 +459,23 @@ public:
 
         creature->setFaction(factionId);
 
-        // faction is set in creature_template - not inside creature
+        // Faction is set in creature_template - not inside creature
 
-        // update in memory
+        // Update in memory..
         if (CreatureTemplate const* cinfo = creature->GetCreatureInfo())
         {
             const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
             const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
         }
 
-        // and DB
-        WorldDatabase.PExecute("UPDATE creature_template SET faction_A = '%u', faction_H = '%u' WHERE entry = '%u'", factionId, factionId, creature->GetEntry());
+        // ..and DB
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
+
+        stmt->setUInt16(0, uint16(factionId));
+        stmt->setUInt16(1, uint16(factionId));
+        stmt->setUInt32(2, creature->GetEntry());
+
+        WorldDatabase.Execute(stmt);
 
         return true;
     }

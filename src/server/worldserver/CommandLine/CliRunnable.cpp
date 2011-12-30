@@ -292,8 +292,13 @@ void ChatHandler::HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo
         return;
     }
 
-    CharacterDatabase.PExecute("UPDATE characters SET name='%s', account='%u', deleteDate=NULL, deleteInfos_Name=NULL, deleteInfos_Account=NULL WHERE deleteDate IS NOT NULL AND guid = %u",
-        delInfo.name.c_str(), delInfo.accountId, delInfo.lowguid);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_RESTORE_DELETE_INFO);
+
+    stmt->setString(0, delInfo.name);
+    stmt->setUInt32(1, delInfo.accountId);
+    stmt->setUInt32(2, delInfo.lowguid);
+
+    CharacterDatabase.Execute(stmt);
 }
 
 /**

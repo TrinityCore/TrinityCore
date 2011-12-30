@@ -2585,7 +2585,7 @@ bool ChatHandler::HandleResetSpellsCommand(const char* args)
     }
     else
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_AT_LOGIN_FLAG);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
 
         stmt->setUInt16(0, uint16(AT_LOGIN_RESET_SPELLS));
         stmt->setUInt32(1, GUID_LOPART(targetGuid));
@@ -2643,7 +2643,7 @@ bool ChatHandler::HandleResetTalentsCommand(const char* args)
     }
     else if (targetGuid)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPDATE_AT_LOGIN_FLAG);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
 
         stmt->setUInt16(0, uint16(AT_LOGIN_NONE | AT_LOGIN_RESET_PET_TALENTS));
         stmt->setUInt32(1, GUID_LOPART(targetGuid));
