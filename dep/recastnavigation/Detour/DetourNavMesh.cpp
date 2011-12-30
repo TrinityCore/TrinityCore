@@ -713,7 +713,7 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 		return DT_FAILURE_DATA_VERSION;
 		
 	// Make sure the location is free.
-	if (getTileAt(header->x, header->y, header->z))
+	if (getTileAt(header->x, header->y))
 		return DT_FAILURE;
 		
 	// Allocate a tile.
@@ -819,14 +819,14 @@ dtStatus dtNavMesh::addTile(unsigned char* data, int dataSize, int flags,
 	return DT_SUCCESS;
 }
 
-const dtMeshTile* dtNavMesh::getTileAt(int x, int y, int z) const
+const dtMeshTile* dtNavMesh::getTileAt(int x, int y) const
 {
 	// Find tile based on hash.
 	int h = computeTileHash(x,y,m_tileLutMask);
 	dtMeshTile* tile = m_posLookup[h];
 	while (tile)
 	{
-		if (tile->header && tile->header->x == x && tile->header->y == y && tile->header->z == z)
+		if (tile->header && tile->header->x == x && tile->header->y == y)
 			return tile;
 		tile = tile->next;
 	}
