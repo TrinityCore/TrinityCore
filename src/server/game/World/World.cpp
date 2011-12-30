@@ -1246,8 +1246,10 @@ void World::SetInitialWorldSettings()
         server_type = REALM_TYPE_PVP;
     else
         server_type = getIntConfig(CONFIG_GAME_TYPE);
+
     uint32 realm_zone = getIntConfig(CONFIG_REALM_ZONE);
-    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realmID);
+
+    LoginDatabase.PExecute("UPDATE realmlist SET icon = %u, timezone = %u WHERE id = '%d'", server_type, realm_zone, realmID);      // One-time query
 
     ///- Remove the bones (they should not exist in DB though) and old corpses after a restart
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CORPSES);
@@ -1650,7 +1652,7 @@ void World::SetInitialWorldSettings()
         local.tm_year+1900, local.tm_mon+1, local.tm_mday, local.tm_hour, local.tm_min, local.tm_sec);
 
     LoginDatabase.PExecute("INSERT INTO uptime (realmid, starttime, startstring, uptime, revision) VALUES('%u', " UI64FMTD ", '%s', 0, '%s')",
-        realmID, uint64(m_startTime), isoDate, _FULLVERSION);
+                            realmID, uint64(m_startTime), isoDate, _FULLVERSION);       // One-time query
 
     m_timers[WUPDATE_WEATHERS].SetInterval(1*IN_MILLISECONDS);
     m_timers[WUPDATE_AUCTIONS].SetInterval(MINUTE*IN_MILLISECONDS);
@@ -1928,7 +1930,15 @@ void World::Update(uint32 diff)
         uint32 maxOnlinePlayers = GetMaxPlayerCount();
 
         m_timers[WUPDATE_UPTIME].Reset();
-        LoginDatabase.PExecute("UPDATE uptime SET uptime = %u, maxplayers = %u WHERE realmid = %u AND starttime = " UI64FMTD, tmpDiff, maxOnlinePlayers, realmID, uint64(m_startTime));
+
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_UPTIME_PLAYERS);
+
+        stmt->setUInt64(0, uint64(tmpDiff));
+        stmt->setUInt16(1, uint16(maxOnlinePlayers));
+        stmt->setUInt32(2, realmID);
+        stmt->setUInt16(3, uint64(m_startTime));
+
+        LoginDatabase.Execute(stmt);
     }
 
     /// <li> Clean logs table
@@ -1937,8 +1947,13 @@ void World::Update(uint32 diff)
         if (m_timers[WUPDATE_CLEANDB].Passed())
         {
             m_timers[WUPDATE_CLEANDB].Reset();
-            LoginDatabase.PExecute("DELETE FROM logs WHERE (time + %u) < "UI64FMTD";",
-                sWorld->getIntConfig(CONFIG_LOGDB_CLEARTIME), uint64(time(0)));
+
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_OLD_LOGS);
+
+            stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_LOGDB_CLEARTIME));
+            stmt->setUInt32(1, uint32(time(0)));
+
+            LoginDatabase.Execute(stmt);
         }
     }
 
@@ -2821,9 +2836,23 @@ void World::setWorldState(uint32 index, uint64 value)
 {
     WorldStatesMap::const_iterator it = m_worldstates.find(index);
     if (it != m_worldstates.end())
-        CharacterDatabase.PExecute("UPDATE worldstates SET value="UI64FMTD" where entry=%u", value, index);
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_WORLDSTATE);
+
+        stmt->setUInt32(0, uint32(value));
+        stmt->setUInt32(1, index);
+
+        CharacterDatabase.Execute(stmt);
+    }
     else
-        CharacterDatabase.PExecute("INSERT INTO worldstates (entry, value) VALUES (%u, "UI64FMTD")", index, value);
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_WORLDSTATE);
+
+        stmt->setUInt32(0, index);
+        stmt->setUInt32(1, uint32(value));
+
+        CharacterDatabase.Execute(stmt);
+    }
     m_worldstates[index] = value;
 }
 

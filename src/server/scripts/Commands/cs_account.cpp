@@ -388,8 +388,13 @@ public:
         if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
             return false;
 
-        // No SQL injection
-        LoginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'", expansion, accountId);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_EXPANSION);
+
+        stmt->setUInt8(0, expansion);
+        stmt->setUInt32(1, accountId);
+
+        LoginDatabase.Execute(stmt);
+
         handler->PSendSysMessage(LANG_ACCOUNT_SETADDON, accountName.c_str(), accountId, expansion);
         return true;
     }
@@ -480,13 +485,34 @@ public:
         }
 
         // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
+        PreparedStatement* stmt;
+
         if (gmRealmID == -1)
-            LoginDatabase.PExecute("DELETE FROM account_access WHERE id = '%u'", targetAccountId);
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+
+            stmt->setUInt32(0, targetAccountId);
+        }
         else
-            LoginDatabase.PExecute("DELETE FROM account_access WHERE id = '%u' AND (RealmID = '%d' OR RealmID = '-1')", targetAccountId, realmID);
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt32(1, realmID);
+        }
+        LoginDatabase.Execute(stmt);
 
         if (gm != 0)
-            LoginDatabase.PExecute("INSERT INTO account_access VALUES ('%u', '%d', '%d')", targetAccountId, gm, gmRealmID);
+        {
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt8(1, uint8(gm));
+            stmt->setUInt32(2, gmRealmID);
+
+            LoginDatabase.Execute(stmt);
+        }
+
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;
