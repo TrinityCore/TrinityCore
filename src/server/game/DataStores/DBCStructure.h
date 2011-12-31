@@ -1153,27 +1153,6 @@ struct HolidaysEntry
     //uint32 unk54;                                         // 54
 };
 
-/*struct ItemEntry
-{
-   uint32   ID;                                             // 0
-   uint32   Class;                                          // 1
-   uint32   SubClass;                                       // 2 some items have strnage subclasses
-   int32    Unk0;                                           // 3
-   int32    Material;                                       // 4
-   uint32   DisplayId;                                      // 5
-   uint32   InventoryType;                                  // 6
-   uint32   Sheath;                                         // 7
-};*/
-
-struct ItemClassEntry
-{
-    //uint32 id;                                            // 0
-    uint32 Class;                                           // 1 equal to id
-    //uint32 unk2;                                          // 2 looks like second class
-    //uint32 unk3;                                          // 3 1 for weapons
-    //char* name;                                       // 4
-};
-
 // common struct for:
 // ItemDamageAmmo.dbc
 // ItemDamageOneHand.dbc
