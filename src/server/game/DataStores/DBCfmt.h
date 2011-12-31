@@ -83,7 +83,6 @@ const char ItemArmorShieldfmt[]="nifffffff";
 const char ItemArmorTotalfmt[]="niffff";
 const char ItemDamagefmt[]="nfffffffi";
 const char ItemDisenchantLootfmt[]="niiiiii";
-const char ItemClassfmt[]="dixxx";
 //const char ItemDisplayTemplateEntryfmt[]="nxxxxxxxxxxixxxxxxxxxxx";
 //const char ItemCondExtCostsEntryfmt[]="xiii";
 const char ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiix";
