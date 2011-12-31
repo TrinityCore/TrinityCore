@@ -931,24 +931,20 @@ void Item::ClearEnchantment(EnchantmentSlot slot)
 
 bool Item::GemsFitSockets() const
 {
-    bool fits = true;
     for (uint32 enchant_slot = SOCK_ENCHANTMENT_SLOT; enchant_slot < SOCK_ENCHANTMENT_SLOT+MAX_GEM_SOCKETS; ++enchant_slot)
     {
         uint8 SocketColor = GetTemplate()->Socket[enchant_slot-SOCK_ENCHANTMENT_SLOT].Color;
 
-        uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
-        if (!enchant_id)
-        {
-            if (SocketColor) fits &= false;
+        if (!SocketColor) // no socket slot
             continue;
-        }
+
+        uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot));
+        if (!enchant_id) // no gems on this socket
+            return false;
 
         SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id);
-        if (!enchantEntry)
-        {
-            if (SocketColor) fits &= false;
-            continue;
-        }
+        if (!enchantEntry) // invalid gem id on this socket
+            return false;
 
         uint8 GemColor = 0;
 
@@ -964,9 +960,10 @@ bool Item::GemsFitSockets() const
             }
         }
 
-        fits &= (GemColor & SocketColor) ? true : false;
+        if (!(GemColor & SocketColor)) // bad gem color on this socket
+            return false;
     }
-    return fits;
+    return true;
 }
 
 uint8 Item::GetGemCountWithID(uint32 GemID) const
