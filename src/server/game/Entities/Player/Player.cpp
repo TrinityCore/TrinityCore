@@ -19114,13 +19114,17 @@ void Player::SendAttackSwingNotInRange()
 
 void Player::SavePositionInDB(uint32 mapid, float x, float y, float z, float o, uint32 zone, uint64 guid)
 {
-    std::ostringstream ss;
-    ss << "UPDATE characters SET position_x='" << x << "', position_y='" << y
-        << "', position_z='" << z << "', orientation='" << o << "', map='" << mapid
-        << "', zone='" << zone << "', trans_x='0', trans_y='0', trans_z='0', "
-        << "transguid='0', taxi_path='' WHERE guid='" << GUID_LOPART(guid) << '\'';
-    sLog->outDebug(LOG_FILTER_UNITS, "%s", ss.str().c_str());
-    CharacterDatabase.Execute(ss.str().c_str());
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_POSITION);
+
+    stmt->setFloat(0, x);
+    stmt->setFloat(1, y);
+    stmt->setFloat(2, z);
+    stmt->setFloat(3, o);
+    stmt->setUInt16(4, uint16(mapid));
+    stmt->setUInt16(5, uint16(zone));
+    stmt->setUInt32(6, GUID_LOPART(guid));
+
+    CharacterDatabase.Execute(stmt);
 }
 
 void Player::SetUInt32ValueInArray(Tokens& tokens, uint16 index, uint32 value)
