@@ -113,7 +113,6 @@ DBCStorage <ItemArmorQualityEntry>        sItemArmorQualityStore(ItemArmorQualit
 DBCStorage <ItemArmorShieldEntry>         sItemArmorShieldStore(ItemArmorShieldfmt);
 DBCStorage <ItemArmorTotalEntry>          sItemArmorTotalStore(ItemArmorTotalfmt);
 DBCStorage <ItemBagFamilyEntry>           sItemBagFamilyStore(ItemBagFamilyfmt);
-//DBCStorage <ItemCondExtCostsEntry> sItemCondExtCostsStore(ItemCondExtCostsEntryfmt);
 DBCStorage <ItemDamageEntry>              sItemDamageAmmoStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageOneHandStore(ItemDamagefmt);
 DBCStorage <ItemDamageEntry>              sItemDamageOneHandCasterStore(ItemDamagefmt);
@@ -124,7 +123,6 @@ DBCStorage <ItemDamageEntry>              sItemDamageTwoHandCasterStore(ItemDama
 DBCStorage <ItemDamageEntry>              sItemDamageWandStore(ItemDamagefmt);
 DBCStorage <ItemDisenchantLootEntry>      sItemDisenchantLootStore(ItemDisenchantLootfmt);
 //DBCStorage <ItemDisplayInfoEntry> sItemDisplayInfoStore(ItemDisplayTemplateEntryfmt); -- not used currently
-//DBCStorage <ItemExtendedCostEntry> sItemExtendedCostStore(ItemExtendedCostEntryfmt);
 DBCStorage <ItemLimitCategoryEntry> sItemLimitCategoryStore(ItemLimitCategoryEntryfmt);
 DBCStorage <ItemRandomPropertiesEntry> sItemRandomPropertiesStore(ItemRandomPropertiesfmt);
 DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
@@ -385,17 +383,12 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sGtRegenMPPerSptStore,        dbcPath, "gtRegenMPPerSpt.dbc");//14545
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sHolidaysStore,               dbcPath, "Holidays.dbc");//14545
-
-//    LoadDBC(availableDbcLocales, bad_dbc_files, sItemStore,                   dbcPath, "Item.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemBagFamilyStore,          dbcPath, "ItemBagFamily.dbc");//14545
     //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sItemDisplayInfoStore,        dbcPath, "ItemDisplayInfo.dbc");     -- not used currently
-    //LoadDBC(dbcCount, availableDbcLocales, bad_dbc_files, sItemCondExtCostsStore,       dbcPath, "ItemCondExtCosts.dbc");
-//    LoadDBC(availableDbcLocales, bad_dbc_files, sItemExtendedCostStore,       dbcPath, "ItemExtendedCost.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemLimitCategoryStore,      dbcPath, "ItemLimitCategory.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemRandomPropertiesStore,   dbcPath, "ItemRandomProperties.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemRandomSuffixStore,       dbcPath, "ItemRandomSuffix.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemSetStore,                dbcPath, "ItemSet.dbc");//14545
-
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorQualityStore,       dbcPath, "ItemArmorQuality.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sItemArmorShieldStore,        dbcPath, "ItemArmorShield.dbc");//14545
@@ -714,8 +707,6 @@ void LoadDBCStores(const std::string& dataPath)
     if (!sAreaStore.LookupEntry(3617)              ||       // last area (areaflag) added in 3.3.5a
         !sCharTitlesStore.LookupEntry(177)         ||       // last char title added in 3.3.5a
         !sGemPropertiesStore.LookupEntry(1629)     ||       // last added spell in 3.3.5a
-        //!sItemStore.LookupEntry(56806)             ||       // last gem property added in 3.3.5a
-        //!sItemExtendedCostStore.LookupEntry(2997)  ||       // last item extended cost added in 3.3.5a
         !sMapStore.LookupEntry(724)                ||       // last map added in 3.3.5a
         !sSpellStore.LookupEntry(80864)            )        // last client known item added in 3.3.5a
     {
@@ -1144,7 +1135,6 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
  DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
  DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
  DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
-// DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }
  DBCStorage <CreatureDisplayInfoEntry> const* GetCreatureDisplayStore() { return &sCreatureDisplayInfoStore; }
  DBCStorage <EmotesEntry>        const* GetEmotesStore()         { return &sEmotesStore;         }
  DBCStorage <EmotesTextEntry>    const* GetEmotesTextStore()     { return &sEmotesTextStore;     }

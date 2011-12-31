@@ -76,7 +76,6 @@ const char GtRegenHPPerSptfmt[]="f";
 const char GtRegenMPPerSptfmt[]="xf";
 
 const char Holidaysfmt[]="nxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-const char Itemfmt[]="niiiiiii";
 const char ItemBagFamilyfmt[]="nx";
 const char ItemArmorQualityfmt[]="nfffffffi";
 const char ItemArmorShieldfmt[]="nifffffff";
@@ -84,8 +83,6 @@ const char ItemArmorTotalfmt[]="niffff";
 const char ItemDamagefmt[]="nfffffffi";
 const char ItemDisenchantLootfmt[]="niiiiii";
 //const char ItemDisplayTemplateEntryfmt[]="nxxxxxxxxxxixxxxxxxxxxx";
-//const char ItemCondExtCostsEntryfmt[]="xiii";
-const char ItemExtendedCostEntryfmt[]="niiiiiiiiiiiiiix";
 const char ItemLimitCategoryEntryfmt[]="nxii";
 const char ItemRandomPropertiesfmt[]="nxiiixxs";
 const char ItemRandomSuffixfmt[]="nsxiiiiiiiiii";
