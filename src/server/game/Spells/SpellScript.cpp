@@ -52,6 +52,11 @@ void _SpellScript::_Init(std::string const* scriptname, uint32 spellId)
     m_scriptSpellId = spellId;
 }
 
+std::string const* _SpellScript::_GetScriptName() const
+{
+    return m_scriptName;
+}
+
 _SpellScript::EffectHook::EffectHook(uint8 _effIndex)
 {
     // effect index must be in range <0;2>, allow use of special effindexes
@@ -145,6 +150,16 @@ std::string _SpellScript::EffectAuraNameCheck::ToString()
             sprintf (num, "%u", effAurName);
             return num;
     }
+}
+
+SpellScript::CastHandler::CastHandler(SpellCastFnType _pCastHandlerScript)
+{
+    pCastHandlerScript = _pCastHandlerScript;
+}
+
+void SpellScript::CastHandler::Call(SpellScript* spellScript)
+{
+    (spellScript->*pCastHandlerScript)();
 }
 
 SpellScript::CheckCastHandler::CheckCastHandler(SpellCheckCastFnType checkCastHandlerScript)
