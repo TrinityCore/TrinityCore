@@ -374,7 +374,7 @@ void Log::outDB(LogTypes type, const char * str)
     if (logStr.empty())
         return;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_LOG);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
 
     stmt->setInt32(0, realm);
     stmt->setInt32(1, type);

@@ -37,17 +37,17 @@ typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;
 enum WorldDatabaseStatements
 {
     /*  Naming standard for defines:
-        {DB}_{SET/DEL/ADD/REP}_{Summary of data changed}
+        {DB}_{SEL/INS/UPD/DEL/REP}_{Summary of data changed}
         When updating more than one field, consider looking at the calling function
         name for a suiting suffix.
     */
 
-    WORLD_LOAD_QUEST_POOLS,
+    WORLD_SEL_QUEST_POOLS,
     WORLD_DEL_CRELINKED_RESPAWN,
-    WORLD_REP_CRELINKED_RESPAWN,
-    WORLD_LOAD_CRETEXT,
-    WORLD_LOAD_SMART_SCRIPTS,
-    WORLD_LOAD_SMARTAI_WP,
+    WORLD_REP_CREATURE_LINKED_RESPAWN,
+    WORLD_SEL_CREATURE_TEXT,
+    WORLD_SEL_SMART_SCRIPTS,
+    WORLD_SEL_SMARTAI_WP,
     WORLD_DEL_GAMEOBJECT,
     WORLD_DEL_EVENT_GAMEOBJECT,
     WORLD_INS_GRAVEYARD_ZONE,
