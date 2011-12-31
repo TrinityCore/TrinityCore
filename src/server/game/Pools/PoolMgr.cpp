@@ -807,7 +807,7 @@ void PoolMgr::LoadFromDB()
     {
         uint32 oldMSTime = getMSTime();
 
-        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_QUEST_POOLS);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_QUEST_POOLS);
         PreparedQueryResult result = WorldDatabase.Query(stmt);
 
         if (!result)
