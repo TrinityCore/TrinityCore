@@ -76,7 +76,7 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if (HasLowerSecurity (target, target_guid, true))
         return false;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_MUTE_TIME);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
 
     if (target)
     {
@@ -139,7 +139,7 @@ bool ChatHandler::HandleUnmuteCommand(const char* args)
         target->GetSession()->m_muteTime = 0;
     }
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_MUTE_TIME);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
 
     stmt->setInt64(0, 0);
     stmt->setUInt32(1, accountId);
