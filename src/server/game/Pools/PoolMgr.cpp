@@ -964,7 +964,7 @@ void PoolMgr::SaveQuestsToDB()
     {
         if (IsSpawnedObject<Quest>(itr->first))
         {
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_QUEST_POOL_SAVE);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_QUEST_POOL_SAVE);
             stmt->setUInt32(0, itr->second);
             stmt->setUInt32(1, itr->first);
             trans->Append(stmt);

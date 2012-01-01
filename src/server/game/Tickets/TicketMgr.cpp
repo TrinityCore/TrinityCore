@@ -79,7 +79,7 @@ bool GmTicket::LoadFromDB(Field* fields)
 void GmTicket::SaveToDB(SQLTransaction& trans) const
 {
     uint8 index = 0;
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GM_TICKET);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
     stmt->setUInt32(++index, GUID_LOPART(_playerGuid));
     stmt->setString(++index, _playerName);
@@ -226,7 +226,7 @@ void TicketMgr::LoadTickets()
     _lastTicketId = 0;
     _openTicketCount = 0;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GM_TICKETS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GM_TICKETS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {

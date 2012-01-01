@@ -470,7 +470,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     uint32 bindspell = 3286;
 
     // update sql homebind
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_PLAYER_HOMEBIND);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_PLAYER_HOMEBIND);
     stmt->setUInt16(0, _player->GetMapId());
     stmt->setUInt16(1, _player->GetAreaId());
     stmt->setFloat (2, _player->GetPositionX());
@@ -519,7 +519,7 @@ void WorldSession::HandleListStabledPetsOpcode(WorldPacket & recv_data)
 
 void WorldSession::SendStablePet(uint64 guid)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_PET_SLOTS_DETAIL);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS_DETAIL);
 
     stmt->setUInt32(0, _player->GetGUIDLow());
     stmt->setUInt8(1, PET_SAVE_FIRST_STABLE_SLOT);
@@ -621,7 +621,7 @@ void WorldSession::HandleStablePet(WorldPacket & recv_data)
         return;
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_PET_SLOTS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOTS);
 
     stmt->setUInt32(0, _player->GetGUIDLow());
     stmt->setUInt8(1, PET_SAVE_FIRST_STABLE_SLOT);
@@ -682,7 +682,7 @@ void WorldSession::HandleUnstablePet(WorldPacket & recv_data)
     if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_PET_ENTRY);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_ENTRY);
 
     stmt->setUInt32(0, _player->GetGUIDLow());
     stmt->setUInt32(1, petnumber);
@@ -811,7 +811,7 @@ void WorldSession::HandleStableSwapPet(WorldPacket & recv_data)
 
     // Find swapped pet slot in stable
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_PET_SLOT_BY_ID);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PET_SLOT_BY_ID);
 
     stmt->setUInt32(0, _player->GetGUIDLow());
     stmt->setUInt32(1, petId);
