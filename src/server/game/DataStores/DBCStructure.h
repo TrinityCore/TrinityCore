@@ -1153,27 +1153,6 @@ struct HolidaysEntry
     //uint32 unk54;                                         // 54
 };
 
-/*struct ItemEntry
-{
-   uint32   ID;                                             // 0
-   uint32   Class;                                          // 1
-   uint32   SubClass;                                       // 2 some items have strnage subclasses
-   int32    Unk0;                                           // 3
-   int32    Material;                                       // 4
-   uint32   DisplayId;                                      // 5
-   uint32   InventoryType;                                  // 6
-   uint32   Sheath;                                         // 7
-};*/
-
-struct ItemClassEntry
-{
-    //uint32 id;                                            // 0
-    uint32 Class;                                           // 1 equal to id
-    //uint32 unk2;                                          // 2 looks like second class
-    //uint32 unk3;                                          // 3 1 for weapons
-    //char* name;                                       // 4
-};
-
 // common struct for:
 // ItemDamageAmmo.dbc
 // ItemDamageOneHand.dbc
@@ -1243,27 +1222,6 @@ struct ItemDisenchantLootEntry
     uint32 MaxItemLevel;
     uint32 RequiredDisenchantSkill;
 };
-
-//struct ItemCondExtCostsEntry
-//{
-//    uint32      ID;
-//    uint32      condExtendedCost;                         // ItemTemplate::CondExtendedCost
-//    uint32      itemextendedcostentry;                    // ItemTemplate::ExtendedCost
-//    uint32      arenaseason;                              // arena season number(1-4)
-//};
-
-#define MAX_ITEM_EXTENDED_COST_REQUIREMENTS 5
-
-/*struct ItemExtendedCostEntry
-{
-    uint32      ID;                                                 // 0 extended-cost entry id
-    uint32      reqhonorpoints;                                     // 1 required honor points
-    uint32      reqarenapoints;                                     // 2 required arena points
-    uint32      reqarenaslot;                                       // 3 arena slot restrctions (min slot value)
-    uint32      reqitem[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];       // 4-8 required item id
-    uint32      reqitemcount[MAX_ITEM_EXTENDED_COST_REQUIREMENTS];  // 9-14 required count of 1st item
-    uint32      reqpersonalarenarating;                             // 15 required personal arena rating};
-};*/
 
 struct ItemLimitCategoryEntry
 {
