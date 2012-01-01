@@ -340,7 +340,7 @@ public:
             if (Mortal_Strike_timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_AV_MORTAL_STRIKE);
-                Mortal_Strike_timer = 10000 + rand()%20 * 1000;
+                Mortal_Strike_timer = urand(10, 30) * 1000;
             } else Mortal_Strike_timer -= diff;
 
             DoMeleeAttackIfReady();

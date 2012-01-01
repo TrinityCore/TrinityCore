@@ -922,7 +922,19 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     K.SetHexStr (fields[1].GetCString());
 
-    time_t mutetime = time_t (fields[7].GetUInt64());
+    int64 mutetime = fields[7].GetInt64();
+    //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
+    if (mutetime < 0)
+    {
+        mutetime = time(NULL) + llabs(mutetime);
+
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_MUTE_TIME);
+
+        stmt->setInt64(0, mutetime);
+        stmt->setUInt32(1, id);
+
+        LoginDatabase.Execute(stmt);
+    }
 
     locale = LocaleConstant (fields[8].GetUInt8());
     if (locale >= TOTAL_LOCALES)
@@ -1005,14 +1017,13 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         isRecruiter = true;
 
     // Update the last_ip in the database
-    // No SQL injection, username escaped.
-    LoginDatabase.EscapeString (address);
 
-    LoginDatabase.PExecute ("UPDATE account "
-        "SET last_ip = '%s' "
-        "WHERE username = '%s'",
-        address.c_str(),
-        safe_account.c_str());
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_LAST_IP);
+
+    stmt->setString(0, address);
+    stmt->setString(1, account);
+
+    LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
     ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);

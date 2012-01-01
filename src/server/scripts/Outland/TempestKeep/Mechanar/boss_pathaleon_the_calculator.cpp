@@ -83,10 +83,10 @@ class boss_pathaleon_the_calculator : public CreatureScript
             void Reset()
             {
                 Summon_Timer = 30000;
-                ManaTap_Timer = 12000 + rand()%8000;
-                ArcaneTorrent_Timer = 16000 + rand()%9000;
-                Domination_Timer = 25000 + rand()%15000;
-                ArcaneExplosion_Timer = 8000 + rand()%5000;
+                ManaTap_Timer = urand(12000, 20000);
+                ArcaneTorrent_Timer = urand(16000, 25000);
+                Domination_Timer = urand(25000, 40000);
+                ArcaneExplosion_Timer = urand(8000, 13000);
 
                 Enraged = false;
 
@@ -135,7 +135,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                             Wraith->AI()->AttackStart(target);
                     }
                     DoScriptText(SAY_SUMMON, me);
-                    Summon_Timer = 30000 + rand()%15000;
+                    Summon_Timer = urand(30000, 45000);
                 }
                 else
                     Summon_Timer -= diff;
@@ -143,7 +143,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 if (ManaTap_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_MANA_TAP);
-                    ManaTap_Timer = 14000 + rand()%8000;
+                    ManaTap_Timer = urand(14000, 22000);
                 }
                 else
                     ManaTap_Timer -= diff;
@@ -151,7 +151,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 if (ArcaneTorrent_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_ARCANE_TORRENT);
-                    ArcaneTorrent_Timer = 12000 + rand()%6000;
+                    ArcaneTorrent_Timer = urand(12000, 18000);
                 }
                 else
                     ArcaneTorrent_Timer -= diff;
@@ -163,7 +163,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                         DoScriptText(RAND(SAY_DOMINATION_1, SAY_DOMINATION_2), me);
                         DoCast(target, SPELL_DOMINATION);
                     }
-                    Domination_Timer = 25000 + rand()%5000;
+                    Domination_Timer = urand(25000, 30000);
                 }
                 else
                     Domination_Timer -= diff;
@@ -174,7 +174,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                     if (ArcaneExplosion_Timer <= diff)
                     {
                         DoCast(me->getVictim(), H_SPELL_ARCANE_EXPLOSION);
-                        ArcaneExplosion_Timer = 10000 + rand()%4000;
+                        ArcaneExplosion_Timer = urand(10000, 14000);
                     }
                     else
                         ArcaneExplosion_Timer -= diff;
@@ -218,7 +218,7 @@ class mob_nether_wraith : public CreatureScript
 
             void Reset()
             {
-                ArcaneMissiles_Timer = 1000 + rand()%3000;
+                ArcaneMissiles_Timer = urand(1000, 4000);
                 Detonation_Timer = 20000;
                 Die_Timer = 2200;
                 Detonation = false;
@@ -237,7 +237,7 @@ class mob_nether_wraith : public CreatureScript
                         DoCast(target, SPELL_ARCANE_MISSILES);
                     else
                         DoCast(me->getVictim(), SPELL_ARCANE_MISSILES);
-                    ArcaneMissiles_Timer = 5000 + rand()%5000;
+                    ArcaneMissiles_Timer = urand(5000, 10000);
                 }
                 else
                     ArcaneMissiles_Timer -=diff;

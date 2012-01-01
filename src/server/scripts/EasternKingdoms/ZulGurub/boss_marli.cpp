@@ -105,13 +105,13 @@ class boss_marli : public CreatureScript
                     if (PoisonVolley_Timer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_POISONVOLLEY);
-                        PoisonVolley_Timer = 10000 + rand()%10000;
+                        PoisonVolley_Timer = urand(10000, 20000);
                     } else PoisonVolley_Timer -= diff;
 
                     if (!PhaseTwo && Aspect_Timer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_ASPECT_OF_MARLI);
-                        Aspect_Timer = 13000 + rand()%5000;
+                        Aspect_Timer = urand(13000, 18000);
                     } else Aspect_Timer -= diff;
 
                     if (!Spawned && SpawnStartSpiders_Timer <= diff)
@@ -149,7 +149,7 @@ class boss_marli : public CreatureScript
                         Creature* Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Spider)
                             Spider->AI()->AttackStart(target);
-                        SpawnSpider_Timer = 12000 + rand()%5000;
+                        SpawnSpider_Timer = urand(12000, 17000);
                     } else SpawnSpider_Timer -= diff;
 
                     if (!PhaseTwo && Transform_Timer <= diff)

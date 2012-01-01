@@ -37,8 +37,16 @@ AccountOpResult CreateAccount(std::string username, std::string password)
     if (GetId(username))
         return AOR_NAME_ALREDY_EXIST;                       // username does already exist
 
-    LoginDatabase.PExecute("INSERT INTO account(username, sha_pass_hash, joindate) VALUES('%s', '%s', NOW())", username.c_str(), CalculateShaPassHash(username, password).c_str());
-    LoginDatabase.Execute("INSERT INTO realmcharacters (realmid, acctid, numchars) SELECT realmlist.id, account.id, 0 FROM realmlist, account LEFT JOIN realmcharacters ON acctid=account.id WHERE acctid IS NULL");
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_ACCOUNT);
+
+    stmt->setString(0, username);
+    stmt->setString(1, CalculateShaPassHash(username, password));
+
+    LoginDatabase.Execute(stmt);
+
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_REALM_CHARS);
+
+    LoginDatabase.Execute(stmt);
 
     return AOR_OK;                                          // everything's fine
 }
@@ -104,11 +112,13 @@ AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::s
     normalizeString(newUsername);
     normalizeString(newPassword);
 
-    std::string safeNewUsername = newUsername;
-    LoginDatabase.EscapeString(safeNewUsername);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_USERNAME);
 
-    LoginDatabase.PExecute("UPDATE account SET v='0', s='0', username='%s', sha_pass_hash='%s' WHERE id='%d'", safeNewUsername.c_str(),
-                CalculateShaPassHash(newUsername, newPassword).c_str(), accountId);
+    stmt->setString(0, newUsername);
+    stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
+    stmt->setUInt32(2, accountId);
+
+    LoginDatabase.Execute(stmt);
 
     return AOR_OK;
 }
@@ -126,9 +136,12 @@ AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
     normalizeString(username);
     normalizeString(newPassword);
 
-    // also reset s and v to force update at next realmd login
-    LoginDatabase.PExecute("UPDATE account SET v='0', s='0', sha_pass_hash='%s' WHERE id='%d'",
-                CalculateShaPassHash(username, newPassword).c_str(), accountId);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_PASSWORD);
+
+    stmt->setString(0, CalculateShaPassHash(username, newPassword));
+    stmt->setUInt32(1, accountId);
+
+    LoginDatabase.Execute(stmt);
 
     return AOR_OK;
 }

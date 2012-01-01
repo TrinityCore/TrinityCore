@@ -840,7 +840,7 @@ void CreatureEventAI::ProcessAction(CreatureEventAI_Action const& action, uint32
                     me->Mount(action.mount.modelId);
             }
             else
-                me->Unmount();
+                me->Dismount();
 
             break;
         }

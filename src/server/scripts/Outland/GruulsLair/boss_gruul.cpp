@@ -213,7 +213,7 @@ public:
                 if (m_uiReverberation_Timer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_REVERBERATION, true);
-                    m_uiReverberation_Timer = 15000 + rand()%10000;
+                    m_uiReverberation_Timer = urand(15000, 25000);
                 }
                 else
                     m_uiReverberation_Timer -= uiDiff;

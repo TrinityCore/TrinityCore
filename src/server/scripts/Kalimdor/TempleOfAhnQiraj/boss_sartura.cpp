@@ -66,9 +66,9 @@ public:
         void Reset()
         {
             WhirlWind_Timer = 30000;
-            WhirlWindRandom_Timer = 3000 + rand()%4000;
+            WhirlWindRandom_Timer = urand(3000, 7000);
             WhirlWindEnd_Timer = 15000;
-            AggroReset_Timer = 45000 + rand()%10000;
+            AggroReset_Timer = urand(45000, 55000);
             AggroResetEnd_Timer = 5000;
             EnrageHard_Timer = 10*60000;
 
@@ -111,13 +111,13 @@ public:
                         me->TauntApply(target);
                         AttackStart(target);
                     }
-                    WhirlWindRandom_Timer = 3000 + rand()%4000;
+                    WhirlWindRandom_Timer = urand(3000, 7000);
                 } else WhirlWindRandom_Timer -= diff;
 
                 if (WhirlWindEnd_Timer <= diff)
                 {
                     WhirlWind = false;
-                    WhirlWind_Timer = 25000 + rand()%15000;
+                    WhirlWind_Timer = urand(25000, 40000);
                 } else WhirlWindEnd_Timer -= diff;
             }
 
@@ -140,7 +140,7 @@ public:
                         AttackStart(target);
                     }
                     AggroReset = true;
-                    AggroReset_Timer = 2000 + rand()%3000;
+                    AggroReset_Timer = urand(2000, 5000);
                 } else AggroReset_Timer -= diff;
 
                 if (AggroReset)
@@ -149,7 +149,7 @@ public:
                     {
                         AggroReset = false;
                         AggroResetEnd_Timer = 5000;
-                        AggroReset_Timer = 35000 + rand()%10000;
+                        AggroReset_Timer = urand(35000, 45000);
                     } else AggroResetEnd_Timer -= diff;
                 }
 
@@ -207,9 +207,9 @@ public:
         void Reset()
         {
             WhirlWind_Timer = 30000;
-            WhirlWindRandom_Timer = 3000 + rand()%4000;
+            WhirlWindRandom_Timer = urand(3000, 7000);
             WhirlWindEnd_Timer = 15000;
-            AggroReset_Timer = 45000 + rand()%10000;
+            AggroReset_Timer = urand(45000, 55000);
             AggroResetEnd_Timer = 5000;
             KnockBack_Timer = 10000;
 
@@ -231,7 +231,7 @@ public:
             {
                 DoCast(me, SPELL_WHIRLWINDADD);
                 WhirlWind = true;
-                WhirlWind_Timer = 25000 + rand()%15000;
+                WhirlWind_Timer = urand(25000, 40000);
                 WhirlWindEnd_Timer = 15000;
             } else WhirlWind_Timer -= diff;
 
@@ -247,7 +247,7 @@ public:
                         AttackStart(target);
                     }
 
-                    WhirlWindRandom_Timer = 3000 + rand()%4000;
+                    WhirlWindRandom_Timer = urand(3000, 7000);
                 } else WhirlWindRandom_Timer -= diff;
 
                 if (WhirlWindEnd_Timer <= diff)
@@ -269,13 +269,13 @@ public:
                     }
 
                     AggroReset = true;
-                    AggroReset_Timer = 2000 + rand()%3000;
+                    AggroReset_Timer = urand(2000, 5000);
                 } else AggroReset_Timer -= diff;
 
                 if (KnockBack_Timer <= diff)
                 {
                     DoCast(me, SPELL_WHIRLWINDADD);
-                    KnockBack_Timer = 10000 + rand()%10000;
+                    KnockBack_Timer = urand(10000, 20000);
                 } else KnockBack_Timer -= diff;
             }
 
@@ -285,7 +285,7 @@ public:
                 {
                     AggroReset = false;
                     AggroResetEnd_Timer = 5000;
-                    AggroReset_Timer = 30000 + rand()%10000;
+                    AggroReset_Timer = urand(30000, 40000);
                 } else AggroResetEnd_Timer -= diff;
             }
 

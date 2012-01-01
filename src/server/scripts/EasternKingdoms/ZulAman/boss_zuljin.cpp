@@ -430,7 +430,7 @@ class boss_zuljin : public CreatureScript
                     if (Whirlwind_Timer <= diff)
                     {
                         DoCast(me, SPELL_WHIRLWIND);
-                        Whirlwind_Timer = 15000 + rand()%5000;
+                        Whirlwind_Timer = urand(15000, 20000);
                     } else Whirlwind_Timer -= diff;
 
                     if (Grievous_Throw_Timer <= diff)
@@ -489,7 +489,7 @@ class boss_zuljin : public CreatureScript
                                         ++Claw_Counter;
                                         if (Claw_Counter == 12)
                                         {
-                                            Claw_Rage_Timer = 15000 + rand()%5000;
+                                            Claw_Rage_Timer = urand(15000, 20000);
                                             me->SetSpeed(MOVE_RUN, 1.2f);
                                             AttackStart(Unit::GetUnit(*me, TankGUID));
                                             TankGUID = 0;
@@ -537,7 +537,7 @@ class boss_zuljin : public CreatureScript
                                     ++Claw_Counter;
                                     if (Claw_Counter == 9)
                                     {
-                                        Lynx_Rush_Timer = 15000 + rand()%5000;
+                                        Lynx_Rush_Timer = urand(15000, 20000);
                                         me->SetSpeed(MOVE_RUN, 1.2f);
                                         AttackStart(Unit::GetUnit(*me, TankGUID));
                                         TankGUID = 0;

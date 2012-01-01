@@ -65,8 +65,8 @@ public:
 
         void Reset()
         {
-            Cleave_Timer = 4000 + rand()%4000;
-            ToxicVolley_Timer = 6000 + rand()%6000;
+            Cleave_Timer = urand(4000, 8000);
+            ToxicVolley_Timer = urand(6000, 12000);
             Check_Timer = 2000;
 
             VemDead = false;
@@ -98,14 +98,14 @@ public:
             if (Cleave_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = 5000 + rand()%7000;
+                Cleave_Timer = urand(5000, 12000);
             } else Cleave_Timer -= diff;
 
             //ToxicVolley_Timer
             if (ToxicVolley_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_TOXIC_VOLLEY);
-                ToxicVolley_Timer = 10000 + rand()%5000;
+                ToxicVolley_Timer = urand(10000, 15000);
             } else ToxicVolley_Timer -= diff;
 
             if (!HealthAbovePct(5) && !Death)
@@ -161,8 +161,8 @@ public:
 
         void Reset()
         {
-            Charge_Timer = 15000 + rand()%12000;
-            KnockBack_Timer = 8000 + rand()%12000;
+            Charge_Timer = urand(15000, 27000);
+            KnockBack_Timer = urand(8000, 20000);
             Enrage_Timer = 120000;
 
             Enraged = false;
@@ -202,7 +202,7 @@ public:
                     AttackStart(target);
                 }
 
-                Charge_Timer = 8000 + rand()%8000;
+                Charge_Timer = urand(8000, 16000);
             } else Charge_Timer -= diff;
 
             //KnockBack_Timer
@@ -211,7 +211,7 @@ public:
                 DoCast(me->getVictim(), SPELL_KNOCKBACK);
                 if (DoGetThreat(me->getVictim()))
                     DoModifyThreatPercent(me->getVictim(), -80);
-                KnockBack_Timer = 15000 + rand()%10000;
+                KnockBack_Timer = urand(15000, 25000);
             } else KnockBack_Timer -= diff;
 
             //Enrage_Timer
@@ -254,8 +254,8 @@ public:
 
         void Reset()
         {
-            Heal_Timer = 25000 + rand()%15000;
-            Fear_Timer = 12000 + rand()%12000;
+            Heal_Timer = urand(25000, 40000);
+            Fear_Timer = urand(12000, 24000);
             Check_Timer = 2000;
 
             VemDead = false;

@@ -62,11 +62,11 @@ public:
         void Reset()
         {
             MarkOfFrost_Timer = 35000;
-            ManaStorm_Timer = 5000 + rand()%12000;
-            Chill_Timer = 10000 + rand()%20000;
-            Breath_Timer = 2000 + rand()%6000;
+            ManaStorm_Timer = urand(5000, 17000);
+            Chill_Timer = urand(10000, 30000);
+            Breath_Timer = urand(2000, 8000);
             Teleport_Timer = 30000;
-            Reflect_Timer = 15000 + rand()%15000;
+            Reflect_Timer = urand(15000, 30000);
             Cleave_Timer = 7000;
             Enrage_Timer = 0;
             Enraged = false;
@@ -109,14 +109,14 @@ public:
             if (Chill_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CHILL);
-                Chill_Timer = 13000 + rand()%12000;
+                Chill_Timer = urand(13000, 25000);
             } else Chill_Timer -= diff;
 
             //Breath_Timer
             if (Breath_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FROSTBREATH);
-                Breath_Timer = 10000 + rand()%5000;
+                Breath_Timer = urand(10000, 15000);
             } else Breath_Timer -= diff;
 
             //ManaStorm_Timer
@@ -124,14 +124,14 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_MANASTORM);
-                ManaStorm_Timer = 7500 + rand()%5000;
+                ManaStorm_Timer = urand(7500, 12500);
             } else ManaStorm_Timer -= diff;
 
             //Reflect_Timer
             if (Reflect_Timer <= diff)
             {
                 DoCast(me, SPELL_REFLECT);
-                Reflect_Timer = 20000 + rand()%15000;
+                Reflect_Timer = urand(20000, 35000);
             } else Reflect_Timer -= diff;
 
             //Cleave_Timer

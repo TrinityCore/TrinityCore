@@ -2034,7 +2034,7 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     float max_dis = m_spellInfo->GetMaxRange(true);
                     float dis = (float)rand_norm() * (max_dis - min_dis) + min_dis;
                     float x, y, z, angle;
-                    angle = (float)rand_norm() * static_cast<float>(M_PI * 70.0f / 180.0f) - static_cast<float>(M_PI * 35.0f / 180.0f);
+                    angle = (float)rand_norm() * static_cast<float>(M_PI * 35.0f / 180.0f) - static_cast<float>(M_PI * 17.5f / 180.0f);
                     m_caster->GetClosePoint(x, y, z, DEFAULT_WORLD_OBJECT_SIZE, dis, angle);
                     m_targets.SetDst(x, y, z, m_caster->GetOrientation());
                     break;
@@ -3255,6 +3255,12 @@ void Spell::handle_immediate()
             m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
             SendChannelStart(duration);
         }
+        else if (duration == -1)
+        {
+            m_spellState = SPELL_STATE_CASTING;
+            m_caster->AddInterruptMask(m_spellInfo->ChannelInterruptFlags);
+            SendChannelStart(duration);
+        }
     }
 
     PrepareTargetProcessing();
@@ -3279,7 +3285,6 @@ void Spell::handle_immediate()
     // handle ammo consumption for Hunter's volley spell
     if (m_spellInfo->IsRangedWeaponSpell() && m_spellInfo->IsChanneled())
         TakeAmmo();
-
 
     if (m_spellState != SPELL_STATE_CASTING)
         finish(true);                                       // successfully finish spell cast (not last in case autorepeat or channel spell)
@@ -3479,9 +3484,9 @@ void Spell::update(uint32 difftime)
     {
         case SPELL_STATE_PREPARING:
         {
-            if (m_timer)
+            if (m_timer > 0)
             {
-                if (difftime >= m_timer)
+                if (difftime >= (uint32)m_timer)
                     m_timer = 0;
                 else
                     m_timer -= difftime;
@@ -3490,10 +3495,11 @@ void Spell::update(uint32 difftime)
             if (m_timer == 0 && !IsNextMeleeSwingSpell() && !IsAutoRepeat())
                 // don't CheckCast for instant spells - done in spell::prepare, skip duplicate checks, needed for range checks for example
                 cast(!m_casttime);
-        } break;
+            break;
+        }
         case SPELL_STATE_CASTING:
         {
-            if (m_timer > 0)
+            if (m_timer)
             {
                 // check if there are alive targets left
                 if (!UpdateChanneledTargetList())
@@ -3503,10 +3509,13 @@ void Spell::update(uint32 difftime)
                     finish();
                 }
 
-                if (difftime >= m_timer)
-                    m_timer = 0;
-                else
-                    m_timer -= difftime;
+                if (m_timer > 0)
+                {
+                    if (difftime >= (uint32)m_timer)
+                        m_timer = 0;
+                    else
+                        m_timer -= difftime;
+                }
             }
 
             if (m_timer == 0)
@@ -3548,10 +3557,10 @@ void Spell::update(uint32 difftime)
 
                 finish();
             }
-        } break;
+            break;
+        }
         default:
-        {
-        }break;
+            break;
     }
 }
 
@@ -3783,7 +3792,7 @@ void Spell::SendSpellStart()
     data << uint8(m_cast_count);                            // pending spell cast?
     data << uint32(m_spellInfo->Id);                        // spellId
     data << uint32(castFlags);                              // cast flags
-    data << uint32(m_timer);                                // delay?
+    data << int32(m_timer);                                 // delay?
 
     m_targets.Write(data);
 
@@ -5607,7 +5616,8 @@ SpellCastResult Spell::CheckRange(bool strict)
 
     if (m_spellInfo->RangeEntry)
     {
-        // self cast is used for triggered spells, no range checking needed
+        // check needed by 68766 51693 - both spells are cast on enemies and have 0 max range
+        // these are triggered by other spells - possibly we should omit range check in that case?
         if (m_spellInfo->RangeEntry->ID == 1)
             return SPELL_CAST_OK;
 
@@ -6184,7 +6194,7 @@ void Spell::Delayed() // only called in DealDamage()
 
     AddPctN(delaytime, -delayReduce);
 
-    if (int32(m_timer) + delaytime > m_casttime)
+    if (m_timer + delaytime > m_casttime)
     {
         delaytime = m_casttime - m_timer;
         m_timer = m_casttime;
@@ -6219,7 +6229,7 @@ void Spell::DelayedChannel()
 
     AddPctN(delaytime, -delayReduce);
 
-    if (int32(m_timer) <= delaytime)
+    if (m_timer <= delaytime)
     {
         delaytime = m_timer;
         m_timer = 0;
