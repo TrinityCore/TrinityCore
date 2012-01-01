@@ -539,7 +539,7 @@ void WorldSession::HandlePetitionSignOpcode(WorldPacket & recv_data)
         return;
     }
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_PETITION_SIGNATURE);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_PETITION_SIGNATURE);
 
     stmt->setUInt32(0, GUID_LOPART(ownerGuid));
     stmt->setUInt32(1, GUID_LOPART(petitionGuid));
@@ -715,7 +715,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     uint32 type;
     std::string name;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_PETITION);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION);
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
 
@@ -780,7 +780,7 @@ void WorldSession::HandleTurnInPetitionOpcode(WorldPacket & recv_data)
     // Get petition signatures from db
     uint8 signatures;
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_PETITION_SIGNATURE);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_PETITION_SIGNATURE);
     stmt->setUInt32(0, GUID_LOPART(petitionGuid));
     result = CharacterDatabase.Query(stmt);
 
