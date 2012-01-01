@@ -1381,6 +1381,7 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(CMSG_RETURN_TO_GRAVEYARD,                     STATUS_LOGGEDIN, PROCESS_THREADUNSAFE,  &WorldSession::HandleReturnToGraveyard         );            
      DEFINE_OPCODE_HANDLER(CMSG_RANDOMIZE_CHAR_NAME,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE,  &WorldSession::HandleRandomizeCharNameOpcode   );
      DEFINE_OPCODE_HANDLER(SMSG_RANDOMIZE_CHAR_NAME,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE,  &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_PLAYER_MOVE,                             STATUS_AUTHED,   PROCESS_THREADSAFE,    &WorldSession::Handle_ServerSide               );
      
 #undef DEFINE_OPCODE_HANDLER
 };

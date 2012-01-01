@@ -872,7 +872,7 @@ enum Opcodes
     SMSG_PETITION_SHOWLIST                           = 0x8ED7,
     SMSG_PETITION_SHOW_SIGNATURES                    = 0x4E4A,
     SMSG_PETITION_SIGN_RESULTS                       = 0x5EE6,
-    SMSG_PLAYER_MOVE                                 = 0x00,
+    SMSG_PLAYER_MOVE                                 = 0xF66C,
     SMSG_PLAYED_TIME                                 = 0x187F,
     SMSG_PLAYERBINDERROR                             = 0x5A4F,
     SMSG_PLAYERBOUND                                 = 0x00,
