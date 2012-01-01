@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -219,10 +219,10 @@ public:
         if (!*args)
             return false;
 
-        char* guid_str = strtok((char*)args, " ");
-        char* wait_str = strtok((char*)NULL, " ");
+        char* guidStr = strtok((char*)args, " ");
+        char* waitStr = strtok((char*)NULL, " ");
 
-        uint32 lowguid = atoi((char*)guid_str);
+        uint32 lowGuid = atoi((char*)guidStr);
 
         Creature* creature = NULL;
 
@@ -234,10 +234,10 @@ public:
         // attempt check creature existence by DB data
         if (!creature)
         {
-            CreatureData const* data = sObjectMgr->GetCreatureData(lowguid);
+            CreatureData const* data = sObjectMgr->GetCreatureData(lowGuid);
             if (!data)
             {
-                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowguid);
+                handler->PSendSysMessage(LANG_COMMAND_CREATGUIDNOTFOUND, lowGuid);
                 handler->SetSentErrorMessage(true);
                 return false;
             }
@@ -245,20 +245,22 @@ public:
         else
         {
             // obtain real GUID for DB operations
-            lowguid = creature->GetDBTableGUIDLow();
+            lowGuid = creature->GetDBTableGUIDLow();
         }
 
-        int wait = wait_str ? atoi(wait_str) : 0;
+        int wait = waitStr ? atoi(waitStr) : 0;
 
         if (wait < 0)
             wait = 0;
 
-        //Player* player = handler->GetSession()->GetPlayer();
+        // Update movement type
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_MOVEMENT_TYPE);
 
-        //WaypointMgr.AddLastNode(lowguid, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), wait, 0);
+        stmt->setUInt8(0, uint8(WAYPOINT_MOTION_TYPE));
+        stmt->setUInt32(1, lowGuid);
 
-        // update movement type
-        WorldDatabase.PExecute("UPDATE creature SET MovementType = '%u' WHERE guid = '%u'", WAYPOINT_MOTION_TYPE, lowguid);
+        WorldDatabase.Execute(stmt);
+
         if (creature && creature->GetWaypointPath())
         {
             creature->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
@@ -457,17 +459,23 @@ public:
 
         creature->setFaction(factionId);
 
-        // faction is set in creature_template - not inside creature
+        // Faction is set in creature_template - not inside creature
 
-        // update in memory
+        // Update in memory..
         if (CreatureTemplate const* cinfo = creature->GetCreatureInfo())
         {
             const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
             const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
         }
 
-        // and DB
-        WorldDatabase.PExecute("UPDATE creature_template SET faction_A = '%u', faction_H = '%u' WHERE entry = '%u'", factionId, factionId, creature->GetEntry());
+        // ..and DB
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_FACTION);
+
+        stmt->setUInt16(0, uint16(factionId));
+        stmt->setUInt16(1, uint16(factionId));
+        stmt->setUInt32(2, creature->GetEntry());
+
+        WorldDatabase.Execute(stmt);
 
         return true;
     }
@@ -491,7 +499,12 @@ public:
 
         creature->SetUInt32Value(UNIT_NPC_FLAGS, npcFlags);
 
-        WorldDatabase.PExecute("UPDATE creature_template SET npcflag = '%u' WHERE entry = '%u'", npcFlags, creature->GetEntry());
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_NPCFLAG);
+
+        stmt->setUInt32(0, npcFlags);
+        stmt->setUInt32(1, creature->GetEntry());
+
+        WorldDatabase.Execute(stmt);
 
         handler->SendSysMessage(LANG_VALUE_SAVED_REJOIN);
 
@@ -637,7 +650,16 @@ public:
             }
         }
 
-        WorldDatabase.PExecute("UPDATE creature SET position_x = '%f', position_y = '%f', position_z = '%f', orientation = '%f' WHERE guid = '%u'", x, y, z, o, lowguid);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_POSITION);
+
+        stmt->setFloat(0, x);
+        stmt->setFloat(1, y);
+        stmt->setFloat(2, z);
+        stmt->setFloat(3, o);
+        stmt->setUInt32(4, lowguid);
+
+        WorldDatabase.Execute(stmt);
+
         handler->PSendSysMessage(LANG_COMMAND_CREATUREMOVED);
         return true;
     }
@@ -884,10 +906,10 @@ public:
             mtype = RANDOM_MOTION_TYPE;
 
         Creature* creature = handler->getSelectedCreature();
-        uint32 u_guidlow = 0;
+        uint32 guidLow = 0;
 
         if (creature)
-            u_guidlow = creature->GetDBTableGUIDLow();
+            guidLow = creature->GetDBTableGUIDLow();
         else
             return false;
 
@@ -900,7 +922,14 @@ public:
             creature->Respawn();
         }
 
-        WorldDatabase.PExecute("UPDATE creature SET spawndist=%f, MovementType=%i WHERE guid=%u", option, mtype, u_guidlow);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_SPAWN_DISTANCE);
+
+        stmt->setFloat(0, option);
+        stmt->setUInt8(1, uint8(mtype));
+        stmt->setUInt32(2, guidLow);
+
+        WorldDatabase.Execute(stmt);
+
         handler->PSendSysMessage(LANG_COMMAND_SPAWNDIST, option);
         return true;
     }
@@ -916,9 +945,9 @@ public:
         if (!stime)
             return false;
 
-        int i_stime = atoi((char*)stime);
+        int spawnTime = atoi((char*)stime);
 
-        if (i_stime < 0)
+        if (spawnTime < 0)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -926,16 +955,22 @@ public:
         }
 
         Creature* creature = handler->getSelectedCreature();
-        uint32 u_guidlow = 0;
+        uint32 guidLow = 0;
 
         if (creature)
-            u_guidlow = creature->GetDBTableGUIDLow();
+            guidLow = creature->GetDBTableGUIDLow();
         else
             return false;
 
-        WorldDatabase.PExecute("UPDATE creature SET spawntimesecs=%i WHERE guid=%u", i_stime, u_guidlow);
-        creature->SetRespawnDelay((uint32)i_stime);
-        handler->PSendSysMessage(LANG_COMMAND_SPAWNTIME, i_stime);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_CREATURE_SPAWN_TIME_SECS);
+
+        stmt->setUInt32(0, uint32(spawnTime));
+        stmt->setUInt32(1, guidLow);
+
+        WorldDatabase.Execute(stmt);
+
+        creature->SetRespawnDelay((uint32)spawnTime);
+        handler->PSendSysMessage(LANG_COMMAND_SPAWNTIME, spawnTime);
 
         return true;
     }
@@ -1198,8 +1233,15 @@ public:
         CreatureGroupMap[lowguid] = group_member;
         creature->SearchFormation();
 
-        WorldDatabase.PExecute("INSERT INTO creature_formations (leaderGUID, memberGUID, dist, angle, groupAI) VALUES ('%u', '%u', '%f', '%f', '%u')",
-            leaderGUID, lowguid, group_member->follow_dist, group_member->follow_angle, group_member->groupAI);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_CREATURE_FORMATION);
+
+        stmt->setUInt32(0, leaderGUID);
+        stmt->setUInt32(1, lowguid);
+        stmt->setFloat(2, group_member->follow_dist);
+        stmt->setFloat(3, group_member->follow_angle);
+        stmt->setUInt32(4, uint32(group_member->groupAI));
+
+        WorldDatabase.Execute(stmt);
 
         handler->PSendSysMessage("Creature %u added to formation with leader %u", lowguid, leaderGUID);
 

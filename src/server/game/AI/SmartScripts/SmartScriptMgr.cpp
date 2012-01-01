@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ void SmartWaypointMgr::LoadFromDB()
 
     waypoint_map.clear();
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_SMARTAI_WP);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMARTAI_WP);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -99,7 +99,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
     for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
         mEventMap[i].clear();  //Drop Existing SmartAI List
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_SMART_SCRIPTS);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMART_SCRIPTS);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -254,12 +254,14 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         }
         case SMART_TARGET_CREATURE_GUID:
         {
-            if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry)) return false;
+            if (e.target.unitGUID.entry && !IsCreatureValid(e, e.target.unitGUID.entry))
+                return false;
             break;
         }
         case SMART_TARGET_GAMEOBJECT_GUID:
         {
-            if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry)) return false;
+            if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry)) 
+                return false;
             break;
         }
         case SMART_TARGET_PLAYER_DISTANCE:
@@ -287,6 +289,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_THREAT_LIST:
         case SMART_TARGET_CLOSEST_GAMEOBJECT:
         case SMART_TARGET_CLOSEST_CREATURE:
+        case SMART_TARGET_STORED:
             break;
         default:
             sLog->outErrorDb("SmartAIMgr: Not handled target_type(%u), Entry %d SourceType %u Event %u Action %u, skipped.", e.GetTargetType(), e.entryOrGuid, e.GetScriptType(), e.event_id, e.GetActionType());

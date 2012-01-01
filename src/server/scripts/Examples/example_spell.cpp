@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -76,6 +76,38 @@ class spell_ex_5581 : public SpellScriptLoader
                 delete localVariable2;
             }
 
+            void HandleBeforeCast()
+            {
+                // this hook is executed before anything about casting the spell is done
+                // after this hook is executed all the machinery starts
+                sLog->outString("Caster just finished preparing the spell (cast bar has expired)");
+            }
+
+            void HandleOnCast()
+            {
+                // cast is validated and spell targets are selected at this moment
+                // this is a last place when the spell can be safely interrupted
+                sLog->outString("Spell is about to do take reagents, power, launch missile, do visuals and instant spell effects");
+            }
+
+            void HandleAfterCast()
+            {
+                sLog->outString("All immediate actions for the spell are finished now");
+                // this is a safe for triggering additional effects for a spell without interfering 
+                // with visuals or with other effects of the spell
+                //GetCaster()->CastSpell(target, SPELL_TRIGGERED, true);
+            }
+
+            SpellCastResult CheckRequirement()
+            {
+                // in this hook you can add additional requirements for spell caster (and throw a client error if reqs're not passed) 
+                // in this case we're disallowing to select non-player as a target of the spell
+                //if (!GetTargetUnit() || GetTargetUnit()->ToPlayer())
+                    //return SPELL_FAILED_BAD_TARGETS;
+                return SPELL_CAST_OK;
+            }
+
+
             void HandleDummyLaunch(SpellEffIndex /*effIndex*/)
             {
                 sLog->outString("Spell %u with SPELL_EFFECT_DUMMY is just launched!", GetSpellInfo()->Id);
@@ -127,7 +159,11 @@ class spell_ex_5581 : public SpellScriptLoader
             // register functions used in spell script - names of these functions do not matter
             void Register()
             {
-                // we're registering our function here
+                // we're registering our functions here
+                BeforeCast += SpellCastFn(spell_ex_5581SpellScript::HandleBeforeCast);
+                OnCast += SpellCastFn(spell_ex_5581SpellScript::HandleOnCast);
+                AfterCast += SpellCastFn(spell_ex_5581SpellScript::HandleAfterCast);
+                OnCheckCast += SpellCheckCastFn(spell_ex_5581SpellScript::CheckRequirement);
                 // function HandleDummy will be called when spell is launched, independant from targets selected for spell, just before default effect 0 launch handler
                 OnEffectLaunch += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
                 // function HandleDummy will be called when spell is launched at target, just before default effect 0 launch at target handler

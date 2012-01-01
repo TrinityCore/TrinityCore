@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,14 +37,14 @@ AccountOpResult CreateAccount(std::string username, std::string password)
     if (GetId(username))
         return AOR_NAME_ALREDY_EXIST;                       // username does already exist
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_ACCOUNT);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
 
     stmt->setString(0, username);
     stmt->setString(1, CalculateShaPassHash(username, password));
 
     LoginDatabase.Execute(stmt);
 
-    stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_REALM_CHARS);
+    stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS_INIT);
 
     LoginDatabase.Execute(stmt);
 
@@ -112,7 +112,7 @@ AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::s
     normalizeString(newUsername);
     normalizeString(newPassword);
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_USERNAME);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_USERNAME);
 
     stmt->setString(0, newUsername);
     stmt->setString(1, CalculateShaPassHash(newUsername, newPassword));
@@ -136,7 +136,7 @@ AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
     normalizeString(username);
     normalizeString(newPassword);
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_PASSWORD);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_PASSWORD);
 
     stmt->setString(0, CalculateShaPassHash(username, newPassword));
     stmt->setUInt32(1, accountId);
