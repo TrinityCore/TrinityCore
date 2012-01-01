@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -122,7 +122,7 @@ class PlayerSocial
         // adding/removing
         bool AddToSocialList(uint32 friend_guid, bool ignore);
         void RemoveFromSocialList(uint32 friend_guid, bool ignore);
-        void SetFriendNote(uint32 friend_guid, std::string note);
+        void SetFriendNote(uint32 friendGuid, std::string note);
         // Packet send's
         void SendSocialList(Player* player);
         // Misc
