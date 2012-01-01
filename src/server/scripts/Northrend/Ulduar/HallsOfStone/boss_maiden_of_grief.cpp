@@ -79,10 +79,10 @@ public:
 
         void Reset()
         {
-            PartingSorrowTimer = 25000 + rand()%5000;
+            PartingSorrowTimer = urand(25000, 30000);
             StormOfGriefTimer = 10000;
             ShockOfSorrowTimer = 20000+rand()%5000;
-            PillarOfWoeTimer = 5000 + rand()%10000;
+            PillarOfWoeTimer = urand(5000, 15000);
 
             if (instance)
             {
@@ -124,14 +124,14 @@ public:
                     if (target)
                         DoCast(target, SPELL_PARTING_SORROW);
 
-                    PartingSorrowTimer = 30000 + rand()%10000;
+                    PartingSorrowTimer = urand(30000, 40000);
                 } else PartingSorrowTimer -= diff;
             }
 
             if (StormOfGriefTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_STORM_OF_GRIEF_N, true);
-                StormOfGriefTimer = 15000 + rand()%5000;
+                StormOfGriefTimer = urand(15000, 20000);
             } else StormOfGriefTimer -= diff;
 
             if (ShockOfSorrowTimer <= diff)
@@ -139,7 +139,7 @@ public:
                 DoResetThreat();
                 DoScriptText(SAY_STUN, me);
                 DoCast(me, SPELL_SHOCK_OF_SORROW_N);
-                ShockOfSorrowTimer = 20000 + rand()%10000;
+                ShockOfSorrowTimer = urand(20000, 30000);
             } else ShockOfSorrowTimer -= diff;
 
             if (PillarOfWoeTimer <= diff)
@@ -151,7 +151,7 @@ public:
                 else
                     DoCast(me->getVictim(), SPELL_PILLAR_OF_WOE_N);
 
-                PillarOfWoeTimer = 5000 + rand()%20000;
+                PillarOfWoeTimer = urand(5000, 25000);
             } else PillarOfWoeTimer -= diff;
 
             DoMeleeAttackIfReady();

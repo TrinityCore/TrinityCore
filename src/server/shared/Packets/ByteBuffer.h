@@ -57,7 +57,7 @@ class BitStream
             WriteBits(val, len);
         }
 
-        BitStream(BitStream const& bs) : _rpos(bs._rpos), _wpos(bs._wpos), _data(bs._data) {}
+        BitStream(BitStream const& bs) : _data(bs._data), _rpos(bs._rpos), _wpos(bs._wpos) {}
 
         void Clear();
         uint8 GetBit(uint32 bit);
@@ -104,7 +104,7 @@ class ByteBuffer
 
         // copy constructor
         ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
-            _storage(buf._storage), _bitpos(buf._bitpos), _curbitval(buf._curbitval)
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf._storage)
         {
         }
 

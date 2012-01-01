@@ -424,7 +424,7 @@ class boss_magtheridon : public CreatureScript
                             summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         }
                     }
-                    Blaze_Timer = 20000 + rand()%20000;
+                    Blaze_Timer = urand(20000, 40000);
                 }
                 else
                     Blaze_Timer -= diff;
@@ -497,10 +497,10 @@ class mob_hellfire_channeler : public CreatureScript
 
             void Reset()
             {
-                ShadowBoltVolley_Timer = 8000 + rand()%2000;
+                ShadowBoltVolley_Timer = urand(8000, 10000);
                 DarkMending_Timer = 10000;
-                Fear_Timer = 15000 + rand()%5000;
-                Infernal_Timer = 10000 + rand()%40000;
+                Fear_Timer = urand(15000, 20000);
+                Infernal_Timer = urand(10000, 50000);
 
                 Check_Timer = 5000;
             }
@@ -547,7 +547,7 @@ class mob_hellfire_channeler : public CreatureScript
                 if (ShadowBoltVolley_Timer <= diff)
                 {
                     DoCast(me, SPELL_SHADOW_BOLT_VOLLEY);
-                    ShadowBoltVolley_Timer = 10000 + rand()%10000;
+                    ShadowBoltVolley_Timer = urand(10000, 20000);
                 }
                 else
                     ShadowBoltVolley_Timer -= diff;
@@ -565,7 +565,7 @@ class mob_hellfire_channeler : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         DoCast(target, SPELL_FEAR);
-                    Fear_Timer = 25000 + rand()%15000;
+                    Fear_Timer = urand(25000, 40000);
                 }
                 else
                     Fear_Timer -= diff;
@@ -574,7 +574,7 @@ class mob_hellfire_channeler : public CreatureScript
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         DoCast(target, SPELL_BURNING_ABYSSAL, true);
-                    Infernal_Timer = 30000 + rand()%10000;
+                    Infernal_Timer = urand(30000, 40000);
                 }
                 else
                     Infernal_Timer -= diff;

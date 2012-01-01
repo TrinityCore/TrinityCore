@@ -22,7 +22,7 @@
 // Client expected level limitation, like as used in DBC item max levels for "until max player level"
 // use as default max player level, must be fit max level for used client
 // also see MAX_LEVEL and STRONG_MAX_LEVEL define
-#define DEFAULT_MAX_LEVEL 80
+#define DEFAULT_MAX_LEVEL 85
 
 // client supported max level for player/pets/etc. Avoid overflow or client stability affected.
 // also see GT_MAX_LEVEL define
@@ -82,15 +82,89 @@ enum AchievementFlags
 
 enum AchievementCriteriaCondition
 {
-    ACHIEVEMENT_CRITERIA_CONDITION_NONE         = 0,
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH     = 1,    // reset progress on death
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK1         = 2,    // only used in "Complete a daily quest every day for five consecutive days"
-    ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP       = 3,    // requires you to be on specific map, reset at change
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE      = 4,    // only used in "Win 10 arenas without losing"
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK2         = 9,    // unk
-    ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK3         = 13,   // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_NONE            = 0,
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH        = 1,    // reset progress on death
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK1            = 2,    // only used in "Complete a daily quest every day for five consecutive days"
+    ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP          = 3,    // requires you to be on specific map, reset at change
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
+    ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13,   // unk
 };
+
+#define MAX_ADDITIONAL_CRITERIA_CONDITIONS 3
+
+enum AchievementCriteriaAdditionalCondition
+{
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_DRUNK_VALUE                = 1,    // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK2                              = 2,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_LEVEL                        = 3,    // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_ENTRY             = 4,    // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_PLAYER             = 5,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_DEAD               = 6,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_ENEMY              = 7,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_HAS_AURA                   = 8,    // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK9                              = 9,    // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA                   = 10,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_MUST_BE_MOUNTED            = 11,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK12                             = 12,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK13                             = 13,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_MIN                  = 14,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_EQUALS               = 15,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK16                             = 16,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_AREA                       = 17,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_ZONE                       = 18,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK19                             = 19,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAP_DIFFICULTY                    = 20,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_YIELDS_XP         = 21,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK22                             = 22,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK23                             = 23,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_ARENA_TEAM_SIZE            = 24,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_RACE                       = 25,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_CLASS                      = 26,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_RACE                       = 27,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CLASS                      = 28,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAX_GROUP_MEMBERS                 = 29,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_TYPE              = 30,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK31                             = 31,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_MAP                        = 32,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_CLASS                        = 33,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_SUBCLASS                     = 34,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK35                             = 35,   // related to timed completing-quests achievements
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK36                             = 36,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MIN_PERSONAL_RATING               = 37,   // NYI (when implementing don't forget about ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE)
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TITLE_BIT_INDEX                   = 38,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL                      = 39,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL                      = 40,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_ZONE                       = 41,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK42                             = 42,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK43                             = 43,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK44                             = 44,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK45                             = 45,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW       = 46,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK47                             = 47,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK48                             = 48,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK49                             = 49,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK50                             = 50,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK51                             = 51,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK52                             = 52,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK53                             = 53,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK54                             = 54,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK55                             = 55,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MIN_ACHIEVEMENT_POINTS            = 56,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK57                             = 57,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_REQUIRES_LFG_GROUP                = 58,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK59                             = 59,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK60                             = 60,
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_REQUIRES_GUILD_GROUP              = 61,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_GUILD_REPUTATION                  = 62,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_RATED_BATTLEGROUND                = 63,   // NYI
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK64                             = 64,   // unused in 4.0.6a
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK65                             = 65,   // Archaeology, item quality related
+    ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_UNK66                             = 66,   // Archaeology, race related
+};
+
+#define MAX_ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TYPE 66
 
 enum AchievementCriteriaFlags
 {
@@ -105,7 +179,7 @@ enum AchievementCriteriaFlags
 enum AchievementCriteriaTimedTypes
 {
     ACHIEVEMENT_TIMED_TYPE_EVENT            = 1,    // Timer is started by internal event with id in timerStartEvent
-    ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by acceting quest with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by accepting quest with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_SPELL_CASTER     = 5,    // Timer is started by casting a spell with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET     = 6,    // Timer is started by being target of spell with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_CREATURE         = 7,    // Timer is started by killing creature with entry in timerStartEvent
@@ -246,31 +320,6 @@ enum AchievementCriteriaTypes
     ACHIEVEMENT_CRITERIA_TYPE_KILL_CREATURE_TYPE_GUILD = 136,
     // 0..136 => 137 criteria types total
     ACHIEVEMENT_CRITERIA_TYPE_TOTAL = 137,
-};
-
-enum AchievementCriteriaMoreReqType
-{
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_ITEM_LEVEL             = 3,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_CREATURE_ID            = 4,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_SPELL                  = 8,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_SPELL_ON_TARGET        = 10,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_ITEM_QUALITY_EQUIPPED  = 14,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_ITEM_QUALITY_LOOTED    = 15,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_AREA_ID                = 17,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_AREA_ID2               = 18,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_RAID_DIFFICULTY        = 20,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_ARENA_TYPE             = 24,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_CLASS           = 26,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_RACE            = 27,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_CLASS2          = 28,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_CREATURE_TYPE          = 30,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_MAP_ID                 = 32,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_TIMED_QUEST            = 35,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_TITLE           = 38,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_LEVEL           = 39,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_PLAYER_LEVEL2          = 40,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_AREA_ID3               = 41,
-    ACHIEVEMENT_CRITERIA_MORE_REQ_TYPE_GUILD_REP              = 62,
 };
 
 enum AchievementCategory
@@ -490,6 +539,7 @@ enum VehicleSeatFlagsB
     VEHICLE_SEAT_FLAG_B_EJECTABLE                = 0x00000020,           // ejectable
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2          = 0x00000040,
     VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3          = 0x00000100,
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x02000000,
     VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000,           // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 

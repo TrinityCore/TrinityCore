@@ -834,7 +834,6 @@ void Battleground::EndBattleground(uint32 winner)
 
         uint32 winner_kills = player->GetRandomWinner() ? BG_REWARD_WINNER_HONOR_LAST : BG_REWARD_WINNER_HONOR_FIRST;
         uint32 loser_kills = player->GetRandomWinner() ? BG_REWARD_LOSER_HONOR_LAST : BG_REWARD_LOSER_HONOR_FIRST;
-        uint32 winner_arena = player->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST;
 
         // remove temporary currency bonus auras before rewarding player
         player->RemoveAura(SPELL_HONORABLE_DEFENDER_25Y);
@@ -847,7 +846,7 @@ void Battleground::EndBattleground(uint32 winner)
             {
                 UpdatePlayerScore(player, SCORE_BONUS_HONOR, GetBonusHonorFromKill(winner_kills));
                 /*if (CanAwardArenaPoints())
-                    player->ModifyConquestPoints(winner_arena);*/
+                    player->ModifyConquestPoints(player->GetRandomWinner() ? BG_REWARD_WINNER_ARENA_LAST : BG_REWARD_WINNER_ARENA_FIRST);*/
                 if (!player->GetRandomWinner())
                     player->SetRandomWinner(true);
             }

@@ -29,6 +29,7 @@ go_manaforge_control_console
 npc_commander_dawnforge
 npc_bessy
 npc_maxx_a_million
+go_captain_tyralius_prison
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -1046,6 +1047,36 @@ public:
     }
 };
 
+/*######
+## go_captain_tyralius_prison
+######*/
+
+enum CaptainTyralius
+{
+    NPC_CAPTAIN_TYRALIUS    = 20787,
+    SAY_FREE                = 0,
+};
+
+class go_captain_tyralius_prison : public GameObjectScript
+{
+    public:
+        go_captain_tyralius_prison() : GameObjectScript("go_captain_tyralius_prison") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if (Creature* tyralius = go->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
+            {
+                go->UseDoorOrButton();
+
+                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
+
+                tyralius->AI()->Talk(SAY_FREE);
+                tyralius->ForcedDespawn(8000);
+            }
+            return true;
+        }
+};
+
 void AddSC_netherstorm()
 {
     new go_manaforge_control_console();
@@ -1056,4 +1087,5 @@ void AddSC_netherstorm()
     new mob_phase_hunter();
     new npc_bessy();
     new npc_maxx_a_million_escort();
+    new go_captain_tyralius_prison();
 }

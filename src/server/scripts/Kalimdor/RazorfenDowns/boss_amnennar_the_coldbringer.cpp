@@ -61,7 +61,7 @@ public:
         {
             AmnenarsWrath_Timer = 8000;
             FrostBolt_Timer = 1000;
-            FrostNova_Timer = 10000 + rand()%5000;
+            FrostNova_Timer = urand(10000, 15000);
             Spectrals30 = false;
             Spectrals60 = false;
             Hp = false;

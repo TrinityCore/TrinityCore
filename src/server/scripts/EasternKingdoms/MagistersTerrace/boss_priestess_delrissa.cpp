@@ -467,7 +467,7 @@ struct boss_priestess_lackey_commonAI : public ScriptedAI
         if (ResetThreatTimer <= diff)
         {
             DoResetThreat();
-            ResetThreatTimer = 5000 + rand()%15000;
+            ResetThreatTimer = urand(5000, 20000);
         } else ResetThreatTimer -= diff;
     }
 };

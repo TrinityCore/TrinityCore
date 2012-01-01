@@ -25,7 +25,7 @@
 #include "World.h"
 #include "zlib.h"
 
-UpdateData::UpdateData(uint16 map) : m_blockCount(0), m_map(map)
+UpdateData::UpdateData(uint16 map) : m_map(map), m_blockCount(0)
 {
 }
 

@@ -400,7 +400,7 @@ class npc_troll_volunteer : public CreatureScript
                     DoCast(me, SPELL_TURNIN);
                     DoCast(me, SPELL_QUEST_CREDIT);
                     me->RemoveAurasDueToSpell(SPELL_MOUNTING_CHECK);
-                    me->Unmount();
+                    me->Dismount();
                     Talk(SAY_VOLUNTEER_END);
                     me->GetMotionMaster()->MovePoint(POINT_URUZIN, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
                 }
@@ -447,7 +447,7 @@ class spell_mount_check : public SpellScriptLoader
                             target->Mount(mountid);
                 }
                 else if (!owner->IsMounted() && target->IsMounted())
-                    target->Unmount();
+                    target->Dismount();
 
                 target->SetSpeed(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
                 target->SetSpeed(MOVE_WALK, owner->GetSpeedRate(MOVE_WALK));

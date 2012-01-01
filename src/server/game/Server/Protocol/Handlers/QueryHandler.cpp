@@ -169,7 +169,6 @@ void WorldSession::HandleCreatureQueryOpcode(WorldPacket & recv_data)
 /// Only _static_ data is sent in this packet !!!
 void WorldSession::HandleGameObjectQueryOpcode(WorldPacket & recv_data)
 {
-    const int GO_DATA_FIELDS_NUMBER = 32;
     uint32 entry;
     recv_data >> entry;
     uint64 guid;

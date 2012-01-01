@@ -26,7 +26,7 @@
 #include "GossipDef.h"
 #include "World.h"
 
-Corpse::Corpse(CorpseType type) : WorldObject()
+Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES)
 , m_type(type)
 {
     m_objectType |= TYPEMASK_CORPSE;
@@ -39,9 +39,6 @@ Corpse::Corpse(CorpseType type) : WorldObject()
     m_time = time(NULL);
 
     lootForBody = false;
-
-    if (type != CORPSE_BONES)
-        m_isWorldObject = true;
 }
 
 Corpse::~Corpse()
@@ -162,21 +159,12 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
     trans->Append(stmt);
 }
 
-bool Corpse::LoadFromDB(uint32 guid, Field* fields)
+bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 {
     //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
     // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
 
     uint32 ownerGuid = fields[16].GetUInt32();
-    m_type = CorpseType(fields[12].GetUInt8());
-    if (m_type >= MAX_CORPSE_TYPE)
-    {
-        sLog->outError("Corpse (guid: %u, owner: %u) have wrong corpse type (%u), not loading.", guid, ownerGuid, m_type);
-        return false;
-    }
-    if (m_type != CORPSE_BONES)
-        m_isWorldObject = true;
-
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
     float posZ   = fields[2].GetFloat();
