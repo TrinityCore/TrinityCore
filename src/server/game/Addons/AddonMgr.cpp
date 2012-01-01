@@ -71,7 +71,7 @@ void SaveAddon(AddonInfo const& addon)
 {
     std::string name = addon.Name;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_ADDON);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
 
     stmt->setString(0, name);
     stmt->setUInt32(1, addon.CRC);

@@ -2259,7 +2259,7 @@ BanReturn World::BanAccount(BanMode mode, std::string nameOrIP, std::string dura
             break;
         case BAN_CHARACTER:
             // No SQL injection with prepared statements
-            stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_ACCOUNT_BY_NAME);
+            stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_BY_NAME);
             stmt->setString(0, nameOrIP);
             resultAccounts = CharacterDatabase.Query(stmt);
             break;
@@ -2347,7 +2347,7 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
     /// Pick a player to ban if not online
     if (!pBanned)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_BY_NAME);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
         stmt->setString(0, name);
         PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
 
@@ -2360,11 +2360,11 @@ BanReturn World::BanCharacter(std::string name, std::string duration, std::strin
         guid = pBanned->GetGUIDLow();
 
     // make sure there is only one active ban
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_NOT_BANNED);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
     stmt->setUInt32(0, guid);
     CharacterDatabase.Execute(stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_BAN);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_BAN);
     stmt->setUInt32(0, guid);
     stmt->setUInt32(1, duration_secs);
     stmt->setString(2, author);
@@ -2386,7 +2386,7 @@ bool World::RemoveBanCharacter(std::string name)
     /// Pick a player to ban if not online
     if (!pBanned)
     {
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_GUID_BY_NAME);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_BY_NAME);
         stmt->setString(0, name);
         PreparedQueryResult resultCharacter = CharacterDatabase.Query(stmt);
 
@@ -2401,7 +2401,7 @@ bool World::RemoveBanCharacter(std::string name)
     if (!guid)
         return false;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_NOT_BANNED);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHARACTER_BAN);
     stmt->setUInt32(0, guid);
     CharacterDatabase.Execute(stmt);
     return true;
@@ -2604,7 +2604,7 @@ void World::SendAutoBroadcast()
 
 void World::UpdateRealmCharCount(uint32 accountId)
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_CHARACTER_COUNT);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHARACTER_COUNT);
     stmt->setUInt32(0, accountId);
     PreparedQueryResultFuture result = CharacterDatabase.AsyncQuery(stmt);
     m_realmCharCallbacks.insert(result);

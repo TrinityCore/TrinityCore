@@ -103,7 +103,7 @@ void Corpse::SaveToDB()
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     DeleteFromDB(trans);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CORPSE);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
     stmt->setUInt32(0, GetGUIDLow());                                           // corpseGuid
     stmt->setUInt32(1, GUID_LOPART(GetOwnerGUID()));                            // guid
     stmt->setFloat (2, GetPositionX());                                         // posX

@@ -137,7 +137,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
         std::string comment; // comment ("Usage: GMSurveyAnswerSubmit(question, rank, comment)")
         recv_data >> comment;
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GM_SUBSURVEY);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SUBSURVEY);
         stmt->setUInt32(0, nextSurveyID);
         stmt->setUInt32(1, subSurveyId);
         stmt->setUInt32(2, rank);
@@ -148,7 +148,7 @@ void WorldSession::HandleGMSurveySubmit(WorldPacket& recv_data)
     std::string comment; // just a guess
     recv_data >> comment;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GM_SURVEY);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GM_SURVEY);
     stmt->setUInt32(0, GUID_LOPART(GetPlayer()->GetGUID()));
     stmt->setUInt32(1, nextSurveyID);
     stmt->setUInt32(2, mainSurvey);
@@ -169,7 +169,7 @@ void WorldSession::HandleReportLag(WorldPacket& recv_data)
     recv_data >> y;
     recv_data >> z;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_LAG_REPORT);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LAG_REPORT);
     stmt->setUInt32(0, GUID_LOPART(GetPlayer()->GetGUID()));
     stmt->setUInt8 (1, lagType);
     stmt->setUInt16(2, mapId);
