@@ -568,7 +568,7 @@ bool ChatHandler::HandleCharacterChangeRaceCommand(const char * args)
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ADD_AT_LOGIN_FLAG);
 
-    stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_FACTION));
+    stmt->setUInt16(0, uint16(AT_LOGIN_CHANGE_RACE));
 
     if (target)
     {
@@ -710,13 +710,13 @@ bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
     std::string ip;
     int32 limit;
     char* limit_str;
- 
+
     Player *chr = getSelectedPlayer();
     if (chr == NULL)
     {
         if (!*args)
             return false;
- 
+
         ip = strtok ((char*)args, " ");
         limit_str = strtok (NULL, " ");
         limit = limit_str ? atoi (limit_str) : -1;
