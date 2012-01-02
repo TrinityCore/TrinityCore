@@ -758,7 +758,7 @@ enum Opcodes
     SMSG_INSTANCE_RESET_FAILED                       = 0x00,
     SMSG_INSTANCE_SAVE_CREATED                       = 0xCE56,
     SMSG_INVALID_PROMOTION_CODE                      = 0xD8FE,
-    SMSG_INVALIDATE_DANCE                            = 0x00,
+    SMSG_INVALIDATE_DANCE                            = 0x1EEF,
     SMSG_INVALIDATE_PLAYER                           = 0x5C5F,
     SMSG_INVENTORY_CHANGE_FAILURE                    = 0x00,
     SMSG_ITEM_COOLDOWN                               = 0x00,
