@@ -769,7 +769,7 @@ enum Opcodes
     SMSG_ITEM_QUERY_SINGLE_RESPONSE                  = 0x00,
     SMSG_ITEM_REFUND_INFO_RESPONSE                   = 0x00,
     SMSG_ITEM_REFUND_RESULT                          = 0x00,
-    SMSG_ITEM_TEXT_QUERY_RESPONSE                    = 0x00,
+    SMSG_ITEM_TEXT_QUERY_RESPONSE                    = 0x984A,
     SMSG_ITEM_TIME_UPDATE                            = 0x00,
     SMSG_JOINED_BATTLEGROUND_QUEUE                   = 0x00,
     SMSG_LEARNED_DANCE_MOVES                         = 0xE52,
