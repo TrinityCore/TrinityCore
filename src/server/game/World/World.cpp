@@ -1936,7 +1936,7 @@ void World::Update(uint32 diff)
         stmt->setUInt64(0, uint64(tmpDiff));
         stmt->setUInt16(1, uint16(maxOnlinePlayers));
         stmt->setUInt32(2, realmID);
-        stmt->setUInt16(3, uint64(m_startTime));
+        stmt->setUInt64(3, uint64(m_startTime));
 
         LoginDatabase.Execute(stmt);
     }

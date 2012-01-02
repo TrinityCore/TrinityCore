@@ -1041,7 +1041,7 @@ public:
             }
             while (result->NextRow());
             // set "wpguid" column to "empty" - no visual waypoint spawned
-            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WOLRD_UPD_ALL_WAYPOINT_DATA_WPGUID);
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_ALL_WAYPOINT_DATA_WPGUID);
 
             WorldDatabase.Execute(stmt);
             //WorldDatabase.PExecute("UPDATE creature_movement SET wpguid = '0' WHERE wpguid <> '0'");
