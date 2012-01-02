@@ -103,6 +103,7 @@ namespace MMAP
         // load this tile :: mmaps/MMMXXYY.mmtile
         uint32 pathLen = sWorld->GetDataPath().length() + strlen("mmaps/%03i%02i%02i.mmtile")+1;
         char *fileName = new char[pathLen];
+        // this change of y and x is needed because of mapbuilder.cpp (x and y are swapped there) so change it here so we dont need to re-extract. All swappes are done in other files. DONT CHANGE THIS!
         snprintf(fileName, pathLen, (sWorld->GetDataPath()+"mmaps/%03i%02i%02i.mmtile").c_str(), mapId, y, x);
 
         FILE *file = fopen(fileName, "rb");
