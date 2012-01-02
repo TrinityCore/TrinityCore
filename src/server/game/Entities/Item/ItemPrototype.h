@@ -283,7 +283,7 @@ enum ItemClass
     ITEM_CLASS_QUIVER                           = 11,
     ITEM_CLASS_QUEST                            = 12,
     ITEM_CLASS_KEY                              = 13,
-    ITEM_CLASS_PERMANENT                        = 14,
+    ITEM_CLASS_PERMANENT                        = 14, // Unused (4.2.2)
     ITEM_CLASS_MISC                             = 15,
     ITEM_CLASS_GLYPH                            = 16
 };
@@ -315,10 +315,11 @@ enum ItemSubclassContainer
     ITEM_SUBCLASS_GEM_CONTAINER                 = 5,
     ITEM_SUBCLASS_MINING_CONTAINER              = 6,
     ITEM_SUBCLASS_LEATHERWORKING_CONTAINER      = 7,
-    ITEM_SUBCLASS_INSCRIPTION_CONTAINER         = 8
+    ITEM_SUBCLASS_INSCRIPTION_CONTAINER         = 8,
+    ITEM_SUBCLASS_FISHING_CONTAINER             = 9
 };
 
-#define MAX_ITEM_SUBCLASS_CONTAINER               9
+#define MAX_ITEM_SUBCLASS_CONTAINER               10
 
 enum ItemSubclassWeapon
 {
@@ -331,15 +332,11 @@ enum ItemSubclassWeapon
     ITEM_SUBCLASS_WEAPON_POLEARM                = 6,
     ITEM_SUBCLASS_WEAPON_SWORD                  = 7,
     ITEM_SUBCLASS_WEAPON_SWORD2                 = 8,
-    ITEM_SUBCLASS_WEAPON_obsolete               = 9,
     ITEM_SUBCLASS_WEAPON_STAFF                  = 10,
-    ITEM_SUBCLASS_WEAPON_EXOTIC                 = 11,
-    ITEM_SUBCLASS_WEAPON_EXOTIC2                = 12,
     ITEM_SUBCLASS_WEAPON_FIST                   = 13,
     ITEM_SUBCLASS_WEAPON_MISC                   = 14,
     ITEM_SUBCLASS_WEAPON_DAGGER                 = 15,
     ITEM_SUBCLASS_WEAPON_THROWN                 = 16,
-    ITEM_SUBCLASS_WEAPON_SPEAR                  = 17,
     ITEM_SUBCLASS_WEAPON_CROSSBOW               = 18,
     ITEM_SUBCLASS_WEAPON_WAND                   = 19,
     ITEM_SUBCLASS_WEAPON_FISHING_POLE           = 20
@@ -361,10 +358,11 @@ enum ItemSubclassGem
     ITEM_SUBCLASS_GEM_ORANGE                    = 5,
     ITEM_SUBCLASS_GEM_META                      = 6,
     ITEM_SUBCLASS_GEM_SIMPLE                    = 7,
-    ITEM_SUBCLASS_GEM_PRISMATIC                 = 8
+    ITEM_SUBCLASS_GEM_PRISMATIC                 = 8,
+    ITEM_SUBCLASS_GEM_COGWEEL                   = 10
 };
 
-#define MAX_ITEM_SUBCLASS_GEM                     9
+#define MAX_ITEM_SUBCLASS_GEM                     11
 
 enum ItemSubclassArmor
 {
@@ -373,15 +371,15 @@ enum ItemSubclassArmor
     ITEM_SUBCLASS_ARMOR_LEATHER                 = 2,
     ITEM_SUBCLASS_ARMOR_MAIL                    = 3,
     ITEM_SUBCLASS_ARMOR_PLATE                   = 4,
-    ITEM_SUBCLASS_ARMOR_BUCKLER                 = 5,
     ITEM_SUBCLASS_ARMOR_SHIELD                  = 6,
     ITEM_SUBCLASS_ARMOR_LIBRAM                  = 7,
     ITEM_SUBCLASS_ARMOR_IDOL                    = 8,
     ITEM_SUBCLASS_ARMOR_TOTEM                   = 9,
-    ITEM_SUBCLASS_ARMOR_SIGIL                   = 10
+    ITEM_SUBCLASS_ARMOR_SIGIL                   = 10,
+    ITEM_SUBCLASS_ARMOR_RELIC                   = 11
 };
 
-#define MAX_ITEM_SUBCLASS_ARMOR                   11
+#define MAX_ITEM_SUBCLASS_ARMOR                   12
 
 enum ItemSubclassReagent
 {
@@ -392,14 +390,11 @@ enum ItemSubclassReagent
 
 enum ItemSubclassProjectile
 {
-    ITEM_SUBCLASS_WAND                          = 0,        // ABS
-    ITEM_SUBCLASS_BOLT                          = 1,        // ABS
     ITEM_SUBCLASS_ARROW                         = 2,
     ITEM_SUBCLASS_BULLET                        = 3,
-    ITEM_SUBCLASS_THROWN                        = 4         // ABS
 };
 
-#define MAX_ITEM_SUBCLASS_PROJECTILE              5
+#define MAX_ITEM_SUBCLASS_PROJECTILE              4
 
 enum ItemSubclassTradeGoods
 {
@@ -417,11 +412,10 @@ enum ItemSubclassTradeGoods
     ITEM_SUBCLASS_TRADE_GOODS_OTHER             = 11,
     ITEM_SUBCLASS_ENCHANTING                    = 12,
     ITEM_SUBCLASS_MATERIAL                      = 13,
-    ITEM_SUBCLASS_ARMOR_ENCHANTMENT             = 14,
-    ITEM_SUBCLASS_WEAPON_ENCHANTMENT            = 15
+    ITEM_SUBCLASS_ARMOR_ENCHANTMENT             = 14
 };
 
-#define MAX_ITEM_SUBCLASS_TRADE_GOODS             16
+#define MAX_ITEM_SUBCLASS_TRADE_GOODS             15
 
 enum ItemSubclassGeneric
 {
@@ -442,22 +436,22 @@ enum ItemSubclassRecipe
     ITEM_SUBCLASS_FIRST_AID_MANUAL              = 7,
     ITEM_SUBCLASS_ENCHANTING_FORMULA            = 8,
     ITEM_SUBCLASS_FISHING_MANUAL                = 9,
-    ITEM_SUBCLASS_JEWELCRAFTING_RECIPE          = 10
+    ITEM_SUBCLASS_JEWELCRAFTING_RECIPE          = 10,
+    ITEM_SUBCLASS_INSCRIPTION_TECHNIQUE         = 11
 };
 
-#define MAX_ITEM_SUBCLASS_RECIPE                  11
+#define MAX_ITEM_SUBCLASS_RECIPE                  12
 
 enum ItemSubclassMoney
 {
-    ITEM_SUBCLASS_MONEY                         = 0
+    ITEM_SUBCLASS_MONEY                         = 0,
+    ITEM_SUBCLASS_MONEY_UNK7                    = 7
 };
 
-#define MAX_ITEM_SUBCLASS_MONEY                   1
+#define MAX_ITEM_SUBCLASS_MONEY                   8
 
 enum ItemSubclassQuiver
 {
-    ITEM_SUBCLASS_QUIVER0                       = 0,        // ABS
-    ITEM_SUBCLASS_QUIVER1                       = 1,        // ABS
     ITEM_SUBCLASS_QUIVER                        = 2,
     ITEM_SUBCLASS_AMMO_POUCH                    = 3
 };
@@ -466,10 +460,12 @@ enum ItemSubclassQuiver
 
 enum ItemSubclassQuest
 {
-    ITEM_SUBCLASS_QUEST                         = 0
+    ITEM_SUBCLASS_QUEST                         = 0,
+    ITEM_SUBCLASS_QUEST_UNK3                    = 3,
+    ITEM_SUBCLASS_QUEST_UNK8                    = 8
 };
 
-#define MAX_ITEM_SUBCLASS_QUEST                   1
+#define MAX_ITEM_SUBCLASS_QUEST                   9
 
 enum ItemSubclassKey
 {
@@ -493,10 +489,11 @@ enum ItemSubclassJunk
     ITEM_SUBCLASS_JUNK_PET                      = 2,
     ITEM_SUBCLASS_JUNK_HOLIDAY                  = 3,
     ITEM_SUBCLASS_JUNK_OTHER                    = 4,
-    ITEM_SUBCLASS_JUNK_MOUNT                    = 5
+    ITEM_SUBCLASS_JUNK_MOUNT                    = 5,
+    ITEM_SUBCLASS_JUNK_UNK12                    = 12
 };
 
-#define MAX_ITEM_SUBCLASS_JUNK                    6
+#define MAX_ITEM_SUBCLASS_JUNK                    13
 
 enum ItemSubclassGlyph
 {
@@ -720,7 +717,6 @@ struct ItemTemplate
     }
 
     bool IsPotion() const { return Class == ITEM_CLASS_CONSUMABLE && SubClass == ITEM_SUBCLASS_POTION; }
-    bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_PROTO_FLAG_CONJURED); }
 };

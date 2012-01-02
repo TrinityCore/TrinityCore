@@ -16,8 +16,7 @@
  */
 
 #include "DB2Stores.h"
-
-#include "Logging/Log.h"
+#include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
 #include "DB2fmt.h"
@@ -85,6 +84,7 @@ void LoadDB2Stores(const std::string& dataPath)
     LoadDB2(bad_db2_files, sItemCurrencyCostStore, db2Path, "ItemCurrencyCost.db2");
     LoadDB2(bad_db2_files, sItemSparseStore, db2Path, "Item-sparse.db2");
     LoadDB2(bad_db2_files, sItemExtendedCostStore, db2Path, "ItemExtendedCost.db2");
+
     // error checks
     if (bad_db2_files.size() >= DB2FilesCount)
     {

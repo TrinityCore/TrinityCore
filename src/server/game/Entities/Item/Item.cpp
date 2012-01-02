@@ -565,7 +565,6 @@ uint32 Item::GetSpell()
                 case ITEM_SUBCLASS_WEAPON_STAFF:   return  227;
                 case ITEM_SUBCLASS_WEAPON_DAGGER:  return 1180;
                 case ITEM_SUBCLASS_WEAPON_THROWN:  return 2567;
-                case ITEM_SUBCLASS_WEAPON_SPEAR:   return 3386;
                 case ITEM_SUBCLASS_WEAPON_CROSSBOW:return 5011;
                 case ITEM_SUBCLASS_WEAPON_WAND:    return 5009;
                 default: return 0;
@@ -841,8 +840,7 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     if (spellInfo->EquippedItemClass != -1)                 // -1 == any item class
     {
         // Special case - accept vellum for armor/weapon requirements
-        if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->IsArmorVellum())
-            ||(spellInfo->EquippedItemClass == ITEM_CLASS_WEAPON && proto->IsWeaponVellum()))
+        if ((spellInfo->EquippedItemClass == ITEM_CLASS_ARMOR && proto->IsArmorVellum()))
             if (spellInfo->IsAbilityOfSkillType(SKILL_ENCHANTING)) // only for enchanting spells
                 return true;
 
