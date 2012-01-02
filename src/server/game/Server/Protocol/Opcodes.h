@@ -652,7 +652,7 @@ enum Opcodes
     SMSG_CROSSED_INEBRIATION_THRESHOLD               = 0x00,
     SMSG_DAMAGE_CALC_LOG                             = 0x00,
     SMSG_DAMAGE_DONE_OBSOLETE                        = 0x00,
-    SMSG_DANCE_QUERY_RESPONSE                        = 0x00,
+    SMSG_DANCE_QUERY_RESPONSE                        = 0x9E42,
     SMSG_DB_REPLY                                    = 0x76EC,
     SMSG_DEATH_RELEASE_LOC                           = 0x00,
     SMSG_DEFENSE_MESSAGE                             = 0x9EC3,
