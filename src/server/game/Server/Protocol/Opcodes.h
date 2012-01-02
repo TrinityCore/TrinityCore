@@ -949,7 +949,7 @@ enum Opcodes
     SMSG_SET_PCT_SPELL_MODIFIER                      = 0x98FE,
     SMSG_SET_PHASE_SHIFT                             = 0x204C,
     SMSG_SET_PLAYER_DECLINED_NAMES_RESULT            = 0x0E67,
-    SMSG_SET_PROFICIENCY                             = 0x00,
+    SMSG_SET_PROFICIENCY                             = 0x9C5F,
     SMSG_SET_PROJECTILE_POSITION                     = 0x00,
     SMSG_SHOWTAXINODES                               = 0x8CFB,
     SMSG_SHOW_BANK                                   = 0x00,
