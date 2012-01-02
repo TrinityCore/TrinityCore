@@ -1091,6 +1091,7 @@ class Player : public Unit, public GridObject<Player>
         void RemoveFromWorld();
 
         bool TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options = 0);
+        void KnockBackWithAngle(float angle, float horizontalSpeed, float verticalSpeed);
         bool TeleportTo(WorldLocation const &loc, uint32 options = 0)
         {
             return TeleportTo(loc.GetMapId(), loc.GetPositionX(), loc.GetPositionY(), loc.GetPositionZ(), loc.GetOrientation(), options);
@@ -1960,7 +1961,6 @@ class Player : public Unit, public GridObject<Player>
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
         void CreateCorpse();
-        bool FallGround(uint8 FallMode = 0);
         void KillPlayer();
         uint32 GetResurrectionSpellId();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);

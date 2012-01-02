@@ -662,6 +662,11 @@ bool BattlegroundQueue::CheckNormalMatch(Battleground* bg_template, Battleground
     return m_SelectionPools[BG_TEAM_ALLIANCE].GetPlayerCount() >= minPlayers && m_SelectionPools[BG_TEAM_HORDE].GetPlayerCount() >= minPlayers;
 }
 
+void BattlegroundQueue::UpdateEvents(uint32 diff)
+{
+    m_events.Update(diff);
+}
+
 // this method will check if we can invite players to same faction skirmish match
 bool BattlegroundQueue::CheckSkirmishForSameFaction(BattlegroundBracketId bracket_id, uint32 minPlayersPerTeam)
 {
@@ -719,11 +724,6 @@ bool BattlegroundQueue::CheckSkirmishForSameFaction(BattlegroundBracketId bracke
         }
     }
     return true;
-}
-
-void BattlegroundQueue::UpdateEvents(uint32 diff)
-{
-    m_events.Update(diff);
 }
 
 /*

@@ -594,8 +594,7 @@ public:
                     me->GetMotionMaster()->MoveIdle();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     //At hit the ground
-                    me->GetMotionMaster()->MoveFall(142.2f, 0);
-                    //me->FallGround(); //need correct vmap use (i believe it isn't working properly right now)
+                    me->GetMotionMaster()->MoveFall();
                 }
             }
         }

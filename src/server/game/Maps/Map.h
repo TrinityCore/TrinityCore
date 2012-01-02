@@ -19,6 +19,11 @@
 #ifndef TRINITY_MAP_H
 #define TRINITY_MAP_H
 
+// Pathfinding
+#include "DetourAlloc.h"
+#include "DetourNavMesh.h"
+#include "DetourNavMeshQuery.h"
+
 #include "Define.h"
 #include <ace/RW_Thread_Mutex.h>
 #include <ace/Thread_Mutex.h>
@@ -74,6 +79,8 @@ struct map_fileheader
     uint32 heightMapSize;
     uint32 liquidMapOffset;
     uint32 liquidMapSize;
+    uint32 holesOffset;
+    uint32 holesSize;
 };
 
 #define MAP_AREA_NO_AREA      0x0001
@@ -199,6 +206,30 @@ public:
 #else
 #pragma pack(push, 1)
 #endif
+
+class DynamicLOSObject
+{
+    public:
+        DynamicLOSObject();
+        bool IsBetween(float x, float y, float z, float x2, float y2, float z2);
+        bool IsInside(float x, float y);
+        bool IsOverOrUnder(float z);
+        float GetDistance(float x, float y);
+        bool IsActive();
+        void SetActiveState(bool state);
+        void SetCoordinates(float x, float y);
+        void SetZ(float z);
+        void SetRadius(float r);
+        void SetHeight(float h);
+        bool HasHeightInfo();
+   private:
+        float _x;
+        float _y;
+        float _z;
+        float _height;
+        float _radius;
+        bool _active;
+};
 
 struct InstanceTemplate
 {
@@ -424,11 +455,27 @@ class Map : public GridRefManager<NGridType>
 
         InstanceMap* ToInstanceMap(){ if (IsDungeon())  return reinterpret_cast<InstanceMap*>(this); else return NULL;  }
         const InstanceMap* ToInstanceMap() const { if (IsDungeon())  return (const InstanceMap*)((InstanceMap*)this); else return NULL;  }
+        float GetWaterOrGroundLevel(float x, float y, float z, float* pGround = NULL, bool swim = false) const;
+
+        // Dynamic Los System for GameObjects.
+    public:
+        uint32 AddDynLOSObject(float x, float y, float radius);
+        uint32 AddDynLOSObject(float x, float y, float z, float radius, float height);
+        void SetDynLOSObjectState(uint32 id, bool state);
+        bool GetDynLOSObjectState(uint32 id);
+        bool IsInDynLOS(float x, float y, float z, float x2, float y2, float z2);
+    private:
+        std::map<uint32, DynamicLOSObject*> m_dynamicLOSObjects;
+        uint32 m_dynamicLOSCounter;
+
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
         void LoadMap(int gx, int gy, bool reload = false);
         GridMap* GetGrid(float x, float y);
+
+        // Load MMap Data
+        void LoadMMap(int gx, int gy);
 
         void SetTimer(uint32 t) { i_gridExpiry = t < MIN_GRID_DELAY ? MIN_GRID_DELAY : t; }
 

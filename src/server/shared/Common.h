@@ -202,6 +202,10 @@ typedef std::vector<std::string> StringVector;
 #define M_PI            3.14159265358979323846f
 #endif
 
+#ifndef M_PI_F
+#  define M_PI_F        float(M_PI)
+#endif
+
 #define MAX_QUERY_LEN 32*1024
 
 #define TRINITY_GUARD(MUTEX, LOCK) \

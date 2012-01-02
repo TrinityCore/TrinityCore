@@ -20,6 +20,7 @@
 #include "GridStates.h"
 #include "ScriptMgr.h"
 #include "VMapFactory.h"
+#include "MMapFactory.h"
 #include "MapInstanced.h"
 #include "CellImpl.h"
 #include "GridNotifiers.h"
@@ -39,7 +40,7 @@ union u_map_magic
 };
 
 u_map_magic MapMagic        = { {'M','A','P','S'} };
-u_map_magic MapVersionMagic = { {'v','1','.','1'} };
+u_map_magic MapVersionMagic = { {'v','1','.','2'} };
 u_map_magic MapAreaMagic    = { {'A','R','E','A'} };
 u_map_magic MapHeightMagic  = { {'M','H','G','T'} };
 u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
@@ -67,6 +68,9 @@ Map::~Map()
 
     if (!m_scriptSchedule.empty())
         sScriptMgr->DecreaseScheduledScriptCount(m_scriptSchedule.size());
+    
+    MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId());
+    MMAP::MMapFactory::createOrGetMMapManager()->unloadMapInstance(GetId(), i_InstanceId);
 }
 
 bool Map::ExistMap(uint32 mapid, int gx, int gy)
@@ -115,9 +119,27 @@ bool Map::ExistVMap(uint32 mapid, int gx, int gy)
     return true;
 }
 
+void Map::LoadMMap(int gx, int gy)
+{
+    // DONT CHANGE "gy" and "gx" - Its necessary !
+    int mmapLoadResult = MMAP::MMapFactory::createOrGetMMapManager()->loadMap(GetId(), gy, gx);
+    switch (mmapLoadResult)
+    {
+        case MMAP::MMAP_LOAD_RESULT_OK:
+            sLog->outDetail("MMAP loaded name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+    	    break;
+        case MMAP::MMAP_LOAD_RESULT_ERROR:
+            sLog->outDetail("Could not load MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            break;
+        case MMAP::MMAP_LOAD_RESULT_IGNORED:
+            sLog->outStaticDebug("Ignored MMAP name:%s, id:%d, x:%d, y:%d (mmap rep.: x:%d, y:%d)", GetMapName(), GetId(), gx, gy, gx, gy);
+            break;
+    }
+}
+
 void Map::LoadVMap(int gx, int gy)
 {
-                                                            // x and y are swapped !!
+    // x and y are swapped !!
     int vmapLoadResult = VMAP::VMapFactory::createOrGetVMapManager()->loadMap((sWorld->GetDataPath()+ "vmaps").c_str(),  GetId(), gx, gy);
     switch (vmapLoadResult)
     {
@@ -182,6 +204,7 @@ void Map::LoadMap(int gx, int gy, bool reload)
 void Map::LoadMapAndVMap(int gx, int gy)
 {
     LoadMap(gx, gy);
+    LoadMMap(gx, gy);
     if (i_InstanceId == 0)
         LoadVMap(gx, gy);                                   // Only load the data for the base map
 }
@@ -220,8 +243,13 @@ i_scriptLock(false)
         }
     }
 
+    for (std::map<uint32, DynamicLOSObject*>::iterator i = m_dynamicLOSObjects.begin(); i != m_dynamicLOSObjects.end(); ++i)
+        delete i->second;
+
     //lets initialize visibility distance for map
     Map::InitVisibilityDistance();
+
+    m_dynamicLOSCounter = 0;
 
     sScriptMgr->OnCreateMap(this);
 }
@@ -973,6 +1001,7 @@ bool Map::UnloadGrid(NGridType& ngrid, bool unloadAll)
             }
             // x and y are swapped
             VMAP::VMapFactory::createOrGetVMapManager()->unloadMap(GetId(), gx, gy);
+            MMAP::MMapFactory::createOrGetMMapManager()->unloadMap(GetId(), gx, gy);
         }
         else
             ((MapInstanced*)m_parentMap)->RemoveGridMapReference(GridCoord(gx, gy));
@@ -1537,6 +1566,24 @@ inline GridMap* Map::GetGrid(float x, float y)
     EnsureGridCreated(GridCoord(63-gx, 63-gy));
 
     return GridMaps[gx][gy];
+}
+
+float Map::GetWaterOrGroundLevel(float x, float y, float z, float* pGround /*= NULL*/, bool swim /*= false*/) const
+{
+    if (const_cast<Map*>(this)->GetGrid(x, y))
+    {
+        // we need ground level (including grid height version) for proper return water level in point
+        float ground_z = GetHeight(x, y, z, true, 50.0f);
+        if (pGround)
+            *pGround = ground_z;
+
+        LiquidData liquid_status;
+
+        ZLiquidStatus res = getLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
+        return res ? ( swim ? liquid_status.level - 2.0f : liquid_status.level) : ground_z;
+    }
+
+    return VMAP_INVALID_HEIGHT_VALUE;
 }
 
 float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
@@ -2631,4 +2678,152 @@ void Map::UpdateIteratorBack(Player* player)
 {
     if (m_mapRefIter == player->GetMapRef())
         m_mapRefIter = m_mapRefIter->nocheck_prev();
+}
+
+/*
+ * ****************** *
+ * DYNAMIC LOS SYSTEM *
+ * ****************** *
+ */
+uint32 Map::AddDynLOSObject(float x, float y, float radius)
+{
+    DynamicLOSObject* obj = new DynamicLOSObject();
+    obj->SetCoordinates(x, y);
+    obj->SetRadius(radius);
+
+    // Add the dynamic object to the map
+    m_dynamicLOSObjects[++m_dynamicLOSCounter] = obj;
+
+    return m_dynamicLOSCounter;
+}
+
+uint32 Map::AddDynLOSObject(float x, float y, float z, float radius, float height)
+{
+    DynamicLOSObject* obj = new DynamicLOSObject();
+    obj->SetCoordinates(x, y);
+    obj->SetZ(z);
+    obj->SetHeight(height);
+    obj->SetRadius(radius);
+
+    // Add the dynamic object to the map
+    m_dynamicLOSObjects[++m_dynamicLOSCounter] = obj;
+
+    return m_dynamicLOSCounter;
+}
+
+void Map::SetDynLOSObjectState(uint32 id, bool state)
+{
+    std::map<uint32, DynamicLOSObject*>::iterator iter = m_dynamicLOSObjects.find(id);
+    if (iter != m_dynamicLOSObjects.end())
+        iter->second->SetActiveState(state);
+}
+
+bool Map::GetDynLOSObjectState(uint32 id)
+{
+    std::map<uint32, DynamicLOSObject*>::iterator iter = m_dynamicLOSObjects.find(id);
+    if (iter != m_dynamicLOSObjects.end())
+        return (iter->second->IsActive());
+    return false;
+}
+
+bool Map::IsInDynLOS(float x, float y, float z, float x2, float y2, float z2)
+{
+    if (!m_dynamicLOSCounter)
+        return true;
+
+    for (std::map<uint32, DynamicLOSObject*>::iterator iter = m_dynamicLOSObjects.begin(); iter != m_dynamicLOSObjects.end(); ++iter)
+        if (iter->second->IsActive() && iter->second->IsBetween(x, y, z, x2, y2, z2))
+            return false;
+
+    return true;
+}
+
+DynamicLOSObject::DynamicLOSObject()
+{
+    _x = 0.0f;
+    _y = 0.0f;
+    _z = 0.0f;
+    _height = 0.0f;
+    _radius = 0.0f;
+    _active = false;
+}
+
+bool DynamicLOSObject::IsBetween(float x, float y, float z, float x2, float y2, float z2)
+{
+    if (IsInside(x, y) || IsInside(x2, y2))
+    {
+        if(HasHeightInfo() && IsOverOrUnder(z2))
+            return false;
+
+        return true;
+    }
+
+    // For a real handling of Z coord is necessary to do some research from this point
+    // i.e. A player over a huge round plattaform, placed near the edge; and other player placed  down the plattaform at the oposing extreme just next to the edge;
+    // both may be able to attack each other, even when the plattaform height should prevent that.
+    if ((std::max(x, x2) < (_x - _radius))
+        || (std::min(x, x2) > (_x + _radius))
+        || (std::max(y, y2) < (_y - _radius))
+        || (std::min(y, y2) > (_y + _radius)))
+        return false;
+
+
+    float angleToMe = atan2(_x - x, _y - y);
+    angleToMe = (angleToMe >= 0) ? angleToMe : 2 * M_PI + angleToMe;
+
+    float angleToDest = atan2(x2 - x, y2 - y);
+    angleToDest = (angleToDest >= 0) ? angleToDest : 2 * M_PI + angleToDest;
+
+    return (fabs(sin(angleToMe - angleToDest)) * GetDistance(x, y) < _radius);
+}
+
+bool DynamicLOSObject::IsInside(float x, float y)
+{
+    return (((x-_x)*(x-_x)+(y-_y)*(y-_y))<(_radius*_radius));
+}
+
+bool DynamicLOSObject::IsOverOrUnder(float z)
+{
+    return ((z < _z+_height) && (z > _z));
+}
+
+float DynamicLOSObject::GetDistance(float x, float y)
+{
+    return sqrtf((x-_x)*(x-_x)+(y-_y)*(y-_y));
+}
+
+bool DynamicLOSObject::IsActive()
+{
+    return _active;
+}
+
+void DynamicLOSObject::SetActiveState(bool state)
+{
+    _active = state;
+}
+
+void DynamicLOSObject::SetCoordinates(float x, float y)
+{
+    _x = x;
+    _y = y;
+}
+
+void DynamicLOSObject::SetRadius(float r)
+{
+    _radius = r;
+}
+
+void DynamicLOSObject::SetZ(float z)
+{
+    _z = z;
+}
+
+void DynamicLOSObject::SetHeight(float h)
+{
+    _height = h;
+}
+
+bool DynamicLOSObject::HasHeightInfo()
+{
+    return (_z != 0 || _height != 0);
 }
