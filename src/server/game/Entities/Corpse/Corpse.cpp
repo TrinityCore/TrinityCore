@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -103,7 +103,7 @@ void Corpse::SaveToDB()
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     DeleteFromDB(trans);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CORPSE);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
     stmt->setUInt32(0, GetGUIDLow());                                           // corpseGuid
     stmt->setUInt32(1, GUID_LOPART(GetOwnerGUID()));                            // guid
     stmt->setFloat (2, GetPositionX());                                         // posX
