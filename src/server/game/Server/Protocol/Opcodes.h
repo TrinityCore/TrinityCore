@@ -910,7 +910,7 @@ enum Opcodes
     SMSG_QUESTUPDATE_COMPLETE                        = 0x9CD6,
     SMSG_QUESTUPDATE_FAILED                          = 0x9EF6,
     SMSG_QUESTUPDATE_FAILEDTIMER                     = 0x00,
-    SMSG_QUEST_CONFIRM_ACCEPT                        = 0x00,
+    SMSG_QUEST_CONFIRM_ACCEPT                        = 0x184B,
     SMSG_QUEST_FORCE_REMOVED                         = 0x00,
     SMSG_QUEST_POI_QUERY_RESPONSE                    = 0x8CC3,
     SMSG_QUEST_QUERY_RESPONSE                        = 0x9E56,
