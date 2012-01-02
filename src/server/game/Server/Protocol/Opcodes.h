@@ -878,7 +878,7 @@ enum Opcodes
     SMSG_PLAYERBOUND                                 = 0x00,
     SMSG_PLAYER_DIFFICULTY_CHANGE                    = 0x00,
     SMSG_BATTLEGROUND_PLAYER_LEFT                    = 0x00,
-    SMSG_PLAYER_SKINNED                              = 0x00,
+    SMSG_PLAYER_SKINNED                              = 0xDA63,
     SMSG_PLAYER_VEHICLE_DATA                         = 0x00,
     SMSG_PLAY_DANCE                                  = 0x00,
     SMSG_PLAY_MUSIC                                  = 0x00,
