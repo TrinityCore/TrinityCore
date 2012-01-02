@@ -886,7 +886,7 @@ enum Opcodes
     SMSG_PLAY_SOUND                                  = 0x4ACF,
     SMSG_PLAY_SPELL_VISUAL                           = 0x00,
     SMSG_PLAY_SPELL_IMPACT                           = 0x00,
-    SMSG_PLAY_TIME_WARNING                           = 0x00,
+    SMSG_PLAY_TIME_WARNING                           = 0xD857,
     SMSG_PONG                                        = 0x0380,
     SMSG_POWER_UPDATE                                = 0x487E,
     SMSG_PRE_RESURRECT                               = 0x00,
