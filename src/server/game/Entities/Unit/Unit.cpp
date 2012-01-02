@@ -13669,7 +13669,7 @@ uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 
 void Unit::SetPower(Powers power, int32 val)
 {
-    uint32 maxPower = GetMaxPower(power);
+    int32 maxPower = GetMaxPower(power);
     if (maxPower < val)
         val = maxPower;
 

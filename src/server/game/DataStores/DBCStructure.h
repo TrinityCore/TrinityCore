@@ -744,19 +744,6 @@ struct ChrPowerTypesEntry
    uint32 power;                                               // 2
 };
 
-/* not used
-struct CinematicCameraEntry
-{
-    uint32      id;                                         // 0 index
-    char*       filename;                                   // 1
-    uint32      soundid;                                    // 2 in SoundEntries.dbc or 0
-    float       start_x;                                    // 3
-    float       start_y;                                    // 4
-    float       start_z;                                    // 5
-    float       unk6;                                       // 6 speed?
-};
-*/
-
 struct CinematicSequencesEntry
 {
     uint32      Id;                                         // 0 index
@@ -1095,11 +1082,6 @@ struct GtOCTClassCombatRatingScalarEntry
     float    ratio;
 };
 
-struct GtOCTRegenHPEntry
-{
-    float    ratio;
-};
-
 struct GtOCTRegenMPEntry
 {
     float    ratio;
@@ -1110,31 +1092,10 @@ struct gtOCTHpPerStaminaEntry
     float    ratio;
 };
 
-struct GtRegenHPPerSptEntry
-{
-    float    ratio;
-};
-
 struct GtRegenMPPerSptEntry
 {
     float    ratio;
 };
-
-/* no used
-struct HolidayDescriptionsEntry
-{
-    uint32 ID;                                              // 0, this is NOT holiday id
-    //char*     name                                        // 1  m_name_lang
-};
-*/
-
-/* no used
-struct HolidayNamesEntry
-{
-    uint32 ID;                                              // 0, this is NOT holiday id
-    //char*     name                                        // 1  m_name_lang
-};
-*/
 
 struct HolidaysEntry
 {
@@ -1288,27 +1249,6 @@ struct LFGDungeonEntry
     uint32 Entry() const { return ID + (type << 24); }
 };
 
-/*
-struct LiquidTypeEntry
-{
-    uint32      ID;                                         // 0
-    char*       name;                                       // 1
-    uint32      flags;                                      // 2        Water: 1|2|4|8, Magma: 8|16|32|64, Slime: 2|64|256, WMO Ocean: 1|2|4|8|512
-    uint32      type;                                       // 3        0: Water, 1: Ocean, 2: Magma, 3: Slime
-    uint32      soundid;                                    // 4        Reference to SoundEntries.dbc
-    uint32      spellID;                                    // 5        Reference to Spell.dbc
-    float       unk0[4];                                    // 6-9
-    uint32      unk1;                                       // 10       Light?
-    float       particleScale                               // 11       0: Slime, 1: Water/Ocean, 4: Magma
-    uint32      particleMovement;                           // 12
-    uint32      unk2                                        // 13
-    uint32      LiquidMaterialID                            // 14       Reference to LiquidMaterial.dbc
-    char*       texture[6];                                 // 15-20
-    uint32      unk3[2]                                     // 21-22
-    float       unk4[18];                                   // 23-40
-    uint32      unk5[4]                                     // 41-44
-};
-*/
 
 #define MAX_LOCK_CASE 8
 
@@ -1485,30 +1425,6 @@ struct ScalingStatValuesEntry
     uint32 GetArmor(uint32 inventoryType, uint32 armorType) const;
     uint32 GetDPSAndDamageMultiplier(uint32 subClass, bool isCasterWeapon, float* damageMultiplier) const;
 };
-
-//struct SkillLineCategoryEntry{
-//    uint32    id;                                         // 0      m_ID
-//    char*     name[16];                                   // 1-17   m_name_lang
-//                                                          // 18 string flag
-//    uint32    displayOrder;                               // 19     m_sortIndex
-//};
-
-//struct SkillRaceClassInfoEntry{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillId;                                    // 1      m_skillID
-//    uint32    raceMask;                                   // 2      m_raceMask
-//    uint32    classMask;                                  // 3      m_classMask
-//    uint32    flags;                                      // 4      m_flags
-//    uint32    reqLevel;                                   // 5      m_minLevel
-//    uint32    skillTierId;                                // 6      m_skillTierID
-//    uint32    skillCostID;                                // 7      m_skillCostIndex
-//};
-
-//struct SkillTiersEntry{
-//    uint32    id;                                         // 0      m_ID
-//    uint32    skillValue[16];                             // 1-17   m_cost
-//    uint32    maxSkillValue[16];                          // 18-32  m_valueMax
-//};
 
 struct SkillLineEntry
 {
@@ -1952,12 +1868,6 @@ struct SpellItemEnchantmentConditionEntry
     //uint8   Logic[5]                                      // 25-30    m_logic[5]
 };
 
-struct StableSlotPricesEntry
-{
-    uint32 Slot;
-    uint32 Price;
-};
-
 struct SummonPropertiesEntry
 {
     uint32  Id;                                             // 0
@@ -2034,12 +1944,6 @@ struct TaxiPathNodeEntry
     uint32    delay;                                        // 8        m_delay
     uint32    arrivalEventID;                               // 9        m_arrivalEventID
     uint32    departureEventID;                             // 10       m_departureEventID
-};
-
-struct TeamContributionPointsEntry
-{
-    //uint32    entry;                                      // 0
-    float     value;                                        // 1 (???)
 };
 
 struct TotemCategoryEntry
@@ -2208,42 +2112,6 @@ struct WorldSafeLocsEntry
     float     z;                                            // 4
     //char*   name;                                         // 5        m_AreaName_lang
 };
-
-/*
-struct WorldStateSounds
-{
-    uint32    ID;                                           // 0        Worldstate
-    uint32    unk;                                          // 1
-    uint32    areaTable;                                    // 2
-    uint32    WMOAreaTable;                                 // 3
-    uint32    zoneIntroMusicTable;                          // 4
-    uint32    zoneIntroMusic;                               // 5
-    uint32    zoneMusic;                                    // 6
-    uint32    soundAmbience;                                // 7
-    uint32    soundProviderPreferences;                     // 8
-};
-*/
-
-/*
-struct WorldStateUI
-{
-    uint32    ID;                                           // 0
-    uint32    map_id;                                       // 1        Can be -1 to show up everywhere.
-    uint32    zone;                                         // 2        Can be zero for "everywhere".
-    uint32    phaseMask;                                    // 3        Phase this WorldState is avaliable in
-    uint32    icon;                                         // 4        The icon that is used in the interface.
-    char*     textureFilename;                              // 5
-    char*     text;                                         // 6-21     The worldstate text
-    char*     description;                                  // 22-38    Text shown when hovering mouse on icon
-    uint32    worldstateID;                                 // 39       This is the actual ID used
-    uint32    type;                                         // 40       0 = unknown, 1 = unknown, 2 = not shown in ui, 3 = wintergrasp
-    uint32    unk1;                                         // 41
-    uint32    unk2;                                         // 43
-    uint32    unk3;                                         // 44-58
-    uint32    unk4;                                         // 59-61    Used for some progress bars.
-    uint32    unk7;                                         // 62       Unused in 3.3.5a
-};
-*/
 
 // GCC have alternative #pragma pack() syntax and old gcc version not support pack(pop), also any gcc version not support it at some platform
 #if defined(__GNUC__)

@@ -688,7 +688,6 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(MSG_LIST_STABLED_PETS,                        STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleListStabledPetsOpcode     );
      //DEFINE_OPCODE_HANDLER(CMSG_STABLE_PET,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleStablePet                 );
      //DEFINE_OPCODE_HANDLER(CMSG_UNSTABLE_PET,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleUnstablePet               );
-     //DEFINE_OPCODE_HANDLER(CMSG_BUY_STABLE_SLOT,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleBuyStableSlot             );
      //DEFINE_OPCODE_HANDLER(SMSG_STABLE_RESULT,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_STABLE_REVIVE_PET,                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleStableRevivePet           );
      //DEFINE_OPCODE_HANDLER(CMSG_STABLE_SWAP_PET,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleStableSwapPet             );

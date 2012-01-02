@@ -746,39 +746,6 @@ void WorldSession::HandleUnstablePetCallback(PreparedQueryResult result, uint32 
     SendStableResult(STABLE_SUCCESS_UNSTABLE);
 }
 
-void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recv CMSG_BUY_STABLE_SLOT.");
-    uint64 npcGUID;
-
-    recv_data >> npcGUID;
-
-    if (!CheckStableMaster(npcGUID))
-    {
-        SendStableResult(STABLE_ERR_STABLE);
-        return;
-    }
-
-    // remove fake death
-    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
-        GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    if (GetPlayer()->m_stableSlots < MAX_PET_STABLES)
-    {
-        /*StableSlotPricesEntry const* SlotPrice = sStableSlotPricesStore.LookupEntry(GetPlayer()->m_stableSlots+1);
-        if (_player->HasEnoughMoney(SlotPrice->Price))
-        {
-            ++GetPlayer()->m_stableSlots;
-            _player->ModifyMoney(-int32(SlotPrice->Price));
-            SendStableResult(STABLE_SUCCESS_BUY_SLOT);
-        }
-        else
-            SendStableResult(STABLE_ERR_MONEY);*/
-    }
-    else
-        SendStableResult(STABLE_ERR_STABLE);
-}
-
 void WorldSession::HandleStableRevivePet(WorldPacket &/* recv_data */)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "HandleStableRevivePet: Not implemented");
