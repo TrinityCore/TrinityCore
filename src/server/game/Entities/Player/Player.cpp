@@ -22973,8 +22973,11 @@ void Player::SetViewpoint(WorldObject* target, bool apply)
 WorldObject* Player::GetViewpoint() const
 {
     if (uint64 guid = GetUInt64Value(PLAYER_FARSIGHT))
-        return (WorldObject*)ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER);
-    return NULL;
+    {
+        WorldObject* viewpoint = (WorldObject*) ObjectAccessor::GetObjectByTypeMask(*this, guid, TYPEMASK_SEER);
+        return viewpoint ? viewpoint : (WorldObject*) this;  // always expected not NULL
+    }
+    return (WorldObject*) this;
 }
 
 bool Player::CanUseBattlegroundObject()
