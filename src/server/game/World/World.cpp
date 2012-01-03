@@ -2746,6 +2746,17 @@ void World::ResetWeeklyQuests()
     sPoolMgr->ChangeWeeklyQuests();
 }
 
+void World::ResetEventSeasonalQuests(uint16 event_id)
+{
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_QUEST_STATUS_SEASONAL);
+    stmt->setUInt16(0,event_id);
+    CharacterDatabase.Execute(stmt);
+
+    for (SessionMap::const_iterator itr = m_sessions.begin(); itr != m_sessions.end(); ++itr)
+        if (itr->second->GetPlayer())
+            itr->second->GetPlayer()->ResetSeasonalQuestStatus(event_id);
+}
+
 void World::ResetRandomBG()
 {
     sLog->outDetail("Random BG status reset for all characters.");
