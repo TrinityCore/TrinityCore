@@ -1336,8 +1336,6 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
                 target = targets->front();
             }
 
-            bool run = e.action.setRun.run ? true : false;
-            CAST_AI(SmartAI, me->AI())->SetRun(run);
             if(!target)
                 me->GetMotionMaster()->MovePoint(0, e.target.x, e.target.y, e.target.z);
             else
