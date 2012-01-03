@@ -482,8 +482,9 @@ public:
 
     static bool HandleDebugSendQuestPartyMsgCommand(ChatHandler* handler, char const* args)
     {
-        uint32 msg = atol((char*)args);
-        handler->GetSession()->GetPlayer()->SendPushToPartyResponse(handler->GetSession()->GetPlayer(), msg);
+        // Fix this
+        //uint32 msg = atol((char*)args);
+        //handler->GetSession()->GetPlayer()->SendPushToPartyResponse(handler->GetSession()->GetPlayer(), msg);
         return true;
     }
 

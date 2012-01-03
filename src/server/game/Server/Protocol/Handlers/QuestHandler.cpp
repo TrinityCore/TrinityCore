@@ -149,7 +149,7 @@ void WorldSession::HandleQuestgiverAcceptQuestOpcode(WorldPacket & recv_data)
             Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
             if (player)
             {
-                player->SendPushToPartyResponse(_player, QUEST_PARTY_MSG_ACCEPT_QUEST);
+                player->SendPushToPartyResponse(_player, quest, QUEST_PARTY_MSG_ACCEPT_QUEST);
                 _player->SetDivider(0);
             }
         }
@@ -566,35 +566,35 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
                 if (!player || player == _player)         // skip self
                     continue;
 
-                _player->SendPushToPartyResponse(player, QUEST_PARTY_MSG_SHARING_QUEST);
+                _player->SendPushToPartyResponse(player, questId, QUEST_PARTY_MSG_SHARING_QUEST);
 
                 if (!player->SatisfyQuestStatus(pQuest, false))
                 {
-                    _player->SendPushToPartyResponse(player, QUEST_PARTY_MSG_HAVE_QUEST);
+                    _player->SendPushToPartyResponse(player, questId, QUEST_PARTY_MSG_HAVE_QUEST);
                     continue;
                 }
 
                 if (player->GetQuestStatus(questId) == QUEST_STATUS_COMPLETE)
                 {
-                    _player->SendPushToPartyResponse(player, QUEST_PARTY_MSG_FINISH_QUEST);
+                    _player->SendPushToPartyResponse(player, questId, QUEST_PARTY_MSG_FINISH_QUEST);
                     continue;
                 }
 
                 if (!player->CanTakeQuest(pQuest, false))
                 {
-                    _player->SendPushToPartyResponse(player, QUEST_PARTY_MSG_CANT_TAKE_QUEST);
+                    _player->SendPushToPartyResponse(player, questId, QUEST_PARTY_MSG_CANT_TAKE_QUEST);
                     continue;
                 }
 
                 if (!player->SatisfyQuestLog(false))
                 {
-                    _player->SendPushToPartyResponse(player, QUEST_PARTY_MSG_LOG_FULL);
+                    _player->SendPushToPartyResponse(player, questId, QUEST_PARTY_MSG_LOG_FULL);
                     continue;
                 }
 
                 if (player->GetDivider() != 0)
                 {
-                    _player->SendPushToPartyResponse(player, QUEST_PARTY_MSG_BUSY);
+                    _player->SendPushToPartyResponse(player, questId, QUEST_PARTY_MSG_BUSY);
                     continue;
                 }
 
@@ -608,8 +608,9 @@ void WorldSession::HandlePushQuestToParty(WorldPacket& recvPacket)
 void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
 {
     uint64 guid;
+    uint32 questId;
     uint8 msg;
-    recvPacket >> guid >> msg;
+    recvPacket >> guid >> questId >> msg;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_QUEST_PUSH_RESULT");
 
@@ -618,8 +619,9 @@ void WorldSession::HandleQuestPushResult(WorldPacket& recvPacket)
         Player* player = ObjectAccessor::FindPlayer(_player->GetDivider());
         if (player)
         {
-            WorldPacket data(MSG_QUEST_PUSH_RESULT, (8+1));
+            WorldPacket data(MSG_QUEST_PUSH_RESULT, 8 + 4 + 1);
             data << uint64(guid);
+            data << uint32(questId);
             data << uint8(msg);                             // valid values: 0-8
             player->GetSession()->SendPacket(&data);
             _player->SetDivider(0);
