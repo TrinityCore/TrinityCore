@@ -14529,7 +14529,7 @@ bool Player::CanSeeStartQuest(Quest const* quest)
         SatisfyQuestExclusiveGroup(quest, false) && SatisfyQuestReputation(quest, false) &&
         SatisfyQuestPreviousQuest(quest, false) && SatisfyQuestNextChain(quest, false) &&
         SatisfyQuestPrevChain(quest, false) && SatisfyQuestDay(quest, false) && SatisfyQuestWeek(quest, false) &&
-        !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this))
+        SatisfyQuestSeasonal(quest, false) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this))
     {
         return getLevel() + sWorld->getIntConfig(CONFIG_QUEST_HIGH_LEVEL_HIDE_DIFF) >= quest->GetMinLevel();
     }
@@ -14545,7 +14545,7 @@ bool Player::CanTakeQuest(Quest const* quest, bool msg)
         && SatisfyQuestPreviousQuest(quest, msg) && SatisfyQuestTimed(quest, msg)
         && SatisfyQuestNextChain(quest, msg) && SatisfyQuestPrevChain(quest, msg)
         && SatisfyQuestDay(quest, msg) && SatisfyQuestWeek(quest, msg)
-        && !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this)
+        && SatisfyQuestSeasonal(quest,msg) && !DisableMgr::IsDisabledFor(DISABLE_TYPE_QUEST, quest->GetQuestId(), this)
         && SatisfyQuestConditions(quest, msg);
 }
 
@@ -14669,7 +14669,7 @@ bool Player::CanRewardQuest(Quest const* quest, bool msg)
         return false;
 
     // daily quest can't be rewarded (25 daily quest already completed)
-    if (!SatisfyQuestDay(quest, true) || !SatisfyQuestWeek(quest, true))
+    if (!SatisfyQuestDay(quest, true) || !SatisfyQuestWeek(quest, true) || !SatisfyQuestSeasonal(quest,true))
         return false;
 
     // rewarded and not repeatable quest (only cheating case, then ignore without message)
@@ -14978,6 +14978,8 @@ void Player::RewardQuest(Quest const* quest, uint32 reward, Object* questGiver, 
     }
     else if (quest->IsWeekly())
         SetWeeklyQuestStatus(quest_id);
+    else if (quest->IsSeasonal())
+        SetSeasonalQuestStatus(quest_id);
 
     RemoveActiveQuest(quest_id);
     m_RewardedQuests.insert(quest_id);
@@ -15333,7 +15335,7 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
 
         // not allow have daily quest if daily quest from exclusive group already recently completed
         Quest const* Nquest = sObjectMgr->GetQuestTemplate(exclude_Id);
-        if (!SatisfyQuestDay(Nquest, false) || !SatisfyQuestWeek(Nquest, false))
+        if (!SatisfyQuestDay(Nquest, false) || !SatisfyQuestWeek(Nquest, false) || !SatisfyQuestSeasonal(Nquest,false))
         {
             if (msg)
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -15342,7 +15344,7 @@ bool Player::SatisfyQuestExclusiveGroup(Quest const* qInfo, bool msg)
         }
 
         // alternative quest already started or completed - but don't check rewarded states if both are repeatable
-        if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE || (!(qInfo->IsRepeatable() && Nquest->IsRepeatable()) && m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end()))
+        if (GetQuestStatus(exclude_Id) != QUEST_STATUS_NONE || (!(qInfo->IsRepeatable() && Nquest->IsRepeatable()) && (m_RewardedQuests.find(exclude_Id) != m_RewardedQuests.end())))
         {
             if (msg)
                 SendCanTakeQuestResponse(INVALIDREASON_DONT_HAVE_REQ);
@@ -15441,6 +15443,15 @@ bool Player::SatisfyQuestWeek(Quest const* qInfo, bool /*msg*/)
 
     // if not found in cooldown list
     return m_weeklyquests.find(qInfo->GetQuestId()) == m_weeklyquests.end();
+}
+
+bool Player::SatisfyQuestSeasonal(Quest const* qInfo, bool /*msg*/)
+{
+    if (!qInfo->IsSeasonal() || m_seasonalquests.empty())
+        return true;
+
+    // if not found in cooldown list
+    return m_seasonalquests[qInfo->GetSeasonalQuestEvent()].find(qInfo->GetQuestId()) == m_seasonalquests[qInfo->GetSeasonalQuestEvent()].end();
 }
 
 bool Player::GiveQuestSourceItem(Quest const* quest)
@@ -16980,7 +16991,8 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     _LoadQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUS));
     _LoadQuestStatusRewarded(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADQUESTSTATUSREW));
     _LoadDailyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADDAILYQUESTSTATUS));
-    _LoadWeeklyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADWEKLYQUESTSTATUS));
+    _LoadWeeklyQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADWEEKLYQUESTSTATUS));
+    _LoadSeasonalQuestStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADSEASONALQUESTSTATUS));
     _LoadRandomBGStatus(holder->GetPreparedResult(PLAYER_LOGIN_QUERY_LOADRANDOMBG));
 
     // after spell and quest load
@@ -17846,6 +17858,29 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
     m_WeeklyQuestChanged = false;
 }
 
+void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
+{
+    m_seasonalquests.clear();
+
+    if (result)
+    {
+        do
+        {
+            uint32 quest_id = (*result)[0].GetUInt32();
+            uint16 event_id = (*result)[1].GetUInt16();
+            Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
+            if (!quest)
+                continue;
+
+            m_seasonalquests[event_id].insert(quest_id);
+            sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "Seasonal quest {%u} cooldown for player (GUID: %u)", quest_id, GetGUIDLow());
+        }
+        while (result->NextRow());
+    }
+
+    m_SeasonalQuestChanged = false;
+}
+
 void Player::_LoadSpells(PreparedQueryResult result)
 {
     //QueryResult* result = CharacterDatabase.PQuery("SELECT spell, active, disabled FROM character_spell WHERE guid = '%u'", GetGUIDLow());
@@ -18572,6 +18607,7 @@ void Player::SaveToDB(bool create /*=false*/)
     _SaveQuestStatus(trans);
     _SaveDailyQuestStatus(trans);
     _SaveWeeklyQuestStatus(trans);
+    _SaveSeasonalQuestStatus(trans);
     _SaveTalents(trans);
     _SaveSpells(trans);
     _SaveSpellCooldowns(trans);
@@ -18942,6 +18978,27 @@ void Player::_SaveWeeklyQuestStatus(SQLTransaction& trans)
     }
 
     m_WeeklyQuestChanged = false;
+}
+
+void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
+{
+    if (!m_SeasonalQuestChanged || m_seasonalquests.empty())
+        return;
+
+    // we don't need transactions here.
+    trans->PAppend("DELETE FROM character_queststatus_seasonal WHERE guid = '%u'", GetGUIDLow());
+    
+    for (SeasonalEventQuestMap::const_iterator iter = m_seasonalquests.begin(); iter != m_seasonalquests.end(); ++iter)
+    {
+        uint16 event_id  = iter->first;
+        for (SeasonalQuestSet::const_iterator itr = (iter->second).begin(); itr != (iter->second).end(); ++itr)
+        {
+            uint32 quest_id  = (*itr);
+            trans->PAppend("INSERT INTO character_queststatus_seasonal (guid, quest, event) VALUES ('%u', '%u', '%u')", GetGUIDLow(), quest_id, event_id);
+        }
+    }
+
+    m_SeasonalQuestChanged = false;
 }
 
 void Player::_SaveSkills(SQLTransaction& trans)
@@ -22036,6 +22093,16 @@ void Player::SetWeeklyQuestStatus(uint32 quest_id)
     m_WeeklyQuestChanged = true;
 }
 
+void Player::SetSeasonalQuestStatus(uint32 quest_id)
+{
+    Quest const* q = sObjectMgr->GetQuestTemplate(quest_id);
+    if (q)
+        m_seasonalquests[q->GetSeasonalQuestEvent()].insert(quest_id);
+    else
+        m_seasonalquests[0].insert(quest_id);
+    m_SeasonalQuestChanged = true;
+}
+
 void Player::ResetDailyQuestStatus()
 {
     for (uint32 quest_daily_idx = 0; quest_daily_idx < PLAYER_MAX_DAILY_QUESTS; ++quest_daily_idx)
@@ -22056,6 +22123,16 @@ void Player::ResetWeeklyQuestStatus()
     m_weeklyquests.clear();
     // DB data deleted in caller
     m_WeeklyQuestChanged = false;
+}
+
+void Player::ResetSeasonalQuestStatus(uint16 event_id)
+{
+    if (m_seasonalquests.empty() || m_seasonalquests[event_id].empty())
+        return;
+
+    m_seasonalquests[event_id].clear();
+    // DB data deleted in caller
+    m_SeasonalQuestChanged = false;
 }
 
 Battleground* Player::GetBattleground() const
