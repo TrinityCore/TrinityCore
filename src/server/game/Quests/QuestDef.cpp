@@ -65,6 +65,7 @@ Quest::Quest(Field* questRecord)
     RequiredPlayerKills = questRecord[40].GetUInt32();
     RewardTalents = questRecord[41].GetUInt32();
     RewardArenaPoints = questRecord[42].GetInt32();
+    SeasonalQuestEvent = 0;
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         RewardItemId[i] = questRecord[43+i].GetUInt32();
