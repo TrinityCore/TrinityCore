@@ -1832,6 +1832,18 @@ void ObjectMgr::LoadGameobjects()
         int16 gameEvent     = fields[16].GetInt16();
         uint32 PoolId        = fields[17].GetUInt32();
 
+        if (data.rotation0 < -1.0f || data.rotation0 > 1.0f)
+        {
+            sLog->outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid rotation0 (%f) value, skip", guid, data.id, data.rotation0);
+            continue;
+        }
+
+        if (data.rotation1 < -1.0f || data.rotation1 > 1.0f)
+        {
+            sLog->outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid rotation1 (%f) value, skip", guid, data.id, data.rotation1);
+            continue;
+        }
+
         if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
         {
             sLog->outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation2 (%f) value, skip", guid, data.id, data.rotation2);
