@@ -1567,6 +1567,16 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     break;
             }
             break;
+        case SPELLFAMILY_DRUID:
+            // Enrage
+            if ((GetSpellInfo()->SpellFamilyFlags[0] & 0x80000) && GetSpellInfo()->SpellIconID == 961)
+            {
+                if (target->HasAura(70726)) // Item - Druid T10 Feral 4P Bonus
+                    if (apply)
+                        target->CastSpell(target, 70725, true);
+                break;
+            }
+            break;
         case SPELLFAMILY_ROGUE:
             // Stealth
             if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00400000)
