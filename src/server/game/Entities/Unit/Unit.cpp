@@ -7069,7 +7069,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     triggered_spell_id = 28850;
                     break;
                 }
-                // Windfury Weapon (Passive) 1-5 Ranks
+                // Windfury Weapon (Passive) 1-8 Ranks
                 case 33757:
                 {
                     Player* player = ToPlayer();
@@ -7084,8 +7084,10 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
 
                     WeaponAttackType attType = WeaponAttackType(player->GetAttackBySlot(castItem->GetSlot()));
-                    if ((attType != BASE_ATTACK && attType != OFF_ATTACK) || !isAttackReady(attType))
-                        return false;
+                    if ((attType != BASE_ATTACK && attType != OFF_ATTACK)
+                        || attType == BASE_ATTACK && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK
+                        || attType == OFF_ATTACK && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
+                         return false;
 
                     // Now compute real proc chance...
                     uint32 chance = 20;
@@ -7131,8 +7133,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     int32 extra_attack_power = CalculateSpellDamage(victim, windfurySpellInfo, 1);
 
                     // Value gained from additional AP
-                    basepoints0 = int32(extra_attack_power / 14.0f * GetAttackTime(BASE_ATTACK) / 1000);
-                    triggered_spell_id = 25504;
+                    basepoints0 = int32(extra_attack_power / 14.0f * GetAttackTime(attType) / 1000);
+
+                    if (procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
+                        triggered_spell_id = 25504;
+
+                    if (procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
+                        triggered_spell_id = 33750;
 
                     // apply cooldown before cast to prevent processing itself
                     if (cooldown)
@@ -7370,6 +7377,13 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (GetTypeId() != TYPEID_PLAYER  || !victim || !victim->isAlive() || !castItem || !castItem->IsEquipped())
                     return false;
 
+                Player* player = ToPlayer();
+                WeaponAttackType attType = WeaponAttackType(player->GetAttackBySlot(castItem->GetSlot()));
+                if ((attType != BASE_ATTACK && attType != OFF_ATTACK)
+                    || attType == BASE_ATTACK && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK
+                    || attType == OFF_ATTACK && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
+                    return false;
+
                 float fire_onhit = float(CalculatePctF(dummySpell->Effects[EFFECT_0]. CalcValue(), 1.0f));
 
                 float add_spellpower = (float)(SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FIRE)
@@ -7379,7 +7393,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 ApplyPctF(add_spellpower, 3.84f);
 
                 // Enchant on Off-Hand and ready?
-                if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && isAttackReady(OFF_ATTACK))
+                if (castItem->GetSlot() == EQUIPMENT_SLOT_OFFHAND && procFlag & PROC_FLAG_DONE_OFFHAND_ATTACK)
                 {
                     float BaseWeaponSpeed = GetAttackTime(OFF_ATTACK) / 1000.0f;
 
@@ -7389,7 +7403,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
 
                 // Enchant on Main-Hand and ready?
-                else if (castItem->GetSlot() == EQUIPMENT_SLOT_MAINHAND && isAttackReady(BASE_ATTACK))
+                else if (castItem->GetSlot() == EQUIPMENT_SLOT_MAINHAND && procFlag & PROC_FLAG_DONE_MAINHAND_ATTACK)
                 {
                     float BaseWeaponSpeed = GetAttackTime(BASE_ATTACK) / 1000.0f;
 
