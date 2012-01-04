@@ -124,9 +124,17 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
         // the instance id is set in battlegroundid
         NewInstanceId = player->GetBattlegroundId();
         if (!NewInstanceId) return NULL;
-        map = FindInstanceMap(NewInstanceId);
+        map = sMapMgr->FindMap(mapId, NewInstanceId);
         if (!map)
-            map = CreateBattleground(NewInstanceId, player->GetBattleground());
+        {
+            if (Battleground* bg = player->GetBattleground())
+                map = CreateBattleground(NewInstanceId, bg);
+            else
+            {
+                player->TeleportToBGEntryPoint();
+                return NULL;
+            }
+        }
     }
     else
     {
