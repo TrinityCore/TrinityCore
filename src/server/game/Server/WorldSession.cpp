@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -101,7 +101,7 @@ isRecruiter(isARecruiter)
         m_Address = sock->GetRemoteAddress();
         sock->AddReference();
         ResetTimeOutTime();
-        LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());
+        LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
     InitializeQueryCallbackParameters();
@@ -127,7 +127,7 @@ WorldSession::~WorldSession()
     while (_recvQueue.next(packet))
         delete packet;
 
-    LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());
+    LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
 }
 
 void WorldSession::SizeError(WorldPacket const &packet, uint32 size) const
@@ -231,7 +231,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     //! delayed packets that were re-enqueued due to improper timing. To prevent an infinite
     //! loop caused by re-enqueueing the same packets over and over again, we stop updating this session
     //! and continue updating others. The re-enqueued packets will be handled in the next Update call for this session.
-    while (m_Socket && !m_Socket->IsClosed() && 
+    while (m_Socket && !m_Socket->IsClosed() &&
             !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
             _recvQueue.next(packet, updater))
     {
@@ -529,7 +529,13 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
         //No SQL injection as AccountId is uint32
-        CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
+
+        stmt->setUInt32(0, GetAccountId());
+
+        CharacterDatabase.Execute(stmt);
+
         sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
     }
 
@@ -626,7 +632,7 @@ void WorldSession::SendAuthWaitQue(uint32 position)
 
 void WorldSession::LoadGlobalAccountData()
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_ACCOUNT_DATA);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
     stmt->setUInt32(0, GetAccountId());
     LoadAccountData(CharacterDatabase.Query(stmt), GLOBAL_CACHE_MASK);
 }
@@ -669,7 +675,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
         id = GetAccountId();
-        index = CHAR_SET_ACCOUNT_DATA;
+        index = CHAR_REP_ACCOUNT_DATA;
     }
     else
     {
@@ -678,7 +684,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
             return;
 
         id = m_GUIDLow;
-        index = CHAR_SET_PLAYER_ACCOUNT_DATA;
+        index = CHAR_REP_PLAYER_ACCOUNT_DATA;
     }
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
@@ -708,7 +714,7 @@ void WorldSession::LoadTutorialsData()
 {
     memset(m_Tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_TUTORIALS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
     stmt->setUInt32(0, GetAccountId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
@@ -730,11 +736,11 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
     if (!m_TutorialsChanged)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_HAS_TUTORIALS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
     stmt->setUInt32(0, GetAccountId());
     bool hasTutorials = !CharacterDatabase.Query(stmt).null();
     // Modify data in DB
-    stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_SET_TUTORIALS : CHAR_ADD_TUTORIALS);
+    stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         stmt->setUInt32(i, m_Tutorials[i]);
     stmt->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
@@ -1008,22 +1014,20 @@ void WorldSession::InitializeQueryCallbackParameters()
 
 void WorldSession::ProcessQueryCallbacks()
 {
-    QueryResult result;
-    PreparedQueryResult result2;
+    PreparedQueryResult result;
 
     //! HandleCharEnumOpcode
     if (_charEnumCallback.ready())
     {
-        _charEnumCallback.get(result2);
-        HandleCharEnum(result2);
+        _charEnumCallback.get(result);
+        HandleCharEnum(result);
         _charEnumCallback.cancel();
     }
 
     if (_charCreateCallback.IsReady())
     {
-        PreparedQueryResult pResult;
-        _charCreateCallback.GetResult(pResult);
-        HandleCharCreateCallback(pResult, _charCreateCallback.GetParam());
+        _charCreateCallback.GetResult(result);
+        HandleCharCreateCallback(result, _charCreateCallback.GetParam());
         // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
 
@@ -1040,8 +1044,8 @@ void WorldSession::ProcessQueryCallbacks()
     if (_addFriendCallback.IsReady())
     {
         std::string param = _addFriendCallback.GetParam();
-        _addFriendCallback.GetResult(result2);
-        HandleAddFriendOpcodeCallBack(result2, param);
+        _addFriendCallback.GetResult(result);
+        HandleAddFriendOpcodeCallBack(result, param);
         _addFriendCallback.FreeResult();
     }
 
@@ -1049,16 +1053,16 @@ void WorldSession::ProcessQueryCallbacks()
     if (_charRenameCallback.IsReady())
     {
         std::string param = _charRenameCallback.GetParam();
-        _charRenameCallback.GetResult(result2);
-        HandleChangePlayerNameOpcodeCallBack(result2, param);
+        _charRenameCallback.GetResult(result);
+        HandleChangePlayerNameOpcodeCallBack(result, param);
         _charRenameCallback.FreeResult();
     }
 
     //- HandleCharAddIgnoreOpcode
     if (_addIgnoreCallback.ready())
     {
-        _addIgnoreCallback.get(result2);
-        HandleAddIgnoreOpcodeCallBack(result2);
+        _addIgnoreCallback.get(result);
+        HandleAddIgnoreOpcodeCallBack(result);
         _addIgnoreCallback.cancel();
     }
 
@@ -1074,8 +1078,8 @@ void WorldSession::ProcessQueryCallbacks()
     //- HandleStablePet
     if (_stablePetCallback.ready())
     {
-        _stablePetCallback.get(result2);
-        HandleStablePetCallback(result2);
+        _stablePetCallback.get(result);
+        HandleStablePetCallback(result);
         _stablePetCallback.cancel();
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,7 @@ public:
         {
             AmnenarsWrath_Timer = 8000;
             FrostBolt_Timer = 1000;
-            FrostNova_Timer = 10000 + rand()%5000;
+            FrostNova_Timer = urand(10000, 15000);
             Spectrals30 = false;
             Spectrals60 = false;
             Hp = false;

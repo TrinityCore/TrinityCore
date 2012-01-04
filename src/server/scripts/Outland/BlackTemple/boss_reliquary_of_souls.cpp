@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -582,7 +582,7 @@ public:
             {
                 me->InterruptNonMeleeSpells(false);
                 DoCast(me->getVictim(), SPELL_DEADEN);
-                DeadenTimer = 25000 + rand()%10000;
+                DeadenTimer = urand(25000, 35000);
                 if (!(rand()%2))
                 {
                     DoScriptText(DESI_SAY_SPEC, me);
@@ -676,7 +676,7 @@ public:
             if (SoulScreamTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SOUL_SCREAM);
-                SoulScreamTimer = 9000 + rand()%2000;
+                SoulScreamTimer = urand(9000, 11000);
                 if (!(rand()%3))
                 {
                     DoScriptText(ANGER_SAY_SPEC, me);

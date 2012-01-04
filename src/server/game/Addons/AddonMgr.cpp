@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -70,8 +70,13 @@ void LoadFromDB()
 void SaveAddon(AddonInfo const& addon)
 {
     std::string name = addon.Name;
-    CharacterDatabase.EscapeString(name);
-    CharacterDatabase.PExecute("INSERT INTO addons (name, crc) VALUES ('%s', %u)", name.c_str(), addon.CRC);
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ADDON);
+
+    stmt->setString(0, name);
+    stmt->setUInt32(1, addon.CRC);
+
+    CharacterDatabase.Execute(stmt);
 
     m_knownAddons.push_back(SavedAddon(addon.Name, addon.CRC));
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -152,14 +152,14 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_CHARGE);
-                Charge_Timer = 15000 + rand()%10000;
+                Charge_Timer = urand(15000, 25000);
             } else Charge_Timer -= diff;
 
             //Knockback_Timer
             if (Knockback_Timer <= diff)
             {
                 DoCast(me, SPELL_WAR_STOMP);
-                Knockback_Timer = 18000 + rand()%6000;
+                Knockback_Timer = urand(18000, 24000);
             } else Knockback_Timer -= diff;
 
             DoMeleeAttackIfReady();

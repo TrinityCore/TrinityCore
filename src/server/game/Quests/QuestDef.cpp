@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -65,6 +65,7 @@ Quest::Quest(Field* questRecord)
     RequiredPlayerKills = questRecord[40].GetUInt32();
     RewardTalents = questRecord[41].GetUInt32();
     RewardArenaPoints = questRecord[42].GetInt32();
+    SeasonalQuestEvent = 0;
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         RewardItemId[i] = questRecord[43+i].GetUInt32();
