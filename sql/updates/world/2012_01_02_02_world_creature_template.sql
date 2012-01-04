@@ -17,5 +17,5 @@ UPDATE `creature_template` SET `flags_extra`= `flags_extra`|64 WHERE `entry` IN 
 31484, -- Azure Binder
 31488, -- Azure Invader
 31495, -- Azure Spellbreaker
-31498, -- Azure Mage Slayer
+31498  -- Azure Mage Slayer
 ); 
