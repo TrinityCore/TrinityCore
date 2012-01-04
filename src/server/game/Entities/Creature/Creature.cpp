@@ -1641,7 +1641,20 @@ bool Creature::IsImmunedToSpell(SpellInfo const* spellInfo)
     if (!spellInfo)
         return false;
 
-    if (GetCreatureInfo()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))
+    // Spells that don't have effectMechanics.
+    if (!spellInfo->HasAnyEffectMechanic() && GetCreatureInfo()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))
+        return true;
+
+    // This check must be done instead of 'if (GetCreatureInfo()->MechanicImmuneMask & (1 << (spellInfo->Mechanic - 1)))' for not break
+    // the check of mechanic immunity on DB (tested) because GetCreatureInfo()->MechanicImmuneMask and m_spellImmune[IMMUNITY_MECHANIC] don't have same data.
+    bool immunedToAllEffects = true;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (!IsImmunedToSpellEffect(spellInfo, i))
+        {
+            immunedToAllEffects = false;
+            break;
+        }
+    if (immunedToAllEffects)
         return true;
 
     return Unit::IsImmunedToSpell(spellInfo);
