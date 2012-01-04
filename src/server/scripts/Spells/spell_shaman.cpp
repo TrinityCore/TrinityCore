@@ -26,16 +26,16 @@
 
 enum ShamanSpells
 {
-    SHAMAN_SPELL_GLYPH_OF_MANA_TIDE     = 55441,
-    SHAMAN_SPELL_MANA_TIDE_TOTEM        = 39609,
-    SHAMAN_SPELL_FIRE_NOVA_R1           = 1535,
-    SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1 = 8349,
-    SHAMAN_SPELL_SATED                  = 57724,
-    SHAMAN_SPELL_EXHAUSTION             = 57723,
+    SHAMAN_SPELL_GLYPH_OF_MANA_TIDE        = 55441,
+    SHAMAN_SPELL_MANA_TIDE_TOTEM           = 39609,
+    SHAMAN_SPELL_FIRE_NOVA_R1              = 1535,
+    SHAMAN_SPELL_FIRE_NOVA_TRIGGERED_R1    = 8349,
+    SHAMAN_SPELL_SATED                     = 57724,
+    SHAMAN_SPELL_EXHAUSTION                = 57723,
 
-    //For Earthen Power
-    SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM  = 6474, //Spell casted by totem
-    SHAMAN_TOTEM_SPELL_EARTHEN_POWER    = 59566, //Spell witch remove snare effect
+    // For Earthen Power
+    SHAMAN_TOTEM_SPELL_EARTHBIND_TOTEM     = 6474,
+    SHAMAN_TOTEM_SPELL_EARTHEN_POWER       = 59566,
 };
 
 // 51474 - Astral shift
@@ -215,9 +215,11 @@ class spell_sha_earthbind_totem : public SpellScriptLoader
             {
                 Unit* target = GetTarget();
                 if (Unit* caster = aurEff->GetBase()->GetCaster())
-                    if (AuraEffect* aur = caster->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
-                        if (roll_chance_i(aur->GetBaseAmount()))
-                            target->CastSpell(target, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true, NULL, aurEff);
+                    if (TempSummon* summon = caster->ToTempSummon())
+                        if (Unit* owner = summon->GetOwner())
+                            if (AuraEffect* aur = owner->GetDummyAuraEffect(SPELLFAMILY_SHAMAN, 2289, 0))
+                                if (roll_chance_i(aur->GetBaseAmount()) && target->HasAuraWithMechanic(1 << MECHANIC_SNARE))
+                                    caster->CastSpell(caster, SHAMAN_TOTEM_SPELL_EARTHEN_POWER, true, NULL, aurEff);
             }
 
             void Register()
