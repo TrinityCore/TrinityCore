@@ -384,4 +384,3 @@ INSERT INTO `game_event_seasonal_questrelation` (`quest`,`event`) VALUES
 	(13501, 12),
 	(13548, 12),
 	(13966, 52);
-
