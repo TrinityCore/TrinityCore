@@ -7003,10 +7003,35 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
     {
         if (player->GetRuneCooldown(j) && player->GetCurrentRune(j) == RuneType(m_spellInfo->Effects[effIndex].MiscValue))
         {
+            if (m_spellInfo->Id == 45529)
+                if (player->GetBaseRune(j) != RuneType(m_spellInfo->Effects[effIndex].MiscValueB))
+                    continue;
             player->SetRuneCooldown(j, 0);
             --count;
         }
     }
+
+    // Blood Tap
+    if (m_spellInfo->Id == 45529 && count > 0)
+    {
+        for (uint32 l = 0; l < MAX_RUNES && count > 0; ++l)
+        {
+            // Check if both runes are on cd as that is the only time when this needs to come into effect
+            if ((player->GetRuneCooldown(l) && player->GetCurrentRune(l) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)) && (player->GetRuneCooldown(l+1) && player->GetCurrentRune(l+1) == RuneType(m_spellInfo->Effects[effIndex].MiscValueB)))
+            {
+                // Should always update the rune with the lowest cd
+                if (player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
+                    l++;
+                player->SetRuneCooldown(l, 0);
+                --count;
+                // is needed to push through to the client that the rune is active
+                player->ResyncRunes(MAX_RUNES);
+            }
+            else
+                break;
+        }
+    }
+
     // Empower rune weapon
     if (m_spellInfo->Id == 47568)
     {
