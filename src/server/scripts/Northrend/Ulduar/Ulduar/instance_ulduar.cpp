@@ -358,8 +358,12 @@ class instance_ulduar : public InstanceMapScript
                 }
             }
 
-            void OnCreatureDeath(Creature* creature)
+            void OnUnitDeath(Unit* unit)
             {
+                Creature* creature = unit->ToCreature();
+                if (!creature)
+                    return;
+
                 switch (creature->GetEntry())
                 {
                     case NPC_CORRUPTED_SERVITOR:
