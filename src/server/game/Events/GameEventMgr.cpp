@@ -759,6 +759,47 @@ void GameEventMgr::LoadFromDB()
         }
     }
 
+    sLog->outString("Loading Game Event Seasonal Quest Relations...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        //                                               0     1
+        QueryResult result = WorldDatabase.Query("SELECT quest, event FROM game_event_seasonal_questrelation");
+
+        if (!result)
+        {
+            sLog->outString(">> Loaded 0 seasonal quests additions in game events. DB table `game_event_seasonal_questrelation` is empty.");
+            sLog->outString();
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+
+                uint32 quest    = fields[0].GetUInt32();
+                uint16 event_id = fields[1].GetUInt16();
+
+                if (event_id >= mGameEvent.size())
+                {
+                    sLog->outErrorDb("`game_event_seasonal_questrelation` event id (%u) is out of range compared to max event in `game_event`", event_id);
+                    continue;
+                }
+                
+                Quest * qInfo = sObjectMgr->GetQuestTemplate(quest);
+                if (qInfo) 
+                    qInfo->SetSeasonalQuestEvent(event_id);
+
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outString(">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outString();
+        }
+    }
+
     sLog->outString("Loading Game Event Vendor Additions Data...");
     {
         uint32 oldMSTime = getMSTime();
@@ -1079,6 +1120,8 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
     UpdateEventNPCVendor(event_id, false);
     // update bg holiday
     UpdateBattlegroundSettings();
+    // check for seasonal quest reset.
+    sWorld->ResetEventSeasonalQuests(event_id);
 }
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
