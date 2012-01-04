@@ -1245,8 +1245,6 @@ void Battleground::EventPlayerLoggedOut(Player* player)
             if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
                 EndBattleground(GetOtherTeam(player->GetTeam()));
     }
-
-    player->LeaveBattleground();
 }
 
 // This method should be called only once ... it adds pointer to queue
