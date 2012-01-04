@@ -8,11 +8,6 @@ UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
 -- Trash mobs respawn time
 UPDATE `creature` SET `spawntimesecs`=1209600 WHERE `map`=724 AND `id` NOT IN (39751,39746,39747);
 
--- Twilight Flame Ring
-SET @OGUID = xx; -- Need 1 (Set by TDB team)
-INSERT INTO `gameobject` (`guid`,`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(@OGUID,203624,724,15,0x20,3154.99,535.637,72.887,3.14159,0,0,0,0,120,0,0); -- GO_TWILIGHT_FLAME_RING
-
 -- Creature Templates updates
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_consumption' WHERE `entry`=40135; -- Consumption
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 ,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
@@ -33,6 +28,8 @@ UPDATE `creature_template` SET `mindmg`=509,`maxdmg`=683,`attackpower`=805,`dmg_
 UPDATE `creature_template` SET `faction_A`=14, `faction_H`=14, `exp`=2 WHERE `entry` IN (40143,40144,40145);
 UPDATE `creature_template` SET `VehicleId`=718,`unit_flags`=33554688,`ScriptName`= 'npc_orb_carrier' WHERE `entry` IN (40081,40470);
 UPDATE `creature_template` SET `VehicleId`=746 WHERE `entry` IN (40471,40472);
+UPDATE `creature_template` SET `modelid1`=11686,`modelid2`=169 WHERE `entry` IN (40081,40470,40471,40472,40091);
+UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry` IN (40083,40081,40100);
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (39863, 40142);
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
@@ -54,6 +51,7 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_combustion_co
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_leave_twilight_realm';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_enter_twilight_realm';
 DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter';
+DELETE FROM `spell_script_names` WHERE `ScriptName`= 'spell_halion_twilight_cutter_triggered';
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (74641, 'spell_halion_meteor_strike_marker'),
 (74562, 'spell_halion_fiery_combustion'),
@@ -93,14 +91,12 @@ INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`pr
 (40146,4,0, 'Without pressure in both realms, Halion begins to regenerate.',42,0,100,0,0,0, 'Halion'),
 (40146,5,0, 'The orbiting spheres pulse with dark energy!',42,0,100,0,0,0, 'Halion');
 
--- Conditions
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75509;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(13,0,75509,0,18,1,39863,0,0, '', 'Spell Twilight Mending only target Halion'),
-(13,0,75509,0,18,1,40142,0,0, '', 'Spell Twilight Mending only target Twilight Halion');
-
 -- Spawns
-SET @GUID = 211073; -- Set by TDB team (Need 2)
+SET @OGUID = xx; -- Set by TDB team (Need 1)
+INSERT INTO `gameobject` (`guid`,`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
+(@OGUID,203624,724,15,0x20,3154.99,535.637,72.887,3.14159,0,0,0,0,120,0,0); -- GO_TWILIGHT_FLAME_RING
+
+SET @GUID = xx; -- Set by TDB team (Need 2) -- FFS Kaelima I don't have those, dont modify that !
 DELETE FROM `creature` WHERE `id` IN (40081, 40091);
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@GUID,40091,724,1,20,0,0,3113.711,533.5382,72.96869,1.936719,300,0,0,1,0,0,0,0,0), -- Orb Rotation Focus
@@ -148,9 +144,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`m
 (40472,40468,2,1, 'Orb Carrier',6,30000),
 (40472,40469,3,1, 'Orb Carrier',6,30000);
 
-UPDATE `creature_template` SET `modelid1`=11686,`modelid2`=169 WHERE `entry` IN (40081,40470,40471,40472,40091);
-UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry` IN (40083,40081,40100);
-
+-- Vehicle spellclicks
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=40081;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`cast_flags`) VALUES
 (40081,46598,0,1),
@@ -158,6 +152,12 @@ INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`cast_
 (40471,46598,0,1),
 (40472,46598,0,1);
 
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId` = 13 AND `SourceEntry`=74758;
+-- Conditions
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=74758;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=13 AND `SourceEntry`=75509;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`Comment`) VALUES
 (13,74758,18,1,40091, 'Track Rotation can only target Orb Rotation Focus');
+
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(13,0,75509,0,18,1,39863,0,0, '', 'Spell Twilight Mending only target Halion'),
+(13,0,75509,0,18,1,40142,0,0, '', 'Spell Twilight Mending only target Twilight Halion');
