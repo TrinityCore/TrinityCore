@@ -764,7 +764,7 @@ void GameEventMgr::LoadFromDB()
         uint32 oldMSTime = getMSTime();
 
         //                                               0     1
-        QueryResult result = WorldDatabase.Query("SELECT quest, event FROM game_event_seasonal_questrelation");
+        QueryResult result = WorldDatabase.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
 
         if (!result)
         {
@@ -778,19 +778,22 @@ void GameEventMgr::LoadFromDB()
             {
                 Field* fields = result->Fetch();
 
-                uint32 quest    = fields[0].GetUInt32();
-                uint16 event_id = fields[1].GetUInt16();
+                uint32 questId  = fields[0].GetUInt32();
+                uint16 eventEntry = fields[1].GetUInt16();
 
-                if (event_id >= mGameEvent.size())
+                if (!sObjectMgr->GetQuestTemplate(questId))
                 {
-                    sLog->outErrorDb("`game_event_seasonal_questrelation` event id (%u) is out of range compared to max event in `game_event`", event_id);
+                    sLog->outErrorDb("`game_event_seasonal_questrelation` quest id (%u) does not exist in `quest_template`", questId);
                     continue;
                 }
-                
-                Quest * qInfo = sObjectMgr->GetQuestTemplate(quest);
-                if (qInfo) 
-                    qInfo->SetSeasonalQuestEvent(event_id);
 
+                if (eventEntry >= mGameEvent.size())
+                {
+                    sLog->outErrorDb("`game_event_seasonal_questrelation` event id (%u) is out of range compared to max event in `game_event`", eventEntry);
+                    continue;
+                }
+
+                _questToEventLinks[questId] = eventEntry;
                 ++count;
             }
             while (result->NextRow());
@@ -1671,6 +1674,18 @@ void GameEventMgr::RunSmartAIScripts(uint16 event_id, bool activate)
     }
 }
 
+uint16 GameEventMgr::GetEventIdForQuest(Quest const* quest) const
+{
+    if (!quest)
+        return 0;
+
+    UNORDERED_MAP<uint32, uint16>::const_iterator itr = _questToEventLinks.find(quest->GetQuestId());
+    if (itr == _questToEventLinks.end())
+        return 0;
+
+    return itr->second;
+}
+
 bool IsHolidayActive(HolidayIds id)
 {
     if (id == HOLIDAY_NONE)
@@ -1686,7 +1701,7 @@ bool IsHolidayActive(HolidayIds id)
     return false;
 }
 
- bool IsEventActive(uint16 event_id)
+bool IsEventActive(uint16 event_id)
 {
     GameEventMgr::ActiveEvents const& ae = sGameEventMgr->GetActiveEventList();
     return ae.find(event_id) != ae.end();
