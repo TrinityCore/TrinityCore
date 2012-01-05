@@ -21731,6 +21731,8 @@ void Player::SendInitialPacketsBeforeAddToMap()
     // SMSG_PET_GUIDS
     // SMSG_UPDATE_WORLD_STATE
     // SMSG_POWER_UPDATE
+
+    SetMover(this);
 }
 
 void Player::SendInitialPacketsAfterAddToMap()
