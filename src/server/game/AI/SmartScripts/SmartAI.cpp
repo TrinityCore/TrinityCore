@@ -436,7 +436,9 @@ void SmartAI::EnterEvadeMode()
     if (!me->isAlive())
         return;
 
-    me->RemoveAllAuras();
+    // Vehicles should not dismount their passengers on evade mode
+    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
+    
     me->DeleteThreatList();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
