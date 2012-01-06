@@ -19013,15 +19013,15 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
 
     for (SeasonalEventQuestMap::const_iterator iter = m_seasonalquests.begin(); iter != m_seasonalquests.end(); ++iter)
     {
-        uint16 event_id  = iter->first;
-        for (SeasonalQuestSet::const_iterator itr = (iter->second).begin(); itr != (iter->second).end(); ++itr)
+        uint16 event_id = iter->first;
+        for (SeasonalQuestSet::const_iterator itr = iter->second.begin(); itr != iter->second.end(); ++itr)
         {
-            uint32 quest_id  = (*itr);
+            uint32 quest_id = (*itr);
 
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SEASONALQUESTSTATUS);
-            stmt->setUInt32(0,GetGUIDLow());
-            stmt->setUInt32(1,quest_id);
-            stmt->setUInt16(1,event_id);
+            stmt->setUInt32(0, GetGUIDLow());
+            stmt->setUInt32(1, quest_id);
+            stmt->setUInt16(2, event_id);
             trans->Append(stmt);
         }
     }
