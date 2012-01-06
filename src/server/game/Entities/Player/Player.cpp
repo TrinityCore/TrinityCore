@@ -17873,7 +17873,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
             uint32 quest_id = fields[0].GetUInt32();
-            uint16 event_id = fields[1].GetUInt16();
+            uint16 event_id = fields[1].GetUInt32();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
