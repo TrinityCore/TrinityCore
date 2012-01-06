@@ -174,4 +174,4 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,10,0,3,2,100,0,0,30,100,100,22,1,0,0,0,0,0,1,0,0,0,0,0,0,0,'Wildspawn Felsworn - Mana is above 30% (Phase 2) - Set Phase 1'),
 (@ENTRY,0,11,0,0,0,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'Wildspawn Felsworn - Set Phase 1 when Mana is above 30% (Phase 2)'),
 (@ENTRY,0,12,0,0,0,100,0,7000,12000,38000,45000,11,22417,1,0,0,0,0,1,0,0,0,0,0,0,0,'Wildspawn Felsworn - In Phase 1 - Cast Shadow Shield'),(@ENTRY,0,13,0,0,1,100,0,11000,17000,23000,30000,11,15654,0,0,0,0,0,2,0,0,0,0,0,0,0,'Wildspawn Felsworn - In Phase 1 - Cast Shadow Word: Pain'),(@ENTRY,0,14,0,0,0,100,0,6000,10000,10000,15000,11,12542,1,0,0,0,0,5,0,0,0,0,0,0,0,'Wildspawn Felsworn - In Combat - Cast Fear (on random target)'),
-(@ENTRY,0,15,0,7,0,100,0,0,0,0,0,22,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Wildspawn Felsworn - On Evade - Set Phase to 0'); 
+(@ENTRY,0,15,0,7,0,100,0,0,0,0,0,22,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Wildspawn Felsworn - On Evade - Set Phase to 0');
