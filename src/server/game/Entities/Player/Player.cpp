@@ -17848,7 +17848,8 @@ void Player::_LoadWeeklyQuestStatus(PreparedQueryResult result)
     {
         do
         {
-            uint32 quest_id = (*result)[0].GetUInt32();
+            Field* fields = result->Fetch();
+            uint32 quest_id = fields[0].GetUInt32();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
@@ -17870,8 +17871,9 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
     {
         do
         {
-            uint32 quest_id = (*result)[0].GetUInt32();
-            uint16 event_id = (*result)[1].GetUInt16();
+            Field* fields = result->Fetch();
+            uint32 quest_id = fields[0].GetUInt32();
+            uint16 event_id = fields[1].GetUInt16();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
