@@ -452,8 +452,6 @@ void SmartAI::RemoveAuras()
         else
             ++iter;
     }
-
-    me->RemoveAllAurasExceptType(SPELL_AURA_CONTROL_VEHICLE);
 }
 
 void SmartAI::EnterEvadeMode()
