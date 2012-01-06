@@ -401,17 +401,26 @@ public:
             return false;
         }
 
-        char* toZ = strtok(NULL, " ");
-        char* toY = strtok(NULL, " ");
-        char* toX = strtok(NULL, " ");
+        char* orientation = strtok(NULL, " ");
+        float o;
 
-        if (!toZ || !toY || !toX)
-            return false;
+        if (orientation)
+            o = (float)atof(orientation);
+        else
+        {
+            Player* player = handler->GetSession()->GetPlayer();
+            o = player->GetOrientation();
+        }
 
-        object->SetWorldRotationAngles((float)atof(toZ), (float)atof(toY), (float)atof(toX));
+        object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
+        object->UpdateRotationFields();
+        object->DestroyForNearbyPlayers();
+        object->UpdateObjectVisibility();
+
         object->SaveToDB();
+        object->Refresh();
 
-        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUIDLow(), object->GetGOInfo()->name.c_str(), object->GetGUIDLow());
+        handler->PSendSysMessage(LANG_COMMAND_TURNOBJMESSAGE, object->GetGUIDLow(), object->GetGOInfo()->name.c_str(), object->GetGUIDLow(), o);
 
         return true;
     }
