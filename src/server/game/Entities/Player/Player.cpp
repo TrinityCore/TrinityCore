@@ -17873,7 +17873,7 @@ void Player::_LoadSeasonalQuestStatus(PreparedQueryResult result)
         {
             Field* fields = result->Fetch();
             uint32 quest_id = fields[0].GetUInt32();
-            uint16 event_id = fields[1].GetUInt32();
+            uint32 event_id = fields[1].GetUInt32();
             Quest const* quest = sObjectMgr->GetQuestTemplate(quest_id);
             if (!quest)
                 continue;
@@ -19021,7 +19021,7 @@ void Player::_SaveSeasonalQuestStatus(SQLTransaction& trans)
             PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHARACTER_SEASONALQUESTSTATUS);
             stmt->setUInt32(0, GetGUIDLow());
             stmt->setUInt32(1, quest_id);
-            stmt->setUInt16(2, event_id);
+            stmt->setUInt32(2, event_id);
             trans->Append(stmt);
         }
     }
