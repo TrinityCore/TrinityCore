@@ -50,6 +50,7 @@ class GameObjectAI
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) {}
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
         virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
+        virtual void OnStateChanged(uint32 state) { }
 };
 
 class NullGameObjectAI : public GameObjectAI
