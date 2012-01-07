@@ -824,7 +824,7 @@ struct SmartAction
         struct
         {
             uint32 id;
-            uint32 dontResume;
+            uint32 unused;
             uint32 timerType;
         } timedActionList;
 
