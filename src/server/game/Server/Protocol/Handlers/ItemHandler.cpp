@@ -432,12 +432,9 @@ void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleReadItem(WorldPacket & recv_data)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_READ_ITEM");
-
     uint8 bag, slot;
     recv_data >> bag >> slot;
 
-    //sLog->outDetail("STORAGE: Read bag = %u, slot = %u", bag, slot);
     Item* pItem = _player->GetItemByPos(bag, slot);
 
     if (pItem && pItem->GetTemplate()->PageText)
