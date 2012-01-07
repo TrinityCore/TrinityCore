@@ -61,7 +61,7 @@ enum eEnums
 
     //OTHER SPELLS
     //SPELL_CHARGE_UP                         = 52098,      // only used when starting walk from one platform to the other
-    //SPELL_TEMPORARY_ELECTRICAL_CHARGE       = 52092,      // triggered part of above
+    SPELL_TEMPORARY_ELECTRICAL_CHARGE       = 52092,      // triggered part of above
 
     NPC_STORMFORGED_LIEUTENANT              = 29240,
     SPELL_ARC_WELD                          = 59085,
@@ -76,6 +76,8 @@ enum eEnums
     STANCE_BERSERKER                        = 1,
     STANCE_BATTLE                           = 2
 };
+
+#define DATA_LIGHTNING_STRUCK 1834
 
 /*######
 ## boss_bjarngrim
@@ -98,11 +100,14 @@ public:
             m_instance = creature->GetInstanceScript();
             m_uiStance = STANCE_DEFENSIVE;
             memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
+            canBuff = true;
         }
 
         InstanceScript* m_instance;
 
         bool m_bIsChangingStance;
+        bool achiLightningStruck;
+        bool canBuff;
 
         uint8 m_uiChargingStatus;
         uint8 m_uiStance;
@@ -126,6 +131,11 @@ public:
 
         void Reset()
         {
+            if (canBuff)
+                if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
+                    me->AddAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE, me);
+
+            achiLightningStruck = false;
             m_bIsChangingStance = false;
 
             m_uiChargingStatus = 0;
@@ -167,8 +177,21 @@ public:
                 m_instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
         }
 
+        void EnterEvadeMode()
+        {
+            if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
+                canBuff = true;
+            else
+                canBuff = false;
+
+            ScriptedAI::EnterEvadeMode();
+        }
+
         void EnterCombat(Unit* /*who*/)
         {
+            if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
+                achiLightningStruck = true;
+
             DoScriptText(SAY_AGGRO, me);
 
             //must get both lieutenants here and make sure they are with him
@@ -176,6 +199,14 @@ public:
 
             if (m_instance)
                 m_instance->SetData(TYPE_BJARNGRIM, IN_PROGRESS);
+        }
+
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_LIGHTNING_STRUCK)
+                return achiLightningStruck ? 1 : 0;
+
+            return 0;
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -211,7 +242,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             //Return since we have no target
-         if (!UpdateVictim())
+            if (!UpdateVictim())
                 return;
 
             // Change stance
@@ -432,8 +463,27 @@ public:
 
 };
 
+class achievement_lightning_struck : public AchievementCriteriaScript
+{
+    public:
+        achievement_lightning_struck() : AchievementCriteriaScript("achievement_lightning_struck") { }
+
+        bool OnCheck(Player* /*player*/, Unit* target)
+        {
+            if (!target)
+                return false;
+
+            if (Creature* bjarngrim = target->ToCreature())
+                if (bjarngrim->AI()->GetData(DATA_LIGHTNING_STRUCK))
+                    return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_bjarngrim()
 {
     new boss_bjarngrim();
     new mob_stormforged_lieutenant();
+    new achievement_lightning_struck();
 }
