@@ -1780,6 +1780,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             // TODO: Resume path when reached jump location
             break;
         }
+        case SMART_ACTION_GO_SET_LOOT_STATE:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            
+            if (!targets)
+                return;
+                
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetLootState((LootState)e.action.setGoLootState.state);
+
+            delete targets;
+            break;
+        }
         case SMART_ACTION_SEND_GOSSIP_MENU:
         {
             if (!GetBaseObject())
@@ -2600,6 +2614,13 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (e.event.gameEvent.gameEventId != var0)
                 return;
             ProcessAction(e, NULL, var0);
+            break;
+        }
+        case SMART_EVENT_GO_STATE_CHANGED:
+        {
+            if (e.event.goStateChanged.state != var0)
+                return;
+            ProcessAction(e, unit, var0, var1);
             break;
         }
         default:
