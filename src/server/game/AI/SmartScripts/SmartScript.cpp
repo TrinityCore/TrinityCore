@@ -78,22 +78,6 @@ void SmartScript::OnReset()
 
 void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint32 var1, bool bvar, const SpellInfo* spell, GameObject* gob)
 {
-    if (e == SMART_EVENT_AGGRO)
-    {
-        if (!mResumeActionList)
-            mTimedActionList.clear();//clear action list if it is not resumable
-        else
-        {
-            for (SmartAIEventList::iterator itr = mTimedActionList.begin(); itr != mTimedActionList.end(); ++itr)
-            {
-                if (itr->enableTimed)
-                {
-                    InitTimer((*itr));//re-init the currently enabled timer, so it restarts the timer when resumed
-                    break;
-                }
-            }
-        }
-    }
     for (SmartAIEventList::iterator i = mEvents.begin(); i != mEvents.end(); ++i)
     {
         SMART_EVENT eventType = SMART_EVENT((*i).GetEventType());
@@ -3017,7 +3001,6 @@ void SmartScript::SetScript9(SmartScriptHolder& e, uint32 entry)
             i->event.type = SMART_EVENT_UPDATE_IC;
         else if (e.action.timedActionList.timerType > 1)
             i->event.type = SMART_EVENT_UPDATE;
-        mResumeActionList = e.action.timedActionList.dontResume ? false : true;
         InitTimer((*i));
     }
 }
