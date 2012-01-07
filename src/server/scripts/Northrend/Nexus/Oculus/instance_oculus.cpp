@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,8 +58,12 @@ public:
             gameObjectList.clear();
         }
 
-        void OnCreatureDeath(Creature* creature)
+        void OnUnitDeath(Unit* unit)
         {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
             if (creature->GetEntry() != NPC_CENTRIFUGE_CONSTRUCT)
                 return;
 
