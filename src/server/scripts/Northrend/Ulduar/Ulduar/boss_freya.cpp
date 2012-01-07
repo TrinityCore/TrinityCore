@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -436,7 +436,7 @@ class boss_freya : public CreatureScript
                             break;
                         case EVENT_WAVE:
                             SpawnWave();
-                            if (waveCount < 6)
+                            if (waveCount <= 6) // If set to 6 The Bombs appear during the Final Add wave
                                 events.ScheduleEvent(EVENT_WAVE, WAVE_TIME);
                             else
                                 events.ScheduleEvent(EVENT_NATURE_BOMB, urand(10000, 20000));

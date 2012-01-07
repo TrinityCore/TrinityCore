@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1321,9 +1321,25 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             if (!IsSmart())
                 return;
 
-            bool run = e.action.setRun.run ? true : false;
-            CAST_AI(SmartAI, me->AI())->SetRun(run);
-            me->GetMotionMaster()->MovePoint(0, e.target.x, e.target.y, e.target.z);
+            WorldObject* target = NULL;
+
+            if (e.GetTargetType() == SMART_TARGET_CREATURE_RANGE || e.GetTargetType() == SMART_TARGET_CREATURE_GUID ||
+                e.GetTargetType() == SMART_TARGET_CREATURE_DISTANCE || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_RANGE ||
+                e.GetTargetType() == SMART_TARGET_GAMEOBJECT_GUID || e.GetTargetType() == SMART_TARGET_GAMEOBJECT_DISTANCE ||
+                e.GetTargetType() == SMART_TARGET_CLOSEST_CREATURE || e.GetTargetType() == SMART_TARGET_CLOSEST_GAMEOBJECT ||
+                e.GetTargetType() == SMART_TARGET_OWNER_OR_SUMMONER)
+            {
+                ObjectList* targets = GetTargets(e, unit);
+                if (!targets)
+                    return;
+
+                target = targets->front();
+            }
+
+            if(!target)
+                me->GetMotionMaster()->MovePoint(0, e.target.x, e.target.y, e.target.z);
+            else
+                me->GetMotionMaster()->MovePoint(0, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
             break;
         }
         case SMART_ACTION_RESPAWN_TARGET:

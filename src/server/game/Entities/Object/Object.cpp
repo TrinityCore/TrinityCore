@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1621,7 +1621,14 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
             }
         }
 
-        if (!corpseCheck && !IsWithinDist(obj, GetSightRange(obj), false))
+        WorldObject const* viewpoint = this;
+        if (Player const* player = this->ToPlayer())
+            viewpoint = player->GetViewpoint();
+
+        if (!viewpoint)
+            viewpoint = this;
+
+        if (!corpseCheck && !viewpoint->IsWithinDist(obj, GetSightRange(obj), false))
             return false;
     }
 

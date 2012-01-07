@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1404,7 +1404,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
     uint64 linkedGuid = MAKE_NEW_GUID(linkedGuidLow, slave->id, HIGHGUID_UNIT);
 
     mLinkedRespawnMap[guid] = linkedGuid;
-    PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CRELINKED_RESPAWN);
+    PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
     stmt->setUInt32(0, guidLow);
     stmt->setUInt32(1, linkedGuidLow);
     WorldDatabase.Execute(stmt);
@@ -1904,7 +1904,7 @@ void ObjectMgr::LoadCreatureRespawnTimes()
 
     uint32 count = 0;
 
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_LOAD_CREATURE_RESPAWNS));
+    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATURE_RESPAWNS));
     if (!result)
     {
         sLog->outString(">> Loaded 0 creature respawn time.");
@@ -1938,7 +1938,7 @@ void ObjectMgr::LoadGameobjectRespawnTimes()
 
     uint32 count = 0;
 
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GO_RESPAWNS));
+    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GO_RESPAWNS));
     if (!result)
     {
         sLog->outString(">> Loaded 0 gameobject respawn times. DB table `gameobject_respawn` is empty!");
@@ -5379,7 +5379,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         stmt->setUInt64(0, basetime);
         CharacterDatabase.Execute(stmt);
     }
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_EXPIRED_MAIL);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
     stmt->setUInt64(0, basetime);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
@@ -5390,7 +5390,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     }
 
     std::map<uint32 /*messageId*/, MailItemInfoVec> itemsCache;
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_EXPIRED_MAIL_ITEMS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL_ITEMS);
     stmt->setUInt64(0, basetime);
     if (PreparedQueryResult items = CharacterDatabase.Query(stmt))
     {
@@ -5454,7 +5454,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             else
             {
                 // Mail will be returned
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_MAIL_RETURNED);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_RETURNED);
                 stmt->setUInt32(0, m->receiver);
                 stmt->setUInt32(1, m->sender);
                 stmt->setUInt64(2, basetime + 30 * DAY);
@@ -5465,12 +5465,12 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
                     // Update receiver in mail items for its proper delivery, and in instance_item for avoid lost item at sender delete
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_MAIL_ITEM_RECEIVER);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_ITEM_RECEIVER);
                     stmt->setUInt32(0, m->sender);
                     stmt->setUInt32(1, itr2->item_guid);
                     CharacterDatabase.Execute(stmt);
 
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_ITEM_OWNER);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
                     stmt->setUInt32(0, m->sender);
                     stmt->setUInt32(1, itr2->item_guid);
                     CharacterDatabase.Execute(stmt);
@@ -5948,7 +5948,7 @@ GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId)
     return NULL;
 }
 
-bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inDB)
+bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
 {
     if (FindGraveYardData(id, zoneId))
         return false;
@@ -5961,16 +5961,21 @@ bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inD
     mGraveYardMap.insert(GraveYardMap::value_type(zoneId, data));
 
     // add link to DB
-    if (inDB)
+    if (persist)
     {
-        WorldDatabase.PExecute("INSERT INTO game_graveyard_zone (id, ghost_zone, faction) "
-            "VALUES ('%u', '%u', '%u')", id, zoneId, team);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GRAVEYARD_ZONE);
+
+        stmt->setUInt32(0, id);
+        stmt->setUInt32(1, zoneId);
+        stmt->setUInt16(2, uint16(team));
+
+        WorldDatabase.Execute(stmt);
     }
 
     return true;
 }
 
-void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inDB)
+void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= false*/)
 {
     GraveYardMap::iterator graveLow  = mGraveYardMap.lower_bound(zoneId);
     GraveYardMap::iterator graveUp   = mGraveYardMap.upper_bound(zoneId);
@@ -6009,9 +6014,15 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
     mGraveYardMap.erase(itr);
 
     // remove link from DB
-    if (inDB)
+    if (persist)
     {
-        WorldDatabase.PExecute("DELETE FROM game_graveyard_zone WHERE id = '%u' AND ghost_zone = '%u' AND faction = '%u'", id, zoneId, team);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
+
+        stmt->setUInt32(0, id);
+        stmt->setUInt32(1, zoneId);
+        stmt->setUInt16(2, uint16(team));
+
+        WorldDatabase.Execute(stmt);
     }
 
     return;
@@ -6235,10 +6246,10 @@ void ObjectMgr::SetHighestGuids()
         m_hiItemGuid = (*result)[0].GetUInt32()+1;
 
     // Cleanup other tables from not existed guids ( >= m_hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", m_hiItemGuid);
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", m_hiItemGuid);     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", m_hiItemGuid);         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", m_hiItemGuid);        // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", m_hiItemGuid);    // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
@@ -6782,7 +6793,7 @@ void ObjectMgr::LoadCorpses()
 {
     uint32 oldMSTime = getMSTime();
 
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_LOAD_CORPSES));
+    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
     if (!result)
     {
         sLog->outString(">> Loaded 0 corpses. DB table `pet_name_generation` is empty.");
@@ -7325,7 +7336,7 @@ void ObjectMgr::SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t
         m_CreatureRespawnTimesMtx.release();
     }
 
-    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CREATURE_RESPAWN);
+    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
     stmt->setUInt32(0, loguid);
     stmt->setUInt64(1, uint64(t));
     stmt->setUInt32(2, instance);
@@ -7373,7 +7384,7 @@ void ObjectMgr::SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t)
         m_GORespawnTimesMtx.release();
     }
 
-    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GO_RESPAWN);
+    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
     stmt->setUInt32(0, loguid);
     stmt->setUInt64(1, uint64(t));
     stmt->setUInt32(2, instance);
@@ -8120,11 +8131,18 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 
     m_GameTeleMap[new_id] = tele;
 
-    std::string safeName(tele.name);
-    WorldDatabase.EscapeString(safeName);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAME_TELE);
 
-    WorldDatabase.PExecute("INSERT INTO game_tele (id, position_x, position_y, position_z, orientation, map, name) VALUES (%u, %f, %f, %f, %f, %d, '%s')",
-        new_id, tele.position_x, tele.position_y, tele.position_z, tele.orientation, tele.mapId, safeName.c_str());
+    stmt->setUInt32(0, new_id);
+    stmt->setFloat(1, tele.position_x);
+    stmt->setFloat(2, tele.position_y);
+    stmt->setFloat(3, tele.position_z);
+    stmt->setFloat(4, tele.orientation);
+    stmt->setUInt16(5, uint16(tele.mapId));
+    stmt->setString(6, tele.name);
+
+    WorldDatabase.Execute(stmt);
+
     return true;
 }
 
@@ -8142,7 +8160,12 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
     {
         if (itr->second.wnameLow == wname)
         {
-            WorldDatabase.PExecute("DELETE FROM game_tele WHERE name = '%s'", itr->second.name.c_str());
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_TELE);
+
+            stmt->setString(0, itr->second.name);
+
+            WorldDatabase.Execute(stmt);
+
             m_GameTeleMap.erase(itr);
             return true;
         }
@@ -8530,16 +8553,26 @@ void ObjectMgr::LoadGossipMenuItems()
     sLog->outString();
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedcost, bool savetodb)
+void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist /*= true*/)
 {
     VendorItemData& vList = m_mCacheVendorItemMap[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedcost);
+    vList.AddItem(item, maxcount, incrtime, extendedCost);
 
-    if (savetodb)
-        WorldDatabase.PExecute("INSERT INTO npc_vendor (entry, item, maxcount, incrtime, extendedcost) VALUES('%u', '%u', '%u', '%u', '%u')", entry, item, maxcount, incrtime, extendedcost);
+    if (persist)
+    {
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENODR);
+
+        stmt->setUInt32(0, entry);
+        stmt->setUInt32(1, item);
+        stmt->setUInt8(2, maxcount);
+        stmt->setUInt32(3, incrtime);
+        stmt->setUInt32(4, extendedCost);
+
+        WorldDatabase.Execute(stmt);
+    }
 }
 
-bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool savetodb)
+bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool persist /*= true*/)
 {
     CacheVendorItemMap::iterator  iter = m_mCacheVendorItemMap.find(entry);
     if (iter == m_mCacheVendorItemMap.end())
@@ -8548,7 +8581,16 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool savetodb)
     if (!iter->second.RemoveItem(item))
         return false;
 
-    if (savetodb) WorldDatabase.PExecute("DELETE FROM npc_vendor WHERE entry='%u' AND item='%u'", entry, item);
+    if (persist)
+    {
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_NPC_VENDOR);
+
+        stmt->setUInt32(0, entry);
+        stmt->setUInt32(1, item);
+
+        WorldDatabase.Execute(stmt);
+    }
+
     return true;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -374,7 +374,7 @@ void Log::outDB(LogTypes type, const char * str)
     if (logStr.empty())
         return;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_ADD_LOG);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
 
     stmt->setInt32(0, realm);
     stmt->setInt32(1, type);

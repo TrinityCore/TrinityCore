@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -928,7 +928,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     {
         mutetime = time(NULL) + llabs(mutetime);
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_MUTE_TIME);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
 
         stmt->setInt64(0, mutetime);
         stmt->setUInt32(1, id);
@@ -1018,7 +1018,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 
     // Update the last_ip in the database
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_LAST_IP);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
 
     stmt->setString(0, address);
     stmt->setString(1, account);

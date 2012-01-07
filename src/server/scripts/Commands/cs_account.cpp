@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,7 +81,7 @@ public:
             return false;
         }
 
-        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_EXPANSION);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
 
         stmt->setUInt8(0, uint8(expansion));
         stmt->setUInt32(1, accountId);
@@ -109,6 +109,7 @@ public:
         {
             case AOR_OK:
                 handler->PSendSysMessage(LANG_ACCOUNT_CREATED, accountName);
+                sLog->outChar("Account: %d (IP: %s) Character:[%s] (GUID: %u) Change Password.", handler->GetSession()->GetAccountId(),handler->GetSession()->GetRemoteAddress().c_str(), handler->GetSession()->GetPlayer()->GetName(), handler->GetSession()->GetPlayer()->GetGUIDLow());
                 break;
             case AOR_NAME_TOO_LONG:
                 handler->SendSysMessage(LANG_ACCOUNT_TOO_LONG);
@@ -250,7 +251,7 @@ public:
 
         if (!param.empty())
         {
-            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPDATE_ACCOUNT_LOCK);
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_ACCOUNT_LOCK);
 
             if (param == "on")
             {
@@ -388,8 +389,13 @@ public:
         if (expansion < 0 || uint8(expansion) > sWorld->getIntConfig(CONFIG_EXPANSION))
             return false;
 
-        // No SQL injection
-        LoginDatabase.PExecute("UPDATE account SET expansion = '%d' WHERE id = '%u'", expansion, accountId);
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPANSION);
+
+        stmt->setUInt8(0, expansion);
+        stmt->setUInt32(1, accountId);
+
+        LoginDatabase.Execute(stmt);
+
         handler->PSendSysMessage(LANG_ACCOUNT_SETADDON, accountName.c_str(), accountId, expansion);
         return true;
     }
@@ -480,13 +486,34 @@ public:
         }
 
         // If gmRealmID is -1, delete all values for the account id, else, insert values for the specific realmID
+        PreparedStatement* stmt;
+
         if (gmRealmID == -1)
-            LoginDatabase.PExecute("DELETE FROM account_access WHERE id = '%u'", targetAccountId);
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS);
+
+            stmt->setUInt32(0, targetAccountId);
+        }
         else
-            LoginDatabase.PExecute("DELETE FROM account_access WHERE id = '%u' AND (RealmID = '%d' OR RealmID = '-1')", targetAccountId, realmID);
+        {
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_ACCOUNT_ACCESS_BY_REALM);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt32(1, realmID);
+        }
+        LoginDatabase.Execute(stmt);
 
         if (gm != 0)
-            LoginDatabase.PExecute("INSERT INTO account_access VALUES ('%u', '%d', '%d')", targetAccountId, gm, gmRealmID);
+        {
+            PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_ACCESS);
+
+            stmt->setUInt32(0, targetAccountId);
+            stmt->setUInt8(1, uint8(gm));
+            stmt->setUInt32(2, gmRealmID);
+
+            LoginDatabase.Execute(stmt);
+        }
+
 
         handler->PSendSysMessage(LANG_YOU_CHANGE_SECURITY, targetAccountName.c_str(), gm);
         return true;

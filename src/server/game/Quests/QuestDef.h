@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -271,6 +271,7 @@ class Quest
         uint32 GetQuestTurnInPortrait() const { return QuestTurnInPortrait; }
         bool   IsDaily() const { return Flags & QUEST_FLAGS_DAILY; }
         bool   IsWeekly() const { return Flags & QUEST_FLAGS_WEEKLY; }
+        bool   IsSeasonal() const { return ZoneOrSort == -QUEST_SORT_SEASONAL; }
         bool   IsDailyOrWeekly() const { return Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
         bool   IsAutoAccept() const { return Flags & QUEST_FLAGS_AUTO_ACCEPT; }
         bool   IsRaidQuest() const { return Type == QUEST_TYPE_RAID || Type == QUEST_TYPE_RAID_10 || Type == QUEST_TYPE_RAID_25; }

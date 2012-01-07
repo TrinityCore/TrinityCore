@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1563,7 +1563,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
     }
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
-        if (effectMask & (1 << effectNumber))
+        if (effectMask & (1 << effectNumber) && !unit->IsImmunedToSpellEffect(m_spellInfo, effectNumber)) //Handle effect only if the target isn't immune.
             HandleEffects(unit, NULL, NULL, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     return SPELL_MISS_NONE;
@@ -3092,6 +3092,8 @@ void Spell::cast(bool skipCheck)
         m_caster->ToPlayer()->SetSpellModTakingSpell(this, true);
     }
 
+    CallScriptBeforeCastHandlers();
+
     // skip check if done already (for instant cast spells for example)
     if (!skipCheck)
     {
@@ -3161,6 +3163,8 @@ void Spell::cast(bool skipCheck)
 
     PrepareTriggersExecutedOnHit();
 
+    CallScriptOnCastHandlers();
+
     // traded items have trade slot instead of guid in m_itemTargetGUID
     // set to real guid to be sent later to the client
     m_targets.UpdateTradeSlotItem();
@@ -3219,6 +3223,8 @@ void Spell::cast(bool skipCheck)
         // Immediate spell, no big deal
         handle_immediate();
     }
+
+    CallScriptAfterCastHandlers();
 
     if (const std::vector<int32> *spell_triggered = sSpellMgr->GetSpellLinked(m_spellInfo->Id))
     {
@@ -6892,7 +6898,6 @@ void Spell::CheckEffectExecuteData()
 
 void Spell::LoadScripts()
 {
-    sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::LoadScripts");
     sScriptMgr->CreateSpellScripts(m_spellInfo->Id, m_loadedScripts);
     for (std::list<SpellScript*>::iterator itr = m_loadedScripts.begin(); itr != m_loadedScripts.end() ;)
     {
@@ -6903,15 +6908,49 @@ void Spell::LoadScripts()
             m_loadedScripts.erase(bitr);
             continue;
         }
+        sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::LoadScripts: Script `%s` for spell `%u` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
         (*itr)->Register();
         ++itr;
     }
 }
 
-void Spell::PrepareScriptHitHandlers()
+void Spell::CallScriptBeforeCastHandlers()
 {
     for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
-        (*scritr)->_InitHit();
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_BEFORE_CAST);
+        std::list<SpellScript::CastHandler>::iterator hookItrEnd = (*scritr)->BeforeCast.end(), hookItr = (*scritr)->BeforeCast.begin();
+        for (; hookItr != hookItrEnd ; ++hookItr)
+            (*hookItr).Call(*scritr);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptOnCastHandlers()
+{
+    for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_ON_CAST);
+        std::list<SpellScript::CastHandler>::iterator hookItrEnd = (*scritr)->OnCast.end(), hookItr = (*scritr)->OnCast.begin();
+        for (; hookItr != hookItrEnd ; ++hookItr)
+            (*hookItr).Call(*scritr);
+
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Spell::CallScriptAfterCastHandlers()
+{
+    for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(SPELL_SCRIPT_HOOK_AFTER_CAST);
+        std::list<SpellScript::CastHandler>::iterator hookItrEnd = (*scritr)->AfterCast.end(), hookItr = (*scritr)->AfterCast.begin();
+        for (; hookItr != hookItrEnd ; ++hookItr)
+            (*hookItr).Call(*scritr);
+
+        (*scritr)->_FinishScriptCall();
+    }
 }
 
 SpellCastResult Spell::CallScriptCheckCastHandlers()
@@ -6931,6 +6970,12 @@ SpellCastResult Spell::CallScriptCheckCastHandlers()
         (*scritr)->_FinishScriptCall();
     }
     return retVal;
+}
+
+void Spell::PrepareScriptHitHandlers()
+{
+    for (std::list<SpellScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+        (*scritr)->_InitHit();
 }
 
 bool Spell::CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMode mode)

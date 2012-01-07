@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -431,12 +431,36 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
     MovepointReached(Data);
 }
 
+void SmartAI::RemoveAuras()
+{
+    Unit::AuraApplicationMap appliedAuras = me->GetAppliedAuras();
+    for (Unit::AuraApplicationMap::iterator iter = appliedAuras.begin(); iter != appliedAuras.end();)
+    {
+        Aura const* aura = iter->second->GetBase();
+        if (!aura->GetSpellInfo()->HasAura(SPELL_AURA_CONTROL_VEHICLE) && !(iter->second->GetTarget() == me && aura->GetCaster() == me))
+            me->_UnapplyAura(iter, AURA_REMOVE_BY_DEFAULT);
+        else
+            ++iter;
+    }
+
+    Unit::AuraMap ownedAuras = me->GetOwnedAuras();
+    for (Unit::AuraMap::iterator iter = ownedAuras.begin(); iter != ownedAuras.end();)
+    {
+        Aura* aura = iter->second;
+        if (!aura->GetSpellInfo()->HasAura(SPELL_AURA_CONTROL_VEHICLE))
+            me->RemoveOwnedAura(iter, AURA_REMOVE_BY_DEFAULT);
+        else
+            ++iter;
+    }
+}
+
 void SmartAI::EnterEvadeMode()
 {
     if (!me->isAlive())
         return;
 
-    me->RemoveAllAuras();
+    RemoveAuras();
+    
     me->DeleteThreatList();
     me->CombatStop(true);
     me->LoadCreaturesAddon();

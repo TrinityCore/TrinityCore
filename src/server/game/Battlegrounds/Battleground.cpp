@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1248,8 +1248,6 @@ void Battleground::EventPlayerLoggedOut(Player* player)
             if (GetAlivePlayersCountByTeam(player->GetTeam()) <= 1 && GetPlayersCountByTeam(GetOtherTeam(player->GetTeam())))
                 EndBattleground(GetOtherTeam(player->GetTeam()));
     }
-
-    player->LeaveBattleground();
 }
 
 // This method should be called only once ... it adds pointer to queue
