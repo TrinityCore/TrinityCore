@@ -937,6 +937,11 @@ void SmartGameObjectAI::OnGameEvent(bool start, uint16 eventId)
     GetScript()->ProcessEventsFor(start ? SMART_EVENT_GAME_EVENT_START : SMART_EVENT_GAME_EVENT_END, NULL, eventId);
 }
 
+void SmartGameObjectAI::OnStateChanged(uint32 state)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_GO_STATE_CHANGED, NULL, state);
+}
+
 class SmartTrigger : public AreaTriggerScript
 {
     public:
