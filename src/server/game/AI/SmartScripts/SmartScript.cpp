@@ -51,7 +51,6 @@ SmartScript::SmartScript()
     mTemplate = SMARTAI_TEMPLATE_BASIC;
     meOrigGUID = 0;
     goOrigGUID = 0;
-    mResumeActionList = true;
     mLastInvoker = 0;
 }
 
