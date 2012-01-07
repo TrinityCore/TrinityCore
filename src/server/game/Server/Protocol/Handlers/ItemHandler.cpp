@@ -444,7 +444,7 @@ void WorldSession::HandleReadItem(WorldPacket & recv_data)
         InventoryResult msg = _player->CanUseItem(pItem);
         if (msg == EQUIP_ERR_OK)
         {
-            data.Initialize (SMSG_READ_ITEM_OK, 8);
+            data.Initialize(SMSG_READ_ITEM_OK, 8);
             sLog->outDetail("STORAGE: Item page sent");
         }
         else
