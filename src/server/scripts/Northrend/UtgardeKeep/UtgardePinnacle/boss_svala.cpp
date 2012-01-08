@@ -52,21 +52,20 @@ enum Spells
 
 enum Yells
 {
-    SAY_DIALOG_WITH_ARTHAS_1                      = -1575015,
-    SAY_DIALOG_WITH_ARTHAS_2                      = -1575016,
-    SAY_DIALOG_WITH_ARTHAS_3                      = -1575017,
-    SAY_AGGRO                                     = -1575018,
-    SAY_SLAY_1                                    = -1575019,
-    SAY_SLAY_2                                    = -1575020,
-    SAY_SLAY_3                                    = -1575021,
-    SAY_DEATH                                     = -1575022,
-    SAY_SACRIFICE_PLAYER_1                        = -1575023,
-    SAY_SACRIFICE_PLAYER_2                        = -1575024,
-    SAY_SACRIFICE_PLAYER_3                        = -1575025,
-    SAY_SACRIFICE_PLAYER_4                        = -1575026,
-    SAY_SACRIFICE_PLAYER_5                        = -1575027,
-    SAY_DIALOG_OF_ARTHAS_1                        = -1575003,
-    SAY_DIALOG_OF_ARTHAS_2                        = -1575014
+    // Svala
+    SAY_SVALA_INTRO_0                             = 0,
+
+    // Svala Sorrowgrave
+    SAY_SVALA_INTRO_1                             = 0,
+    SAY_SVALA_INTRO_2                             = 1,
+    SAY_AGGRO                                     = 2,
+    SAY_SLAY                                      = 3,
+    SAY_DEATH                                     = 4,
+    SAY_SACRIFICE_PLAYER                          = 5,
+    
+    // Image of Arthas
+    SAY_DIALOG_OF_ARTHAS_1                        = 0,
+    SAY_DIALOG_OF_ARTHAS_2                        = 1
 };
 
 enum Creatures
@@ -124,9 +123,9 @@ public:
 
     struct boss_svalaAI : public ScriptedAI
     {
-        boss_svalaAI(Creature* c) : ScriptedAI(c), summons(c)
+        boss_svalaAI(Creature* creature) : ScriptedAI(creature), summons(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             Phase = IDLE;
 
             me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_RITUAL_STRIKE_EFF_1, true);
@@ -194,7 +193,7 @@ public:
         
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             
             uiSinsterStrikeTimer = 7 * IN_MILLISECONDS;
             uiCallFlamesTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
@@ -237,9 +236,10 @@ public:
             }
         }
         
-        void KilledUnit(Unit* /*victim*/)
+        void KilledUnit(Unit* victim)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            if (victim != me)
+                Talk(SAY_SLAY);
         }
         
         void DamageTaken(Unit* attacker, uint32 &damage)
@@ -294,7 +294,7 @@ public:
             if (instance)
                 instance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, DONE);
 
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
         
         void SpellHitTarget(Unit *target, const SpellInfo *spell)
@@ -325,12 +325,12 @@ public:
                     switch (uiIntroPhase)
                     {
                         case 0:
-                            DoScriptText(SAY_DIALOG_WITH_ARTHAS_1, me);
+                            Talk(SAY_SVALA_INTRO_0);
                             ++uiIntroPhase;
                             uiIntroTimer = 8100;
                             break;
                         case 1:
-                            DoScriptText(SAY_DIALOG_OF_ARTHAS_1, pArthas);
+                            pArthas->AI()->Talk(SAY_DIALOG_OF_ARTHAS_1);
                             ++uiIntroPhase;
                             uiIntroTimer = 10000;
                             break;
@@ -375,17 +375,17 @@ public:
                             uiIntroTimer = 3200;
                             break;
                         case 5:
-                            DoScriptText(SAY_DIALOG_WITH_ARTHAS_2, me);
+                            Talk(SAY_SVALA_INTRO_1);
                             ++uiIntroPhase;
                             uiIntroTimer = 10000;
                             break;
                         case 6:
-                            DoScriptText(SAY_DIALOG_OF_ARTHAS_2, pArthas);
+                            pArthas->AI()->Talk(SAY_DIALOG_OF_ARTHAS_2);
                             ++uiIntroPhase;
                             uiIntroTimer = 7200;
                             break;
                         case 7:
-                            DoScriptText(SAY_DIALOG_WITH_ARTHAS_3, me);
+                            Talk(SAY_SVALA_INTRO_2);
                             me->SetOrientation(1.58f);
                             me->SendMovementFlagUpdate();
                             pArthas->SetVisible(false);
@@ -455,8 +455,7 @@ public:
                             if (instance)
                                 instance->SetData64(DATA_SACRIFICED_PLAYER, pSacrificeTarget->GetGUID());
 
-                            DoScriptText(RAND(SAY_SACRIFICE_PLAYER_1, SAY_SACRIFICE_PLAYER_2, SAY_SACRIFICE_PLAYER_3, 
-                                              SAY_SACRIFICE_PLAYER_4, SAY_SACRIFICE_PLAYER_5), me);
+                            Talk(SAY_SACRIFICE_PLAYER);
 
                             DoCast(pSacrificeTarget, SPELL_RITUAL_PREPARATION);
 
