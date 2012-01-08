@@ -3829,6 +3829,9 @@ void Spell::SendSpellGo()
         castFlags |= CAST_FLAG_UNKNOWN_19;                   // same as in SMSG_SPELL_START
     }
 
+    if (m_targets.HasTraj())
+        castFlags |= CAST_FLAG_ADJUST_MISSILE;
+
     WorldPacket data(SMSG_SPELL_GO, 50);                    // guess size
 
     if (m_CastItem)
@@ -3871,11 +3874,10 @@ void Spell::SendSpellGo()
             }
         }
     }
-
-    if (castFlags & CAST_FLAG_UNKNOWN_18)
+    if (castFlags & CAST_FLAG_ADJUST_MISSILE)
     {
-        data << float(0);
-        data << uint32(0);
+        data << m_targets.GetElevation();
+        data << uint32(m_targets.GetSpeedXY()*m_targets.GetSpeedZ()*2);
     }
 
     if (castFlags & CAST_FLAG_AMMO)
