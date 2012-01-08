@@ -1,5 +1,5 @@
 -- Remove old script text for boss_vanndar.cpp "Not sure if the text actually exist"
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -1810018 AND -181008;
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1810018 AND -1810008;
 -- Add new creature_text for Vanndar Stormpike
 DELETE FROM `creature_text` WHERE `entry`=11948;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
