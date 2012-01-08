@@ -77,8 +77,6 @@ enum eEnums
     STANCE_BATTLE                           = 2
 };
 
-#define DATA_LIGHTNING_STRUCK 1834
-
 /*######
 ## boss_bjarngrim
 ######*/
@@ -106,7 +104,6 @@ public:
         InstanceScript* m_instance;
 
         bool m_bIsChangingStance;
-        bool achiLightningStruck;
         bool canBuff;
 
         uint8 m_uiChargingStatus;
@@ -135,7 +132,6 @@ public:
                 if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
                     me->AddAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE, me);
 
-            achiLightningStruck = false;
             m_bIsChangingStance = false;
 
             m_uiChargingStatus = 0;
@@ -189,9 +185,6 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
-                achiLightningStruck = true;
-
             DoScriptText(SAY_AGGRO, me);
 
             //must get both lieutenants here and make sure they are with him
@@ -199,14 +192,6 @@ public:
 
             if (m_instance)
                 m_instance->SetData(TYPE_BJARNGRIM, IN_PROGRESS);
-        }
-
-        uint32 GetData(uint32 type)
-        {
-            if (type == DATA_LIGHTNING_STRUCK)
-                return achiLightningStruck ? 1 : 0;
-
-            return 0;
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -463,27 +448,8 @@ public:
 
 };
 
-class achievement_lightning_struck : public AchievementCriteriaScript
-{
-    public:
-        achievement_lightning_struck() : AchievementCriteriaScript("achievement_lightning_struck") { }
-
-        bool OnCheck(Player* /*player*/, Unit* target)
-        {
-            if (!target)
-                return false;
-
-            if (Creature* bjarngrim = target->ToCreature())
-                if (bjarngrim->AI()->GetData(DATA_LIGHTNING_STRUCK))
-                    return true;
-
-            return false;
-        }
-};
-
 void AddSC_boss_bjarngrim()
 {
     new boss_bjarngrim();
     new mob_stormforged_lieutenant();
-    new achievement_lightning_struck();
 }
