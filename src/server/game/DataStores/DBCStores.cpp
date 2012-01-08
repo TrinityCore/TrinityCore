@@ -1097,11 +1097,11 @@ uint32 ScalingStatValuesEntry::GetDPSAndDamageMultiplier(uint32 subClass, bool i
             case ITEM_SUBCLASS_WEAPON_CROSSBOW:
                 *damageMultiplier = 0.3f;
                 return dpsMod[4];
-            case ITEM_SUBCLASS_WEAPON_obsolete:
+            case ITEM_SUBCLASS_WEAPON_Obsolete:
             case ITEM_SUBCLASS_WEAPON_EXOTIC:
             case ITEM_SUBCLASS_WEAPON_EXOTIC2:
-            case ITEM_SUBCLASS_WEAPON_FIST:
-            case ITEM_SUBCLASS_WEAPON_MISC:
+            case ITEM_SUBCLASS_WEAPON_FIST_WEAPON:
+            case ITEM_SUBCLASS_WEAPON_MISCELLANEOUS:
             case ITEM_SUBCLASS_WEAPON_SPEAR:
             case ITEM_SUBCLASS_WEAPON_WAND:
                 break;
