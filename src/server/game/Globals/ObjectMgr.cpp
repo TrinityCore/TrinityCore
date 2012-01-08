@@ -6791,6 +6791,9 @@ uint32 ObjectMgr::GeneratePetNumber()
 
 void ObjectMgr::LoadCorpses()
 {
+    //        0     1     2     3            4      5          6          7       8       9      10        11    12          13          14          15         16
+    // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
+
     uint32 oldMSTime = getMSTime();
 
     PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
@@ -6806,7 +6809,7 @@ void ObjectMgr::LoadCorpses()
     {
         Field* fields = result->Fetch();
         uint32 guid = fields[16].GetUInt32();
-        CorpseType type = CorpseType(fields[13].GetUInt8());
+        CorpseType type = CorpseType(fields[12].GetUInt8());
         if (type >= MAX_CORPSE_TYPE)
         {
             sLog->outError("Corpse (guid: %u) have wrong corpse type (%u), not loading.", guid, type);
