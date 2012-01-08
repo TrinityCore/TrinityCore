@@ -3041,6 +3041,7 @@ void SpellMgr::LoadDbcDataCorrections()
             case 42611: // Shoot
             case 61588: // Blazing Harpoon
             case 52479: // Gift of the Harvester
+            case 48246: // Ball of Flame
                 spellInfo->MaxAffectedTargets = 1;
                 break;
             case 41376: // Spite
@@ -3383,6 +3384,7 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->AreaGroupId = 0; // originally, these require area 4522, which is... outside of Icecrown Citadel
                 break;
             case 70602: // Corruption
+            case 48278: // Paralyze
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 70715: // Column of Frost (visual marker)
