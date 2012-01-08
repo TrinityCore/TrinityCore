@@ -1,7 +1,7 @@
 -- Remove old script text for boss_drekthar.cpp "Not sure if the text actually exist"
-DELETE FROM `script_texts` WHERE `entry` IN (-1810000,-1810001,-1810002,-1810003,-1810004,-1810005,-1810006,-1810007);
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1810007 AND -1810000;
 -- Add new creature_text for Drek'Thar
-DELETE FROM `creature_text` WHERE `entry` IN (11946);
+DELETE FROM `creature_text` WHERE `entry`=11946;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 -- Aggro
 (11946,0,0, 'Stormpike filth! In my keep?! Slay them all!',14,0,100,0,0,0, 'Drek''Thar'),
