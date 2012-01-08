@@ -216,7 +216,6 @@ public:
 
 void AddSC_ghostlands()
 {
-    new npc_blood_knight_dawnstar();
     new npc_budd_nedreck();
     new npc_rathis_tomber();
     new npc_ranger_lilatha();
