@@ -228,13 +228,13 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             if (GetGOInfo()->trap.stealthed)
             {
                 m_stealth.AddFlag(STEALTH_TRAP);
-                m_stealth.AddValue(STEALTH_TRAP, 300);
+                m_stealth.AddValue(STEALTH_TRAP, 70);
             }
 
             if (GetGOInfo()->trap.invisible)
             {
                 m_invisibility.AddFlag(INVISIBILITY_TRAP);
-                m_invisibility.AddValue(INVISIBILITY_TRAP, 70);
+                m_invisibility.AddValue(INVISIBILITY_TRAP, 300);
             }
 
             break;
@@ -849,6 +849,20 @@ bool GameObject::IsAlwaysVisibleFor(WorldObject const* seer) const
 
     if (IsTransport())
         return true;
+
+    if (!seer)
+        return false;
+
+    // Always seen by owner and friendly units
+    if (uint64 guid = GetOwnerGUID())
+    {
+        if (seer->GetGUID() == guid)
+            return true;
+
+        Unit* owner = GetOwner();
+        if (owner && seer->isType(TYPEMASK_UNIT) && owner->IsFriendlyTo(((Unit*)seer)))
+            return true;
+    }
 
     return false;
 }
