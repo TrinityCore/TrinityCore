@@ -170,8 +170,12 @@ public:
 
         void SetData64(uint32 type, uint64 data)
         {
-            if (type == DATA_SACRIFICED_PLAYER)
-                uiSacrificedPlayer = data;
+            switch (type)
+            {
+                case DATA_SACRIFICED_PLAYER:
+                    uiSacrificedPlayer = data;
+                    break;
+            }
         }
 
         uint32 GetData(uint32 type)
@@ -201,6 +205,7 @@ public:
                 case DATA_MOB_ORB:                return uiPalehoofOrb;
                 case DATA_SVALA:                  return uiSvala;
                 case DATA_GORTOK_PALEHOOF_SPHERE: return uiGortokPalehoofSphere;
+                case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;
             }
 
             return 0;
