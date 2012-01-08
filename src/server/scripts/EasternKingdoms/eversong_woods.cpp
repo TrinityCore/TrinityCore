@@ -69,10 +69,10 @@ enum eFaction
 
 enum eSays
 {
-    TEXT_SECOND_TRIAL_1               = -1000637,
-    TEXT_SECOND_TRIAL_2               = -1000638,
-    TEXT_SECOND_TRIAL_3               = -1000639,
-    TEXT_SECOND_TRIAL_4               = -1000640,
+    TEXT_SECOND_TRIAL_1               = 0,
+    TEXT_SECOND_TRIAL_2               = 1,
+    TEXT_SECOND_TRIAL_3               = 2,
+    TEXT_SECOND_TRIAL_4               = 3,
 };
 
 struct Locations
@@ -335,16 +335,16 @@ public:
                         switch (paladinPhase)
                         {
                         case 0:
-                            DoScriptText(TEXT_SECOND_TRIAL_1, me);
+                            Talk(TEXT_SECOND_TRIAL_1);
                             break;
                         case 1:
-                            DoScriptText(TEXT_SECOND_TRIAL_2, me);
+                            Talk(TEXT_SECOND_TRIAL_2);
                             break;
                         case 2:
-                            DoScriptText(TEXT_SECOND_TRIAL_3, me);
+                            Talk(TEXT_SECOND_TRIAL_3);
                             break;
                         case 3:
-                            DoScriptText(TEXT_SECOND_TRIAL_4, me);
+                            Talk(TEXT_SECOND_TRIAL_4);
                             break;
                         }
                     }
