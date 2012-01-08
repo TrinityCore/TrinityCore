@@ -1,7 +1,7 @@
 -- Remove old script text for boss_vanndar.cpp "Not sure if the text actually exist"
-DELETE FROM `script_texts` WHERE `entry` BETWEEN -181008 AND -1810018;
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1810018 AND -181008;
 -- Add new creature_text for Vanndar Stormpike
-DELETE FROM `creature_text` WHERE `entry` IN (11948);
+DELETE FROM `creature_text` WHERE `entry`=11948;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 -- Aggro
 (11948,0,0, 'Soldiers of Stormpike, your General is under attack! I require aid! Come! Come! Slay these mangy Frostwolf dogs.',14,0,100,0,0,0, 'Vanndar Stormpike'),
