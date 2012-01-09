@@ -1127,7 +1127,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
             uint32 count = iProto->BuyCount;
 
             // special amount for food/drink
-            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD)
+            if (iProto->Class == ITEM_CLASS_CONSUMABLE && iProto->SubClass == ITEM_SUBCLASS_FOOD_DRINK)
             {
                 switch (iProto->Spells[0].SpellCategory)
                 {
@@ -9922,7 +9922,7 @@ uint8 Player::FindEquipSlot(ItemTemplate const* proto, uint32 slot, bool swap) c
                     if (playerClass == CLASS_SHAMAN)
                         slots[0] = EQUIPMENT_SLOT_RANGED;
                     break;
-                case ITEM_SUBCLASS_ARMOR_MISC:
+                case ITEM_SUBCLASS_ARMOR_MISCELLANEOUS:
                     if (playerClass == CLASS_WARLOCK)
                         slots[0] = EQUIPMENT_SLOT_RANGED;
                     break;
