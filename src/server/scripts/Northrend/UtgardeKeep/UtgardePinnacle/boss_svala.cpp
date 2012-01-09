@@ -102,14 +102,7 @@ static const float spectatorWP[2][3] =
     {297.69f,-275.81f,86.36f}
 };
 
-static Position RitualChannelerPos[]=
-{
-    {296.42f, -355.01f, 90.94f, 1.58f},
-    {302.36f, -352.01f, 90.54f, 2.20f},
-    {291.39f, -352.01f, 90.54f, 0.91f}
-};
 static Position ArthasPos = { 295.81f, -366.16f, 92.57f, 1.58f };
-static Position SvalaPos = { 296.632f, -346.075f, 90.6307f, 1.58f };
 
 class boss_svala : public CreatureScript
 {
@@ -527,9 +520,9 @@ public:
 
     struct npc_ritual_channelerAI : public Scripted_NoMovementAI
     {
-        npc_ritual_channelerAI(Creature* c) :Scripted_NoMovementAI(c)
+        npc_ritual_channelerAI(Creature* creature) :Scripted_NoMovementAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -574,7 +567,7 @@ public:
 
     struct npc_spectatorAI : public ScriptedAI
     {
-        npc_spectatorAI(Creature* c) : ScriptedAI(c) { }
+        npc_spectatorAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset() { }
 
