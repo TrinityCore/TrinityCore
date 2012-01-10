@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,6 +25,14 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
+enum Yells
+{
+    YELL_TWILIGHTCORRUPTOR_RESPAWN                                  = 0,
+    YELL_TWILIGHTCORRUPTOR_AGGRO                                    = 1,
+    YELL_TWILIGHTCORRUPTOR_KILL                                     = 2,
+};
+
+
 /*######
 # at_twilight_grove
 ######*/
@@ -43,11 +51,11 @@ public:
                 TCorrupter->setFaction(14);
                 TCorrupter->SetMaxHealth(832750);
             }
-            if (Unit* CorrupterSpeaker = player->SummonCreature(1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()-1, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
+            if (Creature* CorrupterSpeaker = player->SummonCreature(1, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ()-1, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
             {
                 CorrupterSpeaker->SetName("Twilight Corrupter");
                 CorrupterSpeaker->SetVisible(true);
-                CorrupterSpeaker->MonsterYell("Come, $N. See what the Nightmare brings...", 0, player->GetGUID());
+                CorrupterSpeaker->AI()->Talk(YELL_TWILIGHTCORRUPTOR_RESPAWN, player->GetGUID());
             }
         }
         return false;
@@ -89,7 +97,7 @@ public:
         }
         void EnterCombat(Unit* /*who*/)
         {
-            me->MonsterYell("The Nightmare cannot be stopped!", 0, me->GetGUID());
+            Talk(YELL_TWILIGHTCORRUPTOR_AGGRO);
         }
 
         void KilledUnit(Unit* victim)
@@ -97,7 +105,7 @@ public:
             if (victim->GetTypeId() == TYPEID_PLAYER)
             {
                 ++KillCount;
-                me->MonsterTextEmote("Twilight Corrupter squeezes the last bit of life out of $N and swallows their soul.", victim->GetGUID(), true);
+                Talk(YELL_TWILIGHTCORRUPTOR_KILL, victim->GetGUID());
 
                 if (KillCount == 3)
                 {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -122,13 +122,13 @@ public:
                 instance->SetData(DATA_SELIN_EVENT, NOT_STARTED);
             } else sLog->outError(ERROR_INST_DATA);
 
-            DrainLifeTimer = 3000 + rand()%4000;
+            DrainLifeTimer = urand(3000, 7000);
             DrainManaTimer = DrainLifeTimer + 5000;
             FelExplosionTimer = 2100;
             if (IsHeroic())
-                DrainCrystalTimer = 10000 + rand()%5000;
+                DrainCrystalTimer = urand(10000, 15000);
             else
-                DrainCrystalTimer = 20000 + rand()%5000;
+                DrainCrystalTimer = urand(20000, 25000);
             EmpowerTimer = 10000;
 
             IsDraining = false;
@@ -285,9 +285,9 @@ public:
                     {
                         SelectNearestCrystal();
                         if (IsHeroic())
-                            DrainCrystalTimer = 10000 + rand()%5000;
+                            DrainCrystalTimer = urand(10000, 15000);
                         else
-                            DrainCrystalTimer = 20000 + rand()%5000;
+                            DrainCrystalTimer = urand(20000, 25000);
                     } else DrainCrystalTimer -= diff;
                 }
 

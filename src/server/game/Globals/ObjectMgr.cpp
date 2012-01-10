@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -535,7 +535,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
 
     if (!result)
     {
-        sLog->outString(">> Loaded 0 creature template addon definitions. DB table `creature_addon` is empty.");
+        sLog->outString(">> Loaded 0 creature template addon definitions. DB table `creature_template_addon` is empty.");
         sLog->outString();
         return;
     }
@@ -569,7 +569,7 @@ void ObjectMgr::LoadCreatureTemplateAddons()
             SpellInfo const* AdditionalSpellInfo = sSpellMgr->GetSpellInfo(uint32(atol(*itr)));
             if (!AdditionalSpellInfo)
             {
-                sLog->outErrorDb("Creature (GUID: %u) has wrong spell %u defined in `auras` field in `creature_addon`.", entry, uint32(atol(*itr)));
+                sLog->outErrorDb("Creature (Entry: %u) has wrong spell %u defined in `auras` field in `creature_template_addon`.", entry, uint32(atol(*itr)));
                 continue;
             }
             creatureAddon.auras[i++] = uint32(atol(*itr));
@@ -579,13 +579,13 @@ void ObjectMgr::LoadCreatureTemplateAddons()
         {
             if (!sCreatureDisplayInfoStore.LookupEntry(creatureAddon.mount))
             {
-                sLog->outErrorDb("Creature (GUID: %u) has invalid displayInfoId (%u) for mount defined in `creature_addon`", entry, creatureAddon.mount);
+                sLog->outErrorDb("Creature (Entry: %u) has invalid displayInfoId (%u) for mount defined in `creature_template_addon`", entry, creatureAddon.mount);
                 creatureAddon.mount = 0;
             }
         }
 
         if (!sEmotesStore.LookupEntry(creatureAddon.emote))
-            sLog->outErrorDb("Creature (GUID: %u) has invalid emote (%u) defined in `creature_addon`.", entry, creatureAddon.emote);
+            sLog->outErrorDb("Creature (Entry: %u) has invalid emote (%u) defined in `creature_template_addon`.", entry, creatureAddon.emote);
 
         ++count;
     }
@@ -1400,7 +1400,7 @@ bool ObjectMgr::SetCreatureLinkedRespawn(uint32 guidLow, uint32 linkedGuidLow)
     uint64 linkedGuid = MAKE_NEW_GUID(linkedGuidLow, slave->id, HIGHGUID_UNIT);
 
     mLinkedRespawnMap[guid] = linkedGuid;
-    PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CRELINKED_RESPAWN);
+    PreparedStatement *stmt = WorldDatabase.GetPreparedStatement(WORLD_REP_CREATURE_LINKED_RESPAWN);
     stmt->setUInt32(0, guidLow);
     stmt->setUInt32(1, linkedGuidLow);
     WorldDatabase.Execute(stmt);
@@ -1569,9 +1569,7 @@ void ObjectMgr::AddCreatureToGrid(uint32 guid, CreatureData const* data)
         if (mask & 1)
         {
             CellCoord cellCoord = Trinity::ComputeCellCoord(data->posX, data->posY);
-            uint32 cell_id = (cellCoord.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
-
-            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
+            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cellCoord.GetId()];
             cell_guids.creatures.insert(guid);
         }
     }
@@ -1585,9 +1583,7 @@ void ObjectMgr::RemoveCreatureFromGrid(uint32 guid, CreatureData const* data)
         if (mask & 1)
         {
             CellCoord cellCoord = Trinity::ComputeCellCoord(data->posX, data->posY);
-            uint32 cell_id = (cellCoord.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
-
-            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
+            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cellCoord.GetId()];
             cell_guids.creatures.erase(guid);
         }
     }
@@ -1878,9 +1874,7 @@ void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
         if (mask & 1)
         {
             CellCoord cellCoord = Trinity::ComputeCellCoord(data->posX, data->posY);
-            uint32 cell_id = (cellCoord.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
-
-            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
+            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cellCoord.GetId()];
             cell_guids.gameobjects.insert(guid);
         }
     }
@@ -1894,9 +1888,7 @@ void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data
         if (mask & 1)
         {
             CellCoord cellCoord = Trinity::ComputeCellCoord(data->posX, data->posY);
-            uint32 cell_id = (cellCoord.y_coord*TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
-
-            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cell_id];
+            CellObjectGuids& cell_guids = mMapObjectGuids[MAKE_PAIR32(data->mapid, i)][cellCoord.GetId()];
             cell_guids.gameobjects.erase(guid);
         }
     }
@@ -1908,7 +1900,7 @@ void ObjectMgr::LoadCreatureRespawnTimes()
 
     uint32 count = 0;
 
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_LOAD_CREATURE_RESPAWNS));
+    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CREATURE_RESPAWNS));
     if (!result)
     {
         sLog->outString(">> Loaded 0 creature respawn time.");
@@ -1942,7 +1934,7 @@ void ObjectMgr::LoadGameobjectRespawnTimes()
 
     uint32 count = 0;
 
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GO_RESPAWNS));
+    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_GO_RESPAWNS));
     if (!result)
     {
         sLog->outString(">> Loaded 0 gameobject respawn times. DB table `gameobject_respawn` is empty!");
@@ -3691,7 +3683,7 @@ void ObjectMgr::LoadQuests()
     QueryResult result = WorldDatabase.Query("SELECT "
         //0     1      2        3        4           5       6            7             8              9               10             11                 12
         "Id, Method, Level, MinLevel, MaxLevel, ZoneOrSort, Type, SuggestedPlayers, LimitTime, RequiredClasses, RequiredRaces, RequiredSkillId, RequiredSkillPoints, "
-        //         13                 14                    15                   16                      17                  18                         19                  20                  
+        //         13                 14                    15                   16                      17                  18                         19                  20
         "RequiredFactionId1, RequiredFactionId2, RequiredFactionValue1, RequiredFactionValue2, RequiredMinRepFaction, RequiredMaxRepFaction, RequiredMinRepValue, RequiredMaxRepValue, "
         //     21         22             23                24             25              26                    27                28            29              30              31
         "PrevQuestId, NextQuestId, ExclusiveGroup, NextQuestIdChain, RewardXPId, RewardOrRequiredMoney, RewardMoneyMaxLevel, RewardSpell, RewardSpellCast, RewardHonor, RewardHonorMultiplier, "
@@ -3826,11 +3818,11 @@ void ObjectMgr::LoadQuests()
                 // no changes, quest not dependent from this value but can have problems at client (note some may be 0, we must allow this so no check)
             }
             //check for proper RequiredSkillId value (skill case)
-            if (int32 skill_id =  SkillByQuestSort(-int32(qinfo->ZoneOrSort)))
+            if (uint32 skill_id = SkillByQuestSort(-int32(qinfo->ZoneOrSort)))
             {
                 if (qinfo->RequiredSkillId != skill_id)
                 {
-                    sLog->outErrorDb("Quest %u has `ZoneOrSort` = %i but `RequiredSkillId` does not have a corresponding value (%i).",
+                    sLog->outErrorDb("Quest %u has `ZoneOrSort` = %i but `RequiredSkillId` does not have a corresponding value (%d).",
                         qinfo->GetQuestId(), qinfo->ZoneOrSort, skill_id);
                     //override, and force proper value here?
                 }
@@ -5312,7 +5304,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
         stmt->setUInt64(0, basetime);
         CharacterDatabase.Execute(stmt);
     }
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_EXPIRED_MAIL);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL);
     stmt->setUInt64(0, basetime);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
@@ -5323,7 +5315,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
     }
 
     std::map<uint32 /*messageId*/, MailItemInfoVec> itemsCache;
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_EXPIRED_MAIL_ITEMS);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXPIRED_MAIL_ITEMS);
     stmt->setUInt64(0, basetime);
     if (PreparedQueryResult items = CharacterDatabase.Query(stmt))
     {
@@ -5387,7 +5379,7 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
             else
             {
                 // Mail will be returned
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_MAIL_RETURNED);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_RETURNED);
                 stmt->setUInt32(0, m->receiver);
                 stmt->setUInt32(1, m->sender);
                 stmt->setUInt64(2, basetime + 30 * DAY);
@@ -5398,12 +5390,12 @@ void ObjectMgr::ReturnOrDeleteOldMails(bool serverUp)
                 for (MailItemInfoVec::iterator itr2 = m->items.begin(); itr2 != m->items.end(); ++itr2)
                 {
                     // Update receiver in mail items for its proper delivery, and in instance_item for avoid lost item at sender delete
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_MAIL_ITEM_RECEIVER);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_MAIL_ITEM_RECEIVER);
                     stmt->setUInt32(0, m->sender);
                     stmt->setUInt32(1, itr2->item_guid);
                     CharacterDatabase.Execute(stmt);
 
-                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_ITEM_OWNER);
+                    stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
                     stmt->setUInt32(0, m->sender);
                     stmt->setUInt32(1, itr2->item_guid);
                     CharacterDatabase.Execute(stmt);
@@ -5881,7 +5873,7 @@ GraveYardData const* ObjectMgr::FindGraveYardData(uint32 id, uint32 zoneId)
     return NULL;
 }
 
-bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inDB)
+bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= true*/)
 {
     if (FindGraveYardData(id, zoneId))
         return false;
@@ -5894,16 +5886,21 @@ bool ObjectMgr::AddGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inD
     mGraveYardMap.insert(GraveYardMap::value_type(zoneId, data));
 
     // add link to DB
-    if (inDB)
+    if (persist)
     {
-        WorldDatabase.PExecute("INSERT INTO game_graveyard_zone (id, ghost_zone, faction) "
-            "VALUES ('%u', '%u', '%u')", id, zoneId, team);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GRAVEYARD_ZONE);
+
+        stmt->setUInt32(0, id);
+        stmt->setUInt32(1, zoneId);
+        stmt->setUInt16(2, uint16(team));
+
+        WorldDatabase.Execute(stmt);
     }
 
     return true;
 }
 
-void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool inDB)
+void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool persist /*= false*/)
 {
     GraveYardMap::iterator graveLow  = mGraveYardMap.lower_bound(zoneId);
     GraveYardMap::iterator graveUp   = mGraveYardMap.upper_bound(zoneId);
@@ -5942,9 +5939,15 @@ void ObjectMgr::RemoveGraveYardLink(uint32 id, uint32 zoneId, uint32 team, bool 
     mGraveYardMap.erase(itr);
 
     // remove link from DB
-    if (inDB)
+    if (persist)
     {
-        WorldDatabase.PExecute("DELETE FROM game_graveyard_zone WHERE id = '%u' AND ghost_zone = '%u' AND faction = '%u'", id, zoneId, team);
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GRAVEYARD_ZONE);
+
+        stmt->setUInt32(0, id);
+        stmt->setUInt32(1, zoneId);
+        stmt->setUInt16(2, uint16(team));
+
+        WorldDatabase.Execute(stmt);
     }
 
     return;
@@ -6168,10 +6171,10 @@ void ObjectMgr::SetHighestGuids()
         m_hiItemGuid = (*result)[0].GetUInt32()+1;
 
     // Cleanup other tables from not existed guids ( >= m_hiItemGuid)
-    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", m_hiItemGuid);
-    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", m_hiItemGuid);
+    CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item >= '%u'", m_hiItemGuid);     // One-time query
+    CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid >= '%u'", m_hiItemGuid);         // One-time query
+    CharacterDatabase.PExecute("DELETE FROM auctionhouse WHERE itemguid >= '%u'", m_hiItemGuid);        // One-time query
+    CharacterDatabase.PExecute("DELETE FROM guild_bank_item WHERE item_guid >= '%u'", m_hiItemGuid);    // One-time query
 
     result = WorldDatabase.Query("SELECT MAX(guid) FROM gameobject");
     if (result)
@@ -6716,7 +6719,7 @@ void ObjectMgr::LoadCorpses()
 {
     uint32 oldMSTime = getMSTime();
 
-    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_LOAD_CORPSES));
+    PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
     if (!result)
     {
         sLog->outString(">> Loaded 0 corpses. DB table `pet_name_generation` is empty.");
@@ -6729,9 +6732,15 @@ void ObjectMgr::LoadCorpses()
     {
         Field* fields = result->Fetch();
         uint32 guid = fields[16].GetUInt32();
+        CorpseType type = CorpseType(fields[13].GetUInt8());
+        if (type >= MAX_CORPSE_TYPE)
+        {
+            sLog->outError("Corpse (guid: %u) have wrong corpse type (%u), not loading.", guid, type);
+            continue;
+        }
 
-        Corpse* corpse = new Corpse();
-        if (!corpse->LoadFromDB(guid, fields))
+        Corpse* corpse = new Corpse(type);
+        if (!corpse->LoadCorpseFromDB(guid, fields))
         {
             delete corpse;
             continue;
@@ -7253,7 +7262,7 @@ void ObjectMgr::SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t
         m_CreatureRespawnTimesMtx.release();
     }
 
-    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CREATURE_RESPAWN);
+    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
     stmt->setUInt32(0, loguid);
     stmt->setUInt64(1, uint64(t));
     stmt->setUInt32(2, instance);
@@ -7301,7 +7310,7 @@ void ObjectMgr::SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t)
         m_GORespawnTimesMtx.release();
     }
 
-    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GO_RESPAWN);
+    PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
     stmt->setUInt32(0, loguid);
     stmt->setUInt64(1, uint64(t));
     stmt->setUInt32(2, instance);
@@ -8048,8 +8057,18 @@ bool ObjectMgr::AddGameTele(GameTele& tele)
 
     m_GameTeleMap[new_id] = tele;
 
-    WorldDatabase.PExecute("INSERT INTO game_tele (id, position_x, position_y, position_z, orientation, map, name) VALUES (%u, %f, %f, %f, %f, %d, '%s')",
-        new_id, tele.position_x, tele.position_y, tele.position_z, tele.orientation, tele.mapId, tele.name.c_str());
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_GAME_TELE);
+
+    stmt->setUInt32(0, new_id);
+    stmt->setFloat(1, tele.position_x);
+    stmt->setFloat(2, tele.position_y);
+    stmt->setFloat(3, tele.position_z);
+    stmt->setFloat(4, tele.orientation);
+    stmt->setUInt16(5, uint16(tele.mapId));
+    stmt->setString(6, tele.name);
+
+    WorldDatabase.Execute(stmt);
+
     return true;
 }
 
@@ -8067,7 +8086,12 @@ bool ObjectMgr::DeleteGameTele(const std::string& name)
     {
         if (itr->second.wnameLow == wname)
         {
-            WorldDatabase.PExecute("DELETE FROM game_tele WHERE name = '%s'", itr->second.name.c_str());
+            PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_GAME_TELE);
+
+            stmt->setString(0, itr->second.name);
+
+            WorldDatabase.Execute(stmt);
+
             m_GameTeleMap.erase(itr);
             return true;
         }
@@ -8455,16 +8479,26 @@ void ObjectMgr::LoadGossipMenuItems()
     sLog->outString();
 }
 
-void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedcost, bool savetodb)
+void ObjectMgr::AddVendorItem(uint32 entry, uint32 item, int32 maxcount, uint32 incrtime, uint32 extendedCost, bool persist /*= true*/)
 {
     VendorItemData& vList = m_mCacheVendorItemMap[entry];
-    vList.AddItem(item, maxcount, incrtime, extendedcost);
+    vList.AddItem(item, maxcount, incrtime, extendedCost);
 
-    if (savetodb)
-        WorldDatabase.PExecute("INSERT INTO npc_vendor (entry, item, maxcount, incrtime, extendedcost) VALUES('%u', '%u', '%u', '%u', '%u')", entry, item, maxcount, incrtime, extendedcost);
+    if (persist)
+    {
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_INS_NPC_VENODR);
+
+        stmt->setUInt32(0, entry);
+        stmt->setUInt32(1, item);
+        stmt->setUInt8(2, maxcount);
+        stmt->setUInt32(3, incrtime);
+        stmt->setUInt32(4, extendedCost);
+
+        WorldDatabase.Execute(stmt);
+    }
 }
 
-bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool savetodb)
+bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool persist /*= true*/)
 {
     CacheVendorItemMap::iterator  iter = m_mCacheVendorItemMap.find(entry);
     if (iter == m_mCacheVendorItemMap.end())
@@ -8473,7 +8507,16 @@ bool ObjectMgr::RemoveVendorItem(uint32 entry, uint32 item, bool savetodb)
     if (!iter->second.RemoveItem(item))
         return false;
 
-    if (savetodb) WorldDatabase.PExecute("DELETE FROM npc_vendor WHERE entry='%u' AND item='%u'", entry, item);
+    if (persist)
+    {
+        PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_NPC_VENDOR);
+
+        stmt->setUInt32(0, entry);
+        stmt->setUInt32(1, item);
+
+        WorldDatabase.Execute(stmt);
+    }
+
     return true;
 }
 

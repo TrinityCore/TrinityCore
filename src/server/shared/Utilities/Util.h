@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -63,6 +63,9 @@ inline uint32 secsToTimeBitFields(time_t secs)
 
 /* Return a random number in the range 0 .. RAND32_MAX. */
  int32 rand32();
+
+  /* Return a random number in the range min..max */
+ float frand(float min, float max);
 
 /* Return a random double from 0.0 to 1.0 (exclusive). Floats support only 7 valid decimal digits.
  * A double supports up to 15 valid decimal digits and is used internally (RAND32_MAX has 10 digits).

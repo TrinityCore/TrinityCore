@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -431,12 +431,25 @@ void SmartAI::MovementInform(uint32 MovementType, uint32 Data)
     MovepointReached(Data);
 }
 
+void SmartAI::RemoveAuras()
+{
+    // Only loop throught the applied auras, because here is where all auras on the current unit are stored
+    Unit::AuraApplicationMap appliedAuras = me->GetAppliedAuras();
+    for (Unit::AuraApplicationMap::iterator iter = appliedAuras.begin(); iter != appliedAuras.end(); ++iter)
+    {
+        Aura const* aura = iter->second->GetBase();
+        if (!aura->GetSpellInfo()->IsPassive() && !aura->GetSpellInfo()->HasAura(SPELL_AURA_CONTROL_VEHICLE) && aura->GetCaster() != me)
+            me->RemoveAurasDueToSpell(aura->GetId());
+    }
+}
+
 void SmartAI::EnterEvadeMode()
 {
     if (!me->isAlive())
         return;
 
-    me->RemoveAllAuras();
+    RemoveAuras();
+    
     me->DeleteThreatList();
     me->CombatStop(true);
     me->LoadCreaturesAddon();
@@ -707,7 +720,7 @@ void SmartAI::SetRun(bool run)
         me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
     else
         me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-    me->SendMovementFlagUpdate();
+
     mRun = run;
 }
 
@@ -811,6 +824,12 @@ void SmartAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker)
         GetScript()->mLastInvoker = invoker->GetGUID();
     GetScript()->SetScript9(e, entry);
 }
+    
+void SmartAI::sOnGameEvent(bool start, uint16 eventId)
+{
+    GetScript()->ProcessEventsFor(start ? SMART_EVENT_GAME_EVENT_START : SMART_EVENT_GAME_EVENT_END, NULL, eventId);
+}
+
 /*
 SMART_EVENT_UPDATE_OOC
 SMART_EVENT_SPELLHIT
@@ -911,6 +930,16 @@ void SmartGameObjectAI::SetScript9(SmartScriptHolder& e, uint32 entry, Unit* inv
     if (invoker)
         GetScript()->mLastInvoker = invoker->GetGUID();
     GetScript()->SetScript9(e, entry);
+}
+
+void SmartGameObjectAI::OnGameEvent(bool start, uint16 eventId)
+{
+    GetScript()->ProcessEventsFor(start ? SMART_EVENT_GAME_EVENT_START : SMART_EVENT_GAME_EVENT_END, NULL, eventId);
+}
+
+void SmartGameObjectAI::OnStateChanged(uint32 state)
+{
+    GetScript()->ProcessEventsFor(SMART_EVENT_GO_STATE_CHANGED, NULL, state);
 }
 
 class SmartTrigger : public AreaTriggerScript

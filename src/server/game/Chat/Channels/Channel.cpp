@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,7 +55,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
         // If storing custom channels in the db is enabled either load or save the channel
         if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
         {
-            PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_CHANNEL);
+            PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHANNEL);
             stmt->setString(0, name);
             stmt->setUInt32(1, m_Team);
             PreparedQueryResult result = CharacterDatabase.Query(stmt);
@@ -85,7 +85,7 @@ Channel::Channel(const std::string& name, uint32 channel_id, uint32 Team)
             }
             else // save
             {
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CHANNEL);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CHANNEL);
                 stmt->setString(0, name);
                 stmt->setUInt32(1, m_Team);
                 CharacterDatabase.Execute(stmt);
@@ -108,7 +108,7 @@ void Channel::UpdateChannelInDB() const
 
         std::string banListStr = banlist.str();
 
-        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_CHANNEL);
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL);
         stmt->setBool(0, m_announce);
         stmt->setBool(1, m_ownership);
         stmt->setString(2, m_password);
@@ -124,7 +124,7 @@ void Channel::UpdateChannelInDB() const
 
 void Channel::UpdateChannelUseageInDB() const
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_CHANNEL_USAGE);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_CHANNEL_USAGE);
     stmt->setString(0, m_name);
     stmt->setUInt32(1, m_Team);
     CharacterDatabase.Execute(stmt);
@@ -310,18 +310,22 @@ void Channel::KickOrBan(uint64 good, const char *badname, bool ban)
             bool changeowner = (m_ownerGUID == bad->GetGUID());
 
             WorldPacket data;
+            bool notify = !(AccountMgr::IsGMAccount(sec) && sWorld->getBoolConfig(CONFIG_SILENTLY_GM_JOIN_TO_CHANNEL));
 
             if (ban && !IsBanned(bad->GetGUID()))
             {
                 banned.insert(bad->GetGUID());
-                MakePlayerBanned(&data, bad->GetGUID(), good);
-
                 UpdateChannelInDB();
+
+                if (notify)
+                    MakePlayerBanned(&data, bad->GetGUID(), good);
             }
-            else
+            else if (notify)
                 MakePlayerKicked(&data, bad->GetGUID(), good);
 
-            SendToAll(&data);
+            if (notify)
+                SendToAll(&data);
+
             players.erase(bad->GetGUID());
             bad->LeftChannel(this);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -154,7 +154,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
             Item* item = mailItemIter->second;
             item->SaveToDB(trans);                      // item not in inventory and can be save standalone
             // owner in data will set at mail receive and item extracting
-            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_ITEM_OWNER);
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ITEM_OWNER);
             stmt->setUInt32(0, receiver_guid);
             stmt->setUInt32(1, item->GetGUIDLow());
             trans->Append(stmt);
@@ -171,6 +171,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
 void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked, uint32 deliver_delay)
 {
     Player* pReceiver = receiver.GetPlayer();               // can be NULL
+    Player* pSender = sObjectMgr->GetPlayerByLowGUID(sender.GetSenderId());
 
     if (pReceiver)
         prepareItems(pReceiver, trans);                            // generate mail template items
@@ -188,15 +189,18 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
     // mail from battlemaster (rewardmarks) should last only one day
     else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
         expire_delay = DAY;
-     // default case: expire time if COD 3 days, if no COD 30 days
+     // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else
-        expire_delay = (m_COD > 0) ? 3 * DAY : 30 * DAY;
+        if (m_COD)
+            expire_delay = 3 * DAY;
+        else
+            expire_delay = pSender && pSender->isGameMaster() ? 90 * DAY : 30 * DAY;
 
     time_t expire_time = deliver_time + expire_delay;
 
     // Add to DB
     uint8 index = 0;
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_MAIL);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL);
     stmt->setUInt32(  index, mailId);
     stmt->setUInt8 (++index, uint8(sender.GetMailMessageType()));
     stmt->setInt8  (++index, int8(sender.GetStationery()));
@@ -216,7 +220,7 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
     for (MailItemMap::const_iterator mailItemIter = m_items.begin(); mailItemIter != m_items.end(); ++mailItemIter)
     {
         Item* pItem = mailItemIter->second;
-        stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_MAIL_ITEM);
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_MAIL_ITEM);
         stmt->setUInt32(0, mailId);
         stmt->setUInt32(1, pItem->GetGUIDLow());
         stmt->setUInt32(2, receiver.GetPlayerGUIDLow());

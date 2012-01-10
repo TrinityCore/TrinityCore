@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -1518,7 +1518,7 @@ void AuraEffect::HandleShapeshiftBoosts(Unit* target, bool apply) const
                                 spellId3 = 47180;
                                 break;
                         }
-                        target->CastSpell(target, spellId, true, NULL, this);
+                        target->CastSpell(target, spellId3, true, NULL, this);
                     }
                     // Master Shapeshifter - Cat
                     if (AuraEffect const* aurEff = target->GetDummyAuraEffect(SPELLFAMILY_GENERIC, 2851, 0))
@@ -2821,7 +2821,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
     }
     else
     {
-        target->Unmount();
+        target->Dismount();
         //some mounts like Headless Horseman's Mount or broom stick are skill based spell
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
@@ -3096,9 +3096,17 @@ void AuraEffect::HandleModPossess(AuraApplication const* aurApp, uint8 mode, boo
     }
 
     if (apply)
-        target->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
+    {
+        if (target->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp))
+            caster->ToPlayer()->SetMover(target);
+    }
     else
+    {
         target->RemoveCharmedBy(caster);
+        caster->ToPlayer()->SetMover(caster);
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            target->ToPlayer()->SetMover(target);
+    }
 }
 
 // only one spell has this aura
@@ -3126,11 +3134,13 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         if (caster->ToPlayer()->GetPet() != pet)
             return;
 
-        pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
+        if (pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp))
+            caster->ToPlayer()->SetMover(pet);
     }
     else
     {
         pet->RemoveCharmedBy(caster);
+        caster->ToPlayer()->SetMover(caster);
 
         if (!pet->IsWithinDistInMap(caster, pet->GetMap()->GetVisibilityRange()))
             pet->Remove(PET_SAVE_NOT_IN_SLOT, true);
@@ -4794,15 +4804,23 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     break;
                 case 63322: // Saronite Vapors
                 {
-                    int32 mana = int32(GetAmount() * pow(2.0f, GetBase()->GetStackAmount())); // mana restore - bp * 2^stackamount
-                    int32 damage = mana * 2; // damage
-                    caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
-                    caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    if (caster)
+                    {
+                        int32 mana = int32(GetAmount() * pow(2.0f, GetBase()->GetStackAmount())); // mana restore - bp * 2^stackamount
+                        int32 damage = mana * 2; // damage
+                        caster->CastCustomSpell(target, 63337, &mana, NULL, NULL, true);
+                        caster->CastCustomSpell(target, 63338, &damage, NULL, NULL, true);
+                    }
                     break;
                 }
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
+                        break;
+                case 59628: // Tricks of the Trade
+                    if (caster && caster->GetMisdirectionTarget())
+                        target->SetReducedThreatPercent(100, caster->GetMisdirectionTarget()->GetGUID());
+                    break;
             }
         }
         // AT REMOVE
@@ -4950,6 +4968,20 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (GetId() == 61777)
                         target->CastSpell(target, GetAmount(), true);
                     break;
+                case SPELLFAMILY_ROGUE:
+                    //  Tricks of the trade
+                    switch(GetId())
+                    {
+                        case 59628: //Tricks of the trade buff on rogue (6sec duration)
+                            target->SetReducedThreatPercent(0,0);
+                            break;
+                        case 57934: //Tricks of the trade buff on rogue (30sec duration)
+                            if (aurApp->GetRemoveMode() == AURA_REMOVE_BY_EXPIRE || !caster->GetMisdirectionTarget())
+                                target->SetReducedThreatPercent(0,0);
+                            else
+                                target->SetReducedThreatPercent(0,caster->GetMisdirectionTarget()->GetGUID());
+                            break;
+                    }
                 default:
                     break;
             }
@@ -5188,7 +5220,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
             if (!(mode & AURA_EFFECT_HANDLE_REAL))
                 break;
             // Sentry Totem
-            if (GetId() == 6495 && caster->GetTypeId() == TYPEID_PLAYER)
+            if (GetId() == 6495 && caster && caster->GetTypeId() == TYPEID_PLAYER)
             {
                 if (apply)
                 {

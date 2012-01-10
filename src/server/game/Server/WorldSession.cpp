@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -96,14 +96,14 @@ m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
 m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
-isRecruiter(isARecruiter), _warden(NULL)
+isRecruiter(isARecruiter), timeLastWhoCommand(0),_warden(NULL)
 {
     if (sock)
     {
         m_Address = sock->GetRemoteAddress();
         sock->AddReference();
         ResetTimeOutTime();
-        LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());
+        LoginDatabase.PExecute("UPDATE account SET online = 1 WHERE id = %u;", GetAccountId());     // One-time query
     }
 
     InitializeQueryCallbackParameters();
@@ -132,7 +132,7 @@ WorldSession::~WorldSession()
     while (_recvQueue.next(packet))
         delete packet;
 
-    LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());
+    LoginDatabase.PExecute("UPDATE account SET online = 0 WHERE id = %u;", GetAccountId());     // One-time query
 }
 
 void WorldSession::SizeError(WorldPacket const &packet, uint32 size) const
@@ -233,7 +233,18 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     ///- Retrieve packets from the receive queue and call the appropriate handlers
     /// not process packets if socket already closed
     WorldPacket* packet = NULL;
-    while (m_Socket && !m_Socket->IsClosed() && _recvQueue.next(packet, updater))
+    //! Delete packet after processing by default
+    bool deletePacket = true;
+    //! To prevent infinite loop
+    WorldPacket* firstDelayedPacket = NULL;
+    //! If _recvQueue.peek() == firstDelayedPacket it means that in this Update call, we've processed all
+    //! *properly timed* packets, and we're now at the part of the queue where we find
+    //! delayed packets that were re-enqueued due to improper timing. To prevent an infinite
+    //! loop caused by re-enqueueing the same packets over and over again, we stop updating this session
+    //! and continue updating others. The re-enqueued packets will be handled in the next Update call for this session.
+    while (m_Socket && !m_Socket->IsClosed() &&
+            !_recvQueue.empty() && _recvQueue.peek(true) != firstDelayedPacket &&
+            _recvQueue.next(packet, updater))
     {
         if (packet->GetOpcode() >= NUM_MSG_TYPES)
         {
@@ -251,8 +262,21 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         if (!_player)
                         {
                             // skip STATUS_LOGGEDIN opcode unexpected errors if player logout sometime ago - this can be network lag delayed packets
+                            //! If player didn't log out a while ago, it means packets are being sent while the server does not recognize
+                            //! the client to be in world yet. We will re-add the packets to the bottom of the queue and process them later.
                             if (!m_playerRecentlyLogout)
-                                LogUnexpectedOpcode(packet, "STATUS_LOGGEDIN", "the player has not logged in yet");
+                            {
+                                //! Prevent infinite loop
+                                if (!firstDelayedPacket)
+                                    firstDelayedPacket = packet;
+                                //! Because checking a bool is faster than reallocating memory
+                                deletePacket = false;
+                                QueuePacket(packet);
+                                //! Log
+                                sLog->outDebug(LOG_FILTER_NETWORKIO, "Re-enqueueing packet with opcode %s (0x%.4X) with with status STATUS_LOGGEDIN. "
+                                    "Player is currently not in world yet.", opHandle.name, packet->GetOpcode());
+                            }
+
                         }
                         else if (_player->IsInWorld())
                         {
@@ -269,7 +293,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                                 "the player has not logged in yet and not recently logout");
                         else
                         {
-                            // not expected _player or must checked in packet hanlder
+                            // not expected _player or must checked in packet handler
                             sScriptMgr->OnPacketReceive(m_Socket, WorldPacket(*packet));
                             (this->*opHandle.handler)(*packet);
                             if (sLog->IsOutDebug() && packet->rpos() < packet->wpos())
@@ -319,7 +343,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
                         break;
                 }
             }
-            catch(ByteBufferException &)
+            catch (ByteBufferException &)
             {
                 sLog->outError("WorldSession::Update ByteBufferException occured while parsing a packet (opcode: %u) from client %s, accountid=%i. Skipped packet.",
                         packet->GetOpcode(), GetRemoteAddress().c_str(), GetAccountId());
@@ -331,7 +355,8 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             }
         }
 
-        delete packet;
+        if (deletePacket)
+            delete packet;
     }
 
     if (m_Socket && !m_Socket->IsClosed() && _warden)
@@ -361,6 +386,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         if (!m_Socket)
             return false;                                       //Will remove this session from the world session map
     }
+
     return true;
 }
 
@@ -520,7 +546,13 @@ void WorldSession::LogoutPlayer(bool Save)
 
         ///- Since each account can only have one online character at any given time, ensure all characters for active account are marked as offline
         //No SQL injection as AccountId is uint32
-        CharacterDatabase.PExecute("UPDATE characters SET online = 0 WHERE account = '%u'", GetAccountId());
+
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_ACCOUNT_ONLINE);
+
+        stmt->setUInt32(0, GetAccountId());
+
+        CharacterDatabase.Execute(stmt);
+
         sLog->outDebug(LOG_FILTER_NETWORKIO, "SESSION: Sent SMSG_LOGOUT_COMPLETE Message");
     }
 
@@ -617,7 +649,7 @@ void WorldSession::SendAuthWaitQue(uint32 position)
 
 void WorldSession::LoadGlobalAccountData()
 {
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_ACCOUNT_DATA);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_ACCOUNT_DATA);
     stmt->setUInt32(0, GetAccountId());
     LoadAccountData(CharacterDatabase.Query(stmt), GLOBAL_CACHE_MASK);
 }
@@ -660,7 +692,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
     if ((1 << type) & GLOBAL_CACHE_MASK)
     {
         id = GetAccountId();
-        index = CHAR_SET_ACCOUNT_DATA;
+        index = CHAR_REP_ACCOUNT_DATA;
     }
     else
     {
@@ -669,7 +701,7 @@ void WorldSession::SetAccountData(AccountDataType type, time_t tm, std::string d
             return;
 
         id = m_GUIDLow;
-        index = CHAR_SET_PLAYER_ACCOUNT_DATA;
+        index = CHAR_REP_PLAYER_ACCOUNT_DATA;
     }
 
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(index);
@@ -699,7 +731,7 @@ void WorldSession::LoadTutorialsData()
 {
     memset(m_Tutorials, 0, sizeof(uint32) * MAX_ACCOUNT_TUTORIAL_VALUES);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_TUTORIALS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_TUTORIALS);
     stmt->setUInt32(0, GetAccountId());
     if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
         for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
@@ -721,11 +753,11 @@ void WorldSession::SaveTutorialsData(SQLTransaction &trans)
     if (!m_TutorialsChanged)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_GET_HAS_TUTORIALS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_HAS_TUTORIALS);
     stmt->setUInt32(0, GetAccountId());
     bool hasTutorials = !CharacterDatabase.Query(stmt).null();
     // Modify data in DB
-    stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_SET_TUTORIALS : CHAR_ADD_TUTORIALS);
+    stmt = CharacterDatabase.GetPreparedStatement(hasTutorials ? CHAR_UPD_TUTORIALS : CHAR_INS_TUTORIALS);
     for (uint8 i = 0; i < MAX_ACCOUNT_TUTORIAL_VALUES; ++i)
         stmt->setUInt32(i, m_Tutorials[i]);
     stmt->setUInt32(MAX_ACCOUNT_TUTORIAL_VALUES, GetAccountId());
@@ -999,7 +1031,7 @@ void WorldSession::InitializeQueryCallbackParameters()
 
 void WorldSession::ProcessQueryCallbacks()
 {
-    QueryResult result;
+    PreparedQueryResult result;
 
     //! HandleCharEnumOpcode
     if (_charEnumCallback.ready())
@@ -1011,9 +1043,8 @@ void WorldSession::ProcessQueryCallbacks()
 
     if (_charCreateCallback.IsReady())
     {
-        PreparedQueryResult pResult;
-        _charCreateCallback.GetResult(pResult);
-        HandleCharCreateCallback(pResult, _charCreateCallback.GetParam());
+        _charCreateCallback.GetResult(result);
+        HandleCharCreateCallback(result, _charCreateCallback.GetParam());
         // Don't call FreeResult() here, the callback handler will do that depending on the events in the callback chain
     }
 

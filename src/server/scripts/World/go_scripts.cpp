@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,13 +15,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: GO_Scripts
-SD%Complete: 100
-SDComment: Quest support: 4285, 4287, 4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089, 12843, 12982, 2936. Soulwell
-SDCategory: Game Objects
-EndScriptData */
 
 /* ContentData
 go_cat_figurine (the "trap" version of GO, two different exist)
@@ -47,6 +40,16 @@ go_jotunheim_cage
 go_table_theka
 go_soulwell
 go_bashir_crystalforge
+go_ethereal_teleport_pad
+go_soulwell
+go_dragonflayer_cage
+go_tadpole_cage
+go_black_cage
+go_amberpine_outhouse
+go_hive_pod
+go_gjalerbron_cage
+go_large_gjalerbron_cage
+go_veil_skith_cage
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -922,6 +925,32 @@ public:
 };
 
 /*######
+## go_ethereal_teleport_pad
+######*/
+
+enum eEtherealTeleportPad
+{
+    NPC_IMAGE_WIND_TRADER               = 20518,
+    ITEM_TELEPORTER_POWER_PACK          = 28969,
+};
+
+class go_ethereal_teleport_pad : public GameObjectScript
+{
+public:
+    go_ethereal_teleport_pad() : GameObjectScript("go_ethereal_teleport_pad") { }
+
+    bool OnGossipHello(Player* player, GameObject* pGO)
+    {
+        if (!player->HasItemCount(ITEM_TELEPORTER_POWER_PACK, 1))
+            return false;
+
+        pGO->SummonCreature(NPC_IMAGE_WIND_TRADER, pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+
+        return true;
+    }
+};
+
+/*######
 ## go_soulwell
 ######*/
 
@@ -1152,6 +1181,7 @@ public:
 
 /*######
 ## Quest 1126: Hive in the Tower
+## go_hive_pod
 ######*/
 
 enum eHives
@@ -1251,6 +1281,42 @@ class go_large_gjalerbron_cage : public GameObjectScript
         }
 };
 
+/*########
+#### go_veil_skith_cage
+#####*/
+
+enum MissingFriends
+{
+   QUEST_MISSING_FRIENDS    = 10852,
+   NPC_CAPTIVE_CHILD        = 22314,
+   SAY_FREE_0               = 0,
+};
+
+class go_veil_skith_cage : public GameObjectScript
+{
+    public:
+       go_veil_skith_cage() : GameObjectScript("go_veil_skith_cage") { }
+
+       bool OnGossipHello(Player* player, GameObject* go)
+       {
+           if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
+           {
+               std::list<Creature*> childrenList;
+               GetCreatureListWithEntryInGrid(childrenList, go, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
+               for (std::list<Creature*>::const_iterator itr = childrenList.begin(); itr != childrenList.end(); ++itr)
+               {
+                   go->UseDoorOrButton();
+                   player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
+                   (*itr)->ForcedDespawn(5000);
+                   (*itr)->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
+                   (*itr)->AI()->Talk(SAY_FREE_0);
+                   (*itr)->GetMotionMaster()->Clear();
+               }
+           }        
+           return false;
+       }
+};
+
 void AddSC_go_scripts()
 {
     new go_cat_figurine;
@@ -1282,6 +1348,7 @@ void AddSC_go_scripts()
     new go_jotunheim_cage;
     new go_table_theka;
     new go_inconspicuous_landmark;
+    new go_ethereal_teleport_pad;
     new go_soulwell;
     new go_tadpole_cage;
     new go_dragonflayer_cage;
@@ -1291,4 +1358,5 @@ void AddSC_go_scripts()
     new go_massive_seaforium_charge;
     new go_gjalerbron_cage;
     new go_large_gjalerbron_cage;
+    new go_veil_skith_cage;
 }

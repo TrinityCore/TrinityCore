@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -68,9 +68,9 @@ public:
 
         void Reset()
         {
-            Holy_Light_Timer = 20000 + rand()%10000;
+            Holy_Light_Timer = urand(20000, 30000);
             Cleanse_Timer = 10000;
-            HammerOfJustice_Timer = 20000 + rand()%15000;
+            HammerOfJustice_Timer = urand(20000, 35000);
             HolyShield_Timer = 240000;
             DevotionAura_Timer = 3000;
             Consecration_Timer = 8000;
@@ -134,14 +134,14 @@ public:
             if (DevotionAura_Timer <= diff)
             {
                 DoCast(me, SPELL_DEVOTION_AURA);
-                DevotionAura_Timer = 45000 + rand()%10000;
+                DevotionAura_Timer = urand(45000, 55000);
             } else DevotionAura_Timer -= diff;
 
             //Consecration
             if (Consecration_Timer <= diff)
             {
                 //DoCast(me->getVictim(), SPELL_CONSECRATION);
-                Consecration_Timer = 5000 + rand()%5000;
+                Consecration_Timer = urand(5000, 10000);
             } else Consecration_Timer -= diff;
 
             DoMeleeAttackIfReady();

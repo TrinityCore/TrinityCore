@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -641,7 +641,8 @@ class World
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
 
         /// Are we in the middle of a shutdown?
-        bool IsShutdowning() const { return m_ShutdownTimer > 0; }
+        bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
+        uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
         void ShutdownServ(uint32 time, uint32 options, uint8 exitcode);
         void ShutdownCancel();
         void ShutdownMsg(bool show = false, Player* player = NULL);
@@ -752,6 +753,7 @@ class World
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+        void   ResetEventSeasonalQuests(uint16 event_id);
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters

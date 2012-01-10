@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,13 +35,13 @@ enum DynamicObjectType
 class DynamicObject : public WorldObject, public GridObject<DynamicObject>
 {
     public:
-        DynamicObject();
+        DynamicObject(bool isWorldObject);
         ~DynamicObject();
 
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, bool active, DynamicObjectType type);
+        bool CreateDynamicObject(uint32 guidlow, Unit* caster, uint32 spellId, Position const& pos, float radius, DynamicObjectType type);
         void Update(uint32 p_time);
         void Remove();
         void SetDuration(int32 newDuration);

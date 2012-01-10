@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -341,7 +341,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         }
     }
 
-    if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
+    if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK1))
         unit->AddUnitState(UNIT_STAT_ONVEHICLE);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
@@ -359,6 +359,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     {
         if (!_me->SetCharmedBy(unit, CHARM_TYPE_VEHICLE))
             ASSERT(false);
+        unit->ToPlayer()->SetMover(this->GetBase());
     }
 
     if (_me->IsInWorld())
@@ -410,7 +411,10 @@ void Vehicle::RemovePassenger(Unit* unit)
     unit->ClearUnitState(UNIT_STAT_ONVEHICLE);
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
+    {
         _me->RemoveCharmedBy(unit);
+        unit->ToPlayer()->SetMover(unit->ToPlayer());
+    }
 
     if (_me->IsInWorld())
     {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -173,7 +173,11 @@ public:
             DoScriptText(YELL_DEAD_2, me);
 
             if (instance)
+            {
+                // Ingvar has MOB_INGVAR_UNDEAD id in this moment, so we have to update encounter state for his original id
+                instance->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, MOB_INGVAR_HUMAN, me);
                 instance->SetData(DATA_INGVAR_EVENT, DONE);
+            }
         }
 
         void KilledUnit(Unit* /*victim*/)

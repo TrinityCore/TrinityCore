@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -82,10 +82,10 @@ public:
 
         void Reset()
         {
-            ArcaneExplosion_Timer = 6000 + rand()%6000;
+            ArcaneExplosion_Timer = urand(6000, 12000);
             EarthShock_Timer = 2000;
             FullFillment_Timer = 15000;
-            Blink_Timer = 8000 + rand()%12000;
+            Blink_Timer = urand(8000, 20000);
             Invisible_Timer = 500;
 
             Images75 = false;
@@ -128,7 +128,7 @@ public:
             if (ArcaneExplosion_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
-                ArcaneExplosion_Timer = 8000 + rand()%10000;
+                ArcaneExplosion_Timer = urand(8000, 18000);
             } else ArcaneExplosion_Timer -= diff;
 
             //If we are within range melee the target
@@ -171,7 +171,7 @@ public:
                 }
                 DoStopAttack();
 
-                Blink_Timer= 20000 + rand()%20000;
+                Blink_Timer= urand(20000, 40000);
             } else Blink_Timer -= diff;
 
             int procent = (int) (me->GetHealthPct() + 0.5f);

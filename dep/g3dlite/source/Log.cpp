@@ -23,23 +23,23 @@
 namespace G3D {
 
 void logPrintf(const char* fmt, ...) {
-	va_list arg_list;
-	va_start(arg_list, fmt);
+    va_list arg_list;
+    va_start(arg_list, fmt);
     Log::common()->vprintf(fmt, arg_list);
     va_end(arg_list);
 }
 
 
 void logLazyPrintf(const char* fmt, ...) {
-	va_list arg_list;
-	va_start(arg_list, fmt);
+    va_list arg_list;
+    va_start(arg_list, fmt);
     Log::common()->lazyvprintf(fmt, arg_list);
     va_end(arg_list);
 }
 
 Log* Log::commonLog = NULL;
 
-Log::Log(const std::string& filename, int stripFromStackBottom) : 
+Log::Log(const std::string& filename, int stripFromStackBottom) :
     stripFromStackBottom(stripFromStackBottom) {
 
     this->filename = filename;
@@ -50,7 +50,7 @@ Log::Log(const std::string& filename, int stripFromStackBottom) :
         std::string drive, base, ext;
         Array<std::string> path;
         parseFilename(filename, drive, path, base, ext);
-        std::string logName = base + ((ext != "") ? ("." + ext) : ""); 
+        std::string logName = base + ((ext != "") ? ("." + ext) : "");
 
         // Write time is greater than 1ms.  This may be a network drive.... try another file.
         #ifdef G3D_WIN32
@@ -80,7 +80,7 @@ Log::Log(const std::string& filename, int stripFromStackBottom) :
 Log::~Log() {
     section("Shutdown");
     println("Closing log file");
-    
+
     // Make sure we don't leave a dangling pointer
     if (Log::commonLog == this) {
         Log::commonLog = NULL;

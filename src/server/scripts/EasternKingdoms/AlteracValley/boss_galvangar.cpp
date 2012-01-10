@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,8 +28,8 @@ enum Spells
 
 enum Yells
 {
-    YELL_AGGRO                                    = -1810021,
-    YELL_EVADE                                    = -1810022
+    YELL_AGGRO                                    = 0,
+    YELL_EVADE                                    = 1
 };
 
 class boss_galvangar : public CreatureScript
@@ -60,7 +60,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(YELL_AGGRO, me);
+            Talk(YELL_AGGRO);
         }
 
         void JustRespawned()
@@ -109,7 +109,7 @@ public:
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
-                    DoScriptText(YELL_EVADE, me);
+                    Talk(YELL_EVADE);
                 }
                 ResetTimer = 5 * IN_MILLISECONDS;
             } else ResetTimer -= diff;

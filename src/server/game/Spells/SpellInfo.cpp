@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1755,6 +1755,14 @@ Mechanics SpellInfo::GetEffectMechanic(uint8 effIndex) const
     return MECHANIC_NONE;
 }
 
+bool SpellInfo::HasAnyEffectMechanic() const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (Effects[i].Mechanic)
+            return true;
+    return false;
+}
+
 uint32 SpellInfo::GetDispelMask() const
 {
     return GetDispelMask(DispelType(Dispel));
@@ -2303,6 +2311,19 @@ bool SpellInfo::_IsPositiveEffect(uint8 effIndex, bool deep) const
         case SPELLFAMILY_SHAMAN:
             if (Id == 30708)
                 return false;
+            break;
+        case SPELLFAMILY_ROGUE:
+            switch (Id)
+            {
+                // Envenom must be considered as a positive effect even though it deals damage
+                case 32645:     // Envenom (Rank 1)
+                case 32684:     // Envenom (Rank 2)
+                case 57992:     // Envenom (Rank 3)
+                case 57993:     // Envenom (Rank 4)
+                    return true;
+                default:
+                    break;
+            }
             break;
         default:
             break;

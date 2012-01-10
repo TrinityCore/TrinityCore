@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -47,11 +47,10 @@ template<>
 void
 RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
 {
-    float X, Y, Z, z, nx, ny, nz, ori, dist;
+    float X, Y, Z, nx, ny, nz, ori, dist;
 
     creature.GetHomePosition(X, Y, Z, ori);
 
-    z = creature.GetPositionZ();
     Map const* map = creature.GetBaseMap();
 
     // For 2D/3D system selection

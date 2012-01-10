@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -824,7 +824,7 @@ public:
         void Reset()
         {
             ChaseTimer = 30000;
-            FearTimer = 25000 + rand()%10000;
+            FearTimer = urand(25000, 35000);
             SwipeTimer = 5000;
 
             HoodGUID = 0;

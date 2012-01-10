@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,8 +42,8 @@ enum TrinityStrings
     LANG_GMS_ON_SRV                     = 16,
     LANG_GMS_NOT_LOGGED                 = 17,
     LANG_YOU_IN_FLIGHT                  = 18,
-    //LANG_YOU_IN_BATTLEGROUND            = 19, not used
-    //LANG_TARGET_IN_FLIGHT               = 20, not used
+    LANG_UPDATE_DIFF                    = 19,
+    LANG_SHUTDOWN_TIMELEFT              = 20,
     LANG_CHAR_IN_FLIGHT                 = 21,
     LANG_CHAR_NON_MOUNTED               = 22,
     LANG_YOU_IN_COMBAT                  = 23,
@@ -946,8 +946,9 @@ enum TrinityStrings
     LANG_GOINFO_NAME                    = 5027,
     LANG_GOINFO_LOOTID                  = 5028,
     LANG_COMMAND_LOOKUP_MAX_RESULTS     = 5029,
-    // Room for more Trinity strings      5030-9999
     LANG_FLEE                           = 5030,
+    LANG_NPCINFO_AIINFO                 = 5031,
+    // Room for more Trinity strings      5032-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

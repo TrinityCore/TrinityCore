@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -107,7 +107,7 @@ public:
             if (ShadowWordPain_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
-                ShadowWordPain_Timer = 5000 + rand()%10000;
+                ShadowWordPain_Timer = urand(5000, 15000);
             } else ShadowWordPain_Timer -= diff;
 
             DoMeleeAttackIfReady();

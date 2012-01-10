@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,7 @@ enum eEnums
 
     //OTHER SPELLS
     //SPELL_CHARGE_UP                         = 52098,      // only used when starting walk from one platform to the other
-    //SPELL_TEMPORARY_ELECTRICAL_CHARGE       = 52092,      // triggered part of above
+    SPELL_TEMPORARY_ELECTRICAL_CHARGE       = 52092,      // triggered part of above
 
     NPC_STORMFORGED_LIEUTENANT              = 29240,
     SPELL_ARC_WELD                          = 59085,
@@ -98,11 +98,13 @@ public:
             m_instance = creature->GetInstanceScript();
             m_uiStance = STANCE_DEFENSIVE;
             memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
+            canBuff = true;
         }
 
         InstanceScript* m_instance;
 
         bool m_bIsChangingStance;
+        bool canBuff;
 
         uint8 m_uiChargingStatus;
         uint8 m_uiStance;
@@ -126,12 +128,16 @@ public:
 
         void Reset()
         {
+            if (canBuff)
+                if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
+                    me->AddAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE, me);
+
             m_bIsChangingStance = false;
 
             m_uiChargingStatus = 0;
             m_uiCharge_Timer = 1000;
 
-            m_uiChangeStance_Timer = 20000 + rand()%5000;
+            m_uiChangeStance_Timer = urand(20000, 25000);
 
             m_uiReflection_Timer = 8000;
             m_uiKnockAway_Timer = 20000;
@@ -165,6 +171,16 @@ public:
 
             if (m_instance)
                 m_instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
+        }
+
+        void EnterEvadeMode()
+        {
+            if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
+                canBuff = true;
+            else
+                canBuff = false;
+
+            ScriptedAI::EnterEvadeMode();
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -211,7 +227,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             //Return since we have no target
-         if (!UpdateVictim())
+            if (!UpdateVictim())
                 return;
 
             // Change stance
@@ -252,7 +268,7 @@ public:
                         break;
                 }
 
-                m_uiChangeStance_Timer = 20000 + rand()%5000;
+                m_uiChangeStance_Timer = urand(20000, 25000);
                 return;
             }
             else
@@ -265,7 +281,7 @@ public:
                     if (m_uiReflection_Timer <= uiDiff)
                     {
                         DoCast(me, SPELL_SPELL_REFLECTION);
-                        m_uiReflection_Timer = 8000 + rand()%1000;
+                        m_uiReflection_Timer = urand(8000, 9000);
                     }
                     else
                         m_uiReflection_Timer -= uiDiff;
@@ -273,7 +289,7 @@ public:
                     if (m_uiKnockAway_Timer <= uiDiff)
                     {
                         DoCast(me, SPELL_KNOCK_AWAY);
-                        m_uiKnockAway_Timer = 20000 + rand()%1000;
+                        m_uiKnockAway_Timer = urand(20000, 21000);
                     }
                     else
                         m_uiKnockAway_Timer -= uiDiff;
@@ -281,7 +297,7 @@ public:
                     if (m_uiPummel_Timer <= uiDiff)
                     {
                         DoCast(me->getVictim(), SPELL_PUMMEL);
-                        m_uiPummel_Timer = 10000 + rand()%1000;
+                        m_uiPummel_Timer = urand(10000, 11000);
                     }
                     else
                         m_uiPummel_Timer -= uiDiff;
@@ -289,7 +305,7 @@ public:
                     if (m_uiIronform_Timer <= uiDiff)
                     {
                         DoCast(me, SPELL_IRONFORM);
-                        m_uiIronform_Timer = 25000 + rand()%1000;
+                        m_uiIronform_Timer = urand(25000, 26000);
                     }
                     else
                         m_uiIronform_Timer -= uiDiff;
@@ -302,7 +318,7 @@ public:
                     {
                         //not much point is this, better random target and more often?
                         DoCast(me->getVictim(), SPELL_INTERCEPT);
-                        m_uiIntercept_Timer = 45000 + rand()%1000;
+                        m_uiIntercept_Timer = urand(45000, 46000);
                     }
                     else
                         m_uiIntercept_Timer -= uiDiff;
@@ -310,7 +326,7 @@ public:
                     if (m_uiWhirlwind_Timer <= uiDiff)
                     {
                         DoCast(me, SPELL_WHIRLWIND);
-                        m_uiWhirlwind_Timer = 10000 + rand()%1000;
+                        m_uiWhirlwind_Timer = urand(10000, 11000);
                     }
                     else
                         m_uiWhirlwind_Timer -= uiDiff;
@@ -318,7 +334,7 @@ public:
                     if (m_uiCleave_Timer <= uiDiff)
                     {
                         DoCast(me->getVictim(), SPELL_CLEAVE);
-                        m_uiCleave_Timer = 8000 + rand()%1000;
+                        m_uiCleave_Timer = urand(8000, 9000);
                     }
                     else
                         m_uiCleave_Timer -= uiDiff;
@@ -330,7 +346,7 @@ public:
                     if (m_uiMortalStrike_Timer <= uiDiff)
                     {
                         DoCast(me->getVictim(), SPELL_MORTAL_STRIKE);
-                        m_uiMortalStrike_Timer = 20000 + rand()%1000;
+                        m_uiMortalStrike_Timer = urand(20000, 21000);
                     }
                     else
                         m_uiMortalStrike_Timer -= uiDiff;
@@ -338,7 +354,7 @@ public:
                     if (m_uiSlam_Timer <= uiDiff)
                     {
                         DoCast(me->getVictim(), SPELL_SLAM);
-                        m_uiSlam_Timer = 15000 + rand()%1000;
+                        m_uiSlam_Timer = urand(15000, 16000);
                     }
                     else
                         m_uiSlam_Timer -= uiDiff;
@@ -381,8 +397,8 @@ public:
 
         void Reset()
         {
-            m_uiArcWeld_Timer = 20000 + rand()%1000;
-            m_uiRenewSteel_Timer = 10000 + rand()%1000;
+            m_uiArcWeld_Timer = urand(20000, 21000);
+            m_uiRenewSteel_Timer = urand(10000, 11000);
         }
 
         void EnterCombat(Unit* who)
@@ -406,7 +422,7 @@ public:
             if (m_uiArcWeld_Timer <= uiDiff)
             {
                 DoCast(me->getVictim(), SPELL_ARC_WELD);
-                m_uiArcWeld_Timer = 20000 + rand()%1000;
+                m_uiArcWeld_Timer = urand(20000, 21000);
             }
             else
                 m_uiArcWeld_Timer -= uiDiff;
@@ -421,7 +437,7 @@ public:
                             DoCast(pBjarngrim, SPELL_RENEW_STEEL_N);
                     }
                 }
-                m_uiRenewSteel_Timer = 10000 + rand()%4000;
+                m_uiRenewSteel_Timer = urand(10000, 14000);
             }
             else
                 m_uiRenewSteel_Timer -= uiDiff;

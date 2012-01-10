@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -128,7 +128,7 @@ public:
             FatalAttractionExplodeTimer = 70000;
             ShriekTimer = 30000;
             SaberTimer = 35000;
-            RandomYellTimer = 70000 + rand()%41 * 1000;
+            RandomYellTimer = urand(70, 111) * 1000;
             EnrageTimer = 600000;
             ExplosionCount = 0;
 
@@ -237,7 +237,7 @@ public:
 
                 DoScriptText(RAND(SAY_SPELL2, SAY_SPELL3), me);
                 FatalAttractionExplodeTimer = 2000;
-                FatalAttractionTimer = 40000 + rand()%31 * 1000;
+                FatalAttractionTimer = urand(40, 71) * 1000;
             } else FatalAttractionTimer -= diff;
 
             if (FatalAttractionExplodeTimer <= diff)
@@ -293,7 +293,7 @@ public:
             if (RandomYellTimer <= diff)
             {
                 DoScriptText(RAND(SAY_TAUNT1, SAY_TAUNT2, SAY_TAUNT3), me);
-                RandomYellTimer = 60000 + rand()%91 * 1000;
+                RandomYellTimer = urand(60, 151) * 1000;
             } else RandomYellTimer -= diff;
 
             DoMeleeAttackIfReady();

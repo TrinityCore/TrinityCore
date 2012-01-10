@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,7 +33,7 @@
 
 #define PET_XP_FACTOR 0.05f
 
-Pet::Pet(Player* owner, PetType type) : Guardian(NULL, owner),
+Pet::Pet(Player* owner, PetType type) : Guardian(NULL, owner, true),
 m_usedTalentCount(0), m_removed(false), m_owner(owner),
 m_happinessTimer(7500), m_petType(type), m_duration(0),
 m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
@@ -50,8 +50,6 @@ m_auraRaidUpdateMask(0), m_loading(false), m_declinedname(NULL)
 
     m_name = "Pet";
     m_regenTimer = PET_FOCUS_REGEN_INTERVAL;
-
-    m_isWorldObject = true;
 }
 
 Pet::~Pet()
@@ -908,6 +906,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                         SetCreateHealth(40*petlevel);
                         SetCreateMana(28 + 10*petlevel);
                     }
+                    SetBonusDamage(m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FIRE) * 0.5f);
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel * 4 - petlevel));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel * 4 + petlevel));
                     break;
@@ -1248,24 +1247,29 @@ void Pet::_SaveAuras(SQLTransaction& trans)
     }
 }
 
-bool Pet::addSpell(uint32 spell_id, ActiveStates active /*= ACT_DECIDE*/, PetSpellState state /*= PETSPELL_NEW*/, PetSpellType type /*= PETSPELL_NORMAL*/)
+bool Pet::addSpell(uint32 spellId, ActiveStates active /*= ACT_DECIDE*/, PetSpellState state /*= PETSPELL_NEW*/, PetSpellType type /*= PETSPELL_NORMAL*/)
 {
-    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
+    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId);
     if (!spellInfo)
     {
         // do pet spell book cleanup
         if (state == PETSPELL_UNCHANGED)                    // spell load case
         {
-            sLog->outError("Pet::addSpell: Non-existed in SpellStore spell #%u request, deleting for all pets in `pet_spell`.", spell_id);
-            CharacterDatabase.PExecute("DELETE FROM pet_spell WHERE spell = '%u'", spell_id);
+            sLog->outError("Pet::addSpell: Non-existed in SpellStore spell #%u request, deleting for all pets in `pet_spell`.", spellId);
+
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_INVALID_PET_SPELL);
+
+            stmt->setUInt32(0, spellId);
+
+            CharacterDatabase.Execute(stmt);
         }
         else
-            sLog->outError("Pet::addSpell: Non-existed in SpellStore spell #%u request.", spell_id);
+            sLog->outError("Pet::addSpell: Non-existed in SpellStore spell #%u request.", spellId);
 
         return false;
     }
 
-    PetSpellMap::iterator itr = m_spells.find(spell_id);
+    PetSpellMap::iterator itr = m_spells.find(spellId);
     if (itr != m_spells.end())
     {
         if (itr->second.state == PETSPELL_REMOVED)
@@ -1304,7 +1308,7 @@ bool Pet::addSpell(uint32 spell_id, ActiveStates active /*= ACT_DECIDE*/, PetSpe
         newspell.active = active;
 
     // talent: unlearn all other talent ranks (high and low)
-    if (TalentSpellPos const* talentPos = GetTalentSpellPos(spell_id))
+    if (TalentSpellPos const* talentPos = GetTalentSpellPos(spellId))
     {
         if (TalentEntry const* talentInfo = sTalentStore.LookupEntry(talentPos->talent_id))
         {
@@ -1312,7 +1316,7 @@ bool Pet::addSpell(uint32 spell_id, ActiveStates active /*= ACT_DECIDE*/, PetSpe
             {
                 // skip learning spell and no rank spell case
                 uint32 rankSpellId = talentInfo->RankID[i];
-                if (!rankSpellId || rankSpellId == spell_id)
+                if (!rankSpellId || rankSpellId == spellId)
                     continue;
 
                 // skip unknown ranks
@@ -1353,17 +1357,17 @@ bool Pet::addSpell(uint32 spell_id, ActiveStates active /*= ACT_DECIDE*/, PetSpe
         }
     }
 
-    m_spells[spell_id] = newspell;
+    m_spells[spellId] = newspell;
 
     if (spellInfo->IsPassive() && (!spellInfo->CasterAuraState || HasAuraState(AuraStateType(spellInfo->CasterAuraState))))
-        CastSpell(this, spell_id, true);
+        CastSpell(this, spellId, true);
     else
         m_charmInfo->AddSpellToActionBar(spellInfo);
 
     if (newspell.active == ACT_ENABLED)
         ToggleAutocast(spellInfo, true);
 
-    uint32 talentCost = GetTalentSpellCost(spell_id);
+    uint32 talentCost = GetTalentSpellCost(spellId);
     if (talentCost)
     {
         int32 free_points = GetMaxTalentPointsForLevel(getLevel());

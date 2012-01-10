@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -225,9 +225,7 @@ void ObjectAccessor::RemoveCorpse(Corpse* corpse)
 
         // build mapid*cellid -> guid_set map
         CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
-        uint32 cell_id = (cellCoord.y_coord * TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
-
-        sObjectMgr->DeleteCorpseCellData(corpse->GetMapId(), cell_id, GUID_LOPART(corpse->GetOwnerGUID()));
+        sObjectMgr->DeleteCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), GUID_LOPART(corpse->GetOwnerGUID()));
 
         i_player2corpse.erase(iter);
     }
@@ -246,9 +244,7 @@ void ObjectAccessor::AddCorpse(Corpse* corpse)
 
         // build mapid*cellid -> guid_set map
         CellCoord cellCoord = Trinity::ComputeCellCoord(corpse->GetPositionX(), corpse->GetPositionY());
-        uint32 cell_id = (cellCoord.y_coord * TOTAL_NUMBER_OF_CELLS_PER_MAP) + cellCoord.x_coord;
-
-        sObjectMgr->AddCorpseCellData(corpse->GetMapId(), cell_id, GUID_LOPART(corpse->GetOwnerGUID()), corpse->GetInstanceId());
+        sObjectMgr->AddCorpseCellData(corpse->GetMapId(), cellCoord.GetId(), GUID_LOPART(corpse->GetOwnerGUID()), corpse->GetInstanceId());
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,10 +69,10 @@ enum eFaction
 
 enum eSays
 {
-    TEXT_SECOND_TRIAL_1               = -1000637,
-    TEXT_SECOND_TRIAL_2               = -1000638,
-    TEXT_SECOND_TRIAL_3               = -1000639,
-    TEXT_SECOND_TRIAL_4               = -1000640,
+    TEXT_SECOND_TRIAL_1               = 0,
+    TEXT_SECOND_TRIAL_2               = 1,
+    TEXT_SECOND_TRIAL_3               = 2,
+    TEXT_SECOND_TRIAL_4               = 3,
 };
 
 struct Locations
@@ -204,7 +204,7 @@ public:
                 if (timerJustice <= diff)
                 {
                     DoCast(me, SPELL_SEAL_OF_JUSTICE);
-                    timerJustice = 10000 + rand()%10000;
+                    timerJustice = urand(10000, 20000);
                 }
                 else
                     timerJustice -= diff;
@@ -215,7 +215,7 @@ public:
                 if (timerJudLight <= diff)
                 {
                     DoCast(me, SPELL_JUDGEMENT_OF_LIGHT);
-                    timerJudLight = 10000 + rand()%10000;
+                    timerJudLight = urand(10000, 20000);
                 }
                 else
                     timerJudLight -= diff;
@@ -226,7 +226,7 @@ public:
                   if (timerCommand <= diff)
                   {
                       DoCast(me, SPELL_SEAL_OF_COMMAND);
-                      timerCommand = 20000 + rand()%20000;
+                      timerCommand = urand(20000, 40000);
                   }
                   else
                       timerCommand -= diff;
@@ -335,16 +335,16 @@ public:
                         switch (paladinPhase)
                         {
                         case 0:
-                            DoScriptText(TEXT_SECOND_TRIAL_1, me);
+                            Talk(TEXT_SECOND_TRIAL_1);
                             break;
                         case 1:
-                            DoScriptText(TEXT_SECOND_TRIAL_2, me);
+                            Talk(TEXT_SECOND_TRIAL_2);
                             break;
                         case 2:
-                            DoScriptText(TEXT_SECOND_TRIAL_3, me);
+                            Talk(TEXT_SECOND_TRIAL_3);
                             break;
                         case 3:
-                            DoScriptText(TEXT_SECOND_TRIAL_4, me);
+                            Talk(TEXT_SECOND_TRIAL_4);
                             break;
                         }
                     }

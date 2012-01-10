@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,7 @@ EndScriptData */
 #include "SkillDiscovery.h"
 #include "SkillExtraItems.h"
 #include "Chat.h"
+#include "WaypointManager.h"
 
 class reload_commandscript : public CommandScript
 {
@@ -145,7 +146,7 @@ public:
             { "spell_linked_spell",           SEC_ADMINISTRATOR, true,  &HandleReloadSpellLinkedSpellCommand,           "", NULL },
             { "spell_pet_auras",              SEC_ADMINISTRATOR, true,  &HandleReloadSpellPetAurasCommand,              "", NULL },
             { "spell_proc_event",             SEC_ADMINISTRATOR, true,  &HandleReloadSpellProcEventCommand,             "", NULL },
-            { "spell_proc",                   SEC_ADMINISTRATOR, true,  &HandleReloadSpellProcsCommand,             "", NULL },
+            { "spell_proc",                   SEC_ADMINISTRATOR, true,  &HandleReloadSpellProcsCommand,                 "", NULL },
             { "spell_scripts",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellScriptsCommand,               "", NULL },
             { "spell_target_position",        SEC_ADMINISTRATOR, true,  &HandleReloadSpellTargetPositionCommand,        "", NULL },
             { "spell_threats",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellThreatsCommand,               "", NULL },
@@ -153,6 +154,7 @@ public:
             { "trinity_string",               SEC_ADMINISTRATOR, true,  &HandleReloadTrinityStringCommand,              "", NULL },
             { "warden_checks",                SEC_ADMINISTRATOR, true,  &HandleReloadWardenChecksCommand,               "", NULL },
             { "waypoint_scripts",             SEC_ADMINISTRATOR, true,  &HandleReloadWpScriptsCommand,                  "", NULL },
+            { "waypoint_data",                SEC_ADMINISTRATOR, true,  &HandleReloadWpCommand,                         "", NULL },
             { "vehicle_accessory",            SEC_ADMINISTRATOR, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
             { "vehicle_template_accessory",   SEC_ADMINISTRATOR, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
             { NULL,                           0,                 false, NULL,                                           "", NULL }
@@ -266,6 +268,7 @@ public:
         handler->SendGlobalGMSysMessage("DB tables `*_scripts` reloaded.");
         HandleReloadDbScriptStringCommand(handler, "a");
         HandleReloadWpScriptsCommand(handler, "a");
+        HandleReloadWpCommand(handler, "a");
         return true;
     }
 
@@ -996,6 +999,19 @@ public:
 
         if (*args != 'a')
             handler->SendGlobalGMSysMessage("DB table `waypoint_scripts` reloaded.");
+
+        return true;
+    }
+
+    static bool HandleReloadWpCommand(ChatHandler* handler, const char* args)
+    {
+        if (*args != 'a')
+            sLog->outString("Re-Loading Waypoints data from 'waypoints_data'");
+
+        sWaypointMgr->Load();
+
+        if (*args != 'a')
+            sLog->outString("DB Table 'waypoint_data' reloaded.");
 
         return true;
     }

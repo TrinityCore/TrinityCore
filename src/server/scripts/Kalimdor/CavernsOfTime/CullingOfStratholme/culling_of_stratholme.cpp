@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -582,7 +582,7 @@ public:
                         {
                             Unit* pJaina = GetClosestCreatureWithEntry(me, NPC_JAINA, 50.0f);
                             if (!pJaina)
-                                pJaina = pJaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000);
+                                pJaina = me->SummonCreature(NPC_JAINA, 1895.48f, 1292.66f, 143.706f, 0.023475f, TEMPSUMMON_DEAD_DESPAWN, 180000);
                             if (pJaina)
                                 uiJainaGUID = pJaina->GetGUID();
                             bStepping = false;

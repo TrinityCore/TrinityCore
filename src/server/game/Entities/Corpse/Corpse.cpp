@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,7 @@
 #include "GossipDef.h"
 #include "World.h"
 
-Corpse::Corpse(CorpseType type) : WorldObject()
+Corpse::Corpse(CorpseType type) : WorldObject(type != CORPSE_BONES)
 , m_type(type)
 {
     m_objectType |= TYPEMASK_CORPSE;
@@ -39,9 +39,6 @@ Corpse::Corpse(CorpseType type) : WorldObject()
     m_time = time(NULL);
 
     lootForBody = false;
-
-    if (type != CORPSE_BONES)
-        m_isWorldObject = true;
 }
 
 Corpse::~Corpse()
@@ -106,7 +103,7 @@ void Corpse::SaveToDB()
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
     DeleteFromDB(trans);
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_CORPSE);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_CORPSE);
     stmt->setUInt32(0, GetGUIDLow());                                           // corpseGuid
     stmt->setUInt32(1, GUID_LOPART(GetOwnerGUID()));                            // guid
     stmt->setFloat (2, GetPositionX());                                         // posX
@@ -162,20 +159,11 @@ void Corpse::DeleteFromDB(SQLTransaction& trans)
     trans->Append(stmt);
 }
 
-bool Corpse::LoadFromDB(uint32 guid, Field* fields)
+bool Corpse::LoadCorpseFromDB(uint32 guid, Field* fields)
 {
     uint32 ownerGuid = fields[17].GetUInt32();
     //        0     1     2     3            4      5          6          7       8       9        10     11        12    13          14          15         16          17
     // SELECT posX, posY, posZ, orientation, mapId, displayId, itemCache, bytes1, bytes2, guildId, flags, dynFlags, time, corpseType, instanceId, phaseMask, corpseGuid, guid FROM corpse WHERE corpseType <> 0
-    m_type = CorpseType(fields[13].GetUInt8());
-    if (m_type >= MAX_CORPSE_TYPE)
-    {
-        sLog->outError("Corpse (guid: %u, owner: %u) have wrong corpse type (%u), not loading.", guid, ownerGuid, m_type);
-        return false;
-    }
-    if (m_type != CORPSE_BONES)
-        m_isWorldObject = true;
-
     float posX   = fields[0].GetFloat();
     float posY   = fields[1].GetFloat();
     float posZ   = fields[2].GetFloat();

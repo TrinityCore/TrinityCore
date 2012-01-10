@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,7 +55,7 @@ enum SpellCastFlags
     CAST_FLAG_UNKNOWN_15         = 0x00004000,
     CAST_FLAG_UNKNOWN_16         = 0x00008000,
     CAST_FLAG_UNKNOWN_17         = 0x00010000,
-    CAST_FLAG_UNKNOWN_18         = 0x00020000,
+    CAST_FLAG_ADJUST_MISSILE     = 0x00020000,
     CAST_FLAG_UNKNOWN_19         = 0x00040000,
     CAST_FLAG_UNKNOWN_20         = 0x00080000,
     CAST_FLAG_UNKNOWN_21         = 0x00100000,
@@ -624,6 +624,9 @@ class Spell
 
         // Scripting system
         void LoadScripts();
+        void CallScriptBeforeCastHandlers();
+        void CallScriptOnCastHandlers();
+        void CallScriptAfterCastHandlers();
         SpellCastResult CallScriptCheckCastHandlers();
         void PrepareScriptHitHandlers();
         bool CallScriptEffectHandlers(SpellEffIndex effIndex, SpellEffectHandleMode mode);
@@ -647,7 +650,7 @@ class Spell
         // -------------------------------------------
 
         uint32 m_spellState;
-        uint32 m_timer;
+        int32 m_timer;
 
         TriggerCastFlags _triggeredCastFlags;
 

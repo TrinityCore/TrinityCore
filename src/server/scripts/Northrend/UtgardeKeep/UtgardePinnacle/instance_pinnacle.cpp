@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -170,8 +170,12 @@ public:
 
         void SetData64(uint32 type, uint64 data)
         {
-            if (type == DATA_SACRIFICED_PLAYER)
-                uiSacrificedPlayer = data;
+            switch (type)
+            {
+                case DATA_SACRIFICED_PLAYER:
+                    uiSacrificedPlayer = data;
+                    break;
+            }
         }
 
         uint32 GetData(uint32 type)
@@ -201,6 +205,7 @@ public:
                 case DATA_MOB_ORB:                return uiPalehoofOrb;
                 case DATA_SVALA:                  return uiSvala;
                 case DATA_GORTOK_PALEHOOF_SPHERE: return uiGortokPalehoofSphere;
+                case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;
             }
 
             return 0;

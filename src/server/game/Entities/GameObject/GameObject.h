@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -713,7 +713,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void Use(Unit* user);
 
         LootState getLootState() const { return m_lootState; }
-        void SetLootState(LootState s) { m_lootState = s; }
+        void SetLootState(LootState s);
 
         uint16 GetLootMode() { return m_LootMode; }
         bool HasLootMode(uint16 lootMode) { return m_LootMode & lootMode; }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,45 +32,6 @@ EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
-
-/*######
-## npc_blood_knight_dawnstar
-######*/
-
-#define GOSSIP_H_BKD "Take Blood Knight Insignia"
-
-class npc_blood_knight_dawnstar : public CreatureScript
-{
-public:
-    npc_blood_knight_dawnstar() : CreatureScript("npc_blood_knight_dawnstar") { }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
-        {
-            ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 24226, 1, NULL);
-            if (msg == EQUIP_ERR_OK)
-            {
-                player->StoreNewItem(dest, 24226, 1, true);
-                player->PlayerTalkClass->ClearMenus();
-            }
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(9692) == QUEST_STATUS_INCOMPLETE && !player->HasItemCount(24226, 1, true))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_H_BKD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-
-        return true;
-    }
-
-};
 
 /*######
 ## npc_budd_nedreck
@@ -255,7 +216,6 @@ public:
 
 void AddSC_ghostlands()
 {
-    new npc_blood_knight_dawnstar();
     new npc_budd_nedreck();
     new npc_rathis_tomber();
     new npc_ranger_lilatha();

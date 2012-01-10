@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,10 @@ enum PaladinSpells
     SPELL_BLESSING_OF_LOWER_CITY_PALADIN         = 37879,
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
+
+    SPELL_DIVINE_STORM                           = 53385,
+    SPELL_DIVINE_STORM_DUMMY                     = 54171,
+    SPELL_DIVINE_STORM_HEAL                      = 54172,
 };
 
 // 31850 - Ardent Defender
@@ -327,6 +331,40 @@ public:
     }
 };
 
+class spell_pal_divine_storm : public SpellScriptLoader
+{
+public:
+    spell_pal_divine_storm() : SpellScriptLoader("spell_pal_divine_storm") { }
+
+    class spell_pal_divine_storm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_divine_storm_SpellScript);
+
+        uint32 healPct;
+
+        bool Load()
+        {
+            healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+            return true;
+        }
+
+        void TriggerHeal()
+        {
+            GetCaster()->CastCustomSpell(SPELL_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, (GetHitDamage() * healPct) / 100, GetCaster(), true);
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_pal_divine_storm_SpellScript::TriggerHeal);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_divine_storm_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -335,4 +373,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_guarded_by_the_light();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
+    new spell_pal_divine_storm();
 }

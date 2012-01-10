@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,8 @@
 #include "GossipDef.h"
 #include "Player.h"
 #include "BattlegroundMgr.h"
+#include "UnitAI.h"
+#include "GameObjectAI.h"
 
 bool GameEventMgr::CheckOneGameEvent(uint16 entry) const
 {
@@ -757,6 +759,50 @@ void GameEventMgr::LoadFromDB()
         }
     }
 
+    sLog->outString("Loading Game Event Seasonal Quest Relations...");
+    {
+        uint32 oldMSTime = getMSTime();
+
+        //                                               0     1
+        QueryResult result = WorldDatabase.Query("SELECT questId, eventEntry FROM game_event_seasonal_questrelation");
+
+        if (!result)
+        {
+            sLog->outString(">> Loaded 0 seasonal quests additions in game events. DB table `game_event_seasonal_questrelation` is empty.");
+            sLog->outString();
+        }
+        else
+        {
+            uint32 count = 0;
+            do
+            {
+                Field* fields = result->Fetch();
+
+                uint32 questId  = fields[0].GetUInt32();
+                uint16 eventEntry = fields[1].GetUInt16();
+
+                if (!sObjectMgr->GetQuestTemplate(questId))
+                {
+                    sLog->outErrorDb("`game_event_seasonal_questrelation` quest id (%u) does not exist in `quest_template`", questId);
+                    continue;
+                }
+
+                if (eventEntry >= mGameEvent.size())
+                {
+                    sLog->outErrorDb("`game_event_seasonal_questrelation` event id (%u) is out of range compared to max event in `game_event`", eventEntry);
+                    continue;
+                }
+
+                _questToEventLinks[questId] = eventEntry;
+                ++count;
+            }
+            while (result->NextRow());
+
+            sLog->outString(">> Loaded %u quests additions in game events in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+            sLog->outString();
+        }
+    }
+
     sLog->outString("Loading Game Event Vendor Additions Data...");
     {
         uint32 oldMSTime = getMSTime();
@@ -1059,6 +1105,8 @@ uint32 GameEventMgr::Update()                               // return the next e
 void GameEventMgr::UnApplyEvent(uint16 event_id)
 {
     sLog->outDetail("GameEvent %u \"%s\" removed.", event_id, mGameEvent[event_id].description.c_str());
+    //! Run SAI scripts with SMART_EVENT_GAME_EVENT_END
+    RunSmartAIScripts(event_id, false);
     // un-spawn positive event tagged objects
     GameEventUnspawn(event_id);
     // spawn negative event tagget objects
@@ -1075,6 +1123,8 @@ void GameEventMgr::UnApplyEvent(uint16 event_id)
     UpdateEventNPCVendor(event_id, false);
     // update bg holiday
     UpdateBattlegroundSettings();
+    // check for seasonal quest reset.
+    sWorld->ResetEventSeasonalQuests(event_id);
 }
 
 void GameEventMgr::ApplyNewEvent(uint16 event_id)
@@ -1089,6 +1139,9 @@ void GameEventMgr::ApplyNewEvent(uint16 event_id)
     }
 
     sLog->outDetail("GameEvent %u \"%s\" started.", event_id, mGameEvent[event_id].description.c_str());
+
+    //! Run SAI scripts with SMART_EVENT_GAME_EVENT_END
+    RunSmartAIScripts(event_id, true);
 
     // spawn positive event tagget objects
     GameEventSpawn(event_id);
@@ -1537,7 +1590,7 @@ void GameEventMgr::HandleQuestComplete(uint32 quest_id)
                 stmt->setUInt32(1, condition);
                 trans->Append(stmt);
 
-                stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GAME_EVENT_CONDITION_SAVE);
+                stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GAME_EVENT_CONDITION_SAVE);
                 stmt->setUInt8(0, uint8(event_id));
                 stmt->setUInt32(1, condition);
                 stmt->setFloat(2, citr->second.done);
@@ -1581,7 +1634,7 @@ void GameEventMgr::SaveWorldEventStateToDB(uint16 event_id)
     stmt->setUInt8(0, uint8(event_id));
     trans->Append(stmt);
 
-    stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GAME_EVENT_SAVE);
+    stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_GAME_EVENT_SAVE);
     stmt->setUInt8(0, uint8(event_id));
     stmt->setUInt8(1, mGameEvent[event_id].state);
     stmt->setUInt32(2, mGameEvent[event_id].nextstart ? uint32(mGameEvent[event_id].nextstart) : 0);
@@ -1601,6 +1654,38 @@ void GameEventMgr::SendWorldStateUpdate(Player* player, uint16 event_id)
     }
 }
 
+void GameEventMgr::RunSmartAIScripts(uint16 event_id, bool activate)
+{
+    //! Iterate over every supported source type (creature and gameobject)
+    //! Not entirely sure how this will affect units in non-loaded grids.
+    {
+        TRINITY_READ_GUARD(HashMapHolder<Creature>::LockType, *HashMapHolder<Creature>::GetLock());
+        HashMapHolder<Creature>::MapType const& m = ObjectAccessor::GetCreatures();
+        for (HashMapHolder<Creature>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
+            if (iter->second->IsInWorld())
+                iter->second->AI()->sOnGameEvent(activate, event_id);
+    }
+    {
+        TRINITY_READ_GUARD(HashMapHolder<GameObject>::LockType, *HashMapHolder<GameObject>::GetLock());
+        HashMapHolder<GameObject>::MapType const& m = ObjectAccessor::GetGameObjects();
+        for (HashMapHolder<GameObject>::MapType::const_iterator iter = m.begin(); iter != m.end(); ++iter)
+            if (iter->second->IsInWorld())
+                iter->second->AI()->OnGameEvent(activate, event_id);
+    }
+}
+
+uint16 GameEventMgr::GetEventIdForQuest(Quest const* quest) const
+{
+    if (!quest)
+        return 0;
+
+    UNORDERED_MAP<uint32, uint16>::const_iterator itr = _questToEventLinks.find(quest->GetQuestId());
+    if (itr == _questToEventLinks.end())
+        return 0;
+
+    return itr->second;
+}
+
 bool IsHolidayActive(HolidayIds id)
 {
     if (id == HOLIDAY_NONE)
@@ -1616,7 +1701,7 @@ bool IsHolidayActive(HolidayIds id)
     return false;
 }
 
- bool IsEventActive(uint16 event_id)
+bool IsEventActive(uint16 event_id)
 {
     GameEventMgr::ActiveEvents const& ae = sGameEventMgr->GetActiveEventList();
     return ae.find(event_id) != ae.end();

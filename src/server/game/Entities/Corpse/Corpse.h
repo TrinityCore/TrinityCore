@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,7 +59,7 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         bool Create(uint32 guidlow, Player* owner);
 
         void SaveToDB();
-        bool LoadFromDB(uint32 guid, Field* fields);
+        bool LoadCorpseFromDB(uint32 guid, Field* fields);
 
         void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -303,9 +303,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
 
                 if (resetcheck_timer <= diff)
                 {
-                    uint32 tempx, tempy;
-                    tempx = uint32(me->GetPositionX());
-                    tempy = uint32(me->GetPositionY());
+                    uint32 tempx = uint32(me->GetPositionX());
                     if (tempx > 255 || tempx < 205)
                     {
                         EnterEvadeMode();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -133,6 +133,11 @@ struct CoordPair
         x_coord = std::min(x_coord, LIMIT - 1);
         y_coord = std::min(y_coord, LIMIT - 1);
         return *this;
+    }
+
+    uint32 GetId() const
+    {
+        return y_coord * LIMIT + x_coord;
     }
 
     uint32 x_coord;
