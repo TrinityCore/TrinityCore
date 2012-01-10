@@ -72,7 +72,7 @@ enum Opcodes
     CMSG_AUTOSTORE_GROUND_ITEM                       = 0x00,
     CMSG_AUTOSTORE_LOOT_ITEM                         = 0xD876,
     CMSG_BANKER_ACTIVATE                             = 0x00,
-    CMSG_BATTLEFIELD_JOIN                            = 0x00,
+    CMSG_BATTLEFIELD_JOIN                            = 0x225,
     CMSG_BATTLEFIELD_REQUEST_SCORE_DATA              = 0x00,
     CMSG_BATTLEFIELD_STATUS                          = 0x00,
     MSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x00,
