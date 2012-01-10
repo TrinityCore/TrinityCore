@@ -49,6 +49,8 @@ enum Data
     DATA_HORSEMEN2,
     DATA_HORSEMEN3,
     DATA_ABOMINATION_KILLED,
+    
+    DATA_POLARITY_SWITCHED,
 };
 
 enum Data64
