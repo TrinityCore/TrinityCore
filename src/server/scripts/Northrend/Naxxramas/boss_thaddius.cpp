@@ -400,9 +400,68 @@ public:
 
 };
 
+class spell_thaddius_pos_neg_charge : public SpellScriptLoader
+{
+    public:
+        spell_thaddius_pos_neg_charge() : SpellScriptLoader("spell_thaddius_pos_neg_charge") { }
+
+        class spell_thaddius_pos_neg_charge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_thaddius_pos_neg_charge_SpellScript);
+
+            void HandleTargets(std::list<Unit*>& targetList)
+            {
+                uint8 count = 0;
+                for (std::list<Unit*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
+                    if ((*ihit)->GetGUID() != GetCaster()->GetGUID())
+                        if (Player* target = (*ihit)->ToPlayer())
+                            if (target->HasAura(GetTriggeringSpell()->Id))
+                                ++count;
+                if (count)
+                {
+                    uint32 spellId = 0;
+                    switch (GetSpellInfo()->Id)
+                    {
+                        case 28062: spellId = 29659; break;
+                        case 28085: spellId = 29660; break;
+                        case 39090: spellId = 39089; break;
+                        case 39093: spellId = 39092; break;
+                    }
+                    GetCaster()->SetAuraStack(spellId, GetCaster(), count);
+                }
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetTriggeringSpell())
+                    return;
+                
+                Unit* target = GetHitUnit();
+                
+                if (target->HasAura(GetTriggeringSpell()->Id))
+                    SetHitDamage(0);
+                else
+                    if (InstanceScript* instance = target->GetInstanceScript())
+                        instance->SetData(DATA_POLARITY_SWITCHED, 1);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_thaddius_pos_neg_charge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_thaddius_pos_neg_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_thaddius_pos_neg_charge_SpellScript();
+        }
+};
+
 void AddSC_boss_thaddius()
 {
     new boss_thaddius();
     new mob_stalagg();
     new mob_feugen();
+    new spell_thaddius_pos_neg_charge();
 }

@@ -333,38 +333,6 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
 
                 switch (m_spellInfo->Id)                     // better way to check unknown
                 {
-                    // Positive/Negative Charge
-                    case 28062:
-                    case 28085:
-                    case 39090:
-                    case 39093:
-                        if (!m_triggeredByAuraSpell)
-                            break;
-                        if (unitTarget == m_caster)
-                        {
-                            uint8 count = 0;
-                            for (std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit)
-                                if (ihit->targetGUID != m_caster->GetGUID())
-                                    if (Player* target = ObjectAccessor::GetPlayer(*m_caster, ihit->targetGUID))
-                                        if (target->HasAura(m_triggeredByAuraSpell->Id))
-                                            ++count;
-                            if (count)
-                            {
-                                uint32 spellId = 0;
-                                switch (m_spellInfo->Id)
-                                {
-                                    case 28062: spellId = 29659; break;
-                                    case 28085: spellId = 29660; break;
-                                    case 39090: spellId = 39089; break;
-                                    case 39093: spellId = 39092; break;
-                                }
-                                m_caster->SetAuraStack(spellId, m_caster, count);
-                            }
-                        }
-
-                        if (unitTarget->HasAura(m_triggeredByAuraSpell->Id))
-                            damage = 0;
-                        break;
                     // Consumption
                     case 28865:
                         damage = (((InstanceMap*)m_caster->GetMap())->GetDifficulty() == REGULAR_DIFFICULTY ? 2750 : 4250);
