@@ -264,7 +264,7 @@ enum Opcodes
     CMSG_LOGOUT_REQUEST                              = 0x4C7A,
     CMSG_LOOT                                        = 0x1E62,
     CMSG_LOOT_METHOD                                 = 0x00,
-    CMSG_LOOT_MONEY                                  = 0x00,
+    CMSG_LOOT_MONEY                                  = 0x4A42,
     CMSG_LOOT_RELEASE                                = 0x4A6A,
     CMSG_LOOT_ROLL                                   = 0x00,
     CMSG_MAIL_CREATE_TEXT_ITEM                       = 0x886E,
