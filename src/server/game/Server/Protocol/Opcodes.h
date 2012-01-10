@@ -274,7 +274,7 @@ enum Opcodes
     CMSG_MAIL_TAKE_ITEM                              = 0xCC2,
     CMSG_MAIL_TAKE_MONEY                             = 0x4CD6,
     CMSG_MEETINGSTONE_INFO                           = 0xCA5B,
-    CMSG_MESSAGECHAT_AFK                             = 0x00,
+    CMSG_MESSAGECHAT_AFK                             = 0x30C1,
     CMSG_MESSAGECHAT_BATTLEGROUND                    = 0x00,
     CMSG_MESSAGECHAT_BATTLEGROUND_LEADER             = 0x00,
     CMSG_MESSAGECHAT_ADDON_BATTLEGROUND              = 0x6059, // New on 4.x
@@ -283,7 +283,7 @@ enum Opcodes
     CMSG_MESSAGECHAT_ADDON_RAID                      = 0x3041, // New on 4.x
     CMSG_MESSAGECHAT_ADDON_WHISPER                   = 0x20C1, // New on 4.x
     CMSG_MESSAGECHAT_CHANNEL                         = 0x7459,
-    CMSG_MESSAGECHAT_DND                             = 0x00,
+    CMSG_MESSAGECHAT_DND                             = 0x30C9,
     CMSG_MESSAGECHAT_EMOTE                           = 0x6449,
     CMSG_MESSAGECHAT_GUILD                           = 0x60C1,
     CMSG_MESSAGECHAT_OFFICER                         = 0x00,
