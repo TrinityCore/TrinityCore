@@ -148,6 +148,8 @@ public:
         time_t maxHorsemenDiedTime;
 
         uint32 playerDied;
+        
+        uint32 PolaritySwitch;
 
         void Initialize()
         {
@@ -166,8 +168,10 @@ public:
             kelthuzadGUID             = 0;
             kelthuzadTriggerGUID      = 0;
 
-            playerDied        = 0;
-            gothikDoorState   = GO_STATE_ACTIVE;
+            playerDied                = 0;
+            gothikDoorState           = GO_STATE_ACTIVE;
+            
+            PolaritySwitch            = 0;
 
             memset(portalsGUID, 0, sizeof(portalsGUID));
         }
@@ -311,6 +315,9 @@ public:
                 case DATA_ABOMINATION_KILLED:
                     AbominationCount = value;
                     break;
+                case DATA_POLARITY_SWITCHED:
+                    PolaritySwitch = value;
+                    break;
             }
         }
 
@@ -440,6 +447,13 @@ public:
                     if (AreAllEncoutersDone() && !playerDied)
                         return true;
                     return false;
+                // Criteria for achievement 2178: Shocking! (10-man)
+                case 7604:
+                // Criteria for achievement 2179: Shocking! (25-man)
+                case 7605:
+                    if (!PolaritySwitch)
+                        return true;
+                    return false;
             }
             return false;
         }
@@ -447,14 +461,14 @@ public:
         std::string GetSaveData()
         {
             std::ostringstream saveStream;
-            saveStream << GetBossSaveData() << gothikDoorState << ' ' << playerDied;
+            saveStream << GetBossSaveData() << gothikDoorState << ' ' << playerDied << ' ' << PolaritySwitch;
             return saveStream.str();
         }
 
         void Load(const char * data)
         {
             std::istringstream loadStream(LoadBossState(data));
-            uint32 temp, buff, buff2;
+            uint32 temp, buff, buff2, buff3;
 
             for (uint32 i = 0; i < MAX_BOSS_NUMBER; ++i)
                 loadStream >> temp;
@@ -463,6 +477,8 @@ public:
             gothikDoorState = GOState(buff);
             loadStream >> buff2;
             playerDied = buff2;
+            loadStream >> buff3;
+            PolaritySwitch = buff3;
         }
     };
 
