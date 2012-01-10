@@ -254,7 +254,6 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plMover && plMover->IsBeingTeleported())
     {
-        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 
@@ -262,15 +261,15 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     MovementInfo movementInfo;
     ReadMovementInfo(recv_data, &movementInfo);
 
-    recv_data.rfinish();                   // prevent warnings spam
-
     // prevent tampered movement data
     if (movementInfo.guid != mover->GetGUID())
+    {
+        sLog->outError("HandleMovementOpcodes: guid error");
         return;
-
+    }
     if (!movementInfo.pos.IsPositionValid())
     {
-        recv_data.rfinish();                   // prevent warnings spam
+        sLog->outError("HandleMovementOpcodes: Invalid Position");
         return;
     }
 
