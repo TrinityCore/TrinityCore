@@ -170,7 +170,7 @@ class ByteBuffer
             uint32 value = 0;
             for (int32 i = bits-1; i >= 0; --i)
                 if (ReadBit())
-                    value |= (1 << (_bitpos));
+                    value |= (1 << (i));
 
             return value;
         }
