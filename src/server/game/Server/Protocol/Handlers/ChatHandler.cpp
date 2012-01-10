@@ -88,12 +88,12 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
         //case CMSG_MESSAGECHAT_OFFICER:
         //    type = CHAT_MSG_OFFICER;
         //    break;
-        //case CMSG_MESSAGECHAT_AFK:
-        //    type = CHAT_MSG_AFK;
-        //    break;
-        //case CMSG_MESSAGECHAT_DND:
-        //    type = CHAT_MSG_DND;
-        //    break;
+        case CMSG_MESSAGECHAT_AFK:
+            type = CHAT_MSG_AFK;
+            break;
+        case CMSG_MESSAGECHAT_DND:
+            type = CHAT_MSG_DND;
+            break;
         case CMSG_MESSAGECHAT_EMOTE:
             type = CHAT_MSG_EMOTE;
             break;

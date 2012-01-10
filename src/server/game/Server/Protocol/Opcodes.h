@@ -72,7 +72,7 @@ enum Opcodes
     CMSG_AUTOSTORE_GROUND_ITEM                       = 0x00,
     CMSG_AUTOSTORE_LOOT_ITEM                         = 0xD876,
     CMSG_BANKER_ACTIVATE                             = 0x00,
-    CMSG_BATTLEFIELD_JOIN                            = 0x00,
+    CMSG_BATTLEFIELD_JOIN                            = 0x225,
     CMSG_BATTLEFIELD_REQUEST_SCORE_DATA              = 0x00,
     CMSG_BATTLEFIELD_STATUS                          = 0x00,
     MSG_BATTLEGROUND_PLAYER_POSITIONS                = 0x00,
@@ -264,7 +264,7 @@ enum Opcodes
     CMSG_LOGOUT_REQUEST                              = 0x4C7A,
     CMSG_LOOT                                        = 0x1E62,
     CMSG_LOOT_METHOD                                 = 0x00,
-    CMSG_LOOT_MONEY                                  = 0x00,
+    CMSG_LOOT_MONEY                                  = 0x4A42,
     CMSG_LOOT_RELEASE                                = 0x4A6A,
     CMSG_LOOT_ROLL                                   = 0x00,
     CMSG_MAIL_CREATE_TEXT_ITEM                       = 0x886E,
@@ -274,7 +274,7 @@ enum Opcodes
     CMSG_MAIL_TAKE_ITEM                              = 0xCC2,
     CMSG_MAIL_TAKE_MONEY                             = 0x4CD6,
     CMSG_MEETINGSTONE_INFO                           = 0xCA5B,
-    CMSG_MESSAGECHAT_AFK                             = 0x00,
+    CMSG_MESSAGECHAT_AFK                             = 0x30C1,
     CMSG_MESSAGECHAT_BATTLEGROUND                    = 0x00,
     CMSG_MESSAGECHAT_BATTLEGROUND_LEADER             = 0x00,
     CMSG_MESSAGECHAT_ADDON_BATTLEGROUND              = 0x6059, // New on 4.x
@@ -283,7 +283,7 @@ enum Opcodes
     CMSG_MESSAGECHAT_ADDON_RAID                      = 0x3041, // New on 4.x
     CMSG_MESSAGECHAT_ADDON_WHISPER                   = 0x20C1, // New on 4.x
     CMSG_MESSAGECHAT_CHANNEL                         = 0x7459,
-    CMSG_MESSAGECHAT_DND                             = 0x00,
+    CMSG_MESSAGECHAT_DND                             = 0x30C9,
     CMSG_MESSAGECHAT_EMOTE                           = 0x6449,
     CMSG_MESSAGECHAT_GUILD                           = 0x60C1,
     CMSG_MESSAGECHAT_OFFICER                         = 0x00,
