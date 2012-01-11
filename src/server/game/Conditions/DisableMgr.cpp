@@ -283,6 +283,18 @@ bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags
                 if ((spellFlags & SPELL_DISABLE_PLAYER && unit->GetTypeId() == TYPEID_PLAYER) ||
                     (unit->GetTypeId() == TYPEID_UNIT && ((unit->ToCreature()->isPet() && spellFlags & SPELL_DISABLE_PET) || spellFlags & SPELL_DISABLE_CREATURE)))
                 {
+                    if (spellFlags & (SPELL_DISABLE_ARENAS | SPELL_DISABLE_BATTLEGROUNDS))
+                    {
+                        if (MapEntry const* mapEntry = sMapStore.LookupEntry(unit->GetMapId()))
+                        {
+                            if (spellFlags & SPELL_DISABLE_ARENAS && mapEntry->IsBattleArena())
+                                return true;                                    // Current map is Arena and this spell is disabled here
+
+                            if (spellFlags & SPELL_DISABLE_BATTLEGROUNDS && mapEntry->IsBattleground())
+                                return true;                                    // Current map is a Battleground and this spell is disabled here
+                        }
+                    }
+
                     if (spellFlags & SPELL_DISABLE_MAP)
                     {
                         std::set<uint32> const& mapIds = itr->second.params[0];
