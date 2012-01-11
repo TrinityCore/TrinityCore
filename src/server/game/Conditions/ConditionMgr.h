@@ -33,7 +33,7 @@ enum ConditionType
     CONDITION_ITEM                  = 2,                    // item_id          count       +referenceID       true if has #count of item_ids
     CONDITION_ITEM_EQUIPPED         = 3,                    // item_id          0           +referenceID       true if has item_id equipped
     CONDITION_ZONEID                = 4,                    // zone_id          0           +referenceID       true if in zone_id
-    CONDITION_REPUTATION_RANK       = 5,                    // faction_id       min_rank    +referenceID       true if has min_rank for faction_id
+    CONDITION_UNUSED                = 5,                    // 0                0           0                  Currently Unused
     CONDITION_TEAM                  = 6,                    // player_team      0,          +referenceID       469 - Alliance, 67 - Horde)
     CONDITION_SKILL                 = 7,                    // skill_id         skill_value +referenceID       true if has skill_value for skill_id
     CONDITION_QUESTREWARDED         = 8,                    // quest_id         0           +referenceID       true if quest_id was rewarded before
@@ -59,7 +59,10 @@ enum ConditionType
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0           +referenceID       true if player has quest_id with all objectives complete, but not yet rewarded
     CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance    +referenceID       true if there is a creature of entry in range
     CONDITION_NEAR_GAMEOBJECT       = 30,                   // gameobject entry distance    +referenceID       true if there is a gameobject of entry in range
-    CONDITION_MAX                   = 31                    // MAX
+    CONDITION_REPUTATION_RANK       = 31,                   // faction_id       rank        +referenceID       true if has rank for faction_id
+    CONDITION_REPUTATION_RANK_MIN   = 32,                   // faction_id       min_rank    +referenceID       true if has at least min_rank for faction_id
+    CONDITION_REPUTATION_RANK_MAX   = 33,                   // faction_id       max_rank    +referenceID       true if has no more than max_rank for faction_id
+    CONDITION_MAX                   = 34                    // MAX
 };
 
 enum LevelConditionType
