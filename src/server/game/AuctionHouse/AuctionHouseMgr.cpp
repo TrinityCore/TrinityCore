@@ -29,7 +29,7 @@
 #include "AuctionHouseMgr.h"
 #include "Item.h"
 #include "Language.h"
-#include "Logging/Log.h"
+#include "Log.h"
 #include <vector>
 
 enum eAuctionHouse
