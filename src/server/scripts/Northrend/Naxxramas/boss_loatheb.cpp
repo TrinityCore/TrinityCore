@@ -82,7 +82,7 @@ class boss_loatheb : public CreatureScript
                 _sporeLoserData = false;
             }
 
-            uint32 GetData(int32 id)
+            uint32 GetData(uint32 id)
             {
                 if (id != DATA_ACHIEVEMENT_SPORE_LOSER)
                    return 0;
