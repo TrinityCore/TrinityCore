@@ -3173,7 +3173,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     // reset before any aura state sources (health set/aura apply)
     SetUInt32Value(UNIT_FIELD_AURASTATE, 0);
 
-    UpdateSkillsForLevel ();
+    UpdateSkillsForLevel();
 
     // set default cast time multiplier
     SetFloatValue(UNIT_MOD_CAST_SPEED, 1.0f);
