@@ -21,7 +21,7 @@
 
 #include "Common.h"
 #include "Debugging/Errors.h"
-#include "Logging/Log.h"
+#include "Log.h"
 #include "Utilities/ByteConverter.h"
 
 
