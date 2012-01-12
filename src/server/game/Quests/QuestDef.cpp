@@ -133,7 +133,7 @@ Quest::Quest(Field* questRecord)
 
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         RewardCurrencyId[i] = questRecord[132+i].GetUInt32();
-    
+
     for (int i = 0; i < QUEST_REWARD_CURRENCY_COUNT; ++i)
         RewardCurrencyCount[i] = questRecord[136+i].GetUInt32();
 
@@ -309,7 +309,7 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
 
     data << uint32(GetCharTitleId());                // CharTitleId, new 2.4.0, player gets this title (id from CharTitles)
     data << uint32(0);                                      // 4.x Unk
-    data << uint32(0);                                      // 4.x Unk
+    data << float(0);                                       // 4.x Unk
     data << uint32(GetBonusTalents());               // bonus talents
     data << uint32(0);                                      // 4.x Unk
     data << uint32(0);                                      // 4.x Unk
@@ -333,10 +333,10 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     data << uint32(GetRewSpell());                   // reward spell, this spell will display (icon) (casted if RewSpellCast == 0)
     data << int32(GetRewSpellCast());                // casted spell
 
-    for (uint8 i = 0; i < 4; i++)
-        data << uint32(0);                                  // 4.x Unk
-    for (uint8 i = 0; i < 4; i++)
-        data << uint32(0);                                  // 4.x Unk
+    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
+        data << uint32(RewardCurrencyId[i]);                // 4.x Unk
+    for (uint8 i = 0; i < QUEST_REWARD_CURRENCY_COUNT; i++)
+        data << uint32(RewardCurrencyCount[i]);             // 4.x Unk
 
     data << uint32(0);                                      // 4.x Unk
     data << uint32(0);                                      // 4.x Unk
