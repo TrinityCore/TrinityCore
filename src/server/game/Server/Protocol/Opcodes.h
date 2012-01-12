@@ -173,7 +173,7 @@ enum Opcodes
     CMSG_FORCE_WALK_SPEED_CHANGE_ACK                 = 0x00,
     CMSG_GAMEOBJECT_QUERY                            = 0xCEFF,
     CMSG_GAMEOBJ_REPORT_USE                          = 0x00,
-    CMSG_GAMEOBJ_USE                                 = 0x9A4A, // might be CMSG_GAMEOBJ_USE
+    CMSG_GAMEOBJ_USE                                 = 0x9A4A, // might be CMSG_GAMEOBJ_REPORT_USE
     CMSG_GAMESPEED_SET                               = 0x00,
     CMSG_GAMETIME_SET                                = 0x00,
     CMSG_GETDEATHBINDZONE                            = 0x00,
@@ -994,7 +994,7 @@ enum Opcodes
     SMSG_TEXT_EMOTE                                  = 0x9E5A,
     SMSG_THREAT_CLEAR                                = 0x9E4A,
     SMSG_THREAT_REMOVE                               = 0x8A7E,
-    SMSG_THREAT_UPDATE                               = 0x0CE3, // Can be SMSG_HIGHEST_THREAT_UPDATE
+    SMSG_THREAT_UPDATE                               = 0x0CE3,
     SMSG_TIME_SYNC_REQ                               = 0x1009,
     SMSG_TITLE_EARNED                                = 0x1AFA,
     SMSG_TOGGLE_XP_GAIN                              = 0x8A5B,
