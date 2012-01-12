@@ -246,8 +246,11 @@ extern int main(int argc, char **argv)
 // Initialize connection to the database
 bool StartDB()
 {
+#ifdef DO_POSTGRESQL
+    PgSQL::Library_Init();
+#else
     MySQL::Library_Init();
-
+#endif
     std::string dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
@@ -282,5 +285,9 @@ bool StartDB()
 void StopDB()
 {
     LoginDatabase.Close();
+#ifdef DO_POSTGRESQL
+    PgSQL::Library_End();
+#else
     MySQL::Library_End();
+#endif
 }

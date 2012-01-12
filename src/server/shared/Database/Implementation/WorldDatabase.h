@@ -19,8 +19,25 @@
 #define _WORLDDATABASE_H
 
 #include "DatabaseWorkerPool.h"
-#include "MySQLConnection.h"
 
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#else
+#include "MySQLConnection.h"
+#endif
+
+#ifdef DO_POSTGRESQL
+class WorldDatabaseConnection : public PgSQLConnection
+{
+    public:
+        //- Constructors for sync and async connections
+        WorldDatabaseConnection(PgSQLConnectionInfo& connInfo) : PgSQLConnection(connInfo) {}
+        WorldDatabaseConnection(ACE_Activation_Queue* q, PgSQLConnectionInfo& connInfo) : PgSQLConnection(q, connInfo) {}
+
+        //- Loads database type specific prepared statements
+        void DoPrepareStatements();
+};
+#else
 class WorldDatabaseConnection : public MySQLConnection
 {
     public:
@@ -31,6 +48,7 @@ class WorldDatabaseConnection : public MySQLConnection
         //- Loads database type specific prepared statements
         void DoPrepareStatements();
 };
+#endif
 
 typedef DatabaseWorkerPool<WorldDatabaseConnection> WorldDatabaseWorkerPool;
 

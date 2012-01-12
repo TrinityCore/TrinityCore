@@ -21,7 +21,17 @@
 #include "Common.h"
 #include "Log.h"
 
+#ifdef DO_POSTGRESQL
+#include <libpq-fe.h>
+#else
 #include <mysql.h>
+#endif
+
+#ifdef DO_POSTGRESQL
+enum enum_field_types {
+
+};
+#endif
 
 class Field
 {
@@ -266,6 +276,11 @@ class Field
             data.value = NULL;
         }
 
+#ifdef DO_POSTGRESQL
+        static size_t SizeForType(int* field)
+        {
+            return 0;
+#else
         static size_t SizeForType(MYSQL_FIELD* field)
         {
             switch (field->type)
@@ -314,10 +329,14 @@ class Field
                     sLog->outSQLDriver("SQL::SizeForType(): invalid field type %u", uint32(field->type));
                     return 0;
             }
+#endif
         }
 
         bool IsNumeric() const
         {
+#ifdef DO_POSTGRESQL
+            return 0;
+#else
             return (data.type == MYSQL_TYPE_TINY ||
                     data.type == MYSQL_TYPE_SHORT ||
                     data.type == MYSQL_TYPE_INT24 ||
@@ -325,6 +344,7 @@ class Field
                     data.type == MYSQL_TYPE_FLOAT ||
                     data.type == MYSQL_TYPE_DOUBLE ||
                     data.type == MYSQL_TYPE_LONGLONG );
+#endif
         }
 };
 

@@ -21,12 +21,20 @@
 #include <ace/Task.h>
 #include <ace/Activation_Queue.h>
 
+#ifdef DO_POSTGRESQL
+class PgSQLConnection;
+#else
 class MySQLConnection;
+#endif
 
 class DatabaseWorker : protected ACE_Task_Base
 {
     public:
+#ifdef DO_POSTGRESQL
+        DatabaseWorker(ACE_Activation_Queue* new_queue, PgSQLConnection* con);
+#else
         DatabaseWorker(ACE_Activation_Queue* new_queue, MySQLConnection* con);
+#endif
 
         ///- Inherited from ACE_Task_Base
         int svc();
@@ -35,7 +43,11 @@ class DatabaseWorker : protected ACE_Task_Base
     private:
         DatabaseWorker() : ACE_Task_Base() {}
         ACE_Activation_Queue* m_queue;
+#ifdef DO_POSTGRESQL
+        PgSQLConnection* m_conn;
+#else
         MySQLConnection* m_conn;
+#endif
 };
 
 #endif

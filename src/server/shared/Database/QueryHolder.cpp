@@ -15,7 +15,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#else
 #include "MySQLConnection.h"
+#endif
+
 #include "QueryHolder.h"
 #include "PreparedStatement.h"
 #include "Log.h"

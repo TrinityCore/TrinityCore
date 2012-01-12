@@ -54,6 +54,25 @@ union SQLResultSetUnion
     ResultSet* qresult;
 };
 
+
+#ifdef DO_POSTGRESQL
+class PgSQLConnection;
+
+class SQLOperation : public ACE_Method_Request
+{
+    public:
+        SQLOperation(): m_conn(NULL) {};
+    virtual int call()
+    {
+        Execute();
+        return 0;
+    }
+    virtual bool Execute() = 0;
+    virtual void SetConnection(PgSQLConnection* con) { m_conn = con; }
+
+    PgSQLConnection* m_conn;
+};
+#else
 class MySQLConnection;
 
 class SQLOperation : public ACE_Method_Request
@@ -70,5 +89,6 @@ class SQLOperation : public ACE_Method_Request
 
         MySQLConnection* m_conn;
 };
+#endif
 
 #endif
