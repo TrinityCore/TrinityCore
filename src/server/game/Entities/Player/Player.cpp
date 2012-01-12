@@ -3030,11 +3030,10 @@ void Player::GiveLevel(uint8 level)
     sObjectMgr->GetPlayerClassLevelInfo(getClass(), level, &classInfo);
 
     // send levelup info to client
-    uint32 maxPowers = 5; // 4.x
-    WorldPacket data(SMSG_LEVELUP_INFO, (4+4+maxPowers*4+MAX_STATS*4));
+    WorldPacket data(SMSG_LEVELUP_INFO, (4+4+MAX_STORED_POWERS*4+MAX_STATS*4));
     data << uint32(level);
     data << uint32(int32(classInfo.basehealth) - int32(GetCreateHealth()));
-    // for (int i = 0; i < maxPowers; ++i)                  // Powers loop (0-10)
+    // for (int i = 0; i < MAX_STORED_POWERS; ++i)          // Powers loop (0-10)
     data << uint32(int32(classInfo.basemana)   - int32(GetCreateMana()));
     data << uint32(0);
     data << uint32(0);
