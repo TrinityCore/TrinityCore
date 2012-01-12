@@ -13282,8 +13282,6 @@ void Player::SendBuyError(BuyResult msg, Creature* creature, uint32 item, uint32
     WorldPacket data(SMSG_BUY_FAILED, (8+4+4+1));
     data << uint64(creature ? creature->GetGUID() : 0);
     data << uint32(item);
-    if (param > 0)
-        data << uint32(param);
     data << uint8(msg);
     GetSession()->SendPacket(&data);
 }
