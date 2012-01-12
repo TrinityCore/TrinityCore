@@ -45,6 +45,7 @@ set(scripts_STAT_SRCS
   Outland/CoilfangReservoir/underbog/boss_hungarfen.cpp
   Outland/CoilfangReservoir/underbog/boss_the_black_stalker.cpp
   Outland/shattrath_city.cpp
+  Outland/TempestKeep/Mechanar/boss_mechano_lord_capacitus.cpp
   Outland/TempestKeep/Mechanar/boss_pathaleon_the_calculator.cpp
   Outland/TempestKeep/Mechanar/boss_nethermancer_sepethrea.cpp
   Outland/TempestKeep/Mechanar/mechanar.h

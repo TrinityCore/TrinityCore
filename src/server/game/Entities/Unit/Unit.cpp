@@ -16261,7 +16261,7 @@ void Unit::GetRaidMember(std::list<Unit*> &nearMembers, float radius)
         if (owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
             nearMembers.push_back(owner);
         if (Guardian* pet = owner->GetGuardianPet())
-            if (pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+            if (pet->isAlive() && (pet == this || IsWithinDistInMap(pet, radius)))
                 nearMembers.push_back(pet);
     }
 }
@@ -16298,7 +16298,7 @@ void Unit::GetPartyMemberInDist(std::list<Unit*> &TagUnitMap, float radius)
         if (owner->isAlive() && (owner == this || IsWithinDistInMap(owner, radius)))
             TagUnitMap.push_back(owner);
         if (Guardian* pet = owner->GetGuardianPet())
-            if (pet->isAlive() && (pet == this && IsWithinDistInMap(pet, radius)))
+            if (pet->isAlive() && (pet == this || IsWithinDistInMap(pet, radius)))
                 TagUnitMap.push_back(pet);
     }
 }
