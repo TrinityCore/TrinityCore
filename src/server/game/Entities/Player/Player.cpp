@@ -16185,26 +16185,29 @@ void Player::SendQuestComplete(Quest const* quest)
 
 void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
 {
-    uint32 questid = quest->GetQuestId();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questid);
-    sGameEventMgr->HandleQuestComplete(questid);
+    uint32 questId = quest->GetQuestId();
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questId);
+    sGameEventMgr->HandleQuestComplete(questId);
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
-    data << uint32(questid);
-
+    
+    data << int8(0x80); // 4.x unknown flag, most common value is 0x80 (it might be a single bit)
+    
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         data << uint32(XP);
         data << uint32(quest->GetRewOrReqMoney());
     }
-    else
+    else // At max level, increase gold reward
     {
         data << uint32(0);
         data << uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
+    
+    data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
+    data << uint32(questId);
+    data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
 
-    data << 10 * Trinity::Honor::hk_honor_at_level(getLevel(), quest->GetRewHonorMultiplier());
-    data << uint32(quest->GetBonusTalents());              // bonus talents
-    data << uint32(quest->GetRewArenaPoints());
+    data << uint32(quest->GetBonusTalents());              // bonus talents (not verified for 4.x)
     GetSession()->SendPacket(&data);
 
     if (quest->GetQuestCompleteScript() != 0)
