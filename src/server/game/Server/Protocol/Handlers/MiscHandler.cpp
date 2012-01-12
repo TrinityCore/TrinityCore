@@ -1207,7 +1207,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
     if (!player)                                                // wrong player
         return;
 
-    uint32 talent_points = 0x47;
+    uint32 talent_points = 41;
     uint32 guid_size = player->GetPackGUID().wpos();
     WorldPacket data(SMSG_INSPECT_TALENT, guid_size+4+talent_points);
     data.append(player->GetPackGUID());

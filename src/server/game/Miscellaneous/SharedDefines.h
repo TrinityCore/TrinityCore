@@ -79,11 +79,11 @@ enum Races
     //RACE_NORTHREND_SKELETON = 20,
     //RACE_ICE_TROLL          = 21,
     RACE_WORGEN             = 22,
-    RACE_GILNEAN            = 23
+    //RACE_GILNEAN            = 23
 };
 
 // max+1 for player race
-#define MAX_RACES         24
+#define MAX_RACES         23
 
 #define RACEMASK_ALL_PLAYABLE \
     ((1<<(RACE_HUMAN-1))   |(1<<(RACE_ORC-1))          |(1<<(RACE_DWARF-1))   | \
@@ -641,10 +641,12 @@ enum Language
     LANG_ZOMBIE         = 36,
     LANG_GNOMISH_BINARY = 37,
     LANG_GOBLIN_BINARY  = 38,
+    LANG_WORGEN         = 39,
+    LANG_GOBLIN         = 40,
     LANG_ADDON          = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exist, replaced by messagetype?
 };
 
-#define LANGUAGES_COUNT   19
+#define LANGUAGES_COUNT   21
 
 enum TeamId
 {
@@ -2673,7 +2675,7 @@ enum SkillType
     SKILL_PET_EXOTIC_SPIRIT_BEAST  = 788,
     SKILL_RACIAL_WORGEN            = 789,
     SKILL_RACIAL_GOBLIN            = 790,
-    SKILL_LANG_GILNEAN             = 791,
+    SKILL_LANG_WORGEN              = 791,
     SKILL_LANG_GOBLIN              = 792,
     SKILL_ARCHAEOLOGY              = 794,
     SKILL_GENERAL_HUNTER           = 795,
