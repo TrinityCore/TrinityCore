@@ -19923,9 +19923,15 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
 
     int i = 0;
     flag96 _mask = 0;
+    uint32 modTypeCount = 0; // count of mods per one mod->op
+    WorldPacket data(Opcodes(opcode), 1);
+    data << uint32(1);  // count of different mod->op's in packet
+    size_t writePos = data.wpos();
+    data << uint32(modTypeCount);
+    data << uint8(mod->op);
     for (int eff = 0; eff < 96; ++eff)
     {
-        if (eff != 0 && eff % 32 == 0)
+        if (eff != 0 && (eff % 32) == 0)
             _mask[i++] = 0;
 
         _mask[i] = uint32(1) << (eff - (32 * i));
@@ -19936,16 +19942,14 @@ void Player::AddSpellMod(SpellModifier* mod, bool apply)
                 if ((*itr)->type == mod->type && (*itr)->mask & _mask)
                     val += (*itr)->value;
             val += apply ? mod->value : -(mod->value);
-            WorldPacket data(Opcodes(opcode), (1+1+4));
+            
             data << uint8(eff);
-            data << uint8(mod->op);
-            data << int32(val);
-            if (opcode == SMSG_SET_PCT_SPELL_MODIFIER)
-                data << uint8(0);                             // 4.x unk
-            SendDirectMessage(&data);
+            data << float(val);
+            ++modTypeCount;
         }
     }
-
+    data.put<uint32>(writePos, modTypeCount);
+    SendDirectMessage(&data);
     if (apply)
         m_spellMods[mod->op].push_back(mod);
     else

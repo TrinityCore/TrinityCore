@@ -413,7 +413,7 @@ enum AuraType
     SPELL_AURA_351                                          = 351,
     SPELL_AURA_352                                          = 352,
     SPELL_AURA_MOD_CAMOUFLAGE                               = 353,  // NYI
-    TOTAL_AURAS                                             = 354
+    TOTAL_AURAS                                             = 363   // 4.2.2
 };
 
 enum AuraObjectType
