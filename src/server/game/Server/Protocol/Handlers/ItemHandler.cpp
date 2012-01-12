@@ -680,11 +680,12 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
 void WorldSession::HandleBuyItemOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
-    uint64 vendorguid;
+    uint64 vendorguid, unk2; // unk2 can be 0?
     uint32 item, slot, count;
-    uint8 unk1;
+    uint8 unk1; // if this is == 2 then the count might be multiplied by 100
+    int8 unk3; // only known value = -1, according to the client it can take more values
 
-    recv_data >> vendorguid >> item >> slot >> count >> unk1;
+    recv_data >> vendorguid >> unk1 >> item >> slot >> count >> unk2 >> unk3;
 
     // client expects count starting at 1, and we send vendorslot+1 to client already
     if (slot > 0)
@@ -1321,15 +1322,15 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
 
-    uint32 eslot;
+    uint32 slot;
 
-    recv_data >> eslot;
+    recv_data >> slot;
 
     // apply only to equipped item
-    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, eslot))
+    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, slot))
         return;
 
-    Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, eslot);
+    Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 
     if (!item)
         return;
