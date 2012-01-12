@@ -302,7 +302,7 @@ void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
 }
 
 // Send Notify to all players in instance
-void InstanceScript::DoSendNotifyToInstance(char* const format, ...)
+void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
 {
     InstanceMap::PlayerList const& players = instance->GetPlayers();
 
