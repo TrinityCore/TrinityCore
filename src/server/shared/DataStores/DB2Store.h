@@ -20,7 +20,7 @@
 
 #include "DB2FileLoader.h"
 #include "DB2fmt.h"
-#include "Logging/Log.h"
+#include "Log.h"
 #include "Field.h"
 #include "DatabaseWorkerPool.h"
 #include "Implementation/WorldDatabase.h"
