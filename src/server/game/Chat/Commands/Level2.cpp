@@ -712,19 +712,20 @@ bool ChatHandler::HandleLookupPlayerIpCommand(const char* args)
     char* limit_str;
 
     Player *chr = getSelectedPlayer();
-    if (chr == NULL)
+    if (!*args)
     {
-        if (!*args)
+        // NULL only if used from console
+        if (!chr || chr == GetSession()->GetPlayer())
             return false;
 
-        ip = strtok ((char*)args, " ");
-        limit_str = strtok (NULL, " ");
-        limit = limit_str ? atoi (limit_str) : -1;
+        ip = chr->GetSession()->GetRemoteAddress();
+        limit = -1;
     }
     else
     {
-        ip = chr->GetSession()->GetRemoteAddress();
-        limit = -1;
+        ip = strtok ((char*)args, " ");
+        limit_str = strtok (NULL, " ");
+        limit = limit_str ? atoi (limit_str) : -1;
     }
 
     LoginDatabase.EscapeString(ip);
