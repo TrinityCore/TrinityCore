@@ -44,13 +44,12 @@ enum eMillhouseSays
     SAY_BUFFS                  = 3,
     SAY_DRINK                  = 4,
     SAY_READY                  = 5,
-    SAY_KILL_1                 = 6,
-    SAY_KILL_2                 = 7,
-    SAY_PYRO                   = 8,
-    SAY_ICEBLOCK               = 9,
-    SAY_LOWHP                  = 10,
-    SAY_DEATH                  = 11,
-    SAY_COMPLETE               = 12,
+    SAY_KILL                   = 6,
+    SAY_PYRO                   = 7,
+    SAY_ICEBLOCK               = 8,
+    SAY_LOWHP                  = 9,
+    SAY_DEATH                  = 10,
+    SAY_COMPLETE               = 11,
 };
 
 enum eMillhouseSpells
@@ -126,8 +125,7 @@ class npc_millhouse_manastorm : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                Talk(SAY_KILL_1);
-                Talk(SAY_KILL_2);
+                Talk(SAY_KILL);
             }
 
             void JustDied(Unit* /*victim*/)
