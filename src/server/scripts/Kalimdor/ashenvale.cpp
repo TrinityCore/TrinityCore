@@ -35,7 +35,7 @@ EndContentData */
 # npc_torek
 ####*/
 
-enum eTorekSays
+enum TorekSays
 {
     SAY_READY                  = 0,
     SAY_MOVE                   = 1,
@@ -44,7 +44,7 @@ enum eTorekSays
     SAY_END                    = 4,
 };
 
-enum eTorekSpells
+enum TorekSpells
 {
     SPELL_REND                  = 11977,
     SPELL_THUNDERCLAP           = 8078,
