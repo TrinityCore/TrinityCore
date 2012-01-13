@@ -715,7 +715,7 @@ void Creature::Motion_Initialize()
         i_motionMaster.Initialize();
     }
     else if (m_formation->isFormed())
-        i_motionMaster.MoveIdle(MOTION_SLOT_IDLE); //wait the order of leader
+        i_motionMaster.MoveIdle(); //wait the order of leader
     else
         i_motionMaster.Initialize();
 }
