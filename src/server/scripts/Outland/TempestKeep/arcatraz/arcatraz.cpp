@@ -523,14 +523,16 @@ class npc_warden_mellichar : public CreatureScript
 # mob_zerekethvoidzone (this script probably not needed in future -> `creature_template_addon`.`auras`='36120 0')
 #####*/
 
-#define SPELL_VOID_ZONE_DAMAGE 36120
+enum ZerekethSpell
+{
+    SPELL_VOID_ZONE_DAMAGE = 36120,
+};
 
 class mob_zerekethvoidzone : public CreatureScript
 {
     public:
 
-        mob_zerekethvoidzone()
-            : CreatureScript("mob_zerekethvoidzone")
+        mob_zerekethvoidzone() : CreatureScript("mob_zerekethvoidzone")
         {
         }
         struct mob_zerekethvoidzoneAI : public ScriptedAI
@@ -561,4 +563,3 @@ void AddSC_arcatraz()
     new npc_warden_mellichar();
     new mob_zerekethvoidzone();
 }
-
