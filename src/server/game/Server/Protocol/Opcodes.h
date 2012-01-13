@@ -877,7 +877,7 @@ enum Opcodes
     SMSG_PET_UPDATE_COMBO_POINTS                     = 0x1A47,
     SMSG_PLAYED_TIME                                 = 0x187F,
     SMSG_PLAYERBINDERROR                             = 0x5A4F,
-    SMSG_PLAYERBOUND                                 = 0x00,
+    SMSG_PLAYERBOUND                                 = 0xCC46,
     SMSG_PLAYER_DIFFICULTY_CHANGE                    = 0xD846,
     SMSG_PLAYER_MOVE                                 = 0xF66C,
     SMSG_PLAYER_SKINNED                              = 0xDA63,
