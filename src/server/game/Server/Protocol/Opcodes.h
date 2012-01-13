@@ -1008,7 +1008,7 @@ enum Opcodes
     SMSG_TRIGGER_MOVIE                               = 0x00,
     SMSG_TURN_IN_PETITION_RESULTS                    = 0x08DB,
     SMSG_TUTORIAL_FLAGS                              = 0x1A46,
-    SMSG_UNIT_SPELLCAST_START                        = 0x00,
+    SMSG_UNIT_SPELLCAST_START                        = 0x8C63,
     SMSG_UPDATE_ACCOUNT_DATA                         = 0x4A73,
     SMSG_UPDATE_ACCOUNT_DATA_COMPLETE                = 0x5E53,
     SMSG_UPDATE_COMBO_POINTS                         = 0x9AF6,
