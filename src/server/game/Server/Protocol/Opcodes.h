@@ -892,7 +892,7 @@ enum Opcodes
     SMSG_PONG                                        = 0x0380,
     SMSG_POWER_UPDATE                                = 0x487E,
     SMSG_PRE_RESURRECT                               = 0x1CFB,
-    SMSG_PROCRESIST                                  = 0x00,
+    SMSG_PROCRESIST                                  = 0x9AEA,
     SMSG_PROPOSE_LEVEL_GRANT                         = 0x0C42,
     SMSG_PUREMOUNT_CANCELLED_OBSOLETE                = 0x00,
     SMSG_PVP_CREDIT                                  = 0x9EF2,
@@ -919,7 +919,7 @@ enum Opcodes
     SMSG_QUEST_POI_QUERY_RESPONSE                    = 0x8CC3,
     SMSG_QUEST_QUERY_RESPONSE                        = 0x9E56,
     SMSG_RAID_GROUP_ONLY                             = 0x00,
-    SMSG_RAID_INSTANCE_INFO                          = 0x00,
+    SMSG_RAID_INSTANCE_INFO                          = 0x4ACA, // Int32, Int32, Int32, Int32, Int64, Int8, Int8, Int32, Int32
     SMSG_RAID_INSTANCE_MESSAGE                       = 0xD862,
     SMSG_RANDOMIZE_CHAR_NAME                         = 0xF0DC,
     SMSG_READ_ITEM_FAILED                            = 0x0C5B,
