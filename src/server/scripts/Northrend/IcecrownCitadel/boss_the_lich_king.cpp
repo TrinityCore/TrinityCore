@@ -1656,7 +1656,8 @@ class npc_strangulate_vehicle : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_TELEPORT:
-                            me->GetMotionMaster()->MoveIdle(MOTION_SLOT_ACTIVE);
+                            me->GetMotionMaster()->Clear(false);
+                            me->GetMotionMaster()->MoveIdle();
                             if (TempSummon* summ = me->ToTempSummon())
                             {
                                 if (Unit* summoner = summ->GetSummoner())

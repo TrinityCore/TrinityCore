@@ -203,7 +203,7 @@ void CreatureGroup::FormationReset(bool dismiss)
             if (dismiss)
                 itr->first->GetMotionMaster()->Initialize();
             else
-                itr->first->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
+                itr->first->GetMotionMaster()->MoveIdle();
             sLog->outDebug(LOG_FILTER_UNITS, "Set %s movement for member GUID: %u", dismiss ? "default" : "idle", itr->first->GetGUIDLow());
         }
     }
