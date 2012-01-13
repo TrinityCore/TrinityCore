@@ -543,7 +543,7 @@ enum Opcodes
     OBSOLETE_DROP_ITEM                               = 0x00,
     SMSG_ACCOUNT_DATA_TIMES                          = 0x5EE2,
     SMSG_ACHIEVEMENT_DELETED                         = 0x9ED2,
-    SMSG_ACHIEVEMENT_EARNED                          = 0x00,
+    SMSG_ACHIEVEMENT_EARNED                          = 0x484E,
     SMSG_ACTION_BUTTONS                              = 0x8A6B,
     SMSG_ACTIVATETAXIREPLY                           = 0x8E4F,
     SMSG_ADDON_INFO                                  = 0x9863,
