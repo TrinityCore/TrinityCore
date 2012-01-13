@@ -38,19 +38,19 @@ EndContentData */
 
 enum eMillhouseSays
 {
-    SAY_INTRO_1                = -1552010,
-    SAY_INTRO_2                = -1552011,
-    SAY_WATER                  = -1552012,
-    SAY_BUFFS                  = -1552013,
-    SAY_DRINK                  = -1552014,
-    SAY_READY                  = -1552015,
-    SAY_KILL_1                 = -1552016,
-    SAY_KILL_2                 = -1552017,
-    SAY_PYRO                   = -1552018,
-    SAY_ICEBLOCK               = -1552019,
-    SAY_LOWHP                  = -1552020,
-    SAY_DEATH                  = -1552021,
-    SAY_COMPLETE               = -1552022,
+    SAY_INTRO_1                = 0,
+    SAY_INTRO_2                = 1,
+    SAY_WATER                  = 2,
+    SAY_BUFFS                  = 3,
+    SAY_DRINK                  = 4,
+    SAY_READY                  = 5,
+    SAY_KILL_1                 = 6,
+    SAY_KILL_2                 = 7,
+    SAY_PYRO                   = 8,
+    SAY_ICEBLOCK               = 9,
+    SAY_LOWHP                  = 10,
+    SAY_DEATH                  = 11,
+    SAY_COMPLETE               = 12,
 };
 
 enum eMillhouseSpells
@@ -107,7 +107,7 @@ class npc_millhouse_manastorm : public CreatureScript
                         Init = true;
 
                     if (instance->GetData(TYPE_HARBINGERSKYRISS) == DONE)
-                        DoScriptText(SAY_COMPLETE, me);
+                        Talk(SAY_COMPLETE);
                 }
             }
 
@@ -126,12 +126,13 @@ class npc_millhouse_manastorm : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+                Talk(SAY_KILL_1);
+                Talk(SAY_KILL_2);
             }
 
             void JustDied(Unit* /*victim*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
 
                 /*for questId 10886 (heroic mode only)
                 if (instance && instance->GetData(TYPE_HARBINGERSKYRISS) != DONE)
@@ -149,30 +150,30 @@ class npc_millhouse_manastorm : public CreatureScript
                             switch (Phase)
                             {
                             case 1:
-                                DoScriptText(SAY_INTRO_1, me);
+                                Talk(SAY_INTRO_1);
                                 EventProgress_Timer = 18000;
                                 break;
                             case 2:
-                                DoScriptText(SAY_INTRO_2, me);
+                                Talk(SAY_INTRO_2);
                                 EventProgress_Timer = 18000;
                                 break;
                             case 3:
-                                DoScriptText(SAY_WATER, me);
+                                Talk(SAY_WATER);
                                 DoCast(me, SPELL_CONJURE_WATER);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 4:
-                                DoScriptText(SAY_BUFFS, me);
+                                Talk(SAY_BUFFS);
                                 DoCast(me, SPELL_ICE_ARMOR);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 5:
-                                DoScriptText(SAY_DRINK, me);
+                                Talk(SAY_DRINK);
                                 DoCast(me, SPELL_ARCANE_INTELLECT);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 6:
-                                DoScriptText(SAY_READY, me);
+                                Talk(SAY_READY);
                                 EventProgress_Timer = 6000;
                                 break;
                             case 7:
@@ -192,7 +193,7 @@ class npc_millhouse_manastorm : public CreatureScript
                     return;
                 if (!LowHp && HealthBelowPct(20))
                 {
-                    DoScriptText(SAY_LOWHP, me);
+                    Talk(SAY_LOWHP);
                     LowHp = true;
                 }
 
@@ -201,7 +202,7 @@ class npc_millhouse_manastorm : public CreatureScript
                     if (me->IsNonMeleeSpellCasted(false))
                         return;
 
-                    DoScriptText(SAY_PYRO, me);
+                    Talk(SAY_PYRO);
 
                     DoCast(me->getVictim(), SPELL_PYROBLAST);
                     Pyroblast_Timer = 40000;
@@ -555,6 +556,7 @@ class mob_zerekethvoidzone : public CreatureScript
             return new mob_zerekethvoidzoneAI(creature);
         }
 };
+
 void AddSC_arcatraz()
 {
     new npc_millhouse_manastorm();
