@@ -10,3 +10,4 @@ DELETE FROM `script_texts` WHERE `entry` IN (-1552023, -1552030);
 (20904, 5, 0, 'Anarchy! Bedlam! Oh, you are so wise! Yes, I see it now, of course!', 0, 0, 100, 0, 0, 0, 'Warden Mellichar'),
 (20904, 6, 0, 'One final cell remains. Yes, O\'\'great one, right away!', 0, 0, 100, 0, 0, 0, 'Warden Mellichar'),
 (20904, 7, 0, 'Welcome, O\'\'great one. I am your humble servant.', 0, 0, 100, 0, 0, 0, 'Warden Mellichar');
+
