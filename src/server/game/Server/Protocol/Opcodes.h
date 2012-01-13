@@ -922,7 +922,7 @@ enum Opcodes
     SMSG_RAID_INSTANCE_INFO                          = 0x00,
     SMSG_RAID_INSTANCE_MESSAGE                       = 0xD862,
     SMSG_RANDOMIZE_CHAR_NAME                         = 0xF0DC,
-    SMSG_READ_ITEM_FAILED                            = 0x00,
+    SMSG_READ_ITEM_FAILED                            = 0xC5B,
     SMSG_READ_ITEM_OK                                = 0x9ECE,
     SMSG_REALM_SPLIT                                 = 0x1AF2,
     SMSG_REAL_GROUP_UPDATE                           = 0x4C56,
