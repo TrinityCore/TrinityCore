@@ -658,6 +658,11 @@ void WorldSession::SendLfrUpdateListOpcode(uint32 dungeonEntry)
 {
     sLog->outDebug(LOG_FILTER_PACKETIO, "SMSG_UPDATE_LFG_LIST [" UI64FMTD "] dungeon entry: %u", GetPlayer()->GetGUID(), dungeonEntry);
     WorldPacket data(SMSG_UPDATE_LFG_LIST);
+    date << uint32(0);
+    date << uint32(0);
+    date << uint8(0);
+    date << uint32(0);
+    date << uint64(0);
     SendPacket(&data);
 }
 */

@@ -1017,7 +1017,7 @@ enum Opcodes
     SMSG_UPDATE_INSTANCE_ENCOUNTER_UNIT              = 0x00,
     SMSG_UPDATE_INSTANCE_OWNERSHIP                   = 0xCA73,
     SMSG_UPDATE_LAST_INSTANCE                        = 0x58FE,
-    SMSG_UPDATE_LFG_LIST                             = 0x00,
+    SMSG_UPDATE_LFG_LIST                             = 0xEFB,
     SMSG_UPDATE_OBJECT                               = 0x1EE7,
     SMSG_UPDATE_WORLD_STATE                          = 0x08E2,
     SMSG_USERLIST_ADD                                = 0x4CEE,
