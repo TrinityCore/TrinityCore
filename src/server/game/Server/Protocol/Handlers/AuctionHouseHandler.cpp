@@ -91,8 +91,8 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
     data << uint32(location);
     data << uint32(auctionId);
     data << uint64(bidder);
-    data << uint32(bidSum);
-    data << uint32(diff);
+    data << uint64(bidSum);
+    data << uint64(diff);
     data << uint32(item_template);
     data << uint32(0);
     SendPacket(&data);
