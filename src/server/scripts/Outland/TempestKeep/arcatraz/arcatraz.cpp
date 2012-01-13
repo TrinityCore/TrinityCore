@@ -231,14 +231,14 @@ class npc_millhouse_manastorm : public CreatureScript
 
 enum eWardenSays
 {
-    YELL_INTRO1         = -1552023,
-    YELL_INTRO2         = -1552024,
-    YELL_RELEASE1       = -1552025,
-    YELL_RELEASE2A      = -1552026,
-    YELL_RELEASE2B      = -1552027,
-    YELL_RELEASE3       = -1552028,
-    YELL_RELEASE4       = -1552029,
-    YELL_WELCOME        = -1552030,
+    YELL_INTRO1         = 0,
+    YELL_INTRO2         = 1,
+    YELL_RELEASE1       = 2,
+    YELL_RELEASE2A      = 3,
+    YELL_RELEASE2B      = 4,
+    YELL_RELEASE3       = 5,
+    YELL_RELEASE4       = 6,
+    YELL_WELCOME        = 7,
 };
 
 enum eWardenUnits
@@ -273,10 +273,10 @@ class npc_warden_mellichar : public CreatureScript
 {
     public:
 
-        npc_warden_mellichar()
-            : CreatureScript("npc_warden_mellichar")
+        npc_warden_mellichar() : CreatureScript("npc_warden_mellichar")
         {
         }
+
         struct npc_warden_mellicharAI : public ScriptedAI
         {
             npc_warden_mellicharAI(Creature* creature) : ScriptedAI(creature)
@@ -329,7 +329,7 @@ class npc_warden_mellichar : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(YELL_INTRO1, me);
+                Talk(YELL_INTRO1);
                 DoCast(me, SPELL_BUBBLE_VISUAL);
 
                 if (instance)
@@ -436,7 +436,7 @@ class npc_warden_mellichar : public CreatureScript
                             me->SummonCreature(ENTRY_MILLHOUSE, 413.292f, -148.378f, 42.56f, 6.27f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                             break;
                         case 4:
-                            DoScriptText(YELL_RELEASE2B, me);
+                            Talk(YELL_RELEASE2B);
                             break;
                         case 5:
                             switch (urand(0, 1))
@@ -462,7 +462,7 @@ class npc_warden_mellichar : public CreatureScript
                             break;
                         case 7:
                             me->SummonCreature(ENTRY_SKYRISS, 445.763f, -191.639f, 44.64f, 1.60f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-                            DoScriptText(YELL_WELCOME, me);
+                            Talk(YELL_WELCOME);
                             break;
                         }
                         CanSpawn = false;
@@ -473,17 +473,17 @@ class npc_warden_mellichar : public CreatureScript
                         switch (Phase)
                         {
                         case 1:
-                            DoScriptText(YELL_INTRO2, me);
+                            Talk(YELL_INTRO2);
                             EventProgress_Timer = 10000;
                             ++Phase;
                             break;
                         case 2:
-                            DoScriptText(YELL_RELEASE1, me);
+                            Talk(YELL_RELEASE1);
                             DoPrepareForPhase();
                             EventProgress_Timer = 7000;
                             break;
                         case 3:
-                            DoScriptText(YELL_RELEASE2A, me);
+                            Talk(YELL_RELEASE2A);
                             DoPrepareForPhase();
                             EventProgress_Timer = 10000;
                             break;
@@ -492,12 +492,12 @@ class npc_warden_mellichar : public CreatureScript
                             EventProgress_Timer = 15000;
                             break;
                         case 5:
-                            DoScriptText(YELL_RELEASE3, me);
+                            Talk(YELL_RELEASE3);
                             DoPrepareForPhase();
                             EventProgress_Timer = 15000;
                             break;
                         case 6:
-                            DoScriptText(YELL_RELEASE4, me);
+                            Talk(YELL_RELEASE4);
                             DoPrepareForPhase();
                             EventProgress_Timer = 15000;
                             break;
