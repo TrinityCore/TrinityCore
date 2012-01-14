@@ -451,20 +451,10 @@ void WorldSession::HandleQuestLogRemoveQuest(WorldPacket& recv_data)
 
 void WorldSession::HandleQuestConfirmAccept(WorldPacket& recvData)
 {
-    uint64 questGiverGuid;
     uint32 questId;
-    uint32 unkInt;
-    recvData >> questGiverGuid>> questId >> unkInt;
+    recvData >> questId;
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_QUEST_CONFIRM_ACCEPT questId = %u", questId);
-
-    if (IS_UNIT_GUID(questGiverGuid))
-        if (!GetPlayer()->GetNPCIfCanInteractWith(questGiverGuid, UNIT_NPC_FLAG_QUESTGIVER))
-            return;
-    if (IS_GAMEOBJECT_GUID(questGiverGuid))
-        if (!GetPlayer()->GetGameObjectIfCanInteractWith(questGiverGuid, GAMEOBJECT_TYPE_QUESTGIVER))
-            return;
-    // Can items be quest giver?
 
     if (const Quest* quest = sObjectMgr->GetQuestTemplate(questId))
     {

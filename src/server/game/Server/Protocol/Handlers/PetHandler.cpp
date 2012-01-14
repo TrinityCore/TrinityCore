@@ -845,10 +845,10 @@ void WorldSession::HandlePetLearnTalent(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_LEARN_TALENT");
 
     uint64 guid;
-    uint32 talent_id, requested_rank;
-    recv_data >> guid >> talent_id >> requested_rank;
+    uint32 talentId, requestedRank;
+    recv_data >> guid >> talentId >> requestedRank;
 
-    _player->LearnPetTalent(guid, talent_id, requested_rank);
+    _player->LearnPetTalent(guid, talentId, requestedRank);
     _player->SendTalentsInfoData(true);
 }
 
