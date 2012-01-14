@@ -3877,7 +3877,7 @@ void Spell::SendSpellGo()
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
     {
         data << m_targets.GetElevation();
-        data << uint32(m_targets.GetSpeedXY()*m_targets.GetSpeedZ()*2);
+        data << uint32(m_delayMoment);
     }
 
     if (castFlags & CAST_FLAG_AMMO)
