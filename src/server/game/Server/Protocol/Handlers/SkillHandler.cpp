@@ -28,10 +28,10 @@
 
 void WorldSession::HandleLearnTalentOpcode(WorldPacket & recv_data)
 {
-    uint32 talent_id, requested_rank;
-    recv_data >> talent_id >> requested_rank;
+    uint32 talentId, requestedRank;
+    recv_data >> talentId >> requestedRank;
 
-    _player->LearnTalent(talent_id, requested_rank);
+    _player->LearnTalent(talentId, requestedRank);
     _player->SendTalentsInfoData(false);
 }
 
@@ -71,7 +71,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
     if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (!(_player->resetTalents()))
+    if (!_player->resetTalents())
     {
         WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8+4);    //you have not any talent
         data << uint64(0);

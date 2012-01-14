@@ -572,9 +572,9 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recv_data)
     if (!_player->isAlive() || _player->isInCombat())
         return;
 
-    uint64 summoner_guid;
+    uint64 summonerGuid;
     bool agree;
-    recv_data >> summoner_guid;
+    recv_data >> summonerGuid;
     recv_data >> agree;
 
     _player->SummonIfPossible(agree);

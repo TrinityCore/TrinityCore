@@ -1757,6 +1757,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
     switch (race)
     {
         case RACE_ORC:
+        case RACE_GOBLIN:
         case RACE_TAUREN:
         case RACE_UNDEAD_PLAYER:
         case RACE_TROLL:
@@ -1769,7 +1770,7 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
 
     // Switch Languages
     // delete all languages first
-    trans->PAppend("DELETE FROM `character_skills` WHERE `skill` IN (98, 113, 759, 111, 313, 109, 115, 315, 673, 137) AND `guid`='%u'", lowGuid);
+    trans->PAppend("DELETE FROM `character_skills` WHERE `skill` IN (98, 113, 759, 111, 313, 109, 115, 315, 673, 137, 791, 792) AND `guid`='%u'", lowGuid);
 
     // now add them back
     if (team == BG_TEAM_ALLIANCE)
@@ -1789,6 +1790,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
         case RACE_NIGHTELF:
             trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 113, 300, 300)", lowGuid);
             break;
+        case RACE_WORGEN:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 791, 300, 300)", lowGuid);
+            break;
         }
     }
     else if (team == BG_TEAM_HORDE)
@@ -1807,6 +1811,9 @@ void WorldSession::HandleCharFactionOrRaceChange(WorldPacket& recv_data)
             break;
         case RACE_BLOODELF:
             trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 137, 300, 300)", lowGuid);
+            break;
+        case RACE_GOBLIN:
+            trans->PAppend("INSERT INTO `character_skills` (guid, skill, value, max) VALUES (%u, 792, 300, 300)", lowGuid);
             break;
         }
     }
