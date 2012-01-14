@@ -28,12 +28,12 @@ void GroupReference::targetObjectBuildLink()
 void GroupReference::targetObjectDestroyLink()
 {
     // called from unlink()
-    getTarget()->DelinkMember(this);
+    //getTarget()->DelinkMember(this);
 }
 
 void GroupReference::sourceObjectDestroyLink()
 {
     // called from invalidate()
-    getTarget()->DelinkMember(this);
+    //getTarget()->DelinkMember(this);
 }
 
