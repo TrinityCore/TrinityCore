@@ -603,7 +603,7 @@ enum Opcodes
     SMSG_BATTLEGROUND_PLAYER_POSITIONS               = 0x00,
     SMSG_BINDER_CONFIRM                              = 0xADA,
     SMSG_BINDPOINTUPDATE                             = 0x00,
-    SMSG_BINDZONEREPLY                               = 0x00,
+    SMSG_BINDZONEREPLY                               = 0x1A42,
     SMSG_BREAK_TARGET                                = 0xE7E,
     SMSG_BUY_BANK_SLOT_RESULT                        = 0x00,
     SMSG_BUY_FAILED                                  = 0x4A7F,
