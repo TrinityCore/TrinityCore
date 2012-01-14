@@ -626,7 +626,7 @@ enum Opcodes
     SMSG_CHAR_RENAME                                 = 0x5EF6,
     SMSG_CHAT_PLAYER_AMBIGUOUS                       = 0xDE7F,
     SMSG_CHAT_PLAYER_NOT_FOUND                       = 0x4E6F,
-    SMSG_CHAT_RESTRICTED                             = 0x00,
+    SMSG_CHAT_RESTRICTED                             = 0x4863,
     SMSG_CHAT_WRONG_FACTION                          = 0xE66,
     SMSG_CHECK_FOR_BOTS                              = 0x00,
     SMSG_CLEAR_COOLDOWN                              = 0x00,
