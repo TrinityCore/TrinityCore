@@ -50,7 +50,7 @@ enum TorekSpells
     SPELL_THUNDERCLAP           = 8078,
 };
 
-enum
+enum TorekMisc
 {
     QUEST_TOREK_ASSULT          = 6544,
 
