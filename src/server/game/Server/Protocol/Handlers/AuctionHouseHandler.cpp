@@ -106,8 +106,8 @@ void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
     data << uint64(auction->bid);
     data << uint64(0);                                     //unk
     data << uint64(0);                                     //unk
-    data << uint32(0);                                     //unk
     data << uint32(auction->item_template);
+    data << uint32(0);                                     //unk
     data << float(0);                                      //unk
     SendPacket(&data);
 }
