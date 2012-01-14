@@ -17,7 +17,7 @@ INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (8696,10946);
 -- Creature Gossip_menu_id Update from sniff
 UPDATE `creature_template` SET `gossip_menu_id`=8701 WHERE `entry`=23309;
 -- Creature Gossip_menu_option Update from sniff
-DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (8701,8695,8700,8699,8698,8697) AND `id` IN (0);
+DELETE FROM `gossip_menu_option` WHERE `menu_id` IN (8701,8695,8700,8699,8698,8697) AND `id`=0;
 INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES
 (8701,0,0, 'I am here for you, overseer.',1,1,8695,0,0,0, ''),
 (8695,0,0, 'How dare you question an overseer of the Dragonmaw!',1,1,8700,0,0,0, ''),
@@ -52,7 +52,7 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (23286,32726,15,1,0,1,1),
 (23324,32726,15,1,0,1,1);
 -- Loot Conditions by mweinelt
-DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=1 AND `SourceGroup` IN (23286,23324);  AND `SourceEntry`=32726;
+DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=1 AND `SourceGroup` IN (23286,23324)  AND `SourceEntry`=32726;
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (1,23286,32726,0,5,1015,4,0,0, '', 'Murkblood Escape Plans - when Netherwing friendly'),
 (1,23324,32726,0,5,1015,4,0,0, '', 'Murkblood Escape Plans - when Netherwing friendly'),
