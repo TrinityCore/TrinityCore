@@ -252,19 +252,20 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION, 1);
 }
 
-//this function is called when client bids or buys out auction
-void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
+// this function is called when client bids or buys out auction
+void WorldSession::HandleAuctionPlaceBid(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_PLACE_BID");
 
     uint64 auctioneer;
     uint32 auctionId;
-    uint32 price;
+    uint64 price;
     recv_data >> auctioneer;
-    recv_data >> auctionId >> price;
+    recv_data >> auctionId;
+    recv_data >> price;
 
     if (!auctionId || !price)
-        return;                                             //check for cheaters
+        return;                                             // check for cheaters
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -384,7 +385,6 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
     uint32 auctionId;
     recv_data >> auctioneer;
     recv_data >> auctionId;
-    //sLog->outDebug("Cancel AUCTION AuctionID: %u", auctionId);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -428,7 +428,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
         }
         else
         {
-            sLog->outError("Auction id: %u has non-existed item (item guid : %u)!!!", auction->Id, auction->item_guidlow);
+            sLog->outError("Auction id: %u got non existing item (item guid : %u)!", auction->Id, auction->item_guidlow);
             SendAuctionCommandResult(0, AUCTION_CANCEL, AUCTION_INTERNAL_ERROR);
             return;
         }
@@ -437,7 +437,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
     {
         SendAuctionCommandResult(0, AUCTION_CANCEL, AUCTION_INTERNAL_ERROR);
         //this code isn't possible ... maybe there should be assert
-        sLog->outError("CHEATER : %u, he tried to cancel auction (id: %u) of another player, or auction is NULL", player->GetGUIDLow(), auctionId);
+        sLog->outError("CHEATER: %u tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUIDLow(), auctionId);
         return;
     }
 
