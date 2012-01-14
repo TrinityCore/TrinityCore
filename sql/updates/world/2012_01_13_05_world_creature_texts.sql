@@ -2,6 +2,7 @@
 DELETE FROM `script_texts` WHERE `entry` IN (-1552023, -1552030);
 
 -- Add new creature_text for Warden Mellichar
+DELETE FROM `creature_text` WHERE `entry` IN (20904);
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (20904, 0, 0, 'I knew the prince would be angry but, I... I have not been myself. I had to let them out! The great one speaks to me, you see. Wait--outsiders. Kael\'thas did not send you! Good... I\'ll just tell the prince you released the prisoners!', 0, 0, 100, 0, 0, 0, 'Warden Mellichar'),
 (20904, 1, 0, 'The naaru kept some of the most dangerous beings in existence here in these cells. Let me introduce you to another...', 0, 0, 100, 0, 0, 0, 'Warden Mellichar'),

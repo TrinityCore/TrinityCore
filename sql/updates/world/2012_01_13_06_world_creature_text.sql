@@ -2,6 +2,7 @@
 DELETE FROM `script_texts` WHERE `entry` IN (-1000106, -1000110);
 
 -- Add creature texts for Torek
+DELETE FROM `creature_text` WHERE `entry` IN (12858);
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (12858, 0, 0, 'Everyone ready?', 0, 0, 100, 0, 0, 0, 'Torek'),
 (12858, 1, 0, 'Ok, Lets move out!', 0, 0, 100, 0, 0, 0, 'Torek'),
