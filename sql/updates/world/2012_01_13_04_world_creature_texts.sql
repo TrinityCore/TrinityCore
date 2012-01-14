@@ -2,6 +2,7 @@
 DELETE FROM `script_texts` WHERE `entry` IN (-1552010, -1552022);
 
 -- Add new creature_text for Millhouse ManaStorm
+DELETE FROM `creature_text` WHERE `entry` IN (20977);
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (20977, 0, 0, 'Where in Bonzo\'\'s brass buttons am I? And who are-- yaaghh, that\'s one mother of a headache!', 0, 0, 100, 0, 0, 0, 'Millhouse Manastorm'),
 (20977, 1, 0, '"Lowly"? I don\'t care who you are friend, no one refers to the mighty Millhouse Manastorm as "Lowly"! I have no idea what goes on here, but I will gladly join your fight against this impudent imbecile! Prepare to defend yourself, cretin!', 0, 0, 100, 0, 0, 0, 'Millhouse Manastorm'),
