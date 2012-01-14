@@ -601,7 +601,7 @@ enum Opcodes
     SMSG_BATTLEGROUND_PLAYER_JOINED                  = 0x00,
     SMSG_BATTLEGROUND_PLAYER_LEFT                    = 0x00,
     SMSG_BATTLEGROUND_PLAYER_POSITIONS               = 0x00,
-    SMSG_BINDER_CONFIRM                              = 0x00,
+    SMSG_BINDER_CONFIRM                              = 0xADA,
     SMSG_BINDPOINTUPDATE                             = 0x00,
     SMSG_BINDZONEREPLY                               = 0x00,
     SMSG_BREAK_TARGET                                = 0xE7E,
