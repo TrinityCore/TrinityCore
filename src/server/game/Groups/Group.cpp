@@ -254,6 +254,37 @@ void Group::ConvertToRaid()
             player->UpdateForQuestWorldObjects();
 }
 
+void Group::ConvertToGroup()
+{
+    if (m_memberSlots.size() > 5)
+        return; // What message error should we send?
+
+    m_groupType = GroupType(GROUPTYPE_NORMAL);
+
+    if (m_subGroupsCounts)
+    {
+        delete[] m_subGroupsCounts;
+        m_subGroupsCounts = NULL;;
+    }
+
+    if (!isBGGroup())
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
+
+        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt32(1, m_dbStoreId);
+
+        CharacterDatabase.Execute(stmt);
+    }
+
+    SendUpdate();
+
+    // update quest related GO states (quest activity dependent from raid membership)
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+        if (Player* player = ObjectAccessor::FindPlayer(citr->guid))
+            player->UpdateForQuestWorldObjects();
+}
+
 bool Group::AddInvite(Player* player)
 {
     if (!player || player->GetGroupInvite())

@@ -239,6 +239,7 @@ class Group
 
         void ConvertToLFG();
         void ConvertToRaid();
+        void ConvertToGroup();
 
         void SetBattlegroundGroup(Battleground* bg);
         GroupJoinBattlegroundResult CanJoinBattlegroundQueue(Battleground const* bgOrTemplate, BattlegroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
