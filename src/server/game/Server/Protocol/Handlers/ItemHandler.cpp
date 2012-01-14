@@ -1387,7 +1387,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket & recv_data )
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ITEM_TEXT_QUERY item guid: %u", GUID_LOPART(itemGuid));
 
-    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, (4+10));    // guess size
+    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 14);    // guess size
 
     if (Item* item = _player->GetItemByGuid(itemGuid))
     {
