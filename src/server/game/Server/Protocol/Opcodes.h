@@ -582,7 +582,7 @@ enum Opcodes
     SMSG_AUTH_CHALLENGE                              = 0x1181,
     SMSG_AUTH_RESPONSE                               = 0x8867,
     SMSG_AVAILABLE_VOICE_CHANNEL                     = 0x9C7B,
-    SMSG_BARBER_SHOP_RESULT                          = 0x00,
+    SMSG_BARBER_SHOP_RESULT                          = 0x9847,
     SMSG_BATTLEFIELD_LIST                            = 0xB64E,
     SMSG_BATTLEFIELD_MGR_EJECTED                     = 0x32EC,
     SMSG_BATTLEFIELD_MGR_EJECT_PENDING               = 0x724C,
