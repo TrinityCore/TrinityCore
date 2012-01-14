@@ -520,6 +520,9 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         void AI_SendMoveToPacket(float x, float y, float z, uint32 time, uint32 MovementFlags, uint8 type);
         CreatureAI* AI() const { return (CreatureAI*)i_AI; }
 
+        void SetWalk(bool enable);
+        void SetLevitate(bool enable);
+
         uint32 GetShieldBlockValue() const                  //dunno mob block value
         {
             return (getLevel()/2 + uint32(GetStat(STAT_STRENGTH)/20));
@@ -573,7 +576,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
         const char* GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
         void setDeathState(DeathState s);                   // override virtual Unit::setDeathState
-        bool FallGround();
 
         bool LoadFromDB(uint32 guid, Map* map) { return LoadCreatureFromDB(guid, map, false); }
         bool LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);

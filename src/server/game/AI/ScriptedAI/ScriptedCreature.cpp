@@ -298,7 +298,8 @@ void ScriptedAI::DoModifyThreatPercent(Unit* unit, int32 pct)
 void ScriptedAI::DoTeleportTo(float x, float y, float z, uint32 time)
 {
     me->Relocate(x, y, z);
-    me->SendMonsterMove(x, y, z, time);
+    float speed = me->GetDistance(x, y, z) / ((float)time * 0.001f);
+    me->MonsterMoveWithSpeed(x, y, z, speed);
 }
 
 void ScriptedAI::DoTeleportTo(const float position[4])
