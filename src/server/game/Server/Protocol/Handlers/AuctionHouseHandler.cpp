@@ -98,17 +98,17 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
     SendPacket(&data);
 }
 
-//this void causes on client to display: "Your auction sold"
+// this void causes on client to display: "Your auction sold"
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 {
-    WorldPacket data(SMSG_AUCTION_OWNER_NOTIFICATION, (7*4));
-    data << auction->Id;
-    data << auction->bid;
-    data << (uint32) 0;                                     //unk
-    data << (uint32) 0;                                     //unk
-    data << (uint32) 0;                                     //unk
-    data << auction->item_template;
-    data << (uint32) 0;                                     //unk
+    WorldPacket data(SMSG_AUCTION_OWNER_NOTIFICATION, 40);
+    data << uint32(auction->Id);
+    data << uint64(auction->bid);
+    data << uint64(0);                                     //unk
+    data << uint64(0);                                     //unk
+    data << uint32(0);                                     //unk
+    data << uint32(auction->item_template);
+    data << float(0);                                      //unk
     SendPacket(&data);
 }
 
@@ -311,7 +311,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket& recv_data)
         return;
     }
 
-    if (!player->HasEnoughMoney(price))
+    if (!player->HasEnoughMoney((uint32)price))
     {
         //you don't have enought money!, client tests!
         //SendAuctionCommandResult(auction->auctionId, AUCTION_PLACE_BID, ???);
@@ -489,7 +489,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
 
     WorldPacket data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
     Player* player = GetPlayer();
-    data << (uint32) 0;                                     //add 0 as count
+    data << uint32(0);                                     //add 0 as count
     uint32 count = 0;
     uint32 totalcount = 0;
     while (outbiddedCount > 0)                             //add all data, which client requires
@@ -508,7 +508,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
     auctionHouse->BuildListBidderItems(data, player, count, totalcount);
     data.put<uint32>(0, count);                           // add count to placeholder
     data << totalcount;
-    data << (uint32)300;                                    //unk 2.3.0
+    data << uint32(300);                                  //unk 2.3.0
     SendPacket(&data);
 }
 
@@ -537,15 +537,15 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recv_data)
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
     WorldPacket data(SMSG_AUCTION_OWNER_LIST_RESULT, (4+4+4));
-    data << (uint32) 0;                                     // amount place holder
+    data << uint32(0);                                     // amount place holder
 
     uint32 count = 0;
     uint32 totalcount = 0;
 
     auctionHouse->BuildListOwnerItems(data, _player, count, totalcount);
     data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) 0;
+    data << uint32(totalcount);
+    data << uint32(0);
     SendPacket(&data);
 }
 
@@ -612,8 +612,8 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recv_data)
         count, totalcount);
 
     data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) 300;                                   // unk 2.3.0 const?
+    data << uint32(totalcount);
+    data << uint32(300);                                  //unk 2.3.0
     SendPacket(&data);
 }
 

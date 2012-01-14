@@ -648,7 +648,7 @@ void AuctionHouseObject::BuildListAuctionItems(WorldPacket& data, Player* player
 }
 
 //this function inserts to WorldPacket auction's data
-bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
+bool AuctionEntry::BuildAuctionInfo(WorldPacket& data) const
 {
     Item* pItem = sAuctionMgr->GetAItem(item_guidlow);
     if (!pItem)
@@ -659,26 +659,26 @@ bool AuctionEntry::BuildAuctionInfo(WorldPacket & data) const
     data << uint32(Id);
     data << uint32(pItem->GetEntry());
 
-    for (uint8 i = 0; i < MAX_INSPECTED_ENCHANTMENT_SLOT; ++i)
+    for (uint8 i = 0; i < PROP_ENCHANTMENT_SLOT_2; ++i) // PROP_ENCHANTMENT_SLOT_2 = 9
     {
         data << uint32(pItem->GetEnchantmentId(EnchantmentSlot(i)));
         data << uint32(pItem->GetEnchantmentDuration(EnchantmentSlot(i)));
         data << uint32(pItem->GetEnchantmentCharges(EnchantmentSlot(i)));
     }
 
-    data << int32(pItem->GetItemRandomPropertyId());        //random item property id
-    data << uint32(pItem->GetItemSuffixFactor());           //SuffixFactor
-    data << uint32(pItem->GetCount());                      //item->count
-    data << uint32(pItem->GetSpellCharges());               //item->charge FFFFFFF
-    data << uint32(0);                                      //Unknown
-    data << uint64(owner);                                  //Auction->owner
-    data << uint32(startbid);                               //Auction->startbid (not sure if useful)
-    data << uint32(bid ? GetAuctionOutBid() : 0);
+    data << int32(pItem->GetItemRandomPropertyId());        // random item property id
+    data << uint32(pItem->GetItemSuffixFactor());           // SuffixFactor
+    data << uint32(pItem->GetCount());                      // item->count
+    data << uint32(pItem->GetSpellCharges());               // item->charge FFFFFFF
+    data << uint32(0);                                      // Unknown
+    data << uint64(owner);                                  // Auction->owner
+    data << uint64(startbid);                               // Auction->startbid (not sure if useful)
+    data << uint64(bid ? GetAuctionOutBid() : 0);
     //minimal outbid
-    data << uint32(buyout);                                 //auction->buyout
-    data << uint32((expire_time-time(NULL))*IN_MILLISECONDS);//time left
-    data << uint64(bidder);                                 //auction->bidder current
-    data << uint32(bid);                                    //current bid
+    data << uint64(buyout);                                 // auction->buyout
+    data << uint32((expire_time-time(NULL))*IN_MILLISECONDS); // time left
+    data << uint64(bidder);                                 // auction->bidder current
+    data << uint64(bid);                                    // current bid
     return true;
 }
 
