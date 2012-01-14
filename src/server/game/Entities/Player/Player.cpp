@@ -11811,8 +11811,26 @@ InventoryResult Player::CanUseItem(ItemTemplate const* proto) const
     return EQUIP_ERR_ITEM_NOT_FOUND;
 }
 
-InventoryResult Player::CanRollForItem(ItemTemplate const* proto) const
+InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObject const* lootedObject) const
 {
+    LfgDungeonSet const& dungeons = sLFGMgr->GetSelectedDungeons(GetGUID());
+    if (dungeons.empty())
+        return EQUIP_ERR_OK;    // not using LFG
+
+    if (!GetGroup() || !GetGroup()->isLFGGroup())
+        return EQUIP_ERR_OK;    // not in LFG group
+
+    // check if looted object is inside the lfg dungeon
+    bool lootedObjectInDungeon = false;
+    Map const* map = lootedObject->GetMap();
+    if (uint32 dungeonId = sLFGMgr->GetDungeon(GetGroup()->GetGUID(), true))
+        if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
+            if (dungeon->map == map->GetId() && dungeon->difficulty == map->GetDifficulty())
+                lootedObjectInDungeon = true;
+
+    if (!lootedObjectInDungeon)
+        return EQUIP_ERR_OK;
+
     if (!proto)
         return EQUIP_ERR_ITEM_NOT_FOUND;
    // Used by group, function NeedBeforeGreed, to know if a prototype can be used by a player
@@ -11866,12 +11884,12 @@ InventoryResult Player::CanRollForItem(ItemTemplate const* proto) const
             }
             else if (proto->SubClass != ITEM_SUBCLASS_ARMOR_MAIL)
                 return EQUIP_ERR_CANT_DO_RIGHT_NOW;
-        }   
-        
+        }
+
         if (_class == CLASS_ROGUE || _class == CLASS_DRUID)
             if (proto->SubClass != ITEM_SUBCLASS_ARMOR_LEATHER)
                 return EQUIP_ERR_CANT_DO_RIGHT_NOW;
-                
+
         if (_class == CLASS_MAGE || _class == CLASS_PRIEST || _class == CLASS_WARLOCK)
             if (proto->SubClass != ITEM_SUBCLASS_ARMOR_CLOTH)
                 return EQUIP_ERR_CANT_DO_RIGHT_NOW;
