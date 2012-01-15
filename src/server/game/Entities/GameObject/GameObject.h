@@ -573,6 +573,16 @@ enum GOState
 
 #define MAX_GO_STATE              3
 
+struct QuaternionData
+{
+    float x, y, z, w;
+
+    QuaternionData() : x(0.f), y(0.f), z(0.f), w(0.f) {}
+    QuaternionData(float X, float Y, float Z, float W) : x(X), y(Y), z(Z), w(W) {}
+
+    bool isUnit() const { return fabs(x*x + y*y + z*z + w*w - 1.f) < 1e-5;}
+};
+
 // from `gameobject`
 struct GameObjectData
 {
@@ -584,10 +594,7 @@ struct GameObjectData
     float posY;
     float posZ;
     float orientation;
-    float rotation0;
-    float rotation1;
-    float rotation2;
-    float rotation3;
+    QuaternionData rotation;
     int32  spawntimesecs;
     uint32 animprogress;
     GOState go_state;
@@ -613,6 +620,8 @@ class Unit;
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
 
+#define GO_ANIMPROGRESS_DEFAULT 0xFF
+
 class GameObject : public WorldObject, public GridObject<GameObject>
 {
     public:
@@ -623,7 +632,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void RemoveFromWorld();
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang,
+            QuaternionData rotation = QuaternionData(), uint32 animprogress = GO_ANIMPROGRESS_DEFAULT, GOState go_state = GO_STATE_READY, uint32 artKit = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
@@ -639,7 +649,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void SetWorldRotationAngles(float z_rot, float y_rot, float x_rot);
         void SetWorldRotation(float qx, float qy, float qz, float qw);   
         void SetTransportPathRotation(float qx, float qy, float qz, float qw);      // transforms(rotates) transport's path
-        int64 GetRotation() const { return m_rotation; }
+        int64 GetPackedWorldRotation() const { return m_packedRotation; }
 
         void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId, language, TargetGuid); }
         void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId, language, TargetGuid); }
@@ -815,8 +825,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;
 
-        int64 m_rotation;
-        float m_quatX, m_quatY, m_quatZ, m_quatW;
+        int64 m_packedRotation;
+        QuaternionData m_worldRotation;
 
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
     private:

@@ -93,7 +93,7 @@ public:
             GameObject* go = new GameObject;
             if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, instance,
                 PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
-                0, 0, 0, 0, 120, GO_STATE_READY))
+                QuaternionData(0, 0, 0, 0)))
             {
                 delete go;
                 return;
