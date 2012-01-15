@@ -635,7 +635,9 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         uint32 GetDBTableGUIDLow() const { return m_DBTableGuid; }
 
-        void UpdateRotationFields(float rotation2 = 0.0f, float rotation3 = 0.0f);
+        // z_rot, y_rot, x_rot - rotation angles around z, y and x axes
+        void SetRotationAngles(float z_rot, float y_rot, float x_rot);
+        int64 GetRotation() const { return m_rotation; }
 
         void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId, language, TargetGuid); }
         void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId, language, TargetGuid); }
@@ -784,7 +786,6 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         void EventInform(uint32 eventId);
 
-        uint64 GetRotation() const { return m_rotation; }
         virtual uint32 GetScriptId() const { return GetGOInfo()->ScriptId; }
         GameObjectAI* AI() const { return m_AI; }
 
@@ -812,12 +813,13 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         GameObjectData const* m_goData;
         GameObjectValue * const m_goValue;
 
-        uint64 m_rotation;
+        int64 m_rotation;
 
         uint16 m_LootMode;                                  // bitmask, default LOOT_MODE_DEFAULT, determines what loot will be lootable
     private:
         void RemoveFromOwner();
         void SwitchDoorOrButton(bool activate, bool alternative = false);
+        void SetRotationQuat(float qx, float qy, float qz, float qw);
 
         //! Object distance/size - overridden from Object::_IsWithinDist. Needs to take in account proper GO size.
         bool _IsWithinDist(WorldObject const* obj, float dist2compare, bool /*is3D*/) const

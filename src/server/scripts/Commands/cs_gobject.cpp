@@ -413,7 +413,7 @@ public:
         }
 
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
-        object->UpdateRotationFields();
+        //object->UpdateRotationFields();
         object->DestroyForNearbyPlayers();
         object->UpdateObjectVisibility();
 
