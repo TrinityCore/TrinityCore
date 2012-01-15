@@ -3135,6 +3135,12 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
             break;
         case SUMMON_CATEGORY_PUPPET:
             summon = m_caster->GetMap()->SummonCreature(entry, pos, properties, duration, m_originalCaster, m_spellInfo->Id);
+            if (properties->Id == 65 || properties->Id == 428) // Eye of Acherus, Raise Ally, Dream Vision, etc.
+                if (summon)
+                {
+                    summon->RemoveCharmedBy(m_caster); // need to remove the current charmer to cast new charm spell on it
+                    m_caster->CastSpell(summon, 530, true);
+                }
             break;
         case SUMMON_CATEGORY_VEHICLE:
             // Summoning spells (usually triggered by npc_spellclick) that spawn a vehicle and that cause the clicker
