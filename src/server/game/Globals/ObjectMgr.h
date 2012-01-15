@@ -620,14 +620,14 @@ class ObjectMgr
 
         Player* GetPlayerByLowGUID(uint32 lowguid) const;
 
-        GameObjectTemplate const* GetGameObjectTemplate(uint32 lowguid);
+        GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
         GameObjectTemplateContainer const* GetGameObjectTemplates() { return &GameObjectTemplateStore; }
         int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32> *skip_vendors);
 
         void LoadGameObjectTemplate();
         void AddGameobjectInfo(GameObjectTemplate* goinfo);
 
-        GameObjectDataAddon const* GetGameObjectAddonTemplate(uint32 guid);
+        GameObjectDataAddon const* GetGameObjectAddonTemplate(uint32 lowguid);
         GameObjectAddonContainer const* GetGameObjectAddonTemplate() { return &GameObjectAddonStore; }
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
