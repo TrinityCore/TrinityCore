@@ -620,12 +620,15 @@ class ObjectMgr
 
         Player* GetPlayerByLowGUID(uint32 lowguid) const;
 
-        GameObjectTemplate const* GetGameObjectTemplate(uint32 entry);
+        GameObjectTemplate const* GetGameObjectTemplate(uint32 lowguid);
         GameObjectTemplateContainer const* GetGameObjectTemplates() { return &GameObjectTemplateStore; }
         int LoadReferenceVendor(int32 vendor, int32 item_id, std::set<uint32> *skip_vendors);
 
         void LoadGameObjectTemplate();
         void AddGameobjectInfo(GameObjectTemplate* goinfo);
+
+        GameObjectDataAddon const* GetGameObjectAddonTemplate(uint32 guid);
+        GameObjectAddonContainer const* GetGameObjectAddonTemplate() { return &GameObjectAddonStore; }
 
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() { return &CreatureTemplateStore; }
@@ -866,6 +869,7 @@ class ObjectMgr
         void LoadEquipmentTemplates();
         void LoadGameObjectLocales();
         void LoadGameobjects();
+        void LoadGameObjectAddon();
         void LoadGameobjectRespawnTimes();
         void LoadItemTemplates();
         void LoadItemLocales();
@@ -1314,6 +1318,7 @@ class ObjectMgr
         CreatureAddonContainer CreatureAddonStore;
         CreatureAddonContainer CreatureTemplateAddonStore;
         EquipmentInfoContainer EquipmentInfoStore;
+        GameObjectAddonContainer GameObjectAddonStore;
         LinkedRespawnMap mLinkedRespawnMap;
         CreatureLocaleMap mCreatureLocaleMap;
         GameObjectDataMap mGameObjectDataMap;

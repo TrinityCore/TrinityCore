@@ -1878,6 +1878,61 @@ void ObjectMgr::LoadGameobjects()
     sLog->outString();
 }
 
+void ObjectMgr::LoadGameObjectAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                0    1               2               3               4
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_rotation0, path_rotation1, path_rotation2, path_rotation3, FROM gameobject_addon");
+
+    if (!result)
+    {
+        sLog->outErrorDb(">> Loaded 0 gameobjects addon definitions. DB table `gameobject_addon` is empty.");
+        sLog->outString();
+        return;
+    }
+
+    uint32 count = 0;
+    do 
+    {
+        Field* fields = result->Fetch();
+
+        uint32 guid = fields[0].GetUInt32();
+
+        if (mGameObjectDataMap.find(guid) == mGameObjectDataMap.end())
+        {
+            sLog->outErrorDb("Gameobject (GUID: %u) does not exist but has a record in `gameobject_addon`", guid);
+            continue;
+        }
+
+        GameObjectDataAddon& gameObjectAddon = GameObjectAddonStore[guid];
+
+        gameObjectAddon.path_rotation.x = fields[1].GetUInt32();
+        gameObjectAddon.path_rotation.y = fields[2].GetUInt32();
+        gameObjectAddon.path_rotation.z = fields[3].GetUInt32();
+        gameObjectAddon.path_rotation.w = fields[4].GetUInt32();
+
+        if (!gameObjectAddon.path_rotation.isUnit())
+        {
+            sLog->outErrorDb("Gameobject (GUID: %u) has invalid path rotation", guid);
+            //const_cast<GameObjectDataAddon*>(gameObjectAddon)->path_rotation = QuaternionData(0.f, 0.f, 0.f, 1.f); TODO: Fix this.
+        }
+    }
+    while (result->NextRow());
+
+    sLog->outString(">> Loaded %lu gameobject addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
+GameObjectDataAddon const* ObjectMgr::GetGameObjectAddonTemplate(uint32 lowguid)
+{
+    GameObjectAddonContainer::const_iterator itr = GameObjectAddonStore.find(lowguid);
+    if (itr != GameObjectAddonStore.end())
+        return &(itr->second);
+
+    return NULL;
+}
+
 void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
 {
     uint8 mask = data->spawnMask;
