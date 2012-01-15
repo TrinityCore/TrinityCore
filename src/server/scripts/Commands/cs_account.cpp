@@ -510,7 +510,7 @@ public:
 
             stmt->setUInt32(0, targetAccountId);
             stmt->setUInt8(1, uint8(gm));
-            stmt->setUInt32(2, gmRealmID);
+            stmt->setInt32(2, gmRealmID);
 
             LoginDatabase.Execute(stmt);
         }

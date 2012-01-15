@@ -1864,3 +1864,9 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
         }
     }
 }
+
+void GameObject::SetLootState(LootState s)
+{
+    m_lootState = s;
+    AI()->OnStateChanged(s);
+}

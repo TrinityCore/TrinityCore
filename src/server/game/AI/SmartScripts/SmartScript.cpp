@@ -1273,11 +1273,11 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
 
             ObjectList* targets = GetTargets(e, unit);
             if (e.GetTargetType() == SMART_TARGET_SELF)
-                me->SetFacing(me->GetHomePosition().GetOrientation(), NULL);
+                me->SetFacingTo(me->GetHomePosition().GetOrientation());
             else if (e.GetTargetType() == SMART_TARGET_POSITION)
-                me->SetFacing(e.target.o, NULL);
+                me->SetFacingTo(e.target.o);
             else if (targets && !targets->empty())
-                me->SetFacing(0, (*targets->begin()));
+                me->SetFacingToObject(*targets->begin());
 
             delete targets;
             break;
@@ -1778,6 +1778,20 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             me->GetMotionMaster()->Clear();
             me->GetMotionMaster()->MoveJump(e.target.x, e.target.y, e.target.z, (float)e.action.jump.speedxy, (float)e.action.jump.speedz);
             // TODO: Resume path when reached jump location
+            break;
+        }
+        case SMART_ACTION_GO_SET_LOOT_STATE:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            
+            if (!targets)
+                return;
+                
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+                if (IsGameObject(*itr))
+                    (*itr)->ToGameObject()->SetLootState((LootState)e.action.setGoLootState.state);
+
+            delete targets;
             break;
         }
         case SMART_ACTION_SEND_GOSSIP_MENU:
@@ -2600,6 +2614,13 @@ void SmartScript::ProcessEvent(SmartScriptHolder& e, Unit* unit, uint32 var0, ui
             if (e.event.gameEvent.gameEventId != var0)
                 return;
             ProcessAction(e, NULL, var0);
+            break;
+        }
+        case SMART_EVENT_GO_STATE_CHANGED:
+        {
+            if (e.event.goStateChanged.state != var0)
+                return;
+            ProcessAction(e, unit, var0, var1);
             break;
         }
         default:

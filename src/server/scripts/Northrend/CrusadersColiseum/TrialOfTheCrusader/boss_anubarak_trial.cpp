@@ -568,12 +568,11 @@ public:
         }
 
         bool   m_bFall;
-        uint32 m_uiPermafrostTimer;
+        float  x, y, z;
 
         void Reset()
         {
             m_bFall = false;
-            m_uiPermafrostTimer = 0;
             me->SetReactState(REACT_PASSIVE);
             me->SetFlying(true);
             me->SetDisplayId(25144);
@@ -590,12 +589,11 @@ public:
                 if (!m_bFall)
                 {
                     m_bFall = true;
-                    me->SetFlying(false);
                     me->GetMotionMaster()->MoveIdle();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     //At hit the ground
-                    me->GetMotionMaster()->MoveFall(142.2f, 0);
-                    //me->FallGround(); //need correct vmap use (i believe it isn't working properly right now)
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
+                    me->GetMotionMaster()->MoveFall();
                 }
             }
         }
@@ -607,24 +605,12 @@ public:
             switch (uiId)
             {
                 case 0:
-                    m_uiPermafrostTimer = IN_MILLISECONDS;
-                    break;
-            }
-        }
-
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (m_uiPermafrostTimer)
-            {
-                if (m_uiPermafrostTimer <= uiDiff)
-                {
-                    m_uiPermafrostTimer = 0;
                     me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
                     me->SetDisplayId(11686);
-                    me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
                     DoCast(SPELL_PERMAFROST_VISUAL);
                     DoCast(SPELL_PERMAFROST);
-                } else m_uiPermafrostTimer -= uiDiff;
+                    me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                    break;
             }
         }
     };

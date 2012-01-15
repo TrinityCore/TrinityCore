@@ -19,17 +19,12 @@
 
 enum Yells
 {
-    YELL_AGGRO                                    = -1810008,
-    YELL_EVADE                                    = -1810009,
-    YELL_RESPAWN1                                 = -1810010,
-    YELL_RESPAWN2                                 = -1810011,
-    YELL_RANDOM1                                  = -1810012,
-    YELL_RANDOM2                                  = -1810013,
-    YELL_RANDOM3                                  = -1810014,
-    YELL_RANDOM4                                  = -1810015,
-    YELL_RANDOM5                                  = -1810016,
-    YELL_RANDOM6                                  = -1810017,
-    YELL_RANDOM7                                  = -1810018
+    YELL_AGGRO                                    = 0,
+    YELL_EVADE                                    = 1,
+    YELL_RESPAWN1                                 = -1810010, // no creature_text
+    YELL_RESPAWN2                                 = -1810011, // no creature_text
+    YELL_RANDOM                                   = 2,
+	YELL_SPELL                                    = 3,
 };
 
 enum Spells
@@ -65,7 +60,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(YELL_AGGRO, me);
+            Talk(YELL_AGGRO);
         }
 
         void JustRespawned()
@@ -99,7 +94,7 @@ public:
 
             if (YellTimer <= diff)
             {
-                DoScriptText(RAND(YELL_RANDOM1, YELL_RANDOM2, YELL_RANDOM3, YELL_RANDOM4, YELL_RANDOM5, YELL_RANDOM6, YELL_RANDOM7), me);
+                Talk(YELL_RANDOM);
                 YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
             } else YellTimer -= diff;
 
@@ -109,7 +104,7 @@ public:
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
-                    DoScriptText(YELL_EVADE, me);
+                    Talk(YELL_EVADE);
                 }
                 ResetTimer = 5 * IN_MILLISECONDS;
             } else ResetTimer -= diff;
