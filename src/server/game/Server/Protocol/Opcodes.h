@@ -969,7 +969,7 @@ enum Opcodes
     SMSG_SPELLORDAMAGE_IMMUNE                        = 0x48FA,
     SMSG_SPELLSTEALLOG                               = 0x00,
     SMSG_SPELL_COOLDOWN                              = 0x88D6,
-    SMSG_SPELL_DELAYED                               = 0x00,
+    SMSG_SPELL_DELAYED                               = 0x1AD3,
     SMSG_SPELL_FAILED_OTHER                          = 0xCE4A,
     SMSG_SPELL_FAILURE                               = 0x9A66,
     SMSG_SPELL_GO                                    = 0x0A53,
