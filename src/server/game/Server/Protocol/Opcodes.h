@@ -172,8 +172,8 @@ enum Opcodes
     CMSG_FORCE_TURN_RATE_CHANGE_ACK                  = 0x00,
     CMSG_FORCE_WALK_SPEED_CHANGE_ACK                 = 0x00,
     CMSG_GAMEOBJECT_QUERY                            = 0xCEFF,
-    CMSG_GAMEOBJ_REPORT_USE                          = 0x00,
-    CMSG_GAMEOBJ_USE                                 = 0x9A4A, // might be CMSG_GAMEOBJ_REPORT_USE
+    CMSG_GAMEOBJ_REPORT_USE                          = 0x9A4A,
+    CMSG_GAMEOBJ_USE                                 = 0x1E77,
     CMSG_GAMESPEED_SET                               = 0x00,
     CMSG_GAMETIME_SET                                = 0x00,
     CMSG_GETDEATHBINDZONE                            = 0x00,
