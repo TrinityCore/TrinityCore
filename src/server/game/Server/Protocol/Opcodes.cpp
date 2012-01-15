@@ -543,7 +543,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(SMSG_GAMEOBJECT_PAGETEXT,                     STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(CMSG_SETSHEATHED,                             STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::HandleSetSheathedOpcode         );
      //DEFINE_OPCODE_HANDLER(SMSG_COOLDOWN_CHEAT,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-     //DEFINE_OPCODE_HANDLER(SMSG_SPELL_DELAYED,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_SPELL_DELAYED,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(CMSG_QUEST_POI_QUERY,                         STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleQuestPOIQuery             );
      DEFINE_OPCODE_HANDLER(SMSG_QUEST_POI_QUERY_RESPONSE,                STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_GHOST,                                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
