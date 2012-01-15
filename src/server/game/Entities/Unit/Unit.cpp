@@ -15574,7 +15574,8 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
             sLog->outStaticDebug("We are dead, losing %f percent durability", sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
             plrVictim->DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
             // durability lost message
-            WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
+            WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
+            data << uint32((int)sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH)); // the loss is now sent.
             plrVictim->GetSession()->SendPacket(&data);
         }
         // Call KilledUnit for creatures

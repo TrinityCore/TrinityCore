@@ -1282,7 +1282,8 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
             sLog->outStaticDebug("We are fall to death, loosing 10 percents durability");
             DurabilityLossAll(0.10f, false);
             // durability lost message
-            WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 0);
+            WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 4);
+            data2 << uint32(10);
             GetSession()->SendPacket(&data2);
         }
 

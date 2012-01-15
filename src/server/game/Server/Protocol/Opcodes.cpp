@@ -173,8 +173,8 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_CREATE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildCreateOpcode         );
      DEFINE_OPCODE_HANDLER(CMSG_GUILD_INVITE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildInviteOpcode         );
      //DEFINE_OPCODE_HANDLER(SMSG_GUILD_INVITE,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-     //DEFINE_OPCODE_HANDLER(CMSG_GUILD_ACCEPT,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildAcceptOpcode         );
-     //DEFINE_OPCODE_HANDLER(CMSG_GUILD_DECLINE,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildDeclineOpcode        );
+     DEFINE_OPCODE_HANDLER(CMSG_GUILD_ACCEPT,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildAcceptOpcode         );
+     DEFINE_OPCODE_HANDLER(CMSG_GUILD_DECLINE,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildDeclineOpcode        );
      //DEFINE_OPCODE_HANDLER(SMSG_GUILD_DECLINE,                           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_INFO,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildInfoOpcode           );
      //DEFINE_OPCODE_HANDLER(SMSG_GUILD_INFO,                              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
@@ -184,7 +184,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_DEMOTE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildDemoteOpcode         );
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_LEAVE,                             STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildLeaveOpcode          );
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_REMOVE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildRemoveOpcode         );
-     //DEFINE_OPCODE_HANDLER(CMSG_GUILD_DISBAND,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildDisbandOpcode        );
+     DEFINE_OPCODE_HANDLER(CMSG_GUILD_DISBAND,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildDisbandOpcode        );
      DEFINE_OPCODE_HANDLER(CMSG_GUILD_LEADER,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildLeaderOpcode         );
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_MOTD,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildMOTDOpcode           );
      DEFINE_OPCODE_HANDLER(SMSG_GUILD_EVENT,                             STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
@@ -409,7 +409,7 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(SMSG_CLIENT_CONTROL_UPDATE,                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      DEFINE_OPCODE_HANDLER(CMSG_REPOP_REQUEST,                           STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleRepopRequestOpcode        );
      //DEFINE_OPCODE_HANDLER(SMSG_RESURRECT_REQUEST,                       STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-     //DEFINE_OPCODE_HANDLER(CMSG_RESURRECT_RESPONSE,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleResurrectResponseOpcode   );
+     DEFINE_OPCODE_HANDLER(CMSG_RESURRECT_RESPONSE,                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleResurrectResponseOpcode   );
      DEFINE_OPCODE_HANDLER(CMSG_LOOT,                                    STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLootOpcode                );
      DEFINE_OPCODE_HANDLER(CMSG_LOOT_MONEY,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLootMoneyOpcode           );
      DEFINE_OPCODE_HANDLER(CMSG_LOOT_RELEASE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleLootReleaseOpcode         );
