@@ -84,6 +84,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature& creature)
 
     // Inform script
     MovementInform(creature);
+    creature.UpdateWaypointID(i_currentNode);
     Stop(i_path->at(i_currentNode)->delay);
 }
 
@@ -94,19 +95,19 @@ bool WaypointMovementGenerator<Creature>::StartMove(Creature &creature)
     if (Stopped())
         return true;
 
-    const WaypointData *node = i_path->at(i_currentNode);
-
     if (m_isArrivalDone)
     {
         if ((i_currentNode == i_path->size() - 1) && !repeating) // If that's our last waypoint
         {
-            creature.SetHomePosition(node->x, node->y, node->z, creature.GetOrientation());
+            creature.SetHomePosition(i_path->at(i_currentNode)->x, i_path->at(i_currentNode)->y, i_path->at(i_currentNode)->z, creature.GetOrientation());
             creature.GetMotionMaster()->Initialize();
             return false;
         }
 
         i_currentNode = (i_currentNode+1) % i_path->size();
     }
+
+    const WaypointData *node = i_path->at(i_currentNode);
 
     m_isArrivalDone = false;
 
