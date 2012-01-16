@@ -94,6 +94,11 @@ enum SvalaPhase
     SVALADEAD
 };
 
+enum SvalaPoint
+{
+    POINT_FALL_GROUND = 1,
+};
+
 #define DATA_INCREDIBLE_HULK 2043
 
 static const float spectatorWP[2][3] = 
@@ -258,16 +263,16 @@ public:
 
                 SetCombatMovement(false);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
-                me->GetMotionMaster()->MoveFall();
+                me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
             }
         }
 
         void MovementInform(uint32 motionType, uint32 pointId)
         {
-            if (motionType != POINT_MOTION_TYPE)
+            if (motionType != EFFECT_MOTION_TYPE)
                 return;
 
-            if (pointId == 1)
+            if (pointId == POINT_FALL_GROUND)
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
@@ -288,7 +293,7 @@ public:
                 Phase = NORMAL;
                 SetCombatMovement(true);
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 300, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f, true))
                     me->GetMotionMaster()->MoveChase(target);
             }
         }
@@ -330,7 +335,7 @@ public:
                             {
                                 std::list<Creature*> lspectatorList;
                                 GetCreatureListWithEntryInGrid(lspectatorList, me, CREATURE_SPECTATOR, 100.0f);
-                                for(std::list<Creature*>::iterator itr = lspectatorList.begin(); itr != lspectatorList.end(); ++itr)
+                                for (std::list<Creature*>::iterator itr = lspectatorList.begin(); itr != lspectatorList.end(); ++itr)
                                 {
                                     if ((*itr)->isAlive())
                                     {
@@ -397,7 +402,8 @@ public:
                             Phase = NORMAL;
                             break;
                     }
-                } else introTimer -= diff;
+                }
+                else introTimer -= diff;
 
                 return;
             }
