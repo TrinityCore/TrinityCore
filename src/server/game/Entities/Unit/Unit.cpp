@@ -3195,7 +3195,7 @@ void Unit::_ApplyAura(AuraApplication * aurApp, uint8 effMask)
     // apply effects of the aura
     for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
     {
-        if (effMask & 1<<i && (!aurApp->GetRemoveMode()))
+        if (effMask & 1 << i && (!aurApp->GetRemoveMode()) && !IsImmunedToSpellEffect(aura->GetSpellInfo(), i))
             aurApp->_HandleEffect(i, true);
     }
 }
