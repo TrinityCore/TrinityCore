@@ -730,25 +730,64 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     if (vendor->HasUnitState(UNIT_STAT_MOVING))
         vendor->StopMoving();
 
+    uint8* bytes = (uint8*)&vendorGuid;
+    
     VendorItemData const* items = vendor->GetVendorItems();
     if (!items)
     {
         WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + 1);
-        data << uint64(vendorGuid);
+        data.WriteByteMask(bytes[5]);
+        data.WriteByteMask(bytes[6]);
+        data.WriteByteMask(bytes[1]);
+        data.WriteByteMask(bytes[2]);
+        data.WriteByteMask(bytes[3]);
+        data.WriteByteMask(bytes[0]);
+        data.WriteByteMask(bytes[7]);
+        data.WriteByteMask(bytes[4]);
+        
+        data.WriteByteSeq(bytes[2]);
+        data.WriteByteSeq(bytes[3]);
+        
         data << uint8(0);                                   // count == 0, next will be error code
-        data << uint8(0);                                   // "Vendor has no inventory"
+        data << uint8(0xA0);                                // Only seen 0xA0 (160) so far ( should we send 0 here?)
+    
+        data.WriteByteSeq(bytes[4]);
+        data.WriteByteSeq(bytes[7]);
+        data.WriteByteSeq(bytes[6]);
         SendPacket(&data);
         return;
     }
 
     uint8 itemCount = items->GetItemCount();
     uint8 count = 0;
-
+    
     WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
-    data << uint64(vendorGuid);
-
+    
+    data.WriteByteMask(bytes[5]);
+    data.WriteByteMask(bytes[6]);
+    data.WriteByteMask(bytes[1]);
+    data.WriteByteMask(bytes[2]);
+    data.WriteByteMask(bytes[3]);
+    data.WriteByteMask(bytes[0]);
+    data.WriteByteMask(bytes[7]);
+    data.WriteByteMask(bytes[4]);
+    
+    data.WriteByteSeq(bytes[2]);
+    data.WriteByteSeq(bytes[3]);
+    
     size_t countPos = data.wpos();
-    data << uint8(count);
+    data << uint32(count);
+    
+    data.WriteByteSeq(bytes[5]);
+    data.WriteByteSeq(bytes[0]);
+    data.WriteByteSeq(bytes[1]);
+    
+    data << uint8(0xA0); // Only seen 0xA0 (160) so far
+    
+    data.WriteByteSeq(bytes[4]);
+    data.WriteByteSeq(bytes[7]);
+    data.WriteByteSeq(bytes[6]);
+    
 
     float discountMod = _player->GetReputationPriceDiscount(vendor);
 
@@ -775,26 +814,27 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
                 // reputation discount
                 int32 price = item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
 
+                data << uint32(itemTemplate->MaxDurability);
                 data << uint32(slot + 1);       // client expects counting to start at 1
                 data << uint32(item->item);
+                data << uint32(0);              // Always 0?
                 data << uint32(itemTemplate->DisplayInfoID);
                 data << int32(leftInStock);
-                data << uint32(price);
-                data << uint32(itemTemplate->MaxDurability);
                 data << uint32(itemTemplate->BuyCount);
                 data << uint32(item->ExtendedCost);
+                data << uint32(1);              // Always 1?
+                data << uint32(price);
             }
         }
     }
 
     if (count == 0)
     {
-        data << uint8(0);
         SendPacket(&data);
         return;
     }
 
-    data.put<uint8>(countPos, count);
+    data.put<uint32>(countPos, count);
     SendPacket(&data);
 }
 
