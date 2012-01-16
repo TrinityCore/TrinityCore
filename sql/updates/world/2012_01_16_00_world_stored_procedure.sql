@@ -33,7 +33,7 @@ BEGIN
       KEY `idx_id` (`id`),
       KEY `idx_oldguid_tmp` (`old_guid`)
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Creature System' AUTO_INCREMENT=250001;
-    
+
     ALTER TABLE `creature_addon` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
     ALTER TABLE `creature_formations` ADD COLUMN `new_guid_leader` INT(10) UNSIGNED NOT NULL;
     ALTER TABLE `creature_formations` ADD COLUMN `new_guid_member` INT(10) UNSIGNED NOT NULL;
@@ -43,19 +43,6 @@ BEGIN
     ALTER TABLE `game_event_npc_vendor` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
     ALTER TABLE `game_event_npcflag` ADD COLUMN `new_guid` INT(10) UNSIGNED NOT NULL;
     ALTER TABLE `smart_scripts` ADD COLUMN `new_guid` INT(10) NOT NULL;
-    
-    INSERT INTO `creature_temp`
-        (
-            `guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`,
-            `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`,
-            `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`,
-            `unit_flags`, `dynamicflags`, `old_guid`
-        ) SELECT
-            `guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`,
-            `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`,
-            `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`,
-            `unit_flags`, `dynamicflags`, `guid`
-         FROM `creature` WHERE `guid` < 250001 ORDER BY `id` ASC;
 
     INSERT INTO `creature_temp`
         (
@@ -68,8 +55,21 @@ BEGIN
             `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`,
             `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`,
             `unit_flags`, `dynamicflags`, `guid`
-         FROM `creature` WHERE `guid` > 250000 ORDER BY `id` ASC;
-    
+         FROM `creature` WHERE `guid` < 250001 ORDER BY `id` ASC;
+
+    INSERT INTO `creature_temp`
+        (
+            `guid`,`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`,
+            `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`,
+            `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`,
+            `unit_flags`, `dynamicflags`, `old_guid`
+        ) SELECT
+            `guid`,`id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`,
+            `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`,
+            `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`,
+            `unit_flags`, `dynamicflags`, `guid`
+         FROM `creature` WHERE `guid` >= 250001 ORDER BY `id` ASC;
+
     UPDATE game_event_npc_vendor p
         INNER JOIN creature_temp pp
         ON p.guid = pp.old_guid
@@ -109,11 +109,11 @@ BEGIN
         WHERE
             entryorguid < 0 AND
             source_type = 0;
-    
+
     DROP TABLE `creature`;
     ALTER TABLE `creature_temp` DROP COLUMN `old_guid`;
     RENAME TABLE `creature_temp` TO `creature`;
-    
+
     ALTER TABLE game_event_npc_vendor DISABLE KEYS;
     UPDATE `game_event_npc_vendor` SET `guid`=`new_guid`;
     ALTER TABLE `game_event_npc_vendor` DROP COLUMN `new_guid`;
