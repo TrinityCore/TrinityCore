@@ -26,7 +26,6 @@ EndScriptData */
 /* ContentData
 npc_archmage_malin
 npc_bartleby
-npc_dashel_stonefist
 npc_lady_katrana_prestor
 npc_tyrion
 npc_tyrion_spybot
@@ -140,78 +139,6 @@ public:
 
                 if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
                     CAST_PLR(pDoneBy)->AreaExploredOrEventHappens(QUEST_BEAT);
-                EnterEvadeMode();
-            }
-        }
-    };
-
-};
-
-/*######
-## npc_dashel_stonefist
-######*/
-
-enum eDashel
-{
-    QUEST_MISSING_DIPLO_PT8     = 1447,
-    FACTION_HOSTILE             = 168
-};
-
-class npc_dashel_stonefist : public CreatureScript
-{
-public:
-    npc_dashel_stonefist() : CreatureScript("npc_dashel_stonefist") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
-    {
-        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT8)
-        {
-            creature->setFaction(FACTION_HOSTILE);
-            CAST_AI(npc_dashel_stonefist::npc_dashel_stonefistAI, creature->AI())->AttackStart(player);
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_dashel_stonefistAI(creature);
-    }
-
-    struct npc_dashel_stonefistAI : public ScriptedAI
-    {
-        npc_dashel_stonefistAI(Creature* c) : ScriptedAI(c)
-        {
-            m_uiNormalFaction = c->getFaction();
-        }
-
-        uint32 m_uiNormalFaction;
-
-        void Reset()
-        {
-            if (me->getFaction() != m_uiNormalFaction)
-                me->setFaction(m_uiNormalFaction);
-        }
-
-        void AttackedBy(Unit* pAttacker)
-        {
-            if (me->getVictim())
-                return;
-
-            if (me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
-        {
-            if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
-            {
-                uiDamage = 0;
-
-                if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(pDoneBy)->AreaExploredOrEventHappens(QUEST_MISSING_DIPLO_PT8);
-
                 EnterEvadeMode();
             }
         }
@@ -716,7 +643,6 @@ void AddSC_stormwind_city()
 {
     new npc_archmage_malin();
     new npc_bartleby();
-    new npc_dashel_stonefist();
     new npc_lady_katrana_prestor();
     new npc_tyrion();
     new npc_tyrion_spybot();
