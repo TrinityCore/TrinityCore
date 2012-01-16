@@ -34,12 +34,12 @@ INSERT INTO `reference_loot_template` (`entry`,`item`,`ChanceOrQuestChance`,`loo
 (@RefC,20540,0,1,1,1,1), -- Scroll: Scepter of Beckoning
 (@RefC,20542,0,1,1,1,1), -- Scroll: Scepter of Beckoning
 (@RefC,20543,0,1,1,1,1), -- Scroll: Scepter of Beckoning
-(@RefC,20544,0,1,1,1,1); -- Scroll: Scepter of Beckoning
+(@RefC,20544,0,1,1,1,1), -- Scroll: Scepter of Beckoning
 -- Decoded Twilight Texts:
-(@RefD,20676,0,1,0,1,3), 
-(@RefD,20541,0,1,0,1,3), 
-(@RefD,20545,0,1,0,1,3), 
-(@RefD,20679,0,1,0,1,3), 
-(@RefD,20677,0,1,0,1,3), 
-(@RefD,20678,0,1,0,1,3),
-(@RefD,20552,0,1,0,1,3), 
+(@RefD,20676,0,1,1,1,3), 
+(@RefD,20541,0,1,1,1,3), 
+(@RefD,20545,0,1,1,1,3), 
+(@RefD,20679,0,1,1,1,3), 
+(@RefD,20677,0,1,1,1,3), 
+(@RefD,20678,0,1,1,1,3),
+(@RefD,20552,0,1,1,1,3); 
