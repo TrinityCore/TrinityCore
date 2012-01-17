@@ -485,7 +485,8 @@ enum Opcodes
     MSG_MOVE_SET_RUN_BACK_SPEED                      = 0x00,
     MSG_MOVE_SET_RUN_BACK_SPEED_CHEAT                = 0x00,
     MSG_MOVE_SET_RUN_MODE                            = 0x21A4,
-    MSG_MOVE_SET_RUN_SPEED                           = 0x00,
+    SMSG_FORCE_RUN_SPEED_CHANGE                      = 0xE24E, // for self
+    SMSG_MOVE_SPLINE_SET_RUN_SPEED                   = 0xB2CE, // for others
     MSG_MOVE_SET_RUN_SPEED_CHEAT                     = 0x00,
     MSG_MOVE_SET_SWIM_BACK_SPEED                     = 0x00,
     MSG_MOVE_SET_SWIM_BACK_SPEED_CHEAT               = 0x00,
@@ -694,7 +695,6 @@ enum Opcodes
     SMSG_FORCE_MOVE_UNROOT                           = 0x00,
     SMSG_FORCE_PITCH_RATE_CHANGE                     = 0x00,
     SMSG_FORCE_RUN_BACK_SPEED_CHANGE                 = 0x00,
-    SMSG_FORCE_RUN_SPEED_CHANGE                      = 0x00,
     SMSG_FORCE_SEND_QUEUED_PACKETS                   = 0x1380,
     SMSG_FORCE_SWIM_BACK_SPEED_CHANGE                = 0x00,
     SMSG_FORCE_SWIM_SPEED_CHANGE                     = 0x00,
