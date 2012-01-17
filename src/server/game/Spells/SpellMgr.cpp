@@ -3623,18 +3623,15 @@ void SpellMgr::LoadDbcDataCorrections()
             case 72405: // Broken Frostmourne
                 spellInfo->EffectRadiusIndex[1] = EFFECT_RADIUS_200_YARDS;   // 200yd
                 break;
-<<<<<<< HEAD
             case 51678: // WintergraspSiegeEngine Ram set damage radius to 5 yards
                 spellInfo->EffectRadiusIndex[0] = 52;
                 spellInfo->EffectRadiusIndex[1] = 52;
             break;
-=======
             case 40055: // Introspection
             case 40165: // Introspection
             case 40166: // Introspection
             case 40167: // Introspection
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
->>>>>>> 48a9c17dd8d4fc4273677f68849879700b33c2ee
             default:
                 break;
         }

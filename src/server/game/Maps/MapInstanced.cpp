@@ -126,10 +126,6 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
         if (!NewInstanceId) return NULL;
         map = sMapMgr->FindMap(mapId, NewInstanceId);
         if (!map)
-<<<<<<< HEAD
-            if (Battleground* NewBattleground = player->GetBattleground())
-                map = CreateBattleground(NewInstanceId, NewBattleground);
-=======
         {
             if (Battleground* bg = player->GetBattleground())
                 map = CreateBattleground(NewInstanceId, bg);
@@ -139,7 +135,6 @@ Map* MapInstanced::CreateInstanceForPlayer(const uint32 mapId, Player* player)
                 return NULL;
             }
         }
->>>>>>> 48a9c17dd8d4fc4273677f68849879700b33c2ee
     }
     else
     {

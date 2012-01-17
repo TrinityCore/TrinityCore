@@ -42,14 +42,13 @@ enum PaladinSpells
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
 
-<<<<<<< HEAD
     PALADIN_SPELL_RIGHTEOUS_DEFENCE              = 31789,
     PALADIN_SPELL_RIGHTEOUS_DEFENCE_EFFECT_1     = 31790,
-=======
+
     SPELL_DIVINE_STORM                           = 53385,
     SPELL_DIVINE_STORM_DUMMY                     = 54171,
     SPELL_DIVINE_STORM_HEAL                      = 54172,
->>>>>>> 48a9c17dd8d4fc4273677f68849879700b33c2ee
+
 };
 
 // 31850 - Ardent Defender
@@ -375,7 +374,6 @@ public:
     }
 };
 
-<<<<<<< HEAD
 class spell_pal_righteous_defense : public SpellScriptLoader
 {
     public:
@@ -409,7 +407,8 @@ class spell_pal_righteous_defense : public SpellScriptLoader
         {
             return new spell_pal_righteous_defense_SpellScript();
         }
-=======
+};
+
 class spell_pal_divine_storm : public SpellScriptLoader
 {
 public:
@@ -442,7 +441,6 @@ public:
     {
         return new spell_pal_divine_storm_SpellScript();
     }
->>>>>>> 48a9c17dd8d4fc4273677f68849879700b33c2ee
 };
 
 void AddSC_paladin_spell_scripts()
@@ -454,9 +452,6 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_sacred_shield();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
-<<<<<<< HEAD
     new spell_pal_righteous_defense();
-=======
     new spell_pal_divine_storm();
->>>>>>> 48a9c17dd8d4fc4273677f68849879700b33c2ee
 }

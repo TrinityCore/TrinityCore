@@ -1168,20 +1168,9 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     return;
                 case 54171:                                 // Divine Storm
                 {
-<<<<<<< HEAD
-                    if (!damage)
-                        return;
-
-                    if (m_UniqueTargetInfo.size())
-                    {
-                        SpellInfo const * spellInfo = sSpellMgr->GetSpellInfo(53385);
-                        int32 heal = spellInfo->Effects[EFFECT_1].CalcValue() * damage / m_UniqueTargetInfo.size() / 100;
-
-=======
                     if (m_UniqueTargetInfo.size())
                     {
                         int32 heal = damage / m_UniqueTargetInfo.size();
->>>>>>> 48a9c17dd8d4fc4273677f68849879700b33c2ee
                         m_caster->CastCustomSpell(unitTarget, 54172, &heal, NULL, NULL, true);
                     }
                     return;
@@ -1421,29 +1410,6 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             }
             break;
         case SPELLFAMILY_PALADIN:
-<<<<<<< HEAD
-            // Divine Storm
-            if (m_spellInfo->SpellFamilyFlags[EFFECT_1] & SPELLFAMILYFLAG1_PALADIN_DIVINESTORM)
-            {
-                if (effIndex != EFFECT_0)
-                    return;
-
-                uint32 target_count = 0;
-                for (std::list<TargetInfo>::const_iterator itr = m_UniqueTargetInfo.begin(); itr != m_UniqueTargetInfo.end(); ++itr)
-                    if (itr->effectMask & (1 << EFFECT_2))
-                        ++target_count;
-
-                if (!target_count)
-                    return;
-
-                if (Aura * aura = m_caster->AddAura(199997, unitTarget))
-                    aura->SetCharges(target_count);
-
-                return;
-            }
-
-=======
->>>>>>> 48a9c17dd8d4fc4273677f68849879700b33c2ee
             switch (m_spellInfo->Id)
             {
                 case 31789:                                 // Righteous Defense (step 1)

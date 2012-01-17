@@ -788,7 +788,6 @@ class World
 
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
-<<<<<<< HEAD
 		
         uint32 GetWintergrapsTimer() { return m_WintergrapsTimer; }
         uint32 GetWintergrapsState() { return m_WintergrapsState; }
@@ -801,9 +800,7 @@ class World
             m_WintergrapsState = state;
         }
 
-=======
         void   ResetEventSeasonalQuests(uint16 event_id);
->>>>>>> 48a9c17dd8d4fc4273677f68849879700b33c2ee
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
