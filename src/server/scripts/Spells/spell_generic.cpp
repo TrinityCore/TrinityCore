@@ -1481,6 +1481,82 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
         }
 };
 
+enum DalaranDisguiseSpells
+{
+    SPELL_SUNREAVER_DISGUISE_TRIGGER       = 69672,
+    SPELL_SUNREAVER_DISGUISE_FEMALE        = 70973,
+    SPELL_SUNREAVER_DISGUISE_MALE          = 70974,
+
+    SPELL_SILVER_COVENANT_DISGUISE_TRIGGER = 69673,
+    SPELL_SILVER_COVENANT_DISGUISE_FEMALE  = 70971,
+    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972,
+};
+
+class spell_gen_dalaran_disguise : public SpellScriptLoader
+{
+    public:
+        spell_gen_dalaran_disguise(const char* name) : SpellScriptLoader(name) {}
+
+        class spell_gen_dalaran_disguise_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_dalaran_disguise_SpellScript);
+            bool Validate(SpellInfo const* spellEntry)
+            {
+                switch (spellEntry->Id)
+                {
+                    case SPELL_SUNREAVER_DISGUISE_TRIGGER:
+                        if (!sSpellMgr->GetSpellInfo(SPELL_SUNREAVER_DISGUISE_FEMALE))
+                            return false;
+                        if (!sSpellMgr->GetSpellInfo(SPELL_SUNREAVER_DISGUISE_MALE))
+                            return false;
+                        break;
+                    case SPELL_SILVER_COVENANT_DISGUISE_TRIGGER:
+                        if (!sSpellMgr->GetSpellInfo(SPELL_SILVER_COVENANT_DISGUISE_FEMALE))
+                            return false;
+                        if (!sSpellMgr->GetSpellInfo(SPELL_SILVER_COVENANT_DISGUISE_MALE))
+                            return false;
+                        break;
+                }
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+
+                if (Player* player = GetHitPlayer())
+                {
+                    uint8 gender = player->getGender();
+
+                    uint32 spellId = GetSpellInfo()->Id;
+
+                    switch (spellId)
+                    {
+                        case SPELL_SUNREAVER_DISGUISE_TRIGGER:
+                            spellId = gender ? SPELL_SUNREAVER_DISGUISE_FEMALE : SPELL_SUNREAVER_DISGUISE_MALE;
+                            break;
+                        case SPELL_SILVER_COVENANT_DISGUISE_TRIGGER:
+                            spellId = gender ? SPELL_SILVER_COVENANT_DISGUISE_FEMALE : SPELL_SILVER_COVENANT_DISGUISE_MALE;
+                            break;
+                        default:
+                            break;
+                    }
+
+                    GetCaster()->CastSpell(player, spellId, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_dalaran_disguise_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_dalaran_disguise_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1514,4 +1590,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_oracle_wolvar_reputation();
     new spell_gen_damage_reduction_aura();
     new spell_gen_luck_of_the_draw();
+    new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
+    new spell_gen_dalaran_disguise("spell_gen_silver_covenant_disguise");
 }
