@@ -60,12 +60,6 @@ bool Condition::Meets(Player* player, Unit* invoker)
         case CONDITION_ZONEID:
             condMeets = player->GetZoneId() == mConditionValue1;
             break;
-        case CONDITION_REPUTATION_RANK:
-        {
-            if (FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1))
-                condMeets = uint32(player->GetReputationMgr().GetRank(faction)) == mConditionValue2;
-            break;
-        }
         case CONDITION_ACHIEVEMENT:
             condMeets = player->GetAchievementMgr().HasAchieved(mConditionValue1);
             break;
@@ -198,6 +192,24 @@ bool Condition::Meets(Player* player, Unit* invoker)
         case CONDITION_NEAR_GAMEOBJECT:
         {
             condMeets = GetClosestGameObjectWithEntry(player, mConditionValue1, (float)mConditionValue2) ? true : false;
+            break;
+        }
+        case CONDITION_REPUTATION_RANK:
+        {
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1))
+                condMeets = uint32(player->GetReputationMgr().GetRank(faction)) == mConditionValue2;
+            break;
+        }
+        case CONDITION_REPUTATION_RANK_MIN:
+        {
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1))
+                condMeets = uint32(player->GetReputationMgr().GetRank(faction)) >= mConditionValue2;
+            break;
+        }
+        case CONDITION_REPUTATION_RANK_MAX:
+        {
+            if (FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1))
+                condMeets = uint32(player->GetReputationMgr().GetRank(faction)) <= mConditionValue2;
             break;
         }
         default:
@@ -1085,6 +1097,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             break;
         }
         case CONDITION_REPUTATION_RANK:
+        case CONDITION_REPUTATION_RANK_MIN:
+        case CONDITION_REPUTATION_RANK_MAX:
         {
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(cond->mConditionValue1);
             if (!factionEntry)

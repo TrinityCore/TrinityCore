@@ -1,0 +1,1 @@
+UPDATE `conditions` SET `ConditionTypeOrReference` = 31 WHERE `ConditionTypeOrReference` = 5; -- Update Conditions to reflect changes
