@@ -187,7 +187,7 @@ public:
 
                     //expire movement, will prevent from running right back to victim after cast
                     //(but should MoveChase be used again at a certain time or should he not move?)
-                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
                         me->GetMotionMaster()->MovementExpired();
 
                     DoCast(me, SPELL_BLINK);

@@ -94,6 +94,11 @@ enum SvalaPhase
     SVALADEAD
 };
 
+enum SvalaPoint
+{
+    POINT_FALL_GROUND = 1,
+};
+
 #define DATA_INCREDIBLE_HULK 2043
 
 static const float spectatorWP[2][3] = 
@@ -249,35 +254,26 @@ public:
                 if (Phase == SACRIFICING)
                     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
 
-                me->GetPosition(x, y, z);
-                z = me->GetMap()->GetHeight(x, y, z, true, 50);
+                damage = 0;
+                Phase = SVALADEAD;
+                me->InterruptNonMeleeSpells(true);
+                me->RemoveAllAuras();
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                me->SetHealth(1);
 
-                if (me->GetPositionZ() > z)
-                {
-                    damage = 0;
-                    Phase = SVALADEAD;
-                    me->InterruptNonMeleeSpells(true);
-                    me->RemoveAllAuras();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->SetHealth(1);
-
-                    SetCombatMovement(false);
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
-                    me->GetMotionMaster()->MoveFall(z, 1);
-                }
+                SetCombatMovement(false);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
+                me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
             }
         }
 
         void MovementInform(uint32 motionType, uint32 pointId)
         {
-            if (motionType != POINT_MOTION_TYPE)
+            if (motionType != EFFECT_MOTION_TYPE)
                 return;
 
-            if (pointId == 1)
-            {
-                me->Relocate(x, y, z, me->GetOrientation());
+            if (pointId == POINT_FALL_GROUND)
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
-            }
         }
 
         void JustDied(Unit* killer)
@@ -297,7 +293,7 @@ public:
                 Phase = NORMAL;
                 SetCombatMovement(true);
 
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 300, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 300.0f, true))
                     me->GetMotionMaster()->MoveChase(target);
             }
         }
@@ -339,7 +335,7 @@ public:
                             {
                                 std::list<Creature*> lspectatorList;
                                 GetCreatureListWithEntryInGrid(lspectatorList, me, CREATURE_SPECTATOR, 100.0f);
-                                for(std::list<Creature*>::iterator itr = lspectatorList.begin(); itr != lspectatorList.end(); ++itr)
+                                for (std::list<Creature*>::iterator itr = lspectatorList.begin(); itr != lspectatorList.end(); ++itr)
                                 {
                                     if ((*itr)->isAlive())
                                     {
@@ -406,7 +402,8 @@ public:
                             Phase = NORMAL;
                             break;
                     }
-                } else introTimer -= diff;
+                }
+                else introTimer -= diff;
 
                 return;
             }
