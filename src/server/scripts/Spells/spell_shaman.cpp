@@ -316,6 +316,46 @@ class spell_sha_heroism : public SpellScriptLoader
         }
 };
 
+enum AncestralAwakeningProc
+{
+    SPELL_ANCESTRAL_AWAKENING_PROC   = 52752,
+};
+
+class spell_sha_ancestral_awakening_proc : public SpellScriptLoader
+{
+    public:
+        spell_sha_ancestral_awakening_proc() : SpellScriptLoader("spell_sha_ancestral_awakening_proc") { }
+
+        class spell_sha_ancestral_awakening_proc_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_sha_ancestral_awakening_proc_SpellScript)
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ANCESTRAL_AWAKENING_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                int32 damage = GetEffectValue();
+                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_ANCESTRAL_AWAKENING_PROC, &damage, NULL, NULL, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_sha_ancestral_awakening_proc_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_sha_ancestral_awakening_proc_SpellScript();
+        }
+};
+
+
 void AddSC_shaman_spell_scripts()
 {
     new spell_sha_astral_shift();
@@ -324,4 +364,5 @@ void AddSC_shaman_spell_scripts()
     new spell_sha_earthbind_totem();
     new spell_sha_bloodlust();
     new spell_sha_heroism();
+    new spell_sha_ancestral_awakening_proc();
 }

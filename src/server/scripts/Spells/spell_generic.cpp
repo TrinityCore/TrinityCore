@@ -1319,49 +1319,49 @@ class spell_gen_vehicle_scaling : public SpellScriptLoader
 };
 
 
-class spell_gen_oracle_wolvar_reputation: public SpellScriptLoader
+class spell_gen_oracle_wolvar_reputation : public SpellScriptLoader
 {
-public:
-    spell_gen_oracle_wolvar_reputation() : SpellScriptLoader("spell_gen_oracle_wolvar_reputation") { }
+    public:
+        spell_gen_oracle_wolvar_reputation() : SpellScriptLoader("spell_gen_oracle_wolvar_reputation") { }
 
-    class spell_gen_oracle_wolvar_reputation_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_gen_oracle_wolvar_reputation_SpellScript)
-
-        void HandleDummy(SpellEffIndex effIndex)
+        class spell_gen_oracle_wolvar_reputation_SpellScript : public SpellScript
         {
+            PrepareSpellScript(spell_gen_oracle_wolvar_reputation_SpellScript)
 
-            if (Player* player = GetCaster()->ToPlayer())
+            void HandleDummy(SpellEffIndex effIndex)
             {
 
-                uint32 factionId = GetSpellInfo()->Effects[effIndex].CalcValue();
-                int32  repChange =  GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+                if (Player* player = GetCaster()->ToPlayer())
+                {
 
-                FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
+                    uint32 factionId = GetSpellInfo()->Effects[effIndex].CalcValue();
+                    int32  repChange =  GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
-                if (!factionEntry)
-                    return;
+                    FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
 
-                // Set rep to baserep + basepoints (expecting spillover for oposite faction -> become hated)
-                // Not when player already has equal or higher rep with this faction
-                if (player->GetReputationMgr().GetBaseReputation(factionEntry) < repChange)
-                    player->GetReputationMgr().SetReputation(factionEntry, repChange);
+                    if (!factionEntry)
+                        return;
 
-                // EFFECT_INDEX_2 most likely update at war state, we already handle this in SetReputation
+                    // Set rep to baserep + basepoints (expecting spillover for oposite faction -> become hated)
+                    // Not when player already has equal or higher rep with this faction
+                    if (player->GetReputationMgr().GetBaseReputation(factionEntry) < repChange)
+                        player->GetReputationMgr().SetReputation(factionEntry, repChange);
+
+                    // EFFECT_INDEX_2 most likely update at war state, we already handle this in SetReputation
+                }
+
             }
 
-        }
+            void Register()
+            {
+                OnEffectHit += SpellEffectFn(spell_gen_oracle_wolvar_reputation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
 
-        void Register()
+        SpellScript* GetSpellScript() const
         {
-            OnEffectHit += SpellEffectFn(spell_gen_oracle_wolvar_reputation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            return new spell_gen_oracle_wolvar_reputation_SpellScript();
         }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_gen_oracle_wolvar_reputation_SpellScript();
-    }
 };
 
 enum DamageReductionAura
@@ -1375,53 +1375,53 @@ enum DamageReductionAura
 
 class spell_gen_damage_reduction_aura : public SpellScriptLoader
 {
-public:
-    spell_gen_damage_reduction_aura() : SpellScriptLoader("spell_gen_damage_reduction_aura") { }
+    public:
+        spell_gen_damage_reduction_aura() : SpellScriptLoader("spell_gen_damage_reduction_aura") { }
 
-    class spell_gen_damage_reduction_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_gen_damage_reduction_AuraScript);
-
-        bool Validate(SpellInfo const* /*SpellEntry*/)
+        class spell_gen_damage_reduction_AuraScript : public AuraScript
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_DAMAGE_REDUCTION_AURA))
-                return false;
-            return true;
-        }
+            PrepareAuraScript(spell_gen_damage_reduction_AuraScript);
 
-        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            target->CastSpell(target, SPELL_DAMAGE_REDUCTION_AURA, true);
-        }
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DAMAGE_REDUCTION_AURA))
+                    return false;
+                return true;
+            }
 
-        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
-        {
-            Unit* target = GetTarget();
-            if (!target->HasAura(SPELL_DAMAGE_REDUCTION_AURA))
-                return;
+            void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                target->CastSpell(target, SPELL_DAMAGE_REDUCTION_AURA, true);
+            }
 
-            if (target->HasAura(SPELL_BLESSING_OF_SANCTUARY) ||
-                target->HasAura(SPELL_GREATER_BLESSING_OF_SANCTUARY) ||
-                target->HasAura(SPELL_RENEWED_HOPE) ||
-                target->HasAura(SPELL_VIGILANCE))
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                Unit* target = GetTarget();
+                if (!target->HasAura(SPELL_DAMAGE_REDUCTION_AURA))
                     return;
 
-            target->RemoveAurasDueToSpell(SPELL_DAMAGE_REDUCTION_AURA);
-        }
+                if (target->HasAura(SPELL_BLESSING_OF_SANCTUARY) ||
+                    target->HasAura(SPELL_GREATER_BLESSING_OF_SANCTUARY) ||
+                    target->HasAura(SPELL_RENEWED_HOPE) ||
+                    target->HasAura(SPELL_VIGILANCE))
+                        return;
 
-        void Register()
+                target->RemoveAurasDueToSpell(SPELL_DAMAGE_REDUCTION_AURA);
+            }
+
+            void Register()
+            {
+                OnEffectApply += AuraEffectApplyFn(spell_gen_damage_reduction_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+                OnEffectRemove += AuraEffectRemoveFn(spell_gen_damage_reduction_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            }
+
+        };
+
+        AuraScript* GetAuraScript() const
         {
-            OnEffectApply += AuraEffectApplyFn(spell_gen_damage_reduction_AuraScript::OnApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-            OnEffectRemove += AuraEffectRemoveFn(spell_gen_damage_reduction_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            return new spell_gen_damage_reduction_AuraScript();
         }
-
-    };
-
-    AuraScript* GetAuraScript() const
-    {
-        return new spell_gen_damage_reduction_AuraScript();
-    }
 };
 
 class spell_gen_luck_of_the_draw : public SpellScriptLoader
@@ -1478,6 +1478,173 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
         AuraScript* GetAuraScript() const
         {
             return new spell_gen_luck_of_the_draw_AuraScript();
+        }
+};
+
+enum DummyTrigger
+{
+    SPELL_PERSISTANT_SHIELD_TRIGGERED       = 26470,
+    SPELL_PERSISTANT_SHIELD                 = 26467,
+};
+
+class spell_gen_dummy_trigger : public SpellScriptLoader
+{
+    public:
+        spell_gen_dummy_trigger() : SpellScriptLoader("spell_gen_dummy_trigger") { }
+
+        class spell_gen_dummy_trigger_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_dummy_trigger_SpellScript);
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD_TRIGGERED) || !sSpellMgr->GetSpellInfo(SPELL_PERSISTANT_SHIELD))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                SpellInfo const* triggeredByAuraSpell = GetTriggeringSpell();
+                int32 damage = GetEffectValue();
+
+                if (!triggeredByAuraSpell || triggeredByAuraSpell->Id != SPELL_PERSISTANT_SHIELD_TRIGGERED)
+                    return;
+
+                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_PERSISTANT_SHIELD_TRIGGERED, &damage, NULL, NULL, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_dummy_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_dummy_trigger_SpellScript();
+        }
+
+};
+
+class spell_gen_spirit_healer_res : public SpellScriptLoader
+{
+    public:
+        spell_gen_spirit_healer_res(): SpellScriptLoader("spell_gen_spirit_healer_res") { }
+
+        class spell_gen_spirit_healer_res_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_spirit_healer_res_SpellScript)
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* originalCaster = GetOriginalCaster();
+
+                if (!originalCaster || originalCaster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
+                data << uint64(GetHitUnit()->GetGUID());
+                originalCaster->ToPlayer()->GetSession()->SendPacket(&data);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_spirit_healer_res_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };  
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_spirit_healer_res_SpellScript();
+        }
+};
+
+enum TransporterBackfires
+{
+    SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH     = 23444,
+    SPELL_TRANSPORTER_EVIL_TWIN                 = 23445,
+    SPELL_TRANSPORTER_MALFUNCTION_MISS          = 36902,
+};
+
+class spell_gen_gadgetzan_transporter_backfire : public SpellScriptLoader
+{
+    public:
+        spell_gen_gadgetzan_transporter_backfire() : SpellScriptLoader("spell_gen_gadgetzan_transporter_backfire") { }
+
+        class spell_gen_gadgetzan_transporter_backfire_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_gadgetzan_transporter_backfire_SpellScript)
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH) || !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_EVIL_TWIN)
+                    || !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_MALFUNCTION_MISS))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+
+                int32 r = irand(0, 119);
+                if (r < 20)                           // Transporter Malfunction - 1/6 polymorph
+                    caster->CastSpell(caster, SPELL_TRANSPORTER_MALFUNCTION_POLYMORPH, true);
+                else if (r < 100)                     // Evil Twin               - 4/6 evil twin
+                    caster->CastSpell(caster, SPELL_TRANSPORTER_EVIL_TWIN, true);
+                else                                    // Transporter Malfunction - 1/6 miss the target
+                    caster->CastSpell(caster, SPELL_TRANSPORTER_MALFUNCTION_MISS, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_gadgetzan_transporter_backfire_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_gadgetzan_transporter_backfire_SpellScript();
+        }
+};
+
+enum GnomishTransporter
+{
+    SPELL_TRANSPORTER_SUCCESS                   = 23441,
+    SPELL_TRANSPORTER_FAILURE                   = 23446,
+};
+
+class spell_gen_gnomish_transporter : public SpellScriptLoader
+{
+    public:
+        spell_gen_gnomish_transporter() : SpellScriptLoader("spell_gen_gnomish_transporter") { }
+
+        class spell_gen_gnomish_transporter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_gnomish_transporter_SpellScript)
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_SUCCESS) || !sSpellMgr->GetSpellInfo(SPELL_TRANSPORTER_FAILURE))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                GetCaster()->CastSpell(GetCaster(), roll_chance_i(50) ? SPELL_TRANSPORTER_SUCCESS : SPELL_TRANSPORTER_FAILURE , true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_gnomish_transporter_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_gnomish_transporter_SpellScript();
         }
 };
 
@@ -1557,6 +1724,46 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
         }
 };
 
+enum ChaosBlast
+{
+    SPELL_CHAOS_BLAST   = 37675,
+};
+
+class spell_gen_chaos_blast : public SpellScriptLoader
+{
+    public:
+        spell_gen_chaos_blast() : SpellScriptLoader("spell_gen_chaos_blast") { }
+
+        class spell_gen_chaos_blast_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_chaos_blast_SpellScript)
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CHAOS_BLAST))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                int32 basepoints0 = 100;
+                GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_CHAOS_BLAST, &basepoints0, NULL, NULL, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_chaos_blast_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_chaos_blast_SpellScript();
+        }
+};
+
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -1590,6 +1797,11 @@ void AddSC_generic_spell_scripts()
     new spell_gen_oracle_wolvar_reputation();
     new spell_gen_damage_reduction_aura();
     new spell_gen_luck_of_the_draw();
+    new spell_gen_dummy_trigger();
+    new spell_gen_spirit_healer_res();
+    new spell_gen_gadgetzan_transporter_backfire();
+    new spell_gen_gnomish_transporter();
     new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
     new spell_gen_dalaran_disguise("spell_gen_silver_covenant_disguise");
+    new spell_gen_chaos_blast();
 }
