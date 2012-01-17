@@ -497,7 +497,9 @@ struct MovementInfo
     }
 
     uint32 GetMovementFlags() { return flags; }
+    void SetMovementFlags(uint32 flag) { flags = flag; }
     void AddMovementFlag(uint32 flag) { flags |= flag; }
+    void RemoveMovementFlag(uint32 flag) { flags &= ~flag; }
     bool HasMovementFlag(uint32 flag) const { return flags & flag; }
 
     uint16 GetExtraMovementFlags() { return flags2; }
@@ -612,6 +614,7 @@ class WorldObject : public Object, public WorldLocation
 
         float GetObjectSize() const;
         void UpdateGroundPositionZ(float x, float y, float &z) const;
+        void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
         void GetRandomPoint(const Position &srcPos, float distance, float &rand_x, float &rand_y, float &rand_z) const;
         void GetRandomPoint(const Position &srcPos, float distance, Position &pos) const

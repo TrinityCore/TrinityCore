@@ -58,8 +58,12 @@ public:
             gameObjectList.clear();
         }
 
-        void OnCreatureDeath(Creature* creature)
+        void OnUnitDeath(Unit* unit)
         {
+            Creature* creature = unit->ToCreature();
+            if (!creature)
+                return;
+
             if (creature->GetEntry() != NPC_CENTRIFUGE_CONSTRUCT)
                 return;
 

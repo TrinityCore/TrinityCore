@@ -31,14 +31,10 @@ enum Spells
 
 enum Yells
 {
-    YELL_AGGRO                                    = -1810000,
-    YELL_EVADE                                    = -1810001,
-    YELL_RESPAWN                                  = -1810002,
-    YELL_RANDOM1                                  = -1810003,
-    YELL_RANDOM2                                  = -1810004,
-    YELL_RANDOM3                                  = -1810005,
-    YELL_RANDOM4                                  = -1810006,
-    YELL_RANDOM5                                  = -1810007
+    YELL_AGGRO                                    = 0,
+    YELL_EVADE                                    = 1,
+    YELL_RESPAWN                                  = 2,
+    YELL_RANDOM                                   = 3
 };
 
 class boss_drekthar : public CreatureScript
@@ -69,13 +65,13 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(YELL_AGGRO, me);
+            Talk(YELL_AGGRO);
         }
 
         void JustRespawned()
         {
             Reset();
-            DoScriptText(YELL_RESPAWN, me);
+            Talk(YELL_RESPAWN);
         }
 
         void UpdateAI(const uint32 diff)
@@ -109,7 +105,7 @@ public:
 
             if (YellTimer <= diff)
             {
-                DoScriptText(RAND(YELL_RANDOM1, YELL_RANDOM2, YELL_RANDOM3, YELL_RANDOM4, YELL_RANDOM5), me);
+                Talk(YELL_RANDOM);
                 YellTimer = urand(20 * IN_MILLISECONDS, 30 * IN_MILLISECONDS); //20 to 30 seconds
             } else YellTimer -= diff;
 
@@ -119,7 +115,7 @@ public:
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
-                    DoScriptText(YELL_EVADE, me);
+                    Talk(YELL_EVADE);
                 }
                 ResetTimer = 5 * IN_MILLISECONDS;
             } else ResetTimer -= diff;

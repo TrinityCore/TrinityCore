@@ -1,3 +1,4 @@
+
 build*/
 .directory
 .mailmap
@@ -14,3 +15,7 @@ update_*
 commit
 *.patch
 *.diff
+*.REMOTE.*
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*
