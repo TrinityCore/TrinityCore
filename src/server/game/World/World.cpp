@@ -1628,6 +1628,8 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading Creature Texts...");
     sCreatureTextMgr->LoadCreatureTexts();
+    sLog->outString("Loading Creature Texts locales...");
+    sCreatureTextMgr->LoadCreatureTextLocales();
 
     sLog->outString("Initializing Scripts...");
     sScriptMgr->Initialize();
