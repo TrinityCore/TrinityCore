@@ -122,6 +122,11 @@ const Position SphereSpawn[6] =
     { 706.6383f, 161.5266f, 155.6701f, 0 },
 };
 
+enum MovementPoints
+{
+    POINT_FALL_GROUND           = 1
+};
+
 class boss_anubarak_trial : public CreatureScript
 {
 public:
@@ -553,82 +558,68 @@ public:
 
 class mob_frost_sphere : public CreatureScript
 {
-public:
-    mob_frost_sphere() : CreatureScript("mob_frost_sphere") { }
+    public:
+        mob_frost_sphere() : CreatureScript("mob_frost_sphere") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new mob_frost_sphereAI(creature);
-    };
-
-    struct mob_frost_sphereAI : public ScriptedAI
-    {
-        mob_frost_sphereAI(Creature* creature) : ScriptedAI(creature)
+        struct mob_frost_sphereAI : public ScriptedAI
         {
-        }
-
-        bool   m_bFall;
-        uint32 m_uiPermafrostTimer;
-
-        void Reset()
-        {
-            m_bFall = false;
-            m_uiPermafrostTimer = 0;
-            me->SetReactState(REACT_PASSIVE);
-            me->SetFlying(true);
-            me->SetDisplayId(25144);
-            me->SetSpeed(MOVE_RUN, 0.5f, false);
-            me->GetMotionMaster()->MoveRandom(20.0f);
-            DoCast(SPELL_FROST_SPHERE);
-        }
-
-        void DamageTaken(Unit* /*who*/, uint32& uiDamage)
-        {
-            if (me->GetHealth() < uiDamage)
+            mob_frost_sphereAI(Creature* creature) : ScriptedAI(creature)
             {
-                uiDamage = 0;
-                if (!m_bFall)
+            }
+
+            void Reset()
+            {
+                _isFalling = false;
+                me->SetReactState(REACT_PASSIVE);
+                me->SetFlying(true);
+                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetSpeed(MOVE_RUN, 0.5f, false);
+                me->GetMotionMaster()->MoveRandom(20.0f);
+                DoCast(SPELL_FROST_SPHERE);
+            }
+
+            void DamageTaken(Unit* /*who*/, uint32& damage)
+            {
+                if (me->GetHealth() <= damage)
                 {
-                    m_bFall = true;
-                    me->SetFlying(false);
-                    me->GetMotionMaster()->MoveIdle();
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    //At hit the ground
-                    me->GetMotionMaster()->MoveFall(142.2f, 0);
-                    //me->FallGround(); //need correct vmap use (i believe it isn't working properly right now)
+                    damage = 0;
+                    if (!_isFalling)
+                    {
+                        _isFalling = true;
+                        me->GetMotionMaster()->MoveIdle();
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        //At hit the ground
+                        me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
+                        me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
+                    }
                 }
             }
-        }
 
-        void MovementInform(uint32 uiType, uint32 uiId)
-        {
-            if (uiType != POINT_MOTION_TYPE) return;
-
-            switch (uiId)
+            void MovementInform(uint32 type, uint32 pointId)
             {
-                case 0:
-                    m_uiPermafrostTimer = IN_MILLISECONDS;
-                    break;
-            }
-        }
+                if (type != EFFECT_MOTION_TYPE)
+                    return;
 
-        void UpdateAI(const uint32 uiDiff)
-        {
-            if (m_uiPermafrostTimer)
-            {
-                if (m_uiPermafrostTimer <= uiDiff)
+                switch (pointId)
                 {
-                    m_uiPermafrostTimer = 0;
-                    me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
-                    me->SetDisplayId(11686);
-                    me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
-                    DoCast(SPELL_PERMAFROST_VISUAL);
-                    DoCast(SPELL_PERMAFROST);
-                } else m_uiPermafrostTimer -= uiDiff;
+                    case POINT_FALL_GROUND:
+                        me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
+                        me->SetDisplayId(me->GetCreatureInfo()->Modelid1);
+                        DoCast(SPELL_PERMAFROST_VISUAL);
+                        DoCast(SPELL_PERMAFROST);
+                        me->SetFloatValue(OBJECT_FIELD_SCALE_X, 2.0f);
+                        break;
+                }
             }
-        }
-    };
 
+        private:
+            bool _isFalling;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_frost_sphereAI(creature);
+        };
 };
 
 class mob_anubarak_spike : public CreatureScript

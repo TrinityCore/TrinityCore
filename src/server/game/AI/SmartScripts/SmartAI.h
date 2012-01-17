@@ -193,6 +193,8 @@ class SmartAI : public CreatureAI
             mDespawnState = t ? 1 : 0;
         }
         void StartDespawn() { mDespawnState = 2; }
+        
+        void RemoveAuras();
 
     private:
         uint32 mFollowCreditType;
@@ -251,6 +253,7 @@ public:
     void SetData(uint32 id, uint32 value);
     void SetScript9(SmartScriptHolder& e, uint32 entry, Unit* invoker);
     void OnGameEvent(bool start, uint16 eventId);
+    void OnStateChanged(uint32 state);
 
 protected:
     GameObject* const go;

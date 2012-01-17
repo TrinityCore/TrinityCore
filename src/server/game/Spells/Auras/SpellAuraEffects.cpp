@@ -3104,9 +3104,17 @@ void AuraEffect::HandleModPossess(AuraApplication const* aurApp, uint8 mode, boo
     }
 
     if (apply)
-        target->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
+    {
+        if (target->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp))
+            caster->ToPlayer()->SetMover(target);
+    }
     else
+    {
         target->RemoveCharmedBy(caster);
+        caster->ToPlayer()->SetMover(caster);
+        if (target->GetTypeId() == TYPEID_PLAYER)
+            target->ToPlayer()->SetMover(target);
+    }
 }
 
 // only one spell has this aura
@@ -3134,11 +3142,13 @@ void AuraEffect::HandleModPossessPet(AuraApplication const* aurApp, uint8 mode, 
         if (caster->ToPlayer()->GetPet() != pet)
             return;
 
-        pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp);
+        if (pet->SetCharmedBy(caster, CHARM_TYPE_POSSESS, aurApp))
+            caster->ToPlayer()->SetMover(pet);
     }
     else
     {
         pet->RemoveCharmedBy(caster);
+        caster->ToPlayer()->SetMover(caster);
 
         if (!pet->IsWithinDistInMap(caster, pet->GetMap()->GetVisibilityRange()))
             pet->Remove(PET_SAVE_NOT_IN_SLOT, true);
@@ -4759,11 +4769,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     break;
                 case 46361:                                     // Reinforced Net
                     if (caster)
-                    {
-                        float currentGroundLevel = target->GetBaseMap()->GetHeight(target->GetPositionX(), target->GetPositionY(), MAX_HEIGHT);
-                        if (target->GetPositionZ() > currentGroundLevel)
-                            target->GetMotionMaster()->MoveFall(currentGroundLevel);
-                    }
+                        target->GetMotionMaster()->MoveFall();
                     break;
                 case 46699:                                     // Requires No Ammo
                     if (target->GetTypeId() == TYPEID_PLAYER)
@@ -4815,7 +4821,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
                         break;
-                case 59628: // Tricks of the Trade  
+                case 59628: // Tricks of the Trade
                     if (caster && caster->GetMisdirectionTarget())
                         target->SetReducedThreatPercent(100, caster->GetMisdirectionTarget()->GetGUID());
                     break;
@@ -4979,7 +4985,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                                 target->SetReducedThreatPercent(0,0);
                             else
                                 target->SetReducedThreatPercent(0,caster->GetMisdirectionTarget()->GetGUID());
-                            break;       
+                            break;
                     }
                 default:
                     break;

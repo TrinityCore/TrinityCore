@@ -28,6 +28,7 @@
 #include "ScriptPCH.h"
 #include "halls_of_reflection.h"
 #include "ScriptedEscortAI.h"
+#include "Unit.h"
 
 enum
 {
@@ -108,10 +109,7 @@ public:
                     m_pInstance->SetData(TYPE_LICH_KING, SPECIAL);
                     DoScriptText(SAY_LICH_KING_END_DUN, me);
                     if(Creature* pLider = ((Creature*)Unit::GetUnit((*me), m_pInstance->GetData64(DATA_ESCAPE_LIDER))))
-                    {
-                        pLider->CastSpell(pLider, SPELL_SILENCE, false);
-                        pLider->SendMonsterMove(pLider->GetPositionX(), pLider->GetPositionY(), pLider->GetPositionZ() + 4, VICTIMSTATE_HIT, pLider->isInCombat(), 3000);
-                    }
+                        me->CastSpell(pLider, SPELL_SILENCE, false);
                     me->setActive(false);
                     break;
             }
