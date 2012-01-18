@@ -719,3 +719,10 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 UPDATE item_template SET Flags=0x40 WHERE entry=21519;
 UPDATE creature_template SET unit_flags=unit_flags&~0x100, type_flags=type_flags|0x4000000 WHERE entry IN (739,927,1182,1351,1444,5484,5489,5661,8140,12336,26044);
 UPDATE creature SET spawntimesecs=20 WHERE id IN (739,927,1182,1351,1444,5484,5489,5661,8140,12336,26044);
+
+
+-- Revenge of Dalaran squirrel
+DELETE FROM `creature_template` WHERE `entry` IN (666666,666667);
+INSERT INTO `creature_template` (`entry`, `modelid1`, `name`, `minlevel`, `maxlevel`, `faction_A`, `faction_H`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `type`, `type_flags`, `MovementType`, `InhabitType`, `Health_mod`, `Armor_mod`, `RegenHealth`, `mechanic_immune_mask`, `ScriptName`, `WDBVerified`) VALUES
+('666666', '134', 'Squirrel', '1', '1', '7', '7', '1', '0.8', '1', '0', '2000', '2000', '0', '2000', '4.6', '2000', '1', '0', '0', '0', '1', '0', '1', '1', '500', '500', '1', '650886911', 'npc_dalaran_squirrel', '12340'),
+('666667', '134', 'Squirrel', '1', '1', '7', '7', '1', '0.8', '1', '0', '2000', '2000', '0', '2000', '4.6', '2000', '1', '0', '0', '0', '1', '0', '1', '1', '500', '500', '1', '650886911', '', '12340');
