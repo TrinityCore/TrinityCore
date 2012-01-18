@@ -319,11 +319,11 @@ Item* TradeData::GetSpellCastItem() const
     return m_spellCastItem ? m_player->GetItemByGuid(m_spellCastItem) : NULL;
 }
 
-void TradeData::SetItem(TradeSlots slot, Item* item)
+void TradeData::SetItem(TradeSlots slot, Item* item, bool update)
 {
     uint64 itemGuid = item ? item->GetGUID() : 0;
 
-    if (m_items[slot] == itemGuid)
+    if (m_items[slot] == itemGuid && !update)
         return;
 
     m_items[slot] = itemGuid;
@@ -12893,7 +12893,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
     //! in the underlying packet builder function
     TradeSlots const slot = GetTradeData()->GetTradeSlotForItem(pSrcItem->GetGUID());
     if (slot != TRADE_SLOT_INVALID)
-        GetTradeData()->SetItem(slot, pSrcItem);
+        GetTradeData()->SetItem(slot, pSrcItem, true);
 }
 
 void Player::SwapItem(uint16 src, uint16 dst)
