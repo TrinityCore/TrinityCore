@@ -21,6 +21,7 @@
 #include "WorldPacket.h"
 #include "WorldSession.h"
 #include "ObjectMgr.h"
+#include "GuildMgr.h"
 #include "SpellMgr.h"
 #include "Log.h"
 #include "Opcodes.h"
@@ -600,12 +601,17 @@ void WorldSession::HandleMirrorImageDataRequest(WorldPacket & recv_data)
     if (creator->GetTypeId() == TYPEID_PLAYER)
     {
         Player* player = creator->ToPlayer();
+        uint32 guildId = player->GetGuildId();
+        Guild* guild = NULL;
+        if (guildId)
+            guild = sGuildMgr->GetGuildById(guildId);
+
         data << uint8(player->GetByteValue(PLAYER_BYTES, 0));   // skin
         data << uint8(player->GetByteValue(PLAYER_BYTES, 1));   // face
         data << uint8(player->GetByteValue(PLAYER_BYTES, 2));   // hair
         data << uint8(player->GetByteValue(PLAYER_BYTES, 3));   // haircolor
         data << uint8(player->GetByteValue(PLAYER_BYTES_2, 0)); // facialhair
-        data << uint32(player->GetGuildId());                   // unk
+        data << uint64(guild ? guild->GetGuid() : 0);
 
         static EquipmentSlots const itemSlots[] =
         {
