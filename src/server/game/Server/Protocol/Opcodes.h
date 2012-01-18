@@ -522,7 +522,7 @@ enum Opcodes
     MSG_MOVE_TOGGLE_FALL_LOGGING                     = 0x00,
     MSG_MOVE_TOGGLE_LOGGING                          = 0x00,
     MSG_MOVE_UNROOT                                  = 0x00,
-    MSG_MOVE_WORLDPORT_ACK                           = 0x00,
+    MSG_MOVE_WORLDPORT_ACK                           = 0xA9A,
     MSG_NOTIFY_PARTY_SQUELCH                         = 0x00,
     MSG_PARTY_ASSIGNMENT                             = 0x00,
     MSG_PETITION_DECLINE                             = 0x98E7,
