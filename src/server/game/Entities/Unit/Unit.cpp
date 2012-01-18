@@ -2114,12 +2114,12 @@ void Unit::SendMeleeAttackStart(Unit* victim)
 
 void Unit::SendMeleeAttackStop(Unit* victim)
 {
-    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));            // we guess size
+    WorldPacket data(SMSG_ATTACKSTOP, (8+8+4));
     data.append(GetPackGUID());
     data.append(victim ? victim->GetPackGUID() : 0);       // can be 0x00...
     data << uint32(0);                                     // can be 0x1
     SendMessageToSet(&data, true);
-    sLog->outStaticDebug("WORLD: Sent SMSG_ATTACKSTART");
+    sLog->outStaticDebug("WORLD: Sent SMSG_ATTACKSTOP");
 
     if (victim)
         sLog->outDetail("%s %u stopped attacking %s %u", (GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature"), GetGUIDLow(), (victim->GetTypeId() == TYPEID_PLAYER ? "player" : "creature"), victim->GetGUIDLow());
