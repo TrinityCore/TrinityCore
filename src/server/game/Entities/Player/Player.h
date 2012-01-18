@@ -707,7 +707,8 @@ enum TradeSlots
 {
     TRADE_SLOT_COUNT            = 7,
     TRADE_SLOT_TRADED_COUNT     = 6,
-    TRADE_SLOT_NONTRADED        = 6
+    TRADE_SLOT_NONTRADED        = 6,
+    TRADE_SLOT_INVALID          = -1,
 };
 
 enum TransferAbortReason
@@ -1022,7 +1023,8 @@ class TradeData
         TradeData* GetTraderData() const;
 
         Item* GetItem(TradeSlots slot) const;
-        bool HasItem(uint64 item_guid) const;
+        bool HasItem(uint64 itemGuid) const;
+        TradeSlots const GetTradeSlotForItem(uint64 itemGuid);
         void SetItem(TradeSlots slot, Item* item);
 
         uint32 GetSpell() const { return m_spell; }
