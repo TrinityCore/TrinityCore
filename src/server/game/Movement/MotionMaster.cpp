@@ -307,7 +307,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, float speed)
     init.SetVelocity(speed);
     init.SetAnimation(Movement::ToGround);
     init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
@@ -322,7 +322,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
     init.SetVelocity(speed);
     init.SetAnimation(Movement::ToFly);
     init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ)
