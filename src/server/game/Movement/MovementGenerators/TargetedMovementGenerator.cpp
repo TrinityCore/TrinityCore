@@ -211,6 +211,19 @@ void ChaseMovementGenerator<T>::Reset(T &owner)
     Initialize(owner);
 }
 
+template<class T>
+void ChaseMovementGenerator<T>::MovementInform(T & /*unit*/)
+{
+}
+
+template<>
+void ChaseMovementGenerator<Creature>::MovementInform(Creature &unit)
+{
+    // Pass back the GUIDLow of the target. If it is pet's owner then PetAI will handle
+    if (unit.AI())
+        unit.AI()->MovementInform(CHASE_MOTION_TYPE, i_target.getTarget()->GetGUIDLow());
+}
+
 //-----------------------------------------------//
 template<>
 bool FollowMovementGenerator<Creature>::EnableWalking() const
@@ -300,6 +313,7 @@ template void ChaseMovementGenerator<Player>::Finalize(Player &);
 template void ChaseMovementGenerator<Creature>::Finalize(Creature &);
 template void ChaseMovementGenerator<Player>::Reset(Player &);
 template void ChaseMovementGenerator<Creature>::Reset(Creature &);
+template void ChaseMovementGenerator<Player>::MovementInform(Player &unit);
 
 template void FollowMovementGenerator<Player>::Finalize(Player &);
 template void FollowMovementGenerator<Creature>::Finalize(Creature &);
