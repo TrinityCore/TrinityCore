@@ -853,7 +853,7 @@ enum Opcodes
     SMSG_OVERRIDE_LIGHT                              = 0xCC56,
     SMSG_PAGE_TEXT_QUERY_RESPONSE                    = 0x18D2,
     SMSG_PARTYKILLLOG                                = 0xCCC2,
-    SMSG_PARTY_COMMAND_RESULT                        = 0x00,
+    SMSG_PARTY_COMMAND_RESULT                        = 0xCCD6,
     SMSG_PARTY_MEMBER_STATS                          = 0xDC5A,
     SMSG_PARTY_MEMBER_STATS_FULL                     = 0x0EDF,
     SMSG_PAUSE_MIRROR_TIMER                          = 0x00,
