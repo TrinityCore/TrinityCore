@@ -1820,14 +1820,13 @@ void Guild::SendPermissions(WorldSession* session) const
 {
     uint64 guid = session->GetPlayer()->GetGUID();
     uint8 rankId = session->GetPlayer()->GetRank();
-
+    uint8 tabSize = _GetPurchasedTabsSize();
     WorldPacket data(MSG_GUILD_PERMISSIONS, 4 * 15 + 1);
     data << uint32(rankId);
     data << uint32(_GetRankRights(rankId));
     data << uint32(_GetMemberRemainingMoney(guid));
-    data << uint8 (_GetPurchasedTabsSize());
-    // Why sending all info when not all tabs are purchased???
-    for (uint8 tabId = 0; tabId < GUILD_BANK_MAX_TABS; ++tabId)
+    data << uint8(tabSize);
+    for (uint8 tabId = 0; tabId < tabSize; ++tabId)
     {
         data << uint32(_GetRankBankTabRights(rankId, tabId));
         data << uint32(_GetMemberRemainingSlots(guid, tabId));

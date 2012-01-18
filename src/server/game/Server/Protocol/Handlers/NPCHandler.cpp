@@ -292,6 +292,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recv_data)
     WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, 12);
     data << uint64(guid);
     data << uint32(spellId);                                // should be same as in packet from client
+    data << uint32(0);                                      // "Trainer service", 1 = "Not enough money for trainer service <TS>". 0 = "Trainer service <TS> unavailable"
     SendPacket(&data);
 }
 
@@ -492,6 +493,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
     data << uint64(npc->GetGUID());
     data << uint32(bindspell);
+    data << uint32(0);                                      // "Trainer service", 1 = "Not enough money for trainer service <TS>". 0 = "Trainer service <TS> unavailable"
     SendPacket(&data);
 
     _player->PlayerTalkClass->SendCloseGossip();

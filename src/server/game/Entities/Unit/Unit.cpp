@@ -12629,6 +12629,8 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
     propagateSpeedChange();
 
     WorldPacket data;
+    uint64 guid = GetGUID();
+    uint8* bytes = (uint8*)&guid;
     if (!forced)
     {
         switch (mtype)
@@ -12637,7 +12639,26 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.Initialize(MSG_MOVE_SET_WALK_SPEED, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_RUN:
-                data.Initialize(MSG_MOVE_SET_RUN_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_RUN_SPEED, 1 + 8 + 4);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[0]);
+
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[1]);
+                
+                data << float(GetSpeed(mtype));
                 break;
             case MOVE_RUN_BACK:
                 data.Initialize(MSG_MOVE_SET_RUN_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
@@ -12665,7 +12686,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 return;
         }
 
-        data.append(GetPackGUID());
+        /*data.append(GetPackGUID());
         data << uint32(0);                                  // movement flags
         data << uint16(0);                                  // unk flags
         data << uint32(getMSTime());
@@ -12674,7 +12695,8 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         data << float(GetPositionZ());
         data << float(GetOrientation());
         data << uint32(0);                                  // fall time
-        data << float(GetSpeed(mtype));
+        data << float(GetSpeed(mtype));*/
+
         SendMessageToSet(&data, true);
     }
     else
@@ -12696,7 +12718,28 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.Initialize(SMSG_FORCE_WALK_SPEED_CHANGE, 16);
                 break;
             case MOVE_RUN:
-                data.Initialize(SMSG_FORCE_RUN_SPEED_CHANGE, 17);
+                data.Initialize(SMSG_FORCE_RUN_SPEED_CHANGE, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[6]);
+
+                data.WriteByteSeq(bytes[1]);
+
+                data << float(GetSpeed(mtype));
+
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[5]);
+                data << uint32(0);
                 break;
             case MOVE_RUN_BACK:
                 data.Initialize(SMSG_FORCE_RUN_BACK_SPEED_CHANGE, 16);
@@ -12723,11 +12766,6 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 sLog->outError("Unit::SetSpeed: Unsupported move type (%d), data not sent to client.", mtype);
                 return;
         }
-        data.append(GetPackGUID());
-        data << (uint32)0;                                  // moveEvent, NUM_PMOVE_EVTS = 0x39
-        if (mtype == MOVE_RUN)
-            data << uint8(0);                               // new 2.1.0
-        data << float(GetSpeed(mtype));
         SendMessageToSet(&data, true);
     }
 }

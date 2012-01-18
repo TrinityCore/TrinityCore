@@ -519,8 +519,28 @@ void WorldSession::HandleUnacceptTradeOpcode(WorldPacket& /*recvPacket*/)
     my_trade->SetAccepted(false, true);
 }
 
-void WorldSession::HandleBeginTradeOpcode(WorldPacket& /*recvPacket*/)
+void WorldSession::HandleBeginTradeOpcode(WorldPacket& recvPacket)
 {
+/*
+    TODO: Need to verify
+
+    BitStream mask = recvPacket.ReadBitStream(8);
+
+    ByteBuffer bytes(8, true);
+
+    if (mask[0]) bytes[5] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[4]) bytes[2] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[5]) bytes[3] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[2]) bytes[4] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[7]) bytes[1] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[3]) bytes[0] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[1]) bytes[6] = recvPacket.ReadUInt8() ^ 1;
+    if (mask[6]) bytes[7] = recvPacket.ReadUInt8() ^ 1;
+
+    uint64 tradeGuid = BitConverter::ToUInt64(bytes);
+*/
+    recvPacket.rfinish();
+
     TradeData* my_trade = _player->m_trade;
     if (!my_trade)
         return;
