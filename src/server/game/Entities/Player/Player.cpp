@@ -297,13 +297,22 @@ Item* TradeData::GetItem(TradeSlots slot) const
     return m_items[slot] ? m_player->GetItemByGuid(m_items[slot]) : NULL;
 }
 
-bool TradeData::HasItem(uint64 item_guid) const
+bool TradeData::HasItem(uint64 itemGuid) const
 {
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
-        if (m_items[i] == item_guid)
+        if (m_items[i] == itemGuid)
             return true;
 
     return false;
+}
+
+TradeSlots const TradeData::GetTradeSlotForItem(uint64 itemGuid)
+{
+    for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
+        if (m_items[i] == itemGuid)
+            return TradeSlots(i);
+
+    return TRADE_SLOT_INVALID;
 }
 
 Item* TradeData::GetSpellCastItem() const
@@ -12936,7 +12945,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         pSrcItem->SetState(ITEM_CHANGED, this);
         StoreItem(dest, pNewItem, true);
     }
-    else if (IsBankPos (dst))
+    else if (IsBankPos(dst))
     {
         // change item amount before check (for unique max count check)
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
@@ -12956,7 +12965,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         pSrcItem->SetState(ITEM_CHANGED, this);
         BankItem(dest, pNewItem, true);
     }
-    else if (IsEquipmentPos (dst))
+    else if (IsEquipmentPos(dst))
     {
         // change item amount before check (for unique max count check), provide space for splitted items
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
@@ -12977,6 +12986,17 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         EquipItem(dest, pNewItem, true);
         AutoUnequipOffhandIfNeed();
     }
+
+    //! Make sure that code below only is executed when trading
+    if (!GetTradeData())
+        return;
+
+    //! Update item count in trade window, prevent spoofing
+    //! Since pSrcItem has its count updated (see above), Item::GetCount() will return the new count
+    //! in the underlying packet builder function
+    TradeSlots const slot = GetTradeData()->GetTradeSlotForItem(pSrcItem->GetGUID());
+    if (slot != TRADE_SLOT_INVALID)
+        GetTradeData()->SetItem(slot, pSrcItem);
 }
 
 void Player::SwapItem(uint16 src, uint16 dst)

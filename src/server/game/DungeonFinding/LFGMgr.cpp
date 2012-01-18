@@ -483,7 +483,7 @@ void LFGMgr::InitializeLockedDungeons(Player* player)
 void LFGMgr::Join(Player* player, uint8 roles, const LfgDungeonSet& selectedDungeons, const std::string& comment)
 {
     if (!player || !player->GetSession() || selectedDungeons.empty())
-      return;
+        return;
 
     Group* grp = player->GetGroup();
     uint64 guid = player->GetGUID();
