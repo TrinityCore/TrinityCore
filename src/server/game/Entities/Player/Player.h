@@ -1004,7 +1004,7 @@ class TradeData
         Item* GetItem(TradeSlots slot) const;
         bool HasItem(uint64 itemGuid) const;
         TradeSlots const GetTradeSlotForItem(uint64 itemGuid);
-        void SetItem(TradeSlots slot, Item* item);
+        void SetItem(TradeSlots slot, Item* item, bool update = false);
 
         uint32 GetSpell() const { return m_spell; }
         void SetSpell(uint32 spell_id, Item* castItem = NULL);
