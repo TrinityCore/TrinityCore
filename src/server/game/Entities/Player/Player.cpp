@@ -12842,7 +12842,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         pSrcItem->SetState(ITEM_CHANGED, this);
         StoreItem(dest, pNewItem, true);
     }
-    else if (IsBankPos (dst))
+    else if (IsBankPos(dst))
     {
         // change item amount before check (for unique max count check)
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
@@ -12862,7 +12862,7 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         pSrcItem->SetState(ITEM_CHANGED, this);
         BankItem(dest, pNewItem, true);
     }
-    else if (IsEquipmentPos (dst))
+    else if (IsEquipmentPos(dst))
     {
         // change item amount before check (for unique max count check), provide space for splitted items
         pSrcItem->SetCount(pSrcItem->GetCount() - count);
@@ -12883,6 +12883,10 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         EquipItem(dest, pNewItem, true);
         AutoUnequipOffhandIfNeed();
     }
+
+    //! Make sure that code below only is executed when trading
+    if (!GetTradeData())
+        return;
 
     //! Update item count in trade window, prevent spoofing
     //! Since pSrcItem has its count updated (see above), Item::GetCount() will return the new count
