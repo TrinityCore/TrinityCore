@@ -795,11 +795,12 @@ public:
                 m_instance->SetData(TYPE_NORTHREND_BEASTS, ICEHOWL_DONE);
         }
 
-        void MovementInform(uint32 uiType, uint32 uiId)
+        void MovementInform(uint32 type, uint32 pointId)
         {
-            if (uiType != POINT_MOTION_TYPE) return;
+            if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
+                return;
 
-            switch (uiId)
+            switch (pointId)
             {
                 case 0:
                     if (me->GetDistance2d(ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY()) < 6.0f)
