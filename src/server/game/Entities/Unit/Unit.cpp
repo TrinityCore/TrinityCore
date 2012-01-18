@@ -7068,6 +7068,8 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
                     basepoints0 = CalculatePctN(int32(damage), triggerAmount);
                     triggered_spell_id = 58879;
+                    // Cast on spirit wolf
+                    CastCustomSpell(this, triggered_spell_id, &basepoints0, NULL, NULL, true, NULL, triggeredByAura);
                     break;
                 }
                 // Shaman T8 Elemental 4P Bonus
