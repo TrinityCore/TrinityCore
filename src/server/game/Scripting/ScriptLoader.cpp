@@ -35,6 +35,8 @@ void AddSC_DuelReset();
 void AddSC_npc_mount();	
 // Argent Tournament quest scripts
 void AddSC_ArgentTournament();
+//Revenge od Dalaran squidrrel
+void AddSC_dalaran_squirrel();
 
 // spells
 void AddSC_deathknight_spell_scripts();
@@ -1271,5 +1273,6 @@ void AddCustomScripts()
     AddSC_DuelReset();
     AddSC_npc_mount();		
     AddSC_ArgentTournament();
+    AddSC_dalaran_squirrel();
 #endif
 }
