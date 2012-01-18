@@ -2312,11 +2312,17 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             if (!GetSession()->PlayerLogout())
             {
                 WorldPacket data(SMSG_NEW_WORLD, 4 + 4 + 4 + 4 + 4);
-                data << uint32(mapid);
                 if (m_transport)
-                    data << m_movementInfo.t_pos.PositionXYZOStream();
+                    data << m_movementInfo.t_pos.PositionXYZStream();
                 else
-                    data << m_teleport_dest.PositionXYZOStream();
+                    data << m_teleport_dest.PositionXYZStream();
+
+                data << uint32(mapid);
+
+                if (m_transport)
+                    data << m_movementInfo.t_pos.GetOrientation();
+                else
+                    data << m_teleport_dest.GetOrientation();
 
                 GetSession()->SendPacket(&data);
                 SendSavedInstances();
@@ -18144,10 +18150,12 @@ void Player::SendRaidInfo()
                 InstanceSave* save = itr->second.save;
                 data << uint32(save->GetMapId());           // map id
                 data << uint32(save->GetDifficulty());      // difficulty
+                data << uint32(0);                          // Unknown 4.2.2
                 data << uint64(save->GetInstanceId());      // instance id
                 data << uint8(1);                           // expired = 0
                 data << uint8(0);                           // extended = 1
                 data << uint32(save->GetResetTime() - now); // reset time
+                data << uint32(0);                          // Unknown 4.2.2
                 ++counter;
             }
         }
