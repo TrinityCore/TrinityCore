@@ -49,11 +49,12 @@ class Aura;
 
 void WorldSession::SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val /* = 0 */)
 {
-    WorldPacket data(SMSG_PARTY_COMMAND_RESULT, 4 + member.size() + 1 + 4 + 4);
+    WorldPacket data(SMSG_PARTY_COMMAND_RESULT, 4 + member.size() + 1 + 4 + 4 + 8);
     data << uint32(operation);
     data << member;
     data << uint32(res);
     data << uint32(val);                                    // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
+    data << uint64(0); // player who caused error (in some cases).
 
     SendPacket(&data);
 }
@@ -62,9 +63,34 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE");
 
+    BytesGuid guid;
+    guid.guid = 0;
+
+    recv_data.ReadByteMask(guid.bytes[6]);
+    recv_data.ReadByteMask(guid.bytes[5]);
+    recv_data.ReadByteMask(guid.bytes[0]);
+    recv_data.ReadByteMask(guid.bytes[3]);
+    recv_data.ReadByteMask(guid.bytes[4]);
+    recv_data.ReadByteMask(guid.bytes[7]);
+    recv_data.ReadByteMask(guid.bytes[1]);
+    recv_data.ReadByteMask(guid.bytes[2]);
+
+    recv_data.read_skip<uint32>();
+    recv_data.read_skip<uint32>();
+
     std::string membername;
     recv_data >> membername;
-    recv_data.read_skip<uint32>();
+
+    recv_data.ReadByteSeq(guid.bytes[0]);
+    recv_data.ReadByteSeq(guid.bytes[7]);
+    recv_data.ReadByteSeq(guid.bytes[4]);
+    recv_data.ReadByteSeq(guid.bytes[1]);
+    recv_data.ReadByteSeq(guid.bytes[2]);
+    recv_data.ReadByteSeq(guid.bytes[6]);
+    recv_data.ReadByteSeq(guid.bytes[5]);
+    std::string string0;
+    recv_data >> string0;
+    recv_data.ReadByteSeq(guid.bytes[3]);
 
     // attempt add selected player
 
@@ -194,79 +220,76 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
     SendPartyResult(PARTY_OP_INVITE, membername, ERR_PARTY_RESULT_OK);
 }
 
-void WorldSession::HandleGroupAcceptOpcode(WorldPacket& recv_data)
+void WorldSession::HandleGroupAcceptDeclineOpcode(WorldPacket& recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_ACCEPT");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_ACCEPT_DECLINE");
 
-    recv_data.read_skip<uint32>();
-    Group* group = GetPlayer()->GetGroupInvite();
-
-    if (!group)
-        return;
-
-    // Remove player from invitees in any case
-    group->RemoveInvite(GetPlayer());
-
-    if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
-    {
-        sLog->outError("HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
-        return;
-    }
-
-    // Group is full
-    if (group->IsFull())
-    {
-        SendPartyResult(PARTY_OP_INVITE, "", ERR_GROUP_FULL);
-        return;
-    }
-
-    Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
-
-    // Forming a new group, create it
-    if (!group->IsCreated())
-    {
-        // This can happen if the leader is zoning. To be removed once delayed actions for zoning are implemented
-        if (!leader)
-        {
-            group->RemoveAllInvites();
-            return;
-        }
-
-        // If we're about to create a group there really should be a leader present
-        ASSERT(leader);
-        group->RemoveInvite(leader);
-        group->Create(leader);
-        sGroupMgr->AddGroup(group);
-    }
-
-    // Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
-    if (!group->AddMember(GetPlayer()))
-        return;
-
-    group->BroadcastGroupUpdate();
-}
-
-void WorldSession::HandleGroupDeclineOpcode(WorldPacket & /*recv_data*/)
-{
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_DECLINE");
-
+    BYTE accepted;
+    recv_data >> accepted; // 0: decline, else accepted?
+ 
     Group  *group  = GetPlayer()->GetGroupInvite();
     if (!group) return;
 
-    // Remember leader if online (group pointer will be invalid if group gets disbanded)
-    Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
+    if (accepted != 0)
+    {
+        // Remove player from invitees in any case
+        group->RemoveInvite(GetPlayer());
 
-    // uninvite, group can be deleted
-    GetPlayer()->UninviteFromGroup();
+        if (group->GetLeaderGUID() == GetPlayer()->GetGUID())
+        {
+            sLog->outError("HandleGroupAcceptOpcode: player %s(%d) tried to accept an invite to his own group", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow());
+            return;
+        }
 
-    if (!leader || !leader->GetSession())
-        return;
+        // Group is full
+        if (group->IsFull())
+        {
+            SendPartyResult(PARTY_OP_INVITE, "", ERR_GROUP_FULL);
+            return;
+        }
 
-    // report
-    std::string name = std::string(GetPlayer()->GetName());
-    WorldPacket data(SMSG_GROUP_DECLINE, name.length());
-    data << name.c_str();
-    leader->GetSession()->SendPacket(&data);
+        Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
+
+        // Forming a new group, create it
+        if (!group->IsCreated())
+        {
+            // This can happen if the leader is zoning. To be removed once delayed actions for zoning are implemented
+            if (!leader)
+            {
+                group->RemoveAllInvites();
+                return;
+            }
+
+            // If we're about to create a group there really should be a leader present
+            ASSERT(leader);
+            group->RemoveInvite(leader);
+            group->Create(leader);
+            sGroupMgr->AddGroup(group);
+        }
+
+        // Everything is fine, do it, PLAYER'S GROUP IS SET IN ADDMEMBER!!!
+        if (!group->AddMember(GetPlayer()))
+            return;
+
+        group->BroadcastGroupUpdate();
+    }
+    else
+    {
+        // Remember leader if online (group pointer will be invalid if group gets disbanded)
+        Player* leader = ObjectAccessor::FindPlayer(group->GetLeaderGUID());
+
+        // uninvite, group can be deleted
+        GetPlayer()->UninviteFromGroup();
+
+        if (!leader || !leader->GetSession())
+            return;
+
+        // report
+        std::string name = std::string(GetPlayer()->GetName());
+        WorldPacket data(SMSG_GROUP_DECLINE, name.length());
+        data << name.c_str();
+        leader->GetSession()->SendPacket(&data);
+    }
 }
 
 void WorldSession::HandleGroupUninviteGuidOpcode(WorldPacket & recv_data)
