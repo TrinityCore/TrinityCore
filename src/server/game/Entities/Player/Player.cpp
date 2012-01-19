@@ -321,11 +321,11 @@ Item* TradeData::GetSpellCastItem() const
     return m_spellCastItem ? m_player->GetItemByGuid(m_spellCastItem) : NULL;
 }
 
-void TradeData::SetItem(TradeSlots slot, Item* item, bool update)
+void TradeData::SetItem(TradeSlots slot, Item* item)
 {
     uint64 itemGuid = item ? item->GetGUID() : 0;
 
-    if (m_items[slot] == itemGuid && !update)
+    if (m_items[slot] == itemGuid)
         return;
 
     m_items[slot] = itemGuid;
@@ -12922,6 +12922,14 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         return;
     }
 
+    //! If trading
+    if (TradeData* tradeData = GetTradeData())
+    {
+        //! If current item is in trade window (only possible with packet spoofing - silent return)
+        if (tradeData->GetTradeSlotForItem(pSrcItem->GetGUID()) != TRADE_SLOT_INVALID)
+            return;
+    }
+
     sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "STORAGE:  SplitItem bag = %u, slot = %u, item = %u, count = %u", dstbag, dstslot, pSrcItem->GetEntry(), count);
     Item* pNewItem = pSrcItem->CloneItem(count, this);
     if (!pNewItem)
@@ -12991,19 +12999,6 @@ void Player::SplitItem(uint16 src, uint16 dst, uint32 count)
         EquipItem(dest, pNewItem, true);
         AutoUnequipOffhandIfNeed();
     }
-
-    //! Make sure that code below only is executed when trading
-    if (!GetTradeData())
-        return;
-
-    //! Update item count in trade window, prevent spoofing
-    //! Since pSrcItem has its count updated (see above), Item::GetCount() will return the new count
-    //! in the underlying packet builder function
-    //! Note that this is not blizzlike, the item should be greyed out when in trade. 
-    //! TODO: Figure out which packet(s) are responsible for that.
-    TradeSlots const slot = GetTradeData() ? GetTradeData()->GetTradeSlotForItem(pSrcItem->GetGUID()) : TRADE_SLOT_INVALID;
-    if (slot != TRADE_SLOT_INVALID)
-        GetTradeData()->SetItem(slot, pSrcItem, true);
 }
 
 void Player::SwapItem(uint16 src, uint16 dst)
