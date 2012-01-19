@@ -281,7 +281,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(MSG_MOVE_TOGGLE_COLLISION_CHEAT,              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
      DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_FACING,                          STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
      DEFINE_OPCODE_HANDLER(MSG_MOVE_SET_PITCH,                           STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
-     //DEFINE_OPCODE_HANDLER(CMSG_WORLD_PORT_RESPONSE,                       STATUS_TRANSFER, PROCESS_THREADUNSAFE, &WorldSession::HandleMoveWorldportAckOpcode    );
+     DEFINE_OPCODE_HANDLER(CMSG_WORLD_PORT_RESPONSE,                       STATUS_TRANSFER, PROCESS_THREADUNSAFE, &WorldSession::HandleMoveWorldportAckOpcode    );
      DEFINE_OPCODE_HANDLER(SMSG_MONSTER_MOVE,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_MOVE_SPLINE_SET_WATER_WALK,                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_MOVE_SPLINE_SET_LAND_WALK,                          STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
