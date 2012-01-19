@@ -58,6 +58,8 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if (mutereason != NULL)
          mutereasonstr = mutereason;
 
+    mutereasonstr = mutereasonstr + " - Наказал - " + m_session->GetPlayer()->GetName();
+  
     Player* target;
     uint64 target_guid;
     std::string target_name;
@@ -103,7 +105,10 @@ bool ChatHandler::HandleMuteCommand(const char* args)
 
     std::string nameLink = playerLink(target_name);
 
-    PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
+     if (sWorld->getBoolConfig(CONFIG_SHOW_MUTE_IN_WORLD))
+         sWorld->SendWorldText(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
+     else
+         PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
 
     return true;
 }
