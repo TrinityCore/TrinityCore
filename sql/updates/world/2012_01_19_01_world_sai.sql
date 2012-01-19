@@ -24,7 +24,7 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (13,0,@SPELL_READ_PRONOUNCEMENT,18,1,@ENTRY,"Read Pronouncement targets Hodir's Helm KC Bunny");
 
 -- Spawn a helm bunny
-SET @GUID := 20466; -- gap
+SET @GUID := 40266; -- gap
 DELETE FROM `creature` WHERE `id`=@ENTRY;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@GUID,@ENTRY,571,1,1,0,0,7390.14,-2725.38,874.256,2.90103,300,0,0,42,0,0,0,0,0);
