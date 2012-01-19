@@ -50,28 +50,6 @@ class WorldPacket : public ByteBuffer
         void SetOpcode(Opcodes opcode) { m_opcode = opcode; }
         void Compress(Opcodes opcode);
 
-        void ReadByteMask(uint8& b)
-        {
-            b = ReadBit() ? 1 : 0;
-        }
-
-        void ReadByteSeq(uint8& b)
-        {
-            if (b != 0)
-                b ^= read<uint8>();
-        }
-
-        void WriteByteMask(uint8 b)
-        {
-            WriteBit(b);
-        }
-
-        void WriteByteSeq(uint8 b)
-        {
-            if (b != 0)
-                append<uint8>(b ^ 1);
-        }
-
     protected:
         Opcodes m_opcode;
         void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
