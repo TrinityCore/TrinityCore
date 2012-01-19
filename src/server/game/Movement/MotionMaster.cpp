@@ -307,7 +307,7 @@ void MotionMaster::MoveLand(uint32 id, Position const& pos, float speed)
     init.SetVelocity(speed);
     init.SetAnimation(Movement::ToGround);
     init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
@@ -322,7 +322,7 @@ void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
     init.SetVelocity(speed);
     init.SetAnimation(Movement::ToFly);
     init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ)
@@ -365,7 +365,10 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     init.SetParabolic(max_height,0);
     init.SetVelocity(speedXY);
     init.Launch();
-    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+    if (i_owner->GetTypeId() == TYPEID_PLAYER)
+        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
+    else
+        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveFall(uint32 id/*=0*/)
