@@ -1946,6 +1946,30 @@ LOCK TABLES `lag_reports` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `lfg_data`
+--
+
+DROP TABLE IF EXISTS `lfg_data`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `lfg_data` (
+  `guid` INT(10) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Global Unique Identifier',
+  `dungeon` INT(10) UNSIGNED NOT NULL DEFAULT '0',
+  `state` TINYINT(3) UNSIGNED NOT NULL DEFAULT '0',
+  PRIMARY KEY (`guid`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8 COMMENT='LFG Data';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `lfg_data`
+--
+
+LOCK TABLES `lfg_data` WRITE;
+/*!40000 ALTER TABLE `lfg_data` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lfg_data` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `mail`
 --
 
