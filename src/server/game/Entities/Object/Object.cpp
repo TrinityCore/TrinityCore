@@ -301,9 +301,9 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
 
         *data << self->GetSpeed(MOVE_WALK);
         *data << self->GetSpeed(MOVE_RUN);
-        *data << self->GetSpeed(MOVE_SWIM_BACK);
-        *data << self->GetSpeed(MOVE_SWIM);
         *data << self->GetSpeed(MOVE_RUN_BACK);
+        *data << self->GetSpeed(MOVE_SWIM);
+        *data << self->GetSpeed(MOVE_SWIM_BACK);
         *data << self->GetSpeed(MOVE_FLIGHT);
         *data << self->GetSpeed(MOVE_FLIGHT_BACK);
         *data << self->GetSpeed(MOVE_TURN_RATE);
@@ -423,9 +423,7 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
 
     // 0x2
     if (flags & UPDATEFLAG_TRANSPORT)
-    {
         *data << uint32(getMSTime());                       // ms time
-    }
 
     // 0x80
     if (flags & UPDATEFLAG_VEHICLE)                          // unused for now
@@ -434,11 +432,14 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         *data << float(((Creature*)this)->GetOrientation());  // facing adjustment
     }
 
-    // 0x800
-    if (flags & UPDATEFLAG_UNK2)
-	    *data << uint16(0) << uint16(0) << uint16(0); //unk
+    // 0x800 - AnimKits
+    if (flags & UPDATEFLAG_ANIMKITS)
+        *data << uint16(0) << uint16(0) << uint16(0); //unk
 
-    
+    // 0x200
+    if (flags & UPDATEFLAG_ROTATION)
+        *data << int64(((GameObject*)this)->GetRotation());
+
     // 0x1000
     if (flags & UPDATEFLAG_UNK3)
         *data << uint8(0);//unk counter to read uint32 values
