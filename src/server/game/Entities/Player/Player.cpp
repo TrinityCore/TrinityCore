@@ -2069,10 +2069,10 @@ uint8 Player::GetChatTag() const
 void Player::SendTeleportPacket(Position &oldPos)
 {
     WorldPacket data(SMSG_MOVE_TELEPORT, 38);
-    
+
     uint64 guid = GetGUID();
     uint8* bytes = (uint8*)&guid;
-    
+
     data.WriteBit(GetTransGUID());
     data.WriteBit(bytes[0]);
     data.WriteBit(bytes[2]);
@@ -7303,12 +7303,16 @@ void Player::SendCurrencies() const
    for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
    {
        CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-       packet << uint32(itr->second.weekCount / PLAYER_CURRENCY_PRECISION);
+       if (!entry)
+           continue;
+
+       uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
+       packet << uint32(itr->second.weekCount / precision);
        packet << uint8(0);                     // unknown
        packet << uint32(entry->ID);
        packet << uint32(sWorld->GetNextWeeklyQuestsResetTime() - 1*WEEK);
-       packet << uint32(_GetCurrencyWeekCap(entry) / PLAYER_CURRENCY_PRECISION);
-       packet << uint32(itr->second.totalCount / PLAYER_CURRENCY_PRECISION);
+       packet << uint32(_GetCurrencyWeekCap(entry) / precision);
+       packet << uint32(itr->second.totalCount / precision);
    }
 
    GetSession()->SendPacket(&packet);
@@ -7334,6 +7338,7 @@ void Player::ModifyCurrency(uint32 id, int32 count)
    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
    ASSERT(currency);
 
+   int32 precision = currency->Flags & 0x8 ? 100 : 1;
    uint32 oldTotalCount = 0;
    uint32 oldWeekCount = 0;
    PlayerCurrenciesMap::iterator itr = m_currencies.find(id);
@@ -7395,8 +7400,8 @@ void Player::ModifyCurrency(uint32 id, int32 count)
 
            WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
            packet << uint32(id);
-           packet << uint32(weekCap ? (newWeekCount / PLAYER_CURRENCY_PRECISION) : 0);
-           packet << uint32(newTotalCount / PLAYER_CURRENCY_PRECISION);
+           packet << uint32(weekCap ? (newWeekCount / precision) : 0);
+           packet << uint32(newTotalCount / precision);
            GetSession()->SendPacket(&packet);
        }
    }
@@ -7437,7 +7442,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
    if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
    {
        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-       packet << uint32(cap / PLAYER_CURRENCY_PRECISION);
+       packet << uint32(cap / ((currency->Flags & 0x8) ? 100 : 1));
        packet << uint32(currency->ID);
        GetSession()->SendPacket(&packet);
    }
@@ -16214,9 +16219,9 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questId);
     sGameEventMgr->HandleQuestComplete(questId);
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
-    
+
     data << int8(0x80); // 4.x unknown flag, most common value is 0x80 (it might be a single bit)
-    
+
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         data << uint32(XP);
@@ -16227,7 +16232,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         data << uint32(0);
         data << uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
-    
+
     data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
     data << uint32(questId);
     data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
