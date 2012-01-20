@@ -1078,12 +1078,27 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket & /*recv_data*/)
 
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
 {
-    /*  WorldSession::Update(getMSTime());*/
-    sLog->outStaticDebug("WORLD: Time Lag/Synchronization Resent/Update");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
+    
+    BitStream mask = recv_data.ReadBitStream(8);
+    
+    uint32 time;
+    recv_data >> time;
 
-    uint64 guid;
-    recv_data.readPackGUID(guid);
-    recv_data.read_skip<uint32>();
+    ByteBuffer bytes(8, true);
+    recv_data.ReadXorByte(mask[0], bytes[1]);
+    recv_data.ReadXorByte(mask[1], bytes[4]);
+    recv_data.ReadXorByte(mask[7], bytes[2]);
+    recv_data.ReadXorByte(mask[5], bytes[5]);
+    recv_data.ReadXorByte(mask[3], bytes[0]);
+    recv_data.ReadXorByte(mask[6], bytes[7]);
+    recv_data.ReadXorByte(mask[2], bytes[6]);
+    recv_data.ReadXorByte(mask[4], bytes[3]);
+
+    uint64 guid = BitConverter::ToUInt64(bytes);
+
+    //TODO!
+
     /*
         uint64 guid;
         uint32 time_skipped;

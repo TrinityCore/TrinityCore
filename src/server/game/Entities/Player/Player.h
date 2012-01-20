@@ -1983,7 +1983,6 @@ class Player : public Unit, public GridObject<Player>
         void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr);
 
         void SendTeleportPacket(Position &oldPos);
-        void SendTeleportAckPacket();
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();

@@ -192,12 +192,24 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_TELEPORT_ACK");
-    uint64 guid;
 
-    recv_data.readPackGUID(guid);
-
+    BitStream mask = recv_data.ReadBitStream(8);
+    
     uint32 flags, time;
     recv_data >> flags >> time;
+
+    ByteBuffer bytes(8, true);
+    recv_data.ReadXorByte(mask[6], bytes[1]);
+    recv_data.ReadXorByte(mask[0], bytes[3]);
+    recv_data.ReadXorByte(mask[1], bytes[2]);
+    recv_data.ReadXorByte(mask[7], bytes[0]);
+    recv_data.ReadXorByte(mask[5], bytes[6]);
+    recv_data.ReadXorByte(mask[3], bytes[4]);
+    recv_data.ReadXorByte(mask[2], bytes[7]);
+    recv_data.ReadXorByte(mask[4], bytes[5]);
+
+    uint64 guid = BitConverter::ToUInt64(bytes);
+
     sLog->outStaticDebug("Guid " UI64FMTD, guid);
     sLog->outStaticDebug("Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
