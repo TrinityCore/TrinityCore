@@ -194,6 +194,19 @@ class ByteBuffer
                 b ^= read<uint8>();
         }
 
+        uint8 ReadXorByte()
+        {
+            return ReadUInt8() ^ 1;
+        }
+        
+        void ReadXorByte(uint32 bit, uint8& byte)
+        {
+            if (!bit) 
+                byte = 0;
+            else
+                byte = ReadUInt8() ^ bit;
+        }
+
         void WriteByteMask(uint8 b)
         {
             WriteBit(b);
