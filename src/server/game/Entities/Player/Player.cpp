@@ -7302,17 +7302,31 @@ void Player::SendCurrencies() const
 
    for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
    {
-       CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-       if (!entry)
-           continue;
+        CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
+        if (!entry)
+            continue;
 
-       uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
-       packet << uint32(itr->second.weekCount / precision);
-       packet << uint8(0);                     // unknown
-       packet << uint32(entry->ID);
-       packet << uint32(sWorld->GetNextWeeklyQuestsResetTime() - 1*WEEK);
-       packet << uint32(_GetCurrencyWeekCap(entry) / precision);
-       packet << uint32(itr->second.totalCount / precision);
+        uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
+        packet.WriteBit(_GetCurrencyWeekCap(entry) / precision);
+        packet.WriteBit(0);
+        packet.WriteBit(itr->second.weekCount / precision);
+   }
+
+   for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
+   {
+        CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
+        if (!entry)
+            continue;
+
+        uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
+        packet << uint32(entry->ID);
+        if (uint32 weekCap = (_GetCurrencyWeekCap(entry) / precision))
+            packet << uint32(weekCap);
+        packet << uint32(itr->second.totalCount / precision);
+        packet << uint8(0);                     // unknown
+        //packet << uint32(0); // season total earned
+        if (uint32 weekCount = (itr->second.weekCount / precision))
+            packet << uint32(weekCount);
    }
 
    GetSession()->SendPacket(&packet);
