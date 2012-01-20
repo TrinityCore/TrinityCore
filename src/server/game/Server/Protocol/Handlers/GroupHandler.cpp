@@ -683,7 +683,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket & recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_RAID_READY_CHECK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_RAID_READY_CHECK");
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -697,7 +697,7 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket & recv_data)
         /********************/
 
         // everything's fine, do it
-        WorldPacket data(MSG_RAID_READY_CHECK, 8);
+        WorldPacket data(SMSG_RAID_READY_CHECK, 8);
         data << GetPlayer()->GetGUID();
         group->BroadcastPacket(&data, false, -1);
 
