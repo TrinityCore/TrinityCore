@@ -858,7 +858,7 @@ struct CurrencyTypesEntry
     //uint32 unk6;                                          // 6        archaeology-related (?)
     uint32 TotalCap;                                        // 7
     uint32 WeekCap;                                         // 8
-    //int32 unk9;                                           // 9
+    uint32 Flags;                                           // 9
     //char* description;                                    // 10
 };
 
