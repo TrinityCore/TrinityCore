@@ -2068,20 +2068,39 @@ uint8 Player::GetChatTag() const
 
 void Player::SendTeleportPacket(Position &oldPos)
 {
-    WorldPacket data2(SMSG_MOVE_TELEPORT, 38);
-    data2.append(GetPackGUID());
-    BuildMovementPacket(&data2);
-    Relocate(&oldPos);
-    SendMessageToSet(&data2, false);
-}
+    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
+    
+    uint64 guid = GetGUID();
+    uint8* bytes = (uint8*)&guid;
+    
+    data.WriteBit(GetTransGUID());
+    data.WriteBit(bytes[0]);
+    data.WriteBit(bytes[2]);
+    data.WriteBit(bytes[6]);
+    data.WriteBit(bytes[7]);
+    data.WriteBit(bytes[4]);
+    data.WriteBit(bytes[5]);
+    data.WriteBit(bytes[3]);
+    data.WriteBit(bytes[1]);
+    data.WriteBit(0); //unk byte's bit
+    data << GetPositionX();
+    data << GetPositionY();
+    data << GetPositionZ();
+    data.WriteByteSeq(bytes[5]);
+    data.WriteByteSeq(bytes[4]);
+    if (GetTransGUID()) data << GetTransGUID();
+    data.WriteByteSeq(bytes[2]);
+    data.WriteByteSeq(bytes[7]);
+    data << uint32(0); //unk int
+    data.WriteByteSeq(bytes[1]);
+    data.WriteByteSeq(bytes[0]);
+    data.WriteByteSeq(bytes[6]);
+    data.WriteByteSeq(bytes[3]);
+    // unk byte, only if bit is set
+    data << GetOrientation();
 
-void Player::SendTeleportAckPacket()
-{
-    WorldPacket data(CMSG_MOVE_TELEPORT_ACK, 41);
-    data.append(GetPackGUID());
-    data << uint32(0);                                     // this value increments every time
-    BuildMovementPacket(&data);
-    GetSession()->SendPacket(&data);
+    Relocate(&oldPos);
+    SendDirectMessage(&data);
 }
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
@@ -2195,7 +2214,6 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
             Position oldPos;
             GetPosition(&oldPos);
             Relocate(x, y, z, orientation);
-            SendTeleportAckPacket();
             SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
         }
     }

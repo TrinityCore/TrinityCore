@@ -258,9 +258,9 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(SMSG_MOVE_SPLINE_SET_RUN_MODE,                        STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
      DEFINE_OPCODE_HANDLER(SMSG_MOVE_SPLINE_SET_WALK_MODE,                       STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
      //DEFINE_OPCODE_HANDLER(MSG_MOVE_TOGGLE_LOGGING,                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-     //DEFINE_OPCODE_HANDLER(SMSG_MOVE_TELEPORT,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
+     DEFINE_OPCODE_HANDLER(SMSG_MOVE_TELEPORT,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
      //DEFINE_OPCODE_HANDLER(CMSG_MOVE_TELEPORT_CHEAT,                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
-     //DEFINE_OPCODE_HANDLER(CMSG_MOVE_TELEPORT_ACK,                        STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMoveTeleportAck           );
+     DEFINE_OPCODE_HANDLER(CMSG_MOVE_TELEPORT_ACK,                        STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMoveTeleportAck           );
      //DEFINE_OPCODE_HANDLER(MSG_MOVE_TOGGLE_FALL_LOGGING,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
      DEFINE_OPCODE_HANDLER(MSG_MOVE_FALL_LAND,                           STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
      DEFINE_OPCODE_HANDLER(MSG_MOVE_START_SWIM,                          STATUS_LOGGEDIN, PROCESS_THREADSAFE,   &WorldSession::HandleMovementOpcodes           );
