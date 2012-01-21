@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _DATABASEWORKERPOOL_H
 #define _DATABASEWORKERPOOL_H
 
@@ -486,5 +488,7 @@ class DatabaseWorkerPool
         uint32                          m_connectionCount[2];       //! Counter of MySQL connections;
         MySQLConnectionInfo             m_connectionInfo;
 };
+
+#endif
 
 #endif

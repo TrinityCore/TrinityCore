@@ -283,11 +283,21 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     v_hex = v.AsHexStr();
     s_hex = s.AsHexStr();
 
+#ifdef DO_CPPDB
+    session ses = lDb.GetSession();
+    statement stmt = lDb.GetStatement(ses,LOGIN_UPD_VS);
+    stmt.bind(1, v_hex);
+    stmt.bind(2, s_hex);
+    stmt.bind(3, _login);
+    stmt.exec();
+    ses.close();
+#else
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
     stmt->setString(0, v_hex);
     stmt->setString(1, s_hex);
     stmt->setString(2, _login);
     LoginDatabase.Execute(stmt);
+#endif
 
     OPENSSL_free((void*)v_hex);
     OPENSSL_free((void*)s_hex);
@@ -348,9 +358,145 @@ bool AuthSocket::_HandleLogonChallenge()
     pkt << (uint8)0x00;
 
     // Verify that this IP is not in the ip_banned table
+#ifdef DO_CPPDB
+    session ses = lDb.GetSession();
+    lDb.GetStatement(ses,LOGIN_DEL_EXPIRED_IP_BANS).exec();
+#else
     LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
+#endif
 
     const std::string& ip_address = socket().get_remote_address();
+#ifdef DO_CPPDB
+    statement stmt = lDb.GetStatement(ses,LOGIN_SEL_IP_BANNED);
+    stmt.bind(ip_address);
+    result res = stmt.query();
+    if(!res.empty()){
+        pkt << (uint8)WOW_FAIL_BANNED;
+        sLog->outBasic("[AuthChallenge] Banned ip %s tried to login!", ip_address.c_str());
+    }else{
+        stmt = lDb.GetStatement(ses,LOGIN_SEL_LOGONCHALLENGE);
+        stmt.bind(_login);
+
+        result res2 = stmt.query();
+        if(!res2.empty()){
+            // If the IP is 'locked', check that the player comes indeed from the correct IP address
+            bool locked = false;
+            if (res2.get<int>(2) == 1)                  // if ip is locked
+            {
+                sLog->outStaticDebug("[AuthChallenge] Account '%s' is locked to IP - '%s'", _login.c_str(), res2.get<string>(3).c_str());
+                sLog->outStaticDebug("[AuthChallenge] Player address is '%s'", ip_address.c_str());
+
+                if (strcmp(res2.get<string>(3).c_str(), ip_address.c_str()))
+                {
+                    sLog->outStaticDebug("[AuthChallenge] Account IP differs");
+                    pkt << (uint8) WOW_FAIL_SUSPENDED;
+                    locked = true;
+                }
+                else
+                    sLog->outStaticDebug("[AuthChallenge] Account IP matches");
+            }
+            else
+                sLog->outStaticDebug("[AuthChallenge] Account '%s' is not locked to ip", _login.c_str());
+
+            if (!locked)
+            {
+                //set expired bans to inactive
+                lDb.GetStatement(ses,LOGIN_UPD_EXPIRED_ACCOUNT_BANS).exec();
+
+                // If the account is banned, reject the logon attempt
+                stmt = lDb.GetStatement(ses,LOGIN_SEL_ACCOUNT_BANNED);
+                stmt.bind(res2.get<uint32>(1));
+                result banresult = stmt.query();
+                if (!banresult.empty())
+                {
+                    if (banresult.get<uint64>(0) == banresult.get<uint64>(1))
+                    {
+                        pkt << (uint8)WOW_FAIL_BANNED;
+                        sLog->outBasic("[AuthChallenge] Banned account %s tried to login!", _login.c_str());
+                    }
+                    else
+                    {
+                        pkt << (uint8)WOW_FAIL_SUSPENDED;
+                        sLog->outBasic("[AuthChallenge] Temporarily banned account %s tried to login!", _login.c_str());
+                    }
+                }
+                else
+                {
+                    // Get the password from the account table, upper it, and make the SRP6 calculation
+                    std::string rI = res2.get<string>(0);
+
+                    // Don't calculate (v, s) if there are already some in the database
+                    std::string databaseV = res2.get<string>(5);
+                    std::string databaseS = res2.get<string>(6);
+
+                    sLog->outDebug(LOG_FILTER_NETWORKIO, "database authentication values: v='%s' s='%s'", databaseV.c_str(), databaseS.c_str());
+
+                    // multiply with 2 since bytes are stored as hexstring
+                    if (databaseV.size() != s_BYTE_SIZE * 2 || databaseS.size() != s_BYTE_SIZE * 2)
+                        _SetVSFields(rI);
+                    else
+                    {
+                        s.SetHexStr(databaseS.c_str());
+                        v.SetHexStr(databaseV.c_str());
+                    }
+
+                    b.SetRand(19 * 8);
+                    BigNumber gmod = g.ModExp(b, N);
+                    B = ((v * 3) + gmod) % N;
+
+                    ASSERT(gmod.GetNumBytes() <= 32);
+
+                    BigNumber unk3;
+                    unk3.SetRand(16 * 8);
+
+                    // Fill the response packet with the result
+                    pkt << uint8(WOW_SUCCESS);
+
+                    // B may be calculated < 32B so we force minimal length to 32B
+                    pkt.append(B.AsByteArray(32), 32);      // 32 bytes
+                    pkt << uint8(1);
+                    pkt.append(g.AsByteArray(), 1);
+                    pkt << uint8(32);
+                    pkt.append(N.AsByteArray(32), 32);
+                    pkt.append(s.AsByteArray(), s.GetNumBytes());   // 32 bytes
+                    pkt.append(unk3.AsByteArray(16), 16);
+                    uint8 securityFlags = 0;
+                    pkt << uint8(securityFlags);            // security flags (0x0...0x04)
+
+                    if (securityFlags & 0x01)               // PIN input
+                    {
+                        pkt << uint32(0);
+                        pkt << uint64(0) << uint64(0);      // 16 bytes hash?
+                    }
+
+                    if (securityFlags & 0x02)               // Matrix input
+                    {
+                        pkt << uint8(0);
+                        pkt << uint8(0);
+                        pkt << uint8(0);
+                        pkt << uint8(0);
+                        pkt << uint64(0);
+                    }
+
+                    if (securityFlags & 0x04)               // Security token input
+                        pkt << uint8(1);
+
+                    uint8 secLevel = res2.get<uint16>(4);
+                    _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
+
+                    _localizationName.resize(4);
+                    for (int i = 0; i < 4; ++i)
+                        _localizationName[i] = ch->country[4-i-1];
+
+                    sLog->outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName));
+                }
+            }
+        }else{
+            pkt << (uint8)WOW_FAIL_UNKNOWN_ACCOUNT;
+        }
+    }
+    ses.close();
+#else
     PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED);
     stmt->setString(0, ip_address);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -487,7 +633,7 @@ bool AuthSocket::_HandleLogonChallenge()
         else                                                //no account
             pkt << (uint8)WOW_FAIL_UNKNOWN_ACCOUNT;
     }
-
+#endif
     socket().send((char const*)pkt.contents(), pkt.size());
     return true;
 }
@@ -596,12 +742,23 @@ bool AuthSocket::_HandleLogonProof()
         // No SQL injection (escaped user name) and IP address as received by socket
         const char *K_hex = K.AsHexStr();
 
+#ifdef DO_CPPDB
+        session ses = lDb.GetSession();
+        statement stmt = lDb.GetStatement(ses,LOGIN_UPD_LOGONPROOF);
+        stmt.bind(K_hex);
+        stmt.bind(socket().get_remote_address().c_str());
+        stmt.bind(GetLocaleByName(_localizationName));
+        stmt.bind(_login);
+        stmt.exec();
+        ses.close();
+#else
         PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->setString(0, K_hex);
         stmt->setString(1, socket().get_remote_address().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _login);
         LoginDatabase.Execute(stmt);
+#endif
 
         OPENSSL_free((void*)K_hex);
 
@@ -643,6 +800,50 @@ bool AuthSocket::_HandleLogonProof()
         uint32 MaxWrongPassCount = ConfigMgr::GetIntDefault("WrongPass.MaxCount", 0);
         if (MaxWrongPassCount > 0)
         {
+#ifdef DO_CPPDB
+            session ses = lDb.GetSession();
+            //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
+            statement stmt = lDb.GetStatement(ses,LOGIN_UPD_FAILEDLOGINS);
+            stmt.bind(_login);
+            stmt.exec();
+
+            stmt = lDb.GetStatement(ses,LOGIN_SEL_FAILEDLOGINS);
+            stmt.bind(_login);
+
+            result loginfail = stmt.query();
+            if (!loginfail.empty())
+            {
+                uint32 failed_logins = loginfail.get<uint32>(1);
+
+                if (failed_logins >= MaxWrongPassCount)
+                {
+                    uint32 WrongPassBanTime = ConfigMgr::GetIntDefault("WrongPass.BanTime", 600);
+                    bool WrongPassBanType = ConfigMgr::GetBoolDefault("WrongPass.BanType", false);
+
+                    if (WrongPassBanType)
+                    {
+                        uint32 acc_id = loginfail.get<uint32>(0);
+                        stmt = lDb.GetStatement(ses,LOGIN_INS_ACCOUNT_AUTO_BANNED);
+                        stmt.bind(acc_id);
+                        stmt.bind(WrongPassBanTime);
+                        stmt.exec();
+
+                        sLog->outBasic("[AuthChallenge] account %s got banned for '%u' seconds because it failed to authenticate '%u' times",
+                            _login.c_str(), WrongPassBanTime, failed_logins);
+                    }
+                    else
+                    {
+                        stmt = lDb.GetStatement(ses,LOGIN_INS_IP_AUTO_BANNED);
+                        stmt.bind(socket().get_remote_address());
+                        stmt.bind(WrongPassBanTime);
+                        stmt.exec();
+
+                        sLog->outBasic("[AuthChallenge] IP %s got banned for '%u' seconds because account %s failed to authenticate '%u' times", socket().get_remote_address().c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
+                    }
+                }
+            }
+            ses.close();
+#else
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
             PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
             stmt->setString(0, _login);
@@ -682,6 +883,7 @@ bool AuthSocket::_HandleLogonProof()
                     }
                 }
             }
+#endif
         }
     }
 
@@ -723,6 +925,9 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     _login = (const char*)ch->I;
 
+#ifdef DO_CPPDB
+    //TOTO Fil
+#else
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SESSIONKEY);
     stmt->setString(0, _login);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -744,6 +949,7 @@ bool AuthSocket::_HandleReconnectChallenge()
     _accountSecurityLevel = secLevel <= SEC_ADMINISTRATOR ? AccountTypes(secLevel) : SEC_ADMINISTRATOR;
 
     K.SetHexStr ((*result)[0].GetCString());
+#endif
 
     // Sending response
     ByteBuffer pkt;
@@ -805,6 +1011,22 @@ bool AuthSocket::_HandleRealmList()
 
     socket().recv_skip(5);
 
+#ifdef DO_CPPDB
+    // Get the user id (else close the connection)
+    // No SQL injection (prepared statement)
+    session ses = lDb.GetSession();
+    statement stmt = lDb.GetStatement(ses,LOGIN_SEL_ACCOUNT_ID_BY_NAME);
+    stmt.bind(_login);
+    result res = stmt.query();
+    if (!res.empty())
+    {
+        sLog->outError("[ERROR] user %s tried to login and we cannot find him in the database.", _login.c_str());
+        socket().shutdown();
+        return false;
+    }
+
+    uint32 id = res.get<uint32>(0);
+#else
     // Get the user id (else close the connection)
     // No SQL injection (prepared statement)
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME);
@@ -819,13 +1041,14 @@ bool AuthSocket::_HandleRealmList()
 
     Field* fields = result->Fetch();
     uint32 id = fields[0].GetUInt32();
+#endif
 
     // Update realm list if need
     sRealmList->UpdateIfNeed();
 
     // Circle through realms in the RealmList and construct the return packet (including # of user characters in each realm)
     ByteBuffer pkt;
-
+#ifdef DO_CPPDB
     size_t RealmListSize = 0;
     for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
     {
@@ -836,6 +1059,49 @@ bool AuthSocket::_HandleRealmList()
                 continue;
 
         uint8 AmountOfCharacters;
+
+
+        // No SQL injection. id of realm is controlled by the database.
+        stmt = lDb.GetStatement(ses,LOGIN_SEL_NUM_CHARS_ON_REALM);
+        stmt.bind(i->second.m_ID);
+        stmt.bind(id);
+        res = stmt.query();
+        if (!res.empty())
+            AmountOfCharacters = res.get<uint16>(0);
+        else
+            AmountOfCharacters = 0;
+
+        uint8 lock = (i->second.allowedSecurityLevel > _accountSecurityLevel) ? 1 : 0;
+
+        pkt << i->second.icon;                              // realm type
+        if ( _expversion & POST_BC_EXP_FLAG )               // only 2.x and 3.x clients
+            pkt << lock;                                    // if 1, then realm locked
+        pkt << i->second.color;                             // if 2, then realm is offline
+        pkt << i->first;
+        pkt << i->second.address;
+        pkt << i->second.populationLevel;
+        pkt << AmountOfCharacters;
+        pkt << i->second.timezone;                          // realm category
+        if (_expversion & POST_BC_EXP_FLAG)                 // 2.x and 3.x clients
+            pkt << (uint8)0x2C;                             // unk, may be realm number/id?
+        else
+            pkt << (uint8)0x0;                              // 1.12.1 and 1.12.2 clients
+
+        ++RealmListSize;
+    }
+    ses.close();
+#else
+    size_t RealmListSize = 0;
+    for (RealmList::RealmMap::const_iterator i = sRealmList->begin(); i != sRealmList->end(); ++i)
+    {
+        // don't work with realms which not compatible with the client
+        if ((_expversion & POST_BC_EXP_FLAG) && i->second.gamebuild != _build)
+            continue;
+        else if ((_expversion & PRE_BC_EXP_FLAG) && !AuthHelper::IsPreBCAcceptedClientBuild(i->second.gamebuild))
+                continue;
+
+        uint8 AmountOfCharacters;
+
 
         // No SQL injection. id of realm is controlled by the database.
         stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_NUM_CHARS_ON_REALM);
@@ -865,6 +1131,7 @@ bool AuthSocket::_HandleRealmList()
 
         ++RealmListSize;
     }
+#endif
 
     if ( _expversion & POST_BC_EXP_FLAG )                   // 2.x and 3.x clients
     {

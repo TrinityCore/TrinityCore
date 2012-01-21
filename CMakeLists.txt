@@ -58,7 +58,7 @@ if( UNIX )
   find_package(BZip2)
 endif()
 
-option (DO_POSTGRESQL "" 1)
+option (DO_CPPDB "" 1)
 
 # Find revision ID and hash of the sourcetree
 include(cmake/genrev.cmake)

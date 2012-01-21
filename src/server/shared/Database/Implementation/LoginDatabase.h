@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _LOGINDATABASE_H
 #define _LOGINDATABASE_H
 
@@ -85,5 +87,7 @@ enum LoginDatabaseStatements
 
     MAX_LOGINDATABASE_STATEMENTS,
 };
+
+#endif
 
 #endif

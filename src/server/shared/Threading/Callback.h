@@ -22,8 +22,14 @@
 #include <ace/Future_Set.h>
 #include "QueryResult.h"
 
+#ifdef DO_CPPDB
+#include "cppdb/Connection.h"
+typedef ACE_Future<result> QueryResultFuture;
+typedef ACE_Future<result> PreparedQueryResultFuture;
+#else
 typedef ACE_Future<QueryResult> QueryResultFuture;
 typedef ACE_Future<PreparedQueryResult> PreparedQueryResultFuture;
+#endif
 
 /*! A simple template using ACE_Future to manage callbacks from the thread and object that
     issued the request. <ParamType> is variable type of parameter that is used as parameter
@@ -96,7 +102,7 @@ class QueryCallback
         {
             return _stage;
         }
-        
+
         //! Resets all underlying variables (param, result and stage)
         void Reset()
         {

@@ -138,6 +138,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/TCSoap
   ${CMAKE_CURRENT_SOURCE_DIR}/WorldThread
   ${ACE_INCLUDE_DIR}
+  ${CPPDB_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
@@ -165,6 +166,7 @@ target_link_libraries(worldserver
   collision
   g3dlib
   gsoap
+  ${CPPDB_LIBRARY}
   ${JEMALLOC_LIBRARY}
   ${READLINE_LIBRARY}
   ${TERMCAP_LIBRARY}

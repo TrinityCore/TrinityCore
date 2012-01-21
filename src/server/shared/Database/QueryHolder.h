@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _QUERYHOLDER_H
 #define _QUERYHOLDER_H
 
@@ -53,5 +55,7 @@ class SQLQueryHolderTask : public SQLOperation
         bool Execute();
 
 };
+
+#endif
 
 #endif

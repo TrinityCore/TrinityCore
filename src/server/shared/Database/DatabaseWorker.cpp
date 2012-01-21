@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "DatabaseEnv.h"
 #include "DatabaseWorker.h"
 #include "SQLOperation.h"
@@ -49,3 +51,5 @@ int DatabaseWorker::svc()
 
     return 0;
 }
+
+#endif

@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include <ace/Activation_Queue.h>
 
 #include "DatabaseWorkerPool.h"
@@ -142,5 +144,7 @@ class MySQLConnection
         ConnectionFlags       m_connectionFlags;            //! Connection flags (for preparing relevant statements)
         ACE_Thread_Mutex      m_Mutex;
 };
+
+#endif
 
 #endif

@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
 
 #include "Common.h"
 
@@ -540,3 +541,5 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             return false;
     }
 }
+
+#endif

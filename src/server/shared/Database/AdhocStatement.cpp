@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "AdhocStatement.h"
 #include "MySQLConnection.h"
 
@@ -54,3 +56,5 @@ bool BasicStatementTask::Execute()
 
     return m_conn->Execute(m_sql);
 }
+
+#endif

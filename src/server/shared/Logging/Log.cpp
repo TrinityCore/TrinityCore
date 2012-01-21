@@ -21,8 +21,13 @@
 #include "Configuration/Config.h"
 #include "Util.h"
 
+#ifndef DO_CPPDB
 #include "Implementation/LoginDatabase.h" // For logging
 extern LoginDatabaseWorkerPool LoginDatabase;
+#else
+#include "cppdb/LoginDB.h"
+extern LoginDB lDb;
+#endif
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -374,6 +379,15 @@ void Log::outDB(LogTypes type, const char * str)
     if (logStr.empty())
         return;
 
+#ifdef DO_CPPDB
+    session ses = lDb.GetSession();
+    statement stmt = lDb.GetStatement(ses,LOGIN_INS_LOG);
+    stmt.bind(1, realm);
+    stmt.bind(2, type);
+    stmt.bind(3, logStr);
+    stmt.exec();
+    ses.close();
+#else
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_LOG);
 
     stmt->setInt32(0, realm);
@@ -381,6 +395,7 @@ void Log::outDB(LogTypes type, const char * str)
     stmt->setString(2, logStr);
 
     LoginDatabase.Execute(stmt);
+#endif
 }
 
 void Log::outString(const char * str, ...)

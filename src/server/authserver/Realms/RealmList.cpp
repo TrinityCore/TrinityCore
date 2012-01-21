@@ -70,6 +70,43 @@ void RealmList::UpdateRealms(bool init)
 {
     sLog->outDetail("Updating Realm List...");
 
+#ifdef DO_CPPDB
+    session ses = lDb.GetSession();
+    statement stmt = lDb.GetStatement(ses,LOGIN_SEL_REALMLIST);
+    result res = stmt.query();
+
+    // Circle through results and add them to the realm map
+    while(res.next())
+    {
+        //Field* fields = result->Fetch();
+        uint32 realmId;// = fields[0].GetUInt32();
+        std::string name;// = fields[1].GetString();
+        std::string address;// = fields[2].GetString();
+        uint32 port;// = fields[3].GetUInt32();
+        uint16 icon;// = fields[4].GetUInt8();
+        uint16 color;// = fields[5].GetUInt8();
+        uint16 timezone;// = fields[6].GetUInt8();
+        uint16 allowedSecurityLevel;// = fields[7].GetUInt8();
+        float pop;// = fields[8].GetFloat();
+        uint32 build;// = fields[9].GetUInt32();
+
+        res.fetch(0,realmId);
+        res.fetch(1,name);
+        res.fetch(2,address);
+        res.fetch(3,port);
+        res.fetch(4,icon);
+        res.fetch(5,color);
+        res.fetch(6,timezone);
+        res.fetch(7,allowedSecurityLevel);
+        res.fetch(8,build);
+
+        UpdateRealm(realmId, name, address, port, icon, color, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
+
+        if (init)
+            sLog->outString("Added realm \"%s\".", name.c_str());
+    }
+    ses.close();
+#else
     PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -97,4 +134,7 @@ void RealmList::UpdateRealms(bool init)
         }
         while (result->NextRow());
     }
+#endif
+
+
 }

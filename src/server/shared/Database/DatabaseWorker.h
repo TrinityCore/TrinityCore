@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _WORKERTHREAD_H
 #define _WORKERTHREAD_H
 
@@ -37,5 +39,7 @@ class DatabaseWorker : protected ACE_Task_Base
         ACE_Activation_Queue* m_queue;
         MySQLConnection* m_conn;
 };
+
+#endif
 
 #endif

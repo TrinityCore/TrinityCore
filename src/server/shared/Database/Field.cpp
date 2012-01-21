@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "Field.h"
 
 Field::Field()
@@ -62,3 +64,5 @@ void Field::SetStructuredValue(char* newValue, enum_field_types newType)
     data.type = newType;
     data.raw = false;
 }
+
+#endif

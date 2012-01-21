@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _SQLOPERATION_H
 #define _SQLOPERATION_H
 
@@ -70,5 +72,7 @@ class SQLOperation : public ACE_Method_Request
 
         MySQLConnection* m_conn;
 };
+
+#endif
 
 #endif

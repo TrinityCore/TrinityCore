@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "MySQLConnection.h"
 #include "QueryHolder.h"
 #include "PreparedStatement.h"
@@ -191,3 +193,5 @@ bool SQLQueryHolderTask::Execute()
     m_result.set(m_holder);
     return true;
 }
+
+#endif

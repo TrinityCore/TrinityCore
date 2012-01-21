@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _WORLDDATABASE_H
 #define _WORLDDATABASE_H
 
@@ -85,3 +87,6 @@ enum WorldDatabaseStatements
 };
 
 #endif
+
+#endif
+

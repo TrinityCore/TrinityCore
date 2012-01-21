@@ -23,6 +23,10 @@
 #include "Errors.h"
 #include "Log.h"
 
+#ifdef DO_CPPDB
+#include "cppdb/LoginDB.h"
+extern LoginDB lDb;
+#else
 #include "Field.h"
 #include "QueryResult.h"
 
@@ -41,6 +45,7 @@
 extern WorldDatabaseWorkerPool WorldDatabase;
 extern CharacterDatabaseWorkerPool CharacterDatabase;
 extern LoginDatabaseWorkerPool LoginDatabase;
+#endif
 
 #endif
 

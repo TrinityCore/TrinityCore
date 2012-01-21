@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _TRANSACTION_H
 #define _TRANSACTION_H
 
@@ -64,5 +66,7 @@ class TransactionTask : public SQLOperation
 
         SQLTransaction m_trans;
 };
+
+#endif
 
 #endif

@@ -16,6 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef QUERYRESULT_H
 #define QUERYRESULT_H
 
@@ -104,6 +106,8 @@ class PreparedResultSet
 };
 
 typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet, ACE_Null_Mutex> PreparedQueryResult;
+
+#endif
 
 #endif
 

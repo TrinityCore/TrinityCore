@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _FIELD_H
 #define _FIELD_H
 
@@ -330,3 +332,4 @@ class Field
 
 #endif
 
+#endif

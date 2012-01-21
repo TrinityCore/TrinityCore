@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "PreparedStatement.h"
 #include "MySQLConnection.h"
 #include "Log.h"
@@ -416,3 +418,5 @@ bool PreparedStatementTask::Execute()
 
     return m_conn->Execute(m_stmt);
 }
+
+#endif

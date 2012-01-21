@@ -16,6 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "DatabaseEnv.h"
 #include "Log.h"
 
@@ -226,3 +228,5 @@ void PreparedResultSet::FreeBindBuffer()
     for (uint32 i = 0; i < m_fieldCount; ++i)
         free (m_rBind[i].buffer);
 }
+
+#endif

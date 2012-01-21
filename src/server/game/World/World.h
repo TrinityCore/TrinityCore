@@ -750,7 +750,11 @@ class World
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
+#ifdef DO_CPPDB
+        void _UpdateRealmCharCount(result resultCharCount);
+#else
         void _UpdateRealmCharCount(PreparedQueryResult resultCharCount);
+#endif
 
         void InitDailyQuestResetTime();
         void InitWeeklyQuestResetTime();
