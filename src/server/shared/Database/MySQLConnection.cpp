@@ -15,7 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DO_POSTGRESQL
+#ifndef DO_CPPDB
 #include "Common.h"
 
 #ifdef _WIN32
@@ -540,4 +540,8 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             return false;
     }
 }
+<<<<<<< HEAD
+
+=======
+>>>>>>> 06d6ddc67b6ea84f03428f57302ea6d51ad76598
 #endif

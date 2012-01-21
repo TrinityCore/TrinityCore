@@ -16,40 +16,10 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "DatabaseEnv.h"
 #include "Log.h"
-
-#ifdef DO_POSTGRESQL
-/*bool ResultSet::NextRow()
-{
-    MYSQL_ROW row;
-
-    if (!m_result)
-        return false;
-
-    row = mysql_fetch_row(m_result);
-    if (!row)
-    {
-        CleanUp();
-        return false;
-    }
-
-    for (uint32 i = 0; i < m_fieldCount; i++)
-        m_currentRow[i].SetStructuredValue(row[i], m_fields[i].type);
-
-    return true;
-}*/
-
-bool PreparedResultSet::NextRow()
-{
-    /// Only updates the m_rowPosition so upper level code knows in which element
-    /// of the rows vector to look
-    if (++m_rowPosition >= m_rowCount)
-        return false;
-
-    return true;
-}
-#else
 
 ResultSet::ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount) :
 m_rowCount(rowCount),
@@ -254,9 +224,3 @@ void PreparedResultSet::FreeBindBuffer()
 }
 
 #endif
-
-PreparedResultSet::~PreparedResultSet()
-{
-    for (uint32 i = 0; i < uint32(m_rowCount); ++i)
-        delete[] m_rows[i];
-}

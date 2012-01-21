@@ -15,7 +15,11 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+<<<<<<< HEAD
+#ifndef DO_CPPDB
+=======
 #ifndef DO_POSTGRESQL
+>>>>>>> 06d6ddc67b6ea84f03428f57302ea6d51ad76598
 
 #include <ace/Activation_Queue.h>
 

@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _PREPAREDSTATEMENT_H
 #define _PREPAREDSTATEMENT_H
 
@@ -201,4 +203,10 @@ class PreparedStatementTask : public SQLOperation
         bool m_has_result;
         PreparedQueryResultFuture m_result;
 };
+<<<<<<< HEAD
+
+#endif
+
+=======
+>>>>>>> 06d6ddc67b6ea84f03428f57302ea6d51ad76598
 #endif

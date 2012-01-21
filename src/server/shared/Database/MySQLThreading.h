@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _MYSQLTHREADING_H
 #define _MYSQLTHREADING_H
 
@@ -60,3 +62,8 @@ class MySQL
 };
 
 #endif
+<<<<<<< HEAD
+
+#endif
+=======
+>>>>>>> 06d6ddc67b6ea84f03428f57302ea6d51ad76598
