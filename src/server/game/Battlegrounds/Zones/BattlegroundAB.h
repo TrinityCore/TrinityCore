@@ -181,6 +181,8 @@ enum BG_AB_Objectives
 #define BG_AB_NotABBGWeekendReputationTicks 200
 #define BG_AB_ABBGWeekendReputationTicks    150
 
+#define AB_EVENT_START_BATTLE               9158 // Achievement: Let's Get This Done
+
 // x, y, z, o
 const float BG_AB_NodePositions[BG_AB_DYNAMIC_NODES_COUNT][4] = {
     {1166.785f, 1200.132f, -56.70859f, 0.9075713f},         // stables
