@@ -484,10 +484,7 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
             GetPlayer()->SetMover(mover);
             if (mover != GetPlayer() && mover->canFly())
             {
-                WorldPacket data(SMSG_MOVE_SPLINE_SET_FLYING, 12);
-                data.append(mover->GetPackGUID());
-                data << uint32(0);
-                SendPacket(&data);
+                GetPlayer()->SendSetFlyPacket(true);
             }
         }
         else
