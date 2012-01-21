@@ -21,8 +21,25 @@
 #define _CHARACTERDATABASE_H
 
 #include "DatabaseWorkerPool.h"
-#include "MySQLConnection.h"
 
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#else
+#include "MySQLConnection.h"
+#endif
+
+#ifdef DO_POSTGRESQL
+class CharacterDatabaseConnection : public PgSQLConnection
+{
+    public:
+        //- Constructors for sync and async connections
+        CharacterDatabaseConnection(PgSQLConnectionInfo& connInfo) : PgSQLConnection(connInfo) {}
+        CharacterDatabaseConnection(ACE_Activation_Queue* q, PgSQLConnectionInfo& connInfo) : PgSQLConnection(q, connInfo) {}
+
+        //- Loads database type specific prepared statements
+        void DoPrepareStatements();
+};
+#else
 class CharacterDatabaseConnection : public MySQLConnection
 {
     public:
@@ -33,6 +50,7 @@ class CharacterDatabaseConnection : public MySQLConnection
         //- Loads database type specific prepared statements
         void DoPrepareStatements();
 };
+#endif
 
 typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
 

@@ -42,11 +42,7 @@ void StopDB();
 
 bool stopEvent = false;                                     // Setting it to true stops the server
 
-#ifdef DO_CPPDB
-LoginDB lDb;
-#else
 LoginDatabaseWorkerPool LoginDatabase;                      // Accessor to the auth server database
-#endif
 
 // Handle authserver's termination signals
 class AuthServerSignalHandler : public Trinity::SignalHandler
@@ -236,11 +232,7 @@ extern int main(int argc, char **argv)
         {
             loopCounter = 0;
             sLog->outDetail("Ping MySQL to keep connection alive");
-#ifdef DO_CPPDB
-            //TODO Fil
-#else
             LoginDatabase.KeepAlive();
-#endif
         }
     }
 
@@ -254,17 +246,11 @@ extern int main(int argc, char **argv)
 // Initialize connection to the database
 bool StartDB()
 {
-#ifdef DO_CPPDB
-    std::string dbstring = ConfigMgr::GetStringDefault("CppDBLoginDatabaseInfo", "");
-    if (dbstring.empty())
-    {
-        sLog->outError("Database not specified");
-        return false;
-    }
-    lDb.OpenConnection(dbstring);
+#ifdef DO_POSTGRESQL
+    PgSQL::Library_Init();
 #else
     MySQL::Library_Init();
-
+#endif
     std::string dbstring = ConfigMgr::GetStringDefault("LoginDatabaseInfo", "");
     if (dbstring.empty())
     {
@@ -292,16 +278,16 @@ bool StartDB()
         sLog->outError("Cannot connect to database");
         return false;
     }
-#endif
+
     return true;
 }
 
 void StopDB()
 {
-#ifdef DO_CPPDB
-    lDb.CloseConnection();
-#else
     LoginDatabase.Close();
+#ifdef DO_POSTGRESQL
+    PgSQL::Library_End();
+#else
     MySQL::Library_End();
 #endif
 }

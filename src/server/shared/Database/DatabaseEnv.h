@@ -32,9 +32,14 @@ extern CharacterDB cDb;
 extern LoginDB lDb;
 #else
 #include "Field.h"
-#include "QueryResult.h"
 
+#ifdef DO_POSTGRESQL
+#include "PgSQLThreading.h"
+#else
 #include "MySQLThreading.h"
+#endif
+
+#include "QueryResult.h"
 #include "Transaction.h"
 
 #define _LIKE_           "LIKE"

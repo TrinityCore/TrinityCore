@@ -1,26 +1,9 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-#ifndef _MYSQLTHREADING_H
-#define _MYSQLTHREADING_H
+#ifndef PGSQLTHREADING_H_INCLUDED
+#define PGSQLTHREADING_H_INCLUDED
 
 #include "Log.h"
 
-class MySQL
+class PgSQL
 {
     public:
         /*! Create a thread on the MySQL server to mirrior the calling thread,
@@ -32,7 +15,8 @@ class MySQL
         */
         static void Thread_Init()
         {
-            mysql_thread_init();
+            //TODO Fil
+            //mysql_thread_init();
             sLog->outSQLDriver("Core thread with ID ["UI64FMTD"] initializing MySQL thread.",
                     (uint64)ACE_Based::Thread::currentId());
         }
@@ -43,20 +27,23 @@ class MySQL
         */
         static void Thread_End()
         {
-            mysql_thread_end();
+            //TODO Fil
+            //mysql_thread_end();
             sLog->outSQLDriver("Core thread with ID ["UI64FMTD"] shutting down MySQL thread.",
                 (uint64)ACE_Based::Thread::currentId());
         }
 
         static void Library_Init()
         {
-            mysql_library_init(-1, NULL, NULL);
+            //TODO Fil
+            //mysql_library_init(-1, NULL, NULL);
         }
 
         static void Library_End()
         {
-            mysql_library_end();
+            //TODO Fil
+            //mysql_library_end();
         }
 };
 
-#endif
+#endif // PGSQLTHREADING_H_INCLUDED

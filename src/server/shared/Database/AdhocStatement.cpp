@@ -18,7 +18,11 @@
 #ifndef DO_CPPDB
 
 #include "AdhocStatement.h"
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#else
 #include "MySQLConnection.h"
+#endif
 
 /*! Basic, ad-hoc queries. */
 BasicStatementTask::BasicStatementTask(const char* sql) :

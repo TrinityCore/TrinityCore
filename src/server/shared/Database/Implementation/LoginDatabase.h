@@ -21,8 +21,26 @@
 #define _LOGINDATABASE_H
 
 #include "DatabaseWorkerPool.h"
-#include "MySQLConnection.h"
 
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#else
+#include "MySQLConnection.h"
+#endif
+
+
+#ifdef DO_POSTGRESQL
+class LoginDatabaseConnection : public PgSQLConnection
+{
+    public:
+        //- Constructors for sync and async connections
+        LoginDatabaseConnection(PgSQLConnectionInfo& connInfo) : PgSQLConnection(connInfo) {}
+        LoginDatabaseConnection(ACE_Activation_Queue* q, PgSQLConnectionInfo& connInfo) : PgSQLConnection(q, connInfo) {}
+
+        //- Loads database type specific prepared statements
+        void DoPrepareStatements();
+};
+#else
 class LoginDatabaseConnection : public MySQLConnection
 {
     public:
@@ -33,6 +51,7 @@ class LoginDatabaseConnection : public MySQLConnection
         //- Loads database type specific prepared statements
         void DoPrepareStatements();
 };
+#endif
 
 typedef DatabaseWorkerPool<LoginDatabaseConnection> LoginDatabaseWorkerPool;
 

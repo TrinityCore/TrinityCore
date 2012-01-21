@@ -18,7 +18,11 @@
 #ifndef DO_CPPDB
 
 #include "PreparedStatement.h"
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#else
 #include "MySQLConnection.h"
+#endif
 #include "Log.h"
 
 PreparedStatement::PreparedStatement(uint32 index) :
@@ -185,6 +189,10 @@ void PreparedStatement::setString(const uint8 index, const std::string& value)
     statement_data[index].type = TYPE_STRING;
 }
 
+
+#ifdef DO_POSTGRESQL
+    // TODO Fil
+#else
 MySQLPreparedStatement::MySQLPreparedStatement(MYSQL_STMT* stmt) :
 m_Mstmt(stmt),
 m_bind(NULL)
@@ -381,6 +389,8 @@ std::string MySQLPreparedStatement::getQueryString(const char *query)
 
     return queryString;
 }
+
+#endif
 
 //- Execution
 PreparedStatementTask::PreparedStatementTask(PreparedStatement* stmt) :

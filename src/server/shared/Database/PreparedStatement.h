@@ -15,8 +15,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef DO_CPPDB
-
 #ifndef _PREPAREDSTATEMENT_H
 #define _PREPAREDSTATEMENT_H
 
@@ -63,15 +61,24 @@ struct PreparedStatementData
     std::string str;
 };
 
+#ifdef DO_POSTGRESQL
+class PgSQLPreparedStatement;
+#else
 //- Forward declare
 class MySQLPreparedStatement;
+#endif
 
 //- Upper-level class that is used in code
 class PreparedStatement
 {
     friend class PreparedStatementTask;
+#ifdef DO_POSTGRESQL
+    friend class PgSQLPreparedStatement;
+    friend class PgSQLConnection;
+#else
     friend class MySQLPreparedStatement;
     friend class MySQLConnection;
+#endif
 
     public:
         explicit PreparedStatement(uint32 index);
@@ -94,11 +101,45 @@ class PreparedStatement
         void BindParameters();
 
     protected:
+#ifdef DO_POSTGRESQL
+        PgSQLPreparedStatement* m_stmt;
+#else
         MySQLPreparedStatement* m_stmt;
+#endif
         uint32 m_index;
         std::vector<PreparedStatementData> statement_data;    //- Buffer of parameters, not tied to MySQL in any way yet
 };
 
+
+#ifdef DO_POSTGRESQL
+class PgSQLPreparedStatement
+{
+    friend class PgSQLConnection;
+    friend class PreparedStatement;
+
+    public:
+        //PGSQLPreparedStatement(const char* stmt);
+        ~PgSQLPreparedStatement();
+
+        void setBool(const uint8 index, const bool value);
+        void setUInt8(const uint8 index, const uint8 value);
+        void setUInt16(const uint8 index, const uint16 value);
+        void setUInt32(const uint8 index, const uint32 value);
+        void setUInt64(const uint8 index, const uint64 value);
+        void setInt8(const uint8 index, const int8 value);
+        void setInt16(const uint8 index, const int16 value);
+        void setInt32(const uint8 index, const int32 value);
+        void setInt64(const uint8 index, const int64 value);
+        void setFloat(const uint8 index, const float value);
+        void setDouble(const uint8 index, const double value);
+        void setString(const uint8 index, const char* value);
+    protected:
+        char* GetSTMT() { return m_Mstmt; }
+        PreparedStatement* m_stmt;
+    private:
+        char* m_Mstmt;
+};
+#else
 //- Class of which the instances are unique per MySQLConnection
 //- access to these class objects is only done when a prepared statement task
 //- is executed.
@@ -141,6 +182,7 @@ class MySQLPreparedStatement
         std::vector<bool> m_paramsSet;
         MYSQL_BIND* m_bind;
 };
+#endif
 
 typedef ACE_Future<PreparedQueryResult> PreparedQueryResultFuture;
 
@@ -159,7 +201,4 @@ class PreparedStatementTask : public SQLOperation
         bool m_has_result;
         PreparedQueryResultFuture m_result;
 };
-
-#endif
-
 #endif

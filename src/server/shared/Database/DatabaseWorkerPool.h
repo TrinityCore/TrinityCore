@@ -24,7 +24,12 @@
 
 #include "Common.h"
 #include "Callback.h"
+
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#else
 #include "MySQLConnection.h"
+#endif
 #include "Transaction.h"
 #include "DatabaseWorker.h"
 #include "PreparedStatement.h"
@@ -59,8 +64,11 @@ class DatabaseWorkerPool
         {
             memset(m_connectionCount, 0, sizeof(m_connectionCount));
             m_connections.resize(IDX_SIZE);
-
+#ifdef DO_POSTGRESQL
+//TODO Fil
+#else
             WPFatal (mysql_thread_safe(), "Used MySQL library isn't thread-safe.");
+#endif
         }
 
         ~DatabaseWorkerPool()
@@ -70,7 +78,11 @@ class DatabaseWorkerPool
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
         {
             bool res = true;
+#ifdef DO_POSTGRESQL
+            m_connectionInfo = PgSQLConnectionInfo(infoString);
+#else
             m_connectionInfo = MySQLConnectionInfo(infoString);
+#endif
 
             sLog->outSQLDriver("Opening databasepool '%s'. Async threads: %u, synch threads: %u", m_connectionInfo.database.c_str(), async_threads, synch_threads);
 
@@ -210,6 +222,37 @@ class DatabaseWorkerPool
             Synchronous query (with resultset) methods.
         */
 
+#ifdef DO_POSTGRESQL
+        QueryResult Query(const char* sql, PgSQLConnection* conn = NULL)
+        {
+            if (!conn)
+                conn = GetFreeConnection();
+
+            ResultSet* result = conn->Query(sql);
+            conn->Unlock();
+            if (!result || !result->GetRowCount())
+                return QueryResult(NULL);
+
+            result->NextRow();
+            return QueryResult(result);
+        }
+
+        //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
+        //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
+        QueryResult PQuery(const char* sql, PgSQLConnection* conn, ...)
+        {
+            if (!sql)
+                return QueryResult(NULL);
+
+            va_list ap;
+            char szQuery[MAX_QUERY_LEN];
+            va_start(ap, sql);
+            vsnprintf(szQuery, MAX_QUERY_LEN, sql, ap);
+            va_end(ap);
+
+            return Query(szQuery, conn);
+        }
+#else
         //! Directly executes an SQL query in string format that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
         QueryResult Query(const char* sql, MySQLConnection* conn = NULL)
@@ -241,6 +284,7 @@ class DatabaseWorkerPool
 
             return Query(szQuery, conn);
         }
+#endif
 
         //! Directly executes an SQL query in string format -with variable args- that will block the calling thread until finished.
         //! Returns reference counted auto pointer, no need for manual memory management in upper level code.
@@ -359,7 +403,12 @@ class DatabaseWorkerPool
         //! were appended to the transaction will be respected during execution.
         void DirectCommitTransaction(SQLTransaction& transaction)
         {
+#ifdef DO_POSTGRESQL
+            PgSQLConnection* con = GetFreeConnection();
+#else
             MySQLConnection* con = GetFreeConnection();
+#endif
+
             if (con->ExecuteTransaction(transaction))
             {
                 con->Unlock();      // OK, operation succesful
@@ -486,7 +535,11 @@ class DatabaseWorkerPool
         ACE_Activation_Queue*           m_queue;             //! Queue shared by async worker threads.
         std::vector< std::vector<T*> >  m_connections;
         uint32                          m_connectionCount[2];       //! Counter of MySQL connections;
+#ifdef DO_POSTGRESQL
+        PgSQLConnectionInfo             m_connectionInfo;
+#else
         MySQLConnectionInfo             m_connectionInfo;
+#endif
 };
 
 #endif

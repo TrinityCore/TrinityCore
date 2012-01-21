@@ -21,7 +21,13 @@
 
 #include "DBCFileLoader.h"
 #include "Logging/Log.h"
+
+#ifdef DO_POSTGRESQL
+#include "PGField.h"
+#else
 #include "Field.h"
+#endif
+
 #include "DatabaseWorkerPool.h"
 #include "Implementation/WorldDatabase.h"
 #include "DatabaseEnv.h"
