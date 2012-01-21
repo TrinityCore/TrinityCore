@@ -50,6 +50,8 @@ class Battleground;
 #define BG_AV_KILL_SURVIVING_CAPTAIN    2
 #define BG_AV_REP_SURVIVING_CAPTAIN     125
 
+#define AV_EVENT_START_BATTLE           9166 // Achievement: The Alterac Blitz
+
 enum BG_AV_Sounds
 { //TODO: get out if there comes a sound when neutral team captures mine
 
