@@ -2850,14 +2850,7 @@ void AuraEffect::HandleAuraAllowFlight(AuraApplication const* aurApp, uint8 mode
     if (Player* player = target->m_movedPlayer)
     {
         // allow flying
-        WorldPacket data;
-        if (apply)
-            data.Initialize(SMSG_MOVE_SPLINE_SET_FLYING, 12);
-        else
-            data.Initialize(SMSG_MOVE_SPLINE_UNSET_FLYING, 12);
-        data.append(target->GetPackGUID());
-        data << uint32(0);                                      // unk
-        player->SendDirectMessage(&data);
+        player->SendSetFlyPacket(apply);
     }
 }
 
@@ -3247,16 +3240,7 @@ void AuraEffect::HandleAuraModIncreaseFlightSpeed(AuraApplication const* aurApp,
         if (mode & AURA_EFFECT_HANDLE_SEND_FOR_CLIENT_MASK && (apply || (!target->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !target->HasAuraType(SPELL_AURA_FLY))))
         {
             if (Player* player = target->m_movedPlayer)
-            {
-                WorldPacket data;
-                if (apply)
-                    data.Initialize(SMSG_MOVE_SPLINE_SET_FLYING, 12);
-                else
-                    data.Initialize(SMSG_MOVE_SPLINE_UNSET_FLYING, 12);
-                data.append(player->GetPackGUID());
-                data << uint32(0);                                      // unknown
-                player->SendDirectMessage(&data);
-            }
+                player->SendSetFlyPacket(apply);
         }
 
         if (mode & AURA_EFFECT_HANDLE_REAL)
