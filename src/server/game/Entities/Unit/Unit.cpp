@@ -13686,42 +13686,64 @@ void Unit::SetMaxHealth(uint32 val)
 
 uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 {
-    ChrClassesEntry const* m_class = sChrClassesStore.LookupEntry(classId);
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classId);
 
-    ASSERT(m_class && "Class not found");
+    ASSERT(classEntry && "Class not found");
 
     uint32 index = 0;
-
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); i++)
+    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
     {
-        ChrPowerTypesEntry const* cEntry = sChrPowerTypesStore.LookupEntry(i);
-
-        if (!cEntry)
+        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
+        if (!powerEntry)
             continue;
 
-        if (classId != cEntry->classId)
+        if (powerEntry->classId != classId)
             continue;
 
-        if (powerId == cEntry->power)
+        if (powerEntry->power == powerId)
             return index;
 
-        index++;
+        ++index;
     }
-    return 0;
+
+    // return invalid value - this class doesn't use this power
+    return MAX_POWERS;
 };
+
+int32 Unit::GetPower(Powers power) const
+{
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
+        return 0;
+
+    return GetUInt32Value(UNIT_FIELD_POWER1 + powerIndex);
+}
+
+uint32 Unit::GetMaxPower(Powers power) const
+{
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
+        return 0;
+
+    return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
+}
 
 void Unit::SetPower(Powers power, int32 val)
 {
-    uint32 maxPower = GetMaxPower(power);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
+        return;
+
+    int32 maxPower = int32(GetMaxPower(power));
     if (maxPower < val)
         val = maxPower;
 
-    SetStatInt32Value(UNIT_FIELD_POWER1 + GetPowerIndexByClass(power, getClass()), val);
+    SetStatInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
 
     WorldPacket data(SMSG_POWER_UPDATE);
     data.append(GetPackGUID());
     data << uint32(1);//unk
-    data << uint8(GetPowerIndexByClass(power, getClass()));
+    data << uint8(powerIndex);
     data << int32(val);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 
@@ -13744,8 +13766,12 @@ void Unit::SetPower(Powers power, int32 val)
 
 void Unit::SetMaxPower(Powers power, int32 val)
 {
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
+        return;
+
     int32 cur_power = GetPower(power);
-    SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + power, val);
+    SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex, val);
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)
