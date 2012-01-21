@@ -11958,11 +11958,11 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 player->UnsummonPetTemporaryIfAny();
         }
 
-        /*WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, GetPackGUID().size() + 4 + 4);
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, GetPackGUID().size() + 4 + 4);
         data.append(GetPackGUID());
         data << uint32(sWorld->GetGameTime());   // Packet counter
         data << player->GetCollisionHeight(true);
-        player->GetSession()->SendPacket(&data);*/
+        player->GetSession()->SendPacket(&data);
     }
 
     RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_MOUNT);
@@ -12657,7 +12657,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(bytes[5]);
                 data.WriteByteSeq(bytes[0]);
                 data.WriteByteSeq(bytes[1]);
-                
+
                 data << float(GetSpeed(mtype));
                 break;
             case MOVE_RUN_BACK:
