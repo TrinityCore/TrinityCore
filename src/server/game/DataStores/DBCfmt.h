@@ -42,7 +42,7 @@ const char ChrClassesXPowerTypesfmt[]="nii";
 
 const char CinematicSequencesEntryfmt[]="nxxxxxxxxx";
 const char CreatureDisplayInfofmt[]="nixxfxxxxxxxxxxxx";
-const char CreatureModelDatafmt[]="nxxxxxxxxxxxxxffxxxxxxxxxxxx";
+const char CreatureModelDatafmt[]="nxxxxxxxxxxxxxffxxxxxxxxxxxxxxx";
 const char CreatureFamilyfmt[]="nfifiiiiixsx";
 const char CreatureSpellDatafmt[]="niiiixxxx";
 const char CreatureTypefmt[]="nxx";
