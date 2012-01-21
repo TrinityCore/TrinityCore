@@ -23,10 +23,23 @@
 #include "Errors.h"
 #include "Log.h"
 
+#ifdef DO_CPPDB
+#include "cppdb/WorldDB.h"
+#include "cppdb/CharacterDB.h"
+#include "cppdb/LoginDB.h"
+extern WorldDB wDb;
+extern CharacterDB cDb;
+extern LoginDB lDb;
+#else
 #include "Field.h"
-#include "QueryResult.h"
 
+#ifdef DO_POSTGRESQL
+#include "PgSQLThreading.h"
+#else
 #include "MySQLThreading.h"
+#endif
+
+#include "QueryResult.h"
 #include "Transaction.h"
 
 #define _LIKE_           "LIKE"
@@ -41,6 +54,7 @@
 extern WorldDatabaseWorkerPool WorldDatabase;
 extern CharacterDatabaseWorkerPool CharacterDatabase;
 extern LoginDatabaseWorkerPool LoginDatabase;
+#endif
 
 #endif
 

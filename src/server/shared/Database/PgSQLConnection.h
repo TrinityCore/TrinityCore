@@ -1,25 +1,3 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-<<<<<<< HEAD
-#ifndef DO_CPPDB
-=======
-#ifndef DO_POSTGRESQL
->>>>>>> 06d6ddc67b6ea84f03428f57302ea6d51ad76598
 
 #include <ace/Activation_Queue.h>
 
@@ -27,12 +5,12 @@
 #include "Transaction.h"
 #include "Util.h"
 
-#ifndef _MYSQLCONNECTION_H
-#define _MYSQLCONNECTION_H
+#ifndef POSTGRESQLCONNECTION_H_INCLUDED
+#define POSTGRESQLCONNECTION_H_INCLUDED
 
 class DatabaseWorker;
 class PreparedStatement;
-class MySQLPreparedStatement;
+class PgSQLPreparedStatement;
 class PingOperation;
 
 enum ConnectionFlags
@@ -42,10 +20,10 @@ enum ConnectionFlags
     CONNECTION_BOTH = CONNECTION_ASYNC | CONNECTION_SYNCH,
 };
 
-struct MySQLConnectionInfo
+struct PgSQLConnectionInfo
 {
-    MySQLConnectionInfo() {}
-    MySQLConnectionInfo(const std::string& infoString)
+    PgSQLConnectionInfo() {}
+    PgSQLConnectionInfo(const std::string& infoString)
     {
         Tokens tokens(infoString, ';');
 
@@ -79,15 +57,15 @@ typedef std::map<uint32 /*index*/, std::pair<const char* /*query*/, ConnectionFl
 
 #define PREPARE_STATEMENT(a, b, c) m_queries[a] = std::make_pair(strdup(b), c);
 
-class MySQLConnection
+class PgSQLConnection
 {
     template <class T> friend class DatabaseWorkerPool;
     friend class PingOperation;
 
     public:
-        MySQLConnection(MySQLConnectionInfo& connInfo);                               //! Constructor for synchronous connections.
-        MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo);  //! Constructor for asynchronous connections.
-        virtual ~MySQLConnection();
+        PgSQLConnection(PgSQLConnectionInfo& connInfo);                               //! Constructor for synchronous connections.
+        PgSQLConnection(ACE_Activation_Queue* queue, PgSQLConnectionInfo& connInfo);  //! Constructor for asynchronous connections.
+        virtual ~PgSQLConnection();
 
         virtual bool Open();
         void Close();
@@ -97,18 +75,18 @@ class MySQLConnection
         bool Execute(PreparedStatement* stmt);
         ResultSet* Query(const char* sql);
         PreparedResultSet* Query(PreparedStatement* stmt);
-        bool _Query(const char *sql, MYSQL_RES **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);
-        bool _Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount);
+/*        bool _Query(const char *sql, PGresult **pResult, MYSQL_FIELD **pFields, uint64* pRowCount, uint32* pFieldCount);*/
+        bool _Query(PreparedStatement* stmt, PGresult **pResult, uint64* pRowCount, uint32* pFieldCount);
 
         void BeginTransaction();
         void RollbackTransaction();
         void CommitTransaction();
         bool ExecuteTransaction(SQLTransaction& transaction);
 
-        operator bool () const { return m_Mysql != NULL; }
-        void Ping() { mysql_ping(m_Mysql); }
+        operator bool () const { return m_Postgres != NULL; }
+        void Ping() { /*pg_ping(m_Postgres);*/ } //TODO Fil
 
-        uint32 GetLastError() { return mysql_errno(m_Mysql); }
+        uint32 GetLastError() { return 0; /*pg_last_error(m_Postgres);*/ } //TODO Fil
 
     protected:
         bool LockIfReady()
@@ -123,16 +101,20 @@ class MySQLConnection
             /// Called by parent databasepool. Will let other threads access this connection
             m_Mutex.release();
         }
-
-        MYSQL* GetHandle()  { return m_Mysql; }
-        MySQLPreparedStatement* GetPreparedStatement(uint32 index);
-        void PrepareStatement(uint32 index, const char* sql, ConnectionFlags flags);
+/*
+        MYSQL* GetHandle()  { return m_Mysql; }*/
+        PgSQLPreparedStatement* GetPreparedStatement(uint32 index);
+/*        void PrepareStatement(uint32 index, const char* sql, ConnectionFlags flags);
 
         bool PrepareStatements();
         virtual void DoPrepareStatements() = 0;
-
+*/
     protected:
+#ifdef DO_POSTGRESQL
+        std::vector<PgSQLPreparedStatement*> m_stmts;
+#else
         std::vector<MySQLPreparedStatement*> m_stmts;         //! PreparedStatements storage
+#endif
         PreparedStatementMap                 m_queries;       //! Query storage
         bool                                 m_reconnecting;  //! Are we reconnecting?
         bool                                 m_prepareError;  //! Was there any error while preparing statements?
@@ -143,12 +125,14 @@ class MySQLConnection
     private:
         ACE_Activation_Queue* m_queue;                      //! Queue shared with other asynchronous connections.
         DatabaseWorker*       m_worker;                     //! Core worker task.
-        MYSQL *               m_Mysql;                      //! MySQL Handle.
+        PGconn *              m_Postgres;                      //! MySQL Handle.
+#ifdef DO_POSTGRESQL
+        PgSQLConnectionInfo&  m_connectionInfo;
+#else
         MySQLConnectionInfo&  m_connectionInfo;             //! Connection info (used for logging)
+#endif
         ConnectionFlags       m_connectionFlags;            //! Connection flags (for preparing relevant statements)
         ACE_Thread_Mutex      m_Mutex;
 };
 
-#endif
-
-#endif
+#endif // POSTGRESQLCONNECTION_H_INCLUDED

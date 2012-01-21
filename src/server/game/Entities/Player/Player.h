@@ -1113,9 +1113,11 @@ class Player : public Unit, public GridObject<Player>
         bool Create(uint32 guidlow, CharacterCreateInfo* createInfo);
 
         void Update(uint32 time);
+#ifdef DO_CPPDB
 
+#else
         static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
-
+#endif
         void SetInWater(bool apply);
 
         bool IsInWater() const { return m_isInWater; }
@@ -1519,7 +1521,11 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
+#ifdef DO_CPPDB
+        //TODO Fil
+#else
         bool LoadFromDB(uint32 guid, SQLQueryHolder *holder);
+#endif
         bool isBeingLoaded() const { return GetSession()->PlayerLoading();}
 
         void Initialize(uint32 guid);
@@ -1536,8 +1542,12 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
 
         void SaveToDB(bool create = false);
+#ifdef DO_CPPDB
+
+#else
         void SaveInventoryAndGoldToDB(SQLTransaction& trans);                    // fast save function for item/money cheating preventing
         void SaveGoldToDB(SQLTransaction& trans);
+#endif
 
         static void SetUInt32ValueInArray(Tokens& data, uint16 index, uint32 value);
         static void SetFloatValueInArray(Tokens& data, uint16 index, float value);
@@ -1748,8 +1758,12 @@ class Player : public Unit, public GridObject<Player>
         void RemoveCategoryCooldown(uint32 cat);
         void RemoveArenaSpellCooldowns(bool removeActivePetCooldowns = false);
         void RemoveAllSpellCooldown();
+#ifdef DO_CPPDB
+
+#else
         void _LoadSpellCooldowns(PreparedQueryResult result);
         void _SaveSpellCooldowns(SQLTransaction& trans);
+#endif
         void SetLastPotionId(uint32 item_id) { m_lastPotionId = item_id; }
         void UpdatePotionCooldown(Spell* spell = NULL);
 
@@ -2059,8 +2073,12 @@ class Player : public Unit, public GridObject<Player>
         bool RewardHonor(Unit* pVictim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         uint32 GetHonorPoints() const { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
         uint32 GetArenaPoints() const { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
+#ifdef DO_CPPDB
+        //TODO Fil
+#else
         void ModifyHonorPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, honor save query will be added to trans
         void ModifyArenaPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, arena point save query will be added to trans
+#endif
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
         void SetHonorPoints(uint32 value);
         void SetArenaPoints(uint32 value);
@@ -2577,14 +2595,14 @@ class Player : public Unit, public GridObject<Player>
         /***                   LOAD SYSTEM                     ***/
         /*********************************************************/
 
+#ifdef DO_CPPDB
+
+#else
         void _LoadActions(PreparedQueryResult result);
         void _LoadAuras(PreparedQueryResult result, uint32 timediff);
-        void _LoadGlyphAuras();
         void _LoadBoundInstances(PreparedQueryResult result);
         void _LoadInventory(PreparedQueryResult result, uint32 timeDiff);
         void _LoadMailInit(PreparedQueryResult resultUnread, PreparedQueryResult resultDelivery);
-        void _LoadMail();
-        void _LoadMailedItems(Mail* mail);
         void _LoadQuestStatus(PreparedQueryResult result);
         void _LoadQuestStatusRewarded(PreparedQueryResult result);
         void _LoadDailyQuestStatus(PreparedQueryResult result);
@@ -2603,11 +2621,17 @@ class Player : public Unit, public GridObject<Player>
         void _LoadGlyphs(PreparedQueryResult result);
         void _LoadTalents(PreparedQueryResult result);
         void _LoadInstanceTimeRestrictions(PreparedQueryResult result);
+#endif
+        void _LoadGlyphAuras();
+        void _LoadMail();
+        void _LoadMailedItems(Mail* mail);
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
         /*********************************************************/
+#ifdef DO_CPPDB
 
+#else
         void _SaveActions(SQLTransaction& trans);
         void _SaveAuras(SQLTransaction& trans);
         void _SaveInventory(SQLTransaction& trans);
@@ -2624,7 +2648,7 @@ class Player : public Unit, public GridObject<Player>
         void _SaveTalents(SQLTransaction& trans);
         void _SaveStats(SQLTransaction& trans);
         void _SaveInstanceTimeRestrictions(SQLTransaction& trans);
-
+#endif
         void _SetCreateBits(UpdateMask* updateMask, Player* target) const;
         void _SetUpdateBits(UpdateMask* updateMask, Player* target) const;
 
@@ -2802,8 +2826,11 @@ class Player : public Unit, public GridObject<Player>
         InventoryResult CanStoreItem_InBag(uint8 bag, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, bool non_specialized, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         InventoryResult CanStoreItem_InInventorySlots(uint8 slot_begin, uint8 slot_end, ItemPosCountVec& dest, ItemTemplate const* pProto, uint32& count, bool merge, Item* pSrcItem, uint8 skip_bag, uint8 skip_slot) const;
         Item* _StoreItem(uint16 pos, Item* pItem, uint32 count, bool clone, bool update);
-        Item* _LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields);
+#ifdef DO_CPPDB
 
+#else
+        Item* _LoadItem(SQLTransaction& trans, uint32 zoneId, uint32 timeDiff, Field* fields);
+#endif
         std::set<uint32> m_refundableItems;
         void SendRefundInfo(Item* item);
         void RefundItem(Item* item);

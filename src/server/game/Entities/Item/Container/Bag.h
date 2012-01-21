@@ -50,6 +50,9 @@ class Bag : public Item
         uint32 GetFreeSlots() const;
         uint32 GetBagSize() const { return GetUInt32Value(CONTAINER_FIELD_NUM_SLOTS); }
 
+#ifdef DO_CPPDB
+        //TODO Fil
+#else
         // DB operations
         // overwrite virtual Item::SaveToDB
         void SaveToDB(SQLTransaction& trans);
@@ -57,7 +60,7 @@ class Bag : public Item
         bool LoadFromDB(uint32 guid, uint64 owner_guid, Field* fields, uint32 entry);
         // overwrite virtual Item::DeleteFromDB
         void DeleteFromDB(SQLTransaction& trans);
-
+#endif
         void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
 
     protected:

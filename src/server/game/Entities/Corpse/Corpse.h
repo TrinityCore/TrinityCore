@@ -59,10 +59,13 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         bool Create(uint32 guidlow, Player* owner);
 
         void SaveToDB();
+#ifdef DO_CPPDB
+        //TODO Fil
+#else
         bool LoadCorpseFromDB(uint32 guid, Field* fields);
-
-        void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);
+#endif
+        void DeleteBonesFromWorld();
 
         uint64 GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
 

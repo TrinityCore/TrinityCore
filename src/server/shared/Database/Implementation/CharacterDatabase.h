@@ -15,12 +15,31 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _CHARACTERDATABASE_H
 #define _CHARACTERDATABASE_H
 
 #include "DatabaseWorkerPool.h"
-#include "MySQLConnection.h"
 
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#else
+#include "MySQLConnection.h"
+#endif
+
+#ifdef DO_POSTGRESQL
+class CharacterDatabaseConnection : public PgSQLConnection
+{
+    public:
+        //- Constructors for sync and async connections
+        CharacterDatabaseConnection(PgSQLConnectionInfo& connInfo) : PgSQLConnection(connInfo) {}
+        CharacterDatabaseConnection(ACE_Activation_Queue* q, PgSQLConnectionInfo& connInfo) : PgSQLConnection(q, connInfo) {}
+
+        //- Loads database type specific prepared statements
+        void DoPrepareStatements();
+};
+#else
 class CharacterDatabaseConnection : public MySQLConnection
 {
     public:
@@ -31,6 +50,7 @@ class CharacterDatabaseConnection : public MySQLConnection
         //- Loads database type specific prepared statements
         void DoPrepareStatements();
 };
+#endif
 
 typedef DatabaseWorkerPool<CharacterDatabaseConnection> CharacterDatabaseWorkerPool;
 
@@ -351,11 +371,13 @@ enum CharacterDatabaseStatements
     CHAR_DEL_CHARACTER_SOCIAL,
     CHAR_UPD_CHARACTER_SOCIAL_NOTE,
     CHAR_UPD_CHARACTER_POSITION,
-    
+
     CHAR_INS_LFG_DATA,
     CHAR_DEL_LFG_DATA,
 
     MAX_CHARACTERDATABASE_STATEMENTS,
 };
+
+#endif
 
 #endif

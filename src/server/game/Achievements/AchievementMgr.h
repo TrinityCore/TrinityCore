@@ -251,8 +251,13 @@ class AchievementMgr
 
         void Reset();
         static void DeleteFromDB(uint32 lowguid);
+#ifdef DO_CPPDB
+        void LoadFromDB(result achievementResult, result criteriaResult);
+        void SaveToDB(statement trans);
+#else
         void LoadFromDB(PreparedQueryResult achievementResult, PreparedQueryResult criteriaResult);
         void SaveToDB(SQLTransaction& trans);
+#endif
         void ResetAchievementCriteria(AchievementCriteriaTypes type, uint32 miscvalue1 = 0, uint32 miscvalue2 = 0, bool evenIfCriteriaComplete = false);
         void UpdateAchievementCriteria(AchievementCriteriaTypes type, uint32 miscValue1 = 0, uint32 miscValue2 = 0, Unit* unit = NULL);
         void CompletedAchievement(AchievementEntry const* entry);

@@ -186,11 +186,15 @@ class Pet : public Guardian
         bool IsPetAura(Aura const* aura);
 
         void _LoadSpellCooldowns();
+#ifdef DO_CPPDB
+        //TODO Fil
+#else
         void _SaveSpellCooldowns(SQLTransaction& trans);
-        void _LoadAuras(uint32 timediff);
-        void _SaveAuras(SQLTransaction& trans);
-        void _LoadSpells();
         void _SaveSpells(SQLTransaction& trans);
+        void _SaveAuras(SQLTransaction& trans);
+#endif
+        void _LoadAuras(uint32 timediff);
+        void _LoadSpells();
 
         bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
         bool learnSpell(uint32 spell_id);

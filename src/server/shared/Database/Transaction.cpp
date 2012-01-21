@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "DatabaseEnv.h"
 #include "Transaction.h"
 
@@ -90,3 +92,5 @@ bool TransactionTask::Execute()
 
     return false;
 }
+
+#endif

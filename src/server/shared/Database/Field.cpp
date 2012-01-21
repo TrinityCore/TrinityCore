@@ -15,12 +15,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "Field.h"
 
 Field::Field()
 {
     data.value = NULL;
-    data.type = MYSQL_TYPE_NULL;
+//TODO Fil
+//    data.type = MYSQL_TYPE_NULL;
     data.length = 0;
 }
 
@@ -62,3 +65,5 @@ void Field::SetStructuredValue(char* newValue, enum_field_types newType)
     data.type = newType;
     data.raw = false;
 }
+
+#endif

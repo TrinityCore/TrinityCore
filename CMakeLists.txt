@@ -52,10 +52,13 @@ if( NOT USE_MYSQL_SOURCES )
 endif()
 
 if( UNIX )
+  find_package(CppDB REQUIRED)
   find_package(Readline)
   find_package(ZLIB)
   find_package(BZip2)
 endif()
+
+option (DO_CPPDB "" 1)
 
 # Find revision ID and hash of the sourcetree
 include(cmake/genrev.cmake)

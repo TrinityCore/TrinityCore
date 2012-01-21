@@ -15,12 +15,29 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "DatabaseEnv.h"
 #include "DatabaseWorker.h"
 #include "SQLOperation.h"
+
+#ifdef DO_POSTGRESQL
+#include "PgSQLConnection.h"
+#include "PgSQLThreading.h"
+#else
 #include "MySQLConnection.h"
 #include "MySQLThreading.h"
+#endif
 
+#ifdef DO_POSTGRESQL
+DatabaseWorker::DatabaseWorker(ACE_Activation_Queue* new_queue, PgSQLConnection* con) :
+m_queue(new_queue),
+m_conn(con)
+{
+    /// Assign thread to task
+    activate();
+}
+#else
 DatabaseWorker::DatabaseWorker(ACE_Activation_Queue* new_queue, MySQLConnection* con) :
 m_queue(new_queue),
 m_conn(con)
@@ -28,6 +45,7 @@ m_conn(con)
     /// Assign thread to task
     activate();
 }
+#endif
 
 int DatabaseWorker::svc()
 {
@@ -49,3 +67,5 @@ int DatabaseWorker::svc()
 
     return 0;
 }
+
+#endif

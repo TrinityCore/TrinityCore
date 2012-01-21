@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef _ADHOCSTATEMENT_H
 #define _ADHOCSTATEMENT_H
 
@@ -37,5 +39,7 @@ class BasicStatementTask : public SQLOperation
         bool m_has_result;
         QueryResultFuture m_result;
 };
+
+#endif
 
 #endif

@@ -15,6 +15,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "WorldDatabase.h"
 
 void WorldDatabaseConnection::DoPrepareStatements()
@@ -61,3 +63,6 @@ void WorldDatabaseConnection::DoPrepareStatements()
     PREPARE_STATEMENT(WORLD_UPD_WAYPOINT_SCRIPT_O, "UPDATE waypoint_scripts SET o = ? WHERE guid = ?", CONNECTION_ASYNC);
     PREPARE_STATEMENT(WORLD_DEL_CREATURE, "DELETE FROM creature WHERE guid = ?", CONNECTION_ASYNC);
 }
+
+#endif
+

@@ -153,8 +153,12 @@ class ArenaTeam
 
         bool IsFighting() const;
 
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
         bool LoadArenaTeamFromDB(QueryResult arenaTeamDataResult);
         bool LoadMembersFromDB(QueryResult arenaTeamMembersResult);
+#endif
         void LoadStatsFromDB(uint32 ArenaTeamId);
         void SaveToDB();
 

@@ -16,11 +16,19 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #ifndef QUERYRESULT_H
 #define QUERYRESULT_H
 
 #include <ace/Refcounted_Auto_Ptr.h>
 #include <ace/Thread_Mutex.h>
+
+#ifdef DO_POSTGRESQL
+#include <libpq-fe.h>
+#else
+#include <mysql.h>
+#endif
 
 #include "Field.h"
 #include "Log.h"
@@ -28,8 +36,61 @@
 #ifdef _WIN32
   #include <winsock2.h>
 #endif
-#include <mysql.h>
 
+
+#ifdef DO_POSTGRESQL
+class ResultSet
+{
+    public:
+        bool NextRow();
+        uint64 GetRowCount() const { return m_rowCount; }
+
+     protected:
+        uint64 m_rowCount;
+};
+
+class PreparedResultSet
+{
+    public:
+        PreparedResultSet(char* stmt, PGresult *result, uint64 rowCount, uint32 fieldCount);
+        ~PreparedResultSet();
+
+        bool NextRow();
+        uint64 GetRowCount() const { return m_rowCount; }
+        uint32 GetFieldCount() const { return m_fieldCount; }
+
+        Field* Fetch() const
+        {
+            ASSERT(m_rowPosition < m_rowCount);
+            return m_rows[uint32(m_rowPosition)];
+        }
+
+        const Field & operator [] (uint32 index) const
+        {
+            ASSERT(m_rowPosition < m_rowCount);
+            ASSERT(index < m_fieldCount);
+            return m_rows[uint32(m_rowPosition)][index];
+        }
+
+    protected:
+        uint64 m_rowCount;
+        uint64 m_rowPosition;
+        std::vector<Field*> m_rows;
+        uint32 m_fieldCount;
+/*
+    private:
+        MYSQL_BIND* m_rBind;
+        MYSQL_STMT* m_stmt;
+        MYSQL_RES* m_res;
+
+        my_bool* m_isNull;
+        unsigned long* m_length;
+
+        void FreeBindBuffer();
+        void CleanUp();
+        bool _NextRow();*/
+};
+#else
 class ResultSet
 {
     public:
@@ -57,8 +118,6 @@ class ResultSet
         MYSQL_RES *m_result;
         MYSQL_FIELD *m_fields;
 };
-
-typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Null_Mutex> QueryResult;
 
 class PreparedResultSet
 {
@@ -103,7 +162,10 @@ class PreparedResultSet
 
 };
 
+#endif
+typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Null_Mutex> QueryResult;
 typedef ACE_Refcounted_Auto_Ptr<PreparedResultSet, ACE_Null_Mutex> PreparedQueryResult;
+#endif
 
 #endif
 

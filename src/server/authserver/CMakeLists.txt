@@ -58,6 +58,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Realms
   ${CMAKE_CURRENT_SOURCE_DIR}/Server
   ${ACE_INCLUDE_DIR}
+  ${CPPDB_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}
 )
@@ -86,6 +87,7 @@ set_target_properties(authserver PROPERTIES LINK_FLAGS "${authserver_LINK_FLAGS}
 
 target_link_libraries(authserver
   shared
+  ${CPPDB_LIBRARY}
   ${MYSQL_LIBRARY}
   ${OPENSSL_LIBRARIES}
   ${OPENSSL_EXTRA_LIBRARIES}

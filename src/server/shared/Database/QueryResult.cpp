@@ -16,6 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef DO_CPPDB
+
 #include "DatabaseEnv.h"
 #include "Log.h"
 
@@ -140,12 +142,6 @@ ResultSet::~ResultSet()
     CleanUp();
 }
 
-PreparedResultSet::~PreparedResultSet()
-{
-    for (uint32 i = 0; i < uint32(m_rowCount); ++i)
-        delete[] m_rows[i];
-}
-
 bool ResultSet::NextRow()
 {
     MYSQL_ROW row;
@@ -226,3 +222,5 @@ void PreparedResultSet::FreeBindBuffer()
     for (uint32 i = 0; i < m_fieldCount; ++i)
         free (m_rBind[i].buffer);
 }
+
+#endif

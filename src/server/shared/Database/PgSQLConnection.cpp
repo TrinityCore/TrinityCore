@@ -1,30 +1,8 @@
-/*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
-
-#ifndef DO_CPPDB
+#ifdef DO_POSTGRESQL
 #include "Common.h"
 
-#ifdef _WIN32
-  #include <winsock2.h>
-#endif
-#include <mysql.h>
-
-#include "MySQLConnection.h"
-#include "MySQLThreading.h"
+#include "PgSQLConnection.h"
+#include "PgSQLThreading.h"
 #include "QueryResult.h"
 #include "SQLOperation.h"
 #include "PreparedStatement.h"
@@ -32,28 +10,30 @@
 #include "Timer.h"
 #include "Log.h"
 
-MySQLConnection::MySQLConnection(MySQLConnectionInfo& connInfo) :
+PgSQLConnection::PgSQLConnection(PgSQLConnectionInfo& connInfo) :
 m_reconnecting(false),
 m_prepareError(false),
 m_queue(NULL),
 m_worker(NULL),
-m_Mysql(NULL),
+m_Postgres(NULL),
 m_connectionInfo(connInfo),
 m_connectionFlags(CONNECTION_SYNCH)
 {
 }
 
-MySQLConnection::MySQLConnection(ACE_Activation_Queue* queue, MySQLConnectionInfo& connInfo) :
+
+PgSQLConnection::PgSQLConnection(ACE_Activation_Queue* queue, PgSQLConnectionInfo& connInfo) :
 m_reconnecting(false),
 m_prepareError(false),
 m_queue(queue),
-m_Mysql(NULL),
+m_Postgres(NULL),
 m_connectionInfo(connInfo),
 m_connectionFlags(CONNECTION_ASYNC)
 {
     m_worker = new DatabaseWorker(m_queue, this);
 }
 
+/*
 MySQLConnection::~MySQLConnection()
 {
     ASSERT (m_Mysql); /// MySQL context must be present at this point
@@ -187,15 +167,15 @@ bool MySQLConnection::Execute(const char* sql)
 
     return true;
 }
-
-bool MySQLConnection::Execute(PreparedStatement* stmt)
+*/
+bool PgSQLConnection::Execute(PreparedStatement* stmt)
 {
-    if (!m_Mysql)
+    if (!m_Postgres)
         return false;
 
     uint32 index = stmt->m_index;
     {
-        MySQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
+        PgSQLPreparedStatement* m_mStmt = GetPreparedStatement(index);
         ASSERT(m_mStmt);            // Can only be null if preparation failed, server side error or bad query
         m_mStmt->m_stmt = stmt;     // Cross reference them for debug output
         stmt->m_stmt = m_mStmt;     // TODO: Cleaner way
@@ -240,7 +220,7 @@ bool MySQLConnection::Execute(PreparedStatement* stmt)
         return true;
     }
 }
-
+/*
 bool MySQLConnection::_Query(PreparedStatement* stmt, MYSQL_RES **pResult, uint64* pRowCount, uint32* pFieldCount)
 {
     if (!m_Mysql)
@@ -476,23 +456,24 @@ void MySQLConnection::PrepareStatement(uint32 index, const char* sql, Connection
         }
     }
 }
-
-PreparedResultSet* MySQLConnection::Query(PreparedStatement* stmt)
+*/
+PreparedResultSet* PgSQLConnection::Query(PreparedStatement* stmt)
 {
-    MYSQL_RES *result = NULL;
+    PGresult *result = NULL;
     uint64 rowCount = 0;
     uint32 fieldCount = 0;
 
     if (!_Query(stmt, &result, &rowCount, &fieldCount))
         return NULL;
 
-    if (mysql_more_results(m_Mysql))
+    //TODO Fil
+    /*if (mysql_more_results(m_Mysql))
     {
         mysql_next_result(m_Mysql);
-    }
+    }*/
     return new PreparedResultSet(stmt->m_stmt->GetSTMT(), result, rowCount, fieldCount);
 }
-
+/*
 bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
 {
     switch (errNo)
@@ -539,9 +520,6 @@ bool MySQLConnection::_HandleMySQLErrno(uint32 errNo)
             sLog->outSQLDriver("Unhandled MySQL errno %u. Unexpected behaviour possible.", errNo);
             return false;
     }
-}
-<<<<<<< HEAD
+}*/
 
-=======
->>>>>>> 06d6ddc67b6ea84f03428f57302ea6d51ad76598
 #endif
