@@ -68,8 +68,12 @@ class ReputationMgr
             m_visibleFactionCount(0), m_honoredFactionCount(0), m_reveredFactionCount(0), m_exaltedFactionCount(0) {}
         ~ReputationMgr() {}
 
+#ifdef DO_CPPDB
+        //TODO Fil
+#else
         void SaveToDB(SQLTransaction& trans);
         void LoadFromDB(PreparedQueryResult result);
+#endif
     public:                                                 // statics
         static const int32 PointsInRank[MAX_REPUTATION_RANK];
         static const int32 Reputation_Cap    =  42999;

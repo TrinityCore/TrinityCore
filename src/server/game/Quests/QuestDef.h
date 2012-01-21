@@ -182,7 +182,11 @@ class Quest
 {
     friend class ObjectMgr;
     public:
+#ifdef DO_CPPDB
+        //TODO Fil
+#else
         Quest(Field* questRecord);
+#endif
         uint32 XPValue(Player* player) const;
 
         bool HasFlag(uint32 flag) const { return (Flags & flag) != 0; }

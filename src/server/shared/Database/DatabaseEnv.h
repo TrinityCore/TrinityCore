@@ -24,7 +24,11 @@
 #include "Log.h"
 
 #ifdef DO_CPPDB
+#include "cppdb/WorldDB.h"
+#include "cppdb/CharacterDB.h"
 #include "cppdb/LoginDB.h"
+extern WorldDB wDb;
+extern CharacterDB cDb;
 extern LoginDB lDb;
 #else
 #include "Field.h"

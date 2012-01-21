@@ -37,6 +37,9 @@ AccountOpResult CreateAccount(std::string username, std::string password)
     if (GetId(username))
         return AOR_NAME_ALREDY_EXIST;                       // username does already exist
 
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT);
 
     stmt->setString(0, username);
@@ -47,12 +50,15 @@ AccountOpResult CreateAccount(std::string username, std::string password)
     stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_REALM_CHARACTERS_INIT);
 
     LoginDatabase.Execute(stmt);
-
+#endif
     return AOR_OK;                                          // everything's fine
 }
 
 AccountOpResult DeleteAccount(uint32 accountId)
 {
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     QueryResult result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accountId);
     if (!result)
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
@@ -93,12 +99,15 @@ AccountOpResult DeleteAccount(uint32 accountId)
     trans->PAppend("DELETE FROM realmcharacters WHERE acctid='%d'", accountId);
 
     LoginDatabase.CommitTransaction(trans);
-
+#endif
     return AOR_OK;
 }
 
 AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::string newPassword)
 {
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     QueryResult result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d'", accountId);
     if (!result)
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
@@ -119,7 +128,7 @@ AccountOpResult ChangeUsername(uint32 accountId, std::string newUsername, std::s
     stmt->setUInt32(2, accountId);
 
     LoginDatabase.Execute(stmt);
-
+#endif
     return AOR_OK;
 }
 
@@ -136,46 +145,64 @@ AccountOpResult ChangePassword(uint32 accountId, std::string newPassword)
     normalizeString(username);
     normalizeString(newPassword);
 
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_PASSWORD);
 
     stmt->setString(0, CalculateShaPassHash(username, newPassword));
     stmt->setUInt32(1, accountId);
 
     LoginDatabase.Execute(stmt);
-
+#endif
     return AOR_OK;
 }
 
 uint32 GetId(std::string username)
 {
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     LoginDatabase.EscapeString(username);
     QueryResult result = LoginDatabase.PQuery("SELECT id FROM account WHERE username = '%s'", username.c_str());
     return (result) ? (*result)[0].GetUInt32() : 0;
+#endif
 }
 
 uint32 GetSecurity(uint32 accountId)
 {
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     QueryResult result = LoginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u'", accountId);
     return (result) ? (*result)[0].GetUInt32() : 0;
+#endif
 }
 
 uint32 GetSecurity(uint64 accountId, int32 realmId)
 {
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     QueryResult result = (realmId == -1)
         ? LoginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u' AND RealmID = '%d'", accountId, realmId)
         : LoginDatabase.PQuery("SELECT gmlevel FROM account_access WHERE id = '%u' AND (RealmID = '%d' OR RealmID = '-1')", accountId, realmId);
     return (result) ? (*result)[0].GetUInt32() : 0;
+#endif
 }
 
 bool GetName(uint32 accountId, std::string& name)
 {
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     QueryResult result = LoginDatabase.PQuery("SELECT username FROM account WHERE id = '%u'", accountId);
     if (result)
     {
         name = (*result)[0].GetString();
         return true;
     }
-
+#endif
     return false;
 }
 
@@ -189,15 +216,23 @@ bool CheckPassword(uint32 accountId, std::string password)
     normalizeString(username);
     normalizeString(password);
 
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     QueryResult result = LoginDatabase.PQuery("SELECT 1 FROM account WHERE id='%d' AND sha_pass_hash='%s'", accountId, CalculateShaPassHash(username, password).c_str());
     return (result) ? true : false;
+#endif
 }
 
 uint32 GetCharactersCount(uint32 accountId)
 {
+#ifdef DO_CPPDB
+    //TODO Fil
+#else
     // check character count
     QueryResult result = CharacterDatabase.PQuery("SELECT COUNT(guid) FROM characters WHERE account = '%d'", accountId);
     return (result) ? (*result)[0].GetUInt32() : 0;
+#endif
 }
 
 bool normalizeString(std::string& utf8String)

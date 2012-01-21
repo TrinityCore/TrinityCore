@@ -49,9 +49,15 @@ char serviceDescription[] = "TrinityCore World of Warcraft emulator world servic
 int m_ServiceStatus = -1;
 #endif
 
+#ifdef DO_CPPDB
+WorldDB wDb;
+CharacterDB cDb;
+LoginDB lDb;
+#else
 WorldDatabaseWorkerPool WorldDatabase;                      ///< Accessor to the world database
 CharacterDatabaseWorkerPool CharacterDatabase;              ///< Accessor to the character database
 LoginDatabaseWorkerPool LoginDatabase;                      ///< Accessor to the realm/login database
+#endif
 
 uint32 realmID;                                             ///< Id of the realm
 

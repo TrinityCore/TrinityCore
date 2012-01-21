@@ -143,13 +143,20 @@ class MailDraft
         MailDraft& AddCOD(uint32 COD) { m_COD = COD; return *this; }
 
     public:                                                 // finishers
+#ifdef DO_CPPDB
+
+#else
         void SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32 receiver_guid, SQLTransaction& trans);
         void SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, MailSender const& sender, MailCheckMask checked = MAIL_CHECK_MASK_NONE, uint32 deliver_delay = 0);
+#endif
 
     private:
+#ifdef DO_CPPDB
+
+#else
         void deleteIncludedItems(SQLTransaction& trans, bool inDB = false);
         void prepareItems(Player* receiver, SQLTransaction& trans);                // called from SendMailTo for generate mailTemplateBase items
-
+#endif
         uint16      m_mailTemplateId;
         bool        m_mailTemplateItemsNeed;
         std::string m_subject;

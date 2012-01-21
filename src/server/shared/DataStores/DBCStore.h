@@ -94,6 +94,37 @@ class DBCStorage
 
             uint32 sqlRecordCount = 0;
             uint32 sqlHighestIndex = 0;
+#ifdef DO_CPPDB
+            // Load data from sql
+            if (sql)
+            {
+                std::string query = "SELECT * FROM " + sql->sqlTableName;
+                if (sql->indexPos >= 0)
+                    query +=" ORDER BY " + *sql->indexName + " DESC";
+                query += ';';
+
+                session ses = wDb.GetSession();
+                statement stmt = wDb.Query(ses,query);
+                result res = stmt.query();
+                if (!res.empty())
+                {
+                    sqlRecordCount = uint32(wDb.RowCount(res));
+                    if (sql->indexPos >= 0)
+                    {
+                        //fields = result->Fetch();
+                        sqlHighestIndex = res.get<uint32>(sql->sqlIndexPos);
+                    }
+                    // Check if sql index pos is valid
+                    if (int32(res.cols()-1) < sql->sqlIndexPos)
+                    {
+                        sLog->outError("Invalid index pos for dbc:'%s'", sql->sqlTableName.c_str());
+                        return false;
+                    }
+                }
+            }
+
+            //TODO Fil
+#else
             Field* fields = NULL;
             QueryResult result = QueryResult(NULL);
             // Load data from sql
@@ -123,7 +154,7 @@ class DBCStorage
                 }
             }
 
-            char * sqlDataTable;
+             char * sqlDataTable;
             fieldCount = dbc.GetCols();
 
             dataTable = (T*)dbc.AutoProduceData(fmt, nCount, indexTable.asChar,
@@ -230,6 +261,9 @@ class DBCStorage
                     }while (result->NextRow());
                 }
             }
+#endif
+
+
 
             // error in dbc file at loading if NULL
             return indexTable.asT != NULL;
