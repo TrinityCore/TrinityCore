@@ -35,6 +35,14 @@ struct CreatureTextEntry
     uint32 sound;
 };
 
+struct CreatureTextLocale
+{
+    uint32 entry;
+    uint8 group;
+    uint8 id;
+    StringVector text;
+};
+
 enum TextRange
 {
     TEXT_RANGE_NORMAL   = 0,
@@ -53,6 +61,11 @@ typedef std::vector<uint8> CreatureTextRepeatIds;
 typedef UNORDERED_MAP<uint8, CreatureTextRepeatIds> CreatureTextRepeatGroup;
 typedef UNORDERED_MAP<uint64, CreatureTextRepeatGroup> CreatureTextRepeatMap;//guid based
 
+// used for locales_creature_text
+typedef std::vector<CreatureTextLocale> CreatureTextLocalesGroup;                 // texts in a group
+typedef UNORDERED_MAP<uint8, CreatureTextLocalesGroup> CreatureTextLocalesHolder; // groups for a creature by groupid
+typedef UNORDERED_MAP<uint32, CreatureTextLocalesHolder> CreatureTextLocalesMap;  // all creature by entry
+
 class CreatureTextMgr
 {
     friend class ACE_Singleton<CreatureTextMgr, ACE_Null_Mutex>;
@@ -60,6 +73,7 @@ class CreatureTextMgr
     public:
         ~CreatureTextMgr() {};
         void LoadCreatureTexts();
+        void LoadCreatureTextLocales();
         CreatureTextMap  const& GetTextMap() const { return mTextMap; }
 
         void SendSound(Creature* source, uint32 sound, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly);
@@ -75,8 +89,11 @@ class CreatureTextMgr
         void BuildMonsterChat(WorldPacket* data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const;
         void SendChatPacket(WorldPacket* data, WorldObject* source, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const;
 
+        CreatureTextLocale const* GetCreatureTextLocale(uint32 entry, uint32 groupId, uint32 id) const;
+
         CreatureTextMap mTextMap;
         CreatureTextRepeatMap mTextRepeatMap;
+        CreatureTextLocalesMap mTextLocalesMap;
 };
 
 #define sCreatureTextMgr ACE_Singleton<CreatureTextMgr, ACE_Null_Mutex>::instance()
