@@ -124,8 +124,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             return;
     }
 
-    recvData >> lang;
-
     if (type >= MAX_CHAT_MSG_TYPE)
     {
         sLog->outError("CHAT: Wrong message type received: %u", type);
@@ -137,101 +135,107 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
 
     //sLog->outDebug("CHAT: packet received. type %u, lang %u", type, lang);
 
-    // prevent talking at unknown language (cheating)
-    LanguageDesc const* langDesc = GetLanguageDescByID(lang);
-    if (!langDesc)
+    // no language sent with emote packet.
+    if (type != CHAT_MSG_EMOTE)
     {
-        SendNotification(LANG_UNKNOWN_LANGUAGE);
-        recvData.rfinish();
-        return;
-    }
-    if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
-    {
-        // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
-        Unit::AuraEffectList const& langAuras = sender->GetAuraEffectsByType(SPELL_AURA_COMPREHEND_LANGUAGE);
-        bool foundAura = false;
-        for (Unit::AuraEffectList::const_iterator i = langAuras.begin(); i != langAuras.end(); ++i)
+        recvData >> lang;
+    
+        // prevent talking at unknown language (cheating)
+        LanguageDesc const* langDesc = GetLanguageDescByID(lang);
+        if (!langDesc)
         {
-            if ((*i)->GetMiscValue() == int32(lang))
-            {
-                foundAura = true;
-                break;
-            }
-        }
-        if (!foundAura)
-        {
-            SendNotification(LANG_NOT_LEARNED_LANGUAGE);
+            SendNotification(LANG_UNKNOWN_LANGUAGE);
             recvData.rfinish();
             return;
         }
-    }
-
-    if (lang == LANG_ADDON)
-    {
-        if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
+        if (langDesc->skill_id != 0 && !sender->HasSkill(langDesc->skill_id))
         {
-            std::string msg = "";
-            recvData >> msg;
-
-            if (msg.empty())
+            // also check SPELL_AURA_COMPREHEND_LANGUAGE (client offers option to speak in that language)
+            Unit::AuraEffectList const& langAuras = sender->GetAuraEffectsByType(SPELL_AURA_COMPREHEND_LANGUAGE);
+            bool foundAura = false;
+            for (Unit::AuraEffectList::const_iterator i = langAuras.begin(); i != langAuras.end(); ++i)
+            {
+                if ((*i)->GetMiscValue() == int32(lang))
+                {
+                    foundAura = true;
+                    break;
+                }
+            }
+            if (!foundAura)
+            {
+                SendNotification(LANG_NOT_LEARNED_LANGUAGE);
+                recvData.rfinish();
                 return;
-
-            sScriptMgr->OnPlayerChat(sender, uint32(CHAT_MSG_ADDON), lang, msg);
+            }
         }
 
-        // Disabled addon channel?
-        if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
-            return;
-    }
-    // LANG_ADDON should not be changed nor be affected by flood control
-    else
-    {
-        // send in universal language if player in .gmon mode (ignore spell effects)
-        if (sender->isGameMaster())
-            lang = LANG_UNIVERSAL;
+        if (lang == LANG_ADDON)
+        {
+            if (sWorld->getBoolConfig(CONFIG_CHATLOG_ADDON))
+            {
+                std::string msg = "";
+                recvData >> msg;
+
+                if (msg.empty())
+                    return;
+
+                sScriptMgr->OnPlayerChat(sender, uint32(CHAT_MSG_ADDON), lang, msg);
+            }
+
+            // Disabled addon channel?
+            if (!sWorld->getBoolConfig(CONFIG_ADDON_CHANNEL))
+                return;
+        }
+        // LANG_ADDON should not be changed nor be affected by flood control
         else
         {
-            // send in universal language in two side iteration allowed mode
-            if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT))
+            // send in universal language if player in .gmon mode (ignore spell effects)
+            if (sender->isGameMaster())
                 lang = LANG_UNIVERSAL;
             else
             {
-                switch (type)
+                // send in universal language in two side iteration allowed mode
+                if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHAT))
+                    lang = LANG_UNIVERSAL;
+                else
                 {
-                    case CHAT_MSG_PARTY:
-                    case CHAT_MSG_PARTY_LEADER:
-                    case CHAT_MSG_RAID:
-                    case CHAT_MSG_RAID_LEADER:
-                    case CHAT_MSG_RAID_WARNING:
-                        // allow two side chat at group channel if two side group allowed
-                        if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
-                            lang = LANG_UNIVERSAL;
-                        break;
-                    case CHAT_MSG_GUILD:
-                    case CHAT_MSG_OFFICER:
-                        // allow two side chat at guild channel if two side guild allowed
-                        if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
-                            lang = LANG_UNIVERSAL;
-                        break;
+                    switch (type)
+                    {
+                        case CHAT_MSG_PARTY:
+                        case CHAT_MSG_PARTY_LEADER:
+                        case CHAT_MSG_RAID:
+                        case CHAT_MSG_RAID_LEADER:
+                        case CHAT_MSG_RAID_WARNING:
+                            // allow two side chat at group channel if two side group allowed
+                            if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GROUP))
+                                lang = LANG_UNIVERSAL;
+                            break;
+                        case CHAT_MSG_GUILD:
+                        case CHAT_MSG_OFFICER:
+                            // allow two side chat at guild channel if two side guild allowed
+                            if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_GUILD))
+                                lang = LANG_UNIVERSAL;
+                            break;
+                    }
                 }
+
+                // but overwrite it by SPELL_AURA_MOD_LANGUAGE auras (only single case used)
+                Unit::AuraEffectList const& ModLangAuras = sender->GetAuraEffectsByType(SPELL_AURA_MOD_LANGUAGE);
+                if (!ModLangAuras.empty())
+                    lang = ModLangAuras.front()->GetMiscValue();
             }
 
-            // but overwrite it by SPELL_AURA_MOD_LANGUAGE auras (only single case used)
-            Unit::AuraEffectList const& ModLangAuras = sender->GetAuraEffectsByType(SPELL_AURA_MOD_LANGUAGE);
-            if (!ModLangAuras.empty())
-                lang = ModLangAuras.front()->GetMiscValue();
-        }
+            if (!sender->CanSpeak())
+            {
+                std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
+                SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
+                recvData.rfinish(); // Prevent warnings
+                return;
+            }
 
-        if (!sender->CanSpeak())
-        {
-            std::string timeStr = secsToTimeString(m_muteTime - time(NULL));
-            SendNotification(GetTrinityString(LANG_WAIT_BEFORE_SPEAKING), timeStr.c_str());
-            recvData.rfinish(); // Prevent warnings
-            return;
+            if (type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
+                sender->UpdateSpeakTime();
         }
-
-        if (type != CHAT_MSG_AFK && type != CHAT_MSG_DND)
-            sender->UpdateSpeakTime();
     }
 
     if (sender->HasAura(1852) && type != CHAT_MSG_WHISPER)
@@ -262,8 +266,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             recvData >> msg;
             break;
         case CHAT_MSG_WHISPER:
-            recvData >> to;
             recvData >> msg;
+            recvData >> to;
             break;
         case CHAT_MSG_CHANNEL:
             recvData >> channel;
