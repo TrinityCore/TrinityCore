@@ -1794,6 +1794,38 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             delete targets;
             break;
         }
+        case SMART_ACTION_SEND_TARGET_TO_TARGET:
+        {
+            ObjectList* targets = GetTargets(e, unit);
+            
+            if (!targets)
+                return;
+                
+            for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
+            {
+                bool smart = false;
+                SmartAI* ai = NULL;
+                if (IsGameObject(*itr))
+                {
+                    smart = IsSmartGO((*itr)->ToGameObject());
+                    ai = CAST_AI(SmartAI, (*itr)->ToGameObject()->AI());
+                }
+                
+                if (IsCreature(*itr))
+                {
+                    smart = IsSmart((*itr)->ToCreature());
+                    ai = CAST_AI(SmartAI, (*itr)->ToCreature()->AI());
+                }
+                
+                if (smart && ai)
+                    ai->GetScript()->StoreTargetList(GetTargetList(e.action.sendTargetToTarget.id), e.action.sendTargetToTarget.id);
+                    
+                break;
+            }
+
+            delete targets;
+            break;
+        }
         case SMART_ACTION_SEND_GOSSIP_MENU:
         {
             if (!GetBaseObject())
