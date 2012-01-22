@@ -1783,10 +1783,10 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_GO_SET_LOOT_STATE:
         {
             ObjectList* targets = GetTargets(e, unit);
-            
+
             if (!targets)
                 return;
-                
+
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
                 if (IsGameObject(*itr))
                     (*itr)->ToGameObject()->SetLootState((LootState)e.action.setGoLootState.state);
@@ -1797,23 +1797,25 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
         case SMART_ACTION_SEND_TARGET_TO_TARGET:
         {
             ObjectList* targets = GetTargets(e, unit);
-            
             if (!targets)
                 return;
-                
+
             for (ObjectList::const_iterator itr = targets->begin(); itr != targets->end(); ++itr)
             {
-                SmartAI* ai = NULL;
-                if (IsGameObject(*itr))
-                    ai = CAST_AI(SmartAI, (*itr)->ToGameObject()->AI());
-                
                 if (IsCreature(*itr))
-                    ai = CAST_AI(SmartAI, (*itr)->ToCreature()->AI());
-                
-                if (ai)
-                    ai->GetScript()->StoreTargetList(GetTargetList(e.action.sendTargetToTarget.id), e.action.sendTargetToTarget.id);
-                else
-                    sLog->outErrorDb("SmartScript: Action target for SMART_ACTION_SEND_TARGET_TO_TARGET is not using SmartAI, skipping");
+                {
+                    if (SmartAI* ai = CAST_AI(SmartAI, (*itr)->ToCreature()->AI()))
+                        ai->GetScript()->StoreTargetList(GetTargetList(e.action.sendTargetToTarget.id), e.action.sendTargetToTarget.id);
+                    else
+                        sLog->outErrorDb("SmartScript: Action target for SMART_ACTION_SEND_TARGET_TO_TARGET is not using SmartAI, skipping");
+                }
+                else if (IsGameObject(*itr))
+                {
+                    if (SmartGameObjectAI* ai = CAST_AI(SmartGameObjectAI, (*itr)->ToGameObject()->AI()))
+                        ai->GetScript()->StoreTargetList(GetTargetList(e.action.sendTargetToTarget.id), e.action.sendTargetToTarget.id);
+                    else
+                        sLog->outErrorDb("SmartScript: Action target for SMART_ACTION_SEND_TARGET_TO_TARGET is not using SmartGameObjectAI, skipping");
+                }
             }
 
             delete targets;
