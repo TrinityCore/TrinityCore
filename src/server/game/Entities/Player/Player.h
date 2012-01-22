@@ -1994,8 +1994,8 @@ class Player : public Unit, public GridObject<Player>
         void BuildPlayerRepop();
         void RepopAtGraveyard();
 
-        void DurabilityLossAll(double percent, bool inventory);
-        void DurabilityLoss(Item* item, double percent);
+        void DurabilityLossAll(double &percent, bool inventory);
+        void DurabilityLoss(Item* item, double &percent);
         void DurabilityPointsLossAll(int32 points, bool inventory);
         void DurabilityPointsLoss(Item* item, int32 points);
         void DurabilityPointLossForEquipSlot(EquipmentSlots slot);

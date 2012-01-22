@@ -280,7 +280,7 @@ enum Opcodes
     CMSG_MESSAGECHAT_PARTY_LEADER                    = 0x00,
     CMSG_MESSAGECHAT_RAID                            = 0x60D1,
     CMSG_MESSAGECHAT_RAID_LEADER                     = 0x00,
-    CMSG_MESSAGECHAT_RAID_WARNING                    = 0x00,
+    CMSG_MESSAGECHAT_RAID_WARNING                    = 0x2449,
     CMSG_MESSAGECHAT_SAY                             = 0x2459,
     CMSG_MESSAGECHAT_WHISPER                         = 0x70D9,
     CMSG_MESSAGECHAT_YELL                            = 0x70C1,
