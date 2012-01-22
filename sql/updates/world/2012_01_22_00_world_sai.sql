@@ -7,10 +7,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,1,4,0,100,0,0,0,0,0,12,9527,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Munci - On Aggro - Summon Enraged Hippogryphs"),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,12,9527,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Munci - On Aggro - Summon Enraged Hippogryphs"),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Munci - On Aggro - Say Line 0");
-
 -- Text for Munci
-SET @ENTRY := 18788;
-DELETE FROM `creature_ai_texts` WHERE `npc_entry`=@ENTRY;
+DELETE FROM `creature_ai_texts` WHERE `entry`=-549;
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@ENTRY,0,0,"Guards!",14,7,100,0,0,0,"Munci");
@@ -24,10 +22,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,1,4,0,100,0,0,0,0,0,12,9526,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Amish Wildhammer - On Aggro - Summon Enraged Gryphons"),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,12,9526,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Amish Wildhammer - On Aggro - Summon Enraged Gryphons"),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Amish Wildhammer - On Aggro - Say Line 0");
-
 -- Text for Amish Wildhammer
-SET @ENTRY := 18931;
-DELETE FROM `creature_ai_texts` WHERE `npc_entry`=@ENTRY;
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@ENTRY,0,0,"Guards!",14,7,100,0,0,0,"Amish Wildhammer");
@@ -41,10 +36,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,1,4,0,100,0,0,0,0,0,12,9526,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Lemla Hopewing - On Aggro - Summon Enraged Gryphons"),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,12,9526,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Lemla Hopewing - On Aggro - Summon Enraged Gryphons"),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Lemla Hopewing - On Aggro - Say Line 0");
-
 -- Text for Lemla Hopewing
-SET @ENTRY := 19181;
-DELETE FROM `creature_ai_texts` WHERE `npc_entry`=@ENTRY;
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@ENTRY,0,0,"Guards!",14,7,100,0,0,0,"Lemla Hopewing");
@@ -58,10 +50,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,1,4,0,100,0,0,0,0,0,12,9527,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Auhula - On Aggro - Summon Enraged Hippogryphs"),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,12,9527,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Auhula - On Aggro - Summon Enraged Hippogryphs"),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Auhula - On Aggro - Say Line 0");
-
 -- Text for Auhula
-SET @ENTRY := 22936;
-DELETE FROM `creature_ai_texts` WHERE `npc_entry`=@ENTRY;
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@ENTRY,0,0,"Guards!",14,7,100,0,0,0,"Auhula");
@@ -75,10 +64,8 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY,0,0,1,4,0,100,0,0,0,0,0,12,9297,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Hyeyoung Parka - On Aggro - Summon Enraged Wyverns"),
 (@ENTRY,0,1,2,61,0,100,0,0,0,0,0,12,9297,1,30000,0,0,0,1,0,0,0,0,0,0,0,"Hyeyoung Parka - On Aggro - Summon Enraged Wyverns"),
 (@ENTRY,0,2,0,61,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,"Hyeyoung Parka - On Aggro - Say Line 0");
-
 -- Text for Hyeyoung Parka
-SET @ENTRY := 29762;
-DELETE FROM `creature_ai_texts` WHERE `npc_entry`=@ENTRY;
+DELETE FROM `creature_ai_texts` WHERE `entry`=-548;
 DELETE FROM `creature_text` WHERE `entry`=@ENTRY;
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
 (@ENTRY,0,0,"Guards!",14,1,100,0,0,0,"Hyeyoung Parka");
