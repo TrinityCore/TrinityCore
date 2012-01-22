@@ -11958,7 +11958,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 player->UnsummonPetTemporaryIfAny();
         }
 
-        WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, GetPackGUID().size() + 4 + 4);
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
         data.append(GetPackGUID());
         data << uint32(sWorld->GetGameTime());   // Packet counter
         data << player->GetCollisionHeight(true);
@@ -11976,14 +11976,14 @@ void Unit::Dismount()
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
-    /*if (Player* thisPlayer = ToPlayer())
+    if (Player* thisPlayer = ToPlayer())
     {
-        WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, GetPackGUID().size() + 4 + 4);
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
         data.append(GetPackGUID());
         data << uint32(sWorld->GetGameTime());   // Packet counter
         data << thisPlayer->GetCollisionHeight(false);
         thisPlayer->GetSession()->SendPacket(&data);
-    }*/
+    }
 
     WorldPacket data(SMSG_DISMOUNT, 8);
     data.appendPackGUID(GetGUID());
@@ -12636,7 +12636,7 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         switch (mtype)
         {
             case MOVE_WALK:
-                data.Initialize(SMSG_MOVE_SPLINE_SET_WALK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(MSG_MOVE_SET_WALK_SPEED, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_RUN:
                 data.Initialize(SMSG_MOVE_SPLINE_SET_RUN_SPEED, 1 + 8 + 4);
@@ -12657,29 +12657,29 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data.WriteByteSeq(bytes[5]);
                 data.WriteByteSeq(bytes[0]);
                 data.WriteByteSeq(bytes[1]);
-
+                
                 data << float(GetSpeed(mtype));
                 break;
             case MOVE_RUN_BACK:
-                data.Initialize(SMSG_MOVE_SPLINE_SET_RUN_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(MSG_MOVE_SET_RUN_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_SWIM:
-                data.Initialize(SMSG_MOVE_SPLINE_SET_SWIM_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(MSG_MOVE_SET_SWIM_SPEED, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_SWIM_BACK:
-                data.Initialize(SMSG_MOVE_SPLINE_SET_SWIM_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(MSG_MOVE_SET_SWIM_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_TURN_RATE:
-                data.Initialize(SMSG_MOVE_SPLINE_SET_TURN_RATE, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(MSG_MOVE_SET_TURN_RATE, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_FLIGHT:
-                data.Initialize(SMSG_MOVE_SPLINE_SET_FLIGHT_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(MSG_MOVE_SET_FLIGHT_SPEED, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_FLIGHT_BACK:
-                data.Initialize(SMSG_MOVE_SPLINE_SET_FLIGHT_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(MSG_MOVE_SET_FLIGHT_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_PITCH_RATE:
-                data.Initialize(SMSG_MOVE_SPLINE_SET_PITCH_RATE, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(MSG_MOVE_SET_PITCH_RATE, 8+4+2+4+4+4+4+4+4+4);
                 break;
             default:
                 sLog->outError("Unit::SetSpeed: Unsupported move type (%d), data not sent to client.", mtype);
@@ -12715,10 +12715,10 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         switch (mtype)
         {
             case MOVE_WALK:
-                data.Initialize(SMSG_MOVE_SET_WALK_SPEED, 16);
+                data.Initialize(SMSG_FORCE_WALK_SPEED_CHANGE, 16);
                 break;
             case MOVE_RUN:
-                data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4 );
+                data.Initialize(SMSG_FORCE_RUN_SPEED_CHANGE, 1 + 8 + 4 + 4 );
                 data.WriteByteMask(bytes[1]);
                 data.WriteByteMask(bytes[0]);
                 data.WriteByteMask(bytes[7]);
@@ -12742,25 +12742,25 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
                 data << uint32(0);
                 break;
             case MOVE_RUN_BACK:
-                data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 16);
+                data.Initialize(SMSG_FORCE_RUN_BACK_SPEED_CHANGE, 16);
                 break;
             case MOVE_SWIM:
-                data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 16);
+                data.Initialize(SMSG_FORCE_SWIM_SPEED_CHANGE, 16);
                 break;
             case MOVE_SWIM_BACK:
-                data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 16);
+                data.Initialize(SMSG_FORCE_SWIM_BACK_SPEED_CHANGE, 16);
                 break;
             case MOVE_TURN_RATE:
-                data.Initialize(SMSG_MOVE_SET_TURN_RATE, 16);
+                data.Initialize(SMSG_FORCE_TURN_RATE_CHANGE, 16);
                 break;
             case MOVE_FLIGHT:
-                data.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 16);
+                data.Initialize(SMSG_FORCE_FLIGHT_SPEED_CHANGE, 16);
                 break;
             case MOVE_FLIGHT_BACK:
-                data.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 16);
+                data.Initialize(SMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE, 16);
                 break;
             case MOVE_PITCH_RATE:
-                data.Initialize(SMSG_MOVE_SET_PITCH_RATE, 16);
+                data.Initialize(SMSG_FORCE_PITCH_RATE_CHANGE, 16);
                 break;
             default:
                 sLog->outError("Unit::SetSpeed: Unsupported move type (%d), data not sent to client.", mtype);
@@ -13686,64 +13686,42 @@ void Unit::SetMaxHealth(uint32 val)
 
 uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 {
-    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classId);
+    ChrClassesEntry const* m_class = sChrClassesStore.LookupEntry(classId);
 
-    ASSERT(classEntry && "Class not found");
+    ASSERT(m_class && "Class not found");
 
     uint32 index = 0;
-    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+
+    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); i++)
     {
-        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
-        if (!powerEntry)
+        ChrPowerTypesEntry const* cEntry = sChrPowerTypesStore.LookupEntry(i);
+
+        if (!cEntry)
             continue;
 
-        if (powerEntry->classId != classId)
+        if (classId != cEntry->classId)
             continue;
 
-        if (powerEntry->power == powerId)
+        if (powerId == cEntry->power)
             return index;
 
-        ++index;
+        index++;
     }
-
-    // return invalid value - this class doesn't use this power
-    return MAX_POWERS;
+    return 0;
 };
-
-int32 Unit::GetPower(Powers power) const
-{
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
-    if (powerIndex == MAX_POWERS)
-        return 0;
-
-    return GetUInt32Value(UNIT_FIELD_POWER1 + powerIndex);
-}
-
-uint32 Unit::GetMaxPower(Powers power) const
-{
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
-    if (powerIndex == MAX_POWERS)
-        return 0;
-
-    return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
-}
 
 void Unit::SetPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
-    if (powerIndex == MAX_POWERS)
-        return;
-
-    int32 maxPower = int32(GetMaxPower(power));
+    uint32 maxPower = GetMaxPower(power);
     if (maxPower < val)
         val = maxPower;
 
-    SetStatInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
+    SetStatInt32Value(UNIT_FIELD_POWER1 + GetPowerIndexByClass(power, getClass()), val);
 
     WorldPacket data(SMSG_POWER_UPDATE);
     data.append(GetPackGUID());
     data << uint32(1);//unk
-    data << uint8(powerIndex);
+    data << uint8(GetPowerIndexByClass(power, getClass()));
     data << int32(val);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 
@@ -13766,12 +13744,8 @@ void Unit::SetPower(Powers power, int32 val)
 
 void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
-    if (powerIndex == MAX_POWERS)
-        return;
-
     int32 cur_power = GetPower(power);
-    SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex, val);
+    SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + power, val);
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)
@@ -15847,7 +15821,7 @@ void Unit::SetStunned(bool apply)
         else
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        WorldPacket data(SMSG_MOVE_ROOT, 8);
+        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
         data.append(GetPackGUID());
         data << uint32(0);
         SendMessageToSet(&data, true);
@@ -15866,7 +15840,7 @@ void Unit::SetStunned(bool apply)
 
         if (!HasUnitState(UNIT_STAT_ROOT))         // prevent moving if it also has root effect
         {
-            WorldPacket data(SMSG_MOVE_UNROOT, 8+4);
+            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
             data.append(GetPackGUID());
             data << uint32(0);
             SendMessageToSet(&data, true);
@@ -15891,14 +15865,14 @@ void Unit::SetRooted(bool apply)
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            WorldPacket data(SMSG_MOVE_ROOT, 10);
+            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
             data.append(GetPackGUID());
             data << m_rootTimes;
             SendMessageToSet(&data, true);
         }
         else
         {
-            WorldPacket data(SMSG_MOVE_SPLINE_ROOT, 8);
+            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
             data.append(GetPackGUID());
             SendMessageToSet(&data, true);
             ToCreature()->StopMoving();
@@ -15910,14 +15884,14 @@ void Unit::SetRooted(bool apply)
         {
             if (GetTypeId() == TYPEID_PLAYER)
             {
-                WorldPacket data(SMSG_MOVE_UNROOT, 10);
+                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
                 data.append(GetPackGUID());
                 data << ++m_rootTimes;
                 SendMessageToSet(&data, true);
             }
             else
             {
-                WorldPacket data(SMSG_MOVE_SPLINE_UNROOT, 8);
+                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
                 data.append(GetPackGUID());
                 SendMessageToSet(&data, true);
             }
@@ -17207,7 +17181,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         ToPlayer()->SetFallInformation(0, GetPositionZ());
     else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
     {
-        WorldPacket data(SMSG_MOVE_SPLINE_UNROOT, 8);
+        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
         data.append(GetPackGUID());
         SendMessageToSet(&data, false);
     }

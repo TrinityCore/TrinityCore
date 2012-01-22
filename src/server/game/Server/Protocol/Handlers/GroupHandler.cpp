@@ -62,21 +62,6 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
 void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE");
- 
-    BytesGuid guid;
-    guid.guid = 0;
-    
-    recv_data.ReadByteMask(guid.bytes[6]);
-    recv_data.ReadByteMask(guid.bytes[5]);
-    recv_data.ReadByteMask(guid.bytes[0]);
-    recv_data.ReadByteMask(guid.bytes[3]);
-    recv_data.ReadByteMask(guid.bytes[4]);
-    recv_data.ReadByteMask(guid.bytes[7]);
-    recv_data.ReadByteMask(guid.bytes[1]);
-    recv_data.ReadByteMask(guid.bytes[2]);
-
-    recv_data.read_skip<uint32>();
-    recv_data.read_skip<uint32>();
 
     BytesGuid guid;
     guid.guid = 0;
@@ -95,17 +80,6 @@ void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 
     std::string membername;
     recv_data >> membername;
-
-    recv_data.ReadByteSeq(guid.bytes[0]);
-    recv_data.ReadByteSeq(guid.bytes[7]);
-    recv_data.ReadByteSeq(guid.bytes[4]);
-    recv_data.ReadByteSeq(guid.bytes[1]);
-    recv_data.ReadByteSeq(guid.bytes[2]);
-    recv_data.ReadByteSeq(guid.bytes[6]);
-    recv_data.ReadByteSeq(guid.bytes[5]);
-    std::string string0;
-    recv_data >> string0;
-    recv_data.ReadByteSeq(guid.bytes[3]);
 
     recv_data.ReadByteSeq(guid.bytes[0]);
     recv_data.ReadByteSeq(guid.bytes[7]);
@@ -732,7 +706,7 @@ void WorldSession::HandlePartyAssignmentOpcode(WorldPacket & recv_data)
 
 void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket & recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_RAID_READY_CHECK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received MSG_RAID_READY_CHECK");
 
     Group* group = GetPlayer()->GetGroup();
     if (!group)
@@ -746,7 +720,7 @@ void WorldSession::HandleRaidReadyCheckOpcode(WorldPacket & recv_data)
         /********************/
 
         // everything's fine, do it
-        WorldPacket data(SMSG_RAID_READY_CHECK, 8);
+        WorldPacket data(MSG_RAID_READY_CHECK, 8);
         data << GetPlayer()->GetGUID();
         group->BroadcastPacket(&data, false, -1);
 
