@@ -600,6 +600,7 @@ enum Opcodes
     SMSG_CALENDAR_COMMAND_RESULT                     = 0x9A4E,
     SMSG_CALENDAR_SEND_CALENDAR                      = 0x08FB,
     SMSG_CALENDAR_SEND_NUM_PENDING                   = 0x00,
+    SMSG_CAMERA_SHAKE                                = 0x5CFB,
     SMSG_CANCEL_AUTO_REPEAT                          = 0x5ACB,
     SMSG_CANCEL_COMBAT                               = 0x00,
     SMSG_CAST_FAILED                                 = 0x1AEB,
@@ -917,6 +918,7 @@ enum Opcodes
     SMSG_PLAYER_MOVE                                 = 0xF66C,
     SMSG_PLAYER_SKINNED                              = 0xDA63,
     SMSG_PLAYER_VEHICLE_DATA                         = 0x186E,
+    SMSG_PLAYER_UNK_DEAD_ALIVE                       = 0x0AF3, // causes client to Signal either PLAYER_ALIVE or DEAD events.
     SMSG_PLAYERBINDERROR                             = 0x5A4F,
     SMSG_PLAYERBOUND                                 = 0xCC46,
     SMSG_PONG                                        = 0x0380,
@@ -1012,8 +1014,10 @@ enum Opcodes
     SMSG_START_MIRROR_TIMER                          = 0x00,
     SMSG_STOP_DANCE                                  = 0x8E5F,
     SMSG_STOP_MIRROR_TIMER                           = 0x00,
+    SMSG_SUMMON_CANCEL                               = 0x8A4E,
     SMSG_SUMMON_REQUEST                              = 0x9A52,
     SMSG_SUPERCEDED_SPELL                            = 0xDE53,
+    SMSG_TALENTS_ERROR                               = 0x8AE2, // int32 : 1: ERR_TALENT_FAILED_UNKNOWN 2: ERR_TALENT_FAILED_NOT_ENOUGH_TALENTS_IN_PRIMARY_TREE 3: ERR_TALENT_FAILED_NO_PRIMARY_TREE_SELECTED
     SMSG_TALENTS_INFO                                = 0x5EC6,
     SMSG_TALENTS_INVOLUNTARILY_RESET                 = 0x1C7B,
     SMSG_TAXINODE_STATUS                             = 0x8CFB,
