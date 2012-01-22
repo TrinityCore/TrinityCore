@@ -151,7 +151,7 @@ void InitOpcodes()
      DEFINE_OPCODE_HANDLER(CMSG_SET_CONTACT_NOTES,                       STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleSetContactNotesOpcode     );
      DEFINE_OPCODE_HANDLER(CMSG_ADD_IGNORE,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleAddIgnoreOpcode           );
      DEFINE_OPCODE_HANDLER(CMSG_DEL_IGNORE,                              STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleDelIgnoreOpcode           );
-     //DEFINE_OPCODE_HANDLER(CMSG_GROUP_INVITE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteOpcode         );
+     DEFINE_OPCODE_HANDLER(CMSG_GROUP_INVITE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGroupInviteOpcode         );
      //DEFINE_OPCODE_HANDLER(SMSG_GROUP_INVITE,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(CMSG_GROUP_CANCEL,                            STATUS_LOGGEDIN, PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
      //DEFINE_OPCODE_HANDLER(SMSG_GROUP_CANCEL,                            STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
@@ -168,7 +168,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(SMSG_GROUP_DESTROYED,                         STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_GROUP_LIST,                              STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_PARTY_MEMBER_STATS,                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-     //DEFINE_OPCODE_HANDLER(SMSG_PARTY_COMMAND_RESULT,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
+     DEFINE_OPCODE_HANDLER(SMSG_PARTY_COMMAND_RESULT,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(UMSG_UPDATE_GROUP_MEMBERS,                    STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     );
      //DEFINE_OPCODE_HANDLER(CMSG_GUILD_CREATE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildCreateOpcode         );
      DEFINE_OPCODE_HANDLER(CMSG_GUILD_INVITE,                            STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleGuildInviteOpcode         );
