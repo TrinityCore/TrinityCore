@@ -1,5 +1,4 @@
 -- [QUEST] A Rough Ride (12536)
-
 -- NPC entry 28298 (Captive Crocolisk)
 SET @ENTRY := 28298;
 SET @GOSSIP := 9674;
@@ -8,21 +7,17 @@ UPDATE `creature_template` SET `gossip_menu_id`=@GOSSIP,`npcflag`=npcflag|1,`Veh
 DELETE FROM `gossip_menu` WHERE `entry`=@GOSSIP;
 INSERT INTO `gossip_menu` (`entry`,`text_id`)
 VALUES (@GOSSIP,@TEXT_ID);
-
 -- Added condition so player can only select it once he has the quest
 SET @GOSSIP_ENTRY := 9674;
 SET @QUEST := 12536;
 DELETE FROM `conditions` WHERE `SourceGroup`=@GOSSIP_ENTRY AND `SourceTypeOrReferenceId`=15;
-INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`)
-VALUES (15,@GOSSIP_ENTRY,0,0,9,@QUEST,0,0,0,0, 'Only show gossip 9674 when quest 12536 is added');
-
+INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
+(15,@GOSSIP_ENTRY,0,0,9,@QUEST,0,0,0,0, 'Only show gossip 9674 when quest 12536 is added');
 -- Add missing gossip
 SET @GOSSIP := 9674;
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=9674 AND `id`=0;
-INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`)
-VALUES 
+INSERT INTO `gossip_menu_option` (`menu_id`,`id`,`option_icon`,`option_text`,`option_id`,`npc_option_npcflag`,`action_menu_id`,`action_poi_id`,`box_coded`,`box_money`,`box_text`) VALUES 
 (@GOSSIP,0,0,"You look safe enough... let's do this.",1,1,0,0,0,0, '');
-
 -- [SAI] On gossip select - mount and waypoint
 SET @ENTRY := 28298;
 SET @GOSSIP := 9674;
@@ -36,18 +31,15 @@ UPDATE `creature_template` SET `InhabitType`=3 WHERE `entry`=@ENTRY_MOUNT;
 UPDATE `creature_template` SET `unit_flags`=`unit_flags`|512|256 WHERE `entry`=@ENTRY_MOUNT;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (@ENTRY,@ENTRY_MOUNT) AND `source_type`=0;
 DELETE FROM `smart_scripts` WHERE `entryorguid`=@ENTRY_MOUNT*100 AND `source_type`=9;
-INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`)
-VALUES
+INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (@ENTRY,0,0,0,62,0,100,0,@GOSSIP,0,0,0,11,@SPELL,0,0,0,0,0,7,0,0,0,0,0,0,0, 'On gossip select - cast spell 51258 - Captive Crocolisk'),
 (@ENTRY_MOUNT,0,1,0,54,0,100,0,0,0,0,0,80,@ENTRY_MOUNT*100,0,2,0,0,0,1,0,0,0,0,0,0,0, 'On summon - run script - Captive Crocolisk'),
 (@ENTRY_MOUNT*100,9,1,0,0,0,100,0,0,0,0,0,53,1,@ENTRY_MOUNT,0,@QUEST,0,1,1,0,0,0,0,0,0,0, 'Start wp - Captive Crocolisk'),
 (@ENTRY_MOUNT,0,2,3,58,0,100,0,47,0,0,0,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'on wp end - despawn - Captive Crocolisk'),
 (@ENTRY_MOUNT,0,3,0,61,0,100,0,@ENTRY_MOUNT,0,0,0,15,@QUEST,0,0,0,0,0,7,0,0,0,0,0,0,0, 'on despawn - call area explored of event happens');
-
 -- Waypoints
 DELETE FROM `waypoints` WHERE `entry`=@ENTRY_MOUNT;
-INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`)
-VALUES
+INSERT INTO `waypoints` (`entry`,`pointid`,`position_x`,`position_y`,`position_z`,`point_comment`) VALUES
 (@ENTRY_MOUNT,1,5268.226,4425.439,-95.55899, 'Captive Crocolisk'),
 (@ENTRY_MOUNT,2,5249.557,4405.892,-96.04365, 'Captive Crocolisk'),
 (@ENTRY_MOUNT,3,5266.678,4365.464,-98.19455, 'Captive Crocolisk'),
@@ -95,10 +87,8 @@ VALUES
 (@ENTRY_MOUNT,45,6139.616,4913.349,-94.8635, 'Captive Crocolisk'),
 (@ENTRY_MOUNT,46,6139.616,4913.349,-94.93861, 'Captive Crocolisk'),
 (@ENTRY_MOUNT,47,6139.616,4913.349,-94.93861, 'Captive Crocolisk');
-
 -- Spawn Zepik
 SET @GUID := 40267;
 DELETE FROM `creature` WHERE `id`=28216;
 INSERT INTO `creature` VALUES
 (@GUID,28216,571,1,1,0,0,6147.37,4917.29,-94.094,3.42155,300,0,0,42,0,0,0,0,0);
-
