@@ -2303,10 +2303,11 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                         // players also become permanently bound when they enter
                         if (groupBind->perm)
                         {
-                            WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 9);
+                            WorldPacket data(SMSG_INSTANCE_LOCK_WARNING_QUERY, 10);
                             data << uint32(60000);
                             data << uint32(i_data ? i_data->GetCompletedEncounterMask() : 0);
                             data << uint8(0);
+                            data << uint8(0); // events it throws:  1 : INSTANCE_LOCK_WARNING   0 : INSTANCE_LOCK_STOP / INSTANCE_LOCK_START
                             player->GetSession()->SendPacket(&data);
                             player->SetPendingBind(mapSave->GetInstanceId(), 60000);
                         }

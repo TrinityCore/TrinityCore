@@ -1387,8 +1387,9 @@ void WorldSession::HandleComplainOpcode(WorldPacket & recv_data)
     // if it's mail spam - ALL mails from this spammer automatically removed by client
 
     // Complaint Received message
-    WorldPacket data(SMSG_COMPLAIN_RESULT, 1);
-    data << uint8(0);
+    WorldPacket data(SMSG_COMPLAIN_RESULT, 2);
+    data << uint8(0); // value 1 resets CGChat::m_complaintsSystemStatus in client. (unused?)
+    data << uint8(0); // value 0xC generates a "CalendarError" in client.
     SendPacket(&data);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "REPORT SPAM: type %u, guid %u, unk1 %u, unk2 %u, unk3 %u, unk4 %u, message %s", spam_type, GUID_LOPART(spammer_guid), unk1, unk2, unk3, unk4, description.c_str());
