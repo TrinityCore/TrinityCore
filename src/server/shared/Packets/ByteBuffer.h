@@ -183,6 +183,41 @@ class ByteBuffer
             return b;
         }
 
+        void ReadByteMask(uint8& b)
+        {
+            b = ReadBit() ? 1 : 0;
+        }
+
+        void ReadByteSeq(uint8& b)
+        {
+            if (b != 0)
+                b ^= read<uint8>();
+        }
+
+        uint8 ReadXorByte()
+        {
+            return ReadUInt8() ^ 1;
+        }
+        
+        void ReadXorByte(uint32 bit, uint8& byte)
+        {
+            if (!bit) 
+                byte = 0;
+            else
+                byte = ReadUInt8() ^ bit;
+        }
+
+        void WriteByteMask(uint8 b)
+        {
+            WriteBit(b);
+        }
+
+        void WriteByteSeq(uint8 b)
+        {
+            if (b != 0)
+                append<uint8>(b ^ 1);
+        }
+
         template <typename T> void put(size_t pos, T value)
         {
             EndianConvert(value);

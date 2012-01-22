@@ -132,15 +132,15 @@ void WorldSession::HandleGuildRosterOpcode(WorldPacket& recvPacket)
     BitStream mask = recvPacket.ReadBitStream(8);
 
     ByteBuffer bytes(8, true);
-
-    if (mask[0]) bytes[7] = recvPacket.ReadUInt8() ^ 1;
-    if (mask[5]) bytes[4] = recvPacket.ReadUInt8() ^ 1;
-    if (mask[4]) bytes[5] = recvPacket.ReadUInt8() ^ 1;
-    if (mask[7]) bytes[0] = recvPacket.ReadUInt8() ^ 1;
-    if (mask[3]) bytes[1] = recvPacket.ReadUInt8() ^ 1;
-    if (mask[2]) bytes[2] = recvPacket.ReadUInt8() ^ 1;
-    if (mask[1]) bytes[6] = recvPacket.ReadUInt8() ^ 1;
-    if (mask[6]) bytes[3] = recvPacket.ReadUInt8() ^ 1;
+    
+    recvPacket.ReadXorByte(mask[0], bytes[7]);
+    recvPacket.ReadXorByte(mask[5], bytes[4]);
+    recvPacket.ReadXorByte(mask[4], bytes[5]);
+    recvPacket.ReadXorByte(mask[7], bytes[0]);
+    recvPacket.ReadXorByte(mask[3], bytes[1]);
+    recvPacket.ReadXorByte(mask[2], bytes[2]);
+    recvPacket.ReadXorByte(mask[1], bytes[6]);
+    recvPacket.ReadXorByte(mask[6], bytes[3]);
 
     uint64 guildGuid = BitConverter::ToUInt64(bytes);
 
