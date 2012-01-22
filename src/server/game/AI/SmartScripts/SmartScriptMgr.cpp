@@ -282,6 +282,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_HOSTILE_RANDOM:
         case SMART_TARGET_HOSTILE_RANDOM_NOT_TOP:
         case SMART_TARGET_ACTION_INVOKER:
+        case SMART_TARGET_INVOKER_PARTY:
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
         case SMART_TARGET_ACTION_INVOKER_VEHICLE:
