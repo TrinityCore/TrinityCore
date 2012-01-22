@@ -1963,6 +1963,13 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
     if (!sSpellMgr->CanSpellTriggerProcOnEvent(*procEntry, eventInfo))
         return false;
 
+    // TODO:
+    // - do checks using conditions table for eventInfo->GetActor() and eventInfo->GetActionTarget()
+    // - add DoCheckProc() AuraScript hook
+    // to allow additional requirements for procs
+    // this is needed because this is the last moment in which you can prevent aura charge drop on proc
+    // and possibly a way to prevent default checks (if there're going to be any)
+
     // Check if current equipment meets aura requirements
     // do that only for passive spells
     // TODO: this needs to be unified for all kinds of auras
@@ -2023,11 +2030,14 @@ float Aura::CalcProcChance(SpellProcEntry const& procEntry, ProcEventInfo& event
 
 void Aura::TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo)
 {
-    // TODO: script hooks here (allowing prevention of selected effects)
+    // TODO: OnProc hook here
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
         if (aurApp->HasEffect(i))
+            // TODO: OnEffectProc hook here (allowing prevention of selected effects)
             GetEffect(i)->HandleProc(aurApp, eventInfo);
-    // TODO: script hooks here
+            // TODO: AfterEffectProc hook here 
+
+    // TODO: AfterProc hook here
 
     // Remove aura if we've used last charge to proc
     if (IsUsingCharges() && !GetCharges())
