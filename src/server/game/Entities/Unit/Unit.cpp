@@ -15635,12 +15635,10 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         // only if not player and not controlled by player pet. And not at BG
         if ((durabilityLoss && !player && !victim->ToPlayer()->InBattleground()) || (player && sWorld->getBoolConfig(CONFIG_DURABILITY_LOSS_IN_PVP)))
         {
-            float percent = sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH);
-            plrVictim->DurabilityLossAll(percent, false);
-            sLog->outStaticDebug("We are dead, losing %f percent durability", percent);
+            sLog->outStaticDebug("We are dead, losing %f percent durability", sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH));
+            plrVictim->DurabilityLossAll(sWorld->getRate(RATE_DURABILITY_LOSS_ON_DEATH), false);
             // durability lost message
-            WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 4);
-            data << uint32(percent*100);
+            WorldPacket data(SMSG_DURABILITY_DAMAGE_DEATH, 0);
             plrVictim->GetSession()->SendPacket(&data);
         }
         // Call KilledUnit for creatures
