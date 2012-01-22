@@ -63,7 +63,7 @@ bool Condition::Meets(Player* player, Unit* invoker)
         case CONDITION_REPUTATION_RANK:
         {
             if (FactionEntry const* faction = sFactionStore.LookupEntry(mConditionValue1))
-                condMeets = uint32(player->GetReputationMgr().GetRank(faction)) == mConditionValue2;
+                condMeets = (mConditionValue2 & (1 << player->GetReputationMgr().GetRank(faction)));
             break;
         }
         case CONDITION_ACHIEVEMENT:
