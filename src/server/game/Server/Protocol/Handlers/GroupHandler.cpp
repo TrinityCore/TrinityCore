@@ -49,11 +49,12 @@ class Aura;
 
 void WorldSession::SendPartyResult(PartyOperation operation, const std::string& member, PartyResult res, uint32 val /* = 0 */)
 {
-    WorldPacket data(SMSG_PARTY_COMMAND_RESULT, 4 + member.size() + 1 + 4 + 4);
+    WorldPacket data(SMSG_PARTY_COMMAND_RESULT, 4 + member.size() + 1 + 4 + 4 + 8);
     data << uint32(operation);
     data << member;
     data << uint32(res);
     data << uint32(val);                                    // LFD cooldown related (used with ERR_PARTY_LFG_BOOT_COOLDOWN_S and ERR_PARTY_LFG_BOOT_NOT_ELIGIBLE_S)
+    data << uint64(0); // player who caused error (in some cases).
 
     SendPacket(&data);
 }
@@ -61,10 +62,36 @@ void WorldSession::SendPartyResult(PartyOperation operation, const std::string& 
 void WorldSession::HandleGroupInviteOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_GROUP_INVITE");
+ 
+    BytesGuid guid;
+    guid.guid = 0;
+    
+    recv_data.ReadByteMask(guid.bytes[6]);
+    recv_data.ReadByteMask(guid.bytes[5]);
+    recv_data.ReadByteMask(guid.bytes[0]);
+    recv_data.ReadByteMask(guid.bytes[3]);
+    recv_data.ReadByteMask(guid.bytes[4]);
+    recv_data.ReadByteMask(guid.bytes[7]);
+    recv_data.ReadByteMask(guid.bytes[1]);
+    recv_data.ReadByteMask(guid.bytes[2]);
+
+    recv_data.read_skip<uint32>();
+    recv_data.read_skip<uint32>();
 
     std::string membername;
     recv_data >> membername;
     recv_data.read_skip<uint32>();
+
+    recv_data.ReadByteSeq(guid.bytes[0]);
+    recv_data.ReadByteSeq(guid.bytes[7]);
+    recv_data.ReadByteSeq(guid.bytes[4]);
+    recv_data.ReadByteSeq(guid.bytes[1]);
+    recv_data.ReadByteSeq(guid.bytes[2]);
+    recv_data.ReadByteSeq(guid.bytes[6]);
+    recv_data.ReadByteSeq(guid.bytes[5]);
+    std::string string0;
+    recv_data >> string0;
+    recv_data.ReadByteSeq(guid.bytes[3]);
 
     // attempt add selected player
 
