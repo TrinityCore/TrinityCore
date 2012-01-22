@@ -1279,10 +1279,12 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
     {
         if (type == DAMAGE_FALL)                               // DealDamage not apply item durability loss at self damage
         {
-            sLog->outStaticDebug("We are fall to death, loosing 10 percents durability");
-            DurabilityLossAll(0.10f, false);
+            float percent = 0.10f;
+            DurabilityLossAll(percent, false);
+            sLog->outStaticDebug("We are fall to death, loosing %f percents durability", percent);
             // durability lost message
-            WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 0);
+            WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 4);
+            data2 << uint32(percent*100);
             GetSession()->SendPacket(&data2);
         }
 
@@ -5391,7 +5393,7 @@ Corpse* Player::GetCorpse() const
     return sObjectAccessor->GetCorpseForPlayerGUID(GetGUID());
 }
 
-void Player::DurabilityLossAll(double percent, bool inventory)
+void Player::DurabilityLossAll(double &percent, bool inventory)
 {
     for (uint8 i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; i++)
         if (Item* pItem = GetItemByPos(INVENTORY_SLOT_BAG_0, i))
@@ -5417,7 +5419,7 @@ void Player::DurabilityLossAll(double percent, bool inventory)
     }
 }
 
-void Player::DurabilityLoss(Item* item, double percent)
+void Player::DurabilityLoss(Item* item, double &percent)
 {
     if (!item)
         return;
