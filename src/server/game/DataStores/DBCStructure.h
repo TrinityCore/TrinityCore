@@ -803,9 +803,9 @@ struct CreatureModelDataEntry
 {
     uint32 Id;
     //uint32 Flags;
-    //char* ModelPath
+    //char* ModelPath[16]
     //uint32 Unk1;
-    //float Scale;                                             // Used in calculation of unit collision data
+    float Scale;                                             // Used in calculation of unit collision data
     //int32 Unk2
     //int32 Unk3
     //uint32 Unk4
@@ -858,7 +858,7 @@ struct CurrencyTypesEntry
     //uint32 unk6;                                          // 6        archaeology-related (?)
     uint32 TotalCap;                                        // 7
     uint32 WeekCap;                                         // 8
-    uint32 Flags;                                           // 9
+    //int32 unk9;                                           // 9
     //char* description;                                    // 10
 };
 

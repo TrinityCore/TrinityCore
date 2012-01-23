@@ -34,7 +34,7 @@
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got CMSG_WORLD_PORT_RESPONSE.");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -191,25 +191,13 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_TELEPORT_ACK");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_MOVE_TELEPORT_ACK");
+    uint64 guid;
 
-    BitStream mask = recv_data.ReadBitStream(8);
-    
+    recv_data.readPackGUID(guid);
+
     uint32 flags, time;
     recv_data >> flags >> time;
-
-    ByteBuffer bytes(8, true);
-    recv_data.ReadXorByte(mask[6], bytes[1]);
-    recv_data.ReadXorByte(mask[0], bytes[3]);
-    recv_data.ReadXorByte(mask[1], bytes[2]);
-    recv_data.ReadXorByte(mask[7], bytes[0]);
-    recv_data.ReadXorByte(mask[5], bytes[6]);
-    recv_data.ReadXorByte(mask[3], bytes[4]);
-    recv_data.ReadXorByte(mask[2], bytes[7]);
-    recv_data.ReadXorByte(mask[4], bytes[5]);
-
-    uint64 guid = BitConverter::ToUInt64(bytes);
-
     sLog->outStaticDebug("Guid " UI64FMTD, guid);
     sLog->outStaticDebug("Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
@@ -430,15 +418,15 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 
     switch (opcode)
     {
-        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:          move_type = MOVE_WALK;          force_move_type = MOVE_WALK;        break;
-        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:           move_type = MOVE_RUN;           force_move_type = MOVE_RUN;         break;
-        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK:      move_type = MOVE_RUN_BACK;      force_move_type = MOVE_RUN_BACK;    break;
-        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:          move_type = MOVE_SWIM;          force_move_type = MOVE_SWIM;        break;
-        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:     move_type = MOVE_SWIM_BACK;     force_move_type = MOVE_SWIM_BACK;   break;
-        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:           move_type = MOVE_TURN_RATE;     force_move_type = MOVE_TURN_RATE;   break;
-        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:        move_type = MOVE_FLIGHT;        force_move_type = MOVE_FLIGHT;      break;
-        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:   move_type = MOVE_FLIGHT_BACK;   force_move_type = MOVE_FLIGHT_BACK; break;
-        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:          move_type = MOVE_PITCH_RATE;    force_move_type = MOVE_PITCH_RATE;  break;
+        //case CMSG_FORCE_WALK_SPEED_CHANGE_ACK:          move_type = MOVE_WALK;          force_move_type = MOVE_WALK;        break;
+        //case CMSG_FORCE_RUN_SPEED_CHANGE_ACK:           move_type = MOVE_RUN;           force_move_type = MOVE_RUN;         break;
+        //case CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK:      move_type = MOVE_RUN_BACK;      force_move_type = MOVE_RUN_BACK;    break;
+        //case CMSG_FORCE_SWIM_SPEED_CHANGE_ACK:          move_type = MOVE_SWIM;          force_move_type = MOVE_SWIM;        break;
+        //case CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:     move_type = MOVE_SWIM_BACK;     force_move_type = MOVE_SWIM_BACK;   break;
+        //case CMSG_FORCE_TURN_RATE_CHANGE_ACK:           move_type = MOVE_TURN_RATE;     force_move_type = MOVE_TURN_RATE;   break;
+        //case CMSG_FORCE_FLIGHT_SPEED_CHANGE_ACK:        move_type = MOVE_FLIGHT;        force_move_type = MOVE_FLIGHT;      break;
+        //case CMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:   move_type = MOVE_FLIGHT_BACK;   force_move_type = MOVE_FLIGHT_BACK; break;
+        //case CMSG_FORCE_PITCH_RATE_CHANGE_ACK:          move_type = MOVE_PITCH_RATE;    force_move_type = MOVE_PITCH_RATE;  break;
         default:
             sLog->outError("WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
             return;
@@ -484,7 +472,10 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
             GetPlayer()->SetMover(mover);
             if (mover != GetPlayer() && mover->canFly())
             {
-                GetPlayer()->SendSetFlyPacket(true);
+                WorldPacket data(SMSG_MOVE_SET_CAN_FLY, 12);
+                data.append(mover->GetPackGUID());
+                data << uint32(0);
+                SendPacket(&data);
             }
         }
         else
@@ -533,7 +524,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
     ReadMovementInfo(recv_data, &movementInfo);
     _player->m_movementInfo = movementInfo;
 
-    WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
+    WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
     data.appendPackGUID(guid);
     _player->BuildMovementPacket(&data);
 

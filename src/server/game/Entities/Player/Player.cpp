@@ -1282,7 +1282,8 @@ uint32 Player::EnvironmentalDamage(EnviromentalDamage type, uint32 damage)
             sLog->outStaticDebug("We are fall to death, loosing 10 percents durability");
             DurabilityLossAll(0.10f, false);
             // durability lost message
-            WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 0);
+            WorldPacket data2(SMSG_DURABILITY_DAMAGE_DEATH, 4);
+            data2 << uint32(10);
             GetSession()->SendPacket(&data2);
         }
 
@@ -2068,87 +2069,20 @@ uint8 Player::GetChatTag() const
 
 void Player::SendTeleportPacket(Position &oldPos)
 {
-    WorldPacket data(SMSG_MOVE_TELEPORT, 38);
-
-    uint64 guid = GetGUID();
-    uint8* bytes = (uint8*)&guid;
-
-    data.WriteBit(GetTransGUID());
-    data.WriteBit(bytes[0]);
-    data.WriteBit(bytes[2]);
-    data.WriteBit(bytes[6]);
-    data.WriteBit(bytes[7]);
-    data.WriteBit(bytes[4]);
-    data.WriteBit(bytes[5]);
-    data.WriteBit(bytes[3]);
-    data.WriteBit(bytes[1]);
-    data.WriteBit(0); //unk byte's bit
-    data << GetPositionX();
-    data << GetPositionY();
-    data << GetPositionZ();
-    data.WriteByteSeq(bytes[5]);
-    data.WriteByteSeq(bytes[4]);
-    if (GetTransGUID()) data << GetTransGUID();
-    data.WriteByteSeq(bytes[2]);
-    data.WriteByteSeq(bytes[7]);
-    data << uint32(0); //unk int
-    data.WriteByteSeq(bytes[1]);
-    data.WriteByteSeq(bytes[0]);
-    data.WriteByteSeq(bytes[6]);
-    data.WriteByteSeq(bytes[3]);
-    // unk byte, only if bit is set
-    data << GetOrientation();
-
+    WorldPacket data2(MSG_MOVE_TELEPORT, 38);
+    data2.append(GetPackGUID());
+    BuildMovementPacket(&data2);
     Relocate(&oldPos);
-    SendDirectMessage(&data);
+    SendMessageToSet(&data2, false);
 }
 
-void Player::SendSetFlyPacket(bool apply)
+void Player::SendTeleportAckPacket()
 {
-    WorldPacket data(apply ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY, 12);
-    uint64 guid = GetGUID();
-    uint8* bytes = (uint8*)&guid;
-    if (apply)
-    {
-        data.WriteBit(bytes[4]);
-        data.WriteBit(bytes[3]);
-        data.WriteBit(bytes[6]);
-        data.WriteBit(bytes[0]);
-        data.WriteBit(bytes[1]);
-        data.WriteBit(bytes[2]);
-        data.WriteBit(bytes[7]);
-        data.WriteBit(bytes[5]);
-        data.WriteByteSeq(bytes[3]);
-        data.WriteByteSeq(bytes[7]);
-        data.WriteByteSeq(bytes[5]);
-        data.WriteByteSeq(bytes[0]);
-        data.WriteByteSeq(bytes[1]);
-        data.WriteByteSeq(bytes[4]);
-        data << uint32(sWorld->GetGameTime());
-        data.WriteByteSeq(bytes[6]);
-        data.WriteByteSeq(bytes[2]);
-    }
-    else 
-    {
-        data.WriteBit(bytes[1]);
-        data.WriteBit(bytes[6]);
-        data.WriteBit(bytes[0]);
-        data.WriteBit(bytes[2]);
-        data.WriteBit(bytes[4]);
-        data.WriteBit(bytes[5]);
-        data.WriteBit(bytes[7]);
-        data.WriteBit(bytes[3]);
-        data.WriteByteSeq(bytes[7]);
-        data.WriteByteSeq(bytes[6]);
-        data.WriteByteSeq(bytes[5]);
-        data.WriteByteSeq(bytes[0]);
-        data << uint32(sWorld->GetGameTime());
-        data.WriteByteSeq(bytes[3]);
-        data.WriteByteSeq(bytes[1]);
-        data.WriteByteSeq(bytes[2]);
-        data.WriteByteSeq(bytes[4]);
-    }
-    SendDirectMessage(&data);
+    WorldPacket data(MSG_MOVE_TELEPORT_ACK, 41);
+    data.append(GetPackGUID());
+    data << uint32(0);                                     // this value increments every time
+    BuildMovementPacket(&data);
+    GetSession()->SendPacket(&data);
 }
 
 bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientation, uint32 options)
@@ -2254,14 +2188,15 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         SetFallInformation(0, z);
 
         // code for finish transfer called in WorldSession::HandleMovementOpcodes()
-        // at client packet CMSG_MOVE_TELEPORT_ACK
+        // at client packet MSG_MOVE_TELEPORT_ACK
         SetSemaphoreTeleportNear(true);
-        // near teleport, triggering send CMSG_MOVE_TELEPORT_ACK from client at landing
+        // near teleport, triggering send MSG_MOVE_TELEPORT_ACK from client at landing
         if (!GetSession()->PlayerLogout())
         {
             Position oldPos;
             GetPosition(&oldPos);
             Relocate(x, y, z, orientation);
+            SendTeleportAckPacket();
             SendTeleportPacket(oldPos); // this automatically relocates to oldPos in order to broadcast the packet in the right place
         }
     }
@@ -5102,10 +5037,10 @@ void Player::SetMovement(PlayerMovementType pType)
     WorldPacket data;
     switch (pType)
     {
-        case MOVE_ROOT:       data.Initialize(SMSG_MOVE_ROOT,   GetPackGUID().size()+4); break;
-        case MOVE_UNROOT:     data.Initialize(SMSG_MOVE_UNROOT, GetPackGUID().size()+4); break;
-        case MOVE_WATER_WALK: data.Initialize(SMSG_MOVE_SPLINE_SET_WATER_WALK,   GetPackGUID().size()+4); break;
-        case MOVE_LAND_WALK:  data.Initialize(SMSG_MOVE_SPLINE_SET_LAND_WALK,    GetPackGUID().size()+4); break;
+        case MOVE_ROOT:       data.Initialize(SMSG_FORCE_MOVE_ROOT,   GetPackGUID().size()+4); break;
+        case MOVE_UNROOT:     data.Initialize(SMSG_FORCE_MOVE_UNROOT, GetPackGUID().size()+4); break;
+        case MOVE_WATER_WALK: data.Initialize(SMSG_MOVE_WATER_WALK,   GetPackGUID().size()+4); break;
+        case MOVE_LAND_WALK:  data.Initialize(SMSG_MOVE_LAND_WALK,    GetPackGUID().size()+4); break;
         default:
             sLog->outError("Player::SetMovement: Unsupported move type (%d), data not sent to client.", pType);
             return;
@@ -7350,31 +7285,13 @@ void Player::SendCurrencies() const
 
    for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
    {
-        CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-        if (!entry)
-            continue;
-
-        uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
-        packet.WriteBit(_GetCurrencyWeekCap(entry) / precision);
-        packet.WriteBit(0);
-        packet.WriteBit(itr->second.weekCount / precision);
-   }
-
-   for (PlayerCurrenciesMap::const_iterator itr = m_currencies.begin(); itr != m_currencies.end(); ++itr)
-   {
-        CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
-        if (!entry)
-            continue;
-
-        uint32 precision = (entry->Flags & 0x8) ? 100 : 1;
-        packet << uint32(entry->ID);
-        if (uint32 weekCap = (_GetCurrencyWeekCap(entry) / precision))
-            packet << uint32(weekCap);
-        packet << uint32(itr->second.totalCount / precision);
-        packet << uint8(0);                     // unknown
-        //packet << uint32(0); // season total earned
-        if (uint32 weekCount = (itr->second.weekCount / precision))
-            packet << uint32(weekCount);
+       CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(itr->first);
+       packet << uint32(itr->second.weekCount / PLAYER_CURRENCY_PRECISION);
+       packet << uint8(0);                     // unknown
+       packet << uint32(entry->ID);
+       packet << uint32(sWorld->GetNextWeeklyQuestsResetTime() - 1*WEEK);
+       packet << uint32(_GetCurrencyWeekCap(entry) / PLAYER_CURRENCY_PRECISION);
+       packet << uint32(itr->second.totalCount / PLAYER_CURRENCY_PRECISION);
    }
 
    GetSession()->SendPacket(&packet);
@@ -7400,7 +7317,6 @@ void Player::ModifyCurrency(uint32 id, int32 count)
    CurrencyTypesEntry const* currency = sCurrencyTypesStore.LookupEntry(id);
    ASSERT(currency);
 
-   int32 precision = currency->Flags & 0x8 ? 100 : 1;
    uint32 oldTotalCount = 0;
    uint32 oldWeekCount = 0;
    PlayerCurrenciesMap::iterator itr = m_currencies.find(id);
@@ -7462,8 +7378,8 @@ void Player::ModifyCurrency(uint32 id, int32 count)
 
            WorldPacket packet(SMSG_UPDATE_CURRENCY, 12);
            packet << uint32(id);
-           packet << uint32(weekCap ? (newWeekCount / precision) : 0);
-           packet << uint32(newTotalCount / precision);
+           packet << uint32(weekCap ? (newWeekCount / PLAYER_CURRENCY_PRECISION) : 0);
+           packet << uint32(newTotalCount / PLAYER_CURRENCY_PRECISION);
            GetSession()->SendPacket(&packet);
        }
    }
@@ -7504,7 +7420,7 @@ uint32 Player::_GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const
    if (cap != currency->WeekCap && IsInWorld() && !GetSession()->PlayerLoading())
    {
        WorldPacket packet(SMSG_UPDATE_CURRENCY_WEEK_LIMIT, 8);
-       packet << uint32(cap / ((currency->Flags & 0x8) ? 100 : 1));
+       packet << uint32(cap / PLAYER_CURRENCY_PRECISION);
        packet << uint32(currency->ID);
        GetSession()->SendPacket(&packet);
    }
@@ -16281,9 +16197,9 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_QUESTGIVER_QUEST_COMPLETE quest = %u", questId);
     sGameEventMgr->HandleQuestComplete(questId);
     WorldPacket data(SMSG_QUESTGIVER_QUEST_COMPLETE, (4+4+4+4+4));
-
+    
     data << int8(0x80); // 4.x unknown flag, most common value is 0x80 (it might be a single bit)
-
+    
     if (getLevel() < sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
     {
         data << uint32(XP);
@@ -16294,7 +16210,7 @@ void Player::SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver)
         data << uint32(0);
         data << uint32(quest->GetRewOrReqMoney() + int32(quest->GetRewMoneyMaxLevel() * sWorld->getRate(RATE_DROP_MONEY)));
     }
-
+    
     data << uint32(quest->GetRewardSkillPoints());         // 4.x bonus skill points
     data << uint32(questId);
     data << uint32(quest->GetRewardSkillId());             // 4.x bonus skill id
@@ -21863,7 +21779,7 @@ void Player::SendInitialPacketsAfterAddToMap()
     // manual send package (have code in HandleEffect(this, AURA_EFFECT_HANDLE_SEND_FOR_CLIENT, true); that must not be re-applied.
     if (HasAuraType(SPELL_AURA_MOD_ROOT))
     {
-        WorldPacket data2(SMSG_MOVE_ROOT, 10);
+        WorldPacket data2(SMSG_FORCE_MOVE_ROOT, 10);
         data2.append(GetPackGUID());
         data2 << (uint32)2;
         SendMessageToSet(&data2, true);

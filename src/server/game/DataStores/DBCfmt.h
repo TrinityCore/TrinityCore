@@ -42,11 +42,11 @@ const char ChrClassesXPowerTypesfmt[]="nii";
 
 const char CinematicSequencesEntryfmt[]="nxxxxxxxxx";
 const char CreatureDisplayInfofmt[]="nixxfxxxxxxxxxxxx";
-const char CreatureModelDatafmt[]="nxxxxxxxxxxxxxffxxxxxxxxxxxxxxx";
+const char CreatureModelDatafmt[]="nxxxxxxxxxxxxxffxxxxxxxxxxxx";
 const char CreatureFamilyfmt[]="nfifiiiiixsx";
 const char CreatureSpellDatafmt[]="niiiixxxx";
 const char CreatureTypefmt[]="nxx";
-const char CurrencyTypesfmt[]="nxxxxxxiiix";
+const char CurrencyTypesfmt[]="nxxxxxxiixx";
 
 const char DestructibleModelDatafmt[]="ixxixxxixxxixxxixxxxxxxx";
 const char DungeonEncounterfmt[]="iiixisxx";
