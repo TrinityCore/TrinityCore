@@ -305,7 +305,7 @@ bool TradeData::HasItem(uint64 itemGuid) const
     return false;
 }
 
-TradeSlots const TradeData::GetTradeSlotForItem(uint64 itemGuid)
+TradeSlots TradeData::GetTradeSlotForItem(uint64 itemGuid) const
 {
     for (uint8 i = 0; i < TRADE_SLOT_COUNT; ++i)
         if (m_items[i] == itemGuid)
