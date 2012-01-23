@@ -320,6 +320,11 @@ SpellInfo const* SpellScript::GetSpellInfo()
     return m_spell->GetSpellInfo();
 }
 
+void SpellScript::AddUnitTarget(Unit* unitTarget, uint32 effectMask)
+{
+    m_spell->AddUnitTarget(unitTarget, effectMask);
+}
+
 WorldLocation const* SpellScript::GetTargetDest()
 {
     if (m_spell->m_targets.HasDst())
@@ -466,6 +471,16 @@ void SpellScript::PreventHitAura()
     }
     if (m_spell->m_spellAura)
         m_spell->m_spellAura->Remove();
+}
+
+void SpellScript::GetSummonPosition(uint32 i, Position &pos, float radius = 0.0f, uint32 count = 0)
+{
+    m_spell->GetSummonPosition(i, pos, radius, count);
+}
+
+void SpellScript::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry)
+{
+    m_spell->SearchAreaTarget(TagUnitMap, radius, type, TargetType, entry);
 }
 
 void SpellScript::PreventHitEffect(SpellEffIndex effIndex)
