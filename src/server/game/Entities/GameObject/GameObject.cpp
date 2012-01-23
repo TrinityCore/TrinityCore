@@ -979,7 +979,7 @@ void GameObject::ResetDoorOrButton()
     m_cooldownTime = 0;
 }
 
-void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = false */)
+void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = false */, Unit* user /*=NULL*/)
 {
     if (m_lootState != GO_READY)
         return;
@@ -988,7 +988,7 @@ void GameObject::UseDoorOrButton(uint32 time_to_restore, bool alternative /* = f
         time_to_restore = GetGOInfo()->GetAutoCloseTime();
 
     SwitchDoorOrButton(true, alternative);
-    SetLootState(GO_ACTIVATED);
+    SetLootState(GO_ACTIVATED, user);
 
     m_cooldownTime = time(NULL) + time_to_restore;
 }
@@ -1058,7 +1058,7 @@ void GameObject::Use(Unit* user)
         case GAMEOBJECT_TYPE_DOOR:                          //0
         case GAMEOBJECT_TYPE_BUTTON:                        //1
             //doors/buttons never really despawn, only reset to default state/flags
-            UseDoorOrButton();
+            UseDoorOrButton(0, false, user);
 
             // activate script
             GetMap()->ScriptsStart(sGameObjectScripts, GetDBTableGUIDLow(), spellCaster, this);
@@ -1211,7 +1211,7 @@ void GameObject::Use(Unit* user)
                 TriggeringLinkedGameObject(trapEntry, user);
 
             SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
-            SetLootState(GO_ACTIVATED);
+            SetLootState(GO_ACTIVATED, user);
 
             // this appear to be ok, however others exist in addition to this that should have custom (ex: 190510, 188692, 187389)
             if (info->goober.customAnim)
@@ -1872,8 +1872,8 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
     }
 }
 
-void GameObject::SetLootState(LootState s)
+void GameObject::SetLootState(LootState s, Unit* unit)
 {
     m_lootState = s;
-    AI()->OnStateChanged(s);
+    AI()->OnStateChanged(s, unit);
 }

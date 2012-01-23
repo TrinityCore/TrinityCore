@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Boss_Ingvar_The_Plunderer
 SD%Complete: 95
-SDComment: Some Problems with Annhylde Movement, Blizzlike Timers
+SDComment: Some Problems with Annhylde Movement, Blizzlike Timers (just shadow axe summon needs a new timer)
 SDCategory: Udgarde Keep
 EndScriptData */
 
@@ -97,9 +97,9 @@ public:
 
     struct boss_ingvar_the_plundererAI : public ScriptedAI
     {
-        boss_ingvar_the_plundererAI(Creature* c) : ScriptedAI(c)
+        boss_ingvar_the_plundererAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -107,10 +107,6 @@ public:
         bool bIsUndead;
         bool bEventInProgress;
 
-        uint32 uiCleaveTimer;
-        uint32 uiSmashTimer;
-        uint32 uiEnrageTimer;
-        uint32 uiRoarTimer;
         uint32 uiSpawnResTimer;
 
         void Reset()
