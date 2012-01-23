@@ -276,7 +276,7 @@ public:
                 me->DealDamage(me, me->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
-        void JustDied(Unit* killer)
+        void JustDied(Unit* /*killer*/)
         {
             summons.DespawnAll();
 
@@ -285,8 +285,8 @@ public:
 
             Talk(SAY_DEATH);
         }
-        
-        void SpellHitTarget(Unit* target, const SpellInfo* spell)
+
+        void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_RITUAL_STRIKE_EFF_1 && Phase != NORMAL && Phase != SVALADEAD)
             {
