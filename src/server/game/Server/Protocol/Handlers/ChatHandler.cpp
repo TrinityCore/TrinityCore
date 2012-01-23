@@ -270,8 +270,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             recvData >> to;
             break;
         case CHAT_MSG_CHANNEL:
-            recvData >> channel;
             recvData >> msg;
+            recvData >> channel;
             break;
         case CHAT_MSG_AFK:
         case CHAT_MSG_DND:
@@ -491,7 +491,6 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
                 if (Channel* chn = cMgr->GetChannel(channel, _player))
                 {
                     sScriptMgr->OnPlayerChat(_player, type, lang, msg, chn);
-
                     chn->Say(_player->GetGUID(), msg.c_str(), lang);
                 }
             }
