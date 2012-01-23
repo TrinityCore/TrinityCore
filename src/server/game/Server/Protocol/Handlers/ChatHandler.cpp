@@ -270,8 +270,8 @@ void WorldSession::HandleMessagechatOpcode(WorldPacket& recvData)
             recvData >> to;
             break;
         case CHAT_MSG_CHANNEL:
-            recvData >> channel;
             recvData >> msg;
+            recvData >> channel;
             break;
         case CHAT_MSG_AFK:
         case CHAT_MSG_DND:
