@@ -342,6 +342,13 @@ public:
 
         uint32 healPct;
 
+        bool Validate(SpellInfo const* /* spell */)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DIVINE_STORM_DUMMY))
+                return false;
+            return true;
+        }
+
         bool Load()
         {
             healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
@@ -365,6 +372,52 @@ public:
     }
 };
 
+class spell_pal_divine_storm_dummy : public SpellScriptLoader
+{
+public:
+    spell_pal_divine_storm_dummy() : SpellScriptLoader("spell_pal_divine_storm_dummy") { }
+
+    class spell_pal_divine_storm_dummy_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_divine_storm_dummy_SpellScript);
+
+        uint32 healPct;
+        bool Validate(SpellInfo const* /* spell */)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DIVINE_STORM_HEAL))
+                return false;
+            return true;
+        }
+
+        void CountTargets(std::list<Unit*>& targetList)
+        {
+            _targetCount = targetList.size();
+        }
+
+        void HandleDummy(SpellEffIndex /* effIndex */)
+        {
+            if (!_targetCount)
+                return;
+
+            int32 heal = GetEffectValue() / _targetCount;
+            GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_DIVINE_STORM_HEAL, &heal, NULL, NULL, true);
+        }
+    private:
+        uint32 _targetCount;
+
+        void Register()
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_pal_divine_storm_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnUnitTargetSelect += SpellUnitTargetFn(spell_pal_divine_storm_dummy_SpellScript::CountTargets, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_divine_storm_dummy_SpellScript();
+    }
+};
+
 void AddSC_paladin_spell_scripts()
 {
     new spell_pal_ardent_defender();
@@ -374,4 +427,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
     new spell_pal_divine_storm();
+    new spell_pal_divine_storm_dummy();
 }

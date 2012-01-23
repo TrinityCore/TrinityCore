@@ -308,6 +308,48 @@ class spell_warl_seed_of_corruption : public SpellScriptLoader
         }
 };
 
+enum Soulshatter
+{
+    SPELL_SOULSHATTER   = 32835,
+};
+
+class spell_warl_soulshatter : public SpellScriptLoader
+{
+    public:
+        spell_warl_soulshatter() : SpellScriptLoader("spell_warl_soulshatter") { }
+
+        class spell_warl_soulshatter_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_warl_soulshatter_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SOULSHATTER))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Unit* target = GetHitUnit();
+                Unit* caster = GetCaster();
+
+                if (target->CanHaveThreatList() && target->getThreatManager().getThreat(caster) > 0.0f)
+                    caster->CastSpell(target, SPELL_SOULSHATTER, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_warl_soulshatter_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_warl_soulshatter_SpellScript();
+        }
+};
+
 void AddSC_warlock_spell_scripts()
 {
     new spell_warl_banish();
@@ -316,4 +358,5 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_everlasting_affliction();
     new spell_warl_ritual_of_doom_effect();
     new spell_warl_seed_of_corruption();
+    new spell_warl_soulshatter();
 }

@@ -1128,6 +1128,872 @@ class spell_magic_eater_food : public SpellScriptLoader
         }
 };
 
+
+class spell_item_shimmering_vessel : public SpellScriptLoader
+{
+    public:
+        spell_item_shimmering_vessel() : SpellScriptLoader("spell_item_shimmering_vessel") { }
+
+        class spell_item_shimmering_vessel_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_shimmering_vessel_SpellScript);
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* target = GetHitUnit();
+
+                if (target->GetTypeId() != TYPEID_UNIT)
+                    return;
+                target->ToCreature()->setDeathState(JUST_ALIVED);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_shimmering_vessel_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_shimmering_vessel_SpellScript();
+        }
+};
+
+enum PurifyHelboarMeat
+{
+    SPELL_SUMMON_PURIFIED_HELBOAR_MEAT      = 29277,
+    SPELL_SUMMON_TOXIC_HELBOAR_MEAT         = 29277,
+};
+
+class spell_item_purify_helboar_meat : public SpellScriptLoader
+{
+    public:
+        spell_item_purify_helboar_meat() : SpellScriptLoader("spell_item_purify_helboar_meat") { }
+
+        class spell_item_purify_helboar_meat_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_purify_helboar_meat_SpellScript);
+            
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_PURIFIED_HELBOAR_MEAT) ||  !sSpellMgr->GetSpellInfo(SPELL_SUMMON_TOXIC_HELBOAR_MEAT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                caster->CastSpell(caster, roll_chance_i(50) ? SPELL_SUMMON_PURIFIED_HELBOAR_MEAT : SPELL_SUMMON_TOXIC_HELBOAR_MEAT, true, NULL);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_purify_helboar_meat_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_purify_helboar_meat_SpellScript();
+        }
+};
+
+
+enum CrystalPrison
+{
+    OBJECT_IMPRISONED_DOOMGUARD     = 179644,
+};
+
+class spell_item_crystal_prison_dummy_dnd : public SpellScriptLoader
+{
+    public:
+        spell_item_crystal_prison_dummy_dnd() : SpellScriptLoader("spell_item_crystal_prison_dummy_dnd") { }
+
+        class spell_item_crystal_prison_dummy_dnd_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_crystal_prison_dummy_dnd_SpellScript);
+            
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sObjectMgr->GetGameObjectTemplate(OBJECT_IMPRISONED_DOOMGUARD))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Creature* target = GetHitCreature();
+
+                if (!target || !target->isAlive() || target->GetTypeId() != TYPEID_UNIT || target->ToCreature()->isPet())
+                    return;
+
+                GetCaster()->SummonGameObject(OBJECT_IMPRISONED_DOOMGUARD, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0, 0, 0, 0, uint32(target->GetRespawnTime()-time(NULL)));
+                sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "SummonGameObject at spell_generic for Spell 23019");
+
+                target->DespawnOrUnsummon();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_crystal_prison_dummy_dnd_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_crystal_prison_dummy_dnd_SpellScript();
+        }
+};
+
+enum ReindeerTransformation
+{
+    SPELL_FLYING_REINDEER_310                   = 44827,
+    SPELL_FLYING_REINDEER_280                   = 44825,
+    SPELL_FLYING_REINDEER_60                    = 44824,
+    SPELL_REINDEER_100                          = 25859,
+    SPELL_REINDEER_60                           = 25858,
+};
+
+class spell_item_reindeer_transformation : public SpellScriptLoader
+{
+    public:
+        spell_item_reindeer_transformation() : SpellScriptLoader("spell_item_reindeer_transformation") { }
+
+        class spell_item_reindeer_transformation_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_reindeer_transformation_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_FLYING_REINDEER_310) || !sSpellMgr->GetSpellInfo(SPELL_FLYING_REINDEER_280)
+                    || !sSpellMgr->GetSpellInfo(SPELL_FLYING_REINDEER_60) || !sSpellMgr->GetSpellInfo(SPELL_REINDEER_100)
+                    || !sSpellMgr->GetSpellInfo(SPELL_REINDEER_60))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+
+                if (!caster->HasAuraType(SPELL_AURA_MOUNTED))
+                    return;
+
+                float flyspeed = caster->GetSpeedRate(MOVE_FLIGHT);
+                float speed = caster->GetSpeedRate(MOVE_RUN);
+
+                caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                //5 different spells used depending on mounted speed and if mount can fly or not
+                if (flyspeed >= 4.1f)
+                    // Flying Reindeer
+                    caster->CastSpell(caster, SPELL_FLYING_REINDEER_310, true); //310% flying Reindeer
+                else if (flyspeed >= 3.8f)
+                    // Flying Reindeer
+                    caster->CastSpell(caster, SPELL_FLYING_REINDEER_280, true); //280% flying Reindeer
+                else if (flyspeed >= 1.6f)
+                    // Flying Reindeer
+                    caster->CastSpell(caster, SPELL_FLYING_REINDEER_60, true); //60% flying Reindeer
+                else if (speed >= 2.0f)
+                    // Reindeer
+                    caster->CastSpell(caster, SPELL_REINDEER_100, true); //100% ground Reindeer
+                else
+                    // Reindeer
+                    caster->CastSpell(caster, SPELL_REINDEER_60, true); //60% ground Reindeer
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_reindeer_transformation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_item_reindeer_transformation_SpellScript();
+    }
+};
+
+enum NighInvulnerability
+{
+    SPELL_NIGH_INVULNERABILITY                  = 30456,
+    SPELL_COMPLETE_VULNERABILITY                = 30457,
+};
+
+class spell_item_nigh_invulnerability : public SpellScriptLoader
+{
+    public:
+        spell_item_nigh_invulnerability() : SpellScriptLoader("spell_item_nigh_invulnerability") { }
+
+        class spell_item_nigh_invulnerability_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_nigh_invulnerability_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_NIGH_INVULNERABILITY) || !sSpellMgr->GetSpellInfo(SPELL_COMPLETE_VULNERABILITY))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                Item* castItem = GetCastItem();
+                if (!castItem) 
+                    return;
+
+                if (roll_chance_i(86))                   // Nigh-Invulnerability   - success
+                    caster->CastSpell(caster, SPELL_NIGH_INVULNERABILITY, true, castItem);
+                else                                    // Complete Vulnerability - backfire in 14% casts
+                    caster->CastSpell(caster, SPELL_COMPLETE_VULNERABILITY, true, castItem);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_nigh_invulnerability_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_nigh_invulnerability_SpellScript();
+        }
+};
+
+enum Poultryzer
+{
+    SPELL_POULTRYIZER_SUCCESS    = 30501,
+    SPELL_POULTRYIZER_BACKFIRE   = 30504,
+};
+
+class spell_item_poultryizer : public SpellScriptLoader
+{
+    public:
+        spell_item_poultryizer() : SpellScriptLoader("spell_item_poultryizer") { }
+
+        class spell_item_poultryizer_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_poultryizer_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_POULTRYIZER_SUCCESS) || !sSpellMgr->GetSpellInfo(SPELL_POULTRYIZER_BACKFIRE))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                if (!GetCastItem()) 
+                    return;
+                
+                GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(80) ? SPELL_POULTRYIZER_SUCCESS : SPELL_POULTRYIZER_BACKFIRE , true, GetCastItem());
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_poultryizer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_poultryizer_SpellScript();
+        }
+};
+
+enum SocretharsStone
+{
+    SPELL_SOCRETHAR_TO_SEAT     = 35743,
+    SPELL_SOCRETHAR_FROM_SEAT   = 35744,
+};
+
+class spell_item_socrethars_stone : public SpellScriptLoader
+{
+    public:
+        spell_item_socrethars_stone() : SpellScriptLoader("spell_item_socrethars_stone") { }
+
+        class spell_item_socrethars_stone_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_socrethars_stone_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_SOCRETHAR_TO_SEAT) || !sSpellMgr->GetSpellInfo(SPELL_SOCRETHAR_FROM_SEAT)
+                    || (GetCaster()->GetAreaId() != 3900 && GetCaster()->GetAreaId() != 3742))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                switch (GetCaster()->GetAreaId())
+                {
+                    case 3900:
+                        GetCaster()->CastSpell(GetCaster(), SPELL_SOCRETHAR_TO_SEAT, true);
+                        break;
+                    case 3742:
+                        GetCaster()->CastSpell(GetCaster(), SPELL_SOCRETHAR_FROM_SEAT, true);
+                        break;
+                    default:
+                        return;
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_socrethars_stone_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_socrethars_stone_SpellScript();
+        }
+};
+
+enum DemonBroiledSurprise
+{
+    QUEST_SUPER_HOT_STEW                    = 11379,
+    SPELL_CREATE_DEMON_BROILED_SURPRISE     = 43753,
+    NPC_ABYSSAL_FLAMEBRINGER                = 19973,
+};
+
+class spell_item_demon_broiled_surprise : public SpellScriptLoader
+{
+    public:
+        spell_item_demon_broiled_surprise() : SpellScriptLoader("spell_item_demon_broiled_surprise") { }
+
+        class spell_item_demon_broiled_surprise_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_demon_broiled_surprise_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_CREATE_DEMON_BROILED_SURPRISE) || !sObjectMgr->GetCreatureTemplate(NPC_ABYSSAL_FLAMEBRINGER)
+                    || !sObjectMgr->GetQuestTemplate(QUEST_SUPER_HOT_STEW))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+               if (!GetCaster()->ToPlayer()) 
+                   return false;
+               return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* player = GetCaster();
+
+                player->CastSpell(player, SPELL_CREATE_DEMON_BROILED_SURPRISE, false);
+            }
+
+            SpellCastResult CheckRequirement()
+            {
+                Player* player = GetCaster()->ToPlayer();
+
+                if (!player || player->GetQuestStatus(QUEST_SUPER_HOT_STEW) != QUEST_STATUS_INCOMPLETE)
+                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+                Creature* creature = player->FindNearestCreature(NPC_ABYSSAL_FLAMEBRINGER, 10, false);
+                if (!creature || !creature->isDead())
+                {
+                    return SPELL_FAILED_NOT_HERE;
+                }
+                return SPELL_CAST_OK;
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_demon_broiled_surprise_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
+                OnCheckCast += SpellCheckCastFn(spell_item_demon_broiled_surprise_SpellScript::CheckRequirement);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_demon_broiled_surprise_SpellScript();
+        }
+};
+
+enum CompleteRaptorCapture
+{
+    SPELL_RAPTOR_CAPTURE_CREDIT     = 42337,
+};
+
+class spell_item_complete_raptor_capture : public SpellScriptLoader
+{
+    public:
+        spell_item_complete_raptor_capture() : SpellScriptLoader("spell_item_complete_raptor_capture") { }
+
+        class spell_item_complete_raptor_capture_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_complete_raptor_capture_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_RAPTOR_CAPTURE_CREDIT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                GetHitCreature()->DespawnOrUnsummon();
+
+                //cast spell Raptor Capture Credit
+                GetCaster()->CastSpell(GetCaster(), SPELL_RAPTOR_CAPTURE_CREDIT, true, NULL);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_complete_raptor_capture_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_complete_raptor_capture_SpellScript();
+        }
+};
+
+enum ImpaleLaviroth
+{
+    NPC_LAVIROTH    = 26452,
+};
+
+class spell_item_impale_laviroth : public SpellScriptLoader
+{
+    public:
+        spell_item_impale_laviroth() : SpellScriptLoader("spell_item_impale_laviroth") { }
+
+        class spell_item_impale_laviroth_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_impale_laviroth_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sObjectMgr->GetCreatureTemplate(NPC_LAVIROTH))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                if ((GetHitUnit()->GetEntry() != NPC_LAVIROTH || GetHitUnit()->HealthAbovePct(95)))
+                    return;
+
+                GetCaster()->DealDamage(GetHitUnit(), GetHitUnit()->CountPctFromMaxHealth(93));
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_impale_laviroth_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_impale_laviroth_SpellScript();
+        }
+};
+
+enum BrewfestMountTransformation
+{
+    SPELL_MOUNT_RAM_100                         = 43900,
+    SPELL_MOUNT_RAM_60                          = 43899,
+    SPELL_MOUNT_KODO_100                        = 49379,
+    SPELL_MOUNT_KODO_60                         = 49378,
+    SPELL_BREWFEST_MOUNT_TRANSFORM              = 49357,
+    SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE      = 52845,
+};
+
+class spell_item_brewfest_mount_transformation : public SpellScriptLoader
+{
+    public:
+        spell_item_brewfest_mount_transformation() : SpellScriptLoader("spell_item_brewfest_mount_transformation") { }
+
+        class spell_item_brewfest_mount_transformation_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_brewfest_mount_transformation_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_MOUNT_RAM_100) || !sSpellMgr->GetSpellInfo(SPELL_MOUNT_RAM_60)
+                    || !sSpellMgr->GetSpellInfo(SPELL_MOUNT_KODO_100) || !sSpellMgr->GetSpellInfo(SPELL_MOUNT_KODO_60))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+
+                if (!caster || !caster->HasAuraType(SPELL_AURA_MOUNTED))
+                    return;
+
+                caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
+                uint32 spell_id;
+
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_BREWFEST_MOUNT_TRANSFORM:
+                        if (caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
+                            spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100 ;
+                        else
+                            spell_id = caster->GetTeam() == ALLIANCE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60 ;
+                        break;
+                    case SPELL_BREWFEST_MOUNT_TRANSFORM_REVERSE:
+                        if (caster->GetSpeedRate(MOVE_RUN) >= 2.0f)
+                            spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_100 : SPELL_MOUNT_KODO_100 ;
+                        else
+                            spell_id = caster->GetTeam() == HORDE ? SPELL_MOUNT_RAM_60 : SPELL_MOUNT_KODO_60 ;
+                        break;
+                    default:
+                        return;
+                }
+                caster->CastSpell(caster, spell_id, true);
+                
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_brewfest_mount_transformation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_brewfest_mount_transformation_SpellScript();
+        }
+};
+
+enum NitroBoots
+{
+    SPELL_NITRO_BOOTS_SUCCESS       = 54861,
+    SPELL_NITRO_BOOTS_BACKFIRE      = 46014,
+};
+
+class spell_item_nitro_boots : public SpellScriptLoader
+{
+    public:
+        spell_item_nitro_boots() : SpellScriptLoader("spell_item_nitro_boots") { }
+
+        class spell_item_nitro_boots_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_nitro_boots_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_NITRO_BOOTS_SUCCESS) || !sSpellMgr->GetSpellInfo(SPELL_NITRO_BOOTS_BACKFIRE))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                if (!GetCastItem())
+                    return;
+
+                GetCaster()->CastSpell(GetCaster(), roll_chance_i(95) ? SPELL_NITRO_BOOTS_SUCCESS : SPELL_NITRO_BOOTS_BACKFIRE, true, GetCastItem());
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_nitro_boots_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_nitro_boots_SpellScript();
+        }
+};
+
+enum TeachLanguage
+{
+    SPELL_LEARN_GNOMISH_BINARY      = 50242,
+    SPELL_LEARN_GOBLIN_BINARY       = 50246,
+};
+
+class spell_item_teach_language : public SpellScriptLoader
+{
+    public:
+        spell_item_teach_language() : SpellScriptLoader("spell_item_teach_language") { }
+
+        class spell_item_teach_language_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_teach_language_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_LEARN_GNOMISH_BINARY) || !sSpellMgr->GetSpellInfo(SPELL_LEARN_GOBLIN_BINARY))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+
+                if (caster->GetTypeId() != TYPEID_PLAYER || roll_chance_i(66))
+                    return;
+
+                caster->CastSpell(caster,caster->ToPlayer()->GetTeam() == ALLIANCE ? SPELL_LEARN_GNOMISH_BINARY : SPELL_LEARN_GOBLIN_BINARY, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_teach_language_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_teach_language_SpellScript();
+        }
+};
+
+enum RocketBoots
+{
+    SPELL_ROCKET_BOOTS_PROC      = 30452,
+};
+
+class spell_item_rocket_boots : public SpellScriptLoader
+{
+    public:
+        spell_item_rocket_boots() : SpellScriptLoader("spell_item_rocket_boots") { }
+
+        class spell_item_rocket_boots_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_rocket_boots_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_ROCKET_BOOTS_PROC))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                if (!caster)
+                    return;
+
+                if (Battleground* bg = caster->GetBattleground())
+                    bg->EventPlayerDroppedFlag(caster);
+
+                caster->CastSpell(caster, SPELL_ROCKET_BOOTS_PROC, true, NULL);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_rocket_boots_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_rocket_boots_SpellScript();
+        }
+};
+
+enum PygmyOil
+{
+    SPELL_PYGMY_OIL_PYGMY_AURA      = 53806,
+    SPELL_PYGMY_OIL_SMALLER_AURA    = 53805,
+};
+
+class spell_item_pygmy_oil : public SpellScriptLoader
+{
+    public:
+        spell_item_pygmy_oil() : SpellScriptLoader("spell_item_pygmy_oil") { }
+
+        class spell_item_pygmy_oil_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_pygmy_oil_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_PYGMY_OIL_PYGMY_AURA) || !sSpellMgr->GetSpellInfo(SPELL_PYGMY_OIL_SMALLER_AURA))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                Aura* aura = caster->GetAura(SPELL_PYGMY_OIL_PYGMY_AURA);
+                if (aura)
+                    aura->RefreshDuration();
+                else
+                {
+                    aura = caster->GetAura(SPELL_PYGMY_OIL_SMALLER_AURA);
+                    if (!aura || aura->GetStackAmount() < 5 || !roll_chance_i(50))
+                         caster->CastSpell(caster, SPELL_PYGMY_OIL_SMALLER_AURA, true);
+                    else
+                    {
+                        aura->Remove();
+                        caster->CastSpell(caster, SPELL_PYGMY_OIL_PYGMY_AURA, true);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_pygmy_oil_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_pygmy_oil_SpellScript();
+        }
+};
+
+class spell_item_unusual_compass : public SpellScriptLoader
+{
+    public:
+        spell_item_unusual_compass() : SpellScriptLoader("spell_item_unusual_compass") { }
+
+        class spell_item_unusual_compass_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_unusual_compass_SpellScript);
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+
+                caster->SetOrientation(float(urand(0, 62832)) / 10000.0f);
+                WorldPacket data;
+                caster->BuildHeartBeatMsg(&data);
+                caster->SendMessageToSet(&data, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_unusual_compass_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_unusual_compass_SpellScript();
+        }
+};
+
+enum UDED
+{
+    NPC_IRONWOOL_MAMMOTH        = 53806,
+    OBJECT_MAMMOTH_CARCASS      = 53805,
+    OBJECT_MAMMOTH_MEAT         = 53805,
+};
+
+class spell_item_uded : public SpellScriptLoader
+{
+    public:
+        spell_item_uded() : SpellScriptLoader("spell_item_uded") { }
+
+        class spell_item_uded_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_uded_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sObjectMgr->GetCreatureTemplate(NPC_IRONWOOL_MAMMOTH) || !sObjectMgr->GetGameObjectTemplate(OBJECT_MAMMOTH_CARCASS)
+                    || !sObjectMgr->GetGameObjectTemplate(OBJECT_MAMMOTH_MEAT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                Creature* creature = GetHitCreature();
+                if (!creature || creature->GetEntry() != NPC_IRONWOOL_MAMMOTH)
+                        return;
+
+                caster->SummonGameObject(OBJECT_MAMMOTH_CARCASS, creature->GetPositionX(), creature->GetPositionY(),
+                    creature->GetPositionZ(), creature->GetOrientation(), 0, 0, 0, 0, 100);
+
+                for (uint8 i = 0; i < 4; ++i)
+                    caster->SummonGameObject(OBJECT_MAMMOTH_MEAT, float(creature->GetPositionX() + irand(-7, 7)),
+                        float(creature->GetPositionY() + irand(-7, 7)), creature->GetPositionZ(), creature->GetOrientation(),
+                        0, 0, 0, 0, 100);
+
+                creature->Kill(creature);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_uded_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_uded_SpellScript();
+        }
+};
+
+enum ChickenCover
+{
+    SPELL_CHICKEN_NET               = 51959,
+    SPELL_CAPTURE_CHICKEN_ESCAPE    = 51037,
+    QUEST_CHICKEN_PARTY             = 12702,
+    QUEST_FLOWN_THE_COOP            = 12532,
+};
+
+class spell_item_chicken_cover : public SpellScriptLoader
+{
+    public:
+        spell_item_chicken_cover() : SpellScriptLoader("spell_item_chicken_cover") { }
+
+        class spell_item_chicken_cover_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_chicken_cover_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sObjectMgr->GetCreatureTemplate(NPC_IRONWOOL_MAMMOTH) || !sObjectMgr->GetGameObjectTemplate(OBJECT_MAMMOTH_CARCASS)
+                    || !sObjectMgr->GetGameObjectTemplate(OBJECT_MAMMOTH_MEAT))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                Unit* target = GetHitUnit();
+
+                 if (!caster || !target->HasAura(SPELL_CHICKEN_NET) || !(caster->GetQuestStatus(QUEST_CHICKEN_PARTY) == QUEST_STATUS_INCOMPLETE 
+                    || caster->GetQuestStatus(QUEST_FLOWN_THE_COOP) == QUEST_STATUS_INCOMPLETE))
+                    return;
+
+                caster->CastSpell(caster, SPELL_CAPTURE_CHICKEN_ESCAPE, true);
+                target->Kill(target);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_chicken_cover_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_chicken_cover_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -1160,4 +2026,22 @@ void AddSC_item_spell_scripts()
 
     new spell_item_ashbringer();
     new spell_magic_eater_food();
+    new spell_item_shimmering_vessel();
+    new spell_item_purify_helboar_meat();
+    new spell_item_crystal_prison_dummy_dnd();
+    new spell_item_reindeer_transformation();
+    new spell_item_nigh_invulnerability();
+    new spell_item_poultryizer();
+    new spell_item_socrethars_stone();
+    new spell_item_demon_broiled_surprise();
+    new spell_item_complete_raptor_capture();
+    new spell_item_impale_laviroth();
+    new spell_item_brewfest_mount_transformation();
+    new spell_item_nitro_boots();
+    new spell_item_teach_language();
+    new spell_item_rocket_boots();
+    new spell_item_pygmy_oil();
+    new spell_item_unusual_compass();
+    new spell_item_uded();
+    new spell_item_chicken_cover();
 }
