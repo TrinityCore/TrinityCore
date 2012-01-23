@@ -713,7 +713,8 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         void Use(Unit* user);
 
         LootState getLootState() const { return m_lootState; }
-        void SetLootState(LootState s);
+        // Note: unit is only used when s = GO_ACTIVATED
+        void SetLootState(LootState s, Unit* unit = NULL);
 
         uint16 GetLootMode() { return m_LootMode; }
         bool HasLootMode(uint16 lootMode) { return m_LootMode & lootMode; }
@@ -747,7 +748,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         bool hasQuest(uint32 quest_id) const;
         bool hasInvolvedQuest(uint32 quest_id) const;
         bool ActivateToQuest(Player* target) const;
-        void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false);
+        void UseDoorOrButton(uint32 time_to_restore = 0, bool alternative = false, Unit* user = NULL);
                                                             // 0 = use `gameobject`.`spawntimesecs`
         void ResetDoorOrButton();
 
