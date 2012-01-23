@@ -8819,7 +8819,7 @@ void Player::SendLoot(uint64 guid, LootType loot_type)
                 }
             }
 
-            go->SetLootState(GO_ACTIVATED);
+            go->SetLootState(GO_ACTIVATED, this);
         }
 
         if (go->getLootState() == GO_ACTIVATED)
