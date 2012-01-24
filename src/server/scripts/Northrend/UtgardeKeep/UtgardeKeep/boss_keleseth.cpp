@@ -60,7 +60,7 @@ enum KelsethEncounter
 
 #define SKELETONSPAWN_Z                          42.8668f
 
-const float SkeletonSpawnPoint[1][2] =
+float const SkeletonSpawnPoint[1][2] =
 {
     {156.2559f, 259.2093f},
 };
@@ -323,16 +323,9 @@ class achievement_on_the_rocks : public AchievementCriteriaScript
     public:
         achievement_on_the_rocks() : AchievementCriteriaScript("achievement_on_the_rocks") {}
 
-        bool OnCheck(Player* source, Unit* target)
+        bool OnCheck(Player* /*source*/, Unit* target)
         {
-            if (!source->GetMap()->IsHeroic())
-                return false;
-
-            if (Creature* boss = target->ToCreature())
-                if (boss->AI())
-                    return boss->AI()->GetData(DATA_ON_THE_ROCKS);
-
-            return false;
+            return target && target->IsAIEnabled && target->GetAI()->GetData(DATA_ON_THE_ROCKS);
         }
 };
 
