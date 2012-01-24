@@ -10984,6 +10984,12 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                                     return true;
                             break;
                         }
+                        // Player Fire Totems have same spell crit chance like Player spell crit
+                        if (isTotem() && IS_PLAYER_GUID(GetOwnerGUID()) && schoolMask & SPELL_SCHOOL_MASK_FIRE)
+                        {
+                            return GetOwner()->isSpellCrit(victim, spellProto, schoolMask, attackType);
+                            break;
+                        }
                     break;
                 }
             }
