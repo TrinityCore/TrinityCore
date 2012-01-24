@@ -22,6 +22,7 @@
 #include "MovementGenerator.h"
 #include "FollowerReference.h"
 #include "Timer.h"
+#include "Unit.h"
 
 class TargetedMovementGeneratorBase
 {
@@ -76,7 +77,7 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
         void Initialize(T &);
         void Finalize(T &);
         void Reset(T &);
-        void MovementInform(T &){}
+        void MovementInform(T &);
 
         static void _clearUnitStateMove(T &u) { u.ClearUnitState(UNIT_STAT_CHASE_MOVE); }
         static void _addUnitStateMove(T &u)  { u.AddUnitState(UNIT_STAT_CHASE_MOVE); }

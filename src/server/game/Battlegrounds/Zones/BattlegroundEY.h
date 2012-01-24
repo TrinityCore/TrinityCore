@@ -220,7 +220,7 @@ enum EYBattlegroundObjectTypes
 #define BG_EY_NotEYWeekendHonorTicks    330
 #define BG_EY_EYWeekendHonorTicks       200
 
-#define EY_EVENT_START_BATTLE           13180 // Flurry
+#define EY_EVENT_START_BATTLE           13180 // Achievement: Flurry
 
 enum BG_EY_Score
 {

@@ -404,112 +404,115 @@ public:
         if (!*args)
             return false;
 
-        uint32 entry = (uint32) atoi((char*)args);
-        QueryResult result = WorldDatabase.PQuery("SELECT difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, faction_A, faction_H, npcflag, speed_walk, speed_run, scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, minrangedmg, maxrangedmg, rangedattackpower, type, type_flags, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, InhabitType, Health_mod, Mana_mod, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template WHERE entry = %u", entry);
-        if (!result)
+        Tokens entries(std::string(args), ' ');
+
+        for (Tokens::const_iterator itr = entries.begin(); itr != entries.end(); ++itr)
         {
-            handler->PSendSysMessage(LANG_COMMAND_CREATURETEMPLATE_NOTFOUND, entry);
-            handler->SetSentErrorMessage(true);
-            return false;
+            uint32 entry = uint32(atoi(*itr));
+            QueryResult result = WorldDatabase.PQuery("SELECT difficulty_entry_1, difficulty_entry_2, difficulty_entry_3, KillCredit1, KillCredit2, modelid1, modelid2, modelid3, modelid4, name, subname, IconName, gossip_menu_id, minlevel, maxlevel, exp, faction_A, faction_H, npcflag, speed_walk, speed_run, scale, rank, mindmg, maxdmg, dmgschool, attackpower, dmg_multiplier, baseattacktime, rangeattacktime, unit_class, unit_flags, dynamicflags, family, trainer_type, trainer_spell, trainer_class, trainer_race, minrangedmg, maxrangedmg, rangedattackpower, type, type_flags, lootid, pickpocketloot, skinloot, resistance1, resistance2, resistance3, resistance4, resistance5, resistance6, spell1, spell2, spell3, spell4, spell5, spell6, spell7, spell8, PetSpellDataId, VehicleId, mingold, maxgold, AIName, MovementType, InhabitType, Health_mod, Mana_mod, Armor_mod, RacialLeader, questItem1, questItem2, questItem3, questItem4, questItem5, questItem6, movementId, RegenHealth, equipment_id, mechanic_immune_mask, flags_extra, ScriptName FROM creature_template WHERE entry = %u", entry);
+            if (!result)
+            {
+                handler->PSendSysMessage(LANG_COMMAND_CREATURETEMPLATE_NOTFOUND, entry);
+                continue;
+            }
+
+            CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
+            if (!cInfo)
+            {
+                handler->PSendSysMessage(LANG_COMMAND_CREATURESTORAGE_NOTFOUND, entry);
+                continue;
+            }
+
+            sLog->outString("Reloading creature template entry %u", entry);
+
+            Field* fields = result->Fetch();
+
+            const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[0] = fields[0].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[1] = fields[1].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[2] = fields[2].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->KillCredit[0] = fields[3].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->KillCredit[1] = fields[4].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->Modelid1 = fields[5].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->Modelid2 = fields[6].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->Modelid3 = fields[7].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->Modelid4 = fields[8].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->Name = fields[9].GetString();
+            const_cast<CreatureTemplate*>(cInfo)->SubName = fields[10].GetString();
+            const_cast<CreatureTemplate*>(cInfo)->IconName = fields[11].GetString();
+            const_cast<CreatureTemplate*>(cInfo)->GossipMenuId = fields[12].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->minlevel = fields[13].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->maxlevel = fields[14].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->expansion = fields[15].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->faction_A = fields[16].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->faction_H = fields[17].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->npcflag = fields[18].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->speed_walk = fields[19].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->speed_run = fields[20].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->scale = fields[21].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->rank = fields[22].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->mindmg = fields[23].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->maxdmg = fields[24].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->dmgschool = fields[25].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->attackpower = fields[26].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->dmg_multiplier = fields[27].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->baseattacktime = fields[28].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->rangeattacktime = fields[29].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->unit_class = fields[30].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->unit_flags = fields[31].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->dynamicflags = fields[32].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->family = fields[33].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->trainer_type = fields[34].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->trainer_spell = fields[35].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->trainer_class = fields[36].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->trainer_race = fields[37].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->minrangedmg = fields[38].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->maxrangedmg = fields[39].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->rangedattackpower = fields[40].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->type = fields[41].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->type_flags = fields[42].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->lootid = fields[43].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->pickpocketLootId = fields[44].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->SkinLootId = fields[45].GetUInt32();
+
+            for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
+            {
+                const_cast<CreatureTemplate*>(cInfo)->resistance[i] = fields[46 + i -1].GetUInt32();
+            }
+
+            const_cast<CreatureTemplate*>(cInfo)->spells[0] = fields[52].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->spells[1] = fields[53].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->spells[2] = fields[54].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->spells[3] = fields[55].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->spells[4] = fields[56].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->spells[5] = fields[57].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->spells[6] = fields[58].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->spells[7] = fields[59].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->PetSpellDataId = fields[60].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->VehicleId = fields[61].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->mingold = fields[62].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->maxgold = fields[63].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->AIName = fields[64].GetString();
+            const_cast<CreatureTemplate*>(cInfo)->MovementType = fields[65].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->InhabitType = fields[66].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->ModHealth = fields[67].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->ModMana = fields[68].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->ModArmor = fields[69].GetFloat();
+            const_cast<CreatureTemplate*>(cInfo)->RacialLeader = fields[70].GetBool();
+            const_cast<CreatureTemplate*>(cInfo)->questItems[0] = fields[71].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->questItems[1] = fields[72].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->questItems[2] = fields[73].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->questItems[3] = fields[74].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->questItems[4] = fields[75].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->questItems[5] = fields[76].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->movementId = fields[77].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->RegenHealth = fields[78].GetBool();
+            const_cast<CreatureTemplate*>(cInfo)->equipmentId = fields[79].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->MechanicImmuneMask = fields[80].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->flags_extra = fields[81].GetUInt32();
+            const_cast<CreatureTemplate*>(cInfo)->ScriptID = sObjectMgr->GetScriptId(fields[82].GetCString());
+
+            sObjectMgr->CheckCreatureTemplate(cInfo);
         }
-
-        CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(entry);
-        if (!cInfo)
-        {
-            handler->PSendSysMessage(LANG_COMMAND_CREATURESTORAGE_NOTFOUND, entry);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
-
-        sLog->outString("Reloading creature template entry %u", entry);
-
-        Field* fields = result->Fetch();
-
-        const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[0] = fields[0].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[1] = fields[1].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->DifficultyEntry[2] = fields[2].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->KillCredit[0] = fields[3].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->KillCredit[1] = fields[4].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->Modelid1 = fields[5].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->Modelid2 = fields[6].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->Modelid3 = fields[7].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->Modelid4 = fields[8].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->Name = fields[9].GetString();
-        const_cast<CreatureTemplate*>(cInfo)->SubName = fields[10].GetString();
-        const_cast<CreatureTemplate*>(cInfo)->IconName = fields[11].GetString();
-        const_cast<CreatureTemplate*>(cInfo)->GossipMenuId = fields[12].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->minlevel = fields[13].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->maxlevel = fields[14].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->expansion = fields[15].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->faction_A = fields[16].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->faction_H = fields[17].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->npcflag = fields[18].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->speed_walk = fields[19].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->speed_run = fields[20].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->scale = fields[21].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->rank = fields[22].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->mindmg = fields[23].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->maxdmg = fields[24].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->dmgschool = fields[25].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->attackpower = fields[26].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->dmg_multiplier = fields[27].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->baseattacktime = fields[28].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->rangeattacktime = fields[29].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->unit_class = fields[30].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->unit_flags = fields[31].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->dynamicflags = fields[32].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->family = fields[33].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->trainer_type = fields[34].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->trainer_spell = fields[35].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->trainer_class = fields[36].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->trainer_race = fields[37].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->minrangedmg = fields[38].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->maxrangedmg = fields[39].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->rangedattackpower = fields[40].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->type = fields[41].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->type_flags = fields[42].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->lootid = fields[43].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->pickpocketLootId = fields[44].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->SkinLootId = fields[45].GetUInt32();
-
-        for (uint8 i = SPELL_SCHOOL_HOLY; i < MAX_SPELL_SCHOOL; ++i)
-        {
-            const_cast<CreatureTemplate*>(cInfo)->resistance[i] = fields[46 + i -1].GetUInt32();
-        }
-
-        const_cast<CreatureTemplate*>(cInfo)->spells[0] = fields[52].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->spells[1] = fields[53].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->spells[2] = fields[54].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->spells[3] = fields[55].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->spells[4] = fields[56].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->spells[5] = fields[57].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->spells[6] = fields[58].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->spells[7] = fields[59].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->PetSpellDataId = fields[60].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->VehicleId = fields[61].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->mingold = fields[62].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->maxgold = fields[63].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->AIName = fields[64].GetString();
-        const_cast<CreatureTemplate*>(cInfo)->MovementType = fields[65].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->InhabitType = fields[66].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->ModHealth = fields[67].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->ModMana = fields[68].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->ModArmor = fields[69].GetFloat();
-        const_cast<CreatureTemplate*>(cInfo)->RacialLeader = fields[70].GetBool();
-        const_cast<CreatureTemplate*>(cInfo)->questItems[0] = fields[71].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->questItems[1] = fields[72].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->questItems[2] = fields[73].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->questItems[3] = fields[74].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->questItems[4] = fields[75].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->questItems[5] = fields[76].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->movementId = fields[77].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->RegenHealth = fields[78].GetBool();
-        const_cast<CreatureTemplate*>(cInfo)->equipmentId = fields[79].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->MechanicImmuneMask = fields[80].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->flags_extra = fields[81].GetUInt32();
-        const_cast<CreatureTemplate*>(cInfo)->ScriptID = sObjectMgr->GetScriptId(fields[82].GetCString());
-
-        sObjectMgr->CheckCreatureTemplate(cInfo);
 
         handler->SendGlobalGMSysMessage("Creature template reloaded.");
         return true;
@@ -989,7 +992,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadWpCommand(ChatHandler* handler, const char* args)
+    static bool HandleReloadWpCommand(ChatHandler* /*handler*/, const char* args)
     {
         if (*args != 'a')
             sLog->outString("Re-Loading Waypoints data from 'waypoints_data'");
