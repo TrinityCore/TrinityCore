@@ -60,6 +60,7 @@ public:
             { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,         "", NULL },
             { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
             { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
+            { "collision",      SEC_GAMEMASTER,     false, &HandleModifyCollisionCommand,     "", NULL },
             { NULL,             0,                  false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1374,6 +1375,88 @@ public:
 
         return true;
     }
+
+    static bool HandleModifyCollisionCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* target = handler->getSelectedPlayer();
+
+        if (!target)
+        {
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::string param = (char*)args;
+
+        if (param == "on")
+        {
+            // enable collision
+            WorldPacket data;
+            uint64 guid = target->GetGUID();
+            uint8* bytes = (uint8*)&guid;
+
+            data.Initialize(SMSG_MOVE_SPLINE_ENABLE_COLLISION, 1 + 8);
+            data.WriteByteMask(bytes[7]);
+            data.WriteByteMask(bytes[5]);
+            data.WriteByteMask(bytes[4]);
+            data.WriteByteMask(bytes[0]);
+            data.WriteByteMask(bytes[1]);
+            data.WriteByteMask(bytes[6]);
+            data.WriteByteMask(bytes[2]);
+            data.WriteByteMask(bytes[3]);
+
+            data.WriteByteSeq(bytes[6]);
+            data.WriteByteSeq(bytes[3]);
+            data.WriteByteSeq(bytes[2]);
+            data.WriteByteSeq(bytes[7]);
+            data.WriteByteSeq(bytes[4]);
+            data.WriteByteSeq(bytes[1]);
+            data.WriteByteSeq(bytes[5]);
+            data.WriteByteSeq(bytes[0]);
+
+            target->SendMessageToSet(&data, true);
+            handler->SendSysMessage("Enabled Collision");
+            return true;
+        }
+
+        if (param == "off")
+        {
+            // disable collision
+            WorldPacket data;
+            uint64 guid = target->GetGUID();
+            uint8* bytes = (uint8*)&guid;
+
+            data.Initialize(SMSG_MOVE_SPLINE_DISABLE_COLLISION, 1 + 8);
+            data.WriteByteMask(bytes[4]);
+            data.WriteByteMask(bytes[7]);
+            data.WriteByteMask(bytes[5]);
+            data.WriteByteMask(bytes[3]);
+            data.WriteByteMask(bytes[2]);
+            data.WriteByteMask(bytes[1]);
+            data.WriteByteMask(bytes[6]);
+            data.WriteByteMask(bytes[0]);
+
+            data.WriteByteSeq(bytes[6]);
+            data.WriteByteSeq(bytes[0]);
+            data.WriteByteSeq(bytes[5]);
+            data.WriteByteSeq(bytes[4]);
+            data.WriteByteSeq(bytes[7]);
+            data.WriteByteSeq(bytes[3]);
+            data.WriteByteSeq(bytes[1]);
+            data.WriteByteSeq(bytes[2]);
+
+            target->SendMessageToSet(&data, true);
+            handler->SendSysMessage("Disabled Collision");
+            return true;
+        }
+
+        return false;
+    }
+
 };
 
 void AddSC_modify_commandscript()
