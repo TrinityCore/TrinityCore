@@ -956,7 +956,7 @@ class npc_combustion_consumption : public CreatureScript
             npc_combustion_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
                    _instance(creature->GetInstanceScript())
             {
-                switch (_entry)
+                switch (me->GetEntry())
                 {
                     case NPC_COMBUSTION:
                         _explosionSpell = SPELL_FIERY_COMBUSTION_EXPLOSION;
