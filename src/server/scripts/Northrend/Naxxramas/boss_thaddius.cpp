@@ -83,7 +83,11 @@ enum ThaddiusSpells
     SPELL_BALL_LIGHTNING        = 28299,
     SPELL_CHAIN_LIGHTNING       = 28167,
     H_SPELL_CHAIN_LIGHTNING     = 54531,
-    SPELL_BERSERK               = 27680
+    SPELL_BERSERK               = 27680,
+    SPELL_POSITIVE_CHARGE       = 28062,
+    SPELL_POSITIVE_CHARGE_STACK = 29659,
+    SPELL_NEGATIVE_CHARGE       = 28085,
+    SPELL_NEGATIVE_CHARGE_STACK = 29660
 };
 
 enum Events
@@ -92,6 +96,11 @@ enum Events
     EVENT_SHIFT,
     EVENT_CHAIN,
     EVENT_BERSERK,
+};
+
+enum Achievement
+{
+    DATA_POLARITY_SWITCH    = 76047605,
 };
 
 class boss_thaddius : public CreatureScript
@@ -135,6 +144,7 @@ public:
 
         bool checkStalaggAlive;
         bool checkFeugenAlive;
+        bool polaritySwitch;
         uint32 uiAddsTimer;
 
         void KilledUnit(Unit* /*victim*/)
@@ -192,6 +202,20 @@ public:
         void DamageTaken(Unit* /*pDoneBy*/, uint32 & /*uiDamage*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
+        }
+
+        void SetData(uint32 id, uint32 data)
+        {
+            if (id == DATA_POLARITY_SWITCH)
+                polaritySwitch = data ? true : false;
+        }
+
+        uint32 GetData(uint32 id)
+        {
+            if (id != DATA_POLARITY_SWITCH)
+                return 0;
+
+            return uint32(polaritySwitch);
         }
 
         void UpdateAI(const uint32 diff)
@@ -400,9 +424,101 @@ public:
 
 };
 
+class spell_thaddius_pos_neg_charge : public SpellScriptLoader
+{
+    public:
+        spell_thaddius_pos_neg_charge() : SpellScriptLoader("spell_thaddius_pos_neg_charge") { }
+
+        class spell_thaddius_pos_neg_charge_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_thaddius_pos_neg_charge_SpellScript);
+
+            bool Validate(SpellInfo const* /*spell*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_POSITIVE_CHARGE_STACK))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_NEGATIVE_CHARGE_STACK))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            }
+
+            void HandleTargets(std::list<Unit*>& targetList)
+            {
+                uint8 count = 0;
+                for (std::list<Unit*>::iterator ihit = targetList.begin(); ihit != targetList.end(); ++ihit)
+                    if ((*ihit)->GetGUID() != GetCaster()->GetGUID())
+                        if (Player* target = (*ihit)->ToPlayer())
+                            if (target->HasAura(GetTriggeringSpell()->Id))
+                                ++count;
+
+                if (count)
+                {
+                    uint32 spellId = 0;
+
+                    if (GetSpellInfo()->Id == SPELL_POSITIVE_CHARGE)
+                        spellId = SPELL_POSITIVE_CHARGE_STACK;
+                    else // if (GetSpellInfo()->Id == SPELL_NEGATIVE_CHARGE)
+                        spellId = SPELL_NEGATIVE_CHARGE_STACK;
+
+                    GetCaster()->SetAuraStack(spellId, GetCaster(), count);
+                }
+            }
+
+            void HandleDamage(SpellEffIndex /*effIndex*/)
+            {
+                if (!GetTriggeringSpell())
+                    return;
+
+                Unit* target = GetHitUnit();
+                Unit* caster = GetCaster();
+
+                if (target->HasAura(GetTriggeringSpell()->Id))
+                    SetHitDamage(0);
+                else
+                {
+                    if (target->GetTypeId() == TYPEID_PLAYER && caster->IsAIEnabled)
+                        caster->ToCreature()->AI()->SetData(DATA_POLARITY_SWITCH, 1);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_thaddius_pos_neg_charge_SpellScript::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_thaddius_pos_neg_charge_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_thaddius_pos_neg_charge_SpellScript();
+        }
+};
+
+class achievement_polarity_switch : public AchievementCriteriaScript
+{
+    public:
+        achievement_polarity_switch() : AchievementCriteriaScript("achievement_polarity_switch") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            return target && target->GetAI()->GetData(DATA_POLARITY_SWITCH);
+        }
+};
+
 void AddSC_boss_thaddius()
 {
     new boss_thaddius();
     new mob_stalagg();
     new mob_feugen();
+    new spell_thaddius_pos_neg_charge();
+    new achievement_polarity_switch();
 }

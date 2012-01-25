@@ -27,8 +27,9 @@ enum Spells
 
 enum Yells
 {
-    YELL_AGGRO                                    = -1810023,
-    YELL_EVADE                                    = -1810024
+    YELL_AGGRO                                   = 0,
+    YELL_EVADE                                   = 1,
+    YELL_SALVATION                               = 2,
 };
 
 enum Creatures
@@ -122,7 +123,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(YELL_AGGRO, me);
+            Talk(YELL_AGGRO);
         }
 
         void JustRespawned()
@@ -185,7 +186,7 @@ public:
                 if (me->GetDistance2d(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY()) > 50)
                 {
                     EnterEvadeMode();
-                    DoScriptText(YELL_EVADE, me);
+                    Talk(YELL_EVADE);
                 }
                 resetTimer = 5 * IN_MILLISECONDS;
             } else resetTimer -= diff;

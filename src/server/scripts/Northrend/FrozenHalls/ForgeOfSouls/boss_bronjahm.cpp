@@ -67,6 +67,7 @@ class boss_bronjahm : public CreatureScript
         {
             boss_bronjahmAI(Creature* creature) : BossAI(creature, DATA_BRONJAHM)
             {
+                DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
             }
 
             void InitializeAI()
@@ -82,13 +83,16 @@ class boss_bronjahm : public CreatureScript
                 events.Reset();
                 events.SetPhase(PHASE_1);
                 events.ScheduleEvent(EVENT_SHADOW_BOLT, 2000);
-                events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 15000));
+                events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
                 events.ScheduleEvent(EVENT_CORRUPT_SOUL, urand(25000, 35000), 0, PHASE_1);
-
-                me->CastSpell(me, SPELL_SOULSTORM_CHANNEL, true);
 
                 instance->SetBossState(DATA_BRONJAHM, NOT_STARTED);
             }
+
+           void JustReachedHome()
+           {
+               DoCast(me, SPELL_SOULSTORM_CHANNEL, true);
+           }
 
             void EnterCombat(Unit* /*who*/)
             {
@@ -118,7 +122,7 @@ class boss_bronjahm : public CreatureScript
                     events.SetPhase(PHASE_2);
                     DoCast(me, SPELL_TELEPORT);
                     events.ScheduleEvent(EVENT_FEAR, urand(12000, 16000), 0, PHASE_2);
-                    events.ScheduleEvent(EVENT_SOULSTORM, 700, 0, PHASE_2);
+                    events.ScheduleEvent(EVENT_SOULSTORM, 100, 0, PHASE_2);
                 }
             }
 
@@ -147,7 +151,7 @@ class boss_bronjahm : public CreatureScript
                     {
                         case EVENT_MAGIC_BANE:
                             DoCastVictim(SPELL_MAGIC_S_BANE);
-                            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 15000));
+                            events.ScheduleEvent(EVENT_MAGIC_BANE, urand(8000, 20000));
                             break;
                         case EVENT_SHADOW_BOLT:
                             if (!me->IsWithinMeleeRange(me->getVictim()))
@@ -201,7 +205,7 @@ class mob_corrupted_soul_fragment : public CreatureScript
 
             void MovementInform(uint32 type, uint32 id)
             {
-                if (type != TARGETED_MOTION_TYPE)
+                if (type != CHASE_MOTION_TYPE)
                     return;
 
                 if (instance)

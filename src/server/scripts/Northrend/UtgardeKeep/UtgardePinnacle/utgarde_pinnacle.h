@@ -53,7 +53,7 @@ enum eCreatures
     MOB_MASSIVE_JORMUNGAR    = 26685,
     MOB_FEROCIOUS_RHINO      = 26686,
     MOB_SVALA                = 29281,
-    MOB_PALEHOOF_ORB         = 26688,
+    MOB_PALEHOOF_ORB         = 26688
 };
 
 #endif

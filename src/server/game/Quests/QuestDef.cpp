@@ -65,7 +65,6 @@ Quest::Quest(Field* questRecord)
     RequiredPlayerKills = questRecord[40].GetUInt32();
     RewardTalents = questRecord[41].GetUInt32();
     RewardArenaPoints = questRecord[42].GetInt32();
-    SeasonalQuestEvent = 0;
 
     for (int i = 0; i < QUEST_REWARDS_COUNT; ++i)
         RewardItemId[i] = questRecord[43+i].GetUInt32();
@@ -78,7 +77,7 @@ Quest::Quest(Field* questRecord)
 
     for (int i = 0; i < QUEST_REWARD_CHOICES_COUNT; ++i)
         RewardChoiceItemCount[i] = questRecord[57+i].GetUInt32();
-    
+
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         RewardFactionId[i] = questRecord[63+i].GetUInt32();
 
@@ -87,7 +86,7 @@ Quest::Quest(Field* questRecord)
 
     for (int i = 0; i < QUEST_REPUTATIONS_COUNT; ++i)
         RewardFactionValueIdOverride[i] = questRecord[73+i].GetInt32();
-    
+
     PointMapId = questRecord[78].GetUInt32();
     PointX = questRecord[79].GetFloat();
     PointY = questRecord[80].GetFloat();
@@ -203,7 +202,7 @@ uint32 Quest::XPValue(Player* player) const
     return 0;
 }
 
-int32  Quest::GetRewOrReqMoney() const
+int32 Quest::GetRewOrReqMoney() const
 {
     if (RewardOrRequiredMoney <= 0)
         return RewardOrRequiredMoney;
