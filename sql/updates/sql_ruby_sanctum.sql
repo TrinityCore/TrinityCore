@@ -5,12 +5,12 @@ INSERT INTO `spell_dbc` (`Id`,`Attributes`,`AttributesEx`,`AttributesEx2`,`Casti
 
 -- Bosses respawn time
 UPDATE `creature` SET `spawntimesecs`=604800 WHERE `id` IN (39751,39746,39747);
--- Trash mobs respawn time
+-- Trash mobs respawn time (Needed, but are those the corret values ?)
 UPDATE `creature` SET `spawntimesecs`=1209600 WHERE `map`=724 AND `id` NOT IN (39751,39746,39747);
 
--- Creature Templates updates
-UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_consumption' WHERE `entry`=40135; -- Consumption
-UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 ,`ScriptName`= 'npc_combustion' WHERE `entry`=40001; -- Combustion
+-- Creature Templates updates -- Todo: sort and document this, I'm lost when reading through it.
+UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`exp`=2,`baseattacktime`=2000,`unit_flags`=33554432,`ScriptName`= 'npc_combustion_consumption' WHERE `entry`=40135; -- Consumption
+UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554432 ,`ScriptName`= 'npc_combustion_consumption' WHERE `entry`=40001; -- Combustion
 UPDATE `creature_template` SET `scale`=1,`flags_extra`=130,`unit_flags`=33554688 WHERE `entry`=40091; -- Orb Rotation Focus
 UPDATE `creature_model_info` SET `bounding_radius`=3.8,`combat_reach`=7.6,`gender`=2 WHERE `modelid`=16946;
 UPDATE `creature_template` SET `ScriptName`= 'boss_halion',`flags_extra`=`flags_extra`|0x1,`exp`=2 WHERE `entry`=39863; -- Halion
@@ -33,11 +33,10 @@ UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry` IN (40083,40081,401
 
 DELETE FROM `creature_template_addon` WHERE `entry` IN (39863, 40142);
 INSERT INTO `creature_template_addon` (`entry`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
-(40142,0,0,0,0,0, '75476 78243'), -- Twilight Halion: Twilight precision + Dusk Shroud
+(40142,0,0,0,0,0, '75476 78243'), -- Twilight Halion: Twilight Precision + Dusk Shroud
 (39863,0,0,0,0,0, '78243'); -- Halion: Twilight Precision
 
--- This is INCORRECT and BREAKS TC STANDARDS by editing WDB field data10
--- Best would be to create the sniffed spell in the spell_dbc table.
+-- Todo: Fix this shit, we don't edit WDB data.
 -- UPDATE `gameobject_template` SET `data10`=74807,`flags`=`flags`|32 WHERE `entry` IN (202794, 202795);
 -- UPDATE `gameobject_template` SET `ScriptName`="go_exit_twilight_realm",`flags`=`flags`|32 WHERE `entry`=202796;
 
@@ -147,7 +146,7 @@ INSERT INTO `vehicle_template_accessory` (`entry`,`accessory_entry`,`seat_id`,`m
 -- Vehicle spellclicks
 DELETE FROM `npc_spellclick_spells` WHERE `npc_entry`=40081;
 INSERT INTO `npc_spellclick_spells` (`npc_entry`,`spell_id`,`quest_start`,`cast_flags`) VALUES
-(40081,46598,0,1),
+(40081,46598,0,1), -- Ride Vehicle Hardcoded
 (40470,46598,0,1),
 (40471,46598,0,1),
 (40472,46598,0,1);
@@ -159,5 +158,5 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceEntry`,`ConditionType
 (13,74758,18,1,40091, 'Track Rotation can only target Orb Rotation Focus');
 
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
-(13,0,75509,0,18,1,39863,0,0, '', 'Spell Twilight Mending only target Halion'),
-(13,0,75509,0,18,1,40142,0,0, '', 'Spell Twilight Mending only target Twilight Halion');
+(13,0,75509,0,18,1,39863,0,0, '', 'Twilight Mending can only target Halion'),
+(13,0,75509,0,18,1,40142,0,0, '', 'Twilight Mending can only target Twilight Halion');
