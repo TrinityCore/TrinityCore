@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2006-2012 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,14 +24,19 @@ SDCategory: Blackwing Lair
 EndScriptData */
 
 #include "ScriptPCH.h"
+enum Say
+{
+    SAY_AGGRO               = -1469000,
+    SAY_LEASH               = -1469001
+};
 
-#define SAY_AGGRO               -1469000
-#define SAY_LEASH               -1469001
-
-#define SPELL_CLEAVE            26350
-#define SPELL_BLASTWAVE         23331
-#define SPELL_MORTALSTRIKE      24573
-#define SPELL_KNOCKBACK         25778
+enum Spells
+{
+    SPELL_CLEAVE            = 26350,
+    SPELL_BLASTWAVE         = 23331,
+    SPELL_MORTALSTRIKE      = 24573,
+    SPELL_KNOCKBACK         = 25778
+};
 
 class boss_broodlord : public CreatureScript
 {
@@ -45,7 +50,7 @@ public:
 
     struct boss_broodlordAI : public ScriptedAI
     {
-        boss_broodlordAI(Creature* c) : ScriptedAI(c) {}
+        boss_broodlordAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Cleave_Timer;
         uint32 BlastWave_Timer;
@@ -54,10 +59,10 @@ public:
 
         void Reset()
         {
-            Cleave_Timer = 8000;                                //These times are probably wrong
-            BlastWave_Timer = 12000;
-            MortalStrike_Timer = 20000;
-            KnockBack_Timer = 30000;
+            Cleave_Timer           = 8000;     // These times are probably wrong
+            BlastWave_Timer        = 12000;
+            MortalStrike_Timer     = 20000;
+            KnockBack_Timer        = 30000;
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -108,7 +113,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_broodlord()

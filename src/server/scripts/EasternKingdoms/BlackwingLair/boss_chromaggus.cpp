@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2006-2012 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,7 +71,7 @@ public:
 
     struct boss_chromaggusAI : public ScriptedAI
     {
-        boss_chromaggusAI(Creature* c) : ScriptedAI(c)
+        boss_chromaggusAI(Creature* creature) : ScriptedAI(creature)
         {
             //Select the 2 breaths that we are going to use until despawned
             //5 possiblities for the first breath, 4 for the second, 20 total possiblites
@@ -197,9 +197,7 @@ public:
             Enraged = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -297,7 +295,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_chromaggus()

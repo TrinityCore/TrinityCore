@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+ * Copyright (C) 2006-2012 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,40 +25,46 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
-#define SAY_LINE1           -1469026
-#define SAY_LINE2           -1469027
-#define SAY_LINE3           -1469028
-#define SAY_HALFLIFE        -1469029
-#define SAY_KILLTARGET      -1469030
+enum Says
+{
+   SAY_LINE1           = -1469026,
+   SAY_LINE2           = -1469027,
+   SAY_LINE3           = -1469028,
+   SAY_HALFLIFE        = -1469029,
+   SAY_KILLTARGET      = -1469030
+};
 
 #define GOSSIP_ITEM         "Start Event <Needs Gossip Text>"
 
-#define SPELL_ESSENCEOFTHERED       23513
-#define SPELL_FLAMEBREATH           23461
-#define SPELL_FIRENOVA              23462
-#define SPELL_TAILSWIPE             15847
-#define SPELL_BURNINGADRENALINE     23620
-#define SPELL_CLEAVE                20684                   //Chain cleave is most likely named something different and contains a dummy effect
+enum Spells
+{
+   SPELL_ESSENCEOFTHERED       = 23513,
+   SPELL_FLAMEBREATH           = 23461,
+   SPELL_FIRENOVA              = 23462,
+   SPELL_TAILSWIPE             = 15847,
+   SPELL_BURNINGADRENALINE     = 23620,
+   SPELL_CLEAVE                = 20684   //Chain cleave is most likely named something different and contains a dummy effect
+};
 
 class boss_vaelastrasz : public CreatureScript
 {
 public:
     boss_vaelastrasz() : CreatureScript("boss_vaelastrasz") { }
 
-    void SendDefaultMenu(Player* player, Creature* creature, uint32 uiAction)
+    void SendDefaultMenu(Player* player, Creature* creature, uint32 Action)
     {
-        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
+        if (Action == GOSSIP_ACTION_INFO_DEF + 1)               //Fight time
         {
             player->CLOSE_GOSSIP_MENU();
             CAST_AI(boss_vaelastrasz::boss_vaelAI, creature->AI())->BeginSpeech(player);
         }
     }
 
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 Sender, uint32 Action)
     {
         player->PlayerTalkClass->ClearMenus();
-        if (uiSender == GOSSIP_SENDER_MAIN)
-            SendDefaultMenu(player, creature, uiAction);
+        if (Sender == GOSSIP_SENDER_MAIN)
+            SendDefaultMenu(player, creature, Action);
 
         return true;
     }
@@ -81,11 +87,11 @@ public:
 
     struct boss_vaelAI : public ScriptedAI
     {
-        boss_vaelAI(Creature* c) : ScriptedAI(c)
+        boss_vaelAI(Creature* creature) : ScriptedAI(creature)
         {
-            c->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-            c->setFaction(35);
-            c->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+            creature->setFaction(35);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
         uint64 PlayerGUID;
@@ -102,17 +108,17 @@ public:
 
         void Reset()
         {
-            PlayerGUID = 0;
-            SpeechTimer = 0;
-            SpeechNum = 0;
-            Cleave_Timer = 8000;                                //These times are probably wrong
-            FlameBreath_Timer = 11000;
-            BurningAdrenalineCaster_Timer = 15000;
-            BurningAdrenalineTank_Timer = 45000;
-            FireNova_Timer = 5000;
-            TailSwipe_Timer = 20000;
-            HasYelled = false;
-            DoingSpeech = false;
+            PlayerGUID             = 0;
+            SpeechTimer            = 0;
+            SpeechNum              = 0;
+            Cleave_Timer           = 8000;     //These times are probably wrong
+            FlameBreath_Timer      = 11000;
+            BurningAdrenalineCaster_Timer    = 15000;
+            BurningAdrenalineTank_Timer      = 45000;
+            FireNova_Timer         = 5000;
+            TailSwipe_Timer        = 20000;
+            HasYelled              = false;
+            DoingSpeech            = false;
         }
 
         void BeginSpeech(Unit* target)
@@ -213,7 +219,7 @@ public:
                 Unit* target = NULL;
 
                 uint8 i = 0;
-                while (i < 3)                                   // max 3 tries to get a random target with power_mana
+                while (i < 3)   // max 3 tries to get a random target with power_mana
                 {
                     ++i;
                     target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true); //not aggro leader
@@ -258,7 +264,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_vael()
