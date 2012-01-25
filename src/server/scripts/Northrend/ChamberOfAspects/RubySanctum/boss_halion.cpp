@@ -21,7 +21,9 @@
  */
 
 #include "ScriptPCH.h"
-#include "ScriptedEscortAI.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
+#include "Spell.h"
 #include "Vehicle.h"
 #include "MapManager.h"
 #include "ruby_sanctum.h"
@@ -160,23 +162,18 @@ enum Misc
 {
     DATA_TWILIGHT_DAMAGE_TAKEN   = 1,
     DATA_MATERIAL_DAMAGE_TAKEN   = 2,
+    DATA_STACKS_DISPELLED        = 3,
 };
 
 enum OrbCarrierSeats
 {
     SEAT_NORTH            = 0,
     SEAT_SOUTH            = 1,
-    SEAT_EAST             = 2, // Heroic - Guess
-    SEAT_WEST             = 3, // Heroic - Guess
+    SEAT_EAST             = 2, // Heroic
+    SEAT_WEST             = 3, // Heroic
 };
 
-Position const HalionSpawnPos   = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
-
-/*Position const PortalsSpawnPos[2] =
-{
-    {3156.67f, 503.8108f, 72.98822f, 3.159046f},
-    {3156.67f, 563.8108f, 72.98822f, 3.159046f},
-};*/
+Position const HalionSpawnPos = {3156.67f,  533.8108f, 72.98822f, 3.159046f};
 
 struct CorporealityData
 {
@@ -186,7 +183,7 @@ struct CorporealityData
     uint8 twilightPercentage;
 };
 
-uint32 const MAX_CORPOREALITY_STATE = 12;
+uint8 const MAX_CORPOREALITY_STATE = 12;
 
 CorporealityData const corporealityReference[MAX_CORPOREALITY_STATE] =
 {
@@ -202,7 +199,7 @@ CorporealityData const corporealityReference[MAX_CORPOREALITY_STATE] =
     { 90, 74830, 74835,  10},
     {100, 74831, 74836,   0},
 };
-
+    
 class boss_halion : public CreatureScript
 {
     public:
@@ -303,6 +300,11 @@ class boss_halion : public CreatureScript
                 if (events.GetPhaseMask() & PHASE_THREE_MASK)
                     if (Creature* controller = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HALION_CONTROLLER)))
                         controller->AI()->SetData(DATA_MATERIAL_DAMAGE_TAKEN, damage);
+            }
+
+            bool CanAIAttack(const Unit* victim)
+            {
+                return !victim->HasAura(SPELL_TWILIGHT_REALM);
             }
 
             void UpdateAI(uint32 const diff)
@@ -434,6 +436,8 @@ class boss_twilight_halion : public CreatureScript
                 // As a consequence, the Twilight Halion entering evade mode does not end the encounter.
                 if (events.GetPhaseMask() & PHASE_TWO_MASK)
                     return;
+
+                ScriptedAI::JustReachedHome();
             }
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
@@ -473,6 +477,11 @@ class boss_twilight_halion : public CreatureScript
 
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                     controller->AI()->DoAction(ACTION_PHASE_THREE);
+            }
+
+            bool CanAIAttack(const Unit* victim)
+            {
+                return victim->HasAura(SPELL_TWILIGHT_REALM);
             }
 
             void UpdateAI(uint32 const diff)
@@ -776,31 +785,6 @@ class npc_halion_controller : public CreatureScript
                 }
             }
 
-            void PushStacksForPlayer(uint64 plrGUID, uint32 stackamount)
-            {
-                _voidZonesStacks.insert(std::pair<uint64, uint32>(plrGUID, stackamount));
-            }
-
-            void RemoveStacksForPlayer(uint64 plrGUID)
-            {
-                for (std::map<uint64, uint32>::iterator itr = _voidZonesStacks.begin(); itr != _voidZonesStacks.end(); ++itr)
-                {
-                    if ((*itr).first == plrGUID)
-                    {
-                        _voidZonesStacks.erase(itr);
-                        break;
-                    }
-                }
-            }
-
-            uint32 GetStacksForPlayer(uint64 plrGUID)
-            {
-                for (std::map<uint64, uint32>::iterator itr = _voidZonesStacks.begin(); itr != _voidZonesStacks.end(); ++itr)
-                    if ((*itr).first == plrGUID)
-                        return (*itr).second;
-                return 0;
-            }
-
         private:
             EventMap _events;
             InstanceScript* _instance;
@@ -808,7 +792,6 @@ class npc_halion_controller : public CreatureScript
             uint32 TwilightDamageTaken;
             uint32 MaterialDamageTaken;
             uint8 corporealityValue; // We always refer to the PHYSICAL VALUE.
-            std::map<uint64 /*plrGuid*/, uint32 /*stacks*/> _voidZonesStacks;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -963,92 +946,81 @@ class npc_meteor_strike : public CreatureScript
         }
 };
 
-class npc_combustion : public CreatureScript
+class npc_combustion_consumption : public CreatureScript
 {
     public:
-        npc_combustion() : CreatureScript("npc_combustion") { }
+        npc_combustion_consumption() : CreatureScript("npc_combustion_consumption") { }
 
-        struct npc_combustionAI : public Scripted_NoMovementAI
+        struct npc_combustion_consumptionAI : public Scripted_NoMovementAI
         {
-            npc_combustionAI(Creature* creature) : Scripted_NoMovementAI(creature),
-                _instance(creature->GetInstanceScript())
-            {
-                if (IsHeroic())
-                    me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
-            }
-
-            void IsSummonedBy(Unit* summoner)
-            {
-                // Let Halion Controller count as summoner
-                if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                {
-                    controller->AI()->JustSummoned(me);
-
-                    // Get stacks of Marks of Combustion that were on the caster
-                    uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUID());
-                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUID());
-
-                    me->CastCustomSpell(SPELL_SCALE_AURA, SPELLVALUE_AURA_STACK, stacks, me, true);
-                    DoCast(me, SPELL_COMBUSTION_DAMAGE_AURA); // Void zone visual
-                    int32 damage = 1200 + (stacks * 1290);
-                    me->CastCustomSpell(SPELL_FIERY_COMBUSTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
-                }
-            }
-
-            void UpdateAI(const uint32 /*diff*/) { }
-
-        private:
-            InstanceScript* _instance;
-        };
-
-        CreatureAI* GetAI(Creature* creature) const
-        {
-            return GetRubySanctumAI<npc_combustionAI>(creature);
-        }
-};
-
-class npc_consumption : public CreatureScript
-{
-    public:
-        npc_consumption() : CreatureScript("npc_consumption") { }
-
-        struct npc_consumptionAI : public Scripted_NoMovementAI
-        {
-            npc_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
+            npc_combustion_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
                    _instance(creature->GetInstanceScript())
             {
-                me->SetPhaseMask(0x20, true);
-                if (IsHeroic())
-                    me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
+                _entry = me->GetEntry();
+                switch (_entry)
+                {
+                    case NPC_COMBUSTION:
+                        _explosionSpell = SPELL_FIERY_COMBUSTION_EXPLOSION;
+                        _auraSpell = SPELL_COMBUSTION_DAMAGE_AURA;
+                        break;
+                    case NPC_CONSUMPTION:
+                        _explosionSpell = SPELL_SOUL_CONSUMPTION_EXPLOSION;
+                        _auraSpell = SPELL_CONSUMPTION_DAMAGE_AURA;
+                        break;
+                    default: // Should never happen
+                        _explosionSpell = 0;
+                        _auraSpell = 0;
+                        break;
+                }
+
+                if (_entry == NPC_CONSUMPTION)
+                {
+                    me->SetPhaseMask(0x20, true);
+                    if (IsHeroic())
+                        me->SetPhaseMask(me->GetPhaseMask() | 0x1, true);
+                }
+                else // if (_entry == NPC_COMBUSTION)
+                {
+                    me->SetPhaseMask(0x1, true);
+                    if (IsHeroic())
+                        me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
+                }
             }
 
-            void IsSummonedBy(Unit* summoner)
+            void IsSummonedBy(Unit* /*summoner*/)
             {
                 // Let Halion Controller count as summoner
                 if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
-                {
                     controller->AI()->JustSummoned(me);
+            }
 
-                    // Get stacks of Marks of Consumption that were on the caster
-                    uint32 stacks = CAST_AI(controllerAI, controller->AI())->GetStacksForPlayer(summoner->ToPlayer()->GetGUID());
-                    CAST_AI(controllerAI, controller->AI())->RemoveStacksForPlayer(summoner->ToPlayer()->GetGUID());
+            void SetData(uint32 type, uint32 value)
+            {
+                if (type != DATA_STACKS_DISPELLED || !_auraSpell || !_explosionSpell)
+                    return;
 
-                    me->CastCustomSpell(SPELL_SCALE_AURA, SPELLVALUE_AURA_STACK, stacks, me, true);
-                    DoCast(me, SPELL_CONSUMPTION_DAMAGE_AURA); // Void zone visual
-                    int32 damage = 1200 + (stacks * 1290);
-                    me->CastCustomSpell(SPELL_SOUL_CONSUMPTION_EXPLOSION, SPELLVALUE_BASE_POINT0, damage, me);
-                }
+                CustomSpellValues values;
+                values.AddSpellMod(SPELLVALUE_AURA_STACK, value);
+                me->CastCustomSpell(SPELL_SCALE_AURA, values, me);
+
+                DoCast(me, _auraSpell);
+                
+                int32 damage = 1200 + (value * 1290); // Needs moar research.
+                me->CastCustomSpell(_explosionSpell, SPELLVALUE_BASE_POINT0, damage, me);
             }
 
             void UpdateAI(const uint32 /*diff*/) { }
 
         private:
             InstanceScript* _instance;
+            uint32 _entry;
+            uint32 _explosionSpell;
+            uint32 _auraSpell;
         };
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return GetRubySanctumAI<npc_consumptionAI>(creature);
+            return GetRubySanctumAI<npc_combustion_consumptionAI>(creature);
         }
 };
 
@@ -1247,11 +1219,11 @@ class spell_halion_mark_of_combustion : public SpellScriptLoader
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
-                // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
-                if (Creature* controller = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_HALION_CONTROLLER)))
-                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(target->GetGUID(), stacks);
+                // Keep track of stacks when dispelling, there's only one effect in the spell.
+                CustomSpellValues values;
+                values.AddSpellMod(SPELLVALUE_BASE_POINT1, stacks);
 
-                target->CastSpell(target, SPELL_FIERY_COMBUSTION_SUMMON, true);
+                target->CastCustomSpell(SPELL_FIERY_COMBUSTION_SUMMON, values, target, true, NULL, NULL, GetCasterGUID());
             }
 
             void Register()
@@ -1294,11 +1266,11 @@ class spell_halion_mark_of_consumption : public SpellScriptLoader
 
                 uint8 stacks = aurEff->GetBase()->GetStackAmount();
 
-                // Save stacks in the controller, doesn't work with SPELLVALUE_AURA_STACKS
-                if (Creature* controller = ObjectAccessor::GetCreature(*target, instance->GetData64(DATA_HALION_CONTROLLER)))
-                    CAST_AI(controllerAI, controller->AI())->PushStacksForPlayer(target->GetGUID(), stacks);
+                // Keep track of stacks when dispelling, there's only one effect in the spell.
+                CustomSpellValues values;
+                values.AddSpellMod(SPELLVALUE_BASE_POINT1, stacks);
 
-                target->CastSpell(target, SPELL_SOUL_CONSUMPTION_SUMMON, true);
+                target->CastCustomSpell(SPELL_SOUL_CONSUMPTION_SUMMON, values, target, true, NULL, NULL, GetCasterGUID());
             }
 
             void Register()
@@ -1336,7 +1308,9 @@ class spell_halion_combustion_consumption_summon : public SpellScriptLoader
 
                 Position pos;
                 caster->GetPosition(&pos);
-                caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id);
+                if (Creature* summon = caster->GetMap()->SummonCreature(entry, pos, properties, duration, caster, GetSpellInfo()->Id))
+                    if (summon->IsAIEnabled)
+                        summon->AI()->SetData(DATA_STACKS_DISPELLED, GetSpellValue()->EffectBasePoints[EFFECT_1]);
             }
 
             void Register()
@@ -1489,8 +1463,7 @@ void AddSC_boss_halion()
     new npc_halion_controller();
     new npc_meteor_strike_initial();
     new npc_meteor_strike();
-    new npc_combustion();
-    new npc_consumption();
+    new npc_combustion_consumption();
     new npc_orb_carrier();
 
     new spell_halion_meteor_strike_marker();
