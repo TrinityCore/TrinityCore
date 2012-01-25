@@ -199,7 +199,7 @@ CorporealityData const corporealityReference[MAX_CORPOREALITY_STATE] =
     { 90, 74830, 74835,  10},
     {100, 74831, 74836,   0},
 };
-    
+
 class boss_halion : public CreatureScript
 {
     public:
@@ -956,34 +956,25 @@ class npc_combustion_consumption : public CreatureScript
             npc_combustion_consumptionAI(Creature* creature) : Scripted_NoMovementAI(creature),
                    _instance(creature->GetInstanceScript())
             {
-                _entry = me->GetEntry();
                 switch (_entry)
                 {
                     case NPC_COMBUSTION:
                         _explosionSpell = SPELL_FIERY_COMBUSTION_EXPLOSION;
                         _auraSpell = SPELL_COMBUSTION_DAMAGE_AURA;
+                        me->SetPhaseMask(0x20, true);
+                        if (IsHeroic())
+                            me->SetPhaseMask(me->GetPhaseMask() | 0x1, true);
                         break;
                     case NPC_CONSUMPTION:
                         _explosionSpell = SPELL_SOUL_CONSUMPTION_EXPLOSION;
                         _auraSpell = SPELL_CONSUMPTION_DAMAGE_AURA;
+                        if (IsHeroic())
+                            me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
                         break;
                     default: // Should never happen
                         _explosionSpell = 0;
                         _auraSpell = 0;
                         break;
-                }
-
-                if (_entry == NPC_CONSUMPTION)
-                {
-                    me->SetPhaseMask(0x20, true);
-                    if (IsHeroic())
-                        me->SetPhaseMask(me->GetPhaseMask() | 0x1, true);
-                }
-                else // if (_entry == NPC_COMBUSTION)
-                {
-                    me->SetPhaseMask(0x1, true);
-                    if (IsHeroic())
-                        me->SetPhaseMask(me->GetPhaseMask() | 0x20, true);
                 }
             }
 
@@ -1013,7 +1004,6 @@ class npc_combustion_consumption : public CreatureScript
 
         private:
             InstanceScript* _instance;
-            uint32 _entry;
             uint32 _explosionSpell;
             uint32 _auraSpell;
         };
