@@ -113,7 +113,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_AOESILENCE);
                 AoESilence_Timer = urand(15000, 20000);
-            } 
+            }
             else AoESilence_Timer -= diff;
 
             //ArcaneExplosion_Timer
@@ -121,7 +121,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_ARCANEEXPLOSION);
                 ArcaneExplosion_Timer = 8000;
-            } 
+            }
             else ArcaneExplosion_Timer -= diff;
 
             DoMeleeAttackIfReady();
