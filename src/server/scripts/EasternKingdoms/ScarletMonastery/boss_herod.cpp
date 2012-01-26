@@ -26,19 +26,32 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
 
-#define SAY_AGGRO                   -1189000
-#define SAY_WHIRLWIND               -1189001
-#define SAY_ENRAGE                  -1189002
-#define SAY_KILL                    -1189003
-#define EMOTE_ENRAGE                -1189004
+enum Says
+{
+    SAY_AGGRO                   = -1189000,
+    SAY_WHIRLWIND               = -1189001,
+    SAY_ENRAGE                  = -1189002,
+    SAY_KILL                    = -1189003
+};
 
-#define SPELL_RUSHINGCHARGE         8260
-#define SPELL_CLEAVE                15496
-#define SPELL_WHIRLWIND             8989
-#define SPELL_FRENZY                8269
+enum Emotes
+{
+    EMOTE_ENRAGE                = -1189004
+};
 
-#define ENTRY_SCARLET_TRAINEE       6575
-#define ENTRY_SCARLET_MYRMIDON      4295
+enum Spells
+{
+    SPELL_RUSHINGCHARGE         = 8260,
+    SPELL_CLEAVE                = 15496,
+    SPELL_WHIRLWIND             = 8989,
+    SPELL_FRENZY                = 8269
+};
+
+enum Entry
+{
+    ENTRY_SCARLET_TRAINEE       = 6575,
+    ENTRY_SCARLET_MYRMIDON      = 4295
+};
 
 class boss_herod : public CreatureScript
 {
@@ -52,7 +65,7 @@ public:
 
     struct boss_herodAI : public ScriptedAI
     {
-        boss_herodAI(Creature* c) : ScriptedAI(c) {}
+        boss_herodAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool Enrage;
 
@@ -102,7 +115,8 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 12000;
-            } else Cleave_Timer -= diff;
+            }
+            else Cleave_Timer -= diff;
 
             // Whirlwind_Timer
             if (Whirlwind_Timer <= diff)
@@ -110,12 +124,12 @@ public:
                 DoScriptText(SAY_WHIRLWIND, me);
                 DoCast(me->getVictim(), SPELL_WHIRLWIND);
                 Whirlwind_Timer = 30000;
-            } else Whirlwind_Timer -= diff;
+            }
+            else Whirlwind_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_scarlet_trainee : public CreatureScript
@@ -130,7 +144,7 @@ public:
 
     struct mob_scarlet_traineeAI : public npc_escortAI
     {
-        mob_scarlet_traineeAI(Creature* c) : npc_escortAI(c)
+        mob_scarlet_traineeAI(Creature* creature) : npc_escortAI(creature)
         {
             Start_Timer = urand(1000, 6000);
         }
@@ -138,7 +152,7 @@ public:
         uint32 Start_Timer;
 
         void Reset() {}
-        void WaypointReached(uint32 /*uiPoint*/) {}
+        void WaypointReached(uint32 /*point*/) {}
         void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
@@ -155,7 +169,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 void AddSC_boss_herod()
