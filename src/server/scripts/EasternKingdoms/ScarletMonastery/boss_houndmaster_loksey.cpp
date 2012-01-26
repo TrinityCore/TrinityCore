@@ -44,7 +44,7 @@ public:
 
     struct boss_houndmaster_lokseyAI : public ScriptedAI
     {
-        boss_houndmaster_lokseyAI(Creature* c) : ScriptedAI(c) {}
+        boss_houndmaster_lokseyAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 BloodLust_Timer;
 
@@ -67,12 +67,12 @@ public:
             {
                 DoCast(me, SPELL_BLOODLUST);
                 BloodLust_Timer = 20000;
-            } else BloodLust_Timer -= diff;
+            }
+            else BloodLust_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_houndmaster_loksey()
