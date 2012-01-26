@@ -47,7 +47,7 @@ public:
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
     {
-        boss_high_inquisitor_fairbanksAI(Creature* c) : ScriptedAI(c) {}
+        boss_high_inquisitor_fairbanksAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 CurseOfBlood_Timer;
         uint32 DispelMagic_Timer;
@@ -68,9 +68,7 @@ public:
             PowerWordShield = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -128,7 +126,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_high_inquisitor_fairbanks()
