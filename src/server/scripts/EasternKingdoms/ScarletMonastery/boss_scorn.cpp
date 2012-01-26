@@ -25,10 +25,13 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
-#define SPELL_LICHSLAP                  28873
-#define SPELL_FROSTBOLTVOLLEY           8398
-#define SPELL_MINDFLAY                  17313
-#define SPELL_FROSTNOVA                 15531
+enum Spells
+{
+    SPELL_LICHSLAP                  = 28873,
+    SPELL_FROSTBOLTVOLLEY           = 8398,
+    SPELL_MINDFLAY                  = 17313,
+    SPELL_FROSTNOVA                 = 15531
+};
 
 class boss_scorn : public CreatureScript
 {
@@ -42,7 +45,7 @@ public:
 
     struct boss_scornAI : public ScriptedAI
     {
-        boss_scornAI(Creature* c) : ScriptedAI(c) {}
+        boss_scornAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 LichSlap_Timer;
         uint32 FrostboltVolley_Timer;
@@ -57,9 +60,7 @@ public:
             FrostNova_Timer = 30000;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -71,33 +72,36 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_LICHSLAP);
                 LichSlap_Timer = 45000;
-            } else LichSlap_Timer -= diff;
+            }
+            else LichSlap_Timer -= diff;
 
             //FrostboltVolley_Timer
             if (FrostboltVolley_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FROSTBOLTVOLLEY);
                 FrostboltVolley_Timer = 20000;
-            } else FrostboltVolley_Timer -= diff;
+            }
+            else FrostboltVolley_Timer -= diff;
 
             //MindFlay_Timer
             if (MindFlay_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MINDFLAY);
                 MindFlay_Timer = 20000;
-            } else MindFlay_Timer -= diff;
+            }
+            else MindFlay_Timer -= diff;
 
             //FrostNova_Timer
             if (FrostNova_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FROSTNOVA);
                 FrostNova_Timer = 15000;
-            } else FrostNova_Timer -= diff;
+            }
+            else FrostNova_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_scorn()
