@@ -5607,6 +5607,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel->opponent   = target;
     duel->startTime  = 0;
     duel->startTimer = 0;
+    duel->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
     caster->duel     = duel;
 
     DuelInfo* duel2   = new DuelInfo;
@@ -5614,6 +5615,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel2->opponent   = caster;
     duel2->startTime  = 0;
     duel2->startTimer = 0;
+    duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
     target->duel      = duel2;
 
     caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
