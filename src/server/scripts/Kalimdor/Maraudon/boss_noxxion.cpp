@@ -24,9 +24,11 @@ SDCategory: Maraudon
 EndScriptData */
 
 #include "ScriptPCH.h"
-
-#define SPELL_TOXICVOLLEY           21687
-#define SPELL_UPPERCUT              22916
+enum Spells
+{
+    SPELL_TOXICVOLLEY           = 21687,
+    SPELL_UPPERCUT              = 22916
+};
 
 class boss_noxxion : public CreatureScript
 {
@@ -40,7 +42,7 @@ public:
 
     struct boss_noxxionAI : public ScriptedAI
     {
-        boss_noxxionAI(Creature* c) : ScriptedAI(c) {}
+        boss_noxxionAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ToxicVolley_Timer;
         uint32 Uppercut_Timer;
@@ -78,7 +80,8 @@ public:
                 me->SetDisplayId(11172);
                 Invisible = false;
                 //me->m_canMove = true;
-            } else if (Invisible)
+            } 
+            else if (Invisible)
             {
                 Invisible_Timer -= diff;
                 //Do nothing while invisible
@@ -94,14 +97,16 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_TOXICVOLLEY);
                 ToxicVolley_Timer = 9000;
-            } else ToxicVolley_Timer -= diff;
+            } 
+            else ToxicVolley_Timer -= diff;
 
             //Uppercut_Timer
             if (Uppercut_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_UPPERCUT);
                 Uppercut_Timer = 12000;
-            } else Uppercut_Timer -= diff;
+            } 
+            else Uppercut_Timer -= diff;
 
             //Adds_Timer
             if (!Invisible && Adds_Timer <= diff)
@@ -122,12 +127,12 @@ public:
                 Invisible_Timer = 15000;
 
                 Adds_Timer = 40000;
-            } else Adds_Timer -= diff;
+            } 
+            else Adds_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_noxxion()

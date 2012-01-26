@@ -25,9 +25,12 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
-#define SPELL_KNOCKAWAY         18670
-#define SPELL_TRAMPLE           5568
-#define SPELL_LANDSLIDE         21808
+enum Spells
+{
+    SPELL_KNOCKAWAY         = 18670,
+    SPELL_TRAMPLE           = 5568,
+    SPELL_LANDSLIDE         = 21808
+};
 
 class boss_landslide : public CreatureScript
 {
@@ -41,7 +44,7 @@ public:
 
     struct boss_landslideAI : public ScriptedAI
     {
-        boss_landslideAI(Creature* c) : ScriptedAI(c) {}
+        boss_landslideAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 KnockAway_Timer;
         uint32 Trample_Timer;
@@ -68,14 +71,16 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_KNOCKAWAY);
                 KnockAway_Timer = 15000;
-            } else KnockAway_Timer -= diff;
+            } 
+            else KnockAway_Timer -= diff;
 
             //Trample_Timer
             if (Trample_Timer <= diff)
             {
                 DoCast(me, SPELL_TRAMPLE);
                 Trample_Timer = 8000;
-            } else Trample_Timer -= diff;
+            } 
+            else Trample_Timer -= diff;
 
             //Landslide
             if (HealthBelowPct(50))
@@ -85,13 +90,13 @@ public:
                     me->InterruptNonMeleeSpells(false);
                     DoCast(me, SPELL_LANDSLIDE);
                     Landslide_Timer = 60000;
-                } else Landslide_Timer -= diff;
+                } 
+                else Landslide_Timer -= diff;
             }
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_landslide()
