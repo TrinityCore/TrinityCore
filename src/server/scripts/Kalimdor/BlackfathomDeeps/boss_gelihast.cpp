@@ -35,18 +35,18 @@ public:
 
     struct boss_gelihastAI : public ScriptedAI
     {
-        boss_gelihastAI(Creature* c) : ScriptedAI(c)
+        boss_gelihastAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        uint32 uiNetTimer;
+        uint32 netTimer;
 
         InstanceScript* instance;
 
         void Reset()
         {
-            uiNetTimer = urand(2000, 4000);
+            netTimer = urand(2000, 4000);
             if (instance)
                 instance->SetData(TYPE_GELIHAST, NOT_STARTED);
         }
@@ -68,16 +68,15 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiNetTimer < diff)
+            if (netTimer < diff)
             {
                 DoCastVictim(SPELL_NET);
-                uiNetTimer = urand(4000, 7000);
-            } else uiNetTimer -= diff;
+                netTimer = urand(4000, 7000);
+            } else netTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_gelihast()
