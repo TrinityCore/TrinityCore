@@ -24,10 +24,12 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptPCH.h"
-
-#define SPELL_CALLOFTHEGRAVE            17831
-#define SPELL_TERRIFY                   7399
-#define SPELL_SOULSIPHON                7290
+enum Spells
+{
+    SPELL_CALLOFTHEGRAVE            = 17831,
+    SPELL_TERRIFY                   = 7399,
+    SPELL_SOULSIPHON                = 7290
+};
 
 class boss_azshir_the_sleepless : public CreatureScript
 {
@@ -41,7 +43,7 @@ public:
 
     struct boss_azshir_the_sleeplessAI : public ScriptedAI
     {
-        boss_azshir_the_sleeplessAI(Creature* c) : ScriptedAI(c) {}
+        boss_azshir_the_sleeplessAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 SoulSiphon_Timer;
         uint32 CallOftheGrave_Timer;
@@ -54,9 +56,7 @@ public:
             Terrify_Timer = 20000;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -93,7 +93,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_azshir_the_sleepless()

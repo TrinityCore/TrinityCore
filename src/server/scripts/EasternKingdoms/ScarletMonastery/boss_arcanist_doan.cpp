@@ -49,7 +49,7 @@ public:
 
     struct boss_arcanist_doanAI : public ScriptedAI
     {
-        boss_arcanist_doanAI(Creature* c) : ScriptedAI(c) {}
+        boss_arcanist_doanAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Polymorph_Timer;
         uint32 AoESilence_Timer;
@@ -124,7 +124,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_arcanist_doan()
