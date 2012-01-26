@@ -895,19 +895,6 @@ uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
     return Trinity::Honor::hk_honor_at_level(maxLevel, float(kills));
 }
 
-uint32 Battleground::GetBattlemasterEntry() const
-{
-    switch (GetTypeID(true))
-    {
-        case BATTLEGROUND_AV: return 15972;
-        case BATTLEGROUND_WS: return 14623;
-        case BATTLEGROUND_AB: return 14879;
-        case BATTLEGROUND_EY: return 22516;
-        case BATTLEGROUND_NA: return 20200;
-        default:              return 0;
-    }
-}
-
 void Battleground::BlockMovement(Player* player)
 {
     player->SetClientControl(player, 0);                          // movement disabled NOTE: the effect will be automatically removed by client when the player is teleported from the battleground, so no need to send with uint8(1) in RemovePlayerAtLeave()
