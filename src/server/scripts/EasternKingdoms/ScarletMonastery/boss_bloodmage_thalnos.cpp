@@ -49,7 +49,7 @@ public:
 
     struct boss_bloodmage_thalnosAI : public ScriptedAI
     {
-        boss_bloodmage_thalnosAI(Creature* c) : ScriptedAI(c) {}
+        boss_bloodmage_thalnosAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool HpYell;
         uint32 FlameShock_Timer;
@@ -119,7 +119,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_bloodmage_thalnos()
