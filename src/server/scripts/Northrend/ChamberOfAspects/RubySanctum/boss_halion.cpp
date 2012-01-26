@@ -741,7 +741,7 @@ class npc_halion_controller : public CreatureScript
                                     }
                                 }
 
-                                for (uint8 i = DATA_HALION; i < DATA_XERESTRASZA; i++)
+                                for (uint8 i = DATA_HALION; i <= DATA_TWILIGHT_HALION; i++)
                                 {
                                     if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(i)))
                                     {
@@ -780,8 +780,7 @@ class npc_halion_controller : public CreatureScript
                         }
                         case EVENT_BERSERK:
                         {
-                            // DATA_HALION -> DATA_TWILIGHT_HALION -> DATA_XERESTRASZA
-                            for (uint8 i = DATA_HALION; i < DATA_XERESTRASZA; i++)
+                            for (uint8 i = DATA_HALION; i <= DATA_TWILIGHT_HALION; i++)
                                 if (Creature* halion = ObjectAccessor::GetCreature(*me, _instance->GetData64(i)))
                                     halion->AI()->DoAction(ACTION_BERSERK);
                             break;
@@ -959,7 +958,7 @@ class npc_meteor_strike : public CreatureScript
                             controller->AI()->JustSummoned(flame);
 
                         flame->CastSpell(flame, SPELL_METEOR_STRIKE_FIRE_AURA_2, true);
-                        _spawnCount++;
+                        ++_spawnCount;
                     }
                     _range += 5.0f;
                     _events.ScheduleEvent(EVENT_SPAWN_METEOR_FLAME, 800);
