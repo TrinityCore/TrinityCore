@@ -206,7 +206,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CRUSADERSTRIKE);
                 CrusaderStrike_Timer = 10000;
-            } 
+            }
             else CrusaderStrike_Timer -= diff;
 
             //HammerOfJustice_Timer
@@ -214,7 +214,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_HAMMEROFJUSTICE);
                 HammerOfJustice_Timer = 60000;
-            } 
+            }
             else HammerOfJustice_Timer -= diff;
 
             DoMeleeAttackIfReady();
@@ -340,7 +340,7 @@ public:
                     DoCast(target, SPELL_HEAL);
 
                 Heal_Timer = 13000;
-            } 
+            }
             else Heal_Timer -= diff;
 
             //PowerWordShield_Timer
@@ -348,7 +348,7 @@ public:
             {
                 DoCast(me, SPELL_POWERWORDSHIELD);
                 PowerWordShield_Timer = 15000;
-            } 
+            }
             else PowerWordShield_Timer -= diff;
 
             //HolySmite_Timer
@@ -356,7 +356,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_HOLYSMITE);
                 HolySmite_Timer = 6000;
-            } 
+            }
             else HolySmite_Timer -= diff;
 
             DoMeleeAttackIfReady();

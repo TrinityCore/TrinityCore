@@ -80,7 +80,7 @@ public:
             {
                 DoCast(me, SPELL_HEAL);
                 Heal_Timer = 30000;
-            } 
+            }
             else Heal_Timer -= diff;
 
             //Fear_Timer
@@ -90,7 +90,7 @@ public:
                     DoCast(target, SPELL_FEAR);
 
                 Fear_Timer = 40000;
-            } 
+            }
             else Fear_Timer -= diff;
 
             //Sleep_Timer
@@ -100,7 +100,7 @@ public:
                     DoCast(target, SPELL_SLEEP);
 
                 Sleep_Timer = 30000;
-            } 
+            }
             else Sleep_Timer -= diff;
 
             //PowerWordShield_Timer
@@ -117,7 +117,7 @@ public:
                     DoCast(target, SPELL_DISPELMAGIC);
 
                 DispelMagic_Timer = 30000;
-            } 
+            }
             else DispelMagic_Timer -= diff;
 
             //CurseOfBlood_Timer
@@ -125,7 +125,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CURSEOFBLOOD);
                 CurseOfBlood_Timer = 25000;
-            } 
+            }
             else CurseOfBlood_Timer -= diff;
 
             DoMeleeAttackIfReady();
