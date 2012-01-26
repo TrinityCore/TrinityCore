@@ -30,16 +30,19 @@ EndContentData */
 #include "ScriptPCH.h"
 #include "ScriptedSimpleAI.h"
 
-#define SPELL_CONE_OF_FIRE          19630
-#define SPELL_BITE                  19771
+enum Spells
+{
+    SPELL_CONE_OF_FIRE          = 19630,
+    SPELL_BITE                  = 19771,
 
-//Random Debuff (each hound has only one of these)
-#define SPELL_GROUND_STOMP          19364
-#define SPELL_ANCIENT_DREAD         19365
-#define SPELL_CAUTERIZING_FLAMES    19366
-#define SPELL_WITHERING_HEAT        19367
-#define SPELL_ANCIENT_DESPAIR       19369
-#define SPELL_ANCIENT_HYSTERIA      19372
+    //Random Debuff (each hound has only one of these)
+    SPELL_GROUND_STOMP          = 19364,
+    SPELL_ANCIENT_DREAD         = 19365,
+    SPELL_CAUTERIZING_FLAMES    = 19366,
+    SPELL_WITHERING_HEAT        = 19367,
+    SPELL_ANCIENT_DESPAIR       = 19369,
+    SPELL_ANCIENT_HYSTERIA      = 19372
+};
 
 class mob_ancient_core_hound : public CreatureScript
 {
@@ -75,7 +78,6 @@ public:
 
         return ai;
     }
-
 };
 
 void AddSC_molten_core()
