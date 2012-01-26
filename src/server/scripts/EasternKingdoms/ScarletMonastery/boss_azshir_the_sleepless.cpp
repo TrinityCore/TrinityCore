@@ -74,7 +74,7 @@ public:
                     return;
 
                     //SoulSiphon_Timer = 20000;
-                } 
+                }
                 else SoulSiphon_Timer -= diff;
             }
 
@@ -83,7 +83,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CALLOFTHEGRAVE);
                 CallOftheGrave_Timer = 30000;
-            } 
+            }
             else CallOftheGrave_Timer -= diff;
 
             //Terrify_Timer
@@ -91,7 +91,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_TERRIFY);
                 Terrify_Timer = 20000;
-            } 
+            }
             else Terrify_Timer -= diff;
 
             DoMeleeAttackIfReady();

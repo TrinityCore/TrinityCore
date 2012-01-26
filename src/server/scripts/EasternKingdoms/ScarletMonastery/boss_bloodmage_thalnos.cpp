@@ -93,7 +93,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_FLAMESHOCK);
                 FlameShock_Timer = urand(10000, 15000);
-            } 
+            }
             else FlameShock_Timer -= diff;
 
             //FlameSpike_Timer
@@ -101,7 +101,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_FLAMESPIKE);
                 FlameSpike_Timer = 30000;
-            } 
+            }
             else FlameSpike_Timer -= diff;
 
             //FireNova_Timer
@@ -109,7 +109,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_FIRENOVA);
                 FireNova_Timer = 40000;
-            } 
+            }
             else FireNova_Timer -= diff;
 
             //ShadowBolt_Timer
@@ -117,7 +117,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_SHADOWBOLT);
                 ShadowBolt_Timer = 2000;
-            } 
+            }
             else ShadowBolt_Timer -= diff;
 
             DoMeleeAttackIfReady();

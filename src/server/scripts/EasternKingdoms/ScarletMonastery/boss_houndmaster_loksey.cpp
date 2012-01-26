@@ -67,7 +67,7 @@ public:
             {
                 DoCast(me, SPELL_BLOODLUST);
                 BloodLust_Timer = 20000;
-            } 
+            }
             else BloodLust_Timer -= diff;
 
             DoMeleeAttackIfReady();
