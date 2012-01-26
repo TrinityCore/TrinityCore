@@ -33,6 +33,7 @@ enum Says
     SAY_ENRAGE                  = -1189002,
     SAY_KILL                    = -1189003
 };
+
 enum Emotes
 {
     EMOTE_ENRAGE                = -1189004
@@ -114,7 +115,8 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CLEAVE);
                 Cleave_Timer = 12000;
-            } else Cleave_Timer -= diff;
+            } 
+            else Cleave_Timer -= diff;
 
             // Whirlwind_Timer
             if (Whirlwind_Timer <= diff)
@@ -122,7 +124,8 @@ public:
                 DoScriptText(SAY_WHIRLWIND, me);
                 DoCast(me->getVictim(), SPELL_WHIRLWIND);
                 Whirlwind_Timer = 30000;
-            } else Whirlwind_Timer -= diff;
+            } 
+            else Whirlwind_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }

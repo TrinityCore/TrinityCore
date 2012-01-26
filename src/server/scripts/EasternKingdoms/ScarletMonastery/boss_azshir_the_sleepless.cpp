@@ -24,6 +24,7 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptPCH.h"
+
 enum Spells
 {
     SPELL_CALLOFTHEGRAVE            = 17831,
@@ -73,7 +74,8 @@ public:
                     return;
 
                     //SoulSiphon_Timer = 20000;
-                } else SoulSiphon_Timer -= diff;
+                } 
+                else SoulSiphon_Timer -= diff;
             }
 
             //CallOfTheGrave_Timer
@@ -81,14 +83,16 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_CALLOFTHEGRAVE);
                 CallOftheGrave_Timer = 30000;
-            } else CallOftheGrave_Timer -= diff;
+            } 
+            else CallOftheGrave_Timer -= diff;
 
             //Terrify_Timer
             if (Terrify_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_TERRIFY);
                 Terrify_Timer = 20000;
-            } else Terrify_Timer -= diff;
+            } 
+            else Terrify_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
