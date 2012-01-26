@@ -105,21 +105,24 @@ public:
                     DoCast(target, SPELL_POLYMORPH);
 
                 Polymorph_Timer = 20000;
-            } else Polymorph_Timer -= diff;
+            }
+            else Polymorph_Timer -= diff;
 
             //AoESilence_Timer
             if (AoESilence_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_AOESILENCE);
                 AoESilence_Timer = urand(15000, 20000);
-            } else AoESilence_Timer -= diff;
+            } 
+            else AoESilence_Timer -= diff;
 
             //ArcaneExplosion_Timer
             if (ArcaneExplosion_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ARCANEEXPLOSION);
                 ArcaneExplosion_Timer = 8000;
-            } else ArcaneExplosion_Timer -= diff;
+            } 
+            else ArcaneExplosion_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
