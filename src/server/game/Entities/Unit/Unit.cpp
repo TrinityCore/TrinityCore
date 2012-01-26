@@ -17721,7 +17721,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 count = getThreatManager().getThreatList().size();
 
-        sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message (disabled)");
+        sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
         WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
         data.append(GetPackGUID());
         data << uint32(count);
@@ -17731,7 +17731,7 @@ void Unit::SendThreatListUpdate()
             data.appendPackGUID((*itr)->getUnitGuid());
             data << uint32((*itr)->getThreat() * 100);
         }
-        //SendMessageToSet(&data, false);
+        SendMessageToSet(&data, false);
     }
 }
 
