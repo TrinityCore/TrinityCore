@@ -322,7 +322,8 @@ public:
                     if (!me->getVictim()) return;
                     me->GetMotionMaster()->Clear(false);
                     me->GetMotionMaster()->MoveFleeing(me->getVictim());
-                } else wait -= diff;
+                } 
+                else wait -= diff;
 
                 if (laugh <= diff)
                 {
@@ -333,7 +334,8 @@ public:
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
                     me->MonsterTextEmote(EMOTE_LAUGHS, 0);
-                } else laugh -= diff;
+                } 
+                else laugh -= diff;
             }
             else
             {
@@ -345,7 +347,8 @@ public:
                         if (Unit* body = Unit::GetUnit((*me), bodyGUID))
                             body->Kill(body);
                         me->Kill(me);
-                    } else wait -= diff;
+                    } 
+                    else wait -= diff;
                 }
             }
         }
@@ -641,7 +644,8 @@ public:
                                     break;
                                 }
                                 ++count;
-                            } else say_timer -= diff;
+                            } 
+                            else say_timer -= diff;
                         }
                         else
                         {
@@ -662,7 +666,8 @@ public:
                             if (Creature* flame = me->SummonCreature(HELPER, Spawn[0].x, Spawn[0].y, Spawn[0].z, 0, TEMPSUMMON_TIMED_DESPAWN, 17000))
                                 CAST_AI(mob_wisp_invis::mob_wisp_invisAI, flame->AI())->SetType(2);
                             burned = true;
-                        } else burn -= diff;
+                        } 
+                        else burn -= diff;
                         break;
                     case 2:
                         if (conflagrate <= diff)
@@ -670,7 +675,8 @@ public:
                             if (Unit* player = SelectRandomPlayer(30.0f))
                                 DoCast(player, SPELL_CONFLAGRATION, false);
                             conflagrate = urand(10000, 16000);
-                        } else conflagrate -= diff;
+                        } 
+                        else conflagrate -= diff;
                         break;
                     case 3:
                         if (summonadds <= diff)
@@ -679,7 +685,8 @@ public:
                             DoCast(me, SPELL_SUMMON_PUMPKIN);
                             SaySound(SAY_SPROUTING_PUMPKINS);
                             summonadds = urand(25000, 35000);
-                        } else summonadds -= diff;
+                        } 
+                        else summonadds -= diff;
                         break;
                 }
 
@@ -688,7 +695,8 @@ public:
                     laugh = urand(11000, 22000);
                     me->MonsterTextEmote(EMOTE_LAUGHS, 0);
                     DoPlaySoundToSet(me, RandomLaugh[rand()%3]);
-                } else laugh -= diff;
+                } 
+                else laugh -= diff;
 
                 if (UpdateVictim())
                 {
@@ -697,7 +705,8 @@ public:
                     {
                         DoCast(me->getVictim(), SPELL_CLEAVE);
                         cleave = urand(2000, 6000);       //1 cleave per 2.0f-6.0fsec
-                    } else cleave -= diff;
+                    } 
+                    else cleave -= diff;
                 }
             }
             else
@@ -730,9 +739,11 @@ public:
                         me->RemoveAurasDueToSpell(SPELL_CONFUSE);
                         DoCast(me, SPELL_WHIRLWIND, true);
                         DoCast(me, SPELL_CONFUSE);
-                    } else
+                    } 
+                    else
                         me->RemoveAurasDueToSpell(SPELL_WHIRLWIND);
-                } else whirlwind -= diff;
+                } 
+                else whirlwind -= diff;
             }
         }
     };
@@ -832,12 +843,12 @@ public:
             if (instance->GetData(DATA_HORSEMAN_EVENT) != NOT_STARTED)
                 return true;
             instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
-        }
+        }    
     /*  if (soil->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER && player->getLevel() > 64)
         {
             player->PrepareQuestMenu(soil->GetGUID());
             player->SendPreparedQuest(soil->GetGUID());
-        }
+        }        
         if (player->GetQuestStatus(11405) == QUEST_STATUS_INCOMPLETE && player->getLevel() > 64)
         { */
             player->AreaExploredOrEventHappens(11405);
@@ -855,6 +866,7 @@ void mob_head::mob_headAI::Disappear()
 {
     if (withbody)
         return;
+    
     if (bodyGUID)
     {
         Creature* body = Unit::GetCreature((*me), bodyGUID);
