@@ -391,7 +391,8 @@ public:
                             ingvar->RemoveAurasDueToSpell(SPELL_SCOURG_RESURRECTION_DUMMY);
 
                             if (boss_ingvar_the_plunderer::boss_ingvar_the_plundererAI* pAI = CAST_AI(boss_ingvar_the_plunderer::boss_ingvar_the_plundererAI, ingvar->AI()))
-                                pAI->StartZombiePhase();
+                                if (ingvar->getVictim())
+                                    pAI->StartZombiePhase();
 
                             me->GetMotionMaster()->MovePoint(2, x+1, y, z+30);
                             ++uiResurectPhase;
