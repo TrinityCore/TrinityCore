@@ -40,6 +40,7 @@
 #include "BattlegroundAB.h"
 #include "Map.h"
 #include "InstanceScript.h"
+#include "Group.h"
 
 namespace Trinity
 {
@@ -2016,7 +2017,7 @@ bool AchievementMgr::HasAchieved(uint32 achievementId) const
     return m_completedAchievements.find(achievementId) != m_completedAchievements.end();
 }
 
-bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 /*miscValue1*/, uint64 /*miscValue2*/, Unit* unit)
+bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria, AchievementEntry const* achievement, uint64 miscValue1, uint64 miscValue2, Unit* unit)
 {
     if (DisableMgr::IsDisabledFor(DISABLE_TYPE_ACHIEVEMENT_CRITERIA, criteria->ID, NULL))
         return false;
@@ -2095,6 +2096,59 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
                 if (const Player* player = unit->ToPlayer())
                     if (player->GetTeam() == GetPlayer()->GetTeam())
                         return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_ENTRY:
+                if (!unit || !unit->ToCreature())
+                    return false;
+                if (unit->ToCreature()->GetEntry() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_HAS_AURA:
+                if (!GetPlayer()->HasAura(value))
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HAS_AURA:
+                if (!unit || !unit->HasAura(value))
+                    return false;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_MIN:
+                if (ItemTemplate const * itemProto = sObjectMgr->GetItemTemplate(miscValue1))
+                    if (itemProto->Quality < value)
+                        return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_ITEM_QUALITY_EQUALS:
+                if (ItemTemplate const * itemProto = sObjectMgr->GetItemTemplate(miscValue1))
+                    if (itemProto->Quality < value)
+                        return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_RACE:
+                if (GetPlayer()->getRace() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_CLASS:
+                if (GetPlayer()->getClass() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_RACE:
+                if (!unit || !unit->ToPlayer())
+                    break;
+                if (unit->ToPlayer()->getRace() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CLASS:
+                if (!unit || !unit->ToPlayer())
+                    break;
+                if (unit->ToPlayer()->getClass() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_MAX_GROUP_MEMBERS:
+                if (GetPlayer()->GetGroup() && GetPlayer()->GetGroup()->GetMembersCount() >= value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_CREATURE_TYPE:
+                if (!unit || !unit->ToCreature())
+                    return false;
+                if (unit->ToCreature()->GetCreatureType() != value)
+                    return false;
                 break;
             default:
                 break;
