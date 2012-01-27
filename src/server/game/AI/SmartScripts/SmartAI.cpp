@@ -89,7 +89,7 @@ void SmartAI::UpdateDespawn(const uint32 diff)
 void SmartAI::Reset()
 {
     if (!HasEscortState(SMART_ESCORT_ESCORTING))//dont mess up escort movement after combat
-        SetRun(true);
+        SetRun(mRun);
     GetScript()->OnReset();
 }
 
