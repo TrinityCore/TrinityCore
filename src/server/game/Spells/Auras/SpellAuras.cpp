@@ -147,6 +147,16 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
         }
         m_flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
+
+    // there are more auras that require this flag, this is just the beginning
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (((1 << i) & effMask) && GetBase()->GetSpellInfo()->Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
+        {
+            m_flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
+            break;
+        }
+    }
 }
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
@@ -208,14 +218,9 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
     }
 
     if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
-    {
-        if (flags & AFLAG_EFF_INDEX_0)
-            data << uint32(0); // Effect 0 value
-        if (flags & AFLAG_EFF_INDEX_1)
-            data << uint32(0); // Effect 1 value
-        if (flags & AFLAG_EFF_INDEX_2)
-            data << uint32(0); // Effect 2 value
-    }
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (AuraEffect const* eff = aura->GetEffect(i)) // NULL if effect flag not set
+                data << int32(eff->GetAmount());
 }
 
 void AuraApplication::ClientUpdate(bool remove)

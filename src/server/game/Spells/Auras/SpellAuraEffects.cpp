@@ -747,6 +747,10 @@ int32 AuraEffect::CalculateAmount(Unit* caster)
             if (GetSpellInfo()->SpellFamilyName == SPELLFAMILY_DRUID && GetSpellInfo()->SpellFamilyFlags[2] & 0x00000008)
                 amount = GetBase()->GetUnitOwner()->GetShapeshiftForm() == FORM_CAT ? amount : 0;
             break;
+        case SPELL_AURA_MOUNTED:
+            if (MountCapabilityEntry const* mountCapability = GetBase()->GetUnitOwner()->GetMountCapability(uint32(GetMiscValueB())))
+                amount = mountCapability->Id;
+            break;
         default:
             break;
     }
@@ -2808,7 +2812,7 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         if (target->GetTypeId() == TYPEID_PLAYER)
             team = target->ToPlayer()->GetTeam();
 
-        uint32 displayID = sObjectMgr->ChooseDisplayId(team, ci);
+        uint32 displayID = ObjectMgr::ChooseDisplayId(team, ci);
         sObjectMgr->GetCreatureModelRandomGender(&displayID);
 
         //some spell has one aura of mount and one of vehicle
@@ -2818,6 +2822,10 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
                 displayID = 0;
 
         target->Mount(displayID, ci->VehicleId, GetMiscValue());
+
+        // cast speed aura
+        if (MountCapabilityEntry const* mountCapability = target->GetMountCapability(uint32(GetMiscValueB())))
+            target->CastSpell(target, mountCapability->SpeedModSpell, true);
     }
     else
     {
@@ -2826,7 +2834,13 @@ void AuraEffect::HandleAuraMounted(AuraApplication const* aurApp, uint8 mode, bo
         // need to remove ALL arura related to mounts, this will stop client crash with broom stick
         // and never endless flying after using Headless Horseman's Mount
         if (mode & AURA_EFFECT_HANDLE_REAL)
+        {
             target->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
+            // remove speed aura
+            if (MountCapabilityEntry const* mountCapability = target->GetMountCapability(uint32(GetMiscValueB())))
+                target->RemoveAurasDueToSpell(mountCapability->SpeedModSpell, target->GetGUID());
+        }
     }
 }
 
@@ -4781,7 +4795,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
                         break;
-                case 59628: // Tricks of the Trade  
+                case 59628: // Tricks of the Trade
                     if (caster && caster->GetMisdirectionTarget())
                         target->SetReducedThreatPercent(100, caster->GetMisdirectionTarget()->GetGUID());
                     break;
@@ -4944,7 +4958,7 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                                 target->SetReducedThreatPercent(0,0);
                             else
                                 target->SetReducedThreatPercent(0,caster->GetMisdirectionTarget()->GetGUID());
-                            break;       
+                            break;
                     }
                 default:
                     break;

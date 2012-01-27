@@ -450,6 +450,12 @@ enum ItemLimitCategoryMode
     ITEM_LIMIT_CATEGORY_MODE_EQUIP      = 1,                      // limit applied to amount equipped items (including used gems)
 };
 
+enum MountFlags
+{
+    MOUNT_FLAG_CAN_PITCH                = 0x4,                    // client checks MOVEMENTFLAG2_FULL_SPEED_PITCHING
+    MOUNT_FLAG_CAN_SWIM                 = 0x8,                    // client checks MOVEMENTFLAG_SWIMMING
+};
+
 enum TotemCategoryType
 {
     TOTEM_CATEGORY_TYPE_KNIFE           = 1,

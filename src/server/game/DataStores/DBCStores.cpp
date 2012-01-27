@@ -140,9 +140,11 @@ DBCStorage <MapDifficultyEntry> sMapDifficultyStore(MapDifficultyEntryfmt); // o
 MapDifficultyMap sMapDifficultyMap;
 
 DBCStorage <MovieEntry> sMovieStore(MovieEntryfmt);
+DBCStorage <MountCapabilityEntry> sMountCapabilityStore(MountCapabilityfmt);
+DBCStorage <MountTypeEntry> sMountTypeStore(MountTypefmt);
 
 DBCStorage <NameGenEntry> sNameGenStore(NameGenfmt);
-GenNameVectorArraysMap sGenNameVectoArraysMap;
+NameGenVectorArraysMap sGenNameVectoArraysMap;
 
 DBCStorage <OverrideSpellDataEntry> sOverrideSpellDataStore(OverrideSpellDatafmt);
 
@@ -417,6 +419,9 @@ void LoadDBCStores(const std::string& dataPath)
         if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
             sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] > 0);
     sMapDifficultyStore.Clear();
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sMountCapabilityStore,        dbcPath, "MountCapability.dbc");//14545
+    LoadDBC(availableDbcLocales, bad_dbc_files, sMountTypeStore,              dbcPath, "MountType.dbc");//14545
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sNameGenStore,                dbcPath, "NameGen.dbc");//14545
     for (uint32 i = 0; i < sNameGenStore.GetNumRows(); ++i)
