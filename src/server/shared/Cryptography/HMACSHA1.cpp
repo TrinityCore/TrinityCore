@@ -19,6 +19,7 @@
 #include "HMACSHA1.h"
 #include "BigNumber.h"
 #include "Common.h"
+#include "Errors.h"
 
 HmacHash::HmacHash(uint32 len, uint8 *seed)
 {
