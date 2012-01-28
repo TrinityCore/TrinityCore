@@ -19,7 +19,7 @@
 #include "pit_of_saron.h"
 
 // positions for Martin Victus (37591) and Gorkun Ironskull (37592)
-Position const SlaveLeaderPos  = {689.7158f, -104.8736f, 513.7360f, 0.0f};
+Position const SlaveLeaderPos  = {694.575500f, -168.199417f, 527.188293f, 1.553474f}; //From Sniff
 // position for Jaina and Sylvanas
 Position const EventLeaderPos2 = {1054.368f, 107.14620f, 628.4467f, 0.0f};
 
