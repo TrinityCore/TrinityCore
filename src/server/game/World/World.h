@@ -158,6 +158,9 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_TICKETS,
     CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES,
     CONFIG_PRESERVE_CUSTOM_CHANNELS,
+    CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED,
+    CONFIG_OUTDOORPVP_WINTERGRASP_CUSTOM_HONOR,
+    CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ENABLE,
     CONFIG_PDUMP_NO_PATHS,
     CONFIG_PDUMP_NO_OVERWRITE,
     CONFIG_WARDEN_ENABLED,
@@ -307,6 +310,18 @@ enum WorldIntConfigs
     CONFIG_DB_PING_INTERVAL,
     CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION,
     CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS,
+    CONFIG_OUTDOORPVP_WINTERGRASP_START_TIME,
+    CONFIG_OUTDOORPVP_WINTERGRASP_BATTLE_TIME,
+    CONFIG_OUTDOORPVP_WINTERGRASP_INTERVAL,
+    CONFIG_OUTDOORPVP_WINTERGRASP_WIN_BATTLE,
+    CONFIG_OUTDOORPVP_WINTERGRASP_LOSE_BATTLE,
+    CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_TOWER,
+    CONFIG_OUTDOORPVP_WINTERGRASP_DESTROYED_TOWER,
+    CONFIG_OUTDOORPVP_WINTERGRASP_DAMAGED_BUILDING,
+    CONFIG_OUTDOORPVP_WINTERGRASP_INTACT_BUILDING,
+    CONFIG_OUTDOORPVP_WINTERGRASP_SAVESTATE_PERIOD,
+    CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_ATK,
+    CONFIG_CONFIG_OUTDOORPVP_WINTERGRASP_ANTIFARM_DEF,
     CONFIG_MAX_INSTANCES_PER_HOUR,
     CONFIG_WARDEN_CLIENT_RESPONSE_DELAY,
     CONFIG_WARDEN_CLIENT_CHECK_HOLDOFF,
@@ -754,6 +769,18 @@ class World
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
         void   ResetEventSeasonalQuests(uint16 event_id);
+		
+        uint32 GetWintergrapsTimer() { return m_WintergrapsTimer; }
+        uint32 GetWintergrapsState() { return m_WintergrapsState; }
+        uint32 m_WintergrapsTimer;
+        uint32 m_WintergrapsState;
+        void SendWintergraspState();
+        void SetWintergrapsTimer(uint32 timer, uint32 state)
+        {
+            m_WintergrapsTimer = timer;
+            m_WintergrapsState = state;
+        }
+
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters

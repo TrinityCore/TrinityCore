@@ -12,6 +12,7 @@ set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
   Northrend/isle_of_conquest.cpp
   Northrend/storm_peaks.cpp
+  Northrend/wintergrasp.cpp
   Northrend/Ulduar/HallsOfLightning/instance_halls_of_lightning.cpp
   Northrend/Ulduar/HallsOfLightning/boss_bjarngrim.cpp
   Northrend/Ulduar/HallsOfLightning/halls_of_lightning.h
