@@ -154,9 +154,7 @@ class boss_baltharus_the_warborn : public CreatureScript
                 }
                 else
                 {
-                    if (me->HealthBelowPctDamaged(66, damage) && _cloneCount == 2)
-                        DoAction(ACTION_CLONE);
-                    else if (me->HealthBelowPctDamaged(33, damage) && _cloneCount == 1)
+                    if ((me->HealthBelowPctDamaged(66, damage) && _cloneCount == 2) || (me->HealthBelowPctDamaged(33, damage) && _cloneCount == 1))
                         DoAction(ACTION_CLONE);
                 }
 
