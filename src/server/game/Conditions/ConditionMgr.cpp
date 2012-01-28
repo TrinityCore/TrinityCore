@@ -1180,9 +1180,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_CLASS:
         {
-            if (cond->mConditionValue1 >= MAX_CLASSES)
+            if (!(cond->mConditionValue1 & CLASSMASK_ALL_PLAYABLE))
             {
-                sLog->outErrorDb("Class condition has non existing class (%u), skipped", cond->mConditionValue1);
+                sLog->outErrorDb("Class condition has non existing classmask (%u), skipped", cond->mConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
                 return false;
             }
 
@@ -1192,9 +1192,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_RACE:
         {
-            if (cond->mConditionValue1 >= MAX_RACES)
+            if (!(cond->mConditionValue1 & RACEMASK_ALL_PLAYABLE))
             {
-                sLog->outErrorDb("Race condition has non existing race (%u), skipped", cond->mConditionValue1);
+                sLog->outErrorDb("Race condition has non existing racemask (%u), skipped", cond->mConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
                 return false;
             }
 
