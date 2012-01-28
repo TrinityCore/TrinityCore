@@ -1449,14 +1449,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     continue;
                 SetCriteriaProgress(achievementCriteria, miscValue2, PROGRESS_ACCUMULATE);
                 break;
-            // std case: not exist in DBC, not triggered in code as result
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_ARMOR:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_POWER:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_STAT:
-            case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_RATING:
-                break;
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
@@ -1644,9 +1636,7 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
         case ACHIEVEMENT_CRITERIA_TYPE_RECEIVE_EPIC_ITEM:
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_NEED:
         case ACHIEVEMENT_CRITERIA_TYPE_ROLL_GREED:
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
         case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
-        case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_ARMOR:
         case ACHIEVEMENT_CRITERIA_TYPE_QUEST_ABANDONED:
         case ACHIEVEMENT_CRITERIA_TYPE_FLIGHT_PATHS_TAKEN:
         case ACHIEVEMENT_CRITERIA_TYPE_ACCEPTED_SUMMONINGS:
