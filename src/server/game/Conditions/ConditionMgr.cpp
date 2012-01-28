@@ -73,10 +73,10 @@ bool Condition::Meets(Player* player, Unit* invoker)
             condMeets = player->GetTeam() == mConditionValue1;
             break;
         case CONDITION_CLASS:
-            condMeets = player->getClass() == mConditionValue1;
+            condMeets = player->getClassMask() & mConditionValue1;
             break;
         case CONDITION_RACE:
-            condMeets = player->getRace() == mConditionValue1;
+            condMeets = player->getRaceMask() & mConditionValue1;
             break;
         case CONDITION_SKILL:
             condMeets = player->HasSkill(mConditionValue1) && player->GetBaseSkillValue(mConditionValue1) >= mConditionValue2;
