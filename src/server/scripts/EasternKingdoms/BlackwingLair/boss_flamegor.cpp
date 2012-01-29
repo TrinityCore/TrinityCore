@@ -25,11 +25,17 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
-#define EMOTE_FRENZY            -1469031
+enum Emotes
+{
+    EMOTE_FRENZY            = -1469031
+};
 
-#define SPELL_SHADOWFLAME        22539
-#define SPELL_WINGBUFFET         23339
-#define SPELL_FRENZY             23342                      //This spell periodically triggers fire nova
+enum Spells
+{
+    SPELL_SHADOWFLAME        = 22539,
+    SPELL_WINGBUFFET         = 23339,
+    SPELL_FRENZY             = 23342                      //This spell periodically triggers fire nova
+};
 
 class boss_flamegor : public CreatureScript
 {
@@ -43,7 +49,7 @@ public:
 
     struct boss_flamegorAI : public ScriptedAI
     {
-        boss_flamegorAI(Creature* c) : ScriptedAI(c) {}
+        boss_flamegorAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 ShadowFlame_Timer;
         uint32 WingBuffet_Timer;
@@ -94,7 +100,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_flamegor()
