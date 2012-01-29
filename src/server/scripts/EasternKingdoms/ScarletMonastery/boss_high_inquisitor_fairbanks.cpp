@@ -47,7 +47,7 @@ public:
 
     struct boss_high_inquisitor_fairbanksAI : public ScriptedAI
     {
-        boss_high_inquisitor_fairbanksAI(Creature* c) : ScriptedAI(c) {}
+        boss_high_inquisitor_fairbanksAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 CurseOfBlood_Timer;
         uint32 DispelMagic_Timer;
@@ -68,9 +68,7 @@ public:
             PowerWordShield = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -82,7 +80,8 @@ public:
             {
                 DoCast(me, SPELL_HEAL);
                 Heal_Timer = 30000;
-            } else Heal_Timer -= diff;
+            }
+            else Heal_Timer -= diff;
 
             //Fear_Timer
             if (Fear_Timer <= diff)
@@ -91,7 +90,8 @@ public:
                     DoCast(target, SPELL_FEAR);
 
                 Fear_Timer = 40000;
-            } else Fear_Timer -= diff;
+            }
+            else Fear_Timer -= diff;
 
             //Sleep_Timer
             if (Sleep_Timer <= diff)
@@ -100,7 +100,8 @@ public:
                     DoCast(target, SPELL_SLEEP);
 
                 Sleep_Timer = 30000;
-            } else Sleep_Timer -= diff;
+            }
+            else Sleep_Timer -= diff;
 
             //PowerWordShield_Timer
             if (!PowerWordShield && !HealthAbovePct(25))
@@ -116,19 +117,20 @@ public:
                     DoCast(target, SPELL_DISPELMAGIC);
 
                 DispelMagic_Timer = 30000;
-            } else DispelMagic_Timer -= diff;
+            }
+            else DispelMagic_Timer -= diff;
 
             //CurseOfBlood_Timer
             if (CurseOfBlood_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CURSEOFBLOOD);
                 CurseOfBlood_Timer = 25000;
-            } else CurseOfBlood_Timer -= diff;
+            }
+            else CurseOfBlood_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_high_inquisitor_fairbanks()

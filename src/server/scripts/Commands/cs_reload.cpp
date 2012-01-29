@@ -992,7 +992,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadWpCommand(ChatHandler* handler, const char* args)
+    static bool HandleReloadWpCommand(ChatHandler* /*handler*/, const char* args)
     {
         if (*args != 'a')
             sLog->outString("Re-Loading Waypoints data from 'waypoints_data'");
