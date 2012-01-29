@@ -4528,7 +4528,7 @@ bool Player::ResetTalents(bool no_cost)
                 removeSpell(specSpells->at(i), true);
     }
 
-    SetPrimaryTalentTree(0);
+    SetPrimaryTalentTree(GetActiveSpec(), 0);
     SetFreeTalentPoints(talentPointsForLevel);
 
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
@@ -17146,11 +17146,18 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     }
 
     // must be after loading spells and talents
-    uint32 talentTree = uint32(fields[26].GetUInt16());
-    if (sTalentTabStore.LookupEntry(talentTree))
-        SetPrimaryTalentTree(talentTree);
-    else
-        SetAtLoginFlag(AT_LOGIN_RESET_TALENTS); // invalid tree, reset talents
+    Tokens talentTrees(fields[26].GetString(), ' ', MAX_TALENT_SPECS);
+    for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+    {
+        if (i >= talentTrees.size())
+            break;
+
+        uint32 talentTree = atol(talentTrees[i]);
+        if (sTalentTabStore.LookupEntry(talentTree))
+            SetPrimaryTalentTree(i, talentTree);
+        else if (i == GetActiveSpec())
+            SetAtLoginFlag(AT_LOGIN_RESET_TALENTS); // invalid tree, reset talents
+    }
 
     sLog->outDebug(LOG_FILTER_PLAYER_LOADING, "The value of player %s after load item and aura is: ", m_name.c_str());
     outDebugValues();
@@ -18528,7 +18535,11 @@ void Player::SaveToDB(bool create /*=false*/)
         //save, but in tavern/city
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setUInt32(index++, GetTalentResetTime());
-        stmt->setUInt16(index++, uint16(GetPrimaryTalentTree()));
+
+        ss.str("");
+        for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+            ss << GetPrimaryTalentTree(i) << " ";
+        stmt->setString(index++, ss.str());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
@@ -18635,7 +18646,11 @@ void Player::SaveToDB(bool create /*=false*/)
         //save, but in tavern/city
         stmt->setUInt32(index++, GetTalentResetCost());
         stmt->setUInt32(index++, GetTalentResetTime());
-        stmt->setUInt16(index++, uint16(GetPrimaryTalentTree()));
+
+        ss.str("");
+        for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+            ss << GetPrimaryTalentTree(i) << " ";
+        stmt->setString(index++, ss.str());
         stmt->setUInt16(index++, (uint16)m_ExtraFlags);
         stmt->setUInt8(index++,  m_stableSlots);
         stmt->setUInt16(index++, (uint16)m_atLoginFlags);
@@ -23921,7 +23936,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
     uint32 spentPoints = 0;
     uint32 primaryTreeTalents = 0;
     uint32 tTab = talentInfo->TalentTab;
-    bool isMainTree = GetPrimaryTalentTree() == tTab || !GetPrimaryTalentTree();
+    bool isMainTree = GetPrimaryTalentTree(GetActiveSpec()) == tTab || !GetPrimaryTalentTree(GetActiveSpec());
 
     if (talentInfo->Row > 0 || !isMainTree)
     {
@@ -23937,7 +23952,7 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
                         {
                             if (tmpTalent->TalentTab == tTab)
                                 spentPoints += (rank + 1);
-                            if (tmpTalent->TalentTab == GetPrimaryTalentTree())
+                            if (tmpTalent->TalentTab == GetPrimaryTalentTree(GetActiveSpec()))
                                 primaryTreeTalents += (rank + 1);
                         }
                     }
@@ -23973,9 +23988,9 @@ bool Player::LearnTalent(uint32 talentId, uint32 talentRank)
     sLog->outDetail("TalentID: %u Rank: %u Spell: %u Spec: %u\n", talentId, talentRank, spellid, GetActiveSpec());
 
     // set talent tree for player
-    if (!GetPrimaryTalentTree())
+    if (!GetPrimaryTalentTree(GetActiveSpec()))
     {
-        SetPrimaryTalentTree(talentInfo->TalentTab);
+        SetPrimaryTalentTree(GetActiveSpec(), talentInfo->TalentTab);
         std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(talentInfo->TalentTab);
         if (specSpells)
             for (size_t i = 0; i < specSpells->size(); ++i)
@@ -24198,7 +24213,6 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
         // loop through all specs (only 1 for now)
         for (uint32 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
         {
-            size_t specPos = data->wpos();
             *data << uint32(0);
             uint8 talentIdCount = 0;
             size_t pos = data->wpos();
@@ -24240,21 +24254,8 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
                     *data << uint32(talentInfo->TalentID);  // Talent.dbc
                     *data << uint8(curtalent_maxrank);      // talentMaxRank (0-4)
 
-                    talentCounts[i] += curtalent_maxrank + 1;
                     ++talentIdCount;
                 }
-            }
-
-            if (talentIdCount)
-            {
-                uint32 maxTalentsSpec = 0;
-                if (talentCounts[1] > talentCounts[maxTalentsSpec])
-                    maxTalentsSpec = 1;
-
-                if (talentCounts[2] > talentCounts[maxTalentsSpec])
-                    maxTalentsSpec = 2;
-
-                data->put<uint32>(specPos, talentTabIds[maxTalentsSpec]);
             }
 
             data->put<uint8>(pos, talentIdCount);           // put real count
@@ -24752,6 +24753,15 @@ void Player::ActivateSpec(uint8 spec)
         }
     }
 
+    // Remove spec specific spells
+    for (uint32 i = 0; i < MAX_TALENT_TABS; ++i)
+    {
+        std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(GetTalentTabPages(getClass())[i]);
+        if (specSpells)
+            for (size_t i = 0; i < specSpells->size(); ++i)
+                removeSpell(specSpells->at(i), true);
+    }
+
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
         // remove secondary glyph
@@ -24793,6 +24803,11 @@ void Player::ActivateSpec(uint8 spec)
         }
     }
 
+    std::vector<uint32> const* specSpells = GetTalentTreePrimarySpells(GetPrimaryTalentTree(GetActiveSpec()));
+    if (specSpells)
+        for (size_t i = 0; i < specSpells->size(); ++i)
+            learnSpell(specSpells->at(i), false);
+
     // set glyphs
     for (uint8 slot = 0; slot < MAX_GLYPH_SLOT_INDEX; ++slot)
     {
@@ -24824,6 +24839,9 @@ void Player::ActivateSpec(uint8 spec)
         SetPower(POWER_MANA, 0); // Mana must be 0 even if it isn't the active power type.
 
     SetPower(pw, 0);
+
+    if (!sTalentTabStore.LookupEntry(GetPrimaryTalentTree(GetActiveSpec())))
+        ResetTalents(true);
 }
 
 void Player::ResetTimeSync()

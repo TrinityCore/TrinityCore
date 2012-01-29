@@ -1090,13 +1090,14 @@ struct PlayerTalentInfo
 {
     PlayerTalentInfo() :
         FreeTalentPoints(0), UsedTalentCount(0), QuestRewardedTalentCount(0),
-        ResetTalentsCost(0), ResetTalentsTime(0), TalentTree(0),
+        ResetTalentsCost(0), ResetTalentsTime(0),
         ActiveSpec(0), SpecsCount(1)
     {
         for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
         {
-            memset(SpecInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
             SpecInfo[i].Talents = new PlayerTalentMap();
+            memset(SpecInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
+            SpecInfo[i].TalentTree = 0;
         }
     }
 
@@ -1114,6 +1115,7 @@ struct PlayerTalentInfo
     {
         PlayerTalentMap* Talents;
         uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
+        uint32 TalentTree;
     } SpecInfo[MAX_TALENT_SPECS];
 
     uint32 FreeTalentPoints;
@@ -1121,7 +1123,6 @@ struct PlayerTalentInfo
     uint32 QuestRewardedTalentCount;
     uint32 ResetTalentsCost;
     time_t ResetTalentsTime;
-    uint32 TalentTree;
     uint8 ActiveSpec;
     uint8 SpecsCount;
 
@@ -1738,8 +1739,8 @@ class Player : public Unit, public GridObject<Player>
         void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
         uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
         void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
-        uint32 GetPrimaryTalentTree() const { return _talentMgr->TalentTree; }
-        void SetPrimaryTalentTree(uint32 tree) { _talentMgr->TalentTree = tree; }
+        uint32 GetPrimaryTalentTree(uint8 spec) const { return _talentMgr->SpecInfo[spec].TalentTree; }
+        void SetPrimaryTalentTree(uint8 spec, uint32 tree) { _talentMgr->SpecInfo[spec].TalentTree = tree; }
         uint8 GetActiveSpec() const { return _talentMgr->ActiveSpec; }
         void SetActiveSpec(uint8 spec){ _talentMgr->ActiveSpec = spec; }
         uint8 GetSpecsCount() const { return _talentMgr->SpecsCount; }
