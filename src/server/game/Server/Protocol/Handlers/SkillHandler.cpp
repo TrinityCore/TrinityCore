@@ -31,15 +31,31 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket & recv_data)
     uint32 talentId, requestedRank;
     recv_data >> talentId >> requestedRank;
 
-    _player->LearnTalent(talentId, requestedRank);
-    _player->SendTalentsInfoData(false);
+    if (_player->LearnTalent(talentId, requestedRank))
+        _player->SendTalentsInfoData(false);
 }
 
 void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_LEARN_PREVIEW_TALENTS");
 
+    int32 tabPage;
     uint32 talentsCount;
+    recvPacket >> tabPage;    // talent tree
+
+    // prevent cheating (selecting new tree with points already in another)
+    if (tabPage >= 0)   // -1 if player already has specialization
+    {
+        if (TalentTabEntry const* talentTabEntry = sTalentTabStore.LookupEntry(_player->GetPrimaryTalentTree()))
+        {
+            if (talentTabEntry->tabpage != tabPage)
+            {
+                recvPacket.rfinish();
+                return;
+            }
+        }
+    }
+
     recvPacket >> talentsCount;
 
     uint32 talentId, talentRank;
@@ -48,7 +64,11 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     {
         recvPacket >> talentId >> talentRank;
 
-        _player->LearnTalent(talentId, talentRank);
+        if (!_player->LearnTalent(talentId, talentRank))
+        {
+            recvPacket.rfinish();
+            break;
+        }
     }
 
     _player->SendTalentsInfoData(false);
@@ -71,7 +91,7 @@ void WorldSession::HandleTalentWipeConfirmOpcode(WorldPacket & recv_data)
     if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
-    if (!_player->resetTalents())
+    if (!_player->ResetTalents())
     {
         WorldPacket data(MSG_TALENT_WIPE_CONFIRM, 8+4);    //you have not any talent
         data << uint64(0);

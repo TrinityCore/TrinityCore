@@ -145,6 +145,7 @@ DBCStorage <MountTypeEntry> sMountTypeStore(MountTypefmt);
 
 DBCStorage <NameGenEntry> sNameGenStore(NameGenfmt);
 NameGenVectorArraysMap sGenNameVectoArraysMap;
+DBCStorage <NumTalentsAtLevelEntry> sNumTalentsAtLevelStore(NumTalentsAtLevelfmt);
 
 DBCStorage <OverrideSpellDataEntry> sOverrideSpellDataStore(OverrideSpellDatafmt);
 
@@ -203,6 +204,9 @@ DBCStorage <SummonPropertiesEntry> sSummonPropertiesStore(SummonPropertiesfmt);
 DBCStorage <TalentEntry> sTalentStore(TalentEntryfmt);
 TalentSpellPosMap sTalentSpellPosMap;
 DBCStorage <TalentTabEntry> sTalentTabStore(TalentTabEntryfmt);
+DBCStorage <TalentTreePrimarySpellsEntry> sTalentTreePrimarySpellsStore(TalentTreePrimarySpellsfmt);
+typedef std::map<uint32, std::vector<uint32> > TalentTreePrimarySpellsMap;
+TalentTreePrimarySpellsMap sTalentTreePrimarySpellsMap;
 
 // store absolute bit position for first rank for talent inspect
 static uint32 sTalentTabPages[MAX_CLASSES][3];
@@ -428,6 +432,7 @@ void LoadDBCStores(const std::string& dataPath)
         if (NameGenEntry const* entry = sNameGenStore.LookupEntry(i))
             sGenNameVectoArraysMap[entry->race].stringVectorArray[entry->gender].push_back(std::string(entry->name));
     sNameGenStore.Clear();
+    LoadDBC(availableDbcLocales, bad_dbc_files, sNumTalentsAtLevelStore,      dbcPath, "NumTalentsAtLevel.dbc");//14545
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");//14545
 
@@ -584,12 +589,17 @@ void LoadDBCStores(const std::string& dataPath)
                 continue;
 
             // store class talent tab pages
-            uint32 cls = 1;
-            for (uint32 m=1; !(m & talentTabInfo->ClassMask) && cls < MAX_CLASSES; m <<= 1, ++cls) {}
-
-            sTalentTabPages[cls][talentTabInfo->tabpage]=talentTabId;
+            for (uint32 cls = 1; cls < MAX_CLASSES; ++cls)
+                if (talentTabInfo->ClassMask & (1 << (cls - 1)))
+                    sTalentTabPages[cls][talentTabInfo->tabpage] = talentTabId;
         }
     }
+
+    LoadDBC(availableDbcLocales, bad_dbc_files, sTalentTreePrimarySpellsStore, dbcPath, "TalentTreePrimarySpells.dbc");
+    for (uint32 i = 0; i < sTalentTreePrimarySpellsStore.GetNumRows(); ++i)
+        if (TalentTreePrimarySpellsEntry const* talentSpell = sTalentTreePrimarySpellsStore.LookupEntry(i))
+            sTalentTreePrimarySpellsMap[talentSpell->TalentTree].push_back(talentSpell->SpellId);
+    sTalentTreePrimarySpellsStore.Clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiNodesStore,              dbcPath, "TaxiNodes.dbc");//14545
     LoadDBC(availableDbcLocales, bad_dbc_files, sTaxiPathStore,               dbcPath, "TaxiPath.dbc");//14545
@@ -983,6 +993,15 @@ PvPDifficultyEntry const* GetBattlegroundBracketById(uint32 mapid, BattlegroundB
 uint32 const* GetTalentTabPages(uint8 cls)
 {
     return sTalentTabPages[cls];
+}
+
+std::vector<uint32> const* GetTalentTreePrimarySpells(uint32 talentTree)
+{
+    TalentTreePrimarySpellsMap::const_iterator itr = sTalentTreePrimarySpellsMap.find(talentTree);
+    if (itr == sTalentTreePrimarySpellsMap.end())
+        return NULL;
+
+    return &itr->second;
 }
 
 uint32 ScalingStatValuesEntry::GetStatMultiplier(uint32 inventoryType) const

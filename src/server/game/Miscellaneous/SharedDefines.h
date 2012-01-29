@@ -564,7 +564,8 @@ enum SpellAttr7
 #define MAX_TALENT_SPEC         1
 #define MIN_TALENT_SPECS        1
 #define MAX_TALENT_SPECS        2
-#define MAX_GLYPH_SLOT_INDEX    6
+#define MAX_GLYPH_SLOT_INDEX    9
+#define REQ_PRIMARY_TREE_TALENTS 31
 
 // Custom values
 enum SpellClickUserTypes
@@ -842,7 +843,7 @@ enum SpellEffects
     SPELL_EFFECT_171                                = 171,  // Summons gamebject
     SPELL_EFFECT_172                                = 172,  // Aoe ressurection
     SPELL_EFFECT_173                                = 173,  // Guild tab unlocked (guild perk)
-    SPELL_EFFECT_174                                = 174,  // 
+    SPELL_EFFECT_174                                = 174,  //
     SPELL_EFFECT_175                                = 175,  // Unused (4.2.2)
     SPELL_EFFECT_176                                = 176,  // Some kind of sanctuary effect (Vanish)
     SPELL_EFFECT_177                                = 177,

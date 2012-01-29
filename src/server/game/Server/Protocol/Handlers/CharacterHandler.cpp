@@ -1070,7 +1070,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_RESET_TALENTS))
     {
-        pCurrChar->resetTalents(true);
+        pCurrChar->ResetTalents(true);
         pCurrChar->SendTalentsInfoData(false);              // original talents send already in to SendInitialPacketsBeforeAddToMap, resend reset state
         SendNotification(LANG_RESET_TALENTS);
     }
@@ -1428,7 +1428,7 @@ void WorldSession::HandleRemoveGlyph(WorldPacket & recv_data)
         return;
     }
 
-    if (uint32 glyph = _player->GetGlyph(slot))
+    if (uint32 glyph = _player->GetGlyph(_player->GetActiveSpec(), slot))
     {
         if (GlyphPropertiesEntry const* gp = sGlyphPropertiesStore.LookupEntry(glyph))
         {
