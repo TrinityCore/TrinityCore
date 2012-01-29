@@ -285,6 +285,17 @@ class achievement_bg_sa_defense_of_ancients : public AchievementCriteriaScript
         }
 };
 
+class achievement_tilted : public AchievementCriteriaScript
+{
+    public:
+        achievement_tilted() : AchievementCriteriaScript("achievement_tilted") {}
+
+        bool OnCheck(Player* player, Unit* /*target*/)
+        {
+            return player && player->duel && player->duel->isMounted;
+        }
+};
+
 void AddSC_achievement_scripts()
 {
     new achievement_resilient_victory();
@@ -302,4 +313,5 @@ void AddSC_achievement_scripts()
     new achievement_arena_kills("achievement_arena_3v3_kills", ARENA_TYPE_3v3);
     new achievement_arena_kills("achievement_arena_5v5_kills", ARENA_TYPE_5v5);
     new achievement_bg_sa_defense_of_ancients();
+    new achievement_tilted();
 }
