@@ -30,8 +30,8 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
     uint32 talentId, requestedRank;
     recvData >> talentId >> requestedRank;
 
-    _player->LearnTalent(talentId, requestedRank);
-    _player->SendTalentsInfoData(false);
+    if (_player->LearnTalent(talentId, requestedRank))
+        _player->SendTalentsInfoData(false);
 }
 
 void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
@@ -50,7 +50,11 @@ void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
     {
         recvPacket >> talentId >> talentRank;
 
-        _player->LearnTalent(talentId, talentRank);
+        if (!_player->LearnTalent(talentId, talentRank))
+        {
+            recvPacket.rfinish();
+            break;
+        }
     }
 
     _player->SendTalentsInfoData(false);
