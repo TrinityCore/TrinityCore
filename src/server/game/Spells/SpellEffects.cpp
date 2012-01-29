@@ -1218,6 +1218,16 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     unitTarget->Kill(unitTarget);
                     return;
                 }
+                case 30023:                                 //Gushing Wound Removal
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->RemoveAura(35321);
+                    unitTarget->RemoveAura(38363);
+                    unitTarget->RemoveAura(39215);
+                    return;
+                }
             }
 
             break;
