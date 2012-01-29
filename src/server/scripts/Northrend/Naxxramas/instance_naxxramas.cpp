@@ -166,8 +166,8 @@ public:
             kelthuzadGUID             = 0;
             kelthuzadTriggerGUID      = 0;
 
-            playerDied        = 0;
-            gothikDoorState   = GO_STATE_ACTIVE;
+            playerDied                = 0;
+            gothikDoorState           = GO_STATE_ACTIVE;
 
             memset(portalsGUID, 0, sizeof(portalsGUID));
         }

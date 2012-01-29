@@ -119,10 +119,10 @@ void GroupMgr::LoadGroups()
         // Delete all groups with less than 2 members
         CharacterDatabase.DirectExecute("DELETE FROM groups WHERE guid NOT IN (SELECT guid FROM group_member GROUP BY guid HAVING COUNT(guid) > 1)");
 
-        //                                                        0           1           2             3          4      5      6      7      8     9
-        QueryResult result = CharacterDatabase.PQuery("SELECT leaderGuid, lootMethod, looterGuid, lootThreshold, icon1, icon2, icon3, icon4, icon5, icon6"
-            //                                                10     11     12         13              14        15
-            ", icon7, icon8, groupType, difficulty, raiddifficulty, guid FROM groups ORDER BY guid ASC");
+        //                                                        0              1           2             3                 4      5          6      7         8       9
+        QueryResult result = CharacterDatabase.PQuery("SELECT g.leaderGuid, g.lootMethod, g.looterGuid, g.lootThreshold, g.icon1, g.icon2, g.icon3, g.icon4, g.icon5, g.icon6"
+            //  10         11          12         13              14            15         16           17
+            ", g.icon7, g.icon8, g.groupType, g.difficulty, g.raiddifficulty, g.guid, lfg.dungeon, lfg.state FROM groups g LEFT JOIN lfg_data lfg ON lfg.guid = g.guid ORDER BY g.guid ASC");
         if (!result)
         {
             sLog->outString(">> Loaded 0 group definitions. DB table `groups` is empty!");

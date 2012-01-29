@@ -98,7 +98,8 @@ enum BattlegroundSpells
     SPELL_RECENTLY_DROPPED_FLAG     = 42792,                // Recently Dropped Flag
     SPELL_AURA_PLAYER_INACTIVE      = 43681,                // Inactive
     SPELL_HONORABLE_DEFENDER_25Y    = 68652,                // +50% honor when standing at a capture point that you control, 25yards radius (added in 3.2)
-    SPELL_HONORABLE_DEFENDER_60Y    = 66157                 // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
+    SPELL_HONORABLE_DEFENDER_60Y    = 66157,                // +50% honor when standing at a capture point that you control, 60yards radius (added in 3.2), probably for 40+ player battlegrounds
+    SPELL_THE_LAST_STANDING         = 26549,                // Arena achievement related
 };
 
 enum BattlegroundTimeIntervals
@@ -360,7 +361,6 @@ class Battleground
         uint8 GetArenaType() const          { return m_ArenaType; }
         uint8 GetWinner() const             { return m_Winner; }
         uint32 GetScriptId() const          { return ScriptId; }
-        uint32 GetBattlemasterEntry() const;
         uint32 GetBonusHonorFromKill(uint32 kills) const;
         bool IsRandom() const { return m_IsRandom; }
 

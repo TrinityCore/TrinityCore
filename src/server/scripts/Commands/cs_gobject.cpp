@@ -97,7 +97,7 @@ public:
 
         // Activate
         object->SetLootState(GO_READY);
-        object->UseDoorOrButton(10000);
+        object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
 
         handler->PSendSysMessage("Object activated!");
 

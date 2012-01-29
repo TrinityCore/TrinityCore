@@ -32,7 +32,12 @@ Script Data End */
 enum Spells
 {
     SPELL_TRESPASSER_A = 54028,
-    SPELL_TRESPASSER_H = 54029
+    SPELL_TRESPASSER_H = 54029,
+
+    SPELL_SUNREAVER_DISGUISE_FEMALE        = 70973,
+    SPELL_SUNREAVER_DISGUISE_MALE          = 70974,
+    SPELL_SILVER_COVENANT_DISGUISE_FEMALE  = 70971,
+    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972,
 };
 
 enum NPCs // All outdoor guards are within 35.0f of these NPCs
@@ -71,8 +76,10 @@ public:
 
             Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
             
-            // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
-            if (!player || player->isGameMaster() || player->IsBeingTeleported() || player->HasAura(70973) || player->HasAura(70971))
+            if (!player || player->isGameMaster() || player->IsBeingTeleported() ||
+                // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
+                player->HasAura(SPELL_SUNREAVER_DISGUISE_FEMALE) || player->HasAura(SPELL_SUNREAVER_DISGUISE_MALE) ||
+                player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE))
                 return;
 
             switch (me->GetEntry())

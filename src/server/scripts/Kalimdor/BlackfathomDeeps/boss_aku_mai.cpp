@@ -36,19 +36,19 @@ public:
 
     struct boss_aku_maiAI : public ScriptedAI
     {
-        boss_aku_maiAI(Creature* c) : ScriptedAI(c)
+        boss_aku_maiAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        uint32 uiPoisonCloudTimer;
+        uint32 poisonCloudTimer;
         bool bIsEnraged;
 
         InstanceScript* instance;
 
         void Reset()
         {
-            uiPoisonCloudTimer = urand(5000, 9000);
+            poisonCloudTimer = urand(5000, 9000);
             bIsEnraged = false;
             if (instance)
                 instance->SetData(TYPE_AKU_MAI, NOT_STARTED);
@@ -71,11 +71,11 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiPoisonCloudTimer < diff)
+            if (poisonCloudTimer < diff)
             {
                 DoCastVictim(SPELL_POISON_CLOUD);
-                uiPoisonCloudTimer = urand(25000, 50000);
-            } else uiPoisonCloudTimer -= diff;
+                poisonCloudTimer = urand(25000, 50000);
+            } else poisonCloudTimer -= diff;
 
             if (!bIsEnraged && HealthBelowPct(30))
             {
@@ -86,7 +86,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_aku_mai()

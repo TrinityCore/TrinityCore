@@ -1264,7 +1264,7 @@ struct npc_argent_captainAI : public ScriptedAI
         void EnterEvadeMode()
         {
             // not yet following
-            if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != TARGETED_MOTION_TYPE || IsUndead)
+            if (me->GetMotionMaster()->GetMotionSlotType(MOTION_SLOT_IDLE) != CHASE_MOTION_TYPE || IsUndead)
             {
                 ScriptedAI::EnterEvadeMode();
                 return;

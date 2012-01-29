@@ -1128,6 +1128,51 @@ class spell_magic_eater_food : public SpellScriptLoader
         }
 };
 
+enum Refocus
+{
+    SPELL_AIMED_SHOT    = 19434,
+    SPELL_MULTISHOT     = 2643,
+    SPELL_VOLLEY        = 42243,
+};
+
+class spell_item_refocus : public SpellScriptLoader
+{
+    public:
+        spell_item_refocus() : SpellScriptLoader("spell_item_refocus") { }
+
+        class spell_item_refocus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_refocus_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+
+                if (!caster || caster->getClass() != CLASS_HUNTER)
+                    return;
+
+                if (caster->HasSpellCooldown(SPELL_AIMED_SHOT))
+                    caster->RemoveSpellCooldown(SPELL_AIMED_SHOT, true);
+
+                if (caster->HasSpellCooldown(SPELL_MULTISHOT))
+                    caster->RemoveSpellCooldown(SPELL_MULTISHOT, true);
+
+                if (caster->HasSpellCooldown(SPELL_VOLLEY))
+                    caster->RemoveSpellCooldown(SPELL_VOLLEY, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_refocus_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_refocus_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -1160,4 +1205,5 @@ void AddSC_item_spell_scripts()
 
     new spell_item_ashbringer();
     new spell_magic_eater_food();
+    new spell_item_refocus();
 }

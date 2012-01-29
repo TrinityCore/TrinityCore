@@ -25,10 +25,13 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
-#define SPELL_DUSTFIELD             21909
-#define SPELL_BOULDER               21832
-#define SPELL_THRASH                3391
-#define SPELL_REPULSIVEGAZE         21869
+enum Spells
+{
+    SPELL_DUSTFIELD             = 21909,
+    SPELL_BOULDER               = 21832,
+    SPELL_THRASH                = 3391,
+    SPELL_REPULSIVEGAZE         = 21869
+};
 
 class boss_princess_theradras : public CreatureScript
 {
@@ -42,7 +45,7 @@ public:
 
     struct boss_ptheradrasAI : public ScriptedAI
     {
-        boss_ptheradrasAI(Creature* c) : ScriptedAI(c) {}
+        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Dustfield_Timer;
         uint32 Boulder_Timer;
@@ -57,9 +60,7 @@ public:
             RepulsiveGaze_Timer = 23000;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void JustDied(Unit* /*killer*/)
         {
@@ -76,7 +77,8 @@ public:
             {
                 DoCast(me, SPELL_DUSTFIELD);
                 Dustfield_Timer = 14000;
-            } else Dustfield_Timer -= diff;
+            } 
+            else Dustfield_Timer -= diff;
 
             //Boulder_Timer
             if (Boulder_Timer <= diff)
@@ -86,26 +88,28 @@ public:
                 if (target)
                     DoCast(target, SPELL_BOULDER);
                 Boulder_Timer = 10000;
-            } else Boulder_Timer -= diff;
+            } 
+            else Boulder_Timer -= diff;
 
             //RepulsiveGaze_Timer
             if (RepulsiveGaze_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_REPULSIVEGAZE);
                 RepulsiveGaze_Timer = 20000;
-            } else RepulsiveGaze_Timer -= diff;
+            } 
+            else RepulsiveGaze_Timer -= diff;
 
             //Thrash_Timer
             if (Thrash_Timer <= diff)
             {
                 DoCast(me, SPELL_THRASH);
                 Thrash_Timer = 18000;
-            } else Thrash_Timer -= diff;
+            } 
+            else Thrash_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_ptheradras()
