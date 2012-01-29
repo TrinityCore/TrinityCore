@@ -167,7 +167,7 @@ void FollowerAI::EnterEvadeMode()
     {
         sLog->outDebug(LOG_FILTER_TSCR, "TSCR: FollowerAI left combat, returning to CombatStartPosition.");
 
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
         {
             float fPosX, fPosY, fPosZ;
             me->GetPosition(fPosX, fPosY, fPosZ);
@@ -176,7 +176,7 @@ void FollowerAI::EnterEvadeMode()
     }
     else
     {
-        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+        if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
             me->GetMotionMaster()->MoveTargetedHome();
     }
 

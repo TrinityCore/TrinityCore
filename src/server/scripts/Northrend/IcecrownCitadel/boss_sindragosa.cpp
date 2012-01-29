@@ -268,7 +268,7 @@ class boss_sindragosa : public CreatureScript
 
             void MovementInform(uint32 type, uint32 point)
             {
-                if (type != POINT_MOTION_TYPE)
+                if (type != POINT_MOTION_TYPE && type != EFFECT_MOTION_TYPE)
                     return;
 
                 switch (point)
@@ -638,7 +638,7 @@ class npc_spinestalker : public CreatureScript
                     float moveTime = me->GetExactDist(&SpinestalkerFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
                     me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, SpinestalkerLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                     me->SetDefaultMovementType(IDLE_MOTION_TYPE);
-                    me->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
+                    me->GetMotionMaster()->MoveIdle();
                     me->StopMoving();
                     me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, SpinestalkerFlyPos);
                 }
@@ -646,7 +646,7 @@ class npc_spinestalker : public CreatureScript
 
             void MovementInform(uint32 type, uint32 point)
             {
-                if (type != POINT_MOTION_TYPE || point != POINT_FROSTWYRM_LAND)
+                if (type != EFFECT_MOTION_TYPE || point != POINT_FROSTWYRM_LAND)
                     return;
 
                 me->setActive(false);
@@ -753,7 +753,7 @@ class npc_rimefang : public CreatureScript
                     float moveTime = me->GetExactDist(&RimefangFlyPos) / (me->GetSpeed(MOVE_FLIGHT) * 0.001f);
                     me->m_Events.AddEvent(new FrostwyrmLandEvent(*me, RimefangLandPos), me->m_Events.CalculateTime(uint64(moveTime) + 250));
                     me->SetDefaultMovementType(IDLE_MOTION_TYPE);
-                    me->GetMotionMaster()->MoveIdle(MOTION_SLOT_IDLE);
+                    me->GetMotionMaster()->MoveIdle();
                     me->StopMoving();
                     me->GetMotionMaster()->MovePoint(POINT_FROSTWYRM_FLY_IN, RimefangFlyPos);
                 }
@@ -761,7 +761,7 @@ class npc_rimefang : public CreatureScript
 
             void MovementInform(uint32 type, uint32 point)
             {
-                if (type != POINT_MOTION_TYPE || point != POINT_FROSTWYRM_LAND)
+                if (type != EFFECT_MOTION_TYPE || point != POINT_FROSTWYRM_LAND)
                     return;
 
                 me->setActive(false);

@@ -276,6 +276,7 @@ class Group
 
         bool isRollLootActive() const;
         void SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r);
+        void SendLootStartRollToPlayer(uint32 countDown, uint32 mapId, Player* p, bool canNeed, Roll const& r);
         void SendLootRoll(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootRollWon(uint64 SourceGuid, uint64 TargetGuid, uint8 RollNumber, uint8 RollType, const Roll &r);
         void SendLootAllPassed(uint32 NumberOfPlayers, const Roll &r);
@@ -292,7 +293,7 @@ class Group
         void ResetMaxEnchantingLevel();
 
         void LinkMember(GroupReference* pRef);
-        void DelinkMember(GroupReference* /*pRef*/) const;
+        void DelinkMember(uint64 guid);
 
         InstanceGroupBind* BindToInstance(InstanceSave* save, bool permanent, bool load = false);
         void UnbindInstance(uint32 mapid, uint8 difficulty, bool unload = false);

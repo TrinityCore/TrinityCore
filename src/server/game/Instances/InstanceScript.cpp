@@ -302,21 +302,21 @@ void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
 }
 
 // Send Notify to all players in instance
-void InstanceScript::DoSendNotifyToInstance(const char *format, ...)
+void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
 {
-    InstanceMap::PlayerList const &PlayerList = instance->GetPlayers();
+    InstanceMap::PlayerList const& players = instance->GetPlayers();
 
-    if (!PlayerList.isEmpty())
+    if (!players.isEmpty())
     {
         va_list ap;
         va_start(ap, format);
-        for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
-        {
-            if (Player* player = i->getSource())
-                if (WorldSession* pSession = player->GetSession())
-                    pSession->SendNotification(format, ap);
-        }
+        char buff[1024];
+        vsnprintf(buff, 1024, format, ap);
         va_end(ap);
+        for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
+            if (Player* player = i->getSource())
+                if (WorldSession* session = player->GetSession())
+                    session->SendNotification(buff);
     }
 }
 

@@ -1539,6 +1539,24 @@ inline GridMap* Map::GetGrid(float x, float y)
     return GridMaps[gx][gy];
 }
 
+float Map::GetWaterOrGroundLevel(float x, float y, float z, float* ground /*= NULL*/, bool swim /*= false*/) const
+{
+    if (const_cast<Map*>(this)->GetGrid(x, y))
+    {
+        // we need ground level (including grid height version) for proper return water level in point
+        float ground_z = GetHeight(x, y, z, true, 50.0f);
+        if (ground)
+            *ground = ground_z;
+
+        LiquidData liquid_status;
+
+        ZLiquidStatus res = getLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
+        return res ? ( swim ? liquid_status.level - 2.0f : liquid_status.level) : ground_z;
+    }
+
+    return VMAP_INVALID_HEIGHT_VALUE;
+}
+
 float Map::GetHeight(float x, float y, float z, bool checkVMap /*= true*/, float maxSearchDist /*= DEFAULT_HEIGHT_SEARCH*/) const
 {
     // find raw .map surface under Z coordinates
