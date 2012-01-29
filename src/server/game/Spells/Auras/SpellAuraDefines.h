@@ -413,8 +413,8 @@ enum AuraType
     SPELL_AURA_351                                          = 351,
     SPELL_AURA_352                                          = 352,
     SPELL_AURA_MOD_CAMOUFLAGE                               = 353,  // NYI
-    SPELL_AURA_354                                          = 353,
-    SPELL_AURA_355                                          = 354,
+    SPELL_AURA_354                                          = 354,
+    SPELL_AURA_355                                          = 355,
     SPELL_AURA_356                                          = 356,
     SPELL_AURA_357                                          = 357,
     SPELL_AURA_358                                          = 358,
