@@ -24211,9 +24211,9 @@ void Player::BuildPlayerTalentsInfoData(WorldPacket* data)
             SetSpecsCount(MAX_TALENT_SPECS);
 
         // loop through all specs (only 1 for now)
-        for (uint32 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
+        for (uint8 specIdx = 0; specIdx < GetSpecsCount(); ++specIdx)
         {
-            *data << uint32(0);
+            *data << uint32(GetPrimaryTalentTree(specIdx));
             uint8 talentIdCount = 0;
             size_t pos = data->wpos();
             *data << uint8(talentIdCount);                  // [PH], talentIdCount
