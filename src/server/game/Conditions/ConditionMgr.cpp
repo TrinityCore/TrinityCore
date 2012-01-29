@@ -243,33 +243,33 @@ ConditionMgr::~ConditionMgr()
 ConditionList ConditionMgr::GetConditionReferences(uint32 refId)
 {
     ConditionList conditions;
-    ConditionReferenceMap::const_iterator ref = m_ConditionReferenceMap.find(refId);
-    if (ref != m_ConditionReferenceMap.end())
+    ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find(refId);
+    if (ref != ConditionReferenceStore.end())
         conditions = (*ref).second;
     return conditions;
 }
 
 bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, ConditionList const& conditions, Unit* invoker /*= NULL*/)
 {
-    std::map<uint32, bool> ElseGroupMap;
+    std::map<uint32, bool> ElseGroupStore;
     for (ConditionList::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
     {
         sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u", (*i)->mConditionType, (*i)->mConditionValue1);
         if ((*i)->isLoaded())
         {
-            std::map<uint32, bool>::const_iterator itr = ElseGroupMap.find((*i)->mElseGroup);
-            if (itr == ElseGroupMap.end())
-                ElseGroupMap[(*i)->mElseGroup] = true;
+            std::map<uint32, bool>::const_iterator itr = ElseGroupStore.find((*i)->mElseGroup);
+            if (itr == ElseGroupStore.end())
+                ElseGroupStore[(*i)->mElseGroup] = true;
             else if (!(*itr).second)
                 continue;
 
             if ((*i)->mReferenceId)//handle reference
             {
-                ConditionReferenceMap::const_iterator ref = m_ConditionReferenceMap.find((*i)->mReferenceId);
-                if (ref != m_ConditionReferenceMap.end())
+                ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find((*i)->mReferenceId);
+                if (ref != ConditionReferenceStore.end())
                 {
                     if (!IsPlayerMeetToConditionList(player, (*ref).second, invoker))
-                        ElseGroupMap[(*i)->mElseGroup] = false;
+                        ElseGroupStore[(*i)->mElseGroup] = false;
                 }
                 else
                 {
@@ -281,11 +281,11 @@ bool ConditionMgr::IsPlayerMeetToConditionList(Player* player, ConditionList con
             else //handle normal condition
             {
                 if (!(*i)->Meets(player, invoker))
-                    ElseGroupMap[(*i)->mElseGroup] = false;
+                    ElseGroupStore[(*i)->mElseGroup] = false;
             }
         }
     }
-    for (std::map<uint32, bool>::const_iterator i = ElseGroupMap.begin(); i != ElseGroupMap.end(); ++i)
+    for (std::map<uint32, bool>::const_iterator i = ElseGroupStore.begin(); i != ElseGroupStore.end(); ++i)
         if (i->second)
             return true;
 
@@ -309,19 +309,19 @@ bool ConditionMgr::IsPlayerMeetToConditions(Player* player, ConditionList const&
     return result;
 }
 
-ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType sType, uint32 uEntry)
+ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry)
 {
     ConditionList spellCond;
-    if (sType > CONDITION_SOURCE_TYPE_NONE && sType < CONDITION_SOURCE_TYPE_MAX)
+    if (sourceType > CONDITION_SOURCE_TYPE_NONE && sourceType < CONDITION_SOURCE_TYPE_MAX)
     {
-        ConditionMap::const_iterator itr = m_ConditionMap.find(sType);
-        if (itr != m_ConditionMap.end())
+        ConditionContainer::const_iterator itr = ConditionStore.find(sourceType);
+        if (itr != ConditionStore.end())
         {
-            ConditionTypeMap::const_iterator i = (*itr).second.find(uEntry);
+            ConditionTypeContainer::const_iterator i = (*itr).second.find(entry);
             if (i != (*itr).second.end())
             {
                 spellCond = (*i).second;
-                sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForNotGroupedEntry: found conditions for type %u and entry %u", uint32(sType), uEntry);
+                sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForNotGroupedEntry: found conditions for type %u and entry %u", uint32(sourceType), entry);
             }
         }
     }
@@ -331,14 +331,30 @@ ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType 
 ConditionList ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID)
 {
     ConditionList cond;
-    VehicleSpellConditionMap::const_iterator itr = m_VehicleSpellConditions.find(creatureID);
-    if (itr != m_VehicleSpellConditions.end())
+    VehicleSpellConditionContainer::const_iterator itr = VehicleSpellConditionStore.find(creatureID);
+    if (itr != VehicleSpellConditionStore.end())
     {
-        ConditionTypeMap::const_iterator i = (*itr).second.find(spellID);
+        ConditionTypeContainer::const_iterator i = (*itr).second.find(spellID);
         if (i != (*itr).second.end())
         {
             cond = (*i).second;
             sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForVehicleSpell: found conditions for Vehicle entry %u spell %u", creatureID, spellID);
+        }
+    }
+    return cond;
+}
+
+ConditionList ConditionMgr::GetConditionsForSmartEvent(uint32 entry, uint32 eventId, uint32 sourceType)
+{
+    ConditionList cond;
+    SmartEventConditionContainer::const_iterator itr = SmartEventConditionStore.find(std::make_pair(entry, sourceType));
+    if (itr != SmartEventConditionStore.end())
+    {
+        ConditionTypeContainer::const_iterator i = (*itr).second.find(eventId + 1);
+        if (i != (*itr).second.end())
+        {
+            cond = (*i).second;
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForSmartEvent: found conditions for Smart Event entry %u event_id %u", entry, eventId);
         }
     }
     return cond;
@@ -374,7 +390,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         sObjectMgr->LoadGossipMenuItems();
     }
 
-    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, ElseGroup, ConditionTypeOrReference, "
+    QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, "
                                              " ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
 
     if (!result)
@@ -395,13 +411,14 @@ void ConditionMgr::LoadConditions(bool isReload)
         int32 iSourceTypeOrReferenceId   = fields[0].GetInt32();
         cond->mSourceGroup               = fields[1].GetUInt32();
         cond->mSourceEntry               = fields[2].GetUInt32();
-        cond->mElseGroup                 = fields[3].GetUInt32();
-        int32 iConditionTypeOrReference  = fields[4].GetInt32();
-        cond->mConditionValue1           = fields[5].GetUInt32();
-        cond->mConditionValue2           = fields[6].GetUInt32();
-        cond->mConditionValue3           = fields[7].GetUInt32();
-        cond->ErrorTextd                 = fields[8].GetUInt32();
-        cond->mScriptId                  = sObjectMgr->GetScriptId(fields[9].GetCString());
+        cond->mSourceId                  = fields[3].GetUInt32();
+        cond->mElseGroup                 = fields[4].GetUInt32();
+        int32 iConditionTypeOrReference  = fields[5].GetInt32();
+        cond->mConditionValue1           = fields[6].GetUInt32();
+        cond->mConditionValue2           = fields[7].GetUInt32();
+        cond->mConditionValue3           = fields[8].GetUInt32();
+        cond->ErrorTextd                 = fields[9].GetUInt32();
+        cond->mScriptId                  = sObjectMgr->GetScriptId(fields[10].GetCString());
 
         if (iConditionTypeOrReference >= 0)
             cond->mConditionType = ConditionType(iConditionTypeOrReference);
@@ -440,12 +457,12 @@ void ConditionMgr::LoadConditions(bool isReload)
         if (iSourceTypeOrReferenceId < 0)//it is a reference template
         {
             uint32 uRefId = abs(iSourceTypeOrReferenceId);
-            if (m_ConditionReferenceMap.find(uRefId) == m_ConditionReferenceMap.end())//make sure we have a list for our conditions, based on reference id
+            if (ConditionReferenceStore.find(uRefId) == ConditionReferenceStore.end())//make sure we have a list for our conditions, based on reference id
             {
                 ConditionList mCondList;
-                m_ConditionReferenceMap[uRefId] = mCondList;
+                ConditionReferenceStore[uRefId] = mCondList;
             }
-            m_ConditionReferenceMap[uRefId].push_back(cond);//add to reference storage
+            ConditionReferenceStore[uRefId].push_back(cond);//add to reference storage
             count++;
             continue;
         }//end of reference templates
@@ -468,83 +485,102 @@ void ConditionMgr::LoadConditions(bool isReload)
         }
         else if (cond->mSourceGroup)
         {
-            bool bIsDone = false;
+            bool valid = false;
             //handle grouped conditions
             switch (cond->mSourceType)
             {
                 case CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Creature.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Creature.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Disenchant.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Disenchant.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Fishing.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Fishing.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Gameobject.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Gameobject.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Item.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Item.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Mail.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Mail.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Milling.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Milling.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Pickpocketing.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Pickpocketing.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Prospecting.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Prospecting.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Reference.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Reference.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Skinning.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Skinning.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE:
-                    bIsDone = addToLootTemplate(cond, LootTemplates_Spell.GetLootForConditionFill(cond->mSourceGroup));
+                    valid = addToLootTemplate(cond, LootTemplates_Spell.GetLootForConditionFill(cond->mSourceGroup));
                     break;
                 case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
-                    bIsDone = addToGossipMenus(cond);
+                    valid = addToGossipMenus(cond);
                     break;
                 case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
-                    bIsDone = addToGossipMenuItems(cond);
+                    valid = addToGossipMenuItems(cond);
                     break;
                 case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
                 {
                     //if no list for vehicle create one
-                    if (m_VehicleSpellConditions.find(cond->mSourceGroup) == m_VehicleSpellConditions.end())
+                    if (VehicleSpellConditionStore.find(cond->mSourceGroup) == VehicleSpellConditionStore.end())
                     {
-                        ConditionTypeMap cmap;
-                        m_VehicleSpellConditions[cond->mSourceGroup] = cmap;
+                        ConditionTypeContainer cmap;
+                        VehicleSpellConditionStore[cond->mSourceGroup] = cmap;
                     }
                     //if no list for vehicle's spell create one
-                    if (m_VehicleSpellConditions[cond->mSourceGroup].find(cond->mSourceEntry) == m_VehicleSpellConditions[cond->mSourceGroup].end())
+                    if (VehicleSpellConditionStore[cond->mSourceGroup].find(cond->mSourceEntry) == VehicleSpellConditionStore[cond->mSourceGroup].end())
                     {
                         ConditionList clist;
-                        m_VehicleSpellConditions[cond->mSourceGroup][cond->mSourceEntry] = clist;
+                        VehicleSpellConditionStore[cond->mSourceGroup][cond->mSourceEntry] = clist;
                     }
-                    m_VehicleSpellConditions[cond->mSourceGroup][cond->mSourceEntry].push_back(cond);
-                    bIsDone = true;
+                    VehicleSpellConditionStore[cond->mSourceGroup][cond->mSourceEntry].push_back(cond);
+                    valid = true;
                     ++count;
                     continue;   // do not add to m_AllocatedMemory to avoid double deleting
+                }
+                case CONDITION_SOURCE_TYPE_SMART_EVENT:
+                {
+                    // If the entry does not exist, create a new list
+                    std::pair<uint32, uint32> key = std::make_pair(cond->mSourceEntry, cond->mSourceId);
+                    if (SmartEventConditionStore.find(key) == SmartEventConditionStore.end())
+                    {
+                        ConditionTypeContainer cmap;
+                        SmartEventConditionStore[key] = cmap;
+                    }
+                    if (SmartEventConditionStore[key].find(cond->mSourceGroup) == SmartEventConditionStore[key].end())
+                    {
+                        ConditionList clist;
+                        SmartEventConditionStore[key][cond->mSourceGroup] = clist;
+                    }
+                    SmartEventConditionStore[key][cond->mSourceGroup].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;
                 }
                 default:
                     break;
             }
 
-            if (!bIsDone)
+            if (!valid)
             {
                 sLog->outErrorDb("Not handled grouped condition, SourceGroup %u", cond->mSourceGroup);
                 delete cond;
             }
             else
             {
-                m_AllocatedMemory.push_back(cond);
+                AllocatedMemoryStore.push_back(cond);
                 ++count;
             }
             continue;
@@ -552,21 +588,21 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         //handle not grouped conditions
         //make sure we have a storage list for our SourceType
-        if (m_ConditionMap.find(cond->mSourceType) == m_ConditionMap.end())
+        if (ConditionStore.find(cond->mSourceType) == ConditionStore.end())
         {
-            ConditionTypeMap mTypeMap;
-            m_ConditionMap[cond->mSourceType] = mTypeMap;//add new empty list for SourceType
+            ConditionTypeContainer mTypeMap;
+            ConditionStore[cond->mSourceType] = mTypeMap;//add new empty list for SourceType
         }
 
         //make sure we have a condition list for our SourceType's entry
-        if (m_ConditionMap[cond->mSourceType].find(cond->mSourceEntry) == m_ConditionMap[cond->mSourceType].end())
+        if (ConditionStore[cond->mSourceType].find(cond->mSourceEntry) == ConditionStore[cond->mSourceType].end())
         {
             ConditionList mCondList;
-            m_ConditionMap[cond->mSourceType][cond->mSourceEntry] = mCondList;
+            ConditionStore[cond->mSourceType][cond->mSourceEntry] = mCondList;
         }
 
         //add new Condition to storage based on Type/Entry
-        m_ConditionMap[cond->mSourceType][cond->mSourceEntry].push_back(cond);
+        ConditionStore[cond->mSourceType][cond->mSourceEntry].push_back(cond);
         ++count;
     }
     while (result->NextRow());
@@ -1004,6 +1040,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             break;
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
+        case CONDITION_SOURCE_TYPE_SMART_EVENT:
         case CONDITION_SOURCE_TYPE_NONE:
         default:
             break;
@@ -1375,18 +1412,18 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
 
 void ConditionMgr::Clean()
 {
-    for (ConditionReferenceMap::iterator itr = m_ConditionReferenceMap.begin(); itr != m_ConditionReferenceMap.end(); ++itr)
+    for (ConditionReferenceContainer::iterator itr = ConditionReferenceStore.begin(); itr != ConditionReferenceStore.end(); ++itr)
     {
         for (ConditionList::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
             delete *it;
         itr->second.clear();
     }
 
-    m_ConditionReferenceMap.clear();
+    ConditionReferenceStore.clear();
 
-    for (ConditionMap::iterator itr = m_ConditionMap.begin(); itr != m_ConditionMap.end(); ++itr)
+    for (ConditionContainer::iterator itr = ConditionStore.begin(); itr != ConditionStore.end(); ++itr)
     {
-        for (ConditionTypeMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
         {
             for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
                 delete *i;
@@ -1395,11 +1432,11 @@ void ConditionMgr::Clean()
         itr->second.clear();
     }
 
-    m_ConditionMap.clear();
+    ConditionStore.clear();
 
-    for (VehicleSpellConditionMap::iterator itr = m_VehicleSpellConditions.begin(); itr != m_VehicleSpellConditions.end(); ++itr)
+    for (VehicleSpellConditionContainer::iterator itr = VehicleSpellConditionStore.begin(); itr != VehicleSpellConditionStore.end(); ++itr)
     {
-        for (ConditionTypeMap::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
         {
             for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
                 delete *i;
@@ -1408,11 +1445,24 @@ void ConditionMgr::Clean()
         itr->second.clear();
     }
 
-    m_VehicleSpellConditions.clear();
+    VehicleSpellConditionStore.clear();
+
+    for (SmartEventConditionContainer::iterator itr = SmartEventConditionStore.begin(); itr != SmartEventConditionStore.end(); ++itr)
+    {
+        for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        {
+            for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+                delete *i;
+            it->second.clear();
+        }
+        itr->second.clear();
+    }
+
+    SmartEventConditionStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
-    for (std::list<Condition*>::const_iterator itr = m_AllocatedMemory.begin(); itr != m_AllocatedMemory.end(); ++itr)
+    for (std::list<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)
         delete *itr;
 
-    m_AllocatedMemory.clear();
+    AllocatedMemoryStore.clear();
 }
