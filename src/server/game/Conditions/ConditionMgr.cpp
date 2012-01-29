@@ -73,10 +73,10 @@ bool Condition::Meets(Player* player, Unit* invoker)
             condMeets = player->GetTeam() == mConditionValue1;
             break;
         case CONDITION_CLASS:
-            condMeets = player->getClass() == mConditionValue1;
+            condMeets = player->getClassMask() & mConditionValue1;
             break;
         case CONDITION_RACE:
-            condMeets = player->getRace() == mConditionValue1;
+            condMeets = player->getRaceMask() & mConditionValue1;
             break;
         case CONDITION_SKILL:
             condMeets = player->HasSkill(mConditionValue1) && player->GetBaseSkillValue(mConditionValue1) >= mConditionValue2;
@@ -1180,9 +1180,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_CLASS:
         {
-            if (cond->mConditionValue1 >= MAX_CLASSES)
+            if (!(cond->mConditionValue1 & CLASSMASK_ALL_PLAYABLE))
             {
-                sLog->outErrorDb("Class condition has non existing class (%u), skipped", cond->mConditionValue1);
+                sLog->outErrorDb("Class condition has non existing classmask (%u), skipped", cond->mConditionValue1 & ~CLASSMASK_ALL_PLAYABLE);
                 return false;
             }
 
@@ -1192,9 +1192,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         }
         case CONDITION_RACE:
         {
-            if (cond->mConditionValue1 >= MAX_RACES)
+            if (!(cond->mConditionValue1 & RACEMASK_ALL_PLAYABLE))
             {
-                sLog->outErrorDb("Race condition has non existing race (%u), skipped", cond->mConditionValue1);
+                sLog->outErrorDb("Race condition has non existing racemask (%u), skipped", cond->mConditionValue1 & ~RACEMASK_ALL_PLAYABLE);
                 return false;
             }
 

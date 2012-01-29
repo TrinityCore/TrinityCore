@@ -332,8 +332,8 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     QueryResult result = LoginDatabase.PQuery("SELECT a.username, aa.gmlevel, a.email, a.last_ip, a.last_login, a.mutetime "
                                                 "FROM account a "
                                                 "LEFT JOIN account_access aa "
-                                                "ON (a.id = aa.id) "
-                                                "WHERE a.id = '%u'", accId);
+                                                "ON (a.id = aa.id AND (aa.RealmID = -1 OR aa.RealmID = %u)) "
+                                                "WHERE a.id = '%u'", realmID, accId);
     if (result)
     {
         Field* fields = result->Fetch();
