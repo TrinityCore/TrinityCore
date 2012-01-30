@@ -96,7 +96,8 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19, //DONE
     CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20, //DONE
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21, //DONE
-    CONDITION_SOURCE_TYPE_MAX                            = 22//MAX
+    CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22, //DONE
+    CONDITION_SOURCE_TYPE_MAX                            = 23  //MAX
 };
 
 struct Condition
@@ -104,6 +105,7 @@ struct Condition
     ConditionSourceType     mSourceType;        //SourceTypeOrReferenceId
     uint32                  mSourceGroup;
     uint32                  mSourceEntry;
+    uint32                  mSourceId;          // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
     uint32                  mElseGroup;
     ConditionType           mConditionType;     //ConditionTypeOrReference
     uint32                  mConditionValue1;
@@ -133,11 +135,12 @@ struct Condition
 };
 
 typedef std::list<Condition*> ConditionList;
-typedef std::map<uint32, ConditionList> ConditionTypeMap;
-typedef std::map<ConditionSourceType, ConditionTypeMap> ConditionMap;
-typedef std::map<uint32, ConditionTypeMap> VehicleSpellConditionMap;
+typedef std::map<uint32, ConditionList> ConditionTypeContainer;
+typedef std::map<ConditionSourceType, ConditionTypeContainer> ConditionContainer;
+typedef std::map<uint32, ConditionTypeContainer> VehicleSpellConditionContainer;
+typedef std::map<std::pair<uint32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
 
-typedef std::map<uint32, ConditionList> ConditionReferenceMap;//only used for references
+typedef std::map<uint32, ConditionList> ConditionReferenceContainer;//only used for references
 
 class ConditionMgr
 {
@@ -153,7 +156,8 @@ class ConditionMgr
         ConditionList GetConditionReferences(uint32 refId);
 
         bool IsPlayerMeetToConditions(Player* player, ConditionList const& conditions, Unit* invoker = NULL);
-        ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sType, uint32 uEntry);
+        ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
+        ConditionList GetConditionsForSmartEvent(uint32 entry, uint32 eventId, uint32 sourceType);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID);
 
     private:
@@ -179,15 +183,17 @@ class ConditionMgr
                     sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE ||
                     sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU ||
                     sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION ||
-                    sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL);
+                    sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
+                    sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
         }
 
         void Clean(); // free up resources
-        std::list<Condition*> m_AllocatedMemory; // some garbage collection :)
+        std::list<Condition*> AllocatedMemoryStore; // some garbage collection :)
 
-        ConditionMap                m_ConditionMap;
-        ConditionReferenceMap       m_ConditionReferenceMap;
-        VehicleSpellConditionMap    m_VehicleSpellConditions;
+        ConditionContainer                ConditionStore;
+        ConditionReferenceContainer       ConditionReferenceStore;
+        VehicleSpellConditionContainer    VehicleSpellConditionStore;
+        SmartEventConditionContainer      SmartEventConditionStore;
 };
 
 #define sConditionMgr ACE_Singleton<ConditionMgr, ACE_Null_Mutex>::instance()
