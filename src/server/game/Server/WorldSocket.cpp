@@ -259,8 +259,10 @@ int WorldSocket::open (void *a)
     }
 
     m_Address = remote_addr.get_host_addr();
-    
-    WorldPacket packet(SMSG_VERIFY_CONNECTIVITY);
+
+    // not an opcode. this packet sends raw string WORLD OF WARCRAFT CONNECTION - SERVER TO CLIENT"
+    // because of our implementation, bytes "WO" become the opcode
+    WorldPacket packet(MSG_VERIFY_CONNECTIVITY);
     packet << "RLD OF WARCRAFT CONNECTION - SERVER TO CLIENT";
 
     if (SendPacket(packet) == -1)
@@ -723,11 +725,18 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                 sLog->outStaticDebug("CMSG_LOG_DISCONNECT , size: " UI64FMTD, uint64(new_pct->size()));
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
-            case CMSG_VERIFY_CONNECTIVITY_RESPONSE:
-                sLog->outStaticDebug("CMSG_VERIFY_CONNECTIVITY_RESPONSE , size: " UI64FMTD, uint64(new_pct->size()));
+            // not an opcode, client sends string "WORLD OF WARCRAFT CONNECTION - CLIENT TO SERVER" without opcode
+            // first 4 bytes become the opcode (2 dropped)
+            case MSG_VERIFY_CONNECTIVITY:
+            {
+                sLog->outStaticDebug("MSG_VERIFY_CONNECTIVITY , size: " UI64FMTD, uint64(new_pct->size()));
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
+                std::string str;
+                *new_pct >> str;
+                if (str != "D OF WARCRAFT CONNECTION - CLIENT TO SERVER")
+                    return -1;
                 return HandleSendAuthSession();
-            
+            }
             default:
             {
                 ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);

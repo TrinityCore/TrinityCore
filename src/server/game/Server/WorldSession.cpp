@@ -43,15 +43,6 @@
 #include "ScriptMgr.h"
 #include "Transport.h"
 
-Opcodes PacketFilter::DropHighBytes(Opcodes opcode)
-{
-   if (opcode & 0xFFFF0000) // check if any High byte is present
-       return Opcodes(opcode >> 16);
-
-   else
-       return Opcodes(opcode);
-}
-
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
     Opcodes opcode = DropHighBytes(packet->GetOpcode());
