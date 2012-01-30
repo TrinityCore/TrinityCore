@@ -1,6 +1,9 @@
+--
+-- General fixes for YTDB and TDB
+--
+
 -- Fix Summon Infernal spell. Thanks inordon fod idea
 UPDATE `creature_template` SET flags_extra = 0 WHERE `entry` = 89; 
-
 
 -- Leeeeeeeeroy! achievement fix
 UPDATE `instance_template` SET `script`='instance_blackrock_spire' WHERE `map`=229;
@@ -72,7 +75,6 @@ UPDATE `instance_encounters` SET `creditEntry` = '23980' WHERE `entry` IN ('575'
 -- [Dungeon Finder] Fix CoS reward
 UPDATE `instance_encounters` SET `creditType`=0, `creditEntry`=26533 WHERE `entry` IN (296, 300);
 
-
 -- fix for YTDB after "guards don't evade..." commit
 UPDATE `creature_template` SET `Unit_flags` = 36864 WHERE `entry` = 3296;
 
@@ -116,7 +118,6 @@ INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 DELETE FROM `spell_script_names` WHERE `spell_id`=66926;
 INSERT INTO `spell_script_names` VALUES
 (66926, 'spell_gen_venomhide_check');
-
 
 -- fix some quests in Borean Tundra
 UPDATE creature_template SET scriptname = 'vehicle_wyrmrest_skytalon' WHERE entry = 32535;
@@ -646,7 +647,6 @@ INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `l
 (36829, 43297, 0.8, 1, 0, 1, 1),
 (38090, 43297, 1.6949, 1, 0, 1, 1);
 
-
 -- Grizzly Hills Outdoor PVP script
 delete from outdoorpvp_template where typeid in (8);
 INSERT INTO `outdoorpvp_template` VALUES
@@ -714,12 +714,10 @@ DELETE FROM `spell_script_names` WHERE `ScriptName`='spell_pal_righteous_defense
 INSERT INTO `spell_script_names` (`spell_id`,`ScriptName`) VALUES
 (31789,'spell_pal_righteous_defense');
 
-
 -- Fix Achievement: Bros. Before Ho Ho Ho's(1685) (20.12.2011)
 UPDATE item_template SET Flags=0x40 WHERE entry=21519;
 UPDATE creature_template SET unit_flags=unit_flags&~0x100, type_flags=type_flags|0x4000000 WHERE entry IN (739,927,1182,1351,1444,5484,5489,5661,8140,12336,26044);
 UPDATE creature SET spawntimesecs=20 WHERE id IN (739,927,1182,1351,1444,5484,5489,5661,8140,12336,26044);
-
 
 -- Revenge of Dalaran squirrel
 DELETE FROM `creature_template` WHERE `entry` IN (666666,666667);
@@ -736,3 +734,12 @@ DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 34632;
 DELETE FROM `smart_scripts` WHERE (`entryorguid`=34632 AND `source_type`=0);
 INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
 (34632, 0, 0, 0, 6, 0, 100, 0, 0, 0, 0, 0, 11, 65788, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ogre Pinata - Summon Pie of Candy');
+
+-- Core/Chat: Implement `.banlist playeraccount` and `baninfo playeraccount` commands (04.06.2011)
+DELETE FROM `command` WHERE `name` IN ('baninfo playeraccount', 'banlist playeraccount');
+INSERT INTO `command` VALUES
+('baninfo playeraccount', 3, 'Syntax: .baninfo playeraccount $playerName\r\nWatch full information about a specific ban.'),
+('banlist playeraccount', 3, 'Syntax: .banlist playeraccount [$Name]\r\nSearches the banlist for accounts according to a character name pattern.');
+
+-- Implement npc for sale mount for low level. Thanks Easy (20.01.2011)
+REPLACE INTO `creature_template` (`entry`, `difficulty_entry_1`, `difficulty_entry_2`, `difficulty_entry_3`, `KillCredit1`, `KillCredit2`, `modelid1`, `modelid2`, `modelid3`, `modelid4`, `name`, `subname`, `IconName`, `gossip_menu_id`, `minlevel`, `maxlevel`, `exp`, `faction_A`, `faction_H`, `npcflag`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `rangeattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `trainer_type`, `trainer_spell`, `trainer_class`, `trainer_race`, `minrangedmg`, `maxrangedmg`, `rangedattackpower`, `type`, `type_flags`, `lootid`, `pickpocketloot`, `skinloot`, `resistance1`, `resistance2`, `resistance3`, `resistance4`, `resistance5`, `resistance6`, `spell1`, `spell2`, `spell3`, `spell4`, `spell5`, `spell6`, `spell7`, `spell8`, `PetSpellDataId`, `VehicleId`, `mingold`, `maxgold`, `AIName`, `MovementType`, `InhabitType`, `Health_mod`, `Mana_mod`, `RacialLeader`, `questItem1`, `questItem2`, `questItem3`, `questItem4`, `questItem5`, `questItem6`, `movementId`, `RegenHealth`, `equipment_id`, `mechanic_immune_mask`, `flags_extra`, `ScriptName`) VALUES (100002, 0, 0, 0, 0, 0, 27153, 0, 0, 0, 'World of Warcraft Transports, Inc.', 'Mount Service', '', 0, 80, 80, 0, 35, 35, 1, 0.75, 2, 1755, 1755, 0, 1504, 1000, 1500, 0, 1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 3, 100, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 'npc_mount');

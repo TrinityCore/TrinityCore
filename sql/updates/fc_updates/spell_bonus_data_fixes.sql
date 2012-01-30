@@ -1,5 +1,5 @@
 --
--- Fix damage scaling from stats (ap, spd and other)
+-- Damage scaling from stats fixes (ap, spd and other) for YTDb and TDB
 -- 
 
 -- Enchants

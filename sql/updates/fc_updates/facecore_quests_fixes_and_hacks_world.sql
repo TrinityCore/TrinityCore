@@ -1,3 +1,7 @@
+--
+-- Quests fixes for YTDB and TDB
+--
+
 -- fix Junkboxes Needed quest available for all classes
 UPDATE `quest_template` SET `ZoneOrSort` = '-162' WHERE `Id` = '8249';
 UPDATE `quest_template` SET `RequiredClasses`=0 WHERE `Id`=8249; -- Junkboxes Needed
@@ -38,7 +42,6 @@ UPDATE `creature_template` SET `InhabitType`=7 WHERE `entry`=29709;
 
 -- hack quest "An End To All Things..."
 UPDATE `quest_template` SET Method = 0 WHERE `Id` = 12779;
-
 
 -- Argent Tournament quests fixes start
 UPDATE `creature_template` SET `ScriptName`='npc_training_dummy_argent' WHERE `entry`=33229;
@@ -120,7 +123,6 @@ UPDATE `creature_template` SET `ScriptName` = 'npc_argent_champion' WHERE `entry
 DELETE FROM `creature_template_addon` WHERE `entry` = 33707;
 INSERT INTO `creature_template_addon` (`entry`, `mount`) VALUES ('33707', '14337');
 -- Argent Tournament quests fixes end
-
 
 -- Battered Hilt quest chains fixes start
 -- Quests 20438,24556
