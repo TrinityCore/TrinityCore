@@ -726,3 +726,13 @@ DELETE FROM `creature_template` WHERE `entry` IN (666666,666667);
 INSERT INTO `creature_template` (`entry`, `modelid1`, `name`, `minlevel`, `maxlevel`, `faction_A`, `faction_H`, `speed_walk`, `speed_run`, `scale`, `rank`, `mindmg`, `maxdmg`, `dmgschool`, `attackpower`, `dmg_multiplier`, `baseattacktime`, `unit_class`, `unit_flags`, `dynamicflags`, `family`, `type`, `type_flags`, `MovementType`, `InhabitType`, `Health_mod`, `Armor_mod`, `RegenHealth`, `mechanic_immune_mask`, `ScriptName`, `WDBVerified`) VALUES
 ('666666', '134', 'Squirrel', '1', '1', '7', '7', '1', '0.8', '1', '0', '2000', '2000', '0', '2000', '4.6', '2000', '1', '0', '0', '0', '1', '0', '1', '1', '500', '500', '1', '650886911', 'npc_dalaran_squirrel', '12340'),
 ('666667', '134', 'Squirrel', '1', '1', '7', '7', '1', '0.8', '1', '0', '2000', '2000', '0', '2000', '4.6', '2000', '1', '0', '0', '0', '1', '0', '1', '1', '500', '500', '1', '650886911', '', '12340');
+
+-- Fix Ogre Pinata item (http://www.wowhead.com/item=46780)
+-- Ogre Pinata NPC (http://www.wowhead.com/npc=34632) correct data
+UPDATE `creature_template` SET `exp`=2, `faction_A`=7, `faction_H`=7, `mindmg`=420, `maxdmg`=630, `attackpower`=157, `dmg_multiplier`=1.4, `rangeattacktime`=2000, `minrangedmg`=336, `maxrangedmg`=504, `rangedattackpower`=126 WHERE `entry`=34632;
+UPDATE `creature_template` SET `AIName`='SmartAI' WHERE `entry`=34632;
+-- Ogre Pinata NPC (http://www.wowhead.com/npc=34632) SAI
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 34632;
+DELETE FROM `smart_scripts` WHERE (`entryorguid`=34632 AND `source_type`=0);
+INSERT INTO `smart_scripts` (`entryorguid`, `source_type`, `id`, `link`, `event_type`, `event_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action_type`, `action_param1`, `action_param2`, `action_param3`, `action_param4`, `action_param5`, `action_param6`, `target_type`, `target_param1`, `target_param2`, `target_param3`, `target_x`, `target_y`, `target_z`, `target_o`, `comment`) VALUES 
+(34632, 0, 0, 0, 6, 0, 100, 0, 0, 0, 0, 0, 11, 65788, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Ogre Pinata - Summon Pie of Candy');
