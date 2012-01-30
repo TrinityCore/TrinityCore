@@ -1079,9 +1079,9 @@ void WorldSession::HandleNextCinematicCamera(WorldPacket & /*recv_data*/)
 void WorldSession::HandleMoveTimeSkippedOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_MOVE_TIME_SKIPPED");
-    
+
     BitStream mask = recv_data.ReadBitStream(8);
-    
+
     uint32 time;
     recv_data >> time;
 
