@@ -1,10 +1,12 @@
+--
+-- Fixes only for YTDB
+--
+
 -- fix spam in log
 UPDATE `waypoint_scripts` SET `datalong2`='1' WHERE datalong IN (39550,76221,54324,50036,48310,46906,61615,45940,70153,46400,55838,35782,54324,46960,49119,46400,70602);
 
-
 -- fix crash with use .gob near command and russian locale
 UPDATE `trinity_string` SET `content_loc8` = '%d (Entry: %d) - |cffffffff|Hgameobject:%d|h[%s X:%f Y:%f Z:%f MapId:%d]|h|r' WHERE `entry` = '517';
-
 
 -- Anub'arak, fix of incorrect YTDB flag
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34564;
@@ -12,18 +14,14 @@ UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 34566;
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35615;
 UPDATE `creature_template` SET `unit_flags` = 32832 WHERE `entry`= 35616;
 
-
 -- fix crash with NPC 38068 cast spel (recursion)
 UPDATE `creature_template` SET `ScriptName`="", `spell1`="" WHERE `entry` = 38068;
-
 
 -- fix aggro for Rimefang and Spinestalker
 UPDATE `creature_template` SET `InhabitType`=5 WHERE `entry` IN (37533, 37534);
 
-
 -- Fix start Valithria encounter while enconter is DONE
 UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `id` IN (38752, 16980);
-
 
 -- Add lost data
 DELETE FROM `creature` WHERE `guid` in (85584, 85585, 85586);
@@ -32,11 +30,11 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 (85585, 29836, 604, 3, 1, 0, 0, 1874.55, 757.72, 136.039, 3.56345, 7200, 0, 0, 45516, 0, 0, 0, 0, 0),
 (85586, 29836, 604, 3, 1, 0, 0, 1875.77, 726.76, 135.946, 2.61705, 7200, 0, 0, 45516, 0, 0, 0, 0, 0);
 
-
 -- QUEST 9663 "The Kessel Run"
-UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry` IN (17116,17240,17440);
+-- right gossip number for NPC
 UPDATE `creature_template` SET `gossip_menu_id`=7983 WHERE `entry`=17440;
 -- Smart AI
+UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry` IN (17116,17240,17440);
 DELETE FROM `smart_scripts` WHERE `source_type`=0 AND `entryorguid` IN (17116,17240,17440);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (17116,0,0,0,64,0,100,0,0,0,0,0,33,17116,0,0,0,0,0,7,0,0,0,0,0,0,0, 'On gossip hello credit for quest 9663'),
@@ -55,8 +53,9 @@ INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,
 (14,7399,9038,0,9,9663,0,0,0,'','Show gossip text 9038 if player has quest 9663'),
 (14,7983,9039,0,9,9663,0,0,0,'','Show gossip text 9039 if player has quest 9663'),
 (14,7370,9040,0,9,9663,0,0,0,'','Show gossip text 9040 if player has quest 9663');
+
 -- QUEST What The Dragons Know (horde & alliance)
-UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry`=27990;
+-- right gossip number for NPC
 UPDATE `creature_template` SET `gossip_menu_id`=10192 WHERE `entry`=26917;
 UPDATE `creature_template` SET `gossip_menu_id`=10199 WHERE `entry`=27990;
 DELETE FROM `gossip_menu_option` WHERE `menu_id`=10199;
@@ -68,7 +67,8 @@ DELETE FROM `conditions` WHERE `SourceTypeOrReferenceId`=15 AND `SourceGroup`=10
 INSERT INTO `conditions` (`SourceTypeOrReferenceId`,`SourceGroup`,`SourceEntry`,`ElseGroup`,`ConditionTypeOrReference`,`ConditionValue1`,`ConditionValue2`,`ConditionValue3`,`ErrorTextId`,`ScriptName`,`Comment`) VALUES
 (15,10199,0,0,9,14444,0,0,0,'','Show gossip option 0 if player has quest 14444 (Alliance)'),
 (15,10199,1,0,9,24555,0,0,0,'','Show gossip option 1 if player has quest 24555 (Horde)');
-
+-- Smart AI
+UPDATE `creature_template` SET `AIName`= 'SmartAI' WHERE `entry`=27990;
 DELETE FROM `smart_scripts` WHERE `entryorguid` IN (27990,2799000,2799001);
 INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type`,`event_phase_mask`,`event_chance`,`event_flags`,`event_param1`,`event_param2`,`event_param3`,`event_param4`,`action_type`,`action_param1`,`action_param2`,`action_param3`,`action_param4`,`action_param5`,`action_param6`,`target_type`,`target_param1`,`target_param2`,`target_param3`,`target_x`,`target_y`,`target_z`,`target_o`,`comment`) VALUES
 (27990,0,0,0,62,0,100,0,10199,0,0,0,80,2799001,0,0,0,0,0,1,0,0,0,0,0,0,0, 'On gossip option select run script'),
@@ -160,25 +160,20 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (26917,0,0,1,38,0,100,0,0,1,0,0,66,0,0,0,0,0,0,8,0,0,0,0,0,0,1.6049, 'On dataset 0 1 turn'),
 (26917,0,1,1,38,0,100,0,0,2,0,0,66,0,0,0,0,0,0,1,0,0,0,0,0,0,0, 'On dataset 0 2 turn');
 
-
 -- Fix can not take a loot at the ICC blood princes
 UPDATE creature_template set dynamicflags = 8 where entry in (37970, 38401, 38784, 38785);
-
 
 -- Increased drop chance for some cook recipes
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 15 WHERE `item` IN (33873, 33870); 
 UPDATE `item_loot_template` SET `ChanceOrQuestChance` = 10 WHERE `item` IN (33875, 33869);
 
-
 -- Delete non-attackable flag from Army of the Dead Ghoul NPC (24207)
 UPDATE `creature_template` SET `unit_flags`=0 WHERE `entry` =24207;
-
 
 -- Restore data deleted in 2011_10_23_08_world_sai.sql TC update (27.10.2011)
 DELETE FROM `creature` WHERE `guid` =56995;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`, `npcflag`, `unit_flags`, `dynamicflags`) VALUES
 (56995, 16933, 530, 1, 1, 0, 0, -1545.9, 3627.48, 35.0149, 2.96104, 600, 5, 0, 5000, 0, 1, 0, 0, 0);
-
 
 -- fix creatures spawn coordinates
 REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `MovementType`) VALUES
@@ -188,10 +183,8 @@ REPLACE INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid
 (98952, 30102, 571, 1, 1, 0, 0, 5823.54, -2910.77, 303.546, 3.70443, 600, 0, 0, 10635, 0, 0),
 (111940, 31140, 571, 1, 1, 0, 0, 6582.88, 1116.38, 273.358, 0.355237, 300, 0, 0, 12600, 0, 0);
 
-
 -- Fix Sindragosa non aggro
 UPDATE creature_template SET unit_flags = '0' WHERE entry IN (36853,38267,38266,38265);
-
 
 -- Fix On Metzen! Achievement (20.12.2011)
 UPDATE `smart_scripts` SET `event_param1`=6763 WHERE  `entryorguid` =15664;
