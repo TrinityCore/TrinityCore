@@ -302,7 +302,7 @@ class spell_frost_tomb : public SpellScriptLoader
                 if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_DEATH)
                     if (Unit* caster = GetCaster())
                         if (caster->ToCreature() && caster->isAlive())
-                            caster->ToCreature()->DespawnOrUnsummon();
+                            caster->ToCreature()->DespawnOrUnsummon(1000);
             }
 
             void Register()
