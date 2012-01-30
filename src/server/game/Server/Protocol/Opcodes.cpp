@@ -1375,8 +1375,7 @@ void InitOpcodes()
      //DEFINE_OPCODE_HANDLER(SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT1,      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_COMMENTATOR_SKIRMISH_QUEUE_RESULT2,      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
      //DEFINE_OPCODE_HANDLER(SMSG_COMPRESSED_UNKNOWN_1310,                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               );
-     DEFINE_OPCODE_HANDLER(SMSG_VERIFY_CONNECTIVITY,                     STATUS_NEVER,    PROCESS_INPLACE,       &WorldSession::Handle_ServerSide               );
-     DEFINE_OPCODE_HANDLER(CMSG_VERIFY_CONNECTIVITY_RESPONSE,            STATUS_NEVER,    PROCESS_INPLACE,       &WorldSession::Handle_EarlyProccess            );
+     DEFINE_OPCODE_HANDLER(MSG_VERIFY_CONNECTIVITY,                      STATUS_NEVER,    PROCESS_INPLACE,       &WorldSession::Handle_EarlyProccess            );
      //DEFINE_OPCODE_HANDLER(CMSG_LOG_DISCONNECT,                          STATUS_NEVER,    PROCESS_INPLACE,       &WorldSession::Handle_EarlyProccess            );
      DEFINE_OPCODE_HANDLER(CMSG_RETURN_TO_GRAVEYARD,                     STATUS_LOGGEDIN, PROCESS_THREADUNSAFE,  &WorldSession::HandleReturnToGraveyard         );
      DEFINE_OPCODE_HANDLER(CMSG_RANDOMIZE_CHAR_NAME,                     STATUS_AUTHED,   PROCESS_THREADUNSAFE,  &WorldSession::HandleRandomizeCharNameOpcode   );
