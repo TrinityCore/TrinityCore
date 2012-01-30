@@ -71,7 +71,7 @@ public:
 
     struct boss_chromaggusAI : public ScriptedAI
     {
-        boss_chromaggusAI(Creature* c) : ScriptedAI(c)
+        boss_chromaggusAI(Creature* creature) : ScriptedAI(creature)
         {
             //Select the 2 breaths that we are going to use until despawned
             //5 possiblities for the first breath, 4 for the second, 20 total possiblites
@@ -197,9 +197,7 @@ public:
             Enraged = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -297,7 +295,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_chromaggus()

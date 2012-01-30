@@ -89,7 +89,7 @@ void SmartAI::UpdateDespawn(const uint32 diff)
 void SmartAI::Reset()
 {
     if (!HasEscortState(SMART_ESCORT_ESCORTING))//dont mess up escort movement after combat
-        SetRun(true);
+        SetRun(mRun);
     GetScript()->OnReset();
 }
 
@@ -937,9 +937,9 @@ void SmartGameObjectAI::OnGameEvent(bool start, uint16 eventId)
     GetScript()->ProcessEventsFor(start ? SMART_EVENT_GAME_EVENT_START : SMART_EVENT_GAME_EVENT_END, NULL, eventId);
 }
 
-void SmartGameObjectAI::OnStateChanged(uint32 state)
+void SmartGameObjectAI::OnStateChanged(uint32 state, Unit* unit)
 {
-    GetScript()->ProcessEventsFor(SMART_EVENT_GO_STATE_CHANGED, NULL, state);
+    GetScript()->ProcessEventsFor(SMART_EVENT_GO_STATE_CHANGED, unit, state);
 }
 
 class SmartTrigger : public AreaTriggerScript

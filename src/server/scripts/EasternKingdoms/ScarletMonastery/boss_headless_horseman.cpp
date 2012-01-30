@@ -28,59 +28,66 @@ EndScriptData */
 #include "scarlet_monastery.h"
 
 //this texts are already used by 3975 and 3976
-#define SAY_ENTRANCE                -1189001
-#define SAY_REJOINED                -1189002
-#define SAY_LOST_HEAD               -1189003
-#define SAY_CONFLAGRATION           -1189004
-#define SAY_SPROUTING_PUMPKINS      -1189005
-#define SAY_PLAYER_DEATH            -1189006
-#define SAY_DEATH                   -1189007
+enum Says
+{
+    SAY_ENTRANCE                = -1189001,
+    SAY_REJOINED                = -1189002,
+    SAY_LOST_HEAD               = -1189003,
+    SAY_CONFLAGRATION           = -1189004,
+    SAY_SPROUTING_PUMPKINS      = -1189005,
+    SAY_PLAYER_DEATH            = -1189006,
+    SAY_DEATH                   = -1189007
+};
 
 uint32 RandomLaugh[] = {11965, 11975, 11976};
 
-    // Entryes
-#define HH_MOUNTED                  23682
-#define HH_UNHORSED                 23800
-#define HEAD                        23775
-#define PULSING_PUMPKIN             23694
-#define PUMPKIN_FIEND               23545
-#define HELPER                      23686
-#define WISP_INVIS                  24034
+enum Entry
+{
+    HH_MOUNTED                  = 23682,
+    HH_DISMOUNTED               = 23800,  // unhorsed?? wtf type of engrish was that?
+    HEAD                        = 23775,
+    PULSING_PUMPKIN             = 23694,
+    PUMPKIN_FIEND               = 23545,
+    HELPER                      = 23686,
+    WISP_INVIS                  = 24034
+};
 
-    //Spells
-#define SPELL_CLEAVE                42587
-#define SPELL_CONFLAGRATION         42380       //Phase 2, can't find real spell(Dim Fire?)
-//#define SPELL_CONFL_SPEED         22587       //8% increase speed, value 22587 from SPELL_CONFLAGRATION mains that spell?
-#define SPELL_SUMMON_PUMPKIN        42394
+enum Spells
+{
+    SPELL_CLEAVE                = 42587,
+    SPELL_CONFLAGRATION         = 42380,       //Phase 2, can't find real spell(Dim Fire?)
+ // SPELL_CONFL_SPEED           = 22587,       //8% increase speed, value 22587 from SPELL_CONFLAGRATION mains that spell?
+    SPELL_SUMMON_PUMPKIN        = 42394,
 
-#define SPELL_WHIRLWIND             43116
-#define SPELL_IMMUNE                42556
-#define SPELL_BODY_REGEN            42403
-#define SPELL_CONFUSE               43105
+    SPELL_WHIRLWIND             = 43116,
+    SPELL_IMMUNE                = 42556,
+    SPELL_BODY_REGEN            = 42403,
+    SPELL_CONFUSE               = 43105,
 
-#define SPELL_FLYING_HEAD           42399       //visual flying head
-#define SPELL_HEAD                  42413       //visual buff, "head"
-#define SPELL_HEAD_IS_DEAD          42428       //at killing head, Phase 3
+    SPELL_FLYING_HEAD           = 42399,       //visual flying head
+    SPELL_HEAD                  = 42413,       //visual buff, "head"
+    SPELL_HEAD_IS_DEAD          = 42428,       //at killing head, Phase 3
 
-#define SPELL_PUMPKIN_AURA          42280
-#define SPELL_PUMPKIN_AURA_GREEN    42294
-#define SPELL_SQUASH_SOUL           42514
-#define SPELL_SPROUTING             42281
-#define SPELL_SPROUT_BODY           42285
+    SPELL_PUMPKIN_AURA          = 42280,
+    SPELL_PUMPKIN_AURA_GREEN    = 42294,
+    SPELL_SQUASH_SOUL           = 42514,
+    SPELL_SPROUTING             = 42281,
+    SPELL_SPROUT_BODY           = 42285,
 
     //Effects
-#define SPELL_RHYME_BIG             42909
-//#define SPELL_RHYME_SMALL         42910
-#define SPELL_HEAD_SPEAKS           43129
-#define SPELL_HEAD_LANDS            42400
-#define SPELL_BODY_FLAME            42074
-#define SPELL_HEAD_FLAME            42971
-//#define SPELL_ENRAGE_VISUAL       42438       // he uses this spell?
-#define SPELL_WISP_BLUE             42821
-#define SPELL_WISP_FLIGHT_PORT      42818
-//#define SPELL_WISP_INVIS          42823
-#define SPELL_SMOKE                 42355
-#define SPELL_DEATH                 42566       //not correct spell
+    SPELL_RHYME_BIG             = 42909,
+ // SPELL_RHYME_SMALL           = 42910,
+    SPELL_HEAD_SPEAKS           = 43129,
+    SPELL_HEAD_LANDS            = 42400,
+    SPELL_BODY_FLAME            = 42074,
+    SPELL_HEAD_FLAME            = 42971,
+ // SPELL_ENRAGE_VISUAL         = 42438,       // he uses this spell?
+    SPELL_WISP_BLUE             = 42821,
+    SPELL_WISP_FLIGHT_PORT      = 42818,
+ // SPELL_WISP_INVIS            = 42823,
+    SPELL_SMOKE                 = 42355,
+    SPELL_DEATH                 = 42566       //not correct spell
+};
 
 struct Locations
 {
@@ -114,7 +121,7 @@ static Locations FlightPoint[]=
 
 static Locations Spawn[]=
 {
-    {1776.27f, 1348.74f, 19.20f},        //spawn point for pumpkin shrine mob
+    {1776.27f, 1348.74f, 19.20f},       //spawn point for pumpkin shrine mob
     {1765.28f, 1347.46f, 17.55f}     //spawn point for smoke
 };
 
@@ -126,7 +133,7 @@ static const char* Text[]=
     "Now, know demise!"
 };
 
-#define EMOTE_LAUGHS    "Headless Horseman laughs"
+#define EMOTE_LAUGHS    "Headless Horseman laughs"  // needs assigned to db.
 
 class mob_wisp_invis : public CreatureScript
 {
@@ -140,7 +147,7 @@ public:
 
     struct mob_wisp_invisAI : public ScriptedAI
     {
-        mob_wisp_invisAI(Creature* c) : ScriptedAI(c)
+        mob_wisp_invisAI(Creature* creature) : ScriptedAI(creature)
         {
             Creaturetype = delay = spell = spell2 = 0;
         }
@@ -149,8 +156,8 @@ public:
         uint32 delay;
         uint32 spell;
         uint32 spell2;
-        void Reset(){}
-        void EnterCombat(Unit* /*who*/){}
+        void Reset() {}
+        void EnterCombat(Unit* /*who*/) {}
         void SetType(uint32 _type)
         {
             switch (Creaturetype = _type)
@@ -205,7 +212,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_head : public CreatureScript
@@ -220,7 +226,7 @@ public:
 
     struct mob_headAI : public ScriptedAI
     {
-        mob_headAI(Creature* c) : ScriptedAI(c) {}
+        mob_headAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint64 bodyGUID;
 
@@ -316,7 +322,8 @@ public:
                     if (!me->getVictim()) return;
                     me->GetMotionMaster()->Clear(false);
                     me->GetMotionMaster()->MoveFleeing(me->getVictim());
-                } else wait -= diff;
+                }
+                else wait -= diff;
 
                 if (laugh <= diff)
                 {
@@ -327,7 +334,8 @@ public:
                     if (speaker)
                         speaker->CastSpell(speaker, SPELL_HEAD_SPEAKS, false);
                     me->MonsterTextEmote(EMOTE_LAUGHS, 0);
-                } else laugh -= diff;
+                }
+                else laugh -= diff;
             }
             else
             {
@@ -339,12 +347,12 @@ public:
                         if (Unit* body = Unit::GetUnit((*me), bodyGUID))
                             body->Kill(body);
                         me->Kill(me);
-                    } else wait -= diff;
+                    }
+                    else wait -= diff;
                 }
             }
         }
     };
-
 };
 
 class boss_headless_horseman : public CreatureScript
@@ -359,9 +367,9 @@ public:
 
     struct boss_headless_horsemanAI : public ScriptedAI
     {
-        boss_headless_horsemanAI(Creature* c) : ScriptedAI(c)
+        boss_headless_horsemanAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
         InstanceScript* instance;
@@ -636,7 +644,8 @@ public:
                                     break;
                                 }
                                 ++count;
-                            } else say_timer -= diff;
+                            }
+                            else say_timer -= diff;
                         }
                         else
                         {
@@ -657,7 +666,8 @@ public:
                             if (Creature* flame = me->SummonCreature(HELPER, Spawn[0].x, Spawn[0].y, Spawn[0].z, 0, TEMPSUMMON_TIMED_DESPAWN, 17000))
                                 CAST_AI(mob_wisp_invis::mob_wisp_invisAI, flame->AI())->SetType(2);
                             burned = true;
-                        } else burn -= diff;
+                        }
+                        else burn -= diff;
                         break;
                     case 2:
                         if (conflagrate <= diff)
@@ -665,7 +675,8 @@ public:
                             if (Unit* player = SelectRandomPlayer(30.0f))
                                 DoCast(player, SPELL_CONFLAGRATION, false);
                             conflagrate = urand(10000, 16000);
-                        } else conflagrate -= diff;
+                        }
+                        else conflagrate -= diff;
                         break;
                     case 3:
                         if (summonadds <= diff)
@@ -674,7 +685,8 @@ public:
                             DoCast(me, SPELL_SUMMON_PUMPKIN);
                             SaySound(SAY_SPROUTING_PUMPKINS);
                             summonadds = urand(25000, 35000);
-                        } else summonadds -= diff;
+                        }
+                        else summonadds -= diff;
                         break;
                 }
 
@@ -683,7 +695,8 @@ public:
                     laugh = urand(11000, 22000);
                     me->MonsterTextEmote(EMOTE_LAUGHS, 0);
                     DoPlaySoundToSet(me, RandomLaugh[rand()%3]);
-                } else laugh -= diff;
+                }
+                else laugh -= diff;
 
                 if (UpdateVictim())
                 {
@@ -692,7 +705,8 @@ public:
                     {
                         DoCast(me->getVictim(), SPELL_CLEAVE);
                         cleave = urand(2000, 6000);       //1 cleave per 2.0f-6.0fsec
-                    } else cleave -= diff;
+                    }
+                    else cleave -= diff;
                 }
             }
             else
@@ -725,13 +739,14 @@ public:
                         me->RemoveAurasDueToSpell(SPELL_CONFUSE);
                         DoCast(me, SPELL_WHIRLWIND, true);
                         DoCast(me, SPELL_CONFUSE);
-                    } else
+                    }
+                    else
                         me->RemoveAurasDueToSpell(SPELL_WHIRLWIND);
-                } else whirlwind -= diff;
+                }
+                else whirlwind -= diff;
             }
         }
     };
-
 };
 
 class mob_pulsing_pumpkin : public CreatureScript
@@ -746,7 +761,7 @@ public:
 
     struct mob_pulsing_pumpkinAI : public ScriptedAI
     {
-        mob_pulsing_pumpkinAI(Creature* c) : ScriptedAI(c) {}
+        mob_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) {}
 
         bool sprouted;
         uint64 debuffGUID;
@@ -771,7 +786,7 @@ public:
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) {}
 
         void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
@@ -813,7 +828,6 @@ public:
                 DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class go_loosely_turned_soil : public GameObjectScript
@@ -846,13 +860,13 @@ public:
         //}
         return true;
     }
-
 };
 
 void mob_head::mob_headAI::Disappear()
 {
     if (withbody)
         return;
+
     if (bodyGUID)
     {
         Creature* body = Unit::GetCreature((*me), bodyGUID);

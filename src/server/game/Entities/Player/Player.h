@@ -274,13 +274,14 @@ struct PvPInfo
 
 struct DuelInfo
 {
-    DuelInfo() : initiator(NULL), opponent(NULL), startTimer(0), startTime(0), outOfBound(0) {}
+    DuelInfo() : initiator(NULL), opponent(NULL), startTimer(0), startTime(0), outOfBound(0), isMounted(false) {}
 
     Player* initiator;
     Player* opponent;
     time_t startTimer;
     time_t startTime;
     time_t outOfBound;
+    bool isMounted;
 };
 
 struct Areas
@@ -1003,7 +1004,7 @@ class TradeData
 
         Item* GetItem(TradeSlots slot) const;
         bool HasItem(uint64 itemGuid) const;
-        TradeSlots const GetTradeSlotForItem(uint64 itemGuid);
+        TradeSlots GetTradeSlotForItem(uint64 itemGuid) const;
         void SetItem(TradeSlots slot, Item* item);
 
         uint32 GetSpell() const { return m_spell; }
