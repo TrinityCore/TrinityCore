@@ -358,7 +358,6 @@ public:
     uint32 ManaCost;
     uint32 ManaCostPerlevel;
     uint32 ManaPerSecond;
-    uint32 ManaPerSecondPerLevel;
     uint32 ManaCostPercentage;
     uint32 RuneCostID;
     SpellRangeEntry const* RangeEntry;
