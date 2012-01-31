@@ -104,7 +104,7 @@ struct Condition
 {
     ConditionSourceType     mSourceType;        //SourceTypeOrReferenceId
     uint32                  mSourceGroup;
-    uint32                  mSourceEntry;
+    int32                   mSourceEntry;
     uint32                  mSourceId;          // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
     uint32                  mElseGroup;
     ConditionType           mConditionType;     //ConditionTypeOrReference
@@ -138,7 +138,7 @@ typedef std::list<Condition*> ConditionList;
 typedef std::map<uint32, ConditionList> ConditionTypeContainer;
 typedef std::map<ConditionSourceType, ConditionTypeContainer> ConditionContainer;
 typedef std::map<uint32, ConditionTypeContainer> VehicleSpellConditionContainer;
-typedef std::map<std::pair<uint32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
+typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
 
 typedef std::map<uint32, ConditionList> ConditionReferenceContainer;//only used for references
 
@@ -157,7 +157,7 @@ class ConditionMgr
 
         bool IsPlayerMeetToConditions(Player* player, ConditionList const& conditions, Unit* invoker = NULL);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
-        ConditionList GetConditionsForSmartEvent(uint32 entry, uint32 eventId, uint32 sourceType);
+        ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID);
 
     private:

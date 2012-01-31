@@ -344,17 +344,17 @@ ConditionList ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureID, uint
     return cond;
 }
 
-ConditionList ConditionMgr::GetConditionsForSmartEvent(uint32 entry, uint32 eventId, uint32 sourceType)
+ConditionList ConditionMgr::GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType)
 {
     ConditionList cond;
-    SmartEventConditionContainer::const_iterator itr = SmartEventConditionStore.find(std::make_pair(entry, sourceType));
+    SmartEventConditionContainer::const_iterator itr = SmartEventConditionStore.find(std::make_pair(entryOrGuid, sourceType));
     if (itr != SmartEventConditionStore.end())
     {
         ConditionTypeContainer::const_iterator i = (*itr).second.find(eventId + 1);
         if (i != (*itr).second.end())
         {
             cond = (*i).second;
-            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForSmartEvent: found conditions for Smart Event entry %u event_id %u", entry, eventId);
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForSmartEvent: found conditions for Smart Event entry or guid %d event_id %u", entryOrGuid, eventId);
         }
     }
     return cond;
@@ -410,7 +410,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         Condition* cond = new Condition();
         int32 iSourceTypeOrReferenceId   = fields[0].GetInt32();
         cond->mSourceGroup               = fields[1].GetUInt32();
-        cond->mSourceEntry               = fields[2].GetUInt32();
+        cond->mSourceEntry               = fields[2].GetInt32();
         cond->mSourceId                  = fields[3].GetUInt32();
         cond->mElseGroup                 = fields[4].GetUInt32();
         int32 iConditionTypeOrReference  = fields[5].GetInt32();
@@ -553,7 +553,7 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_SMART_EVENT:
                 {
                     // If the entry does not exist, create a new list
-                    std::pair<uint32, uint32> key = std::make_pair(cond->mSourceEntry, cond->mSourceId);
+                    std::pair<int32, uint32> key = std::make_pair(cond->mSourceEntry, cond->mSourceId);
                     if (SmartEventConditionStore.find(key) == SmartEventConditionStore.end())
                     {
                         ConditionTypeContainer cmap;
