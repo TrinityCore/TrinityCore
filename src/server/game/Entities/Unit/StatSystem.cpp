@@ -189,7 +189,6 @@ void Player::ApplySpellPenetrationBonus(int32 amount, bool apply)
     m_spellPenetrationItemMod += apply ? amount : -amount;
 }
 
-
 void Player::UpdateResistances(uint32 school)
 {
     if (school > SPELL_SCHOOL_NORMAL)
