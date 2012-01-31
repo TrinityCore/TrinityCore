@@ -290,13 +290,14 @@ struct PvPInfo
 
 struct DuelInfo
 {
-    DuelInfo() : initiator(NULL), opponent(NULL), startTimer(0), startTime(0), outOfBound(0) {}
+    DuelInfo() : initiator(NULL), opponent(NULL), startTimer(0), startTime(0), outOfBound(0), isMounted(false) {}
 
     Player* initiator;
     Player* opponent;
     time_t startTimer;
     time_t startTime;
     time_t outOfBound;
+    bool isMounted;
 };
 
 struct Areas
@@ -702,7 +703,8 @@ enum TradeSlots
 {
     TRADE_SLOT_COUNT            = 7,
     TRADE_SLOT_TRADED_COUNT     = 6,
-    TRADE_SLOT_NONTRADED        = 6
+    TRADE_SLOT_NONTRADED        = 6,
+    TRADE_SLOT_INVALID          = -1,
 };
 
 enum TransferAbortReason
@@ -1013,7 +1015,8 @@ class TradeData
         TradeData* GetTraderData() const;
 
         Item* GetItem(TradeSlots slot) const;
-        bool HasItem(uint64 item_guid) const;
+        bool HasItem(uint64 itemGuid) const;
+        TradeSlots GetTradeSlotForItem(uint64 itemGuid) const;
         void SetItem(TradeSlots slot, Item* item);
 
         uint32 GetSpell() const { return m_spell; }
@@ -1333,6 +1336,7 @@ class Player : public Unit, public GridObject<Player>
         bool HasItemTotemCategory(uint32 TotemCategory) const;
         InventoryResult CanUseItem(ItemTemplate const* pItem) const;
         InventoryResult CanUseAmmo(uint32 item) const;
+        InventoryResult CanRollForItemInLFG(ItemTemplate const* item, WorldObject const* lootedObject) const;
         Item* StoreNewItem(ItemPosCountVec const& pos, uint32 item, bool update, int32 randomPropertyId = 0);
         Item* StoreNewItem(ItemPosCountVec const& pos, uint32 item, bool update, int32 randomPropertyId, AllowedLooterSet &allowedLooters);
         Item* StoreItem(ItemPosCountVec const& pos, Item* pItem, bool update);
@@ -2046,7 +2050,6 @@ class Player : public Unit, public GridObject<Player>
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
         void CreateCorpse();
-        bool FallGround(uint8 FallMode = 0);
         void KillPlayer();
         uint32 GetResurrectionSpellId();
         void ResurrectPlayer(float restore_percent, bool applySickness = false);

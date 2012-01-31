@@ -475,8 +475,14 @@ void Map::ScriptsProcess()
                 // Source or target must be Creature.
                 if (Creature* cSource = _GetScriptCreatureSourceOrTarget(source, target, step.script))
                 {
-                    cSource->SendMonsterMoveWithSpeed(step.script->MoveTo.DestX, step.script->MoveTo.DestY, step.script->MoveTo.DestZ, step.script->MoveTo.TravelTime);
-                    cSource->GetMap()->CreatureRelocation(cSource, step.script->MoveTo.DestX, step.script->MoveTo.DestY, step.script->MoveTo.DestZ, 0);
+                    Unit * unit = (Unit*)cSource;
+                    if (step.script->MoveTo.TravelTime != 0)
+                    {
+                        float speed = unit->GetDistance(step.script->MoveTo.DestX, step.script->MoveTo.DestY, step.script->MoveTo.DestZ) / ((float)step.script->MoveTo.TravelTime * 0.001f);
+                        unit->MonsterMoveWithSpeed(step.script->MoveTo.DestX, step.script->MoveTo.DestY, step.script->MoveTo.DestZ, speed);
+                    }
+                    else
+                        unit->NearTeleportTo(step.script->MoveTo.DestX, step.script->MoveTo.DestY, step.script->MoveTo.DestZ, unit->GetOrientation());
                 }
                 break;
 

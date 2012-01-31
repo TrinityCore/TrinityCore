@@ -19,7 +19,6 @@
 #include "MotionMaster.h"
 #include "CreatureAISelector.h"
 #include "Creature.h"
-#include "Traveller.h"
 
 #include "ConfusedMovementGenerator.h"
 #include "FleeingMovementGenerator.h"
@@ -29,7 +28,8 @@
 #include "TargetedMovementGenerator.h"
 #include "WaypointMovementGenerator.h"
 #include "RandomMovementGenerator.h"
-
+#include "MoveSpline.h"
+#include "MoveSplineInit.h"
 #include <cassert>
 
 inline bool isStatic(MovementGenerator *mv)
@@ -175,12 +175,11 @@ void MotionMaster::DelayedExpire()
         --i_top;
 }
 
-void MotionMaster::MoveIdle(MovementSlot slot)
+void MotionMaster::MoveIdle()
 {
-    //if (empty() || !isStatic(top()))
-    //    push(&si_idleMovement);
-    if (!isStatic(Impl[slot]))
-        Mutate(&si_idleMovement, slot);
+    //! Should be preceded by MovementExpired or Clear if there's an overlying movementgenerator active
+    if (empty() || !isStatic(top()))
+        Mutate(&si_idleMovement, MOTION_SLOT_IDLE);
 }
 
 void MotionMaster::MoveRandom(float spawndist)
@@ -194,15 +193,22 @@ void MotionMaster::MoveRandom(float spawndist)
 
 void MotionMaster::MoveTargetedHome()
 {
-    //if (i_owner->HasUnitState(UNIT_STAT_FLEEING))
-    //    return;
-
     Clear(false);
 
-    if (i_owner->GetTypeId() == TYPEID_UNIT)
+    if (i_owner->GetTypeId()==TYPEID_UNIT && !((Creature*)i_owner)->GetCharmerOrOwnerGUID())
     {
         sLog->outStaticDebug("Creature (Entry: %u GUID: %u) targeted home", i_owner->GetEntry(), i_owner->GetGUIDLow());
         Mutate(new HomeMovementGenerator<Creature>(), MOTION_SLOT_ACTIVE);
+    }
+    else if (i_owner->GetTypeId()==TYPEID_UNIT && ((Creature*)i_owner)->GetCharmerOrOwnerGUID())
+    {
+        sLog->outStaticDebug("Pet or controlled creature (Entry: %u GUID: %u) targeting home", i_owner->GetEntry(), i_owner->GetGUIDLow() );
+        Unit *target = ((Creature*)i_owner)->GetCharmerOrOwner();
+        if (target)
+        {
+            sLog->outStaticDebug("Following %s (GUID: %u)", target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature", target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : ((Creature*)target)->GetDBTableGUIDLow() );
+            Mutate(new FollowMovementGenerator<Creature>(*target,PET_FOLLOW_DIST,PET_FOLLOW_ANGLE), MOTION_SLOT_ACTIVE);
+        }
     }
     else
     {
@@ -231,14 +237,14 @@ void MotionMaster::MoveChase(Unit* target, float dist, float angle)
     if (!target || target == i_owner || i_owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
         return;
 
-    i_owner->ClearUnitState(UNIT_STAT_FOLLOW);
+    //i_owner->ClearUnitState(UNIT_STAT_FOLLOW);
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
     {
         sLog->outStaticDebug("Player (GUID: %u) chase to %s (GUID: %u)",
             i_owner->GetGUIDLow(),
             target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
             target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
-        Mutate(new TargetedMovementGenerator<Player>(*target, dist, angle), MOTION_SLOT_ACTIVE);
+        Mutate(new ChaseMovementGenerator<Player>(*target,dist,angle), MOTION_SLOT_ACTIVE);
     }
     else
     {
@@ -246,7 +252,7 @@ void MotionMaster::MoveChase(Unit* target, float dist, float angle)
             i_owner->GetEntry(), i_owner->GetGUIDLow(),
             target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
             target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
-        Mutate(new TargetedMovementGenerator<Creature>(*target, dist, angle), MOTION_SLOT_ACTIVE);
+        Mutate(new ChaseMovementGenerator<Creature>(*target,dist,angle), MOTION_SLOT_ACTIVE);
     }
 }
 
@@ -256,13 +262,13 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
     if (!target || target == i_owner || i_owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
         return;
 
-    i_owner->AddUnitState(UNIT_STAT_FOLLOW);
+    //i_owner->AddUnitState(UNIT_STAT_FOLLOW);
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
     {
         sLog->outStaticDebug("Player (GUID: %u) follow to %s (GUID: %u)", i_owner->GetGUIDLow(),
             target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
             target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
-        Mutate(new TargetedMovementGenerator<Player>(*target, dist, angle), slot);
+        Mutate(new FollowMovementGenerator<Player>(*target,dist,angle), slot);
     }
     else
     {
@@ -270,7 +276,7 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
             i_owner->GetEntry(), i_owner->GetGUIDLow(),
             target->GetTypeId() == TYPEID_PLAYER ? "player" : "creature",
             target->GetTypeId() == TYPEID_PLAYER ? target->GetGUIDLow() : target->ToCreature()->GetDBTableGUIDLow());
-        Mutate(new TargetedMovementGenerator<Creature>(*target, dist, angle), slot);
+        Mutate(new FollowMovementGenerator<Creature>(*target,dist,angle), slot);
     }
 }
 
@@ -291,54 +297,32 @@ void MotionMaster::MovePoint(uint32 id, float x, float y, float z)
 
 void MotionMaster::MoveLand(uint32 id, Position const& pos, float speed)
 {
-    if (i_owner->GetTypeId() != TYPEID_UNIT)
-        return;
-
-    uint32 moveFlag = SPLINEFLAG_FLYING | SPLINEFLAG_ANIMATIONTIER;
-    uint32 moveTime = uint32(i_owner->GetExactDist(&pos) / speed) * IN_MILLISECONDS;
-
-    // CHARGING state makes the unit use m_TempSpeed and JUMPING prevents sending movement packet in PointMovementGenerator
-    i_owner->AddUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
-    i_owner->m_TempSpeed = speed;
-
     float x, y, z;
     pos.GetPosition(x, y, z);
+
     sLog->outStaticDebug("Creature (Entry: %u) landing point (ID: %u X: %f Y: %f Z: %f)", i_owner->GetEntry(), id, x, y, z);
-    Mutate(new PointMovementGenerator<Creature>(id, x, y, z), MOTION_SLOT_ACTIVE);
 
-    MonsterMoveData data;
-    data.DestLocation.Relocate(pos);
-    data.SplineFlag = moveFlag;
-    data.Time = moveTime;
-    data.AnimationState = ANIMATION_ON_GROUND;
-
-    i_owner->SendMonsterMove(data);
+    Movement::MoveSplineInit init(*i_owner);
+    init.MoveTo(x,y,z);
+    init.SetVelocity(speed);
+    init.SetAnimation(Movement::ToGround);
+    init.Launch();
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveTakeoff(uint32 id, Position const& pos, float speed)
 {
-    if (i_owner->GetTypeId() != TYPEID_UNIT)
-        return;
-
-    uint32 moveFlag = SPLINEFLAG_FLYING | SPLINEFLAG_ANIMATIONTIER;
-    uint32 moveTime = uint32(i_owner->GetExactDist(&pos) / speed) * IN_MILLISECONDS;
-
-    // CHARGING state makes the unit use m_TempSpeed and JUMPING prevents sending movement packet in PointMovementGenerator
-    i_owner->AddUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
-    i_owner->m_TempSpeed = speed;
-
     float x, y, z;
     pos.GetPosition(x, y, z);
+
     sLog->outStaticDebug("Creature (Entry: %u) landing point (ID: %u X: %f Y: %f Z: %f)", i_owner->GetEntry(), id, x, y, z);
-    Mutate(new PointMovementGenerator<Creature>(id, x, y, z), MOTION_SLOT_ACTIVE);
 
-    MonsterMoveData data;
-    data.DestLocation.Relocate(pos);
-    data.SplineFlag = moveFlag;
-    data.Time = moveTime;
-    data.AnimationState = ANIMATION_FLYING;
-
-    i_owner->SendMonsterMove(data);
+    Movement::MoveSplineInit init(*i_owner);
+    init.MoveTo(x,y,z);
+    init.SetVelocity(speed);
+    init.SetAnimation(Movement::ToFly);
+    init.Launch();
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
 }
 
 void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, float speedZ)
@@ -348,7 +332,9 @@ void MotionMaster::MoveKnockbackFrom(float srcX, float srcY, float speedXY, floa
         return;
 
     float x, y, z;
-    float dist = speedXY * speedZ * 0.1f;
+    float moveTimeHalf = speedZ / Movement::gravity;
+    float dist = 2 * moveTimeHalf * speedXY;
+
     i_owner->GetNearPoint(i_owner, x, y, z, i_owner->GetObjectSize(), dist, i_owner->GetAngle(srcX, srcY) + M_PI);
     MoveJump(x, y, z, speedXY, speedZ);
 }
@@ -360,35 +346,51 @@ void MotionMaster::MoveJumpTo(float angle, float speedXY, float speedZ)
         return;
 
     float x, y, z;
-    float dist = speedXY * speedZ * 0.1f;
+
+    float moveTimeHalf = speedZ / Movement::gravity;
+    float dist = 2 * moveTimeHalf * speedXY;
     i_owner->GetClosePoint(x, y, z, i_owner->GetObjectSize(), dist, angle);
     MoveJump(x, y, z, speedXY, speedZ);
 }
 
-void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ)
+void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float speedZ, uint32 id)
 {
-    uint32 moveFlag = SPLINEFLAG_TRAJECTORY | SPLINEFLAG_WALKING;
-    uint32 time = uint32(speedZ * 100);
+    sLog->outStaticDebug("Unit (GUID: %u) jump to point (X: %f Y: %f Z: %f)", i_owner->GetGUIDLow(), x, y, z);
 
-    // Instantly interrupt non melee spells being casted
-    if (i_owner->IsNonMeleeSpellCasted(true))
-        i_owner->InterruptNonMeleeSpells(true);
+    float moveTimeHalf = speedZ / Movement::gravity;
+    float max_height = -Movement::computeFallElevation(moveTimeHalf,false,-speedZ);
 
-    i_owner->AddUnitState(UNIT_STAT_CHARGING | UNIT_STAT_JUMPING);
-    i_owner->m_TempSpeed = speedXY;
+    Movement::MoveSplineInit init(*i_owner);
+    init.MoveTo(x,y,z);
+    init.SetParabolic(max_height,0);
+    init.SetVelocity(speedXY);
+    init.Launch();
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
-    {
-        sLog->outStaticDebug("Player (GUID: %u) jump to point (X: %f Y: %f Z: %f)", i_owner->GetGUIDLow(), x, y, z);
-        Mutate(new PointMovementGenerator<Player>(0, x, y, z), MOTION_SLOT_CONTROLLED);
-    }
+        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
     else
+        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
+}
+
+void MotionMaster::MoveFall(uint32 id/*=0*/)
+{
+    // use larger distance for vmap height search than in most other cases
+    float tz = i_owner->GetMap()->GetHeight(i_owner->GetPositionX(), i_owner->GetPositionY(), i_owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
+    if (tz <= INVALID_HEIGHT)
     {
-        sLog->outStaticDebug("Creature (Entry: %u GUID: %u) jump to point (X: %f Y: %f Z: %f)",
-            i_owner->GetEntry(), i_owner->GetGUIDLow(), x, y, z);
-        Mutate(new PointMovementGenerator<Creature>(0, x, y, z), MOTION_SLOT_CONTROLLED);
+        sLog->outStaticDebug("MotionMaster::MoveFall: unable retrive a proper height at map %u (x: %f, y: %f, z: %f).",
+            i_owner->GetMap()->GetId(), i_owner->GetPositionX(), i_owner->GetPositionX(), i_owner->GetPositionZ());
+        return;
     }
 
-    i_owner->SendMonsterMove(x, y, z, moveFlag, time, speedZ);
+    // Abort too if the ground is very near
+    if (fabs(i_owner->GetPositionZ() - tz) < 0.1f)
+        return;
+
+    Movement::MoveSplineInit init(*i_owner);
+    init.MoveTo(i_owner->GetPositionX(),i_owner->GetPositionY(),tz);
+    init.SetFall();
+    init.Launch();
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id)
@@ -396,27 +398,17 @@ void MotionMaster::MoveCharge(float x, float y, float z, float speed, uint32 id)
     if (Impl[MOTION_SLOT_CONTROLLED] && Impl[MOTION_SLOT_CONTROLLED]->GetMovementGeneratorType() != DISTRACT_MOTION_TYPE)
         return;
 
-    i_owner->AddUnitState(UNIT_STAT_CHARGING);
-    i_owner->m_TempSpeed = speed;
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
     {
         sLog->outStaticDebug("Player (GUID: %u) charge point (X: %f Y: %f Z: %f)", i_owner->GetGUIDLow(), x, y, z);
-        Mutate(new PointMovementGenerator<Player>(id, x, y, z), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Player>(id, x, y, z, speed), MOTION_SLOT_CONTROLLED);
     }
     else
     {
         sLog->outStaticDebug("Creature (Entry: %u GUID: %u) charge point (X: %f Y: %f Z: %f)",
             i_owner->GetEntry(), i_owner->GetGUIDLow(), x, y, z);
-        Mutate(new PointMovementGenerator<Creature>(id, x, y, z), MOTION_SLOT_CONTROLLED);
+        Mutate(new PointMovementGenerator<Creature>(id, x, y, z, speed), MOTION_SLOT_CONTROLLED);
     }
-}
-
-void MotionMaster::MoveFall(float z, uint32 id)
-{
-    i_owner->SetFlying(false);
-    i_owner->SendMovementFlagUpdate();
-    //AddUnitMovementFlag(MOVEMENTFLAG_FALLING);
-    MoveCharge(i_owner->GetPositionX(), i_owner->GetPositionY(), z, SPEED_CHARGE, id);
 }
 
 void MotionMaster::MoveSeekAssistance(float x, float y, float z)
@@ -562,7 +554,7 @@ void MotionMaster::MovePath(uint32 path_id, bool repeatable)
 
     //i_owner->GetTypeId() == TYPEID_PLAYER ?
         //Mutate(new WaypointMovementGenerator<Player>(path_id, repeatable)):
-        Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
+    Mutate(new WaypointMovementGenerator<Creature>(path_id, repeatable), MOTION_SLOT_IDLE);
 
     sLog->outStaticDebug("%s (GUID: %u) start moving over path(Id:%u, repeatable: %s)",
         i_owner->GetTypeId() == TYPEID_PLAYER ? "Player" : "Creature",
@@ -633,8 +625,12 @@ void MotionMaster::DelayedDelete(_Ty curr)
 
 bool MotionMaster::GetDestination(float &x, float &y, float &z)
 {
-    if (empty())
+    if (i_owner->movespline->Finalized())
        return false;
 
-    return top()->GetDestination(x, y, z);
+    const G3D::Vector3& dest = i_owner->movespline->FinalDestination();
+    x = dest.x;
+    y = dest.y;
+    z = dest.z;
+    return true;
 }

@@ -45,6 +45,7 @@
 #include "TemporarySummon.h"
 #include "Totem.h"
 #include "OutdoorPvPMgr.h"
+#include "MovementPacketBuilder.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -309,65 +310,9 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         *data << self->GetSpeed(MOVE_TURN_RATE);
         *data << self->GetSpeed(MOVE_PITCH_RATE);
 
-        Player const* player = ToPlayer();
-
         // 0x08000000
-        if (player && player->isInFlight())
-        {
-            uint32 flags3 = SPLINEFLAG_GLIDE;
-
-            *data << uint32(flags3);                        // splines flag
-
-            if (flags3 & 0x00004000)                        // FinalOrientation
-            {
-                *data << (float)0;
-            }
-            else if (flags3 & 0x00001000)                   // FinalOrientation
-            {
-                *data << (float)0;
-                *data << (float)0;
-                *data << (float)0;
-            }
-            else if (flags3 & 0x00002000)                    // FinalTarget
-            {
-                *data << uint64(0);
-            }
-
-            FlightPathMovementGenerator *fmg = (FlightPathMovementGenerator*)(player->GetMotionMaster()->top());
-            TaxiPathNodeList const& path = fmg->GetPath();
-
-            float x, y, z;
-            player->GetPosition(x, y, z);
-
-            uint32 inflighttime = uint32(path.GetPassedLength(fmg->GetCurrentNode(), x, y, z) * 32);
-            uint32 traveltime = uint32(path.GetTotalLength() * 32);
-
-            *data << uint32(inflighttime);                  // passed move time?
-            *data << uint32(traveltime);                    // full move time?
-            *data << uint32(0);                             // ticks count?
-
-            *data << float(0);                              // added in 3.1
-            *data << float(0);                              // added in 3.1
-            *data << float(0);                              // added in 3.1
-
-            *data << uint32(0);                             // added in 3.1
-
-            uint32 poscount = uint32(path.size());
-            *data << uint32(poscount);                      // points count
-
-            for (uint32 i = 0; i < poscount; ++i)
-            {
-                *data << float(path[i].x);
-                *data << float(path[i].y);
-                *data << float(path[i].z);
-            }
-
-            *data << uint8(0);                              // added in 3.0.8
-
-            *data << float(path[poscount-1].x);
-            *data << float(path[poscount-1].y);
-            *data << float(path[poscount-1].z);
-        }
+        if (self->m_movementInfo.HasMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED))
+            Movement::PacketBuilder::WriteCreate(*self->movespline, *data);
     }
     else
     {
@@ -1549,6 +1494,70 @@ void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
         z = new_z+ 0.05f;                                   // just to be sure that we are not a few pixel under the surface
 }
 
+void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
+{
+    switch (GetTypeId())
+    {
+        case TYPEID_UNIT:
+        {
+            // non fly unit don't must be in air
+            // non swim unit must be at ground (mostly speedup, because it don't must be in water and water level check less fast
+            if (!((Creature const*)this)->canFly())
+            {
+                bool canSwim = ((Creature const*)this)->canSwim();
+                float ground_z = z;
+                float max_z = canSwim
+                    ? GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !((Unit const*)this)->HasAuraType(SPELL_AURA_WATER_WALK))
+                    : ((ground_z = GetBaseMap()->GetHeight(x, y, z, true)));
+                if (max_z > INVALID_HEIGHT)
+                {
+                    if (z > max_z)
+                        z = max_z;
+                    else if (z < ground_z)
+                        z = ground_z;
+                }
+            }
+            else
+            {
+                float ground_z = GetBaseMap()->GetHeight(x, y, z, true);
+                if (z < ground_z)
+                    z = ground_z;
+            }
+            break;
+        }
+        case TYPEID_PLAYER:
+        {
+            // for server controlled moves playr work same as creature (but it can always swim)
+            if (!((Player const*)this)->canFly())
+            {
+                float ground_z = z;
+                float max_z = GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !((Unit const*)this)->HasAuraType(SPELL_AURA_WATER_WALK));
+                if (max_z > INVALID_HEIGHT)
+                {
+                    if (z > max_z)
+                        z = max_z;
+                    else if (z < ground_z)
+                        z = ground_z;
+                }
+            }
+            else
+            {
+                float ground_z = GetBaseMap()->GetHeight(x, y, z, true);
+                if (z < ground_z)
+                    z = ground_z;
+            }
+            break;
+        }
+        default:
+        {
+            float ground_z = GetBaseMap()->GetHeight(x, y, z, true);
+            if(ground_z > INVALID_HEIGHT)
+                z = ground_z;
+            break;
+        }
+    }
+}
+
 bool Position::IsPositionValid() const
 {
     return Trinity::IsValidMapCoord(m_positionX, m_positionY, m_positionZ, m_orientation);
@@ -1987,7 +1996,8 @@ void Unit::BuildHeartBeatMsg(WorldPacket* data) const
 
 void WorldObject::SendMessageToSet(WorldPacket* data, bool self)
 {
-    SendMessageToSetInRange(data, GetVisibilityRange(), self);
+    if (IsInWorld())
+        SendMessageToSetInRange(data, GetVisibilityRange(), self);
 }
 
 void WorldObject::SendMessageToSetInRange(WorldPacket* data, float dist, bool /*self*/)
@@ -2475,7 +2485,7 @@ void WorldObject::GetNearPoint(WorldObject const* /*searcher*/, float &x, float 
 {
     GetNearPoint2D(x, y, distance2d+searcher_size, absAngle);
     z = GetPositionZ();
-    UpdateGroundPositionZ(x, y, z);
+    UpdateAllowedPositionZ(x, y, z);
 
     /*
     // if detection disabled, return first point

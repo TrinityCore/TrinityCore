@@ -287,6 +287,9 @@ class LFGMgr
 
         void InitializeLockedDungeons(Player* player);
 
+        void _LoadFromDB(Field* fields, uint64 guid);
+        void _SaveToDB(uint64 guid, uint32 db_guid);
+
         void SetComment(uint64 guid, const std::string& comment);
         const LfgLockMap& GetLockedDungeons(uint64 guid);
         LfgState GetState(uint64 guid);
@@ -298,7 +301,9 @@ class LFGMgr
         void RemoveGroupData(uint64 guid);
         uint8 GetKicksLeft(uint64 gguid);
         uint8 GetVotesNeeded(uint64 gguid);
+        bool IsTeleported(uint64 pguid);
         void SetRoles(uint64 guid, uint8 roles);
+        void SetSelectedDungeons(uint64 guid, const LfgDungeonSet& dungeons);
 
     private:
 
@@ -306,10 +311,8 @@ class LFGMgr
         const std::string& GetComment(uint64 gguid);
         void RestoreState(uint64 guid);
         void SetDungeon(uint64 guid, uint32 dungeon);
-        void SetSelectedDungeons(uint64 guid, const LfgDungeonSet& dungeons);
         void SetLockedDungeons(uint64 guid, const LfgLockMap& lock);
         void DecreaseKicksLeft(uint64 guid);
-        void NoExiste(uint8 lala);
 
         // Queue
         void AddToQueue(uint64 guid, uint8 queueId);
@@ -352,6 +355,7 @@ class LFGMgr
         LfgGuidListMap m_currentQueue;                     ///< Ordered list. Used to find groups
         LfgGuidListMap m_newToQueue;                       ///< New groups to add to queue
         LfgCompatibleMap m_CompatibleMap;                  ///< Compatible dungeons
+        LfgGuidList m_teleport;                            ///< Players being teleported
         // Rolecheck - Proposal - Vote Kicks
         LfgRoleCheckMap m_RoleChecks;                      ///< Current Role checks
         LfgProposalMap m_Proposals;                        ///< Current Proposals

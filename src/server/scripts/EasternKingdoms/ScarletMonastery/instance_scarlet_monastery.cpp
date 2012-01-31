@@ -26,10 +26,13 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "scarlet_monastery.h"
 
-#define ENTRY_PUMPKIN_SHRINE    186267
-#define ENTRY_HORSEMAN          23682
-#define ENTRY_HEAD              23775
-#define ENTRY_PUMPKIN           23694
+enum Entry
+{
+    ENTRY_PUMPKIN_SHRINE    = 186267,
+    ENTRY_HORSEMAN          = 23682,
+    ENTRY_HEAD              = 23775,
+    ENTRY_PUMPKIN           = 23694
+};
 
 #define MAX_ENCOUNTER 2
 
@@ -57,11 +60,11 @@ public:
         uint64 VorrelGUID;
         uint64 DoorHighInquisitorGUID;
 
-        uint32 m_auiEncounter[MAX_ENCOUNTER];
+        uint32 encounter[MAX_ENCOUNTER];
 
         void Initialize()
         {
-            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+            memset(&encounter, 0, sizeof(encounter));
 
             PumpkinShrineGUID  = 0;
             HorsemanGUID = 0;
@@ -106,13 +109,13 @@ public:
                 if (data == FAIL)
                     DoUseDoorOrButton(DoorHighInquisitorGUID);
 
-                m_auiEncounter[0] = data;
+                encounter[0] = data;
                 break;
             case GAMEOBJECT_PUMPKIN_SHRINE:
                 HandleGameObject(PumpkinShrineGUID, false);
                 break;
             case DATA_HORSEMAN_EVENT:
-                m_auiEncounter[1] = data;
+                encounter[1] = data;
                 if (data == DONE)
                 {
                     for (std::set<uint64>::const_iterator itr = HorsemanAdds.begin(); itr != HorsemanAdds.end(); ++itr)
@@ -146,13 +149,12 @@ public:
         uint32 GetData(uint32 type)
         {
             if (type == TYPE_MOGRAINE_AND_WHITE_EVENT)
-                return m_auiEncounter[0];
+                return encounter[0];
             if (type == DATA_HORSEMAN_EVENT)
-                return m_auiEncounter[1];
+                return encounter[1];
             return 0;
         }
     };
-
 };
 
 void AddSC_instance_scarlet_monastery()

@@ -115,38 +115,6 @@ public:
 };
 
 /*######
-## npc_dame_evniki_kapsalis
-######*/
-
-enum eDameEnvikiKapsalis
-{
-    TITLE_CRUSADER    = 123
-};
-
-class npc_dame_evniki_kapsalis : public CreatureScript
-{
-public:
-    npc_dame_evniki_kapsalis() : CreatureScript("npc_dame_evniki_kapsalis") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->HasTitle(TITLE_CRUSADER))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (uiAction == GOSSIP_ACTION_TRADE)
-            player->GetSession()->SendListInventory(creature->GetGUID());
-        return true;
-    }
-};
-
-/*######
 ## npc_squire_david
 ######*/
 
@@ -276,65 +244,6 @@ public:
 };
 
 /*######
-## npc_alorah_and_grimmin
-######*/
-
-enum ealorah_and_grimmin
-{
-    SPELL_CHAIN                     = 68341,
-    NPC_FJOLA_LIGHTBANE             = 36065,
-    NPC_EYDIS_DARKBANE              = 36066,
-    NPC_PRIESTESS_ALORAH            = 36101,
-    NPC_PRIEST_GRIMMIN              = 36102
-};
-
-class npc_alorah_and_grimmin : public CreatureScript
-{
-public:
-    npc_alorah_and_grimmin() : CreatureScript("npc_alorah_and_grimmin") { }
-
-    struct npc_alorah_and_grimminAI : public ScriptedAI
-    {
-        npc_alorah_and_grimminAI(Creature* creature) : ScriptedAI(creature) {}
-
-        bool uiCast;
-
-        void Reset()
-        {
-            uiCast = false;
-        }
-
-        void UpdateAI(const uint32 /*uiDiff*/)
-        {
-            if (uiCast)
-                return;
-            uiCast = true;
-            Creature* target = NULL;
-
-            switch (me->GetEntry())
-            {
-                case NPC_PRIESTESS_ALORAH:
-                    target = me->FindNearestCreature(NPC_EYDIS_DARKBANE, 10.0f);
-                    break;
-                case NPC_PRIEST_GRIMMIN:
-                    target = me->FindNearestCreature(NPC_FJOLA_LIGHTBANE, 10.0f);
-                    break;
-            }
-            if (target)
-                DoCast(target, SPELL_CHAIN);
-
-            if (!UpdateVictim())
-                return;
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_alorah_and_grimminAI(creature);
-    }
-};
-
-/*######
 ## npc_guardian_pavilion
 ######*/
 
@@ -429,10 +338,8 @@ public:
 void AddSC_icecrown()
 {
     new npc_arete;
-    new npc_dame_evniki_kapsalis;
     new npc_squire_david;
     new npc_argent_valiant;
-    new npc_alorah_and_grimmin;
     new npc_guardian_pavilion;
     new npc_vereth_the_cunning;
 }

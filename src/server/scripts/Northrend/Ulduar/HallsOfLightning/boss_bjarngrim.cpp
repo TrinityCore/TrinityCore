@@ -61,7 +61,7 @@ enum eEnums
 
     //OTHER SPELLS
     //SPELL_CHARGE_UP                         = 52098,      // only used when starting walk from one platform to the other
-    //SPELL_TEMPORARY_ELECTRICAL_CHARGE       = 52092,      // triggered part of above
+    SPELL_TEMPORARY_ELECTRICAL_CHARGE       = 52092,      // triggered part of above
 
     NPC_STORMFORGED_LIEUTENANT              = 29240,
     SPELL_ARC_WELD                          = 59085,
@@ -98,11 +98,13 @@ public:
             m_instance = creature->GetInstanceScript();
             m_uiStance = STANCE_DEFENSIVE;
             memset(&m_auiStormforgedLieutenantGUID, 0, sizeof(m_auiStormforgedLieutenantGUID));
+            canBuff = true;
         }
 
         InstanceScript* m_instance;
 
         bool m_bIsChangingStance;
+        bool canBuff;
 
         uint8 m_uiChargingStatus;
         uint8 m_uiStance;
@@ -126,6 +128,10 @@ public:
 
         void Reset()
         {
+            if (canBuff)
+                if (!me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
+                    me->AddAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE, me);
+
             m_bIsChangingStance = false;
 
             m_uiChargingStatus = 0;
@@ -165,6 +171,16 @@ public:
 
             if (m_instance)
                 m_instance->SetData(TYPE_BJARNGRIM, NOT_STARTED);
+        }
+
+        void EnterEvadeMode()
+        {
+            if (me->HasAura(SPELL_TEMPORARY_ELECTRICAL_CHARGE))
+                canBuff = true;
+            else
+                canBuff = false;
+
+            ScriptedAI::EnterEvadeMode();
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -211,7 +227,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             //Return since we have no target
-         if (!UpdateVictim())
+            if (!UpdateVictim())
                 return;
 
             // Change stance
