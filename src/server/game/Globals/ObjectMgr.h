@@ -586,6 +586,15 @@ struct DungeonEncounter
 typedef std::list<DungeonEncounter const*> DungeonEncounterList;
 typedef UNORDERED_MAP<uint32, DungeonEncounterList> DungeonEncounterMap;
 
+struct HotfixInfo
+{
+    uint32 Type;
+    uint32 Unk;
+    uint32 Entry;
+};
+
+typedef std::vector<HotfixInfo> HotfixData;
+
 class PlayerDumpReader;
 
 class ObjectMgr
@@ -1196,6 +1205,9 @@ class ObjectMgr
         void LoadFactionChangeSpells();
         void LoadFactionChangeReputations();
 
+        void LoadHotfixData();
+        HotfixData const& GetHotfixData() const { return _hotfixData; }
+
     private:
         // first free id for selected id type
         uint32 m_auctionid;
@@ -1348,6 +1360,8 @@ class ObjectMgr
             GO_TO_GO,
             GO_TO_CREATURE,         // GO is dependant on creature
         };
+
+        HotfixData _hotfixData;
 
 };
 
