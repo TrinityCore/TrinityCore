@@ -2314,14 +2314,9 @@ bool Player::TeleportToBGEntryPoint()
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
         return false;
 
-    Group* group = GetGroup();
-    if (group && group->isLFGGroup() && group->GetMembersCount() == 1)
-        group->Disband();
-    else
-        ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
+    ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
     return TeleportTo(m_bgData.joinPos);
 }
 
