@@ -971,6 +971,17 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     data << uint32(0);
     SendPacket(&data);
 
+    data.Initialize(SMSG_HOTFIX_INFO);
+    HotfixData const& hotfix = sObjectMgr->GetHotfixData();
+    data << uint32(hotfix.size());
+    for (uint32 i = 0; i < hotfix.size(); ++i)
+    {
+        data << uint32(hotfix[i].Type);
+        data << uint32(hotfix[i].Unk);
+        data << uint32(hotfix[i].Entry);
+    }
+    SendPacket(&data);
+
     pCurrChar->SendInitialPacketsBeforeAddToMap();
 
     //Show cinematic at the first time that player login

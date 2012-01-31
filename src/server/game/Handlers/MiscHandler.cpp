@@ -1748,3 +1748,48 @@ void WorldSession::HandleInstanceLockResponse(WorldPacket& recvPacket)
 
     _player->SetPendingBind(0, 0);
 }
+
+void WorldSession::HandleRequestHotfix(WorldPacket& recvPacket)
+{
+    uint32 type, count;
+    recvPacket >> type >> count;
+
+    ByteBuffer* guidBytes = new ByteBuffer[count];
+    BitStream* mask = new BitStream[count];
+    for (uint32 i = 0; i < count; ++i)
+    {
+        mask[i] = recvPacket.ReadBitStream(8);
+        guidBytes[i].resize(8); // damn c++ not allowing to use non-default constructor with new[]
+    }
+
+    uint32 entry;
+    uint64 guid;
+    for (uint32 i = 0; i < count; ++i)
+    {
+        recvPacket >> entry;
+        recvPacket.ReadXorByte(mask[i][7], guidBytes[i][2]);
+        recvPacket.ReadXorByte(mask[i][4], guidBytes[i][6]);
+        recvPacket.ReadXorByte(mask[i][1], guidBytes[i][3]);
+        recvPacket.ReadXorByte(mask[i][2], guidBytes[i][0]);
+        recvPacket.ReadXorByte(mask[i][3], guidBytes[i][5]);
+        recvPacket.ReadXorByte(mask[i][0], guidBytes[i][7]);
+        recvPacket.ReadXorByte(mask[i][6], guidBytes[i][1]);
+        recvPacket.ReadXorByte(mask[i][5], guidBytes[i][4]);
+        guid = BitConverter::ToUInt64(guidBytes[i]);
+
+        switch (type)
+        {
+            case DB2_REPLY_ITEM:
+                SendItemDb2Reply(entry);
+                break;
+            case DB2_REPLY_SPARSE:
+                SendItemSparseDb2Reply(entry);
+                break;
+            default:
+                break;
+        }
+    }
+
+    delete[] guidBytes;
+    delete[] mask;
+}

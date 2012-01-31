@@ -198,10 +198,10 @@ class ByteBuffer
         {
             return ReadUInt8() ^ 1;
         }
-        
+
         void ReadXorByte(uint32 bit, uint8& byte)
         {
-            if (!bit) 
+            if (!bit)
                 byte = 0;
             else
                 byte = ReadUInt8() ^ bit;

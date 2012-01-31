@@ -277,157 +277,165 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
         _player->DestroyItem(bag, slot, true);
 }
 
-// Only _static_ data send in this packet !!!
-void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
+void WorldSession::SendItemDb2Reply(uint32 entry)
 {
-    uint32 count, type;
-    recv_data >> count >> type;
-
-    if (type != DB2_REPLY_SPARSE && type != DB2_REPLY_ITEM)
-        return;
-
-    for (uint32 i = 0; i < count; ++i)
+    WorldPacket data(SMSG_DB_REPLY, 44);
+    data << uint32(DB2_REPLY_ITEM);
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(entry);
+    if (!proto)
     {
-        uint32 item;
-        recv_data >> item;
-        recv_data.read_skip<uint64>();
-        WorldPacket data2(SMSG_DB_REPLY, 700);
-        ByteBuffer data;
-        data2 << uint32(type);
-        data2 << uint32(item);
-
-        ItemTemplate const* proto = sObjectMgr->GetItemTemplate(item);
-        if (proto)
-        {
-            data << uint32(item);
-            if (type == DB2_REPLY_ITEM)
-            {
-                data << uint32(proto->Class);
-                data << uint32(proto->SubClass);
-                data << int32(proto->Unk0);
-                data << uint32(proto->Material);
-                data << uint32(proto->DisplayInfoID);
-                data << uint32(proto->InventoryType);
-                data << uint32(proto->Sheath);
-            }
-            else if (type == DB2_REPLY_SPARSE)
-            {
-                data << uint32(proto->Quality);
-                data << uint32(proto->Flags);
-                data << uint32(proto->Flags2);
-                data << int32(proto->BuyPrice);
-                data << uint32(proto->SellPrice);
-                data << uint32(proto->InventoryType);
-                data << int32(proto->AllowableClass);
-                data << int32(proto->AllowableRace);
-                data << uint32(proto->ItemLevel);
-                data << uint32(proto->RequiredLevel);
-                data << uint32(proto->RequiredSkill);
-                data << uint32(proto->RequiredSkillRank);
-                data << uint32(proto->RequiredSpell);
-                data << uint32(proto->RequiredHonorRank);
-                data << uint32(proto->RequiredCityRank);
-                data << uint32(proto->RequiredReputationFaction);
-                data << uint32(proto->RequiredReputationRank);
-                data << int32(proto->MaxCount);
-                data << int32(proto->Stackable);
-                data << uint32(proto->ContainerSlots);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-                    data << uint32(proto->ItemStat[x].ItemStatType);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-                    data << int32(proto->ItemStat[x].ItemStatValue);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-                    data << int32(proto->ItemStat[x].ItemStatUnk1);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
-                    data << int32(proto->ItemStat[x].ItemStatUnk2);
-
-                data << uint32(proto->ScalingStatDistribution);
-                data << uint32(proto->DamageType);
-                data << uint32(proto->Delay);
-                data << float(proto->RangedModRange);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                    data << int32(proto->Spells[x].SpellId);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                    data << uint32(proto->Spells[x].SpellTrigger);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                    data << int32(proto->Spells[x].SpellCharges);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                    data << int32(proto->Spells[x].SpellCooldown);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                    data << uint32(proto->Spells[x].SpellCategory);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
-                    data << int32(proto->Spells[x].SpellCategoryCooldown);
-
-                data << uint32(proto->Bonding);
-
-                // item name
-                std::string name = proto->Name1;
-                data << uint16(name.length() + 1);
-                data << name;
-
-                for (uint32 i = 0; i < 3; ++i) // other 3 names
-                    data << uint16(0);
-
-                std::string desc = proto->Description;
-                data << uint16(desc.length() + 1);
-                data << desc;
-
-                data << uint32(proto->PageText);
-                data << uint32(proto->LanguageID);
-                data << uint32(proto->PageMaterial);
-                data << uint32(proto->StartQuest);
-                data << uint32(proto->LockID);
-                data << int32(proto->Material);
-                data << uint32(proto->Sheath);
-                data << int32(proto->RandomProperty);
-                data << int32(proto->RandomSuffix);
-                data << uint32(proto->ItemSet);
-                data << uint32(proto->MaxDurability);
-
-                data << uint32(proto->Area);
-                data << uint32(proto->Map);
-                data << uint32(proto->BagFamily);
-                data << uint32(proto->TotemCategory);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
-                    data << uint32(proto->Socket[x].Color);
-
-                for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
-                    data << uint32(proto->Socket[x].Content);
-
-                data << uint32(proto->socketBonus);
-                data << uint32(proto->GemProperties);
-                data << float(proto->ArmorDamageModifier);
-                data << int32(proto->Duration);
-                data << uint32(proto->ItemLimitCategory);
-                data << uint32(proto->HolidayId);
-                data << float(proto->StatScalingFactor);    // StatScalingFactor
-                data << uint32(proto->Field130);            // archaeology unk
-                data << uint32(proto->Field131);            // archaeology findinds count
-            }
-            else
-            {
-                data << uint32(item | 0x80000000); // sometimes with | 0x80000000
-                data << uint32(0);
-            }
-
-            data2 << uint32(data.size());
-            data2.append(data);
-        }
-
-        data2 << uint32(type);
-        _player->GetSession()->SendPacket(&data2);
+        data << uint32(-1);         // entry
+        data << uint32(1322512289); // some kind of flags
+        data << uint32(0);          // size of next block
+        return;
     }
+
+    data << uint32(entry);
+    data << uint32(1322512290);     // flags
+
+    ByteBuffer buff;
+    buff << uint32(entry);
+    buff << uint32(proto->Class);
+    buff << uint32(proto->SubClass);
+    buff << int32(proto->Unk0);
+    buff << uint32(proto->Material);
+    buff << uint32(proto->DisplayInfoID);
+    buff << uint32(proto->InventoryType);
+    buff << uint32(proto->Sheath);
+
+    data << uint32(buff.size());
+    data.append(buff);
+
+    SendPacket(&data);
+}
+
+void WorldSession::SendItemSparseDb2Reply(uint32 entry)
+{
+    WorldPacket data(SMSG_DB_REPLY, 526);
+    data << uint32(DB2_REPLY_SPARSE);
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(entry);
+    if (!proto)
+    {
+        data << uint32(-1);         // entry
+        data << uint32(1322512289); // some kind of flags
+        data << uint32(0);          // size of next block
+        return;
+    }
+
+    data << uint32(entry);
+    data << uint32(1322512290);     // flags
+
+    ByteBuffer buff;
+    buff << uint32(entry);
+    buff << uint32(proto->Quality);
+    buff << uint32(proto->Flags);
+    buff << uint32(proto->Flags2);
+    buff << int32(proto->BuyPrice);
+    buff << uint32(proto->SellPrice);
+    buff << uint32(proto->InventoryType);
+    buff << int32(proto->AllowableClass);
+    buff << int32(proto->AllowableRace);
+    buff << uint32(proto->ItemLevel);
+    buff << uint32(proto->RequiredLevel);
+    buff << uint32(proto->RequiredSkill);
+    buff << uint32(proto->RequiredSkillRank);
+    buff << uint32(proto->RequiredSpell);
+    buff << uint32(proto->RequiredHonorRank);
+    buff << uint32(proto->RequiredCityRank);
+    buff << uint32(proto->RequiredReputationFaction);
+    buff << uint32(proto->RequiredReputationRank);
+    buff << int32(proto->MaxCount);
+    buff << int32(proto->Stackable);
+    buff << uint32(proto->ContainerSlots);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+        buff << uint32(proto->ItemStat[x].ItemStatType);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+        buff << int32(proto->ItemStat[x].ItemStatValue);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+        buff << int32(proto->ItemStat[x].ItemStatUnk1);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+        buff << int32(proto->ItemStat[x].ItemStatUnk2);
+
+    buff << uint32(proto->ScalingStatDistribution);
+    buff << uint32(proto->DamageType);
+    buff << uint32(proto->Delay);
+    buff << float(proto->RangedModRange);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << int32(proto->Spells[x].SpellId);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << uint32(proto->Spells[x].SpellTrigger);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << int32(proto->Spells[x].SpellCharges);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << int32(proto->Spells[x].SpellCooldown);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << uint32(proto->Spells[x].SpellCategory);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << int32(proto->Spells[x].SpellCategoryCooldown);
+
+    buff << uint32(proto->Bonding);
+
+    // item name
+    std::string name = proto->Name1;
+    buff << uint16(name.length());
+    if (name.length())
+        buff << name;
+
+    for (uint32 i = 0; i < 3; ++i) // other 3 names
+        buff << uint16(0);
+
+    std::string desc = proto->Description;
+    buff << uint16(desc.length());
+    if (desc.length())
+        buff << desc;
+
+    buff << uint32(proto->PageText);
+    buff << uint32(proto->LanguageID);
+    buff << uint32(proto->PageMaterial);
+    buff << uint32(proto->StartQuest);
+    buff << uint32(proto->LockID);
+    buff << int32(proto->Material);
+    buff << uint32(proto->Sheath);
+    buff << int32(proto->RandomProperty);
+    buff << int32(proto->RandomSuffix);
+    buff << uint32(proto->ItemSet);
+    buff << uint32(proto->MaxDurability);
+
+    buff << uint32(proto->Area);
+    buff << uint32(proto->Map);
+    buff << uint32(proto->BagFamily);
+    buff << uint32(proto->TotemCategory);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
+        buff << uint32(proto->Socket[x].Color);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
+        buff << uint32(proto->Socket[x].Content);
+
+    buff << uint32(proto->socketBonus);
+    buff << uint32(proto->GemProperties);
+    buff << float(proto->ArmorDamageModifier);
+    buff << int32(proto->Duration);
+    buff << uint32(proto->ItemLimitCategory);
+    buff << uint32(proto->HolidayId);
+    buff << float(proto->StatScalingFactor);    // StatScalingFactor
+    buff << uint32(proto->Field130);            // archaeology unk
+    buff << uint32(proto->Field131);            // archaeology findinds count
+
+    data << uint32(buff.size());
+    data.append(buff);
+
+    SendPacket(&data);
 }
 
 void WorldSession::HandleReadItem(WorldPacket & recv_data)
@@ -731,7 +739,7 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         vendor->StopMoving();
 
     uint8* bytes = (uint8*)&vendorGuid;
-    
+
     VendorItemData const* items = vendor->GetVendorItems();
     if (!items)
     {
@@ -744,13 +752,13 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
         data.WriteByteMask(bytes[0]);
         data.WriteByteMask(bytes[7]);
         data.WriteByteMask(bytes[4]);
-        
+
         data.WriteByteSeq(bytes[2]);
         data.WriteByteSeq(bytes[3]);
-        
+
         data << uint8(0);                                   // count == 0, next will be error code
         data << uint8(0xA0);                                // Only seen 0xA0 (160) so far ( should we send 0 here?)
-    
+
         data.WriteByteSeq(bytes[4]);
         data.WriteByteSeq(bytes[7]);
         data.WriteByteSeq(bytes[6]);
@@ -760,9 +768,9 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
 
     uint8 itemCount = items->GetItemCount();
     uint8 count = 0;
-    
+
     WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
-    
+
     data.WriteByteMask(bytes[5]);
     data.WriteByteMask(bytes[6]);
     data.WriteByteMask(bytes[1]);
@@ -771,23 +779,23 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     data.WriteByteMask(bytes[0]);
     data.WriteByteMask(bytes[7]);
     data.WriteByteMask(bytes[4]);
-    
+
     data.WriteByteSeq(bytes[2]);
     data.WriteByteSeq(bytes[3]);
-    
+
     size_t countPos = data.wpos();
     data << uint32(count);
-    
+
     data.WriteByteSeq(bytes[5]);
     data.WriteByteSeq(bytes[0]);
     data.WriteByteSeq(bytes[1]);
-    
+
     data << uint8(0xA0); // Only seen 0xA0 (160) so far
-    
+
     data.WriteByteSeq(bytes[4]);
     data.WriteByteSeq(bytes[7]);
     data.WriteByteSeq(bytes[6]);
-    
+
 
     float discountMod = _player->GetReputationPriceDiscount(vendor);
 
