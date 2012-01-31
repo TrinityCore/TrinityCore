@@ -902,7 +902,7 @@ uint32 Unit::SpellNonMeleeDamageLog(Unit* victim, uint32 spellID, uint32 damage)
     return damageInfo.damage;
 }
 
-void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage *damageInfo, int32 damage, SpellInfo const *spellInfo, WeaponAttackType attackType, bool crit, int32 calc_resist)
+void Unit::CalculateSpellDamageTaken(SpellNonMeleeDamage* damageInfo, int32 damage, SpellInfo const* spellInfo, WeaponAttackType attackType, bool crit, int32 calc_resist)
 {
     if (damage < 0)
         return;
@@ -1495,7 +1495,7 @@ uint32 Unit::GetSpellPenetration(SpellSchoolMask schoolMask) const
     return uint32(std::max<int32>(spellPenetration, 0));
 }
 
-uint32 Unit::CalcSpellResistance(Unit * victim, SpellSchoolMask schoolMask, bool binary, SpellInfo const * spellProto) const
+uint32 Unit::CalcSpellResistance(Unit* victim, SpellSchoolMask schoolMask, bool binary, SpellInfo const* spellProto) const
 {
     // Magic damage, check for resists
     if (uint32(schoolMask & (SPELL_SCHOOL_MASK_NORMAL | SPELL_SCHOOL_HOLY)) > 0)
@@ -1579,7 +1579,7 @@ uint32 Unit::CalcSpellResistance(Unit * victim, SpellSchoolMask schoolMask, bool
     return (resistance * 10);
 }
 
-void Unit::CalcAbsorbResist(Unit * victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32 * absorb, uint32 * resist, SpellInfo const* spellInfo, int32 calc_resist)
+void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffectType damagetype, uint32 const damage, uint32* absorb, uint32* resist, SpellInfo const* spellInfo, int32 calc_resist)
 {
     if (!victim || !victim->isAlive() || !damage)
         return;
@@ -2407,7 +2407,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     return SPELL_MISS_NONE;
 }
 
-uint32 Unit::CalcMagicSpellHitChance(Unit * victim, SpellSchoolMask schoolMask, SpellInfo const * spellProto)
+uint32 Unit::CalcMagicSpellHitChance(Unit* victim, SpellSchoolMask schoolMask, SpellInfo const* spellProto)
 {
     // PvP - PvE spell misschances per leveldif > 2
     int32 lchance = victim->GetTypeId() == TYPEID_PLAYER ? 7 : 11;
@@ -2497,7 +2497,7 @@ uint32 Unit::CalcMagicSpellHitChance(Unit * victim, SpellSchoolMask schoolMask, 
     return uint32(hit);
 }
 
-SpellMissInfo Unit::MagicSpellHitResult(Unit * victim, SpellInfo const * spell)
+SpellMissInfo Unit::MagicSpellHitResult(Unit* victim, SpellInfo const* spell)
 {
     // Can`t miss on dead target (on skinning for example)
     if (!victim->isAlive() && victim->GetTypeId() != TYPEID_PLAYER)
