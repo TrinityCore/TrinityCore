@@ -9038,7 +9038,7 @@ void ObjectMgr::LoadHotfixData()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, unk FROM hotfix_data");
+    QueryResult result = WorldDatabase.Query("SELECT entry, type, UNIX_TIMESTAMP(hotixDate) FROM hotfix_data");
 
     if (!result)
     {
@@ -9058,7 +9058,7 @@ void ObjectMgr::LoadHotfixData()
         HotfixInfo info;
         info.Entry = fields[0].GetUInt32();
         info.Type = fields[1].GetUInt32();
-        info.Unk = fields[2].GetUInt32();
+        info.Timestamp = fields[2].GetUInt32();
 
         _hotfixData.push_back(info);
         ++count;

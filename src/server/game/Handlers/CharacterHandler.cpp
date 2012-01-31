@@ -977,7 +977,7 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
     for (uint32 i = 0; i < hotfix.size(); ++i)
     {
         data << uint32(hotfix[i].Type);
-        data << uint32(hotfix[i].Unk);
+        data << uint32(hotfix[i].Timestamp);
         data << uint32(hotfix[i].Entry);
     }
     SendPacket(&data);
