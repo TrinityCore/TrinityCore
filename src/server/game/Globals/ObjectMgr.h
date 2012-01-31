@@ -589,7 +589,7 @@ typedef UNORDERED_MAP<uint32, DungeonEncounterList> DungeonEncounterMap;
 struct HotfixInfo
 {
     uint32 Type;
-    uint32 Unk;
+    uint32 Timestamp;
     uint32 Entry;
 };
 
