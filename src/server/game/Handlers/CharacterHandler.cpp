@@ -898,9 +898,8 @@ void WorldSession::HandlePlayerLogin(LoginQueryHolder* holder)
 
     data.Initialize(SMSG_FEATURE_SYSTEM_STATUS, 7);         // checked in 4.2.2
     data << uint8(2);                                       // unknown value
-    data << uint8(0);                                       // enable(1)/disable(0) voice chat interface in client
-    data << uint8(0);
-    data << uint32(0);                                      // mail related
+    data << uint8(0);                                       // enable(1) / disable(0) voice chat interface in client
+    data << uint32(0);                                      // Complain System Status
     SendPacket(&data);
 
     // Send MOTD
