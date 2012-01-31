@@ -155,8 +155,9 @@ enum SMART_EVENT
     SMART_EVENT_IS_BEHIND_TARGET         = 67,      //1             // cooldownMin, CooldownMax
     SMART_EVENT_GAME_EVENT_START         = 68,      //1             // game_event.Entry
     SMART_EVENT_GAME_EVENT_END           = 69,      //1             // game_event.Entry
+    SMART_EVENT_GO_STATE_CHANGED         = 70,      //                 go state    
 
-    SMART_EVENT_END                      = 70,
+    SMART_EVENT_END                      = 71,
 };
 
 struct SmartEvent
@@ -348,6 +349,11 @@ struct SmartEvent
         
         struct
         {
+            uint32 state;
+        } goStateChanged;
+        
+        struct
+        {
             uint32 param1;
             uint32 param2;
             uint32 param3;
@@ -467,8 +473,10 @@ enum SMART_ACTION
     SMART_ACTION_REMOVE_DYNAMIC_FLAG                = 96,     // Flags
     SMART_ACTION_JUMP_TO_POS                        = 97,     // speedXY, speedZ, targetX, targetY, targetZ
     SMART_ACTION_SEND_GOSSIP_MENU                   = 98,     // menuId, optionId
+    SMART_ACTION_GO_SET_LOOT_STATE                  = 99,     // state
+    SMART_ACTION_SEND_TARGET_TO_TARGET              = 100,    // id
 
-    SMART_ACTION_END                                = 99,
+    SMART_ACTION_END                                = 101,
 };
 
 struct SmartAction
@@ -825,7 +833,6 @@ struct SmartAction
         struct
         {
             uint32 id;
-            uint32 dontResume;
             uint32 timerType;
         } timedActionList;
 
@@ -873,6 +880,16 @@ struct SmartAction
             uint32 gossipNpcTextId;
         } sendGossipMenu;
 
+        struct
+        {
+            uint32 state;
+        } setGoLootState;
+        
+        struct
+        {
+            uint32 id;
+        } sendTargetToTarget;
+        
         struct
         {
             uint32 param1;
@@ -1139,6 +1156,7 @@ const uint32 SmartAIEventMask[SMART_EVENT_END][2] =
     {SMART_EVENT_IS_BEHIND_TARGET,          SMART_SCRIPT_TYPE_MASK_CREATURE },
     {SMART_EVENT_GAME_EVENT_START,          SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
     {SMART_EVENT_GAME_EVENT_END,            SMART_SCRIPT_TYPE_MASK_CREATURE + SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
+    {SMART_EVENT_GO_STATE_CHANGED,          SMART_SCRIPT_TYPE_MASK_GAMEOBJECT },
 
 };
 

@@ -771,6 +771,7 @@ void Battleground::EndBattleground(uint32 winner)
         }
     }
 
+    uint8 aliveWinners = GetAlivePlayersCountByTeam(winner);
     for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
     {
         uint32 team = itr->second.Team;
@@ -795,6 +796,10 @@ void Battleground::EndBattleground(uint32 winner)
         // should remove spirit of redemption
         if (player->HasAuraType(SPELL_AURA_SPIRIT_OF_REDEMPTION))
             player->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
+
+        // Last standing - Rated 5v5 arena & be solely alive player
+        if (team == winner && isArena() && isRated() && GetArenaType() == ARENA_TYPE_5v5 && aliveWinners == 1 && player->isAlive())
+            player->CastSpell(player, SPELL_THE_LAST_STANDING, true);
 
         if (!player->isAlive())
         {
@@ -896,19 +901,6 @@ uint32 Battleground::GetBonusHonorFromKill(uint32 kills) const
     //variable kills means how many honorable kills you scored (so we need kills * honor_for_one_kill)
     uint32 maxLevel = std::min(GetMaxLevel(), 80U);
     return Trinity::Honor::hk_honor_at_level(maxLevel, float(kills));
-}
-
-uint32 Battleground::GetBattlemasterEntry() const
-{
-    switch (GetTypeID(true))
-    {
-        case BATTLEGROUND_AV: return 15972;
-        case BATTLEGROUND_WS: return 14623;
-        case BATTLEGROUND_AB: return 14879;
-        case BATTLEGROUND_EY: return 22516;
-        case BATTLEGROUND_NA: return 20200;
-        default:              return 0;
-    }
 }
 
 void Battleground::BlockMovement(Player* player)

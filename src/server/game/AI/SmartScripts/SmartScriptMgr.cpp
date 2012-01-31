@@ -282,6 +282,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         case SMART_TARGET_HOSTILE_RANDOM:
         case SMART_TARGET_HOSTILE_RANDOM_NOT_TOP:
         case SMART_TARGET_ACTION_INVOKER:
+        case SMART_TARGET_INVOKER_PARTY:
         case SMART_TARGET_POSITION:
         case SMART_TARGET_NONE:
         case SMART_TARGET_ACTION_INVOKER_VEHICLE:
@@ -478,6 +479,7 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
                         return false;
                     break;
                 }
+            case SMART_EVENT_GO_STATE_CHANGED:
             case SMART_EVENT_TIMED_EVENT_TRIGGERED:
             case SMART_EVENT_INSTANCE_PLAYER_ENTER:
             case SMART_EVENT_TRANSPORT_RELOCATE:
@@ -800,6 +802,8 @@ bool SmartAIMgr::IsEventValid(SmartScriptHolder& e)
         case SMART_ACTION_REMOVE_DYNAMIC_FLAG:
         case SMART_ACTION_JUMP_TO_POS:
         case SMART_ACTION_SEND_GOSSIP_MENU:
+        case SMART_ACTION_GO_SET_LOOT_STATE:
+        case SMART_ACTION_SEND_TARGET_TO_TARGET:
             break;
         default:
             sLog->outErrorDb("SmartAIMgr: Not handled action_type(%u), event_type(%u), Entry %d SourceType %u Event %u, skipped.", e.GetActionType(), e.GetEventType(), e.entryOrGuid, e.GetScriptType(), e.event_id);
