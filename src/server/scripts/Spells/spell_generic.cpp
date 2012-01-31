@@ -1670,60 +1670,55 @@ public:
 
         void HandleScriptEffect(SpellEffIndex effIndex)
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetTargetUnit();
-
-            if (!caster || !target)
-                return;
-
-            switch (effIndex)
+            if (Unit* target = GetHitUnit())
             {
-                case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
-                    uint32 spellId;
-                    switch (GetSpellInfo()->Id)
-                    {
-                        case SPELL_BREAK_SHIELD_TRIGGER_UNK:
-                        case SPELL_BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE:
-                            spellId = SPELL_BREAK_SHIELD_DAMAGE_10K;
-                            break;
-                        case SPELL_BREAK_SHIELD_TRIGGER_FACTION_MOUNTS:
-                            spellId = SPELL_BREAK_SHIELD_DAMAGE_2K;
-                            break;
-                        default:
-                            return;
-                    }
+                switch (effIndex)
+                {
+                    case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
+                        uint32 spellId;
 
-                    if (Unit* rider = caster->GetCharmer())
-                        rider->CastSpell(target, spellId, false);
-                    else
-                        caster->CastSpell(target, spellId, false);
-                    break;
-                case EFFECT_1: // On damaging spells, for removing the a defend layer
-                    uint32 defendSpellId = 0;
-
-                    Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                    {
-                        Aura* aura = itr->second->GetBase();
-                        SpellInfo const* auraInfo = aura->GetSpellInfo();
-                        if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                        switch (GetSpellInfo()->Id)
                         {
-                            defendSpellId = aura->GetId();
-                            aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                            break;
+                            case SPELL_BREAK_SHIELD_TRIGGER_UNK:
+                            case SPELL_BREAK_SHIELD_TRIGGER_CAMPAING_WARHORSE:
+                                spellId = SPELL_BREAK_SHIELD_DAMAGE_10K;
+                                break;
+                            case SPELL_BREAK_SHIELD_TRIGGER_FACTION_MOUNTS:
+                                spellId = SPELL_BREAK_SHIELD_DAMAGE_2K;
+                                break;
+                            default:
+                                return;
                         }
-                    }
-                    // Remove dummys from rider (Necessary for updating visual shields)
-                    if (Unit* rider = target->GetCharmer())
-                        if (Aura* defend = rider->GetAura(defendSpellId))
-                            defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                    break;
+
+                        if (Unit* rider = GetCaster()->GetCharmer())
+                            rider->CastSpell(target, spellId, false);
+                        else
+                            GetCaster()->CastSpell(target, spellId, false);
+                        break;
+                    case EFFECT_1: // On damaging spells, for removing a defend layer
+                        Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
+                        for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                        {
+                            Aura* aura = itr->second->GetBase();
+                            SpellInfo const* auraInfo = aura->GetSpellInfo();
+                            if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                            {
+                                aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                // Remove dummys from rider (Necessary for updating visual shields)
+                                if (Unit* rider = target->GetCharmer())
+                                    if (Aura* defend = rider->GetAura(aura->GetId()))
+                                        defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                break;
+                            }
+                        }
+                        break;
+                }
             }
         }
 
         void Register()
         {
-            OnEffectHit += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget += SpellEffectFn(spell_gen_break_shield_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -1794,92 +1789,83 @@ public:
 
         void HandleScriptEffect(SpellEffIndex effIndex)
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetTargetUnit();
-
-            if (!caster || !target)
-                return;
-
-            switch (effIndex)
+            if (Unit* target = GetHitUnit())
             {
-                case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
-                    uint32 spellId;
+                switch (effIndex)
+                {
+                    case EFFECT_0: // On spells wich trigger the damaging spell (and also the visual)
+                        uint32 spellId;
 
-                    switch (GetSpellInfo()->Id)
-                    {
-                        case SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION:
-                            spellId = SPELL_CHARGE_CHARGING_EFFECT_20K_1;
-                        case SPELL_CHARGE_TRIGGER_FACTION_MOUNTS:
-                            spellId = SPELL_CHARGE_CHARGING_EFFECT_8K5;
-                            break;
-                        default:
-                            return;
-                    }
-
-                    // If target isn't a training dummy there's a chance of failing the charge
-                    if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && urand(0,7) == 0)
-                        spellId = SPELL_CHARGE_MISS_EFFECT;
-
-                    if (Unit* vehicle = caster->GetVehicleBase())
-                        vehicle->CastSpell(target, spellId, false);
-                    else
-                        caster->CastSpell(target, spellId, false);
-                    break;
-                case EFFECT_1: // On damaging spells, for removing the a defend layer
-                case EFFECT_2:
-                    uint32 defendSpellId = 0;
-
-                    Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
-                    for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
-                    {
-                        Aura* aura = itr->second->GetBase();
-                        SpellInfo const* auraInfo = aura->GetSpellInfo();
-                        if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                        switch (GetSpellInfo()->Id)
                         {
-                            defendSpellId = aura->GetId();
-                            aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                            break;
+                            case SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION:
+                                spellId = SPELL_CHARGE_CHARGING_EFFECT_20K_1;
+                            case SPELL_CHARGE_TRIGGER_FACTION_MOUNTS:
+                                spellId = SPELL_CHARGE_CHARGING_EFFECT_8K5;
+                                break;
+                            default:
+                                return;
                         }
-                    }
-                    // Remove dummys from rider (Necessary for updating visual shields)
-                    if (Unit* rider = target->GetCharmer())
-                        if (Aura* defend = rider->GetAura(defendSpellId))
-                            defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
-                    break;
+
+                        // If target isn't a training dummy there's a chance of failing the charge
+                        if (!target->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE) && roll_chance_f(12.5f))
+                            spellId = SPELL_CHARGE_MISS_EFFECT;
+
+                        if (Unit* vehicle = GetCaster()->GetVehicleBase())
+                            vehicle->CastSpell(target, spellId, false);
+                        else
+                            GetCaster()->CastSpell(target, spellId, false);
+                        break;
+                    case EFFECT_1: // On damaging spells, for removing a defend layer
+                    case EFFECT_2:
+                        Unit::AuraApplicationMap const& auras = target->GetAppliedAuras();
+                        for (Unit::AuraApplicationMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                        {
+                            Aura* aura = itr->second->GetBase();
+                            SpellInfo const* auraInfo = aura->GetSpellInfo();
+                            if (aura && auraInfo->SpellIconID == 2007 && aura->HasEffectType(SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN))
+                            {
+                                aura->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                // Remove dummys from rider (Necessary for updating visual shields)
+                                if (Unit* rider = target->GetCharmer())
+                                    if (Aura* defend = rider->GetAura(aura->GetId()))
+                                        defend->ModStackAmount(-1, AURA_REMOVE_BY_ENEMY_SPELL);
+                                break;
+                            }
+                        }
+                        break;
+                }
             }
         }
 
         void HandleChargeEffect(SpellEffIndex effIndex)
         {
-            Unit* caster = GetCaster();
-            Unit* target = GetTargetUnit();
-
-            if (!caster || !target)
-                return;
-
-            uint32 spellId;
-
-            switch (GetSpellInfo()->Id)
+            if (Unit* target = GetHitUnit())
             {
-                case SPELL_CHARGE_CHARGING_EFFECT_8K5:
-                    spellId = SPELL_CHARGE_DAMAGE_8K5;
-                    break;
-                case SPELL_CHARGE_CHARGING_EFFECT_20K_1:
-                case SPELL_CHARGE_CHARGING_EFFECT_20K_2:
-                    spellId = SPELL_CHARGE_DAMAGE_20K;
-                    break;
-                case SPELL_CHARGE_CHARGING_EFFECT_45K_1:
-                case SPELL_CHARGE_CHARGING_EFFECT_45K_2:
-                    spellId = SPELL_CHARGE_DAMAGE_45K;
-                    break;
-                default:
-                    return;
-            }
+                uint32 spellId;
 
-            if (Unit* rider = caster->GetCharmer())
-                rider->CastSpell(target, spellId, false);
-            else
-                caster->CastSpell(target, spellId, false);
+                switch (GetSpellInfo()->Id)
+                {
+                    case SPELL_CHARGE_CHARGING_EFFECT_8K5:
+                        spellId = SPELL_CHARGE_DAMAGE_8K5;
+                        break;
+                    case SPELL_CHARGE_CHARGING_EFFECT_20K_1:
+                    case SPELL_CHARGE_CHARGING_EFFECT_20K_2:
+                        spellId = SPELL_CHARGE_DAMAGE_20K;
+                        break;
+                    case SPELL_CHARGE_CHARGING_EFFECT_45K_1:
+                    case SPELL_CHARGE_CHARGING_EFFECT_45K_2:
+                        spellId = SPELL_CHARGE_DAMAGE_45K;
+                        break;
+                    default:
+                        return;
+                }
+
+                if (Unit* rider = GetCaster()->GetCharmer())
+                    rider->CastSpell(target, spellId, false);
+                else
+                    GetCaster()->CastSpell(target, spellId, false);
+            }
         }
 
         void Register()
@@ -1887,10 +1873,10 @@ public:
             SpellInfo const* spell = sSpellMgr->GetSpellInfo(m_scriptSpellId);
 
             if (spell->HasEffect(SPELL_EFFECT_SCRIPT_EFFECT))
-                OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleScriptEffect, EFFECT_FIRST_FOUND, SPELL_EFFECT_SCRIPT_EFFECT);
 
             if (spell->Effects[EFFECT_0].Effect == SPELL_EFFECT_CHARGE)
-                OnEffectHit += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_mounted_charge_SpellScript::HandleChargeEffect, EFFECT_0, SPELL_EFFECT_CHARGE);
         }
     };
 
@@ -1929,42 +1915,31 @@ class spell_gen_defend : public SpellScriptLoader
 
             void RefreshVisualShields(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
             {
-                Unit* caster = GetCaster();
-                Unit* target = GetTarget();
-
-                if(!target)
-                    return;
-
-                if (!caster)
+                if (Unit* caster = GetCaster())
                 {
-                    target->RemoveAurasDueToSpell(GetId());
-                    return;
+                    Unit* target = GetTarget();
+
+                    for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
+                        target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
+
+                    target->CastSpell(target, SPELL_VISUAL_SHIELD_1 + GetAura()->GetStackAmount() - 1, true, NULL, aurEff);
                 }
-
-                for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
-                    target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
-
-                target->CastSpell(target, SPELL_VISUAL_SHIELD_1 + GetAura()->GetStackAmount() - 1, true, NULL, aurEff);
+                else
+                    GetTarget()->RemoveAurasDueToSpell(GetId());
             }
 
             void RemoveVisualShields(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* target = GetTarget();
-
-                if(!target)
-                    return;
-
                 for (uint8 i = 0; i < GetSpellInfo()->StackAmount; ++i)
-                    target->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
+                    GetTarget()->RemoveAurasDueToSpell(SPELL_VISUAL_SHIELD_1 + i);
             }
 
             void RemoveDummyFromDriver(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* caster = GetCaster();
-
-                if (caster && caster->ToTempSummon())
-                    if (Unit* rider = caster->ToTempSummon()->GetSummoner())
-                        rider->RemoveAurasDueToSpell(GetId());
+                if (Unit* caster = GetCaster())
+                    if (TempSummon* vehicle = caster->ToTempSummon())
+                        if (Unit* rider = vehicle->GetSummoner())
+                            rider->RemoveAurasDueToSpell(GetId());
             }
 
             void Register()
@@ -2023,33 +1998,24 @@ class spell_gen_tournament_duel : public SpellScriptLoader
 
             void HandleScriptEffect(SpellEffIndex effIndex)
             {
-                Unit* caster = GetCaster();
-                Unit* target = GetTargetUnit();
-                Unit* player = GetCaster()->GetCharmer();
-
-                if (!caster || !target || !player)
-                    return;
-
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                if (Unit* rider = GetCaster()->GetCharmer())
                 {
-
-                    if (!target->HasAura(SPELL_ON_TOURNAMENT_MOUNT) || !target->GetVehicleBase())
-                        return;
-
-                    player->CastSpell(target, SPELL_MOUNTED_DUEL, true);
-                }
-                else if (target->GetTypeId() == TYPEID_UNIT)
-                {
-                    if (!target->GetCharmer() || target->GetCharmer()->GetTypeId() != TYPEID_PLAYER || !target->GetCharmer()->HasAura(SPELL_ON_TOURNAMENT_MOUNT))
-                        return;
-
-                    player->CastSpell(target->GetCharmer(), SPELL_MOUNTED_DUEL, true);
+                    if (Player* target = GetHitPlayer())
+                    {
+                        if (target->HasAura(SPELL_ON_TOURNAMENT_MOUNT) && target->GetVehicleBase())
+                            rider->CastSpell(target, SPELL_MOUNTED_DUEL, true);
+                    }
+                    else if (Unit* target = GetHitUnit())
+                    {
+                        if (target->GetCharmer() && target->GetCharmer()->GetTypeId() == TYPEID_PLAYER && target->GetCharmer()->HasAura(SPELL_ON_TOURNAMENT_MOUNT))
+                            rider->CastSpell(target->GetCharmer(), SPELL_MOUNTED_DUEL, true);
+                    }
                 }
             }
 
             void Register()
             {
-                OnEffectHit += SpellEffectFn(spell_gen_tournament_duel_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_gen_tournament_duel_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -2082,15 +2048,13 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
 
             SpellCastResult CheckIfLanceEquiped()
             {
-                Unit* caster = GetCaster();
-
-                if (caster->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
+                if (GetCaster()->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
                 {
                     SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_MOUNT_WITH_SHAPESHIFT);
                     return SPELL_FAILED_CUSTOM_ERROR;
                 }
 
-                if (!caster->HasAura(SPELL_LANCE_EQUIPPED))
+                if (!GetCaster()->HasAura(SPELL_LANCE_EQUIPPED))
                 {
                     SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_MUST_HAVE_LANCE_EQUIPPED);
                     return SPELL_FAILED_CUSTOM_ERROR;
@@ -2220,25 +2184,24 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
             bool Load()
             {
                 _pennantSpellId = 0;
-                return (GetCaster() && GetCaster()->GetTypeId() == TYPEID_PLAYER);
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
             void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* caster = GetCaster();
-
-                if (caster && caster->GetVehicleBase())
+                if (Unit* caster = GetCaster())
                 {
-                    _pennantSpellId = GetPennatSpellId(caster->ToPlayer(), caster->GetVehicleBase());
-                    caster->CastSpell(caster, _pennantSpellId,true);
+                    if (Unit* vehicle = caster->GetVehicleBase())
+                    {
+                        _pennantSpellId = GetPennatSpellId(caster->ToPlayer(), vehicle);
+                        caster->CastSpell(caster, _pennantSpellId, true);
+                    }
                 }
             }
 
             void HandleRemoveEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* caster = GetCaster();
-
-                if (caster)
+                if (Unit* caster = GetCaster())
                     caster->RemoveAurasDueToSpell(_pennantSpellId);
             }
 
@@ -2374,12 +2337,16 @@ class spell_gen_tournament_pennant : public SpellScriptLoader
         {
             PrepareAuraScript(spell_gen_tournament_pennantAuraScript);
 
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
             void HandleApplyEffect(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
-                Unit* caster = GetCaster();
-
-                if (caster && caster->GetTypeId() == TYPEID_PLAYER && !caster->GetVehicleBase())
-                    caster->RemoveAurasDueToSpell(GetId());
+                if (Unit* caster = GetCaster())
+                    if (!caster->GetVehicleBase())
+                        caster->RemoveAurasDueToSpell(GetId());
             }
 
             void Register()
