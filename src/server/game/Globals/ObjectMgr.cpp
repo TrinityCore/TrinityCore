@@ -9038,7 +9038,7 @@ void ObjectMgr::LoadHotfixData()
 {
     uint32 oldMSTime = getMSTime();
 
-    QueryResult result = WorldDatabase.Query("SELECT entry, type, UNIX_TIMESTAMP(hotixDate) FROM hotfix_data");
+    QueryResult result = WorldDatabase.Query("SELECT entry, type, UNIX_TIMESTAMP(hotfixDate) FROM hotfix_data");
 
     if (!result)
     {
