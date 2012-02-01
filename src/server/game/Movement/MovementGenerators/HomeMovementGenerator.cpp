@@ -65,9 +65,10 @@ bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32 time_
 
 void HomeMovementGenerator<Creature>::Finalize(Creature& owner)
 {
+    owner.ClearUnitState(UNIT_STAT_EVADE);  // TODO: Try to not interrupt HomeMovemetGenerator due its work and get ride of this little hack.
+
     if (arrived)
     {
-        owner.ClearUnitState(UNIT_STAT_EVADE);
         owner.SetWalk(true);
         owner.LoadCreaturesAddon(true);
         owner.AI()->JustReachedHome();
