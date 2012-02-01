@@ -441,7 +441,7 @@ class boss_gothik : public CreatureScript
                             else
                             {
                                 phaseTwo = true;
-                                DoScriptText(SAY_TELEPORT, me);
+                                Talk(SAY_TELEPORT);
                                 DoTeleportTo(PosGroundLiveSide);
                                 me->SetReactState(REACT_AGGRESSIVE);
                                 summons.DoAction(0, 0);
