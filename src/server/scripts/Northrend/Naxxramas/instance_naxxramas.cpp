@@ -424,16 +424,16 @@ public:
 			
             switch (bosscount)
             {
-				case 1:
+                case 1:
                     DoScriptText(SAY_KELTHUZAD_TAUNT1, Kelthuzad);
                     break;
-				case 2:
+                case 2:
                     DoScriptText(SAY_KELTHUZAD_TAUNT2, Kelthuzad);
                     break;
-				case 3:
+                case 3:
                     DoScriptText(SAY_KELTHUZAD_TAUNT3, Kelthuzad);
                     break;
-				case 4:
+                case 4:
                     DoScriptText(SAY_KELTHUZAD_TAUNT4, Kelthuzad);
                     break;
             }

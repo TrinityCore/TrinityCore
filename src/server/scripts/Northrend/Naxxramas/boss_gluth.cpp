@@ -36,7 +36,7 @@ const Position PosSummon[3] =
 enum ScriptTexts
 {
     EMOTE_ENRAGE,
-	EMOTE_DECIMATE
+    EMOTE_DECIMATE
 };
 
 enum Events

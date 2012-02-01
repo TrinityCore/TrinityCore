@@ -21,7 +21,7 @@
 enum ScriptTexts
 {
     EMOTE_WRAP                  = 0,
-	EMOTE_SPIDER                = 1,
+    EMOTE_SPIDER                = 1,
 };
 
 enum Spells

@@ -60,7 +60,7 @@ enum ThaddiusScriptTexts
     SAY_TDEATH              = 2,
     SAY_ELECT               = 3,
     SAY_TKILL               = 4,
-	EMOTE_SHIFT             = 5,
+    EMOTE_SHIFT             = 5,
 
     SAY_SCREAM1             = -1533036, //not used
     SAY_SCREAM2             = -1533037, //not used

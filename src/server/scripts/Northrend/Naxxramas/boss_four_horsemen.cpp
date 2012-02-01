@@ -29,10 +29,10 @@ enum Horsemen
 enum ScriptTexts
 {
     SAY_AGGRO     = 0,
-	SAY_DEATH     = 1,
-	SAY_KILL      = 2,
-	SAY_SPECIAL   = 3,
-	SAY_TAUNT     = 4,
+    SAY_DEATH     = 1,
+    SAY_KILL      = 2,
+    SAY_SPECIAL   = 3,
+    SAY_TAUNT     = 4,
 };
 enum Events
 {

@@ -42,8 +42,8 @@ enum Yells
     SAY_SPECIAL                                            = 6,
     SAY_AID                                                = 7,
     SAY_ANSWER                                             = 10,
-	EMOTE_ATTACK                                           = 8,
-	EMOTE_GUARDIAN                                         = 9,
+    EMOTE_ATTACK                                           = 8,
+    EMOTE_GUARDIAN                                         = 9,
 };
 enum Event
 {

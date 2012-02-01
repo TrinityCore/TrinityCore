@@ -33,11 +33,11 @@ enum ScriptTexts
 enum Spells
 {
     SPELL_CURSE_PLAGUEBRINGER_10   = 29213,
-	SPELL_CURSE_PLAGUEBRINGER_25   = 54835,
-	SPELL_BLINK                    = 29211,
-	SPELL_CRIPPLE_10               = 29212,
-	SPELL_CRIPPLE_25               = 54814,
-	SPELL_TELEPORT                 = 29216,
+    SPELL_CURSE_PLAGUEBRINGER_25   = 54835,
+    SPELL_BLINK                    = 29211,
+    SPELL_CRIPPLE_10               = 29212,
+    SPELL_CRIPPLE_25               = 54814,
+    SPELL_TELEPORT                 = 29216,
 };
 
 const Position TelePos = {2631.370f, -3529.680f, 274.040f, 6.277f};
@@ -161,7 +161,7 @@ public:
                         return;
                     case EVENT_WARRIOR:
                         Talk(SAY_SUMMON);
-						Talk(EMOTE_SUMMON);
+                        Talk(EMOTE_SUMMON);
                         SummonUndead(MOB_WARRIOR, RAID_MODE(2, 3));
                         events.ScheduleEvent(EVENT_WARRIOR, 30000);
                         return;

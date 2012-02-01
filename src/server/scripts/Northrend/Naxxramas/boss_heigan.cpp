@@ -25,15 +25,15 @@ enum ScriptTexts
     SAY_PHASE           = 2,
     EMOTE_TELEPORT1     = 3,
     EMOTE_TELEPORT2     = 4,
-	SAY_DEATH           = 5,
+    SAY_DEATH           = 5,
 };
 
 enum Spells
 {
     SPELL_SPELL_DISRUPTION      = 29310,
-	SPELL_DECREPIT_FEVER_10     = 29998,
-	SPELL_DECREPIT_FEVER_25     = 55011,
-	SPELL_PLAGUE_CLOUD          = 29350,
+    SPELL_DECREPIT_FEVER_10     = 29998,
+    SPELL_DECREPIT_FEVER_25     = 55011,
+    SPELL_PLAGUE_CLOUD          = 29350,
 };
 
 enum Events
@@ -43,7 +43,7 @@ enum Events
     EVENT_FEVER,
     EVENT_ERUPT,
     EVENT_PHASE1,
-	EVENT_PHASE2,
+    EVENT_PHASE2,
 };
 
 

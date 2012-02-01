@@ -228,7 +228,7 @@ class boss_gothik : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                    Talk(SAY_KILL);
+                Talk(SAY_KILL);
             }
 
             void JustDied(Unit* /*Killer*/)

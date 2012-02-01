@@ -92,7 +92,7 @@ class boss_faerlina : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                    Talk(SAY_SLAY);
+                Talk(SAY_SLAY);
             }
 
             void JustDied(Unit* /*killer*/)
