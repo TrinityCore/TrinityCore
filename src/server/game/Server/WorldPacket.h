@@ -20,33 +20,39 @@
 #define TRINITYCORE_WORLDPACKET_H
 
 #include "Common.h"
+#include "Opcodes.h"
 #include "ByteBuffer.h"
 
 class WorldPacket : public ByteBuffer
 {
     public:
                                                             // just container for later use
-        WorldPacket()                                       : ByteBuffer(0), m_opcode(0)
-        {
-        }
-        explicit WorldPacket(uint16 opcode, size_t res=200) : ByteBuffer(res), m_opcode(opcode) { }
-                                                            // copy constructor
-        WorldPacket(const WorldPacket &packet)              : ByteBuffer(packet), m_opcode(packet.m_opcode)
+        WorldPacket() : ByteBuffer(0), m_opcode(UNKNOWN_OPCODE)
         {
         }
 
-        void Initialize(uint16 opcode, size_t newres=200)
+        WorldPacket(Opcodes opcode, size_t res = 200) : ByteBuffer(res), m_opcode(opcode)
+        {
+        }
+                                                            // copy constructor
+        WorldPacket(WorldPacket const& packet) : ByteBuffer(packet), m_opcode(packet.m_opcode)
+        {
+        }
+
+        void Initialize(Opcodes opcode, size_t newres = 200)
         {
             clear();
             _storage.reserve(newres);
             m_opcode = opcode;
         }
 
-        uint16 GetOpcode() const { return m_opcode; }
-        void SetOpcode(uint16 opcode) { m_opcode = opcode; }
+        Opcodes GetOpcode() const { return m_opcode; }
+        void SetOpcode(Opcodes opcode) { m_opcode = opcode; }
+        void Compress(Opcodes opcode);
 
     protected:
-        uint16 m_opcode;
+        Opcodes m_opcode;
+        void Compress(void* dst, uint32 *dst_size, const void* src, int src_size);
 };
 #endif
 

@@ -60,6 +60,7 @@ public:
             { "morph",          SEC_GAMEMASTER,     false, &HandleModifyMorphCommand,         "", NULL },
             { "phase",          SEC_ADMINISTRATOR,  false, &HandleModifyPhaseCommand,         "", NULL },
             { "gender",         SEC_GAMEMASTER,     false, &HandleModifyGenderCommand,        "", NULL },
+            { "collision",      SEC_GAMEMASTER,     false, &HandleModifyCollisionCommand,     "", NULL },
             { NULL,             0,                  false, NULL,                                           "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -959,14 +960,14 @@ public:
         target->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP);
         target->Mount(mId);
 
-        WorldPacket data(SMSG_FORCE_RUN_SPEED_CHANGE, (8+4+1+4));
+        WorldPacket data(SMSG_MOVE_SET_RUN_SPEED, (8+4+1+4));
         data.append(target->GetPackGUID());
         data << (uint32)0;
         data << (uint8)0;                                       //new 2.1.0
         data << float(speed);
         target->SendMessageToSet(&data, true);
 
-        data.Initialize(SMSG_FORCE_SWIM_SPEED_CHANGE, (8+4+4));
+        data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, (8+4+4));
         data.append(target->GetPackGUID());
         data << (uint32)0;
         data << float(speed);
@@ -1093,7 +1094,7 @@ public:
         return true;
     }
 
-    static bool HandleModifyHonorCommand (ChatHandler* handler, const char* args)
+    static bool HandleModifyHonorCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
             return false;
@@ -1112,9 +1113,9 @@ public:
 
         int32 amount = (uint32)atoi(args);
 
-        target->ModifyHonorPoints(amount);
+        target->ModifyCurrency(CURRENCY_TYPE_HONOR_POINTS, amount);
 
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetHonorPoints());
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_HONOR, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_HONOR_POINTS));
 
         return true;
     }
@@ -1233,7 +1234,7 @@ public:
         }
 
         target->GetReputationMgr().SetReputation(factionEntry, amount);
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name[handler->GetSessionDbcLocale()], factionId,
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_REP, factionEntry->name, factionId,
             handler->GetNameLink(target).c_str(), target->GetReputationMgr().GetReputation(factionEntry));
         return true;
     }
@@ -1307,9 +1308,9 @@ public:
 
         int32 amount = (uint32)atoi(args);
 
-        target->ModifyArenaPoints(amount);
+        target->ModifyCurrency(CURRENCY_TYPE_CONQUEST_POINTS, amount);
 
-        handler->PSendSysMessage(LANG_COMMAND_MODIFY_ARENA, handler->GetNameLink(target).c_str(), target->GetArenaPoints());
+        handler->PSendSysMessage(LANG_COMMAND_MODIFY_ARENA, handler->GetNameLink(target).c_str(), target->GetCurrency(CURRENCY_TYPE_CONQUEST_POINTS));
 
         return true;
     }
@@ -1374,6 +1375,88 @@ public:
 
         return true;
     }
+
+    static bool HandleModifyCollisionCommand(ChatHandler* handler, const char* args)
+    {
+        if (!*args)
+            return false;
+
+        Player* target = handler->getSelectedPlayer();
+
+        if (!target)
+        {
+            handler->PSendSysMessage(LANG_PLAYER_NOT_FOUND);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        std::string param = (char*)args;
+
+        if (param == "on")
+        {
+            // enable collision
+            WorldPacket data;
+            uint64 guid = target->GetGUID();
+            uint8* bytes = (uint8*)&guid;
+
+            data.Initialize(SMSG_MOVE_SPLINE_ENABLE_COLLISION, 1 + 8);
+            data.WriteByteMask(bytes[7]);
+            data.WriteByteMask(bytes[5]);
+            data.WriteByteMask(bytes[4]);
+            data.WriteByteMask(bytes[0]);
+            data.WriteByteMask(bytes[1]);
+            data.WriteByteMask(bytes[6]);
+            data.WriteByteMask(bytes[2]);
+            data.WriteByteMask(bytes[3]);
+
+            data.WriteByteSeq(bytes[6]);
+            data.WriteByteSeq(bytes[3]);
+            data.WriteByteSeq(bytes[2]);
+            data.WriteByteSeq(bytes[7]);
+            data.WriteByteSeq(bytes[4]);
+            data.WriteByteSeq(bytes[1]);
+            data.WriteByteSeq(bytes[5]);
+            data.WriteByteSeq(bytes[0]);
+
+            target->SendMessageToSet(&data, true);
+            handler->SendSysMessage("Enabled Collision");
+            return true;
+        }
+
+        if (param == "off")
+        {
+            // disable collision
+            WorldPacket data;
+            uint64 guid = target->GetGUID();
+            uint8* bytes = (uint8*)&guid;
+
+            data.Initialize(SMSG_MOVE_SPLINE_DISABLE_COLLISION, 1 + 8);
+            data.WriteByteMask(bytes[4]);
+            data.WriteByteMask(bytes[7]);
+            data.WriteByteMask(bytes[5]);
+            data.WriteByteMask(bytes[3]);
+            data.WriteByteMask(bytes[2]);
+            data.WriteByteMask(bytes[1]);
+            data.WriteByteMask(bytes[6]);
+            data.WriteByteMask(bytes[0]);
+
+            data.WriteByteSeq(bytes[6]);
+            data.WriteByteSeq(bytes[0]);
+            data.WriteByteSeq(bytes[5]);
+            data.WriteByteSeq(bytes[4]);
+            data.WriteByteSeq(bytes[7]);
+            data.WriteByteSeq(bytes[3]);
+            data.WriteByteSeq(bytes[1]);
+            data.WriteByteSeq(bytes[2]);
+
+            target->SendMessageToSet(&data, true);
+            handler->SendSysMessage("Disabled Collision");
+            return true;
+        }
+
+        return false;
+    }
+
 };
 
 void AddSC_modify_commandscript()

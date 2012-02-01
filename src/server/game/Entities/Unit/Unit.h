@@ -35,6 +35,7 @@
 #include "SpellInfo.h"
 #include "Path.h"
 #include "WorldPacket.h"
+#include "WorldSession.h"
 #include "Timer.h"
 #include <list>
 
@@ -416,7 +417,6 @@ enum UnitMods
     UNIT_MOD_RAGE,
     UNIT_MOD_FOCUS,
     UNIT_MOD_ENERGY,
-    UNIT_MOD_HAPPINESS,
     UNIT_MOD_RUNE,
     UNIT_MOD_RUNIC_POWER,
     UNIT_MOD_ARMOR,                                         // UNIT_MOD_ARMOR..UNIT_MOD_RESISTANCE_ARCANE must be in existed order, it's accessed by index values of SpellSchools enum.
@@ -636,7 +636,7 @@ enum NPCFlags
 {
     UNIT_NPC_FLAG_NONE                  = 0x00000000,
     UNIT_NPC_FLAG_GOSSIP                = 0x00000001,       // 100%
-    UNIT_NPC_FLAG_QUESTGIVER            = 0x00000002,       // guessed, probably ok
+    UNIT_NPC_FLAG_QUESTGIVER            = 0x00000002,       // 100%
     UNIT_NPC_FLAG_UNK1                  = 0x00000004,
     UNIT_NPC_FLAG_UNK2                  = 0x00000008,
     UNIT_NPC_FLAG_TRAINER               = 0x00000010,       // 100%
@@ -1340,13 +1340,15 @@ class Unit : public WorldObject
 
         Powers getPowerType() const { return Powers(GetByteValue(UNIT_FIELD_BYTES_0, 3)); }
         void setPowerType(Powers power);
-        uint32 GetPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_POWER1   +power); }
-        uint32 GetMaxPower(Powers power) const { return GetUInt32Value(UNIT_FIELD_MAXPOWER1+power); }
-        void SetPower(Powers power, uint32 val);
-        void SetMaxPower(Powers power, uint32 val);
+        int32 GetPower(Powers power) const;
+        uint32 GetMaxPower(Powers power) const;
+        void SetPower(Powers power, int32 val);
+        void SetMaxPower(Powers power, int32 val);
         // returns the change in power
         int32 ModifyPower(Powers power, int32 val);
         int32 ModifyPowerPct(Powers power, float pct, bool apply = true);
+
+        uint32 GetPowerIndexByClass(uint32 powerId, uint32 classId) const;
 
         uint32 GetAttackTime(WeaponAttackType att) const
         {
@@ -1413,6 +1415,7 @@ class Unit : public WorldObject
         uint32 GetMountID() const { return GetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID); }
         void Mount(uint32 mount, uint32 vehicleId = 0, uint32 creatureEntry = 0);
         void Dismount();
+        MountCapabilityEntry const* GetMountCapability(uint32 mountType) const;
 
         uint16 GetMaxSkillValueForLevel(Unit const* target = NULL) const { return (target ? getLevelForTarget(target) : getLevel()) * 5; }
         void DealDamageMods(Unit* pVictim, uint32 &damage, uint32* absorb);
@@ -1838,7 +1841,7 @@ class Unit : public WorldObject
         uint32 GetCreateHealth() const { return GetUInt32Value(UNIT_FIELD_BASE_HEALTH); }
         void SetCreateMana(uint32 val) { SetUInt32Value(UNIT_FIELD_BASE_MANA, val); }
         uint32 GetCreateMana() const { return GetUInt32Value(UNIT_FIELD_BASE_MANA); }
-        uint32 GetCreatePowers(Powers power) const;
+        int32 GetCreatePowers(Powers power) const;
         float GetPosStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_POSSTAT0+stat); }
         float GetNegStat(Stats stat) const { return GetFloatValue(UNIT_FIELD_NEGSTAT0+stat); }
         float GetCreateStat(Stats stat) const { return m_createStats[stat]; }

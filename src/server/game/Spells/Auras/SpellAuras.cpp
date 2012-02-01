@@ -147,6 +147,16 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
         }
         m_flags |= positiveFound ? AFLAG_POSITIVE : AFLAG_NEGATIVE;
     }
+
+    // there are more auras that require this flag, this is just the beginning
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        if (((1 << i) & effMask) && GetBase()->GetSpellInfo()->Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
+        {
+            m_flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
+            break;
+        }
+    }
 }
 
 void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
@@ -192,7 +202,7 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
     uint32 flags = m_flags;
     if (aura->GetMaxDuration() > 0 && !(aura->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_HIDE_DURATION))
         flags |= AFLAG_DURATION;
-    data << uint8(flags);
+    data << uint16(flags);
     data << uint8(aura->GetCasterLevel());
     // send stack amount for aura which could be stacked (never 0 - causes incorrect display) or charges
     // stack amount has priority over charges (checked on retail with spell 50262)
@@ -206,6 +216,11 @@ void AuraApplication::BuildUpdatePacket(ByteBuffer& data, bool remove) const
         data << uint32(aura->GetMaxDuration());
         data << uint32(aura->GetDuration());
     }
+
+    if (flags & AFLAG_ANY_EFFECT_AMOUNT_SENT)
+        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+            if (AuraEffect const* eff = aura->GetEffect(i)) // NULL if effect flag not set
+                data << int32(eff->GetAmount());
 }
 
 void AuraApplication::ClientUpdate(bool remove)
@@ -337,7 +352,7 @@ m_owner(owner), m_timeCla(0), m_updateTargetMapInterval(0),
 m_casterLevel(caster ? caster->getLevel() : m_spellInfo->SpellLevel), m_procCharges(0), m_stackAmount(1),
 m_isRemoved(false), m_isSingleTarget(false), m_isUsingCharges(false)
 {
-    if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
+    if (m_spellInfo->ManaPerSecond)
         m_timeCla = 1 * IN_MILLISECONDS;
 
     m_maxDuration = CalcMaxDuration(caster);
@@ -666,7 +681,7 @@ void Aura::Update(uint32 diff, Unit* caster)
                 m_timeCla -= diff;
             else if (caster)
             {
-                if (int32 manaPerSecond = m_spellInfo->ManaPerSecond + m_spellInfo->ManaPerSecondPerLevel * caster->getLevel())
+                if (int32 manaPerSecond = m_spellInfo->ManaPerSecond)
                 {
                     m_timeCla += 1000 - diff;
 
@@ -734,7 +749,7 @@ void Aura::RefreshDuration()
 {
     SetDuration(GetMaxDuration());
 
-    if (m_spellInfo->ManaPerSecond || m_spellInfo->ManaPerSecondPerLevel)
+    if (m_spellInfo->ManaPerSecond)
         m_timeCla = 1 * IN_MILLISECONDS;
 }
 

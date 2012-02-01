@@ -156,7 +156,7 @@ m_vehicleKit(NULL), m_unitTypeMask(UNIT_MASK_NONE), m_HostileRefManager(this), m
     m_objectType |= TYPEMASK_UNIT;
     m_objectTypeId = TYPEID_UNIT;
 
-    m_updateFlag = (UPDATEFLAG_HIGHGUID | UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION);
+    m_updateFlag = (UPDATEFLAG_LIVING | UPDATEFLAG_HAS_POSITION);
 
     m_attackTimer[BASE_ATTACK] = 0;
     m_attackTimer[OFF_ATTACK] = 0;
@@ -1365,7 +1365,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             victim->DealDamageMods(this, damage, NULL);
 
             // TODO: Move this to a packet handler
-            WorldPacket data(SMSG_SPELLDAMAGESHIELD, (8+8+4+4+4+4));
+            WorldPacket data(SMSG_SPELLDAMAGESHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
             data << uint64(victim->GetGUID());
             data << uint64(GetGUID());
             data << uint32(i_spellProto->Id);
@@ -1373,6 +1373,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             int32 overkill = int32(damage) - int32(GetHealth());
             data << uint32(overkill > 0 ? overkill : 0); // Overkill
             data << uint32(i_spellProto->SchoolMask);
+            data << uint32(0); // Unknown 4.x
             victim->SendMessageToSet(&data, true);
 
             victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
@@ -1416,6 +1417,14 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     uint32 newdamage = 0;
     float armor = float(victim->GetArmor());
 
+    // bypass enemy armor by SPELL_AURA_BYPASS_ARMOR_FOR_CASTER
+    int32 armorBypassPct = 0;
+    AuraEffectList const & reductionAuras = victim->GetAuraEffectsByType(SPELL_AURA_BYPASS_ARMOR_FOR_CASTER);
+    for (AuraEffectList::const_iterator i = reductionAuras.begin(); i != reductionAuras.end(); ++i)
+        if ((*i)->GetCasterGUID() == GetGUID())
+            armorBypassPct += (*i)->GetAmount();
+    armor = CalculatePctN(armor, 100 - std::min(armorBypassPct, 100));
+
     // Ignore enemy armor by SPELL_AURA_MOD_TARGET_RESISTANCE aura
     armor += GetTotalAuraModifierByMiscMask(SPELL_AURA_MOD_TARGET_RESISTANCE, SPELL_SCHOOL_MASK_NORMAL);
 
@@ -1427,7 +1436,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
     for (AuraEffectList::const_iterator j = ResIgnoreAurasAb.begin(); j != ResIgnoreAurasAb.end(); ++j)
     {
         if ((*j)->GetMiscValue() & SPELL_SCHOOL_MASK_NORMAL
-            && (*j)->IsAffectedOnSpell(spellInfo))
+            && (*j)->IsAffectingSpell(spellInfo))
             armor = floor(AddPctN(armor, -(*j)->GetAmount()));
     }
 
@@ -1447,7 +1456,7 @@ uint32 Unit::CalcArmorReducedDamage(Unit* victim, const uint32 damage, SpellInfo
         {
             if ((*itr)->GetSpellInfo()->EquippedItemClass == -1)
             {
-                if (!spellInfo || (*itr)->IsAffectedOnSpell(spellInfo) || (*itr)->GetMiscValue() & spellInfo->GetSchoolMask())
+                if (!spellInfo || (*itr)->IsAffectingSpell(spellInfo) || (*itr)->GetMiscValue() & spellInfo->GetSchoolMask())
                     bonusPct += (*itr)->GetAmount();
                 else if (!(*itr)->GetMiscValue() && !(*itr)->HasSpellClassMask())
                     bonusPct += (*itr)->GetAmount();
@@ -1549,7 +1558,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
 
         AuraEffectList const& ResIgnoreAurasAb = GetAuraEffectsByType(SPELL_AURA_MOD_ABILITY_IGNORE_TARGET_RESIST);
         for (AuraEffectList::const_iterator j = ResIgnoreAurasAb.begin(); j != ResIgnoreAurasAb.end(); ++j)
-            if (((*j)->GetMiscValue() & schoolMask) && (*j)->IsAffectedOnSpell(spellInfo))
+            if (((*j)->GetMiscValue() & schoolMask) && (*j)->IsAffectingSpell(spellInfo))
                 AddPctN(damageResisted, -(*j)->GetAmount());
 
         AuraEffectList const& ResIgnoreAuras = GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_TARGET_RESIST);
@@ -1578,7 +1587,7 @@ void Unit::CalcAbsorbResist(Unit* victim, SpellSchoolMask schoolMask, DamageEffe
         if (!((*itr)->GetMiscValue() & schoolMask))
             continue;
 
-        if (((*itr)->GetAmount() > auraAbsorbMod) && (*itr)->IsAffectedOnSpell(spellInfo))
+        if (((*itr)->GetAmount() > auraAbsorbMod) && (*itr)->IsAffectingSpell(spellInfo))
             auraAbsorbMod = float((*itr)->GetAmount());
     }
     RoundToInterval(auraAbsorbMod, 0.0f, 100.0f);
@@ -2311,7 +2320,7 @@ SpellMissInfo Unit::MeleeSpellHitResult(Unit* victim, SpellInfo const* spell)
     AuraEffectList const& ignore = GetAuraEffectsByType(SPELL_AURA_IGNORE_COMBAT_RESULT);
     for (AuraEffectList::const_iterator i = ignore.begin(); i != ignore.end(); ++i)
     {
-        if (!(*i)->IsAffectedOnSpell(spell))
+        if (!(*i)->IsAffectingSpell(spell))
             continue;
         switch ((*i)->GetMiscValue())
         {
@@ -2628,7 +2637,7 @@ float Unit::GetUnitBlockChance() const
         if (player->CanBlock())
         {
             Item* tmpitem = player->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
-            if (tmpitem && !tmpitem->IsBroken() && tmpitem->GetTemplate()->Block)
+            if (tmpitem && !tmpitem->IsBroken())
                 return GetFloatValue(PLAYER_BLOCK_PERCENTAGE);
         }
         // is player but has no block ability or no not broken shield equipped
@@ -4144,7 +4153,7 @@ bool Unit::HasAuraTypeWithAffectMask(AuraType auratype, SpellInfo const* affecte
 {
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
-        if ((*i)->IsAffectedOnSpell(affectedSpell))
+        if ((*i)->IsAffectingSpell(affectedSpell))
             return true;
     return false;
 }
@@ -4204,7 +4213,7 @@ AuraEffect* Unit::IsScriptOverriden(SpellInfo const* spell, int32 script) const
     for (AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
     {
         if ((*i)->GetMiscValue() == script)
-            if ((*i)->IsAffectedOnSpell(spell))
+            if ((*i)->IsAffectingSpell(spell))
                 return (*i);
     }
     return NULL;
@@ -4441,7 +4450,7 @@ int32 Unit::GetTotalAuraModifierByAffectMask(AuraType auratype, SpellInfo const*
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->IsAffectedOnSpell(affectedSpell))
+        if ((*i)->IsAffectingSpell(affectedSpell))
             modifier += (*i)->GetAmount();
     }
     return modifier;
@@ -4454,7 +4463,7 @@ float Unit::GetTotalAuraMultiplierByAffectMask(AuraType auratype, SpellInfo cons
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->IsAffectedOnSpell(affectedSpell))
+        if ((*i)->IsAffectingSpell(affectedSpell))
             AddPctN(multiplier, (*i)->GetAmount());
     }
     return multiplier;
@@ -4467,7 +4476,7 @@ int32 Unit::GetMaxPositiveAuraModifierByAffectMask(AuraType auratype, SpellInfo 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->IsAffectedOnSpell(affectedSpell) && (*i)->GetAmount() > modifier)
+        if ((*i)->IsAffectingSpell(affectedSpell) && (*i)->GetAmount() > modifier)
             modifier = (*i)->GetAmount();
     }
 
@@ -4481,7 +4490,7 @@ int32 Unit::GetMaxNegativeAuraModifierByAffectMask(AuraType auratype, SpellInfo 
     AuraEffectList const& mTotalAuraList = GetAuraEffectsByType(auratype);
     for (AuraEffectList::const_iterator i = mTotalAuraList.begin(); i != mTotalAuraList.end(); ++i)
     {
-        if ((*i)->IsAffectedOnSpell(affectedSpell) && (*i)->GetAmount() < modifier)
+        if ((*i)->IsAffectingSpell(affectedSpell) && (*i)->GetAmount() < modifier)
             modifier = (*i)->GetAmount();
     }
 
@@ -8592,7 +8601,7 @@ bool Unit::HandleProcTriggerSpell(Unit* victim, uint32 damage, AuraEffect* trigg
 
             ItemTemplate const* weapon = item->GetTemplate();
 
-            float weaponDPS = weapon->getDPS();
+            float weaponDPS = weapon->DPS;
             float attackPower = GetTotalAttackPowerValue(BASE_ATTACK) / 14.0f;
             float weaponSpeed = float(weapon->Delay) / 1000.0f;
             basepoints0 = int32((weaponDPS + attackPower) * weaponSpeed);
@@ -9124,10 +9133,6 @@ void Unit::setPowerType(Powers new_powertype)
         case POWER_ENERGY:
             SetMaxPower(POWER_ENERGY, GetCreatePowers(POWER_ENERGY));
             break;
-        case POWER_HAPPINESS:
-            SetMaxPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
-            SetPower(POWER_HAPPINESS, GetCreatePowers(POWER_HAPPINESS));
-            break;
     }
 }
 
@@ -9566,7 +9571,7 @@ bool Unit::HasAuraState(AuraStateType flag, SpellInfo const* spellProto, Unit co
         {
             AuraEffectList const& stateAuras = Caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
             for (AuraEffectList::const_iterator j = stateAuras.begin(); j != stateAuras.end(); ++j)
-                if ((*j)->IsAffectedOnSpell(spellProto))
+                if ((*j)->IsAffectingSpell(spellProto))
                     return true;
         }
         // Check per caster aura state
@@ -10237,7 +10242,7 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellInfo const* spellProto, uint32 
     AuraEffectList const& mOverrideClassScript= owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
     for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
     {
-        if (!(*i)->IsAffectedOnSpell(spellProto))
+        if (!(*i)->IsAffectingSpell(spellProto))
             continue;
 
         switch ((*i)->GetMiscValue())
@@ -10556,7 +10561,7 @@ uint32 Unit::SpellDamageBonus(Unit* victim, SpellInfo const* spellProto, uint32 
     // From caster spells
     AuraEffectList const& mOwnerTaken = victim->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
     for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
-        if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectedOnSpell(spellProto))
+        if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectingSpell(spellProto))
             AddPctN(TakenTotalMod, (*i)->GetAmount());
 
     // Mod damage from spell mechanic
@@ -10810,7 +10815,7 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
                 AuraEffectList const& mOverrideClassScript = GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
                 for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
                 {
-                    if (!((*i)->IsAffectedOnSpell(spellProto)))
+                    if (!((*i)->IsAffectingSpell(spellProto)))
                         continue;
                     int32 modChance = 0;
                     switch ((*i)->GetMiscValue())
@@ -10946,6 +10951,11 @@ bool Unit::isSpellCrit(Unit* victim, SpellInfo const* spellProto, SpellSchoolMas
     if (Player* modOwner = GetSpellModOwner())
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_CRITICAL_CHANCE, crit_chance);
 
+    AuraEffectList const& critAuras = victim->GetAuraEffectsByType(SPELL_AURA_MOD_CRIT_CHANCE_FOR_CASTER);
+    for (AuraEffectList::const_iterator i = critAuras.begin(); i != critAuras.end(); ++i)
+        if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectingSpell(spellProto))
+            crit_chance += (*i)->GetAmount();
+
     crit_chance = crit_chance > 0.0f ? crit_chance : 0.0f;
     if (roll_chance_f(crit_chance))
         return true;
@@ -11047,7 +11057,7 @@ uint32 Unit::SpellHealingBonus(Unit* victim, SpellInfo const* spellProto, uint32
     AuraEffectList const& mOverrideClassScript= owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
     for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
     {
-        if (!(*i)->IsAffectedOnSpell(spellProto))
+        if (!(*i)->IsAffectingSpell(spellProto))
             continue;
         switch ((*i)->GetMiscValue())
         {
@@ -11273,7 +11283,7 @@ uint32 Unit::SpellHealingBonus(Unit* victim, SpellInfo const* spellProto, uint32
 
     AuraEffectList const& mHealingGet= victim->GetAuraEffectsByType(SPELL_AURA_MOD_HEALING_RECEIVED);
     for (AuraEffectList::const_iterator i = mHealingGet.begin(); i != mHealingGet.end(); ++i)
-        if (GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectedOnSpell(spellProto))
+        if (GetGUID() == (*i)->GetCasterGUID() && (*i)->IsAffectingSpell(spellProto))
             AddPctN(TakenTotalMod, (*i)->GetAmount());
 
     heal = (int32(heal) + TakenTotal) * TakenTotalMod;
@@ -11539,6 +11549,22 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
     float TakenTotalMod = 1.0f;
 
     // ..done
+    // SPELL_AURA_MOD_AUTOATTACK_DAMAGE
+    if (!spellProto)
+    {
+        AuraEffectList const & autoattackDamage = GetAuraEffectsByType(SPELL_AURA_MOD_AUTOATTACK_DAMAGE);
+        for (AuraEffectList::const_iterator i = autoattackDamage.begin(); i != autoattackDamage.end(); ++i)
+        {
+            int32 amount = (*i)->GetAmount();
+            if ((*i)->GetSpellInfo()->EquippedItemClass == -1)
+                AddPctN(DoneTotalMod, amount);
+            else if (!((*i)->GetSpellInfo()->AttributesEx5 & SPELL_ATTR5_SPECIAL_ITEM_CLASS_CHECK) && ((*i)->GetSpellInfo()->EquippedItemSubClassMask == 0))
+                AddPctN(DoneTotalMod, amount);
+            else if (ToPlayer() && ToPlayer()->HasItemFitToSpellRequirements((*i)->GetSpellInfo()))
+                AddPctN(DoneTotalMod, amount);
+        }
+    }
+
     AuraEffectList const& mModDamagePercentDone = GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
     for (AuraEffectList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
     {
@@ -11572,7 +11598,7 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
     AuraEffectList const& mOverrideClassScript = owner->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_CLASS_SCRIPTS);
     for (AuraEffectList::const_iterator i = mOverrideClassScript.begin(); i != mOverrideClassScript.end(); ++i)
     {
-        if (!(*i)->IsAffectedOnSpell(spellProto))
+        if (!(*i)->IsAffectingSpell(spellProto))
             continue;
 
         switch ((*i)->GetMiscValue())
@@ -11648,7 +11674,7 @@ void Unit::MeleeDamageBonus(Unit* victim, uint32 *pdamage, WeaponAttackType attT
     // From caster spells
     AuraEffectList const& mOwnerTaken = victim->GetAuraEffectsByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
     for (AuraEffectList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
-        if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectedOnSpell(spellProto))
+        if ((*i)->GetCasterGUID() == GetGUID() && (*i)->IsAffectingSpell(spellProto))
             AddPctN(TakenTotalMod, (*i)->GetAmount());
 
     // .. taken pct (special attacks)
@@ -11844,7 +11870,7 @@ void Unit::Mount(uint32 mount, uint32 VehicleId, uint32 creatureEntry)
                 player->UnsummonPetTemporaryIfAny();
         }
 
-        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, GetPackGUID().size() + 4 + 4);
         data.append(GetPackGUID());
         data << uint32(sWorld->GetGameTime());   // Packet counter
         data << player->GetCollisionHeight(true);
@@ -11862,14 +11888,14 @@ void Unit::Dismount()
     SetUInt32Value(UNIT_FIELD_MOUNTDISPLAYID, 0);
     RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_MOUNT);
 
-    if (Player* thisPlayer = ToPlayer())
+    /*if (Player* thisPlayer = ToPlayer())
     {
-        WorldPacket data(SMSG_MOVE_SET_COLLISION_HGT, GetPackGUID().size() + 4 + 4);
+        WorldPacket data(SMSG_MOVE_SET_COLLISION_HEIGHT, GetPackGUID().size() + 4 + 4);
         data.append(GetPackGUID());
         data << uint32(sWorld->GetGameTime());   // Packet counter
         data << thisPlayer->GetCollisionHeight(false);
         thisPlayer->GetSession()->SendPacket(&data);
-    }
+    }*/
 
     WorldPacket data(SMSG_DISMOUNT, 8);
     data.appendPackGUID(GetGUID());
@@ -11902,6 +11928,64 @@ void Unit::Dismount()
         else
             player->ResummonPetTemporaryUnSummonedIfAny();
     }
+}
+
+MountCapabilityEntry const* Unit::GetMountCapability(uint32 mountType) const
+{
+    if (!mountType)
+        return NULL;
+
+    MountTypeEntry const* mountTypeEntry = sMountTypeStore.LookupEntry(mountType);
+    if (!mountTypeEntry)
+        return NULL;
+
+    uint32 zoneId, areaId;
+    GetZoneAndAreaId(zoneId, areaId);
+    uint32 ridingSkill = 5000;
+    if (GetTypeId() == TYPEID_PLAYER)
+        ridingSkill = ToPlayer()->GetSkillValue(SKILL_RIDING);
+
+    for (uint32 i = MAX_MOUNT_CAPABILITIES; i > 0; --i)
+    {
+        MountCapabilityEntry const* mountCapability = sMountCapabilityStore.LookupEntry(mountTypeEntry->MountCapability[i - 1]);
+        if (!mountCapability)
+            continue;
+
+        if (ridingSkill < mountCapability->RequiredRidingSkill)
+            continue;
+
+        if (HasExtraUnitMovementFlag(MOVEMENTFLAG2_FULL_SPEED_PITCHING))
+        {
+            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_PITCH))
+                continue;
+        }
+        else if (HasUnitMovementFlag(MOVEMENTFLAG_SWIMMING))
+        {
+            if (!(mountCapability->Flags & MOUNT_FLAG_CAN_SWIM))
+                continue;
+        }
+        else if (!(mountCapability->Flags & 0x1))   // unknown flags, checked in 4.2.2 14545 client
+        {
+            if (!(mountCapability->Flags & 0x2))
+                continue;
+        }
+
+        if (mountCapability->RequiredMap != -1 && GetMapId() != mountCapability->RequiredMap)
+            continue;
+
+        if (mountCapability->RequiredArea && (mountCapability->RequiredArea != zoneId && mountCapability->RequiredArea != areaId))
+            continue;
+
+        if (mountCapability->RequiredAura && !HasAura(mountCapability->RequiredAura))
+            continue;
+
+        if (mountCapability->RequiredSpell && (GetTypeId() != TYPEID_PLAYER || !ToPlayer()->HasSpell(mountCapability->RequiredSpell)))
+            continue;
+
+        return mountCapability;
+    }
+
+    return NULL;
 }
 
 void Unit::SetInCombatWith(Unit* enemy)
@@ -12515,43 +12599,192 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
     propagateSpeedChange();
 
     WorldPacket data;
+    uint64 guid = GetGUID();
+    uint8* bytes = (uint8*)&guid;
     if (!forced)
     {
         switch (mtype)
         {
             case MOVE_WALK:
-                data.Initialize(MSG_MOVE_SET_WALK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_WALK_SPEED, 8+4+2+4+4+4+4+4+4+4);
                 break;
             case MOVE_RUN:
-                data.Initialize(MSG_MOVE_SET_RUN_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_RUN_SPEED, 1 + 8 + 4);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[0]);
+
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[1]);
+
+                data << float(GetSpeed(mtype));
                 break;
             case MOVE_RUN_BACK:
-                data.Initialize(MSG_MOVE_SET_RUN_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_RUN_BACK_SPEED, 1 + 8 + 4);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[2]);
+
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[2]);
+
+                data << float(GetSpeed(mtype));
                 break;
             case MOVE_SWIM:
-                data.Initialize(MSG_MOVE_SET_SWIM_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_SWIM_SPEED, 1 + 8 + 4);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[6]);
+
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[7]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[5]);
                 break;
             case MOVE_SWIM_BACK:
-                data.Initialize(MSG_MOVE_SET_SWIM_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_SWIM_BACK_SPEED, 1 + 8 + 4);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[7]);
+
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[2]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[5]);
                 break;
             case MOVE_TURN_RATE:
-                data.Initialize(MSG_MOVE_SET_TURN_RATE, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_TURN_RATE, 1 + 8 + 4);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[2]);
+
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[0]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[3]);
                 break;
             case MOVE_FLIGHT:
-                data.Initialize(MSG_MOVE_SET_FLIGHT_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_FLIGHT_SPEED, 1 + 8 + 4);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[1]);
+
+                data << float(GetSpeed(mtype));
+
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[4]);
                 break;
             case MOVE_FLIGHT_BACK:
-                data.Initialize(MSG_MOVE_SET_FLIGHT_BACK_SPEED, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[3]);
+
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[7]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[3]);
                 break;
             case MOVE_PITCH_RATE:
-                data.Initialize(MSG_MOVE_SET_PITCH_RATE, 8+4+2+4+4+4+4+4+4+4);
+                data.Initialize(SMSG_MOVE_SPLINE_SET_PITCH_RATE, 1 + 8 + 4);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[1]);
+
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[4]);
+                data << float(GetSpeed(mtype));
                 break;
             default:
                 sLog->outError("Unit::SetSpeed: Unsupported move type (%d), data not sent to client.", mtype);
                 return;
         }
 
-        data.append(GetPackGUID());
+        /*data.append(GetPackGUID());
         data << uint32(0);                                  // movement flags
         data << uint16(0);                                  // unk flags
         data << uint32(getMSTime());
@@ -12560,7 +12793,8 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         data << float(GetPositionZ());
         data << float(GetOrientation());
         data << uint32(0);                                  // fall time
-        data << float(GetSpeed(mtype));
+        data << float(GetSpeed(mtype));*/
+
         SendMessageToSet(&data, true);
     }
     else
@@ -12579,41 +12813,212 @@ void Unit::SetSpeed(UnitMoveType mtype, float rate, bool forced)
         switch (mtype)
         {
             case MOVE_WALK:
-                data.Initialize(SMSG_FORCE_WALK_SPEED_CHANGE, 16);
+                data.Initialize(SMSG_MOVE_SET_WALK_SPEED, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[3]);
+
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[1]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[5]);
+                data << uint32(0);
+                data.WriteByteSeq(bytes[0]);
                 break;
             case MOVE_RUN:
-                data.Initialize(SMSG_FORCE_RUN_SPEED_CHANGE, 17);
+                data.Initialize(SMSG_MOVE_SET_RUN_SPEED, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[6]);
+
+                data.WriteByteSeq(bytes[1]);
+
+                data << float(GetSpeed(mtype));
+
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[5]);
+                data << uint32(0);
                 break;
             case MOVE_RUN_BACK:
-                data.Initialize(SMSG_FORCE_RUN_BACK_SPEED_CHANGE, 16);
+                data.Initialize(SMSG_MOVE_SET_RUN_BACK_SPEED, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[5]);
+
+                data << float(GetSpeed(mtype));
+
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[1]);
+                data << uint32(0);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[0]);
                 break;
             case MOVE_SWIM:
-                data.Initialize(SMSG_FORCE_SWIM_SPEED_CHANGE, 16);
+                data.Initialize(SMSG_MOVE_SET_SWIM_SPEED, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[0]);
+
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[0]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[2]);
+                data << uint32(0);
                 break;
             case MOVE_SWIM_BACK:
-                data.Initialize(SMSG_FORCE_SWIM_BACK_SPEED_CHANGE, 16);
+                data.Initialize(SMSG_MOVE_SET_SWIM_BACK_SPEED, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[0]);
+
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[0]);
+                data << uint32(0);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[2]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[5]);
                 break;
             case MOVE_TURN_RATE:
-                data.Initialize(SMSG_FORCE_TURN_RATE_CHANGE, 16);
+                data.Initialize(SMSG_MOVE_SET_TURN_RATE, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[4]);
+
+                data << float(GetSpeed(mtype));
+
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[5]);
+                data << uint32(0);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[7]);
                 break;
             case MOVE_FLIGHT:
-                data.Initialize(SMSG_FORCE_FLIGHT_SPEED_CHANGE, 16);
+                data.Initialize(SMSG_MOVE_SET_FLIGHT_SPEED, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[3]);
+
+                data << float(GetSpeed(mtype));
+
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[0]);
+                data.WriteByteSeq(bytes[2]);
+                data << uint32(0);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[4]);
                 break;
             case MOVE_FLIGHT_BACK:
-                data.Initialize(SMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE, 16);
+                data.Initialize(SMSG_MOVE_SET_FLIGHT_BACK_SPEED, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[1]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[7]);
+
+                data.WriteByteSeq(bytes[0]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[7]);
+                data << uint32(0);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[3]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[4]);
+                data.WriteByteSeq(bytes[5]);
                 break;
             case MOVE_PITCH_RATE:
-                data.Initialize(SMSG_FORCE_PITCH_RATE_CHANGE, 16);
+                data.Initialize(SMSG_MOVE_SET_PITCH_RATE, 1 + 8 + 4 + 4 );
+                data.WriteByteMask(bytes[7]);
+                data.WriteByteMask(bytes[5]);
+                data.WriteByteMask(bytes[6]);
+                data.WriteByteMask(bytes[2]);
+                data.WriteByteMask(bytes[4]);
+                data.WriteByteMask(bytes[0]);
+                data.WriteByteMask(bytes[3]);
+                data.WriteByteMask(bytes[1]);
+
+                data.WriteByteSeq(bytes[0]);
+                data << uint32(0);
+                data.WriteByteSeq(bytes[3]);
+                data << float(GetSpeed(mtype));
+                data.WriteByteSeq(bytes[5]);
+                data.WriteByteSeq(bytes[1]);
+                data.WriteByteSeq(bytes[6]);
+                data.WriteByteSeq(bytes[7]);
+                data.WriteByteSeq(bytes[2]);
+                data.WriteByteSeq(bytes[4]);
                 break;
             default:
                 sLog->outError("Unit::SetSpeed: Unsupported move type (%d), data not sent to client.", mtype);
                 return;
         }
-        data.append(GetPackGUID());
-        data << (uint32)0;                                  // moveEvent, NUM_PMOVE_EVTS = 0x39
-        if (mtype == MOVE_RUN)
-            data << uint8(0);                               // new 2.1.0
-        data << float(GetSpeed(mtype));
         SendMessageToSet(&data, true);
     }
 }
@@ -13255,7 +13660,7 @@ uint32 Unit::GetCreatureType() const
     if (GetTypeId() == TYPEID_PLAYER)
     {
         ShapeshiftForm form = GetShapeshiftForm();
-        SpellShapeshiftEntry const* ssEntry = sSpellShapeshiftStore.LookupEntry(form);
+        SpellShapeshiftFormEntry const* ssEntry = sSpellShapeshiftFormStore.LookupEntry(form);
         if (ssEntry && ssEntry->creatureType > 0)
             return ssEntry->creatureType;
         else
@@ -13311,7 +13716,6 @@ bool Unit::HandleStatModifier(UnitMods unitMod, UnitModifierType modifierType, f
         case UNIT_MOD_RAGE:
         case UNIT_MOD_FOCUS:
         case UNIT_MOD_ENERGY:
-        case UNIT_MOD_HAPPINESS:
         case UNIT_MOD_RUNE:
         case UNIT_MOD_RUNIC_POWER:          UpdateMaxPower(GetPowerTypeByAuraGroup(unitMod));          break;
 
@@ -13431,7 +13835,6 @@ Powers Unit::GetPowerTypeByAuraGroup(UnitMods unitMod) const
         case UNIT_MOD_RAGE:        return POWER_RAGE;
         case UNIT_MOD_FOCUS:       return POWER_FOCUS;
         case UNIT_MOD_ENERGY:      return POWER_ENERGY;
-        case UNIT_MOD_HAPPINESS:   return POWER_HAPPINESS;
         case UNIT_MOD_RUNE:        return POWER_RUNE;
         case UNIT_MOD_RUNIC_POWER: return POWER_RUNIC_POWER;
         default:
@@ -13443,14 +13846,14 @@ float Unit::GetTotalAttackPowerValue(WeaponAttackType attType) const
 {
     if (attType == RANGED_ATTACK)
     {
-        int32 ap = GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER_MODS);
+        int32 ap = GetInt32Value(UNIT_FIELD_RANGED_ATTACK_POWER);
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + GetFloatValue(UNIT_FIELD_RANGED_ATTACK_POWER_MULTIPLIER));
     }
     else
     {
-        int32 ap = GetInt32Value(UNIT_FIELD_ATTACK_POWER) + GetInt32Value(UNIT_FIELD_ATTACK_POWER_MODS);
+        int32 ap = GetInt32Value(UNIT_FIELD_ATTACK_POWER);
         if (ap < 0)
             return 0.0f;
         return ap * (1.0f + GetFloatValue(UNIT_FIELD_ATTACK_POWER_MULTIPLIER));
@@ -13534,21 +13937,67 @@ void Unit::SetMaxHealth(uint32 val)
         SetHealth(val);
 }
 
-void Unit::SetPower(Powers power, uint32 val)
+uint32 Unit::GetPowerIndexByClass(uint32 powerId, uint32 classId) const
 {
-    if (GetPower(power) == val)
+    ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(classId);
+
+    ASSERT(classEntry && "Class not found");
+
+    uint32 index = 0;
+    for (uint32 i = 0; i <= sChrPowerTypesStore.GetNumRows(); ++i)
+    {
+        ChrPowerTypesEntry const* powerEntry = sChrPowerTypesStore.LookupEntry(i);
+        if (!powerEntry)
+            continue;
+
+        if (powerEntry->classId != classId)
+            continue;
+
+        if (powerEntry->power == powerId)
+            return index;
+
+        ++index;
+    }
+
+    // return invalid value - this class doesn't use this power
+    return MAX_POWERS;
+};
+
+int32 Unit::GetPower(Powers power) const
+{
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
+        return 0;
+
+    return GetUInt32Value(UNIT_FIELD_POWER1 + powerIndex);
+}
+
+uint32 Unit::GetMaxPower(Powers power) const
+{
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
+        return 0;
+
+    return GetUInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex);
+}
+
+void Unit::SetPower(Powers power, int32 val)
+{
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
         return;
 
-    uint32 maxPower = GetMaxPower(power);
+    int32 maxPower = int32(GetMaxPower(power));
     if (maxPower < val)
         val = maxPower;
 
-    SetStatInt32Value(UNIT_FIELD_POWER1 + power, val);
+    SetStatInt32Value(UNIT_FIELD_POWER1 + powerIndex, val);
 
     WorldPacket data(SMSG_POWER_UPDATE);
     data.append(GetPackGUID());
-    data << uint8(power);
-    data << uint32(val);
+    data << uint32(1);//unk
+    data << uint8(powerIndex);
+    data << int32(val);
     SendMessageToSet(&data, GetTypeId() == TYPEID_PLAYER ? true : false);
 
     // group update
@@ -13565,17 +14014,17 @@ void Unit::SetPower(Powers power, uint32 val)
             if (owner && (owner->GetTypeId() == TYPEID_PLAYER) && owner->ToPlayer()->GetGroup())
                 owner->ToPlayer()->SetGroupUpdateFlag(GROUP_UPDATE_FLAG_PET_CUR_POWER);
         }
-
-        // Update the pet's character sheet with happiness damage bonus
-        if (pet->getPetType() == HUNTER_PET && power == POWER_HAPPINESS)
-            pet->UpdateDamagePhysical(BASE_ATTACK);
     }
 }
 
-void Unit::SetMaxPower(Powers power, uint32 val)
+void Unit::SetMaxPower(Powers power, int32 val)
 {
-    uint32 cur_power = GetPower(power);
-    SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + power, val);
+    uint32 powerIndex = GetPowerIndexByClass(power, getClass());
+    if (powerIndex == MAX_POWERS)
+        return;
+
+    int32 cur_power = GetPower(power);
+    SetStatInt32Value(UNIT_FIELD_MAXPOWER1 + powerIndex, val);
 
     // group update
     if (GetTypeId() == TYPEID_PLAYER)
@@ -13597,19 +14046,32 @@ void Unit::SetMaxPower(Powers power, uint32 val)
         SetPower(power, val);
 }
 
-uint32 Unit::GetCreatePowers(Powers power) const
+int32 Unit::GetCreatePowers(Powers power) const
 {
-    // Only hunter pets have POWER_FOCUS and POWER_HAPPINESS
     switch (power)
     {
-        case POWER_MANA:      return GetCreateMana();
-        case POWER_RAGE:      return 1000;
-        case POWER_FOCUS:     return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
-        case POWER_ENERGY:    return 100;
-        case POWER_HAPPINESS: return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 1050000);
-        case POWER_RUNIC_POWER: return 1000;
-        case POWER_RUNE:      return 0;
-        case POWER_HEALTH:    return 0;
+        case POWER_MANA:
+            return GetCreateMana();
+        case POWER_RAGE:
+            return 1000;
+        case POWER_FOCUS:
+            if (GetTypeId() == TYPEID_PLAYER && getClass() == CLASS_HUNTER)
+                return 100;
+            return (GetTypeId() == TYPEID_PLAYER || !((Creature const*)this)->isPet() || ((Pet const*)this)->getPetType() != HUNTER_PET ? 0 : 100);
+        case POWER_ENERGY:
+            return 100;
+        case POWER_RUNIC_POWER:
+            return 1000;
+        case POWER_RUNE:
+            return 0;
+        case POWER_SOULSHARD:
+            return 3;
+        case POWER_ECLIPSE:
+            return 0;
+        case POWER_HOLY_POWER:
+            return 0;
+        case POWER_HEALTH:
+            return 0;
         default:
             break;
     }
@@ -15635,7 +16097,7 @@ void Unit::SetStunned(bool apply)
         else
             SetStandState(UNIT_STAND_STATE_STAND);
 
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
+        WorldPacket data(SMSG_MOVE_ROOT, 8);
         data.append(GetPackGUID());
         data << uint32(0);
         SendMessageToSet(&data, true);
@@ -15654,7 +16116,7 @@ void Unit::SetStunned(bool apply)
 
         if (!HasUnitState(UNIT_STAT_ROOT))         // prevent moving if it also has root effect
         {
-            WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 8+4);
+            WorldPacket data(SMSG_MOVE_UNROOT, 8+4);
             data.append(GetPackGUID());
             data << uint32(0);
             SendMessageToSet(&data, true);
@@ -15679,14 +16141,14 @@ void Unit::SetRooted(bool apply)
 
         if (GetTypeId() == TYPEID_PLAYER)
         {
-            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
+            WorldPacket data(SMSG_MOVE_ROOT, 10);
             data.append(GetPackGUID());
             data << m_rootTimes;
             SendMessageToSet(&data, true);
         }
         else
         {
-            WorldPacket data(SMSG_SPLINE_MOVE_ROOT, 8);
+            WorldPacket data(SMSG_MOVE_SPLINE_ROOT, 8);
             data.append(GetPackGUID());
             SendMessageToSet(&data, true);
             ToCreature()->StopMoving();
@@ -15698,14 +16160,14 @@ void Unit::SetRooted(bool apply)
         {
             if (GetTypeId() == TYPEID_PLAYER)
             {
-                WorldPacket data(SMSG_FORCE_MOVE_UNROOT, 10);
+                WorldPacket data(SMSG_MOVE_UNROOT, 10);
                 data.append(GetPackGUID());
                 data << ++m_rootTimes;
                 SendMessageToSet(&data, true);
             }
             else
             {
-                WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+                WorldPacket data(SMSG_MOVE_SPLINE_UNROOT, 8);
                 data.append(GetPackGUID());
                 SendMessageToSet(&data, true);
             }
@@ -16478,13 +16940,33 @@ void Unit::KnockbackFrom(float x, float y, float speedXY, float speedZ)
         float vcos, vsin;
         GetSinCos(x, y, vsin, vcos);
 
-        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
-        data.append(GetPackGUID());
-        data << uint32(0);                                      // counter
-        data << float(vcos);                                    // x direction
-        data << float(vsin);                                    // y direction
-        data << float(speedXY);                                 // Horizontal speed
-        data << float(-speedZ);                                 // Z Movement speed (vertical)
+        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
+        uint64 guid = GetGUID();
+        uint8* bytes = (uint8*)&guid;
+
+        data.WriteByteMask(bytes[5]);
+        data.WriteByteMask(bytes[2]);
+        data.WriteByteMask(bytes[6]);
+        data.WriteByteMask(bytes[3]);
+        data.WriteByteMask(bytes[1]);
+        data.WriteByteMask(bytes[4]);
+        data.WriteByteMask(bytes[0]);
+        data.WriteByteMask(bytes[7]);
+
+        data.WriteByteSeq(bytes[0]);
+        data << float(speedXY);
+        data << uint32(0);
+        data << float(-speedZ);
+        data.WriteByteSeq(bytes[6]);
+        data << float(vcos);
+        data << float(vsin);
+        data.WriteByteSeq(bytes[3]);
+        data.WriteByteSeq(bytes[1]);
+        data.WriteByteSeq(bytes[2]);
+        data.WriteByteSeq(bytes[4]);
+        data.WriteByteSeq(bytes[7]);
+        data.WriteByteSeq(bytes[5]);
+        data.WriteByteSeq(bytes[5]);
 
         player->GetSession()->SendPacket(&data);
     }
@@ -16683,7 +17165,7 @@ uint32 Unit::GetModelForForm(ShapeshiftForm form)
     }
 
     uint32 modelid = 0;
-    SpellShapeshiftEntry const* formEntry = sSpellShapeshiftStore.LookupEntry(form);
+    SpellShapeshiftFormEntry const* formEntry = sSpellShapeshiftFormStore.LookupEntry(form);
     if (formEntry && formEntry->modelID_A)
     {
         // Take the alliance modelid as default
@@ -16798,13 +17280,32 @@ void Unit::JumpTo(float speedXY, float speedZ, bool forward)
         float vcos = cos(angle+GetOrientation());
         float vsin = sin(angle+GetOrientation());
 
-        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (8+4+4+4+4+4));
-        data.append(GetPackGUID());
-        data << uint32(0);                                      // Sequence
-        data << float(vcos);                                    // x direction
-        data << float(vsin);                                    // y direction
-        data << float(speedXY);                                 // Horizontal speed
-        data << float(-speedZ);                                 // Z Movement speed (vertical)
+        WorldPacket data(SMSG_MOVE_KNOCK_BACK, (1+8+4+4+4+4+4));
+        uint64 guid = GetGUID();
+        uint8* bytes = (uint8*)&guid;
+
+        data.WriteByteMask(bytes[5]);
+        data.WriteByteMask(bytes[2]);
+        data.WriteByteMask(bytes[6]);
+        data.WriteByteMask(bytes[3]);
+        data.WriteByteMask(bytes[1]);
+        data.WriteByteMask(bytes[4]);
+        data.WriteByteMask(bytes[0]);
+        data.WriteByteMask(bytes[7]);
+
+        data.WriteByteSeq(bytes[0]);
+        data << float(speedXY);
+        data << uint32(0);
+        data << float(-speedZ);
+        data.WriteByteSeq(bytes[6]);
+        data << float(vcos);
+        data << float(vsin);
+        data.WriteByteSeq(bytes[3]);
+        data.WriteByteSeq(bytes[1]);
+        data.WriteByteSeq(bytes[2]);
+        data.WriteByteSeq(bytes[4]);
+        data.WriteByteSeq(bytes[7]);
+        data.WriteByteSeq(bytes[5]);
 
         ToPlayer()->GetSession()->SendPacket(&data);
     }
@@ -17001,7 +17502,7 @@ void Unit::_ExitVehicle(Position const* exitPosition)
         ToPlayer()->SetFallInformation(0, GetPositionZ());
     else if (HasUnitMovementFlag(MOVEMENTFLAG_ROOT))
     {
-        WorldPacket data(SMSG_SPLINE_MOVE_UNROOT, 8);
+        WorldPacket data(SMSG_MOVE_SPLINE_UNROOT, 8);
         data.append(GetPackGUID());
         SendMessageToSet(&data, false);
     }
@@ -17033,50 +17534,98 @@ void Unit::_ExitVehicle(Position const* exitPosition)
 
 void Unit::BuildMovementPacket(ByteBuffer *data) const
 {
-    *data << uint32(GetUnitMovementFlags()); // movement flags
-    *data << uint16(m_movementInfo.flags2);    // 2.3.0
-    *data << uint32(getMSTime());            // time
-    *data << GetPositionX();
-    *data << GetPositionY();
-    *data << GetPositionZ();
-    *data << GetOrientation();
+    switch (GetTypeId())
+    {
+        case TYPEID_UNIT:
+            if (canFly())
+                const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            break;
+        case TYPEID_PLAYER:
+            // remove unknown, unused etc flags for now
+            const_cast<Unit*>(this)->RemoveUnitMovementFlag(MOVEMENTFLAG_SPLINE_ENABLED);
+            if (isInFlight())
+            {
+                WPAssert(const_cast<Unit*>(this)->GetMotionMaster()->GetCurrentMovementGeneratorType() == FLIGHT_MOTION_TYPE);
+                const_cast<Unit*>(this)->AddUnitMovementFlag(MOVEMENTFLAG_FORWARD | MOVEMENTFLAG_SPLINE_ENABLED);
+            }
+            break;
+        default:
+            break;
+    }
 
-    // 0x00000200
-    if (GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT)
+    bool onTransport = GetUnitMovementFlags() & MOVEMENTFLAG_ONTRANSPORT;
+    bool hasInterpolatedMovement = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT;
+    bool time3 = false;
+    bool swimming = ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
+        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING));
+    bool interPolatedTurning = m_movementInfo.flags2 & MOVEMENTFLAG2_INTERPOLATED_TURNING;
+    bool jumping = GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING;
+    bool splineElevation = GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION;
+    bool splineData = false;
+
+    data->WriteBits(GetUnitMovementFlags(), 30);
+    data->WriteBits(m_movementInfo.flags2, 12);
+    data->WriteBit(onTransport);
+    if (onTransport)
+    {
+        data->WriteBit(hasInterpolatedMovement);
+        data->WriteBit(time3);
+    }
+
+    data->WriteBit(swimming);
+    data->WriteBit(interPolatedTurning);
+    if (interPolatedTurning)
+        data->WriteBit(jumping);
+
+    data->WriteBit(splineElevation);
+    data->WriteBit(splineData);
+
+    data->FlushBits(); // reset bit stream
+
+    *data << uint64(GetGUID());
+    *data << uint32(getMSTime());
+    *data << float(GetPositionX());
+    *data << float(GetPositionY());
+    *data << float(GetPositionZ());
+    *data << float(GetOrientation());
+
+    if (onTransport)
     {
         if (m_vehicle)
-            data->append(m_vehicle->GetBase()->GetPackGUID());
+            *data << uint64(m_vehicle->GetBase()->GetGUID());
         else if (GetTransport())
-            data->append(GetTransport()->GetPackGUID());
-        else
-            *data << (uint8)0;
+            *data << uint64(GetTransport()->GetGUID());
+        else // probably should never happen
+            *data << (uint64)0;
 
         *data << float (GetTransOffsetX());
         *data << float (GetTransOffsetY());
         *data << float (GetTransOffsetZ());
         *data << float (GetTransOffsetO());
-        *data << uint32(GetTransTime());
         *data << uint8 (GetTransSeat());
+        *data << uint32(GetTransTime());
+        if (hasInterpolatedMovement)
+            *data << int32(0); // Transport Time 2
+        if (time3)
+            *data << int32(0); // Transport Time 3
     }
 
-    // 0x02200000
-    if ((GetUnitMovementFlags() & (MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING))
-        || (m_movementInfo.flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING))
+    if (swimming)
         *data << (float)m_movementInfo.pitch;
 
-    *data << (uint32)m_movementInfo.fallTime;
-
-    // 0x00001000
-    if (GetUnitMovementFlags() & MOVEMENTFLAG_JUMPING)
+    if (interPolatedTurning)
     {
+        *data << (uint32)m_movementInfo.fallTime;
         *data << (float)m_movementInfo.j_zspeed;
-        *data << (float)m_movementInfo.j_sinAngle;
-        *data << (float)m_movementInfo.j_cosAngle;
-        *data << (float)m_movementInfo.j_xyspeed;
+        if (jumping)
+        {
+            *data << (float)m_movementInfo.j_sinAngle;
+            *data << (float)m_movementInfo.j_cosAngle;
+            *data << (float)m_movementInfo.j_xyspeed;
+        }
     }
 
-    // 0x04000000
-    if (GetUnitMovementFlags() & MOVEMENTFLAG_SPLINE_ELEVATION)
+    if (splineElevation)
         *data << (float)m_movementInfo.splineElevation;
 }
 
@@ -17146,7 +17695,7 @@ void Unit::SendThreatListUpdate()
     {
         uint32 count = getThreatManager().getThreatList().size();
 
-        //sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
+        sLog->outDebug(LOG_FILTER_UNITS, "WORLD: Send SMSG_THREAT_UPDATE Message");
         WorldPacket data(SMSG_THREAT_UPDATE, 8 + count * 8);
         data.append(GetPackGUID());
         data << uint32(count);

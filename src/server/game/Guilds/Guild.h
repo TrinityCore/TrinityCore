@@ -29,7 +29,7 @@ class Item;
 
 enum GuildMisc
 {
-    GUILD_BANK_MAX_TABS                 = 6,                    // send by client for money log also
+    GUILD_BANK_MAX_TABS                 = 8,                    // send by client for money log also
     GUILD_BANK_MAX_SLOTS                = 98,
     GUILD_BANK_MONEY_LOGS_TAB           = 100,                  // used for money log in DB
     GUILD_RANKS_MIN_COUNT               = 5,
@@ -115,26 +115,33 @@ enum GuildCommandError
 
 enum GuildEvents
 {
-    GE_PROMOTION                    = 0x00,
-    GE_DEMOTION                     = 0x01,
-    GE_MOTD                         = 0x02,
-    GE_JOINED                       = 0x03,
-    GE_LEFT                         = 0x04,
-    GE_REMOVED                      = 0x05,
-    GE_LEADER_IS                    = 0x06,
-    GE_LEADER_CHANGED               = 0x07,
-    GE_DISBANDED                    = 0x08,
-    GE_TABARDCHANGE                 = 0x09,
-    GE_UNK1                         = 0x0A,                 // string, string EVENT_GUILD_ROSTER_UPDATE tab content change?
-    GE_UNK2                         = 0x0B,                 // EVENT_GUILD_ROSTER_UPDATE
-    GE_SIGNED_ON                    = 0x0C,                 // ERR_FRIEND_ONLINE_SS
-    GE_SIGNED_OFF                   = 0x0D,                 // ERR_FRIEND_OFFLINE_S
-    GE_GUILDBANK_BAGSLOTS_CHANGED   = 0x0E,                 // EVENT_GUILDBANK_BAGSLOTS_CHANGED
-    GE_GUILDBANK_TAB_PURCHASED      = 0x0F,                 // EVENT_GUILDBANK_UPDATE_TABS
-    GE_UNK5                         = 0x10,                 // EVENT_GUILDBANK_UPDATE_TABS
-    GE_GUILDBANK_MONEY_UPDATE       = 0x11,                 // EVENT_GUILDBANK_UPDATE_MONEY, string 0000000000002710 is 1 gold
-    GE_GUILDBANK_MONEY_WITHDRAWN    = 0x12,                 // MSG_GUILD_BANK_MONEY_WITHDRAWN
-    GE_GUILDBANK_TEXT_CHANGED       = 0x13                  // EVENT_GUILDBANK_TEXT_CHANGED
+    // TODO Verify this enum, it changed in 4.x
+    GE_PROMOTION                    = 1,
+    GE_DEMOTION                     = 2,
+    GE_MOTD                         = 3,
+    GE_JOINED                       = 4,
+    GE_LEFT                         = 5,
+    GE_REMOVED                      = 6,
+    GE_LEADER_IS                    = 7,
+    GE_LEADER_CHANGED               = 8,
+    GE_DISBANDED                    = 9,
+    GE_TABARDCHANGE                 = 10,
+    GE_RANK_UPDATED                 = 11,
+    GE_RANK_CREATED                 = 12,
+    GE_RANK_DELETED                 = 13,
+    GE_RANK_ORDER_CHANGED           = 14,
+    // Unk15                           = 15, // At guild creation - Set founder
+    GE_SIGNED_ON                    = 16,
+    GE_SIGNED_OFF                   = 17,
+    GE_GUILDBANKBAGSLOTS_CHANGED    = 18,
+    GE_BANK_TAB_PURCHASED           = 19,
+    GE_BANK_TAB_UPDATED             = 20,
+    GE_BANK_UPDATE_MONEY            = 21,
+
+    // To be found:
+    // GE_BANK_MONEY_WITHDRAWN         = 19,
+    // GE_BANK_TEXT_CHANGED            = 20,
+    // GE_UPDATE_ROSTER                = 12,
 };
 
 enum PetitionTurns
@@ -409,7 +416,7 @@ private:
         uint32 m_nextGUID;
     };
 
-    // Class incapsulating guild rank data
+    // Class encapsulating guild rank data
     class RankInfo
     {
     public:
@@ -428,6 +435,9 @@ private:
 
         uint32 GetRights() const { return m_rights; }
         void SetRights(uint32 rights);
+
+        bool operator < (const RankInfo& rank) const { return m_rights > rank.GetRights(); }
+        bool operator == (const RankInfo& rank) const { return m_rights == rank.GetRights(); }
 
         uint32 GetBankMoneyPerDay() const { return m_rankId == GR_GUILDMASTER ? GUILD_WITHDRAW_MONEY_UNLIMITED : m_bankMoneyPerDay; }
         void SetBankMoneyPerDay(uint32 money);
@@ -590,6 +600,7 @@ public:
 
     // Getters
     uint32 GetId() const { return m_id; }
+    uint64 GetGuid() const { return MAKE_NEW_GUID(m_id, 0, HIGHGUID_GUILD); }
     uint64 GetLeaderGUID() const { return m_leaderGuid; }
     const std::string& GetName() const { return m_name; }
     const std::string& GetMOTD() const { return m_motd; }
@@ -659,6 +670,7 @@ public:
     bool AddMember(uint64 guid, uint8 rankId = GUILD_RANK_NONE);
     void DeleteMember(uint64 guid, bool isDisbanding = false, bool isKicked = false);
     bool ChangeMemberRank(uint64 guid, uint8 newRank);
+    bool IsMember(uint64 guid);
 
     // Bank
     void SwapItems(Player* player, uint8 tabId, uint8 slotId, uint8 destTabId, uint8 destSlotId, uint32 splitedAmount);

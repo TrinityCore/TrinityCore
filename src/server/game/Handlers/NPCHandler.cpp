@@ -154,6 +154,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
     WorldPacket data(SMSG_TRAINER_LIST, 8+4+4+trainer_spells->spellList.size()*38 + strTitle.size()+1);
     data << guid;
     data << uint32(trainer_spells->trainerType);
+    data << uint32(0);
 
     size_t count_pos = data.wpos();
     data << uint32(trainer_spells->spellList.size());
@@ -191,9 +192,6 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
         data << uint8(state == TRAINER_SPELL_GREEN_DISABLED ? TRAINER_SPELL_GREEN : state);
         data << uint32(floor(tSpell->spellCost * fDiscountMod));
 
-        data << uint32(primary_prof_first_rank && can_learn_primary_prof ? 1 : 0);
-                                                            // primary prof. learn confirmation dialog
-        data << uint32(primary_prof_first_rank ? 1 : 0);    // must be equal prev. field to have learn button in enabled state
         data << uint8(tSpell->reqLevel);
         data << uint32(tSpell->reqSkill);
         data << uint32(tSpell->reqSkillValue);
@@ -208,7 +206,7 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
                 data << uint32(prevSpellId);
                 ++maxReq;
             }
-            if (maxReq == 3)
+            if (maxReq == 2)
                 break;
             SpellsRequiringSpellMapBounds spellsRequired = sSpellMgr->GetSpellsRequiredForSpellBounds(tSpell->learnedSpell[i]);
             for (SpellsRequiringSpellMap::const_iterator itr2 = spellsRequired.first; itr2 != spellsRequired.second && maxReq < 3; ++itr2)
@@ -216,14 +214,18 @@ void WorldSession::SendTrainerList(uint64 guid, const std::string& strTitle)
                 data << uint32(itr2->second);
                 ++maxReq;
             }
-            if (maxReq == 3)
+            if (maxReq == 2)
                 break;
         }
-        while (maxReq < 3)
+        while (maxReq < 2)
         {
             data << uint32(0);
             ++maxReq;
         }
+
+        data << uint32(primary_prof_first_rank && can_learn_primary_prof ? 1 : 0);
+        // primary prof. learn confirmation dialog
+        data << uint32(primary_prof_first_rank ? 1 : 0);    // must be equal prev. field to have learn button in enabled state
 
         ++count;
     }
@@ -238,8 +240,9 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recv_data)
 {
     uint64 guid;
     uint32 spellId = 0;
+    int32 unkInt;
 
-    recv_data >> guid >> spellId;
+    recv_data >> guid >> unkInt >> spellId;
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_TRAINER_BUY_SPELL NpcGUID=%u, learn spell id is: %u", uint32(GUID_LOPART(guid)), spellId);
 
     Creature* unit = GetPlayer()->GetNPCIfCanInteractWith(guid, UNIT_NPC_FLAG_TRAINER);
@@ -291,6 +294,7 @@ void WorldSession::HandleTrainerBuySpellOpcode(WorldPacket & recv_data)
     WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, 12);
     data << uint64(guid);
     data << uint32(spellId);                                // should be same as in packet from client
+    data << uint32(0);                                      // "Trainer service", 1 = "Not enough money for trainer service <TS>". 0 = "Trainer service <TS> unavailable"
     SendPacket(&data);
 }
 
@@ -491,6 +495,7 @@ void WorldSession::SendBindPoint(Creature* npc)
     WorldPacket data(SMSG_TRAINER_BUY_SUCCEEDED, (8+4));
     data << uint64(npc->GetGUID());
     data << uint32(bindspell);
+    data << uint32(0);                                      // "Trainer service", 1 = "Not enough money for trainer service <TS>". 0 = "Trainer service <TS> unavailable"
     SendPacket(&data);
 
     _player->PlayerTalkClass->SendCloseGossip();
@@ -552,6 +557,7 @@ void WorldSession::SendStablePetCallback(PreparedQueryResult result, uint64 guid
     // not let move dead pet in slot
     if (pet && pet->isAlive() && pet->getPetType() == HUNTER_PET)
     {
+        data << uint32(0);                                  // 4.x unknown, some kind of order?
         data << uint32(pet->GetCharmInfo()->GetPetNumber());
         data << uint32(pet->GetEntry());
         data << uint32(pet->getLevel());
@@ -764,7 +770,7 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
 
     if (GetPlayer()->m_stableSlots < MAX_PET_STABLES)
     {
-        StableSlotPricesEntry const* SlotPrice = sStableSlotPricesStore.LookupEntry(GetPlayer()->m_stableSlots+1);
+        /*StableSlotPricesEntry const* SlotPrice = sStableSlotPricesStore.LookupEntry(GetPlayer()->m_stableSlots+1);
         if (_player->HasEnoughMoney(SlotPrice->Price))
         {
             ++GetPlayer()->m_stableSlots;
@@ -772,7 +778,7 @@ void WorldSession::HandleBuyStableSlot(WorldPacket & recv_data)
             SendStableResult(STABLE_SUCCESS_BUY_SLOT);
         }
         else
-            SendStableResult(STABLE_ERR_MONEY);
+            SendStableResult(STABLE_ERR_MONEY);*/
     }
     else
         SendStableResult(STABLE_ERR_STABLE);

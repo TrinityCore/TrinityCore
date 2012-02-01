@@ -138,7 +138,7 @@ public:
 
         char const* targetName = target->GetName();
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, titleInfo->name[handler->GetSessionDbcLocale()], targetName);
+        snprintf(titleNameStr, 80, titleInfo->name, targetName);
 
         target->SetTitle(titleInfo);
         handler->PSendSysMessage(LANG_TITLE_ADD_RES, id, titleNameStr, tNameLink.c_str());
@@ -187,7 +187,7 @@ public:
 
         char const* targetName = target->GetName();
         char titleNameStr[80];
-        snprintf(titleNameStr, 80, titleInfo->name[handler->GetSessionDbcLocale()], targetName);
+        snprintf(titleNameStr, 80, titleInfo->name, targetName);
 
         handler->PSendSysMessage(LANG_TITLE_REMOVE_RES, id, titleNameStr, tNameLink.c_str());
 

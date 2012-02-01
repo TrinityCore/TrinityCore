@@ -60,7 +60,7 @@ CREATE TABLE `account` (
   `locked` tinyint(3) unsigned NOT NULL default '0',
   `last_login` timestamp NOT NULL default '0000-00-00 00:00:00',
   `online` tinyint(4) NOT NULL default '0',
-  `expansion` tinyint(3) unsigned NOT NULL default '2',
+  `expansion` tinyint(3) unsigned NOT NULL default '3',
   `mutetime` bigint(40) NOT NULL default '0',
   `locale` tinyint(3) unsigned NOT NULL default '0',
   `recruiter` int(11) NOT NULL default '0',
@@ -197,7 +197,7 @@ CREATE TABLE `realmlist` (
   `timezone` tinyint(3) unsigned NOT NULL default '0',
   `allowedSecurityLevel` tinyint(3) unsigned NOT NULL default '0',
   `population` float unsigned NOT NULL default '0',
-  `gamebuild` int(11) unsigned NOT NULL default '12340',
+  `gamebuild` int(11) unsigned NOT NULL default '14545',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `idx_name` (`name`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC COMMENT='Realm System';
@@ -210,7 +210,7 @@ CREATE TABLE `realmlist` (
 LOCK TABLES `realmlist` WRITE;
 /*!40000 ALTER TABLE `realmlist` DISABLE KEYS */;
 INSERT INTO `realmlist` (`id`,`name`,`address`,`port`,`icon`,`color`,`timezone`,`allowedSecurityLevel`,`population`,`gamebuild`) VALUES
-(1,'Trinity','127.0.0.1',8085,1,0,1,0,0,12340);
+(1,'Trinity','127.0.0.1',8085,1,0,1,0,0,14545);
 /*!40000 ALTER TABLE `realmlist` ENABLE KEYS */;
 UNLOCK TABLES;
 

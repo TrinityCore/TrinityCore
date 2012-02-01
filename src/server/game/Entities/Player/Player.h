@@ -124,9 +124,25 @@ struct SpellModifier
     Aura* const ownerAura;
 };
 
+enum PlayerCurrencyState
+{
+   PLAYERCURRENCY_UNCHANGED = 0,
+   PLAYERCURRENCY_CHANGED   = 1,
+   PLAYERCURRENCY_NEW       = 2,
+   PLAYERCURRENCY_REMOVED   = 3
+};
+
+struct PlayerCurrency
+{
+   PlayerCurrencyState state;
+   uint32 totalCount;
+   uint32 weekCount;
+};
+
 typedef UNORDERED_MAP<uint32, PlayerTalent*> PlayerTalentMap;
 typedef UNORDERED_MAP<uint32, PlayerSpell*> PlayerSpellMap;
 typedef std::list<SpellModifier*> SpellModList;
+typedef UNORDERED_MAP<uint32, PlayerCurrency> PlayerCurrenciesMap;
 
 typedef std::list<uint64> WhisperListContainer;
 
@@ -141,9 +157,9 @@ typedef UNORDERED_MAP<uint32 /*instanceId*/, time_t/*releaseTime*/> InstanceTime
 
 enum TrainerSpellState
 {
-    TRAINER_SPELL_GREEN = 0,
-    TRAINER_SPELL_RED   = 1,
-    TRAINER_SPELL_GRAY  = 2,
+    TRAINER_SPELL_GRAY  = 0,
+    TRAINER_SPELL_GREEN = 1,
+    TRAINER_SPELL_RED   = 2,
     TRAINER_SPELL_GREEN_DISABLED = 10                       // custom value, not send to client: formally green but learn not allowed
 };
 
@@ -693,22 +709,24 @@ enum TradeSlots
 
 enum TransferAbortReason
 {
-    TRANSFER_ABORT_NONE                     = 0x00,
-    TRANSFER_ABORT_ERROR                    = 0x01,
-    TRANSFER_ABORT_MAX_PLAYERS              = 0x02,         // Transfer Aborted: instance is full
-    TRANSFER_ABORT_NOT_FOUND                = 0x03,         // Transfer Aborted: instance not found
-    TRANSFER_ABORT_TOO_MANY_INSTANCES       = 0x04,         // You have entered too many instances recently.
-    TRANSFER_ABORT_ZONE_IN_COMBAT           = 0x06,         // Unable to zone in while an encounter is in progress.
-    TRANSFER_ABORT_INSUF_EXPAN_LVL          = 0x07,         // You must have <TBC, WotLK> expansion installed to access this area.
-    TRANSFER_ABORT_DIFFICULTY               = 0x08,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
-    TRANSFER_ABORT_UNIQUE_MESSAGE           = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
-    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES = 0x0A,         // Additional instances cannot be launched, please try again later.
-    TRANSFER_ABORT_NEED_GROUP               = 0x0B,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND2               = 0x0C,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND3               = 0x0D,         // 3.1
-    TRANSFER_ABORT_NOT_FOUND4               = 0x0E,         // 3.2
-    TRANSFER_ABORT_REALM_ONLY               = 0x0F,         // All players on party must be from the same realm.
-    TRANSFER_ABORT_MAP_NOT_ALLOWED          = 0x10,         // Map can't be entered at this time.
+    TRANSFER_ABORT_NONE                         = 0x00,
+    TRANSFER_ABORT_ERROR                        = 0x01,
+    TRANSFER_ABORT_MAX_PLAYERS                  = 0x02,         // Transfer Aborted: instance is full
+    TRANSFER_ABORT_NOT_FOUND                    = 0x03,         // Transfer Aborted: instance not found
+    TRANSFER_ABORT_TOO_MANY_INSTANCES           = 0x04,         // You have entered too many instances recently.
+    TRANSFER_ABORT_ZONE_IN_COMBAT               = 0x06,         // Unable to zone in while an encounter is in progress.
+    TRANSFER_ABORT_INSUF_EXPAN_LVL              = 0x07,         // You must have <TBC, WotLK> expansion installed to access this area.
+    TRANSFER_ABORT_DIFFICULTY                   = 0x08,         // <Normal, Heroic, Epic> difficulty mode is not available for %s.
+    TRANSFER_ABORT_UNIQUE_MESSAGE               = 0x09,         // Until you've escaped TLK's grasp, you cannot leave this place!
+    TRANSFER_ABORT_TOO_MANY_REALM_INSTANCES     = 0x0A,         // Additional instances cannot be launched, please try again later.
+    TRANSFER_ABORT_NEED_GROUP                   = 0x0B,         // 3.1
+    TRANSFER_ABORT_NOT_FOUND2                   = 0x0C,         // 3.1
+    TRANSFER_ABORT_NOT_FOUND3                   = 0x0D,         // 3.1
+    TRANSFER_ABORT_NOT_FOUND4                   = 0x0E,         // 3.2
+    TRANSFER_ABORT_REALM_ONLY                   = 0x0F,         // All players on party must be from the same realm.
+    TRANSFER_ABORT_MAP_NOT_ALLOWED              = 0x10,         // Map can't be entered at this time.
+    TRANSFER_ABORT_LOCKED_TO_DIFFERENT_INSTANCE = 0x12,         // 4.2.2
+    TRANSFER_ABORT_ALREADY_COMPLETED_ENCOUNTER  = 0x13,         // 4.2.2
 };
 
 enum InstanceResetWarningType
@@ -879,12 +897,6 @@ enum CharDeleteMethod
     CHAR_DELETE_REMOVE = 0,                      // Completely remove from the database
     CHAR_DELETE_UNLINK = 1                       // The character gets unlinked from the account,
                                                  // the name gets freed up and appears as deleted ingame
-};
-
-enum CurrencyItems
-{
-    ITEM_HONOR_POINTS_ID    = 43308,
-    ITEM_ARENA_POINTS_ID    = 43307
 };
 
 enum ReferAFriendError
@@ -1077,6 +1089,50 @@ private:
     uint32 _xp;
 };
 
+struct PlayerTalentInfo
+{
+    PlayerTalentInfo() :
+        FreeTalentPoints(0), UsedTalentCount(0), QuestRewardedTalentCount(0),
+        ResetTalentsCost(0), ResetTalentsTime(0),
+        ActiveSpec(0), SpecsCount(1)
+    {
+        for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+        {
+            SpecInfo[i].Talents = new PlayerTalentMap();
+            memset(SpecInfo[i].Glyphs, 0, MAX_GLYPH_SLOT_INDEX * sizeof(uint32));
+            SpecInfo[i].TalentTree = 0;
+        }
+    }
+
+    ~PlayerTalentInfo()
+    {
+        for (uint8 i = 0; i < MAX_TALENT_SPECS; ++i)
+        {
+            for (PlayerTalentMap::const_iterator itr = SpecInfo[i].Talents->begin(); itr != SpecInfo[i].Talents->end(); ++itr)
+                delete itr->second;
+            delete SpecInfo[i].Talents;
+        }
+    }
+
+    struct TalentSpecInfo
+    {
+        PlayerTalentMap* Talents;
+        uint32 Glyphs[MAX_GLYPH_SLOT_INDEX];
+        uint32 TalentTree;
+    } SpecInfo[MAX_TALENT_SPECS];
+
+    uint32 FreeTalentPoints;
+    uint32 UsedTalentCount;
+    uint32 QuestRewardedTalentCount;
+    uint32 ResetTalentsCost;
+    time_t ResetTalentsTime;
+    uint8 ActiveSpec;
+    uint8 SpecsCount;
+
+private:
+    PlayerTalentInfo(PlayerTalentInfo const&);
+};
+
 class Player : public Unit, public GridObject<Player>
 {
     friend class WorldSession;
@@ -1115,7 +1171,7 @@ class Player : public Unit, public GridObject<Player>
 
         void Update(uint32 time);
 
-        static bool BuildEnumData(PreparedQueryResult result, WorldPacket* data);
+        static bool BuildEnumData(PreparedQueryResult result, ByteBuffer* data);
 
         void SetInWater(bool apply);
 
@@ -1298,11 +1354,13 @@ class Player : public Unit, public GridObject<Player>
         void AddRefundReference(uint32 it);
         void DeleteRefundReference(uint32 it);
 
+        void SendCurrencies() const;
+        uint32 GetCurrency(uint32 id) const;
+        bool HasCurrency(uint32 id, uint32 count) const;
+        void SetCurrency(uint32 id, uint32 count);
+        void ModifyCurrency(uint32 id, int32 count);
+
         void ApplyEquipCooldown(Item* pItem);
-        void SetAmmo(uint32 item);
-        void RemoveAmmo();
-        float GetAmmoDPS() const { return m_ammoDPS; }
-        bool CheckAmmoCompatibility(const ItemTemplate* ammo_proto) const;
         void QuickEquipItem(uint16 pos, Item* pItem);
         void VisualizeItem(uint8 slot, Item* pItem);
         void SetVisibleItemSlot(uint8 slot, Item* pItem);
@@ -1495,7 +1553,7 @@ class Player : public Unit, public GridObject<Player>
         void UpdateForQuestWorldObjects();
         bool CanShareQuest(uint32 quest_id) const;
 
-        void SendQuestComplete(uint32 quest_id);
+        void SendQuestComplete(Quest const* quest);
         void SendQuestReward(Quest const* quest, uint32 XP, Object* questGiver);
         void SendQuestFailed(uint32 questId, InventoryResult reason = EQUIP_ERR_OK);
         void SendQuestTimerFailed(uint32 quest_id);
@@ -1531,6 +1589,8 @@ class Player : public Unit, public GridObject<Player>
         static bool   LoadPositionFromDB(uint32& mapid, float& x, float& y, float& z, float& o, bool& in_flight, uint64 guid);
 
         static bool IsValidGender(uint8 Gender) { return Gender <= GENDER_FEMALE ; }
+        static bool IsValidClass(uint8 Class) { return (1 << (Class - 1)) & CLASSMASK_ALL_PLAYABLE; }
+        static bool IsValidRace(uint8 Race) { return (1 << (Race - 1)) & RACEMASK_ALL_PLAYABLE; }
 
         /*********************************************************/
         /***                   SAVE SYSTEM                     ***/
@@ -1671,42 +1731,57 @@ class Player : public Unit, public GridObject<Player>
         void SetReputation(uint32 factionentry, uint32 value);
         uint32 GetReputation(uint32 factionentry);
         std::string GetGuildName();
-        uint32 GetFreeTalentPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS1); }
-        void SetFreeTalentPoints(uint32 points);
-        bool resetTalents(bool no_cost = false);
-        uint32 resetTalentsCost() const;
+
+        // Talents
+        uint32 GetFreeTalentPoints() const { return _talentMgr->FreeTalentPoints; }
+        void SetFreeTalentPoints(uint32 points) { _talentMgr->FreeTalentPoints = points; }
+        uint32 GetUsedTalentCount() const { return _talentMgr->UsedTalentCount; }
+        void SetUsedTalentCount(uint32 talents) { _talentMgr->UsedTalentCount = talents; }
+        uint32 GetQuestRewardedTalentCount() const { return _talentMgr->QuestRewardedTalentCount; }
+        void AddQuestRewardedTalentCount(uint32 points) { _talentMgr->QuestRewardedTalentCount += points; }
+        uint32 GetTalentResetCost() const { return _talentMgr->ResetTalentsCost; }
+        void SetTalentResetCost(uint32 cost)  { _talentMgr->ResetTalentsCost = cost; }
+        uint32 GetTalentResetTime() const { return _talentMgr->ResetTalentsTime; }
+        void SetTalentResetTime(time_t time_)  { _talentMgr->ResetTalentsTime = time_; }
+        uint32 GetPrimaryTalentTree(uint8 spec) const { return _talentMgr->SpecInfo[spec].TalentTree; }
+        void SetPrimaryTalentTree(uint8 spec, uint32 tree) { _talentMgr->SpecInfo[spec].TalentTree = tree; }
+        uint8 GetActiveSpec() const { return _talentMgr->ActiveSpec; }
+        void SetActiveSpec(uint8 spec){ _talentMgr->ActiveSpec = spec; }
+        uint8 GetSpecsCount() const { return _talentMgr->SpecsCount; }
+        void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
+
+        bool ResetTalents(bool no_cost = false);
+        uint32 GetNextResetTalentsCost() const;
         void InitTalentForLevel();
         void BuildPlayerTalentsInfoData(WorldPacket* data);
         void BuildPetTalentsInfoData(WorldPacket* data);
         void SendTalentsInfoData(bool pet);
-        void LearnTalent(uint32 talentId, uint32 talentRank);
+        bool LearnTalent(uint32 talentId, uint32 talentRank);
         void LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank);
-
         bool AddTalent(uint32 spellId, uint8 spec, bool learning);
         bool HasTalent(uint32 spell_id, uint8 spec) const;
-
         uint32 CalculateTalentsPoints() const;
 
         // Dual Spec
         void UpdateSpecCount(uint8 count);
-        uint32 GetActiveSpec() { return m_activeSpec; }
-        void SetActiveSpec(uint8 spec){ m_activeSpec = spec; }
-        uint8 GetSpecsCount() { return m_specsCount; }
-        void SetSpecsCount(uint8 count) { m_specsCount = count; }
         void ActivateSpec(uint8 spec);
 
         void InitGlyphsForLevel();
         void SetGlyphSlot(uint8 slot, uint32 slottype) { SetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot, slottype); }
-        uint32 GetGlyphSlot(uint8 slot) { return GetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot); }
+        uint32 GetGlyphSlot(uint8 slot) const { return GetUInt32Value(PLAYER_FIELD_GLYPH_SLOTS_1 + slot); }
         void SetGlyph(uint8 slot, uint32 glyph)
         {
-            m_Glyphs[m_activeSpec][slot] = glyph;
+            _talentMgr->SpecInfo[GetActiveSpec()].Glyphs[slot] = glyph;
             SetUInt32Value(PLAYER_FIELD_GLYPHS_1 + slot, glyph);
         }
-        uint32 GetGlyph(uint8 slot) { return m_Glyphs[m_activeSpec][slot]; }
+        uint32 GetGlyph(uint8 spec, uint8 slot) const { return _talentMgr->SpecInfo[spec].Glyphs[slot]; }
 
-        uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS2); }
-        void SetFreePrimaryProfessions(uint16 profs) { SetUInt32Value(PLAYER_CHARACTER_POINTS2, profs); }
+        PlayerTalentMap const* GetTalentMap(uint8 spec) const { return _talentMgr->SpecInfo[spec].Talents; }
+        PlayerTalentMap* GetTalentMap(uint8 spec) { return _talentMgr->SpecInfo[spec].Talents; }
+        ActionButtonList const& GetActionButtons() const { return m_actionButtons; }
+
+        uint32 GetFreePrimaryProfessionPoints() const { return GetUInt32Value(PLAYER_CHARACTER_POINTS); }
+        void SetFreePrimaryProfessions(uint16 profs) { SetUInt32Value(PLAYER_CHARACTER_POINTS, profs); }
         void InitPrimaryProfessions();
 
         PlayerSpellMap const& GetSpellMap() const { return m_spells; }
@@ -1826,12 +1901,20 @@ class Player : public Unit, public GridObject<Player>
         void RemoveFromGroup(RemoveMethod method = GROUP_REMOVEMETHOD_DEFAULT) { RemoveFromGroup(GetGroup(), GetGUID(), method); }
         void SendUpdateToOutOfRangeGroupMembers();
 
-        void SetInGuild(uint32 GuildId) { SetUInt32Value(PLAYER_GUILDID, GuildId); }
+        void SetInGuild(uint32 GuildId)
+        {
+            PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SET_GUILD_ID);
+            stmt->setUInt32(0, GuildId);
+            stmt->setUInt64(1, GetGUID());
+            CharacterDatabase.Execute(stmt);
+            m_guildId = GuildId;
+        }
+        uint32 GetGuildId() { return m_guildId; }
+        static uint32 GetGuildIdFromGuid(uint64 guid);
+
         void SetRank(uint8 rankId) { SetUInt32Value(PLAYER_GUILDRANK, rankId); }
         uint8 GetRank() { return uint8(GetUInt32Value(PLAYER_GUILDRANK)); }
         void SetGuildIdInvited(uint32 GuildId) { m_GuildIdInvited = GuildId; }
-        uint32 GetGuildId() { return GetUInt32Value(PLAYER_GUILDID);  }
-        static uint32 GetGuildIdFromDB(uint64 guid);
         static uint8 GetRankFromDB(uint64 guid);
         int GetGuildIdInvited() { return m_GuildIdInvited; }
         static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
@@ -1882,7 +1965,6 @@ class Player : public Unit, public GridObject<Player>
         void UpdateArmor();
         void UpdateMaxHealth();
         void UpdateMaxPower(Powers power);
-        void ApplyFeralAPBonus(int32 amount, bool apply);
         void UpdateAttackPowerAndDamage(bool ranged = false);
         void UpdateShieldBlockValue();
         void UpdateDamagePhysical(WeaponAttackType attType);
@@ -1963,7 +2045,7 @@ class Player : public Unit, public GridObject<Player>
         void SendMessageToSet(WorldPacket* data, Player const* skipped_rcvr);
 
         void SendTeleportPacket(Position &oldPos);
-        void SendTeleportAckPacket();
+        void SendSetFlyPacket(bool apply);
 
         Corpse* GetCorpse() const;
         void SpawnCorpseBones();
@@ -2056,15 +2138,10 @@ class Player : public Unit, public GridObject<Player>
         /*********************************************************/
         /***                  PVP SYSTEM                       ***/
         /*********************************************************/
+        // TODO: Properly implement correncies as of Cataclysm
         void UpdateHonorFields();
-        bool RewardHonor(Unit* pVictim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
-        uint32 GetHonorPoints() const { return GetUInt32Value(PLAYER_FIELD_HONOR_CURRENCY); }
-        uint32 GetArenaPoints() const { return GetUInt32Value(PLAYER_FIELD_ARENA_CURRENCY); }
-        void ModifyHonorPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, honor save query will be added to trans
-        void ModifyArenaPoints(int32 value, SQLTransaction* trans = NULL);      //! If trans is specified, arena point save query will be added to trans
+        bool RewardHonor(Unit* victim, uint32 groupsize, int32 honor = -1, bool pvptoken = false);
         uint32 GetMaxPersonalArenaRatingRequirement(uint32 minarenaslot) const;
-        void SetHonorPoints(uint32 value);
-        void SetArenaPoints(uint32 value);
 
         //End of PvP System
 
@@ -2109,7 +2186,6 @@ class Player : public Unit, public GridObject<Player>
         void _ApplyAllLevelScaleItemMods(bool apply);
         void _ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply, bool only_level_scale = false);
         void _ApplyWeaponDamage(uint8 slot, ItemTemplate const* proto, ScalingStatValuesEntry const* ssv, bool apply);
-        void _ApplyAmmoBonuses();
         bool EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot);
         void ToggleMetaGemsActive(uint8 exceptslot, bool apply);
         void CorrectMetaGemEnchants(uint8 slot, bool apply);
@@ -2659,6 +2735,9 @@ class Player : public Unit, public GridObject<Player>
         Item* m_items[PLAYER_SLOTS_COUNT];
         uint32 m_currentBuybackSlot;
 
+        PlayerCurrenciesMap m_currencies;
+        uint32 _GetCurrencyWeekCap(const CurrencyTypesEntry* currency) const;
+
         std::vector<Item*> m_itemUpdateQueue;
         bool m_itemUpdateQueueBlocked;
 
@@ -2681,15 +2760,11 @@ class Player : public Unit, public GridObject<Player>
 
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
-        PlayerTalentMap* m_talents[MAX_TALENT_SPECS];
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
         GlobalCooldownMgr m_GlobalCooldownMgr;
 
-        uint8 m_activeSpec;
-        uint8 m_specsCount;
-
-        uint32 m_Glyphs[MAX_TALENT_SPECS][MAX_GLYPH_SLOT_INDEX];
+        PlayerTalentInfo* _talentMgr;
 
         ActionButtonList m_actionButtons;
 
@@ -2744,13 +2819,14 @@ class Player : public Unit, public GridObject<Player>
 
         uint32 m_restTime;
 
+        uint32 m_guildId;
+
         uint32 m_WeaponProficiency;
         uint32 m_ArmorProficiency;
         bool m_canParry;
         bool m_canBlock;
         bool m_canTitanGrip;
         uint8 m_swingErrorMsg;
-        float m_ammoDPS;
 
         ////////////////////Rest System/////////////////////
         time_t time_inn_enter;
@@ -2761,10 +2837,6 @@ class Player : public Unit, public GridObject<Player>
         float m_rest_bonus;
         RestType rest_type;
         ////////////////////Rest System/////////////////////
-        uint32 m_resetTalentsCost;
-        time_t m_resetTalentsTime;
-        uint32 m_usedTalentCount;
-        uint32 m_questRewardTalentCount;
 
         // Social
         PlayerSocial *m_social;

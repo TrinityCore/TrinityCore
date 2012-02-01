@@ -491,12 +491,15 @@ void WorldSession::HandleMailTakeItem(WorldPacket & recv_data)
         player->SendMailResult(mailId, MAIL_ITEM_TAKEN, MAIL_ERR_EQUIP_ERROR, msg);
 }
 
-void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data)
+void WorldSession::HandleMailTakeMoney(WorldPacket& recv_data)
 {
     uint64 mailbox;
+    uint64 money;
     uint32 mailId;
+    
     recv_data >> mailbox;
     recv_data >> mailId;
+    recv_data >> money;
 
     if (!GetPlayer()->GetGameObjectIfCanInteractWith(mailbox, GAMEOBJECT_TYPE_MAILBOX))
         return;
@@ -504,7 +507,8 @@ void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data)
     Player* player = _player;
 
     Mail* m = player->GetMail(mailId);
-    if (!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL))
+    if ((!m || m->state == MAIL_STATE_DELETED || m->deliver_time > time(NULL)) ||
+        (money > 0 && m->money != money))
     {
         player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_ERR_INTERNAL_ERROR);
         return;
@@ -512,7 +516,7 @@ void WorldSession::HandleMailTakeMoney(WorldPacket & recv_data)
 
     player->SendMailResult(mailId, MAIL_MONEY_TAKEN, MAIL_OK);
 
-    player->ModifyMoney(m->money);
+    player->ModifyMoney(money);
     m->money = 0;
     m->state = MAIL_STATE_CHANGED;
     player->m_mailsUpdated = true;
@@ -592,10 +596,10 @@ void WorldSession::HandleGetMailList(WorldPacket & recv_data)
                 break;
         }
 
-        data << uint32((*itr)->COD);                         // COD
+        data << uint64((*itr)->COD);                         // COD
         data << uint32(0);                                   // probably changed in 3.3.3
         data << uint32((*itr)->stationery);                  // stationery (Stationery.dbc)
-        data << uint32((*itr)->money);                       // Gold
+        data << uint64((*itr)->money);                       // Gold
         data << uint32((*itr)->checked);                     // flags
         data << float(((*itr)->expire_time-time(NULL))/DAY); // Time
         data << uint32((*itr)->mailTemplateId);              // mail template (MailTemplate.dbc)
@@ -684,7 +688,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket & recv_data)
             return;
         }
 
-        bodyItem->SetText(mailTemplateEntry->content[GetSessionDbcLocale()]);
+        bodyItem->SetText(mailTemplateEntry->content);
     }
     else
         bodyItem->SetText(m->body);

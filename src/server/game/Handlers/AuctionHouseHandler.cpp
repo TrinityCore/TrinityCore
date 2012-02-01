@@ -91,24 +91,24 @@ void WorldSession::SendAuctionBidderNotification(uint32 location, uint32 auction
     data << uint32(location);
     data << uint32(auctionId);
     data << uint64(bidder);
-    data << uint32(bidSum);
-    data << uint32(diff);
+    data << uint64(bidSum);
+    data << uint64(diff);
     data << uint32(item_template);
     data << uint32(0);
     SendPacket(&data);
 }
 
-//this void causes on client to display: "Your auction sold"
+// this void causes on client to display: "Your auction sold"
 void WorldSession::SendAuctionOwnerNotification(AuctionEntry* auction)
 {
-    WorldPacket data(SMSG_AUCTION_OWNER_NOTIFICATION, (8*4));
+    WorldPacket data(SMSG_AUCTION_OWNER_NOTIFICATION, 40);
     data << uint32(auction->Id);
-    data << uint32(auction->bid);
-    data << uint32(0);                                      //unk
-    data << uint64(0);                                      //unk (bidder guid?)
+    data << uint64(auction->bid);
+    data << uint64(0);                                     //unk
+    data << uint64(0);                                     //unk
     data << uint32(auction->item_template);
-    data << uint32(0);                                      //unk
-    data << float(0);                                       //unk (time?)
+    data << uint32(0);                                     //unk
+    data << float(0);                                      //unk
     SendPacket(&data);
 }
 
@@ -252,19 +252,20 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     GetPlayer()->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_CREATE_AUCTION, 1);
 }
 
-//this function is called when client bids or buys out auction
-void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
+// this function is called when client bids or buys out auction
+void WorldSession::HandleAuctionPlaceBid(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_AUCTION_PLACE_BID");
 
     uint64 auctioneer;
     uint32 auctionId;
-    uint32 price;
+    uint64 price;
     recv_data >> auctioneer;
-    recv_data >> auctionId >> price;
+    recv_data >> auctionId;
+    recv_data >> price;
 
     if (!auctionId || !price)
-        return;                                             //check for cheaters
+        return;                                             // check for cheaters
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -310,7 +311,7 @@ void WorldSession::HandleAuctionPlaceBid(WorldPacket & recv_data)
         return;
     }
 
-    if (!player->HasEnoughMoney(price))
+    if (!player->HasEnoughMoney((uint32)price))
     {
         //you don't have enought money!, client tests!
         //SendAuctionCommandResult(auction->auctionId, AUCTION_PLACE_BID, ???);
@@ -384,7 +385,6 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
     uint32 auctionId;
     recv_data >> auctioneer;
     recv_data >> auctionId;
-    //sLog->outDebug("Cancel AUCTION AuctionID: %u", auctionId);
 
     Creature* creature = GetPlayer()->GetNPCIfCanInteractWith(auctioneer, UNIT_NPC_FLAG_AUCTIONEER);
     if (!creature)
@@ -428,7 +428,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
         }
         else
         {
-            sLog->outError("Auction id: %u has non-existed item (item guid : %u)!!!", auction->Id, auction->item_guidlow);
+            sLog->outError("Auction id: %u got non existing item (item guid : %u)!", auction->Id, auction->item_guidlow);
             SendAuctionCommandResult(0, AUCTION_CANCEL, AUCTION_INTERNAL_ERROR);
             return;
         }
@@ -437,7 +437,7 @@ void WorldSession::HandleAuctionRemoveItem(WorldPacket & recv_data)
     {
         SendAuctionCommandResult(0, AUCTION_CANCEL, AUCTION_INTERNAL_ERROR);
         //this code isn't possible ... maybe there should be assert
-        sLog->outError("CHEATER : %u, he tried to cancel auction (id: %u) of another player, or auction is NULL", player->GetGUIDLow(), auctionId);
+        sLog->outError("CHEATER: %u tried to cancel auction (id: %u) of another player or auction is NULL", player->GetGUIDLow(), auctionId);
         return;
     }
 
@@ -489,7 +489,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
 
     WorldPacket data(SMSG_AUCTION_BIDDER_LIST_RESULT, (4+4+4));
     Player* player = GetPlayer();
-    data << (uint32) 0;                                     //add 0 as count
+    data << uint32(0);                                     //add 0 as count
     uint32 count = 0;
     uint32 totalcount = 0;
     while (outbiddedCount > 0)                             //add all data, which client requires
@@ -508,7 +508,7 @@ void WorldSession::HandleAuctionListBidderItems(WorldPacket & recv_data)
     auctionHouse->BuildListBidderItems(data, player, count, totalcount);
     data.put<uint32>(0, count);                           // add count to placeholder
     data << totalcount;
-    data << (uint32)300;                                    //unk 2.3.0
+    data << uint32(300);                                  //unk 2.3.0
     SendPacket(&data);
 }
 
@@ -537,15 +537,15 @@ void WorldSession::HandleAuctionListOwnerItems(WorldPacket & recv_data)
     AuctionHouseObject* auctionHouse = sAuctionMgr->GetAuctionsMap(creature->getFaction());
 
     WorldPacket data(SMSG_AUCTION_OWNER_LIST_RESULT, (4+4+4));
-    data << (uint32) 0;                                     // amount place holder
+    data << uint32(0);                                     // amount place holder
 
     uint32 count = 0;
     uint32 totalcount = 0;
 
     auctionHouse->BuildListOwnerItems(data, _player, count, totalcount);
     data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) 0;
+    data << uint32(totalcount);
+    data << uint32(0);
     SendPacket(&data);
 }
 
@@ -612,8 +612,8 @@ void WorldSession::HandleAuctionListItems(WorldPacket & recv_data)
         count, totalcount);
 
     data.put<uint32>(0, count);
-    data << (uint32) totalcount;
-    data << (uint32) 300;                                   // unk 2.3.0 const?
+    data << uint32(totalcount);
+    data << uint32(300);                                  //unk 2.3.0
     SendPacket(&data);
 }
 

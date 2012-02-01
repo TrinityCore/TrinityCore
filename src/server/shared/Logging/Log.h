@@ -50,6 +50,7 @@ enum DebugLogFilters
     LOG_FILTER_LOOT                     = 0x00100000,   // Loot related
     LOG_FILTER_GUILD                    = 0x00200000,   // Guild related
     LOG_FILTER_TRANSPORTS               = 0x00400000,   // Transport related
+    LOG_FILTER_OPCODES                  = 0x00800000,   // OpCodes
 };
 
 enum LogTypes
@@ -137,6 +138,7 @@ class Log
         void outArena( const char * str, ... )                  ATTR_PRINTF(2, 3);
         void outSQLDriver( const char* str, ... )               ATTR_PRINTF(2, 3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
+        void outOpCode(uint32 op, const char * name, bool smsg = true);
 
         static void outTimestamp(FILE* file);
         static std::string GetTimestampStr();

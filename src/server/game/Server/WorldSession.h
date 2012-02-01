@@ -80,6 +80,12 @@ struct AccountData
     std::string Data;
 };
 
+union BytesGuid
+{
+    uint8 bytes[8];
+    uint64 guid;
+};
+
 enum PartyOperation
 {
     PARTY_OP_INVITE = 0,
@@ -137,6 +143,9 @@ enum CharterTypes
     ARENA_TEAM_CHARTER_5v5_TYPE                   = 5
 };
 
+#define DB2_REPLY_SPARSE 2442913102
+#define DB2_REPLY_ITEM   1344507586
+
 //class to deal with packet processing
 //allows to determine if next packet is safe to be processed
 class PacketFilter
@@ -147,6 +156,7 @@ public:
 
     virtual bool Process(WorldPacket* /*packet*/) { return true; }
     virtual bool ProcessLogout() const { return true; }
+    static Opcodes DropHighBytes(Opcodes opcode) { return Opcodes(opcode & 0xFFFF); }
 
 protected:
     WorldSession* const m_pSession;
@@ -224,7 +234,7 @@ class WorldSession
         void SendAddonsInfo();
 
         void ReadMovementInfo(WorldPacket& data, MovementInfo* mi);
-        void WriteMovementInfo(WorldPacket* data, MovementInfo* mi);
+        void WriteMovementInfo(WorldPacket &data, MovementInfo* mi);
 
         void SendPacket(WorldPacket const* packet);
         void SendNotification(const char *format, ...) ATTR_PRINTF(2, 3);
@@ -397,9 +407,12 @@ class WorldSession
         void HandleCharCreateOpcode(WorldPacket& recvPacket);
         void HandleCharCreateCallback(PreparedQueryResult result, CharacterCreateInfo* createInfo);
         void HandlePlayerLoginOpcode(WorldPacket& recvPacket);
+        void HandleLoadScreenOpcode(WorldPacket& recvPacket);
         void HandleCharEnum(PreparedQueryResult result);
         void HandlePlayerLogin(LoginQueryHolder * holder);
         void HandleCharFactionOrRaceChange(WorldPacket& recv_data);
+        void HandleRandomizeCharNameOpcode(WorldPacket& recv_data);
+
 
         // played time
         void HandlePlayedTime(WorldPacket& recvPacket);
@@ -408,6 +421,7 @@ class WorldSession
         void HandleMoveUnRootAck(WorldPacket& recvPacket);
         void HandleMoveRootAck(WorldPacket& recvPacket);
         void HandleLookingForGroup(WorldPacket& recvPacket);
+        void HandleReturnToGraveyard(WorldPacket& recvPacket);
 
         // new inspect
         void HandleInspectOpcode(WorldPacket& recvPacket);
@@ -473,7 +487,6 @@ class WorldSession
         void HandleDelIgnoreOpcode(WorldPacket& recvPacket);
         void HandleSetContactNotesOpcode(WorldPacket& recvPacket);
         void HandleBugOpcode(WorldPacket& recvPacket);
-        void HandleSetAmmoOpcode(WorldPacket& recvPacket);
         void HandleItemNameQueryOpcode(WorldPacket& recvPacket);
 
         void HandleAreaTriggerOpcode(WorldPacket& recvPacket);
@@ -531,6 +544,7 @@ class WorldSession
         void HandleRaidReadyCheckFinishedOpcode(WorldPacket& recv_data);
         void HandleGroupRaidConvertOpcode(WorldPacket& recv_data);
         void HandleGroupChangeSubGroupOpcode(WorldPacket& recv_data);
+        void HandleGroupSwapSubGroupOpcode(WorldPacket& recv_data);
         void HandleGroupAssistantLeaderOpcode(WorldPacket& recv_data);
         void HandlePartyAssignmentOpcode(WorldPacket& recv_data);
 
@@ -633,7 +647,8 @@ class WorldSession
         void HandleSwapInvItemOpcode(WorldPacket& recvPacket);
         void HandleDestroyItemOpcode(WorldPacket& recvPacket);
         void HandleAutoEquipItemOpcode(WorldPacket& recvPacket);
-        void HandleItemQuerySingleOpcode(WorldPacket& recvPacket);
+        void SendItemDb2Reply(uint32 entry);
+        void SendItemSparseDb2Reply(uint32 entry);
         void HandleSellItemOpcode(WorldPacket& recvPacket);
         void HandleBuyItemInSlotOpcode(WorldPacket& recvPacket);
         void HandleBuyItemOpcode(WorldPacket& recvPacket);
@@ -683,6 +698,7 @@ class WorldSession
 
         bool processChatmessageFurtherAfterSecurityChecks(std::string&, uint32);
         void HandleMessagechatOpcode(WorldPacket& recvPacket);
+        void HandleAddonMessagechatOpcode(WorldPacket& recvPacket);
         void SendPlayerNotFoundNotice(std::string name);
         void SendPlayerAmbiguousNotice(std::string name);
         void SendWrongFactionNotice();
@@ -888,6 +904,7 @@ class WorldSession
         void HandleEjectPassenger(WorldPacket& data);
         void HandleEnterPlayerVehicle(WorldPacket& data);
         void HandleUpdateProjectilePosition(WorldPacket& recvPacket);
+        void HandleRequestHotfix(WorldPacket& recvPacket);
 
     private:
         void InitializeQueryCallbackParameters();

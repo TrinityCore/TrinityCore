@@ -307,7 +307,7 @@ public:
         uint32 opcode;
         parsedStream >> opcode;
 
-        WorldPacket data(opcode, 0);
+        WorldPacket data(Opcodes(opcode), 0);
 
         while (!parsedStream.eof())
         {

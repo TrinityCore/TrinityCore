@@ -32,6 +32,8 @@ void BuildPlayerLockDungeonBlock(WorldPacket& data, const LfgLockMap& lock)
     {
         data << uint32(it->first);                         // Dungeon entry (id + type)
         data << uint32(it->second);                        // Lock status
+        data << uint32(0);                                 // Unknown 4.2.2
+        data << uint32(0);                                 // Unknown 4.2.2
     }
 }
 
@@ -257,7 +259,7 @@ void WorldSession::HandleLfgPartyLockInfoRequestOpcode(WorldPacket&  /*recv_data
 
     uint32 size = 0;
     for (LfgLockPartyMap::const_iterator it = lockMap.begin(); it != lockMap.end(); ++it)
-        size += 8 + 4 + uint32(it->second.size()) * (4 + 4);
+        size += 8 + 4 + uint32(it->second.size()) * (4 + 4 + 4 + 4);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_PARTY_INFO [" UI64FMTD "]", guid);
     WorldPacket data(SMSG_LFG_PARTY_INFO, 1 + size);
@@ -444,7 +446,7 @@ void WorldSession::SendLfgJoinResult(const LfgJoinResultData& joinData)
 {
     uint32 size = 0;
     for (LfgLockPartyMap::const_iterator it = joinData.lockmap.begin(); it != joinData.lockmap.end(); ++it)
-        size += 8 + 4 + uint32(it->second.size()) * (4 + 4);
+        size += 8 + 4 + uint32(it->second.size()) * (4 + 4 + 4 + 4);
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_LFG_JOIN_RESULT [" UI64FMTD "] checkResult: %u checkValue: %u", GetPlayer()->GetGUID(), joinData.result, joinData.state);
     WorldPacket data(SMSG_LFG_JOIN_RESULT, 4 + 4 + size);
@@ -531,6 +533,7 @@ void WorldSession::SendLfgBootPlayer(const LfgPlayerBoot* pBoot)
     data << uint8(pBoot->inProgress);                      // Vote in progress
     data << uint8(playerVote != LFG_ANSWER_PENDING);       // Did Vote
     data << uint8(playerVote == LFG_ANSWER_AGREE);         // Agree
+    data << uint8(0);                                      // Unknown 4.2.2
     data << uint64(pBoot->victim);                         // Victim GUID
     data << uint32(votesNum);                              // Total Votes
     data << uint32(agreeNum);                              // Agree Count
@@ -657,8 +660,8 @@ void WorldSession::SendLfgTeleportError(uint8 err)
 /*
 void WorldSession::SendLfrUpdateListOpcode(uint32 dungeonEntry)
 {
-    sLog->outDebug(LOG_FILTER_PACKETIO, "SMSG_UPDATE_LFG_LIST [" UI64FMTD "] dungeon entry: %u", GetPlayer()->GetGUID(), dungeonEntry);
-    WorldPacket data(SMSG_UPDATE_LFG_LIST);
+    sLog->outDebug(LOG_FILTER_PACKETIO, "SMSG_LFG_UPDATE_LIST [" UI64FMTD "] dungeon entry: %u", GetPlayer()->GetGUID(), dungeonEntry);
+    WorldPacket data(SMSG_LFG_UPDATE_LIST);
     SendPacket(&data);
 }
 */

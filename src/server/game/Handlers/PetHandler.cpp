@@ -60,9 +60,14 @@ void WorldSession::HandlePetAction(WorldPacket & recv_data)
     uint64 guid1;
     uint32 data;
     uint64 guid2;
+    float x, y, z;
     recv_data >> guid1;                                     //pet guid
     recv_data >> data;
     recv_data >> guid2;                                     //tag guid
+    // Position
+    recv_data >> x;
+    recv_data >> y;
+    recv_data >> z;
 
     uint32 spellid = UNIT_ACTION_BUTTON_ACTION(data);
     uint8 flag = UNIT_ACTION_BUTTON_TYPE(data);             //delete = 0x07 CastSpell = C1
@@ -674,15 +679,7 @@ void WorldSession::HandlePetAbandon(WorldPacket & recv_data)
     if (pet)
     {
         if (pet->isPet())
-        {
-            if (pet->GetGUID() == _player->GetPetGUID())
-            {
-                uint32 feelty = pet->GetPower(POWER_HAPPINESS);
-                pet->SetPower(POWER_HAPPINESS, feelty > 50000 ? (feelty-50000) : 0);
-            }
-
             _player->RemovePet((Pet*)pet, PET_SAVE_AS_DELETED);
-        }
         else if (pet->GetGUID() == _player->GetCharmGUID())
             _player->StopCastingCharm();
     }
@@ -849,10 +846,10 @@ void WorldSession::HandlePetLearnTalent(WorldPacket & recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_PET_LEARN_TALENT");
 
     uint64 guid;
-    uint32 talent_id, requested_rank;
-    recv_data >> guid >> talent_id >> requested_rank;
+    uint32 talentId, requestedRank;
+    recv_data >> guid >> talentId >> requestedRank;
 
-    _player->LearnPetTalent(guid, talent_id, requested_rank);
+    _player->LearnPetTalent(guid, talentId, requestedRank);
     _player->SendTalentsInfoData(true);
 }
 

@@ -118,7 +118,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   // 49 SPELL_EFFECT_DETECT                   one spell: Detect
     &Spell::EffectTransmitted,                              // 50 SPELL_EFFECT_TRANS_DOOR
     &Spell::EffectUnused,                                   // 51 SPELL_EFFECT_FORCE_CRITICAL_HIT       unused
-    &Spell::EffectUnused,                                   // 52 SPELL_EFFECT_GUARANTEE_HIT            one spell: zzOLDCritical Shot
+    &Spell::EffectUnused,                                   // 52 SPELL_EFFECT_GUARANTEE_HIT            unused
     &Spell::EffectEnchantItemPerm,                          // 53 SPELL_EFFECT_ENCHANT_ITEM
     &Spell::EffectEnchantItemTmp,                           // 54 SPELL_EFFECT_ENCHANT_ITEM_TEMPORARY
     &Spell::EffectTameCreature,                             // 55 SPELL_EFFECT_TAMECREATURE
@@ -229,8 +229,21 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     //160 SPELL_EFFECT_160                      1 spell - 45534
     &Spell::EffectSpecCount,                                //161 SPELL_EFFECT_TALENT_SPEC_COUNT        second talent spec (learn/revert)
     &Spell::EffectActivateSpec,                             //162 SPELL_EFFECT_TALENT_SPEC_SELECT       activate primary/secondary spec
-    &Spell::EffectNULL,                                     //163 unused
+    &Spell::EffectUnused,                                   //163 SPELL_EFFECT_163  unused
     &Spell::EffectRemoveAura,                               //164 SPELL_EFFECT_REMOVE_AURA
+    &Spell::EffectNULL,                                     //165 SPELL_EFFECT_165
+    &Spell::EffectNULL,                                     //166 SPELL_EFFECT_166
+    &Spell::EffectNULL,                                     //167 SPELL_EFFECT_167
+    &Spell::EffectNULL,                                     //168 SPELL_EFFECT_168
+    &Spell::EffectNULL,                                     //169 SPELL_EFFECT_169
+    &Spell::EffectNULL,                                     //170 SPELL_EFFECT_170
+    &Spell::EffectNULL,                                     //171 SPELL_EFFECT_171
+    &Spell::EffectNULL,                                     //172 SPELL_EFFECT_172
+    &Spell::EffectNULL,                                     //173 SPELL_EFFECT_173
+    &Spell::EffectNULL,                                     //174 SPELL_EFFECT_174
+    &Spell::EffectUnused,                                   //175 SPELL_EFFECT_175  unused
+    &Spell::EffectNULL,                                     //176 SPELL_EFFECT_176
+    &Spell::EffectNULL,                                     //177 SPELL_EFFECT_177
 };
 
 void Spell::EffectNULL(SpellEffIndex /*effIndex*/)
@@ -672,13 +685,13 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                         Item* item = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
                         if (item)
                         {
-                            float dmg_min = item->GetTemplate()->Damage->DamageMin;
-                            float dmg_max = item->GetTemplate()->Damage->DamageMax;
+                            float dmg_min = item->GetTemplate()->DamageMin;
+                            float dmg_max = item->GetTemplate()->DamageMax;
                             if (dmg_max == 0.0f && dmg_min > dmg_max)
                                 damage += int32(dmg_min);
                             else
                                 damage += irand(int32(dmg_min), int32(dmg_max));
-                            damage += int32(m_caster->ToPlayer()->GetAmmoDPS()*item->GetTemplate()->Delay*0.001f);
+                            damage += int32(item->GetTemplate()->Delay*0.001f);
                         }
                     }
                 }
@@ -3638,58 +3651,6 @@ void Spell::EffectEnchantItemTmp(SpellEffIndex effIndex)
 
     Player* p_caster = (Player*)m_caster;
 
-    // Rockbiter Weapon apply to both weapon
-    if (!itemTarget)
-        return;
-    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags[0] & 0x400000)
-    {
-        uint32 spell_id = 0;
-
-        // enchanting spell selected by calculated damage-per-sec stored in Effect[1] base value
-        // Note: damage calculated (correctly) with rounding int32(float(v)) but
-        // RW enchantments applied damage int32(float(v)+0.5), this create  0..1 difference sometime
-        switch (damage)
-        {
-            // Rank 1
-            case  2: spell_id = 36744; break;               //  0% [ 7% == 2, 14% == 2, 20% == 2]
-            // Rank 2
-            case  4: spell_id = 36753; break;               //  0% [ 7% == 4, 14% == 4]
-            case  5: spell_id = 36751; break;               // 20%
-            // Rank 3
-            case  6: spell_id = 36754; break;               //  0% [ 7% == 6, 14% == 6]
-            case  7: spell_id = 36755; break;               // 20%
-            // Rank 4
-            case  9: spell_id = 36761; break;               //  0% [ 7% == 6]
-            case 10: spell_id = 36758; break;               // 14%
-            case 11: spell_id = 36760; break;               // 20%
-            default:
-                sLog->outError("Spell::EffectEnchantItemTmp: Damage %u not handled in S'RW", damage);
-                return;
-        }
-
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
-        if (!spellInfo)
-        {
-            sLog->outError("Spell::EffectEnchantItemTmp: unknown spell id %i", spell_id);
-            return;
-
-        }
-
-        for (int j = BASE_ATTACK; j <= OFF_ATTACK; ++j)
-        {
-            if (Item* item = p_caster->GetWeaponForAttack(WeaponAttackType(j)))
-            {
-                if (item->IsFitToSpellRequirements(m_spellInfo))
-                {
-                    Spell* spell = new Spell(m_caster, spellInfo, TRIGGERED_FULL_MASK);
-                    SpellCastTargets targets;
-                    targets.SetItemTarget(item);
-                    spell->prepare(&targets);
-                }
-            }
-        }
-        return;
-    }
     if (!itemTarget)
         return;
 
@@ -3939,9 +3900,6 @@ void Spell::EffectTaunt(SpellEffIndex /*effIndex*/)
         SendCastResult(SPELL_FAILED_DONT_REPORT);
         return;
     }
-
-    if (m_spellInfo->Id == 62124)
-        m_caster->CastSpell(unitTarget, 67485, true);
 
     // Also use this effect to set the taunter's threat to the taunted creature's highest value
     if (unitTarget->getThreatManager().getCurrentVictim())
@@ -5711,12 +5669,16 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
     switch (m_glyphIndex)
     {
         case 0:
-        case 1: minLevel = 15; break;
-        case 2: minLevel = 50; break;
-        case 3: minLevel = 30; break;
-        case 4: minLevel = 70; break;
-        case 5: minLevel = 80; break;
+        case 1:
+        case 6: minLevel = 25; break;
+        case 2:
+        case 3:
+        case 7: minLevel = 50; break;
+        case 4:
+        case 5:
+        case 8: minLevel = 75; break;
     }
+
     if (minLevel && m_caster->getLevel() < minLevel)
     {
         SendCastResult(SPELL_FAILED_GLYPH_SOCKET_LOCKED);
@@ -5738,7 +5700,7 @@ void Spell::EffectApplyGlyph(SpellEffIndex effIndex)
             }
 
             // remove old glyph
-            if (uint32 oldglyph = player->GetGlyph(m_glyphIndex))
+            if (uint32 oldglyph = player->GetGlyph(player->GetActiveSpec(), m_glyphIndex))
             {
                 if (GlyphPropertiesEntry const* old_gp = sGlyphPropertiesStore.LookupEntry(oldglyph))
                 {
@@ -6158,6 +6120,7 @@ void Spell::EffectSelfResurrect(SpellEffIndex effIndex)
     player->SetPower(POWER_MANA, mana);
     player->SetPower(POWER_RAGE, 0);
     player->SetPower(POWER_ENERGY, player->GetMaxPower(POWER_ENERGY));
+    player->SetPower(POWER_FOCUS, 0);
 
     player->SpawnCorpseBones();
 }
@@ -7339,7 +7302,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!(spellInfo->AttributesEx7 & SPELL_ATTR7_SUMMON_PLAYER_TOTEM))
             continue;
 
-        uint32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
+        int32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
         if (m_caster->GetPower(POWER_MANA) < cost)
             continue;
 

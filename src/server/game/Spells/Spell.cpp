@@ -53,6 +53,7 @@
 #include "SpellScript.h"
 #include "InstanceScript.h"
 #include "SpellInfo.h"
+#include "DB2Stores.h"
 
 extern pEffect SpellEffects[TOTAL_SPELL_EFFECTS];
 
@@ -512,7 +513,7 @@ m_caster((info->AttributesEx6 & SPELL_ATTR6_CAST_BY_CHARMER && caster->GetCharme
         // wand case
         if ((m_caster->getClassMask() & CLASSMASK_WAND_USERS) != 0 && m_caster->GetTypeId() == TYPEID_PLAYER)
             if (Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK))
-                m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->Damage[0].DamageType);
+                m_spellSchoolMask = SpellSchoolMask(1 << pItem->GetTemplate()->DamageType);
 
     if (originalCasterGUID)
         m_originalCasterGUID = originalCasterGUID;
@@ -2813,7 +2814,7 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             {
                 Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
                 for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                    if ((*j)->IsAffectedOnSpell(m_spellInfo))
+                    if ((*j)->IsAffectingSpell(m_spellInfo))
                         maxTargets += (*j)->GetAmount();
 
                 if (m_spellInfo->Id == 5246) //Intimidating Shout
@@ -2833,7 +2834,7 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             {
                 Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
                 for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                    if ((*j)->IsAffectedOnSpell(m_spellInfo))
+                    if ((*j)->IsAffectingSpell(m_spellInfo))
                         maxTargets += (*j)->GetAmount();
 
                 Trinity::RandomResizeList(gobjectList, maxTargets);
@@ -3619,7 +3620,7 @@ void Spell::finish(bool ok)
         Unit::AuraEffectList const& vIgnoreReset = m_caster->GetAuraEffectsByType(SPELL_AURA_IGNORE_MELEE_RESET);
         for (Unit::AuraEffectList::const_iterator i = vIgnoreReset.begin(); i != vIgnoreReset.end(); ++i)
         {
-            if ((*i)->IsAffectedOnSpell(m_spellInfo))
+            if ((*i)->IsAffectingSpell(m_spellInfo))
             {
                 found = true;
                 break;
@@ -3680,6 +3681,9 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
     data << uint8(result);                                  // problem
     switch (result)
     {
+        case SPELL_FAILED_NOT_READY:
+            data << uint32(0);                              // unknown (value 1 update cooldowns on client flag)
+            break;
         case SPELL_FAILED_REQUIRES_SPELL_FOCUS:
             data << uint32(spellInfo->RequiresSpellFocus);  // SpellFocusObject.dbc id
             break;
@@ -3732,8 +3736,31 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
                  data << uint32(pProto->ItemLimitCategory);
              break;
         }
+        case SPELL_FAILED_PREVENTED_BY_MECHANIC:
+            data << uint32(spellInfo->GetAllEffectsMechanicMask());  // SpellMechanic.dbc id
+            break;
+        case SPELL_FAILED_NEED_EXOTIC_AMMO:
+            data << uint32(spellInfo->EquippedItemSubClassMask); // seems correct...
+            break;
+        case SPELL_FAILED_REAGENTS:
+            data << uint32(0);                              // Item id
+            break;
+        case SPELL_FAILED_NEED_MORE_ITEMS:
+            data << uint32(0);                              // Item id
+            data << uint32(0);                              // Item count?
+            break;
+        case SPELL_FAILED_MIN_SKILL:
+            data << uint32(0);                              // SkillLine.dbc id
+            data << uint32(0);                              // required skill value
+            break;
+        case SPELL_FAILED_FISHING_TOO_LOW:
+            data << uint32(0);                              // required fishing skill
+            break;
         case SPELL_FAILED_CUSTOM_ERROR:
             data << uint32(customError);
+            break;
+        case SPELL_FAILED_SILENCED:
+            data << uint32(0);                              // Unknown
             break;
         default:
             break;
@@ -3753,8 +3780,6 @@ void Spell::SendSpellStart()
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
 
-    if (m_spellInfo->Attributes & SPELL_ATTR0_REQ_AMMO)
-        castFlags |= CAST_FLAG_AMMO;
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
          && m_spellInfo->PowerType != POWER_HEALTH)
@@ -3780,13 +3805,19 @@ void Spell::SendSpellStart()
     if (castFlags & CAST_FLAG_POWER_LEFT_SELF)
         data << uint32(m_caster->GetPower((Powers)m_spellInfo->PowerType));
 
-    if (castFlags & CAST_FLAG_AMMO)
-        WriteAmmoToPacket(&data);
-
-    if (castFlags & CAST_FLAG_UNKNOWN_23)
+    if (castFlags & CAST_FLAG_IMMUNITY)
     {
         data << uint32(0);
         data << uint32(0);
+    }
+
+    if (castFlags & CAST_FLAG_UNKNOWN_31)
+    {
+        data << uint32(0);
+        data << uint8(0); // unkByte
+        // if (unkByte == 2)
+            // data.append(0);
+        
     }
 
     m_caster->SendMessageToSet(&data, true);
@@ -3806,8 +3837,6 @@ void Spell::SendSpellGo()
     if ((IsTriggered() && !m_spellInfo->IsAutoRepeatRangedSpell()) || m_triggeredByAuraSpell)
         castFlags |= CAST_FLAG_PENDING;
 
-    if (m_spellInfo->Attributes & SPELL_ATTR0_REQ_AMMO)
-        castFlags |= CAST_FLAG_AMMO;                        // arrows/bullets visual
     if ((m_caster->GetTypeId() == TYPEID_PLAYER ||
         (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->isPet()))
         && m_spellInfo->PowerType != POWER_HEALTH)
@@ -3858,32 +3887,30 @@ void Spell::SendSpellGo()
         //The creature is the mover of a player, so HandleCastSpellOpcode uses it as the caster
         if (Player* player = m_caster->ToPlayer())
         {
-            uint8 runeMaskInitial = m_runesState;
-            uint8 runeMaskAfterCast = player->GetRunesState();
-            data << uint8(runeMaskInitial);                     // runes state before
-            data << uint8(runeMaskAfterCast);                   // runes state after
+            data << uint8(m_runesState);                     // runes state before
+            data << uint8(player->GetRunesState());          // runes state after
             for (uint8 i = 0; i < MAX_RUNES; ++i)
             {
-                uint8 mask = (1 << i);
-                if (mask & runeMaskInitial && !(mask & runeMaskAfterCast))  // usable before andon cooldown now...
-                {
-                    // float casts ensure the division is performed on floats as we need float result
-                    float baseCd = float(player->GetRuneBaseCooldown(i));
-                    data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
-                }
+                // float casts ensure the division is performed on floats as we need float result
+                float baseCd = float(player->GetRuneBaseCooldown(i));
+                data << uint8((baseCd - float(player->GetRuneCooldown(i))) / baseCd * 255); // rune cooldown passed
             }
         }
     }
+
     if (castFlags & CAST_FLAG_ADJUST_MISSILE)
     {
         data << m_targets.GetElevation();
         data << uint32(m_delayMoment);
     }
 
-    if (castFlags & CAST_FLAG_AMMO)
-        WriteAmmoToPacket(&data);
+    if (castFlags & CAST_FLAG_PROJECTILE)
+    {
+        data << uint32(0); // Ammo display ID
+        data << uint32(0); // Inventory Type
+    }
 
-    if (castFlags & CAST_FLAG_UNKNOWN_20)
+    if (castFlags & CAST_FLAG_VISUAL_CHAIN)
     {
         data << uint32(0);
         data << uint32(0);
@@ -3894,79 +3921,21 @@ void Spell::SendSpellGo()
         data << uint8(0);
     }
 
+    if (m_targets.GetTargetMask() & TARGET_FLAG_EXTRA_TARGETS)
+    {
+        data << uint8(0); // Extra targets count
+        /*
+        for (uint8 i = 0; i < count; ++i)
+        {
+            data << float(0);   // Target Position X
+            data << float(0);   // Target Position Y
+            data << float(0);   // Target Position Z
+            data << uint64(0);  // Target Guid
+        }
+        */
+    }
+
     m_caster->SendMessageToSet(&data, true);
-}
-
-void Spell::WriteAmmoToPacket(WorldPacket* data)
-{
-    uint32 ammoInventoryType = 0;
-    uint32 ammoDisplayID = 0;
-
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-    {
-        Item* pItem = m_caster->ToPlayer()->GetWeaponForAttack(RANGED_ATTACK);
-        if (pItem)
-        {
-            ammoInventoryType = pItem->GetTemplate()->InventoryType;
-            if (ammoInventoryType == INVTYPE_THROWN)
-                ammoDisplayID = pItem->GetTemplate()->DisplayInfoID;
-            else
-            {
-                uint32 ammoID = m_caster->ToPlayer()->GetUInt32Value(PLAYER_AMMO_ID);
-                if (ammoID)
-                {
-                    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(ammoID);
-                    if (pProto)
-                    {
-                        ammoDisplayID = pProto->DisplayInfoID;
-                        ammoInventoryType = pProto->InventoryType;
-                    }
-                }
-                else if (m_caster->HasAura(46699))      // Requires No Ammo
-                {
-                    ammoDisplayID = 5996;                   // normal arrow
-                    ammoInventoryType = INVTYPE_AMMO;
-                }
-            }
-        }
-    }
-    else
-    {
-        for (uint8 i = 0; i < 3; ++i)
-        {
-            if (uint32 item_id = m_caster->GetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID + i))
-            {
-                if (ItemEntry const* itemEntry = sItemStore.LookupEntry(item_id))
-                {
-                    if (itemEntry->Class == ITEM_CLASS_WEAPON)
-                    {
-                        switch (itemEntry->SubClass)
-                        {
-                            case ITEM_SUBCLASS_WEAPON_THROWN:
-                                ammoDisplayID = itemEntry->DisplayId;
-                                ammoInventoryType = itemEntry->InventoryType;
-                                break;
-                            case ITEM_SUBCLASS_WEAPON_BOW:
-                            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                                ammoDisplayID = 5996;       // is this need fixing?
-                                ammoInventoryType = INVTYPE_AMMO;
-                                break;
-                            case ITEM_SUBCLASS_WEAPON_GUN:
-                                ammoDisplayID = 5998;       // is this need fixing?
-                                ammoInventoryType = INVTYPE_AMMO;
-                                break;
-                        }
-
-                        if (ammoDisplayID)
-                            break;
-                    }
-                }
-            }
-        }
-    }
-
-    *data << uint32(ammoDisplayID);
-    *data << uint32(ammoInventoryType);
 }
 
 void Spell::WriteSpellGoTargets(WorldPacket* data)
@@ -4180,12 +4149,12 @@ void Spell::SendResurrectRequest(Player* target)
     data << uint32(strlen(resurrectorName) + 1);
 
     data << resurrectorName;
-    data << uint8(0); // null terminator
+    data << uint8(0); // use timer according to client symbols
 
     data << uint8(m_caster->GetTypeId() == TYPEID_PLAYER ? 0 : 1); // "you'll be afflicted with resurrection sickness"
     // override delay sent with SMSG_CORPSE_RECLAIM_DELAY, set instant resurrection for spells with this attribute
-    if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_IGNORE_RESURRECTION_TIMER)
-        data << uint32(0);
+    // 4.2.2 edit : id of the spell used to resurect. (used client-side for Mass Resurect)
+    data << uint32(m_spellInfo->Id);
     target->GetSession()->SendPacket(&data);
 }
 
@@ -4333,8 +4302,6 @@ void Spell::TakeAmmo()
                 m_caster->ToPlayer()->DestroyItemCount(pItem, count, true);
             }
         }
-        else if (uint32 ammo = m_caster->ToPlayer()->GetUInt32Value(PLAYER_AMMO_ID))
-            m_caster->ToPlayer()->DestroyItemCount(ammo, 1, true);
     }
 }
 
@@ -4631,7 +4598,7 @@ SpellCastResult Spell::CheckCast(bool strict)
         Unit::AuraEffectList const& ignore = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_IGNORE_SHAPESHIFT);
         for (Unit::AuraEffectList::const_iterator i = ignore.begin(); i != ignore.end(); ++i)
         {
-            if (!(*i)->IsAffectedOnSpell(m_spellInfo))
+            if (!(*i)->IsAffectingSpell(m_spellInfo))
                 continue;
             checkForm = false;
             break;
@@ -4657,7 +4624,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     Unit::AuraEffectList const& stateAuras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_IGNORE_AURASTATE);
     for (Unit::AuraEffectList::const_iterator j = stateAuras.begin(); j != stateAuras.end(); ++j)
     {
-        if ((*j)->IsAffectedOnSpell(m_spellInfo))
+        if ((*j)->IsAffectingSpell(m_spellInfo))
         {
             m_needComboPoints = false;
             if ((*j)->GetMiscValue() == 1)
@@ -4707,7 +4674,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             SpellEffectInfo const* effInfo = &m_spellInfo->Effects[effIndex];
             if (effInfo->ApplyAuraName == SPELL_AURA_MOD_SHAPESHIFT)
             {
-                SpellShapeshiftEntry const* shapeShiftEntry = sSpellShapeshiftStore.LookupEntry(effInfo->MiscValue);
+                SpellShapeshiftFormEntry const* shapeShiftEntry = sSpellShapeshiftFormStore.LookupEntry(effInfo->MiscValue);
                 if (shapeShiftEntry && (shapeShiftEntry->flags1 & 1) == 0)  // unk flag
                     checkMask |= VEHICLE_SEAT_FLAG_UNCONTROLLED;
                 break;
@@ -6154,46 +6121,6 @@ SpellCastResult Spell::CheckItems()
                     case ITEM_SUBCLASS_WEAPON_GUN:
                     case ITEM_SUBCLASS_WEAPON_BOW:
                     case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                    {
-                        uint32 ammo = m_caster->ToPlayer()->GetUInt32Value(PLAYER_AMMO_ID);
-                        if (!ammo)
-                        {
-                            // Requires No Ammo
-                            if (m_caster->HasAura(46699))
-                                break;                      // skip other checks
-
-                            return SPELL_FAILED_NO_AMMO;
-                        }
-
-                        ItemTemplate const* ammoProto = sObjectMgr->GetItemTemplate(ammo);
-                        if (!ammoProto)
-                            return SPELL_FAILED_NO_AMMO;
-
-                        if (ammoProto->Class != ITEM_CLASS_PROJECTILE)
-                            return SPELL_FAILED_NO_AMMO;
-
-                        // check ammo ws. weapon compatibility
-                        switch (pItem->GetTemplate()->SubClass)
-                        {
-                            case ITEM_SUBCLASS_WEAPON_BOW:
-                            case ITEM_SUBCLASS_WEAPON_CROSSBOW:
-                                if (ammoProto->SubClass != ITEM_SUBCLASS_ARROW)
-                                    return SPELL_FAILED_NO_AMMO;
-                                break;
-                            case ITEM_SUBCLASS_WEAPON_GUN:
-                                if (ammoProto->SubClass != ITEM_SUBCLASS_BULLET)
-                                    return SPELL_FAILED_NO_AMMO;
-                                break;
-                            default:
-                                return SPELL_FAILED_NO_AMMO;
-                        }
-
-                        if (!m_caster->ToPlayer()->HasItemCount(ammo, 1))
-                        {
-                            m_caster->ToPlayer()->SetUInt32Value(PLAYER_AMMO_ID, 0);
-                            return SPELL_FAILED_NO_AMMO;
-                        }
-                    };  break;
                     case ITEM_SUBCLASS_WEAPON_WAND:
                         break;
                     default:
@@ -6617,7 +6544,7 @@ void Spell::HandleLaunchPhase()
     Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_ABILITY_CONSUME_NO_AMMO);
     for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
     {
-        if ((*j)->IsAffectedOnSpell(m_spellInfo))
+        if ((*j)->IsAffectingSpell(m_spellInfo))
             usesAmmo=false;
     }
 
@@ -7211,7 +7138,7 @@ void Spell::PrepareTriggersExecutedOnHit()
     Unit::AuraEffectList const& targetTriggers = m_caster->GetAuraEffectsByType(SPELL_AURA_ADD_TARGET_TRIGGER);
     for (Unit::AuraEffectList::const_iterator i = targetTriggers.begin(); i != targetTriggers.end(); ++i)
     {
-        if (!(*i)->IsAffectedOnSpell(m_spellInfo))
+        if (!(*i)->IsAffectingSpell(m_spellInfo))
             continue;
         SpellInfo const* auraSpellInfo = (*i)->GetSpellInfo();
         uint32 auraSpellIdx = (*i)->GetEffIndex();

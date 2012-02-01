@@ -30,10 +30,11 @@
 #include "WaypointMovementGenerator.h"
 #include "InstanceSaveMgr.h"
 #include "ObjectMgr.h"
+#include "MovementStructures.h"
 
 void WorldSession::HandleMoveWorldportAckOpcode(WorldPacket & /*recv_data*/)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got MSG_MOVE_WORLDPORT_ACK.");
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: got CMSG_WORLD_PORT_RESPONSE.");
     HandleMoveWorldportAckOpcode();
 }
 
@@ -190,13 +191,25 @@ void WorldSession::HandleMoveWorldportAckOpcode()
 
 void WorldSession::HandleMoveTeleportAck(WorldPacket& recv_data)
 {
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "MSG_MOVE_TELEPORT_ACK");
-    uint64 guid;
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_MOVE_TELEPORT_ACK");
 
-    recv_data.readPackGUID(guid);
-
+    BitStream mask = recv_data.ReadBitStream(8);
+    
     uint32 flags, time;
     recv_data >> flags >> time;
+
+    ByteBuffer bytes(8, true);
+    recv_data.ReadXorByte(mask[6], bytes[1]);
+    recv_data.ReadXorByte(mask[0], bytes[3]);
+    recv_data.ReadXorByte(mask[1], bytes[2]);
+    recv_data.ReadXorByte(mask[7], bytes[0]);
+    recv_data.ReadXorByte(mask[5], bytes[6]);
+    recv_data.ReadXorByte(mask[3], bytes[4]);
+    recv_data.ReadXorByte(mask[2], bytes[7]);
+    recv_data.ReadXorByte(mask[4], bytes[5]);
+
+    uint64 guid = BitConverter::ToUInt64(bytes);
+
     sLog->outStaticDebug("Guid " UI64FMTD, guid);
     sLog->outStaticDebug("Flags %u, time %u", flags, time/IN_MILLISECONDS);
 
@@ -253,28 +266,22 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     // ignore, waiting processing in WorldSession::HandleMoveWorldportAckOpcode and WorldSession::HandleMoveTeleportAck
     if (plMover && plMover->IsBeingTeleported())
     {
-        recv_data.rfinish();                   // prevent warnings spam
         return;
     }
 
     /* extract packet */
-    uint64 guid;
-
-    recv_data.readPackGUID(guid);
-
     MovementInfo movementInfo;
-    movementInfo.guid = guid;
     ReadMovementInfo(recv_data, &movementInfo);
 
-    recv_data.rfinish();                   // prevent warnings spam
-
     // prevent tampered movement data
-    if (guid != mover->GetGUID())
+    if (movementInfo.guid != mover->GetGUID())
+    {
+        sLog->outError("HandleMovementOpcodes: guid error");
         return;
-
+    }
     if (!movementInfo.pos.IsPositionValid())
     {
-        recv_data.rfinish();                   // prevent warnings spam
+        sLog->outError("HandleMovementOpcodes: Invalid Position");
         return;
     }
 
@@ -340,10 +347,10 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
     /*----------------------*/
 
     /* process position-change */
-    WorldPacket data(opcode, recv_data.size());
+    WorldPacket data(SMSG_PLAYER_MOVE, recv_data.size());
     movementInfo.time = getMSTime();
     movementInfo.guid = mover->GetGUID();
-    WriteMovementInfo(&data, &movementInfo);
+    WriteMovementInfo(data, &movementInfo);
     mover->SendMessageToSet(&data, _player);
 
     mover->m_movementInfo = movementInfo;
@@ -387,7 +394,7 @@ void WorldSession::HandleMovementOpcodes(WorldPacket & recv_data)
 void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 {
     uint32 opcode = recv_data.GetOpcode();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(opcode), opcode, opcode);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Recvd %s (%u, 0x%X) opcode", LookupOpcodeName(Opcodes(opcode)), opcode, opcode);
 
     /* extract packet */
     uint64 guid;
@@ -423,15 +430,15 @@ void WorldSession::HandleForceSpeedChangeAck(WorldPacket &recv_data)
 
     switch (opcode)
     {
-        case CMSG_FORCE_WALK_SPEED_CHANGE_ACK:          move_type = MOVE_WALK;          force_move_type = MOVE_WALK;        break;
-        case CMSG_FORCE_RUN_SPEED_CHANGE_ACK:           move_type = MOVE_RUN;           force_move_type = MOVE_RUN;         break;
-        case CMSG_FORCE_RUN_BACK_SPEED_CHANGE_ACK:      move_type = MOVE_RUN_BACK;      force_move_type = MOVE_RUN_BACK;    break;
-        case CMSG_FORCE_SWIM_SPEED_CHANGE_ACK:          move_type = MOVE_SWIM;          force_move_type = MOVE_SWIM;        break;
-        case CMSG_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:     move_type = MOVE_SWIM_BACK;     force_move_type = MOVE_SWIM_BACK;   break;
-        case CMSG_FORCE_TURN_RATE_CHANGE_ACK:           move_type = MOVE_TURN_RATE;     force_move_type = MOVE_TURN_RATE;   break;
-        case CMSG_FORCE_FLIGHT_SPEED_CHANGE_ACK:        move_type = MOVE_FLIGHT;        force_move_type = MOVE_FLIGHT;      break;
-        case CMSG_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:   move_type = MOVE_FLIGHT_BACK;   force_move_type = MOVE_FLIGHT_BACK; break;
-        case CMSG_FORCE_PITCH_RATE_CHANGE_ACK:          move_type = MOVE_PITCH_RATE;    force_move_type = MOVE_PITCH_RATE;  break;
+        case CMSG_MOVE_FORCE_WALK_SPEED_CHANGE_ACK:          move_type = MOVE_WALK;          force_move_type = MOVE_WALK;        break;
+        case CMSG_MOVE_FORCE_RUN_SPEED_CHANGE_ACK:           move_type = MOVE_RUN;           force_move_type = MOVE_RUN;         break;
+        case CMSG_MOVE_FORCE_RUN_BACK_SPEED_CHANGE_ACK:      move_type = MOVE_RUN_BACK;      force_move_type = MOVE_RUN_BACK;    break;
+        case CMSG_MOVE_FORCE_SWIM_SPEED_CHANGE_ACK:          move_type = MOVE_SWIM;          force_move_type = MOVE_SWIM;        break;
+        case CMSG_MOVE_FORCE_SWIM_BACK_SPEED_CHANGE_ACK:     move_type = MOVE_SWIM_BACK;     force_move_type = MOVE_SWIM_BACK;   break;
+        case CMSG_MOVE_FORCE_TURN_RATE_CHANGE_ACK:           move_type = MOVE_TURN_RATE;     force_move_type = MOVE_TURN_RATE;   break;
+        case CMSG_MOVE_FORCE_FLIGHT_SPEED_CHANGE_ACK:        move_type = MOVE_FLIGHT;        force_move_type = MOVE_FLIGHT;      break;
+        case CMSG_MOVE_FORCE_FLIGHT_BACK_SPEED_CHANGE_ACK:   move_type = MOVE_FLIGHT_BACK;   force_move_type = MOVE_FLIGHT_BACK; break;
+        case CMSG_MOVE_FORCE_PITCH_RATE_CHANGE_ACK:          move_type = MOVE_PITCH_RATE;    force_move_type = MOVE_PITCH_RATE;  break;
         default:
             sLog->outError("WorldSession::HandleForceSpeedChangeAck: Unknown move type opcode: %u", opcode);
             return;
@@ -515,7 +522,7 @@ void WorldSession::HandleMoveKnockBackAck(WorldPacket & recv_data)
     ReadMovementInfo(recv_data, &movementInfo);
     _player->m_movementInfo = movementInfo;
 
-    WorldPacket data(MSG_MOVE_KNOCK_BACK, 66);
+    WorldPacket data(SMSG_MOVE_UPDATE_KNOCK_BACK, 66);
     data.appendPackGUID(guid);
     _player->BuildMovementPacket(&data);
 
@@ -563,11 +570,335 @@ void WorldSession::HandleSummonResponseOpcode(WorldPacket& recv_data)
     if (!_player->isAlive() || _player->isInCombat())
         return;
 
-    uint64 summoner_guid;
+    uint64 summonerGuid;
     bool agree;
-    recv_data >> summoner_guid;
+    recv_data >> summonerGuid;
     recv_data >> agree;
 
     _player->SummonIfPossible(agree);
 }
 
+void WorldSession::ReadMovementInfo(WorldPacket &data, MovementInfo* mi)
+{
+    bool HaveTransportData = false,
+       HaveTransportTime2 = false,
+       HaveTransportTime3 = false,
+       HavePitch = false,
+       HaveFallData = false,
+       HaveFallDirection = false,
+       HaveSplineElevation = false,
+       HaveSpline = false;
+
+   MovementStatusElements *sequence = GetMovementStatusElementsSequence(data.GetOpcode());
+   if (sequence == NULL)
+       return;
+
+   BytesGuid guid;
+   BytesGuid tguid;
+
+   guid.guid = 0;
+   tguid.guid = 0;
+
+   for (uint32 i = 0; i < MSE_COUNT; i++)
+   {
+       MovementStatusElements element = sequence[i];
+
+       if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
+       {
+           data.ReadByteMask(guid.bytes[element - MSEGuidByte0]);
+           continue;
+       }
+
+       if (element >= MSETransportGuidByte0 &&
+           element <= MSETransportGuidByte7)
+       {
+           if (HaveTransportData)
+               data.ReadByteMask(tguid.bytes[element - MSETransportGuidByte0]);
+           continue;
+       }
+
+       if (element >= MSEGuidByte0_2 && element <= MSEGuidByte7_2)
+       {
+           data.ReadByteSeq(guid.bytes[element - MSEGuidByte0_2]);
+           continue;
+       }
+
+       if (element >= MSETransportGuidByte0_2 &&
+           element <= MSETransportGuidByte7_2)
+       {
+           if (HaveTransportData)
+               data.ReadByteSeq(tguid.bytes[element - MSETransportGuidByte0_2]);
+           continue;
+       }
+
+       switch (element)
+       {
+       case MSEFlags:
+           mi->flags = data.ReadBits(30);
+           break;
+       case MSEFlags2:
+           mi->flags2 = data.ReadBits(12);
+           break;
+       case MSETimestamp:
+           data >> mi->time;
+           break;
+       case MSEHavePitch:
+           HavePitch = data.ReadBit();
+           break;
+       case MSEHaveFallData:
+           HaveFallData = data.ReadBit();
+           break;
+       case MSEHaveFallDirection:
+           if (HaveFallData)
+               HaveFallDirection = data.ReadBit();
+           break;
+       case MSEHaveTransportData:
+           HaveTransportData = data.ReadBit();
+           break;
+       case MSETransportHaveTime2:
+           if (HaveTransportData)
+               HaveTransportTime2 = data.ReadBit();
+           break;
+       case MSETransportHaveTime3:
+           if (HaveTransportData)
+               HaveTransportTime3 = data.ReadBit();
+           break;
+       case MSEHaveSpline:
+           HaveSpline = data.ReadBit();
+           break;
+       case MSEHaveSplineElev:
+           HaveSplineElevation = data.ReadBit();
+           break;
+       case MSEPositionX:
+           data >> mi->pos.PositionXYZStream();
+           break;
+       case MSEPositionY:
+       case MSEPositionZ:
+           break; // assume they always go as vector of 3
+       case MSEPositionO:
+           data >> mi->pos.m_orientation;
+           break;
+       case MSEPitch:
+           if (HavePitch)
+               data >> mi->pitch;
+           break;
+       case MSEFallTime:
+           if (HaveFallData)
+               data >> mi->fallTime;
+           break;
+       case MSESplineElev:
+           if (HaveSplineElevation)
+               data >> mi->splineElevation;
+           break;
+       case MSEFallHorizontalSpeed:
+           if (HaveFallDirection)
+               data >> mi->j_xyspeed;
+           break;
+       case MSEFallVerticalSpeed:
+           if (HaveFallData)
+               data >> mi->j_zspeed;
+           break;
+       case MSEFallCosAngle:
+           if (HaveFallDirection)
+               data >> mi->j_cosAngle;
+           break;
+       case MSEFallSinAngle:
+           if (HaveFallDirection)
+               data >> mi->j_sinAngle;
+           break;
+       case MSETransportSeat:
+           if (HaveTransportData)
+               data >> mi->t_seat;
+           break;
+       case MSETransportPositionO:
+           if (HaveTransportData)
+               data >> mi->t_pos.m_orientation;
+           break;
+       case MSETransportPositionX:
+           if (HaveTransportData)
+               data >> mi->t_pos.PositionXYZStream();
+           break;
+       case MSETransportPositionY:
+       case MSETransportPositionZ:
+           break; // assume they always go as vector of 3
+       case MSETransportTime:
+           if (HaveTransportData)
+               data >> mi->t_time;
+           break;
+       case MSETransportTime2:
+           if (HaveTransportTime2)
+               data >> mi->t_time2;
+           break;
+       case MSETransportTime3:
+           if (HaveTransportTime3)
+               data >> mi->t_time3;
+           break;
+       default:
+           WPError(false, "Incorrect sequence element detected at ReadMovementInfo");
+       }
+   }
+
+   mi->guid = guid.guid;
+   mi->t_guid = tguid.guid;
+
+   if (HaveTransportData && mi->pos.m_positionX != mi->t_pos.m_positionX)
+       if (GetPlayer()->GetTransport())
+           GetPlayer()->GetTransport()->UpdatePosition(mi);
+}
+
+void WorldSession::WriteMovementInfo(WorldPacket &data, MovementInfo* mi)
+{
+    bool HaveTransportData = mi->HasMovementFlag(MOVEMENTFLAG_ONTRANSPORT),
+       HaveTransportTime2 = (mi->flags2 & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT) != 0,
+       HaveTransportTime3 = false,
+       HavePitch = (mi->HasMovementFlag(MovementFlags(MOVEMENTFLAG_SWIMMING | MOVEMENTFLAG_FLYING)))
+       || (mi->flags2 & MOVEMENTFLAG2_ALWAYS_ALLOW_PITCHING),
+       HaveFallData = mi->HasExtraMovementFlag(MOVEMENTFLAG2_INTERPOLATED_TURNING),
+       HaveFallDirection = mi->HasMovementFlag(MOVEMENTFLAG_JUMPING),
+       HaveSplineElevation = mi->HasMovementFlag(MOVEMENTFLAG_SPLINE_ELEVATION),
+       HaveSpline = false;
+
+   MovementStatusElements *sequence = GetMovementStatusElementsSequence(data.GetOpcode());
+   if(!sequence)
+       return;
+   uint8 *guid = (uint8 *)&mi->guid;
+   uint8 *tguid = (uint8 *)&mi->t_guid;
+   for(uint32 i=0; i < MSE_COUNT; i++)
+   {
+       MovementStatusElements element = sequence[i];
+
+       if (element >= MSEGuidByte0 && element <= MSEGuidByte7)
+       {
+           data.WriteByteMask(guid[element - MSEGuidByte0]);
+           continue;
+       }
+
+       if (element >= MSETransportGuidByte0 &&
+           element <= MSETransportGuidByte7)
+       {
+           if (HaveTransportData)
+               data.WriteByteMask(tguid[element - MSETransportGuidByte0]);
+           continue;
+       }
+
+       if (element >= MSEGuidByte0_2 && element <= MSEGuidByte7_2)
+       {
+           data.WriteByteSeq(guid[element - MSEGuidByte0_2]);
+           continue;
+       }
+
+       if (element >= MSETransportGuidByte0_2 &&
+           element <= MSETransportGuidByte7_2)
+       {
+           if (HaveTransportData)
+               data.WriteByteSeq(tguid[element - MSETransportGuidByte0_2]);
+           continue;
+       }
+
+       switch (element)
+       {
+       case MSEFlags:
+           data.WriteBits(mi->flags, 30);
+           break;
+       case MSEFlags2:
+           data.WriteBits(mi->flags2, 12);
+           break;
+       case MSETimestamp:
+           data << mi->time;
+           break;
+       case MSEHavePitch:
+           data.WriteBit(HavePitch);
+           break;
+       case MSEHaveFallData:
+           data.WriteBit(HaveFallData);
+           break;
+       case MSEHaveFallDirection:
+           if (HaveFallData)
+               data.WriteBit(HaveFallDirection);
+           break;
+       case MSEHaveTransportData:
+           data.WriteBit(HaveTransportData);
+           break;
+       case MSETransportHaveTime2:
+           if (HaveTransportData)
+               data.WriteBit(HaveTransportTime2);
+           break;
+       case MSETransportHaveTime3:
+           if (HaveTransportData)
+               data.WriteBit(HaveTransportTime3);
+           break;
+       case MSEHaveSpline:
+           data.WriteBit(HaveSpline);
+           break;
+       case MSEHaveSplineElev:
+           data.WriteBit(HaveSplineElevation);
+           break;
+       case MSEPositionX:
+           data << mi->pos.PositionXYZStream();
+           break;
+       case MSEPositionY:
+       case MSEPositionZ:
+           break; // assume they always go as vector of 3
+       case MSEPositionO:
+           data << mi->pos.m_orientation;
+           break;
+       case MSEPitch:
+           if (HavePitch)
+               data << mi->pitch;
+           break;
+       case MSEFallTime:
+           if (HaveFallData)
+               data << mi->fallTime;
+           break;
+       case MSESplineElev:
+           if (HaveSplineElevation)
+               data << mi->splineElevation;
+           break;
+       case MSEFallHorizontalSpeed:
+           if (HaveFallDirection)
+               data << mi->j_xyspeed;
+           break;
+       case MSEFallVerticalSpeed:
+           if (HaveFallData)
+               data << mi->j_zspeed;
+           break;
+       case MSEFallCosAngle:
+           if (HaveFallDirection)
+               data << mi->j_cosAngle;
+           break;
+       case MSEFallSinAngle:
+           if (HaveFallDirection)
+               data << mi->j_sinAngle;
+           break;
+       case MSETransportSeat:
+           if (HaveTransportData)
+               data << mi->t_seat;
+           break;
+       case MSETransportPositionO:
+           if (HaveTransportData)
+               data << mi->t_pos.m_orientation;
+           break;
+       case MSETransportPositionX:
+           if (HaveTransportData)
+               data << mi->t_pos.PositionXYZStream();
+           break;
+       case MSETransportPositionY:
+       case MSETransportPositionZ:
+           break; // assume they always go as vector of 3
+       case MSETransportTime:
+           if (HaveTransportData)
+               data << mi->t_time;
+           break;
+       case MSETransportTime2:
+           if (HaveTransportTime2)
+               data << mi->t_time2;
+           break;
+       case MSETransportTime3:
+           if (HaveTransportTime3)
+               data << mi->t_time3;
+           break;
+       default:
+           WPError(false, "Incorrect sequence element detected at ReadMovementInfo");
+       }
+   }
+}

@@ -21,8 +21,10 @@
 
 #include "Common.h"
 #include "Debugging/Errors.h"
-#include "Logging/Log.h"
+#include "Log.h"
 #include "Utilities/ByteConverter.h"
+
+
 
 class ByteBufferException
 {
@@ -45,25 +47,66 @@ class ByteBufferException
         size_t size;
 };
 
+class BitStream
+{
+    public:
+        BitStream(): _rpos(0), _wpos(0) {}
+
+        BitStream(uint32 val, size_t len): _rpos(0), _wpos(0)
+        {
+            WriteBits(val, len);
+        }
+
+        BitStream(BitStream const& bs) : _data(bs._data), _rpos(bs._rpos), _wpos(bs._wpos) {}
+
+        void Clear();
+        uint8 GetBit(uint32 bit);
+        uint8 ReadBit();
+        void WriteBit(uint32 bit);
+        template <typename T> void WriteBits(T value, size_t bits);
+        bool Empty();
+        void Reverse();
+        void Print();
+
+        size_t GetLength() { return _data.size(); }
+        uint32 GetReadPosition() { return _rpos; }
+        uint32 GetWritePosition() { return _wpos; }
+        void SetReadPos(uint32 pos) { _rpos = pos; }
+
+        uint8 const& operator[](uint32 const pos) const
+        {
+            return _data[pos];
+        }
+
+        uint8& operator[] (uint32 const pos)
+        {
+            return _data[pos];
+        }
+
+    private:
+        std::vector<uint8> _data;
+        uint32 _rpos, _wpos;
+};
+
 class ByteBuffer
 {
     public:
         const static size_t DEFAULT_SIZE = 0x1000;
 
         // constructor
-        ByteBuffer(): _rpos(0), _wpos(0)
+        ByteBuffer(): _rpos(0), _wpos(0), _bitpos(8), _curbitval(0)
         {
             _storage.reserve(DEFAULT_SIZE);
         }
 
         // constructor
-        ByteBuffer(size_t res): _rpos(0), _wpos(0)
-        {
-            _storage.reserve(res);
-        }
+        ByteBuffer(size_t res, bool init = false);
 
         // copy constructor
-        ByteBuffer(const ByteBuffer &buf): _rpos(buf._rpos), _wpos(buf._wpos), _storage(buf._storage) { }
+        ByteBuffer(const ByteBuffer &buf) : _rpos(buf._rpos), _wpos(buf._wpos),
+            _bitpos(buf._bitpos), _curbitval(buf._curbitval), _storage(buf._storage)
+        {
+        }
 
         void clear()
         {
@@ -73,8 +116,106 @@ class ByteBuffer
 
         template <typename T> void append(T value)
         {
+            FlushBits();
             EndianConvert(value);
             append((uint8 *)&value, sizeof(value));
+        }
+
+        void FlushBits()
+        {
+            if (_bitpos == 8)
+                return;
+
+            append((uint8 *)&_curbitval, sizeof(uint8));
+            _curbitval = 0;
+            _bitpos = 8;
+        }
+
+        bool WriteBit(uint32 bit)
+        {
+            --_bitpos;
+            if (bit)
+                _curbitval |= (1 << (_bitpos));
+
+            if (_bitpos == 0)
+            {
+                _bitpos = 8;
+                append((uint8 *)&_curbitval, sizeof(_curbitval));
+                _curbitval = 0;
+            }
+
+            return (bit != 0);
+        }
+
+        bool ReadBit()
+        {
+            ++_bitpos;
+            if (_bitpos > 7)
+            {
+                _bitpos = 0;
+                _curbitval = read<uint8>();
+            }
+
+            return ((_curbitval >> (7-_bitpos)) & 1) != 0;
+        }
+
+        template <typename T> void WriteBits(T value, size_t bits)
+        {
+            for (int32 i = bits-1; i >= 0; --i)
+                WriteBit((value >> i) & 1);
+        }
+
+        uint32 ReadBits(size_t bits)
+        {
+            uint32 value = 0;
+            for (int32 i = bits-1; i >= 0; --i)
+                if (ReadBit())
+                    value |= (1 << (i));
+
+            return value;
+        }
+
+        BitStream ReadBitStream(uint32 len)
+        {
+            BitStream b;
+            for (uint32 i = 0; i < len; ++i)
+                b.WriteBit(ReadBit());
+            return b;
+        }
+
+        void ReadByteMask(uint8& b)
+        {
+            b = ReadBit() ? 1 : 0;
+        }
+
+        void ReadByteSeq(uint8& b)
+        {
+            if (b != 0)
+                b ^= read<uint8>();
+        }
+
+        uint8 ReadXorByte()
+        {
+            return ReadUInt8() ^ 1;
+        }
+
+        void ReadXorByte(uint32 bit, uint8& byte)
+        {
+            if (!bit)
+                byte = 0;
+            else
+                byte = ReadUInt8() ^ bit;
+        }
+
+        void WriteByteMask(uint8 b)
+        {
+            WriteBit(b);
+        }
+
+        void WriteByteSeq(uint8 b)
+        {
+            if (b != 0)
+                append<uint8>(b ^ 1);
         }
 
         template <typename T> void put(size_t pos, T value)
@@ -239,9 +380,18 @@ class ByteBuffer
             return *this;
         }
 
-        uint8 operator[](size_t pos) const
+        uint8& operator[](size_t const pos)
         {
-            return read<uint8>(pos);
+            if (pos >= size())
+                throw ByteBufferException(false, pos, 1, size());
+            return _storage[pos];
+        }
+
+        uint8 const& operator[](size_t const pos) const
+        {
+            if (pos >= size())
+                throw ByteBufferException(false, pos, 1, size());
+            return _storage[pos];
         }
 
         size_t rpos() const { return _rpos; }
@@ -321,6 +471,83 @@ class ByteBuffer
                     guid |= (uint64(bit) << (i * 8));
                 }
             }
+        }
+
+        uint8 ReadUInt8()
+        {
+            uint8 u = 0;
+            (*this) >> u;
+            return u;
+        }
+
+        uint16 ReadUInt16()
+        {
+            uint16 u = 0;
+            (*this) >> u;
+            return u;
+        }
+
+        uint32 ReadUInt32()
+        {
+            uint32 u = 0;
+            (*this) >> u;
+            return u;
+        }
+
+        uint64 ReadUInt64()
+        {
+            uint64 u = 0;
+            (*this) >> u;
+            return u;
+        }
+
+        int8 ReadInt8()
+        {
+            int8 u = 0;
+            (*this) >> u;
+            return u;
+        }
+
+        int16 ReadInt16()
+        {
+            int16 u = 0;
+            (*this) >> u;
+            return u;
+        }
+
+        int32 ReadInt32()
+        {
+            uint32 u = 0;
+            (*this) >> u;
+            return u;
+        }
+
+        int64 ReadInt64()
+        {
+            int64 u = 0;
+            (*this) >> u;
+            return u;
+        }
+
+        std::string ReadString()
+        {
+            std::string s = 0;
+            (*this) >> s;
+            return s;
+        }
+
+        bool ReadBoolean()
+        {
+            uint8 b = 0;
+            (*this) >> b;
+            return b > 0 ? true : false;
+        }
+
+        float ReadSingle()
+        {
+            float f = 0;
+            (*this) >> f;
+            return f;
         }
 
         const uint8 *contents() const { return &_storage[0]; }
@@ -489,7 +716,8 @@ class ByteBuffer
         }
 
     protected:
-        size_t _rpos, _wpos;
+        size_t _rpos, _wpos, _bitpos;
+        uint8 _curbitval;
         std::vector<uint8> _storage;
 };
 
@@ -598,5 +826,45 @@ inline void ByteBuffer::read_skip<std::string>()
 {
     read_skip<char*>();
 }
+
+class BitConverter
+{
+    public:
+        static uint8 ToUInt8(ByteBuffer const& buff, size_t start = 0)
+        {
+            return buff.read<uint8>(start);
+        }
+
+        static uint16 ToUInt16(ByteBuffer const& buff, size_t start = 0)
+        {
+            return buff.read<uint16>(start);
+        }
+
+        static uint32 ToUInt32(ByteBuffer const& buff, size_t start = 0)
+        {
+            return buff.read<uint32>(start);
+        }
+
+        static uint64 ToUInt64(ByteBuffer const& buff, size_t start = 0)
+        {
+            return buff.read<uint64>(start);
+        }
+
+        static int16 ToInt16(ByteBuffer const& buff, size_t start = 0)
+        {
+            return buff.read<int16>(start);
+        }
+
+        static int32 ToInt32(ByteBuffer const& buff, size_t start = 0)
+        {
+            return buff.read<int32>(start);
+        }
+
+        static int64 ToInt64(ByteBuffer const& buff, size_t start = 0)
+        {
+            return buff.read<int64>(start);
+        }
+};
+
 #endif
 

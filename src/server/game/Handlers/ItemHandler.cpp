@@ -277,174 +277,172 @@ void WorldSession::HandleDestroyItemOpcode(WorldPacket & recv_data)
         _player->DestroyItem(bag, slot, true);
 }
 
-// Only _static_ data send in this packet !!!
-void WorldSession::HandleItemQuerySingleOpcode(WorldPacket & recv_data)
+void WorldSession::SendItemDb2Reply(uint32 entry)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_ITEM_QUERY_SINGLE");
-    uint32 item;
-    recv_data >> item;
-
-    sLog->outDetail("STORAGE: Item Query = %u", item);
-
-    ItemTemplate const* pProto = sObjectMgr->GetItemTemplate(item);
-    if (pProto)
+    WorldPacket data(SMSG_DB_REPLY, 44);
+    data << uint32(DB2_REPLY_ITEM);
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(entry);
+    if (!proto)
     {
-        std::string Name        = pProto->Name1;
-        std::string Description = pProto->Description;
-
-        int loc_idx = GetSessionDbLocaleIndex();
-        if (loc_idx >= 0)
-        {
-            if (ItemLocale const* il = sObjectMgr->GetItemLocale(pProto->ItemId))
-            {
-                ObjectMgr::GetLocaleString(il->Name, loc_idx, Name);
-                ObjectMgr::GetLocaleString(il->Description, loc_idx, Description);
-            }
-        }
-                                                            // guess size
-        WorldPacket data(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 600);
-        data << pProto->ItemId;
-        data << pProto->Class;
-        data << pProto->SubClass;
-        data << int32(pProto->Unk0);                        // new 2.0.3, not exist in wdb cache?
-        data << Name;
-        data << uint8(0x00);                                //pProto->Name2; // blizz not send name there, just uint8(0x00); <-- \0 = empty string = empty name...
-        data << uint8(0x00);                                //pProto->Name3; // blizz not send name there, just uint8(0x00);
-        data << uint8(0x00);                                //pProto->Name4; // blizz not send name there, just uint8(0x00);
-        data << pProto->DisplayInfoID;
-        data << pProto->Quality;
-        data << pProto->Flags;
-        data << pProto->Flags2;
-        data << pProto->BuyPrice;
-        data << pProto->SellPrice;
-        data << pProto->InventoryType;
-        data << pProto->AllowableClass;
-        data << pProto->AllowableRace;
-        data << pProto->ItemLevel;
-        data << pProto->RequiredLevel;
-        data << pProto->RequiredSkill;
-        data << pProto->RequiredSkillRank;
-        data << pProto->RequiredSpell;
-        data << pProto->RequiredHonorRank;
-        data << pProto->RequiredCityRank;
-        data << pProto->RequiredReputationFaction;
-        data << pProto->RequiredReputationRank;
-        data << int32(pProto->MaxCount);
-        data << int32(pProto->Stackable);
-        data << pProto->ContainerSlots;
-        data << pProto->StatsCount;                         // item stats count
-        for (uint32 i = 0; i < pProto->StatsCount; ++i)
-        {
-            data << pProto->ItemStat[i].ItemStatType;
-            data << pProto->ItemStat[i].ItemStatValue;
-        }
-        data << pProto->ScalingStatDistribution;            // scaling stats distribution
-        data << pProto->ScalingStatValue;                   // some kind of flags used to determine stat values column
-        for (int i = 0; i < MAX_ITEM_PROTO_DAMAGES; ++i)
-        {
-            data << pProto->Damage[i].DamageMin;
-            data << pProto->Damage[i].DamageMax;
-            data << pProto->Damage[i].DamageType;
-        }
-
-        // resistances (7)
-        data << pProto->Armor;
-        data << pProto->HolyRes;
-        data << pProto->FireRes;
-        data << pProto->NatureRes;
-        data << pProto->FrostRes;
-        data << pProto->ShadowRes;
-        data << pProto->ArcaneRes;
-
-        data << pProto->Delay;
-        data << pProto->AmmoType;
-        data << pProto->RangedModRange;
-
-        for (int s = 0; s < MAX_ITEM_PROTO_SPELLS; ++s)
-        {
-            // send DBC data for cooldowns in same way as it used in Spell::SendSpellCooldown
-            // use `item_template` or if not set then only use spell cooldowns
-            SpellInfo const* spell = sSpellMgr->GetSpellInfo(pProto->Spells[s].SpellId);
-            if (spell)
-            {
-                bool db_data = pProto->Spells[s].SpellCooldown >= 0 || pProto->Spells[s].SpellCategoryCooldown >= 0;
-
-                data << pProto->Spells[s].SpellId;
-                data << pProto->Spells[s].SpellTrigger;
-                data << uint32(-abs(pProto->Spells[s].SpellCharges));
-
-                if (db_data)
-                {
-                    data << uint32(pProto->Spells[s].SpellCooldown);
-                    data << uint32(pProto->Spells[s].SpellCategory);
-                    data << uint32(pProto->Spells[s].SpellCategoryCooldown);
-                }
-                else
-                {
-                    data << uint32(spell->RecoveryTime);
-                    data << uint32(spell->Category);
-                    data << uint32(spell->CategoryRecoveryTime);
-                }
-            }
-            else
-            {
-                data << uint32(0);
-                data << uint32(0);
-                data << uint32(0);
-                data << uint32(-1);
-                data << uint32(0);
-                data << uint32(-1);
-            }
-        }
-        data << pProto->Bonding;
-        data << Description;
-        data << pProto->PageText;
-        data << pProto->LanguageID;
-        data << pProto->PageMaterial;
-        data << pProto->StartQuest;
-        data << pProto->LockID;
-        data << int32(pProto->Material);
-        data << pProto->Sheath;
-        data << pProto->RandomProperty;
-        data << pProto->RandomSuffix;
-        data << pProto->Block;
-        data << pProto->ItemSet;
-        data << pProto->MaxDurability;
-        data << pProto->Area;
-        data << pProto->Map;                                // Added in 1.12.x & 2.0.1 client branch
-        data << pProto->BagFamily;
-        data << pProto->TotemCategory;
-        for (int s = 0; s < MAX_ITEM_PROTO_SOCKETS; ++s)
-        {
-            data << pProto->Socket[s].Color;
-            data << pProto->Socket[s].Content;
-        }
-        data << pProto->socketBonus;
-        data << pProto->GemProperties;
-        data << pProto->RequiredDisenchantSkill;
-        data << pProto->ArmorDamageModifier;
-        data << uint32(abs(pProto->Duration));              // added in 2.4.2.8209, duration (seconds)
-        data << pProto->ItemLimitCategory;                  // WotLK, ItemLimitCategory
-        data << pProto->HolidayId;                          // Holiday.dbc?
-        SendPacket(&data);
+        data << uint32(-1);         // entry
+        data << uint32(1322512289); // some kind of flags
+        data << uint32(0);          // size of next block
+        return;
     }
-    else
+
+    data << uint32(entry);
+    data << uint32(1322512290);     // flags
+
+    ByteBuffer buff;
+    buff << uint32(entry);
+    buff << uint32(proto->Class);
+    buff << uint32(proto->SubClass);
+    buff << int32(proto->Unk0);
+    buff << uint32(proto->Material);
+    buff << uint32(proto->DisplayInfoID);
+    buff << uint32(proto->InventoryType);
+    buff << uint32(proto->Sheath);
+
+    data << uint32(buff.size());
+    data.append(buff);
+
+    SendPacket(&data);
+}
+
+void WorldSession::SendItemSparseDb2Reply(uint32 entry)
+{
+    WorldPacket data(SMSG_DB_REPLY, 526);
+    data << uint32(DB2_REPLY_SPARSE);
+    ItemTemplate const* proto = sObjectMgr->GetItemTemplate(entry);
+    if (!proto)
     {
-        sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_ITEM_QUERY_SINGLE - NO item INFO! (ENTRY: %u)", item);
-        WorldPacket data(SMSG_ITEM_QUERY_SINGLE_RESPONSE, 4);
-        data << uint32(item | 0x80000000);
-        SendPacket(&data);
+        data << uint32(-1);         // entry
+        data << uint32(1322512289); // some kind of flags
+        data << uint32(0);          // size of next block
+        return;
     }
+
+    data << uint32(entry);
+    data << uint32(1322512290);     // flags
+
+    ByteBuffer buff;
+    buff << uint32(entry);
+    buff << uint32(proto->Quality);
+    buff << uint32(proto->Flags);
+    buff << uint32(proto->Flags2);
+    buff << int32(proto->BuyPrice);
+    buff << uint32(proto->SellPrice);
+    buff << uint32(proto->InventoryType);
+    buff << int32(proto->AllowableClass);
+    buff << int32(proto->AllowableRace);
+    buff << uint32(proto->ItemLevel);
+    buff << uint32(proto->RequiredLevel);
+    buff << uint32(proto->RequiredSkill);
+    buff << uint32(proto->RequiredSkillRank);
+    buff << uint32(proto->RequiredSpell);
+    buff << uint32(proto->RequiredHonorRank);
+    buff << uint32(proto->RequiredCityRank);
+    buff << uint32(proto->RequiredReputationFaction);
+    buff << uint32(proto->RequiredReputationRank);
+    buff << int32(proto->MaxCount);
+    buff << int32(proto->Stackable);
+    buff << uint32(proto->ContainerSlots);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+        buff << uint32(proto->ItemStat[x].ItemStatType);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+        buff << int32(proto->ItemStat[x].ItemStatValue);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+        buff << int32(proto->ItemStat[x].ItemStatUnk1);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_STATS; ++x)
+        buff << int32(proto->ItemStat[x].ItemStatUnk2);
+
+    buff << uint32(proto->ScalingStatDistribution);
+    buff << uint32(proto->DamageType);
+    buff << uint32(proto->Delay);
+    buff << float(proto->RangedModRange);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << int32(proto->Spells[x].SpellId);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << uint32(proto->Spells[x].SpellTrigger);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << int32(proto->Spells[x].SpellCharges);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << int32(proto->Spells[x].SpellCooldown);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << uint32(proto->Spells[x].SpellCategory);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SPELLS; ++x)
+        buff << int32(proto->Spells[x].SpellCategoryCooldown);
+
+    buff << uint32(proto->Bonding);
+
+    // item name
+    std::string name = proto->Name1;
+    buff << uint16(name.length());
+    if (name.length())
+        buff << name;
+
+    for (uint32 i = 0; i < 3; ++i) // other 3 names
+        buff << uint16(0);
+
+    std::string desc = proto->Description;
+    buff << uint16(desc.length());
+    if (desc.length())
+        buff << desc;
+
+    buff << uint32(proto->PageText);
+    buff << uint32(proto->LanguageID);
+    buff << uint32(proto->PageMaterial);
+    buff << uint32(proto->StartQuest);
+    buff << uint32(proto->LockID);
+    buff << int32(proto->Material);
+    buff << uint32(proto->Sheath);
+    buff << int32(proto->RandomProperty);
+    buff << int32(proto->RandomSuffix);
+    buff << uint32(proto->ItemSet);
+    buff << uint32(proto->MaxDurability);
+
+    buff << uint32(proto->Area);
+    buff << uint32(proto->Map);
+    buff << uint32(proto->BagFamily);
+    buff << uint32(proto->TotemCategory);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
+        buff << uint32(proto->Socket[x].Color);
+
+    for (uint32 x = 0; x < MAX_ITEM_PROTO_SOCKETS; ++x)
+        buff << uint32(proto->Socket[x].Content);
+
+    buff << uint32(proto->socketBonus);
+    buff << uint32(proto->GemProperties);
+    buff << float(proto->ArmorDamageModifier);
+    buff << int32(proto->Duration);
+    buff << uint32(proto->ItemLimitCategory);
+    buff << uint32(proto->HolidayId);
+    buff << float(proto->StatScalingFactor);    // StatScalingFactor
+    buff << uint32(proto->Field130);            // archaeology unk
+    buff << uint32(proto->Field131);            // archaeology findinds count
+
+    data << uint32(buff.size());
+    data.append(buff);
+
+    SendPacket(&data);
 }
 
 void WorldSession::HandleReadItem(WorldPacket & recv_data)
 {
-    //sLog->outDebug(LOG_FILTER_PACKETIO, "WORLD: CMSG_READ_ITEM");
-
     uint8 bag, slot;
     recv_data >> bag >> slot;
 
-    //sLog->outDetail("STORAGE: Read bag = %u, slot = %u", bag, slot);
     Item* pItem = _player->GetItemByPos(bag, slot);
 
     if (pItem && pItem->GetTemplate()->PageText)
@@ -454,7 +452,7 @@ void WorldSession::HandleReadItem(WorldPacket & recv_data)
         InventoryResult msg = _player->CanUseItem(pItem);
         if (msg == EQUIP_ERR_OK)
         {
-            data.Initialize (SMSG_READ_ITEM_OK, 8);
+            data.Initialize(SMSG_READ_ITEM_OK, 8);
             sLog->outDetail("STORAGE: Item page sent");
         }
         else
@@ -690,11 +688,12 @@ void WorldSession::HandleBuyItemInSlotOpcode(WorldPacket & recv_data)
 void WorldSession::HandleBuyItemOpcode(WorldPacket & recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_BUY_ITEM");
-    uint64 vendorguid;
+    uint64 vendorguid, unk2; // unk2 can be 0?
     uint32 item, slot, count;
-    uint8 unk1;
+    uint8 unk1; // if this is == 2 then the count might be multiplied by 100
+    int8 unk3; // only known value = -1, according to the client it can take more values
 
-    recv_data >> vendorguid >> item >> slot >> count >> unk1;
+    recv_data >> vendorguid >> unk1 >> item >> slot >> count >> unk2 >> unk3;
 
     // client expects count starting at 1, and we send vendorslot+1 to client already
     if (slot > 0)
@@ -739,13 +738,30 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     if (vendor->HasUnitState(UNIT_STAT_MOVING))
         vendor->StopMoving();
 
+    uint8* bytes = (uint8*)&vendorGuid;
+
     VendorItemData const* items = vendor->GetVendorItems();
     if (!items)
     {
         WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + 1);
-        data << uint64(vendorGuid);
+        data.WriteByteMask(bytes[5]);
+        data.WriteByteMask(bytes[6]);
+        data.WriteByteMask(bytes[1]);
+        data.WriteByteMask(bytes[2]);
+        data.WriteByteMask(bytes[3]);
+        data.WriteByteMask(bytes[0]);
+        data.WriteByteMask(bytes[7]);
+        data.WriteByteMask(bytes[4]);
+
+        data.WriteByteSeq(bytes[2]);
+        data.WriteByteSeq(bytes[3]);
+
         data << uint8(0);                                   // count == 0, next will be error code
-        data << uint8(0);                                   // "Vendor has no inventory"
+        data << uint8(0xA0);                                // Only seen 0xA0 (160) so far ( should we send 0 here?)
+
+        data.WriteByteSeq(bytes[4]);
+        data.WriteByteSeq(bytes[7]);
+        data.WriteByteSeq(bytes[6]);
         SendPacket(&data);
         return;
     }
@@ -754,10 +770,32 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
     uint8 count = 0;
 
     WorldPacket data(SMSG_LIST_INVENTORY, 8 + 1 + itemCount * 8 * 4);
-    data << uint64(vendorGuid);
+
+    data.WriteByteMask(bytes[5]);
+    data.WriteByteMask(bytes[6]);
+    data.WriteByteMask(bytes[1]);
+    data.WriteByteMask(bytes[2]);
+    data.WriteByteMask(bytes[3]);
+    data.WriteByteMask(bytes[0]);
+    data.WriteByteMask(bytes[7]);
+    data.WriteByteMask(bytes[4]);
+
+    data.WriteByteSeq(bytes[2]);
+    data.WriteByteSeq(bytes[3]);
 
     size_t countPos = data.wpos();
-    data << uint8(count);
+    data << uint32(count);
+
+    data.WriteByteSeq(bytes[5]);
+    data.WriteByteSeq(bytes[0]);
+    data.WriteByteSeq(bytes[1]);
+
+    data << uint8(0xA0); // Only seen 0xA0 (160) so far
+
+    data.WriteByteSeq(bytes[4]);
+    data.WriteByteSeq(bytes[7]);
+    data.WriteByteSeq(bytes[6]);
+
 
     float discountMod = _player->GetReputationPriceDiscount(vendor);
 
@@ -784,26 +822,27 @@ void WorldSession::SendListInventory(uint64 vendorGuid)
                 // reputation discount
                 int32 price = item->IsGoldRequired(itemTemplate) ? uint32(floor(itemTemplate->BuyPrice * discountMod)) : 0;
 
+                data << uint32(itemTemplate->MaxDurability);
                 data << uint32(slot + 1);       // client expects counting to start at 1
                 data << uint32(item->item);
+                data << uint32(0);              // Always 0?
                 data << uint32(itemTemplate->DisplayInfoID);
                 data << int32(leftInStock);
-                data << uint32(price);
-                data << uint32(itemTemplate->MaxDurability);
                 data << uint32(itemTemplate->BuyCount);
                 data << uint32(item->ExtendedCost);
+                data << uint32(1);              // Always 1?
+                data << uint32(price);
             }
         }
     }
 
     if (count == 0)
     {
-        data << uint8(0);
         SendPacket(&data);
         return;
     }
 
-    data.put<uint8>(countPos, count);
+    data.put<uint32>(countPos, count);
     SendPacket(&data);
 }
 
@@ -981,25 +1020,6 @@ void WorldSession::HandleAutoStoreBankItemOpcode(WorldPacket& recvPacket)
         _player->RemoveItem(srcbag, srcslot, true);
         _player->BankItem(dest, pItem, true);
     }
-}
-
-void WorldSession::HandleSetAmmoOpcode(WorldPacket & recv_data)
-{
-    if (!GetPlayer()->isAlive())
-    {
-        GetPlayer()->SendEquipError(EQUIP_ERR_YOU_ARE_DEAD, NULL, NULL);
-        return;
-    }
-
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_SET_AMMO");
-    uint32 item;
-
-    recv_data >> item;
-
-    if (!item)
-        GetPlayer()->RemoveAmmo();
-    else
-        GetPlayer()->SetAmmo(item);
 }
 
 void WorldSession::SendEnchantmentLog(uint64 Target, uint64 Caster, uint32 ItemID, uint32 SpellID)
@@ -1350,15 +1370,15 @@ void WorldSession::HandleCancelTempEnchantmentOpcode(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CANCEL_TEMP_ENCHANTMENT");
 
-    uint32 eslot;
+    uint32 slot;
 
-    recv_data >> eslot;
+    recv_data >> slot;
 
     // apply only to equipped item
-    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, eslot))
+    if (!Player::IsEquipmentPos(INVENTORY_SLOT_BAG_0, slot))
         return;
 
-    Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, eslot);
+    Item* item = GetPlayer()->GetItemByPos(INVENTORY_SLOT_BAG_0, slot);
 
     if (!item)
         return;
@@ -1415,7 +1435,7 @@ void WorldSession::HandleItemTextQuery(WorldPacket & recv_data )
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_ITEM_TEXT_QUERY item guid: %u", GUID_LOPART(itemGuid));
 
-    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, (4+10));    // guess size
+    WorldPacket data(SMSG_ITEM_TEXT_QUERY_RESPONSE, 14);    // guess size
 
     if (Item* item = _player->GetItemByGuid(itemGuid))
     {

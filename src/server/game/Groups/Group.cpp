@@ -267,6 +267,37 @@ void Group::ConvertToRaid()
             player->UpdateForQuestWorldObjects();
 }
 
+void Group::ConvertToGroup()
+{
+    if (m_memberSlots.size() > 5)
+        return; // What message error should we send?
+
+    m_groupType = GroupType(GROUPTYPE_NORMAL);
+
+    if (m_subGroupsCounts)
+    {
+        delete[] m_subGroupsCounts;
+        m_subGroupsCounts = NULL;;
+    }
+
+    if (!isBGGroup())
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_GROUP_TYPE);
+
+        stmt->setUInt8(0, uint8(m_groupType));
+        stmt->setUInt32(1, m_dbStoreId);
+
+        CharacterDatabase.Execute(stmt);
+    }
+
+    SendUpdate();
+
+    // update quest related GO states (quest activity dependent from raid membership)
+    for (member_citerator citr = m_memberSlots.begin(); citr != m_memberSlots.end(); ++citr)
+        if (Player* player = ObjectAccessor::FindPlayer(citr->guid))
+            player->UpdateForQuestWorldObjects();
+}
+
 bool Group::AddInvite(Player* player)
 {
     if (!player || player->GetGroupInvite())
@@ -718,18 +749,19 @@ void Group::Disband(bool hideDestroy /* = false */)
 /***                   LOOT SYSTEM                     ***/
 /*********************************************************/
 
-void Group::SendLootStartRoll(uint32 CountDown, uint32 mapid, const Roll &r)
+void Group::SendLootStartRoll(uint32 countDown, uint32 mapid, const Roll &r)
 {
     WorldPacket data(SMSG_LOOT_START_ROLL, (8+4+4+4+4+4+4+1));
     data << uint64(r.itemGUID);                             // guid of rolled item
     data << uint32(mapid);                                  // 3.3.3 mapid
-    data << uint32(r.totalPlayersRolling);                  // maybe the number of players rolling for it???
+    data << uint32(r.itemSlot);                             // slot
     data << uint32(r.itemid);                               // the itemEntryId for the item that shall be rolled for
     data << uint32(r.itemRandomSuffix);                     // randomSuffix
     data << uint32(r.itemRandomPropId);                     // item random property ID
     data << uint32(r.itemCount);                            // items in stack
-    data << uint32(CountDown);                              // the countdown time to choose "need" or "greed"
+    data << uint32(countDown);                              // the countdown time to choose "need" or "greed"
     data << uint8(r.rollVoteMask);                          // roll type mask
+    data << uint8(r.totalPlayersRolling);                   // maybe the number of players rolling for it???
 
     for (Roll::PlayerVote::const_iterator itr=r.playerVote.begin(); itr != r.playerVote.end(); ++itr)
     {
@@ -1357,7 +1389,6 @@ void Group::SendUpdateToPlayer(uint64 playerGUID, MemberSlot* slot)
         data << uint8(m_lootThreshold);                 // loot threshold
         data << uint8(m_dungeonDifficulty);             // Dungeon Difficulty
         data << uint8(m_raidDifficulty);                // Raid Difficulty
-        data << uint8(0);                               // 3.3
     }
 
     player->GetSession()->SendPacket(&data);
