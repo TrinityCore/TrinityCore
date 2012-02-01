@@ -775,7 +775,10 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
 
             ASSERT(he->duel);
 
-            he->SetHealth(1);
+            if (duel_wasMounted) // In this case victim==mount
+                victim->SetHealth(1);
+            else
+                he->SetHealth(1);
 
             he->duel->opponent->CombatStopWithPets(true);
             he->CombatStopWithPets(true);
