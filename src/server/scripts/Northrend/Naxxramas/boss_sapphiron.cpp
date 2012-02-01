@@ -18,28 +18,43 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
-#define EMOTE_BREATH            -1533082
-#define EMOTE_ENRAGE            -1533083
+#define MAX_FROST_RESISTANCE            100
 
-#define SPELL_FROST_AURA        RAID_MODE(28531, 55799)
-#define SPELL_CLEAVE            19983
-#define SPELL_TAIL_SWEEP        RAID_MODE(55697, 55696)
-#define SPELL_SUMMON_BLIZZARD   28560
-#define SPELL_LIFE_DRAIN        RAID_MODE(28542, 55665)
-#define SPELL_ICEBOLT           28522
-#define SPELL_FROST_BREATH      29318
-#define SPELL_FROST_EXPLOSION   28524
-#define SPELL_FROST_MISSILE     30101
-#define SPELL_BERSERK           26662
-#define SPELL_DIES              29357
+enum ScriptTexts
+{
+    EMOTE_BREATH            = 0,
+    EMOTE_ENRAGE            = 1,
+    EMOTE_AIR               = 2,
+    EMOTE_LAND              = 3,
+};
 
-#define SPELL_CHILL             RAID_MODE(28547, 55699)
+enum Spells
+{
+    SPELL_FROST_AURA_10     = 28531,
+    SPELL_FROST_AURA_25     = 55799,
+    SPELL_CLEAVE            = 19983,
+    SPELL_TAIL_SWEEP_10     = 55697,
+    SPELL_TAIL_SWEEP_25     = 55696,
+    SPELL_SUMMON_BLIZZARD   = 28560,
+    SPELL_LIFE_DRAIN_10     = 28542,
+    SPELL_LIFE_DRAIN_25     = 55665,
+    SPELL_ICEBOLT           = 28522,
+    SPELL_FROST_BREATH      = 29318,
+    SPELL_FROST_EXPLOSION   = 28524,
+    SPELL_FROST_MISSILE     = 30101,
+    SPELL_BERSERK           = 26662,
+    SPELL_DIES              = 29357,
+    SPELL_CHILL_10          = 28547,
+    SPELL_CHILL_15          = 55699,
+};
 
+enum Achievement
+{
+    ACHIEVEMENT_THE_HUNDRED_CLUB_10  = 2146,
+    ACHIEVEMENT_THE_HUNDRED_CLUB_25  = 2147,
+};
 #define MOB_BLIZZARD            16474
 #define GO_ICEBLOCK             181247
-
-#define ACHIEVEMENT_THE_HUNDRED_CLUB    RAID_MODE(2146, 2147)
-#define MAX_FROST_RESISTANCE            100
 
 enum Phases
 {
@@ -124,7 +139,7 @@ public:
         {
             _EnterCombat();
 
-            me->CastSpell(me, SPELL_FROST_AURA, true);
+            DoCast(me, RAID_MODE(SPELL_FROST_AURA_10, SPELL_FROST_AURA_25));
 
             events.ScheduleEvent(EVENT_BERSERK, 15*60000);
             EnterPhaseGround();
@@ -153,7 +168,7 @@ public:
             CheckPlayersFrostResist();
             if (CanTheHundredClub)
             {
-                AchievementEntry const* AchievTheHundredClub = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_HUNDRED_CLUB);
+                AchievementEntry const* AchievTheHundredClub = GetAchievementStore()->LookupEntry(RAID_MODE(ACHIEVEMENT_THE_HUNDRED_CLUB_10, ACHIEVEMENT_THE_HUNDRED_CLUB_25));
                 if (AchievTheHundredClub)
                 {
                     if (map && map->IsDungeon())
@@ -247,7 +262,7 @@ public:
                     switch (eventId)
                     {
                         case EVENT_BERSERK:
-                            DoScriptText(EMOTE_ENRAGE, me);
+                            Talk(EMOTE_ENRAGE);
                             DoCast(me, SPELL_BERSERK);
                             return;
                         case EVENT_CLEAVE:
@@ -255,11 +270,11 @@ public:
                             events.ScheduleEvent(EVENT_CLEAVE, 5000+rand()%10000, 0, PHASE_GROUND);
                             return;
                         case EVENT_TAIL:
-                            DoCastAOE(SPELL_TAIL_SWEEP);
+                            DoCastAOE(RAID_MODE(SPELL_TAIL_SWEEP_10, SPELL_TAIL_SWEEP_25));
                             events.ScheduleEvent(EVENT_TAIL, 5000+rand()%10000, 0, PHASE_GROUND);
                             return;
                         case EVENT_DRAIN:
-                            DoCastAOE(SPELL_LIFE_DRAIN);
+                            DoCastAOE(RAID_MODE(SPELL_LIFE_DRAIN_10, SPELL_LIFE_DRAIN_25));
                             events.ScheduleEvent(EVENT_DRAIN, 24000, 0, PHASE_GROUND);
                             return;
                         case EVENT_BLIZZARD:
@@ -271,18 +286,14 @@ public:
                             break;
                         }
                         case EVENT_FLIGHT:
-                            if (HealthAbovePct(10))
-                            {
-                                phase = PHASE_FLIGHT;
-                                events.SetPhase(PHASE_FLIGHT);
-                                me->SetReactState(REACT_PASSIVE);
-                                me->AttackStop();
-                                float x, y, z, o;
-                                me->GetHomePosition(x, y, z, o);
-                                me->GetMotionMaster()->MovePoint(1, x, y, z);
-                                return;
-                            }
-                            break;
+                            phase = PHASE_FLIGHT;
+                            events.SetPhase(PHASE_FLIGHT);
+                            me->SetReactState(REACT_PASSIVE);
+                            me->AttackStop();
+                            float x, y, z, o;
+                            me->GetHomePosition(x, y, z, o);
+                            me->GetMotionMaster()->MovePoint(1, x, y, z);
+                            return;
                     }
                 }
 
@@ -295,6 +306,7 @@ public:
                     switch (eventId)
                     {
                         case EVENT_LIFTOFF:
+                            Talk(EMOTE_AIR);
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
                             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                             me->SendMovementFlagUpdate();
@@ -328,7 +340,7 @@ public:
                         }
                         case EVENT_BREATH:
                         {
-                            DoScriptText(EMOTE_BREATH, me);
+                            Talk(EMOTE_BREATH);
                             DoCastAOE(SPELL_FROST_MISSILE);
                             events.ScheduleEvent(EVENT_EXPLOSION, 8000);
                             return;
@@ -345,6 +357,7 @@ public:
                             events.ScheduleEvent(EVENT_GROUND, 1500);
                             return;
                         case EVENT_GROUND:
+                            Talk(EMOTE_LAND);
                             EnterPhaseGround();
                             return;
                         case EVENT_BIRTH:

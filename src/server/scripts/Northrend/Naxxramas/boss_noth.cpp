@@ -18,28 +18,33 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
-#define SAY_AGGRO               RAND(-1533075, -1533076, -1533077)
-#define SAY_SUMMON              -1533078
-#define SAY_SLAY                RAND(-1533079, -1533080)
-#define SAY_DEATH               -1533081
+enum ScriptTexts
+{
+    SAY_AGGRO                      = 0,             
+    SAY_SUMMON                     = 1,             
+    SAY_SLAY                       = 2,               
+    SAY_DEATH                      = 3,
+    EMOTE_SUMMON                   = 4,
+    EMOTE_BALCONY                  = 5,
+    EMOTE_SKELETON                 = 6,
+    EMOTE_TELEPORT                 = 7,	
+};
 
-#define SOUND_DEATH      8848
+enum Spells
+{
+    SPELL_CURSE_PLAGUEBRINGER_10   = 29213,
+	SPELL_CURSE_PLAGUEBRINGER_25   = 54835,
+	SPELL_BLINK                    = 29211,
+	SPELL_CRIPPLE_10               = 29212,
+	SPELL_CRIPPLE_25               = 54814,
+	SPELL_TELEPORT                 = 29216,
+};
 
-#define SPELL_CURSE_PLAGUEBRINGER       RAID_MODE(29213, 54835)
-#define SPELL_BLINK                     RAND(29208, 29209, 29210, 29211)
-#define SPELL_CRIPPLE                   RAID_MODE(29212, 54814)
-#define SPELL_TELEPORT                  29216
+const Position TelePos = {2631.370f, -3529.680f, 274.040f, 6.277f};
 
 #define MOB_WARRIOR         16984
 #define MOB_CHAMPION        16983
 #define MOB_GUARDIAN        16981
-
-// Teleport position of Noth on his balcony
-#define TELE_X 2631.370f
-#define TELE_Y -3529.680f
-#define TELE_Z 274.040f
-#define TELE_O 6.277f
-
 #define MAX_SUMMON_POS 5
 
 const float SummonPos[MAX_SUMMON_POS][4] =
@@ -89,7 +94,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
             balconyCount = 0;
             EnterPhaseGround();
         }
@@ -113,8 +118,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            if (!(rand()%5))
-                DoScriptText(SAY_SLAY, me);
+                Talk(SAY_SLAY);
         }
 
         void JustSummoned(Creature* summon)
@@ -127,7 +131,7 @@ public:
         void JustDied(Unit* /*Killer*/)
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
         }
 
         void SummonUndead(uint32 entry, uint32 num)
@@ -152,16 +156,18 @@ public:
                 switch (eventId)
                 {
                     case EVENT_CURSE:
-                        DoCastAOE(SPELL_CURSE_PLAGUEBRINGER);
+                        DoCastAOE(RAID_MODE(SPELL_CURSE_PLAGUEBRINGER_10, SPELL_CURSE_PLAGUEBRINGER_25));
                         events.ScheduleEvent(EVENT_CURSE, urand(50000, 60000));
                         return;
                     case EVENT_WARRIOR:
-                        DoScriptText(SAY_SUMMON, me);
+                        Talk(SAY_SUMMON);
+						Talk(EMOTE_SUMMON);
                         SummonUndead(MOB_WARRIOR, RAID_MODE(2, 3));
                         events.ScheduleEvent(EVENT_WARRIOR, 30000);
                         return;
                     case EVENT_BLINK:
-                        DoCastAOE(SPELL_CRIPPLE, true);
+                        Talk(EVENT_BALCONY);
+                        DoCastAOE(RAID_MODE(SPELL_CRIPPLE_10, SPELL_CRIPPLE_25));
                         DoCastAOE(SPELL_BLINK);
                         DoResetThreat();
                         events.ScheduleEvent(EVENT_BLINK, 40000);
@@ -171,13 +177,13 @@ public:
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         me->AttackStop();
                         me->RemoveAllAuras();
-                        me->NearTeleportTo(TELE_X, TELE_Y, TELE_Z, TELE_O);
+                        me->NearTeleportTo(TelePos.m_positionX,TelePos.m_positionY,TelePos.m_positionZ,TelePos.m_orientation);
                         events.Reset();
                         events.ScheduleEvent(EVENT_WAVE, urand(2000, 5000));
                         waveCount = 0;
                         return;
                     case EVENT_WAVE:
-                        DoScriptText(SAY_SUMMON, me);
+                        Talk(EMOTE_SKELETON);
                         switch (balconyCount)
                         {
                             case 0: SummonUndead(MOB_CHAMPION, RAID_MODE(2, 4)); break;
@@ -192,6 +198,7 @@ public:
                         return;
                     case EVENT_GROUND:
                     {
+                        Talk(EMOTE_TELEPORT);
                         ++balconyCount;
                         float x, y, z, o;
                         me->GetHomePosition(x, y, z, o);

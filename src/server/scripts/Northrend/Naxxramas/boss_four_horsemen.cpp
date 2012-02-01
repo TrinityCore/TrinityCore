@@ -26,6 +26,14 @@ enum Horsemen
     HORSEMEN_SIR,
 };
 
+enum ScriptTexts
+{
+    SAY_AGGRO     = 0,
+	SAY_DEATH     = 1,
+	SAY_KILL      = 2,
+	SAY_SPECIAL   = 3,
+	SAY_TAUNT     = 4,
+};
 enum Events
 {
     EVENT_NONE,
@@ -64,18 +72,6 @@ const uint32 SPELL_SECONDARY_N[]=   {0, 57374, 0, 57376};
 const uint32 SPELL_SECONDARY_H[]=   {0, 57464, 0, 57465};
 const uint32 SPELL_PUNISH[]     =   {0, 57381, 0, 57377};
 #define SPELL_BERSERK               26662
-
-// used by 16063, 16064, 16065, 30549, but signed for 16063
-const int32 SAY_AGGRO[]     =   {-1533051, -1533044, -1533065, -1533058};
-const int32 SAY_TAUNT[3][4] ={  {-1533052, -1533045, -1533071, -1533059},
-                                {-1533053, -1533046, -1533072, -1533060},
-                                {-1533054, -1533047, -1533073, -1533061}, };
-const int32 SAY_SPECIAL[]   =   {-1533055, -1533048, -1533070, -1533062};
-const int32 SAY_SLAY[]      =   {-1533056, -1533049, -1533068, -1533063};
-const int32 SAY_DEATH[]     =   {-1533057, -1533050, -1533074, -1533064};
-
-#define SAY_BARON_AGGRO     RAND(-1533065, -1533066, -1533067)
-#define SAY_BARON_SLAY      RAND(-1533068, -1533069)
 
 class boss_four_horsemen : public CreatureScript
 {
@@ -285,13 +281,14 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            if (!(rand()%5))
-            {
-                if (id == HORSEMEN_BARON)
-                    DoScriptText(SAY_BARON_SLAY, me);
-                else
-                    DoScriptText(SAY_SLAY[id], me);
-            }
+            if (id == HORSEMEN_BARON)
+                Talk(SAY_KILL);
+            else if (id == HORSEMEN_LADY)
+                Talk(SAY_KILL);
+            else if (id == HORSEMEN_SIR)
+                Talk(SAY_KILL);
+            else if (id == HORSEMEN_THANE)
+                Talk(SAY_KILL);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -312,7 +309,14 @@ public:
                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 59450);
             }
 
-            DoScriptText(SAY_DEATH[id], me);
+            if (id == HORSEMEN_BARON)
+                Talk(SAY_DEATH);
+            else if (id == HORSEMEN_LADY)
+                Talk(SAY_DEATH);
+            else if (id == HORSEMEN_SIR)
+                Talk(SAY_DEATH);
+            else if (id == HORSEMEN_THANE)
+                Talk(SAY_DEATH);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -320,9 +324,13 @@ public:
             _EnterCombat();
 
             if (id == HORSEMEN_BARON)
-                DoScriptText(SAY_BARON_AGGRO, me);
-            else
-                DoScriptText(SAY_AGGRO[id], me);
+                Talk(SAY_AGGRO);
+            else if (id == HORSEMEN_LADY)
+                Talk(SAY_AGGRO);
+            else if (id == HORSEMEN_SIR)
+                Talk(SAY_AGGRO);
+            else if (id == HORSEMEN_THANE)
+                Talk(SAY_AGGRO);
 
             events.ScheduleEvent(EVENT_MARK, 15000);
             events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
@@ -350,14 +358,26 @@ public:
                 switch (eventId)
                 {
                     case EVENT_MARK:
-                        if (!(rand()%5))
-                            DoScriptText(SAY_SPECIAL[id], me);
+                        if (id == HORSEMEN_BARON)
+                                 Talk(SAY_SPECIAL);
+                        else if (id == HORSEMEN_LADY)
+                                 Talk(SAY_SPECIAL);
+                        else if (id == HORSEMEN_SIR)
+                                 Talk(SAY_SPECIAL);
+                        else if (id == HORSEMEN_THANE)
+                                 Talk(SAY_SPECIAL);
                         DoCastAOE(SPELL_MARK[id]);
                         events.ScheduleEvent(EVENT_MARK, 15000);
                         break;
                     case EVENT_CAST:
-                        if (!(rand()%5))
-                            DoScriptText(SAY_TAUNT[rand()%3][id], me);
+                        if (id == HORSEMEN_BARON)
+                                 Talk(SAY_TAUNT);
+                        else if (id == HORSEMEN_LADY)
+                                 Talk(SAY_TAUNT);
+                        else if (id == HORSEMEN_SIR)
+                                 Talk(SAY_TAUNT);
+                        else if (id == HORSEMEN_THANE)
+                                 Talk(SAY_TAUNT);
 
                         if (caster)
                         {
@@ -370,7 +390,14 @@ public:
                         events.ScheduleEvent(EVENT_CAST, 15000);
                         break;
                     case EVENT_BERSERK:
-                        DoScriptText(SAY_SPECIAL[id], me);
+                        if (id == HORSEMEN_BARON)
+                                 Talk(SAY_SPECIAL);
+                        else if (id == HORSEMEN_LADY)
+                                 Talk(SAY_SPECIAL);
+                        else if (id == HORSEMEN_SIR)
+                                 Talk(SAY_SPECIAL);
+                        else if (id == HORSEMEN_THANE)
+                                 Talk(SAY_SPECIAL);
                         DoCast(me, EVENT_BERSERK);
                         break;
                 }

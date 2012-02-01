@@ -18,19 +18,19 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
-enum Yells
+enum ScriptTexts
 {
-    SAY_SPEECH                  = -1533040,
-    SAY_KILL                    = -1533041,
-    SAY_DEATH                   = -1533042,
-    SAY_TELEPORT                = -1533043
+    SAY_SPEECH                  = 0,
+    SAY_KILL                    = 1,
+    SAY_DEATH                   = 2,
+    SAY_TELEPORT                = 3,
 };
-//Gothik
+
 enum Spells
 {
     SPELL_HARVEST_SOUL          = 28679,
-    SPELL_SHADOW_BOLT           = 29317,
-    H_SPELL_SHADOW_BOLT         = 56405,
+    SPELL_SHADOW_BOLT_10        = 29317,
+    SPELL_SHADOW_BOLT_25        = 56405,
     SPELL_INFORM_LIVE_TRAINEE   = 27892,
     SPELL_INFORM_LIVE_KNIGHT    = 27928,
     SPELL_INFORM_LIVE_RIDER     = 27935,
@@ -50,9 +50,7 @@ enum Creatures
 };
 
 struct Waves { uint32 entry, time, mode; };
-// wave setups are not the same in heroic and normal difficulty,
-// mode is 0 only normal, 1 both and 2 only heroic
-// but this is handled in DoGothikSummon function
+
 const Waves waves[] =
 {
     {MOB_LIVE_TRAINEE, 20000, 1},
@@ -201,7 +199,7 @@ class boss_gothik : public CreatureScript
                 waveCount = 0;
                 events.ScheduleEvent(EVENT_SUMMON, 30000);
                 DoTeleportTo(PosPlatform);
-                DoScriptText(SAY_SPEECH, me);
+                Talk(SAY_SPEECH);
                 if (instance)
                     instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
             }
@@ -230,8 +228,7 @@ class boss_gothik : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                if (!(rand()%5))
-                    DoScriptText(SAY_KILL, me);
+                    Talk(SAY_KILL);
             }
 
             void JustDied(Unit* /*Killer*/)
@@ -239,7 +236,7 @@ class boss_gothik : public CreatureScript
                 LiveTriggerGUID.clear();
                 DeadTriggerGUID.clear();
                 _JustDied();
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
                 if (instance)
                     instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
             }
@@ -455,7 +452,7 @@ class boss_gothik : public CreatureScript
                             }
                             break;
                         case EVENT_BOLT:
-                            DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT, H_SPELL_SHADOW_BOLT));
+                            DoCast(me->getVictim(), RAID_MODE(SPELL_SHADOW_BOLT_10, SPELL_SHADOW_BOLT_25));
                             events.ScheduleEvent(EVENT_BOLT, 1000);
                             break;
                         case EVENT_HARVEST:

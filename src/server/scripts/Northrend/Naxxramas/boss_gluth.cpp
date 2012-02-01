@@ -33,6 +33,12 @@ const Position PosSummon[3] =
     {3308.3f, -3185.8f, 297.42f, 1.58f},
 };
 
+enum ScriptTexts
+{
+    EMOTE_ENRAGE,
+	EMOTE_DECIMATE
+};
+
 enum Events
 {
     EVENT_NONE,
@@ -108,12 +114,12 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-                        // TODO : Add missing text
+                        Talk(EMOTE_ENRAGE);
                         DoCast(me, SPELL_ENRAGE);
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-                        // TODO : Add missing text
+                        Talk(EMOTE_DECIMATE);
                         DoCastAOE(SPELL_DECIMATE);
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;

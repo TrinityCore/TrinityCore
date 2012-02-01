@@ -18,6 +18,13 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
+enum ScriptTexts
+{
+    SAY_KELTHUZAD_TAUNT1        = -1533090,
+    SAY_KELTHUZAD_TAUNT2        = -1533091,
+    SAY_KELTHUZAD_TAUNT3        = -1533092,
+    SAY_KELTHUZAD_TAUNT4        = -1533093,
+};
 const DoorData doorData[] =
 {
     {181126,    BOSS_ANUBREKHAN, DOOR_TYPE_ROOM,     BOUNDARY_S},
@@ -57,20 +64,6 @@ const MinionData minionData[] =
     {16065,     BOSS_HORSEMEN},
     {30549,     BOSS_HORSEMEN},
     {0,         0, }
-};
-
-enum eEnums
-{
-    GO_HORSEMEN_CHEST_HERO  = 193426,
-    GO_HORSEMEN_CHEST       = 181366,                   //four horsemen event, DoRespawnGameObject() when event == DONE
-    GO_GOTHIK_GATE          = 181170,
-    GO_KELTHUZAD_PORTAL01   = 181402,
-    GO_KELTHUZAD_PORTAL02   = 181403,
-    GO_KELTHUZAD_PORTAL03   = 181404,
-    GO_KELTHUZAD_PORTAL04   = 181405,
-    GO_KELTHUZAD_TRIGGER    = 181444,
-
-    SPELL_ERUPTION          = 29371
 };
 
 const float HeiganPos[2] = {2796, -3707};
@@ -135,11 +128,17 @@ public:
         uint64 heiganGUID;
         uint64 feugenGUID;
         uint64 stalaggGUID;
+        uint64 _Kelthuzad;
 
         uint64 kelthuzadGUID;
         uint64 kelthuzadTriggerGUID;
         uint64 portalsGUID[4];
 
+        uint64 AracPortalGUID;
+        uint64 PlagPortalGUID;
+        uint64 MiliPortalGUID;
+        uint64 ConsPortalGUID;
+		
         uint32 AbominationCount;
 
         GOState gothikDoorState;
@@ -233,6 +232,18 @@ public:
                     break;
                 case GO_KELTHUZAD_TRIGGER:
                     kelthuzadTriggerGUID = go->GetGUID();
+                    break;
+               case GO_ARAC_PORTAL:
+                    AracPortalGUID = go->GetGUID();
+                    break;
+               case GO_PLAG_PORTAL:
+                    PlagPortalGUID = go->GetGUID();
+                    break;
+                case GO_MILI_PORTAL:
+                    MiliPortalGUID = go->GetGUID();
+                    break;
+                case GO_CONS_PORTAL:
+                    ConsPortalGUID = go->GetGUID();
                     break;
                 default:
                     break;
@@ -331,7 +342,7 @@ public:
         {
             switch (id)
             {
-            case DATA_FAERLINA:
+            case BOSS_FAERLINA:
                 return faerlinaGUID;
             case DATA_THANE:
                 return thaneGUID;
@@ -341,15 +352,15 @@ public:
                 return baronGUID;
             case DATA_SIR:
                 return sirGUID;
-            case DATA_THADDIUS:
+            case BOSS_THADDIUS:
                 return thaddiusGUID;
-            case DATA_HEIGAN:
+            case BOSS_HEIGAN:
                 return heiganGUID;
             case DATA_FEUGEN:
                 return feugenGUID;
             case DATA_STALAGG:
                 return stalaggGUID;
-            case DATA_KELTHUZAD:
+            case BOSS_KELTHUZAD:
                 return kelthuzadGUID;
             case DATA_KELTHUZAD_PORTAL01:
                 return portalsGUID[0];
@@ -396,7 +407,38 @@ public:
                 }
             }
         }
+		
+        void Taunt()
+        {
+            int bosscount =0;
+            if (GetBossState(BOSS_MAEXXNA) == DONE)
+                bosscount++;
+            if (GetBossState(BOSS_LOATHEB) == DONE)
+                bosscount++;
+            if (GetBossState(BOSS_THADDIUS) == DONE)
+                bosscount++;
+            if (GetBossState(BOSS_HORSEMEN) == DONE)
+                bosscount++;
 
+            Creature* Kelthuzad = instance->GetCreature(NPC_KEL_THUZAD_SPEAKER);
+			
+            switch (bosscount)
+            {
+				case 1:
+                    DoScriptText(SAY_KELTHUZAD_TAUNT1, Kelthuzad);
+                    break;
+				case 2:
+                    DoScriptText(SAY_KELTHUZAD_TAUNT2, Kelthuzad);
+                    break;
+				case 3:
+                    DoScriptText(SAY_KELTHUZAD_TAUNT3, Kelthuzad);
+                    break;
+				case 4:
+                    DoScriptText(SAY_KELTHUZAD_TAUNT4, Kelthuzad);
+                    break;
+            }
+        }
+		
         // This Function is called in CheckAchievementCriteriaMeet and CheckAchievementCriteriaMeet is called before SetBossState(bossId, DONE),
         // so to check if all bosses are done the checker must exclude 1 boss, the last done, if there is at most 1 encouter in progress when is
         // called this function then all bosses are done. The one boss that check is the boss that calls this function, so it is dead.
@@ -468,7 +510,34 @@ public:
 
 };
 
+class go_naxxramas_portal : public GameObjectScript
+{
+    public:
+        go_naxxramas_portal() : GameObjectScript("go_naxxramas_portal") {}
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+             switch (go->GetEntry())
+             {
+              	case GO_ARAC_PORTAL:
+                    player->TeleportTo(533, 3019.814941f, -3448.389160f, 302.194061f, 5.557699f);
+                    break;
+                case GO_MILI_PORTAL:
+                    player->TeleportTo(533, 2991.749512f, -3420.202637f, 302.186279f, 2.290148f);
+                    break;
+                case GO_PLAG_PORTAL:
+                    player->TeleportTo(533, 2991.559570f, -3448.530273f, 302.177795f, 3.955977f);
+                    break;
+                case GO_CONS_PORTAL:
+                    player->TeleportTo(533, 3019.950928f, -3420.313232f, 302.184509f, 0.785320f);
+                    break;
+             }
+             return true;
+         }
+ };
+ 
 void AddSC_instance_naxxramas()
 {
     new instance_naxxramas();
+    new go_naxxramas_portal();
 }
