@@ -455,7 +455,7 @@ void ArenaTeam::Inspect(WorldSession* session, uint64 guid)
     session->SendPacket(&data);
 }
 
-void ArenaTeamMember::ModifyPersonalRating(Player* player, int32 mod, uint32 slot)
+void ArenaTeamMember::ModifyPersonalRating(Player* player, int32 mod, uint32 type)
 {
     if (int32(PersonalRating) + mod < 0)
         PersonalRating = 0;
@@ -463,83 +463,10 @@ void ArenaTeamMember::ModifyPersonalRating(Player* player, int32 mod, uint32 slo
         PersonalRating += mod;
 
     if (player)
-        {
-        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, PersonalRating, slot);
-            // Achievements
-            switch (slot)
-            {
-                // 2x2
-                case 0:
-                    if (PersonalRating > 2200)
-                    {
-                        AchievementEntry const *youandme4 = GetAchievementStore()->LookupEntry(1159);
-							player->GetAchievementMgr().CompletedAchievement(youandme4);
-                    } else
-                    if (PersonalRating > 2000)
-                    {
-                        AchievementEntry const *youandme3 = GetAchievementStore()->LookupEntry(401);
-							player->GetAchievementMgr().CompletedAchievement(youandme3);
-                    } else
-                    if (PersonalRating > 1750)
-                    {
-                        AchievementEntry const *youandme2 = GetAchievementStore()->LookupEntry(400);
-							player->GetAchievementMgr().CompletedAchievement(youandme2);
-                    } else
-                    if (PersonalRating > 1550)
-                    {
-                        AchievementEntry const *youandme1 = GetAchievementStore()->LookupEntry(399); 
-	    						player->GetAchievementMgr().CompletedAchievement(youandme1);
-                    }
-                break;
-                // 3x3
-                case 1:
-                    if (PersonalRating > 2200)
-                    {
-                        AchievementEntry const *trio4 = GetAchievementStore()->LookupEntry(1160);
-							player->GetAchievementMgr().CompletedAchievement(trio4);
-                    } else
-                    if (PersonalRating > 2000)
-                    {
-                        AchievementEntry const *trio3 = GetAchievementStore()->LookupEntry(405);
-							player->GetAchievementMgr().CompletedAchievement(trio3);
-                    } else
-                    if (PersonalRating > 1750)
-                    {
-                        AchievementEntry const *trio2 = GetAchievementStore()->LookupEntry(403);
-							player->GetAchievementMgr().CompletedAchievement(trio2);
-                    } else
-                    if (PersonalRating > 1550)
-                    {
-                        AchievementEntry const *trio1 = GetAchievementStore()->LookupEntry(402);
-							player->GetAchievementMgr().CompletedAchievement(trio1);
-                    } 
-                break;
-                // 5x5
-                case 2:
-                    if (PersonalRating > 2200)
-                    {
-                        AchievementEntry const *bigfive4 = GetAchievementStore()->LookupEntry(1161);
-							player->GetAchievementMgr().CompletedAchievement(bigfive4);
-                    } else
-                    if (PersonalRating > 2000)
-                    {
-                        AchievementEntry const *bigfive3 = GetAchievementStore()->LookupEntry(404);
-							player->GetAchievementMgr().CompletedAchievement(bigfive3);
-                    } else
-                    if (PersonalRating > 1750)
-                    {
-                        AchievementEntry const *bigfive2 = GetAchievementStore()->LookupEntry(407);
-							player->GetAchievementMgr().CompletedAchievement(bigfive2);
-                    } else
-                    if (PersonalRating > 1550)
-                    {
-                        AchievementEntry const *bigfive1 = GetAchievementStore()->LookupEntry(406);
-							player->GetAchievementMgr().CompletedAchievement(bigfive1);
-                    }
-                break;
-                default: break;
-            }
-        } 
+    {
+        player->SetArenaTeamInfoField(ArenaTeam::GetSlotByType(type), ARENA_TEAM_PERSONAL_RATING, PersonalRating);
+        player->UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, PersonalRating, type);
+    }
 }
 
 void ArenaTeamMember::ModifyMatchmakerRating(int32 mod, uint32 /*slot*/)
@@ -798,7 +725,7 @@ void ArenaTeam::MemberLost(Player* player, uint32 againstMatchmakerRating, int32
         {
             // Update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, false);
-            itr->ModifyPersonalRating(player, mod, GetSlot());
+            itr->ModifyPersonalRating(player, mod, GetType());
 
             // Update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
@@ -824,7 +751,7 @@ void ArenaTeam::OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, i
         {
             // update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, false);
-            itr->ModifyPersonalRating(NULL, mod, GetSlot());
+            itr->ModifyPersonalRating(NULL, mod, GetType());
 
             // update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
@@ -846,7 +773,7 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
         {
             // update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, true);
-            itr->ModifyPersonalRating(player, mod, GetSlot());
+            itr->ModifyPersonalRating(player, mod, GetType());
 
             // update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
