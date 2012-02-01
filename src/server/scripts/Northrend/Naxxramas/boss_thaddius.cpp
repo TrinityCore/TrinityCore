@@ -193,7 +193,7 @@ public:
 		
         void MoveInLineOfSight(Unit* who)
         {
-            if (!hasTaunted && me->IsWithinDistInMap(who, 100.0f) && who->GetTypeId() == TYPEID_PLAYER)
+            if (!hasTaunted && me->IsWithinDistInMap(who, 1000.0f) && who->GetTypeId() == TYPEID_PLAYER)
             {
                 Talk(SAY_GREET);
                 hasTaunted = true;
