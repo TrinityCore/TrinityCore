@@ -42,6 +42,8 @@ enum Events
     EVENT_DISRUPT,
     EVENT_FEVER,
     EVENT_ERUPT,
+    EVENT_PHASE1,
+    EVENT_PHASE2,
 };
 
 enum Phases
@@ -113,7 +115,7 @@ public:
             eruptSection = 3;
             events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
             events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-            events.ScheduleEvent(PHASE_2, 90000);
+            events.ScheduleEvent(EVENT_PHASE2, 90000);
             events.ScheduleEvent(EVENT_ERUPT, 15000);
             phase = PHASE_1;
         }
@@ -137,7 +139,7 @@ public:
                         DoCastAOE(RAID_MODE(SPELL_DECREPIT_FEVER_10, SPELL_DECREPIT_FEVER_25));
                         events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
                         break;
-                    case PHASE_1:
+                    case EVENT_PHASE1:
                         Talk(EMOTE_TELEPORT2);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -146,11 +148,11 @@ public:
                         eruptSection = 3;
                         events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
                         events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-                        events.ScheduleEvent(PHASE_2, 90000);
+                        events.ScheduleEvent(EVENT_PHASE2, 90000);
                         events.ScheduleEvent(EVENT_ERUPT, 15000);
                         phase = PHASE_1;
                         break;
-                    case PHASE_2:
+                    case EVENT_PHASE2:
                         Talk(SAY_PHASE);
                         Talk(EMOTE_TELEPORT1);
                         me->SetReactState(REACT_PASSIVE);
@@ -162,7 +164,7 @@ public:
                         me->NearTeleportTo(x, y, z, o);
                         DoCastAOE(SPELL_PLAGUE_CLOUD);
                         events.Reset();
-                        events.ScheduleEvent(PHASE_1, 45000);
+                        events.ScheduleEvent(EVENT_PHASE1, 45000);
                         events.ScheduleEvent(EVENT_ERUPT, 8000);
                         phase = PHASE_2;
                         break;
