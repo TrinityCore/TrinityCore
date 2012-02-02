@@ -95,7 +95,7 @@ public:
         {
             SetBossNumber(EncounterCount);
             LoadDoorData(doorData);
-		    gothikGateGUID            = 0;
+            gothikGateGUID            = 0;
             horsemenChestGUID         = 0;
             sapphironGUID             = 0;
             faerlinaGUID              = 0;
@@ -153,9 +153,6 @@ public:
                     break;
                 case NPC_KELTHUZAD:
                     kelthuzadGUID = creature->GetGUID();
-                    break;
-                case NPC_KELTHUZAD_SPEAKER:
-                    kelthuzadspeakerGUID = creature->GetGUID();
                     break;
                 default:
                     break;
@@ -450,8 +447,6 @@ public:
                 bosscount++;
             if (GetBossState(BOSS_HORSEMEN) == DONE)
                 bosscount++;
-
-            Creature* Kelthuzad = instance->GetCreature(kelthuzadspeakerGUID);
 				
             switch (bosscount)
             {

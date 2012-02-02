@@ -131,7 +131,6 @@ enum Nax_Creatures
     NPC_FEUGEN              = 15930,
     NPC_STALAGG             = 15929,
     NPC_KELTHUZAD           = 15990,
-    NPC_KELTHUZAD_SPEAKER   = 300000,
     NPC_MR_BIGGLESWORTH     = 16998,
 };
 
