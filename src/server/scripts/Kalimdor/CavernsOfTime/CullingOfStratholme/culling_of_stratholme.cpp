@@ -234,53 +234,53 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
     {
         player->PlayerTalkClass->ClearMenus();
-        npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
+        npc_arthasAI* ai = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
 
-        if (!pAI)
+        if (!ai)
             return false;
 
         switch (action)
         {
             case GOSSIP_ACTION_INFO_DEF:
-                pAI->Start(true, true, player->GetGUID(), 0, false, false);
-                pAI->SetDespawnAtEnd(false);
-                pAI->bStepping = false;
-                pAI->uiStep = 1;
+                ai->Start(true, true, player->GetGUID(), 0, false, false);
+                ai->SetDespawnAtEnd(false);
+                ai->bStepping = false;
+                ai->uiStep = 1;
                 break;
             case GOSSIP_ACTION_INFO_DEF+1:
-                pAI->bStepping = true;
-                pAI->uiStep = 24;
+                ai->bStepping = true;
+                ai->uiStep = 24;
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
-                pAI->SetHoldState(false);
-                pAI->bStepping = false;
-                pAI->uiStep = 61;
+                ai->SetHoldState(false);
+                ai->bStepping = false;
+                ai->uiStep = 61;
                 break;
             case GOSSIP_ACTION_INFO_DEF+3:
-                pAI->SetHoldState(false);
+                ai->SetHoldState(false);
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
-                pAI->bStepping = true;
-                pAI->uiStep = 84;
+                ai->bStepping = true;
+                ai->uiStep = 84;
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
-                pAI->bStepping = true;
-                pAI->uiStep = 85;
+                ai->bStepping = true;
+                ai->uiStep = 85;
                 break;
         }
         player->CLOSE_GOSSIP_MENU();
-        pAI->SetDespawnAtFar(true);
+        ai->SetDespawnAtFar(true);
         creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         return true;
     }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        npc_arthasAI* pAI = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
+        npc_arthasAI* ai = CAST_AI(npc_arthas::npc_arthasAI, creature->AI());
 
-        if (pAI && pAI->bStepping == false)
+        if (ai && ai->bStepping == false)
         {
-            switch (pAI->uiGossipStep)
+            switch (ai->uiGossipStep)
             {
                 case 0: //This one is a workaround since the very beggining of the script is wrong.
                 {

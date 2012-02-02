@@ -49,7 +49,7 @@ public:
 
     struct boss_arcanist_doanAI : public ScriptedAI
     {
-        boss_arcanist_doanAI(Creature* c) : ScriptedAI(c) {}
+        boss_arcanist_doanAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 Polymorph_Timer;
         uint32 AoESilence_Timer;
@@ -105,26 +105,28 @@ public:
                     DoCast(target, SPELL_POLYMORPH);
 
                 Polymorph_Timer = 20000;
-            } else Polymorph_Timer -= diff;
+            }
+            else Polymorph_Timer -= diff;
 
             //AoESilence_Timer
             if (AoESilence_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_AOESILENCE);
                 AoESilence_Timer = urand(15000, 20000);
-            } else AoESilence_Timer -= diff;
+            }
+            else AoESilence_Timer -= diff;
 
             //ArcaneExplosion_Timer
             if (ArcaneExplosion_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ARCANEEXPLOSION);
                 ArcaneExplosion_Timer = 8000;
-            } else ArcaneExplosion_Timer -= diff;
+            }
+            else ArcaneExplosion_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_arcanist_doan()

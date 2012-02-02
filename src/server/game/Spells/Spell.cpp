@@ -5401,6 +5401,9 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_AURA_PERIODIC_MANA_LEECH:
             {
+                if (m_spellInfo->Effects[i].IsArea())
+                    break;
+
                 if (!m_targets.GetUnitTarget())
                     return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
 

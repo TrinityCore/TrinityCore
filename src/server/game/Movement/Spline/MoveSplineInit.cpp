@@ -106,7 +106,6 @@ namespace Movement
     void MoveSplineInit::SetFacing(const Unit * target)
     {
         args.flags.EnableFacingTarget();
-        target->GetUInt64Value(OBJECT_FIELD_GUID);
         //args.facing.target = target->GetObjectGuid().GetRawValue();
         args.facing.target = target->GetUInt64Value(OBJECT_FIELD_GUID);
     }
