@@ -67,6 +67,7 @@ public:
         uint32 eruptSection;
         bool eruptDirection;
         bool safetyDance;
+        Phases phase;
 
         void KilledUnit(Unit* who)
         {
@@ -111,6 +112,7 @@ public:
             events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
             events.ScheduleEvent(EVENT_PHASE2, 90000);
             events.ScheduleEvent(EVENT_ERUPT, 15000);
+            phase = EVENT_PHASE1;
         }
 
         void UpdateAI(const uint32 diff)
@@ -143,6 +145,7 @@ public:
                         events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
                         events.ScheduleEvent(EVENT_PHASE2, 90000);
                         events.ScheduleEvent(EVENT_ERUPT, 15000);
+                        phase = EVENT_PHASE1;
                         break;
                     case EVENT_PHASE2:
                         Talk(SAY_PHASE);
@@ -158,6 +161,7 @@ public:
                         events.Reset();
                         events.ScheduleEvent(EVENT_PHASE1, 45000);
                         events.ScheduleEvent(EVENT_ERUPT, 8000);
+                        phase = EVENT_PHASE2;
                         break;
                     case EVENT_ERUPT:
                         instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
@@ -170,7 +174,7 @@ public:
 
                         eruptDirection ? ++eruptSection : --eruptSection;
 
-                        events.ScheduleEvent(EVENT_ERUPT, EVENT_PHASE1 ? 10000 : 3000);
+                        events.ScheduleEvent(EVENT_ERUPT, phase == EVENT_PHASE1 ? 10000 : 3000)
                         break;
                 }
             }

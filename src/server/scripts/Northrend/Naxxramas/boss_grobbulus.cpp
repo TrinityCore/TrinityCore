@@ -72,7 +72,7 @@ public:
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            if (spell->Id == uint32(SPELL_SLIME_SPRAY_10 || SPELL_SLIME_SPRAY_25))
+            if (spell->Id == SPELL_SLIME_SPRAY_10 || spell->Id == SPELL_SLIME_SPRAY_25)
             {
                 if (TempSummon* slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     DoZoneInCombat(slime);
