@@ -436,7 +436,7 @@ public:
             }
         }
 
-        void Taunt()
+        /*void Taunt()		//Need a function to solve..
         {
             int bosscount =0;
             if (GetBossState(BOSS_MAEXXNA) == DONE)
@@ -463,7 +463,7 @@ public:
                     DoScriptText(SAY_KELTHUZAD_TAUNT4, Kelthuzad);
                     break;
             }
-        }
+        }*/
 		
         bool AreAllEncoutersDone()
         {
@@ -604,7 +604,34 @@ public:
 
 };
 
+class go_naxxramas_portal : public GameObjectScript
+{
+    public:
+        go_naxxramas_portal() : GameObjectScript("go_naxxramas_portal") {}
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+             switch (go->GetEntry())
+             {
+              	case GO_ARAC_PORTAL:
+                    player->TeleportTo(533, 3019.814941f, -3448.389160f, 302.194061f, 5.557699f);
+                    break;
+                case GO_MILI_PORTAL:
+                    player->TeleportTo(533, 2991.749512f, -3420.202637f, 302.186279f, 2.290148f);
+                    break;
+                case GO_PLAG_PORTAL:
+                    player->TeleportTo(533, 2991.559570f, -3448.530273f, 302.177795f, 3.955977f);
+                    break;
+                case GO_CONS_PORTAL:
+                    player->TeleportTo(533, 3019.950928f, -3420.313232f, 302.184509f, 0.785320f);
+                    break;
+             }
+             return true;
+         }
+ };
+ 
 void AddSC_instance_naxxramas()
 {
     new instance_naxxramas();
+    new go_naxxramas_portal();
 }
