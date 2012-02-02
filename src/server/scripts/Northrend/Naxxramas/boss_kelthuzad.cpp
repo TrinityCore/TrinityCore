@@ -28,33 +28,22 @@ EndScriptData */
 
 enum Yells
 {
-    //when shappiron dies. dialog between kel and lich king (in this order)
-    SAY_SAPP_DIALOG1                                       = -1533084, //not used
-    SAY_SAPP_DIALOG2_LICH                                  = -1533085, //not used
-    SAY_SAPP_DIALOG3                                       = -1533086, //not used
-    SAY_SAPP_DIALOG4_LICH                                  = -1533087, //not used
-    SAY_SAPP_DIALOG5                                       = -1533088, //not used
-    SAY_CAT_DIED                                           = -1533089, //when cat dies, not used
     //when each of the 4 wing bosses dies
     SAY_TAUNT1                                             = -1533090, //not used
     SAY_TAUNT2                                             = -1533091, //not used
     SAY_TAUNT3                                             = -1533092, //not used
     SAY_TAUNT4                                             = -1533093, //not used
-    SAY_SUMMON_MINIONS                                     = -1533105, //start of phase 1
-    SAY_AGGRO_1                                            = -1533094, //start of phase 2
-    SAY_AGGRO_2                                            = -1533095,
-    SAY_AGGRO_3                                            = -1533096,
-    SAY_SLAY_1                                             = -1533097,
-    SAY_SLAY_2                                             = -1533098,
-    SAY_DEATH                                              = -1533099,
-    SAY_CHAIN_1                                            = -1533100,
-    SAY_CHAIN_2                                            = -1533101,
-    SAY_FROST_BLAST                                        = -1533102,
-    SAY_SPECIAL_1                                          = -1533106,
-    SAY_SPECIAL_2                                          = -1533107,
-    SAY_SPECIAL_3                                          = -1533108,
-    SAY_REQUEST_AID                                        = -1533103, //start of phase 3
-    SAY_ANSWER_REQUEST                                     = -1533104  //lich king answer
+    SAY_SUMMON_MINIONS                                     = 0,
+    SAY_AGGRO                                              = 1,
+    SAY_KILL                                               = 2,
+    SAY_DEATH                                              = 3,
+    SAY_CHAIN                                              = 4,
+    SAY_FROST_BLAST                                        = 5,
+    SAY_SPECIAL                                            = 6,
+    SAY_AID                                                = 7,
+    SAY_ANSWER                                             = 10,
+    EMOTE_ATTACK                                           = 8,
+    EMOTE_GUARDIAN                                         = 9,
 };
 enum Event
 {
@@ -75,6 +64,7 @@ enum Event
 
     EVENT_PHASE,
     EVENT_MORTAL_WOUND,
+    EVENT_ANSWER,
 };
 
 enum Spells
@@ -283,6 +273,7 @@ public:
 
         uint64 PortalsGUID[4];
         uint64 KTTriggerGUID;
+        uint64 _theLichKing;
 
         SummonList spawns; // adds spawn by the trigger. kept in separated list (i.e. not in summons)
 
@@ -335,13 +326,13 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2), me);
+            Talk(SAY_KILL);
         }
 
         void JustDied(Unit* /*Killer*/)
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             std::map<uint64, float>::const_iterator itr;
             for (itr = chained.begin(); itr != chained.end(); ++itr)
@@ -364,7 +355,7 @@ public:
                     pPortal->ResetDoorOrButton();
             }
             DoCast(me, SPELL_KELTHUZAD_CHANNEL, false);
-            DoScriptText(SAY_SUMMON_MINIONS, me);
+            Talk(SAY_SUMMON_MINIONS);
             Phase = 1;
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
             me->SetFloatValue(UNIT_FIELD_COMBATREACH, 4);
@@ -429,7 +420,8 @@ public:
                             break;
                         case EVENT_PHASE:
                             events.Reset();
-                            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+                            Talk(SAY_AGGRO);
+                            Talk(EMOTE_ATTACK);
                             spawns.DespawnAll();
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_SELECTABLE);
                             me->CastStop();
@@ -458,11 +450,7 @@ public:
                     if (HealthBelowPct(45))
                     {
                         Phase = 3 ;
-                        DoScriptText(SAY_REQUEST_AID, me);
-                        //here Lich King should respond to KelThuzad but I don't know which Creature to make talk
-                        //so for now just make Kelthuzad says it.
-                        DoScriptText(SAY_ANSWER_REQUEST, me);
-
+                        Talk(SAY_AID);
                         for (uint8 i = 0; i <= 3; ++i)
                         {
                             if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
@@ -477,7 +465,7 @@ public:
                 {
                     if (uiGuardiansOfIcecrownTimer <= diff)
                     {
-                        // TODO : Add missing text
+                        Talk(EMOTE_GUARDIAN);
                         if (Creature* pGuardian = DoSummon(NPC_ICECROWN, Pos[RAND(2, 5, 8, 11)]))
                             pGuardian->SetFloatValue(UNIT_FIELD_COMBATREACH, 2);
                         ++nGuardiansOfIcecrownCount;
@@ -517,7 +505,7 @@ public:
                                 }
                             }
                             if (!chained.empty())
-                                DoScriptText(RAND(SAY_CHAIN_1, SAY_CHAIN_2), me);
+                                Talk(SAY_CHAIN);
                             events.RepeatEvent(urand(100000, 180000));
                             break;
                         }
@@ -617,7 +605,7 @@ public:
                                 std::vector<Unit*>::const_iterator itr = unitList.begin();
                                 advance(itr, rand()%unitList.size());
                                 DoCast(*itr, SPELL_MANA_DETONATION);
-                                DoScriptText(RAND(SAY_SPECIAL_1, SAY_SPECIAL_2, SAY_SPECIAL_3), me);
+                                Talk(SAY_SPECIAL);
                             }
 
                             events.RepeatEvent(urand(20000, 50000));
@@ -667,7 +655,7 @@ public:
         if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, instance->GetData64(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, instance->GetData64(BOSS_KELTHUZAD)));
         if (!pKelthuzad)
             return false;
 
@@ -736,7 +724,6 @@ class npc_kelthuzad_abomination : public CreatureScript
             {
                 events.Reset();
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
-                DoCast(me, SPELL_FRENZY, true);
             }
 
             void UpdateAI(uint32 const diff)
