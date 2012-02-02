@@ -1572,7 +1572,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             if (!ToPlayer()->canFly())
             {
                 float ground_z = z;
-                float max_z = GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !(ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));
+                float max_z = GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK));
                 if (max_z > INVALID_HEIGHT)
                 {
                     if (z > max_z)
