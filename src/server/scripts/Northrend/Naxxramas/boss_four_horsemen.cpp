@@ -281,14 +281,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            if (id == HORSEMEN_BARON)
-                Talk(SAY_KILL);
-            else if (id == HORSEMEN_LADY)
-                Talk(SAY_KILL);
-            else if (id == HORSEMEN_SIR)
-                Talk(SAY_KILL);
-            else if (id == HORSEMEN_THANE)
-                Talk(SAY_KILL);
+            Talk(SAY_KILL);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -308,29 +301,13 @@ public:
                 // There is thus no way it can be given by casting the spell on the players.
                 instance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 59450);
             }
-
-            if (id == HORSEMEN_BARON)
-                Talk(SAY_DEATH);
-            else if (id == HORSEMEN_LADY)
-                Talk(SAY_DEATH);
-            else if (id == HORSEMEN_SIR)
-                Talk(SAY_DEATH);
-            else if (id == HORSEMEN_THANE)
-                Talk(SAY_DEATH);
+            Talk(SAY_DEATH);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-
-            if (id == HORSEMEN_BARON)
-                Talk(SAY_AGGRO);
-            else if (id == HORSEMEN_LADY)
-                Talk(SAY_AGGRO);
-            else if (id == HORSEMEN_SIR)
-                Talk(SAY_AGGRO);
-            else if (id == HORSEMEN_THANE)
-                Talk(SAY_AGGRO);
+            Talk(SAY_AGGRO);
 
             events.ScheduleEvent(EVENT_MARK, 15000);
             events.ScheduleEvent(EVENT_CAST, 20000+rand()%5000);
@@ -358,27 +335,12 @@ public:
                 switch (eventId)
                 {
                     case EVENT_MARK:
-                        if (id == HORSEMEN_BARON)
-                                 Talk(SAY_SPECIAL);
-                        else if (id == HORSEMEN_LADY)
-                                 Talk(SAY_SPECIAL);
-                        else if (id == HORSEMEN_SIR)
-                                 Talk(SAY_SPECIAL);
-                        else if (id == HORSEMEN_THANE)
-                                 Talk(SAY_SPECIAL);
+                        Talk(SAY_SPECIAL);
                         DoCastAOE(SPELL_MARK[id]);
                         events.ScheduleEvent(EVENT_MARK, 15000);
                         break;
                     case EVENT_CAST:
-                        if (id == HORSEMEN_BARON)
-                                 Talk(SAY_TAUNT);
-                        else if (id == HORSEMEN_LADY)
-                                 Talk(SAY_TAUNT);
-                        else if (id == HORSEMEN_SIR)
-                                 Talk(SAY_TAUNT);
-                        else if (id == HORSEMEN_THANE)
-                                 Talk(SAY_TAUNT);
-
+                        Talk(SAY_TAUNT);
                         if (caster)
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 45.0f))
@@ -390,14 +352,7 @@ public:
                         events.ScheduleEvent(EVENT_CAST, 15000);
                         break;
                     case EVENT_BERSERK:
-                        if (id == HORSEMEN_BARON)
-                                 Talk(SAY_SPECIAL);
-                        else if (id == HORSEMEN_LADY)
-                                 Talk(SAY_SPECIAL);
-                        else if (id == HORSEMEN_SIR)
-                                 Talk(SAY_SPECIAL);
-                        else if (id == HORSEMEN_THANE)
-                                 Talk(SAY_SPECIAL);
+                        Talk(SAY_SPECIAL);
                         DoCast(me, EVENT_BERSERK);
                         break;
                 }
