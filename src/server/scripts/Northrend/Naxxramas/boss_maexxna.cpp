@@ -88,12 +88,6 @@ public:
             events.ScheduleEvent(EVENT_POISON, urand(10000, 15000));
             events.ScheduleEvent(EVENT_SUMMON, 30000);
         }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            _JustDied();
-            instance->SetBossState(BOSS_MAEXXNA, DONE);
-        }
 	
         void UpdateAI(const uint32 diff)
         {

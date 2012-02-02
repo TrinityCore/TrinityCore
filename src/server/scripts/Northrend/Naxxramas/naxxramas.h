@@ -18,16 +18,20 @@
 #ifndef DEF_NAXXRAMAS_H
 #define DEF_NAXXRAMAS_H
 
-
+uint32 const EncounterCount = 15;
 
 enum Nax_Text /* not added yet */
 {
-    SAY_CAT_DIED                = -1533089,
+    SAY_CAT_DIED                = 0,
     SAY_SAPP_DIALOG1            = -1533084, 
     SAY_SAPP_DIALOG2_LICH       = -1533085, 
     SAY_SAPP_DIALOG3            = -1533086, 
     SAY_SAPP_DIALOG4_LICH       = -1533087, 
-    SAY_SAPP_DIALOG5            = -1533088
+    SAY_SAPP_DIALOG5            = -1533088,
+    SAY_KELTHUZAD_TAUNT1        = -1533090,
+    SAY_KELTHUZAD_TAUNT2        = -1533091,
+    SAY_KELTHUZAD_TAUNT3        = -1533092,
+    SAY_KELTHUZAD_TAUNT4        = -1533093,
 };
 
 enum Nax_Data
@@ -48,7 +52,6 @@ enum Nax_Data
     BOSS_PATCHWERK = 12,
     BOSS_SAPPHIRON = 13,
     BOSS_KELTHUZAD = 14,
-    MAX_BOSS_NUMBER,
 
     // Additional data	
     DATA_THANE = 15,
@@ -127,10 +130,9 @@ enum Nax_Creatures
     NPC_HEIGAN              = 15936,
     NPC_FEUGEN              = 15930,
     NPC_STALAGG             = 15929,
-    NPC_KEL_THUZAD          = 15990,
-    NPC_KEL_THUZAD_SPEAKER  = 300000,
+    NPC_KELTHUZAD           = 15990,
+    NPC_KELTHUZAD_SPEAKER   = 300000,
     NPC_MR_BIGGLESWORTH     = 16998,
-    NPC_LICH_KING           = 37181,
 };
 
 

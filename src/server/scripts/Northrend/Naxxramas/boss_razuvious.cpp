@@ -21,7 +21,7 @@
 enum ScriptTexts
 {
     SAY_AGGRO   = 0,
-    SAY_COMMND  = 1,
+    SAY_COMMAND = 1,
     SAY_DEATH   = 2,
 };
 
@@ -108,7 +108,7 @@ public:
                         events.ScheduleEvent(EVENT_KNIFE, 10000);
                         return;
                     case EVENT_COMMAND:
-                        Talk(SAY_COMMND);
+                        Talk(SAY_COMMAND);
                         events.ScheduleEvent(EVENT_COMMAND, 40000);
                         return;
                 }

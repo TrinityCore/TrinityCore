@@ -236,6 +236,14 @@ public:
             iceblocks.clear();
         }
 
+        uint32 GetData(uint32 type)
+        {
+            if (type == DATA_HUNDRED_CLUB)
+                return CanTheHundredClub;
+ 
+            return 0;
+        }
+			
         void UpdateAI(const uint32 diff)
         {
             if (!phase)
@@ -412,7 +420,24 @@ public:
 
 };
 
+class achievement_the_hundred_club : public AchievementCriteriaScript
+{
+    public:
+        achievement_the_hundred_club() : AchievementCriteriaScript("achievement_the_hundred_club") { }
+
+        bool OnCheck(Player* /*source*/, Unit* target)
+        {
+            if (target)
+                if (Creature* sapphiron = target->ToCreature())
+                    if (sapphiron->AI()->GetData(DATA_HUNDRED_CLUB))
+                        return true;
+
+            return false;
+        }
+};
+
 void AddSC_boss_sapphiron()
 {
     new boss_sapphiron();
+    new achievement_the_hundred_club();
 }
