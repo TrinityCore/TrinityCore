@@ -4769,6 +4769,16 @@ SpellCastResult Spell::CheckCast(bool strict)
         }
     }
 
+    //Check for line of sight for spells with dest
+    if (m_targets.HasDst())
+    {
+        float x, y, z;
+        m_targets.GetDst()->GetPosition(x, y, z);
+
+        if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS) && VMAP::VMapFactory::checkSpellForLoS(m_spellInfo->Id) && !m_caster->IsWithinLOS(x, y, z))
+            return SPELL_FAILED_LINE_OF_SIGHT;
+    }
+
     // check pet presence
     for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
     {
