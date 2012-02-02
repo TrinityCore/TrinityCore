@@ -637,12 +637,12 @@ public:
 
 enum Karynaku
 {
-    QUEST_ALLY_OF_NETHER    = 10870,
-    QUEST_ZUHULED_THE_WACK  = 10866,
+    QUEST_ALLY_OF_NETHER      = 10870,
+    QUEST_ZULUHED_THE_WHACKED = 10866,
 
-    NPC_ZUHULED_THE_WACKED  = 11980,
+    NPC_ZULUHED_THE_WHACKED   = 11980,
 
-    TAXI_PATH_ID            = 649,
+    TAXI_PATH_ID              = 649,
 };
 
 class npc_karynaku : public CreatureScript
@@ -655,8 +655,8 @@ class npc_karynaku : public CreatureScript
             if (quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
                 player->ActivateTaxiPathTo(TAXI_PATH_ID);
 
-            if (quest->GetQuestId() == QUEST_ZUHULED_THE_WACK)
-                creature->SummonCreature(NPC_ZUHULED_THE_WACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+            if (quest->GetQuestId() == QUEST_ZULUHED_THE_WHACKED)
+                creature->SummonCreature(NPC_ZULUHED_THE_WHACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
 
             return true;
         }
