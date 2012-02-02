@@ -238,12 +238,6 @@ const Position PosWeavers[MAX_WEAVERS] =
     {3704.71f, -5175.96f, 143.597f, 3.36549f},
 };
 
-enum Achievements
-{
-    ACHIEVEMENT_THE_UNDYING_10 = 2187,
-    ACHIEVEMENT_THE_IMMORTAL_25 = 2186
-};
-
 // predicate function to select not charmed target
 struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
 {
@@ -347,9 +341,6 @@ public:
                     player->SetFloatValue(OBJECT_FIELD_SCALE_X, (*itr).second);
             }
             chained.clear();
-			
-            if (instance && instance->GetData(DATA_PLAYER_DEATHS) == 0)
-                instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_THE_UNDYING_10,ACHIEVEMENT_THE_IMMORTAL_25));
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -460,10 +451,6 @@ public:
                     {
                         Phase = 3 ;
                         Talk(SAY_AID);
-                        if (Creature* theLichKing = me->FindNearestCreature(NPC_LICH_KING, 150.0f))
-                            _theLichKing = theLichKing->GetGUID();
-                        if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
-                            theLichKing->AI()->Talk(SAY_ANSWER);
                         for (uint8 i = 0; i <= 3; ++i)
                         {
                             if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))

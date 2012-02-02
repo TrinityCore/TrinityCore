@@ -38,14 +38,17 @@ enum Spells
 
 enum Events
 {
-    EVENT_NONE,
+    EVENT_NONE = 1,
     EVENT_DISRUPT,
     EVENT_FEVER,
     EVENT_ERUPT,
-    EVENT_PHASE1,
-    EVENT_PHASE2,
 };
 
+enum Phases
+{
+    PHASE_1,
+    PHASE_2,
+};
 
 #define ACTION_SAFETY_DANCE_FAIL 1
 #define DATA_SAFETY_DANCE        19962139
@@ -110,9 +113,9 @@ public:
             eruptSection = 3;
             events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
             events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-            events.ScheduleEvent(EVENT_PHASE2, 90000);
+            events.ScheduleEvent(PHASE_2, 90000);
             events.ScheduleEvent(EVENT_ERUPT, 15000);
-            phase = EVENT_PHASE1;
+            phase = PHASE_1;
         }
 
         void UpdateAI(const uint32 diff)
@@ -134,7 +137,7 @@ public:
                         DoCastAOE(RAID_MODE(SPELL_DECREPIT_FEVER_10, SPELL_DECREPIT_FEVER_25));
                         events.ScheduleEvent(EVENT_FEVER, urand(20000, 25000));
                         break;
-                    case EVENT_PHASE1:
+                    case PHASE_1:
                         Talk(EMOTE_TELEPORT2);
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -143,11 +146,11 @@ public:
                         eruptSection = 3;
                         events.ScheduleEvent(EVENT_DISRUPT, urand(10000, 25000));
                         events.ScheduleEvent(EVENT_FEVER, urand(15000, 20000));
-                        events.ScheduleEvent(EVENT_PHASE2, 90000);
+                        events.ScheduleEvent(PHASE_2, 90000);
                         events.ScheduleEvent(EVENT_ERUPT, 15000);
-                        phase = EVENT_PHASE1;
+                        phase = PHASE_1;
                         break;
-                    case EVENT_PHASE2:
+                    case PHASE_2:
                         Talk(SAY_PHASE);
                         Talk(EMOTE_TELEPORT1);
                         me->SetReactState(REACT_PASSIVE);
@@ -159,9 +162,9 @@ public:
                         me->NearTeleportTo(x, y, z, o);
                         DoCastAOE(SPELL_PLAGUE_CLOUD);
                         events.Reset();
-                        events.ScheduleEvent(EVENT_PHASE1, 45000);
+                        events.ScheduleEvent(PHASE_1, 45000);
                         events.ScheduleEvent(EVENT_ERUPT, 8000);
-                        phase = EVENT_PHASE2;
+                        phase = PHASE_2;
                         break;
                     case EVENT_ERUPT:
                         instance->SetData(DATA_HEIGAN_ERUPT, eruptSection);
@@ -174,7 +177,7 @@ public:
 
                         eruptDirection ? ++eruptSection : --eruptSection;
 
-                        events.ScheduleEvent(EVENT_ERUPT, phase == EVENT_PHASE1 ? 10000 : 3000)
+                        events.ScheduleEvent(EVENT_ERUPT, phase == PHASE_1 ? 10000 : 3000);
                         break;
                 }
             }
