@@ -799,7 +799,7 @@ void Battleground::EndBattleground(uint32 winner)
 
         // Last standing - Rated 5v5 arena & be solely alive player
         if (team == winner && isArena() && isRated() && GetArenaType() == ARENA_TYPE_5v5 && aliveWinners == 1 && player->isAlive())
-            player->CastSpell(player, SPELL_THE_LAST_STANDING, true);
+            player->CastSpell(player, SPELL_THE_LAST_MAN_STANDING, true);
 
         if (!player->isAlive())
         {
