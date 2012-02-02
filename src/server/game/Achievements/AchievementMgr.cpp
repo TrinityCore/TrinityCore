@@ -2139,6 +2139,23 @@ bool AchievementMgr::CanUpdateCriteria(AchievementCriteriaEntry const* criteria,
                 if (unit->ToCreature()->GetCreatureType() != value)
                     return false;
                 break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_SOURCE_LEVEL:
+                if (GetPlayer()->getLevel() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_LEVEL:
+                if (!unit && unit->getLevel() != value)
+                    return false;
+                break;
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TARGET_HEALTH_PERCENT_BELOW:
+                if (!unit || unit->GetHealthPct() >= value)
+                    return false;
+                break;
+            // generic, compare miscValue1 with DBC value
+            case ACHIEVEMENT_CRITERIA_ADDITIONAL_CONDITION_TITLE_BIT_INDEX:
+                if (miscValue1 != value)
+                    return false;
+                break;
             default:
                 break;
         }
