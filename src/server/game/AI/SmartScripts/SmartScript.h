@@ -236,7 +236,6 @@ class SmartScript
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 
-        uint32 mInvinceabilityHpLevel;
         UNORDERED_MAP<int32, int32> mStoredDecimals;
         uint32 mPathId;
         SmartAIEventList mStoredEvents;

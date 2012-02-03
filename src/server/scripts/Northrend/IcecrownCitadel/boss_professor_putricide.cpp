@@ -75,6 +75,7 @@ enum Spells
     SPELL_PLAGUE_SICKNESS               = 70953,
     SPELL_UNBOUND_PLAGUE_PROTECTION     = 70955,
     SPELL_MUTATED_PLAGUE                = 72451,
+    SPELL_MUTATED_PLAGUE_CLEAR          = 72618,
 
     // Slime Puddle
     SPELL_GROW_STACKER                  = 70345,
@@ -244,6 +245,7 @@ class boss_professor_putricide : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+                DoCast(SPELL_MUTATED_PLAGUE_CLEAR);
             }
 
             void JustSummoned(Creature* summon)
@@ -1427,6 +1429,34 @@ class spell_putricide_regurgitated_ooze : public SpellScriptLoader
         }
 };
 
+class spell_putricide_clear_mutated_plague : public SpellScriptLoader
+{
+    public:
+        spell_putricide_clear_mutated_plague() : SpellScriptLoader("spell_putricide_clear_mutated_plague") { }
+
+        class spell_putricide_clear_mutated_plague_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_putricide_clear_mutated_plague_SpellScript);
+
+            void HandleScript(SpellEffIndex effIndex)
+            {
+                PreventHitDefaultEffect(effIndex);
+                uint32 auraId = sSpellMgr->GetSpellIdForDifficulty(uint32(GetEffectValue()), GetCaster());
+                GetHitUnit()->RemoveAurasDueToSpell(auraId);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_putricide_clear_mutated_plague_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_putricide_clear_mutated_plague_SpellScript();
+        }
+};
+
 // Stinky and Precious spell, it's here because its used for both (Festergut and Rotface "pets")
 class spell_stinky_precious_decimate : public SpellScriptLoader
 {
@@ -1478,5 +1508,6 @@ void AddSC_boss_professor_putricide()
     new spell_putricide_mutated_transformation();
     new spell_putricide_mutated_transformation_dmg();
     new spell_putricide_regurgitated_ooze();
+    new spell_putricide_clear_mutated_plague();
     new spell_stinky_precious_decimate();
 }
