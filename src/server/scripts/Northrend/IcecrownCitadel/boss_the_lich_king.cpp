@@ -902,7 +902,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_FINISH_INTRO:
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_ONE);
                             break;
@@ -1825,7 +1825,7 @@ class npc_terenas_menethil : public CreatureScript
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                             {
                                 lichKing->AI()->DoAction(ACTION_FINISH_OUTRO);
-                                lichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                                lichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                                 if (Creature* tirion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HIGHLORD_TIRION_FORDRING)))
                                     tirion->AI()->AttackStart(lichKing);
                             }

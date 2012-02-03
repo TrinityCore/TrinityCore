@@ -97,7 +97,7 @@ class boss_drakkari_colossus : public CreatureScript
                 if (GetData(DATA_INTRO_DONE))
                 {
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->RemoveAura(SPELL_FREEZE_ANIM);
                 }
 
@@ -149,7 +149,7 @@ class boss_drakkari_colossus : public CreatureScript
                         me->GetMotionMaster()->MoveIdle();
 
                         me->SetReactState(REACT_PASSIVE);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         DoCast(me, SPELL_FREEZE_ANIM);
                         break;
                     case ACTION_UNFREEZE_COLOSSUS:
@@ -158,7 +158,7 @@ class boss_drakkari_colossus : public CreatureScript
                             return;
 
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->RemoveAura(SPELL_FREEZE_ANIM);
 
                         me->SetInCombatWithZone();
@@ -172,7 +172,7 @@ class boss_drakkari_colossus : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
-                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
                     damage = 0;
 
                 if (phase == COLOSSUS_PHASE_NORMAL ||

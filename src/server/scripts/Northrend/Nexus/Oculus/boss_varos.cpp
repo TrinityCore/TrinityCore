@@ -256,10 +256,10 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                 {
                     // flags taken from sniffs
                     // UNIT_FLAG_UNK_9 -> means passive but it is not yet implemented in core
-                    if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6))
+                    if (caster->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6))
                     {
                         caster->ToCreature()->SetReactState(REACT_PASSIVE);
-                        caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                        caster->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6);
                     }
                 }
             }
@@ -269,7 +269,7 @@ class spell_varos_centrifuge_shield : public SpellScriptLoader
                 if (Unit* caster = GetCaster())
                 {
                     caster->ToCreature()->SetReactState(REACT_AGGRESSIVE);
-                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_PASSIVE|UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_UNK_6);
+                    caster->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15|UNIT_FLAG_IMMUNE_TO_NPC|UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_UNK_6);
                 }
             }
 
