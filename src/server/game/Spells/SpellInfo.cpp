@@ -1680,7 +1680,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, Unit const* target, b
     }
 
     // not allow casting on flying player
-    if (target->HasUnitState(UNIT_STAT_IN_FLIGHT))
+    if (target->HasUnitState(UNIT_STATE_IN_FLIGHT))
         return SPELL_FAILED_BAD_TARGETS;
 
     if (TargetAuraState && !target->HasAuraState(AuraStateType(TargetAuraState), this, caster))

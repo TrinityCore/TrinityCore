@@ -2714,7 +2714,7 @@ void SmartScript::UpdateTimer(SmartScriptHolder& e, uint32 const diff)
         {
             if (!(e.action.cast.flags & SMARTCAST_INTERRUPT_PREVIOUS))
             {
-                if (me && me->HasUnitState(UNIT_STAT_CASTING))
+                if (me && me->HasUnitState(UNIT_STATE_CASTING))
                 {
                     e.timer = 1;
                     return;
