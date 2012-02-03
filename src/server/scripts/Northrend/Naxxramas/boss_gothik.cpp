@@ -400,7 +400,7 @@ class boss_gothik : public CreatureScript
                         instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                 }
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())

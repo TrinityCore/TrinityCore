@@ -224,7 +224,7 @@ public:
         {
             Unit* target = GetTarget();
             target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-            target->AddUnitState(UNIT_STAT_ROOT);
+            target->AddUnitState(UNIT_STATE_ROOT);
         }
 
         void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

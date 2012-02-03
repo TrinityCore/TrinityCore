@@ -283,7 +283,7 @@ public:
                 if (((UndergroundPhase == 0 && HealthBelowPct(75))
                     || (UndergroundPhase == 1 && HealthBelowPct(50))
                     || (UndergroundPhase == 2 && HealthBelowPct(25)))
-                    && !me->HasUnitState(UNIT_STAT_CASTING))
+                    && !me->HasUnitState(UNIT_STATE_CASTING))
                 {
                     GuardianSummoned = false;
                     VenomancerSummoned = false;

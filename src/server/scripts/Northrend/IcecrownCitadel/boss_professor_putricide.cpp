@@ -519,7 +519,7 @@ class boss_professor_putricide : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -796,7 +796,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
 
             void StartAttack()
             {
-                GetCaster()->ClearUnitState(UNIT_STAT_CASTING);
+                GetCaster()->ClearUnitState(UNIT_STATE_CASTING);
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
             }
 

@@ -25,7 +25,7 @@
 
 void HomeMovementGenerator<Creature>::Initialize(Creature & owner)
 {
-    owner.AddUnitState(UNIT_STAT_EVADE);
+    owner.AddUnitState(UNIT_STATE_EVADE);
     _setTargetLocation(owner);
 }
 
@@ -38,7 +38,7 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
     if (!&owner)
         return;
 
-    if (owner.HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
+    if (owner.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return;
 
     Movement::MoveSplineInit init(owner);
@@ -54,7 +54,7 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
     init.Launch();
 
     arrived = false;
-    owner.ClearUnitState(UNIT_STAT_ALL_STATE & ~UNIT_STAT_EVADE);
+    owner.ClearUnitState(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE);
 }
 
 bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32 time_diff)
@@ -67,7 +67,7 @@ void HomeMovementGenerator<Creature>::Finalize(Creature& owner)
 {
     if (arrived)
     {
-        owner.ClearUnitState(UNIT_STAT_EVADE);
+        owner.ClearUnitState(UNIT_STATE_EVADE);
         owner.SetWalk(true);
         owner.LoadCreaturesAddon(true);
         owner.AI()->JustReachedHome();
