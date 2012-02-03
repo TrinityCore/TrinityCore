@@ -17,7 +17,6 @@
  */
 
 #include "DynamicTree.h"
-#include "KDTree2.h"
 //#include "QuadTree.h"
 //#include "RegularGrid.h"
 #include "BoundingIntervalHierarchyWrapper.h"
@@ -29,7 +28,6 @@
 
 using VMAP::ModelInstance;
 using G3D::Ray;
-using G3D::KDTree2;
 
 template<> struct HashTrait< ModelInstance_Overriden>{
     static size_t hashCode(const ModelInstance_Overriden& g) { return (size_t)(void*)&g; }
