@@ -51,15 +51,19 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
         if (isWaterFallActive())
         {
             setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                SpawnBGObject(i, getWaterFallTimer());
+            SpawnBGObject(BG_DS_OBJECT_WATER_2, getWaterFallTimer());
+            // turn off collision
+            if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
+                gob->EnableCollision(false);
             setWaterFallActive(false);
         }
         else
         {
             setWaterFallTimer(BG_DS_WATERFALL_DURATION);
-            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                SpawnBGObject(i, RESPAWN_IMMEDIATELY);
+            SpawnBGObject(BG_DS_OBJECT_WATER_2, RESPAWN_IMMEDIATELY);
+            // Turn on collision
+            if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
+                gob->EnableCollision(true);
             setWaterFallActive(true);
         }
     }

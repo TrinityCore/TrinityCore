@@ -374,7 +374,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
 void MotionMaster::MoveFall(uint32 id/*=0*/)
 {
     // use larger distance for vmap height search than in most other cases
-    float tz = i_owner->GetMap()->GetHeight(i_owner->GetPositionX(), i_owner->GetPositionY(), i_owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
+    float tz = i_owner->GetMap()->GetHeight(i_owner->GetPhaseMask(), i_owner->GetPositionX(), i_owner->GetPositionY(), i_owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
     if (tz <= INVALID_HEIGHT)
     {
         sLog->outStaticDebug("MotionMaster::MoveFall: unable retrive a proper height at map %u (x: %f, y: %f, z: %f).",
@@ -387,7 +387,7 @@ void MotionMaster::MoveFall(uint32 id/*=0*/)
         return;
 
     Movement::MoveSplineInit init(*i_owner);
-    init.MoveTo(i_owner->GetPositionX(),i_owner->GetPositionY(),tz);
+    init.MoveTo(i_owner->GetPositionX(), i_owner->GetPositionY(), tz);
     init.SetFall();
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);

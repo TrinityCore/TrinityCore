@@ -16,7 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "WorldModel.h"
 #include "TileAssembler.h"
 #include "MapTree.h"
 #include "BoundingIntervalHierarchy.h"
@@ -71,7 +70,6 @@ namespace VMAP
 
     bool TileAssembler::convertWorld2()
     {
-        std::set<std::string> spawnedModelFiles;
         bool success = readMapSpawns();
         if (!success)
             return false;
@@ -178,6 +176,8 @@ namespace VMAP
             // break; //test, extract only first map; TODO: remvoe this line
         }
 
+        // add an object models, listed in temp_gameobject_models file
+        exportGameobjectModels();
         // export objects
         std::cout << "\nConverting Model Files" << std::endl;
         for (std::set<std::string>::iterator mfile = spawnedModelFiles.begin(); mfile != spawnedModelFiles.end(); ++mfile)
@@ -251,99 +251,40 @@ namespace VMAP
         modelPosition.iScale = spawn.iScale;
         modelPosition.init();
 
-        FILE* rf = fopen(modelFilename.c_str(), "rb");
-        if (!rf)
-        {
-            printf("ERROR: Can't open model file: %s\n", modelFilename.c_str());
+        WorldModel_Raw raw_model;
+        if (!raw_model.Read(modelFilename.c_str()))
             return false;
-        }
 
+        uint32 groups = raw_model.groupsArray.size();
+        if (groups != 1)
+            printf("Warning: '%s' does not seem to be a M2 model!\n", modelFilename.c_str());
+            
         AABox modelBound;
         bool boundEmpty=true;
-        char ident[8];
-
-        int readOperation = 1;
-
-        // temporary use defines to simplify read/check code (close file and return at fail)
-        #define READ_OR_RETURN(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }readOperation++;
-        // only use this for array deletes
-        #define READ_OR_RETURN_WITH_DELETE(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); }readOperation++;
-
-        #define CMP_OR_RETURN(V, S)  if (strcmp((V), (S)) != 0)        { \
-                                        fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
-
-        READ_OR_RETURN(&ident, 8);
-        CMP_OR_RETURN(ident, "VMAP003");
-
-        // we have to read one int. This is needed during the export and we have to skip it here
-        uint32 tempNVectors;
-        READ_OR_RETURN(&tempNVectors, sizeof(tempNVectors));
-
-        uint32 groups, wmoRootId;
-        char blockId[5];
-        blockId[4] = 0;
-        int blocksize;
-        float *vectorarray = 0;
-
-        READ_OR_RETURN(&groups, sizeof(uint32));
-        READ_OR_RETURN(&wmoRootId, sizeof(uint32));
-        if (groups != 1) printf("Warning: '%s' does not seem to be a M2 model!\n", modelFilename.c_str());
 
         for (uint32 g=0; g<groups; ++g) // should be only one for M2 files...
         {
-            fseek(rf, 3*sizeof(uint32) + 6*sizeof(float), SEEK_CUR);
+            std::vector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
 
-            READ_OR_RETURN(&blockId, 4);
-            CMP_OR_RETURN(blockId, "GRP ");
-            READ_OR_RETURN(&blocksize, sizeof(int));
-            fseek(rf, blocksize, SEEK_CUR);
-
-            // ---- indexes
-            READ_OR_RETURN(&blockId, 4);
-            CMP_OR_RETURN(blockId, "INDX");
-            READ_OR_RETURN(&blocksize, sizeof(int));
-            fseek(rf, blocksize, SEEK_CUR);
-
-            // ---- vectors
-            READ_OR_RETURN(&blockId, 4);
-            CMP_OR_RETURN(blockId, "VERT");
-            READ_OR_RETURN(&blocksize, sizeof(int));
-            uint32 nvectors;
-            READ_OR_RETURN(&nvectors, sizeof(uint32));
-
-            if (nvectors >0)
-            {
-                vectorarray = new float[nvectors*3];
-                READ_OR_RETURN_WITH_DELETE(vectorarray, nvectors*sizeof(float)*3);
-            }
-            else
+            if (vertices.empty())
             {
                 std::cout << "error: model '" << spawn.name << "' has no geometry!" << std::endl;
-                fclose(rf);
-                return false;
+                continue;
             }
 
-            for (uint32 i=0, indexNo=0; indexNo<nvectors; indexNo++, i+=3)
+            uint32 nvectors = vertices.size();
+            for (uint32 i = 0; i < nvectors; ++i)
             {
-                Vector3 v = Vector3(vectorarray[i+0], vectorarray[i+1], vectorarray[i+2]);
-                v = modelPosition.transform(v);
+                Vector3 v = modelPosition.transform(vertices[i]);
 
                 if (boundEmpty)
                     modelBound = AABox(v, v), boundEmpty=false;
                 else
                     modelBound.merge(v);
             }
-            delete[] vectorarray;
-            // drop of temporary use defines
-            #undef READ_OR_RETURN
-            #undef READ_OR_RETURN_WITH_DELETE
-            #undef CMP_OR_RETURN
         }
         spawn.iBound = modelBound + spawn.iPos;
         spawn.flags |= MOD_HAS_BOUND;
-        fclose(rf);
         return true;
     }
 
@@ -363,150 +304,221 @@ namespace VMAP
         if (filename.length() >0)
             filename.push_back('/');
         filename.append(pModelFilename);
-        FILE* rf = fopen(filename.c_str(), "rb");
 
-        if (!rf)
-        {
-            printf("ERROR: Can't open model file in form: %s", pModelFilename.c_str());
-            printf("...                          or form: %s", filename.c_str() );
+        WorldModel_Raw raw_model;
+        if (!raw_model.Read(filename.c_str()))
             return false;
+            
+        // write WorldModel
+        WorldModel model;
+        model.setRootWmoID(raw_model.RootWMOID);
+        if (raw_model.groupsArray.size())
+        {
+            std::vector<GroupModel> groupsArray;
+
+            uint32 groups = raw_model.groupsArray.size();
+            for (uint32 g = 0; g < groups; ++g)
+            {
+                GroupModel_Raw& raw_group = raw_model.groupsArray[g];
+                groupsArray.push_back(GroupModel(raw_group.mogpflags, raw_group.GroupWMOID, raw_group.bounds ));
+                groupsArray.back().setMeshData(raw_group.vertexArray, raw_group.triangles);
+                groupsArray.back().setLiquidData(raw_group.liquid);
+            }
+
+            model.setGroupModels(groupsArray);
+        }
+        
+        success = model.writeFile(iDestDir + "/" + pModelFilename + ".vmo");
+        //std::cout << "readRawFile2: '" << pModelFilename << "' tris: " << nElements << " nodes: " << nNodes << std::endl;
+        return success;
+    }
+    
+    void TileAssembler::exportGameobjectModels()
+    {
+        FILE* model_list = fopen((iSrcDir + "/" + GAMEOBJECT_MODELS).c_str(), "rb");
+        FILE* model_list_copy = fopen((iDestDir + "/" + GAMEOBJECT_MODELS).c_str(), "wb");
+        if (!model_list || !model_list_copy)
+            return;
+
+        uint32 name_length, displayId;
+        char buff[500];
+        while (!feof(model_list))
+        {
+            fread(&displayId,sizeof(uint32),1,model_list);
+            fread(&name_length,sizeof(uint32),1,model_list);
+
+            if (name_length >= sizeof(buff))
+            {
+                std::cout << "\nFile 'temp_gameobject_models' seems to be corrupted" << std::endl;
+                break;
+            }
+
+            fread(&buff,sizeof(char),name_length,model_list);
+            std::string model_name(buff, name_length);
+
+            WorldModel_Raw raw_model;
+            if ( !raw_model.Read((iSrcDir + "/" + model_name).c_str()) )
+                continue;
+
+            spawnedModelFiles.insert(model_name);
+            AABox bounds;
+            bool boundEmpty = true;
+            for (uint32 g = 0; g < raw_model.groupsArray.size(); ++g)
+            {
+                std::vector<Vector3>& vertices = raw_model.groupsArray[g].vertexArray;
+
+                uint32 nvectors = vertices.size();
+                for (uint32 i = 0; i < nvectors; ++i)
+                {
+                    Vector3& v = vertices[i];
+                    if (boundEmpty)
+                        bounds = AABox(v, v), boundEmpty = false;
+                    else
+                        bounds.merge(v);
+                }
+            }
+
+            fwrite(&displayId,sizeof(uint32),1,model_list_copy);
+            fwrite(&name_length,sizeof(uint32),1,model_list_copy);
+            fwrite(&buff,sizeof(char),name_length,model_list_copy);
+            fwrite(&bounds.low(),sizeof(Vector3),1,model_list_copy);
+            fwrite(&bounds.high(),sizeof(Vector3),1,model_list_copy);
         }
 
-        char ident[8];
-
-        int readOperation = 1;
-
+        fclose(model_list);
+        fclose(model_list_copy);
+    }
         // temporary use defines to simplify read/check code (close file and return at fail)
         #define READ_OR_RETURN(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }readOperation++;
+                                        fclose(rf); printf("readfail, op = %i\n", readOperation); return(false); }
         #define READ_OR_RETURN_WITH_DELETE(V, S) if (fread((V), (S), 1, rf) != 1) { \
-                                        fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); }readOperation++;
+                                        fclose(rf); printf("readfail, op = %i\n", readOperation); delete[] V; return(false); };
         #define CMP_OR_RETURN(V, S)  if (strcmp((V), (S)) != 0)        { \
                                         fclose(rf); printf("cmpfail, %s!=%s\n", V, S);return(false); }
 
+    bool GroupModel_Raw::Read(FILE* rf)
+    {
+        char blockId[5];
+        blockId[4] = 0;
+        int blocksize;
+        int readOperation = 0;
+
+        READ_OR_RETURN(&mogpflags, sizeof(uint32));
+        READ_OR_RETURN(&GroupWMOID, sizeof(uint32));
+
+            
+        Vector3 vec1, vec2;
+        READ_OR_RETURN(&vec1, sizeof(Vector3));
+
+        READ_OR_RETURN(&vec2, sizeof(Vector3));
+        bounds.set(vec1, vec2);
+        
+        READ_OR_RETURN(&liquidflags, sizeof(uint32));
+
+        // will this ever be used? what is it good for anyway??
+        uint32 branches;
+        READ_OR_RETURN(&blockId, 4);
+        CMP_OR_RETURN(blockId, "GRP ");
+        READ_OR_RETURN(&blocksize, sizeof(int));
+        READ_OR_RETURN(&branches, sizeof(uint32));
+        for (uint32 b=0; b<branches; ++b)
+        {
+            uint32 indexes;
+            // indexes for each branch (not used jet)
+            READ_OR_RETURN(&indexes, sizeof(uint32));
+        }
+
+        // ---- indexes
+        READ_OR_RETURN(&blockId, 4);
+        CMP_OR_RETURN(blockId, "INDX");
+        READ_OR_RETURN(&blocksize, sizeof(int));
+        uint32 nindexes;
+        READ_OR_RETURN(&nindexes, sizeof(uint32));
+        if (nindexes >0)
+        {
+            uint16 *indexarray = new uint16[nindexes];
+            READ_OR_RETURN_WITH_DELETE(indexarray, nindexes*sizeof(uint16));
+            triangles.reserve(nindexes / 3);
+            for (uint32 i=0; i<nindexes; i+=3)
+                triangles.push_back(MeshTriangle(indexarray[i], indexarray[i+1], indexarray[i+2]));
+
+            delete[] indexarray;
+        }
+
+        // ---- vectors
+        READ_OR_RETURN(&blockId, 4);
+        CMP_OR_RETURN(blockId, "VERT");
+        READ_OR_RETURN(&blocksize, sizeof(int));
+        uint32 nvectors;
+        READ_OR_RETURN(&nvectors, sizeof(uint32));
+
+        if (nvectors >0)
+        {
+            float *vectorarray = new float[nvectors*3];
+            READ_OR_RETURN_WITH_DELETE(vectorarray, nvectors*sizeof(float)*3);
+            for (uint32 i=0; i<nvectors; ++i)
+                vertexArray.push_back( Vector3(vectorarray + 3*i) );
+
+            delete[] vectorarray;
+        }
+        // ----- liquid
+        liquid = 0;
+        if (liquidflags& 1)
+        {
+            WMOLiquidHeader hlq;
+            READ_OR_RETURN(&blockId, 4);
+            CMP_OR_RETURN(blockId, "LIQU");
+            READ_OR_RETURN(&blocksize, sizeof(int));
+            READ_OR_RETURN(&hlq, sizeof(WMOLiquidHeader));
+            liquid = new WmoLiquid(hlq.xtiles, hlq.ytiles, Vector3(hlq.pos_x, hlq.pos_y, hlq.pos_z), hlq.type);
+            uint32 size = hlq.xverts*hlq.yverts;
+            READ_OR_RETURN(liquid->GetHeightStorage(), size*sizeof(float));
+            size = hlq.xtiles*hlq.ytiles;
+            READ_OR_RETURN(liquid->GetFlagsStorage(), size);
+        }
+     
+        return true;
+    }
+
+
+    GroupModel_Raw::~GroupModel_Raw()
+    {
+        delete liquid;
+    }
+    
+    bool WorldModel_Raw::Read(const char * path)
+    {
+        FILE* rf = fopen(path, "rb");
+        if (!rf)
+        {
+            printf("ERROR: Can't open raw model file: %s\n", path);
+            return false;
+        }
+        
+        char ident[8];
+        int readOperation = 0;
+
         READ_OR_RETURN(&ident, 8);
-        CMP_OR_RETURN(ident, "VMAP003");
+        CMP_OR_RETURN(ident, RAW_VMAP_MAGIC);
 
         // we have to read one int. This is needed during the export and we have to skip it here
         uint32 tempNVectors;
         READ_OR_RETURN(&tempNVectors, sizeof(tempNVectors));
 
         uint32 groups;
-        uint32 RootWMOID;
-        char blockId[5];
-        blockId[4] = 0;
-        int blocksize;
-
         READ_OR_RETURN(&groups, sizeof(uint32));
         READ_OR_RETURN(&RootWMOID, sizeof(uint32));
 
-        std::vector<GroupModel> groupsArray;
+        groupsArray.resize(groups);
+        bool succeed = true;
+        for (uint32 g = 0; g < groups && succeed; ++g)
+            succeed = groupsArray[g].Read(rf);
 
-        for (uint32 g=0; g<groups; ++g)
-        {
-            std::vector<MeshTriangle> triangles;
-            std::vector<Vector3> vertexArray;
-
-            uint32 mogpflags, GroupWMOID;
-            READ_OR_RETURN(&mogpflags, sizeof(uint32));
-            READ_OR_RETURN(&GroupWMOID, sizeof(uint32));
-
-            float bbox1[3], bbox2[3];
-            READ_OR_RETURN(bbox1, sizeof(float)*3);
-            READ_OR_RETURN(bbox2, sizeof(float)*3);
-
-            uint32 liquidflags;
-            READ_OR_RETURN(&liquidflags, sizeof(uint32));
-
-            // will this ever be used? what is it good for anyway??
-            uint32 branches;
-            READ_OR_RETURN(&blockId, 4);
-            CMP_OR_RETURN(blockId, "GRP ");
-            READ_OR_RETURN(&blocksize, sizeof(int));
-            READ_OR_RETURN(&branches, sizeof(uint32));
-            for (uint32 b=0; b<branches; ++b)
-            {
-                uint32 indexes;
-                // indexes for each branch (not used jet)
-                READ_OR_RETURN(&indexes, sizeof(uint32));
-            }
-
-            // ---- indexes
-            READ_OR_RETURN(&blockId, 4);
-            CMP_OR_RETURN(blockId, "INDX");
-            READ_OR_RETURN(&blocksize, sizeof(int));
-            uint32 nindexes;
-            READ_OR_RETURN(&nindexes, sizeof(uint32));
-            if (nindexes >0)
-            {
-                uint16 *indexarray = new uint16[nindexes];
-                READ_OR_RETURN_WITH_DELETE(indexarray, nindexes*sizeof(uint16));
-                for (uint32 i=0; i<nindexes; i+=3)
-                {
-                    triangles.push_back(MeshTriangle(indexarray[i], indexarray[i+1], indexarray[i+2]));
-                }
-                delete[] indexarray;
-            }
-
-            // ---- vectors
-            READ_OR_RETURN(&blockId, 4);
-            CMP_OR_RETURN(blockId, "VERT");
-            READ_OR_RETURN(&blocksize, sizeof(int));
-            uint32 nvectors;
-            READ_OR_RETURN(&nvectors, sizeof(uint32));
-
-            if (nvectors >0)
-            {
-                float *vectorarray = new float[nvectors*3];
-                READ_OR_RETURN_WITH_DELETE(vectorarray, nvectors*sizeof(float)*3);
-                for (uint32 i=0; i<nvectors; ++i)
-                {
-                    vertexArray.push_back( Vector3(vectorarray + 3*i) );
-                }
-                delete[] vectorarray;
-            }
-            // ----- liquid
-            WmoLiquid* liquid = 0;
-            if (liquidflags& 1)
-            {
-                WMOLiquidHeader hlq;
-                READ_OR_RETURN(&blockId, 4);
-                CMP_OR_RETURN(blockId, "LIQU");
-                READ_OR_RETURN(&blocksize, sizeof(int));
-                READ_OR_RETURN(&hlq, sizeof(WMOLiquidHeader));
-                liquid = new WmoLiquid(hlq.xtiles, hlq.ytiles, Vector3(hlq.pos_x, hlq.pos_y, hlq.pos_z), hlq.type);
-                uint32 size = hlq.xverts*hlq.yverts;
-                READ_OR_RETURN(liquid->GetHeightStorage(), size*sizeof(float));
-                size = hlq.xtiles*hlq.ytiles;
-                READ_OR_RETURN(liquid->GetFlagsStorage(), size);
-            }
-
-            groupsArray.push_back(GroupModel(mogpflags, GroupWMOID, AABox(Vector3(bbox1), Vector3(bbox2))));
-            groupsArray.back().setMeshData(vertexArray, triangles);
-            groupsArray.back().setLiquidData(liquid);
-
-            // drop of temporary use defines
-            #undef READ_OR_RETURN
-            #undef READ_OR_RETURN_WITH_DELETE
-            #undef CMP_OR_RETURN
-
-        }
         fclose(rf);
-
-        // write WorldModel
-        WorldModel model;
-        model.setRootWmoID(RootWMOID);
-        if (!groupsArray.empty())
-        {
-            model.setGroupModels(groupsArray);
-
-            std::string worldModelFileName(iDestDir);
-            worldModelFileName.push_back('/');
-            worldModelFileName.append(pModelFilename).append(".vmo");
-            success = model.writeFile(worldModelFileName);
-        }
-
-        //std::cout << "readRawFile2: '" << pModelFilename << "' tris: " << nElements << " nodes: " << nNodes << std::endl;
-        return success;
+        return succeed;
     }
+
+    // drop of temporary use defines
+    #undef READ_OR_RETURN
+    #undef CMP_OR_RETURN
 }
