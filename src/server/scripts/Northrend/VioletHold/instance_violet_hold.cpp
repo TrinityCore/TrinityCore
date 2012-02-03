@@ -249,7 +249,7 @@ public:
                     if (uiCountErekemGuards < 2)
                     {
                         uiErekemGuard[uiCountErekemGuards++] = creature->GetGUID();
-                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                        creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                     }
                     break;
                 case CREATURE_MORAGG:
@@ -257,7 +257,7 @@ public:
                     break;
                 case CREATURE_CYANIGOSA:
                     uiCyanigosa = creature->GetGUID();
-                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                     break;
                 case CREATURE_SINCLARI:
                     uiSinclari = creature->GetGUID();
@@ -499,18 +499,18 @@ public:
                     if (Creature* pGuard1 = instance->GetCreature(uiErekemGuard[0]))
                     {
                         if (bForceRespawn)
-                            pGuard1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                            pGuard1->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                         else
-                            pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                            pGuard1->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                         pGuard1->GetMotionMaster()->MovePoint(0, BossStartMove21);
                     }
 
                     if (Creature* pGuard2 = instance->GetCreature(uiErekemGuard[1]))
                     {
                         if (bForceRespawn)
-                            pGuard2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                            pGuard2->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                         else
-                            pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                            pGuard2->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                         pGuard2->GetMotionMaster()->MovePoint(0, BossStartMove22);
                     }
                     break;
@@ -543,7 +543,7 @@ public:
             // generic boss state changes
             if (pBoss)
             {
-                pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                pBoss->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                 pBoss->SetReactState(REACT_AGGRESSIVE);
 
                 if (!bForceRespawn)
@@ -554,7 +554,7 @@ public:
                         pBoss->Respawn();
                         pBoss->RemoveLootMode(1);
                     }
-                    pBoss->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                    pBoss->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                     uiWaveCount = 0;
                 }
             }
@@ -750,7 +750,7 @@ public:
                         case 3:
                             pCyanigosa->RemoveAurasDueToSpell(CYANIGOSA_BLUE_AURA);
                             pCyanigosa->CastSpell(pCyanigosa, CYANIGOSA_SPELL_TRANSFORM, 0);
-                            pCyanigosa->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+                            pCyanigosa->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
                             pCyanigosa->SetReactState(REACT_AGGRESSIVE);
                             uiCyanigosaEventTimer = 2*IN_MILLISECONDS;
                             ++uiCyanigosaEventPhase;
