@@ -116,14 +116,14 @@ void PetAI::UpdateAI(const uint32 diff)
         else
             HandleReturnMovement();
     }
-    else if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW)) // no charm info and no victim
+    else if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW)) // no charm info and no victim
         me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle());
 
     if (!me->GetCharmInfo())
         return;
 
     // Autocast (casted only in combat or persistent spells in any state)
-    if (!me->HasUnitState(UNIT_STAT_CASTING))
+    if (!me->HasUnitState(UNIT_STATE_CASTING))
     {
         typedef std::vector<std::pair<Unit*, Spell*> > TargetSpellList;
         TargetSpellList targetSpellStore;
