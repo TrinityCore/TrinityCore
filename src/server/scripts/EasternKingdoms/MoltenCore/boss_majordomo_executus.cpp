@@ -116,7 +116,7 @@ class boss_majordomo : public CreatureScript
                         return;
                     }
 
-                    if (me->HasUnitState(UNIT_STAT_CASTING))
+                    if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
 
                     if (HealthBelowPct(50))

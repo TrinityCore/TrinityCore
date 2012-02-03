@@ -2342,7 +2342,7 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint8> & targets, Unit* caster)
         {
             float radius = GetSpellInfo()->Effects[effIndex].CalcRadius(caster);
 
-            if (!GetUnitOwner()->HasUnitState(UNIT_STAT_ISOLATED))
+            if (!GetUnitOwner()->HasUnitState(UNIT_STATE_ISOLATED))
             {
                 switch (GetSpellInfo()->Effects[effIndex].Effect)
                 {

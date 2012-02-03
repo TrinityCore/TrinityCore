@@ -82,7 +82,7 @@ public:
                 summoned->CastSpell(summoned, SPELL_FOCUS_FIRE_VISUAL, false);
                 summoned->setFaction(me->getFaction());
                 summoned->SetLevel(me->getLevel());
-                summoned->AddUnitState(UNIT_STAT_ROOT);
+                summoned->AddUnitState(UNIT_STATE_ROOT);
 
                 if (Unit* pFocusedTarget = Unit::GetUnit(*me, FocusedTargetGUID))
                     summoned->AI()->AttackStart(pFocusedTarget);

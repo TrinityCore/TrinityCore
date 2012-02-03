@@ -71,7 +71,7 @@ void ConfusedMovementGenerator<T>::Initialize(T &unit)
 
     unit.StopMoving();
     unit.SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.AddUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.AddUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<>
@@ -94,19 +94,19 @@ void ConfusedMovementGenerator<T>::Reset(T &unit)
     i_nextMove = 1;
     i_nextMoveTime.Reset(0);
     unit.StopMoving();
-    unit.AddUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.AddUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<class T>
 bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
 {
-    if (unit.HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED))
+    if (unit.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return true;
 
     if (i_nextMoveTime.Passed())
     {
         // currently moving, update location
-        unit.AddUnitState(UNIT_STAT_CONFUSED_MOVE);
+        unit.AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
         if (unit.movespline->Finalized())
         {
@@ -121,7 +121,7 @@ bool ConfusedMovementGenerator<T>::Update(T &unit, const uint32 &diff)
         if(i_nextMoveTime.Passed() )
         {
             // start moving
-            unit.AddUnitState(UNIT_STAT_CONFUSED_MOVE);
+            unit.AddUnitState(UNIT_STATE_CONFUSED_MOVE);
 
             ASSERT( i_nextMove <= MAX_CONF_WAYPOINTS );
             float x = i_waypoints[i_nextMove][0];
@@ -141,14 +141,14 @@ template<>
 void ConfusedMovementGenerator<Player>::Finalize(Player &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.ClearUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
 }
 
 template<>
 void ConfusedMovementGenerator<Creature>::Finalize(Creature &unit)
 {
     unit.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
-    unit.ClearUnitState(UNIT_STAT_CONFUSED|UNIT_STAT_CONFUSED_MOVE);
+    unit.ClearUnitState(UNIT_STATE_CONFUSED|UNIT_STATE_CONFUSED_MOVE);
     if (unit.getVictim())
         unit.SetTarget(unit.getVictim()->GetGUID());
 }

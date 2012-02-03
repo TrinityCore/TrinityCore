@@ -79,8 +79,8 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
         void Reset(T &);
         void MovementInform(T &);
 
-        static void _clearUnitStateMove(T &u) { u.ClearUnitState(UNIT_STAT_CHASE_MOVE); }
-        static void _addUnitStateMove(T &u)  { u.AddUnitState(UNIT_STAT_CHASE_MOVE); }
+        static void _clearUnitStateMove(T &u) { u.ClearUnitState(UNIT_STATE_CHASE_MOVE); }
+        static void _addUnitStateMove(T &u)  { u.AddUnitState(UNIT_STATE_CHASE_MOVE); }
         bool EnableWalking() const { return false;}
         bool _lostTarget(T &u) const { return u.getVictim() != this->GetTarget(); }
         void _reachTarget(T &);
@@ -103,8 +103,8 @@ class FollowMovementGenerator : public TargetedMovementGeneratorMedium<T, Follow
         void Reset(T &);
         void MovementInform(T &);
 
-        static void _clearUnitStateMove(T &u) { u.ClearUnitState(UNIT_STAT_FOLLOW_MOVE); }
-        static void _addUnitStateMove(T &u)  { u.AddUnitState(UNIT_STAT_FOLLOW_MOVE); }
+        static void _clearUnitStateMove(T &u) { u.ClearUnitState(UNIT_STATE_FOLLOW_MOVE); }
+        static void _addUnitStateMove(T &u)  { u.AddUnitState(UNIT_STATE_FOLLOW_MOVE); }
         bool EnableWalking() const;
         bool _lostTarget(T &) const { return false; }
         void _reachTarget(T &) {}
