@@ -1855,7 +1855,7 @@ bool Aura::CanStackWith(Aura const* existingAura) const
                 case SPELL_AURA_OBS_MOD_HEALTH:
                 case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
                     // periodic auras which target areas are not allowed to stack this way (replenishment for example)
-                    if (m_spellInfo->Effects[i].IsArea() || existingSpellInfo->Effects[i].IsArea())
+                    if (m_spellInfo->Effects[i].IsTargetingArea() || existingSpellInfo->Effects[i].IsTargetingArea())
                         break;
                     return true;
                 default:

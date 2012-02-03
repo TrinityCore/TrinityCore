@@ -5401,7 +5401,7 @@ SpellCastResult Spell::CheckCast(bool strict)
             }
             case SPELL_AURA_PERIODIC_MANA_LEECH:
             {
-                if (m_spellInfo->Effects[i].IsArea())
+                if (m_spellInfo->Effects[i].IsTargetingArea())
                     break;
 
                 if (!m_targets.GetUnitTarget())
@@ -6630,7 +6630,7 @@ void Spell::HandleLaunchPhase()
             continue;
 
         // do not consume ammo anymore for Hunter's volley spell
-        if (IsTriggered() && m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->IsAOE())
+        if (IsTriggered() && m_spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && m_spellInfo->IsTargetingArea())
             usesAmmo = false;
 
         if (usesAmmo)
@@ -6681,7 +6681,7 @@ void Spell::DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier)
 
             if (m_damage > 0)
             {
-                if (m_spellInfo->Effects[i].IsArea())
+                if (m_spellInfo->Effects[i].IsTargetingArea())
                 {
                     m_damage = int32(float(m_damage) * unit->GetTotalAuraMultiplierByMiscMask(SPELL_AURA_MOD_AOE_DAMAGE_AVOIDANCE, m_spellInfo->SchoolMask));
                     if (m_caster->GetTypeId() == TYPEID_UNIT)

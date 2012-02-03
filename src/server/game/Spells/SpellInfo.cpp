@@ -503,7 +503,7 @@ bool SpellEffectInfo::IsAura(AuraType aura) const
     return IsAura() && ApplyAuraName == aura;
 }
 
-bool SpellEffectInfo::IsArea() const
+bool SpellEffectInfo::IsTargetingArea() const
 {
     return TargetA.IsArea() || TargetB.IsArea();
 }
@@ -1061,10 +1061,19 @@ bool SpellInfo::IsAbilityOfSkillType(uint32 skillType) const
     return false;
 }
 
-bool SpellInfo::IsAOE() const
+bool SpellInfo::IsAffectingArea() const
 {
     for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        if (Effects[i].IsEffect() && Effects[i].IsArea())
+        if (Effects[i].IsEffect() && (Effects[i].IsTargetingArea() || Effects[i].IsEffect(SPELL_EFFECT_PERSISTENT_AREA_AURA) || Effects[i].IsAreaAuraEffect()))
+            return true;
+    return false;
+}
+
+// checks if spell targets are selected from area, doesn't include spell effects in check (like area wide auras for example)
+bool SpellInfo::IsTargetingArea() const
+{
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+        if (Effects[i].IsEffect() && Effects[i].IsTargetingArea())
             return true;
     return false;
 }
