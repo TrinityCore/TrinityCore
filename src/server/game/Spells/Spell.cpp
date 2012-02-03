@@ -4897,9 +4897,9 @@ SpellCastResult Spell::CheckCast(bool strict)
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
                         return SPELL_FAILED_DONT_REPORT;
 
-                    Unit* target = m_targets.GetUnitTarget();
+                    /*Unit* target = m_targets.GetUnitTarget();
                     if (!target || !target->IsFriendlyTo(m_caster) || target->getAttackers().empty())
-                        return SPELL_FAILED_BAD_TARGETS;
+                        return SPELL_FAILED_BAD_TARGETS;*/
 
                 }
                 break;
