@@ -30,7 +30,10 @@
 #include "CreatureAISelector.h"
 #include "Group.h"
 
-GameObject::GameObject() : WorldObject(false), m_goValue(new GameObjectValue), m_AI(NULL)
+#include "GameobjectModel.h"
+#include "DynamicTree.h"
+
+GameObject::GameObject() : WorldObject(false), m_goValue(new GameObjectValue), m_AI(NULL), m_model(NULL)
 {
     m_objectType |= TYPEMASK_GAMEOBJECT;
     m_objectTypeId = TYPEID_GAMEOBJECT;
@@ -62,6 +65,7 @@ GameObject::~GameObject()
 {
     delete m_goValue;
     delete m_AI;
+    delete m_model;
     //if (m_uint32Values)                                      // field array can be not exist if GameOBject not loaded
     //    CleanupsBeforeDelete();
 }
@@ -127,6 +131,8 @@ void GameObject::AddToWorld()
             m_zoneScript->OnGameObjectCreate(this);
 
         sObjectAccessor->AddObject(this);
+        if (m_model)
+            GetMap()->Insert(*m_model);
         WorldObject::AddToWorld();
     }
 }
@@ -140,6 +146,9 @@ void GameObject::RemoveFromWorld()
             m_zoneScript->OnGameObjectRemove(this);
 
         RemoveFromOwner();
+        if (m_model)
+            if (GetMap()->Contains(*m_model)) // Its possible that it was already removed when the object was activated, and it has not been yet added back
+                GetMap()->Remove(*m_model);
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -199,7 +208,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     // set name for logs usage, doesn't affect anything ingame
     SetName(goinfo->name);
 
-    SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
+    SetDisplayId(goinfo->displayId);
 
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
     SetGoState(go_state);
@@ -207,6 +216,8 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     SetGoArtKit(0);                                         // unknown what this is
     SetByteValue(GAMEOBJECT_BYTES_1, 2, artKit);
+    
+    m_model = ModelInstance_Overriden::construct(*this);
 
     switch (goinfo->type)
     {
@@ -1779,7 +1790,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
     {
         case GO_DESTRUCTIBLE_INTACT:
             RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_DESTROYED);
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, m_goInfo->displayId);
+            SetDisplayId(m_goInfo->displayId);
             if (setHealth)
             {
                 m_goValue->Building.Health = m_goValue->Building.MaxHealth;
@@ -1801,7 +1812,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DamagedDisplayId)
                     modelId = modelData->DamagedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+            SetDisplayId(modelId);
 
             if (setHealth)
             {
@@ -1834,7 +1845,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->DestroyedDisplayId)
                     modelId = modelData->DestroyedDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+            SetDisplayId(modelId);
 
             if (setHealth)
             {
@@ -1852,7 +1863,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
             if (DestructibleModelDataEntry const* modelData = sDestructibleModelDataStore.LookupEntry(m_goInfo->building.destructibleData))
                 if (modelData->RebuildingDisplayId)
                     modelId = modelData->RebuildingDisplayId;
-            SetUInt32Value(GAMEOBJECT_DISPLAYID, modelId);
+            SetDisplayId(modelId);
 
             // restores to full health
             if (setHealth)
@@ -1869,4 +1880,41 @@ void GameObject::SetLootState(LootState s, Unit* unit)
 {
     m_lootState = s;
     AI()->OnStateChanged(s, unit);
+    if (m_model)
+    {
+        if (s == GO_ACTIVATED)
+            GetMap()->Remove(*m_model); // Remove from the LoS checks when activated, for example, doors
+        else if (s == GO_READY)
+            GetMap()->Insert(*m_model); // Insert for LoS checks on reset
+    }
+}
+
+void GameObject::SetDisplayId(uint32 displayid)
+{
+    SetUInt32Value(GAMEOBJECT_DISPLAYID, displayid);
+    UpdateModel();
+}
+
+void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
+{
+    WorldObject::SetPhaseMask(newPhaseMask, update);
+    EnableCollision(true);
+}
+
+void GameObject::EnableCollision(bool enable)
+{
+    if (m_model)
+        m_model->enable(enable ? GetPhaseMask() : 0);
+}
+
+void GameObject::UpdateModel()
+{
+    if (!IsInWorld())
+        return;
+    if (m_model)
+        GetMap()->Remove(*m_model);
+    delete m_model;
+    m_model = ModelInstance_Overriden::construct(*this);
+    if (m_model)
+        GetMap()->Insert(*m_model);
 }
