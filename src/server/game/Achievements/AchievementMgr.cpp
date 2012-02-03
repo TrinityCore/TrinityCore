@@ -1179,7 +1179,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                 SetCriteriaProgress(achievementCriteria, miscValue2, PROGRESS_ACCUMULATE);
                 break;
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA:
-                // miscvalue1 contains the personal rating
                 if (!miscValue1)                            // no update at login
                     continue;
 

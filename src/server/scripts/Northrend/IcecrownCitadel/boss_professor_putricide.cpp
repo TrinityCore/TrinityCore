@@ -196,7 +196,7 @@ class boss_professor_putricide : public CreatureScript
                     me->GetMotionMaster()->MovementExpired();
 
                 if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void EnterCombat(Unit* who)
@@ -523,7 +523,7 @@ class boss_professor_putricide : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -800,7 +800,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
 
             void StartAttack()
             {
-                GetCaster()->ClearUnitState(UNIT_STAT_CASTING);
+                GetCaster()->ClearUnitState(UNIT_STATE_CASTING);
                 GetCaster()->ToCreature()->AI()->AttackStart(GetHitUnit());
             }
 
