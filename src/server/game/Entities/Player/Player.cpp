@@ -2314,14 +2314,9 @@ bool Player::TeleportToBGEntryPoint()
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)
         return false;
 
-    Group* group = GetGroup();
-    if (group && group->isLFGGroup() && group->GetMembersCount() == 1)
-        group->Disband();
-    else
-        ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
-
     ScheduleDelayedOperation(DELAYED_BG_MOUNT_RESTORE);
     ScheduleDelayedOperation(DELAYED_BG_TAXI_RESTORE);
+    ScheduleDelayedOperation(DELAYED_BG_GROUP_RESTORE);
     return TeleportTo(m_bgData.joinPos);
 }
 
@@ -12043,7 +12038,7 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
 
         lastItem = _StoreItem(pos, pItem, count, true, update);
     }
-    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, entry);
+    GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_OWN_ITEM, entry, 1);
     return lastItem;
 }
 
@@ -14328,7 +14323,7 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
             break;
         case GOSSIP_OPTION_UNLEARNTALENTS:
             PlayerTalkClass->SendCloseGossip();
-            source->ToCreature()->CastSpell(this, 46331, true); // Trainer: Untrain Talents
+            SendTalentWipeConfirm(guid);
             break;
         case GOSSIP_OPTION_UNLEARNPETTALENTS:
             PlayerTalkClass->SendCloseGossip();
@@ -14829,7 +14824,9 @@ bool Player::CanRewardQuest(Quest const* quest, uint32 reward, bool msg)
 void Player::AddQuest(Quest const* quest, Object* questGiver)
 {
     uint16 log_slot = FindQuestSlot(0);
-    ASSERT(log_slot < MAX_QUEST_LOG_SIZE);
+
+    if (log_slot >= MAX_QUEST_LOG_SIZE) // Player does not have any free slot in the quest log
+        return; 
 
     uint32 quest_id = quest->GetQuestId();
 
