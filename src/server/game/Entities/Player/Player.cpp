@@ -1562,7 +1562,7 @@ void Player::Update(uint32 p_time)
 
     GetAchievementMgr().UpdateTimedAchievements(p_time);
 
-    if (HasUnitState(UNIT_STAT_MELEE_ATTACKING) && !HasUnitState(UNIT_STAT_CASTING))
+    if (HasUnitState(UNIT_STATE_MELEE_ATTACKING) && !HasUnitState(UNIT_STATE_CASTING))
     {
         if (Unit* pVictim = getVictim())
         {
@@ -11519,7 +11519,7 @@ InventoryResult Player::CanEquipItem(uint8 slot, uint16 &dest, Item* pItem, bool
             {
                 // May be here should be more stronger checks; STUNNED checked
                 // ROOT, CONFUSED, DISTRACTED, FLEEING this needs to be checked.
-                if (HasUnitState(UNIT_STAT_STUNNED))
+                if (HasUnitState(UNIT_STATE_STUNNED))
                     return EQUIP_ERR_YOU_ARE_STUNNED;
 
                 // do not allow equipping gear except weapons, offhands, projectiles, relics in
@@ -20385,7 +20385,7 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
         return false;
 
     // not let cheating with start flight in time of logout process || while in combat || has type state: stunned || has type state: root
-    if (GetSession()->isLogingOut() || isInCombat() || HasUnitState(UNIT_STAT_STUNNED) || HasUnitState(UNIT_STAT_ROOT))
+    if (GetSession()->isLogingOut() || isInCombat() || HasUnitState(UNIT_STATE_STUNNED) || HasUnitState(UNIT_STATE_ROOT))
     {
         WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
         data << uint32(ERR_TAXIPLAYERBUSY);
@@ -21666,7 +21666,7 @@ void Player::SendInitialVisiblePackets(Unit* target)
     SendAurasForTarget(target);
     if (target->isAlive())
     {
-        if (target->HasUnitState(UNIT_STAT_MELEE_ATTACKING) && target->getVictim())
+        if (target->HasUnitState(UNIT_STATE_MELEE_ATTACKING) && target->getVictim())
             target->SendMeleeAttackStart(target->getVictim());
     }
 }

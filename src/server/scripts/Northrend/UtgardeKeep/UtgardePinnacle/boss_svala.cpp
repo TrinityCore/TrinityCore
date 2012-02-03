@@ -535,7 +535,7 @@ public:
         
         void UpdateAI(const uint32 diff)
         {
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (paralyzeTimer <= diff)
@@ -663,7 +663,7 @@ class npc_scourge_hulk : public CreatureScript
                 if (mightyBlow <= diff)
                 {
                     if (Unit* victim = me->getVictim())
-                        if (!victim->HasUnitState(UNIT_STAT_STUNNED))    // Prevent knocking back a ritual player
+                        if (!victim->HasUnitState(UNIT_STATE_STUNNED))    // Prevent knocking back a ritual player
                             DoCast(victim, SPELL_MIGHTY_BLOW);
                     mightyBlow = urand(12000, 17000);
                 }
