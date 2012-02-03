@@ -948,7 +948,7 @@ class spell_putricide_ooze_summon : public SpellScriptLoader
                     uint32 triggerSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
                     float x, y, z;
                     GetTarget()->GetPosition(x, y, z);
-                    z = GetTarget()->GetMap()->GetHeight(x, y, z, true, 25.0f);
+                    z = GetTarget()->GetMap()->GetHeight(GetTarget()->GetPhaseMask(), x, y, z, true, 25.0f);
                     x += 10.0f * cosf(caster->GetOrientation());
                     y += 10.0f * sinf(caster->GetOrientation());
                     caster->CastSpell(x, y, z, triggerSpellId, true, NULL, NULL, GetCasterGUID());
