@@ -1536,6 +1536,8 @@ class Unit : public WorldObject
 
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const;
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
+        bool HasBreakableByDamageAuraType(AuraType type) const;
+        bool HasBreakableByDamageCrowdControlAura() const;
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
