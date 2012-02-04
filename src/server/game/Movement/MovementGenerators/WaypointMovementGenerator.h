@@ -35,7 +35,6 @@
 #include <set>
 
 #define FLIGHT_TRAVEL_UPDATE  100
-#define STOP_TIME_FOR_PLAYER  3 * MINUTE * IN_MILLISECONDS           // 3 Minutes
 #define TIMEDIFF_NEXT_WP      250
 
 template<class T, class P>
@@ -74,14 +73,12 @@ public PathMovementBase<Creature, WaypointPath const*>
 
         MovementGeneratorType GetMovementGeneratorType() { return WAYPOINT_MOTION_TYPE; }
 
-        // now path movement implmementation
         void LoadPath(Creature &c);
-
         bool GetResetPosition(Creature&, float& x, float& y, float& z);
 
-    private:
+        void StopMovement(uint32 time) { i_nextMoveTime.Reset(time); }
 
-        void Stop(int32 time) { i_nextMoveTime.Reset(time);}
+    private:
 
         bool Stopped() { return !i_nextMoveTime.Passed();}
 

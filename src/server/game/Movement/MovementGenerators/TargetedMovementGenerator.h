@@ -79,8 +79,6 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
         void Reset(T &);
         void MovementInform(T &);
 
-        static void _clearUnitStateMove(T &u) { u.ClearUnitState(UNIT_STATE_CHASE_MOVE); }
-        static void _addUnitStateMove(T &u)  { u.AddUnitState(UNIT_STATE_CHASE_MOVE); }
         bool EnableWalking() const { return false;}
         bool _lostTarget(T &u) const { return u.getVictim() != this->GetTarget(); }
         void _reachTarget(T &);

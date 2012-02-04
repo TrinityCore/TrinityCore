@@ -334,10 +334,6 @@ class boss_drakkari_elemental : public CreatureScript
                         {
                             damage = 0;
 
-                            // to prevent spell spaming
-                            if (me->HasUnitState(UNIT_STATE_CHARGING))
-                                return;
-
                             // not sure about this, the idea of this code is to prevent bug the elemental
                             // if it is not in a acceptable distance to cast the charge spell.
                             /*if (me->GetDistance(colossus) > 80.0f)

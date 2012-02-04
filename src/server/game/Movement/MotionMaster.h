@@ -178,6 +178,8 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void propagateSpeedChange();
 
         bool GetDestination(float &x, float &y, float &z);
+
+        void StopMovement(uint32 time = 3 * MINUTE * IN_MILLISECONDS);
     private:
         void Mutate(MovementGenerator *m, MovementSlot slot);                  // use Move* functions instead
 

@@ -634,3 +634,9 @@ bool MotionMaster::GetDestination(float &x, float &y, float &z)
     z = dest.z;
     return true;
 }
+
+void MotionMaster::StopMovement(uint32 time /*= 3 * MINUTE * IN_MILLISECONDS*/)
+{
+    i_owner->StopMoving();
+    top()->StopMovement(time);
+}
