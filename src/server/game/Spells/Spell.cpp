@@ -1409,7 +1409,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
     // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
     // disable effects to which unit is immune
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
-        if (effectMask & (1 << effectNumber) && !unit->IsImmunedToSpellEffect(m_spellInfo, effectNumber))
+        if (effectMask & (1 << effectNumber) && unit->IsImmunedToSpellEffect(m_spellInfo, effectNumber))
             effectMask &= ~(1 << effectNumber);
     if (!effectMask || (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo))))
         return SPELL_MISS_IMMUNE;
