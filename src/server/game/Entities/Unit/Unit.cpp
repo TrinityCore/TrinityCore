@@ -3492,17 +3492,25 @@ void Unit::RemoveAuraFromStack(uint32 spellId, uint64 casterGUID, AuraRemoveMode
     }
 }
 
-void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit* dispeller, uint8 chargesRemoved/*= 1*/)
+void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, uint64 casterGUID, Unit* dispeller, uint8 chargesRemoved/*= 1*/)
 {
     for (AuraMap::iterator iter = m_ownedAuras.lower_bound(spellId); iter != m_ownedAuras.upper_bound(spellId);)
     {
         Aura* aura = iter->second;
         if (aura->GetCasterGUID() == casterGUID)
         {
+            DispelInfo dispelInfo(dispeller, dispellerSpellId, chargesRemoved);
+
+            // Call OnDispel hook on AuraScript
+            aura->CallScriptDispel(&dispelInfo);
+
             if (aura->GetSpellInfo()->AttributesEx7 & SPELL_ATTR7_DISPEL_CHARGES)
-                aura->ModCharges(-chargesRemoved, AURA_REMOVE_BY_ENEMY_SPELL);
+                aura->ModCharges(-dispelInfo.GetRemovedCharges(), AURA_REMOVE_BY_ENEMY_SPELL);
             else
-                aura->ModStackAmount(-chargesRemoved, AURA_REMOVE_BY_ENEMY_SPELL);
+                aura->ModStackAmount(-dispelInfo.GetRemovedCharges(), AURA_REMOVE_BY_ENEMY_SPELL);
+
+            // Call AfterDispel hook on AuraScript
+            aura->CallScriptAfterDispel(&dispelInfo);
 
             switch (aura->GetSpellInfo()->SpellFamilyName)
             {
@@ -3532,7 +3540,7 @@ void Unit::RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit
                         {
                             // final heal
                             int32 healAmount = aurEff->GetAmount();
-                            int32 stack = chargesRemoved;
+                            int32 stack = dispelInfo.GetRemovedCharges();
                             CastCustomSpell(this, 33778, &healAmount, &stack, NULL, true, NULL, NULL, aura->GetCasterGUID());
 
                             // mana
