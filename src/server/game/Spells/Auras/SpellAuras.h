@@ -198,6 +198,8 @@ class Aura
         // AuraScript
         void LoadScripts();
         bool CallScriptCheckAreaTargetHandlers(Unit* target);
+        void CallScriptDispel(DispelInfo* dispelInfo);
+        void CallScriptAfterDispel(DispelInfo* dispelInfo);
         bool CallScriptEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         bool CallScriptEffectRemoveHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
         void CallScriptAfterEffectApplyHandlers(AuraEffect const* aurEff, AuraApplication const* aurApp, AuraEffectHandleModes mode);
