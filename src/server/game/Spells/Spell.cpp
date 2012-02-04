@@ -1401,13 +1401,17 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
     }
 }
 
-SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool scaleAura)
+SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleAura)
 {
     if (!unit || !effectMask)
         return SPELL_MISS_EVADE;
 
-    // Recheck immune (only for delayed spells)
-    if (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo)))
+    // For delayed spells immunity may be applied between missile launch and hit - check immunity for that case
+    // disable effects to which unit is immune
+    for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
+        if (effectMask & (1 << effectNumber) && !unit->IsImmunedToSpellEffect(m_spellInfo, effectNumber))
+            effectMask &= ~(1 << effectNumber);
+    if (!effectMask || (m_spellInfo->Speed && (unit->IsImmunedToDamage(m_spellInfo) || unit->IsImmunedToSpell(m_spellInfo))))
         return SPELL_MISS_IMMUNE;
 
     PrepareScriptHitHandlers();
@@ -1562,7 +1566,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, const uint32 effectMask, bool 
     }
 
     for (uint32 effectNumber = 0; effectNumber < MAX_SPELL_EFFECTS; ++effectNumber)
-        if (effectMask & (1 << effectNumber) && !unit->IsImmunedToSpellEffect(m_spellInfo, effectNumber)) //Handle effect only if the target isn't immune.
+        if (effectMask & (1 << effectNumber))
             HandleEffects(unit, NULL, NULL, effectNumber, SPELL_EFFECT_HANDLE_HIT_TARGET);
 
     return SPELL_MISS_NONE;
