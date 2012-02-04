@@ -42,7 +42,6 @@ PetAI::PetAI(Creature* c) : CreatureAI(c), i_tracker(TIME_INTERVAL_LOOK)
 {
     m_AllySet.clear();
     UpdateAllies();
-    targetHasCC = false;
 }
 
 void PetAI::EnterEvadeMode()
@@ -53,9 +52,6 @@ bool PetAI::_needToStop()
 {
     // This is needed for charmed creatures, as once their target was reset other effects can trigger threat
     if (me->isCharmed() && me->getVictim() == me->GetCharmer())
-        return true;
-
-    if (_CheckTargetCC(me->getVictim()) && !targetHasCC)
         return true;
 
     return !me->IsValidAttackTarget(me->getVictim());
@@ -95,13 +91,19 @@ void PetAI::UpdateAI(const uint32 diff)
     // me->getVictim() can't be used for check in case stop fighting, me->getVictim() clear at Unit death etc.
     if (me->getVictim())
     {
+        // is only necessary to stop casting, the pet must not exit combat
+        if (me->getVictim()->HasBreakableByDamageCrowdControlAura())
+        {
+            me->InterruptNonMeleeSpells(false);
+            return;
+        }
+
         if (_needToStop())
         {
             sLog->outStaticDebug("Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
             _stopAttack();
             return;
         }
-        targetHasCC = _CheckTargetCC(me->getVictim());
 
         DoMeleeAttackIfReady();
     }
@@ -293,8 +295,6 @@ void PetAI::AttackStart(Unit* target)
     if (!CanAttack(target))
         return;
 
-    targetHasCC = _CheckTargetCC(target);
-
     if (Unit* owner = me->GetOwner())
         owner->SetInCombatWith(target);
 
@@ -310,22 +310,21 @@ Unit* PetAI::SelectNextTarget()
         return NULL;
 
     Unit* target = me->getAttackerForHelper();
-    targetHasCC = false;
 
     // Check pet's attackers first to prevent dragging mobs back to owner
-    if (target && !_CheckTargetCC(target))
+    if (target && !target->HasBreakableByDamageCrowdControlAura())
         return target;
 
     if (me->GetCharmerOrOwner())
     {
         // Check owner's attackers if pet didn't have any
         target = me->GetCharmerOrOwner()->getAttackerForHelper();
-        if (target && !_CheckTargetCC(target))
+        if (target && !target->HasBreakableByDamageCrowdControlAura())
             return target;
 
         // 3.0.2 - Pets now start attacking their owners target in defensive mode as soon as the hunter does
         target = me->GetCharmerOrOwner()->getVictim();
-        if (target && !_CheckTargetCC(target))
+        if (target && !target->HasBreakableByDamageCrowdControlAura())
             return target;
     }
 
@@ -465,13 +464,5 @@ bool PetAI::CanAttack(Unit* target)
         return true;
 
     // default, though we shouldn't ever get here
-    return false;
-}
-
-bool PetAI::_CheckTargetCC(Unit* target)
-{
-    if (me->GetCharmerOrOwnerGUID() && target->HasNegativeAuraWithAttribute(SPELL_ATTR0_BREAKABLE_BY_DAMAGE, me->GetCharmerOrOwnerGUID()))
-        return true;
-
     return false;
 }

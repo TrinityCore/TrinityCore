@@ -158,6 +158,12 @@ void CasterAI::UpdateAI(const uint32 diff)
 
     events.Update(diff);
 
+    if (me->getVictim()->HasBreakableByDamageCrowdControlAura())
+    {
+        me->InterruptNonMeleeSpells(false);
+        return;
+    }
+
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
