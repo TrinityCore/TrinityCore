@@ -167,10 +167,10 @@ public:
 
 enum eArgentValiant
 {
+    SPELL_THRUST                = 62544,
     SPELL_CHARGE                = 63010,
     SPELL_SHIELD_BREAKER        = 65147,
-
-    NPC_ARGENT_VALIANT_CREDIT   = 24108
+    SPELL_MOUNTED_MELEE_VICTORY = 63049
 };
 
 class npc_argent_valiant : public CreatureScript
@@ -208,7 +208,8 @@ public:
             if (uiDamage > me->GetHealth() && pDoneBy->GetTypeId() == TYPEID_PLAYER)
             {
                 uiDamage = 0;
-                CAST_PLR(pDoneBy)->KilledMonsterCredit(NPC_ARGENT_VALIANT_CREDIT, 0);
+                if (pDoneBy->HasAura(63034))
+                    pDoneBy->CastSpell(pDoneBy,SPELL_MOUNTED_MELEE_VICTORY,true);
                 me->setFaction(35);
                 me->DespawnOrUnsummon(5000);
                 me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -233,7 +234,11 @@ public:
                 uiShieldBreakerTimer = 10000;
             } else uiShieldBreakerTimer -= uiDiff;
 
-            DoMeleeAttackIfReady();
+            if (me->isAttackReady())
+            {
+                DoCast(me->getVictim(), SPELL_THRUST, true);
+                me->resetAttackTimer();
+            }
         }
     };
 
