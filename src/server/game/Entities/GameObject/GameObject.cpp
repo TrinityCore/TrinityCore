@@ -217,7 +217,7 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
     SetGoArtKit(0);                                         // unknown what this is
     SetByteValue(GAMEOBJECT_BYTES_1, 2, artKit);
     
-    m_model = ModelInstance_Overriden::construct(*this);
+    m_model = GameObjectModel::construct(*this);
 
     switch (goinfo->type)
     {
@@ -1936,7 +1936,7 @@ void GameObject::UpdateModel()
         if (GetMap()->Contains(*m_model))
             GetMap()->Remove(*m_model);
     delete m_model;
-    m_model = ModelInstance_Overriden::construct(*this);
+    m_model = GameObjectModel::construct(*this);
     if (m_model)
         GetMap()->Insert(*m_model);
 }

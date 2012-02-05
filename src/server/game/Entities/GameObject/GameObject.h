@@ -609,7 +609,7 @@ enum LootState
 };
 
 class Unit;
-class ModelInstance_Overriden;
+class GameObjectModel;
 
 // 5 sec for bobber catch
 #define FISHING_BOBBER_READY_TIME 5
@@ -796,7 +796,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         std::string GetAIName() const;
         void SetDisplayId(uint32 displayid);
         
-        ModelInstance_Overriden * m_model;
+        GameObjectModel * m_model;
     protected:
         bool AIM_Initialize();
         uint32      m_spellId;

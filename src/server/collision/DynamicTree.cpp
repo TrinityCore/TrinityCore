@@ -29,20 +29,20 @@
 using VMAP::ModelInstance;
 using G3D::Ray;
 
-template<> struct HashTrait< ModelInstance_Overriden>{
-    static size_t hashCode(const ModelInstance_Overriden& g) { return (size_t)(void*)&g; }
+template<> struct HashTrait< GameObjectModel>{
+    static size_t hashCode(const GameObjectModel& g) { return (size_t)(void*)&g; }
 };
 
-template<> struct PositionTrait< ModelInstance_Overriden> {
-    static void getPosition(const ModelInstance_Overriden& g, Vector3& p) { p = g.getPosition(); }
+template<> struct PositionTrait< GameObjectModel> {
+    static void getPosition(const GameObjectModel& g, Vector3& p) { p = g.getPosition(); }
 };
 
-template<> struct BoundsTrait< ModelInstance_Overriden> {
-    static void getBounds(const ModelInstance_Overriden& g, G3D::AABox& out) { out = g.getBounds();}
-    static void getBounds2(const ModelInstance_Overriden* g, G3D::AABox& out) { out = g->getBounds();}
+template<> struct BoundsTrait< GameObjectModel> {
+    static void getBounds(const GameObjectModel& g, G3D::AABox& out) { out = g.getBounds();}
+    static void getBounds2(const GameObjectModel* g, G3D::AABox& out) { out = g->getBounds();}
 };
 
-static bool operator == (const ModelInstance_Overriden& mdl, const ModelInstance_Overriden& mdl2){
+static bool operator == (const GameObjectModel& mdl, const GameObjectModel& mdl2){
     return &mdl == &mdl2;
 }
 
@@ -52,11 +52,11 @@ int valuesPerNode = 5, numMeanSplits = 3;
 int UNBALANCED_TIMES_LIMIT = 5;
 int CHECK_TREE_PERIOD = 200;
 
-typedef RegularGrid2D<ModelInstance_Overriden, BIHWrap<ModelInstance_Overriden> > ParentTree;
+typedef RegularGrid2D<GameObjectModel, BIHWrap<GameObjectModel> > ParentTree;
 
 struct DynTreeImpl : public ParentTree/*, public Intersectable*/
 {
-    typedef ModelInstance_Overriden Model;
+    typedef GameObjectModel Model;
     typedef ParentTree base;
 
     DynTreeImpl() :
@@ -110,17 +110,17 @@ DynamicMapTree::~DynamicMapTree()
     delete &impl;
 }
 
-void DynamicMapTree::insert(const ModelInstance_Overriden& mdl)
+void DynamicMapTree::insert(const GameObjectModel& mdl)
 {
     impl.insert(mdl);
 }
 
-void DynamicMapTree::remove(const ModelInstance_Overriden& mdl)
+void DynamicMapTree::remove(const GameObjectModel& mdl)
 {
     impl.remove(mdl);
 }
 
-bool DynamicMapTree::contains(const ModelInstance_Overriden& mdl) const
+bool DynamicMapTree::contains(const GameObjectModel& mdl) const
 {
     return impl.contains(mdl);
 }
@@ -145,7 +145,7 @@ struct DynamicTreeIntersectionCallback
     bool did_hit;
     uint32 phase_mask;
     DynamicTreeIntersectionCallback(uint32 phasemask) : did_hit(false), phase_mask(phasemask) {}
-    bool operator()(const Ray& r, const ModelInstance_Overriden& obj, float& distance)
+    bool operator()(const Ray& r, const GameObjectModel& obj, float& distance)
     {
         did_hit = obj.intersectRay(r, distance, true, phase_mask);
         return did_hit;
@@ -161,7 +161,7 @@ struct DynamicTreeIntersectionCallback_WithLogger
     {
         sLog->outDebug(LOG_FILTER_MAPS, "Dynamic Intersection log");
     }
-    bool operator()(const Ray& r, const ModelInstance_Overriden& obj, float& distance)
+    bool operator()(const Ray& r, const GameObjectModel& obj, float& distance)
     {
         sLog->outDebug(LOG_FILTER_MAPS, "testing intersection with %s", obj.name.c_str());
         bool hit = obj.intersectRay(r, distance, true, phase_mask);

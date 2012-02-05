@@ -77,13 +77,13 @@ void LoadGameObjectModelList()
     fclose(model_list_file);
 }
 
-ModelInstance_Overriden::~ModelInstance_Overriden()
+GameObjectModel::~GameObjectModel()
 {
     if (iModel)
         ((VMAP::VMapManager2*)VMAP::VMapFactory::createOrGetVMapManager())->releaseModelInstance(name);
 }
 
-bool ModelInstance_Overriden::initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info)
+bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info)
 {
     ModelList::const_iterator it = model_list.find(info.Displayid);
     if (it == model_list.end())
@@ -136,13 +136,13 @@ bool ModelInstance_Overriden::initialize(const GameObject& go, const GameObjectD
     return true;
 }
 
-ModelInstance_Overriden* ModelInstance_Overriden::construct(const GameObject & go)
+GameObjectModel* GameObjectModel::construct(const GameObject& go)
 {
     const GameObjectDisplayInfoEntry* info = sGameObjectDisplayInfoStore.LookupEntry(go.GetGOInfo()->displayId);
     if (!info)
         return NULL;
 
-    ModelInstance_Overriden* mdl = new ModelInstance_Overriden();
+    GameObjectModel* mdl = new GameObjectModel();
     if (!mdl->initialize(go, *info))
     {
         delete mdl;
@@ -152,7 +152,7 @@ ModelInstance_Overriden* ModelInstance_Overriden::construct(const GameObject & g
     return mdl;
 }
 
-bool ModelInstance_Overriden::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const
+bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const
 {
     if (!(phasemask & ph_mask))
         return false;
