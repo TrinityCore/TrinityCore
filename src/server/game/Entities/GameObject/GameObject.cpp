@@ -1922,6 +1922,9 @@ void GameObject::EnableCollision(bool enable)
     if (!m_model)
         return;
     
+    if (enable && !GetMap()->Contains(*m_model))
+        GetMap()->Insert(*m_model);
+
     m_model->enable(enable ? GetPhaseMask() : 0);
 }
 
