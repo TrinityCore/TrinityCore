@@ -516,6 +516,24 @@ bool Unit::HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint
     return false;
 }
 
+bool Unit::HasBreakableByDamageAuraType(AuraType type) const
+{
+    AuraEffectList const& auras = GetAuraEffectsByType(type);
+    for (AuraEffectList::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+        if ((*itr)->GetSpellInfo()->Attributes & SPELL_ATTR0_BREAKABLE_BY_DAMAGE || (*itr)->GetSpellInfo()->AuraInterruptFlags & AURA_INTERRUPT_FLAG_TAKE_DAMAGE)
+            return true;
+    return false;
+}
+
+bool Unit::HasBreakableByDamageCrowdControlAura() const
+{
+    return (   HasBreakableByDamageAuraType(SPELL_AURA_MOD_CONFUSE)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_FEAR)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_STUN)
+            || HasBreakableByDamageAuraType(SPELL_AURA_MOD_ROOT)
+            || HasBreakableByDamageAuraType(SPELL_AURA_TRANSFORM));
+}
+
 void Unit::DealDamageMods(Unit* victim, uint32 &damage, uint32* absorb)
 {
     if (!victim || !victim->isAlive() || victim->HasUnitState(UNIT_STATE_IN_FLIGHT) || (victim->GetTypeId() == TYPEID_UNIT && victim->ToCreature()->IsInEvadeMode()))
