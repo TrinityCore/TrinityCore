@@ -77,13 +77,13 @@ void LoadGameObjectModelList()
     fclose(model_list_file);
 }
 
-ModelInstance_Overriden::~ModelInstance_Overriden()
+GameObjectModel::~GameObjectModel()
 {
-    if (iModel)
+    if (_model)
         ((VMAP::VMapManager2*)VMAP::VMapFactory::createOrGetVMapManager())->releaseModelInstance(name);
 }
 
-bool ModelInstance_Overriden::initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info)
+bool GameObjectModel::Initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info)
 {
     ModelList::const_iterator it = model_list.find(info.Displayid);
     if (it == model_list.end())
@@ -97,34 +97,34 @@ bool ModelInstance_Overriden::initialize(const GameObject& go, const GameObjectD
         return false;
     }
 
-    iModel = ((VMAP::VMapManager2*)VMAP::VMapFactory::createOrGetVMapManager())->acquireModelInstance(sWorld->GetDataPath() + "vmaps/", it->second.name);
+    _model = VMAP::VMapFactory::createOrGetVMapManager()->acquireModelInstance(sWorld->GetDataPath() + "vmaps/", it->second.name);
 
-    if (!iModel)
+    if (!_model)
         return false;
 
     name = it->second.name;
     //flags = VMAP::MOD_M2;
     //adtId = 0;
     //ID = 0;
-    iPos = Vector3(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ());
-    phasemask = go.GetPhaseMask();
-    iScale = go.GetFloatValue(OBJECT_FIELD_SCALE_X);
-    iInvScale = 1.f / iScale;
+    _pos = Vector3(go.GetPositionX(), go.GetPositionY(), go.GetPositionZ());
+    _phasemask = go.GetPhaseMask();
+    _scale = go.GetFloatValue(OBJECT_FIELD_SCALE_X);
+    _invScale = 1.f / _invScale;
 
-    G3D::Matrix3 iRotation = G3D::Matrix3::fromEulerAnglesZYX(go.GetOrientation(), 0, 0);
-    iInvRot = iRotation.inverse();
+    G3D::Matrix3 rotation = G3D::Matrix3::fromEulerAnglesZYX(go.GetOrientation(), 0, 0);
+    _invRotation = rotation.inverse();
     // transform bounding box:
-    mdl_box = AABox(mdl_box.low() * iScale, mdl_box.high() * iScale);
+    mdl_box = AABox(mdl_box.low() * _scale, mdl_box.high() * _scale);
     AABox rotated_bounds;
     for (int i = 0; i < 8; ++i)
-        rotated_bounds.merge(iRotation * mdl_box.corner(i));
+        rotated_bounds.merge(rotation * mdl_box.corner(i));
 
-    this->iBound = rotated_bounds + iPos;
+    _bound = rotated_bounds + _pos;
 #ifdef SPAWN_CORNERS
     // test:
     for (int i = 0; i < 8; ++i)
     {
-        Vector3 pos(iBound.corner(i));
+        Vector3 pos(_bound.corner(i));
         if (Creature* c = const_cast<GameObject&>(go).SummonCreature(24440, pos.x, pos.y, pos.z, 0, TEMPSUMMON_MANUAL_DESPAWN))
         {
             c->setFaction(35);
@@ -136,14 +136,14 @@ bool ModelInstance_Overriden::initialize(const GameObject& go, const GameObjectD
     return true;
 }
 
-ModelInstance_Overriden* ModelInstance_Overriden::construct(const GameObject & go)
+GameObjectModel* GameObjectModel::Create(const GameObject & go)
 {
     const GameObjectDisplayInfoEntry* info = sGameObjectDisplayInfoStore.LookupEntry(go.GetGOInfo()->displayId);
     if (!info)
         return NULL;
 
-    ModelInstance_Overriden* mdl = new ModelInstance_Overriden();
-    if (!mdl->initialize(go, *info))
+    GameObjectModel* mdl = new GameObjectModel();
+    if (!mdl->Initialize(go, *info))
     {
         delete mdl;
         return NULL;
@@ -152,23 +152,23 @@ ModelInstance_Overriden* ModelInstance_Overriden::construct(const GameObject & g
     return mdl;
 }
 
-bool ModelInstance_Overriden::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const
+bool GameObjectModel::intersectRay(const G3D::Ray& ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const
 {
-    if (!(phasemask & ph_mask))
+    if (!(_phasemask & ph_mask))
         return false;
 
-    float time = ray.intersectionTime(iBound);
+    float time = ray.intersectionTime(_bound);
     if (time == G3D::inf())
         return false;
 
     // child bounds are defined in object space:
-    Vector3 p = iInvRot * (ray.origin() - iPos) * iInvScale;
-    Ray modRay(p, iInvRot * ray.direction());
-    float distance = MaxDist * iInvScale;
-    bool hit = iModel->IntersectRay(modRay, distance, StopAtFirstHit);
+    Vector3 p = _invRotation * (ray.origin() - _pos) * _invScale;
+    Ray modRay(p, _invRotation * ray.direction());
+    float distance = MaxDist * _invScale;
+    bool hit = _model->IntersectRay(modRay, distance, StopAtFirstHit);
     if(hit)
     {
-        distance *= iScale;
+        distance *= _scale;
         MaxDist = distance;
     }
     return hit;

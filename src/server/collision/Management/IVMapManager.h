@@ -30,6 +30,7 @@ This is the minimum interface to the VMapMamager.
 
 namespace VMAP
 {
+    class WorldModel;
 
     enum VMAP_LOAD_RESULT
     {
@@ -92,8 +93,11 @@ namespace VMAP
             Query world model area info.
             \param z gets adjusted to the ground height for which this are info is valid
             */
-            virtual bool getAreaInfo(unsigned int pMapId, float x, float y, float &z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const=0;
-            virtual bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float &level, float &floor, uint32 &type) const=0;
+            virtual bool getAreaInfo(unsigned int pMapId, float x, float y, float &z, uint32 &flags, int32 &adtId, int32 &rootId, int32 &groupId) const = 0;
+            virtual bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 ReqLiquidType, float &level, float &floor, uint32 &type) const = 0;
+
+            virtual WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename) = 0;
+            virtual void releaseModelInstance(const std::string& filename) = 0;
     };
 
 }
