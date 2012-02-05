@@ -50,7 +50,6 @@ static bool operator == (const ModelInstance_Overriden& mdl, const ModelInstance
 int valuesPerNode = 5, numMeanSplits = 3;
 
 int UNBALANCED_TIMES_LIMIT = 5;
-int CHECK_TREE_PERIOD = 20000;
 
 typedef RegularGrid2D<ModelInstance_Overriden, BIHWrap<ModelInstance_Overriden> > ParentTree;
 
@@ -59,8 +58,7 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
     typedef ModelInstance_Overriden Model;
     typedef ParentTree base;
 
-    DynTreeImpl() :
-        rebalance_timer(CHECK_TREE_PERIOD),
+    DynTreeImpl() : 
         unbalanced_times(0)
     {
     }
@@ -79,25 +77,15 @@ struct DynTreeImpl : public ParentTree/*, public Intersectable*/
 
     void balance()
     {
-        base::balance();
-        unbalanced_times = 0;
-    }
-
-    void update(uint32 difftime)
-    {
         if (!size())
             return;
 
-        rebalance_timer.Update(difftime);
-        if (rebalance_timer.Passed())
+        if (unbalanced_times > 0)
         {
-            rebalance_timer.Reset(CHECK_TREE_PERIOD);
-            if (unbalanced_times > 0)
-                balance();
+            base::balance();
+            unbalanced_times = 0;
         }
     }
-
-    TimeTrackerSmall rebalance_timer;
     int unbalanced_times;
 };
 
@@ -133,11 +121,6 @@ void DynamicMapTree::balance()
 int DynamicMapTree::size() const
 {
     return impl.size();
-}
-
-void DynamicMapTree::update(uint32 t_diff)
-{
-    impl.update(t_diff);
 }
 
 struct DynamicTreeIntersectionCallback

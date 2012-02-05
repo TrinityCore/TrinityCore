@@ -54,7 +54,6 @@ public:
     int size() const;
 
     void balance();
-    void update(uint32 diff);
 };
 
 #endif // _DYNTREE_H
