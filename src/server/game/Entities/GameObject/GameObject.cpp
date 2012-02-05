@@ -147,7 +147,8 @@ void GameObject::RemoveFromWorld()
 
         RemoveFromOwner();
         if (m_model)
-            GetMap()->Remove(*m_model);
+            if (GetMap()->Contains(*m_model))
+                GetMap()->Remove(*m_model);
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -1918,8 +1919,10 @@ void GameObject::SetPhaseMask(uint32 newPhaseMask, bool update)
 
 void GameObject::EnableCollision(bool enable)
 {
-    if (m_model)
-        m_model->enable(enable ? GetPhaseMask() : 0);
+    if (!m_model)
+        return;
+    
+    m_model->enable(enable ? GetPhaseMask() : 0);
 }
 
 void GameObject::UpdateModel()
@@ -1927,7 +1930,8 @@ void GameObject::UpdateModel()
     if (!IsInWorld())
         return;
     if (m_model)
-        GetMap()->Remove(*m_model);
+        if (GetMap()->Contains(*m_model))
+            GetMap()->Remove(*m_model);
     delete m_model;
     m_model = ModelInstance_Overriden::construct(*this);
     if (m_model)
