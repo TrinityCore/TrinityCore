@@ -1795,7 +1795,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue->Building.Health = m_goValue->Building.MaxHealth;
                 SetGoAnimProgress(255);
             }
-            EnableCollision(true);
             break;
         case GO_DESTRUCTIBLE_DAMAGED:
         {
@@ -1852,7 +1851,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue->Building.Health = 0;
                 SetGoAnimProgress(0);
             }
-            EnableCollision(false);
             break;
         }
         case GO_DESTRUCTIBLE_REBUILDING:
@@ -1872,7 +1870,6 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue->Building.Health = m_goValue->Building.MaxHealth;
                 SetGoAnimProgress(255);
             }
-            EnableCollision(true);
             break;
         }
     }
