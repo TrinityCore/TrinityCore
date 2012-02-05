@@ -1905,18 +1905,23 @@ void ObjectMgr::LoadGameObjectAddon()
             continue;
         }
 
+        GameObjectDataAddon const* addon = GetGameObjectAddonTemplate(guid);
+        if (!addon)
+            return;
+
         GameObjectDataAddon& gameObjectAddon = GameObjectAddonStore[guid];
 
-        gameObjectAddon.path_rotation.x = fields[1].GetUInt32();
-        gameObjectAddon.path_rotation.y = fields[2].GetUInt32();
-        gameObjectAddon.path_rotation.z = fields[3].GetUInt32();
-        gameObjectAddon.path_rotation.w = fields[4].GetUInt32();
+        gameObjectAddon.path_rotation.x = fields[1].GetFloat();
+        gameObjectAddon.path_rotation.y = fields[2].GetFloat();
+        gameObjectAddon.path_rotation.z = fields[3].GetFloat();
+        gameObjectAddon.path_rotation.w = fields[4].GetFloat();
 
         if (!gameObjectAddon.path_rotation.isUnit())
         {
             sLog->outErrorDb("Gameobject (GUID: %u) has invalid path rotation", guid);
-            //const_cast<GameObjectDataAddon*>(gameObjectAddon)->path_rotation = QuaternionData(0.f, 0.f, 0.f, 1.f); TODO: Fix this.
+            const_cast<GameObjectDataAddon*>(addon)->path_rotation = QuaternionData(0.f, 0.f, 0.f, 1.f);
         }
+        ++count;
     }
     while (result->NextRow());
 
