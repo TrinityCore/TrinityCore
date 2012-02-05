@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -55,38 +55,38 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Gnomeregan/gnomeregan.cpp
   EasternKingdoms/Gnomeregan/gnomeregan.h
   EasternKingdoms/redridge_mountains.cpp
-  EasternKingdoms/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
-  EasternKingdoms/BlackrockDepths/boss_gorosh_the_dervish.cpp
-  EasternKingdoms/BlackrockDepths/blackrock_depths.cpp
-  EasternKingdoms/BlackrockDepths/boss_anubshiah.cpp
-  EasternKingdoms/BlackrockDepths/boss_tomb_of_seven.cpp
-  EasternKingdoms/BlackrockDepths/boss_general_angerforge.cpp
-  EasternKingdoms/BlackrockDepths/boss_grizzle.cpp
-  EasternKingdoms/BlackrockDepths/boss_ambassador_flamelash.cpp
-  EasternKingdoms/BlackrockDepths/instance_blackrock_depths.cpp
-  EasternKingdoms/BlackrockDepths/boss_moira_bronzebeard.cpp
-  EasternKingdoms/BlackrockDepths/blackrock_depths.h
-  EasternKingdoms/BlackrockDepths/boss_emperor_dagran_thaurissan.cpp
-  EasternKingdoms/BlackrockDepths/boss_magmus.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_high_interrogator_gerstahn.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_gorosh_the_dervish.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/blackrock_depths.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_anubshiah.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_tomb_of_seven.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_general_angerforge.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_grizzle.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_ambassador_flamelash.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/instance_blackrock_depths.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_moira_bronzebeard.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/blackrock_depths.h
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_emperor_dagran_thaurissan.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockDepths/boss_magmus.cpp
   EasternKingdoms/ironforge.cpp
   EasternKingdoms/ScarletEnclave/chapter2.cpp
   EasternKingdoms/ScarletEnclave/chapter5.cpp
   EasternKingdoms/ScarletEnclave/chapter1.cpp
   EasternKingdoms/ScarletEnclave/the_scarlet_enclave.cpp
   EasternKingdoms/eastern_plaguelands.cpp
-  EasternKingdoms/MoltenCore/boss_gehennas.cpp
-  EasternKingdoms/MoltenCore/boss_lucifron.cpp
-  EasternKingdoms/MoltenCore/boss_golemagg.cpp
-  EasternKingdoms/MoltenCore/boss_majordomo_executus.cpp
-  EasternKingdoms/MoltenCore/boss_baron_geddon.cpp
-  EasternKingdoms/MoltenCore/boss_ragnaros.cpp
-  EasternKingdoms/MoltenCore/boss_garr.cpp
-  EasternKingdoms/MoltenCore/molten_core.h
-  EasternKingdoms/MoltenCore/instance_molten_core.cpp
-  EasternKingdoms/MoltenCore/boss_sulfuron_harbinger.cpp
-  EasternKingdoms/MoltenCore/boss_magmadar.cpp
-  EasternKingdoms/MoltenCore/molten_core.cpp
-  EasternKingdoms/MoltenCore/boss_shazzrah.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_gehennas.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_lucifron.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_golemagg.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_majordomo_executus.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_baron_geddon.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_ragnaros.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_garr.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/molten_core.h
+  EasternKingdoms/BlackrockMountain/MoltenCore/instance_molten_core.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_sulfuron_harbinger.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_magmadar.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/molten_core.cpp
+  EasternKingdoms/BlackrockMountain/MoltenCore/boss_shazzrah.cpp
   EasternKingdoms/Stratholme/boss_baroness_anastari.cpp
   EasternKingdoms/Stratholme/boss_nerubenkan.cpp
   EasternKingdoms/Stratholme/instance_stratholme.cpp
@@ -118,20 +118,20 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Uldaman/instance_uldaman.cpp
   EasternKingdoms/Uldaman/boss_archaedas.cpp
   EasternKingdoms/swamp_of_sorrows.cpp
-  EasternKingdoms/BlackrockSpire/boss_pyroguard_emberseer.cpp
-  EasternKingdoms/BlackrockSpire/boss_drakkisath.cpp
-  EasternKingdoms/BlackrockSpire/boss_warmaster_voone.cpp
-  EasternKingdoms/BlackrockSpire/boss_mother_smolderweb.cpp
-  EasternKingdoms/BlackrockSpire/boss_quartermaster_zigris.cpp
-  EasternKingdoms/BlackrockSpire/boss_halycon.cpp
-  EasternKingdoms/BlackrockSpire/boss_overlord_wyrmthalak.cpp
-  EasternKingdoms/BlackrockSpire/boss_shadow_hunter_voshgajin.cpp
-  EasternKingdoms/BlackrockSpire/boss_gyth.cpp
-  EasternKingdoms/BlackrockSpire/boss_rend_blackhand.cpp
-  EasternKingdoms/BlackrockSpire/boss_highlord_omokk.cpp
-  EasternKingdoms/BlackrockSpire/boss_the_beast.cpp
-  EasternKingdoms/BlackrockSpire/blackrock_spire.h
-  EasternKingdoms/BlackrockSpire/instance_blackrock_spire.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_pyroguard_emberseer.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_drakkisath.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_warmaster_voone.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_mother_smolderweb.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_quartermaster_zigris.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_halycon.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_overlord_wyrmthalak.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_shadow_hunter_voshgajin.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_gyth.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_rend_blackhand.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_highlord_omokk.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/boss_the_beast.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/blackrock_spire.h
+  EasternKingdoms/BlackrockMountain/BlackrockSpire/instance_blackrock_spire.cpp
   EasternKingdoms/SunwellPlateau/boss_eredar_twins.cpp
   EasternKingdoms/SunwellPlateau/boss_kiljaeden.cpp
   EasternKingdoms/SunwellPlateau/sunwell_plateau.h
@@ -166,16 +166,16 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ShadowfangKeep/instance_shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.h
   EasternKingdoms/burning_steppes.cpp
-  EasternKingdoms/BlackwingLair/boss_chromaggus.cpp
-  EasternKingdoms/BlackwingLair/boss_razorgore.cpp
-  EasternKingdoms/BlackwingLair/boss_firemaw.cpp
-  EasternKingdoms/BlackwingLair/boss_broodlord_lashlayer.cpp
-  EasternKingdoms/BlackwingLair/boss_ebonroc.cpp
-  EasternKingdoms/BlackwingLair/instance_blackwing_lair.cpp
-  EasternKingdoms/BlackwingLair/boss_vaelastrasz.cpp
-  EasternKingdoms/BlackwingLair/boss_nefarian.cpp
-  EasternKingdoms/BlackwingLair/boss_flamegor.cpp
-  EasternKingdoms/BlackwingLair/boss_victor_nefarius.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_chromaggus.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_razorgore.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_firemaw.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_broodlord_lashlayer.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_ebonroc.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/instance_blackwing_lair.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_vaelastrasz.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_nefarian.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_flamegor.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingLair/boss_victor_nefarius.cpp
   EasternKingdoms/blasted_lands.cpp
   EasternKingdoms/stormwind_city.cpp
   EasternKingdoms/ZulAman/boss_halazzi.cpp
@@ -205,6 +205,45 @@ set(scripts_STAT_SRCS
   EasternKingdoms/Karazhan/boss_moroes.cpp
   EasternKingdoms/Karazhan/boss_terestian_illhoof.cpp
   EasternKingdoms/Karazhan/karazhan.h
+  EasternKingdoms/BlackrockMountain/BlackrockCaverns/boss_romogg.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockCaverns/boss_corla.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockCaverns/boss_karsh.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockCaverns/boss_beauty.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockCaverns/boss_obsidius.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockCaverns/instance_blackrock_caverns.cpp
+  EasternKingdoms/BlackrockMountain/BlackrockCaverns/blackrock_caverns.h
+  EasternKingdoms/BlackrockMountain/BlackwingDescent/boss_magmaw.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingDescent/boss_omnotron_defense_system.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingDescent/boss_maloriak.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingDescent/boss_atramedes.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingDescent/boss_chimaeron.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingDescent/boss_nefarian_descent.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingDescent/instance_blackwing_descent.cpp
+  EasternKingdoms/BlackrockMountain/BlackwingDescent/blackwing_descent.h
+  EasternKingdoms/GrimBatol/boss_drahga.cpp
+  EasternKingdoms/GrimBatol/boss_erudax.cpp
+  EasternKingdoms/GrimBatol/boss_throngus.cpp
+  EasternKingdoms/GrimBatol/boss_umbriss.cpp
+  EasternKingdoms/GrimBatol/instance_grim_batol.cpp
+  EasternKingdoms/GrimBatol/grim_batol.h
+  EasternKingdoms/BaradinHold/boss_argaloth.cpp
+  EasternKingdoms/BaradinHold/boss_occuthar.cpp
+  EasternKingdoms/BaradinHold/boss_alizabal.cpp
+  EasternKingdoms/BaradinHold/instance_baradin_hold.cpp
+  EasternKingdoms/BaradinHold/baradin_hold.h
+  EasternKingdoms/BastionOfTwilight/boss_ascendant_council.cpp
+  EasternKingdoms/BastionOfTwilight/boss_double_dragon.cpp
+  EasternKingdoms/BastionOfTwilight/boss_halfus.cpp
+  EasternKingdoms/BastionOfTwilight/boss_chogall.cpp
+  EasternKingdoms/BastionOfTwilight/boss_sinestra.cpp
+  EasternKingdoms/BastionOfTwilight/instance_bastion_of_twilight.cpp
+  EasternKingdoms/BastionOfTwilight/bastion_of_twilight.h
+  EasternKingdoms/ThroneOfTides/boss_nazjar.cpp
+  EasternKingdoms/ThroneOfTides/boss_ulthok.cpp
+  EasternKingdoms/ThroneOfTides/boss_erunak.cpp
+  EasternKingdoms/ThroneOfTides/boss_ozumat.cpp
+  EasternKingdoms/ThroneOfTides/instance_throne_of_tides.cpp
+  EasternKingdoms/ThroneOfTides/throne_of_tides.h
 )
 
 message("  -> Prepared: Eastern Kingdoms")

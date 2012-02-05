@@ -1,4 +1,4 @@
-# Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -66,27 +66,27 @@ set(scripts_STAT_SRCS
   Kalimdor/Maraudon/boss_landslide.cpp
   Kalimdor/Maraudon/boss_celebras_the_cursed.cpp
   Kalimdor/Maraudon/boss_noxxion.cpp
-  Kalimdor/TempleOfAhnQiraj/boss_fankriss.cpp
-  Kalimdor/TempleOfAhnQiraj/boss_huhuran.cpp
-  Kalimdor/TempleOfAhnQiraj/instance_temple_of_ahnqiraj.cpp
-  Kalimdor/TempleOfAhnQiraj/mob_anubisath_sentinel.cpp
-  Kalimdor/TempleOfAhnQiraj/boss_viscidus.cpp
-  Kalimdor/TempleOfAhnQiraj/boss_twinemperors.cpp
-  Kalimdor/TempleOfAhnQiraj/boss_sartura.cpp
-  Kalimdor/TempleOfAhnQiraj/boss_cthun.cpp
-  Kalimdor/TempleOfAhnQiraj/temple_of_ahnqiraj.h
-  Kalimdor/TempleOfAhnQiraj/boss_skeram.cpp
-  Kalimdor/TempleOfAhnQiraj/boss_ouro.cpp
-  Kalimdor/TempleOfAhnQiraj/boss_bug_trio.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_fankriss.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_huhuran.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/instance_temple_of_ahnqiraj.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/mob_anubisath_sentinel.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_viscidus.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_twinemperors.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_sartura.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_cthun.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/temple_of_ahnqiraj.h
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_skeram.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_ouro.cpp
+  Kalimdor/AhnQiraj/TempleOfAhnQiraj/boss_bug_trio.cpp
   Kalimdor/darkshore.cpp
-  Kalimdor/RuinsOfAhnQiraj/boss_buru.cpp
-  Kalimdor/RuinsOfAhnQiraj/instance_ruins_of_ahnqiraj.cpp
-  Kalimdor/RuinsOfAhnQiraj/boss_rajaxx.cpp
-  Kalimdor/RuinsOfAhnQiraj/boss_ossirian.cpp
-  Kalimdor/RuinsOfAhnQiraj/boss_ayamiss.cpp
-  Kalimdor/RuinsOfAhnQiraj/boss_moam.cpp
-  Kalimdor/RuinsOfAhnQiraj/ruins_of_ahnqiraj.h
-  Kalimdor/RuinsOfAhnQiraj/boss_kurinnaxx.cpp
+  Kalimdor/AhnQiraj/RuinsOfAhnQiraj/boss_buru.cpp
+  Kalimdor/AhnQiraj/RuinsOfAhnQiraj/instance_ruins_of_ahnqiraj.cpp
+  Kalimdor/AhnQiraj/RuinsOfAhnQiraj/boss_rajaxx.cpp
+  Kalimdor/AhnQiraj/RuinsOfAhnQiraj/boss_ossirian.cpp
+  Kalimdor/AhnQiraj/RuinsOfAhnQiraj/boss_ayamiss.cpp
+  Kalimdor/AhnQiraj/RuinsOfAhnQiraj/boss_moam.cpp
+  Kalimdor/AhnQiraj/RuinsOfAhnQiraj/ruins_of_ahnqiraj.h
+  Kalimdor/AhnQiraj/RuinsOfAhnQiraj/boss_kurinnaxx.cpp
   Kalimdor/mulgore.cpp
   Kalimdor/bloodmyst_isle.cpp
   Kalimdor/thunder_bluff.cpp
@@ -111,6 +111,39 @@ set(scripts_STAT_SRCS
   Kalimdor/OnyxiasLair/boss_onyxia.cpp
   Kalimdor/OnyxiasLair/onyxias_lair.h
   Kalimdor/OnyxiasLair/instance_onyxias_lair.cpp
+  Kalimdor/Firelands/boss_shannox.cpp
+  Kalimdor/Firelands/boss_rhyolith.cpp
+  Kalimdor/Firelands/boss_bethtilac.cpp
+  Kalimdor/Firelands/boss_alysrazor.cpp
+  Kalimdor/Firelands/boss_baleroc.cpp
+  Kalimdor/Firelands/boss_staghelm.cpp
+  Kalimdor/Firelands/boss_ragnaros_firelands.cpp
+  Kalimdor/Firelands/instance_firelands.cpp
+  Kalimdor/Firelands/firelands.h
+  Kalimdor/HallsOfOrigination/boss_anhuur.cpp
+  Kalimdor/HallsOfOrigination/boss_ptah.cpp
+  Kalimdor/HallsOfOrigination/boss_anraphet.cpp
+  Kalimdor/HallsOfOrigination/boss_isiset.cpp
+  Kalimdor/HallsOfOrigination/boss_ammunae.cpp
+  Kalimdor/HallsOfOrigination/boss_setesh.cpp
+  Kalimdor/HallsOfOrigination/boss_rajh.cpp
+  Kalimdor/HallsOfOrigination/instance_halls_of_origination.cpp
+  Kalimdor/HallsOfOrigination/halls_of_origination.h
+  Kalimdor/Skywall/ThroneOfFourWinds/boss_conclave.cpp
+  Kalimdor/Skywall/ThroneOfFourWinds/boss_alakir.cpp
+  Kalimdor/Skywall/ThroneOfFourWinds/instance_throne_of_four_winds.cpp
+  Kalimdor/Skywall/ThroneOfFourWinds/throne_of_four_winds.h
+  Kalimdor/Skywall/VortexPinnacle/boss_ertan.cpp
+  Kalimdor/Skywall/VortexPinnacle/boss_altairus.cpp
+  Kalimdor/Skywall/VortexPinnacle/boss_asaad.cpp
+  Kalimdor/Skywall/VortexPinnacle/instance_vortex_pinnacle.cpp
+  Kalimdor/Skywall/VortexPinnacle/vortex_pinnacle.h
+  Kalimdor/Tolvir/boss_husam.cpp
+  Kalimdor/Tolvir/boss_barim.cpp
+  Kalimdor/Tolvir/boss_lockmaw.cpp
+  Kalimdor/Tolvir/boss_siamat.cpp
+  Kalimdor/Tolvir/instance_tolvir.cpp
+  Kalimdor/Tolvir/vortex_tolvir.h
 )
 
 message("  -> Prepared: Kalimdor")
