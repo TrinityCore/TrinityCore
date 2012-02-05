@@ -179,7 +179,7 @@ enum BG_AB_Objectives
 #define BG_AB_NotABBGWeekendHonorTicks      260
 #define BG_AB_ABBGWeekendHonorTicks         160
 #define BG_AB_NotABBGWeekendReputationTicks 160
-#define BG_AB_ABBGWeekendReputationTicks    150
+#define BG_AB_ABBGWeekendReputationTicks    120
 
 #define AB_EVENT_START_BATTLE               9158 // Achievement: Let's Get This Done
 

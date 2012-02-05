@@ -217,8 +217,8 @@ enum EYBattlegroundObjectTypes
     BG_EY_OBJECT_MAX                            = 59
 };
 
-#define BG_EY_NotEYWeekendHonorTicks    330
-#define BG_EY_EYWeekendHonorTicks       200
+#define BG_EY_NotEYWeekendHonorTicks    260
+#define BG_EY_EYWeekendHonorTicks       160
 
 #define EY_EVENT_START_BATTLE           13180 // Achievement: Flurry
 
