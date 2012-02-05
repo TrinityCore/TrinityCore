@@ -4870,8 +4870,8 @@ bool Unit::HandleHasteAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 13877:
                 case 33735:
                 {
-                    target = SelectNearbyTarget();
-                    if (!target || target == victim)
+                    target = SelectNearbyTarget(victim);
+                    if (!target)
                         return false;
                     basepoints0 = damage;
                     triggered_spell_id = 22482;
@@ -5018,7 +5018,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 case 18765:
                 case 35429:
                 {
-                    target = SelectNearbyTarget();
+                    target = SelectNearbyTarget(victim);
                     if (!target)
                         return false;
 
@@ -5738,7 +5738,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 // Sweeping Strikes
                 case 12328:
                 {
-                    target = SelectNearbyTarget();
+                    target = SelectNearbyTarget(victim);
                     if (!target)
                         return false;
 
@@ -5814,12 +5814,12 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 if (!victim || !victim->isAlive() || !procSpell)
                     return false;
 
-                target = SelectNearbyTarget();
-                if (!target || target == victim)
+                target = SelectNearbyTarget(victim);
+                if (!target)
                     return false;
 
-                CastSpell(target, 58567, true);
-                return true;
+                triggered_spell_id = 58567;
+                break;
             }
             break;
         }
@@ -14780,7 +14780,7 @@ void Unit::UpdateReactives(uint32 p_time)
     }
 }
 
-Unit* Unit::SelectNearbyTarget(float dist) const
+Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
 {
     std::list<Unit*> targets;
     Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, dist);
@@ -14790,6 +14790,9 @@ Unit* Unit::SelectNearbyTarget(float dist) const
     // remove current target
     if (getVictim())
         targets.remove(getVictim());
+        
+    if (exclude)
+        targets.remove(exclude);
 
     // remove not LoS targets
     for (std::list<Unit*>::iterator tIter = targets.begin(); tIter != targets.end();)
