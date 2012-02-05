@@ -131,7 +131,7 @@ void GameObject::AddToWorld()
             m_zoneScript->OnGameObjectCreate(this);
 
         sObjectAccessor->AddObject(this);
-        if (m_model)
+        if (m_model && (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? !GetGOInfo()->door.startOpen : true))
             GetMap()->Insert(*m_model);
         WorldObject::AddToWorld();
     }
@@ -147,8 +147,7 @@ void GameObject::RemoveFromWorld()
 
         RemoveFromOwner();
         if (m_model)
-            if (GetMap()->Contains(*m_model)) // Its possible that it was already removed when the object was activated, and it has not been yet added back
-                GetMap()->Remove(*m_model);
+            GetMap()->Remove(*m_model);
         WorldObject::RemoveFromWorld();
         sObjectAccessor->RemoveObject(this);
     }
@@ -1796,6 +1795,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue->Building.Health = m_goValue->Building.MaxHealth;
                 SetGoAnimProgress(255);
             }
+            EnableCollision(true);
             break;
         case GO_DESTRUCTIBLE_DAMAGED:
         {
@@ -1852,6 +1852,7 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue->Building.Health = 0;
                 SetGoAnimProgress(0);
             }
+            EnableCollision(false);
             break;
         }
         case GO_DESTRUCTIBLE_REBUILDING:
@@ -1871,21 +1872,38 @@ void GameObject::SetDestructibleState(GameObjectDestructibleState state, Player*
                 m_goValue->Building.Health = m_goValue->Building.MaxHealth;
                 SetGoAnimProgress(255);
             }
+            EnableCollision(true);
             break;
         }
     }
 }
 
-void GameObject::SetLootState(LootState s, Unit* unit)
+void GameObject::SetLootState(LootState state, Unit* unit)
 {
-    m_lootState = s;
-    AI()->OnStateChanged(s, unit);
+    m_lootState = state;
+    AI()->OnStateChanged(state, unit);
     if (m_model)
     {
-        if (s == GO_ACTIVATED)
-            GetMap()->Remove(*m_model); // Remove from the LoS checks when activated, for example, doors
+        // startOpen determines whether we are going to add or remove the LoS on activation
+        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
+        if (state == GO_ACTIVATED)
+            EnableCollision(startOpen);
         else if (s == GO_READY)
-            GetMap()->Insert(*m_model); // Insert for LoS checks on reset
+            EnableCollision(!startOpen);
+    }
+}
+
+void GameObject::SetGoState(GOState state)
+{
+    SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+    if (m_model)
+    {
+        // startOpen determines whether we are going to add or remove the LoS on activation
+        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
+        if (state == GO_STATE_ACTIVE)
+            EnableCollision(startOpen);
+        else if (s == GO_STATE_READY)
+            EnableCollision(!startOpen);
     }
 }
 

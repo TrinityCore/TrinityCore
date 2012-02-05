@@ -83,7 +83,7 @@ ModelInstance_Overriden::~ModelInstance_Overriden()
         ((VMAP::VMapManager2*)VMAP::VMapFactory::createOrGetVMapManager())->releaseModelInstance(name);
 }
 
-bool ModelInstance_Overriden::initialize(const GameObject & go, const GameObjectDisplayInfoEntry& info)
+bool ModelInstance_Overriden::initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info)
 {
     ModelList::const_iterator it = model_list.find(info.Displayid);
     if (it == model_list.end())

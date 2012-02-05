@@ -40,10 +40,10 @@ public:
     typedef G3D::Table<const T*, Node*> MemberTable;
 
     MemberTable memberTable;
-    Node * nodes[CELL_NUMBER][CELL_NUMBER];
+    Node* nodes[CELL_NUMBER][CELL_NUMBER];
 
     RegularGrid2D(){
-        memset(nodes, 0, sizeof nodes);
+        memset(nodes, 0, sizeof(nodes));
     }
 
     ~RegularGrid2D(){
@@ -72,12 +72,12 @@ public:
     {
         for (int x = 0; x < CELL_NUMBER; ++x)
             for (int y = 0; y < CELL_NUMBER; ++y)
-                if (Node * n = nodes[x][y])
+                if (Node* n = nodes[x][y])
                     n->balance();
     }
 
-    bool contains(const T& value) const { return memberTable.containsKey(&value);}
-    int size() const { return memberTable.size();}
+    bool contains(const T& value) const { return memberTable.containsKey(&value); }
+    int size() const { return memberTable.size(); }
 
     struct Cell
     {
@@ -125,7 +125,7 @@ public:
 
         if (cell == last_cell)
         {
-            if (Node * node = nodes[cell.x][cell.y])
+            if (Node* node = nodes[cell.x][cell.y])
                 node->intersectRay(ray, intersectCallback, max_dist);
             return;
         }
@@ -169,7 +169,7 @@ public:
         float tDeltaY = voxel * fabs(ky_inv);
         do
         {
-            if (Node * node = nodes[cell.x][cell.y])
+            if (Node* node = nodes[cell.x][cell.y])
             {
                 //float enterdist = max_dist;
                 node->intersectRay(ray, intersectCallback, max_dist);
@@ -207,7 +207,7 @@ public:
         Cell cell = Cell::ComputeCell(ray.origin().x, ray.origin().y);
         if (!cell.isValid())
             return;
-        if (Node * node = nodes[cell.x][cell.y])
+        if (Node* node = nodes[cell.x][cell.y])
             node->intersectRay(ray, intersectCallback, max_dist);
     }
 };
