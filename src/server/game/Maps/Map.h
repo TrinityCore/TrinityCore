@@ -429,9 +429,9 @@ class Map : public GridRefManager<NGridType>
         float GetHeight(uint32 phasemask, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
         bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
         void Balance() { m_dyn_tree.balance(); }
-        void Remove(const GameObjectModel& mdl) { m_dyn_tree.remove(mdl); }
-        void Insert(const GameObjectModel& mdl) { m_dyn_tree.insert(mdl); }
-        bool Contains(const GameObjectModel& mdl) const { return m_dyn_tree.contains(mdl);}
+        void Remove(const ModelInstance_Overriden& mdl) { m_dyn_tree.remove(mdl); }
+        void Insert(const ModelInstance_Overriden& mdl) { m_dyn_tree.insert(mdl); }
+        bool Contains(const ModelInstance_Overriden& mdl) const { return m_dyn_tree.contains(mdl);}
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);

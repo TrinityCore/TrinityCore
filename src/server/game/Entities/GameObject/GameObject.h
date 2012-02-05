@@ -796,7 +796,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         std::string GetAIName() const;
         void SetDisplayId(uint32 displayid);
         
-        GameObjectModel* m_model;
+        ModelInstance_Overriden * m_model;
     protected:
         bool AIM_Initialize();
         uint32      m_spellId;

@@ -34,36 +34,36 @@ namespace VMAP
 class GameObject;
 struct GameObjectDisplayInfoEntry;
 
-class GameObjectModel /*, public Intersectable*/
+class ModelInstance_Overriden /*, public Intersectable*/
 {
-    uint32 _phasemask;
-    G3D::AABox _bound;
-    G3D::Matrix3 _invRotation;
-    G3D::Vector3 _pos;
+    uint32 phasemask;
+    G3D::AABox iBound;
+    G3D::Matrix3 iInvRot;
+    G3D::Vector3 iPos;
     //G3D::Vector3 iRot;
-    float _invScale;
-    float _scale;
-    VMAP::WorldModel* _model;
+    float iInvScale;
+    float iScale;
+    VMAP::WorldModel* iModel;
 
-    GameObjectModel() : _phasemask(0), _model(NULL) {}
-    bool Initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info);
+    ModelInstance_Overriden() : phasemask(0), iModel(NULL) {}
+    bool initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info);
 
 public:
     std::string name;
 
-    const G3D::AABox& getBounds() const { return _bound; }
+    const G3D::AABox& getBounds() const { return iBound; }
 
-    ~GameObjectModel();
+    ~ModelInstance_Overriden();
 
-    const G3D::Vector3& getPosition() const { return _pos;}
+    const G3D::Vector3& getPosition() const { return iPos;}
 
     /**	Enables\disables collision. */
-    void Disable() { _phasemask = 0;}
-    void Enable(uint32 phasemask) { _phasemask = phasemask;}
+    void disable() { phasemask = 0;}
+    void enable(uint32 ph_mask) { phasemask = ph_mask;}
 
     bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const;
 
-    static GameObjectModel* Create(const GameObject& go);
+    static ModelInstance_Overriden* construct(const GameObject& go);
 };
 
 #endif // _GAMEOBJECT_MODEL_H
