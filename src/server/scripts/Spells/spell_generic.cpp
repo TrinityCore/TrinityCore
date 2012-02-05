@@ -2041,11 +2041,8 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
 
             SpellCastResult CheckIfLanceEquiped()
             {
-                if (GetCaster()->HasAuraType(SPELL_AURA_MOD_SHAPESHIFT))
-                {
-                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_CANT_MOUNT_WITH_SHAPESHIFT);
-                    return SPELL_FAILED_CUSTOM_ERROR;
-                }
+                if (GetCaster()->IsInDisallowedMountForm())
+                    GetCaster()->RemoveAurasByType(SPELL_AURA_MOD_SHAPESHIFT);
 
                 if (!GetCaster()->HasAura(SPELL_LANCE_EQUIPPED))
                 {
