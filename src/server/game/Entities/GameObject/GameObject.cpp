@@ -1885,7 +1885,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
         if (state == GO_ACTIVATED)
             EnableCollision(startOpen);
-        else if (s == GO_READY)
+        else if (state == GO_READY)
             EnableCollision(!startOpen);
     }
 }
@@ -1899,7 +1899,7 @@ void GameObject::SetGoState(GOState state)
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
         if (state == GO_STATE_ACTIVE)
             EnableCollision(startOpen);
-        else if (s == GO_STATE_READY)
+        else if (state == GO_STATE_READY)
             EnableCollision(!startOpen);
     }
 }
