@@ -32,7 +32,7 @@ class instance_baradin_hold : public InstanceMapScript
             // Creatures
             uint64 ArgalothGUID;
             uint64 OccutharGUID;
-            uint64 AlizabalGUID;
+            //uint64 AlizabalGUID; // added in 4.3.0
 
             void Initialize()
             {
@@ -40,7 +40,7 @@ class instance_baradin_hold : public InstanceMapScript
 
                 ArgalothGUID                    = 0;
                 OccutharGUID                    = 0;
-                AlizabalGUID                    = 0;
+                //AlizabalGUID                    = 0;
 
                 memset(Encounter, 0, sizeof(Encounter));
             }
@@ -64,9 +64,9 @@ class instance_baradin_hold : public InstanceMapScript
                     case NPC_OCCUTHAR:
                         OccutharGUID = creature->GetGUID();
                         break;
-                    case NPC_ALIZABAL:
+                    /*case NPC_ALIZABAL:
                         AlizabalGUID = creature->GetGUID();
-                        break;
+                        break;*/
                 }
             }
 
@@ -78,8 +78,8 @@ class instance_baradin_hold : public InstanceMapScript
                         return ArgalothGUID;
                     case BOSS_OCCUTHAR:
                         return OccutharGUID;
-                    case BOSS_ALIZABAL:
-                        return AlizabalGUID;
+                    /*case BOSS_ALIZABAL:
+                        return AlizabalGUID;*/
                 }
 
                 return 0;

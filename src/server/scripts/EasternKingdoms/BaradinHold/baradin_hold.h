@@ -22,9 +22,9 @@ enum BaradinHoldBosses
 {
     BOSS_ARGALOTH               = 0,
     BOSS_OCCUTHAR               = 1,
-    BOSS_ALIZABAL               = 2,
+    //BOSS_ALIZABAL               = 2, // added in 4.3.0
 
-    MAX_ENCOUNTER               = 3,
+    MAX_ENCOUNTER               = 2,
 };
 
 enum BaradinHoldNPCs
@@ -35,8 +35,8 @@ enum BaradinHoldNPCs
     // Occu'thar
     NPC_OCCUTHAR                = 52363,
 
-    // Alizabal
-    NPC_ALIZABAL                = 55869,
+    // Alizabal - added in 4.3.0
+    //NPC_ALIZABAL                = 55869,
 };
 
 #endif
