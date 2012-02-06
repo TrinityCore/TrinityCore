@@ -477,7 +477,7 @@ class npc_highlord_tirion_fordring_lh : public CreatureScript
                             Talk(SAY_TIRION_INTRO_3);
                             break;
                         case EVENT_LK_INTRO_1:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NO_SHEATHE);
                             if (Creature* theLichKing = ObjectAccessor::GetCreature(*me, _theLichKing))
                                 theLichKing->AI()->Talk(SAY_LK_INTRO_1);
                             break;
