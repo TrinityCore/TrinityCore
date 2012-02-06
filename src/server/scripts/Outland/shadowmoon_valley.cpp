@@ -117,7 +117,7 @@ public:
             {
                 bIsEating = true;
                 EatTimer = 7000;
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
             }
         }
 
