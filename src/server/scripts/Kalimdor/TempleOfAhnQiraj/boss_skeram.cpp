@@ -38,7 +38,7 @@ EndScriptData */
 
 #define SPELL_ARCANE_EXPLOSION      25679
 #define SPELL_EARTH_SHOCK           26194
-#define SPELL_TRUE_FULFILLMENT4     26526
+#define SPELL_TRUE_FULFILLMENT      785
 #define SPELL_BLINK                 28391
 
 class ov_mycoordinates
