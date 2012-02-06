@@ -131,8 +131,11 @@ void GameObject::AddToWorld()
             m_zoneScript->OnGameObjectCreate(this);
 
         sObjectAccessor->AddObject(this);
-        if (m_model && (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? !GetGOInfo()->door.startOpen : true))
+        bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
+        if (m_model/* && (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? !GetGOInfo()->door.startOpen : true)*/)
             GetMap()->Insert(*m_model);
+        if (startOpen)
+            EnableCollision(false);
         WorldObject::AddToWorld();
     }
 }
@@ -210,14 +213,14 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
 
     SetDisplayId(goinfo->displayId);
 
+    m_model = GameObjectModel::Create(*this);
     // GAMEOBJECT_BYTES_1, index at 0, 1, 2 and 3
-    SetGoState(go_state);
     SetGoType(GameobjectTypes(goinfo->type));
+    SetGoState(go_state);
 
     SetGoArtKit(0);                                         // unknown what this is
     SetByteValue(GAMEOBJECT_BYTES_1, 2, artKit);
     
-    m_model = GameObjectModel::Create(*this);
 
     switch (goinfo->type)
     {
@@ -1896,6 +1899,8 @@ void GameObject::SetGoState(GOState state)
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
     if (m_model)
     {
+        if (!IsInWorld())
+            return;
         // startOpen determines whether we are going to add or remove the LoS on activation
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
         if (state == GO_STATE_ACTIVE)
@@ -1922,8 +1927,8 @@ void GameObject::EnableCollision(bool enable)
     if (!m_model)
         return;
     
-    if (enable && !GetMap()->Contains(*m_model))
-        GetMap()->Insert(*m_model);
+    /*if (enable && !GetMap()->Contains(*m_model))
+        GetMap()->Insert(*m_model);*/
 
     m_model->enable(enable ? GetPhaseMask() : 0);
 }
