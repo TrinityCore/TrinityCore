@@ -50,9 +50,7 @@ enum Creatures
 class mob_av_marshal_or_warmaster : public CreatureScript
 {
     public:
-
-        mob_av_marshal_or_warmaster()
-            : CreatureScript("mob_av_marshal_or_warmaster") {}
+        mob_av_marshal_or_warmaster() : CreatureScript("mob_av_marshal_or_warmaster") {}
 
         struct mob_av_marshal_or_warmasterAI : public ScriptedAI
         {

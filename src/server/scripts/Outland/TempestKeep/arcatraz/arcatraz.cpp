@@ -69,10 +69,7 @@ class npc_millhouse_manastorm : public CreatureScript
 {
     public:
 
-        npc_millhouse_manastorm()
-            : CreatureScript("npc_millhouse_manastorm")
-        {
-        }
+        npc_millhouse_manastorm() : CreatureScript("npc_millhouse_manastorm") { }
         struct npc_millhouse_manastormAI : public ScriptedAI
         {
             npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature)
@@ -272,10 +269,7 @@ enum eWardenSpells
 class npc_warden_mellichar : public CreatureScript
 {
     public:
-
-        npc_warden_mellichar() : CreatureScript("npc_warden_mellichar")
-        {
-        }
+        npc_warden_mellichar() : CreatureScript("npc_warden_mellichar") { }
 
         struct npc_warden_mellicharAI : public ScriptedAI
         {
@@ -531,13 +525,11 @@ enum ZerekethSpell
 class mob_zerekethvoidzone : public CreatureScript
 {
     public:
+        mob_zerekethvoidzone() : CreatureScript("mob_zerekethvoidzone") { }
 
-        mob_zerekethvoidzone() : CreatureScript("mob_zerekethvoidzone")
-        {
-        }
         struct mob_zerekethvoidzoneAI : public ScriptedAI
         {
-            mob_zerekethvoidzoneAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_zerekethvoidzoneAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset()
             {

@@ -73,7 +73,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -253,7 +252,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -299,7 +297,6 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
     };
-
 };
 
 /*######
@@ -333,7 +330,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -374,7 +370,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -423,7 +418,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -469,7 +463,6 @@ public:
 
         void UpdateAI(const uint32 /*uiDiff*/) {}
     };
-
 };
 
 /*######
@@ -534,7 +527,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######

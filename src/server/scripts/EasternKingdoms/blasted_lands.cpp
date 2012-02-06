@@ -117,7 +117,6 @@ public:
                     player->SEND_GOSSIP_MENU(1411, creature->GetGUID());
                 }
                 break;
-
             case GOSSIP_ACTION_INFO_DEF+2:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
                 player->SEND_GOSSIP_MENU(1451, creature->GetGUID());
@@ -176,7 +175,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_blasted_lands()

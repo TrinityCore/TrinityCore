@@ -150,7 +150,6 @@ public:
             } else uiPhaseTimer -= diff;
 
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -617,7 +616,6 @@ public:
                         uiPhaseTimer = 2000;
                         Phase = 2;
                         break;
-
                     case 2:
                         if (GameObject* go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
                             me->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
@@ -645,7 +643,6 @@ public:
                         uiPhaseTimer = 500;
                         Phase = 7;
                         break;
-
                     case 7:
                     {
                         GameObject* go_caribou = NULL;
@@ -662,7 +659,7 @@ public:
                         Phase = 8;
                         uiPhaseTimer = 1000;
                     }
-                        break;
+                    break;
                     case 8:
                         DoCast(me, SPELL_TRAPPED, true);
                         Phase = 0;
@@ -692,10 +689,10 @@ enum eLurgglbr
     FACTION_ESCORTEE_H                  = 775,
 };
 
-/*#define SAY_WP_1_LUR_START  -1571004
-#define SAY_WP_1_LUR_END    -1571005
-#define SAY_WP_41_LUR_START -1571006
-#define SAY_WP_41_LUR_END   -1571007*/
+#define SAY_WP_1_LUR_START  -1999926
+#define SAY_WP_1_LUR_END    -1999928
+#define SAY_WP_41_LUR_START -1999927
+#define SAY_WP_41_LUR_END   -1999929
 
 class npc_lurgglbr : public CreatureScript
 {
@@ -742,12 +739,12 @@ public:
                     switch (IntroPhase)
                     {
                         case 1:
-                            //DoScriptText(SAY_WP_1_LUR_START, me);
+                            DoScriptText(SAY_WP_1_LUR_START, me);
                             IntroPhase = 2;
                             IntroTimer = 7500;
                             break;
                         case 2:
-                            //DoScriptText(SAY_WP_1_LUR_END, me);
+                            DoScriptText(SAY_WP_1_LUR_END, me);
                             IntroPhase = 3;
                             IntroTimer = 7500;
                             break;
@@ -757,12 +754,12 @@ public:
                             IntroTimer = 0;
                             break;
                         case 4:
-                            //DoScriptText(SAY_WP_41_LUR_START, me);
+                            DoScriptText(SAY_WP_41_LUR_START, me);
                             IntroPhase = 5;
                             IntroTimer = 8000;
                             break;
                         case 5:
-                            //DoScriptText(SAY_WP_41_LUR_END, me);
+                            DoScriptText(SAY_WP_41_LUR_END, me);
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;

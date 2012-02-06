@@ -63,10 +63,7 @@ enum TorekMisc
 class npc_torek : public CreatureScript
 {
     public:
-
-        npc_torek() : CreatureScript("npc_torek")
-        {
-        }
+        npc_torek() : CreatureScript("npc_torek") { }
 
         struct npc_torekAI : public npc_escortAI
         {
@@ -178,10 +175,7 @@ class npc_ruul_snowhoof : public CreatureScript
 {
     public:
 
-        npc_ruul_snowhoof()
-            : CreatureScript("npc_ruul_snowhoof")
-        {
-        }
+        npc_ruul_snowhoof() : CreatureScript("npc_ruul_snowhoof") { }
 
         struct npc_ruul_snowhoofAI : public npc_escortAI
         {
@@ -196,12 +190,14 @@ class npc_ruul_snowhoof : public CreatureScript
 
                 switch (i)
                 {
-                case 0:    {
+                case 0:
+                    {
                         me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
                         GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20);
                         if (Cage)
                             Cage->SetGoState(GO_STATE_ACTIVE);
-                        break;}
+                        break;
+                    }
                 case 13:
                         me->SummonCreature(3922, 3449.218018f, -587.825073f, 174.978867f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         me->SummonCreature(3921, 3446.384521f, -587.830872f, 175.186279f, 4.714445f, TEMPSUMMON_DEAD_DESPAWN, 60000);
@@ -213,11 +209,13 @@ class npc_ruul_snowhoof : public CreatureScript
                         me->SummonCreature(3926, 3503.682373f, -489.393799f, 186.629684f, 4.349232f, TEMPSUMMON_DEAD_DESPAWN, 60000);
                         break;
 
-                case 21:{
+                case 21:
+                    {
                         if (player)
                             player->GroupEventHappens(QUEST_FREEDOM_TO_RUUL, me);
 
-                        break;  }
+                        break;
+                    }
                 }
             }
 
@@ -460,10 +458,7 @@ class go_naga_brazier : public GameObjectScript
 {
     public:
 
-        go_naga_brazier()
-            : GameObjectScript("go_naga_brazier")
-        {
-        }
+        go_naga_brazier() : GameObjectScript("go_naga_brazier") { }
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
