@@ -73,11 +73,8 @@ enum WaitEventType
 class boss_alar : public CreatureScript
 {
     public:
+        boss_alar() : CreatureScript("boss_alar") { }
 
-        boss_alar()
-            : CreatureScript("boss_alar")
-        {
-        }
         struct boss_alarAI : public ScriptedAI
         {
             boss_alarAI(Creature* creature) : ScriptedAI(creature)
@@ -460,10 +457,7 @@ class mob_ember_of_alar : public CreatureScript
 {
     public:
 
-        mob_ember_of_alar()
-            : CreatureScript("mob_ember_of_alar")
-        {
-        }
+        mob_ember_of_alar() : CreatureScript("mob_ember_of_alar") { }
 
         struct mob_ember_of_alarAI : public ScriptedAI
         {
@@ -538,11 +532,7 @@ class mob_ember_of_alar : public CreatureScript
 class mob_flame_patch_alar : public CreatureScript
 {
     public:
-
-        mob_flame_patch_alar()
-            : CreatureScript("mob_flame_patch_alar")
-        {
-        }
+        mob_flame_patch_alar() : CreatureScript("mob_flame_patch_alar") { }
 
         struct mob_flame_patch_alarAI : public ScriptedAI
         {

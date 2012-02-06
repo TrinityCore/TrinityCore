@@ -42,20 +42,19 @@ enum Creatures
     DISPLAY_INVISIBLE                             = 11686
 };
 
-// not in db
 enum Yells
 {
-    SAY_INTRO                                     = -1601010,
-    SAY_AGGRO                                     = -1601000,
-    SAY_SLAY_1                                    = -1601001,
-    SAY_SLAY_2                                    = -1601002,
-    SAY_SLAY_3                                    = -1601003,
-    SAY_LOCUST_1                                  = -1601005,
-    SAY_LOCUST_2                                  = -1601006,
-    SAY_LOCUST_3                                  = -1601007,
-    SAY_SUBMERGE_1                                = -1601008,
-    SAY_SUBMERGE_2                                = -1601009,
-    SAY_DEATH                                     = -1601004
+    SAY_INTRO                                     = -1601000,
+    SAY_AGGRO                                     = -1601001,
+    SAY_SLAY_1                                    = -1601002,
+    SAY_SLAY_2                                    = -1601003,
+    SAY_SLAY_3                                    = -1601004,
+    SAY_SUBMERGE_1                                = -1601005,
+    SAY_SUBMERGE_2                                = -1601006,
+    SAY_LOCUST_1                                  = -1601007,
+    SAY_LOCUST_2                                  = -1601008,
+    SAY_LOCUST_3                                  = -1601009,
+    SAY_DEATH                                     = -1601010
 };
 
 enum
@@ -366,5 +365,5 @@ public:
 
 void AddSC_boss_anub_arak()
 {
-    new boss_anub_arak;
+    new boss_anub_arak();
 }

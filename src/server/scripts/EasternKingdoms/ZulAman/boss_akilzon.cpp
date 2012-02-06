@@ -64,11 +64,7 @@ enum Spells
 class boss_akilzon : public CreatureScript
 {
     public:
-
-        boss_akilzon()
-            : CreatureScript("boss_akilzon")
-        {
-        }
+        boss_akilzon() : CreatureScript("boss_akilzon") { }
 
         struct boss_akilzonAI : public ScriptedAI
         {
@@ -390,11 +386,7 @@ class boss_akilzon : public CreatureScript
 class mob_akilzon_eagle : public CreatureScript
 {
     public:
-
-        mob_akilzon_eagle()
-            : CreatureScript("mob_akilzon_eagle")
-        {
-        }
+        mob_akilzon_eagle() : CreatureScript("mob_akilzon_eagle") { }
 
         struct mob_akilzon_eagleAI : public ScriptedAI
         {

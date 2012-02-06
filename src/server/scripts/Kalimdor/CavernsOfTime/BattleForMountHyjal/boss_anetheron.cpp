@@ -200,7 +200,9 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         target->CastSpell(target, SPELL_SLEEP, true);
                 }
+
                 SleepTimer = 60000;
+
                 switch (urand(0, 1))
                 {
                     case 0:
@@ -213,11 +215,13 @@ public:
                         break;
                 }
             } else SleepTimer -= diff;
+
             if (AuraTimer <= diff)
             {
                 DoCast(me, SPELL_VAMPIRIC_AURA, true);
                 AuraTimer = urand(10000, 20000);
             } else AuraTimer -= diff;
+
             if (InfernoTimer <= diff)
             {
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_INFERNO);

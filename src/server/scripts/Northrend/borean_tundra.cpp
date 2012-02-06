@@ -2226,7 +2226,6 @@ public:
             if (!UpdateVictim())
                 return;
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -2553,36 +2552,35 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_borean_tundra()
 {
-    new npc_sinkhole_kill_credit;
-    new npc_khunok_the_behemoth;
-    new npc_keristrasza;
-    new npc_corastrasza;
-    new npc_iruk;
-    new mob_nerubar_victim;
-    new npc_scourge_prisoner;
-    new npc_jenny;
-    new npc_fezzix_geartwist;
-    new npc_nesingwary_trapper;
-    new npc_lurgglbr;
-    new npc_nexus_drake_hatchling;
-    new npc_thassarian;
-    new npc_image_lich_king;
-    new npc_counselor_talbot;
-    new npc_leryssa;
-    new npc_general_arlos;
-    new npc_beryl_sorcerer;
-    new npc_imprisoned_beryl_sorcerer;
-    new npc_mootoo_the_younger;
-    new npc_bonker_togglevolt;
-    new npc_trapped_mammoth_calf;
-    new npc_magmoth_crusher;
-    new npc_seaforium_depth_charge;
-    new npc_valiance_keep_cannoneer;
-    new npc_warmage_coldarra;
-    new npc_hidden_cultist;
+    new npc_sinkhole_kill_credit();
+    new npc_khunok_the_behemoth();
+    new npc_keristrasza();
+    new npc_corastrasza();
+    new npc_iruk();
+    new mob_nerubar_victim();
+    new npc_scourge_prisoner();
+    new npc_jenny();
+    new npc_fezzix_geartwist();
+    new npc_nesingwary_trapper();
+    new npc_lurgglbr();
+    new npc_nexus_drake_hatchling();
+    new npc_thassarian();
+    new npc_image_lich_king();
+    new npc_counselor_talbot();
+    new npc_leryssa();
+    new npc_general_arlos();
+    new npc_beryl_sorcerer();
+    new npc_imprisoned_beryl_sorcerer();
+    new npc_mootoo_the_younger();
+    new npc_bonker_togglevolt();
+    new npc_trapped_mammoth_calf();
+    new npc_magmoth_crusher();
+    new npc_seaforium_depth_charge();
+    new npc_valiance_keep_cannoneer();
+    new npc_warmage_coldarra();
+    new npc_hidden_cultist();
 }
