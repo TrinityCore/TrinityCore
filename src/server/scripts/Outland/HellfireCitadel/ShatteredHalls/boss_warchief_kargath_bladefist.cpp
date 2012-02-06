@@ -28,6 +28,7 @@ boss_warchief_kargath_bladefist
 EndContentData */
 
 #include "ScriptPCH.h"
+#include "shattered_halls.h"
 
 enum eSays
 {

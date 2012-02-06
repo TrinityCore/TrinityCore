@@ -19,6 +19,7 @@
 
 #include "ScriptMgr.h"
 #include "SpellScript.h"
+#include "mechanar.h"
 
 enum Spells
 {

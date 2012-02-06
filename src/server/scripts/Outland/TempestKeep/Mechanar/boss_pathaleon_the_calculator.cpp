@@ -24,6 +24,7 @@ SDCategory: Tempest Keep, The Mechanar
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "mechanar.h"
 
 enum eSays
 {

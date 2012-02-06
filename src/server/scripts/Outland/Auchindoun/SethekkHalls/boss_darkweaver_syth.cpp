@@ -24,6 +24,7 @@ SDCategory: Auchindoun, Sethekk Halls
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "sethekk_halls.h"
 
 #define SAY_SUMMON                  -1556000
 

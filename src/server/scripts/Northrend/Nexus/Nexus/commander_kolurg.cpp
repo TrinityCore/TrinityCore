@@ -24,6 +24,7 @@ SDCategory:
 Script Data End */
 
 #include "ScriptPCH.h"
+#include "nexus.h"
 
 #define SPELL_BATTLE_SHOUT                                    31403
 #define SPELL_CHARGE                                          60067

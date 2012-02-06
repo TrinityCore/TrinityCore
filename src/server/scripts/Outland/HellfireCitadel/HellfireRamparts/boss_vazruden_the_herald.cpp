@@ -24,6 +24,7 @@ Category: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "hellfire_ramparts.h"
 
 enum eSpells
 {
