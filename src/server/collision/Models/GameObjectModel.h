@@ -63,7 +63,7 @@ public:
 
     bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const;
 
-    static GameObjectModel* construct(const GameObject& go);
+    static GameObjectModel* Create(const GameObject& go);
 };
 
 #endif // _GAMEOBJECT_MODEL_H
