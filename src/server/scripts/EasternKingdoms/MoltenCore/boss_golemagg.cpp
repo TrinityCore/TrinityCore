@@ -59,9 +59,7 @@ class boss_golemagg : public CreatureScript
 
         struct boss_golemaggAI : public BossAI
         {
-            boss_golemaggAI(Creature* creature) : BossAI(creature, BOSS_GOLEMAGG_THE_INCINERATOR)
-            {
-            }
+            boss_golemaggAI(Creature* creature) : BossAI(creature, BOSS_GOLEMAGG_THE_INCINERATOR) { }
 
             void Reset()
             {

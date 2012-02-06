@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Flamegor
-SD%Complete: 100
-SDComment:
-SDCategory: Blackwing Lair
-EndScriptData */
-
 #include "ScriptPCH.h"
 
 enum Emotes

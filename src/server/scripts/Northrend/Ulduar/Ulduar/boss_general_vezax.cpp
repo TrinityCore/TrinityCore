@@ -96,9 +96,7 @@ class boss_general_vezax : public CreatureScript
 
         struct boss_general_vezaxAI : public BossAI
         {
-            boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX)
-            {
-            }
+            boss_general_vezaxAI(Creature* creature) : BossAI(creature, BOSS_VEZAX) { }
 
             bool shadowDodger;
             bool smellSaronite; // HardMode
@@ -466,9 +464,7 @@ class spell_mark_of_the_faceless : public SpellScriptLoader
 class achievement_shadowdodger : public AchievementCriteriaScript
 {
     public:
-        achievement_shadowdodger() : AchievementCriteriaScript("achievement_shadowdodger")
-        {
-        }
+        achievement_shadowdodger() : AchievementCriteriaScript("achievement_shadowdodger") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -486,9 +482,7 @@ class achievement_shadowdodger : public AchievementCriteriaScript
 class achievement_smell_saronite : public AchievementCriteriaScript
 {
     public:
-        achievement_smell_saronite() : AchievementCriteriaScript("achievement_smell_saronite")
-        {
-        }
+        achievement_smell_saronite() : AchievementCriteriaScript("achievement_smell_saronite") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

@@ -155,7 +155,7 @@ class boss_gothik : public CreatureScript
 
         struct boss_gothikAI : public BossAI
         {
-            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) {}
+            boss_gothikAI(Creature* creature) : BossAI(creature, BOSS_GOTHIK) { }
 
             uint32 waveCount;
             typedef std::vector<Creature*> TriggerVct;

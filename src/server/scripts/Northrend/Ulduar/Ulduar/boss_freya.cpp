@@ -273,9 +273,7 @@ class boss_freya : public CreatureScript
 
         struct boss_freyaAI : public BossAI
         {
-            boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA)
-            {
-            }
+            boss_freyaAI(Creature* creature) : BossAI(creature, BOSS_FREYA) {  }
 
             uint64 ElementalGUID[3][2];
 
@@ -689,9 +687,7 @@ class boss_elder_brightleaf : public CreatureScript
 
         struct boss_elder_brightleafAI : public BossAI
         {
-            boss_elder_brightleafAI(Creature* creature) : BossAI(creature, BOSS_BRIGHTLEAF)
-            {
-            }
+            boss_elder_brightleafAI(Creature* creature) : BossAI(creature, BOSS_BRIGHTLEAF) { }
 
             void Reset()
             {
@@ -809,9 +805,7 @@ class boss_elder_stonebark : public CreatureScript
 
         struct boss_elder_stonebarkAI : public BossAI
         {
-            boss_elder_stonebarkAI(Creature* creature) : BossAI(creature, BOSS_STONEBARK)
-            {
-            }
+            boss_elder_stonebarkAI(Creature* creature) : BossAI(creature, BOSS_STONEBARK) { }
 
             void Reset()
             {
@@ -935,9 +929,7 @@ class boss_elder_ironbranch : public CreatureScript
 
         struct boss_elder_ironbranchAI : public BossAI
         {
-            boss_elder_ironbranchAI(Creature* creature) : BossAI(creature, BOSS_IRONBRANCH)
-            {
-            }
+            boss_elder_ironbranchAI(Creature* creature) : BossAI(creature, BOSS_IRONBRANCH) { }
 
             void Reset()
             {
@@ -1614,9 +1606,7 @@ class spell_freya_iron_roots : public SpellScriptLoader
 class achievement_getting_back_to_nature : public AchievementCriteriaScript
 {
     public:
-        achievement_getting_back_to_nature() : AchievementCriteriaScript("achievement_getting_back_to_nature")
-        {
-        }
+        achievement_getting_back_to_nature() : AchievementCriteriaScript("achievement_getting_back_to_nature") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -1634,9 +1624,7 @@ class achievement_getting_back_to_nature : public AchievementCriteriaScript
 class achievement_knock_on_wood : public AchievementCriteriaScript
 {
    public:
-       achievement_knock_on_wood() : AchievementCriteriaScript("achievement_knock_on_wood")
-       {
-       }
+       achievement_knock_on_wood() : AchievementCriteriaScript("achievement_knock_on_wood") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {
@@ -1654,9 +1642,7 @@ class achievement_knock_on_wood : public AchievementCriteriaScript
 class achievement_knock_knock_on_wood : public AchievementCriteriaScript
 {
    public:
-       achievement_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_on_wood")
-       {
-       }
+       achievement_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_on_wood") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {
@@ -1674,9 +1660,7 @@ class achievement_knock_knock_on_wood : public AchievementCriteriaScript
 class achievement_knock_knock_knock_on_wood : public AchievementCriteriaScript
 {
    public:
-       achievement_knock_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_knock_on_wood")
-       {
-       }
+       achievement_knock_knock_knock_on_wood() : AchievementCriteriaScript("achievement_knock_knock_knock_on_wood") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {
@@ -1708,8 +1692,10 @@ void AddSC_boss_freya()
     new npc_healthy_spore();
     new npc_unstable_sun_beam();
     new npc_iron_roots();
+
     new spell_freya_attuned_to_nature_dose_reduction();
     new spell_freya_iron_roots();
+
     new achievement_getting_back_to_nature();
     new achievement_knock_on_wood();
     new achievement_knock_knock_on_wood();

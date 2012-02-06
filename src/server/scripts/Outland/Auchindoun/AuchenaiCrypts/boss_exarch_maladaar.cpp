@@ -122,7 +122,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SAY_INTRO                   -1558000
@@ -301,7 +300,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_AV_MORTAL_STRIKE          16856
@@ -346,7 +344,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_exarch_maladaar()

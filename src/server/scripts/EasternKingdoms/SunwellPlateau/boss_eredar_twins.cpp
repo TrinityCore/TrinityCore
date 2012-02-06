@@ -340,7 +340,6 @@ public:
             }
         }
     };
-
 };
 
 class boss_alythess : public CreatureScript
@@ -669,7 +668,6 @@ public:
             } else EnrageTimer -= diff;
         }
     };
-
 };
 
 class mob_shadow_image : public CreatureScript
@@ -751,7 +749,6 @@ public:
             } else DarkstrikeTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_eredar_twins()

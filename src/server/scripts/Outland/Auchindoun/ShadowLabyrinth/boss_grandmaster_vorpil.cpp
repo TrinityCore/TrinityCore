@@ -74,9 +74,7 @@ public:
 
     struct mob_voidtravelerAI : public ScriptedAI
     {
-        mob_voidtravelerAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        mob_voidtravelerAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 VorpilGUID;
         uint32 move;
@@ -132,7 +130,6 @@ public:
             } else move -= diff;
         }
     };
-
 };
 
 class boss_grandmaster_vorpil : public CreatureScript
@@ -312,7 +309,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_grandmaster_vorpil()

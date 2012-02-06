@@ -246,7 +246,6 @@ public:
             }
         }
     };
-
 };
 
 struct boss_faction_championsAI : public ScriptedAI
@@ -542,7 +541,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eShamanSpells
@@ -637,7 +635,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum ePaladinSpells
@@ -746,7 +743,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum ePriestSpells
@@ -822,7 +818,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 /********************************************************************
@@ -936,20 +931,19 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eWarlockSpells
 {
-    SPELL_HELLFIRE              = 65816,
-    SPELL_CORRUPTION            = 65810,
-    SPELL_CURSE_OF_AGONY        = 65814,
-    SPELL_CURSE_OF_EXHAUSTION   = 65815,
-    SPELL_FEAR                  = 65809, //8s
-    SPELL_SEARING_PAIN          = 65819,
-    SPELL_SHADOW_BOLT           = 65821,
-    SPELL_UNSTABLE_AFFLICTION   = 65812,
-    SPELL_SUMMON_FELHUNTER      = 67514,
+    SPELL_HELLFIRE               = 65816,
+    SPELL_CORRUPTION             = 65810,
+    SPELL_CURSE_OF_AGONY         = 65814,
+    SPELL_CURSE_OF_EXHAUSTION    = 65815,
+    SPELL_FEAR                   = 65809, //8s
+    SPELL_SEARING_PAIN           = 65819,
+    SPELL_SHADOW_BOLT            = 65821,
+    SPELL_UNSTABLE_AFFLICTION    = 65812,
+    SPELL_SUMMON_FELHUNTER       = 67514,
     H_SPELL_UNSTABLE_AFFLICTION  = 68155, //15s
 };
 
@@ -1044,7 +1038,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eMageSpells
@@ -1146,7 +1139,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eHunterSpells
@@ -1264,7 +1256,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eBoomkinSpells
@@ -1364,7 +1355,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 /********************************************************************
@@ -1483,7 +1473,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eDeathKnightSpells
@@ -1585,7 +1574,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eRogueSpells
@@ -1688,7 +1676,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eEnhShamanSpells
@@ -1816,20 +1803,19 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eRetroPaladinSpells
 {
-    SPELL_AVENGING_WRATH        = 66011, //3min cd
-    SPELL_CRUSADER_STRIKE       = 66003, //6sec cd
-    SPELL_DIVINE_SHIELD         = 66010, //5min cd
-    SPELL_DIVINE_STORM          = 66006, //10sec cd
-    SPELL_HAMMER_OF_JUSTICE_RET = 66007, //40sec cd
-    SPELL_HAND_OF_PROTECTION_RET = 66009, //5min cd
-    SPELL_JUDGEMENT_OF_COMMAND  = 66005, //8sec cd
-    SPELL_REPENTANCE            = 66008, //60sec cd
-    SPELL_SEAL_OF_COMMAND       = 66004, //no cd
+    SPELL_AVENGING_WRATH         = 66011, // 3min cd
+    SPELL_CRUSADER_STRIKE        = 66003, // 6sec cd
+    SPELL_DIVINE_SHIELD          = 66010, // 5min cd
+    SPELL_DIVINE_STORM           = 66006, // 10sec cd
+    SPELL_HAMMER_OF_JUSTICE_RET  = 66007, // 40sec cd
+    SPELL_HAND_OF_PROTECTION_RET = 66009, // 5min cd
+    SPELL_JUDGEMENT_OF_COMMAND   = 66005, // 8sec cd
+    SPELL_REPENTANCE             = 66008, // 60sec cd
+    SPELL_SEAL_OF_COMMAND        = 66004, // no cd
 };
 
 class mob_toc_retro_paladin : public CreatureScript
@@ -1916,7 +1902,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eWarlockPetSpells
@@ -1968,7 +1953,6 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 enum eHunterPetSpells
@@ -2011,10 +1995,7 @@ public:
             boss_faction_championsAI::UpdateAI(uiDiff);
         }
     };
-
 };
-
-/*========================================================*/
 
 void AddSC_boss_faction_champions()
 {
