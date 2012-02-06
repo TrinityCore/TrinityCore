@@ -26,10 +26,13 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "stratholme.h"
 
-#define SPELL_BANSHEEWAIL   16565
-#define SPELL_BANSHEECURSE    16867
-#define SPELL_SILENCE    18327
-//#define SPELL_POSSESS   17244
+enum Spells
+{
+    SPELL_BANSHEEWAIL     = 16565,
+    SPELL_BANSHEECURSE    = 16867,
+    SPELL_SILENCE         = 18327
+    //SPELL_POSSESS         = 17244
+};
 
 class boss_baroness_anastari : public CreatureScript
 {
@@ -67,11 +70,11 @@ public:
         {
         }
 
-         void JustDied(Unit* /*Killer*/)
-         {
-             if (instance)
-                 instance->SetData(TYPE_BARONESS, IN_PROGRESS);
-         }
+        void JustDied(Unit* /*Killer*/)
+        {
+            if (instance)
+                instance->SetData(TYPE_BARONESS, IN_PROGRESS);
+        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -123,7 +126,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_baroness_anastari()

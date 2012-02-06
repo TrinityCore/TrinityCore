@@ -26,10 +26,13 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "shadow_labyrinth.h"
 
-#define SPELL_INCITE_CHAOS    33676
-#define SPELL_INCITE_CHAOS_B  33684                         //debuff applied to each member of party
-#define SPELL_CHARGE          33709
-#define SPELL_WAR_STOMP       33707
+enum Spells
+{
+    SPELL_INCITE_CHAOS       = 33676,
+    SPELL_INCITE_CHAOS_B     = 33684, // debuff applied to each member of party
+    SPELL_CHARGE             = 33709,
+    SPELL_WAR_STOMP          = 33707
+};
 
 #define SAY_INTRO1          -1555008 //not used
 #define SAY_INTRO2          -1555009 //not used
@@ -165,7 +168,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_blackheart_the_inciter()

@@ -36,25 +36,26 @@ EndScriptData */
 #define SAY_ENRAGE2             -1564035
 #define SAY_DEATH               -1564036
 
-//Spells
-#define SPELL_ACID_GEYSER        40630
-#define SPELL_ACIDIC_WOUND       40481
-#define SPELL_ARCING_SMASH       40599
-#define SPELL_BLOODBOIL          42005                      // This spell is AoE whereas it shouldn't be
-#define SPELL_FEL_ACID           40508
-#define SPELL_FEL_RAGE_SELF      40594
-#define SPELL_FEL_RAGE_TARGET    40604
-#define SPELL_FEL_RAGE_2         40616
-#define SPELL_FEL_RAGE_3         41625
-#define SPELL_BEWILDERING_STRIKE 40491
-#define SPELL_EJECT1             40486                      // 1000 Physical damage + knockback + script effect (should handle threat reduction I think)
-#define SPELL_EJECT2             40597                      // 1000 Physical damage + Stun (used in phase 2?)
-#define SPELL_TAUNT_GURTOGG      40603
-#define SPELL_INSIGNIFIGANCE     40618
-#define SPELL_BERSERK            45078
+enum Spells
+{
+    SPELL_ACID_GEYSER           = 40630,
+    SPELL_ACIDIC_WOUND          = 40481,
+    SPELL_ARCING_SMASH          = 40599,
+    SPELL_BLOODBOIL             = 42005, // This spell is AoE whereas it shouldn't be
+    SPELL_FEL_ACID              = 40508,
+    SPELL_FEL_RAGE_SELF         = 40594,
+    SPELL_FEL_RAGE_TARGET       = 40604,
+    SPELL_FEL_RAGE_2            = 40616,
+    SPELL_FEL_RAGE_3            = 41625,
+    SPELL_BEWILDERING_STRIKE    = 40491,
+    SPELL_EJECT1                = 40486, // 1000 Physical damage + knockback + script effect (should handle threat reduction I think)
+    SPELL_EJECT2                = 40597, // 1000 Physical damage + Stun (used in phase 2?)
+    SPELL_TAUNT_GURTOGG         = 40603,
+    SPELL_INSIGNIFIGANCE        = 40618,
+    SPELL_BERSERK               = 45078
+};
 
 //This is used to sort the players by distance in preparation for the Bloodboil cast.
-
 class boss_gurtogg_bloodboil : public CreatureScript
 {
 public:
@@ -161,26 +162,6 @@ public:
             targets.sort(Trinity::ObjectDistanceOrderPred(me, false));
             //Resize so we only get top 5
             targets.resize(5);
-
-            //Aura each player in the targets list with Bloodboil. Aura code copied+pasted from Aura command in Level3.cpp
-            /*SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOODBOIL);
-            if (spellInfo)
-            {
-                for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
-                {
-                    Unit* target = *itr;
-                    if (!target) return;
-                    for (uint32 i = 0; i<3; ++i)
-                    {
-                        uint8 eff = spellInfo->Effect[i];
-                        if (eff >= TOTAL_SPELL_EFFECTS)
-                            continue;
-
-                        Aura* Aur = new Aura(spellInfo, i, target, target, target);
-                        target->AddAura(Aur);
-                    }
-                }
-            }*/
         }
 
         void RevertThreatOnTarget(uint64 guid)
@@ -327,7 +308,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_gurtogg_bloodboil()

@@ -63,19 +63,22 @@ EndScriptData */
 #define ADD_6Z 115.055222f
 #define ADD_6O 2.457497f
 
-#define SPELL_SHADOWBOLT    17393
-#define SPELL_CLEAVE        15284
-#define SPELL_MORTALSTRIKE  15708
+enum Spells
+{
+    SPELL_SHADOWBOLT       = 17393,
+    SPELL_CLEAVE           = 15284,
+    SPELL_MORTALSTRIKE     = 15708,
 
-#define SPELL_UNHOLY_AURA   17467
-#define SPELL_RAISEDEAD     17473                           //triggers death pact (17471)
+    SPELL_UNHOLY_AURA      = 17467,
+    SPELL_RAISEDEAD        = 17473, // triggers death pact (17471)
 
-#define SPELL_RAISE_DEAD1   17475
-#define SPELL_RAISE_DEAD2   17476
-#define SPELL_RAISE_DEAD3   17477
-#define SPELL_RAISE_DEAD4   17478
-#define SPELL_RAISE_DEAD5   17479
-#define SPELL_RAISE_DEAD6   17480
+    SPELL_RAISE_DEAD1      = 17475,
+    SPELL_RAISE_DEAD2      = 17476,
+    SPELL_RAISE_DEAD3      = 17477,
+    SPELL_RAISE_DEAD4      = 17478,
+    SPELL_RAISE_DEAD5      = 17479,
+    SPELL_RAISE_DEAD6      = 17480
+};
 
 class boss_baron_rivendare : public CreatureScript
 {
@@ -161,12 +164,12 @@ public:
                 MortalStrike_Timer = 10000 + (rand()%15000);
             } else MortalStrike_Timer -= diff;
 
-            //RaiseDead
-            //            if (RaiseDead_Timer <= diff)
-            //          {
-            //      DoCast(me, SPELL_RAISEDEAD);
-            //                RaiseDead_Timer = 45000;
-            //            } else RaiseDead_Timer -= diff;
+            // RaiseDead
+            //if (RaiseDead_Timer <= diff)
+            //{
+            //    DoCast(me, SPELL_RAISEDEAD);
+            //    RaiseDead_Timer = 45000;
+            //} else RaiseDead_Timer -= diff;
 
             //SummonSkeletons
             if (SummonSkeletons_Timer <= diff)
@@ -185,7 +188,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_baron_rivendare()
