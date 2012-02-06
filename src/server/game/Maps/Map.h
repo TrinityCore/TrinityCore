@@ -51,6 +51,7 @@ struct Position;
 class Battleground;
 class MapInstanced;
 class InstanceMap;
+class GameObjectModel;
 namespace Trinity { struct ObjectUpdater; }
 
 struct ScriptAction
