@@ -24,6 +24,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "stratholme.h"
 
 enum eEnums
 {

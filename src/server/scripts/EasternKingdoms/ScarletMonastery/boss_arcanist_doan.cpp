@@ -24,6 +24,7 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "scarlet_monastery.h"
 
 enum eEnums
 {

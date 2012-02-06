@@ -24,6 +24,7 @@ SDCategory: Zul'Gurub
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "zulgurub.h"
 
 #define SPELL_FROSTBREATH            16099
 #define SPELL_MASSIVEGEYSER          22421                  //Not working. Cause its a summon...

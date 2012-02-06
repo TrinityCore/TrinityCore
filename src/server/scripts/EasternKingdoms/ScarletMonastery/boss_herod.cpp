@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "scarlet_monastery.h"
 
 enum Says
 {

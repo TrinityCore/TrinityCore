@@ -24,6 +24,7 @@ SDCategory: Scholomance
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "scholomance.h"
 
 enum eEnums
 {

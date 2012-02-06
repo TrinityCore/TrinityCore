@@ -24,6 +24,7 @@ SDCategory: Uldaman
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "uldaman.h"
 
 #define SAY_AGGRO                   -1070000
 

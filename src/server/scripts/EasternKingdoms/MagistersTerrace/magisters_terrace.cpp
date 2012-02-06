@@ -28,6 +28,7 @@ npc_kalecgos
 EndContentData */
 
 #include "ScriptPCH.h"
+#include "magisters_terrace.h"
 
 /*######
 ## npc_kalecgos
