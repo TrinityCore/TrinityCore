@@ -21,7 +21,7 @@
 #include "VMapDefinitions.h"
 #include "WorldModel.h"
 
-#include "GameobjectModel.h"
+#include "GameObjectModel.h"
 #include "Log.h"
 #include "GameObject.h"
 #include "Creature.h"

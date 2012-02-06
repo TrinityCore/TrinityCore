@@ -191,13 +191,13 @@ public:
     }
 
     template<typename IsectCallback>
-    void intersectPoint(const Vector3& p, IsectCallback& intersectCallback)
+    void intersectPoint(const Vector3& point, IsectCallback& intersectCallback)
     {
-        Cell c = Cell::ComputeCell(p.x, p.y);
+        Cell cell = Cell::ComputeCell(point.x, point.y);
         if (!cell.isValid())
             return;
-        if (Node * node = nodes[c.x][c.y])
-            node->intersectPoint(p, intersectCallback);
+        if (Node* node = nodes[cell.x][cell.y])
+            node->intersectPoint(point, intersectCallback);
     }
 
     // Optimized verson of intersectRay function for rays with vertical directions
