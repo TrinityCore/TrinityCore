@@ -24,6 +24,7 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "temple_of_ahnqiraj.h"
 
 #define SAY_AGGRO                   -1531008
 #define SAY_SLAY                    -1531009

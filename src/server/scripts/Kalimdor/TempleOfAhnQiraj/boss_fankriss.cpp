@@ -24,6 +24,7 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "temple_of_ahnqiraj.h"
 
 #define SOUND_SENTENCE_YOU 8588
 #define SOUND_SERVE_TO     8589
