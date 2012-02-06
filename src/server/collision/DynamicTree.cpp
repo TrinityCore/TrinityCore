@@ -25,6 +25,7 @@
 #include "RegularGrid.h"
 #include "Timer.h"
 #include "GameObjectModel.h"
+#include "ModelInstance.h"
 
 using VMAP::ModelInstance;
 using G3D::Ray;
