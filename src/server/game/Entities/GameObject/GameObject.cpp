@@ -30,7 +30,7 @@
 #include "CreatureAISelector.h"
 #include "Group.h"
 
-#include "GameobjectModel.h"
+#include "GameObjectModel.h"
 #include "DynamicTree.h"
 
 GameObject::GameObject() : WorldObject(false), m_goValue(new GameObjectValue), m_AI(NULL), m_model(NULL)
