@@ -128,7 +128,6 @@ public:
             } else CheckTimer -= diff;
         }
     };
-
 };
 
 /* This script is merely a placeholder for the Doomfire that triggers Doomfire spell. It will
@@ -213,7 +212,6 @@ public:
             } else ChangeTargetTimer -= diff;
         }
     };
-
 };
 
 /* Finally, Archimonde's script. His script isn't extremely complex, most are simply spells on timers.
@@ -640,7 +638,6 @@ public:
         }
         void WaypointReached(uint32 /*i*/){}
     };
-
 };
 
 void AddSC_boss_archimonde()

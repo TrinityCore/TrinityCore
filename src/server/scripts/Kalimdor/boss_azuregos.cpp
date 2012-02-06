@@ -101,12 +101,12 @@ public:
                 Teleport_Timer = 30000;
             } else Teleport_Timer -= diff;
 
-            //        //MarkOfFrost_Timer
-            //        if (MarkOfFrost_Timer <= diff)
-            //        {
-            //            DoCast(me->getVictim(), SPELL_MARKOFFROST);
-            //            MarkOfFrost_Timer = 25000;
-            //        } else MarkOfFrost_Timer -= diff;
+            //MarkOfFrost_Timer
+            //if (MarkOfFrost_Timer <= diff)
+            //{
+            //    DoCast(me->getVictim(), SPELL_MARKOFFROST);
+            //    MarkOfFrost_Timer = 25000;
+            //} else MarkOfFrost_Timer -= diff;
 
             //Chill_Timer
             if (Chill_Timer <= diff)
@@ -154,7 +154,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_azuregos()

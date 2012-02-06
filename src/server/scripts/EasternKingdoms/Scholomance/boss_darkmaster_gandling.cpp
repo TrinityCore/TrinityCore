@@ -221,7 +221,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_darkmaster_gandling()

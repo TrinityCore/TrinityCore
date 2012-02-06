@@ -196,7 +196,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /* ELEMENTALS */
@@ -266,9 +265,7 @@ public:
 
     struct mob_syth_arcaneAI : public ScriptedAI
     {
-        mob_syth_arcaneAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        mob_syth_arcaneAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 arcaneshock_timer;
         uint32 arcanebuffet_timer;
@@ -360,7 +357,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_syth_shadow : public CreatureScript
@@ -415,7 +411,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_darkweaver_syth()

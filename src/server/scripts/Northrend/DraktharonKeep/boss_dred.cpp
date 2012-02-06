@@ -277,9 +277,7 @@ class npc_drakkari_scytheclaw : public CreatureScript
 class achievement_king_dred : public AchievementCriteriaScript
 {
     public:
-        achievement_king_dred() : AchievementCriteriaScript("achievement_king_dred")
-        {
-        }
+        achievement_king_dred() : AchievementCriteriaScript("achievement_king_dred") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -296,8 +294,8 @@ class achievement_king_dred : public AchievementCriteriaScript
 
 void AddSC_boss_dred()
 {
-    new boss_dred;
-    new npc_drakkari_gutripper;
-    new npc_drakkari_scytheclaw;
+    new boss_dred();
+    new npc_drakkari_gutripper();
+    new npc_drakkari_scytheclaw();
     new achievement_king_dred();
 }

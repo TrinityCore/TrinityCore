@@ -109,19 +109,18 @@ public:
             } else Silence_Timer -= diff;
 
             //Possess
-            /*            if (Possess_Timer <= diff)
-            {
-            //Cast
-              if (rand()%100 < 65)
-            {
-            Unit* target = NULL;
-            target = SelectUnit(SELECT_TARGET_RANDOM, 0);
-            if (target)DoCast(target, SPELL_POSSESS);
-            }
-            //50 seconds until we should cast this again
-            Possess_Timer = 50000;
-            } else Possess_Timer -= diff;
-            */
+            //if (Possess_Timer <= diff)
+            //{
+            //    //Cast
+            //    if (rand()%100 < 65)
+            //    {
+            //        Unit* target = NULL;
+            //        target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+            //        if (target)DoCast(target, SPELL_POSSESS);
+            //    }
+            //    //50 seconds until we should cast this again
+            //    Possess_Timer = 50000;
+            //} else Possess_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }

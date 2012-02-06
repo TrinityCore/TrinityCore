@@ -476,7 +476,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_nerubian_burrower : public CreatureScript
@@ -553,7 +552,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_frost_sphere : public CreatureScript
@@ -703,7 +701,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_boss_anubarak_trial()

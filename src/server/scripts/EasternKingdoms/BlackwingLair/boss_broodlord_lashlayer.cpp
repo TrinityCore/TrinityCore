@@ -24,6 +24,7 @@ SDCategory: Blackwing Lair
 EndScriptData */
 
 #include "ScriptPCH.h"
+
 enum Say
 {
     SAY_AGGRO               = -1469000,

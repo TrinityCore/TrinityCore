@@ -465,7 +465,6 @@ public:
             }
         }
     };
-
 };
 
 class boss_cthun : public CreatureScript
@@ -920,7 +919,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_eye_tentacle : public CreatureScript
@@ -993,7 +991,6 @@ public:
             } else MindflayTimer -= diff;
         }
     };
-
 };
 
 class mob_claw_tentacle : public CreatureScript
@@ -1103,7 +1100,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_giant_claw_tentacle : public CreatureScript
@@ -1222,7 +1218,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_giant_eye_tentacle : public CreatureScript
@@ -1286,7 +1281,6 @@ public:
             } else BeamTimer -= diff;
         }
     };
-
 };
 
 class mob_giant_flesh_tentacle : public CreatureScript
@@ -1314,10 +1308,7 @@ public:
                         summoner->GetAI()->DoAction(ACTION_FLESH_TENTACLE_KILLED);
         }
     };
-
 };
-
-//GetAIs
 
 void AddSC_boss_cthun()
 {

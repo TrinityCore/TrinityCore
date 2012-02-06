@@ -18,16 +18,15 @@
 #include "ScriptPCH.h"
 #include "ahnkahet.h"
 
-//not in db
 enum Yells
 {
     SAY_AGGRO                                     = -1619014,
-    SAY_SLAY_1                                    = -1619015,
-    SAY_SLAY_2                                    = -1619016,
-    SAY_SLAY_3                                    = -1619017,
-    SAY_DEATH                                     = -1619018,
-    SAY_EGG_SAC_1                                 = -1619019,
-    SAY_EGG_SAC_2                                 = -1619020
+    SAY_EGG_SAC_1                                 = -1619015,
+    SAY_EGG_SAC_2                                 = -1619016,
+    SAY_SLAY_1                                    = -1619017,
+    SAY_SLAY_2                                    = -1619018,
+    SAY_SLAY_3                                    = -1619019,
+    SAY_DEATH                                     = -1619020
 };
 
 enum Spells
@@ -318,8 +317,8 @@ class achievement_respect_your_elders : public AchievementCriteriaScript
 
 void AddSC_boss_elder_nadox()
 {
-    new boss_elder_nadox;
-    new mob_ahnkahar_nerubian;
-    new mob_nadox_eggs;
+    new boss_elder_nadox();
+    new mob_ahnkahar_nerubian();
+    new mob_nadox_eggs();
     new achievement_respect_your_elders();
 }

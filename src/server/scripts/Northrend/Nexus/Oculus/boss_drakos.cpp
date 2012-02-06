@@ -145,6 +145,7 @@ public:
         {
             DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2, SAY_KILL_3), me);
         }
+
     private:
         bool postPull;
     };
@@ -192,7 +193,6 @@ public:
         uint32 pulseTimer;
         uint32 deathTimer;
     };
-
 };
 
 void AddSC_boss_drakos()

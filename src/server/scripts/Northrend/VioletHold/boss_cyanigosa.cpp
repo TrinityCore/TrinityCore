@@ -156,7 +156,6 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
     };
-
 };
 
 class achievement_defenseless : public AchievementCriteriaScript

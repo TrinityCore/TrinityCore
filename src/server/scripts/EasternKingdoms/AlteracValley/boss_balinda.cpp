@@ -203,6 +203,6 @@ public:
 
 void AddSC_boss_balinda()
 {
-    new boss_balinda;
-    new mob_water_elemental;
+    new boss_balinda();
+    new mob_water_elemental();
 };
