@@ -32,10 +32,13 @@ EndScriptData */
 #define SAY_HP                  -1129003
 #define SAY_KILL                -1129004
 
-#define SPELL_AMNENNARSWRATH    13009
-#define SPELL_FROSTBOLT         15530
-#define SPELL_FROST_NOVA        15531
-#define SPELL_FROST_SPECTRES    12642
+enum Spells
+{
+    SPELL_AMNENNARSWRATH    = 13009,
+    SPELL_FROSTBOLT         = 15530,
+    SPELL_FROST_NOVA        = 15531,
+    SPELL_FROST_SPECTRES    = 12642
+};
 
 class boss_amnennar_the_coldbringer : public CreatureScript
 {

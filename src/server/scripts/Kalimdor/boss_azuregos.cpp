@@ -27,13 +27,16 @@ EndScriptData */
 
 #define SAY_TELEPORT            -1000100
 
-#define SPELL_MARKOFFROST        23182
-#define SPELL_MANASTORM          21097
-#define SPELL_CHILL              21098
-#define SPELL_FROSTBREATH        21099
-#define SPELL_REFLECT            22067
-#define SPELL_CLEAVE              8255                      //Perhaps not right ID
-#define SPELL_ENRAGE             23537
+enum Spells
+{
+    SPELL_MARKOFFROST        = 23182,
+    SPELL_MANASTORM          = 21097,
+    SPELL_CHILL              = 21098,
+    SPELL_FROSTBREATH        = 21099,
+    SPELL_REFLECT            = 22067,
+    SPELL_CLEAVE             = 19983,
+    SPELL_ENRAGE             = 23537
+};
 
 class boss_azuregos : public CreatureScript
 {

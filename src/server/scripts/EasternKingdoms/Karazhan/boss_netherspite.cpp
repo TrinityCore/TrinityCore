@@ -26,17 +26,23 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "karazhan.h"
 
-#define EMOTE_PHASE_PORTAL          -1532089
-#define EMOTE_PHASE_BANISH          -1532090
+enum Emotes
+{
+    EMOTE_PHASE_PORTAL          = -1532089,
+    EMOTE_PHASE_BANISH          = -1532090
+};
 
-#define SPELL_NETHERBURN_AURA       30522
-#define SPELL_VOIDZONE              37063
-#define SPELL_NETHER_INFUSION       38688
-#define SPELL_NETHERBREATH          38523
-#define SPELL_BANISH_VISUAL         39833
-#define SPELL_BANISH_ROOT           42716
-#define SPELL_EMPOWERMENT           38549
-#define SPELL_NETHERSPITE_ROAR      38684
+enum Spells
+{
+    SPELL_NETHERBURN_AURA       = 30522,
+    SPELL_VOIDZONE              = 37063,
+    SPELL_NETHER_INFUSION       = 38688,
+    SPELL_NETHERBREATH          = 38523,
+    SPELL_BANISH_VISUAL         = 39833,
+    SPELL_BANISH_ROOT           = 42716,
+    SPELL_EMPOWERMENT           = 38549,
+    SPELL_NETHERSPITE_ROAR      = 38684
+};
 
 const float PortalCoord[3][3] =
 {
@@ -45,10 +51,11 @@ const float PortalCoord[3][3] =
     {-11094.493164f, -1591.969238f, 279.949188f}  // Back side
 };
 
-enum Netherspite_Portal{
-    RED_PORTAL = 0, // Perseverence
+enum Netherspite_Portal
+{
+    RED_PORTAL   = 0, // Perseverence
     GREEN_PORTAL = 1, // Serenity
-    BLUE_PORTAL = 2 // Dominance
+    BLUE_PORTAL  = 2  // Dominance
 };
 
 const uint32 PortalID[3] = {17369, 17367, 17368};
