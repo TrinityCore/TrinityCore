@@ -16,15 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: SimpleAI
-SD%Complete: 100
-SDComment: Base Class for SimpleAI creatures
-SDCategory: Creatures
-EndScriptData */
-
-#include "ScriptPCH.h"
 #include "ScriptedSimpleAI.h"
+#include "ScriptMgr.h"
 
 SimpleAI::SimpleAI(Creature* c) : ScriptedAI(c)
 {

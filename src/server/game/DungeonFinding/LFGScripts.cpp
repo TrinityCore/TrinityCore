@@ -23,7 +23,6 @@
 #include "SharedDefines.h"
 #include "Player.h"
 #include "Group.h"
-#include "ScriptPCH.h"
 #include "LFGScripts.h"
 #include "LFGMgr.h"
 
