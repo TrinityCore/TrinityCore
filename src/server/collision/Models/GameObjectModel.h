@@ -34,7 +34,7 @@ namespace VMAP
 class GameObject;
 struct GameObjectDisplayInfoEntry;
 
-class ModelInstance_Overriden /*, public Intersectable*/
+class GameObjectModel /*, public Intersectable*/
 {
     uint32 phasemask;
     G3D::AABox iBound;
@@ -45,7 +45,7 @@ class ModelInstance_Overriden /*, public Intersectable*/
     float iScale;
     VMAP::WorldModel* iModel;
 
-    ModelInstance_Overriden() : phasemask(0), iModel(NULL) {}
+    GameObjectModel() : phasemask(0), iModel(NULL) {}
     bool initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info);
 
 public:
@@ -53,7 +53,7 @@ public:
 
     const G3D::AABox& getBounds() const { return iBound; }
 
-    ~ModelInstance_Overriden();
+    ~GameObjectModel();
 
     const G3D::Vector3& getPosition() const { return iPos;}
 
@@ -63,7 +63,7 @@ public:
 
     bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const;
 
-    static ModelInstance_Overriden* construct(const GameObject& go);
+    static GameObjectModel* construct(const GameObject& go);
 };
 
 #endif // _GAMEOBJECT_MODEL_H
