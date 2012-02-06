@@ -16,15 +16,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScriptPCH.h"
 #include "ScriptMgr.h"
 #include "Config.h"
+#include "CreatureAI.h"
 #include "DatabaseEnv.h"
 #include "DBCStores.h"
+#include "GossipDef.h"
 #include "ObjectMgr.h"
 #include "OutdoorPvPMgr.h"
 #include "ScriptLoader.h"
 #include "ScriptSystem.h"
+#include "SpellScript.h"
 #include "Transport.h"
 #include "Vehicle.h"
 
