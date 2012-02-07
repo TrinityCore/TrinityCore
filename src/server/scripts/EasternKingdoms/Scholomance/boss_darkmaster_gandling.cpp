@@ -26,29 +26,13 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "scholomance.h"
 
-#define SPELL_ARCANEMISSILES           22272
-#define SPELL_SHADOWSHIELD             22417                //Not right ID. But 12040 is wrong either.
-#define SPELL_CURSE                    18702
-
-#define ADD_1X 170.205f
-#define ADD_1Y 99.413f
-#define ADD_1Z 104.733f
-#define ADD_1O 3.16f
-
-#define ADD_2X 170.813f
-#define ADD_2Y 97.857f
-#define ADD_2Z 104.713f
-#define ADD_2O 3.16f
-
-#define ADD_3X 170.720f
-#define ADD_3Y 100.900f
-#define ADD_3Z 104.739f
-#define ADD_3O 3.16f
-
-#define ADD_4X 171.866f
-#define ADD_4Y 99.373f
-#define ADD_4Z 104.732f
-#define ADD_4O 3.16f
+enum Spells
+{
+    SPELL_ARCANEMISSILES           = 15790,
+    SPELL_SHADOWSHIELD             = 12040,
+    SPELL_CURSE                    = 18702,
+    SPELL_SHADOWPORTAL             = 17950 // not use
+};
 
 class boss_darkmaster_gandling : public CreatureScript
 {

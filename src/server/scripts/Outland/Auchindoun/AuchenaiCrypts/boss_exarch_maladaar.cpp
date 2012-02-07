@@ -31,15 +31,50 @@ EndContentData */
 
 #include "ScriptPCH.h"
 
-#define SPELL_MOONFIRE          37328
-#define SPELL_FIREBALL          37329
-#define SPELL_MIND_FLAY         37330
-#define SPELL_HEMORRHAGE        37331
-#define SPELL_FROSTSHOCK        37332
-#define SPELL_CURSE_OF_AGONY    37334
-#define SPELL_MORTAL_STRIKE     37335
-#define SPELL_FREEZING_TRAP     37368
-#define SPELL_HAMMER_OF_JUSTICE 37369
+enum Texts
+{
+    // exarch maladaar
+    SAY_INTRO                  = -1558000,
+    SAY_SUMMON                 = -1558001,
+    SAY_AGGRO_1                = -1558002,
+    SAY_AGGRO_2                = -1558003,
+    SAY_AGGRO_3                = -1558004,
+    SAY_ROAR                   = -1558005,
+    SAY_SOUL_CLEAVE            = -1558006,
+    SAY_SLAY_1                 = -1558007,
+    SAY_SLAY_2                 = -1558008,
+    SAY_DEATH                  = -1558009
+};
+
+enum Spells
+{
+    // stolen soul
+    SPELL_MOONFIRE             = 37328,
+    SPELL_FIREBALL             = 37329,
+    SPELL_MIND_FLAY            = 37330,
+    SPELL_HEMORRHAGE           = 37331,
+    SPELL_FROSTSHOCK           = 37332,
+    SPELL_CURSE_OF_AGONY       = 37334,
+    SPELL_MORTAL_STRIKE        = 37335,
+    SPELL_FREEZING_TRAP        = 37368,
+    SPELL_HAMMER_OF_JUSTICE    = 37369,
+
+    // exarch maladaar
+    SPELL_RIBBON_OF_SOULS      = 32422,
+    SPELL_SOUL_SCREAM          = 32421,
+    SPELL_STOLEN_SOUL          = 32346,
+    SPELL_STOLEN_SOUL_VISUAL   = 32395,
+    SPELL_SUMMON_AVATAR        = 32424,
+
+    // avatar of martyred
+    SPELL_AV_MORTAL_STRIKE     = 16856,
+    SPELL_AV_SUNDER_ARMOR      = 16145
+};
+
+enum CreaturesIds
+{
+    NPC_STOLEN_SOUL            = 18441
+};
 
 class mob_stolen_soul : public CreatureScript
 {
@@ -124,31 +159,6 @@ public:
     };
 };
 
-#define SAY_INTRO                   -1558000
-#define SAY_SUMMON                  -1558001
-
-#define SAY_AGGRO_1                 -1558002
-#define SAY_AGGRO_2                 -1558003
-#define SAY_AGGRO_3                 -1558004
-
-#define SAY_ROAR                    -1558005
-#define SAY_SOUL_CLEAVE             -1558006
-
-#define SAY_SLAY_1                  -1558007
-#define SAY_SLAY_2                  -1558008
-
-#define SAY_DEATH                   -1558009
-
-#define SPELL_RIBBON_OF_SOULS       32422
-#define SPELL_SOUL_SCREAM           32421
-
-#define SPELL_STOLEN_SOUL           32346
-#define SPELL_STOLEN_SOUL_VISUAL    32395
-
-#define SPELL_SUMMON_AVATAR         32424
-
-#define ENTRY_STOLEN_SOUL           18441
-
 class boss_exarch_maladaar : public CreatureScript
 {
 public:
@@ -208,7 +218,7 @@ public:
 
         void JustSummoned(Creature* summoned)
         {
-            if (summoned->GetEntry() == ENTRY_STOLEN_SOUL)
+            if (summoned->GetEntry() == NPC_STOLEN_SOUL)
             {
                 //SPELL_STOLEN_SOUL_VISUAL has shapeshift effect, but not implemented feature in Trinity for this spell.
                 summoned->CastSpell(summoned, SPELL_STOLEN_SOUL_VISUAL, false);
@@ -276,7 +286,7 @@ public:
                         soulclass = target->getClass();
 
                         DoCast(target, SPELL_STOLEN_SOUL);
-                        me->SummonCreature(ENTRY_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
+                        me->SummonCreature(NPC_STOLEN_SOUL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
 
                         StolenSoul_Timer = 20000 + rand()% 10000;
                     } else StolenSoul_Timer = 1000;
@@ -301,9 +311,6 @@ public:
         }
     };
 };
-
-#define SPELL_AV_MORTAL_STRIKE          16856
-#define SPELL_AV_SUNDER_ARMOR           16145
 
 class mob_avatar_of_martyred : public CreatureScript
 {

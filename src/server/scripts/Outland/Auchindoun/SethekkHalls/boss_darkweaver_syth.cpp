@@ -26,16 +26,16 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "sethekk_halls.h"
 
-#define SAY_SUMMON                  -1556000
-
-#define SAY_AGGRO_1                 -1556001
-#define SAY_AGGRO_2                 -1556002
-#define SAY_AGGRO_3                 -1556003
-
-#define SAY_SLAY_1                  -1556004
-#define SAY_SLAY_2                  -1556005
-
-#define SAY_DEATH                   -1556006
+enum Texts
+{
+    SAY_SUMMON                  = -1556000,
+    SAY_AGGRO_1                 = -1556001,
+    SAY_AGGRO_2                 = -1556002,
+    SAY_AGGRO_3                 = -1556003,
+    SAY_SLAY_1                  = -1556004,
+    SAY_SLAY_2                  = -1556005,
+    SAY_DEATH                   = -1556006
+};
 
 #define SPELL_FROST_SHOCK           21401 //37865
 #define SPELL_FLAME_SHOCK           34354

@@ -26,23 +26,26 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "karazhan.h"
 
-#define SAY_AGGRO                       -1532057
-#define SAY_SUMMON1                     -1532058
-#define SAY_SUMMON2                     -1532059
-#define SAY_EVOCATE                     -1532060
-#define SAY_ENRAGE                      -1532061
-#define SAY_KILL1                       -1532062
-#define SAY_KILL2                       -1532063
-#define SAY_DEATH                       -1532064
+enum Texts
+{
+    SAY_AGGRO                       = -1532057,
+    SAY_SUMMON1                     = -1532058,
+    SAY_SUMMON2                     = -1532059,
+    SAY_EVOCATE                     = -1532060,
+    SAY_ENRAGE                      = -1532061,
+    SAY_KILL1                       = -1532062,
+    SAY_KILL2                       = -1532063,
+    SAY_DEATH                       = -1532064
+};
 
-//Flare spell info
-#define SPELL_ASTRAL_FLARE_PASSIVE      30234               //Visual effect + Flare damage
-
-//Curator spell info
-#define SPELL_HATEFUL_BOLT              30383
-#define SPELL_EVOCATION                 30254
-#define SPELL_ENRAGE                    30403               //Arcane Infusion: Transforms Curator and adds damage.
-#define SPELL_BERSERK                   26662
+enum Spells
+{
+    SPELL_ASTRAL_FLARE_PASSIVE      = 30234, // Visual effect + Flare damage
+    SPELL_HATEFUL_BOLT              = 30383,
+    SPELL_EVOCATION                 = 30254,
+    SPELL_ENRAGE                    = 30403, // Arcane Infusion: Transforms Curator and adds damage.
+    SPELL_BERSERK                   = 26662
+};
 
 class boss_curator : public CreatureScript
 {
