@@ -992,7 +992,7 @@ public:
         return true;
     }
 
-    static bool HandleReloadWpCommand(ChatHandler* /*handler*/, const char* args)
+    static bool HandleReloadWpCommand(ChatHandler* handler, const char* args)
     {
         if (*args != 'a')
             sLog->outString("Re-Loading Waypoints data from 'waypoints_data'");
@@ -1000,7 +1000,7 @@ public:
         sWaypointMgr->Load();
 
         if (*args != 'a')
-            sLog->outString("DB Table 'waypoint_data' reloaded.");
+            handler->SendGlobalGMSysMessage("DB Table 'waypoint_data' reloaded.");
 
         return true;
     }
