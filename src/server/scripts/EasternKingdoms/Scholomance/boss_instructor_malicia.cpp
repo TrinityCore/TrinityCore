@@ -44,7 +44,7 @@ public:
 
     struct boss_instructormaliciaAI : public ScriptedAI
     {
-        boss_instructormaliciaAI(Creature* c) : ScriptedAI(c) {}
+        boss_instructormaliciaAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 CallOfGraves_Timer;
         uint32 Corruption_Timer;
@@ -149,7 +149,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_instructormalicia()

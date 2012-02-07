@@ -379,7 +379,7 @@ public:
 
     struct flame_of_azzinothAI : public ScriptedAI
     {
-        flame_of_azzinothAI(Creature* c) : ScriptedAI(c) {}
+        flame_of_azzinothAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 FlameBlastTimer;
         uint32 CheckTimer;
@@ -392,7 +392,10 @@ public:
             GlaiveGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/) {DoZoneInCombat();}
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoZoneInCombat();
+        }
 
         void ChargeCheck()
         {
@@ -430,7 +433,10 @@ public:
             }
         }
 
-        void SetGlaiveGUID(uint64 guid){ GlaiveGUID = guid; }
+        void SetGlaiveGUID(uint64 guid)
+        {
+            GlaiveGUID = guid;
+        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -455,7 +461,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /************************************** Illidan's AI* **************************************/
@@ -711,15 +716,18 @@ public:
             default:
                 break;
             }
+
             if (MaievGUID)
             {
                 GETCRE(Maiev, MaievGUID);
                 if (Maiev && Maiev->isAlive())
                     Maiev->AI()->DoAction(NextPhase);
             }
+
             Phase = NextPhase;
             Event = EVENT_NULL;
         }
+
         void CastEyeBlast()
         {
             me->InterruptNonMeleeSpells(false);
@@ -757,6 +765,7 @@ public:
             me->SetTarget(Trigger->GetGUID());
             DoCast(Trigger, SPELL_EYE_BLAST);
         }
+
         void SummonFlamesOfAzzinoth()
         {
             me->MonsterYell(SAY_SUMMONFLAMES, LANG_UNIVERSAL, 0);
@@ -778,6 +787,7 @@ public:
                 }
             }
         }
+
         void SummonMaiev()
         {
             DoCast(me, SPELL_SHADOW_PRISON, true);
@@ -1139,7 +1149,6 @@ public:
             }
         }
     };
-
 };
 
 /********************************** End of Illidan AI* *****************************************/
@@ -1157,7 +1166,7 @@ public:
 
     struct boss_maievAI : public ScriptedAI
     {
-        boss_maievAI(Creature* c) : ScriptedAI(c) {};
+        boss_maievAI(Creature* c) : ScriptedAI(c) { };
 
         uint64 IllidanGUID;
 
@@ -1181,7 +1190,11 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
         void EnterEvadeMode() {}
-        void GetIllidanGUID(uint64 guid) { IllidanGUID = guid; }
+
+        void GetIllidanGUID(uint64 guid)
+        {
+            IllidanGUID = guid;
+        }
 
         void DamageTaken(Unit* done_by, uint32 &damage)
         {
@@ -1362,7 +1375,6 @@ public:
                     DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_akama_illidan : public CreatureScript
@@ -1377,6 +1389,7 @@ public:
             instance = c->GetInstanceScript();
             JustCreated = true;
         }
+
         bool JustCreated;
         InstanceScript* instance;
 
@@ -1824,7 +1837,6 @@ public:
     {
         return new npc_akama_illidanAI(creature);
     }
-
 };
 
 void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
@@ -2002,8 +2014,10 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
     default:
         break;
     }
+
     if (Phase == PHASE_TALK_SEQUENCE)
         Talk(TalkCount); // This function does most of the talking
+
     ++TalkCount;
 }
 
@@ -2019,7 +2033,7 @@ public:
 
     struct cage_trap_triggerAI : public ScriptedAI
     {
-        cage_trap_triggerAI(Creature* c) : ScriptedAI(c) {}
+        cage_trap_triggerAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 IllidanGUID;
         uint32 DespawnTimer;
@@ -2057,9 +2071,9 @@ public:
                         DespawnTimer = 5000;
                         if (who->HasAura(SPELL_ENRAGE))
                             who->RemoveAurasDueToSpell(SPELL_ENRAGE); // Dispel his enrage
-                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetData64(CageTrapGUID)))
 
-                        //    CageTrap->SetLootState(GO_JUST_DEACTIVATED);
+                        // if (GameObject* CageTrap = instance->instance->GetGameObject(instance->GetData64(CageTrapGUID)))
+                        //     CageTrap->SetLootState(GO_JUST_DEACTIVATED);
                     }
                 }
             }
@@ -2074,16 +2088,15 @@ public:
                 else DespawnTimer -= diff;
             }
 
-                // if (IllidanGUID && !SummonedBeams)
-                // {
-                //    if (Unit* Illidan = Unit::GetUnit(*me, IllidanGUID)
-                //    {
-                //        // TODO: Find proper spells and properly apply 'caged' Illidan effect
-                //    }
-                // }
+            // if (IllidanGUID && !SummonedBeams)
+            // {
+            //    if (Unit* Illidan = Unit::GetUnit(*me, IllidanGUID)
+            //    {
+            //        // TODO: Find proper spells and properly apply 'caged' Illidan effect
+            //    }
+            // }
         }
     };
-
 };
 
 class gameobject_cage_trap : public GameObjectScript
@@ -2102,7 +2115,6 @@ public:
         go->SetGoState(GO_STATE_ACTIVE);
         return true;
     }
-
 };
 
 class mob_shadow_demon : public CreatureScript
@@ -2117,7 +2129,7 @@ public:
 
     struct shadow_demonAI : public ScriptedAI
     {
-        shadow_demonAI(Creature* c) : ScriptedAI(c) {}
+        shadow_demonAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 TargetGUID;
 
@@ -2153,7 +2165,6 @@ public:
                 DoCast(me->getVictim(), SPELL_CONSUME_SOUL);
         }
     };
-
 };
 
 class mob_blade_of_azzinoth : public CreatureScript
@@ -2176,7 +2187,6 @@ public:
                 me->SetDisplayId(21431);// appear when hit by Illidan's glaive
         }
     };
-
 };
 
 class mob_parasitic_shadowfiend : public CreatureScript
@@ -2212,7 +2222,10 @@ public:
             DoCast(me, SPELL_SHADOWFIEND_PASSIVE, true);
         }
 
-        void EnterCombat(Unit* /*who*/) { DoZoneInCombat(); }
+        void EnterCombat(Unit* /*who*/)
+        {
+            DoZoneInCombat();
+        }
 
         void DoMeleeAttackIfReady()
         {
@@ -2258,7 +2271,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_illidan()

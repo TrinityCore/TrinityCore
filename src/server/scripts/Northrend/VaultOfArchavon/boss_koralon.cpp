@@ -56,9 +56,7 @@ class boss_koralon : public CreatureScript
 
         struct boss_koralonAI : public BossAI
         {
-            boss_koralonAI(Creature* creature) : BossAI(creature, DATA_KORALON)
-            {
-            }
+            boss_koralonAI(Creature* creature) : BossAI(creature, DATA_KORALON) { }
 
             void EnterCombat(Unit* /*who*/)
             {
@@ -131,9 +129,7 @@ class mob_flame_warder : public CreatureScript
 
         struct mob_flame_warderAI : public ScriptedAI
         {
-            mob_flame_warderAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            mob_flame_warderAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset()
             {

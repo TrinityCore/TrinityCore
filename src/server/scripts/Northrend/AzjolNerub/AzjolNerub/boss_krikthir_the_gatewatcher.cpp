@@ -212,7 +212,7 @@ public:
 
     struct npc_skittering_infectorAI : public ScriptedAI
     {
-        npc_skittering_infectorAI(Creature* c) : ScriptedAI(c) {}
+        npc_skittering_infectorAI(Creature* c) : ScriptedAI(c) { }
 
         void JustDied(Unit* /*killer*/)
         {
@@ -234,7 +234,7 @@ public:
 
     struct npc_anub_ar_skirmisherAI : public ScriptedAI
     {
-        npc_anub_ar_skirmisherAI(Creature* c) : ScriptedAI(c) {}
+        npc_anub_ar_skirmisherAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiChargeTimer;
         uint32 uiBackstabTimer;
@@ -285,7 +285,7 @@ public:
 
     struct npc_anub_ar_shadowcasterAI : public ScriptedAI
     {
-        npc_anub_ar_shadowcasterAI(Creature* c) : ScriptedAI(c) {}
+        npc_anub_ar_shadowcasterAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiShadowBoltTimer;
         uint32 uiShadowNovaTimer;
@@ -331,7 +331,7 @@ public:
 
     struct npc_anub_ar_warriorAI : public ScriptedAI
     {
-        npc_anub_ar_warriorAI(Creature* c) : ScriptedAI(c){}
+        npc_anub_ar_warriorAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiCleaveTimer;
         uint32 uiStrikeTimer;
@@ -376,7 +376,7 @@ public:
 
     struct npc_watcher_gashraAI : public ScriptedAI
     {
-        npc_watcher_gashraAI(Creature* c) : ScriptedAI(c) {}
+        npc_watcher_gashraAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -427,7 +427,7 @@ public:
 
     struct npc_watcher_narjilAI : public ScriptedAI
     {
-        npc_watcher_narjilAI(Creature* c) : ScriptedAI(c) {}
+        npc_watcher_narjilAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -481,7 +481,7 @@ public:
 
     struct npc_watcher_silthikAI : public ScriptedAI
     {
-        npc_watcher_silthikAI(Creature* c) : ScriptedAI(c) {}
+        npc_watcher_silthikAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiWebWrapTimer;
         uint32 uiInfectedBiteTimer;
@@ -533,9 +533,7 @@ public:
 class achievement_watch_him_die : public AchievementCriteriaScript
 {
     public:
-        achievement_watch_him_die() : AchievementCriteriaScript("achievement_watch_him_die")
-        {
-        }
+        achievement_watch_him_die() : AchievementCriteriaScript("achievement_watch_him_die") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

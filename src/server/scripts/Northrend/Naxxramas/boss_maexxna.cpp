@@ -68,7 +68,7 @@ public:
 
     struct boss_maexxnaAI : public BossAI
     {
-        boss_maexxnaAI(Creature* c) : BossAI(c, BOSS_MAEXXNA) {}
+        boss_maexxnaAI(Creature* c) : BossAI(c, BOSS_MAEXXNA) { }
 
         bool enraged;
 
@@ -144,7 +144,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_webwrap : public CreatureScript
@@ -159,7 +158,7 @@ public:
 
     struct mob_webwrapAI : public NullCreatureAI
     {
-        mob_webwrapAI(Creature* c) : NullCreatureAI(c), victimGUID(0) {}
+        mob_webwrapAI(Creature* c) : NullCreatureAI(c), victimGUID(0) { }
 
         uint64 victimGUID;
 
@@ -178,7 +177,6 @@ public:
                     victim->RemoveAurasDueToSpell(me->m_spells[0], me->GetGUID());
         }
     };
-
 };
 
 void AddSC_boss_maexxna()

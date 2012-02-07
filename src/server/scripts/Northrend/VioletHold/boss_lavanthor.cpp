@@ -20,13 +20,13 @@
 
 enum Spells
 {
-  SPELL_CAUTERIZING_FLAMES                      = 59466, //Only in heroic
-  SPELL_FIREBOLT                                = 54235,
-  H_SPELL_FIREBOLT                              = 59468,
-  SPELL_FLAME_BREATH                            = 54282,
-  H_SPELL_FLAME_BREATH                          = 59469,
-  SPELL_LAVA_BURN                               = 54249,
-  H_SPELL_LAVA_BURN                             = 59594
+    SPELL_CAUTERIZING_FLAMES          = 59466, // Only in heroic
+    SPELL_FIREBOLT                    = 54235,
+    H_SPELL_FIREBOLT                  = 59468,
+    SPELL_FLAME_BREATH                = 54282,
+    H_SPELL_FLAME_BREATH              = 59469,
+    SPELL_LAVA_BURN                   = 54249,
+    H_SPELL_LAVA_BURN                 = 59594
 };
 
 class boss_lavanthor : public CreatureScript
@@ -154,7 +154,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_boss_lavanthor()

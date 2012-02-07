@@ -226,7 +226,7 @@ public:
 
     struct mob_headAI : public ScriptedAI
     {
-        mob_headAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_headAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 bodyGUID;
 
@@ -483,14 +483,21 @@ public:
         {
             if (instance)
                 instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
+
             DoZoneInCombat();
         }
-        void AttackStart(Unit* who) {ScriptedAI::AttackStart(who);}
+
+        void AttackStart(Unit* who)
+        {
+            ScriptedAI::AttackStart(who);
+        }
+
         void MoveInLineOfSight(Unit* who)
         {
             if (withhead && Phase != 0)
                 ScriptedAI::MoveInLineOfSight(who);
         }
+
         void KilledUnit(Unit* player)
         {
             if (player->GetTypeId() == TYPEID_PLAYER)
@@ -564,6 +571,7 @@ public:
                     ++Phase;
                 else
                     Phase = 3;
+
                 withhead = true;
                 me->RemoveAllAuras();
                 me->SetName("Headless Horseman");
@@ -761,7 +769,7 @@ public:
 
     struct mob_pulsing_pumpkinAI : public ScriptedAI
     {
-        mob_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_pulsing_pumpkinAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool sprouted;
         uint64 debuffGUID;
@@ -772,6 +780,7 @@ public:
             me->GetPosition(x, y, z);   //this visual aura some under ground
             me->SetPosition(x, y, z + 0.35f, 0.0f);
             Despawn();
+
             Creature* debuff = DoSpawnCreature(HELPER, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 14500);
             if (debuff)
             {
@@ -780,6 +789,7 @@ public:
                 CAST_AI(mob_wisp_invis::mob_wisp_invisAI, debuff->AI())->SetType(1);
                 debuffGUID = debuff->GetGUID();
             }
+
             sprouted = false;
             DoCast(me, SPELL_PUMPKIN_AURA, true);
             DoCast(me, SPELL_SPROUTING);
@@ -810,7 +820,11 @@ public:
                 debuffGUID = 0;
         }
 
-        void JustDied(Unit* /*killer*/) { if (!sprouted) Despawn(); }
+        void JustDied(Unit* /*killer*/)
+        {
+            if (!sprouted)
+                Despawn();
+        }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -844,20 +858,14 @@ public:
                 return true;
             instance->SetData(DATA_HORSEMAN_EVENT, IN_PROGRESS);
         }
-    /*  if (soil->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER && player->getLevel() > 64)
+
+        player->AreaExploredOrEventHappens(11405);
+        if (Creature* horseman = soil->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
         {
-            player->PrepareQuestMenu(soil->GetGUID());
-            player->SendPreparedQuest(soil->GetGUID());
+            CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
+            CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
         }
-        if (player->GetQuestStatus(11405) == QUEST_STATUS_INCOMPLETE && player->getLevel() > 64)
-        { */
-            player->AreaExploredOrEventHappens(11405);
-            if (Creature* horseman = soil->SummonCreature(HH_MOUNTED, FlightPoint[20].x, FlightPoint[20].y, FlightPoint[20].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 0))
-            {
-                CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->PlayerGUID = player->GetGUID();
-                CAST_AI(boss_headless_horseman::boss_headless_horsemanAI, horseman->AI())->FlyMode();
-            }
-        //}
+
         return true;
     }
 };

@@ -70,7 +70,7 @@ float AttackLoc[3]= {197.636f, 194.046f, 40.8164f};
 class npc_frost_tomb : public CreatureScript
 {
 public:
-    npc_frost_tomb() : CreatureScript("npc_frost_tomb") {}
+    npc_frost_tomb() : CreatureScript("npc_frost_tomb") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -106,7 +106,7 @@ public:
 class boss_keleseth : public CreatureScript
 {
 public:
-    boss_keleseth() : CreatureScript("boss_keleseth") {}
+    boss_keleseth() : CreatureScript("boss_keleseth") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -203,7 +203,7 @@ public:
 class npc_vrykul_skeleton : public CreatureScript
 {
 public:
-    npc_vrykul_skeleton() : CreatureScript("npc_vrykul_skeleton") {}
+    npc_vrykul_skeleton() : CreatureScript("npc_vrykul_skeleton") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -212,7 +212,7 @@ public:
 
     struct npc_vrykul_skeletonAI : public ScriptedAI
     {
-        npc_vrykul_skeletonAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_vrykul_skeletonAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -292,7 +292,7 @@ public:
 class spell_frost_tomb : public SpellScriptLoader
 {
     public:
-        spell_frost_tomb() : SpellScriptLoader("spell_frost_tomb") {}
+        spell_frost_tomb() : SpellScriptLoader("spell_frost_tomb") { }
 
         class spell_frost_tomb_AuraScript : public AuraScript
         {
@@ -321,7 +321,7 @@ class spell_frost_tomb : public SpellScriptLoader
 class achievement_on_the_rocks : public AchievementCriteriaScript
 {
     public:
-        achievement_on_the_rocks() : AchievementCriteriaScript("achievement_on_the_rocks") {}
+        achievement_on_the_rocks() : AchievementCriteriaScript("achievement_on_the_rocks") { }
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {

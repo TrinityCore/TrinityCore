@@ -57,7 +57,7 @@ public:
 
     struct boss_heiganAI : public BossAI
     {
-        boss_heiganAI(Creature* c) : BossAI(c, BOSS_HEIGAN) {}
+        boss_heiganAI(Creature* c) : BossAI(c, BOSS_HEIGAN) { }
 
         uint32 eruptSection;
         bool eruptDirection;
@@ -165,7 +165,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class spell_heigan_eruption : public SpellScriptLoader
@@ -204,9 +203,7 @@ class spell_heigan_eruption : public SpellScriptLoader
 class achievement_safety_dance : public AchievementCriteriaScript
 {
     public:
-        achievement_safety_dance() : AchievementCriteriaScript("achievement_safety_dance")
-        {
-        }
+        achievement_safety_dance() : AchievementCriteriaScript("achievement_safety_dance") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

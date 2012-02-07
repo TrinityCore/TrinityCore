@@ -181,10 +181,10 @@ public:
                 instance->SetData(DATA_MAULGAREVENT, DONE);
         }
 
-           void AddDeath()
-           {
-                DoScriptText(RAND(SAY_OGRE_DEATH1, SAY_OGRE_DEATH2, SAY_OGRE_DEATH3, SAY_OGRE_DEATH4), me);
-           }
+        void AddDeath()
+        {
+            DoScriptText(RAND(SAY_OGRE_DEATH1, SAY_OGRE_DEATH2, SAY_OGRE_DEATH3, SAY_OGRE_DEATH4), me);
+        }
 
         void EnterCombat(Unit* who)
         {
@@ -251,11 +251,11 @@ public:
             } else ArcingSmash_Timer -= diff;
 
             //Whirlwind_Timer
-                   if (Whirlwind_Timer <= diff)
-                   {
-                        DoCast(me->getVictim(), SPELL_WHIRLWIND);
-                        Whirlwind_Timer = 55000;
-                   } else Whirlwind_Timer -= diff;
+            if (Whirlwind_Timer <= diff)
+            {
+                DoCast(me->getVictim(), SPELL_WHIRLWIND);
+                Whirlwind_Timer = 55000;
+            } else Whirlwind_Timer -= diff;
 
             //MightyBlow_Timer
             if (MightyBlow_Timer <= diff)
@@ -429,7 +429,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Kiggler The Crazed AI
@@ -551,7 +550,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Blindeye The Seer AI
@@ -661,7 +659,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Krosh Firehand AI

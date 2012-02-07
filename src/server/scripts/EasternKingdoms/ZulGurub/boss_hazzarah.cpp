@@ -32,11 +32,7 @@ EndScriptData */
 class boss_hazzarah : public CreatureScript
 {
     public:
-
-        boss_hazzarah()
-            : CreatureScript("boss_hazzarah")
-        {
-        }
+        boss_hazzarah() : CreatureScript("boss_hazzarah") { }
 
         struct boss_hazzarahAI : public ScriptedAI
         {

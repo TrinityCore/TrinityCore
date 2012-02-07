@@ -154,6 +154,7 @@ public:
         {
             if (instance)
                 instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
+
             Scripted_NoMovementAI::EnterCombat(who);
         }
 
@@ -318,7 +319,8 @@ public:
 
                 DoMeleeAttackIfReady();
 
-            }else//submerged
+            }
+            else//submerged
             {
                 if (PhaseTimer <= diff)
                 {
@@ -386,7 +388,6 @@ public:
 
         return ai;
     }
-
 };
 
 class mob_coilfang_ambusher : public CreatureScript
@@ -401,9 +402,7 @@ public:
 
     struct mob_coilfang_ambusherAI : public Scripted_NoMovementAI
     {
-        mob_coilfang_ambusherAI(Creature* c) : Scripted_NoMovementAI(c)
-        {
-        }
+        mob_coilfang_ambusherAI(Creature* c) : Scripted_NoMovementAI(c) { }
 
         uint32 MultiShotTimer;
         uint32 ShootBowTimer;
@@ -459,7 +458,7 @@ public:
 class go_strange_pool : public GameObjectScript
 {
     public:
-        go_strange_pool() : GameObjectScript("go_strange_pool") {}
+        go_strange_pool() : GameObjectScript("go_strange_pool") { }
 
         bool OnGossipHello(Player* player, GameObject* go)
         {

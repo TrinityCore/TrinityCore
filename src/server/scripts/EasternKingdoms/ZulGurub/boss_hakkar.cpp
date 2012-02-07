@@ -47,11 +47,7 @@ EndScriptData */
 class boss_hakkar : public CreatureScript
 {
     public:
-
-        boss_hakkar()
-            : CreatureScript("boss_hakkar")
-        {
-        }
+        boss_hakkar() : CreatureScript("boss_hakkar") { }
 
         struct boss_hakkarAI : public ScriptedAI
         {

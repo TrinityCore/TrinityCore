@@ -490,7 +490,6 @@ public:
             }
         }
     };
-
 };
 
 //AI for Kil'jaeden
@@ -906,7 +905,6 @@ public:
             }
         }
     };
-
 };
 
 //AI for Hand of the Deceiver
@@ -1007,7 +1005,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //AI for Felfire Portal
@@ -1023,7 +1020,7 @@ public:
 
     struct mob_felfire_portalAI : public Scripted_NoMovementAI
     {
-        mob_felfire_portalAI(Creature* c) : Scripted_NoMovementAI(c) {}
+        mob_felfire_portalAI(Creature* c) : Scripted_NoMovementAI(c) { }
 
         uint32 uiSpawnFiendTimer;
 
@@ -1052,7 +1049,6 @@ public:
             } else uiSpawnFiendTimer -= diff;
         }
     };
-
 };
 
 //AI for Felfire Fiend
@@ -1068,7 +1064,7 @@ public:
 
     struct mob_volatile_felfire_fiendAI : public ScriptedAI
     {
-        mob_volatile_felfire_fiendAI(Creature* c) : ScriptedAI(c) {}
+        mob_volatile_felfire_fiendAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiExplodeTimer;
 
@@ -1110,7 +1106,6 @@ public:
             }
         }
     };
-
 };
 
 //AI for Armageddon target
@@ -1126,7 +1121,7 @@ public:
 
     struct mob_armageddonAI : public Scripted_NoMovementAI
     {
-        mob_armageddonAI(Creature* c) : Scripted_NoMovementAI(c) {}
+        mob_armageddonAI(Creature* c) : Scripted_NoMovementAI(c) { }
 
         uint8 spell;
         uint32 uiTimer;
@@ -1165,7 +1160,6 @@ public:
             } else uiTimer -=diff;
         }
     };
-
 };
 
 //AI for Shield Orbs
@@ -1253,7 +1247,6 @@ public:
             bPointReached = true;
         }
     };
-
 };
 
 //AI for Sinister Reflection
@@ -1269,7 +1262,7 @@ public:
 
     struct mob_sinster_reflectionAI : public ScriptedAI
     {
-        mob_sinster_reflectionAI(Creature* c) : ScriptedAI(c) {}
+        mob_sinster_reflectionAI(Creature* c) : ScriptedAI(c) { }
 
         uint8 victimClass;
         uint32 uiTimer[3];
@@ -1316,7 +1309,8 @@ public:
                 }
             }
 
-            switch (victimClass) {
+            switch (victimClass)
+            {
                 case CLASS_DRUID:
                     if (uiTimer[1] <= diff)
                     {
@@ -1423,7 +1417,6 @@ public:
                     uiTimer[i] -= diff;
             }
     };
-
 };
 
 void AddSC_boss_kiljaeden()

@@ -291,9 +291,7 @@ class boss_krick : public CreatureScript
 
         struct boss_krickAI : public ScriptedAI
         {
-            boss_krickAI(Creature* creature) : ScriptedAI(creature), _instanceScript(creature->GetInstanceScript()), _summons(creature)
-            {
-            }
+            boss_krickAI(Creature* creature) : ScriptedAI(creature), _instanceScript(creature->GetInstanceScript()), _summons(creature) { }
 
             void InitializeAI()
             {

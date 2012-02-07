@@ -285,9 +285,7 @@ class npc_coldflame : public CreatureScript
 
         struct npc_coldflameAI : public ScriptedAI
         {
-            npc_coldflameAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_coldflameAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* owner)
             {

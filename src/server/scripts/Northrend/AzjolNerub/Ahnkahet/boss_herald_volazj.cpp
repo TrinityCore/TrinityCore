@@ -85,6 +85,7 @@ public:
         {
             if (damage > me->GetHealth())
                 return 0;
+
             return 100*(me->GetHealth()-damage)/me->GetMaxHealth();
         }
 
@@ -322,5 +323,5 @@ public:
 
 void AddSC_boss_volazj()
 {
-    new boss_volazj;
+    new boss_volazj();
 }

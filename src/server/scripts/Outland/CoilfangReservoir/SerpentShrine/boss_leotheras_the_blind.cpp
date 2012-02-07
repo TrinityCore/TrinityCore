@@ -154,7 +154,6 @@ public:
            DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Original Leotheras the Blind AI
@@ -248,6 +247,7 @@ public:
 
             }
         }
+
         void MoveInLineOfSight(Unit* who)
         {
             if (me->HasAura(AURA_BANISH))
@@ -584,7 +584,6 @@ public:
             }
         }
     };
-
 };
 
 //Leotheras the Blind Demon Form AI
@@ -600,7 +599,7 @@ public:
 
     struct boss_leotheras_the_blind_demonformAI : public ScriptedAI
     {
-        boss_leotheras_the_blind_demonformAI(Creature* c) : ScriptedAI(c) {}
+        boss_leotheras_the_blind_demonformAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 ChaosBlast_Timer;
         bool DealDamage;
@@ -789,12 +788,12 @@ public:
                 }
                 Earthshock_Timer = urand(8000, 15000);
             } else Earthshock_Timer -= diff;
+
             DoMeleeAttackIfReady();
         }
 
         void JustDied(Unit* /*killer*/) {}
     };
-
 };
 
 void AddSC_boss_leotheras_the_blind()

@@ -600,9 +600,7 @@ public:
 class achievement_volunteer_work : public AchievementCriteriaScript
 {
     public:
-        achievement_volunteer_work() : AchievementCriteriaScript("achievement_volunteer_work")
-        {
-        }
+        achievement_volunteer_work() : AchievementCriteriaScript("achievement_volunteer_work") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
