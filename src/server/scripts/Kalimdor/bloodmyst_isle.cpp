@@ -49,7 +49,7 @@ public:
 
     struct mob_webbed_creatureAI : public ScriptedAI
     {
-        mob_webbed_creatureAI(Creature* c) : ScriptedAI(c) {}
+        mob_webbed_creatureAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {
@@ -184,7 +184,7 @@ public:
 
     struct npc_princess_stillpineAI : public ScriptedAI
     {
-        npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MovementInform(uint32 type, uint32 id)
         {

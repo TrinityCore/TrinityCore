@@ -125,7 +125,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_demon_chain : public CreatureScript
@@ -140,7 +139,7 @@ public:
 
     struct mob_demon_chainAI : public ScriptedAI
     {
-        mob_demon_chainAI(Creature* c) : ScriptedAI(c) {}
+        mob_demon_chainAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 SacrificeGUID;
 
@@ -163,7 +162,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_fiendish_portal : public CreatureScript
@@ -198,7 +196,6 @@ public:
             summons.DespawnAll();
         }
     };
-
 };
 
 #define SPELL_FIREBOLT  30050   // Blasts a target for 181-209 Fire damage.
@@ -215,7 +212,7 @@ public:
 
     struct mob_fiendish_impAI : public ScriptedAI
     {
-        mob_fiendish_impAI(Creature* c) : ScriptedAI(c) {}
+        mob_fiendish_impAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 FireboltTimer;
 
@@ -243,7 +240,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_terestian_illhoof : public CreatureScript
@@ -420,7 +416,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_terestian_illhoof()

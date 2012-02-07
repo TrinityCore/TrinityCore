@@ -57,9 +57,7 @@ class boss_moam : public CreatureScript
 
         struct boss_moamAI : public BossAI
         {
-            boss_moamAI(Creature* creature) : BossAI(creature, BOSS_MOAM)
-            {
-            }
+            boss_moamAI(Creature* creature) : BossAI(creature, BOSS_MOAM) { }
 
             void Reset()
             {
@@ -154,8 +152,8 @@ class boss_moam : public CreatureScript
 
                             events.ScheduleEvent(EVENT_DRAIN_MANA, urand(5000, 15000));
                             break;
-                        }/*
-                        case EVENT_WIDE_SLASH:
+                        }                        
+                        /*case EVENT_WIDE_SLASH:
                             DoCast(me, SPELL_WIDE_SLASH);
                             events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
                             break;

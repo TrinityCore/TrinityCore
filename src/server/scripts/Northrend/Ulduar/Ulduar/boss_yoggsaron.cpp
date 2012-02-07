@@ -52,6 +52,7 @@ enum
 {
     ACHIEV_TIMED_START_EVENT                      = 21001,
 };
+
 //not in scriptloader yet just to remove warning boss_yoggsaron.obj : warning LNK4221: no public symbols found; archive member will be inaccessible
 void AddSC_boss_yoggsaron()
 {

@@ -65,7 +65,7 @@ public:
 
     struct molten_flameAI : public NullCreatureAI
     {
-        molten_flameAI(Creature* c) : NullCreatureAI(c) {}
+        molten_flameAI(Creature* c) : NullCreatureAI(c) { }
 
         void InitializeAI()
         {
@@ -165,8 +165,15 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summon) {summons.Summon(summon);}
-        void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
+        void JustSummoned(Creature* summon)
+        {
+            summons.Summon(summon);
+        }
+
+        void SummonedCreatureDespawn(Creature* summon)
+        {
+            summons.Despawn(summon);
+        }
 
         Unit* CalculateHatefulStrikeTarget()
         {
@@ -248,7 +255,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_volcano : public CreatureScript
@@ -263,7 +269,7 @@ public:
 
     struct npc_volcanoAI : public Scripted_NoMovementAI
     {
-        npc_volcanoAI(Creature* c) : Scripted_NoMovementAI(c) {}
+        npc_volcanoAI(Creature* c) : Scripted_NoMovementAI(c) { }
 
         void Reset()
         {
@@ -293,9 +299,7 @@ public:
             }
             else wait -= diff;
         }
-
     };
-
 };
 
 void AddSC_boss_supremus()

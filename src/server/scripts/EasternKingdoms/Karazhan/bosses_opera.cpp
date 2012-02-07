@@ -214,7 +214,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_tito : public CreatureScript
@@ -229,7 +228,7 @@ public:
 
     struct mob_titoAI : public ScriptedAI
     {
-        mob_titoAI(Creature* c) : ScriptedAI(c) {}
+        mob_titoAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 DorotheeGUID;
         uint32 YipTimer;
@@ -269,7 +268,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void boss_dorothee::boss_dorotheeAI::SummonTito()
@@ -396,7 +394,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_tinhead : public CreatureScript
@@ -506,7 +503,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_roar : public CreatureScript
@@ -615,7 +611,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_crone : public CreatureScript
@@ -697,7 +692,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_cyclone : public CreatureScript
@@ -712,7 +706,7 @@ public:
 
     struct mob_cycloneAI : public ScriptedAI
     {
-        mob_cycloneAI(Creature* c) : ScriptedAI(c) {}
+        mob_cycloneAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 MoveTimer;
 
@@ -741,7 +735,6 @@ public:
             } else MoveTimer -= diff;
         }
     };
-
 };
 
 /**************************************/
@@ -790,7 +783,6 @@ public:
 
         return true;
     }
-
 };
 
 class boss_bigbadwolf : public CreatureScript
@@ -916,7 +908,6 @@ public:
 
         }
     };
-
 };
 
 /**********************************************/
@@ -1112,7 +1103,6 @@ public:
 
         void UpdateAI(const uint32 diff);
     };
-
 };
 
 class boss_romulo : public CreatureScript
@@ -1319,7 +1309,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void boss_julianne::boss_julianneAI::UpdateAI(const uint32 diff)

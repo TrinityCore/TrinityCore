@@ -81,8 +81,7 @@ public:
 
     struct boss_sapphironAI : public BossAI
     {
-        boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON)
-            , phase(PHASE_NULL)
+        boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON), phase(PHASE_NULL)
         {
             map = me->GetMap();
         }
@@ -353,8 +352,8 @@ public:
                             me->SetReactState(REACT_AGGRESSIVE);
                             return;
                     }
-                }//if (uint32 eventId = events.ExecuteEvent())
-            }//if (phase == PHASE_GROUND)
+                }
+            }
         }
 
         void CastExplosion()
@@ -396,7 +395,6 @@ public:
                 (*itr)->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, false);
         }
     };
-
 };
 
 void AddSC_boss_sapphiron()

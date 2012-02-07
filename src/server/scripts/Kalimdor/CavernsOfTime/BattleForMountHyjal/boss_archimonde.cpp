@@ -144,7 +144,7 @@ public:
 
     struct mob_doomfireAI : public ScriptedAI
     {
-        mob_doomfireAI(Creature* c) : ScriptedAI(c) {}
+        mob_doomfireAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() { }
 
@@ -169,7 +169,7 @@ public:
 
     struct mob_doomfire_targettingAI : public ScriptedAI
     {
-        mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) {}
+        mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 TargetGUID;
         uint32 ChangeTargetTimer;

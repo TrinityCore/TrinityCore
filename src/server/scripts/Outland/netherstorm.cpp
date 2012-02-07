@@ -78,7 +78,7 @@ public:
 
     struct npc_manaforge_control_consoleAI : public ScriptedAI
     {
-        npc_manaforge_control_consoleAI(Creature* c) : ScriptedAI(c) {}
+        npc_manaforge_control_consoleAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Event_Timer;
         uint32 Wave_Timer;
@@ -750,7 +750,7 @@ public:
 
     struct mob_phase_hunterAI : public ScriptedAI
     {
-        mob_phase_hunterAI(Creature* c) : ScriptedAI(c) {}
+        mob_phase_hunterAI(Creature* c) : ScriptedAI(c) { }
 
         bool Weak;
         bool Materialize;

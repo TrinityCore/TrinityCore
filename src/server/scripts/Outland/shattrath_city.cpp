@@ -152,7 +152,7 @@ public:
 
     struct npc_salsalabimAI : public ScriptedAI
     {
-        npc_salsalabimAI(Creature* c) : ScriptedAI(c) {}
+        npc_salsalabimAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 MagneticPull_Timer;
 
@@ -406,7 +406,7 @@ public:
 
     struct npc_dirty_larryAI : public ScriptedAI
     {
-        npc_dirty_larryAI(Creature* c) : ScriptedAI(c) {}
+        npc_dirty_larryAI(Creature* c) : ScriptedAI(c) { }
 
         bool Event;
         bool Attack;

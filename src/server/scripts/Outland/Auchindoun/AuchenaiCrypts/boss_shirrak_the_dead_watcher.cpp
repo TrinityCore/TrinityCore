@@ -52,9 +52,7 @@ public:
 
     struct boss_shirrak_the_dead_watcherAI : public ScriptedAI
     {
-        boss_shirrak_the_dead_watcherAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        boss_shirrak_the_dead_watcherAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Inhibitmagic_Timer;
         uint32 Attractmagic_Timer;
@@ -72,8 +70,7 @@ public:
             FocusedTargetGUID = 0;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void JustSummoned(Creature* summoned)
         {
@@ -155,7 +152,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_focus_fire : public CreatureScript
@@ -170,9 +166,7 @@ public:
 
     struct mob_focus_fireAI : public ScriptedAI
     {
-        mob_focus_fireAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        mob_focus_fireAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 FieryBlast_Timer;
         bool fiery1, fiery2;
@@ -183,8 +177,7 @@ public:
             fiery1 = fiery2 = true;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        { }
+        void EnterCombat(Unit* /*who*/) { }
 
         void UpdateAI(const uint32 diff)
         {
@@ -206,7 +199,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_shirrak_the_dead_watcher()

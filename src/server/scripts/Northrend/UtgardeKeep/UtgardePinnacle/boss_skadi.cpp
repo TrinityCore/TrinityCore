@@ -453,7 +453,6 @@ public:
                 me->SummonCreature(CREATURE_TRIGGER, Location[i]);
         }
     };
-
 };
 
 class go_harpoon_launcher : public GameObjectScript
@@ -464,15 +463,14 @@ public:
     bool OnGossipHello(Player* player, GameObject* pGO)
     {
         InstanceScript* m_instance = pGO->GetInstanceScript();
-        if (!m_instance) return false;
+        if (!m_instance)
+            return false;
 
         if (Creature* pSkadi = Unit::GetCreature((*pGO), m_instance->GetData64(DATA_SKADI_THE_RUTHLESS)))
-        {
             player->CastSpell(pSkadi, SPELL_RAPID_FIRE, true);
-        }
+
         return false;
     }
-
 };
 
 void AddSC_boss_skadi()

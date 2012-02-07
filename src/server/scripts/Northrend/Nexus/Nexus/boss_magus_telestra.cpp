@@ -334,15 +334,12 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class achievement_split_personality : public AchievementCriteriaScript
 {
     public:
-        achievement_split_personality() : AchievementCriteriaScript("achievement_split_personality")
-        {
-        }
+        achievement_split_personality() : AchievementCriteriaScript("achievement_split_personality") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

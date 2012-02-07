@@ -208,7 +208,6 @@ public:
                 DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_talon_king_ikiss()

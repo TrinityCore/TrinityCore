@@ -50,17 +50,11 @@ enum eSpells
 class boss_watchkeeper_gargolmar : public CreatureScript
 {
     public:
-
-        boss_watchkeeper_gargolmar()
-            : CreatureScript("boss_watchkeeper_gargolmar")
-        {
-        }
+        boss_watchkeeper_gargolmar() : CreatureScript("boss_watchkeeper_gargolmar") { }
 
         struct boss_watchkeeper_gargolmarAI : public ScriptedAI
         {
-            boss_watchkeeper_gargolmarAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            boss_watchkeeper_gargolmarAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Surge_Timer;
             uint32 MortalWound_Timer;
@@ -174,4 +168,3 @@ void AddSC_boss_watchkeeper_gargolmar()
 {
     new boss_watchkeeper_gargolmar();
 }
-

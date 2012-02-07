@@ -41,7 +41,7 @@ public:
 
     struct boss_moira_bronzebeardAI : public ScriptedAI
     {
-        boss_moira_bronzebeardAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_moira_bronzebeardAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Heal_Timer;
         uint32 MindBlast_Timer;

@@ -310,7 +310,7 @@ public:
 
     struct npc_risen_ghoulAI : public ScriptedAI
     {
-        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_risen_ghoulAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiAttackTimer;
 

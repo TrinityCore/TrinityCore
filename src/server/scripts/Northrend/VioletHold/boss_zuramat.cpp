@@ -199,15 +199,12 @@ public:
             summon->SetPhaseMask(17, true);
         }
     };
-
 };
 
 class achievement_void_dance : public AchievementCriteriaScript
 {
     public:
-        achievement_void_dance() : AchievementCriteriaScript("achievement_void_dance")
-        {
-        }
+        achievement_void_dance() : AchievementCriteriaScript("achievement_void_dance") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

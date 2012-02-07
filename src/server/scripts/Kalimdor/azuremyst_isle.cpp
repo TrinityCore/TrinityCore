@@ -69,7 +69,7 @@ public:
 
     struct npc_draenei_survivorAI : public ScriptedAI
     {
-        npc_draenei_survivorAI(Creature* c) : ScriptedAI(c) {}
+        npc_draenei_survivorAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 pCaster;
 
@@ -299,7 +299,7 @@ public:
 
     struct npc_injured_draeneiAI : public ScriptedAI
     {
-        npc_injured_draeneiAI(Creature* c) : ScriptedAI(c) {}
+        npc_injured_draeneiAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {
@@ -438,7 +438,7 @@ public:
 
     struct npc_geezleAI : public ScriptedAI
     {
-        npc_geezleAI(Creature* c) : ScriptedAI(c) {}
+        npc_geezleAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 SparkGUID;
 
@@ -603,7 +603,7 @@ public:
 
     struct npc_death_ravagerAI : public ScriptedAI
     {
-        npc_death_ravagerAI(Creature* c) : ScriptedAI(c){}
+        npc_death_ravagerAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 RendTimer;
         uint32 EnragingBiteTimer;

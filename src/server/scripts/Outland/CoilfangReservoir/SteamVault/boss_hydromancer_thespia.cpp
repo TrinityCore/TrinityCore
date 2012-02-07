@@ -157,7 +157,7 @@ public:
 
     struct mob_coilfang_waterelementalAI : public ScriptedAI
     {
-        mob_coilfang_waterelementalAI(Creature* c) : ScriptedAI(c) {}
+        mob_coilfang_waterelementalAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 WaterBoltVolley_Timer;
 

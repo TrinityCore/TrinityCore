@@ -437,7 +437,7 @@ public:
 
     struct npc_enraged_pantherAI : public ScriptedAI
     {
-        npc_enraged_pantherAI(Creature* c) : ScriptedAI(c) {}
+        npc_enraged_pantherAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {

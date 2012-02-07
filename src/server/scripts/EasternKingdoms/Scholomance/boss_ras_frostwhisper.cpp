@@ -45,7 +45,7 @@ public:
 
     struct boss_rasfrostAI : public ScriptedAI
     {
-        boss_rasfrostAI(Creature* c) : ScriptedAI(c) {}
+        boss_rasfrostAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 IceArmor_Timer;
         uint32 Frostbolt_Timer;
@@ -66,7 +66,7 @@ public:
             DoCast(me, SPELL_ICEARMOR, true);
         }
 
-        void EnterCombat(Unit* /*who*/){}
+        void EnterCombat(Unit* /*who*/) { }
 
         void UpdateAI(const uint32 diff)
         {
@@ -120,7 +120,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_rasfrost()

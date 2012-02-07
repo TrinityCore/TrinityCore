@@ -198,7 +198,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_muru : public CreatureScript
@@ -363,7 +362,6 @@ public:
             }
         }
     };
-
 };
 
 class npc_muru_portal : public CreatureScript
@@ -447,7 +445,6 @@ public:
             } else SummonTimer -= diff;
         }
     };
-
 };
 
 class npc_dark_fiend : public CreatureScript
@@ -462,7 +459,7 @@ public:
 
     struct npc_dark_fiendAI : public ScriptedAI
     {
-        npc_dark_fiendAI(Creature* c) : ScriptedAI(c) {}
+        npc_dark_fiendAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 WaitTimer;
         bool InAction;
@@ -510,7 +507,6 @@ public:
             } else WaitTimer -= diff;
         }
     };
-
 };
 
 class npc_void_sentinel : public CreatureScript
@@ -525,7 +521,7 @@ public:
 
     struct npc_void_sentinelAI : public ScriptedAI
     {
-        npc_void_sentinelAI(Creature* c) : ScriptedAI(c){}
+        npc_void_sentinelAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 PulseTimer;
         uint32 VoidBlastTimer;
@@ -566,7 +562,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_blackhole : public CreatureScript
@@ -635,8 +630,8 @@ public:
                         {
                             if (Temp->GetPositionZ() > 73 && Victim)
                                 AttackStart(Victim);
-                        } else
-                            return;
+                        }
+                        break;
                 }
             } else SpellTimer -= diff;
 
@@ -645,7 +640,6 @@ public:
             else DespawnTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_muru()

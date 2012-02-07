@@ -143,11 +143,7 @@ static TransformStruct Transform[4] =
 class boss_zuljin : public CreatureScript
 {
     public:
-
-        boss_zuljin()
-            : CreatureScript("boss_zuljin")
-        {
-        }
+        boss_zuljin() : CreatureScript("boss_zuljin") { }
 
         struct boss_zuljinAI : public ScriptedAI
         {
@@ -155,6 +151,7 @@ class boss_zuljin : public CreatureScript
             {
                 instance = c->GetInstanceScript();
             }
+
             InstanceScript* instance;
 
             uint64 SpiritGUID[4];
@@ -596,15 +593,11 @@ class boss_zuljin : public CreatureScript
 class mob_zuljin_vortex : public CreatureScript
 {
     public:
-
-        mob_zuljin_vortex()
-            : CreatureScript("mob_zuljin_vortex")
-        {
-        }
+        mob_zuljin_vortex() : CreatureScript("mob_zuljin_vortex") { }
 
         struct mob_zuljin_vortexAI : public ScriptedAI
         {
-            mob_zuljin_vortexAI(Creature* c) : ScriptedAI(c) {}
+            mob_zuljin_vortexAI(Creature* c) : ScriptedAI(c) { }
 
             void Reset() {}
 
@@ -635,4 +628,3 @@ void AddSC_boss_zuljin()
     new boss_zuljin();
     new mob_zuljin_vortex();
 }
-

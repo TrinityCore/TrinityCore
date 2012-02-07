@@ -66,7 +66,7 @@ public:
 
     struct npc_aeranasAI : public ScriptedAI
     {
-        npc_aeranasAI(Creature* c) : ScriptedAI(c) {}
+        npc_aeranasAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Faction_Timer;
         uint32 EnvelopingWinds_Timer;
@@ -482,7 +482,7 @@ public:
 
     struct npc_fel_guard_houndAI : public ScriptedAI
     {
-        npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiCheckTimer;
         uint64 uiHelboarGUID;

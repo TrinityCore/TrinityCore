@@ -59,9 +59,7 @@ public:
             Knockout_Timer = 12000;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) { }
 
         void JustDied(Unit* /*Killer*/)
         {
@@ -98,7 +96,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_ramstein_the_gorger()

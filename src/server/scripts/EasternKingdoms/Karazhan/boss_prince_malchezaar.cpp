@@ -108,8 +108,7 @@ public:
 
     struct netherspite_infernalAI : public ScriptedAI
     {
-        netherspite_infernalAI(Creature* c) : ScriptedAI(c),
-            HellfireTimer(0), CleanupTimer(0), malchezaar(0), point(NULL) {}
+        netherspite_infernalAI(Creature* c) : ScriptedAI(c), HellfireTimer(0), CleanupTimer(0), malchezaar(0), point(NULL) { }
 
         uint32 HellfireTimer;
         uint32 CleanupTimer;
@@ -168,7 +167,6 @@ public:
 
         void Cleanup();
     };
-
 };
 
 class boss_malchezaar : public CreatureScript
@@ -597,7 +595,6 @@ public:
             positions.push_back(point);
         }
     };
-
 };
 
 void netherspite_infernal::netherspite_infernalAI::Cleanup()

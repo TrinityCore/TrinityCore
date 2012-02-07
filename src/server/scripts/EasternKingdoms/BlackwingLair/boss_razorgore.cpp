@@ -55,7 +55,7 @@ public:
 
     struct boss_razorgoreAI : public ScriptedAI
     {
-        boss_razorgoreAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_razorgoreAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Cleave_Timer;
         uint32 WarStomp_Timer;

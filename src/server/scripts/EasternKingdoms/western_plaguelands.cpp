@@ -168,7 +168,7 @@ public:
 
     struct npc_the_scourge_cauldronAI : public ScriptedAI
     {
-        npc_the_scourge_cauldronAI(Creature* c) : ScriptedAI(c) {}
+        npc_the_scourge_cauldronAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
 

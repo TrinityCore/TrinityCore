@@ -330,7 +330,7 @@ public:
 
     struct npc_creditmarker_visit_with_ancestorsAI : public ScriptedAI
     {
-        npc_creditmarker_visit_with_ancestorsAI(Creature* c) : ScriptedAI(c) {}
+        npc_creditmarker_visit_with_ancestorsAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
 
@@ -437,7 +437,7 @@ public:
 
   struct npc_corkiAI : public ScriptedAI
   {
-      npc_corkiAI(Creature* creature) : ScriptedAI(creature) {}
+      npc_corkiAI(Creature* creature) : ScriptedAI(creature) { }
 
       uint32 Say_Timer;
       bool ReleasedFromCage;

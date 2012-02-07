@@ -58,17 +58,11 @@ enum eSpells
 class boss_pathaleon_the_calculator : public CreatureScript
 {
     public:
-
-        boss_pathaleon_the_calculator()
-            : CreatureScript("boss_pathaleon_the_calculator")
-        {
-        }
+        boss_pathaleon_the_calculator() : CreatureScript("boss_pathaleon_the_calculator") { }
 
         struct boss_pathaleon_the_calculatorAI : public ScriptedAI
         {
-            boss_pathaleon_the_calculatorAI(Creature* creature) : ScriptedAI(creature), summons(me)
-            {
-            }
+            boss_pathaleon_the_calculatorAI(Creature* creature) : ScriptedAI(creature), summons(me) { }
 
             uint32 Summon_Timer;
             SummonList summons;
@@ -94,6 +88,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                 Counter = 0;
                 summons.DespawnAll();
             }
+
             void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
@@ -193,24 +188,20 @@ class boss_pathaleon_the_calculator : public CreatureScript
             }
         };
 
-            CreatureAI* GetAI(Creature* creature) const
-            {
-                return new boss_pathaleon_the_calculatorAI (creature);
-            }
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new boss_pathaleon_the_calculatorAI (creature);
+        }
 };
 
 class mob_nether_wraith : public CreatureScript
 {
     public:
-
-        mob_nether_wraith()
-            : CreatureScript("mob_nether_wraith")
-        {
-        }
+        mob_nether_wraith() : CreatureScript("mob_nether_wraith") { }
 
         struct mob_nether_wraithAI : public ScriptedAI
         {
-            mob_nether_wraithAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_nether_wraithAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 ArcaneMissiles_Timer;
             uint32 Detonation_Timer;
@@ -279,4 +270,3 @@ void AddSC_boss_pathaleon_the_calculator()
     new boss_pathaleon_the_calculator();
     new mob_nether_wraith();
 }
-

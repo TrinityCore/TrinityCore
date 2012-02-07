@@ -101,11 +101,7 @@ typedef std::map<uint64, uint64> CubeMap;
 class mob_abyssal : public CreatureScript
 {
     public:
-
-        mob_abyssal()
-            : CreatureScript("mob_abyssal")
-        {
-        }
+        mob_abyssal() : CreatureScript("mob_abyssal") { }
 
         struct mob_abyssalAI : public ScriptedAI
         {
@@ -151,11 +147,13 @@ class mob_abyssal : public CreatureScript
             {
                 DoZoneInCombat();
             }
+
             void AttackStart(Unit* who)
             {
                 if (!trigger)
                     ScriptedAI::AttackStart(who);
             }
+
             void MoveInLineOfSight(Unit* who)
             {
                 if (!trigger)
@@ -207,11 +205,7 @@ class mob_abyssal : public CreatureScript
 class boss_magtheridon : public CreatureScript
 {
     public:
-
-        boss_magtheridon()
-            : CreatureScript("boss_magtheridon")
-        {
-        }
+        boss_magtheridon() : CreatureScript("boss_magtheridon") { }
 
         struct boss_magtheridonAI : public ScriptedAI
         {
@@ -473,11 +467,7 @@ class boss_magtheridon : public CreatureScript
 class mob_hellfire_channeler : public CreatureScript
 {
     public:
-
-        mob_hellfire_channeler()
-            : CreatureScript("mob_hellfire_channeler")
-        {
-        }
+        mob_hellfire_channeler() : CreatureScript("mob_hellfire_channeler") { }
 
         struct mob_hellfire_channelerAI : public ScriptedAI
         {
@@ -593,9 +583,7 @@ class mob_hellfire_channeler : public CreatureScript
 class go_manticron_cube : public GameObjectScript
 {
 public:
-    go_manticron_cube() : GameObjectScript("go_manticron_cube")
-    {
-    }
+    go_manticron_cube() : GameObjectScript("go_manticron_cube") { }
 
     bool OnGossipHello(Player* player, GameObject* pGO)
     {
@@ -629,4 +617,3 @@ void AddSC_boss_magtheridon()
     new mob_abyssal();
     new go_manticron_cube();
 }
-

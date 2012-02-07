@@ -121,9 +121,8 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (!UpdateVictim())
-            {
                 return;
-            }
+
             if (bCrystalSpikes)
             {
                 if (uiCrystalSpikesTimer2 <= diff)
@@ -219,7 +218,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_crystal_spike : public CreatureScript
@@ -234,9 +232,7 @@ public:
 
     struct mob_crystal_spikeAI : public Scripted_NoMovementAI
     {
-        mob_crystal_spikeAI(Creature* c) : Scripted_NoMovementAI(c)
-        {
-        }
+        mob_crystal_spikeAI(Creature* c) : Scripted_NoMovementAI(c) { }
 
         uint32 SpellCrystalSpikeDamageTimer;
         uint32 SpellCrystalSpikePrevisualTimer;
@@ -262,7 +258,6 @@ public:
             } else SpellCrystalSpikeDamageTimer -= diff;
         }
     };
-
 };
 
 class mob_crystalline_tangler : public CreatureScript
@@ -277,7 +272,7 @@ public:
 
     struct mob_crystalline_tanglerAI : public ScriptedAI
     {
-        mob_crystalline_tanglerAI(Creature* c) : ScriptedAI(c) {}
+        mob_crystalline_tanglerAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiRootsTimer;
 
@@ -298,7 +293,6 @@ public:
             } else uiRootsTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_ormorok()

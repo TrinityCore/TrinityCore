@@ -251,7 +251,7 @@ public:
 
     struct npc_victorious_challengerAI : public ScriptedAI
     {
-        npc_victorious_challengerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_victorious_challengerAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 SunderArmorTimer;
         uint32 RendTimer;
@@ -556,7 +556,7 @@ public:
 
     struct npc_brunnhildar_prisonerAI : public ScriptedAI
     {
-        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 drakeGUID;
         uint16 enter_timer;

@@ -187,7 +187,7 @@ public:
 
     struct npc_image_belgaristraszAI : public ScriptedAI
     {
-        npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_image_belgaristraszAI(Creature* creature) : ScriptedAI(creature) { }
 
         void IsSummonedBy(Unit* summoner)
         {

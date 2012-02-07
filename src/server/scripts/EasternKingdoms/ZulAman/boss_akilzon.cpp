@@ -390,7 +390,7 @@ class mob_akilzon_eagle : public CreatureScript
 
         struct mob_akilzon_eagleAI : public ScriptedAI
         {
-            mob_akilzon_eagleAI(Creature* c) : ScriptedAI(c) {}
+            mob_akilzon_eagleAI(Creature* c) : ScriptedAI(c) { }
 
             uint32 EagleSwoop_Timer;
             bool arrived;

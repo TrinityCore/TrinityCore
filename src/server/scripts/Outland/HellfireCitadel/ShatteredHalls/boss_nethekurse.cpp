@@ -81,11 +81,7 @@ enum eSpells
 class boss_grand_warlock_nethekurse : public CreatureScript
 {
     public:
-
-        boss_grand_warlock_nethekurse()
-            : CreatureScript("boss_grand_warlock_nethekurse")
-        {
-        }
+        boss_grand_warlock_nethekurse() : CreatureScript("boss_grand_warlock_nethekurse") { }
 
         struct boss_grand_warlock_nethekurseAI : public ScriptedAI
         {
@@ -310,11 +306,7 @@ class boss_grand_warlock_nethekurse : public CreatureScript
 class mob_fel_orc_convert : public CreatureScript
 {
     public:
-
-        mob_fel_orc_convert()
-            : CreatureScript("mob_fel_orc_convert")
-        {
-        }
+        mob_fel_orc_convert() : CreatureScript("mob_fel_orc_convert") { }
 
         struct mob_fel_orc_convertAI : public ScriptedAI
         {
@@ -393,15 +385,11 @@ class mob_fel_orc_convert : public CreatureScript
 class mob_lesser_shadow_fissure : public CreatureScript
 {
     public:
-
-        mob_lesser_shadow_fissure()
-            : CreatureScript("mob_lesser_shadow_fissure")
-        {
-        }
+        mob_lesser_shadow_fissure() : CreatureScript("mob_lesser_shadow_fissure") { }
 
         struct mob_lesser_shadow_fissureAI : public ScriptedAI
         {
-            mob_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_lesser_shadow_fissureAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset() { }
             void MoveInLineOfSight(Unit* /*who*/) {}

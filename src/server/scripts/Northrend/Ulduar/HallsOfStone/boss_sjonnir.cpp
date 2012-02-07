@@ -243,7 +243,6 @@ public:
             return 0;
         }
     };
-
 };
 
 class mob_malformed_ooze : public CreatureScript
@@ -258,7 +257,7 @@ public:
 
     struct mob_malformed_oozeAI : public ScriptedAI
     {
-        mob_malformed_oozeAI(Creature* c) : ScriptedAI(c) {}
+        mob_malformed_oozeAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiMergeTimer;
 
@@ -286,7 +285,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_iron_sludge : public CreatureScript
@@ -315,15 +313,12 @@ public:
                     Sjonnir->AI()->DoAction(ACTION_OOZE_DEAD);
         }
     };
-
 };
 
 class achievement_abuse_the_ooze : public AchievementCriteriaScript
 {
     public:
-        achievement_abuse_the_ooze() : AchievementCriteriaScript("achievement_abuse_the_ooze")
-        {
-        }
+        achievement_abuse_the_ooze() : AchievementCriteriaScript("achievement_abuse_the_ooze") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

@@ -222,9 +222,7 @@ class npc_little_ooze : public CreatureScript
 
         struct npc_little_oozeAI : public ScriptedAI
         {
-            npc_little_oozeAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            npc_little_oozeAI(Creature* creature) : ScriptedAI(creature) { }
 
             void IsSummonedBy(Unit* summoner)
             {
@@ -272,9 +270,7 @@ class npc_big_ooze : public CreatureScript
 
         struct npc_big_oozeAI : public ScriptedAI
         {
-            npc_big_oozeAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript())
-            {
-            }
+            npc_big_oozeAI(Creature* creature) : ScriptedAI(creature), instance(creature->GetInstanceScript()) { }
 
             void IsSummonedBy(Unit* /*summoner*/)
             {

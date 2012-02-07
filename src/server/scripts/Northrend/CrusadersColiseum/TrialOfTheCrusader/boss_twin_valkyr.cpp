@@ -111,9 +111,7 @@ enum Actions
 class OrbsDespawner : public BasicEvent
 {
     public:
-        explicit OrbsDespawner(Creature* creature) : _creature(creature)
-        {
-        }
+        explicit OrbsDespawner(Creature* creature) : _creature(creature) { }
 
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
         {
@@ -171,7 +169,8 @@ struct boss_twin_baseAI : public ScriptedAI
     uint32 m_uiSpikeSpellId;
     uint32 m_uiTouchSpellId;
 
-    void Reset() {
+    void Reset()
+    {
         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->ModifyAuraState(m_uiAuraState, true);
@@ -411,7 +410,8 @@ public:
 
         InstanceScript* m_instance;
 
-        void Reset() {
+        void Reset()
+        {
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             m_uiStage = 0;
@@ -460,7 +460,6 @@ public:
             boss_twin_baseAI::JustReachedHome();
         }
     };
-
 };
 
 /*######
@@ -479,9 +478,10 @@ public:
 
     struct boss_eydisAI : public boss_twin_baseAI
     {
-        boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) {}
+        boss_eydisAI(Creature* creature) : boss_twin_baseAI(creature) { }
 
-        void Reset() {
+        void Reset()
+        {
             boss_twin_baseAI::Reset();
             SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
             m_uiStage = 1;
@@ -500,7 +500,6 @@ public:
             m_uiSpikeSpellId = SPELL_DARK_TWIN_SPIKE;
         }
     };
-
 };
 
 #define ESSENCE_REMOVE 0
@@ -609,7 +608,7 @@ public:
 
     struct mob_unleashed_darkAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
+        mob_unleashed_darkAI(Creature* creature) : mob_unleashed_ballAI(creature) { }
 
         void UpdateAI(const uint32 uiDiff)
         {
@@ -636,7 +635,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_unleashed_light : public CreatureScript
@@ -651,7 +649,7 @@ public:
 
     struct mob_unleashed_lightAI : public mob_unleashed_ballAI
     {
-        mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) {}
+        mob_unleashed_lightAI(Creature* creature) : mob_unleashed_ballAI(creature) { }
 
         void UpdateAI(const uint32 uiDiff)
         {
@@ -678,7 +676,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_bullet_controller : public CreatureScript
@@ -857,7 +854,6 @@ class spell_power_of_the_twins : public SpellScriptLoader
             {
                 AfterEffectApply += AuraEffectApplyFn(spell_power_of_the_twins_AuraScript::HandleEffectApply, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
                 AfterEffectRemove += AuraEffectRemoveFn(spell_power_of_the_twins_AuraScript::HandleEffectRemove, EFFECT_0, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
-
             }
         };
 

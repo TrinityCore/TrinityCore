@@ -56,7 +56,7 @@ public:
 
     struct boss_curatorAI : public ScriptedAI
     {
-        boss_curatorAI(Creature* c) : ScriptedAI(c) {}
+        boss_curatorAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 AddTimer;
         uint32 HatefulBoltTimer;

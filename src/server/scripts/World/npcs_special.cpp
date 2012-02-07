@@ -316,7 +316,7 @@ public:
 
     struct npc_chicken_cluckAI : public ScriptedAI
     {
-        npc_chicken_cluckAI(Creature* c) : ScriptedAI(c) {}
+        npc_chicken_cluckAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 ResetFlagTimer;
 
@@ -408,7 +408,7 @@ public:
 
     struct npc_dancing_flamesAI : public ScriptedAI
     {
-        npc_dancing_flamesAI(Creature* c) : ScriptedAI(c) {}
+        npc_dancing_flamesAI(Creature* c) : ScriptedAI(c) { }
 
         bool Active;
         uint32 CanIteract;
@@ -559,7 +559,7 @@ public:
 
     struct npc_doctorAI : public ScriptedAI
     {
-        npc_doctorAI(Creature* c) : ScriptedAI(c) {}
+        npc_doctorAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 PlayerGUID;
 
@@ -704,7 +704,7 @@ public:
 
     struct npc_injured_patientAI : public ScriptedAI
     {
-        npc_injured_patientAI(Creature* c) : ScriptedAI(c) {}
+        npc_injured_patientAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 DoctorGUID;
         Location* Coord;
@@ -1106,7 +1106,7 @@ public:
 
     struct npc_guardianAI : public ScriptedAI
     {
-        npc_guardianAI(Creature* c) : ScriptedAI(c) {}
+        npc_guardianAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {
@@ -1522,7 +1522,7 @@ public:
 
     struct npc_steam_tonkAI : public ScriptedAI
     {
-        npc_steam_tonkAI(Creature* c) : ScriptedAI(c) {}
+        npc_steam_tonkAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -1603,7 +1603,7 @@ public:
 
     struct npc_brewfest_revelerAI : public ScriptedAI
     {
-        npc_brewfest_revelerAI(Creature* c) : ScriptedAI(c) {}
+        npc_brewfest_revelerAI(Creature* c) : ScriptedAI(c) { }
         void ReceiveEmote(Player* player, uint32 emote)
         {
             if (!IsHolidayActive(HOLIDAY_BREWFEST))
@@ -1639,7 +1639,7 @@ class npc_winter_reveler : public CreatureScript
 
         struct npc_winter_revelerAI : public ScriptedAI
         {
-            npc_winter_revelerAI(Creature* c) : ScriptedAI(c) {}
+            npc_winter_revelerAI(Creature* c) : ScriptedAI(c) { }
 
             void ReceiveEmote(Player* player, uint32 emote)
             {
@@ -1684,7 +1684,7 @@ public:
 
     struct npc_snake_trap_serpentsAI : public ScriptedAI
     {
-        npc_snake_trap_serpentsAI(Creature* c) : ScriptedAI(c) {}
+        npc_snake_trap_serpentsAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 SpellTimer;
         bool IsViper;
@@ -2151,7 +2151,7 @@ public:
 
     struct npc_shadowfiendAI : public ScriptedAI
     {
-        npc_shadowfiendAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_shadowfiendAI(Creature* creature) : ScriptedAI(creature) { }
 
         void DamageTaken(Unit* /*killer*/, uint32& damage)
         {
@@ -2190,7 +2190,7 @@ public:
 
     struct npc_fire_elementalAI : public ScriptedAI
     {
-        npc_fire_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fire_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 FireNova_Timer;
         uint32 FireShield_Timer;
@@ -2258,7 +2258,7 @@ public:
 
     struct npc_earth_elementalAI : public ScriptedAI
     {
-        npc_earth_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_earth_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 AngeredEarth_Timer;
 
@@ -2837,7 +2837,7 @@ public:
 
     struct npc_fireworkAI : public ScriptedAI
     {
-        npc_fireworkAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fireworkAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool isCluster()
         {

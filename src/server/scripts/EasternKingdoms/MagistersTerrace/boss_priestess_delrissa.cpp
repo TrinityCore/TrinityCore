@@ -330,7 +330,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum eHealingPotion
@@ -495,7 +494,7 @@ public:
     struct boss_kagani_nightstrikeAI : public boss_priestess_lackey_commonAI
     {
         //Rogue
-        boss_kagani_nightstrikeAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
+        boss_kagani_nightstrikeAI(Creature* c) : boss_priestess_lackey_commonAI(c) { }
 
         uint32 Gouge_Timer;
         uint32 Kick_Timer;
@@ -573,7 +572,6 @@ public:
                 DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum eWarlockSpells
@@ -600,7 +598,7 @@ public:
     struct boss_ellris_duskhallowAI : public boss_priestess_lackey_commonAI
     {
         //Warlock
-        boss_ellris_duskhallowAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
+        boss_ellris_duskhallowAI(Creature* c) : boss_priestess_lackey_commonAI(c) { }
 
         uint32 Immolate_Timer;
         uint32 Shadow_Bolt_Timer;
@@ -670,7 +668,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum eKickDown
@@ -692,7 +689,7 @@ public:
     struct boss_eramas_brightblazeAI : public boss_priestess_lackey_commonAI
     {
         //Monk
-        boss_eramas_brightblazeAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
+        boss_eramas_brightblazeAI(Creature* c) : boss_priestess_lackey_commonAI(c) { }
 
         uint32 Knockdown_Timer;
         uint32 Snap_Kick_Timer;
@@ -727,7 +724,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum eMageSpells
@@ -754,7 +750,7 @@ public:
     struct boss_yazzaiAI : public boss_priestess_lackey_commonAI
     {
         //Mage
-        boss_yazzaiAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
+        boss_yazzaiAI(Creature* c) : boss_priestess_lackey_commonAI(c) { }
 
         bool HasIceBlocked;
 
@@ -858,7 +854,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum eWarriorSpells
@@ -885,7 +880,7 @@ public:
     struct boss_warlord_salarisAI : public boss_priestess_lackey_commonAI
     {
         //Warrior
-        boss_warlord_salarisAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
+        boss_warlord_salarisAI(Creature* c) : boss_priestess_lackey_commonAI(c) { }
 
         uint32 Intercept_Stun_Timer;
         uint32 Disarm_Timer;
@@ -978,7 +973,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum eHunterSpells
@@ -1006,7 +1000,10 @@ public:
     struct boss_garaxxasAI : public boss_priestess_lackey_commonAI
     {
         //Hunter
-        boss_garaxxasAI(Creature* c) : boss_priestess_lackey_commonAI(c) { m_uiPetGUID = 0; }
+        boss_garaxxasAI(Creature* c) : boss_priestess_lackey_commonAI(c)
+        {
+            m_uiPetGUID = 0;
+        }
 
         uint64 m_uiPetGUID;
 
@@ -1099,7 +1096,6 @@ public:
             }
         }
     };
-
 };
 
 enum Spells
@@ -1126,7 +1122,7 @@ public:
     struct boss_apokoAI : public boss_priestess_lackey_commonAI
     {
         //Shaman
-        boss_apokoAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
+        boss_apokoAI(Creature* c) : boss_priestess_lackey_commonAI(c) { }
 
         uint32 Totem_Timer;
         uint8  Totem_Amount;
@@ -1183,23 +1179,14 @@ public:
 
             if (Healing_Wave_Timer <= diff)
             {
-                // std::vector<Add*>::const_iterator itr = Group.begin() + rand()%Group.size();
-                // uint64 guid = (*itr)->guid;
-                // if (guid)
-                // {
-                //   Unit* pAdd = Unit::GetUnit(*me, (*itr)->guid);
-                //   if (pAdd && pAdd->isAlive())
-                //   {
                 DoCast(me, SPELL_LESSER_HEALING_WAVE);
                 Healing_Wave_Timer = 5000;
-                //    }
-                // }
+
             } else Healing_Wave_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 enum eEngineerSpells
@@ -1225,7 +1212,7 @@ public:
     struct boss_zelfanAI : public boss_priestess_lackey_commonAI
     {
         //Engineer
-        boss_zelfanAI(Creature* c) : boss_priestess_lackey_commonAI(c) {}
+        boss_zelfanAI(Creature* c) : boss_priestess_lackey_commonAI(c) { }
 
         uint32 Goblin_Dragon_Gun_Timer;
         uint32 Rocket_Launch_Timer;
@@ -1294,21 +1281,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
-
-/*
-class mob_high_explosive_sheep : public CreatureScript
-{
-public:
-    mob_high_explosive_sheep() : CreatureScript("mob_high_explosive_sheep") { }
-
-    //CreatureAI* GetAI(Creature* creature) const
-    //{
-    //    return new mob_high_explosive_sheepAI (creature);
-    //};
-};
-*/
 
 void AddSC_boss_priestess_delrissa()
 {
@@ -1321,5 +1294,4 @@ void AddSC_boss_priestess_delrissa()
     new boss_garaxxas();
     new boss_apoko();
     new boss_zelfan();
-    // new mob_high_explosive_sheep();
 }

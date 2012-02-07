@@ -106,7 +106,7 @@ public:
 
     struct npc_secondTrialAI : public ScriptedAI
     {
-        npc_secondTrialAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_secondTrialAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 timer;
         uint8  questPhase;
@@ -294,7 +294,7 @@ public:
 
     struct master_kelerun_bloodmournAI : public ScriptedAI
     {
-        master_kelerun_bloodmournAI(Creature* c) : ScriptedAI(c) {}
+        master_kelerun_bloodmournAI(Creature* c) : ScriptedAI(c) { }
 
         uint8  questPhase;
         uint8  paladinPhase;

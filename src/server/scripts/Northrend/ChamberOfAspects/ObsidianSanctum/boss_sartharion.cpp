@@ -688,7 +688,6 @@ public:
             EnterEvadeIfOutOfCombatArea(uiDiff);
         }
     };
-
 };
 
 enum TeneText
@@ -765,8 +764,6 @@ struct dummy_dragonAI : public ScriptedAI
     {
         if (!instance || uiType != POINT_MOTION_TYPE)
             return;
-
-//        debug_log("dummy_dragonAI: %s reached point %u", me->GetName(), uiPointId);
 
         //if healers messed up the raid and we was already initialized
         if (instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
@@ -971,7 +968,6 @@ struct dummy_dragonAI : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(m_uiWaypointId,
                         m_aDragonCommon[m_uiWaypointId].m_fX, m_aDragonCommon[m_uiWaypointId].m_fY, m_aDragonCommon[m_uiWaypointId].m_fZ);
 
-//                debug_log("dummy_dragonAI: %s moving to point %u", me->GetName(), m_uiWaypointId);
                 m_uiMoveNextTimer = 0;
             }
             else
@@ -996,7 +992,7 @@ public:
 
     struct mob_tenebronAI : public dummy_dragonAI
     {
-        mob_tenebronAI(Creature* creature) : dummy_dragonAI(creature) {}
+        mob_tenebronAI(Creature* creature) : dummy_dragonAI(creature) { }
 
         uint32 m_uiShadowBreathTimer;
         uint32 m_uiShadowFissureTimer;
@@ -1067,7 +1063,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -1086,7 +1081,7 @@ public:
 
     struct mob_shadronAI : public dummy_dragonAI
     {
-        mob_shadronAI(Creature* creature) : dummy_dragonAI(creature) {}
+        mob_shadronAI(Creature* creature) : dummy_dragonAI(creature) { }
 
         uint32 m_uiShadowBreathTimer;
         uint32 m_uiShadowFissureTimer;
@@ -1172,7 +1167,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -1191,7 +1185,7 @@ public:
 
     struct mob_vesperonAI : public dummy_dragonAI
     {
-        mob_vesperonAI(Creature* creature) : dummy_dragonAI(creature) {}
+        mob_vesperonAI(Creature* creature) : dummy_dragonAI(creature) { }
 
         uint32 m_uiShadowBreathTimer;
         uint32 m_uiShadowFissureTimer;
@@ -1268,7 +1262,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -1378,7 +1371,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -1473,7 +1465,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -1505,9 +1496,8 @@ public:
         void Reset()
         {
             if (instance)
-            {
                 me->AddAura(SPELL_TWILIGHT_SHIFT_ENTER, me);
-            }
+
             m_uiFadeArmorTimer = 1000;
             m_uiHatchEggTimer = 20000;
         }
@@ -1544,7 +1534,6 @@ public:
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
     };
-
 };
 
 /*######
@@ -1598,7 +1587,6 @@ public:
             }else TsunamiBuff_timer -= diff;
         }
     };
-
 };
 
 // Twilight Fissure
@@ -1644,7 +1632,6 @@ public:
             } else VoidBlast_Timer -= diff;
         }
     };
-
 };
 
 /*######
@@ -1695,15 +1682,12 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class achievement_twilight_assist : public AchievementCriteriaScript
 {
     public:
-        achievement_twilight_assist() : AchievementCriteriaScript("achievement_twilight_assist")
-        {
-        }
+        achievement_twilight_assist() : AchievementCriteriaScript("achievement_twilight_assist") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -1721,9 +1705,7 @@ class achievement_twilight_assist : public AchievementCriteriaScript
 class achievement_twilight_duo : public AchievementCriteriaScript
 {
     public:
-        achievement_twilight_duo() : AchievementCriteriaScript("achievement_twilight_duo")
-        {
-        }
+        achievement_twilight_duo() : AchievementCriteriaScript("achievement_twilight_duo") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {
@@ -1741,9 +1723,7 @@ class achievement_twilight_duo : public AchievementCriteriaScript
 class achievement_twilight_zone : public AchievementCriteriaScript
 {
     public:
-        achievement_twilight_zone() : AchievementCriteriaScript("achievement_twilight_zone")
-        {
-        }
+        achievement_twilight_zone() : AchievementCriteriaScript("achievement_twilight_zone") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

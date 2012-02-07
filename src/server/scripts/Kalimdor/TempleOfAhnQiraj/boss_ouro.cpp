@@ -45,7 +45,7 @@ public:
 
     struct boss_ouroAI : public ScriptedAI
     {
-        boss_ouroAI(Creature* c) : ScriptedAI(c) {}
+        boss_ouroAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Sweep_Timer;
         uint32 SandBlast_Timer;
@@ -135,7 +135,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_ouro()

@@ -62,7 +62,7 @@ public:
 
     struct mob_unkor_the_ruthlessAI : public ScriptedAI
     {
-        mob_unkor_the_ruthlessAI(Creature* c) : ScriptedAI(c) {}
+        mob_unkor_the_ruthlessAI(Creature* c) : ScriptedAI(c) { }
 
         bool CanDoQuest;
         uint32 UnkorUnfriendly_Timer;
@@ -169,7 +169,7 @@ public:
 
     struct mob_infested_root_walkerAI : public ScriptedAI
     {
-        mob_infested_root_walkerAI(Creature* c) : ScriptedAI(c) {}
+        mob_infested_root_walkerAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
@@ -264,7 +264,7 @@ public:
 
     struct mob_rotting_forest_ragerAI : public ScriptedAI
     {
-        mob_rotting_forest_ragerAI(Creature* c) : ScriptedAI(c) {}
+        mob_rotting_forest_ragerAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }
@@ -304,7 +304,7 @@ public:
 
     struct mob_netherweb_victimAI : public ScriptedAI
     {
-        mob_netherweb_victimAI(Creature* c) : ScriptedAI(c) {}
+        mob_netherweb_victimAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() { }
         void EnterCombat(Unit* /*who*/) { }

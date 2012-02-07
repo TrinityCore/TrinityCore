@@ -340,7 +340,7 @@ public:
 
     struct mob_dragonmaw_peonAI : public ScriptedAI
     {
-        mob_dragonmaw_peonAI(Creature* c) : ScriptedAI(c) {}
+        mob_dragonmaw_peonAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 PlayerGUID;
         bool Tapped;
@@ -721,7 +721,7 @@ public:
 
     struct npc_overlord_morghorAI : public ScriptedAI
     {
-        npc_overlord_morghorAI(Creature* c) : ScriptedAI(c) {}
+        npc_overlord_morghorAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 PlayerGUID;
         uint64 IllidanGUID;
@@ -1176,7 +1176,7 @@ public:
 
     struct mob_torloth_the_magnificentAI : public ScriptedAI
     {
-        mob_torloth_the_magnificentAI(Creature* c) : ScriptedAI(c) {}
+        mob_torloth_the_magnificentAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 AnimationTimer, SpellTimer1, SpellTimer2, SpellTimer3;
 
@@ -1340,7 +1340,7 @@ public:
 
     struct npc_lord_illidan_stormrageAI : public ScriptedAI
     {
-        npc_lord_illidan_stormrageAI(Creature* c) : ScriptedAI(c) {}
+        npc_lord_illidan_stormrageAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 PlayerGUID;
 
@@ -1486,7 +1486,7 @@ public:
 
     struct mob_illidari_spawnAI : public ScriptedAI
     {
-        mob_illidari_spawnAI(Creature* c) : ScriptedAI(c) {}
+        mob_illidari_spawnAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 LordIllidanGUID;
         uint32 SpellTimer1, SpellTimer2, SpellTimer3;
@@ -1739,7 +1739,7 @@ public:
 
     struct npc_enraged_spiritAI : public ScriptedAI
     {
-        npc_enraged_spiritAI(Creature* c) : ScriptedAI(c) {}
+        npc_enraged_spiritAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()   { }
 

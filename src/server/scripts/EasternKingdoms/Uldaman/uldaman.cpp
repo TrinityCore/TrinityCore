@@ -53,7 +53,7 @@ class mob_jadespine_basilisk : public CreatureScript
 
         struct mob_jadespine_basiliskAI : public ScriptedAI
         {
-            mob_jadespine_basiliskAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_jadespine_basiliskAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 uiCslumberTimer;
 

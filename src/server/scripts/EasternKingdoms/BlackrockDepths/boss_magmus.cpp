@@ -37,7 +37,7 @@ public:
 
     struct boss_magmusAI : public ScriptedAI
     {
-        boss_magmusAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_magmusAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 FieryBurst_Timer;
         uint32 WarStomp_Timer;
@@ -52,18 +52,18 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            //Return since we have no target
+            // Return since we have no target
             if (!UpdateVictim())
                 return;
 
-            //FieryBurst_Timer
+            // FieryBurst_Timer
             if (FieryBurst_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FIERYBURST);
                 FieryBurst_Timer = 6000;
             } else FieryBurst_Timer -= diff;
 
-            //WarStomp_Timer
+            // WarStomp_Timer
             if (HealthBelowPct(51))
             {
                 if (WarStomp_Timer <= diff)

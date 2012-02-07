@@ -98,7 +98,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-        /*START ACID-AI*/
+            /*START ACID-AI*/
             if (uiTrashTimer <= uiDiff)
             {
                 if (bCheckChances())
@@ -119,7 +119,7 @@ public:
                     DoCast(me, SPELL_NIMBLE_REFLEXES);
                 uiNimbleReflexesTimer = urand(27300, 60100);
             } else uiNimbleReflexesTimer -= uiDiff;
-        /*END ACID-AI*/
+            /*END ACID-AI*/
 
             if ((uiHealth == 0 && !HealthAbovePct(66)) || (uiHealth == 1 && !HealthAbovePct(33)))
             {
@@ -174,9 +174,7 @@ public:
             uiTimer = 1500;
             uiPhase = 1;
         }
-
     };
-
 };
 
 void AddSC_boss_mr_smite()

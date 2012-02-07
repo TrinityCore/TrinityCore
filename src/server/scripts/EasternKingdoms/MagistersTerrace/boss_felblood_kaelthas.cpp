@@ -598,7 +598,7 @@ public:
 
     struct mob_felkael_phoenix_eggAI : public ScriptedAI
     {
-        mob_felkael_phoenix_eggAI(Creature* c) : ScriptedAI(c) {}
+        mob_felkael_phoenix_eggAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 HatchTimer;
 

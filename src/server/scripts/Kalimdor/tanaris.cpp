@@ -58,7 +58,7 @@ public:
 
     struct mob_aquementasAI : public ScriptedAI
     {
-        mob_aquementasAI(Creature* c) : ScriptedAI(c) {}
+        mob_aquementasAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 SendItem_Timer;
         uint32 SwitchFaction_Timer;

@@ -121,7 +121,10 @@ public:
 
     struct mob_ashtongue_channelerAI : public ScriptedAI
     {
-        mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
+        mob_ashtongue_channelerAI(Creature* c) : ScriptedAI(c)
+        {
+            ShadeGUID = 0;
+        }
 
         uint64 ShadeGUID;
 
@@ -132,7 +135,6 @@ public:
         void MoveInLineOfSight(Unit* /*who*/) {}
         void UpdateAI(const uint32 /*diff*/) {}
     };
-
 };
 
 class mob_ashtongue_sorcerer : public CreatureScript
@@ -147,7 +149,10 @@ public:
 
     struct mob_ashtongue_sorcererAI : public ScriptedAI
     {
-        mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c) {ShadeGUID = 0;}
+        mob_ashtongue_sorcererAI(Creature* c) : ScriptedAI(c)
+        {
+            ShadeGUID = 0;
+        }
 
         uint64 ShadeGUID;
         uint32 CheckTimer;
@@ -163,6 +168,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
+
         void UpdateAI(const uint32 diff)
         {
             if (StartBanishing)
@@ -187,7 +193,6 @@ public:
             } else CheckTimer -= diff;
         }
     };
-
 };
 
 class boss_shade_of_akama : public CreatureScript
@@ -278,11 +283,13 @@ public:
         {
             summons.DespawnAll();
         }
+
         void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
                 summons.Summon(summon);
         }
+
         void SummonedCreatureDespawn(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_DEFENDER || summon->GetEntry() == 23523 || summon->GetEntry() == 23318 || summon->GetEntry() == 23524)
@@ -408,7 +415,10 @@ public:
                     Channeler->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void SetAkamaGUID(uint64 guid) { AkamaGUID = guid; }
+        void SetAkamaGUID(uint64 guid)
+        {
+            AkamaGUID = guid;
+        }
 
         void UpdateAI(const uint32 diff)
         {
@@ -517,7 +527,6 @@ public:
             }
         }
     };
-
 };
 
 void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer*/)
@@ -525,7 +534,8 @@ void mob_ashtongue_channeler::mob_ashtongue_channelerAI::JustDied(Unit* /*killer
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->isAlive())
         CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount();
-    else sLog->outError("SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
+    else
+        sLog->outError("SD2 ERROR: Channeler dead but unable to increment DeathCount for Shade of Akama.");
 }
 
 void mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/)
@@ -533,7 +543,8 @@ void mob_ashtongue_sorcerer::mob_ashtongue_sorcererAI::JustDied(Unit* /*killer*/
     Creature* Shade = (Unit::GetCreature((*me), ShadeGUID));
     if (Shade && Shade->isAlive())
         CAST_AI(boss_shade_of_akama::boss_shade_of_akamaAI, Shade->AI())->IncrementDeathCount(me->GetGUID());
-    else sLog->outError("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
+    else
+        sLog->outError("SD2 ERROR: Sorcerer dead but unable to increment DeathCount for Shade of Akama.");
 }
 
 class npc_akama_shade : public CreatureScript
@@ -878,7 +889,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_shade_of_akama()

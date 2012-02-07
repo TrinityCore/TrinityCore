@@ -393,7 +393,7 @@ public:
     struct boss_veknilashAI : public boss_twinemperorsAI
     {
         bool IAmVeklor() {return false;}
-        boss_veknilashAI(Creature* c) : boss_twinemperorsAI(c) {}
+        boss_veknilashAI(Creature* c) : boss_twinemperorsAI(c) { }
 
         uint32 UpperCut_Timer;
         uint32 UnbalancingStrike_Timer;
@@ -463,7 +463,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_veklor : public CreatureScript
@@ -479,7 +478,7 @@ public:
     struct boss_veklorAI : public boss_twinemperorsAI
     {
         bool IAmVeklor() {return true;}
-        boss_veklorAI(Creature* c) : boss_twinemperorsAI(c) {}
+        boss_veklorAI(Creature* c) : boss_twinemperorsAI(c) { }
 
         uint32 ShadowBolt_Timer;
         uint32 Blizzard_Timer;
@@ -589,7 +588,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_boss_twinemperors()

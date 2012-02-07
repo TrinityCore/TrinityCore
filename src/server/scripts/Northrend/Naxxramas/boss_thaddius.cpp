@@ -275,7 +275,6 @@ public:
                 DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_stalagg : public CreatureScript
@@ -361,7 +360,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_feugen : public CreatureScript
@@ -421,7 +419,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class spell_thaddius_pos_neg_charge : public SpellScriptLoader

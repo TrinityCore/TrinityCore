@@ -536,7 +536,7 @@ class mob_flame_patch_alar : public CreatureScript
 
         struct mob_flame_patch_alarAI : public ScriptedAI
         {
-            mob_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_flame_patch_alarAI(Creature* creature) : ScriptedAI(creature) { }
             void Reset() {}
             void EnterCombat(Unit* /*who*/) {}
             void AttackStart(Unit* /*who*/) {}

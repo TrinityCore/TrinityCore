@@ -531,7 +531,7 @@ public:
 
     struct npc_dark_rider_of_acherusAI : public ScriptedAI
     {
-        npc_dark_rider_of_acherusAI(Creature* c) : ScriptedAI(c) {}
+        npc_dark_rider_of_acherusAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 PhaseTimer;
         uint32 Phase;
@@ -623,7 +623,7 @@ public:
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
     {
-        npc_salanar_the_horsemanAI(Creature* c) : ScriptedAI(c) {}
+        npc_salanar_the_horsemanAI(Creature* c) : ScriptedAI(c) { }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
@@ -692,7 +692,7 @@ public:
 
     struct npc_ros_dark_riderAI : public ScriptedAI
     {
-        npc_ros_dark_riderAI(Creature* c) : ScriptedAI(c) {}
+        npc_ros_dark_riderAI(Creature* c) : ScriptedAI(c) { }
 
         void EnterCombat(Unit* /*who*/)
         {
@@ -743,7 +743,7 @@ public:
 
     struct npc_dkc1_gothikAI : public ScriptedAI
     {
-        npc_dkc1_gothikAI(Creature* c) : ScriptedAI(c) {}
+        npc_dkc1_gothikAI(Creature* c) : ScriptedAI(c) { }
 
         void MoveInLineOfSight(Unit* who)
         {

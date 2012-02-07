@@ -63,17 +63,11 @@ float AddsEntrance[3] = {306.036f, -84.29f, 1.93f};
 class boss_warchief_kargath_bladefist : public CreatureScript
 {
     public:
-
-        boss_warchief_kargath_bladefist()
-            : CreatureScript("boss_warchief_kargath_bladefist")
-        {
-        }
+        boss_warchief_kargath_bladefist() : CreatureScript("boss_warchief_kargath_bladefist") { }
 
         struct boss_warchief_kargath_bladefistAI : public ScriptedAI
         {
-            boss_warchief_kargath_bladefistAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            boss_warchief_kargath_bladefistAI(Creature* creature) : ScriptedAI(creature) { }
 
             std::vector<uint64> adds;
             std::vector<uint64> assassins;
@@ -327,4 +321,3 @@ void AddSC_boss_warchief_kargath_bladefist()
 {
     new boss_warchief_kargath_bladefist();
 }
-

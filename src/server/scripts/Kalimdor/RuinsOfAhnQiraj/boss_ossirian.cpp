@@ -46,9 +46,7 @@ class boss_ossirian : public CreatureScript
 
         struct boss_ossirianAI : public ScriptedAI
         {
-            boss_ossirianAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            boss_ossirianAI(Creature* creature) : ScriptedAI(creature) { }
         };
 
         CreatureAI* GetAI(Creature* creature) const

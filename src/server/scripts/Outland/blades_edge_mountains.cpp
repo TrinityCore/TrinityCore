@@ -61,7 +61,7 @@ public:
 
     struct mobs_bladespire_ogreAI : public ScriptedAI
     {
-        mobs_bladespire_ogreAI(Creature* c) : ScriptedAI(c) {}
+        mobs_bladespire_ogreAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() { }
 
@@ -112,7 +112,7 @@ public:
 
     struct mobs_nether_drakeAI : public ScriptedAI
     {
-        mobs_nether_drakeAI(Creature* c) : ScriptedAI(c) {}
+        mobs_nether_drakeAI(Creature* c) : ScriptedAI(c) { }
 
         bool IsNihil;
         uint32 NihilSpeech_Timer;
@@ -276,7 +276,7 @@ public:
 
     struct npc_daranelleAI : public ScriptedAI
     {
-        npc_daranelleAI(Creature* c) : ScriptedAI(c) {}
+        npc_daranelleAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() { }
 
@@ -481,7 +481,7 @@ public:
 
     struct npc_ogre_bruteAI : public ScriptedAI
     {
-        npc_ogre_bruteAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_ogre_bruteAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 PlayerGUID;
 

@@ -355,7 +355,7 @@ public:
 
     struct mob_phalanxAI : public ScriptedAI
     {
-        mob_phalanxAI(Creature* c) : ScriptedAI(c) {}
+        mob_phalanxAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 ThunderClap_Timer;
         uint32 FireballVolley_Timer;

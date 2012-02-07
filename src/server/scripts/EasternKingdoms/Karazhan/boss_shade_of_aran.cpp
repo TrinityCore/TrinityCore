@@ -508,7 +508,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_aran_elemental : public CreatureScript
@@ -523,7 +522,7 @@ public:
 
     struct water_elementalAI : public ScriptedAI
     {
-        water_elementalAI(Creature* c) : ScriptedAI(c) {}
+        water_elementalAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 CastTimer;
 
@@ -546,7 +545,6 @@ public:
             } else CastTimer -= diff;
         }
     };
-
 };
 
 // CONVERT TO ACID
@@ -570,7 +568,6 @@ public:
 
         return ai;
     }
-
 };
 
 void AddSC_boss_shade_of_aran()

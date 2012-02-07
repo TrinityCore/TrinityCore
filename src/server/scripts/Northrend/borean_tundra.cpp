@@ -60,7 +60,7 @@ public:
 
     struct npc_sinkhole_kill_creditAI : public ScriptedAI
     {
-        npc_sinkhole_kill_creditAI(Creature* c) : ScriptedAI(c){}
+        npc_sinkhole_kill_creditAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiPhaseTimer;
         uint8  Phase;
@@ -169,7 +169,7 @@ public:
 
     struct npc_khunok_the_behemothAI : public ScriptedAI
     {
-        npc_khunok_the_behemothAI(Creature* c) : ScriptedAI(c) {}
+        npc_khunok_the_behemothAI(Creature* c) : ScriptedAI(c) { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -349,7 +349,7 @@ public:
 
     struct mob_nerubar_victimAI : public ScriptedAI
     {
-        mob_nerubar_victimAI(Creature* c) : ScriptedAI(c) {}
+        mob_nerubar_victimAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -396,7 +396,7 @@ public:
 
     struct npc_scourge_prisonerAI : public ScriptedAI
     {
-        npc_scourge_prisonerAI(Creature* creature) : ScriptedAI (creature){}
+        npc_scourge_prisonerAI(Creature* creature) : ScriptedAI (creature) { }
 
         void Reset()
         {
@@ -438,7 +438,7 @@ public:
 
     struct npc_jennyAI : public ScriptedAI
     {
-        npc_jennyAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_jennyAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool setCrateNumber;
 
@@ -499,7 +499,7 @@ public:
 
     struct npc_fezzix_geartwistAI : public ScriptedAI
     {
-        npc_fezzix_geartwistAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fezzix_geartwistAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -701,7 +701,7 @@ public:
 
     struct npc_lurgglbrAI : public npc_escortAI
     {
-        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature){}
+        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint32 IntroTimer;
         uint32 IntroPhase;
@@ -846,7 +846,7 @@ public:
 
     struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
     {
-        npc_nexus_drake_hatchlingAI(Creature* c) : FollowerAI(c) {}
+        npc_nexus_drake_hatchlingAI(Creature* c) : FollowerAI(c) { }
 
         uint64 HarpoonerGUID;
         bool WithRedDragonBlood;
@@ -975,9 +975,7 @@ public:
 
     struct npc_thassarianAI : public npc_escortAI
     {
-        npc_thassarianAI(Creature* creature) : npc_escortAI(creature)
-        {
-        }
+        npc_thassarianAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint64 uiArthas;
         uint64 uiTalbot;
@@ -1283,7 +1281,7 @@ public:
 
     struct npc_image_lich_kingAI : public ScriptedAI
     {
-        npc_image_lich_kingAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_image_lich_kingAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -1318,7 +1316,7 @@ public:
 
     struct npc_general_arlosAI : public ScriptedAI
     {
-        npc_general_arlosAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_general_arlosAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MovementInform(uint32 uiType, uint32 /*uiId*/)
         {
@@ -1685,7 +1683,7 @@ public:
 
     struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
     {
-        npc_imprisoned_beryl_sorcererAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_imprisoned_beryl_sorcererAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 CasterGUID;
 
@@ -1899,6 +1897,7 @@ enum Bonker_Togglevolt_Entries
     NPC_BONKER_TOGGLEVOLT = 25589,
     QUEST_GET_ME_OUTA_HERE = 11673
 };
+
 enum Script_Texts_Bonker_Togglevolt
 {
     SAY_bonker_1 = -1700002,
@@ -2023,7 +2022,7 @@ public:
 
     struct npc_trapped_mammoth_calfAI : public ScriptedAI
     {
-        npc_trapped_mammoth_calfAI(Creature* c) : ScriptedAI(c) {}
+        npc_trapped_mammoth_calfAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiTimer;
         bool bStarted;
@@ -2111,7 +2110,7 @@ public:
 
     struct npc_magmoth_crusherAI : public ScriptedAI
     {
-        npc_magmoth_crusherAI(Creature* c) : ScriptedAI(c) {}
+        npc_magmoth_crusherAI(Creature* c) : ScriptedAI(c) { }
 
         void JustDied(Unit* killer)
         {
@@ -2147,7 +2146,7 @@ public:
 
     struct npc_seaforium_depth_chargeAI : public ScriptedAI
     {
-        npc_seaforium_depth_chargeAI(Creature* c) : ScriptedAI(c) {}
+        npc_seaforium_depth_chargeAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiExplosionTimer;
         void Reset()
@@ -2200,7 +2199,7 @@ public:
 
     struct npc_valiance_keep_cannoneerAI : public ScriptedAI
     {
-        npc_valiance_keep_cannoneerAI(Creature* c) : ScriptedAI(c) {}
+        npc_valiance_keep_cannoneerAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiTimer;
 

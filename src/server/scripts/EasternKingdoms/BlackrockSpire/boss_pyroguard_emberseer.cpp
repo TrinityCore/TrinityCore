@@ -47,7 +47,7 @@ public:
 
     struct boss_pyroguard_emberseerAI : public BossAI
     {
-        boss_pyroguard_emberseerAI(Creature* creature) : BossAI(creature, DATA_PYROGAURD_EMBERSEER) {}
+        boss_pyroguard_emberseerAI(Creature* creature) : BossAI(creature, DATA_PYROGAURD_EMBERSEER) { }
 
         void Reset()
         {

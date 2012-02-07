@@ -161,6 +161,7 @@ public:
                 DoCast(me, SPELL_FROST_ARMOR);
                 FrostArmorTimer = 40000+rand()%20000;
             } else FrostArmorTimer -= diff;
+
             if (DecayTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_DEATH_AND_DECAY);
@@ -177,6 +178,7 @@ public:
                         break;
                 }
             } else DecayTimer -= diff;
+
             if (NovaTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FROST_NOVA);
@@ -193,6 +195,7 @@ public:
                         break;
                 }
             } else NovaTimer -= diff;
+
             if (IceboltTimer <= diff)
             {
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 40, true), SPELL_ICEBOLT);
@@ -202,7 +205,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_rage_winterchill()
