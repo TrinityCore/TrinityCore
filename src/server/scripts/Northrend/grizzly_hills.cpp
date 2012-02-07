@@ -415,7 +415,7 @@ public:
             // call this each update tick?
             if (me->FindNearestCreature(TALLHORN_STAG, 0.2f))
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
             }
             else
                 if (m_uiPhase)
