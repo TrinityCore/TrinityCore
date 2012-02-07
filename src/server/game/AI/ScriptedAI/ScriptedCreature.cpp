@@ -102,10 +102,7 @@ bool SummonList::HasEntry(uint32 entry)
 }
 
 ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
-    me(creature),
-    IsFleeing(false),
-    _evadeCheckCooldown(2500),
-    _isCombatMovementAllowed(true)
+    me(creature), IsFleeing(false), _evadeCheckCooldown(2500), _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
     _difficulty = Difficulty(me->GetMap()->GetSpawnMode());
@@ -470,11 +467,9 @@ void Scripted_NoMovementAI::AttackStart(Unit* target)
 // BossAI - for instanced bosses
 
 BossAI::BossAI(Creature* creature, uint32 bossId) : ScriptedAI(creature),
-    instance(creature->GetInstanceScript()),
-    summons(creature),
-    _boundary(instance ? instance->GetBossBoundary(bossId) : NULL),
-    _bossId(bossId)
+    instance(creature->GetInstanceScript()), summons(creature), _boundary(instance ? instance->GetBossBoundary(bossId) : NULL), _bossId(bossId)
 {
+
 }
 
 void BossAI::_Reset()
@@ -606,10 +601,10 @@ void BossAI::UpdateAI(uint32 const diff)
 
 // WorldBossAI - for non-instanced bosses
 
-WorldBossAI::WorldBossAI(Creature* creature) :
-    ScriptedAI(creature),
+WorldBossAI::WorldBossAI(Creature* creature) : ScriptedAI(creature),
     summons(creature)
 {
+
 }
 
 void WorldBossAI::_Reset()

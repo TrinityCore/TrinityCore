@@ -17,6 +17,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "blackrock_depths.h"
 
 enum Spells
 {
@@ -36,7 +37,7 @@ public:
 
     struct boss_grizzleAI : public ScriptedAI
     {
-        boss_grizzleAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_grizzleAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 GroundTremor_Timer;
         uint32 Frenzy_Timer;

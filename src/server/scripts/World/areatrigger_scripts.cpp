@@ -48,11 +48,7 @@ enum eCoilfangGOs
 class AreaTrigger_at_coilfang_waterfall : public AreaTriggerScript
 {
     public:
-
-        AreaTrigger_at_coilfang_waterfall()
-            : AreaTriggerScript("at_coilfang_waterfall")
-        {
-        }
+        AreaTrigger_at_coilfang_waterfall() : AreaTriggerScript("at_coilfang_waterfall") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -80,11 +76,7 @@ enum eLegionTeleporter
 class AreaTrigger_at_legion_teleporter : public AreaTriggerScript
 {
     public:
-
-        AreaTrigger_at_legion_teleporter()
-            : AreaTriggerScript("at_legion_teleporter")
-        {
-        }
+        AreaTrigger_at_legion_teleporter() : AreaTriggerScript("at_legion_teleporter") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -122,11 +114,7 @@ enum eStormwrightShelf
 class AreaTrigger_at_stormwright_shelf : public AreaTriggerScript
 {
     public:
-
-        AreaTrigger_at_stormwright_shelf()
-            : AreaTriggerScript("at_stormwright_shelf")
-        {
-        }
+        AreaTrigger_at_stormwright_shelf() : AreaTriggerScript("at_stormwright_shelf") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -150,11 +138,7 @@ enum eScentLarkorwi
 class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
 {
     public:
-
-        AreaTrigger_at_scent_larkorwi()
-            : AreaTriggerScript("at_scent_larkorwi")
-        {
-        }
+        AreaTrigger_at_scent_larkorwi() : AreaTriggerScript("at_scent_larkorwi") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -181,11 +165,7 @@ enum eAtLastRites
 class AreaTrigger_at_last_rites : public AreaTriggerScript
 {
     public:
-
-        AreaTrigger_at_last_rites()
-            : AreaTriggerScript("at_last_rites")
-        {
-        }
+        AreaTrigger_at_last_rites() : AreaTriggerScript("at_last_rites") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {
@@ -238,11 +218,7 @@ enum eWaygate
 class AreaTrigger_at_sholazar_waygate : public AreaTriggerScript
 {
     public:
-
-        AreaTrigger_at_sholazar_waygate()
-            : AreaTriggerScript("at_sholazar_waygate")
-        {
-        }
+        AreaTrigger_at_sholazar_waygate() : AreaTriggerScript("at_sholazar_waygate") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
         {

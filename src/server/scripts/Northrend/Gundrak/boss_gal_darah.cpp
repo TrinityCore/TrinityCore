@@ -18,7 +18,6 @@
 #include "ScriptPCH.h"
 #include "gundrak.h"
 
-//Spells
 enum Spells
 {
     SPELL_ENRAGE                                  = 55285,
@@ -31,10 +30,9 @@ enum Spells
     H_SPELL_PUNCTURE                              = 59826,
     SPELL_STAMPEDE                                = 55218,
     SPELL_WHIRLING_SLASH                          = 55250,
-    H_SPELL_WHIRLING_SLASH                        = 59824,
+    H_SPELL_WHIRLING_SLASH                        = 59824
 };
 
-//Yells
 enum Yells
 {
     SAY_AGGRO                                     = -1604000,
@@ -281,15 +279,12 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
     };
-
 };
 
 class achievement_share_the_love : public AchievementCriteriaScript
 {
     public:
-        achievement_share_the_love() : AchievementCriteriaScript("achievement_share_the_love")
-        {
-        }
+        achievement_share_the_love() : AchievementCriteriaScript("achievement_share_the_love") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

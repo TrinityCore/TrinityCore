@@ -90,13 +90,11 @@ enum Phases
 class boss_venoxis : public CreatureScript
 {
     public:
-        boss_venoxis() : CreatureScript("boss_venoxis") {}
+        boss_venoxis() : CreatureScript("boss_venoxis") { }
 
         struct boss_venoxisAI : public BossAI
         {
-            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS)
-            {
-            }
+            boss_venoxisAI(Creature* creature) : BossAI(creature, DATA_VENOXIS) { }
 
             void Reset()
             {

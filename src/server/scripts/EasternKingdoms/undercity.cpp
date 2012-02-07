@@ -88,7 +88,7 @@ public:
 
     struct npc_lady_sylvanas_windrunnerAI : public ScriptedAI
     {
-        npc_lady_sylvanas_windrunnerAI(Creature* c) : ScriptedAI(c) {}
+        npc_lady_sylvanas_windrunnerAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 LamentEvent_Timer;
         bool LamentEvent;
@@ -162,7 +162,7 @@ public:
 
     struct npc_highborne_lamenterAI : public ScriptedAI
     {
-        npc_highborne_lamenterAI(Creature* c) : ScriptedAI(c) {}
+        npc_highborne_lamenterAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 EventMove_Timer;
         uint32 EventCast_Timer;
@@ -201,7 +201,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -252,12 +251,7 @@ public:
 
         return true;
     }
-
 };
-
-/*######
-## AddSC
-######*/
 
 void AddSC_undercity()
 {

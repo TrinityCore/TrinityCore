@@ -301,7 +301,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Fathom-Guard Sharkkis AI
@@ -455,7 +454,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Fathom-Guard Tidalvess AI
@@ -582,7 +580,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Fathom-Guard Caribdis AI

@@ -24,6 +24,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "stratholme.h"
 
 //front, left
 #define ADD_1X 3553.851807f
@@ -71,10 +72,13 @@ EndScriptData */
 #define ADD_9Z 125.001015f
 #define ADD_9O 0.592007f
 
-#define SPELL_KNOCKAWAY    10101
-#define SPELL_PUMMEL    15615
-#define SPELL_SHOOT    16496
-//#define SPELL_SUMMONCRIMSONRIFLEMAN    17279
+enum Spells
+{
+    SPELL_KNOCKAWAY                 = 10101,
+    SPELL_PUMMEL                    = 15615,
+    SPELL_SHOOT                     = 16496
+    //SPELL_SUMMONCRIMSONRIFLEMAN     = 17279
+};
 
 class boss_cannon_master_willey : public CreatureScript
 {
@@ -88,7 +92,7 @@ public:
 
     struct boss_cannon_master_willeyAI : public ScriptedAI
     {
-        boss_cannon_master_willeyAI(Creature* c) : ScriptedAI(c) {}
+        boss_cannon_master_willeyAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 KnockAway_Timer;
         uint32 Pummel_Timer;
@@ -216,7 +220,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_cannon_master_willey()

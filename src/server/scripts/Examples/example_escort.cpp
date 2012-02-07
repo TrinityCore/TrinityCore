@@ -55,11 +55,7 @@ enum eEnums
 class example_escort : public CreatureScript
 {
     public:
-
-        example_escort()
-            : CreatureScript("example_escort")
-        {
-        }
+        example_escort() : CreatureScript("example_escort") { }
 
         struct example_escortAI : public npc_escortAI
         {

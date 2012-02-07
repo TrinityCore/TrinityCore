@@ -66,7 +66,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -100,7 +99,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -130,7 +128,7 @@ public:
 
     struct npc_ranger_lilathaAI : public npc_escortAI
     {
-        npc_ranger_lilathaAI(Creature* c) : npc_escortAI(c) {}
+        npc_ranger_lilathaAI(Creature* c) : npc_escortAI(c) { }
 
         void WaypointReached(uint32 i)
         {
@@ -211,7 +209,6 @@ public:
     {
         return new npc_ranger_lilathaAI(creature);
     }
-
 };
 
 void AddSC_ghostlands()

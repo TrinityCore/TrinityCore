@@ -39,15 +39,15 @@ enum eSpells
     SPELL_ENRAGE              = 8269,
     SPELL_SUMMONTIGERS        = 24183,
     SPELL_TIGER_FORM          = 24169,
-    SPELL_RESURRECT           = 24173,                    //We will not use this spell.
+    SPELL_RESURRECT           = 24173, // We will not use this spell.
 
-//Zealot Lor'Khan Spells
+    //Zealot Lor'Khan Spells
     SPELL_SHIELD              = 20545,
     SPELL_BLOODLUST           = 24185,
     SPELL_GREATERHEAL         = 24208,
     SPELL_DISARM              = 6713,
 
-//Zealot Zath Spells
+    //Zealot Zath Spells
     SPELL_SWEEPINGSTRIKES     = 18765,
     SPELL_SINISTERSTRIKE      = 15581,
     SPELL_GOUGE               = 12540,
@@ -58,11 +58,7 @@ enum eSpells
 class boss_thekal : public CreatureScript
 {
     public:
-
-        boss_thekal()
-            : CreatureScript("boss_thekal")
-        {
-        }
+        boss_thekal() : CreatureScript("boss_thekal") { }
 
         struct boss_thekalAI : public ScriptedAI
         {
@@ -269,11 +265,7 @@ class boss_thekal : public CreatureScript
 class mob_zealot_lorkhan : public CreatureScript
 {
     public:
-
-        mob_zealot_lorkhan()
-            : CreatureScript("mob_zealot_lorkhan")
-        {
-        }
+        mob_zealot_lorkhan() : CreatureScript("mob_zealot_lorkhan") { }
 
         struct mob_zealot_lorkhanAI : public ScriptedAI
         {
@@ -429,11 +421,7 @@ class mob_zealot_lorkhan : public CreatureScript
 class mob_zealot_zath : public CreatureScript
 {
     public:
-
-        mob_zealot_zath()
-            : CreatureScript("mob_zealot_zath")
-        {
-        }
+        mob_zealot_zath() : CreatureScript("mob_zealot_zath") { }
 
         struct mob_zealot_zathAI : public ScriptedAI
         {
@@ -584,4 +572,3 @@ void AddSC_boss_thekal()
     new mob_zealot_lorkhan();
     new mob_zealot_zath();
 }
-

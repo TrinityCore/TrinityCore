@@ -49,18 +49,22 @@
 #define AZGALOR             17842
 #define ARCHIMONDE          17968
 
-#define SPELL_TELEPORT_VISUAL     41232
-#define SPELL_MASS_TELEPORT       16807
+// Shared spells used by more than one script
+enum SharedSpells
+{
+    SPELL_TELEPORT_VISUAL     = 41232,
+    SPELL_MASS_TELEPORT       = 16807,
 
-//Spells for Jaina
-#define SPELL_BRILLIANCE_AURA     31260                     // The database must handle this spell via creature_addon(it should, but is removed in evade..)
-#define SPELL_BLIZZARD            31266
-#define SPELL_PYROBLAST           31263
-#define SPELL_SUMMON_ELEMENTALS   31264
+    //Spells for Jaina
+    SPELL_BRILLIANCE_AURA     = 31260, // The database must handle this spell via creature_addon(it should, but is removed in evade..)
+    SPELL_BLIZZARD            = 31266,
+    SPELL_PYROBLAST           = 31263,
+    SPELL_SUMMON_ELEMENTALS   = 31264,
 
-//Thrall spells
-#define SPELL_CHAIN_LIGHTNING     31330
-#define SPELL_SUMMON_DIRE_WOLF    31331
+    //Thrall spells
+    SPELL_CHAIN_LIGHTNING     = 31330,
+    SPELL_SUMMON_DIRE_WOLF    = 31331
+};
 
 struct Wave
 {

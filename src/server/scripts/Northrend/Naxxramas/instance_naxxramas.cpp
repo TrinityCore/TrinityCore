@@ -81,10 +81,6 @@ const float HeiganEruptionSlope[3] =
     (-3637 - HeiganPos[1]) /(2771 - HeiganPos[0]),
 };
 
-// 0  H      x
-//  1        ^
-//   2       |
-//    3  y<--o
 inline uint32 GetEruptionSection(float x, float y)
 {
     y -= HeiganPos[1];
@@ -465,7 +461,6 @@ public:
             playerDied = buff2;
         }
     };
-
 };
 
 void AddSC_instance_naxxramas()

@@ -43,16 +43,11 @@ enum eSpells
 class instance_magtheridons_lair : public InstanceMapScript
 {
     public:
-        instance_magtheridons_lair()
-            : InstanceMapScript("instance_magtheridons_lair", 544)
-        {
-        }
+        instance_magtheridons_lair() : InstanceMapScript("instance_magtheridons_lair", 544) { }
 
         struct instance_magtheridons_lair_InstanceMapScript : public InstanceScript
         {
-            instance_magtheridons_lair_InstanceMapScript(Map* map) : InstanceScript(map)
-            {
-            }
+            instance_magtheridons_lair_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 

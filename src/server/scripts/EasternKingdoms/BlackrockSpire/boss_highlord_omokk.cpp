@@ -54,7 +54,7 @@ public:
 
     struct boss_highlordomokkAI : public BossAI
     {
-        boss_highlordomokkAI(Creature* creature) : BossAI(creature, DATA_OMOKK) {}
+        boss_highlordomokkAI(Creature* creature) : BossAI(creature, DATA_OMOKK) { }
 
         void Reset()
         {
@@ -125,7 +125,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_highlordomokk()

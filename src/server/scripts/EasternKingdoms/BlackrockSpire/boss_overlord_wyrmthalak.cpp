@@ -58,7 +58,7 @@ public:
 
     struct boss_overlordwyrmthalakAI : public BossAI
     {
-        boss_overlordwyrmthalakAI(Creature* creature) : BossAI(creature, DATA_OVERLORD_WYRMTHALAK) {}
+        boss_overlordwyrmthalakAI(Creature* creature) : BossAI(creature, DATA_OVERLORD_WYRMTHALAK) { }
 
         bool Summoned;
 
@@ -126,6 +126,7 @@ public:
                         break;
                 }
             }
+
             DoMeleeAttackIfReady();
         }
     };

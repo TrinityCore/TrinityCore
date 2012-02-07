@@ -66,7 +66,7 @@ public:
 
     struct npc_aeranasAI : public ScriptedAI
     {
-        npc_aeranasAI(Creature* c) : ScriptedAI(c) {}
+        npc_aeranasAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Faction_Timer;
         uint32 EnvelopingWinds_Timer;
@@ -124,7 +124,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -198,7 +197,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -215,7 +213,6 @@ public:
         go->SummonCreature(C_AERANAS, -1321.79f, 4043.80f, 116.24f, 1.25f, TEMPSUMMON_TIMED_DESPAWN, 180000);
         return false;
     }
-
 };
 
 /*######
@@ -252,7 +249,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -308,7 +304,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -361,7 +356,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -456,7 +450,6 @@ public:
             summoned->AI()->AttackStart(me);
         }
     };
-
 };
 
 /*######
@@ -482,7 +475,7 @@ public:
 
     struct npc_fel_guard_houndAI : public ScriptedAI
     {
-        npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fel_guard_houndAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiCheckTimer;
         uint64 uiHelboarGUID;
@@ -529,7 +522,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_hellfire_peninsula()

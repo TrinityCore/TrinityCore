@@ -27,13 +27,16 @@ EndScriptData */
 
 #define SAY_TELEPORT            -1000100
 
-#define SPELL_MARKOFFROST        23182
-#define SPELL_MANASTORM          21097
-#define SPELL_CHILL              21098
-#define SPELL_FROSTBREATH        21099
-#define SPELL_REFLECT            22067
-#define SPELL_CLEAVE              8255                      //Perhaps not right ID
-#define SPELL_ENRAGE             23537
+enum Spells
+{
+    SPELL_MARKOFFROST        = 23182,
+    SPELL_MANASTORM          = 21097,
+    SPELL_CHILL              = 21098,
+    SPELL_FROSTBREATH        = 21099,
+    SPELL_REFLECT            = 22067,
+    SPELL_CLEAVE             = 19983,
+    SPELL_ENRAGE             = 23537
+};
 
 class boss_azuregos : public CreatureScript
 {
@@ -47,7 +50,7 @@ public:
 
     struct boss_azuregosAI : public ScriptedAI
     {
-        boss_azuregosAI(Creature* c) : ScriptedAI(c) {}
+        boss_azuregosAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 MarkOfFrost_Timer;
         uint32 ManaStorm_Timer;
@@ -98,12 +101,12 @@ public:
                 Teleport_Timer = 30000;
             } else Teleport_Timer -= diff;
 
-            //        //MarkOfFrost_Timer
-            //        if (MarkOfFrost_Timer <= diff)
-            //        {
-            //            DoCast(me->getVictim(), SPELL_MARKOFFROST);
-            //            MarkOfFrost_Timer = 25000;
-            //        } else MarkOfFrost_Timer -= diff;
+            //MarkOfFrost_Timer
+            //if (MarkOfFrost_Timer <= diff)
+            //{
+            //    DoCast(me->getVictim(), SPELL_MARKOFFROST);
+            //    MarkOfFrost_Timer = 25000;
+            //} else MarkOfFrost_Timer -= diff;
 
             //Chill_Timer
             if (Chill_Timer <= diff)
@@ -151,7 +154,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_azuregos()

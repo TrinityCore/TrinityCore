@@ -111,7 +111,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -152,7 +151,7 @@ public:
 
     struct npc_salsalabimAI : public ScriptedAI
     {
-        npc_salsalabimAI(Creature* c) : ScriptedAI(c) {}
+        npc_salsalabimAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 MagneticPull_Timer;
 
@@ -187,7 +186,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*
@@ -247,7 +245,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -279,7 +276,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -308,6 +304,7 @@ public:
 #define WHISP19    -1000253
 #define WHISP20    -1000254
 #define WHISP21    -1000255
+
 class npc_kservant : public CreatureScript
 {
 public:
@@ -321,7 +318,7 @@ public:
     struct npc_kservantAI : public npc_escortAI
     {
     public:
-        npc_kservantAI(Creature* c) : npc_escortAI(c) {}
+        npc_kservantAI(Creature* c) : npc_escortAI(c) { }
 
         void WaypointReached(uint32 i)
         {
@@ -406,7 +403,7 @@ public:
 
     struct npc_dirty_larryAI : public ScriptedAI
     {
-        npc_dirty_larryAI(Creature* c) : ScriptedAI(c) {}
+        npc_dirty_larryAI(Creature* c) : ScriptedAI(c) { }
 
         bool Event;
         bool Attack;
@@ -572,7 +569,6 @@ public:
     {
         return new npc_dirty_larryAI (creature);
     }
-
 };
 
 /*######
@@ -610,7 +606,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -678,7 +673,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_shattrath_city()

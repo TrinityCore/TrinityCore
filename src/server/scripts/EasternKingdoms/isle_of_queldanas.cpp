@@ -51,7 +51,7 @@ public:
 
     struct npc_converted_sentryAI : public ScriptedAI
     {
-        npc_converted_sentryAI(Creature* c) : ScriptedAI(c) {}
+        npc_converted_sentryAI(Creature* c) : ScriptedAI(c) { }
 
         bool Credit;
         uint32 Timer;
@@ -85,7 +85,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -109,7 +108,7 @@ public:
 
     struct npc_greengill_slaveAI : public ScriptedAI
     {
-        npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) {}
+        npc_greengill_slaveAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 PlayerGUID;
 
@@ -117,7 +116,7 @@ public:
 
         void Reset()
         {
-        PlayerGUID = 0;
+            PlayerGUID = 0;
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
@@ -149,7 +148,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_isle_of_queldanas()

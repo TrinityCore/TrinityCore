@@ -270,11 +270,8 @@ struct advisorbase_ai : public ScriptedAI
 class boss_kaelthas : public CreatureScript
 {
     public:
+        boss_kaelthas() : CreatureScript("boss_kaelthas") { }
 
-        boss_kaelthas()
-            : CreatureScript("boss_kaelthas")
-        {
-        }
         //Kael'thas AI
         struct boss_kaelthasAI : public ScriptedAI
         {
@@ -445,7 +442,10 @@ class boss_kaelthas : public CreatureScript
                 }
             }
 
-            void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
+            void SummonedCreatureDespawn(Creature* summon)
+            {
+                summons.Despawn(summon);
+            }
 
             void JustDied(Unit* /*Killer*/)
             {
@@ -1008,14 +1008,11 @@ class boss_kaelthas : public CreatureScript
 class boss_thaladred_the_darkener : public CreatureScript
 {
     public:
+        boss_thaladred_the_darkener() : CreatureScript("boss_thaladred_the_darkener") { }
 
-        boss_thaladred_the_darkener()
-            : CreatureScript("boss_thaladred_the_darkener")
-        {
-        }
         struct boss_thaladred_the_darkenerAI : public advisorbase_ai
         {
-            boss_thaladred_the_darkenerAI(Creature* creature) : advisorbase_ai(creature) {}
+            boss_thaladred_the_darkenerAI(Creature* creature) : advisorbase_ai(creature) { }
 
             uint32 Gaze_Timer;
             uint32 Silence_Timer;
@@ -1106,14 +1103,11 @@ class boss_thaladred_the_darkener : public CreatureScript
 class boss_lord_sanguinar : public CreatureScript
 {
     public:
+        boss_lord_sanguinar() : CreatureScript("boss_lord_sanguinar") { }
 
-        boss_lord_sanguinar()
-            : CreatureScript("boss_lord_sanguinar")
-        {
-        }
         struct boss_lord_sanguinarAI : public advisorbase_ai
         {
-            boss_lord_sanguinarAI(Creature* creature) : advisorbase_ai(creature) {}
+            boss_lord_sanguinarAI(Creature* creature) : advisorbase_ai(creature) { }
 
             uint32 Fear_Timer;
 
@@ -1169,18 +1163,16 @@ class boss_lord_sanguinar : public CreatureScript
             return new boss_lord_sanguinarAI(Creature);
         }
 };
+
 //Grand Astromancer Capernian AI
 class boss_grand_astromancer_capernian : public CreatureScript
 {
     public:
+        boss_grand_astromancer_capernian() : CreatureScript("boss_grand_astromancer_capernian") { }
 
-        boss_grand_astromancer_capernian()
-            : CreatureScript("boss_grand_astromancer_capernian")
-        {
-        }
         struct boss_grand_astromancer_capernianAI : public advisorbase_ai
         {
-            boss_grand_astromancer_capernianAI(Creature* creature) : advisorbase_ai(creature) {}
+            boss_grand_astromancer_capernianAI(Creature* creature) : advisorbase_ai(creature) { }
 
             uint32 Fireball_Timer;
             uint32 Conflagration_Timer;
@@ -1318,14 +1310,11 @@ class boss_grand_astromancer_capernian : public CreatureScript
 class boss_master_engineer_telonicus : public CreatureScript
 {
     public:
+        boss_master_engineer_telonicus() : CreatureScript("boss_master_engineer_telonicus") { }
 
-        boss_master_engineer_telonicus()
-            : CreatureScript("boss_master_engineer_telonicus")
-        {
-        }
         struct boss_master_engineer_telonicusAI : public advisorbase_ai
         {
-            boss_master_engineer_telonicusAI(Creature* creature) : advisorbase_ai(creature) {}
+            boss_master_engineer_telonicusAI(Creature* creature) : advisorbase_ai(creature) { }
 
             uint32 Bomb_Timer;
             uint32 RemoteToy_Timer;
@@ -1401,14 +1390,11 @@ class boss_master_engineer_telonicus : public CreatureScript
 class mob_kael_flamestrike : public CreatureScript
 {
     public:
+        mob_kael_flamestrike() : CreatureScript("mob_kael_flamestrike") { }
 
-        mob_kael_flamestrike()
-            : CreatureScript("mob_kael_flamestrike")
-        {
-        }
         struct mob_kael_flamestrikeAI : public Scripted_NoMovementAI
         {
-            mob_kael_flamestrikeAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+            mob_kael_flamestrikeAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
             uint32 Timer;
             bool Casting;
@@ -1465,14 +1451,11 @@ class mob_kael_flamestrike : public CreatureScript
 class mob_phoenix_tk : public CreatureScript
 {
     public:
+        mob_phoenix_tk() : CreatureScript("mob_phoenix_tk") { }
 
-        mob_phoenix_tk()
-            : CreatureScript("mob_phoenix_tk")
-        {
-        }
         struct mob_phoenix_tkAI : public ScriptedAI
         {
-            mob_phoenix_tkAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_phoenix_tkAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Cycle_Timer;
 
@@ -1519,14 +1502,11 @@ class mob_phoenix_tk : public CreatureScript
 class mob_phoenix_egg_tk : public CreatureScript
 {
     public:
+        mob_phoenix_egg_tk() : CreatureScript("mob_phoenix_egg_tk") { }
 
-        mob_phoenix_egg_tk()
-            : CreatureScript("mob_phoenix_egg_tk")
-        {
-        }
         struct mob_phoenix_egg_tkAI : public ScriptedAI
         {
-            mob_phoenix_egg_tkAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_phoenix_egg_tkAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Rebirth_Timer;
 

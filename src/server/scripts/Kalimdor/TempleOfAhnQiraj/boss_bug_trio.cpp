@@ -16,26 +16,25 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: boss_kri, boss_yauj, boss_vem : The Bug Trio
-SD%Complete: 100
-SDComment:
-SDCategory: Temple of Ahn'Qiraj
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "temple_of_ahnqiraj.h"
 
-#define SPELL_CLEAVE        26350
-#define SPELL_TOXIC_VOLLEY  25812
-#define SPELL_POISON_CLOUD  38718                           //Only Spell with right dmg.
-#define SPELL_ENRAGE        34624                           //Changed cause 25790 is casted on gamers too. Same prob with old explosion of twin emperors.
+enum Spells
+{
+    // kri
+    SPELL_CLEAVE             = 26350,
+    SPELL_TOXIC_VOLLEY       = 25812,
+    SPELL_POISON_CLOUD       = 38718, // Only Spell with right dmg.
+    SPELL_ENRAGE             = 34624, // Changed cause 25790 is casted on gamers too. Same prob with old explosion of twin emperors.
 
-#define SPELL_CHARGE        26561
-#define SPELL_KNOCKBACK     26027
+    // vem
+    SPELL_CHARGE             = 26561,
+    SPELL_KNOCKBACK          = 26027,
 
-#define SPELL_HEAL      25807
-#define SPELL_FEAR      19408
+    // yauj
+    SPELL_HEAL               = 25807,
+    SPELL_FEAR               = 19408
+};
 
 class boss_kri : public CreatureScript
 {
@@ -131,7 +130,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_vem : public CreatureScript
@@ -224,7 +222,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_yauj : public CreatureScript
@@ -345,7 +342,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_bug_trio()

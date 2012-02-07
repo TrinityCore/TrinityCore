@@ -69,7 +69,7 @@ public:
 
     struct npc_draenei_survivorAI : public ScriptedAI
     {
-        npc_draenei_survivorAI(Creature* c) : ScriptedAI(c) {}
+        npc_draenei_survivorAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 pCaster;
 
@@ -168,7 +168,6 @@ public:
             } else SayHelpTimer -= diff;
         }
     };
-
 };
 
 /*######
@@ -282,7 +281,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -301,7 +299,7 @@ public:
 
     struct npc_injured_draeneiAI : public ScriptedAI
     {
-        npc_injured_draeneiAI(Creature* c) : ScriptedAI(c) {}
+        npc_injured_draeneiAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {
@@ -323,9 +321,7 @@ public:
         void UpdateAI(const uint32 /*diff*/)
         {
         }
-
     };
-
 };
 
 /*######
@@ -402,7 +398,6 @@ public:
 
         void Reset() { }
     };
-
 };
 
 /*######
@@ -443,7 +438,7 @@ public:
 
     struct npc_geezleAI : public ScriptedAI
     {
-        npc_geezleAI(Creature* c) : ScriptedAI(c) {}
+        npc_geezleAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 SparkGUID;
 
@@ -515,7 +510,8 @@ public:
                     Spark->DisappearAndDie();
                 DespawnNagaFlag(false);
                 me->DisappearAndDie();
-            default: return 99999999;
+            default:
+                return 99999999;
             }
         }
 
@@ -530,11 +526,8 @@ public:
 
             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
             {
-                if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE
-                    &&(*itr)->HasAura(SPELL_TREE_DISGUISE))
-                {
+                if ((*itr)->GetQuestStatus(QUEST_TREES_COMPANY) == QUEST_STATUS_INCOMPLETE &&(*itr)->HasAura(SPELL_TREE_DISGUISE))
                     (*itr)->KilledMonsterCredit(MOB_SPARK, 0);
-                }
             }
         }
 
@@ -548,9 +541,7 @@ public:
                 for (std::list<GameObject*>::const_iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
                 {
                     if (despawn)
-                    {
                         (*itr)->SetLootState(GO_JUST_DEACTIVATED);
-                    }
                     else
                         (*itr)->Respawn();
                 }
@@ -562,10 +553,9 @@ public:
             if (SayTimer <= diff)
             {
                 if (EventStarted)
-                {
                     SayTimer = NextStep(Step++);
-                }
-            } else SayTimer -= diff;
+            }
+            else SayTimer -= diff;
         }
     };
 
@@ -613,7 +603,7 @@ public:
 
     struct npc_death_ravagerAI : public ScriptedAI
     {
-        npc_death_ravagerAI(Creature* c) : ScriptedAI(c){}
+        npc_death_ravagerAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 RendTimer;
         uint32 EnragingBiteTimer;

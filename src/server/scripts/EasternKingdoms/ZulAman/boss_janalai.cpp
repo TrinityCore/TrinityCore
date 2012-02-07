@@ -105,11 +105,7 @@ float hatcherway[2][5][3] =
 class boss_janalai : public CreatureScript
 {
     public:
-
-        boss_janalai()
-            : CreatureScript("boss_janalai")
-        {
-        }
+        boss_janalai() : CreatureScript("boss_janalai") { }
 
         struct boss_janalaiAI : public ScriptedAI
         {
@@ -178,7 +174,7 @@ class boss_janalai : public CreatureScript
                     instance->SetData(DATA_JANALAIEVENT, IN_PROGRESS);
 
                 DoScriptText(SAY_AGGRO, me);
-        //        DoZoneInCombat();
+                // DoZoneInCombat();
             }
 
             void DamageDealt(Unit* target, uint32 &damage, DamageEffectType /*damagetype*/)
@@ -440,15 +436,11 @@ class boss_janalai : public CreatureScript
 class mob_janalai_firebomb : public CreatureScript
 {
     public:
-
-        mob_janalai_firebomb()
-            : CreatureScript("mob_janalai_firebomb")
-        {
-        }
+        mob_janalai_firebomb() : CreatureScript("mob_janalai_firebomb") { }
 
         struct mob_janalai_firebombAI : public ScriptedAI
         {
-            mob_janalai_firebombAI(Creature* c) : ScriptedAI(c){}
+            mob_janalai_firebombAI(Creature* c) : ScriptedAI(c){ }
 
             void Reset() {}
 
@@ -476,11 +468,7 @@ class mob_janalai_firebomb : public CreatureScript
 class mob_janalai_hatcher : public CreatureScript
 {
     public:
-
-        mob_janalai_hatcher()
-            : CreatureScript("mob_janalai_hatcher")
-        {
-        }
+        mob_janalai_hatcher() : CreatureScript("mob_janalai_hatcher") { }
 
         struct mob_janalai_hatcherAI : public ScriptedAI
         {
@@ -542,8 +530,11 @@ class mob_janalai_hatcher : public CreatureScript
             }
 
             void EnterCombat(Unit* /*who*/) {}
+
             void AttackStart(Unit* /*who*/) {}
+
             void MoveInLineOfSight(Unit* /*who*/) {}
+
             void MovementInform(uint32, uint32)
             {
                 if (waypoint == 5)
@@ -608,11 +599,7 @@ class mob_janalai_hatcher : public CreatureScript
 class mob_janalai_hatchling : public CreatureScript
 {
     public:
-
-        mob_janalai_hatchling()
-            : CreatureScript("mob_janalai_hatchling")
-        {
-        }
+        mob_janalai_hatchling() : CreatureScript("mob_janalai_hatchling") { }
 
         struct mob_janalai_hatchlingAI : public ScriptedAI
         {
@@ -667,7 +654,7 @@ class mob_janalai_hatchling : public CreatureScript
 class mob_janalai_egg : public CreatureScript
 {
 public:
-    mob_janalai_egg(): CreatureScript("mob_janalai_egg") {}
+    mob_janalai_egg(): CreatureScript("mob_janalai_egg") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -676,7 +663,7 @@ public:
 
     struct mob_janalai_eggAI : public ScriptedAI
     {
-        mob_janalai_eggAI(Creature* creature) : ScriptedAI(creature){}
+        mob_janalai_eggAI(Creature* creature) : ScriptedAI(creature){ }
 
         void Reset() {}
 
@@ -690,7 +677,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_boss_janalai()

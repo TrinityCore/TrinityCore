@@ -24,6 +24,7 @@ SDCategory:
 Script Data End */
 
 #include "ScriptPCH.h"
+#include "nexus.h"
 
 #define SPELL_BATTLE_SHOUT                                    31403
 #define SPELL_CHARGE                                          60067
@@ -49,12 +50,13 @@ public:
 
     struct boss_commander_kolurgAI : public ScriptedAI
     {
-        boss_commander_kolurgAI(Creature* c) : ScriptedAI(c) {}
+        boss_commander_kolurgAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
+
         void UpdateAI(const uint32 /*diff*/)
         {
             //Return since we have no target
@@ -63,9 +65,9 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
         void JustDied(Unit* /*killer*/)  {}
     };
-
 };
 
 void AddSC_boss_commander_kolurg()

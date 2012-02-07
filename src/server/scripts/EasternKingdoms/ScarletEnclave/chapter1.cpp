@@ -305,7 +305,6 @@ public:
 
         uint64 GetGUID(int32 /*id*/) { return prisonerGUID; }
     };
-
 };
 
 class go_acherus_soul_prison : public GameObjectScript
@@ -322,7 +321,6 @@ public:
 
         return false;
     }
-
 };
 
 /*######
@@ -509,7 +507,6 @@ public:
             CombatAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 /*######
@@ -531,7 +528,7 @@ public:
 
     struct npc_dark_rider_of_acherusAI : public ScriptedAI
     {
-        npc_dark_rider_of_acherusAI(Creature* c) : ScriptedAI(c) {}
+        npc_dark_rider_of_acherusAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 PhaseTimer;
         uint32 Phase;
@@ -595,7 +592,6 @@ public:
         }
 
     };
-
 };
 
 /*######
@@ -623,7 +619,7 @@ public:
 
     struct npc_salanar_the_horsemanAI : public ScriptedAI
     {
-        npc_salanar_the_horsemanAI(Creature* c) : ScriptedAI(c) {}
+        npc_salanar_the_horsemanAI(Creature* c) : ScriptedAI(c) { }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
         {
@@ -673,7 +669,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -692,7 +687,7 @@ public:
 
     struct npc_ros_dark_riderAI : public ScriptedAI
     {
-        npc_ros_dark_riderAI(Creature* c) : ScriptedAI(c) {}
+        npc_ros_dark_riderAI(Creature* c) : ScriptedAI(c) { }
 
         void EnterCombat(Unit* /*who*/)
         {
@@ -722,7 +717,6 @@ public:
             }
         }
     };
-
 };
 
 // correct way: 52312 52314 52555 ...
@@ -743,7 +737,7 @@ public:
 
     struct npc_dkc1_gothikAI : public ScriptedAI
     {
-        npc_dkc1_gothikAI(Creature* c) : ScriptedAI(c) {}
+        npc_dkc1_gothikAI(Creature* c) : ScriptedAI(c) { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -758,9 +752,8 @@ public:
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
                             CAST_CRE(who)->CastSpell(owner, 52517, true);
 
-                        //Todo: Creatures must not be removed, but, must instead
-                        //      stand next to Gothik and be commanded into the pit
-                        //      and dig into the ground.
+                        // Todo: Creatures must not be removed, but, must instead stand next to Gothik and be commanded into the pit
+                        //       and dig into the ground.
                         CAST_CRE(who)->ForcedDespawn();
 
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_COMPLETE)
@@ -770,7 +763,6 @@ public:
             }
         }
     };
-
 };
 
 class npc_scarlet_ghoul : public CreatureScript
@@ -853,7 +845,6 @@ public:
             }
         }
     };
-
 };
 
 /*####
@@ -909,7 +900,6 @@ public:
                     miner->DisappearAndDie();
         }
     };
-
 };
 
 /*####
@@ -1043,7 +1033,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######
@@ -1077,7 +1066,6 @@ public:
         }
         return true;
     }
-
 };
 
 // npc 28912 quest 17217 boss 29001 mob 29007 go 191092

@@ -24,6 +24,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "karazhan.h"
 
 #define SAY_AGGRO               -1532018
 #define SAY_SLAY1               -1532019
@@ -51,7 +52,7 @@ public:
 
     struct boss_maiden_of_virtueAI : public ScriptedAI
     {
-        boss_maiden_of_virtueAI(Creature* c) : ScriptedAI(c) {}
+        boss_maiden_of_virtueAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Repentance_Timer;
         uint32 Holyfire_Timer;
@@ -131,9 +132,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
-
     };
-
 };
 
 void AddSC_boss_maiden_of_virtue()

@@ -78,7 +78,7 @@ public:
 
     struct npc_manaforge_control_consoleAI : public ScriptedAI
     {
-        npc_manaforge_control_consoleAI(Creature* c) : ScriptedAI(c) {}
+        npc_manaforge_control_consoleAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Event_Timer;
         uint32 Wave_Timer;
@@ -295,7 +295,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -350,7 +349,6 @@ public:
         }
         return true;
     }
-
 };
 
 /*######
@@ -396,7 +394,10 @@ public:
 
     struct npc_commander_dawnforgeAI : public ScriptedAI
     {
-        npc_commander_dawnforgeAI(Creature* c) : ScriptedAI(c) { Reset (); }
+        npc_commander_dawnforgeAI(Creature* c) : ScriptedAI(c)
+        {
+            Reset();
+        }
 
         uint64 PlayerGUID;
         uint64 ardonisGUID;
@@ -633,7 +634,6 @@ public:
             }
          }
     };
-
 };
 
 class at_commander_dawnforge : public AreaTriggerScript
@@ -659,7 +659,6 @@ public:
         }
         return false;
     }
-
 };
 
 /*######
@@ -714,7 +713,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -750,7 +748,7 @@ public:
 
     struct mob_phase_hunterAI : public ScriptedAI
     {
-        mob_phase_hunterAI(Creature* c) : ScriptedAI(c) {}
+        mob_phase_hunterAI(Creature* c) : ScriptedAI(c) { }
 
         bool Weak;
         bool Materialize;
@@ -849,7 +847,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -937,9 +934,7 @@ public:
         {
             me->RestoreFaction();
         }
-
     };
-
 };
 
 /*######
@@ -964,7 +959,7 @@ public:
 
     struct npc_maxx_a_million_escortAI : public npc_escortAI
     {
-        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) { }
 
         bool bTake;
         uint32 uiTakeTimer;

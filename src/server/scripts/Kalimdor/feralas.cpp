@@ -61,7 +61,6 @@ public:
         player->SEND_GOSSIP_MENU(2433, creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -154,9 +153,7 @@ public:
                     DoScriptText(SAY_OOX_END, me);
                     // Award quest credit
                     if (Player* player = GetPlayerForEscort())
-                    {
                             player->GroupEventHappens(QUEST_RESCUE_OOX22FE, me);
-                    }
                     break;
             }
         }
@@ -179,7 +176,6 @@ public:
             summoned->AI()->AttackStart(me);
         }
     };
-
 };
 
 /*######
@@ -199,7 +195,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######

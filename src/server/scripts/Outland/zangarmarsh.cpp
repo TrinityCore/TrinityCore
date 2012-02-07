@@ -421,10 +421,6 @@ public:
     }
 };
 
-/*######
-## AddSC
-######*/
-
 void AddSC_zangarmarsh()
 {
     new npcs_ashyen_and_keleth();

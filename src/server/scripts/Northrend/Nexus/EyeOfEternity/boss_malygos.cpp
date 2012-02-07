@@ -208,7 +208,7 @@ const Position MalygosPositions[MAX_MALYGOS_POS] =
 class boss_malygos : public CreatureScript
 {
 public:
-    boss_malygos() : CreatureScript("boss_malygos") {}
+    boss_malygos() : CreatureScript("boss_malygos") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -628,7 +628,7 @@ public:
 class spell_malygos_vortex_dummy : public SpellScriptLoader
 {
 public:
-    spell_malygos_vortex_dummy() : SpellScriptLoader("spell_malygos_vortex_dummy") {}
+    spell_malygos_vortex_dummy() : SpellScriptLoader("spell_malygos_vortex_dummy") { }
 
     class spell_malygos_vortex_dummy_SpellScript : public SpellScript
     {
@@ -706,7 +706,6 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                         malygos->RemoveAura(SPELL_VORTEX_1);
                     }
                 }
-
             }
 
             void Register()
@@ -724,7 +723,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 class npc_portal_eoe: public CreatureScript
 {
 public:
-    npc_portal_eoe() : CreatureScript("npc_portal_eoe") {}
+    npc_portal_eoe() : CreatureScript("npc_portal_eoe") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -787,7 +786,7 @@ public:
 class npc_power_spark: public CreatureScript
 {
 public:
-    npc_power_spark() : CreatureScript("npc_power_spark") {}
+    npc_power_spark() : CreatureScript("npc_power_spark") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -972,7 +971,7 @@ public:
 class npc_arcane_overload : public CreatureScript
 {
 public:
-    npc_arcane_overload() : CreatureScript("npc_arcane_overload") {}
+    npc_arcane_overload() : CreatureScript("npc_arcane_overload") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -981,7 +980,7 @@ public:
 
     struct npc_arcane_overloadAI : public ScriptedAI
     {
-        npc_arcane_overloadAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_arcane_overloadAI(Creature* creature) : ScriptedAI(creature) { }
 
         void AttackStart(Unit* who)
         {
@@ -997,7 +996,6 @@ public:
         {
             // we dont do melee damage!
         }
-
     };
 };
 
@@ -1005,7 +1003,7 @@ public:
 class npc_wyrmrest_skytalon : public CreatureScript
 {
 public:
-    npc_wyrmrest_skytalon() : CreatureScript("npc_wyrmrest_skytalon") {}
+    npc_wyrmrest_skytalon() : CreatureScript("npc_wyrmrest_skytalon") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1078,7 +1076,7 @@ enum AlexstraszaYells
 class npc_alexstrasza_eoe : public CreatureScript
 {
 public:
-    npc_alexstrasza_eoe() : CreatureScript("npc_alexstrasza_eoe") {}
+    npc_alexstrasza_eoe() : CreatureScript("npc_alexstrasza_eoe") { }
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1087,7 +1085,7 @@ public:
 
     struct npc_alexstrasza_eoeAI : public ScriptedAI
     {
-        npc_alexstrasza_eoeAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_alexstrasza_eoeAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -1127,7 +1125,7 @@ public:
 class achievement_denyin_the_scion : public AchievementCriteriaScript
 {
     public:
-        achievement_denyin_the_scion() : AchievementCriteriaScript("achievement_denyin_the_scion") {}
+        achievement_denyin_the_scion() : AchievementCriteriaScript("achievement_denyin_the_scion") { }
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {

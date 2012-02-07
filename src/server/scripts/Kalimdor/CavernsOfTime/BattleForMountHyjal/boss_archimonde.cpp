@@ -42,27 +42,30 @@ EndScriptData */
 #define SAY_SOUL_CHARGE1            -1534029
 #define SAY_SOUL_CHARGE2            -1534030
 
-#define SPELL_DENOUEMENT_WISP       32124
-#define SPELL_ANCIENT_SPARK         39349
-#define SPELL_PROTECTION_OF_ELUNE   38528
+enum Spells
+{
+    SPELL_DENOUEMENT_WISP       = 32124,
+    SPELL_ANCIENT_SPARK         = 39349,
+    SPELL_PROTECTION_OF_ELUNE   = 38528,
 
-#define SPELL_DRAIN_WORLD_TREE      39140
-#define SPELL_DRAIN_WORLD_TREE_2    39141
+    SPELL_DRAIN_WORLD_TREE      = 39140,
+    SPELL_DRAIN_WORLD_TREE_2    = 39141,
 
-#define SPELL_FINGER_OF_DEATH       31984
-#define SPELL_HAND_OF_DEATH         35354
-#define SPELL_AIR_BURST             32014
-#define SPELL_GRIP_OF_THE_LEGION    31972
-#define SPELL_DOOMFIRE_STRIKE       31903                   //summons two creatures
-#define SPELL_DOOMFIRE_SPAWN        32074
-#define SPELL_DOOMFIRE              31945
-#define SPELL_SOUL_CHARGE_YELLOW    32045
-#define SPELL_SOUL_CHARGE_GREEN     32051
-#define SPELL_SOUL_CHARGE_RED       32052
-#define SPELL_UNLEASH_SOUL_YELLOW   32054
-#define SPELL_UNLEASH_SOUL_GREEN    32057
-#define SPELL_UNLEASH_SOUL_RED      32053
-#define SPELL_FEAR                  31970
+    SPELL_FINGER_OF_DEATH       = 31984,
+    SPELL_HAND_OF_DEATH         = 35354,
+    SPELL_AIR_BURST             = 32014,
+    SPELL_GRIP_OF_THE_LEGION    = 31972,
+    SPELL_DOOMFIRE_STRIKE       = 31903, //summons two creatures
+    SPELL_DOOMFIRE_SPAWN        = 32074,
+    SPELL_DOOMFIRE              = 31945,
+    SPELL_SOUL_CHARGE_YELLOW    = 32045,
+    SPELL_SOUL_CHARGE_GREEN     = 32051,
+    SPELL_SOUL_CHARGE_RED       = 32052,
+    SPELL_UNLEASH_SOUL_YELLOW   = 32054,
+    SPELL_UNLEASH_SOUL_GREEN    = 32057,
+    SPELL_UNLEASH_SOUL_RED      = 32053,
+    SPELL_FEAR                  = 31970
+};
 
 #define CREATURE_ARCHIMONDE             17968
 #define CREATURE_DOOMFIRE               18095
@@ -125,7 +128,6 @@ public:
             } else CheckTimer -= diff;
         }
     };
-
 };
 
 /* This script is merely a placeholder for the Doomfire that triggers Doomfire spell. It will
@@ -142,7 +144,7 @@ public:
 
     struct mob_doomfireAI : public ScriptedAI
     {
-        mob_doomfireAI(Creature* c) : ScriptedAI(c) {}
+        mob_doomfireAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() { }
 
@@ -167,7 +169,7 @@ public:
 
     struct mob_doomfire_targettingAI : public ScriptedAI
     {
-        mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) {}
+        mob_doomfire_targettingAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 TargetGUID;
         uint32 ChangeTargetTimer;
@@ -210,7 +212,6 @@ public:
             } else ChangeTargetTimer -= diff;
         }
     };
-
 };
 
 /* Finally, Archimonde's script. His script isn't extremely complex, most are simply spells on timers.
@@ -637,7 +638,6 @@ public:
         }
         void WaypointReached(uint32 /*i*/){}
     };
-
 };
 
 void AddSC_boss_archimonde()

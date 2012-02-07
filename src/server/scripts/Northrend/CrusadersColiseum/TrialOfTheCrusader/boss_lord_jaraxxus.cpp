@@ -250,7 +250,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_legion_flame : public CreatureScript
@@ -282,7 +281,6 @@ public:
             UpdateVictim();
         }
     };
-
 };
 
 class mob_infernal_volcano : public CreatureScript
@@ -337,7 +335,6 @@ public:
             me->DespawnOrUnsummon();
         }
     };
-
 };
 
 class mob_fel_infernal : public CreatureScript
@@ -367,11 +364,11 @@ public:
             me->SetInCombatWithZone();
         }
 
-        /*void SpellHitTarget(Unit* target, const SpellInfo* pSpell)
-        {
-            if (pSpell->Id == SPELL_FEL_STREAK)
-                DoCastAOE(SPELL_FEL_INFERNO); //66517
-        }*/
+        //void SpellHitTarget(Unit* target, const SpellInfo* pSpell)
+        //{
+        //    if (pSpell->Id == SPELL_FEL_STREAK)
+        //        DoCastAOE(SPELL_FEL_INFERNO); //66517
+        //}
 
         void UpdateAI(const uint32 uiDiff)
         {
@@ -391,7 +388,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_nether_portal : public CreatureScript
@@ -446,7 +442,6 @@ public:
             me->DespawnOrUnsummon();
         }
     };
-
 };
 
 class mob_mistress_of_pain : public CreatureScript
@@ -522,7 +517,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_jaraxxus()

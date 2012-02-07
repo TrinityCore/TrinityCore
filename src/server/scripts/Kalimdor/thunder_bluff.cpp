@@ -73,7 +73,7 @@ public:
 
     struct npc_cairne_bloodhoofAI : public ScriptedAI
     {
-        npc_cairne_bloodhoofAI(Creature* c) : ScriptedAI(c) {}
+        npc_cairne_bloodhoofAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 BerserkerCharge_Timer;
         uint32 Cleave_Timer;
@@ -132,7 +132,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_thunder_bluff()

@@ -246,7 +246,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_snobold_vassal : public CreatureScript
@@ -386,7 +385,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 struct boss_jormungarAI : public ScriptedAI
@@ -429,9 +427,7 @@ struct boss_jormungarAI : public ScriptedAI
     void JustReachedHome()
     {
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) != FAIL)
-        {
             instanceScript->SetData(TYPE_NORTHREND_BEASTS, FAIL);
-        }
 
         me->DespawnOrUnsummon();
     }
@@ -439,10 +435,8 @@ struct boss_jormungarAI : public ScriptedAI
     void KilledUnit(Unit* who)
     {
         if (who->GetTypeId() == TYPEID_PLAYER)
-        {
             if (instanceScript)
                 instanceScript->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELEGIBLE, 0);
-        }
     }
 
     void EnterCombat(Unit* /*who*/)
@@ -454,7 +448,8 @@ struct boss_jormungarAI : public ScriptedAI
 
     void UpdateAI(uint32 const diff)
     {
-        if (!UpdateVictim()) return;
+        if (!UpdateVictim())
+            return;
 
         if (instanceScript && instanceScript->GetData(TYPE_NORTHREND_BEASTS) == SNAKES_SPECIAL && !enraged)
         {
@@ -720,11 +715,10 @@ public:
 
     struct mob_slime_poolAI : public ScriptedAI
     {
-        mob_slime_poolAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        mob_slime_poolAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool casted;
+
         void Reset()
         {
             casted = false;
@@ -740,7 +734,6 @@ public:
             }
         }
     };
-
 };
 
 class boss_icehowl : public CreatureScript
@@ -995,7 +988,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_boss_northrend_beasts()

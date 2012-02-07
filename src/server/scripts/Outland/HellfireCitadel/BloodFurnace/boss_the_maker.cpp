@@ -44,11 +44,7 @@ enum eEnums
 class boss_the_maker : public CreatureScript
 {
     public:
-
-        boss_the_maker()
-            : CreatureScript("boss_the_maker")
-        {
-        }
+        boss_the_maker() : CreatureScript("boss_the_maker") { }
 
         struct boss_the_makerAI : public ScriptedAI
         {
@@ -129,17 +125,16 @@ class boss_the_maker : public CreatureScript
                 else
                     ExplodingBreaker_Timer -=diff;
 
-                /* // Disabled until Core Support for mind control
-                if (domination_timer_timer <= diff)
-                {
-                Unit* target;
-                target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                // Disabled until Core Support for mind control
+                //if (domination_timer_timer <= diff)
+                //{
+                //    Unit* target;
+                //    target = SelectUnit(SELECT_TARGET_RANDOM, 0);
 
-                DoCast(target, SPELL_DOMINATION);
+                //    DoCast(target, SPELL_DOMINATION);
 
-                domination_timer = 120000;
-                } else domination_timer -=diff;
-                */
+                //    domination_timer = 120000;
+                //} else domination_timer -=diff;
 
                 if (Knockdown_Timer <= diff)
                 {
@@ -163,4 +158,3 @@ void AddSC_boss_the_maker()
 {
     new boss_the_maker();
 }
-

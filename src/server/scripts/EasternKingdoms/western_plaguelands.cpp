@@ -100,7 +100,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -149,7 +148,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -168,7 +166,7 @@ public:
 
     struct npc_the_scourge_cauldronAI : public ScriptedAI
     {
-        npc_the_scourge_cauldronAI(Creature* c) : ScriptedAI(c) {}
+        npc_the_scourge_cauldronAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
 
@@ -229,7 +227,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -264,7 +261,6 @@ public:
                 CAST_PLR(who)->KilledMonsterCredit(me->GetEntry(), me->GetGUID());
         }
     };
-
 };
 
 /*######
@@ -395,12 +391,7 @@ public:
                 m_uiChatTimer = 6000;
         }
     };
-
 };
-
-/*######
-##
-######*/
 
 void AddSC_western_plaguelands()
 {

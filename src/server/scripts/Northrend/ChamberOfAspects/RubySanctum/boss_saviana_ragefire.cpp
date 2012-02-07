@@ -67,9 +67,7 @@ class boss_saviana_ragefire : public CreatureScript
 
         struct boss_saviana_ragefireAI : public BossAI
         {
-            boss_saviana_ragefireAI(Creature* creature) : BossAI(creature, DATA_SAVIANA_RAGEFIRE)
-            {
-            }
+            boss_saviana_ragefireAI(Creature* creature) : BossAI(creature, DATA_SAVIANA_RAGEFIRE) { }
 
             void Reset()
             {

@@ -29,14 +29,11 @@ EndScriptData */
 class instance_ramparts : public InstanceMapScript
 {
     public:
-        instance_ramparts()
-            : InstanceMapScript("instance_ramparts", 543)
-        {
-        }
+        instance_ramparts() : InstanceMapScript("instance_ramparts", 543) { }
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
-            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint64 m_uiChestNGUID;
@@ -98,5 +95,5 @@ class instance_ramparts : public InstanceMapScript
 
 void AddSC_instance_ramparts()
 {
-    new instance_ramparts;
+    new instance_ramparts();
 }

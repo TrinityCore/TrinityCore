@@ -45,7 +45,7 @@ public:
 
     struct boss_ptheradrasAI : public ScriptedAI
     {
-        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_ptheradrasAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 Dustfield_Timer;
         uint32 Boulder_Timer;
@@ -60,7 +60,7 @@ public:
             RepulsiveGaze_Timer = 23000;
         }
 
-        void EnterCombat(Unit* /*who*/) {}
+        void EnterCombat(Unit* /*who*/) { }
 
         void JustDied(Unit* /*killer*/)
         {

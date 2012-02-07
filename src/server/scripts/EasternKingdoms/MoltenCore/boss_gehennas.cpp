@@ -49,9 +49,7 @@ class boss_gehennas : public CreatureScript
 
         struct boss_gehennasAI : public BossAI
         {
-            boss_gehennasAI(Creature* creature) : BossAI(creature, BOSS_GEHENNAS)
-            {
-            }
+            boss_gehennasAI(Creature* creature) : BossAI(creature, BOSS_GEHENNAS) { }
 
             void EnterCombat(Unit* victim)
             {

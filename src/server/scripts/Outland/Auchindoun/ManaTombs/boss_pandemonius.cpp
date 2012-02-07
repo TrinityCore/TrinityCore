@@ -53,9 +53,7 @@ public:
 
     struct boss_pandemoniusAI : public ScriptedAI
     {
-        boss_pandemoniusAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        boss_pandemoniusAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 VoidBlast_Timer;
         uint32 DarkShell_Timer;
@@ -121,7 +119,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_pandemonius()

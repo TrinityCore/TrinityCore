@@ -45,9 +45,7 @@ class boss_kurinnaxx : public CreatureScript
 
         struct boss_kurinnaxxAI : public BossAI
         {
-            boss_kurinnaxxAI(Creature* creature) : BossAI(creature, BOSS_KURINNAXX)
-            {
-            }
+            boss_kurinnaxxAI(Creature* creature) : BossAI(creature, BOSS_KURINNAXX) { }
 
             void Reset()
             {

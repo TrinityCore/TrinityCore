@@ -32,15 +32,11 @@ EndScriptData */
 class boss_wushoolay : public CreatureScript
 {
     public:
-
-        boss_wushoolay()
-            : CreatureScript("boss_wushoolay")
-        {
-        }
+        boss_wushoolay() : CreatureScript("boss_wushoolay") { }
 
         struct boss_wushoolayAI : public ScriptedAI
         {
-            boss_wushoolayAI(Creature* c) : ScriptedAI(c) {}
+            boss_wushoolayAI(Creature* c) : ScriptedAI(c) { }
 
             uint32 LightningCloud_Timer;
             uint32 LightningWave_Timer;
@@ -91,4 +87,3 @@ void AddSC_boss_wushoolay()
 {
     new boss_wushoolay();
 }
-

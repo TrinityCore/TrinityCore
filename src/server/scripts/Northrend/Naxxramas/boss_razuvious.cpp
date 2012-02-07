@@ -64,7 +64,7 @@ public:
 
     struct boss_razuviousAI : public BossAI
     {
-        boss_razuviousAI(Creature* c) : BossAI(c, BOSS_RAZUVIOUS) {}
+        boss_razuviousAI(Creature* c) : BossAI(c, BOSS_RAZUVIOUS) { }
 
         void KilledUnit(Unit* /*victim*/)
         {
@@ -132,7 +132,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_razuvious()

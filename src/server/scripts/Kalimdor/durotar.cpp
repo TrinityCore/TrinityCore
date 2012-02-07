@@ -48,14 +48,14 @@ public:
 
     struct npc_lazy_peonAI : public ScriptedAI
     {
-        npc_lazy_peonAI(Creature* c) : ScriptedAI(c) {}
+        npc_lazy_peonAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 uiPlayerGUID;
 
         uint32 m_uiRebuffTimer;
         bool work;
 
-        void Reset ()
+        void Reset()
         {
             uiPlayerGUID = 0;
             m_uiRebuffTimer = 0;
@@ -170,7 +170,7 @@ enum Points
 class npc_tiger_matriarch_credit : public CreatureScript
 {
     public:
-        npc_tiger_matriarch_credit() : CreatureScript("npc_tiger_matriarch_credit"){}
+        npc_tiger_matriarch_credit() : CreatureScript("npc_tiger_matriarch_credit") { }
 
         struct npc_tiger_matriarch_creditAI : public Scripted_NoMovementAI
         {
@@ -227,10 +227,7 @@ class npc_tiger_matriarch : public CreatureScript
 
         struct npc_tiger_matriarchAI : public ScriptedAI
         {
-            npc_tiger_matriarchAI(Creature* creature) : ScriptedAI(creature),
-                _tiger(NULL)
-            {
-            }
+            npc_tiger_matriarchAI(Creature* creature) : ScriptedAI(creature), _tiger(NULL) { }
 
             void IsSummonedBy(Unit* summoner)
             {
@@ -420,7 +417,7 @@ class npc_troll_volunteer : public CreatureScript
 class spell_mount_check : public SpellScriptLoader
 {
     public:
-        spell_mount_check() : SpellScriptLoader("spell_mount_check") {}
+        spell_mount_check() : SpellScriptLoader("spell_mount_check") { }
 
         class spell_mount_check_AuraScript : public AuraScript
         {
@@ -468,7 +465,7 @@ class spell_mount_check : public SpellScriptLoader
 class spell_voljin_war_drums : public SpellScriptLoader
 {
     public:
-        spell_voljin_war_drums() : SpellScriptLoader("spell_voljin_war_drums") {}
+        spell_voljin_war_drums() : SpellScriptLoader("spell_voljin_war_drums") { }
 
         class spell_voljin_war_drums_SpellScript : public SpellScript
         {
@@ -524,7 +521,7 @@ enum VoodooSpells
 class spell_voodoo : public SpellScriptLoader
 {
     public:
-        spell_voodoo() : SpellScriptLoader("spell_voodoo") {}
+        spell_voodoo() : SpellScriptLoader("spell_voodoo") { }
 
         class spell_voodoo_SpellScript : public SpellScript
         {

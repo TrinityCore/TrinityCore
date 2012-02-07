@@ -62,7 +62,7 @@ public:
 
     struct boss_patchwerkAI : public BossAI
     {
-        boss_patchwerkAI(Creature* c) : BossAI(c, BOSS_PATCHWERK) {}
+        boss_patchwerkAI(Creature* c) : BossAI(c, BOSS_PATCHWERK) { }
 
         bool Enraged;
 
@@ -156,7 +156,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_patchwerk()

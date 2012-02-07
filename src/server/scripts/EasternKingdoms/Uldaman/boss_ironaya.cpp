@@ -24,6 +24,7 @@ SDCategory: Uldaman
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "uldaman.h"
 
 #define SAY_AGGRO                   -1070000
 
@@ -34,15 +35,11 @@ EndScriptData */
 class boss_ironaya : public CreatureScript
 {
     public:
-
-        boss_ironaya()
-            : CreatureScript("boss_ironaya")
-        {
-        }
+        boss_ironaya() : CreatureScript("boss_ironaya") { }
 
         struct boss_ironayaAI : public ScriptedAI
         {
-            boss_ironayaAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_ironayaAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 uiArcingTimer;
             bool bHasCastedWstomp;

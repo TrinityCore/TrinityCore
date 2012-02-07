@@ -55,11 +55,7 @@ enum eSpells
 class boss_archaedas : public CreatureScript
 {
     public:
-
-        boss_archaedas()
-            : CreatureScript("boss_archaedas")
-        {
-        }
+        boss_archaedas() : CreatureScript("boss_archaedas") { }
 
         struct boss_archaedasAI : public ScriptedAI
         {
@@ -224,11 +220,7 @@ EndScriptData */
 class mob_archaedas_minions : public CreatureScript
 {
     public:
-
-        mob_archaedas_minions()
-            : CreatureScript("mob_archaedas_minions")
-        {
-        }
+        mob_archaedas_minions() : CreatureScript("mob_archaedas_minions") { }
 
         struct mob_archaedas_minionsAI : public ScriptedAI
         {
@@ -323,11 +315,7 @@ EndScriptData */
 class mob_stonekeepers : public CreatureScript
 {
     public:
-
-        mob_stonekeepers()
-            : CreatureScript("mob_stonekeepers")
-        {
-        }
+        mob_stonekeepers() : CreatureScript("mob_stonekeepers") { }
 
         struct mob_stonekeepersAI : public ScriptedAI
         {
@@ -388,11 +376,7 @@ EndScriptData */
 class go_altar_of_archaedas : public GameObjectScript
 {
     public:
-
-        go_altar_of_archaedas()
-            : GameObjectScript("go_altar_of_archaedas")
-        {
-        }
+        go_altar_of_archaedas() : GameObjectScript("go_altar_of_archaedas") { }
 
         bool OnGossipHello(Player* player, GameObject* /*pGO*/)
         {
@@ -419,11 +403,7 @@ EndScriptData */
 class go_altar_of_the_keepers : public GameObjectScript
 {
     public:
-
-        go_altar_of_the_keepers()
-            : GameObjectScript("go_altar_of_the_keepers")
-        {
-        }
+        go_altar_of_the_keepers() : GameObjectScript("go_altar_of_the_keepers") { }
 
         bool OnGossipHello(Player* player, GameObject* /*go*/)
         {

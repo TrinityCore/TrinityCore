@@ -51,15 +51,11 @@ enum eSpells
 class boss_high_botanist_freywinn : public CreatureScript
 {
     public:
-
-        boss_high_botanist_freywinn()
-            : CreatureScript("boss_high_botanist_freywinn")
-        {
-        }
+        boss_high_botanist_freywinn() : CreatureScript("boss_high_botanist_freywinn") { }
 
         struct boss_high_botanist_freywinnAI : public ScriptedAI
         {
-            boss_high_botanist_freywinnAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_high_botanist_freywinnAI(Creature* creature) : ScriptedAI(creature) { }
 
             std::list<uint64> Adds_List;
 

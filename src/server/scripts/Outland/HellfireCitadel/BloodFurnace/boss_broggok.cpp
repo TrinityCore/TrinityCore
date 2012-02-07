@@ -40,11 +40,7 @@ enum eEnums
 class boss_broggok : public CreatureScript
 {
     public:
-
-        boss_broggok()
-            : CreatureScript("boss_broggok")
-        {
-        }
+        boss_broggok() : CreatureScript("boss_broggok") { }
 
         struct boss_broggokAI : public ScriptedAI
         {

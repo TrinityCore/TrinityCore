@@ -21,11 +21,11 @@
 
 enum eSpells
 {
-    SPELL_BLESSING_OF_BLACKFATHOM                           = 8733,
-    SPELL_RAVAGE                                            = 8391,
-    SPELL_FROST_NOVA                                        = 865,
-    SPELL_FROST_BOLT_VOLLEY                                 = 8398,
-    SPELL_TELEPORT_DARNASSUS                                = 9268
+    SPELL_BLESSING_OF_BLACKFATHOM          = 8733,
+    SPELL_RAVAGE                           = 8391,
+    SPELL_FROST_NOVA                       = 865,
+    SPELL_FROST_BOLT_VOLLEY                = 8398,
+    SPELL_TELEPORT_DARNASSUS               = 9268
 };
 
 #define GOSSIP_ITEM_MORRIDUNE "Please port me to Darnassus"
@@ -41,6 +41,7 @@ public:
     {
         if (!player->HasAura(SPELL_BLESSING_OF_BLACKFATHOM))
             player->AddAura(SPELL_BLESSING_OF_BLACKFATHOM, player);
+
         return true;
     }
 };
@@ -59,6 +60,7 @@ public:
             go->SetGoState(GO_STATE_ACTIVE);
             go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             instance->SetData(DATA_FIRE, instance->GetData(DATA_FIRE) + 1);
+
             return true;
         }
         return false;

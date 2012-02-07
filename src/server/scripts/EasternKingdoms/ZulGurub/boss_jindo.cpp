@@ -44,15 +44,11 @@ EndScriptData */
 class boss_jindo : public CreatureScript
 {
     public:
-
-        boss_jindo()
-            : CreatureScript("boss_jindo")
-        {
-        }
+        boss_jindo() : CreatureScript("boss_jindo") { }
 
         struct boss_jindoAI : public ScriptedAI
         {
-            boss_jindoAI(Creature* c) : ScriptedAI(c) {}
+            boss_jindoAI(Creature* c) : ScriptedAI(c) { }
 
             uint32 BrainWashTotem_Timer;
             uint32 HealingWard_Timer;
@@ -179,11 +175,7 @@ class boss_jindo : public CreatureScript
 class mob_healing_ward : public CreatureScript
 {
     public:
-
-        mob_healing_ward()
-            : CreatureScript("mob_healing_ward")
-        {
-        }
+        mob_healing_ward() : CreatureScript("mob_healing_ward") { }
 
         struct mob_healing_wardAI : public ScriptedAI
         {
@@ -233,15 +225,11 @@ class mob_healing_ward : public CreatureScript
 class mob_shade_of_jindo : public CreatureScript
 {
     public:
-
-        mob_shade_of_jindo()
-            : CreatureScript("mob_shade_of_jindo")
-        {
-        }
+        mob_shade_of_jindo() : CreatureScript("mob_shade_of_jindo") { }
 
         struct mob_shade_of_jindoAI : public ScriptedAI
         {
-            mob_shade_of_jindoAI(Creature* c) : ScriptedAI(c) {}
+            mob_shade_of_jindoAI(Creature* c) : ScriptedAI(c) { }
 
             uint32 ShadowShock_Timer;
 

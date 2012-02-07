@@ -19,10 +19,18 @@
 #include "hyjal.h"
 #include "hyjal_trash.h"
 
-#define SPELL_CARRION_SWARM 31306
-#define SPELL_SLEEP 31298
-#define SPELL_VAMPIRIC_AURA 38196
-#define SPELL_INFERNO 31299
+enum Spells
+{
+    // anetheron
+    SPELL_CARRION_SWARM   = 31306,
+    SPELL_SLEEP           = 31298,
+    SPELL_VAMPIRIC_AURA   = 38196,
+    SPELL_INFERNO         = 31299,
+
+    // towering infernal
+    SPELL_IMMOLATION      = 31303,
+    SPELL_INFERNO_EFFECT  = 31302
+};
 
 #define SAY_ONDEATH "The clock... is still... ticking."
 #define SOUND_ONDEATH 10982
@@ -192,7 +200,9 @@ public:
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                         target->CastSpell(target, SPELL_SLEEP, true);
                 }
+
                 SleepTimer = 60000;
+
                 switch (urand(0, 1))
                 {
                     case 0:
@@ -205,11 +215,13 @@ public:
                         break;
                 }
             } else SleepTimer -= diff;
+
             if (AuraTimer <= diff)
             {
                 DoCast(me, SPELL_VAMPIRIC_AURA, true);
                 AuraTimer = urand(10000, 20000);
             } else AuraTimer -= diff;
+
             if (InfernoTimer <= diff)
             {
                 DoCast(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true), SPELL_INFERNO);
@@ -230,11 +242,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
-
-#define SPELL_IMMOLATION     31303
-#define SPELL_INFERNO_EFFECT 31302
 
 class mob_towering_infernal : public CreatureScript
 {
@@ -315,7 +323,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_anetheron()

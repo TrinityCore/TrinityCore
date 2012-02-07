@@ -278,7 +278,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Water Globule AI
@@ -296,7 +295,7 @@ public:
 
     struct mob_water_globuleAI : public ScriptedAI
     {
-        mob_water_globuleAI(Creature* c) : ScriptedAI(c) {}
+        mob_water_globuleAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Check_Timer;
 
@@ -346,7 +345,6 @@ public:
             //do NOT deal any melee damage to the target.
         }
     };
-
 };
 
 void AddSC_boss_morogrim_tidewalker()

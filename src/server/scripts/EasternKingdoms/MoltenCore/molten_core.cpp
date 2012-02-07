@@ -29,6 +29,7 @@ EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedSimpleAI.h"
+#include "molten_core.h"
 
 enum Spells
 {

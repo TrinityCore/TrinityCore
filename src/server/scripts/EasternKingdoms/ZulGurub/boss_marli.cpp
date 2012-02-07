@@ -43,11 +43,7 @@ EndScriptData */
 class boss_marli : public CreatureScript
 {
     public:
-
-        boss_marli()
-            : CreatureScript("boss_marli")
-        {
-        }
+        boss_marli() : CreatureScript("boss_marli") { }
 
         struct boss_marliAI : public ScriptedAI
         {
@@ -222,15 +218,11 @@ class boss_marli : public CreatureScript
 class mob_spawn_of_marli : public CreatureScript
 {
     public:
-
-        mob_spawn_of_marli()
-            : CreatureScript("mob_spawn_of_marli")
-        {
-        }
+        mob_spawn_of_marli() : CreatureScript("mob_spawn_of_marli") { }
 
         struct mob_spawn_of_marliAI : public ScriptedAI
         {
-            mob_spawn_of_marliAI(Creature* c) : ScriptedAI(c) {}
+            mob_spawn_of_marliAI(Creature* c) : ScriptedAI(c) { }
 
             uint32 LevelUp_Timer;
 

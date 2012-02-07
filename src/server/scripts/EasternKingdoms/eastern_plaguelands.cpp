@@ -48,7 +48,7 @@ public:
 
     struct mobs_ghoul_flayerAI : public ScriptedAI
     {
-        mobs_ghoul_flayerAI(Creature* c) : ScriptedAI(c) {}
+        mobs_ghoul_flayerAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
 
@@ -60,7 +60,6 @@ public:
                 me->SummonCreature(11064, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
         }
     };
-
 };
 
 /*######
@@ -91,7 +90,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -120,7 +118,7 @@ public:
 
     struct npc_darrowshire_spiritAI : public ScriptedAI
     {
-        npc_darrowshire_spiritAI(Creature* c) : ScriptedAI(c) {}
+        npc_darrowshire_spiritAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {
@@ -128,10 +126,8 @@ public:
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
-        void EnterCombat(Unit* /*who*/) {}
-
+        void EnterCombat(Unit* /*who*/) {}        
     };
-
 };
 
 /*######
@@ -185,7 +181,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_eastern_plaguelands()

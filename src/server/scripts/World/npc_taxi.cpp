@@ -328,5 +328,5 @@ public:
 
 void AddSC_npc_taxi()
 {
-    new npc_taxi;
+    new npc_taxi();
 }

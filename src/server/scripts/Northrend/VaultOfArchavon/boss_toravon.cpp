@@ -58,9 +58,7 @@ class boss_toravon : public CreatureScript
 
         struct boss_toravonAI : public BossAI
         {
-            boss_toravonAI(Creature* creature) : BossAI(creature, DATA_TORAVON)
-            {
-            }
+            boss_toravonAI(Creature* creature) : BossAI(creature, DATA_TORAVON) { }
 
             void EnterCombat(Unit* /*who*/)
             {
@@ -125,7 +123,7 @@ class mob_frost_warder : public CreatureScript
 
         struct mob_frost_warderAI : public ScriptedAI
         {
-            mob_frost_warderAI(Creature* c) : ScriptedAI(c) {}
+            mob_frost_warderAI(Creature* c) : ScriptedAI(c) { }
 
             void Reset()
             {
@@ -180,9 +178,7 @@ public:
 
     struct mob_frozen_orbAI : public ScriptedAI
     {
-        mob_frozen_orbAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        mob_frozen_orbAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {

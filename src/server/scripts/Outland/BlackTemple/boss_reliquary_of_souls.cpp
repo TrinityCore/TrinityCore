@@ -113,7 +113,7 @@ public:
 
     struct npc_enslaved_soulAI : public ScriptedAI
     {
-        npc_enslaved_soulAI(Creature* c) : ScriptedAI(c) {}
+        npc_enslaved_soulAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 ReliquaryGUID;
 
@@ -127,7 +127,6 @@ public:
 
         void JustDied(Unit* /*killer*/);
     };
-
 };
 
 class boss_reliquary_of_souls : public CreatureScript
@@ -355,7 +354,6 @@ public:
             } else Timer -= diff;
         }
     };
-
 };
 
 void npc_enslaved_soul::npc_enslaved_soulAI::JustDied(Unit* /*killer*/)
@@ -379,7 +377,7 @@ public:
 
     struct boss_essence_of_sufferingAI : public ScriptedAI
     {
-        boss_essence_of_sufferingAI(Creature* c) : ScriptedAI(c) {}
+        boss_essence_of_sufferingAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 StatAuraGUID;
 
@@ -489,7 +487,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_essence_of_desire : public CreatureScript
@@ -504,7 +501,7 @@ public:
 
     struct boss_essence_of_desireAI : public ScriptedAI
     {
-        boss_essence_of_desireAI(Creature* c) : ScriptedAI(c) {}
+        boss_essence_of_desireAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 RuneShieldTimer;
         uint32 DeadenTimer;
@@ -592,7 +589,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_essence_of_anger : public CreatureScript
@@ -607,7 +603,7 @@ public:
 
     struct boss_essence_of_angerAI : public ScriptedAI
     {
-        boss_essence_of_angerAI(Creature* c) : ScriptedAI(c) {}
+        boss_essence_of_angerAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 AggroTargetGUID;
 
@@ -693,7 +689,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_reliquary_of_souls()

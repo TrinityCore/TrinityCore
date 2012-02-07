@@ -426,7 +426,6 @@ public:
             }
         }
     };
-
 };
 
 class mob_felkael_flamestrike : public CreatureScript
@@ -468,7 +467,6 @@ public:
             } else FlameStrikeTimer -= diff;
         }
     };
-
 };
 
 class mob_felkael_phoenix : public CreatureScript
@@ -539,9 +537,7 @@ public:
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveIdle();
                 me->SetStandState(UNIT_STAND_STATE_DEAD);
-
            }
-
         }
 
         void JustDied(Unit* /*slayer*/)
@@ -571,7 +567,6 @@ public:
                         Rebirth = false;
                     } else Death_Timer -= diff;
                 }
-
             }
 
             if (!UpdateVictim())
@@ -603,7 +598,7 @@ public:
 
     struct mob_felkael_phoenix_eggAI : public ScriptedAI
     {
-        mob_felkael_phoenix_eggAI(Creature* c) : ScriptedAI(c) {}
+        mob_felkael_phoenix_eggAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 HatchTimer;
 
@@ -622,10 +617,8 @@ public:
                 me->SummonCreature(CREATURE_PHOENIX, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
                 me->Kill(me);
             } else HatchTimer -= diff;
-
         }
     };
-
 };
 
 class mob_arcane_sphere : public CreatureScript
@@ -682,7 +675,6 @@ public:
             } else ChangeTargetTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_felblood_kaelthas()

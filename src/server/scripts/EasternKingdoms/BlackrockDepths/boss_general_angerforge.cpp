@@ -17,6 +17,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "blackrock_depths.h"
 
 enum Spells
 {
@@ -37,7 +38,7 @@ public:
 
     struct boss_general_angerforgeAI : public ScriptedAI
     {
-        boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_general_angerforgeAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 MightyBlow_Timer;
         uint32 HamString_Timer;

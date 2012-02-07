@@ -32,15 +32,12 @@ public:
 
     struct instance_gnomeregan_InstanceMapScript : public InstanceScript
     {
-        instance_gnomeregan_InstanceMapScript(Map* map) : InstanceScript(map)
-        {
-        }
+        instance_gnomeregan_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
         uint64 uiCaveInLeftGUID;
         uint64 uiCaveInRightGUID;
-
         uint64 uiBastmasterEmiShortfuseGUID;
 
         void Initialize()
@@ -49,7 +46,6 @@ public:
 
             uiCaveInLeftGUID                = 0;
             uiCaveInRightGUID               = 0;
-
             uiBastmasterEmiShortfuseGUID    = 0;
         }
 
@@ -133,7 +129,6 @@ public:
             return 0;
         }
     };
-
 };
 
 void AddSC_instance_gnomeregan()

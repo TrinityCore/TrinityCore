@@ -57,7 +57,7 @@ public:
 
     struct boss_marwynAI : public boss_horAI
     {
-        boss_marwynAI(Creature* creature) : boss_horAI(creature) {}
+        boss_marwynAI(Creature* creature) : boss_horAI(creature) { }
 
         void Reset()
         {
@@ -128,7 +128,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_marwyn()

@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Flamegor
-SD%Complete: 100
-SDComment:
-SDCategory: Blackwing Lair
-EndScriptData */
-
 #include "ScriptPCH.h"
 
 enum Emotes
@@ -49,7 +42,7 @@ public:
 
     struct boss_flamegorAI : public ScriptedAI
     {
-        boss_flamegorAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_flamegorAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowFlame_Timer;
         uint32 WingBuffet_Timer;

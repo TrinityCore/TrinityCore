@@ -78,19 +78,6 @@ enum eSeat
     SEAT_ID_0                       = 0
 };
 
-/*
-struct Point
-{
-    float x, y, z;
-};
-
-const Point MovementPoint[] =
-{
-  {746.84f, 623.15f, 411.41f},
-  {747.96f, 620.29f, 411.09f},
-  {750.23f, 618.35f, 411.09f}
-};
-*/
 void AggroAllPlayers(Creature* temp)
 {
     Map::PlayerList const &PlList = temp->GetMap()->GetPlayers();

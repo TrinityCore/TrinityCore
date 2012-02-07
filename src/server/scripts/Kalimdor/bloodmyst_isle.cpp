@@ -49,7 +49,7 @@ public:
 
     struct mob_webbed_creatureAI : public ScriptedAI
     {
-        mob_webbed_creatureAI(Creature* c) : ScriptedAI(c) {}
+        mob_webbed_creatureAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {
@@ -80,7 +80,6 @@ public:
                 me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
         }
     };
-
 };
 
 /*######
@@ -146,7 +145,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -186,7 +184,7 @@ public:
 
     struct npc_princess_stillpineAI : public ScriptedAI
     {
-        npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_princess_stillpineAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MovementInform(uint32 type, uint32 id)
         {

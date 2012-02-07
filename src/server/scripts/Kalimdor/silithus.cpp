@@ -102,7 +102,6 @@ public:
         player->SEND_GOSSIP_MENU(6812, creature->GetGUID());
             return true;
     }
-
 };
 
 /*###
@@ -165,10 +164,9 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF + 6:
                 player->SEND_GOSSIP_MENU(7761, creature->GetGUID());
-                                                                //'kill' our trigger to update quest status
+                // 'kill' our trigger to update quest status
                 player->KilledMonsterCredit(TRIGGER_RUTGAR, 0);
                 break;
-
             case GOSSIP_ACTION_INFO_DEF + 9:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM11, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 11);
                 player->SEND_GOSSIP_MENU(7762, creature->GetGUID());
@@ -217,12 +215,12 @@ public:
 
         return true;
     }
-
 };
 
 /*####
 # quest_a_pawn_on_the_eternal_board (Defines)
 ####*/
+
 enum eEternalBoard
 {
     QUEST_A_PAWN_ON_THE_ETERNAL_BOARD = 8519,
@@ -492,7 +490,7 @@ public:
 
     struct npc_anachronos_the_ancientAI : public ScriptedAI
     {
-        npc_anachronos_the_ancientAI(Creature* c) : ScriptedAI(c) {}
+        npc_anachronos_the_ancientAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 AnimationTimer;
         uint8 AnimationCount;
@@ -801,7 +799,6 @@ public:
                 me->AI()->EnterEvadeMode();
         }
     };
-
 };
 
 /*######
@@ -820,7 +817,7 @@ public:
 
     struct mob_qiraj_war_spawnAI : public ScriptedAI
     {
-        mob_qiraj_war_spawnAI(Creature* c) : ScriptedAI(c) {}
+        mob_qiraj_war_spawnAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 MobGUID;
         uint64 PlayerGUID;
@@ -916,7 +913,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*#####
@@ -935,7 +931,7 @@ public:
 
     struct npc_anachronos_quest_triggerAI : public ScriptedAI
     {
-        npc_anachronos_quest_triggerAI(Creature* c) : ScriptedAI(c) {}
+        npc_anachronos_quest_triggerAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 PlayerGUID;
 
@@ -1063,7 +1059,6 @@ public:
                 EnterEvadeMode();
         };
     };
-
 };
 
 void mob_qiraj_war_spawn::mob_qiraj_war_spawnAI::JustDied(Unit* /*slayer*/)
@@ -1133,7 +1128,6 @@ public:
         }
         return true;
     }
-
 };
 
 /*###

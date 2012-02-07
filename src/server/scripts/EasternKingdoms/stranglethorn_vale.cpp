@@ -114,12 +114,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
-
-/*######
-##
-######*/
 
 void AddSC_stranglethorn_vale()
 {

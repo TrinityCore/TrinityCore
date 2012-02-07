@@ -49,7 +49,7 @@ public:
 
     struct mob_water_elementalAI : public ScriptedAI
     {
-        mob_water_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_water_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 waterBoltTimer;
         uint64 balindaGUID;
@@ -203,6 +203,6 @@ public:
 
 void AddSC_boss_balinda()
 {
-    new boss_balinda;
-    new mob_water_elemental;
+    new boss_balinda();
+    new mob_water_elemental();
 };

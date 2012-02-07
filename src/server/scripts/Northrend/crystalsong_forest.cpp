@@ -49,7 +49,7 @@ public:
 
     struct npc_warmage_violetstandAI : public Scripted_NoMovementAI
     {
-        npc_warmage_violetstandAI(Creature* creature) : Scripted_NoMovementAI(creature){}
+        npc_warmage_violetstandAI(Creature* creature) : Scripted_NoMovementAI(creature) { }
 
         uint64 uiTargetGUID;
 
@@ -84,7 +84,8 @@ public:
                         }
                     }
                 }
-            }else
+            }
+            else
             {
                 if (!uiTargetGUID)
                     if (Creature* pOrb = GetClosestCreatureWithEntry(me, NPC_TRANSITUS_SHIELD_DUMMY, 32.0f))
@@ -106,5 +107,5 @@ public:
 
 void AddSC_crystalsong_forest()
 {
-    new npc_warmage_violetstand;
+    new npc_warmage_violetstand();
 }

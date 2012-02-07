@@ -438,6 +438,7 @@ public:
                 uiOrbazGUID = 0;
                 uiThassarianGUID = 0;
                 uiLichKingGUID = 0;
+
                 for (uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
                 {
                     if (Creature* temp = Unit::GetCreature(*me, uiAbominationGUID[i]))
@@ -938,7 +939,7 @@ public:
                         case 33: // Darion supports to jump to lich king here
                             if (Unit::GetCreature(*me, uiLichKingGUID))
                                 DoCast(me, SPELL_MOGRAINE_CHARGE); // jumping charge
-    //   doesn't make it looks well, so workarounds, Darion charges, looks better
+                            // doesn't make it looks well, so workarounds, Darion charges, looks better
                             me->SetSpeed(MOVE_RUN, 3.0f);
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
                             SetHoldState(false);
@@ -1660,7 +1661,6 @@ public:
                 }
         }
     };
-
 };
 
 /*######
@@ -1678,13 +1678,16 @@ public:
 
     struct npc_the_lich_king_tirion_dawnAI : public ScriptedAI
     {
-        npc_the_lich_king_tirion_dawnAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+        npc_the_lich_king_tirion_dawnAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Reset();
+        }
+
         void Reset() {}
         void AttackStart(Unit* /*who*/) {} // very sample, just don't make them aggreesive
         void UpdateAI(const uint32 /*diff*/) {}
         void JustDied(Unit* /*killer*/) {}
     };
-
 };
 
 void AddSC_the_scarlet_enclave_c5()

@@ -24,6 +24,7 @@ Category: Hellfire Citadel, Hellfire Ramparts
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "hellfire_ramparts.h"
 
 enum eSpells
 {
@@ -74,11 +75,7 @@ const float VazrudenRing[2][3] =
 class boss_nazan : public CreatureScript
 {
     public:
-
-        boss_nazan()
-            : CreatureScript("boss_nazan")
-        {
-        }
+        boss_nazan() : CreatureScript("boss_nazan") { }
 
         struct boss_nazanAI : public ScriptedAI
         {
@@ -203,16 +200,11 @@ class boss_nazan : public CreatureScript
 class boss_vazruden : public CreatureScript
 {
     public:
+        boss_vazruden() : CreatureScript("boss_vazruden") { }
 
-        boss_vazruden()
-            : CreatureScript("boss_vazruden")
-        {
-        }
         struct boss_vazrudenAI : public ScriptedAI
         {
-            boss_vazrudenAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            boss_vazrudenAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Revenge_Timer;
             bool WipeSaid;
@@ -281,11 +273,7 @@ class boss_vazruden : public CreatureScript
 class boss_vazruden_the_herald : public CreatureScript
 {
     public:
-
-        boss_vazruden_the_herald()
-            : CreatureScript("boss_vazruden_the_herald")
-        {
-        }
+        boss_vazruden_the_herald() : CreatureScript("boss_vazruden_the_herald") { }
 
         struct boss_vazruden_the_heraldAI : public ScriptedAI
         {
@@ -462,14 +450,11 @@ class boss_vazruden_the_herald : public CreatureScript
 class mob_hellfire_sentry : public CreatureScript
 {
     public:
+        mob_hellfire_sentry() : CreatureScript("mob_hellfire_sentry") { }
 
-        mob_hellfire_sentry()
-            : CreatureScript("mob_hellfire_sentry")
-        {
-        }
         struct mob_hellfire_sentryAI : public ScriptedAI
         {
-            mob_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_hellfire_sentryAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 KidneyShot_Timer;
 
@@ -503,11 +488,13 @@ class mob_hellfire_sentry : public CreatureScript
                 DoMeleeAttackIfReady();
             }
         };
+
         CreatureAI* GetAI(Creature* Creature) const
         {
             return new mob_hellfire_sentryAI (Creature);
         }
 };
+
 void AddSC_boss_vazruden_the_herald()
 {
     new boss_vazruden_the_herald();
@@ -515,4 +502,3 @@ void AddSC_boss_vazruden_the_herald()
     new boss_nazan();
     new mob_hellfire_sentry();
 }
-

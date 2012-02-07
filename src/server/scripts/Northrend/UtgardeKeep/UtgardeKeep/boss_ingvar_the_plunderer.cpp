@@ -282,7 +282,6 @@ public:
     private:
         EventMap events;
     };
-
 };
 
 enum eSpells
@@ -334,8 +333,7 @@ public:
             if (ingvar)
             {
                 me->GetMotionMaster()->MovePoint(1, x, y, z+15);
-
-    //            DoScriptText(YELL_RESSURECT, me);
+                // DoScriptText(YELL_RESSURECT, me);
             }
         }
 
@@ -423,9 +421,7 @@ public:
 
     struct mob_ingvar_throw_dummyAI : public ScriptedAI
     {
-        mob_ingvar_throw_dummyAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        mob_ingvar_throw_dummyAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiDespawnTimer;
 
@@ -454,7 +450,6 @@ public:
             } else uiDespawnTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_ingvar_the_plunderer()

@@ -32,7 +32,6 @@ enum Yells
     YELL_TWILIGHTCORRUPTOR_KILL                                     = 2,
 };
 
-
 /*######
 # at_twilight_grove
 ######*/
@@ -59,8 +58,7 @@ public:
             }
         }
         return false;
-    };
-
+    };    
 };
 
 /*######
@@ -83,7 +81,7 @@ public:
 
     struct boss_twilight_corrupterAI : public ScriptedAI
     {
-        boss_twilight_corrupterAI(Creature* c) : ScriptedAI(c) {}
+        boss_twilight_corrupterAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 SoulCorruption_Timer;
         uint32 CreatureOfNightmare_Timer;
@@ -133,7 +131,6 @@ public:
             DoMeleeAttackIfReady();
         };
     };
-
 };
 
 void AddSC_duskwood()

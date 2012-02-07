@@ -93,11 +93,7 @@ float NalorakkWay[8][3] =
 class boss_nalorakk : public CreatureScript
 {
     public:
-
-        boss_nalorakk()
-            : CreatureScript("boss_nalorakk")
-        {
-        }
+        boss_nalorakk() : CreatureScript("boss_nalorakk") { }
 
         struct boss_nalorakkAI : public ScriptedAI
         {
@@ -336,7 +332,6 @@ class boss_nalorakk : public CreatureScript
                             inMove = false;
                             return;
                     }
-
                 }
             }
 
@@ -454,4 +449,3 @@ void AddSC_boss_nalorakk()
 {
     new boss_nalorakk();
 }
-

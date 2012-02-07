@@ -24,6 +24,7 @@ SDCategory: Scarlet Monastery
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "scarlet_monastery.h"
 
 enum Spells
 {
@@ -44,7 +45,7 @@ public:
 
     struct boss_azshir_the_sleeplessAI : public ScriptedAI
     {
-        boss_azshir_the_sleeplessAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_azshir_the_sleeplessAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 SoulSiphon_Timer;
         uint32 CallOftheGrave_Timer;

@@ -43,7 +43,7 @@ public:
 
     struct boss_lorekeeperpolkeltAI : public ScriptedAI
     {
-        boss_lorekeeperpolkeltAI(Creature* c) : ScriptedAI(c) {}
+        boss_lorekeeperpolkeltAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 VolatileInfection_Timer;
         uint32 Darkplague_Timer;
@@ -110,7 +110,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_lorekeeperpolkelt()

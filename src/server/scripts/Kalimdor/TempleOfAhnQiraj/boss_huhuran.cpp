@@ -24,6 +24,7 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "temple_of_ahnqiraj.h"
 
 #define EMOTE_GENERIC_FRENZY_KILL   -1000001
 #define EMOTE_GENERIC_BERSERK       -1000004
@@ -47,7 +48,7 @@ public:
 
     struct boss_huhuranAI : public ScriptedAI
     {
-        boss_huhuranAI(Creature* c) : ScriptedAI(c) {}
+        boss_huhuranAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Frenzy_Timer;
         uint32 Wyvern_Timer;
@@ -143,7 +144,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_huhuran()

@@ -38,14 +38,11 @@ EndScriptData */
 class instance_the_eye : public InstanceMapScript
 {
     public:
-        instance_the_eye()
-            : InstanceMapScript("instance_the_eye", 550)
-        {
-        }
+        instance_the_eye() : InstanceMapScript("instance_the_eye", 550) { }
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint64 ThaladredTheDarkener;
             uint64 LordSanguinar;
@@ -199,8 +196,8 @@ class instance_the_eye : public InstanceMapScript
             return new instance_the_eye_InstanceMapScript(map);
         }
 };
+
 void AddSC_instance_the_eye()
 {
-    new instance_the_eye;
+    new instance_the_eye();
 }
-

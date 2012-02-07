@@ -45,7 +45,7 @@ public:
 
     struct boss_theolenkrastinovAI : public ScriptedAI
     {
-        boss_theolenkrastinovAI(Creature* c) : ScriptedAI(c) {}
+        boss_theolenkrastinovAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 m_uiRend_Timer;
         uint32 m_uiBackhand_Timer;
@@ -110,7 +110,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_theolenkrastinov()

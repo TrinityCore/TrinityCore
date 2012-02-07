@@ -50,9 +50,7 @@ class mob_ymirjar_flamebearer : public CreatureScript
 
         struct mob_ymirjar_flamebearerAI: public ScriptedAI
         {
-            mob_ymirjar_flamebearerAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            mob_ymirjar_flamebearerAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset()
             {
@@ -164,9 +162,7 @@ class mob_wrathbone_laborer : public CreatureScript
 
         struct mob_wrathbone_laborerAI: public ScriptedAI
         {
-            mob_wrathbone_laborerAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            mob_wrathbone_laborerAI(Creature* creature) : ScriptedAI(creature) { }
 
             void Reset()
             {

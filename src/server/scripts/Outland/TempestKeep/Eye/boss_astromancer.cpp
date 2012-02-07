@@ -68,18 +68,10 @@ const float SMALL_PORTAL_RADIUS         = 12.6f;
 const float LARGE_PORTAL_RADIUS         = 26.0f;
 const float PORTAL_Z                    = 17.005f;
 
-/* not used                        // x,          y,      z,         o
-static float SolarianPos[4] = {432.909f, -373.424f, 17.9608f, 1.06421f};
-*/
-
 class boss_high_astromancer_solarian : public CreatureScript
 {
     public:
-
-        boss_high_astromancer_solarian()
-            : CreatureScript("boss_high_astromancer_solarian")
-        {
-        }
+        boss_high_astromancer_solarian() : CreatureScript("boss_high_astromancer_solarian") { }
 
         struct boss_high_astromancer_solarianAI : public ScriptedAI
         {
@@ -408,11 +400,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 class mob_solarium_priest : public CreatureScript
 {
     public:
-
-        mob_solarium_priest()
-            : CreatureScript("mob_solarium_priest")
-        {
-        }
+        mob_solarium_priest() : CreatureScript("mob_solarium_priest") { }
 
         struct mob_solarium_priestAI : public ScriptedAI
         {

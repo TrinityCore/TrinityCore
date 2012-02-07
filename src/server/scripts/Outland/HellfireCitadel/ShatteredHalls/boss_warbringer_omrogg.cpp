@@ -104,15 +104,11 @@ static Yell KillingDelay[]=
 class mob_omrogg_heads : public CreatureScript
 {
     public:
-
-        mob_omrogg_heads()
-            : CreatureScript("mob_omrogg_heads")
-        {
-        }
+        mob_omrogg_heads() : CreatureScript("mob_omrogg_heads") { }
 
         struct mob_omrogg_headsAI : public ScriptedAI
         {
-            mob_omrogg_headsAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_omrogg_headsAI(Creature* creature) : ScriptedAI(creature) { }
 
             bool DeathYell;
             uint32 Death_Timer;
@@ -152,11 +148,7 @@ class mob_omrogg_heads : public CreatureScript
 class boss_warbringer_omrogg : public CreatureScript
 {
     public:
-
-        boss_warbringer_omrogg()
-            : CreatureScript("boss_warbringer_omrogg")
-        {
-        }
+        boss_warbringer_omrogg() : CreatureScript("boss_warbringer_omrogg") { }
 
         struct boss_warbringer_omroggAI : public ScriptedAI
         {
@@ -419,9 +411,9 @@ class boss_warbringer_omrogg : public CreatureScript
             return new boss_warbringer_omroggAI (creature);
         }
 };
+
 void AddSC_boss_warbringer_omrogg()
 {
     new boss_warbringer_omrogg();
     new mob_omrogg_heads();
 }
-

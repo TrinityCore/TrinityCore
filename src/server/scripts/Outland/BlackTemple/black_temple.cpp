@@ -34,7 +34,11 @@ EndContentData */
 # npc_spirit_of_olum
 ####*/
 
-#define SPELL_TELEPORT      41566                           // s41566 - Teleport to Ashtongue NPC's
+enum Spells
+{
+    SPELL_TELEPORT        = 41566 // s41566 - Teleport to Ashtongue NPC's
+};
+
 #define GOSSIP_OLUM1        "Teleport me to the other Ashtongue Deathsworn"
 
 class npc_spirit_of_olum : public CreatureScript
@@ -63,7 +67,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 void AddSC_black_temple()

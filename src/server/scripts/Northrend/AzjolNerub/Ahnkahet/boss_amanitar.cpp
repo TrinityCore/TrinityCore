@@ -223,6 +223,6 @@ public:
 
 void AddSC_boss_amanitar()
 {
-    new boss_amanitar;
-    new mob_amanitar_mushrooms;
+    new boss_amanitar();
+    new mob_amanitar_mushrooms();
 }

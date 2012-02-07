@@ -70,7 +70,6 @@ public:
         player->SEND_GOSSIP_MENU(3557, creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -172,7 +171,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -208,7 +206,6 @@ public:
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -309,7 +306,6 @@ public:
             }
         }
     };
-
 };
 
 /*#####
@@ -350,7 +346,7 @@ public:
 
     struct npc_twiggy_flatheadAI : public ScriptedAI
     {
-        npc_twiggy_flatheadAI(Creature* c) : ScriptedAI(c) {}
+        npc_twiggy_flatheadAI(Creature* c) : ScriptedAI(c) { }
 
         bool EventInProgress;
         bool EventGrate;
@@ -535,7 +531,6 @@ public:
             }
         }
     };
-
 };
 
 /*#####
@@ -703,7 +698,6 @@ public:
     {
         return new npc_wizzlecrank_shredderAI(creature);
     }
-
 };
 
 void AddSC_the_barrens()

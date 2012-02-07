@@ -53,13 +53,11 @@ enum eUnits
 class instance_arcatraz : public InstanceMapScript
 {
     public:
-        instance_arcatraz()
-            : InstanceMapScript("instance_arcatraz", 552)
-        {
-        }
+        instance_arcatraz() : InstanceMapScript("instance_arcatraz", 552) { }
+
         struct instance_arcatraz_InstanceMapScript : public InstanceScript
         {
-            instance_arcatraz_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_arcatraz_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -235,6 +233,5 @@ class instance_arcatraz : public InstanceMapScript
 
 void AddSC_instance_arcatraz()
 {
-    new instance_arcatraz;
+    new instance_arcatraz();
 }
-

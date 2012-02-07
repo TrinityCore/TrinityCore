@@ -24,6 +24,7 @@ SDCategory: Temple of Ahn'Qiraj
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "temple_of_ahnqiraj.h"
 
 #define SOUND_SENTENCE_YOU 8588
 #define SOUND_SERVE_TO     8589
@@ -49,7 +50,7 @@ public:
 
     struct boss_fankrissAI : public ScriptedAI
     {
-        boss_fankrissAI(Creature* c) : ScriptedAI(c) {}
+        boss_fankrissAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 MortalWound_Timer;
         uint32 SpawnHatchlings_Timer;
@@ -201,7 +202,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_fankriss()

@@ -49,7 +49,7 @@ public:
 
     struct instance_scholomance_InstanceMapScript : public InstanceScript
     {
-        instance_scholomance_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_scholomance_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         //Lord Alexei Barov, Doctor Theolen Krastinov, The Ravenian, Lorekeeper Polkelt, Instructor Malicia and the Lady Illucia Barov.
         bool IsBossDied[6];
@@ -141,7 +141,6 @@ public:
             return 0;
         }
     };
-
 };
 
 void AddSC_instance_scholomance()

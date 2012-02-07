@@ -46,7 +46,7 @@ public:
 
     struct boss_halyconAI : public BossAI
     {
-        boss_halyconAI(Creature* creature) : BossAI(creature, DATA_HALYCON) {}
+        boss_halyconAI(Creature* creature) : BossAI(creature, DATA_HALYCON) { }
 
         bool Summoned;
 
@@ -102,7 +102,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_halycon()

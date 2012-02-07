@@ -32,15 +32,11 @@ EndScriptData */
 class boss_hazzarah : public CreatureScript
 {
     public:
-
-        boss_hazzarah()
-            : CreatureScript("boss_hazzarah")
-        {
-        }
+        boss_hazzarah() : CreatureScript("boss_hazzarah") { }
 
         struct boss_hazzarahAI : public ScriptedAI
         {
-            boss_hazzarahAI(Creature* c) : ScriptedAI(c) {}
+            boss_hazzarahAI(Creature* c) : ScriptedAI(c) { }
 
             uint32 ManaBurn_Timer;
             uint32 Sleep_Timer;

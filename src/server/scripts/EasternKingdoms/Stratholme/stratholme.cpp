@@ -74,7 +74,6 @@ public:
         instance->SetData(TYPE_BARON_RUN, IN_PROGRESS);
         return false;
     }
-
 };
 
 /*######
@@ -99,7 +98,7 @@ public:
 
     struct mob_freed_soulAI : public ScriptedAI
     {
-        mob_freed_soulAI(Creature* c) : ScriptedAI(c) {}
+        mob_freed_soulAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {
@@ -108,7 +107,6 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
     };
-
 };
 
 /*######
@@ -133,7 +131,7 @@ public:
 
     struct mob_restless_soulAI : public ScriptedAI
     {
-        mob_restless_soulAI(Creature* c) : ScriptedAI(c) {}
+        mob_restless_soulAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 Tagger;
         uint32 Die_Timer;
@@ -186,7 +184,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -211,7 +208,7 @@ public:
 
     struct mobs_spectral_ghostly_citizenAI : public ScriptedAI
     {
-        mobs_spectral_ghostly_citizenAI(Creature* c) : ScriptedAI(c) {}
+        mobs_spectral_ghostly_citizenAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 Die_Timer;
         bool Tagged;
@@ -283,7 +280,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_stratholme()

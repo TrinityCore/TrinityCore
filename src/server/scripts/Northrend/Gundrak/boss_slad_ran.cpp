@@ -204,7 +204,6 @@ public:
             return lWrappedPlayers.count(guid);
         }
     };
-
 };
 
 class mob_slad_ran_constrictor : public CreatureScript
@@ -219,7 +218,7 @@ public:
 
     struct mob_slad_ran_constrictorAI : public ScriptedAI
     {
-        mob_slad_ran_constrictorAI(Creature* c) : ScriptedAI(c) {}
+        mob_slad_ran_constrictorAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiGripOfSladRanTimer;
 
@@ -257,7 +256,6 @@ public:
 
         InstanceScript* instance;
     };
-
 };
 
 class mob_slad_ran_viper : public CreatureScript
@@ -272,7 +270,7 @@ public:
 
     struct mob_slad_ran_viperAI : public ScriptedAI
     {
-        mob_slad_ran_viperAI(Creature* c) : ScriptedAI(c) {}
+        mob_slad_ran_viperAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiVenomousBiteTimer;
 
@@ -295,15 +293,12 @@ public:
             } else uiVenomousBiteTimer -= diff;
         }
     };
-
 };
 
 class achievement_snakes_whyd_it_have_to_be_snakes : public AchievementCriteriaScript
 {
     public:
-        achievement_snakes_whyd_it_have_to_be_snakes() : AchievementCriteriaScript("achievement_snakes_whyd_it_have_to_be_snakes")
-        {
-        }
+        achievement_snakes_whyd_it_have_to_be_snakes() : AchievementCriteriaScript("achievement_snakes_whyd_it_have_to_be_snakes") { }
 
         bool OnCheck(Player* player, Unit* target)
         {

@@ -54,14 +54,11 @@ static SHostageInfo HostageInfo[] =
 class instance_zulaman : public InstanceMapScript
 {
     public:
-        instance_zulaman()
-            : InstanceMapScript("instance_zulaman", 568)
-        {
-        }
+        instance_zulaman() : InstanceMapScript("instance_zulaman", 568) { }
 
         struct instance_zulaman_InstanceMapScript : public InstanceScript
         {
-            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_zulaman_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint64 HarkorsSatchelGUID;
             uint64 TanzarsTrunkGUID;

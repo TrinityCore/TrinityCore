@@ -66,11 +66,8 @@ float treant_pos[6][3] =
 class mob_warp_splinter_treant : public CreatureScript
 {
     public:
+        mob_warp_splinter_treant() : CreatureScript("mob_warp_splinter_treant") { }
 
-        mob_warp_splinter_treant()
-            : CreatureScript("mob_warp_splinter_treant")
-        {
-        }
         struct mob_warp_splinter_treantAI  : public ScriptedAI
         {
             mob_warp_splinter_treantAI (Creature* creature) : ScriptedAI(creature)
@@ -118,6 +115,7 @@ class mob_warp_splinter_treant : public CreatureScript
                     DoMeleeAttackIfReady();
             }
         };
+
         CreatureAI* GetAI(Creature* Creature) const
         {
             return new mob_warp_splinter_treantAI (Creature);
@@ -130,11 +128,8 @@ class mob_warp_splinter_treant : public CreatureScript
 class boss_warp_splinter : public CreatureScript
 {
     public:
+        boss_warp_splinter() : CreatureScript("boss_warp_splinter") { }
 
-        boss_warp_splinter()
-            : CreatureScript("boss_warp_splinter")
-        {
-        }
         struct boss_warp_splinterAI : public ScriptedAI
         {
             boss_warp_splinterAI(Creature* creature) : ScriptedAI(creature)
@@ -237,4 +232,3 @@ void AddSC_boss_warp_splinter()
     new boss_warp_splinter();
     new mob_warp_splinter_treant();
 }
-

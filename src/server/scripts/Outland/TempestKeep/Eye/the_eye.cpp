@@ -39,14 +39,11 @@ enum eSpells
 class mob_crystalcore_devastator : public CreatureScript
 {
     public:
+        mob_crystalcore_devastator() : CreatureScript("mob_crystalcore_devastator") { }
 
-        mob_crystalcore_devastator()
-            : CreatureScript("mob_crystalcore_devastator")
-        {
-        }
         struct mob_crystalcore_devastatorAI : public ScriptedAI
         {
-            mob_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) {}
+            mob_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 Knockaway_Timer;
             uint32 Countercharge_Timer;
@@ -104,6 +101,7 @@ class mob_crystalcore_devastator : public CreatureScript
             return new mob_crystalcore_devastatorAI(creature);
         }
 };
+
 void AddSC_the_eye()
 {
     new mob_crystalcore_devastator();

@@ -257,9 +257,7 @@ class mob_chaotic_rift : public CreatureScript
 class achievement_chaos_theory : public AchievementCriteriaScript
 {
     public:
-        achievement_chaos_theory() : AchievementCriteriaScript("achievement_chaos_theory")
-        {
-        }
+        achievement_chaos_theory() : AchievementCriteriaScript("achievement_chaos_theory") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

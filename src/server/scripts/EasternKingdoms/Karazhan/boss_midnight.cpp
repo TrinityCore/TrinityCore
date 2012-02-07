@@ -24,6 +24,7 @@ SDCategory: Karazhan
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "karazhan.h"
 
 #define SAY_MIDNIGHT_KILL           -1532000
 #define SAY_APPEAR1                 -1532001
@@ -104,7 +105,6 @@ public:
                 DoScriptText(SAY_DISARMED, me);
         }
     };
-
 };
 
 class boss_midnight : public CreatureScript
@@ -119,7 +119,7 @@ public:
 
     struct boss_midnightAI : public ScriptedAI
     {
-        boss_midnightAI(Creature* c) : ScriptedAI(c) {}
+        boss_midnightAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 Attumen;
         uint8 Phase;
@@ -225,7 +225,6 @@ public:
             CAST_AI(boss_attumen::boss_attumenAI, pAttumen->AI())->Midnight = value;
         }
     };
-
 };
 
 void boss_attumen::boss_attumenAI::UpdateAI(const uint32 diff)

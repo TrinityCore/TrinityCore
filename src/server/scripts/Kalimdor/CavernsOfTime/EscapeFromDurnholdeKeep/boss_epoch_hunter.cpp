@@ -26,21 +26,27 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "old_hillsbrad.h"
 
-#define SAY_ENTER1                  -1560013
-#define SAY_ENTER2                  -1560014
-#define SAY_ENTER3                  -1560015
-#define SAY_AGGRO1                  -1560016
-#define SAY_AGGRO2                  -1560017
-#define SAY_SLAY1                   -1560018
-#define SAY_SLAY2                   -1560019
-#define SAY_BREATH1                 -1560020
-#define SAY_BREATH2                 -1560021
-#define SAY_DEATH                   -1560022
+enum Texts
+{
+    SAY_ENTER1                  = -1560013,
+    SAY_ENTER2                  = -1560014,
+    SAY_ENTER3                  = -1560015,
+    SAY_AGGRO1                  = -1560016,
+    SAY_AGGRO2                  = -1560017,
+    SAY_SLAY1                   = -1560018,
+    SAY_SLAY2                   = -1560019,
+    SAY_BREATH1                 = -1560020,
+    SAY_BREATH2                 = -1560021,
+    SAY_DEATH                   = -1560022
+};
 
-#define SPELL_SAND_BREATH           31914
-#define SPELL_IMPENDING_DEATH       31916
-#define SPELL_MAGIC_DISRUPTION_AURA 33834
-#define SPELL_WING_BUFFET           31475
+enum Spells
+{
+    SPELL_SAND_BREATH           = 31914,
+    SPELL_IMPENDING_DEATH       = 31916,
+    SPELL_MAGIC_DISRUPTION_AURA = 33834,
+    SPELL_WING_BUFFET           = 31475
+};
 
 class boss_epoch_hunter : public CreatureScript
 {
@@ -133,7 +139,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_epoch_hunter()

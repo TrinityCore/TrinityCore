@@ -26,54 +26,43 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "old_hillsbrad.h"
 
-#define SAY_ENTER                   -1560000
-#define SAY_TAUNT1                  -1560001
-#define SAY_TAUNT2                  -1560002
-#define SAY_SLAY1                   -1560003
-#define SAY_SLAY2                   -1560004
-#define SAY_DEATH                   -1560005
+enum Texts
+{
+    SAY_ENTER                   = -1560000,
+    SAY_TAUNT1                  = -1560001,
+    SAY_TAUNT2                  = -1560002,
+    SAY_SLAY1                   = -1560003,
+    SAY_SLAY2                   = -1560004,
+    SAY_DEATH                   = -1560005
+};
 
-#define SPELL_HOLY_LIGHT            29427
-#define SPELL_CLEANSE               29380
-#define SPELL_HAMMER_OF_JUSTICE     13005
-#define SPELL_HOLY_SHIELD           31904
-#define SPELL_DEVOTION_AURA         8258
-#define SPELL_CONSECRATION          38385
+enum Spells
+{
+    SPELL_HOLY_LIGHT            = 29427,
+    SPELL_CLEANSE               = 29380,
+    SPELL_HAMMER_OF_JUSTICE     = 13005,
+    SPELL_HOLY_SHIELD           = 31904,
+    SPELL_DEVOTION_AURA         = 8258,
+    SPELL_CONSECRATION          = 38385
+};
 
 class boss_captain_skarloc : public CreatureScript
 {
 public:
     boss_captain_skarloc() : CreatureScript("boss_captain_skarloc") { }
 
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new boss_captain_skarlocAI (creature);
-    }
-
     struct boss_captain_skarlocAI : public ScriptedAI
     {
-        boss_captain_skarlocAI(Creature* c) : ScriptedAI(c)
-        {
-            instance = c->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-
-        uint32 Holy_Light_Timer;
-        uint32 Cleanse_Timer;
-        uint32 HammerOfJustice_Timer;
-        uint32 HolyShield_Timer;
-        uint32 DevotionAura_Timer;
-        uint32 Consecration_Timer;
+        boss_captain_skarlocAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
-            Holy_Light_Timer = urand(20000, 30000);
-            Cleanse_Timer = 10000;
+            Holy_Light_Timer      = urand(20000, 30000);
+            Cleanse_Timer         = 10000;
             HammerOfJustice_Timer = urand(20000, 35000);
-            HolyShield_Timer = 240000;
-            DevotionAura_Timer = 3000;
-            Consecration_Timer = 8000;
+            HolyShield_Timer      = 240000;
+            DevotionAura_Timer    = 3000;
+            Consecration_Timer    = 8000;
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -92,8 +81,11 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
-                instance->SetData(TYPE_THRALL_PART1, DONE);
+            if (InstanceScript* instance = me->GetInstanceScript())
+            {
+                if (instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
+                    instance->SetData(TYPE_THRALL_PART1, DONE);
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -146,8 +138,20 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
+    private:
+        uint32 Holy_Light_Timer;
+        uint32 Cleanse_Timer;
+        uint32 HammerOfJustice_Timer;
+        uint32 HolyShield_Timer;
+        uint32 DevotionAura_Timer;
+        uint32 Consecration_Timer;
     };
 
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new boss_captain_skarlocAI (creature);
+    }
 };
 
 void AddSC_boss_captain_skarloc()

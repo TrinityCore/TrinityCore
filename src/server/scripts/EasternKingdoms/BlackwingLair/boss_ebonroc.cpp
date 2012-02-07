@@ -25,10 +25,13 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 
-#define SPELL_SHADOWFLAME           22539
-#define SPELL_WINGBUFFET            18500
-#define SPELL_SHADOWOFEBONROC       23340
-#define SPELL_HEAL                  41386                   //Thea Heal spell of his Shadow
+enum Spells
+{
+    SPELL_SHADOWFLAME           = 22539,
+    SPELL_WINGBUFFET            = 18500,
+    SPELL_SHADOWOFEBONROC       = 23340,
+    SPELL_HEAL                  = 41386  // Thea Heal spell of his Shadow
+};
 
 class boss_ebonroc : public CreatureScript
 {
@@ -42,7 +45,7 @@ public:
 
     struct boss_ebonrocAI : public ScriptedAI
     {
-        boss_ebonrocAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_ebonrocAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowFlame_Timer;
         uint32 WingBuffet_Timer;

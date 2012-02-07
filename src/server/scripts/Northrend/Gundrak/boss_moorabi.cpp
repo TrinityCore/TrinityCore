@@ -167,15 +167,12 @@ public:
             DoScriptText(RAND(SAY_SLAY_2, SAY_SLAY_3), me);
         }
     };
-
 };
 
 class achievement_less_rabi : public AchievementCriteriaScript
 {
     public:
-        achievement_less_rabi() : AchievementCriteriaScript("achievement_less_rabi")
-        {
-        }
+        achievement_less_rabi() : AchievementCriteriaScript("achievement_less_rabi") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

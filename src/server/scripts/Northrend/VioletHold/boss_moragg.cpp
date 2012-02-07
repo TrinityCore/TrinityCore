@@ -115,6 +115,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
@@ -132,7 +133,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_boss_moragg()

@@ -19,11 +19,20 @@
 #include "hyjal.h"
 #include "hyjal_trash.h"
 
-#define SPELL_RAIN_OF_FIRE 31340
-#define SPELL_DOOM 31347
-#define SPELL_HOWL_OF_AZGALOR 31344
-#define SPELL_CLEAVE 31345
-#define SPELL_BERSERK 26662
+enum Spells
+{
+    // azgalor
+    SPELL_RAIN_OF_FIRE      = 31340,
+    SPELL_DOOM              = 31347,
+    SPELL_HOWL_OF_AZGALOR   = 31344,
+    SPELL_CLEAVE            = 31345,
+    SPELL_BERSERK           = 26662,
+
+    // lesser doomguard
+    SPELL_THRASH            = 12787,
+    SPELL_CRIPPLE           = 31406,
+    SPELL_WARSTOMP          = 31408
+};
 
 #define SAY_ONDEATH "Your time is almost... up"
 #define SOUND_ONDEATH 11002
@@ -196,12 +205,7 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
-
-#define SPELL_THRASH 12787
-#define SPELL_CRIPPLE 31406
-#define SPELL_WARSTOMP 31408
 
 class mob_lesser_doomguard : public CreatureScript
 {
@@ -294,7 +298,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_azgalor()

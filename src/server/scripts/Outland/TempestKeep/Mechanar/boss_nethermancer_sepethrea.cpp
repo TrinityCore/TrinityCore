@@ -54,11 +54,7 @@ enum eSpells
 class boss_nethermancer_sepethrea : public CreatureScript
 {
     public:
-
-        boss_nethermancer_sepethrea()
-            : CreatureScript("boss_nethermancer_sepethrea")
-        {
-        }
+        boss_nethermancer_sepethrea() : CreatureScript("boss_nethermancer_sepethrea") { }
         struct boss_nethermancer_sepethreaAI : public ScriptedAI
         {
             boss_nethermancer_sepethreaAI(Creature* creature) : ScriptedAI(creature)
@@ -173,96 +169,94 @@ class boss_nethermancer_sepethrea : public CreatureScript
             return new boss_nethermancer_sepethreaAI(creature);
         }
 };
+
 class mob_ragin_flames : public CreatureScript
 {
     public:
-        mob_ragin_flames()
-            : CreatureScript("mob_ragin_flames")
+        mob_ragin_flames() : CreatureScript("mob_ragin_flames") { }
+
+        struct mob_ragin_flamesAI : public ScriptedAI
         {
-        }
-
-            struct mob_ragin_flamesAI : public ScriptedAI
+            mob_ragin_flamesAI(Creature* creature) : ScriptedAI(creature)
             {
-                mob_ragin_flamesAI(Creature* creature) : ScriptedAI(creature)
-                {
-                    instance = creature->GetInstanceScript();
-                }
-
-                InstanceScript* instance;
-
-                uint32 inferno_Timer;
-                uint32 flame_timer;
-                uint32 Check_Timer;
-
-                bool onlyonce;
-
-                void Reset()
-                {
-                    inferno_Timer = 10000;
-                    flame_timer = 500;
-                    Check_Timer = 2000;
-                    onlyonce = false;
-                    me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
-                    me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
-                    me->SetSpeed(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
-                }
-
-                void EnterCombat(Unit* /*who*/)
-                {
-                }
-
-                void UpdateAI(const uint32 diff)
-                {
-                    //Check_Timer
-                    if (Check_Timer <= diff)
-                    {
-                        if (instance)
-                        {
-                            if (instance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
-                            {
-                                //remove
-                                me->setDeathState(JUST_DIED);
-                                me->RemoveCorpse();
-                            }
-                        }
-                        Check_Timer = 1000;
-                    } else Check_Timer -= diff;
-
-                    if (!UpdateVictim())
-                        return;
-
-                    if (!onlyonce)
-                    {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                            me->GetMotionMaster()->MoveChase(target);
-                        onlyonce = true;
-                    }
-
-                    if (inferno_Timer <= diff)
-                    {
-                        DoCast(me->getVictim(), SPELL_INFERNO);
-                        me->TauntApply(me->getVictim());
-                        inferno_Timer = 10000;
-                    } else inferno_Timer -= diff;
-
-                    if (flame_timer <= diff)
-                    {
-                        DoCast(me, SPELL_FIRE_TAIL);
-                        flame_timer = 500;
-                    } else flame_timer -=diff;
-
-                    DoMeleeAttackIfReady();
-                }
-
-            };
-            CreatureAI* GetAI(Creature* creature) const
-            {
-                return new mob_ragin_flamesAI(creature);
+                instance = creature->GetInstanceScript();
             }
+
+            InstanceScript* instance;
+
+            uint32 inferno_Timer;
+            uint32 flame_timer;
+            uint32 Check_Timer;
+
+            bool onlyonce;
+
+            void Reset()
+            {
+                inferno_Timer = 10000;
+                flame_timer = 500;
+                Check_Timer = 2000;
+                onlyonce = false;
+                me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
+                me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);
+                me->SetSpeed(MOVE_RUN, DUNGEON_MODE(0.5f, 0.7f));
+            }
+
+            void EnterCombat(Unit* /*who*/)
+            {
+            }
+
+            void UpdateAI(const uint32 diff)
+            {
+                //Check_Timer
+                if (Check_Timer <= diff)
+                {
+                    if (instance)
+                    {
+                        if (instance->GetData(DATA_NETHERMANCER_EVENT) != IN_PROGRESS)
+                        {
+                            //remove
+                            me->setDeathState(JUST_DIED);
+                            me->RemoveCorpse();
+                        }
+                    }
+                    Check_Timer = 1000;
+                } else Check_Timer -= diff;
+
+                if (!UpdateVictim())
+                    return;
+
+                if (!onlyonce)
+                {
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        me->GetMotionMaster()->MoveChase(target);
+                    onlyonce = true;
+                }
+
+                if (inferno_Timer <= diff)
+                {
+                    DoCast(me->getVictim(), SPELL_INFERNO);
+                    me->TauntApply(me->getVictim());
+                    inferno_Timer = 10000;
+                } else inferno_Timer -= diff;
+
+                if (flame_timer <= diff)
+                {
+                    DoCast(me, SPELL_FIRE_TAIL);
+                    flame_timer = 500;
+                } else flame_timer -=diff;
+
+                DoMeleeAttackIfReady();
+            }
+
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new mob_ragin_flamesAI(creature);
+        }
 };
 void AddSC_boss_nethermancer_sepethrea()
 {
     new boss_nethermancer_sepethrea();
     new mob_ragin_flames();
 }
-

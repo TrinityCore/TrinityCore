@@ -255,7 +255,7 @@ public:
 
             if (!m_bIsPause)
             {
-                // Normal spells ------------------------------------------------------------------------
+                // Normal spells
                 if (m_uiBane_Timer <= diff)
                 {
                     DoCast(me, SPELL_BANE);
@@ -280,7 +280,7 @@ public:
                     m_uiAncestors_Vengeance_Timer = DUNGEON_MODE(urand(60000, 65000), urand(45000, 50000));
                 } else m_uiAncestors_Vengeance_Timer -= diff;
 
-                // Abilities ------------------------------------------------------------------------------
+                // Abilities
                 if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
                 {
                     //DoCast(me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
@@ -328,7 +328,7 @@ public:
                     m_uiAbility_TORGYN_Timer = 15000; // overtime
                 } else m_uiAbility_TORGYN_Timer -= diff;
 
-                // Health check -----------------------------------------------------------------------------
+                // Health check
                 if (me->HealthBelowPct(100 - m_uiHealthAmountMultipler * m_uiHealthAmountModifier))
                 {
                     uint8 m_uiOrder = m_uiHealthAmountModifier - 1;
@@ -388,15 +388,12 @@ public:
             m_uiCreatureGUID = 0;
         }
     };
-
 };
 
 class achievement_kings_bane : public AchievementCriteriaScript
 {
     public:
-        achievement_kings_bane() : AchievementCriteriaScript("achievement_kings_bane")
-        {
-        }
+        achievement_kings_bane() : AchievementCriteriaScript("achievement_kings_bane") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

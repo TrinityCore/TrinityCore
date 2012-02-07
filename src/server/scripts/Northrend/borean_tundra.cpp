@@ -60,7 +60,7 @@ public:
 
     struct npc_sinkhole_kill_creditAI : public ScriptedAI
     {
-        npc_sinkhole_kill_creditAI(Creature* c) : ScriptedAI(c){}
+        npc_sinkhole_kill_creditAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiPhaseTimer;
         uint8  Phase;
@@ -150,7 +150,6 @@ public:
             } else uiPhaseTimer -= diff;
 
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -170,7 +169,7 @@ public:
 
     struct npc_khunok_the_behemothAI : public ScriptedAI
     {
-        npc_khunok_the_behemothAI(Creature* c) : ScriptedAI(c) {}
+        npc_khunok_the_behemothAI(Creature* c) : ScriptedAI(c) { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -350,7 +349,7 @@ public:
 
     struct mob_nerubar_victimAI : public ScriptedAI
     {
-        mob_nerubar_victimAI(Creature* c) : ScriptedAI(c) {}
+        mob_nerubar_victimAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -397,7 +396,7 @@ public:
 
     struct npc_scourge_prisonerAI : public ScriptedAI
     {
-        npc_scourge_prisonerAI(Creature* creature) : ScriptedAI (creature){}
+        npc_scourge_prisonerAI(Creature* creature) : ScriptedAI (creature) { }
 
         void Reset()
         {
@@ -439,7 +438,7 @@ public:
 
     struct npc_jennyAI : public ScriptedAI
     {
-        npc_jennyAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_jennyAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool setCrateNumber;
 
@@ -500,7 +499,7 @@ public:
 
     struct npc_fezzix_geartwistAI : public ScriptedAI
     {
-        npc_fezzix_geartwistAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fezzix_geartwistAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -617,7 +616,6 @@ public:
                         uiPhaseTimer = 2000;
                         Phase = 2;
                         break;
-
                     case 2:
                         if (GameObject* go_fur = me->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 11.0f))
                             me->GetMotionMaster()->MovePoint(0, go_fur->GetPositionX(), go_fur->GetPositionY(), go_fur->GetPositionZ());
@@ -645,7 +643,6 @@ public:
                         uiPhaseTimer = 500;
                         Phase = 7;
                         break;
-
                     case 7:
                     {
                         GameObject* go_caribou = NULL;
@@ -662,7 +659,7 @@ public:
                         Phase = 8;
                         uiPhaseTimer = 1000;
                     }
-                        break;
+                    break;
                     case 8:
                         DoCast(me, SPELL_TRAPPED, true);
                         Phase = 0;
@@ -692,10 +689,10 @@ enum eLurgglbr
     FACTION_ESCORTEE_H                  = 775,
 };
 
-/*#define SAY_WP_1_LUR_START  -1571004
-#define SAY_WP_1_LUR_END    -1571005
-#define SAY_WP_41_LUR_START -1571006
-#define SAY_WP_41_LUR_END   -1571007*/
+#define SAY_WP_1_LUR_START  -1999926
+#define SAY_WP_1_LUR_END    -1999928
+#define SAY_WP_41_LUR_START -1999927
+#define SAY_WP_41_LUR_END   -1999929
 
 class npc_lurgglbr : public CreatureScript
 {
@@ -704,7 +701,7 @@ public:
 
     struct npc_lurgglbrAI : public npc_escortAI
     {
-        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature){}
+        npc_lurgglbrAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint32 IntroTimer;
         uint32 IntroPhase;
@@ -742,12 +739,12 @@ public:
                     switch (IntroPhase)
                     {
                         case 1:
-                            //DoScriptText(SAY_WP_1_LUR_START, me);
+                            DoScriptText(SAY_WP_1_LUR_START, me);
                             IntroPhase = 2;
                             IntroTimer = 7500;
                             break;
                         case 2:
-                            //DoScriptText(SAY_WP_1_LUR_END, me);
+                            DoScriptText(SAY_WP_1_LUR_END, me);
                             IntroPhase = 3;
                             IntroTimer = 7500;
                             break;
@@ -757,12 +754,12 @@ public:
                             IntroTimer = 0;
                             break;
                         case 4:
-                            //DoScriptText(SAY_WP_41_LUR_START, me);
+                            DoScriptText(SAY_WP_41_LUR_START, me);
                             IntroPhase = 5;
                             IntroTimer = 8000;
                             break;
                         case 5:
-                            //DoScriptText(SAY_WP_41_LUR_END, me);
+                            DoScriptText(SAY_WP_41_LUR_END, me);
                             IntroPhase = 6;
                             IntroTimer = 2500;
                             break;
@@ -849,7 +846,7 @@ public:
 
     struct npc_nexus_drake_hatchlingAI : public FollowerAI //The spell who makes the npc follow the player is missing, also we can use FollowerAI!
     {
-        npc_nexus_drake_hatchlingAI(Creature* c) : FollowerAI(c) {}
+        npc_nexus_drake_hatchlingAI(Creature* c) : FollowerAI(c) { }
 
         uint64 HarpoonerGUID;
         bool WithRedDragonBlood;
@@ -978,9 +975,7 @@ public:
 
     struct npc_thassarianAI : public npc_escortAI
     {
-        npc_thassarianAI(Creature* creature) : npc_escortAI(creature)
-        {
-        }
+        npc_thassarianAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint64 uiArthas;
         uint64 uiTalbot;
@@ -1286,7 +1281,7 @@ public:
 
     struct npc_image_lich_kingAI : public ScriptedAI
     {
-        npc_image_lich_kingAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_image_lich_kingAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -1321,7 +1316,7 @@ public:
 
     struct npc_general_arlosAI : public ScriptedAI
     {
-        npc_general_arlosAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_general_arlosAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MovementInform(uint32 uiType, uint32 /*uiId*/)
         {
@@ -1688,7 +1683,7 @@ public:
 
     struct npc_imprisoned_beryl_sorcererAI : public ScriptedAI
     {
-        npc_imprisoned_beryl_sorcererAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_imprisoned_beryl_sorcererAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 CasterGUID;
 
@@ -1902,6 +1897,7 @@ enum Bonker_Togglevolt_Entries
     NPC_BONKER_TOGGLEVOLT = 25589,
     QUEST_GET_ME_OUTA_HERE = 11673
 };
+
 enum Script_Texts_Bonker_Togglevolt
 {
     SAY_bonker_1 = -1700002,
@@ -2026,7 +2022,7 @@ public:
 
     struct npc_trapped_mammoth_calfAI : public ScriptedAI
     {
-        npc_trapped_mammoth_calfAI(Creature* c) : ScriptedAI(c) {}
+        npc_trapped_mammoth_calfAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiTimer;
         bool bStarted;
@@ -2114,7 +2110,7 @@ public:
 
     struct npc_magmoth_crusherAI : public ScriptedAI
     {
-        npc_magmoth_crusherAI(Creature* c) : ScriptedAI(c) {}
+        npc_magmoth_crusherAI(Creature* c) : ScriptedAI(c) { }
 
         void JustDied(Unit* killer)
         {
@@ -2150,7 +2146,7 @@ public:
 
     struct npc_seaforium_depth_chargeAI : public ScriptedAI
     {
-        npc_seaforium_depth_chargeAI(Creature* c) : ScriptedAI(c) {}
+        npc_seaforium_depth_chargeAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiExplosionTimer;
         void Reset()
@@ -2203,7 +2199,7 @@ public:
 
     struct npc_valiance_keep_cannoneerAI : public ScriptedAI
     {
-        npc_valiance_keep_cannoneerAI(Creature* c) : ScriptedAI(c) {}
+        npc_valiance_keep_cannoneerAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 uiTimer;
 
@@ -2229,7 +2225,6 @@ public:
             if (!UpdateVictim())
                 return;
         }
-
     };
 
     CreatureAI* GetAI(Creature* creature) const
@@ -2556,36 +2551,35 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_borean_tundra()
 {
-    new npc_sinkhole_kill_credit;
-    new npc_khunok_the_behemoth;
-    new npc_keristrasza;
-    new npc_corastrasza;
-    new npc_iruk;
-    new mob_nerubar_victim;
-    new npc_scourge_prisoner;
-    new npc_jenny;
-    new npc_fezzix_geartwist;
-    new npc_nesingwary_trapper;
-    new npc_lurgglbr;
-    new npc_nexus_drake_hatchling;
-    new npc_thassarian;
-    new npc_image_lich_king;
-    new npc_counselor_talbot;
-    new npc_leryssa;
-    new npc_general_arlos;
-    new npc_beryl_sorcerer;
-    new npc_imprisoned_beryl_sorcerer;
-    new npc_mootoo_the_younger;
-    new npc_bonker_togglevolt;
-    new npc_trapped_mammoth_calf;
-    new npc_magmoth_crusher;
-    new npc_seaforium_depth_charge;
-    new npc_valiance_keep_cannoneer;
-    new npc_warmage_coldarra;
-    new npc_hidden_cultist;
+    new npc_sinkhole_kill_credit();
+    new npc_khunok_the_behemoth();
+    new npc_keristrasza();
+    new npc_corastrasza();
+    new npc_iruk();
+    new mob_nerubar_victim();
+    new npc_scourge_prisoner();
+    new npc_jenny();
+    new npc_fezzix_geartwist();
+    new npc_nesingwary_trapper();
+    new npc_lurgglbr();
+    new npc_nexus_drake_hatchling();
+    new npc_thassarian();
+    new npc_image_lich_king();
+    new npc_counselor_talbot();
+    new npc_leryssa();
+    new npc_general_arlos();
+    new npc_beryl_sorcerer();
+    new npc_imprisoned_beryl_sorcerer();
+    new npc_mootoo_the_younger();
+    new npc_bonker_togglevolt();
+    new npc_trapped_mammoth_calf();
+    new npc_magmoth_crusher();
+    new npc_seaforium_depth_charge();
+    new npc_valiance_keep_cannoneer();
+    new npc_warmage_coldarra();
+    new npc_hidden_cultist();
 }

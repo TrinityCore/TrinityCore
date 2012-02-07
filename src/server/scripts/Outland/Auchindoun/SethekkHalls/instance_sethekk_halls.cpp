@@ -44,7 +44,7 @@ public:
 
     struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
     {
-        instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 AnzuEncounter;
         uint64 m_uiIkissDoorGUID;
@@ -86,7 +86,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_instance_sethekk_halls()

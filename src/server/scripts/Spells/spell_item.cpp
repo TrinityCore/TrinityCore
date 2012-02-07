@@ -51,8 +51,8 @@ public:
 
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
-            if (Item* pItem = GetCastItem())
-                GetCaster()->CastSpell(GetCaster(), _triggeredSpellId, true, pItem);
+            if (Item* item = GetCastItem())
+                GetCaster()->CastSpell(GetCaster(), _triggeredSpellId, true, item);
         }
 
         void Register()

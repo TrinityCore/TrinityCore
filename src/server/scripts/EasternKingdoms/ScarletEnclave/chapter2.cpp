@@ -56,7 +56,7 @@ public:
 
     struct npc_crusade_persuadedAI : public ScriptedAI
     {
-        npc_crusade_persuadedAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_crusade_persuadedAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiSpeech_timer;
         uint32 uiSpeech_counter;
@@ -138,7 +138,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -338,10 +337,10 @@ public:
             }
         }
     };
-
 };
 
 //Scarlet courier
+
 enum ScarletCourierEnum
 {
     SAY_TREE1                          = -1609531,
@@ -363,7 +362,7 @@ public:
 
     struct mob_scarlet_courierAI : public ScriptedAI
     {
-        mob_scarlet_courierAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_scarlet_courierAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiStage;
         uint32 uiStage_timer;
@@ -426,7 +425,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Koltira & Valroth- Breakout
@@ -457,7 +455,7 @@ public:
 
     struct mob_high_inquisitor_valrothAI : public ScriptedAI
     {
-        mob_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature) {}
+        mob_high_inquisitor_valrothAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiRenew_timer;
         uint32 uiInquisitor_Penance_timer;
@@ -514,12 +512,12 @@ public:
             killer->CastSpell(me, SPELL_SUMMON_VALROTH_REMAINS, true);
         }
     };
-
 };
 
 /*######
 ## npc_a_special_surprise
 ######*/
+
 //used by 29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071 but signed for 29032
 enum SpecialSurprise
 {
@@ -593,7 +591,7 @@ public:
 
     struct npc_a_special_surpriseAI : public ScriptedAI
     {
-        npc_a_special_surpriseAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_a_special_surpriseAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ExecuteSpeech_Timer;
         uint32 ExecuteSpeech_Counter;
@@ -978,7 +976,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_the_scarlet_enclave_c2()

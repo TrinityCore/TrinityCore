@@ -318,7 +318,6 @@ public:
             DoMeleeAttackIfReady();                             // No need to check if we are draining crystal here, as the spell has a stun.
         }
     };
-
 };
 
 class mob_fel_crystal : public CreatureScript
@@ -333,7 +332,7 @@ public:
 
     struct mob_fel_crystalAI : public ScriptedAI
     {
-        mob_fel_crystalAI(Creature* c) : ScriptedAI(c) {}
+        mob_fel_crystalAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
         void EnterCombat(Unit* /*who*/) {}
@@ -364,7 +363,6 @@ public:
             } else sLog->outError(ERROR_INST_DATA);
         }
     };
-
 };
 
 void AddSC_boss_selin_fireheart()

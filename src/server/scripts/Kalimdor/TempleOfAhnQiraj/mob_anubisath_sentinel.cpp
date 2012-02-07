@@ -34,6 +34,7 @@ EndScriptData */
 #include "CellImpl.h"
 #include "GridNotifiers.h"
 #include "GridNotifiersImpl.h"
+#include "temple_of_ahnqiraj.h"
 
 #define SPELL_MENDING_BUFF      2147
 

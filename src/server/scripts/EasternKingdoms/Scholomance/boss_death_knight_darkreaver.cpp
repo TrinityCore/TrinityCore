@@ -24,6 +24,7 @@ SDCategory: Scholomance
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "scholomance.h"
 
 class boss_death_knight_darkreaver : public CreatureScript
 {
@@ -37,7 +38,7 @@ public:
 
     struct boss_death_knight_darkreaverAI : public ScriptedAI
     {
-        boss_death_knight_darkreaverAI(Creature* c) : ScriptedAI(c) {}
+        boss_death_knight_darkreaverAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset()
         {
@@ -53,7 +54,6 @@ public:
         {
         }
     };
-
 };
 
 void AddSC_boss_death_knight_darkreaver()

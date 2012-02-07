@@ -52,15 +52,11 @@ enum eOthers
 class boss_laj : public CreatureScript
 {
     public:
-
-        boss_laj()
-            : CreatureScript("boss_laj")
-        {
-        }
+        boss_laj() : CreatureScript("boss_laj") { }
 
         struct boss_lajAI : public ScriptedAI
         {
-            boss_lajAI(Creature* creature) : ScriptedAI(creature) {}
+            boss_lajAI(Creature* creature) : ScriptedAI(creature) { }
 
             bool CanSummon;
             uint32 Teleport_Timer;

@@ -40,7 +40,7 @@ public:
 
     struct npc_drakuru_shacklesAI : public ScriptedAI
     {
-        npc_drakuru_shacklesAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_drakuru_shacklesAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 RageclawGUID;
 
@@ -131,7 +131,7 @@ public:
 
     struct npc_captured_rageclawAI : public ScriptedAI
     {
-        npc_captured_rageclawAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_captured_rageclawAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 DespawnTimer;
         bool Despawn;
@@ -332,7 +332,7 @@ public:
 
     struct npc_gurgthockAI : public ScriptedAI
     {
-        npc_gurgthockAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_gurgthockAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 SummonGUID;
         uint64 uiPlayerGUID;
@@ -818,7 +818,7 @@ public:
 
     struct npc_yggdrasAI : public ScriptedAI
     {
-        npc_yggdrasAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_yggdrasAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiCleaveTimer;
         uint32 uiCorrodeFleshTimer;
@@ -1036,7 +1036,7 @@ public:
 
     struct npc_elemental_lordAI : public ScriptedAI
     {
-        npc_elemental_lordAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_elemental_lordAI(Creature* creature) : ScriptedAI(creature) { }
 
         std::list<uint64> SummonList;
 
@@ -1181,7 +1181,7 @@ public:
 
     struct npc_fiend_elementalAI : public ScriptedAI
     {
-        npc_fiend_elementalAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_fiend_elementalAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiMissleTimer;
         uint32 uiSpell;
@@ -1246,7 +1246,7 @@ public:
 
     struct npc_released_offspring_harkoaAI : public ScriptedAI
     {
-        npc_released_offspring_harkoaAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_released_offspring_harkoaAI(Creature* creature) : ScriptedAI(creature) { }
 
         void Reset()
         {
@@ -1295,7 +1295,7 @@ public:
 
     struct npc_crusade_recruitAI : public ScriptedAI
     {
-        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_crusade_recruitAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint8 m_uiPhase;                  //The current phase we are in
         uint32 m_uiTimer;                 //Timer until phase transition
@@ -1416,17 +1416,17 @@ public:
 
 void AddSC_zuldrak()
 {
-    new npc_drakuru_shackles;
-    new npc_captured_rageclaw;
-    new npc_gymer;
-    new npc_gurgthock;
-    new npc_orinoko_tuskbreaker;
-    new npc_korrak_bloodrager;
-    new npc_yggdras;
-    new npc_stinkbeard;
-    new npc_released_offspring_harkoa;
-    new npc_crusade_recruit;
-    new npc_elemental_lord;
-    new npc_fiend_elemental;
-    new go_scourge_enclosure;
+    new npc_drakuru_shackles();
+    new npc_captured_rageclaw();
+    new npc_gymer();
+    new npc_gurgthock();
+    new npc_orinoko_tuskbreaker();
+    new npc_korrak_bloodrager();
+    new npc_yggdras();
+    new npc_stinkbeard();
+    new npc_released_offspring_harkoa();
+    new npc_crusade_recruit();
+    new npc_elemental_lord();
+    new npc_fiend_elemental();
+    new go_scourge_enclosure();
 }

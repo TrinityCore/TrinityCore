@@ -290,9 +290,7 @@ public:
             delete place2;
             delete place3;
         }
-
     };
-
 };
 
 void AddSC_boss_skeram()

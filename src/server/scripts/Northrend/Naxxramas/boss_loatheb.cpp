@@ -57,9 +57,7 @@ class boss_loatheb : public CreatureScript
 
         struct boss_loathebAI : public BossAI
         {
-            boss_loathebAI(Creature* creature) : BossAI(creature, BOSS_LOATHEB)
-            {
-            }
+            boss_loathebAI(Creature* creature) : BossAI(creature, BOSS_LOATHEB) { }
 
             void Reset()
             {
@@ -168,6 +166,7 @@ class spell_loatheb_necrotic_aura_warning : public SpellScriptLoader
             {
                 if (!sSpellStore.LookupEntry(SPELL_WARN_NECROTIC_AURA))
                     return false;
+
                 return true;
             }
 

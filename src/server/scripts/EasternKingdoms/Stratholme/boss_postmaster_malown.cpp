@@ -24,17 +24,21 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "stratholme.h"
 
 //Spell ID to summon this guy is 24627 "Summon Postmaster Malown"
 //He should be spawned along with three other elites once the third postbox has been opened
 
 #define SAY_MALOWNED    "You just got MALOWNED!"
 
-#define SPELL_WAILINGDEAD    7713
-#define SPELL_BACKHAND    6253
-#define SPELL_CURSEOFWEAKNESS    8552
-#define SPELL_CURSEOFTONGUES    12889
-#define SPELL_CALLOFTHEGRAVE    17831
+enum Spells
+{
+    SPELL_WAILINGDEAD        = 7713,
+    SPELL_BACKHAND           = 6253,
+    SPELL_CURSEOFWEAKNESS    = 8552,
+    SPELL_CURSEOFTONGUES     = 12889,
+    SPELL_CALLOFTHEGRAVE     = 17831
+};
 
 class boss_postmaster_malown : public CreatureScript
 {
@@ -48,7 +52,7 @@ public:
 
     struct boss_postmaster_malownAI : public ScriptedAI
     {
-        boss_postmaster_malownAI(Creature* c) : ScriptedAI(c) {}
+        boss_postmaster_malownAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 WailingDead_Timer;
         uint32 Backhand_Timer;
@@ -140,7 +144,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_postmaster_malown()

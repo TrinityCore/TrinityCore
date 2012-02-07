@@ -53,9 +53,7 @@ public:
 
     struct boss_thorimAI : public BossAI
     {
-        boss_thorimAI(Creature* creature) : BossAI(creature, BOSS_THORIM)
-        {
-        }
+        boss_thorimAI(Creature* creature) : BossAI(creature, BOSS_THORIM) { }
 
         void Reset()
         {
@@ -89,15 +87,14 @@ public:
         {
             if (!UpdateVictim())
                 return;
-    //SPELLS TODO:
 
-    //
+            //SPELLS TODO:
+
             DoMeleeAttackIfReady();
 
             EnterEvadeIfOutOfCombatArea(diff);
         }
     };
-
 };
 
 void AddSC_boss_thorim()

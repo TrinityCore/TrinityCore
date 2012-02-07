@@ -234,7 +234,6 @@ public:
             //DoMeleeAttackIfReady();
         }
     };
-
 };
 
 struct Wave
@@ -356,7 +355,6 @@ public:
                 instance->SetData(TYPE_RIFT, SPECIAL);
         }
     };
-
 };
 
 #define SAY_SAAT_WELCOME        -1269019
@@ -402,7 +400,6 @@ public:
         player->SEND_GOSSIP_MENU(10002, creature->GetGUID());
         return true;
     }
-
 };
 
 void AddSC_dark_portal()

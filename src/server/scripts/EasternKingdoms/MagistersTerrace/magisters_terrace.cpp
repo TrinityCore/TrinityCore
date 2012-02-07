@@ -28,6 +28,7 @@ npc_kalecgos
 EndContentData */
 
 #include "ScriptPCH.h"
+#include "magisters_terrace.h"
 
 /*######
 ## npc_kalecgos
@@ -103,7 +104,7 @@ public:
 
     struct npc_kalecgosAI : public ScriptedAI
     {
-        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_kalecgosAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 m_uiTransformTimer;
 
@@ -168,7 +169,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_magisters_terrace()

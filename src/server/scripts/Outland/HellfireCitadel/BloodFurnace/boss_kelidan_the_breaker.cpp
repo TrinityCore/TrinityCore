@@ -70,11 +70,7 @@ const float ShadowmoonChannelers[5][4]=
 class boss_kelidan_the_breaker : public CreatureScript
 {
     public:
-
-        boss_kelidan_the_breaker()
-            : CreatureScript("boss_kelidan_the_breaker")
-        {
-        }
+        boss_kelidan_the_breaker() : CreatureScript("boss_kelidan_the_breaker") { }
 
         struct boss_kelidan_the_breakerAI : public ScriptedAI
         {
@@ -265,7 +261,6 @@ class boss_kelidan_the_breaker : public CreatureScript
 
                 DoMeleeAttackIfReady();
             }
-
         };
 
         CreatureAI* GetAI(Creature* Creature) const
@@ -290,17 +285,11 @@ enum eShadowmoon
 class mob_shadowmoon_channeler : public CreatureScript
 {
     public:
-
-        mob_shadowmoon_channeler()
-            : CreatureScript("mob_shadowmoon_channeler")
-        {
-        }
+        mob_shadowmoon_channeler() : CreatureScript("mob_shadowmoon_channeler") { }
 
         struct mob_shadowmoon_channelerAI : public ScriptedAI
         {
-            mob_shadowmoon_channelerAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            mob_shadowmoon_channelerAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 ShadowBolt_Timer;
             uint32 MarkOfShadow_Timer;

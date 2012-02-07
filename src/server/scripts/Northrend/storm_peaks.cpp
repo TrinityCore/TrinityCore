@@ -208,7 +208,7 @@ public:
 
     struct npc_goblin_prisonerAI : public ScriptedAI
     {
-        npc_goblin_prisonerAI(Creature* creature) : ScriptedAI (creature){}
+        npc_goblin_prisonerAI(Creature* creature) : ScriptedAI (creature){ }
 
         void Reset()
         {
@@ -251,7 +251,7 @@ public:
 
     struct npc_victorious_challengerAI : public ScriptedAI
     {
-        npc_victorious_challengerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_victorious_challengerAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 SunderArmorTimer;
         uint32 RendTimer;
@@ -556,7 +556,7 @@ public:
 
     struct npc_brunnhildar_prisonerAI : public ScriptedAI
     {
-        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_brunnhildar_prisonerAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint64 drakeGUID;
         uint16 enter_timer;
@@ -783,15 +783,15 @@ class npc_hyldsmeet_protodrake : public CreatureScript
 
 void AddSC_storm_peaks()
 {
-    new npc_agnetta_tyrsdottar;
-    new npc_frostborn_scout;
-    new npc_thorim;
-    new npc_goblin_prisoner;
-    new npc_victorious_challenger;
-    new npc_loklira_crone;
-    new npc_injured_goblin;
-    new npc_roxi_ramrocket;
-    new npc_brunnhildar_prisoner;
-    new npc_icefang;
-    new npc_hyldsmeet_protodrake;
+    new npc_agnetta_tyrsdottar();
+    new npc_frostborn_scout();
+    new npc_thorim();
+    new npc_goblin_prisoner();
+    new npc_victorious_challenger();
+    new npc_loklira_crone();
+    new npc_injured_goblin();
+    new npc_roxi_ramrocket();
+    new npc_brunnhildar_prisoner();
+    new npc_icefang();
+    new npc_hyldsmeet_protodrake();
 }

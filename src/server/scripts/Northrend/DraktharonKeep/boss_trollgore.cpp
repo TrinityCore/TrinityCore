@@ -198,9 +198,7 @@ public:
 class achievement_consumption_junction : public AchievementCriteriaScript
 {
     public:
-        achievement_consumption_junction() : AchievementCriteriaScript("achievement_consumption_junction")
-        {
-        }
+        achievement_consumption_junction() : AchievementCriteriaScript("achievement_consumption_junction") { }
 
         bool OnCheck(Player* /*player*/, Unit* target)
         {

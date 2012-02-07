@@ -112,7 +112,10 @@ public:
 
     struct npc_aged_dying_ancient_kodoAI : public ScriptedAI
     {
-        npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature) { Reset(); }
+        npc_aged_dying_ancient_kodoAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Reset();
+        }
 
         uint32 m_uiDespawnTimer;
 
@@ -167,7 +170,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######

@@ -36,9 +36,12 @@ EndContentData */
 
 #define GOSSIP_ITEM_USHER "I wish to to visit the Rise of the Defiler."
 
-#define SPELL_TELEPORT_SINGLE           12885
-#define SPELL_TELEPORT_SINGLE_IN_GROUP  13142
-#define SPELL_TELEPORT_GROUP            27686
+enum Spells
+{
+    SPELL_TELEPORT_SINGLE           = 12885,
+    SPELL_TELEPORT_SINGLE_IN_GROUP  = 13142,
+    SPELL_TELEPORT_GROUP            = 27686
+};
 
 class npc_deathly_usher : public CreatureScript
 {
@@ -114,7 +117,6 @@ public:
                     player->SEND_GOSSIP_MENU(1411, creature->GetGUID());
                 }
                 break;
-
             case GOSSIP_ACTION_INFO_DEF+2:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_FALLEN, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 21);
                 player->SEND_GOSSIP_MENU(1451, creature->GetGUID());
@@ -173,7 +175,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_blasted_lands()

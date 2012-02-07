@@ -226,9 +226,7 @@ class boss_flame_leviathan : public CreatureScript
 
         struct boss_flame_leviathanAI : public BossAI
         {
-            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, BOSS_LEVIATHAN), vehicle(creature->GetVehicleKit())
-            {
-            }
+            boss_flame_leviathanAI(Creature* creature) : BossAI(creature, BOSS_LEVIATHAN), vehicle(creature->GetVehicleKit()) { }
 
             void InitializeAI()
             {
@@ -632,9 +630,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
 
         struct boss_flame_leviathan_defense_cannonAI : public ScriptedAI
         {
-            boss_flame_leviathan_defense_cannonAI(Creature* creature) : ScriptedAI(creature)
-            {
-            }
+            boss_flame_leviathan_defense_cannonAI(Creature* creature) : ScriptedAI(creature) { }
 
             uint32 NapalmTimer;
 
@@ -682,7 +678,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
 
         struct boss_flame_leviathan_defense_turretAI : public TurretAI
         {
-            boss_flame_leviathan_defense_turretAI(Creature* creature) : TurretAI(creature) {}
+            boss_flame_leviathan_defense_turretAI(Creature* creature) : TurretAI(creature) { }
 
             void DamageTaken(Unit* who, uint32 &damage)
             {
@@ -747,9 +743,7 @@ class boss_flame_leviathan_safety_container : public CreatureScript
 
         struct boss_flame_leviathan_safety_containerAI : public PassiveAI
         {
-            boss_flame_leviathan_safety_containerAI(Creature* creature) : PassiveAI(creature)
-            {
-            }
+            boss_flame_leviathan_safety_containerAI(Creature* creature) : PassiveAI(creature) { }
 
             void JustDied(Unit* /*killer*/)
             {
@@ -994,7 +988,6 @@ public:
             }
         }
     };
-
 };
 
 class npc_hodirs_fury : public CreatureScript
@@ -1211,56 +1204,6 @@ class npc_lorekeeper : public CreatureScript
             return new npc_lorekeeperAI(creature);
         }
 };
-
-//enable hardmode
-////npc_brann_bronzebeard this requires more work involving area triggers. if reached this guy speaks through his radio..
-//#define GOSSIP_ITEM_1  "xxxxx"
-//#define GOSSIP_ITEM_2  "xxxxx"
-//
-/*
-class npc_brann_bronzebeard : public CreatureScript
-{
-public:
-    npc_brann_bronzebeard() : CreatureScript("npc_brann_bronzebeard") { }
-
-    //bool OnGossipSelect(Player* player, Creature* creature, uint32 uiSender, uint32 uiAction)
-    //{
-    //    player->PlayerTalkClass->ClearMenus();
-    //    switch(uiAction)
-    //    {
-    //        case GOSSIP_ACTION_INFO_DEF+1:
-    //            if (player)
-    //            {
-    //                player->PrepareGossipMenu(creature);
-    //
-    //                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-    //                player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-    //            }
-    //            break;
-    //        case GOSSIP_ACTION_INFO_DEF+2:
-    //            if (player)
-    //                player->CLOSE_GOSSIP_MENU();
-    //            if (Creature* Lorekeeper = creature->FindNearestCreature(NPC_LOREKEEPER, 1000, true)) //lore keeper of lorgannon
-    //                Lorekeeper->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-    //            break;
-    //    }
-    //    return true;
-    //}
-    //bool OnGossipHello(Player* player, Creature* creature)
-    //{
-    //    InstanceScript* instance = creature->GetInstanceScript();
-    //    if (instance && instance->GetData(BOSS_LEVIATHAN) !=DONE)
-    //    {
-    //        player->PrepareGossipMenu(creature);
-    //
-    //        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-    //        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-    //    }
-    //    return true;
-    //}
-    //
-}
-*/
 
 class go_ulduar_tower : public GameObjectScript
 {
@@ -1735,7 +1678,6 @@ void AddSC_boss_flame_leviathan()
     new npc_freyas_ward();
     new npc_freya_ward_summon();
     new npc_lorekeeper();
-    // new npc_brann_bronzebeard();
     new go_ulduar_tower();
 
     new achievement_three_car_garage_demolisher();

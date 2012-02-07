@@ -34,11 +34,7 @@ enum eSay
 class AT_example_areatrigger : public AreaTriggerScript
 {
     public:
-
-        AT_example_areatrigger()
-            : AreaTriggerScript("example_areatrigger")
-        {
-        }
+        AT_example_areatrigger() : AreaTriggerScript("example_areatrigger") { }
 
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/)
         {
@@ -50,11 +46,7 @@ class AT_example_areatrigger : public AreaTriggerScript
 class ItemUse_example_item : public ItemScript
 {
     public:
-
-        ItemUse_example_item()
-            : ItemScript("example_item")
-        {
-        }
+        ItemUse_example_item() : ItemScript("example_item") { }
 
         bool OnUse(Player* /*player*/, Item* /*item*/, SpellCastTargets const& /*targets*/)
         {
@@ -66,11 +58,7 @@ class ItemUse_example_item : public ItemScript
 class GOHello_example_go_teleporter : public GameObjectScript
 {
     public:
-
-        GOHello_example_go_teleporter()
-            : GameObjectScript("example_go_teleporter")
-        {
-        }
+        GOHello_example_go_teleporter() : GameObjectScript("example_go_teleporter") { }
 
         bool OnGossipHello(Player* player, GameObject* /*go*/)
         {

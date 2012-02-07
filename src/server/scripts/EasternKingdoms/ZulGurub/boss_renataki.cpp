@@ -34,15 +34,11 @@ EndScriptData */
 class boss_renataki : public CreatureScript
 {
     public:
-
-        boss_renataki()
-            : CreatureScript("boss_renataki")
-        {
-        }
+        boss_renataki() : CreatureScript("boss_renataki") { }
 
         struct boss_renatakiAI : public ScriptedAI
         {
-            boss_renatakiAI(Creature* c) : ScriptedAI(c) {}
+            boss_renatakiAI(Creature* c) : ScriptedAI(c) { }
 
             uint32 Invisible_Timer;
             uint32 Ambush_Timer;

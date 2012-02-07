@@ -608,9 +608,7 @@ class mob_pummeller : public CreatureScript
 class BoomEvent : public BasicEvent
 {
     public:
-        BoomEvent(Creature* me) : _me(me)
-        {
-        }
+        BoomEvent(Creature* me) : _me(me) { }
 
         bool Execute(uint64 /*time*/, uint32 /*diff*/)
         {
@@ -1073,7 +1071,6 @@ void AddSC_boss_xt002()
     new mob_scrapbot();
     new mob_pummeller();
     new mob_boombot();
-
     new mob_life_spark();
     new boss_xt002();
 

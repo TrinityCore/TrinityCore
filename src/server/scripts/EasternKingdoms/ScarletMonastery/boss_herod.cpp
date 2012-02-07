@@ -25,6 +25,7 @@ EndScriptData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+#include "scarlet_monastery.h"
 
 enum Says
 {
@@ -65,7 +66,7 @@ public:
 
     struct boss_herodAI : public ScriptedAI
     {
-        boss_herodAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_herodAI(Creature* creature) : ScriptedAI(creature) { }
 
         bool Enrage;
 

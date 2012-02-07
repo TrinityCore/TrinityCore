@@ -46,11 +46,7 @@ EndScriptData */
 class boss_jeklik : public CreatureScript
 {
     public:
-
-        boss_jeklik()
-            : CreatureScript("boss_jeklik")
-        {
-        }
+        boss_jeklik() : CreatureScript("boss_jeklik") { }
 
         struct boss_jeklikAI : public ScriptedAI
         {
@@ -228,11 +224,7 @@ class boss_jeklik : public CreatureScript
 class mob_batrider : public CreatureScript
 {
     public:
-
-        mob_batrider()
-            : CreatureScript("mob_batrider")
-        {
-        }
+        mob_batrider() : CreatureScript("mob_batrider") { }
 
         struct mob_batriderAI : public ScriptedAI
         {

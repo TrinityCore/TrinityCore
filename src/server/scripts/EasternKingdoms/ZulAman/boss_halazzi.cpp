@@ -75,11 +75,7 @@ enum PhaseHalazzi
 class boss_halazzi : public CreatureScript
 {
     public:
-
-        boss_halazzi()
-            : CreatureScript("boss_halazzi")
-        {
-        }
+        boss_halazzi() : CreatureScript("boss_halazzi") { }
 
         struct boss_halazziAI : public ScriptedAI
         {
@@ -340,19 +336,14 @@ class boss_halazzi : public CreatureScript
         }
 };
 
-// Spirits Lynx AI
 class mob_halazzi_lynx : public CreatureScript
 {
     public:
-
-        mob_halazzi_lynx()
-            : CreatureScript("mob_halazzi_lynx")
-        {
-        }
+        mob_halazzi_lynx() : CreatureScript("mob_halazzi_lynx") { }
 
         struct mob_halazzi_lynxAI : public ScriptedAI
         {
-            mob_halazzi_lynxAI(Creature* c) : ScriptedAI(c) {}
+            mob_halazzi_lynxAI(Creature* c) : ScriptedAI(c) { }
 
             uint32 FrenzyTimer;
             uint32 shredder_timer;

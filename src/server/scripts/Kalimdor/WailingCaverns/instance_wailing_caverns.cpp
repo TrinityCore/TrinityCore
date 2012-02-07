@@ -40,7 +40,7 @@ public:
 
     struct instance_wailing_caverns_InstanceMapScript : public InstanceScript
     {
-        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_wailing_caverns_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -138,7 +138,6 @@ public:
         }
 
     };
-
 };
 
 void AddSC_instance_wailing_caverns()

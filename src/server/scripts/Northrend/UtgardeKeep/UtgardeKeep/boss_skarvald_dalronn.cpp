@@ -41,13 +41,13 @@ enum eEnums
     YELL_DALRONN_KILL                           = -1574019,
     YELL_DALRONN_SKA_DIEDFIRST                  = -1574020,
 
-//Spells of Skarvald and his Ghost
+    //Spells of Skarvald and his Ghost
     MOB_SKARVALD_THE_CONSTRUCTOR                = 24200,
     SPELL_CHARGE                                = 43651,
     SPELL_STONE_STRIKE                          = 48583,
     SPELL_SUMMON_SKARVALD_GHOST                 = 48613,
     MOB_SKARVALD_GHOST                          = 27390,
-//Spells of Dalronn and his Ghost
+    //Spells of Dalronn and his Ghost
     MOB_DALRONN_THE_CONTROLLER                  = 24201,
     SPELL_SHADOW_BOLT                           = 43649,
     H_SPELL_SHADOW_BOLT                         = 59575,
@@ -206,7 +206,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_dalronn_the_controller : public CreatureScript
@@ -393,7 +392,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_skarvald_dalronn()

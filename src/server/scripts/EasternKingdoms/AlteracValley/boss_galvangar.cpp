@@ -39,7 +39,7 @@ public:
 
     struct boss_galvangarAI : public ScriptedAI
     {
-        boss_galvangarAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_galvangarAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 CleaveTimer;
         uint32 FrighteningShoutTimer;
@@ -126,5 +126,5 @@ public:
 
 void AddSC_boss_galvangar()
 {
-    new boss_galvangar;
+    new boss_galvangar();
 }

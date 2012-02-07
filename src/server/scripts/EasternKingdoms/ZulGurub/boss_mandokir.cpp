@@ -47,11 +47,7 @@ EndScriptData */
 class boss_mandokir : public CreatureScript
 {
     public:
-
-        boss_mandokir()
-            : CreatureScript("boss_mandokir")
-        {
-        }
+        boss_mandokir() : CreatureScript("boss_mandokir") { }
 
         struct boss_mandokirAI : public ScriptedAI
         {
@@ -136,7 +132,7 @@ class boss_mandokir : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-             DoScriptText(SAY_AGGRO, me);
+                DoScriptText(SAY_AGGRO, me);
             }
 
             void UpdateAI(const uint32 diff)
@@ -286,11 +282,7 @@ class boss_mandokir : public CreatureScript
 class mob_ohgan : public CreatureScript
 {
     public:
-
-        mob_ohgan()
-            : CreatureScript("mob_ohgan")
-        {
-        }
+        mob_ohgan() : CreatureScript("mob_ohgan") { }
 
         struct mob_ohganAI : public ScriptedAI
         {

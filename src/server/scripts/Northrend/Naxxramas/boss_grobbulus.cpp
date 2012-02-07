@@ -102,7 +102,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_grobbulus_poison_cloud : public CreatureScript
@@ -139,7 +138,6 @@ public:
             } else Cloud_Timer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_grobbulus()

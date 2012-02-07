@@ -89,9 +89,7 @@ class boss_general_zarithrian : public CreatureScript
 
         struct boss_general_zarithrianAI : public BossAI
         {
-            boss_general_zarithrianAI(Creature* creature) : BossAI(creature, DATA_GENERAL_ZARITHRIAN)
-            {
-            }
+            boss_general_zarithrianAI(Creature* creature) : BossAI(creature, DATA_GENERAL_ZARITHRIAN) { }
 
             void Reset()
             {

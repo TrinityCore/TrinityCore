@@ -200,7 +200,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class containment_sphere : public GameObjectScript
@@ -223,7 +222,6 @@ public:
         }
         return true;
     }
-
 };
 
 class spell_intense_cold : public SpellScriptLoader
@@ -261,9 +259,7 @@ class spell_intense_cold : public SpellScriptLoader
 class achievement_intense_cold : public AchievementCriteriaScript
 {
     public:
-        achievement_intense_cold() : AchievementCriteriaScript("achievement_intense_cold")
-        {
-        }
+        achievement_intense_cold() : AchievementCriteriaScript("achievement_intense_cold") { }
 
         bool OnCheck(Player* player, Unit* target)
         {

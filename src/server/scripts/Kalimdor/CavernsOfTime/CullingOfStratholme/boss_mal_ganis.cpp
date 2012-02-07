@@ -251,7 +251,6 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3, SAY_SLAY_4), me);
         }
     };
-
 };
 
 void AddSC_boss_mal_ganis()

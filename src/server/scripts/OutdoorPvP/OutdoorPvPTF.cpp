@@ -343,11 +343,7 @@ void OPvPCapturePointTF::SendChangePhase()
 class OutdoorPvP_terokkar_forest : public OutdoorPvPScript
 {
     public:
-
-        OutdoorPvP_terokkar_forest()
-            : OutdoorPvPScript("outdoorpvp_tf")
-        {
-        }
+        OutdoorPvP_terokkar_forest() : OutdoorPvPScript("outdoorpvp_tf") { }
 
         OutdoorPvP* GetOutdoorPvP() const
         {

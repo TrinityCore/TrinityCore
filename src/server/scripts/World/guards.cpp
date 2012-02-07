@@ -53,7 +53,7 @@ public:
 
     struct guard_genericAI : public GuardAI
     {
-        guard_genericAI(Creature* creature) : GuardAI(creature) {}
+        guard_genericAI(Creature* creature) : GuardAI(creature) { }
 
         void Reset()
         {
@@ -249,7 +249,7 @@ public:
 
     struct guard_shattrath_scryerAI : public GuardAI
     {
-        guard_shattrath_scryerAI(Creature* creature) : GuardAI(creature) {}
+        guard_shattrath_scryerAI(Creature* creature) : GuardAI(creature) { }
 
         void Reset()
         {
@@ -314,7 +314,7 @@ public:
 
     struct guard_shattrath_aldorAI : public GuardAI
     {
-        guard_shattrath_aldorAI(Creature* creature) : GuardAI(creature) {}
+        guard_shattrath_aldorAI(Creature* creature) : GuardAI(creature) { }
 
         void Reset()
         {
@@ -358,6 +358,7 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
     private:
         uint32 exileTimer;
         uint32 banishTimer;
@@ -373,7 +374,7 @@ public:
 
 void AddSC_guards()
 {
-    new guard_generic;
-    new guard_shattrath_aldor;
-    new guard_shattrath_scryer;
+    new guard_generic();
+    new guard_shattrath_aldor();
+    new guard_shattrath_scryer();
 }

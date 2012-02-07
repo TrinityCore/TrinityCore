@@ -24,6 +24,7 @@ SDCategory: Stratholme
 EndScriptData */
 
 #include "ScriptPCH.h"
+#include "stratholme.h"
 
 enum eEnums
 {
@@ -77,7 +78,7 @@ public:
 
     struct boss_dathrohan_balnazzarAI : public ScriptedAI
     {
-        boss_dathrohan_balnazzarAI(Creature* c) : ScriptedAI(c) {}
+        boss_dathrohan_balnazzarAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 m_uiCrusadersHammer_Timer;
         uint32 m_uiCrusaderStrike_Timer;
@@ -212,7 +213,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_dathrohan_balnazzar()

@@ -480,7 +480,7 @@ public:
 
     struct npc_jungle_punch_targetAI : public ScriptedAI
     {
-        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_jungle_punch_targetAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint16 sayTimer;
         uint8 sayStep;

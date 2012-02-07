@@ -226,6 +226,7 @@ public:
             if (TaintedElemental_Timer > 50000)
                 TaintedElemental_Timer = 50000;
         }
+
         void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(RAND(SAY_SLAY1, SAY_SLAY2, SAY_SLAY3), me);
@@ -277,8 +278,10 @@ public:
                 Intro = true;
                 DoScriptText(SAY_INTRO, me);
             }
+
             if (!CanAttack)
                 return;
+
             if (!who || me->getVictim())
                 return;
 
@@ -570,7 +573,6 @@ public:
             }
         }
     };
-
 };
 
 //Enchanted Elemental
@@ -672,7 +674,6 @@ public:
             } else move -= diff;
         }
     };
-
 };
 
 //Tainted Elemental
@@ -747,7 +748,6 @@ public:
             } else Despawn_Timer -= diff;
         }
     };
-
 };
 
 //Toxic Sporebat
@@ -855,7 +855,6 @@ public:
             } else Check_Timer -= diff;
         }
     };
-
 };
 
 //Coilfang Elite
@@ -880,7 +879,6 @@ public:
 
         return ai;
     }
-
 };
 
 //Coilfang Strider
@@ -907,7 +905,6 @@ public:
 
         return ai;
     }
-
 };
 
 class mob_shield_generator_channel : public CreatureScript
@@ -966,7 +963,6 @@ public:
             } else Check_Timer -= diff;
         }
     };
-
 };
 
 class item_tainted_core : public ItemScript
@@ -1046,7 +1042,6 @@ public:
         }
         return true;
     }
-
 };
 
 void AddSC_boss_lady_vashj()

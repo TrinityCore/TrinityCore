@@ -41,11 +41,7 @@ EndContentData */
 class npc_forest_frog : public CreatureScript
 {
     public:
-
-        npc_forest_frog()
-            : CreatureScript("npc_forest_frog")
-        {
-        }
+        npc_forest_frog() : CreatureScript("npc_forest_frog") { }
 
         struct npc_forest_frogAI : public ScriptedAI
         {
@@ -120,24 +116,28 @@ static uint32 ChestEntry[] = {186648, 187021, 186672, 186667};
 class npc_zulaman_hostage : public CreatureScript
 {
     public:
-
-        npc_zulaman_hostage()
-            : CreatureScript("npc_zulaman_hostage")
-        {
-        }
+        npc_zulaman_hostage() : CreatureScript("npc_zulaman_hostage") { }
 
         struct npc_zulaman_hostageAI : public ScriptedAI
         {
-            npc_zulaman_hostageAI(Creature* c) : ScriptedAI(c) {IsLoot = false;}
+            npc_zulaman_hostageAI(Creature* c) : ScriptedAI(c)
+            {
+                IsLoot = false;
+            }
+
             bool IsLoot;
             uint64 PlayerGUID;
+
             void Reset() {}
             void EnterCombat(Unit* /*who*/) {}
+
             void JustDied(Unit* /*who*/)
             {
                 Player* player = Unit::GetPlayer(*me, PlayerGUID);
-                if (player) player->SendLoot(me->GetGUID(), LOOT_CORPSE);
+                if (player)
+                    player->SendLoot(me->GetGUID(), LOOT_CORPSE);
             }
+
             void UpdateAI(const uint32 /*diff*/)
             {
                 if (IsLoot)
@@ -193,4 +193,3 @@ void AddSC_zulaman()
     new npc_forest_frog();
     new npc_zulaman_hostage();
 }
-

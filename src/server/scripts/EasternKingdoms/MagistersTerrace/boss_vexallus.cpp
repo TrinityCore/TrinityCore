@@ -191,7 +191,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class mob_pure_energy : public CreatureScript
@@ -206,7 +205,7 @@ public:
 
     struct mob_pure_energyAI : public ScriptedAI
     {
-        mob_pure_energyAI(Creature* c) : ScriptedAI(c) {}
+        mob_pure_energyAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
 
@@ -223,7 +222,6 @@ public:
         void MoveInLineOfSight(Unit* /*who*/) {}
         void AttackStart(Unit* /*who*/) {}
     };
-
 };
 
 void AddSC_boss_vexallus()

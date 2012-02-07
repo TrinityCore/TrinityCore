@@ -340,7 +340,6 @@ public:
             }
         }
     };
-
 };
 
 class boss_alythess : public CreatureScript
@@ -669,7 +668,6 @@ public:
             } else EnrageTimer -= diff;
         }
     };
-
 };
 
 class mob_shadow_image : public CreatureScript
@@ -684,7 +682,7 @@ public:
 
     struct mob_shadow_imageAI : public ScriptedAI
     {
-        mob_shadow_imageAI(Creature* c) : ScriptedAI(c) {}
+        mob_shadow_imageAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 ShadowfuryTimer;
         uint32 KillTimer;
@@ -751,7 +749,6 @@ public:
             } else DarkstrikeTimer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_eredar_twins()

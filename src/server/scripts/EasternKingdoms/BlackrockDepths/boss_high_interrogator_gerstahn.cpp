@@ -17,6 +17,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "blackrock_depths.h"
 
 enum Spells
 {
@@ -38,7 +39,7 @@ public:
 
     struct boss_high_interrogator_gerstahnAI : public ScriptedAI
     {
-        boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) {}
+        boss_high_interrogator_gerstahnAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 ShadowWordPain_Timer;
         uint32 ManaBurn_Timer;

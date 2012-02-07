@@ -122,9 +122,7 @@ class boss_tyrannus : public CreatureScript
 
         struct boss_tyrannusAI : public BossAI
         {
-            boss_tyrannusAI(Creature* creature) : BossAI(creature, DATA_TYRANNUS)
-            {
-            }
+            boss_tyrannusAI(Creature* creature) : BossAI(creature, DATA_TYRANNUS) { }
 
             void InitializeAI()
             {

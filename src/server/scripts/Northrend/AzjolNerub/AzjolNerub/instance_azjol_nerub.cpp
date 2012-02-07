@@ -33,7 +33,7 @@ public:
 
     struct instance_azjol_nerub_InstanceScript : public InstanceScript
     {
-        instance_azjol_nerub_InstanceScript(Map* map) : InstanceScript(map) {}
+        instance_azjol_nerub_InstanceScript(Map* map) : InstanceScript(map) { }
 
         uint64 uiKrikthir;
         uint64 uiHadronox;
@@ -211,5 +211,5 @@ public:
 
 void AddSC_instance_azjol_nerub()
 {
-   new instance_azjol_nerub;
+   new instance_azjol_nerub();
 }

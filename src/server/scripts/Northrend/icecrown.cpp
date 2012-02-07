@@ -308,7 +308,7 @@ public:
 
     struct npc_vereth_the_cunningAI : public ScriptedAI
     {
-        npc_vereth_the_cunningAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_vereth_the_cunningAI(Creature* creature) : ScriptedAI(creature) { }
 
         void MoveInLineOfSight(Unit* who)
         {
@@ -337,9 +337,9 @@ public:
 
 void AddSC_icecrown()
 {
-    new npc_arete;
-    new npc_squire_david;
-    new npc_argent_valiant;
-    new npc_guardian_pavilion;
-    new npc_vereth_the_cunning;
+    new npc_arete();
+    new npc_squire_david();
+    new npc_argent_valiant();
+    new npc_guardian_pavilion();
+    new npc_vereth_the_cunning();
 }

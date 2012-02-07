@@ -47,7 +47,7 @@ public:
 
     struct instance_magisters_terrace_InstanceMapScript : public InstanceScript
     {
-        instance_magisters_terrace_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_magisters_terrace_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 DelrissaDeathCount;
@@ -199,7 +199,6 @@ public:
             return 0;
         }
     };
-
 };
 
 void AddSC_instance_magisters_terrace()

@@ -63,7 +63,7 @@ public:
 
     struct mob_doom_blossomAI : public ScriptedAI
     {
-        mob_doom_blossomAI(Creature* c) : ScriptedAI(c) {}
+        mob_doom_blossomAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 CheckTeronTimer;
         uint32 ShadowBoltTimer;
@@ -114,7 +114,6 @@ public:
 
         void SetTeronGUID(uint64 guid){ TeronGUID = guid; }
     };
-
 };
 
 class mob_shadowy_construct : public CreatureScript
@@ -129,7 +128,7 @@ public:
 
     struct mob_shadowy_constructAI : public ScriptedAI
     {
-        mob_shadowy_constructAI(Creature* c) : ScriptedAI(c) {}
+        mob_shadowy_constructAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 GhostGUID;
         uint64 TeronGUID;
@@ -156,13 +155,12 @@ public:
             ScriptedAI::MoveInLineOfSight(who);
         }
 
-    /* Comment it out for now. NOTE TO FUTURE DEV: UNCOMMENT THIS OUT ONLY AFTER MIND CONTROL IS IMPLEMENTED
-        void DamageTaken(Unit* done_by, uint32 &damage)
-        {
-            if (done_by->GetGUID() != GhostGUID)
-            damage = 0;                                         // Only the ghost can deal damage.
-        }
-     */
+        // Comment it out for now. NOTE TO FUTURE DEV: UNCOMMENT THIS OUT ONLY AFTER MIND CONTROL IS IMPLEMENTED
+        //void DamageTaken(Unit* done_by, uint32 &damage)
+        //{
+        //    if (done_by->GetGUID() != GhostGUID)
+        //        damage = 0; // Only the ghost can deal damage.
+        //}
 
         void CheckPlayers()
         {
@@ -204,7 +202,6 @@ public:
             } else CheckTeronTimer -= diff;
         }
     };
-
 };
 
 class boss_teron_gorefiend : public CreatureScript
@@ -345,15 +342,15 @@ public:
                 Ghost = Unit::GetUnit((*me), GhostGUID);
             if (Ghost && Ghost->isAlive() && Ghost->HasAura(SPELL_SHADOW_OF_DEATH))
             {
-                /*float x, y, z;
-                Ghost->GetPosition(x, y, z);
-                Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000);
-                if (control)
-                {
-                    CAST_PLR(Ghost)->Possess(control);
-                    Ghost->DealDamage(Ghost, Ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL,
-                false);
-                }*/
+                //float x, y, z;
+                //Ghost->GetPosition(x, y, z);
+                //Creature* control = me->SummonCreature(CREATURE_GHOST, x, y, z, 0, TEMPSUMMON_TIMED_DESAWN, 30000);
+                //if (control)
+                //{
+                //    CAST_PLR(Ghost)->Possess(control);
+                //    Ghost->DealDamage(Ghost, Ghost->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                //}
+
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     Creature* Construct = NULL;
@@ -472,22 +469,22 @@ public:
                 CrushingShadowsTimer = urand(10, 26) * 1000;
             } else CrushingShadowsTimer -= diff;
 
-            /*** NOTE FOR FUTURE DEV: UNCOMMENT BELOW ONLY IF MIND CONTROL IS FULLY IMPLEMENTED **/
-            /*if (ShadowOfDeathTimer <= diff)
-            {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+            // NOTE FOR FUTURE DEV: UNCOMMENT BELOW ONLY IF MIND CONTROL IS FULLY IMPLEMENTED
+            //if (ShadowOfDeathTimer <= diff)
+            //{
+            //    Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
 
-                if (!target)
-                   target = me->getVictim();
+            //    if (!target)
+            //       target = me->getVictim();
 
-                if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
-                {
-                    DoCast(target, SPELL_SHADOW_OF_DEATH);
-                    GhostGUID = target->GetGUID();
-                    ShadowOfDeathTimer = 30000;
-                    SummonShadowsTimer = 53000; // Make it VERY close but slightly less so that we can check if the aura is still on the player
-                }
-            } else ShadowOfDeathTimer -= diff;*/
+            //    if (target && target->isAlive() && target->GetTypeId() == TYPEID_PLAYER)
+            //    {
+            //        DoCast(target, SPELL_SHADOW_OF_DEATH);
+            //        GhostGUID = target->GetGUID();
+            //        ShadowOfDeathTimer = 30000;
+            //        SummonShadowsTimer = 53000; // Make it VERY close but slightly less so that we can check if the aura is still on the player
+            //    }
+            //} else ShadowOfDeathTimer -= diff;
 
             if (RandomYellTimer <= diff)
             {
@@ -507,7 +504,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_teron_gorefiend()

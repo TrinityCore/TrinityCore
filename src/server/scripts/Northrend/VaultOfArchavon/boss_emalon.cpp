@@ -18,15 +18,14 @@
 #include "ScriptPCH.h"
 #include "vault_of_archavon.h"
 
-//Emalon spells
 enum Spells
 {
-    SPELL_OVERCHARGE            = 64218,    // Cast every 45 sec on a random Tempest Minion
+    // emalon
+    SPELL_OVERCHARGE            = 64218, // Cast every 45 sec on a random Tempest Minion
     SPELL_BERSERK               = 26662,
-
     SPELL_SHOCK                 = 64363,
     SPELL_OVERCHARGED           = 64217,
-    SPELL_OVERCHARGED_BLAST     = 64219,    // Cast when Overcharged reaches 10 stacks. Mob dies after that
+    SPELL_OVERCHARGED_BLAST     = 64219, // Cast when Overcharged reaches 10 stacks. Mob dies after that
 };
 
 // cannot let SpellDifficulty handle it, no entries for these
@@ -72,9 +71,7 @@ class boss_emalon : public CreatureScript
 
         struct boss_emalonAI : public BossAI
         {
-            boss_emalonAI(Creature* creature) : BossAI(creature, DATA_EMALON)
-            {
-            }
+            boss_emalonAI(Creature* creature) : BossAI(creature, DATA_EMALON) { }
 
             void Reset()
             {

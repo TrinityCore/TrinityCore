@@ -40,9 +40,7 @@ public:
 
     struct boss_hungarfenAI : public ScriptedAI
     {
-        boss_hungarfenAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        boss_hungarfenAI(Creature* c) : ScriptedAI(c) { }
 
         bool Root;
         uint32 Mushroom_Timer;
@@ -93,7 +91,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_SPORE_CLOUD       34168
@@ -112,7 +109,7 @@ public:
 
     struct mob_underbog_mushroomAI : public ScriptedAI
     {
-        mob_underbog_mushroomAI(Creature* c) : ScriptedAI(c) {}
+        mob_underbog_mushroomAI(Creature* c) : ScriptedAI(c) { }
 
         bool Stop;
         uint32 Grow_Timer;
@@ -152,7 +149,6 @@ public:
             } else Shrink_Timer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_hungarfen()

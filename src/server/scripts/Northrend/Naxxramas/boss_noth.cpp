@@ -75,7 +75,7 @@ public:
 
     struct boss_nothAI : public BossAI
     {
-        boss_nothAI(Creature* c) : BossAI(c, BOSS_NOTH) {}
+        boss_nothAI(Creature* c) : BossAI(c, BOSS_NOTH) { }
 
         uint32 waveCount, balconyCount;
 
@@ -207,7 +207,6 @@ public:
                 DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_noth()

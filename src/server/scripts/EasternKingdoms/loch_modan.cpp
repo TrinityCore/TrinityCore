@@ -95,7 +95,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_loch_modan()

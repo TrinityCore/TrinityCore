@@ -73,6 +73,7 @@ class spell_eadric_radiance : public SpellScriptLoader
 {
     public:
         spell_eadric_radiance() : SpellScriptLoader("spell_eadric_radiance") { }
+
         class spell_eadric_radiance_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_eadric_radiance_SpellScript);
@@ -98,6 +99,7 @@ class boss_eadric : public CreatureScript
 {
 public:
     boss_eadric() : CreatureScript("boss_eadric") { }
+
     struct boss_eadricAI : public ScriptedAI
     {
         boss_eadricAI(Creature* creature) : ScriptedAI(creature)
@@ -365,7 +367,7 @@ public:
 
     struct npc_memoryAI : public ScriptedAI
     {
-        npc_memoryAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_memoryAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint32 uiOldWoundsTimer;
         uint32 uiShadowPastTimer;

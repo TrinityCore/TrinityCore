@@ -355,7 +355,7 @@ public:
 
     struct mob_phalanxAI : public ScriptedAI
     {
-        mob_phalanxAI(Creature* c) : ScriptedAI(c) {}
+        mob_phalanxAI(Creature* c) : ScriptedAI(c) { }
 
         uint32 ThunderClap_Timer;
         uint32 FireballVolley_Timer;
@@ -1301,10 +1301,10 @@ void AddSC_blackrock_depths()
     new npc_kharan_mighthammer();
     new npc_lokhtos_darkbargainer();
     new npc_rocknot();
-	// Fix us
+    // Fix us
     /*new npc_dughal_stormwing();
-      new npc_tobias_seecher();
-      new npc_marshal_windsor();
-      new npc_marshal_reginald_windsor();
+    new npc_tobias_seecher();
+    new npc_marshal_windsor();
+    new npc_marshal_reginald_windsor();
     */
 }

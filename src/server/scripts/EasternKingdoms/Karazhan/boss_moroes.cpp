@@ -177,7 +177,8 @@ public:
                     }
                     ++i;
                 }
-            }else
+            }
+            else
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
@@ -313,7 +314,6 @@ public:
                 DoMeleeAttackIfReady();
         }
     };
-
 };
 
 struct boss_moroes_guestAI : public ScriptedAI
@@ -417,7 +417,7 @@ public:
     struct boss_baroness_dorothea_millstipeAI : public boss_moroes_guestAI
     {
         //Shadow Priest
-        boss_baroness_dorothea_millstipeAI(Creature* c) : boss_moroes_guestAI(c) {}
+        boss_baroness_dorothea_millstipeAI(Creature* c) : boss_moroes_guestAI(c) { }
 
         uint32 ManaBurn_Timer;
         uint32 MindFlay_Timer;
@@ -465,7 +465,6 @@ public:
             } else ShadowWordPain_Timer -= diff;
         }
     };
-
 };
 
 class boss_baron_rafe_dreuger : public CreatureScript
@@ -481,7 +480,7 @@ public:
     struct boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
     {
         //Retr Pally
-        boss_baron_rafe_dreugerAI(Creature* c) : boss_moroes_guestAI(c){}
+        boss_baron_rafe_dreugerAI(Creature* c) : boss_moroes_guestAI(c) { }
 
         uint32 HammerOfJustice_Timer;
         uint32 SealOfCommand_Timer;
@@ -523,7 +522,6 @@ public:
             } else HammerOfJustice_Timer -= diff;
         }
     };
-
 };
 
 class boss_lady_catriona_von_indi : public CreatureScript
@@ -539,7 +537,7 @@ public:
     struct boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
     {
         //Holy Priest
-        boss_lady_catriona_von_indiAI(Creature* c) : boss_moroes_guestAI(c) {}
+        boss_lady_catriona_von_indiAI(Creature* c) : boss_moroes_guestAI(c) { }
 
         uint32 DispelMagic_Timer;
         uint32 GreaterHeal_Timer;
@@ -594,7 +592,6 @@ public:
             } else DispelMagic_Timer -= diff;
         }
     };
-
 };
 
 class boss_lady_keira_berrybuck : public CreatureScript
@@ -610,7 +607,7 @@ public:
     struct boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
     {
         //Holy Pally
-        boss_lady_keira_berrybuckAI(Creature* c) : boss_moroes_guestAI(c)  {}
+        boss_lady_keira_berrybuckAI(Creature* c) : boss_moroes_guestAI(c) { }
 
         uint32 Cleanse_Timer;
         uint32 GreaterBless_Timer;
@@ -669,7 +666,6 @@ public:
             } else Cleanse_Timer -= diff;
         }
     };
-
 };
 
 class boss_lord_robin_daris : public CreatureScript
@@ -685,7 +681,7 @@ public:
     struct boss_lord_robin_darisAI : public boss_moroes_guestAI
     {
         //Arms Warr
-        boss_lord_robin_darisAI(Creature* c) : boss_moroes_guestAI(c) {}
+        boss_lord_robin_darisAI(Creature* c) : boss_moroes_guestAI(c) { }
 
         uint32 Hamstring_Timer;
         uint32 MortalStrike_Timer;
@@ -726,7 +722,6 @@ public:
             } else WhirlWind_Timer -= diff;
         }
     };
-
 };
 
 class boss_lord_crispin_ference : public CreatureScript
@@ -742,7 +737,7 @@ public:
     struct boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
     {
         //Arms Warr
-        boss_lord_crispin_ferenceAI(Creature* c) : boss_moroes_guestAI(c) {}
+        boss_lord_crispin_ferenceAI(Creature* c) : boss_moroes_guestAI(c) { }
 
         uint32 Disarm_Timer;
         uint32 HeroicStrike_Timer;
@@ -791,7 +786,6 @@ public:
             } else ShieldWall_Timer -= diff;
         }
     };
-
 };
 
 void AddSC_boss_moroes()

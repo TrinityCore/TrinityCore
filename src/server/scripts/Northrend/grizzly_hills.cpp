@@ -79,6 +79,7 @@ public:
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
+
             switch (i)
             {
                 case 9:
@@ -233,7 +234,7 @@ public:
 
     struct npc_mrfloppyAI : public ScriptedAI
     {
-        npc_mrfloppyAI(Creature* c) : ScriptedAI(c) {}
+        npc_mrfloppyAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 EmilyGUID;
         uint64 RWORGGUID;
@@ -298,7 +299,7 @@ public:
 
     struct npc_outhouse_bunnyAI : public ScriptedAI
     {
-        npc_outhouse_bunnyAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_outhouse_bunnyAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint8 m_counter;
         uint8 m_gender;
@@ -354,7 +355,7 @@ public:
 
     struct npc_tallhorn_stagAI : public ScriptedAI
     {
-        npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint8 m_uiPhase;
 
@@ -399,7 +400,7 @@ public:
 
     struct npc_amberpine_woodsmanAI : public ScriptedAI
     {
-        npc_amberpine_woodsmanAI(Creature* creature) : ScriptedAI(creature) {}
+        npc_amberpine_woodsmanAI(Creature* creature) : ScriptedAI(creature) { }
 
         uint8 m_uiPhase;
         uint32 m_uiTimer;
@@ -471,7 +472,7 @@ public:
 
     struct npc_wounded_skirmisherAI : public ScriptedAI
     {
-        npc_wounded_skirmisherAI(Creature* c) : ScriptedAI(c) {}
+        npc_wounded_skirmisherAI(Creature* c) : ScriptedAI(c) { }
 
         uint64 uiPlayerGUID;
 
@@ -695,12 +696,12 @@ public:
 
 void AddSC_grizzly_hills()
 {
-    new npc_emily;
-    new npc_mrfloppy;
-    new npc_outhouse_bunny;
-    new npc_tallhorn_stag;
-    new npc_amberpine_woodsman;
-    new npc_wounded_skirmisher;
+    new npc_emily();
+    new npc_mrfloppy();
+    new npc_outhouse_bunny();
+    new npc_tallhorn_stag();
+    new npc_amberpine_woodsman();
+    new npc_wounded_skirmisher();
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
 }

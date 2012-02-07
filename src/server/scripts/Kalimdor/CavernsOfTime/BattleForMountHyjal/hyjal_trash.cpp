@@ -444,12 +444,13 @@ public:
         void UpdateAI(const uint32 diff)
         {
             if (Delay <= diff)
-            {
                 Delay=0;
-            }else{
+            else
+            {
                 Delay-=diff;
                 return;
             }
+
             if (!meteor)
             {
                 float x, y, z;
@@ -464,7 +465,9 @@ public:
                 }
                 me->GetMotionMaster()->Clear();
                 meteor = true;
-            } else if (!CanMove){
+            }
+            else if (!CanMove)
+            {
                 if (spawnTimer <= diff)
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -484,10 +487,15 @@ public:
                     }
                 } else spawnTimer -= diff;
             }
-            if (!CanMove)return;
+
+            if (!CanMove)
+                return;
+
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
                 npc_escortAI::UpdateAI(diff);
+
             if (IsEvent)
             {
                 if (!go)
@@ -504,16 +512,19 @@ public:
 
             if (!UpdateVictim())
                 return;
+
             if (!imol)
             {
                 DoCast(me, SPELL_IMMOLATION);
                 imol=true;
             }
+
             if (FlameBuffetTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_FLAME_BUFFET, true);
                 FlameBuffetTimer = 7000;
             } else FlameBuffetTimer -= diff;
+
             DoMeleeAttackIfReady();
         }
     };
@@ -550,6 +561,7 @@ public:
         bool go;
         uint32 KnockDownTimer;
         uint32 pos;
+
         void Reset()
         {
             KnockDownTimer = 10000;
@@ -571,6 +583,7 @@ public:
                         me->AddThreat(target, 0.0f);
                 }
             }
+
             if (i == LastOverronPos && IsOverrun)
             {
                 if ((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
@@ -586,8 +599,10 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
                 npc_escortAI::UpdateAI(diff);
+
             if (IsEvent)
             {
                 if (!go)
@@ -611,19 +626,22 @@ public:
                     }
                 }
             }
+
             if (!me->HasAura(SPELL_DISEASE_CLOUD))
                 DoCast(me, SPELL_DISEASE_CLOUD);
+
             if (!UpdateVictim())
                 return;
+
             if (KnockDownTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_KNOCKDOWN);
                 KnockDownTimer = 15000+rand()%10000;
             } else KnockDownTimer -= diff;
+
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_FRENZY 31540
@@ -653,6 +671,7 @@ public:
         uint32 pos;
         uint32 MoveTimer;
         bool RandomMove;
+
         void Reset()
         {
             FrenzyTimer = 5000+rand()%5000;
@@ -676,6 +695,7 @@ public:
                         me->AddThreat(target, 0.0f);
                 }
             }
+
             if (i == LastOverronPos && IsOverrun)
             {
                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK_UNARMED);
@@ -693,8 +713,10 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
                 npc_escortAI::UpdateAI(diff);
+
             if (IsEvent)
             {
                 if (!go)
@@ -718,18 +740,19 @@ public:
                     }
                 }
             }
+
             if (FrenzyTimer <= diff)
             {
                 DoCast(me, SPELL_FRENZY);
                 FrenzyTimer = 15000+rand()%15000;
             } else FrenzyTimer -= diff;
+
             if (!UpdateVictim())
                 return;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_RAISE_DEAD_1 31617
@@ -756,10 +779,12 @@ public:
             pos = 0;
             Reset();
         }
+
         SummonList summons;
         bool go;
         uint32 ShadowBoltTimer;
         uint32 pos;
+
         void Reset()
         {
             ShadowBoltTimer = 1000+rand()%5000;
@@ -773,7 +798,12 @@ public:
                 summon->Attack(target, false);
             summons.Summon(summon);
         }
-        void SummonedCreatureDespawn(Creature* summon) {summons.Despawn(summon);}
+
+        void SummonedCreatureDespawn(Creature* summon)
+        {
+            summons.Despawn(summon);
+        }
+
         void WaypointReached(uint32 i)
         {
             pos = i;
@@ -784,7 +814,9 @@ public:
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
@@ -815,8 +847,10 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
                 npc_escortAI::UpdateAI(diff);
+
             if (IsEvent)
             {
                 if (!go)
@@ -830,7 +864,8 @@ public:
                                 AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
                             Start(true, true);
                             SetDespawnAtEnd(false);
-                        }else//use alliance WPs
+                        }
+                        else//use alliance WPs
                         {
                             for (uint8 i = 0; i < 8; ++i)
                                 AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
@@ -840,8 +875,10 @@ public:
                     }
                 }
             }
+
             if (!UpdateVictim())
                 return;
+
             if (ShadowBoltTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SHADOW_BOLT);
@@ -851,7 +888,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_BANSHEE_CURSE 31651
@@ -883,6 +919,7 @@ public:
         uint32 WailTimer;
         uint32 ShellTimer;
         uint32 pos;
+
         void Reset()
         {
             CourseTimer = 20000+rand()%5000;
@@ -900,7 +937,9 @@ public:
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
@@ -913,8 +952,10 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
                 npc_escortAI::UpdateAI(diff);
+
             if (IsEvent)
             {
                 if (!go)
@@ -928,7 +969,8 @@ public:
                                 AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
                             Start(false, true);
                             SetDespawnAtEnd(false);
-                        }else//use alliance WPs
+                        }
+                        else//use alliance WPs
                         {
                             for (uint8 i = 0; i < 8; ++i)
                                 AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
@@ -938,27 +980,31 @@ public:
                     }
                 }
             }
+
             if (!UpdateVictim())
                 return;
+
             if (CourseTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_BANSHEE_CURSE);
                 CourseTimer = 20000+rand()%5000;
             } else CourseTimer -= diff;
+
             if (WailTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_BANSHEE_WAIL);
                 WailTimer = 15000+rand()%5000;
             } else WailTimer -= diff;
+
             if (ShellTimer <= diff)
             {
                 DoCast(me, SPELL_ANTI_MAGIC_SHELL);
                 ShellTimer = 50000+rand()%10000;
             } else ShellTimer -= diff;
+
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_WEB 28991
@@ -986,6 +1032,7 @@ public:
         bool go;
         uint32 WebTimer;
         uint32 pos;
+
         void Reset()
         {
             WebTimer = 20000+rand()%5000;
@@ -1001,7 +1048,9 @@ public:
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
@@ -1014,8 +1063,10 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
                 npc_escortAI::UpdateAI(diff);
+
             if (IsEvent)
             {
                 if (!go)
@@ -1029,7 +1080,8 @@ public:
                                 AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
                             Start(false, true);
                             SetDespawnAtEnd(false);
-                        }else//use alliance WPs
+                        }
+                        else//use alliance WPs
                         {
                             for (uint8 i = 0; i < 8; ++i)
                                 AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
@@ -1042,15 +1094,16 @@ public:
             }
             if (!UpdateVictim())
                 return;
+
             if (WebTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_WEB);
                 WebTimer = 20000+rand()%5000;
             } else WebTimer -= diff;
+
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_MANA_BURN 31729
@@ -1078,6 +1131,7 @@ public:
         bool go;
         uint32 ManaBurnTimer;
         uint32 pos;
+
         void Reset()
         {
             ManaBurnTimer = 9000+rand()%5000;
@@ -1093,7 +1147,9 @@ public:
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_THRALL));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
-                }else{
+                }
+                else
+                {
                     Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                     if (target && target->isAlive())
                         me->AddThreat(target, 0.0f);
@@ -1106,8 +1162,10 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
                 npc_escortAI::UpdateAI(diff);
+
             if (IsEvent)
             {
                 if (!go)
@@ -1121,7 +1179,8 @@ public:
                                 AddWaypoint(i, HordeWPs[i][0]+irand(-3, 3),    HordeWPs[i][1]+irand(-3, 3),    HordeWPs[i][2]);
                             Start(false, true);
                             SetDespawnAtEnd(false);
-                        }else//use alliance WPs
+                        }
+                        else//use alliance WPs
                         {
                             for (uint8 i = 0; i < 8; ++i)
                                 AddWaypoint(i, AllianceWPs[i][0]+irand(-3, 3),    AllianceWPs[i][1]+irand(-3, 3),    AllianceWPs[i][2]);
@@ -1132,17 +1191,19 @@ public:
                     }
                 }
             }
+
             if (!UpdateVictim())
                 return;
+
             if (ManaBurnTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_MANA_BURN);
                 ManaBurnTimer = 9000+rand()%5000;
             } else ManaBurnTimer -= diff;
+
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 #define SPELL_FROST_BREATH 31688
@@ -1210,11 +1271,13 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
             {
                 CAST_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
                 npc_escortAI::UpdateAI(diff);
             }
+
             if (IsEvent)
             {
                 if (!go)
@@ -1228,7 +1291,9 @@ public:
                                 AddWaypoint(i, FrostWyrmWPs[i][0],    FrostWyrmWPs[i][1],    FrostWyrmWPs[i][2]);
                             Start(false, true);
                             SetDespawnAtEnd(false);
-                        }else{//fly path FlyPathWPs
+                        }
+                        else // fly path FlyPathWPs
+                        {
                             for (uint8 i = 0; i < 3; ++i)
                                 AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
                             Start(false, true);
@@ -1237,8 +1302,10 @@ public:
                     }
                 }
             }
+
             if (!UpdateVictim())
                 return;
+
             if (!me->IsWithinDist(me->getVictim(), 25)){
                 if (MoveTimer <= diff)
                 {
@@ -1259,7 +1326,6 @@ public:
             } else FrostBreathTimer -= diff;
         }
     };
-
 };
 
 #define SPELL_GARGOYLE_STRIKE 31664
@@ -1281,7 +1347,9 @@ public:
             instance = c->GetInstanceScript();
             go = false;
             pos = 0;
-            DummyTarget[0] = 0;DummyTarget[1] = 0;DummyTarget[2] = 0;
+            DummyTarget[0] = 0;
+            DummyTarget[1] = 0;
+            DummyTarget[2] = 0;
             Reset();
         }
 
@@ -1328,11 +1396,13 @@ public:
         void UpdateAI(const uint32 diff)
         {
             hyjal_trashAI::UpdateAI(diff);
+
             if (IsEvent || IsOverrun)
             {
                 CAST_AI(hyjal_trashAI, me->AI())->SetCanAttack(false);
                 npc_escortAI::UpdateAI(diff);
             }
+
             if (IsEvent)
             {
                 if (!go)
@@ -1346,7 +1416,9 @@ public:
                                 AddWaypoint(i, GargoyleWPs[i][0]+irand(-10, 10), GargoyleWPs[i][1]+irand(-10, 10), GargoyleWPs[i][2]);
                             Start(false, true);
                             SetDespawnAtEnd(false);
-                        }else{//fly path FlyPathWPs
+                        }
+                        else // fly path FlyPathWPs
+                        {
                             for (uint8 i = 0; i < 3; ++i)
                                 AddWaypoint(i, FlyPathWPs[i][0]+irand(-10, 10),    FlyPathWPs[i][1]+irand(-10, 10),    FlyPathWPs[i][2]);
                             Start(false, true);
@@ -1355,6 +1427,7 @@ public:
                     }
                 }
             }
+
             if (IsOverrun && !UpdateVictim())
             {
                 if (faction == 0)//alliance
@@ -1364,10 +1437,11 @@ public:
                         me->CastSpell(DummyTarget[0], DummyTarget[1], DummyTarget[2], SPELL_GARGOYLE_STRIKE, false);
                         StrikeTimer = 2000+rand()%1000;
                     } else StrikeTimer -= diff;
-                    }
+                }
             }
             if (!UpdateVictim())
                 return;
+
             if (!me->IsWithinDist(me->getVictim(), 20) || forcemove)
             {
                 forcemove = false;
@@ -1377,6 +1451,7 @@ public:
                     if (target)
                         me->Attack(target, false);
                 }
+
                 if (MoveTimer <= diff)
                 {
                     float x, y, z;
@@ -1387,6 +1462,7 @@ public:
                     MoveTimer = 2000;
                 } else MoveTimer-=diff;
             }
+
             if (StrikeTimer <= diff)
             {
                 if (me->IsWithinDist(me->getVictim(), 20))
@@ -1399,7 +1475,6 @@ public:
             } else StrikeTimer -= diff;
         }
     };
-
 };
 
 #define SPELL_EXPLODING_SHOT 7896
@@ -1468,7 +1543,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_hyjal_trash()

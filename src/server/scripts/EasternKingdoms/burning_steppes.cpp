@@ -127,7 +127,7 @@ public:
 
     struct npc_ragged_johnAI : public ScriptedAI
     {
-        npc_ragged_johnAI(Creature* c) : ScriptedAI(c) {}
+        npc_ragged_johnAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
 
@@ -147,7 +147,6 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
     };
-
 };
 
 void AddSC_burning_steppes()

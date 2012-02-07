@@ -54,11 +54,7 @@ enum eEnums
 class npc_professor_phizzlethorpe : public CreatureScript
 {
     public:
-
-        npc_professor_phizzlethorpe()
-            : CreatureScript("npc_professor_phizzlethorpe")
-        {
-        }
+        npc_professor_phizzlethorpe() : CreatureScript("npc_professor_phizzlethorpe") { }
 
         struct npc_professor_phizzlethorpeAI : public npc_escortAI
         {

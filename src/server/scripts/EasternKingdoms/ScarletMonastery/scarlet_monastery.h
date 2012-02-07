@@ -19,7 +19,7 @@
 #ifndef DEF_SCARLET_M
 #define DEF_SCARLET_M
 
-enum eEnums
+enum eDate
 {
     TYPE_MOGRAINE_AND_WHITE_EVENT   = 1,
 

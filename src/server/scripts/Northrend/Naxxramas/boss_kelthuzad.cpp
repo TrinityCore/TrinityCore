@@ -714,7 +714,6 @@ public:
 
         return true;
     }
-
 };
 
 class npc_kelthuzad_abomination : public CreatureScript
@@ -776,9 +775,7 @@ class npc_kelthuzad_abomination : public CreatureScript
 class achievement_just_cant_get_enough : public AchievementCriteriaScript
 {
    public:
-       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough")
-       {
-       }
+       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough") { }
 
        bool OnCheck(Player* /*player*/, Unit* target)
        {

@@ -132,7 +132,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -161,12 +160,7 @@ public:
         }
         return false;
     }
-
 };
-
-/*######
-## AddSC
-######*/
 
 void AddSC_wetlands()
 {
