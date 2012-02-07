@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Fankriss
-SD%Complete: 100
-SDComment: sound not implemented
-SDCategory: Temple of Ahn'Qiraj
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "temple_of_ahnqiraj.h"
 
@@ -32,11 +25,12 @@ EndScriptData */
 #define SOUND_TRESPASS     8591
 #define SOUND_WILL_BE      8592
 
-#define SPELL_MORTAL_WOUND 28467
-#define SPELL_ROOT         28858
-
-// Enrage for his spawns
-#define SPELL_ENRAGE       28798
+enum Spells
+{
+    SPELL_MORTAL_WOUND      = 28467,
+    SPELL_ROOT              = 28858,
+    SPELL_ENRAGE            = 28798  // Enrage for his spawns
+};
 
 class boss_fankriss : public CreatureScript
 {
