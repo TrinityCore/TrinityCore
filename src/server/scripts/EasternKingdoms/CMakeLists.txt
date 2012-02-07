@@ -165,6 +165,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/instance_shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.h
+  EasternKingdoms/ShadowfangKeep/boss_apothecary_trio.cpp
   EasternKingdoms/burning_steppes.cpp
   EasternKingdoms/BlackwingLair/boss_chromaggus.cpp
   EasternKingdoms/BlackwingLair/boss_razorgore.cpp
