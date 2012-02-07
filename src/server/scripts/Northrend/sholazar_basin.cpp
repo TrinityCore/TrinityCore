@@ -665,6 +665,86 @@ public:
     }
 };
 
+/*######
+## Quest The Lifewarden's Wrath
+######*/
+
+enum Misc
+{
+    NPC_PRESENCE = 28563, // Freya's Presence
+    NPC_SABOTEUR = 28538, // Cultist Saboteur
+    NPC_SERVANT = 28320, // Servant of Freya
+
+    WHISPER_ACTIVATE = 0,
+    
+    SPELL_FREYA_DUMMY = 51318,
+    SPELL_LIFEFORCE = 51395,
+    SPELL_FREYA_DUMMY_TRIGGER = 51335,
+    SPELL_LASHER_EMERGE = 48195,
+    SPELL_WILD_GROWTH = 52948,
+};
+
+class spell_q12620_the_lifewarden_wrath : public SpellScriptLoader
+{
+public:
+    spell_q12620_the_lifewarden_wrath() : SpellScriptLoader("spell_q12620_the_lifewarden_wrath") { }
+
+    class spell_q12620_the_lifewarden_wrath_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q12620_the_lifewarden_wrath_SpellScript);
+
+        void HandleSendEvent(SpellEffIndex effIndex)
+        {
+            PreventHitDefaultEffect(effIndex);
+
+            if (Unit* caster = GetCaster())
+            {
+                if (Creature* presence = caster->FindNearestCreature(NPC_PRESENCE, 50.0f))
+                {
+                    presence->AI()->Talk(WHISPER_ACTIVATE, caster->GetGUID());
+                    presence->CastSpell(presence, SPELL_FREYA_DUMMY, true); // will target plants
+                    // Freya Dummy could be scripted with the following code
+
+                    // Revive plants
+                    std::list<Creature*> servants;
+                    GetCaster()->GetCreatureListWithEntryInGrid(servants, NPC_SERVANT, 200.0f);
+                    for (std::list<Creature*>::iterator itr = servants.begin(); itr != servants.end(); ++itr)
+                    {
+                        // Couldn't find a spell that does this
+                        if ((*itr)->isDead())
+                            (*itr)->Respawn(true);
+
+                        (*itr)->CastSpell(*itr, SPELL_FREYA_DUMMY_TRIGGER, true);
+                        (*itr)->CastSpell(*itr, SPELL_LASHER_EMERGE, false);
+                        (*itr)->CastSpell(*itr, SPELL_WILD_GROWTH, false);
+
+                        if (Unit* target = (*itr)->SelectNearestTarget(150.0f))
+                            (*itr)->AI()->AttackStart(target);
+                    }
+
+                    // Kill nearby enemies
+                    std::list<Creature*> saboteurs;
+                    caster->GetCreatureListWithEntryInGrid(saboteurs, NPC_SABOTEUR, 200.0f);
+                    for (std::list<Creature*>::iterator itr = saboteurs.begin(); itr != saboteurs.end(); ++itr)
+                        if ((*itr)->isAlive())
+                            // Lifeforce has a cast duration, it should be cast at all saboteurs one by one
+                            presence->CastSpell((*itr), SPELL_LIFEFORCE, false);
+                }
+            }
+        }
+
+        void Register()
+        {
+            OnEffectHit += SpellEffectFn(spell_q12620_the_lifewarden_wrath_SpellScript::HandleSendEvent, EFFECT_0, SPELL_EFFECT_SEND_EVENT);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_q12620_the_lifewarden_wrath_SpellScript();
+    }
+};
+
 void AddSC_sholazar_basin()
 {
     new npc_injured_rainspeaker_oracle();
@@ -674,4 +754,5 @@ void AddSC_sholazar_basin()
     new npc_engineer_helice();
     new npc_adventurous_dwarf();
     new npc_jungle_punch_target();
+    new spell_q12620_the_lifewarden_wrath();
 }
