@@ -39,11 +39,8 @@ enum eSpells
 class mob_crystalcore_devastator : public CreatureScript
 {
     public:
+        mob_crystalcore_devastator() : CreatureScript("mob_crystalcore_devastator") { }
 
-        mob_crystalcore_devastator()
-            : CreatureScript("mob_crystalcore_devastator")
-        {
-        }
         struct mob_crystalcore_devastatorAI : public ScriptedAI
         {
             mob_crystalcore_devastatorAI(Creature* creature) : ScriptedAI(creature) { }
@@ -104,6 +101,7 @@ class mob_crystalcore_devastator : public CreatureScript
             return new mob_crystalcore_devastatorAI(creature);
         }
 };
+
 void AddSC_the_eye()
 {
     new mob_crystalcore_devastator();

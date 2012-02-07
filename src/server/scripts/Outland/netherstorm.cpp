@@ -295,7 +295,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -350,7 +349,6 @@ public:
         }
         return true;
     }
-
 };
 
 /*######
@@ -396,7 +394,10 @@ public:
 
     struct npc_commander_dawnforgeAI : public ScriptedAI
     {
-        npc_commander_dawnforgeAI(Creature* c) : ScriptedAI(c) { Reset (); }
+        npc_commander_dawnforgeAI(Creature* c) : ScriptedAI(c)
+        {
+            Reset();
+        }
 
         uint64 PlayerGUID;
         uint64 ardonisGUID;
@@ -633,7 +634,6 @@ public:
             }
          }
     };
-
 };
 
 class at_commander_dawnforge : public AreaTriggerScript
@@ -659,7 +659,6 @@ public:
         }
         return false;
     }
-
 };
 
 /*######
@@ -714,7 +713,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -849,7 +847,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -937,9 +934,7 @@ public:
         {
             me->RestoreFaction();
         }
-
     };
-
 };
 
 /*######
@@ -964,7 +959,7 @@ public:
 
     struct npc_maxx_a_million_escortAI : public npc_escortAI
     {
-        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_maxx_a_million_escortAI(Creature* creature) : npc_escortAI(creature) { }
 
         bool bTake;
         uint32 uiTakeTimer;

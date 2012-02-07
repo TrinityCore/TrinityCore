@@ -201,7 +201,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -252,12 +251,7 @@ public:
 
         return true;
     }
-
 };
-
-/*######
-## AddSC
-######*/
 
 void AddSC_undercity()
 {

@@ -73,9 +73,7 @@ public:
 
     struct instance_dark_portal_InstanceMapScript : public InstanceScript
     {
-        instance_dark_portal_InstanceMapScript(Map* map) : InstanceScript(map)
-        {
-        }
+        instance_dark_portal_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -342,7 +340,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_instance_dark_portal()

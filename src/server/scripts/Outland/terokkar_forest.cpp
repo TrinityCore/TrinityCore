@@ -150,7 +150,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -183,7 +182,6 @@ public:
                         DoCast(me, 39130, true);
         }
     };
-
 };
 
 /*######
@@ -202,7 +200,7 @@ public:
     struct npc_skywingAI : public npc_escortAI
     {
     public:
-        npc_skywingAI(Creature* c) : npc_escortAI(c) {}
+        npc_skywingAI(Creature* c) : npc_escortAI(c) { }
 
         void WaypointReached(uint32 i)
         {
@@ -245,7 +243,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######
@@ -278,7 +275,6 @@ public:
                         DoCast(me, 39134, true);
         }
     };
-
 };
 
 /*######
@@ -331,7 +327,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -439,7 +434,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -465,7 +459,7 @@ public:
 
     struct npc_isla_starmaneAI : public npc_escortAI
     {
-        npc_isla_starmaneAI(Creature* c) : npc_escortAI(c) {}
+        npc_isla_starmaneAI(Creature* c) : npc_escortAI(c) { }
 
         void WaypointReached(uint32 i)
         {
@@ -532,7 +526,6 @@ public:
     {
         return new npc_isla_starmaneAI(creature);
     }
-
 };
 
 /*######
@@ -627,7 +620,6 @@ public:
 
         return true;
     }
-
 };
 
 /*########
@@ -694,7 +686,6 @@ public:
             summon->AI()->AttackStart(me);
         }
     };
-
 };
 
 void AddSC_terokkar_forest()

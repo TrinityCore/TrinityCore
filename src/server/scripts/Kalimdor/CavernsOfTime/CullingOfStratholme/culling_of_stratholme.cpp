@@ -1204,7 +1204,6 @@ public:
                 DoCast(me, SPELL_HOLY_LIGHT);
         }
     };
-
 };
 
 class npc_crate_helper : public CreatureScript

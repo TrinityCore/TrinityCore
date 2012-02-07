@@ -20,20 +20,12 @@ enum ePoints
 };
 
 npc_escortAI::npc_escortAI(Creature* creature) : ScriptedAI(creature),
-    m_uiPlayerGUID(0),
-    m_uiWPWaitTimer(2500),
-    m_uiPlayerCheckTimer(1000),
-    m_uiEscortState(STATE_ESCORT_NONE),
-    MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
-    m_pQuestForEscort(NULL),
-    m_bIsActiveAttacker(true),
-    m_bIsRunning(false),
-    m_bCanInstantRespawn(false),
-    m_bCanReturnToStart(false),
-    DespawnAtEnd(true),
-    DespawnAtFar(true),
-    ScriptWP(false)
-{}
+    m_uiPlayerGUID(0), m_uiWPWaitTimer(2500), m_uiPlayerCheckTimer(1000), m_uiEscortState(STATE_ESCORT_NONE), MaxPlayerDistance(DEFAULT_MAX_PLAYER_DISTANCE),
+    m_pQuestForEscort(NULL), m_bIsActiveAttacker(true), m_bIsRunning(false), m_bCanInstantRespawn(false), m_bCanReturnToStart(false), DespawnAtEnd(true),
+    DespawnAtFar(true), ScriptWP(false)
+{
+
+}
 
 void npc_escortAI::AttackStart(Unit* who)
 {

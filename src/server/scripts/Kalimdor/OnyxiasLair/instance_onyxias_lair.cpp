@@ -37,7 +37,7 @@ public:
 
     struct instance_onyxias_lair_InstanceMapScript : public InstanceScript
     {
-        instance_onyxias_lair_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_onyxias_lair_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         //Eruption is a BFS graph problem
         //One map to remember all floor, one map to keep floor that still need to erupt and one queue to know what needs to be removed
@@ -250,7 +250,6 @@ public:
             return false;
         }
     };
-
 };
 
 void AddSC_instance_onyxias_lair()

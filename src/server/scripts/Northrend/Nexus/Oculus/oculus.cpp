@@ -177,7 +177,6 @@ public:
 
         return true;
     }
-
 };
 
 class npc_image_belgaristrasz : public CreatureScript

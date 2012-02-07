@@ -99,7 +99,6 @@ enum
 class npc_announcer_toc10 : public CreatureScript
 {
     public:
-
         npc_announcer_toc10() : CreatureScript("npc_announcer_toc10") { }
 
         struct npc_announcer_toc10AI : public ScriptedAI
@@ -232,7 +231,6 @@ class npc_announcer_toc10 : public CreatureScript
 class boss_lich_king_toc : public CreatureScript
 {
     public:
-
         boss_lich_king_toc() : CreatureScript("boss_lich_king_toc") { }
 
         struct boss_lich_king_tocAI : public ScriptedAI
@@ -348,7 +346,6 @@ class boss_lich_king_toc : public CreatureScript
 class npc_fizzlebang_toc : public CreatureScript
 {
     public:
-
         npc_fizzlebang_toc() : CreatureScript("npc_fizzlebang_toc") { }
 
         struct npc_fizzlebang_tocAI : public ScriptedAI
@@ -515,7 +512,6 @@ class npc_fizzlebang_toc : public CreatureScript
 class npc_tirion_toc : public CreatureScript
 {
     public:
-
         npc_tirion_toc() : CreatureScript("npc_tirion_toc") { }
 
         struct npc_tirion_tocAI : public ScriptedAI
@@ -811,7 +807,6 @@ class npc_tirion_toc : public CreatureScript
 class npc_garrosh_toc : public CreatureScript
 {
     public:
-
         npc_garrosh_toc() : CreatureScript("npc_garrosh_toc") { }
 
         struct npc_garrosh_tocAI : public ScriptedAI
@@ -889,7 +884,6 @@ class npc_garrosh_toc : public CreatureScript
 class npc_varian_toc : public CreatureScript
 {
     public:
-
         npc_varian_toc() : CreatureScript("npc_varian_toc") { }
 
         struct npc_varian_tocAI : public ScriptedAI

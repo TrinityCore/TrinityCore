@@ -35,16 +35,11 @@ enum eSpells
 class instance_uldaman : public InstanceMapScript
 {
     public:
-        instance_uldaman()
-            : InstanceMapScript("instance_uldaman", 70)
-        {
-        }
+        instance_uldaman() : InstanceMapScript("instance_uldaman", 70) { }
 
         struct instance_uldaman_InstanceMapScript : public InstanceScript
         {
-            instance_uldaman_InstanceMapScript(Map* map) : InstanceScript(map)
-            {
-            }
+            instance_uldaman_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             void Initialize()
             {
@@ -301,6 +296,7 @@ class instance_uldaman : public InstanceMapScript
                     }
                 }
             }
+
             void Update(uint32 diff)
             {
                 if (!bKeystoneCheck)
@@ -425,7 +421,8 @@ class instance_uldaman : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature)
             {
-                switch (creature->GetEntry()) {
+                switch (creature->GetEntry())
+                {
                     case 4857:    // Stone Keeper
                         SetFrozenState (creature);
                         vStoneKeeper.push_back(creature->GetGUID());

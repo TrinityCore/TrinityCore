@@ -31,7 +31,7 @@ public:
 
     struct instance_blackrock_spireMapScript : public InstanceScript
     {
-        instance_blackrock_spireMapScript(InstanceMap* map) : InstanceScript(map) {}
+        instance_blackrock_spireMapScript(InstanceMap* map) : InstanceScript(map) { }
 
         uint32 encounter[MAX_ENCOUNTER];
         std::string m_strInstData;
@@ -244,7 +244,6 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_blackrock_spire()

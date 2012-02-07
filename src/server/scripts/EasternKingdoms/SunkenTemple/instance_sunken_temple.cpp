@@ -51,9 +51,7 @@ public:
 
     struct instance_sunken_temple_InstanceMapScript : public InstanceScript
     {
-        instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map)
-        {
-        }
+        instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint64 GOAtalaiStatue1;
         uint64 GOAtalaiStatue2;
@@ -199,7 +197,6 @@ public:
             return 0;
          }
     };
-
 };
 
 void AddSC_instance_sunken_temple()

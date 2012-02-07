@@ -428,7 +428,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -512,7 +511,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -621,7 +619,6 @@ public:
             } else WaveTimer -= diff;
         }
     };
-
 };
 
 void AddSC_eversong_woods()

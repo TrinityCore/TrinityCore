@@ -305,7 +305,6 @@ public:
 
         uint64 GetGUID(int32 /*id*/) { return prisonerGUID; }
     };
-
 };
 
 class go_acherus_soul_prison : public GameObjectScript
@@ -322,7 +321,6 @@ public:
 
         return false;
     }
-
 };
 
 /*######
@@ -509,7 +507,6 @@ public:
             CombatAI::UpdateAI(uiDiff);
         }
     };
-
 };
 
 /*######
@@ -595,7 +592,6 @@ public:
         }
 
     };
-
 };
 
 /*######
@@ -673,7 +669,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -722,7 +717,6 @@ public:
             }
         }
     };
-
 };
 
 // correct way: 52312 52314 52555 ...
@@ -758,9 +752,8 @@ public:
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_INCOMPLETE)
                             CAST_CRE(who)->CastSpell(owner, 52517, true);
 
-                        //Todo: Creatures must not be removed, but, must instead
-                        //      stand next to Gothik and be commanded into the pit
-                        //      and dig into the ground.
+                        // Todo: Creatures must not be removed, but, must instead stand next to Gothik and be commanded into the pit
+                        //       and dig into the ground.
                         CAST_CRE(who)->ForcedDespawn();
 
                         if (CAST_PLR(owner)->GetQuestStatus(12698) == QUEST_STATUS_COMPLETE)
@@ -770,7 +763,6 @@ public:
             }
         }
     };
-
 };
 
 class npc_scarlet_ghoul : public CreatureScript
@@ -853,7 +845,6 @@ public:
             }
         }
     };
-
 };
 
 /*####
@@ -909,7 +900,6 @@ public:
                     miner->DisappearAndDie();
         }
     };
-
 };
 
 /*####
@@ -1043,7 +1033,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######
@@ -1077,7 +1066,6 @@ public:
         }
         return true;
     }
-
 };
 
 // npc 28912 quest 17217 boss 29001 mob 29007 go 191092

@@ -79,6 +79,7 @@ public:
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
+
             switch (i)
             {
                 case 9:
@@ -695,12 +696,12 @@ public:
 
 void AddSC_grizzly_hills()
 {
-    new npc_emily;
-    new npc_mrfloppy;
-    new npc_outhouse_bunny;
-    new npc_tallhorn_stag;
-    new npc_amberpine_woodsman;
-    new npc_wounded_skirmisher;
+    new npc_emily();
+    new npc_mrfloppy();
+    new npc_outhouse_bunny();
+    new npc_tallhorn_stag();
+    new npc_amberpine_woodsman();
+    new npc_wounded_skirmisher();
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
 }

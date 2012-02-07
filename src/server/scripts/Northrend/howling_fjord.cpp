@@ -68,7 +68,8 @@ public:
 
     struct npc_Apothecary_HanesAI : public npc_escortAI
     {
-        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature){}
+        npc_Apothecary_HanesAI(Creature* creature) : npc_escortAI(creature) { }
+
         uint32 PotTimer;
 
         void Reset ()
@@ -102,6 +103,7 @@ public:
             Player* player = GetPlayerForEscort();
             if (!player)
                 return;
+
             switch (i)
             {
                 case 1:
@@ -429,9 +431,9 @@ public:
 
 void AddSC_howling_fjord()
 {
-    new npc_apothecary_hanes;
-    new npc_plaguehound_tracker;
-    new npc_razael_and_lyana;
-    new npc_mcgoyver;
-    new npc_daegarn;
+    new npc_apothecary_hanes();
+    new npc_plaguehound_tracker();
+    new npc_razael_and_lyana();
+    new npc_mcgoyver();
+    new npc_daegarn();
  }

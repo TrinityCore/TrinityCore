@@ -351,7 +351,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_LK_1, 2000);
                     break;
 
-            // H2 Intro Events
+                    // H2 Intro Events
                 case EVENT_INTRO_H2_1:
                     DoScriptText(SAY_SYLVANAS_INTRO_1, me);
                     events.ScheduleEvent(EVENT_INTRO_H2_2, 8000);
@@ -429,7 +429,7 @@ public:
                     events.ScheduleEvent(EVENT_INTRO_LK_1, 2000);
                     break;
 
-            // Remaining Intro Events common for both faction
+                    // Remaining Intro Events common for both faction
                 case EVENT_INTRO_LK_1:
                     // Spawn LK in front of door, and make him move to the sword.
                     if (Creature* pLichKing = me->SummonCreature(NPC_LICH_KING_EVENT, LichKingSpawnPos, TEMPSUMMON_MANUAL_DESPAWN))
@@ -547,7 +547,6 @@ public:
             }
         }
     };
-
 };
 
 enum TrashSpells
@@ -633,9 +632,7 @@ public:
 
     struct npc_ghostly_priestAI: public ScriptedAI
     {
-        npc_ghostly_priestAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        npc_ghostly_priestAI(Creature* c) : ScriptedAI(c) { }
 
         EventMap events;
 
@@ -700,7 +697,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_phantom_mage : public CreatureScript
@@ -715,9 +711,7 @@ public:
 
     struct npc_phantom_mageAI: public ScriptedAI
     {
-        npc_phantom_mageAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        npc_phantom_mageAI(Creature* c) : ScriptedAI(c) { }
 
         EventMap events;
 
@@ -777,7 +771,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_phantom_hallucination : public CreatureScript
@@ -792,16 +785,13 @@ public:
 
     struct npc_phantom_hallucinationAI : public npc_phantom_mage::npc_phantom_mageAI
     {
-        npc_phantom_hallucinationAI(Creature* c) : npc_phantom_mage::npc_phantom_mageAI(c)
-        {
-        }
+        npc_phantom_hallucinationAI(Creature* c) : npc_phantom_mage::npc_phantom_mageAI(c) { }
 
         void JustDied(Unit* /*who*/)
         {
             DoCast(SPELL_HALLUCINATION_2);
         }
     };
-
 };
 
 class npc_shadowy_mercenary : public CreatureScript
@@ -816,9 +806,7 @@ public:
 
     struct npc_shadowy_mercenaryAI: public ScriptedAI
     {
-        npc_shadowy_mercenaryAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        npc_shadowy_mercenaryAI(Creature* c) : ScriptedAI(c) { }
 
         EventMap events;
 
@@ -872,7 +860,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_spectral_footman : public CreatureScript
@@ -887,9 +874,7 @@ public:
 
     struct npc_spectral_footmanAI: public ScriptedAI
     {
-        npc_spectral_footmanAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        npc_spectral_footmanAI(Creature* c) : ScriptedAI(c) { }
 
         EventMap events;
 
@@ -937,7 +922,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class npc_tortured_rifleman : public CreatureScript
@@ -952,9 +936,7 @@ public:
 
     struct npc_tortured_riflemanAI  : public ScriptedAI
     {
-        npc_tortured_riflemanAI(Creature* c) : ScriptedAI(c)
-        {
-        }
+        npc_tortured_riflemanAI(Creature* c) : ScriptedAI(c) { }
 
         EventMap events;
 
@@ -1010,7 +992,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_halls_of_reflection()

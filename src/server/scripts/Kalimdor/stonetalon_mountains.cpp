@@ -83,7 +83,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -163,12 +162,7 @@ public:
     {
         return new npc_kaya_flathoofAI(creature);
     }
-
 };
-
-/*######
-## AddSC
-######*/
 
 void AddSC_stonetalon_mountains()
 {

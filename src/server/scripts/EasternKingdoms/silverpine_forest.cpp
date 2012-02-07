@@ -64,7 +64,7 @@ public:
 
     struct npc_deathstalker_erlandAI : public npc_escortAI
     {
-        npc_deathstalker_erlandAI(Creature* c) : npc_escortAI(c) {}
+        npc_deathstalker_erlandAI(Creature* c) : npc_escortAI(c) { }
 
         void WaypointReached(uint32 i)
         {
@@ -123,7 +123,6 @@ public:
     {
         return new npc_deathstalker_erlandAI(creature);
     }
-
 };
 
 /*######
@@ -309,12 +308,7 @@ public:
             ++Phase; //prepare next phase
         }
     };
-
 };
-
-/*######
-## AddSC
-######*/
 
 void AddSC_silverpine_forest()
 {

@@ -93,7 +93,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -126,7 +125,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -166,7 +164,6 @@ public:
 
         return true;
     }
-
 };
 
 void AddSC_winterspring()

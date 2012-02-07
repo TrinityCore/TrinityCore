@@ -33,14 +33,11 @@ EndScriptData */
 class instance_blood_furnace : public InstanceMapScript
 {
     public:
-        instance_blood_furnace()
-            : InstanceMapScript("instance_blood_furnace", 542)
-        {
-        }
+        instance_blood_furnace() : InstanceMapScript("instance_blood_furnace", 542) { }
 
         struct instance_blood_furnace_InstanceMapScript : public InstanceScript
         {
-            instance_blood_furnace_InstanceMapScript(Map* map) : InstanceScript(map) {}
+            instance_blood_furnace_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint64 The_MakerGUID;
             uint64 BroggokGUID;
@@ -236,4 +233,3 @@ void AddSC_instance_blood_furnace()
 {
     new instance_blood_furnace();
 }
-

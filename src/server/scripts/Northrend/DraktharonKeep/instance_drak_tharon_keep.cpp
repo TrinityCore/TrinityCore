@@ -49,7 +49,7 @@ public:
 
     struct instance_drak_tharon_InstanceScript : public InstanceScript
     {
-        instance_drak_tharon_InstanceScript(Map* map) : InstanceScript(map) {}
+        instance_drak_tharon_InstanceScript(Map* map) : InstanceScript(map) { }
 
         uint8 uiDredAchievCounter;
 
@@ -240,5 +240,5 @@ public:
 
 void AddSC_instance_drak_tharon()
 {
-    new instance_drak_tharon;
+    new instance_drak_tharon();
 }

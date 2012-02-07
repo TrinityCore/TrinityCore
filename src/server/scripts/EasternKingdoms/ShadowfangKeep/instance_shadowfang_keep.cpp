@@ -66,7 +66,7 @@ public:
 
     struct instance_shadowfang_keep_InstanceMapScript : public InstanceScript
     {
-        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_shadowfang_keep_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -272,7 +272,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_instance_shadowfang_keep()

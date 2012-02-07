@@ -136,7 +136,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -170,7 +169,7 @@ public:
 
     struct npc_custodian_of_timeAI : public npc_escortAI
     {
-        npc_custodian_of_timeAI(Creature* c) : npc_escortAI(c) {}
+        npc_custodian_of_timeAI(Creature* c) : npc_escortAI(c) { }
 
         void WaypointReached(uint32 i)
         {
@@ -232,7 +231,6 @@ public:
             npc_escortAI::UpdateAI(diff);
         }
     };
-
 };
 
 /*######
@@ -265,7 +263,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -311,7 +308,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -375,7 +371,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -473,8 +468,7 @@ public:
         {
             summoned->AI()->AttackStart(me);
         }
-    };
-
+    };    
 };
 
 /*####
@@ -639,7 +633,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_tanaris()

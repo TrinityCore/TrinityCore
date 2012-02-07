@@ -71,5 +71,5 @@ public:
 
 void AddSC_dragonblight()
 {
-    new npc_alexstrasza_wr_gate;
+    new npc_alexstrasza_wr_gate();
 }

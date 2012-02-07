@@ -138,7 +138,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -338,10 +337,10 @@ public:
             }
         }
     };
-
 };
 
 //Scarlet courier
+
 enum ScarletCourierEnum
 {
     SAY_TREE1                          = -1609531,
@@ -426,7 +425,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 //Koltira & Valroth- Breakout
@@ -514,12 +512,12 @@ public:
             killer->CastSpell(me, SPELL_SUMMON_VALROTH_REMAINS, true);
         }
     };
-
 };
 
 /*######
 ## npc_a_special_surprise
 ######*/
+
 //used by 29032, 29061, 29065, 29067, 29068, 29070, 29074, 29072, 29073, 29071 but signed for 29032
 enum SpecialSurprise
 {
@@ -978,7 +976,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_the_scarlet_enclave_c2()

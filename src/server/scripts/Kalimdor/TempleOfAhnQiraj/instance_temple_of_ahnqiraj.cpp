@@ -38,7 +38,7 @@ public:
 
     struct instance_temple_of_ahnqiraj_InstanceMapScript : public InstanceScript
     {
-        instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         //If Vem is dead...
         bool IsBossDied[3];
@@ -161,7 +161,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_instance_temple_of_ahnqiraj()

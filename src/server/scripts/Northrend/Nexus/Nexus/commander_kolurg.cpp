@@ -56,6 +56,7 @@ public:
         void EnterCombat(Unit* /*who*/) {}
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
+
         void UpdateAI(const uint32 /*diff*/)
         {
             //Return since we have no target
@@ -64,9 +65,9 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
         void JustDied(Unit* /*killer*/)  {}
     };
-
 };
 
 void AddSC_boss_commander_kolurg()

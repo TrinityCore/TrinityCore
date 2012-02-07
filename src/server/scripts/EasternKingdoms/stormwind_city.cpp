@@ -71,7 +71,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -143,7 +142,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -197,7 +195,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -370,7 +367,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -457,7 +453,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -491,7 +486,7 @@ public:
 
     struct npc_tyrion_spybotAI : public npc_escortAI
     {
-        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature) {}
+        npc_tyrion_spybotAI(Creature* creature) : npc_escortAI(creature) { }
 
         uint32 uiTimer;
         uint32 uiPhase;
@@ -606,7 +601,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*######
@@ -636,7 +630,6 @@ public:
         }
         return false;
     }
-
 };
 
 void AddSC_stormwind_city()

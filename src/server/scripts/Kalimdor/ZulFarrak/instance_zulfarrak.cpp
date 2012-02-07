@@ -99,7 +99,7 @@ public:
 
     struct instance_zulfarrak_InstanceMapScript : public InstanceScript
     {
-        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_zulfarrak_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 GahzRillaEncounter;
         uint64 ZumrahGUID;
@@ -355,7 +355,6 @@ public:
             }
         }
     };
-
 };
 
 void AddSC_instance_zulfarrak()

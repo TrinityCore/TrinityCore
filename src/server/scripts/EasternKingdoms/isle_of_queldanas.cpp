@@ -85,7 +85,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -117,7 +116,7 @@ public:
 
         void Reset()
         {
-        PlayerGUID = 0;
+            PlayerGUID = 0;
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell)
@@ -149,7 +148,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_isle_of_queldanas()

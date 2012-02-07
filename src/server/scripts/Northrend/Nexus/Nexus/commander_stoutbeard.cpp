@@ -53,12 +53,15 @@ public:
         boss_commander_stoutbeardAI(Creature* c) : ScriptedAI(c) { }
 
         void Reset() {}
+
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
         }
+
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
+
         void UpdateAI(const uint32 /*diff*/)
         {
             //Return since we have no target
@@ -67,12 +70,12 @@ public:
 
             DoMeleeAttackIfReady();
         }
+
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
         }
     };
-
 };
 
 void AddSC_boss_commander_stoutbeard()

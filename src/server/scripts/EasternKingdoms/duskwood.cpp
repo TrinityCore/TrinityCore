@@ -32,7 +32,6 @@ enum Yells
     YELL_TWILIGHTCORRUPTOR_KILL                                     = 2,
 };
 
-
 /*######
 # at_twilight_grove
 ######*/
@@ -59,8 +58,7 @@ public:
             }
         }
         return false;
-    };
-
+    };    
 };
 
 /*######
@@ -133,7 +131,6 @@ public:
             DoMeleeAttackIfReady();
         };
     };
-
 };
 
 void AddSC_duskwood()

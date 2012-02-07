@@ -16,13 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: SimpleAI
-SD%Complete: 100
-SDComment: Base Class for SimpleAI creatures
-SDCategory: Creatures
-EndScriptData */
-
 #include "ScriptPCH.h"
 #include "ScriptedSimpleAI.h"
 
@@ -65,47 +58,47 @@ void SimpleAI::Reset()
 
 void SimpleAI::EnterCombat(Unit* who)
 {
-            //Reset cast timers
-            if (Spell[0].First_Cast >= 0)
-                Spell_Timer[0] = Spell[0].First_Cast;
-            else Spell_Timer[0] = 1000;
-            if (Spell[1].First_Cast >= 0)
-                Spell_Timer[1] = Spell[1].First_Cast;
-            else Spell_Timer[1] = 1000;
-            if (Spell[2].First_Cast >= 0)
-                Spell_Timer[2] = Spell[2].First_Cast;
-            else Spell_Timer[2] = 1000;
-            if (Spell[3].First_Cast >= 0)
-                Spell_Timer[3] = Spell[3].First_Cast;
-            else Spell_Timer[3] = 1000;
-            if (Spell[4].First_Cast >= 0)
-                Spell_Timer[4] = Spell[4].First_Cast;
-            else Spell_Timer[4] = 1000;
-            if (Spell[5].First_Cast >= 0)
-                Spell_Timer[5] = Spell[5].First_Cast;
-            else Spell_Timer[5] = 1000;
-            if (Spell[6].First_Cast >= 0)
-                Spell_Timer[6] = Spell[6].First_Cast;
-            else Spell_Timer[6] = 1000;
-            if (Spell[7].First_Cast >= 0)
-                Spell_Timer[7] = Spell[7].First_Cast;
-            else Spell_Timer[7] = 1000;
-            if (Spell[8].First_Cast >= 0)
-                Spell_Timer[8] = Spell[8].First_Cast;
-            else Spell_Timer[8] = 1000;
-            if (Spell[9].First_Cast >= 0)
-                Spell_Timer[9] = Spell[9].First_Cast;
-            else Spell_Timer[9] = 1000;
+    //Reset cast timers
+    if (Spell[0].First_Cast >= 0)
+        Spell_Timer[0] = Spell[0].First_Cast;
+    else Spell_Timer[0] = 1000;
+    if (Spell[1].First_Cast >= 0)
+        Spell_Timer[1] = Spell[1].First_Cast;
+    else Spell_Timer[1] = 1000;
+    if (Spell[2].First_Cast >= 0)
+        Spell_Timer[2] = Spell[2].First_Cast;
+    else Spell_Timer[2] = 1000;
+    if (Spell[3].First_Cast >= 0)
+        Spell_Timer[3] = Spell[3].First_Cast;
+    else Spell_Timer[3] = 1000;
+    if (Spell[4].First_Cast >= 0)
+        Spell_Timer[4] = Spell[4].First_Cast;
+    else Spell_Timer[4] = 1000;
+    if (Spell[5].First_Cast >= 0)
+        Spell_Timer[5] = Spell[5].First_Cast;
+    else Spell_Timer[5] = 1000;
+    if (Spell[6].First_Cast >= 0)
+        Spell_Timer[6] = Spell[6].First_Cast;
+    else Spell_Timer[6] = 1000;
+    if (Spell[7].First_Cast >= 0)
+        Spell_Timer[7] = Spell[7].First_Cast;
+    else Spell_Timer[7] = 1000;
+    if (Spell[8].First_Cast >= 0)
+        Spell_Timer[8] = Spell[8].First_Cast;
+    else Spell_Timer[8] = 1000;
+    if (Spell[9].First_Cast >= 0)
+        Spell_Timer[9] = Spell[9].First_Cast;
+    else Spell_Timer[9] = 1000;
 
-            uint8 random_text = urand(0, 2);
+    uint8 random_text = urand(0, 2);
 
-            //Random text
-            if (Aggro_TextId[random_text])
-                DoScriptText(Aggro_TextId[random_text], me, who);
+    //Random text
+    if (Aggro_TextId[random_text])
+        DoScriptText(Aggro_TextId[random_text], me, who);
 
-            //Random sound
-            if (Aggro_Sound[random_text])
-                DoPlaySoundToSet(me, Aggro_Sound[random_text]);
+    //Random sound
+    if (Aggro_Sound[random_text])
+        DoPlaySoundToSet(me, Aggro_Sound[random_text]);
 }
 
 void SimpleAI::KilledUnit(Unit* victim)
@@ -277,4 +270,3 @@ void SimpleAI::UpdateAI(const uint32 diff)
 
     DoMeleeAttackIfReady();
 }
-

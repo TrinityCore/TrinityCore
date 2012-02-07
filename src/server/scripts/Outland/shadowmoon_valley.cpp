@@ -179,7 +179,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*###
@@ -321,7 +320,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 /*#####
@@ -401,7 +399,6 @@ public:
             }
         }
     };
-
 };
 
 /*######
@@ -431,7 +428,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -483,7 +479,6 @@ public:
 
         return true;
     }
-
 };
 
 /*######
@@ -552,7 +547,6 @@ public:
         player->SEND_GOSSIP_MENU(10940, creature->GetGUID());
         return true;
     }
-
 };
 
 /*######
@@ -628,7 +622,6 @@ public:
 
         return true;
     }
-
 };
 
 /*####
@@ -784,7 +777,7 @@ public:
             case 3: me->SetInFront(player); return 3200;  break;
             case 4: DoScriptText(OVERLORD_SAY_2, me, player); return 2000; break;
             case 5: Illi->SetVisible(true);
-                 Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); return 350; break;
+                Illi->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE); return 350; break;
             case 6:
                 Illi->CastSpell(Illi, SPELL_ONE, true);
                 Illi->SetTarget(me->GetGUID());
@@ -806,9 +799,9 @@ public:
                     player->RemoveAurasDueToSpell(SPELL_THREE);
                     player->RemoveAurasDueToSpell(SPELL_FOUR);
                     return 5000;
-                }else{
-                    CAST_PLR(player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE); Step = 30; return 100;
                 }
+                else
+                    CAST_PLR(player)->FailQuest(QUEST_LORD_ILLIDAN_STORMRAGE); Step = 30; return 100;
                 break;
             case 17: DoScriptText(LORD_ILLIDAN_SAY_5, Illi); return 5000; break;
             case 18: DoScriptText(LORD_ILLIDAN_SAY_6, Illi); return 5000; break;
@@ -831,11 +824,12 @@ public:
                 return 6000; break;
             case 27:
                 {
-                Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                if (Yarzill)
-                    Yarzill->SetTarget(PlayerGUID);
-                return 500; }
-     break;
+                    Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                    if (Yarzill)
+                        Yarzill->SetTarget(PlayerGUID);
+                    return 500; 
+                }
+                break;
             case 28:
                 player->RemoveAurasDueToSpell(SPELL_TWO);
                 player->RemoveAurasDueToSpell(41519);
@@ -844,28 +838,30 @@ public:
                 return 1000; break;
             case 29:
                 {
-                Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                if (Yarzill)
-                    DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, player);
-                return 5000; }
-     break;
+                    Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                    if (Yarzill)
+                        DoScriptText(YARZILL_THE_MERC_SAY, Yarzill, player);
+                    return 5000; 
+                }
+                break;
             case 30:
                 {
-                Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                if (Yarzill)
-                    Yarzill->SetTarget(0);
-                return 5000; }
-     break;
+                    Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                    if (Yarzill)
+                        Yarzill->SetTarget(0);
+                    return 5000; 
+                }
+                break;
             case 31:
                 {
-                Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
-                if (Yarzill)
-                    Yarzill->CastSpell(player, 41540, true);
-                return 1000;}
-    break;
+                    Unit* Yarzill = me->FindNearestCreature(C_YARZILL, 50);
+                    if (Yarzill)
+                        Yarzill->CastSpell(player, 41540, true);
+                    return 1000;
+                }
+                break;
             case 32: me->GetMotionMaster()->MovePoint(0, -5085.77f, 577.231f, 86.6719f); return 5000; break;
             case 33: Reset(); return 100; break;
-
             default : return 0;
             }
         }
@@ -884,7 +880,6 @@ public:
             } else ConversationTimer -= diff;
         }
     };
-
 };
 
 /*####
@@ -1061,7 +1056,6 @@ public:
             }
         }
     };
-
 };
 
 /*#####
@@ -1144,7 +1138,7 @@ static WaveData WavesInfo[]=
 
 struct SpawnSpells
 {
- uint32 Timer1, Timer2, SpellId;
+    uint32 Timer1, Timer2, SpellId;
 };
 
 static SpawnSpells SpawnCast[]=
@@ -1321,7 +1315,6 @@ public:
             }
         }
     };
-
 };
 
 /*#####
@@ -1467,7 +1460,6 @@ public:
                 EnterEvadeMode();
         }
     };
-
 };
 
 /*######
@@ -1586,7 +1578,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
@@ -1680,7 +1671,6 @@ public:
         }
      return true;
     }
-
 };
 
 /*####
@@ -1734,7 +1724,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-    return new npc_enraged_spiritAI(creature);
+        return new npc_enraged_spiritAI(creature);
     }
 
     struct npc_enraged_spiritAI : public ScriptedAI
@@ -1801,7 +1791,6 @@ public:
             }
         }
     };
-
 };
 
 /*#####

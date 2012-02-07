@@ -417,9 +417,7 @@ public:
 
     struct mob_spiteful_apparitionAI: public ScriptedAI
     {
-        mob_spiteful_apparitionAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        mob_spiteful_apparitionAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -472,9 +470,7 @@ public:
 
     struct mob_spectral_wardenAI: public ScriptedAI
     {
-        mob_spectral_wardenAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        mob_spectral_wardenAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -711,9 +707,7 @@ public:
 
     struct mob_soulguard_animatorAI : public ScriptedAI
     {
-        mob_soulguard_animatorAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        mob_soulguard_animatorAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 
@@ -784,9 +778,7 @@ public:
 
     struct mob_soulguard_adeptAI: public ScriptedAI
     {
-        mob_soulguard_adeptAI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
+        mob_soulguard_adeptAI(Creature* creature) : ScriptedAI(creature) { }
 
         EventMap events;
 

@@ -160,7 +160,6 @@ public:
         }
 
         void EnterCombat(Unit* /*who*/) {}
-
         void AttackStart(Unit* /*who*/) {}
         void MoveInLineOfSight(Unit* /*who*/) {}
 
@@ -175,34 +174,33 @@ public:
             if (AggroYellTimer)
             {
                 if (AggroYellTimer <= diff)
-            {
-                if (Unit* pMember = Unit::GetUnit(*me, Council[YellCounter]))
                 {
-                    DoScriptText(CouncilAggro[YellCounter].entry, pMember);
-                    AggroYellTimer = CouncilAggro[YellCounter].timer;
-                }
-                ++YellCounter;
-                if (YellCounter > 3)
-                    YellCounter = 0;                            // Reuse for Enrage Yells
-            } else AggroYellTimer -= diff;
+                    if (Unit* pMember = Unit::GetUnit(*me, Council[YellCounter]))
+                    {
+                        DoScriptText(CouncilAggro[YellCounter].entry, pMember);
+                        AggroYellTimer = CouncilAggro[YellCounter].timer;
+                    }
+                    ++YellCounter;
+                    if (YellCounter > 3)
+                        YellCounter = 0;                            // Reuse for Enrage Yells
+                } else AggroYellTimer -= diff;
             }
 
             if (EnrageTimer)
             {
                 if (EnrageTimer <= diff)
-            {
-                if (Unit* pMember = Unit::GetUnit(*me, Council[YellCounter]))
                 {
-                    pMember->CastSpell(pMember, SPELL_BERSERK, true);
-                    DoScriptText(CouncilEnrage[YellCounter].entry, pMember);
-                    EnrageTimer = CouncilEnrage[YellCounter].timer;
-                }
-                ++YellCounter;
-            } else EnrageTimer -= diff;
+                    if (Unit* pMember = Unit::GetUnit(*me, Council[YellCounter]))
+                    {
+                        pMember->CastSpell(pMember, SPELL_BERSERK, true);
+                        DoScriptText(CouncilEnrage[YellCounter].entry, pMember);
+                        EnrageTimer = CouncilEnrage[YellCounter].timer;
+                    }
+                    ++YellCounter;
+                } else EnrageTimer -= diff;
             }
         }
     };
-
 };
 
 class mob_illidari_council : public CreatureScript
@@ -370,10 +368,8 @@ public:
                     CheckTimer = 2000;
                 } else CheckTimer -= diff;
             }
-
         }
     };
-
 };
 
 struct boss_illidari_councilAI : public ScriptedAI
@@ -475,7 +471,7 @@ public:
 
     struct boss_gathios_the_shattererAI : public boss_illidari_councilAI
     {
-        boss_gathios_the_shattererAI(Creature* c) : boss_illidari_councilAI(c) {}
+        boss_gathios_the_shattererAI(Creature* c) : boss_illidari_councilAI(c) { }
 
         uint32 ConsecrationTimer;
         uint32 HammerOfJusticeTimer;
@@ -587,7 +583,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_high_nethermancer_zerevor : public CreatureScript
@@ -602,7 +597,7 @@ public:
 
     struct boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
     {
-        boss_high_nethermancer_zerevorAI(Creature* c) : boss_illidari_councilAI(c) {}
+        boss_high_nethermancer_zerevorAI(Creature* c) : boss_illidari_councilAI(c) { }
 
         uint32 BlizzardTimer;
         uint32 FlamestrikeTimer;
@@ -691,7 +686,6 @@ public:
             } else FlamestrikeTimer -= diff;
         }
     };
-
 };
 
 class boss_lady_malande : public CreatureScript
@@ -706,7 +700,7 @@ public:
 
     struct boss_lady_malandeAI : public boss_illidari_councilAI
     {
-        boss_lady_malandeAI(Creature* c) : boss_illidari_councilAI(c) {}
+        boss_lady_malandeAI(Creature* c) : boss_illidari_councilAI(c) { }
 
         uint32 EmpoweredSmiteTimer;
         uint32 CircleOfHealingTimer;
@@ -769,7 +763,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 class boss_veras_darkshadow : public CreatureScript
@@ -784,7 +777,7 @@ public:
 
     struct boss_veras_darkshadowAI : public boss_illidari_councilAI
     {
-        boss_veras_darkshadowAI(Creature* c) : boss_illidari_councilAI(c) {}
+        boss_veras_darkshadowAI(Creature* c) : boss_illidari_councilAI(c) { }
 
         uint64 EnvenomTargetGUID;
 

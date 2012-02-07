@@ -62,9 +62,7 @@ class instance_stratholme : public InstanceMapScript
 
         struct instance_stratholme_InstanceMapScript : public InstanceScript
         {
-            instance_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
-            {
-            }
+            instance_stratholme_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
             uint32 EncounterState[MAX_ENCOUNTER];
 

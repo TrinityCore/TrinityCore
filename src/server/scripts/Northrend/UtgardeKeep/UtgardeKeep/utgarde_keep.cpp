@@ -152,7 +152,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_utgarde_keep()

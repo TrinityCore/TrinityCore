@@ -40,7 +40,7 @@ public:
 
     struct instance_ahnkahet_InstanceScript : public InstanceScript
     {
-        instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map) {}
+        instance_ahnkahet_InstanceScript(Map* map) : InstanceScript(map) { }
 
         uint64 Elder_Nadox;
         uint64 Prince_Taldaram;
@@ -304,5 +304,5 @@ public:
 
 void AddSC_instance_ahnkahet()
 {
-   new instance_ahnkahet;
+   new instance_ahnkahet();
 }

@@ -60,7 +60,7 @@ public:
 
     struct instance_utgarde_keep_InstanceMapScript : public InstanceScript
     {
-        instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_utgarde_keep_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint64 Keleseth;
         uint64 Skarvald;
@@ -305,7 +305,6 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_utgarde_keep()

@@ -58,7 +58,6 @@ public:
 
         return true;
     }
-
 };
 
 class instance_steam_vault : public InstanceMapScript
@@ -73,7 +72,7 @@ public:
 
     struct instance_steam_vault_InstanceMapScript : public InstanceScript
     {
-        instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map) {}
+        instance_steam_vault_InstanceMapScript(Map* map) : InstanceScript(map) { }
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -227,7 +226,6 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
     };
-
 };
 
 void AddSC_instance_steam_vault()

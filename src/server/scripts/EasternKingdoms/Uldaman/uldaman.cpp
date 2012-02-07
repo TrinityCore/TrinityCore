@@ -45,11 +45,7 @@ enum eSpells
 class mob_jadespine_basilisk : public CreatureScript
 {
     public:
-
-        mob_jadespine_basilisk()
-            : CreatureScript("mob_jadespine_basilisk")
-        {
-        }
+        mob_jadespine_basilisk() : CreatureScript("mob_jadespine_basilisk") { }
 
         struct mob_jadespine_basiliskAI : public ScriptedAI
         {
@@ -167,11 +163,7 @@ class AreaTrigger_at_map_chamber : public AreaTriggerScript
 class npc_lore_keeper_of_norgannon : public CreatureScript
 {
     public:
-
-        npc_lore_keeper_of_norgannon()
-            : CreatureScript("npc_lore_keeper_of_norgannon")
-        {
-        }
+        npc_lore_keeper_of_norgannon() : CreatureScript("npc_lore_keeper_of_norgannon") { }
 
         bool OnGossipHello(Player* player, Creature* creature)
         {
@@ -264,4 +256,3 @@ void AddSC_uldaman()
     new AreaTrigger_at_map_chamber();
     new npc_lore_keeper_of_norgannon();
 }
-
