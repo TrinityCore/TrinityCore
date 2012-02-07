@@ -335,6 +335,162 @@ public:
     }
 };
 
+/*######
+* npc_tournament_training_dummy
+######*/
+enum TournamentDummy
+{
+    NPC_CHARGE_TARGET         = 33272,
+    NPC_MELEE_TARGET          = 33229,
+    NPC_RANGED_TARGET         = 33243,
+
+    SPELL_CHARGE_CREDIT       = 62658,
+    SPELL_MELEE_CREDIT        = 62672,
+    SPELL_RANGED_CREDIT       = 62673,
+
+    SPELL_PLAYER_THRUST       = 62544,
+    SPELL_PLAYER_BREAK_SHIELD = 62626,
+    SPELL_PLAYER_CHARGE       = 62874,
+
+    SPELL_RANGED_DEFEND       = 62719,
+    SPELL_CHARGE_DEFEND       = 64100,
+    SPELL_VULNERABLE          = 62665,
+
+    SPELL_COUNTERATTACK       = 62709,
+
+    EVENT_DUMMY_RECAST_DEFEND = 1,
+    EVENT_DUMMY_RESET         = 2,
+};
+
+class npc_tournament_training_dummy : public CreatureScript
+{
+    public:
+        npc_tournament_training_dummy(): CreatureScript("npc_tournament_training_dummy"){}
+
+        struct npc_tournament_training_dummyAI : Scripted_NoMovementAI
+        {
+            npc_tournament_training_dummyAI(Creature* creature) : Scripted_NoMovementAI(creature) {}
+
+            EventMap events;
+            bool isVulnerable;
+
+            void Reset()
+            {
+                me->SetControlled(true, UNIT_STATE_STUNNED);
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
+                isVulnerable = false;
+
+                // Cast Defend spells to max stack size
+                switch (me->GetEntry())
+                {
+                    case NPC_CHARGE_TARGET:
+                        DoCast(SPELL_CHARGE_DEFEND);
+                        break;
+                    case NPC_RANGED_TARGET:
+                        me->CastCustomSpell(SPELL_RANGED_DEFEND, SPELLVALUE_AURA_STACK, 3, me);
+                        break;
+                }
+
+                events.Reset();
+                events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
+            }
+
+            void EnterEvadeMode()
+            {
+                if (!_EnterEvadeMode())
+                    return;
+
+                Reset();
+            }
+
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            {
+                damage = 0;
+                events.RescheduleEvent(EVENT_DUMMY_RESET, 10000);
+            }
+
+            void SpellHit(Unit* caster, SpellInfo const* spell)
+            {
+                switch (me->GetEntry())
+                {
+                    case NPC_CHARGE_TARGET:
+                        if (spell->Id == SPELL_PLAYER_CHARGE)
+                            if (isVulnerable)
+                                DoCast(caster, SPELL_CHARGE_CREDIT, true);
+                        break;
+                    case NPC_MELEE_TARGET:
+                        if (spell->Id == SPELL_PLAYER_THRUST)
+                        {
+                            DoCast(caster, SPELL_MELEE_CREDIT, true);
+
+                            if (Unit* target = caster->GetVehicleBase())
+                                DoCast(target, SPELL_COUNTERATTACK, true);
+                        }
+                        break;
+                    case NPC_RANGED_TARGET:
+                        if (spell->Id == SPELL_PLAYER_BREAK_SHIELD)
+                            if (isVulnerable)
+                                DoCast(caster, SPELL_RANGED_CREDIT, true);
+                        break;
+                }
+
+                if (spell->Id == SPELL_PLAYER_BREAK_SHIELD)
+                    if (!me->HasAura(SPELL_CHARGE_DEFEND) && !me->HasAura(SPELL_RANGED_DEFEND))
+                        isVulnerable = true;
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_DUMMY_RECAST_DEFEND:
+                        switch (me->GetEntry())
+                        {
+                            case NPC_CHARGE_TARGET:
+                            {
+                                if (!me->HasAura(SPELL_CHARGE_DEFEND))
+                                    DoCast(SPELL_CHARGE_DEFEND);
+                                break;
+                            }
+                            case NPC_RANGED_TARGET:
+                            {
+                                Aura* defend = me->GetAura(SPELL_RANGED_DEFEND);
+                                if (!defend || defend->GetStackAmount() < 3 || defend->GetDuration() <= 8000)
+                                    DoCast(SPELL_RANGED_DEFEND);
+                                break;
+                            }
+                        }
+                        isVulnerable = false;
+                        events.ScheduleEvent(EVENT_DUMMY_RECAST_DEFEND, 5000);
+                        break;
+                    case EVENT_DUMMY_RESET:
+                        if (UpdateVictim())
+                        {
+                            EnterEvadeMode();
+                            events.ScheduleEvent(EVENT_DUMMY_RESET, 10000);
+                        }
+                        break;
+                }
+
+                if (!UpdateVictim())
+                    return;
+
+                if (!me->HasUnitState(UNIT_STATE_STUNNED))
+                    me->SetControlled(true, UNIT_STATE_STUNNED);
+            }
+
+            void MoveInLineOfSight(Unit* /*who*/){}
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_tournament_training_dummyAI(creature);
+        }
+
+};
+
 void AddSC_icecrown()
 {
     new npc_arete;
@@ -342,4 +498,5 @@ void AddSC_icecrown()
     new npc_argent_valiant;
     new npc_guardian_pavilion;
     new npc_vereth_the_cunning;
+    new npc_tournament_training_dummy;
 }
