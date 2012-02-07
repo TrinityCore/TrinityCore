@@ -26,9 +26,9 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "shadowfang_keep.h"
 
-#define MAX_ENCOUNTER              4
+#define MAX_ENCOUNTER              5
 
-enum eEnums
+enum Shadowfang
 {
     SAY_BOSS_DIE_AD         = -1033007,
     SAY_BOSS_DIE_AS         = -1033008,
@@ -43,7 +43,8 @@ enum eEnums
     GO_SORCERER_DOOR        = 18972,                        //door to open when Fenrus the Devourer
     GO_ARUGAL_DOOR          = 18971,                        //door to open when Wolf Master Nandos
 
-    SPELL_ASHCROMBE_TELEPORT    = 15742
+    SPELL_ASHCROMBE_TELEPORT    = 15742,
+    ACTION_SPAWN_CRAZED         = 3
 };
 
 const Position SpawnLocation[] =
@@ -54,6 +55,7 @@ const Position SpawnLocation[] =
     {-140.794f, 2178.037f, 128.448f, 4.090f},
     {-138.640f, 2170.159f, 136.577f, 2.737f}
 };
+
 class instance_shadowfang_keep : public InstanceMapScript
 {
 public:
@@ -75,12 +77,17 @@ public:
         uint64 uiAdaGUID;
         uint64 uiArchmageArugalGUID;
 
+        uint64 fryeGUID;
+        uint64 hummelGUID;
+        uint64 baxterGUID;
+
         uint64 DoorCourtyardGUID;
         uint64 DoorSorcererGUID;
         uint64 DoorArugalGUID;
 
         uint8 uiPhase;
         uint16 uiTimer;
+        uint32 spawnCrazedTimer;
 
         void Initialize()
         {
@@ -89,6 +96,10 @@ public:
             uiAshGUID = 0;
             uiAdaGUID = 0;
             uiArchmageArugalGUID = 0;
+
+            fryeGUID = 0;
+            hummelGUID = 0;
+            baxterGUID = 0;
 
             DoorCourtyardGUID = 0;
             DoorSorcererGUID = 0;
@@ -105,6 +116,9 @@ public:
                 case NPC_ASH: uiAshGUID = creature->GetGUID(); break;
                 case NPC_ADA: uiAdaGUID = creature->GetGUID(); break;
                 case NPC_ARCHMAGE_ARUGAL: uiArchmageArugalGUID = creature->GetGUID(); break;
+                case NPC_FRYE: fryeGUID = creature->GetGUID(); break;
+                case NPC_HUMMEL: hummelGUID = creature->GetGUID(); break;
+                case NPC_BAXTER: baxterGUID = creature->GetGUID(); break;
             }
         }
 
@@ -174,6 +188,11 @@ public:
                         DoUseDoorOrButton(DoorArugalGUID);
                     m_auiEncounter[3] = data;
                     break;
+                case TYPE_CROWN:
+                    if (data == NOT_STARTED)
+                        spawnCrazedTimer = urand(7000, 14000);
+                    m_auiEncounter[4] = data;
+                    break;
             }
 
             if (data == DONE)
@@ -202,6 +221,20 @@ public:
                     return m_auiEncounter[2];
                 case TYPE_NANDOS:
                     return m_auiEncounter[3];
+                case TYPE_CROWN:
+                    return m_auiEncounter[4];
+            }
+            return 0;
+        }
+
+        uint64 GetData64(uint32 id)
+        {
+            switch(id)
+            {
+                case DATA_DOOR:   return DoorCourtyardGUID;
+                case DATA_FRYE:   return fryeGUID;
+                case DATA_HUMMEL: return hummelGUID;
+                case DATA_BAXTER: return baxterGUID;
             }
             return 0;
         }
@@ -233,8 +266,20 @@ public:
             OUT_LOAD_INST_DATA_COMPLETE;
         }
 
-        void Update(uint32 uiDiff)
+        void Update(uint32 diff)
         {
+            if (GetData(TYPE_CROWN) == IN_PROGRESS)
+            {
+                if (spawnCrazedTimer <= diff)
+                {
+                    if (Creature* hummel = instance->GetCreature(hummelGUID))
+                        hummel->AI()->DoAction(ACTION_SPAWN_CRAZED);
+                    spawnCrazedTimer = urand(2000, 5000);
+                }
+                else
+                    spawnCrazedTimer -= diff;
+            }
+
             if (GetData(TYPE_FENRUS) != DONE)
                 return;
 
@@ -246,7 +291,7 @@ public:
 
             if (uiPhase)
             {
-                if (uiTimer <= uiDiff)
+                if (uiTimer <= diff)
                 {
                     switch (uiPhase)
                     {
@@ -268,7 +313,7 @@ public:
                             break;
 
                     }
-                } else uiTimer -= uiDiff;
+                } else uiTimer -= diff;
             }
         }
     };
