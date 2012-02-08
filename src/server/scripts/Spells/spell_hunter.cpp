@@ -388,6 +388,45 @@ public:
     }
 };
 
+// 1978 Serpent Sting
+class spell_hun_serpent_sting : public SpellScriptLoader
+{
+public:
+    spell_hun_serpent_sting() : SpellScriptLoader("spell_hun_serpent_sting") { }
+
+    class spell_hun_serpent_sting_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_serpent_sting_AuraScript)
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* caster = GetCaster();
+
+            if (!caster)
+                return;
+
+            if (Unit* target = GetTarget())
+            {
+                if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_HUNTER, 536, EFFECT_0))
+                {
+                    int32 basepoints0 = aurEff->GetAmount() * GetAura()->GetEffect(EFFECT_0)->GetTotalTicks() * caster->SpellDamageBonus(target, GetSpellInfo(), GetAura()->GetEffect(0)->GetAmount(), DOT) / 100;
+                    caster->CastCustomSpell(target, 83077, &basepoints0, NULL, NULL, true, NULL, GetAura()->GetEffect(0));
+                }
+            }
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_hun_serpent_sting_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_hun_serpent_sting_AuraScript();
+    }
+};
+
 // 53302, 53303, 53304 Sniper Training
 enum eSniperTrainingSpells
 {
@@ -571,6 +610,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_masters_call();
     new spell_hun_readiness();
     new spell_hun_scatter_shot();
+    new spell_hun_serpent_sting();
     new spell_hun_sniper_training();
     new spell_hun_pet_heart_of_the_phoenix();
     new spell_hun_pet_carrion_feeder();
