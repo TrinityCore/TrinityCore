@@ -92,7 +92,7 @@ void PetAI::UpdateAI(const uint32 diff)
     if (me->getVictim())
     {
         // is only necessary to stop casting, the pet must not exit combat
-        if (me->getVictim()->HasBreakableByDamageCrowdControlAura())
+        if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
         {
             me->InterruptNonMeleeSpells(false);
             return;
