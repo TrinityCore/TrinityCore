@@ -669,7 +669,7 @@ public:
 ## Quest The Lifewarden's Wrath
 ######*/
 
-enum Misc
+enum MiscLifewarden
 {
     NPC_PRESENCE = 28563, // Freya's Presence
     NPC_SABOTEUR = 28538, // Cultist Saboteur
