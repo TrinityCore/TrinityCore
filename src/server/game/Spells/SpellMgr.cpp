@@ -3265,6 +3265,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
+            case 65783: // Ogre Pinata
+                        // because of bug in dbc
+                spellInfo->maxLevel = 1;
+            break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)
