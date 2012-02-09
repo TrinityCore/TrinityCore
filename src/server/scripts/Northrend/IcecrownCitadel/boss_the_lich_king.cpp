@@ -504,7 +504,7 @@ class boss_the_lich_king : public CreatureScript
                 float x, y, z;
                 me->GetPosition(x, y, z);
                 // use larger distance for vmap height search than in most other cases
-                float ground_Z = me->GetMap()->GetHeight(x, y, z, true, MAX_FALL_DISTANCE);
+                float ground_Z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z, true, MAX_FALL_DISTANCE);
                 if (fabs(ground_Z - z) < 0.1f)
                     return;
 

@@ -1,12 +1,39 @@
+/*
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ */
+
 #include "vmapexport.h"
 #include "adtfile.h"
 
 #include <algorithm>
 #include <cstdio>
 
-#ifdef _WIN32
+#ifdef WIN32
 #define snprintf _snprintf
 #endif
+
+const char * GetPlainName(const char * FileName)
+{
+    const char * szTemp;
+
+    if((szTemp = strrchr(FileName, '\\')) != NULL)
+        FileName = szTemp + 1;
+    return FileName;
+}
 
 char * GetPlainName(char * FileName)
 {
@@ -41,6 +68,14 @@ void fixname2(char *name, size_t len)
         if(name[i] == ' ')
         name[i] = '_';
     }
+}
+
+char * GetExtension(char * FileName)
+{
+    char * szTemp;
+    if((szTemp = strrchr(FileName, '.')) != NULL)
+        return szTemp;
+    return NULL;
 }
 
 ADTFile::ADTFile(char* filename): ADT(filename)
@@ -107,35 +142,15 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 while (p<buf+size)
                 {
                     fixnamen(p,strlen(p));
-                    string path(p);
-                    char* s=GetPlainName(p);
+                    char* s = GetPlainName(p);
                     fixname2(s,strlen(s));
-                    p=p+strlen(p)+1;
+
                     ModelInstansName[t++] = s;
 
-                    // < 3.1.0 ADT MMDX section store filename.mdx filenames for corresponded .m2 file
-                    std::string ext3 = path.size() >= 4 ? path.substr(path.size()-4,4) : "";
-                    std::transform( ext3.begin(), ext3.end(), ext3.begin(), ::tolower );
-                    if(ext3 == ".mdx")
-                    {
-                        // replace .mdx -> .m2
-                        path.erase(path.length()-2,2);
-                        path.append("2");
-                    }
-                    // >= 3.1.0 ADT MMDX section store filename.m2 filenames for corresponded .m2 file
-                    // nothing do
+                    string path(p);
+                    ExtractSingleModel(path);
 
-                    char szLocalFile[1024];
-                    snprintf(szLocalFile, 1024, "%s/%s", szWorkDirWmo, s);
-                    FILE * output = fopen(szLocalFile,"rb");
-                    if(!output)
-                    {
-                        Model m2(path);
-                        if(m2.open())
-                            m2.ConvertToVMAPModel(szLocalFile);
-                    }
-                    else
-                        fclose(output);
+                    p = p+strlen(p)+1;
                 }
                 delete[] buf;
             }
