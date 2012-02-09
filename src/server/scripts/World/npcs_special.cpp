@@ -1738,6 +1738,12 @@ public:
             if (!UpdateVictim())
                 return;
 
+            if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
+            {
+                me->InterruptNonMeleeSpells(false);
+                return;
+            }
+
             if (SpellTimer <= diff)
             {
                 if (IsViper) //Viper
@@ -1910,7 +1916,7 @@ public:
             Unit* owner = me->GetCharmerOrOwner();
 
             me->CombatStop(true);
-            if (owner && !me->HasUnitState(UNIT_STAT_FOLLOW))
+            if (owner && !me->HasUnitState(UNIT_STATE_FOLLOW))
             {
                 me->GetMotionMaster()->Clear(false);
                 me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, me->GetFollowAngle(), MOTION_SLOT_ACTIVE);
@@ -2069,7 +2075,7 @@ public:
 
         void Reset()
         {
-            me->SetControlled(true, UNIT_STAT_STUNNED);//disable rotate
+            me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
             me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);//imune to knock aways like blast wave
 
             ResetTimer = 5000;
@@ -2101,8 +2107,8 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (!me->HasUnitState(UNIT_STAT_STUNNED))
-                me->SetControlled(true, UNIT_STAT_STUNNED);//disable rotate
+            if (!me->HasUnitState(UNIT_STATE_STUNNED))
+                me->SetControlled(true, UNIT_STATE_STUNNED);//disable rotate
 
             if (Entry != NPC_ADVANCED_TARGET_DUMMY && Entry != NPC_TARGET_DUMMY)
             {
@@ -2203,7 +2209,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (FireShield_Timer <= diff)
@@ -3044,6 +3050,100 @@ public:
     }
 };
 
+/*#####
+# npc_spring_rabbit
+#####*/
+
+enum rabbitSpells
+{
+    SPELL_SPRING_FLING          = 61875,
+    SPELL_SPRING_RABBIT_JUMP    = 61724,
+    SPELL_SPRING_RABBIT_WANDER  = 61726,
+    SPELL_SUMMON_BABY_BUNNY     = 61727,
+    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
+    NPC_SPRING_RABBIT           = 32791
+};
+
+class npc_spring_rabbit : public CreatureScript
+{
+public:
+    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_spring_rabbitAI(creature);
+    }
+
+    struct npc_spring_rabbitAI : public ScriptedAI
+    {
+        npc_spring_rabbitAI(Creature* c) : ScriptedAI(c) { }
+
+        bool inLove;
+        uint32 jumpTimer;
+        uint32 bunnyTimer;
+        uint32 searchTimer;
+        uint64 rabbitGUID;
+
+        void Reset()
+        {
+            inLove = false;
+            rabbitGUID = 0;
+            jumpTimer = urand(5000, 10000);
+            bunnyTimer = urand(10000, 20000);
+            searchTimer = urand(5000, 10000);
+            if (Unit* owner = me->GetOwner())
+                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        }
+
+        void EnterCombat(Unit * /*who*/) { }
+
+        void DoAction(const int32 /*param*/)
+        {
+            inLove = true;
+            if (Unit* owner = me->GetOwner())
+                owner->CastSpell(owner, SPELL_SPRING_FLING, true);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (inLove)
+            {
+                if (jumpTimer <= diff)
+                {
+                    if (Unit* rabbit = Unit::GetUnit(*me, rabbitGUID))
+                        DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
+                    jumpTimer = urand(5000, 10000);
+                } else jumpTimer -= diff;
+
+                if (bunnyTimer <= diff)
+                {
+                    DoCast(SPELL_SUMMON_BABY_BUNNY);
+                    bunnyTimer = urand(20000, 40000);
+                } else bunnyTimer -= diff;
+            }
+            else
+            {
+                if (searchTimer <= diff)
+                {
+                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 10.0f))
+                    {
+                        if (rabbit == me || rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
+                            return;
+
+                        me->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, me);
+                        DoAction(1);
+                        rabbit->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, rabbit);
+                        rabbit->AI()->DoAction(1);
+                        rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
+                        rabbitGUID = rabbit->GetGUID();
+                    }
+                    searchTimer = urand(5000, 10000);
+                } else searchTimer -= diff;
+            }
+        }
+    };
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots;
@@ -3077,5 +3177,6 @@ void AddSC_npcs_special()
     new npc_fire_elemental;
     new npc_earth_elemental;
     new npc_firework;
+    new npc_spring_rabbit();
 }
 

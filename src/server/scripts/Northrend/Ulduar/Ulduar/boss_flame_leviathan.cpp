@@ -384,7 +384,7 @@ class boss_flame_leviathan : public CreatureScript
                     return;
                 }
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -425,7 +425,7 @@ class boss_flame_leviathan : public CreatureScript
                             break;
                         case EVENT_REPAIR:
                             me->MonsterTextEmote(EMOTE_REPAIR, 0, true);
-                            me->ClearUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                            me->ClearUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                             events.ScheduleEvent(EVENT_SHUTDOWN, 150*IN_MILLISECONDS);
                             events.CancelEvent(EVENT_REPAIR);
                             break;
@@ -755,7 +755,7 @@ class boss_flame_leviathan_safety_container : public CreatureScript
             {
                 float x, y, z;
                 me->GetPosition(x, y, z);
-                z = me->GetMap()->GetHeight(x, y, z);
+                z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z);
                 me->GetMotionMaster()->MovePoint(0, x, y, z);
                 me->SetPosition(x, y, z, 0);
             }
@@ -1576,7 +1576,7 @@ class spell_systems_shutdown : public SpellScriptLoader
                     return;
 
                 //! This could probably in the SPELL_EFFECT_SEND_EVENT handler too:
-                owner->AddUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ROOT);
+                owner->AddUnitState(UNIT_STATE_STUNNED | UNIT_STATE_ROOT);
                 owner->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
                 owner->RemoveAurasDueToSpell(SPELL_GATHERING_SPEED);
             }

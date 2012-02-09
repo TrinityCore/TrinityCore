@@ -425,7 +425,7 @@ public:
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->AddUnitState(UNIT_STAT_STUNNED);
+            me->AddUnitState(UNIT_STATE_STUNNED);
 
             ScriptedAI::InitializeAI();
         }

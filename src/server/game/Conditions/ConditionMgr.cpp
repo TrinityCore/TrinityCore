@@ -985,28 +985,19 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                         if (!conditions.empty())
                             break;
 
-                        for (int j = 0; j < MAX_SPELL_EFFECTS; ++j)
+                        if (pSpellInfo->NeedsExplicitUnitTarget())
                         {
-                            if (pSpellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ENEMY ||
-                                pSpellInfo->Effects[j].TargetB.GetTarget() == TARGET_UNIT_TARGET_ENEMY ||
-                                pSpellInfo->Effects[j].TargetA.GetTarget() == TARGET_UNIT_TARGET_ANY ||
-                                pSpellInfo->Effects[j].TargetB.GetTarget() == TARGET_UNIT_TARGET_ANY)
-                            {
-                                bIsItemSpellValid = true;
-                                break;
-                            }
-                        }
-
-                        if (bIsItemSpellValid)
+                            bIsItemSpellValid = true;
                             break;
+                        }
                     }
                 }
             }
 
             if (!bIsItemSpellValid)
             {
-                sLog->outErrorDb("Conditions: CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET for item %u, which either doesn't have item spelltrigger or its spells don't have implicit target "
-                                "TARGET_UNIT_TARGET_ENEMY(6), TARGET_UNIT_TARGET_ANY(25), or the spells are already listed in CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET conditions.", cond->mSourceEntry);
+                sLog->outErrorDb("Conditions: CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET for item %u, which either doesn't have item spelltrigger or its spells don't allow caster to select a unit target"
+                                ", or the spells are already listed in CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET conditions.", cond->mSourceEntry);
                 break;
             }
             break;
