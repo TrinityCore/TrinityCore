@@ -2308,7 +2308,7 @@ enum eWormhole
     SPELL_SHOLAZAR_BASIN        = 67835,
     SPELL_ICECROWN              = 67836,
     SPELL_STORM_PEAKS           = 67837,
-    SPELL_ANOMALY               = 67880,
+    SPELL_ANOMALY               = 68080,
     SPELL_UNDERGROUND           = 68081,
 
     TEXT_WORMHOLE               = 907
