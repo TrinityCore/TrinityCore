@@ -125,7 +125,7 @@ public:
             phase = PHASE_CHAINED;
             events.Reset();
             me->setFaction(7);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
             me->LoadEquipment(0, true);
         }
@@ -230,7 +230,7 @@ public:
                     else
                     {
                         me->setFaction(14);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         phase = PHASE_ATTACKING;
 
                         if (Player* target = Unit::GetPlayer(*me, playerGUID))
@@ -378,7 +378,7 @@ public:
                     return true;
             }
 
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
             int32 uiSayId = rand()% (sizeof(m_auiRandomSay)/sizeof(int32));
@@ -877,7 +877,7 @@ public:
     {
         npc_scarlet_miner_cartAI(Creature* c) : PassiveAI(c), minerGUID(0)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetDisplayId(me->GetCreatureInfo()->Modelid1); // Modelid2 is a horse.
         }
 

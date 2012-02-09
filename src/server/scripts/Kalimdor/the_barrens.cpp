@@ -512,7 +512,7 @@ public:
                                 //creature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32f);
                                 //creature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78f);
                                 creature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79f);
-                                creature->HandleEmoteCommand(EMOTE_STATE_READYUNARMED);
+                                creature->HandleEmoteCommand(EMOTE_STATE_READY_UNARMED);
                                 EventBigWill = true;
                                 Wave_Timer = 1000;
                             }

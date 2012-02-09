@@ -80,7 +80,7 @@ void MotionMaster::UpdateMotion(uint32 diff)
     if (!i_owner)
         return;
 
-    if (i_owner->HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED)) // what about UNIT_STAT_DISTRACTED? Why is this not included?
+    if (i_owner->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED)) // what about UNIT_STATE_DISTRACTED? Why is this not included?
         return;
 
     ASSERT(!empty());
@@ -237,7 +237,7 @@ void MotionMaster::MoveChase(Unit* target, float dist, float angle)
     if (!target || target == i_owner || i_owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
         return;
 
-    //i_owner->ClearUnitState(UNIT_STAT_FOLLOW);
+    //i_owner->ClearUnitState(UNIT_STATE_FOLLOW);
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
     {
         sLog->outStaticDebug("Player (GUID: %u) chase to %s (GUID: %u)",
@@ -262,7 +262,7 @@ void MotionMaster::MoveFollow(Unit* target, float dist, float angle, MovementSlo
     if (!target || target == i_owner || i_owner->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE))
         return;
 
-    //i_owner->AddUnitState(UNIT_STAT_FOLLOW);
+    //i_owner->AddUnitState(UNIT_STATE_FOLLOW);
     if (i_owner->GetTypeId() == TYPEID_PLAYER)
     {
         sLog->outStaticDebug("Player (GUID: %u) follow to %s (GUID: %u)", i_owner->GetGUIDLow(),
@@ -374,7 +374,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
 void MotionMaster::MoveFall(uint32 id/*=0*/)
 {
     // use larger distance for vmap height search than in most other cases
-    float tz = i_owner->GetMap()->GetHeight(i_owner->GetPositionX(), i_owner->GetPositionY(), i_owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
+    float tz = i_owner->GetMap()->GetHeight(i_owner->GetPhaseMask(), i_owner->GetPositionX(), i_owner->GetPositionY(), i_owner->GetPositionZ(), true, MAX_FALL_DISTANCE);
     if (tz <= INVALID_HEIGHT)
     {
         sLog->outStaticDebug("MotionMaster::MoveFall: unable retrive a proper height at map %u (x: %f, y: %f, z: %f).",
@@ -387,7 +387,7 @@ void MotionMaster::MoveFall(uint32 id/*=0*/)
         return;
 
     Movement::MoveSplineInit init(*i_owner);
-    init.MoveTo(i_owner->GetPositionX(),i_owner->GetPositionY(),tz);
+    init.MoveTo(i_owner->GetPositionX(), i_owner->GetPositionY(), tz);
     init.SetFall();
     init.Launch();
     Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);

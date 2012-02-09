@@ -171,7 +171,7 @@ public:
                             break;
                         case 2:
                             DoScriptText(EMOTE_EAT_LUNCH, me);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             break;
                         case 3:
                             if (Player* unit = Unit::GetPlayer(*me, uiPlayerGUID))

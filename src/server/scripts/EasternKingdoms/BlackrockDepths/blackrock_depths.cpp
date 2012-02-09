@@ -1238,10 +1238,10 @@ public:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
                 break;
             case 2:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
                 break;
             case 3:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
                 break;
             case 4:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);

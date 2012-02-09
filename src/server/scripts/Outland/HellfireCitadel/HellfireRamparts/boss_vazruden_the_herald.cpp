@@ -337,7 +337,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         VazrudenGUID = 0;
                     }
                     summoned = false;
-                    me->ClearUnitState(UNIT_STAT_ROOT);
+                    me->ClearUnitState(UNIT_STATE_ROOT);
                     me->SetVisible(true);
                 }
             }
@@ -352,7 +352,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         NazanGUID = Nazan->GetGUID();
                     summoned = true;
                     me->SetVisible(false);
-                    me->AddUnitState(UNIT_STAT_ROOT);
+                    me->AddUnitState(UNIT_STATE_ROOT);
                 }
             }
 
