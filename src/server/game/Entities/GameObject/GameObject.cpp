@@ -1887,7 +1887,7 @@ void GameObject::SetLootState(LootState state, Unit* unit)
     {
         // startOpen determines whether we are going to add or remove the LoS on activation
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
-        if (state == GO_ACTIVATED)
+        if (state == GO_ACTIVATED || state == GO_JUST_DEACTIVATED)
             EnableCollision(startOpen);
         else if (state == GO_READY)
             EnableCollision(!startOpen);
@@ -1903,7 +1903,7 @@ void GameObject::SetGoState(GOState state)
             return;
         // startOpen determines whether we are going to add or remove the LoS on activation
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
-        if (state == GO_STATE_ACTIVE)
+        if (state == GO_STATE_ACTIVE || state == GO_STATE_ACTIVE_ALTERNATIVE)
             EnableCollision(startOpen);
         else if (state == GO_STATE_READY)
             EnableCollision(!startOpen);
