@@ -33,17 +33,17 @@
 #endif
 
 template<>
-void RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
+void RandomMovementGenerator<Creature>::_setRandomLocation(Creature &unit)
 {
     float respX, respY, respZ, respO, currZ, destX, destY, destZ, travelDistZ;
-    creature.GetHomePosition(respX, respY, respZ, respO);
-    currZ = creature.GetPositionZ();
-    Map const* map = creature.GetBaseMap();
+    unit.GetHomePosition(respX, respY, respZ, respO);
+    currZ = unit.GetPositionZ();
+    Map const* map = unit.GetBaseMap();
 
     // For 2D/3D system selection
-    //bool is_land_ok  = creature.CanWalk();                // not used?
-    //bool is_water_ok = creature.CanSwim();                // not used?
-    bool is_air_ok = creature.canFly();
+    //bool is_land_ok  = unit.CanWalk();                // not used?
+    //bool is_water_ok = unit.CanSwim();                // not used?
+    bool is_air_ok = unit.canFly();
 
     const float angle = float(rand_norm()) * static_cast<float>(M_PI*2.0f);
     const float range = float(rand_norm()) * wander_distance;
@@ -102,74 +102,69 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature &creature)
     else
         i_nextMoveTime.Reset(urand(500, 10000));
 
-    creature.AddUnitState(UNIT_STATE_ROAMING_MOVE);
-
-    Movement::MoveSplineInit init(creature);
+    Movement::MoveSplineInit init(unit);
     init.MoveTo(destX, destY, destZ);
     init.SetWalk(true);
     init.Launch();
 
-    //Call for creature group update
-    if (creature.GetFormation() && creature.GetFormation()->getLeader() == &creature)
-        creature.GetFormation()->LeaderMoveTo(destX, destY, destZ);
+    //Call for unit group update
+    if (unit.GetFormation() && unit.GetFormation()->getLeader() == &unit)
+        unit.GetFormation()->LeaderMoveTo(destX, destY, destZ);
 }
 
 template<>
-void RandomMovementGenerator<Creature>::Initialize(Creature &creature)
+void RandomMovementGenerator<Creature>::Initialize(Creature &unit)
 {
-    if (!creature.isAlive())
+    if (!unit.isAlive())
         return;
 
     if (!wander_distance)
-        wander_distance = creature.GetRespawnRadius();
+        wander_distance = unit.GetRespawnRadius();
 
-    creature.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
-    _setRandomLocation(creature);
+    unit.AddUnitState(UNIT_STATE_ROAMING);
+    _setRandomLocation(unit);
 }
 
 template<>
 void
-RandomMovementGenerator<Creature>::Reset(Creature &creature)
+RandomMovementGenerator<Creature>::Reset(Creature &unit)
 {
-    Initialize(creature);
+    Initialize(unit);
 }
 
 template<>
-void RandomMovementGenerator<Creature>::Finalize(Creature &creature)
+void RandomMovementGenerator<Creature>::Finalize(Creature &unit)
 {
-    creature.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
-    creature.SetWalk(false);
+    unit.ClearUnitState(UNIT_STATE_ROAMING);
 }
 
 template<>
-bool
-RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 diff)
+bool RandomMovementGenerator<Creature>::Update(Creature &unit, const uint32 diff)
 {
-    if (creature.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    if (unit.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
     {
         i_nextMoveTime.Reset(0);  // Expire the timer
-        creature.ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         return true;
     }
 
-    if (creature.movespline->Finalized())
+    if (unit.movespline->Finalized())
     {
         i_nextMoveTime.Update(diff);
         if (i_nextMoveTime.Passed())
-            _setRandomLocation(creature);
+            _setRandomLocation(unit);
     }
     return true;
 }
 
 template<>
-bool RandomMovementGenerator<Creature>::GetResetPosition(Creature &creature, float& x, float& y, float& z)
+bool RandomMovementGenerator<Creature>::GetResetPosition(Creature &unit, float& x, float& y, float& z)
 {
     float radius;
-    creature.GetRespawnPosition(x, y, z, NULL, &radius);
+    unit.GetRespawnPosition(x, y, z, NULL, &radius);
 
     // use current if in range
-    if (creature.IsWithinDist2d(x,y,radius))
-        creature.GetPosition(x,y,z);
+    if (unit.IsWithinDist2d(x,y,radius))
+        unit.GetPosition(x,y,z);
 
     return true;
 }

@@ -14628,15 +14628,18 @@ void Unit::SendPetAIReaction(uint64 guid)
 
 void Unit::StopMoving()
 {
-    ClearUnitState(UNIT_STATE_MOVING);
-
     // not need send any packets if not in world
-    if (!IsInWorld())
+    if (!IsInWorld() || IsStopped())
         return;
 
     Movement::MoveSplineInit init(*this);
     init.SetFacing(GetOrientation());
     init.Launch();
+}
+
+bool Unit::IsStopped() const
+{
+    return movespline->Finalized();
 }
 
 void Unit::SendMovementFlagUpdate()

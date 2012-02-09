@@ -23,30 +23,30 @@
 #include "MoveSplineInit.h"
 #include "MoveSpline.h"
 
-void HomeMovementGenerator<Creature>::Initialize(Creature & owner)
+void HomeMovementGenerator<Creature>::Initialize(Creature &unit)
 {
-    owner.AddUnitState(UNIT_STATE_EVADE);
-    _setTargetLocation(owner);
+    unit.AddUnitState(UNIT_STATE_EVADE);
+    _setTargetLocation(unit);
 }
 
 void HomeMovementGenerator<Creature>::Reset(Creature &)
 {
 }
 
-void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
+void HomeMovementGenerator<Creature>::_setTargetLocation(Creature &unit)
 {
-    if (!&owner)
+    if (!&unit)
         return;
 
-    if (owner.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
+    if (unit.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
         return;
 
-    Movement::MoveSplineInit init(owner);
+    Movement::MoveSplineInit init(unit);
     float x, y, z, o;
     // at apply we can select more nice return points base at current movegen
     //if (owner.GetMotionMaster()->empty() || !owner.GetMotionMaster()->top()->GetResetPosition(owner,x,y,z))
     //{
-    owner.GetHomePosition(x, y, z, o);
+    unit.GetHomePosition(x, y, z, o);
     init.SetFacing(o);
     //}
     init.MoveTo(x,y,z);
@@ -54,22 +54,22 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
     init.Launch();
 
     arrived = false;
-    owner.ClearUnitState(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE);
+    unit.ClearUnitState(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE);
 }
 
-bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32 time_diff)
+bool HomeMovementGenerator<Creature>::Update(Creature &unit, const uint32 time_diff)
 {
-    arrived = owner.movespline->Finalized();
+    arrived = unit.movespline->Finalized();
     return !arrived;
 }
 
-void HomeMovementGenerator<Creature>::Finalize(Creature& owner)
+void HomeMovementGenerator<Creature>::Finalize(Creature &unit)
 {
+    unit.ClearUnitState(UNIT_STATE_EVADE);  // TODO: Try to not interrupt HomeMovemetGenerator due its work and get ride of this little hack.
     if (arrived)
     {
-        owner.ClearUnitState(UNIT_STATE_EVADE);
-        owner.SetWalk(true);
-        owner.LoadCreaturesAddon(true);
-        owner.AI()->JustReachedHome();
+        unit.SetWalk(true);
+        unit.LoadCreaturesAddon(true);
+        unit.AI()->JustReachedHome();
     }
 }

@@ -319,7 +319,7 @@ void WorldSession::HandleGossipHelloOpcode(WorldPacket & recv_data)
 
     if (unit->isArmorer() || unit->isCivilian() || unit->isQuestGiver() || unit->isServiceProvider() || unit->isGuard())
     {
-        unit->StopMoving();
+        unit->GetMotionMaster()->StopMovement();
     }
 
     // If spiritguide, no need for gossip menu, just put player into resurrect queue
