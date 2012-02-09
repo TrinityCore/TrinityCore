@@ -115,7 +115,7 @@ public:
                     DoCast(me, INSANITY_VISUAL, true);
                     // Unattackable
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    me->SetControlled(true, UNIT_STAT_STUNNED);
+                    me->SetControlled(true, UNIT_STATE_STUNNED);
                 }
                 // phase mask
                 target->CastSpell(target, SPELL_INSANITY_TARGET+insanityHandled, true);
@@ -171,7 +171,7 @@ public:
             // Cleanup
             Summons.DespawnAll();
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetControlled(false, UNIT_STAT_STUNNED);
+            me->SetControlled(false, UNIT_STATE_STUNNED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -271,7 +271,7 @@ public:
 
                 insanityHandled = 0;
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->SetControlled(false, UNIT_STAT_STUNNED);
+                me->SetControlled(false, UNIT_STATE_STUNNED);
                 me->RemoveAurasDueToSpell(INSANITY_VISUAL);
             }
 

@@ -172,7 +172,7 @@ public:
                 {
                     Summons.Summon(temp);
                     temp->SetReactState(REACT_PASSIVE);
-                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                     if (playerTeam == ALLIANCE)
                     {
                         temp->SetHomePosition(vChampionJumpTarget[pos].GetPositionX(), vChampionJumpTarget[pos].GetPositionY(), vChampionJumpTarget[pos].GetPositionZ(), 0);
@@ -203,7 +203,7 @@ public:
                         if (Creature* temp = Unit::GetCreature(*me, *i))
                         {
                             temp->SetReactState(REACT_AGGRESSIVE);
-                            temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                         }
                     }
                     break;

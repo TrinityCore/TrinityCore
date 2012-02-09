@@ -46,6 +46,7 @@
 #include "Totem.h"
 #include "OutdoorPvPMgr.h"
 #include "MovementPacketBuilder.h"
+#include "DynamicTree.h"
 
 uint32 GuidHigh2TypeId(uint32 guid_hi)
 {
@@ -1300,15 +1301,19 @@ bool WorldObject::IsWithinLOSInMap(const WorldObject* obj) const
 
     float ox, oy, oz;
     obj->GetPosition(ox, oy, oz);
-    return(IsWithinLOS(ox, oy, oz));
+    return IsWithinLOS(ox, oy, oz);
 }
 
 bool WorldObject::IsWithinLOS(float ox, float oy, float oz) const
 {
-    float x, y, z;
+    /*float x, y, z;
     GetPosition(x, y, z);
     VMAP::IVMapManager* vMapManager = VMAP::VMapFactory::createOrGetVMapManager();
-    return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);
+    return vMapManager->isInLineOfSight(GetMapId(), x, y, z+2.0f, ox, oy, oz+2.0f);*/
+    if (IsInWorld())
+        return GetMap()->isInLineOfSight(GetPositionX(), GetPositionY(), GetPositionZ()+2.f, ox, oy, oz+2.f, GetPhaseMask());
+
+    return true;
 }
 
 bool WorldObject::GetDistanceOrder(WorldObject const* obj1, WorldObject const* obj2, bool is3D /* = true */) const
@@ -1530,7 +1535,7 @@ void WorldObject::GetRandomPoint(const Position &pos, float distance, float &ran
 
 void WorldObject::UpdateGroundPositionZ(float x, float y, float &z) const
 {
-    float new_z = GetBaseMap()->GetHeight(x, y, z, true);
+    float new_z = GetBaseMap()->GetHeight(GetPhaseMask(), x, y, z, true);
     if (new_z > INVALID_HEIGHT)
         z = new_z+ 0.05f;                                   // just to be sure that we are not a few pixel under the surface
 }
@@ -1549,7 +1554,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
                 float ground_z = z;
                 float max_z = canSwim
                     ? GetBaseMap()->GetWaterOrGroundLevel(x, y, z, &ground_z, !ToUnit()->HasAuraType(SPELL_AURA_WATER_WALK))
-                    : ((ground_z = GetBaseMap()->GetHeight(x, y, z, true)));
+                    : ((ground_z = GetBaseMap()->GetHeight(GetPhaseMask(), x, y, z, true)));
                 if (max_z > INVALID_HEIGHT)
                 {
                     if (z > max_z)
@@ -1560,7 +1565,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             }
             else
             {
-                float ground_z = GetBaseMap()->GetHeight(x, y, z, true);
+                float ground_z = GetBaseMap()->GetHeight(GetPhaseMask(), x, y, z, true);
                 if (z < ground_z)
                     z = ground_z;
             }
@@ -1583,7 +1588,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
             }
             else
             {
-                float ground_z = GetBaseMap()->GetHeight(x, y, z, true);
+                float ground_z = GetBaseMap()->GetHeight(GetPhaseMask(), x, y, z, true);
                 if (z < ground_z)
                     z = ground_z;
             }
@@ -1591,7 +1596,7 @@ void WorldObject::UpdateAllowedPositionZ(float x, float y, float &z) const
         }
         default:
         {
-            float ground_z = GetBaseMap()->GetHeight(x, y, z, true);
+            float ground_z = GetBaseMap()->GetHeight(GetPhaseMask(), x, y, z, true);
             if(ground_z > INVALID_HEIGHT)
                 z = ground_z;
             break;
@@ -1807,11 +1812,15 @@ bool WorldObject::CanDetectStealthOf(WorldObject const* obj) const
 
         // Level difference: 5 point / level, starting from level 1.
         // There may be spells for this and the starting points too, but
-        //   not in the DBCs of the client.
+        // not in the DBCs of the client.
         detectionValue += int32(getLevelForTarget(obj) - 1) * 5;
 
         // Apply modifiers
         detectionValue += m_stealthDetect.GetValue(StealthType(i));
+        if (obj->isType(TYPEMASK_GAMEOBJECT))
+            if (Unit* owner = ((GameObject*)obj)->GetOwner())
+                detectionValue -= int32(owner->getLevelForTarget(this) - 1) * 5;
+
         detectionValue -= obj->m_stealth.GetValue(StealthType(i));
 
         // Calculate max distance
@@ -2458,7 +2467,7 @@ namespace Trinity
 
                 float x, y, z;
 
-                if (!c->isAlive() || c->HasUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED | UNIT_STAT_DISTRACTED) ||
+                if (!c->isAlive() || c->HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED) ||
                     !c->GetMotionMaster()->GetDestination(x, y, z))
                 {
                     x = c->GetPositionX();
@@ -2665,8 +2674,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
 
     destx = pos.m_positionX + dist * cos(angle);
     desty = pos.m_positionY + dist * sin(angle);
-    ground = GetMap()->GetHeight(destx, desty, MAX_HEIGHT, true);
-    floor = GetMap()->GetHeight(destx, desty, pos.m_positionZ, true);
+    ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
+    floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
     destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
 
     bool col = VMAP::VMapFactory::createOrGetVMapManager()->getObjectHitPos(GetMapId(), pos.m_positionX, pos.m_positionY, pos.m_positionZ+0.5f, destx, desty, destz+0.5f, destx, desty, destz, -0.5f);
@@ -2689,8 +2698,8 @@ void WorldObject::MovePositionToFirstCollision(Position &pos, float dist, float 
         {
             destx -= step * cos(angle);
             desty -= step * sin(angle);
-            ground = GetMap()->GetHeight(destx, desty, MAX_HEIGHT, true);
-            floor = GetMap()->GetHeight(destx, desty, pos.m_positionZ, true);
+            ground = GetMap()->GetHeight(GetPhaseMask(), destx, desty, MAX_HEIGHT, true);
+            floor = GetMap()->GetHeight(GetPhaseMask(), destx, desty, pos.m_positionZ, true);
             destz = fabs(ground - pos.m_positionZ) <= fabs(floor - pos.m_positionZ) ? ground : floor;
         }
         // we have correct destz now

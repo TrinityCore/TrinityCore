@@ -351,7 +351,7 @@ public:
 
                         //Teleport self to a hiding spot (this causes errors in the Trinity log but no real issues)
                         DoTeleportTo(HIDE_X, HIDE_Y, HIDE_Z);
-                        me->AddUnitState(UNIT_STAT_FLEEING);
+                        me->AddUnitState(UNIT_STATE_FLEEING);
 
                         //Spawn nef and have him attack a random target
                         Creature* Nefarian = me->SummonCreature(CREATURE_NEFARIAN, NEF_X, NEF_Y, NEF_Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);

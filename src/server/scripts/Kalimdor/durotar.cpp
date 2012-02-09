@@ -84,7 +84,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (work == true)
-                me->HandleEmoteCommand(466);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
             if (m_uiRebuffTimer <= uiDiff)
             {
                 DoCast(me, SPELL_BUFF_SLEEP);

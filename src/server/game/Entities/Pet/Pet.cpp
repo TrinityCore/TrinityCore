@@ -1151,6 +1151,9 @@ void Pet::_LoadAuras(uint32 timediff)
             int32 baseDamage[3];
             Field* fields = result->Fetch();
             uint64 caster_guid = fields[0].GetUInt64();
+            // NULL guid stored - pet is the caster of the spell - see Pet::_SaveAuras
+            if (!caster_guid)
+                caster_guid = GetGUID();
             uint32 spellid = fields[1].GetUInt32();
             uint8 effmask = fields[2].GetUInt8();
             uint8 recalculatemask = fields[3].GetUInt8();
@@ -1239,9 +1242,12 @@ void Pet::_SaveAuras(SQLTransaction& trans)
             }
         }
 
+        // don't save guid of caster in case we are caster of the spell - guid for pet is generated every pet load, so it won't match saved guid anyways
+        uint64 casterGUID = (itr->second->GetCasterGUID() == GetGUID()) ? NULL : itr->second->GetCasterGUID();
+
         trans->PAppend("INSERT INTO pet_aura (guid, caster_guid, spell, effect_mask, recalculate_mask, stackcount, amount0, amount1, amount2, base_amount0, base_amount1, base_amount2, maxduration, remaintime, remaincharges) "
             "VALUES ('%u', '" UI64FMTD "', '%u', '%u', '%u', '%u', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%u')",
-            m_charmInfo->GetPetNumber(), itr->second->GetCasterGUID(), itr->second->GetId(), effMask, recalculateMask,
+            m_charmInfo->GetPetNumber(), casterGUID, itr->second->GetId(), effMask, recalculateMask,
             itr->second->GetStackAmount(), damage[0], damage[1], damage[2], baseDamage[0], baseDamage[1], baseDamage[2],
             itr->second->GetMaxDuration(), itr->second->GetDuration(), itr->second->GetCharges());
     }
