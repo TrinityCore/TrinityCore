@@ -3048,7 +3048,7 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
     uint32 numSummons;
 
     // some spells need to summon many units, for those spells number of summons is stored in effect value
-    // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc 
+    // however so far noone found a generic check to find all of those (there's no related data in summonproperties.dbc
     // and in spell attributes, possibly we need to add a table for those)
     // so here's a list of MiscValueB values, which is currently most generic check
     switch (properties->Id)
@@ -5691,7 +5691,7 @@ void Spell::EffectSummonPlayer(SpellEffIndex /*effIndex*/)
         return;
 
     float x, y, z;
-    m_caster->GetClosePoint(x, y, z, unitTarget->GetObjectSize());
+    m_caster->GetPosition(x, y, z);
 
     unitTarget->ToPlayer()->SetSummonPoint(m_caster->GetMapId(), x, y, z);
 
@@ -7142,7 +7142,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
     float radius = 5.0f;
     int32 duration = m_spellInfo->GetDuration();
-    
+
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
