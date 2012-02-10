@@ -215,11 +215,14 @@ bool Condition::Meets(Player* player, Unit* invoker)
             break;
     }
 
+    if (mNegativeCondition)
+        condMeets = !condMeets;
+
     bool refMeets = false;
     if (condMeets && refId)//only have to check references if 'this' is met
     {
         ConditionList ref = sConditionMgr->GetConditionReferences(refId);
-        refMeets = sConditionMgr->IsPlayerMeetToConditions(player, ref);
+        refMeets = sConditionMgr->IsPlayerMeetToConditions(player, ref, invoker);
     }
     else
         refMeets = true;
@@ -391,7 +394,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, "
-                                             " ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName FROM conditions");
+                                             " ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName, NegateCondition FROM conditions");
 
     if (!result)
     {
@@ -419,6 +422,7 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond->mConditionValue3           = fields[8].GetUInt32();
         cond->ErrorTextd                 = fields[9].GetUInt32();
         cond->mScriptId                  = sObjectMgr->GetScriptId(fields[10].GetCString());
+        cond->mNegativeCondition         = fields[11].GetUInt8();
 
         if (iConditionTypeOrReference >= 0)
             cond->mConditionType = ConditionType(iConditionTypeOrReference);
@@ -443,6 +447,8 @@ void ConditionMgr::LoadConditions(bool isReload)
                 sLog->outErrorDb("Condition %s %i has useless data in value2 (%u)!", rowType, iSourceTypeOrReferenceId, cond->mConditionValue2);
             if (cond->mConditionValue3)
                 sLog->outErrorDb("Condition %s %i has useless data in value3 (%u)!", rowType, iSourceTypeOrReferenceId, cond->mConditionValue3);
+            if (cond->mNegativeCondition)
+                sLog->outErrorDb("Condition %s %i has useless data in NegativeCondition (%u)!", rowType, iSourceTypeOrReferenceId, cond->mNegativeCondition);
             if (cond->mSourceGroup && iSourceTypeOrReferenceId < 0)
                 sLog->outErrorDb("Condition %s %i has useless data in SourceGroup (%u)!", rowType, iSourceTypeOrReferenceId, cond->mSourceGroup);
             if (cond->mSourceEntry && iSourceTypeOrReferenceId < 0)
