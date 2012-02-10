@@ -150,12 +150,6 @@ bool Condition::Meets(WorldObject* object, WorldObject* invoker)
             }
             break;
         }
-        case CONDITION_NO_AURA:
-        {
-            if (Unit* unit = object->ToUnit())
-                condMeets = !unit->HasAuraEffect(mConditionValue1, mConditionValue2);
-            break;
-        }
         case CONDITION_ACTIVE_EVENT:
             condMeets = sGameEventMgr->IsActiveEvent(mConditionValue1);
             break;
@@ -221,12 +215,6 @@ bool Condition::Meets(WorldObject* object, WorldObject* invoker)
                 else
                     condMeets = !player->HasSpell(mConditionValue1);
             }
-            break;
-        }
-        case CONDITION_NOITEM:
-        {
-            if (Player* player = object->ToPlayer())
-                condMeets = !player->HasItemCount(mConditionValue1, 1, mConditionValue2 ? true : false);
             break;
         }
         case CONDITION_LEVEL:
@@ -1246,23 +1234,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Quest condition has useless data in value3 (%u)!", cond->mConditionValue3);
             break;
         }
-        case CONDITION_NO_AURA:
-        {
-            if (!sSpellMgr->GetSpellInfo(cond->mConditionValue1))
-            {
-                sLog->outErrorDb("NoAura condition has non existing spell (Id: %d), skipped", cond->mConditionValue1);
-                return false;
-            }
-
-            if (cond->mConditionValue2 > 2)
-            {
-                sLog->outErrorDb("NoAura condition has non existing effect index (%u) in value2 (must be 0..2), skipped", cond->mConditionValue2);
-                return false;
-            }
-            if (cond->mConditionValue3)
-                sLog->outErrorDb("NoAura condition has useless data in value3 (%u)!", cond->mConditionValue3);
-            break;
-        }
         case CONDITION_ACTIVE_EVENT:
         {
             GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
@@ -1445,18 +1416,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Spell condition has useless data in value2 (%u)!", cond->mConditionValue2);
             if (cond->mConditionValue3)
                 sLog->outErrorDb("Spell condition has useless data in value3 (%u)!", cond->mConditionValue3);
-            break;
-        }
-        case CONDITION_NOITEM:
-        {
-            ItemTemplate const* proto = sObjectMgr->GetItemTemplate(cond->mConditionValue1);
-            if (!proto)
-            {
-                sLog->outErrorDb("NoItem condition has non existing item (%u), skipped", cond->mConditionValue1);
-                return false;
-            }
-            if (cond->mConditionValue3)
-                sLog->outErrorDb("NoItem condition has useless data in value3 (%u)!", cond->mConditionValue3);
             break;
         }
         case CONDITION_LEVEL:
