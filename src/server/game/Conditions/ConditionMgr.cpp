@@ -61,7 +61,12 @@ bool Condition::Meets(WorldObject* object, WorldObject* invoker)
         case CONDITION_ITEM:
         {
             if (Player* player = object->ToPlayer())
-                condMeets = (mConditionValue2 && player->HasItemCount(mConditionValue1, mConditionValue2)) || (!mConditionValue2 && !player->HasItemCount(mConditionValue1, mConditionValue2));//HasItemCount returns false if 0 count is used
+            {
+                // don't allow 0 items (it's checked during table load)
+                ASSERT(mConditionValue2);
+                bool checkBank = mConditionValue3 ? true : false;
+                condMeets = player->HasItemCount(mConditionValue1, mConditionValue2, checkBank);
+            }
             break;
         }
         case CONDITION_ITEM_EQUIPPED:
@@ -1142,8 +1147,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Item condition has 0 set for item count in value2 (%u), skipped", cond->mConditionValue2);
                 return false;
             }
-            if (cond->mConditionValue3)
-                sLog->outErrorDb("Item condition has useless data in value3 (%u)!", cond->mConditionValue3);
             break;
         }
         case CONDITION_ITEM_EQUIPPED:
