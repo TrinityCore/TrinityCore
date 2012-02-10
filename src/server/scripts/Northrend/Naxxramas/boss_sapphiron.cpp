@@ -409,12 +409,7 @@ class achievement_the_hundred_club : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target)
         {
-            if (target)
-                if (Creature* sapphiron = target->ToCreature())
-                    if (sapphiron->AI()->GetData(DATA_HUNDRED_CLUB))
-                        return true;
-
-            return false;
+            return target && target->GetAI()->GetData(DATA_HUNDRED_CLUB))
         }
 };
 
