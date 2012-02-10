@@ -333,7 +333,8 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
 
 bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions)
 {
-    return IsObjectMeetToConditions(ConditionSourceInfo(object), conditions);
+    ConditionSourceInfo srcInfo = ConditionSourceInfo(object);
+    return IsObjectMeetToConditions(srcInfo, conditions);
 }
 
 bool ConditionMgr::IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionList const& conditions)

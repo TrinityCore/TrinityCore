@@ -2792,7 +2792,8 @@ bool SmartScript::ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3)
     cond.mConditionValue1 = uint32(v1);
     cond.mConditionValue1 = uint32(v2);
     cond.mConditionValue1 = uint32(v3);
-    return cond.Meets(ConditionSourceInfo(u->ToPlayer()));
+    ConditionSourceInfo srcInfo = ConditionSourceInfo(u->ToPlayer());
+    return cond.Meets(srcInfo);
 }
 
 void SmartScript::OnUpdate(uint32 const diff)
