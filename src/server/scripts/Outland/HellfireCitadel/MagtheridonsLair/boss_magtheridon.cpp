@@ -252,8 +252,8 @@ class boss_magtheridon : public CreatureScript
 
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                me->AddUnitState(UNIT_STAT_STUNNED);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                me->AddUnitState(UNIT_STATE_STUNNED);
                 DoCast(me, SPELL_SHADOW_CAGE_C, true);
             }
 
@@ -334,7 +334,7 @@ class boss_magtheridon : public CreatureScript
 
             void AttackStart(Unit* who)
             {
-                if (!me->HasUnitState(UNIT_STAT_STUNNED))
+                if (!me->HasUnitState(UNIT_STATE_STUNNED))
                     ScriptedAI::AttackStart(who);
             }
 
@@ -388,7 +388,7 @@ class boss_magtheridon : public CreatureScript
                 if (BlastNova_Timer <= diff)
                 {
                     // to avoid earthquake interruption
-                    if (!me->HasUnitState(UNIT_STAT_STUNNED))
+                    if (!me->HasUnitState(UNIT_STATE_STUNNED))
                     {
                         DoScriptText(EMOTE_BLASTNOVA, me);
                         DoCast(me, SPELL_BLASTNOVA);
@@ -431,7 +431,7 @@ class boss_magtheridon : public CreatureScript
 
                 if (!Phase3 && HealthBelowPct(30)
                     && !me->IsNonMeleeSpellCasted(false) // blast nova
-                    && !me->HasUnitState(UNIT_STAT_STUNNED)) // shadow cage and earthquake
+                    && !me->HasUnitState(UNIT_STATE_STUNNED)) // shadow cage and earthquake
                 {
                     Phase3 = true;
                     DoScriptText(SAY_CHAMBER_DESTROY, me);

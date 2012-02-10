@@ -19,15 +19,13 @@
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
 
-#include "Unit.h"
-
 class Battleground;
 
 enum BattlegroundDSObjectTypes
 {
     BG_DS_OBJECT_DOOR_1         = 0,
     BG_DS_OBJECT_DOOR_2         = 1,
-    BG_DS_OBJECT_WATER_1        = 2,
+    BG_DS_OBJECT_WATER_1        = 2, // Collision
     BG_DS_OBJECT_WATER_2        = 3,
     BG_DS_OBJECT_BUFF_1         = 4,
     BG_DS_OBJECT_BUFF_2         = 5,
@@ -38,17 +36,17 @@ enum BattlegroundDSObjects
 {
     BG_DS_OBJECT_TYPE_DOOR_1    = 192642,
     BG_DS_OBJECT_TYPE_DOOR_2    = 192643,
-    BG_DS_OBJECT_TYPE_WATER_1   = 194395,
+    BG_DS_OBJECT_TYPE_WATER_1   = 194395, // Collision
     BG_DS_OBJECT_TYPE_WATER_2   = 191877,
     BG_DS_OBJECT_TYPE_BUFF_1    = 184663,
     BG_DS_OBJECT_TYPE_BUFF_2    = 184664
 };
 
 enum BattlegroundDSData
-{
-    BG_DS_WATERFALL_TIMER_MIN                    = 35000,
+{ // These values are NOT blizzlike... need the correct data!
+    BG_DS_WATERFALL_TIMER_MIN                    = 30000,
     BG_DS_WATERFALL_TIMER_MAX                    = 60000,
-    BG_DS_WATERFALL_DURATION                     = 30000,
+    BG_DS_WATERFALL_DURATION                     = 10000,
 };
 
 class BattlegroundDSScore : public BattlegroundScore
@@ -80,9 +78,6 @@ class BattlegroundDS : public Battleground
     private:
         uint32 m_waterTimer;
         bool m_waterfallActive;
-        bool m_knockbackCheck;
-        uint32 m_knockback;
-        void KnockBackPlayer(Unit *pPlayer, float angle, float horizontalSpeed, float verticalSpeed);
 
         virtual void PostUpdateImpl(uint32 diff);
     protected:

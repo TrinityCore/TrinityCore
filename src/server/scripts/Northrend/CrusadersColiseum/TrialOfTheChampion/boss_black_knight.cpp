@@ -151,7 +151,7 @@ public:
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
-            me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+            me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
             me->SetHomePosition(746.71f,661.02f,411.69f,4.6f);
 
             bEventInProgress = false;
@@ -245,7 +245,7 @@ public:
                         uiPhase++;
                         uiResurrectTimer = 3000;
                         bEventInProgress = false;
-                        me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                        me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                     } else uiResurrectTimer -= uiDiff;
 
                 switch(uiPhase)
@@ -276,7 +276,7 @@ public:
                         if (!bSummonArmy)
                         {
                             bSummonArmy = true;
-                                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
             				me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                             DoCast(me, SPELL_ARMY_DEAD);
                         }
@@ -284,7 +284,7 @@ public:
                         if (!bDeathArmyDone)
                             if (uiDeathArmyCheckTimer <= uiDiff)
                             {
-                                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
     				    me->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                                 uiDeathArmyCheckTimer = 0;
                                 bDeathArmyDone = true;
@@ -358,7 +358,7 @@ public:
     		    	}
                 }
 
-            if (!me->HasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
+            if (!me->HasUnitState(UNIT_STATE_ROOT) && !me->HealthBelowPct(1))
                 DoMeleeAttackIfReady();
     	}
 
@@ -385,7 +385,7 @@ public:
             {
                 uiDamage = 0;
                 me->SetHealth(0);
-                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
     			me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
                 RemoveSummons();
                 switch(uiPhase)

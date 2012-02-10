@@ -117,7 +117,7 @@ public:
                 player->CLOSE_GOSSIP_MENU();
                 //start event here
                 creature->setFaction(FACTION_HOSTILE);
-                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 creature->AI()->AttackStart(player);
                 InstanceScript* instance = creature->GetInstanceScript();
                 if (instance)
@@ -165,7 +165,7 @@ public:
             me->setFaction(FACTION_FRIEND);
 
             // was set before event start, so set again
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
             if (instance)
             {
