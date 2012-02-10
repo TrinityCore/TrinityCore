@@ -433,8 +433,7 @@ void Vehicle::RemovePassenger(Unit* unit)
 
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
-    Map* map = _me->GetMap();
-    ASSERT(map != NULL);
+    ASSERT(_me->IsInWorld());
 
     // not sure that absolute position calculation is correct, it must depend on vehicle orientation and pitch angle
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
