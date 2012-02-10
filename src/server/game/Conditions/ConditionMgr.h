@@ -39,7 +39,7 @@ enum ConditionType
     CONDITION_QUESTREWARDED         = 8,                    // quest_id         0           0                  true if quest_id was rewarded before
     CONDITION_QUESTTAKEN            = 9,                    // quest_id         0,          0                  true while quest active
     CONDITION_DRUNKENSTATE          = 10,                   // DrunkenState     0,          0                  true if player is drunk enough
-    CONDITION_NO_AURA               = 11,                   // spell_id         effindex    0                  true if does not have aura of spell_id with effect effindex
+    CONDITION_UNUSED_11             = 11,
     CONDITION_ACTIVE_EVENT          = 12,                   // event_id         0           0                  true if event is active
     CONDITION_INSTANCE_DATA         = 13,                   // entry            data        0                  true if data is set in current instance
     CONDITION_QUEST_NONE            = 14,                   // quest_id         0           0                  true if doesn't have quest saved
@@ -54,7 +54,7 @@ enum ConditionType
     CONDITION_AREAID                = 23,                   // area_id          0           0                  true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
     CONDITION_SPELL                 = 25,                   // spell_id         bool        0                  bool 1 for true 0 for false
-    CONDITION_NOITEM                = 26,                   // item_id          bank        0                  true if player does not have any of the item (if 'bank' is set it searches in bank slots too)
+    CONDITION_UNUSED_26             = 26,
     CONDITION_LEVEL                 = 27,                   // level            opt         0                  true if player's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0           0                  true if player has quest_id with all objectives complete, but not yet rewarded
     CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance    0                  true if there is a creature of entry in range
@@ -74,29 +74,29 @@ enum LevelConditionType
 
 enum ConditionSourceType
 {
-    CONDITION_SOURCE_TYPE_NONE                           = 0, //DONE
-    CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE         = 1, //DONE
-    CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE       = 2, //DONE
-    CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE          = 3, //DONE
-    CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE       = 4, //DONE
-    CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE             = 5, //DONE
-    CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE             = 6, //DONE
-    CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE          = 7, //DONE
-    CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE    = 8, //DONE
-    CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE      = 9, //DONE
-    CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE        = 10, //DONE
-    CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE         = 11, //DONE
-    CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE            = 12, //DONE
-    CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET            = 13, //DONE
-    CONDITION_SOURCE_TYPE_GOSSIP_MENU                    = 14, //DONE
-    CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15, //DONE
-    CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16, //DONE
-    CONDITION_SOURCE_TYPE_SPELL                          = 17, //DONE
-    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18, //DONE
-    CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19, //DONE
-    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20, //DONE
-    CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21, //DONE
-    CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22, //DONE
+    CONDITION_SOURCE_TYPE_NONE                           = 0,
+    CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE         = 1,
+    CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE       = 2,
+    CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE          = 3,
+    CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE       = 4,
+    CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE             = 5,
+    CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE             = 6,
+    CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE          = 7,
+    CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE    = 8,
+    CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE      = 9,
+    CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE        = 10,
+    CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE         = 11,
+    CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE            = 12,
+    CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET            = 13,
+    CONDITION_SOURCE_TYPE_GOSSIP_MENU                    = 14,
+    CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15,
+    CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16,
+    CONDITION_SOURCE_TYPE_SPELL                          = 17,
+    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18,
+    CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,
+    CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,
+    CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
+    CONDITION_SOURCE_TYPE_SMART_EVENT                    = 22,
     CONDITION_SOURCE_TYPE_MAX                            = 23  //MAX
 };
 
