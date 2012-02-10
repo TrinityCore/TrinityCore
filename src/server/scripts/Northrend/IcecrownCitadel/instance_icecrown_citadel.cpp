@@ -279,13 +279,9 @@ class instance_icecrown_citadel : public InstanceMapScript
                         break;
                     case NPC_SPINESTALKER:
                         SpinestalkerGUID = creature->GetGUID();
-                        if (!creature->isDead())
-                            ++FrostwyrmCount;
                         break;
                     case NPC_RIMEFANG:
                         RimefangGUID = creature->GetGUID();
-                        if (!creature->isDead())
-                            ++FrostwyrmCount;
                         break;
                     case NPC_THE_LICH_KING:
                         TheLichKingGUID = creature->GetGUID();
