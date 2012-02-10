@@ -18,18 +18,29 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
-#define SPELL_BOMBARD_SLIME         28280
+enum ScriptTexts
+{
+    EMOTE_SPRAY,
+};
 
-#define SPELL_POISON_CLOUD          28240
-#define SPELL_MUTATING_INJECTION    28169
-#define SPELL_SLIME_SPRAY           RAID_MODE(28157, 54364)
-#define SPELL_BERSERK               26662
-#define SPELL_POISON_CLOUD_ADD      59116
+enum Events
+{
+    EVENT_BERSERK,
+    EVENT_CLOUD,
+    EVENT_INJECT,
+    EVENT_SPRAY,
+};
 
-#define EVENT_BERSERK   1
-#define EVENT_CLOUD     2
-#define EVENT_INJECT    3
-#define EVENT_SPRAY     4
+enum Spells
+{
+    SPELL_BOMBARD_SLIME       = 28280,
+    SPELL_POISON_CLOUD        = 28240,
+    SPELL_MUTATING_INJECTION  = 28169,
+    SPELL_SLIME_SPRAY_10      = 28157,
+    SPELL_SLIME_SPRAY_25      = 54364,
+    SPELL_BERSERK             = 26662,
+    SPELL_POISON_CLOUD_ADD    = 59116,
+};
 
 #define MOB_FALLOUT_SLIME   16290
 
@@ -61,7 +72,7 @@ public:
 
         void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            if (spell->Id == uint32(SPELL_SLIME_SPRAY))
+            if (spell->Id == SPELL_SLIME_SPRAY_10 || spell->Id == SPELL_SLIME_SPRAY_25)
             {
                 if (TempSummon* slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     DoZoneInCombat(slime);
@@ -87,7 +98,8 @@ public:
                         DoCastAOE(SPELL_BERSERK);
                         return;
                     case EVENT_SPRAY:
-                        DoCastAOE(SPELL_SLIME_SPRAY);
+                        Talk(EMOTE_SPRAY);
+                        DoCastAOE(RAID_MODE(SPELL_SLIME_SPRAY_10, SPELL_SLIME_SPRAY_25));
                         events.ScheduleEvent(EVENT_SPRAY, 15000+rand()%15000);
                         return;
                     case EVENT_INJECT:
