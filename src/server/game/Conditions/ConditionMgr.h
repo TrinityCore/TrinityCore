@@ -53,9 +53,9 @@ enum ConditionType
     CONDITION_MAPID                 = 22,                   // map_id           0           0                  true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0           0                  true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType,  TargetEntry,    0
-    CONDITION_SPELL                 = 25,                   // spell_id         bool        0                  bool 1 for true 0 for false
+    CONDITION_SPELL                 = 25,                   // spell_id         0           0                  true if player has learned spell
     CONDITION_UNUSED_26             = 26,
-    CONDITION_LEVEL                 = 27,                   // level            opt         0                  true if player's level is equal to param1 (param2 can modify the statement)
+    CONDITION_LEVEL                 = 27,                   // level            opt         0                  true if unit's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0           0                  true if player has quest_id with all objectives complete, but not yet rewarded
     CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance    0                  true if there is a creature of entry in range
     CONDITION_NEAR_GAMEOBJECT       = 30,                   // gameobject entry distance    0                  true if there is a gameobject of entry in range
