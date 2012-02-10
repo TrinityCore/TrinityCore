@@ -457,7 +457,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 int main(int argc, char ** argv)
 {
     bool success=true;
-    const char *versionString = "V3.00 2010_07";
+    const char *versionString = "V4.00 2012_02";
 
     // Use command line arguments, when some
     if(!processArgv(argc, argv, versionString))
