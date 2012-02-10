@@ -1338,7 +1338,7 @@ void CreatureEventAI::ReceiveEmote(Player* player, uint32 textEmote)
             cond.mConditionValue1 = (*itr).Event.receive_emote.conditionValue1;
             cond.mConditionValue2 = (*itr).Event.receive_emote.conditionValue2;
 
-            if (cond.Meets(player))
+            if (cond.Meets(ConditionSourceInfo(player)))
             {
                 sLog->outDebug(LOG_FILTER_DATABASE_AI, "CreatureEventAI: ReceiveEmote CreatureEventAI: Condition ok, processing");
                 ProcessEvent(*itr, player);

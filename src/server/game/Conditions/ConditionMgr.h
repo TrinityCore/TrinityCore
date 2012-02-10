@@ -24,7 +24,9 @@
 
 class Player;
 class Unit;
+class WorldObject;
 class LootTemplate;
+struct Condition;
 
 enum ConditionType
 {                                                           // value1           value2      value3
@@ -100,6 +102,24 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_MAX                            = 23  //MAX
 };
 
+enum
+{
+    MAX_CONDITION_TARGETS = 3,
+};
+
+struct ConditionSourceInfo
+{
+    WorldObject* mConditionTargets[MAX_CONDITION_TARGETS];
+    Condition* mLastFailedCondition;
+    ConditionSourceInfo(WorldObject* target0, WorldObject* target1 = NULL, WorldObject* target2 = NULL)
+    {
+        mConditionTargets[0] = target0;
+        mConditionTargets[1] = target1;
+        mConditionTargets[2] = target2;
+        mLastFailedCondition = NULL;
+    }
+};
+
 struct Condition
 {
     ConditionSourceType     mSourceType;        //SourceTypeOrReferenceId
@@ -108,6 +128,7 @@ struct Condition
     uint32                  mSourceId;          // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
     uint32                  mElseGroup;
     ConditionType           mConditionType;     //ConditionTypeOrReference
+    uint8                   mConditionTarget;
     uint32                  mConditionValue1;
     uint32                  mConditionValue2;
     uint32                  mConditionValue3;
@@ -123,6 +144,7 @@ struct Condition
         mSourceEntry        = 0;
         mElseGroup          = 0;
         mConditionType      = CONDITION_NONE;
+        mConditionTarget    = 0;
         mConditionValue1    = 0;
         mConditionValue2    = 0;
         mConditionValue3    = 0;
@@ -132,7 +154,7 @@ struct Condition
         mNegativeCondition  = false;
     }
 
-    bool Meets(WorldObject* player, WorldObject* invoker = NULL);
+    bool Meets(ConditionSourceInfo& sourceInfo);
     bool isLoaded() const { return mConditionType > CONDITION_NONE || mReferenceId; }
 };
 
@@ -157,7 +179,8 @@ class ConditionMgr
         bool isConditionTypeValid(Condition* cond);
         ConditionList GetConditionReferences(uint32 refId);
 
-        bool IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions, WorldObject* invoker = NULL);
+        bool IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions);
+        bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
         ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID);
@@ -167,7 +190,7 @@ class ConditionMgr
         bool addToLootTemplate(Condition* cond, LootTemplate* loot);
         bool addToGossipMenus(Condition* cond);
         bool addToGossipMenuItems(Condition* cond);
-        bool IsObjectMeetToConditionList(WorldObject* player, ConditionList const& conditions, WorldObject* invoker = NULL);
+        bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
 
         bool isGroupable(ConditionSourceType sourceType) const
         {
