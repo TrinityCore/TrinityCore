@@ -597,6 +597,16 @@ class npc_spinestalker : public CreatureScript
             {
             }
 
+            void InitializeAI()
+            {
+                // Increase add count
+                if (!me->isDead())
+                {
+                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                    Reset();
+                }
+            }
+
             void Reset()
             {
                 _events.Reset();
@@ -710,6 +720,16 @@ class npc_rimefang : public CreatureScript
         {
             npc_rimefangAI(Creature* creature) : ScriptedAI(creature), _instance(creature->GetInstanceScript())
             {
+            }
+
+            void InitializeAI()
+            {
+                // Increase add count
+                if (!me->isDead())
+                {
+                    _instance->SetData(DATA_SINDRAGOSA_FROSTWYRMS, 1);  // this cannot be in Reset because reset also happens on evade
+                    Reset();
+                }
             }
 
             void Reset()
@@ -860,7 +880,10 @@ class npc_sindragosa_trash : public CreatureScript
                 _frostwyrmId = (me->GetHomePosition().GetPositionY() < 2484.35f) ? DATA_RIMEFANG : DATA_SPINESTALKER;
                 // Increase add count
                 if (!me->isDead())
+                {
                     _instance->SetData(_frostwyrmId, 1);  // this cannot be in Reset because reset also happens on evade
+                    Reset();
+                }
             }
 
             void Reset()
