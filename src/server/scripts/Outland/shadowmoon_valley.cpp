@@ -117,7 +117,7 @@ public:
             {
                 bIsEating = true;
                 EatTimer = 7000;
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
             }
         }
 
@@ -1195,7 +1195,7 @@ public:
             AggroTargetGUID = 0;
             Timers = false;
 
-            me->AddUnitState(UNIT_STAT_ROOT);
+            me->AddUnitState(UNIT_STATE_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetTarget(0);
         }
@@ -1239,7 +1239,7 @@ public:
                 if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->ClearUnitState(UNIT_STAT_ROOT);
+                    me->ClearUnitState(UNIT_STATE_ROOT);
 
                     float x, y, z;
                     AggroTarget->GetPosition(x, y, z);

@@ -51,6 +51,7 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
         if (GetStartTime() >= 75*IN_MILLISECONDS)
         {
+<<<<<<< HEAD
             for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
             {
                 Player *plr = ObjectAccessor::FindPlayer(itr->first);
@@ -65,10 +66,19 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
                     plr->RemoveAurasDueToSpell(48018);
                 }
             }
+=======
+            setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
+            SpawnBGObject(BG_DS_OBJECT_WATER_2, getWaterFallTimer());
+            // turn off collision
+            if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
+                gob->EnableCollision(false);
+            setWaterFallActive(false);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
 
         if (getWaterFallTimer() < diff)
         {
+<<<<<<< HEAD
             if (isWaterFallActive())
             {
                 setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
@@ -83,6 +93,14 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
                     SpawnBGObject(i, RESPAWN_IMMEDIATELY);
                 setWaterFallActive(true);
             }
+=======
+            setWaterFallTimer(BG_DS_WATERFALL_DURATION);
+            SpawnBGObject(BG_DS_OBJECT_WATER_2, RESPAWN_IMMEDIATELY);
+            // Turn on collision
+            if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
+                gob->EnableCollision(true);
+            setWaterFallActive(true);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
         else
             setWaterFallTimer(getWaterFallTimer() - diff);

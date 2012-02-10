@@ -151,8 +151,12 @@ public:
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
+<<<<<<< HEAD
             me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
             me->SetHomePosition(746.71f,661.02f,411.69f,4.6f);
+=======
+            me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
 
             bEventInProgress = false;
             bEvent = false;
@@ -226,8 +230,30 @@ public:
             if (!UpdateVictim())
                 return;
 
+<<<<<<< HEAD
     	        if (bEventInProgress)
                     if (uiResurrectTimer <= uiDiff)
+=======
+            if (bEventInProgress)
+            {
+                if (uiResurrectTimer <= uiDiff)
+                {
+                    me->SetFullHealth();
+                    DoCast(me, SPELL_BLACK_KNIGHT_RES, true);
+                    uiPhase++;
+                    uiResurrectTimer = 4000;
+                    bEventInProgress = false;
+                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
+                } else uiResurrectTimer -= uiDiff;
+            }
+
+            switch (uiPhase)
+            {
+                case PHASE_UNDEAD:
+                case PHASE_SKELETON:
+                {
+                    if (uiIcyTouchTimer <= uiDiff)
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
                     {
                         me->SetHealth(me->GetMaxHealth());
     	    	        me->AttackStop();
@@ -294,8 +320,14 @@ public:
                         {
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
+<<<<<<< HEAD
                                 if (pTarget && pTarget->isAlive())
                                 DoCast(pTarget,SPELL_DESECRATION);
+=======
+                                bSummonArmy = true;
+                                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
+                                DoCast(me, SPELL_ARMY_DEAD);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
                             }
                             uiDesecration1Timer = urand(15000,16000);
                         } else uiDesecration1Timer -= uiDiff;
@@ -328,8 +360,17 @@ public:
                         {
                             if (Unit *pTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                             {
+<<<<<<< HEAD
                                 if (pTarget && pTarget->isAlive())
                                 DoCast(pTarget,SPELL_DEATH_RESPITE);
+=======
+                                if (uiDeathArmyCheckTimer <= uiDiff)
+                                {
+                                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
+                                    uiDeathArmyCheckTimer = 0;
+                                    bDeathArmyDone = true;
+                                } else uiDeathArmyCheckTimer -= uiDiff;
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
                             }
                             uiDeathRespiteTimer = urand(15000,16000);
                         } else uiDeathRespiteTimer -= uiDiff;
@@ -358,7 +399,7 @@ public:
     		    	}
                 }
 
-            if (!me->HasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
+            if (!me->HasUnitState(UNIT_STATE_ROOT) && !me->HealthBelowPct(1))
                 DoMeleeAttackIfReady();
     	}
 
@@ -385,8 +426,12 @@ public:
             {
                 uiDamage = 0;
                 me->SetHealth(0);
+<<<<<<< HEAD
                 me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
     			me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE);
+=======
+                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
                 RemoveSummons();
                 switch(uiPhase)
                 {

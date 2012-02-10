@@ -210,9 +210,14 @@ int32 Quest::GetRewOrReqMoney() const
     return int32(RewardOrRequiredMoney * sWorld->getRate(RATE_DROP_MONEY));
 }
 
+bool Quest::IsAutoAccept() const
+{
+    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? false : Flags & QUEST_FLAGS_AUTO_ACCEPT;
+}
+
 bool Quest::IsAutoComplete() const
 {
-    return Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
+    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) ? false : Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
 }
 
 bool Quest::IsAllowedInRaid() const

@@ -200,6 +200,7 @@ public:
         { 
             if (!m_pInstance) return;
 
+<<<<<<< HEAD
                if (m_pInstance->GetData(TYPE_MARWYN) != IN_PROGRESS)
                  return; 
 
@@ -209,6 +210,10 @@ public:
        void UpdateAI(const uint32 uiDiff)
         {
             if(!m_pInstance) return;
+=======
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
 
             if (m_pInstance->GetData(TYPE_FALRIC) == SPECIAL) 
             {

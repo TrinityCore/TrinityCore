@@ -504,7 +504,7 @@ class boss_the_lich_king : public CreatureScript
                 float x, y, z;
                 me->GetPosition(x, y, z);
                 // use larger distance for vmap height search than in most other cases
-                float ground_Z = me->GetMap()->GetHeight(x, y, z, true, MAX_FALL_DISTANCE);
+                float ground_Z = me->GetMap()->GetHeight(me->GetPhaseMask(), x, y, z, true, MAX_FALL_DISTANCE);
                 if (fabs(ground_Z - z) < 0.1f)
                     return;
 
@@ -701,7 +701,7 @@ class boss_the_lich_king : public CreatureScript
                             summon->CastSpell(summon, SPELL_ICE_SPHERE, false);
                             summon->CastSpell(summon, SPELL_ICE_BURST_TARGET_SEARCH, false);
                             summon->CastSpell(target, SPELL_ICE_PULSE, false);
-                            summon->ClearUnitState(UNIT_STAT_CASTING);
+                            summon->ClearUnitState(UNIT_STATE_CASTING);
                             summon->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
                         }
                         else
@@ -861,7 +861,7 @@ class boss_the_lich_king : public CreatureScript
                 events.Update(diff);
 
                 // during Remorseless Winter phases The Lich King is channeling a spell, but we must continue casting other spells
-                if (me->HasUnitState(UNIT_STAT_CASTING) && !(events.GetPhaseMask() & PHASE_MASK_NO_CAST_CHECK))
+                if (me->HasUnitState(UNIT_STATE_CASTING) && !(events.GetPhaseMask() & PHASE_MASK_NO_CAST_CHECK))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -883,7 +883,7 @@ class boss_the_lich_king : public CreatureScript
                         case EVENT_INTRO_TALK_1:
                             Talk(SAY_LK_INTRO_2);
                             // for some reason blizz sends 2 emotes in row here so (we handle one in Talk)
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
                             events.ScheduleEvent(EVENT_EMOTE_CAST_SHOUT, 7000, 0, PHASE_INTRO);
                             events.ScheduleEvent(EVENT_INTRO_EMOTE_1, 13000, 0, PHASE_INTRO);
                             events.ScheduleEvent(EVENT_EMOTE_CAST_SHOUT, 18000, 0, PHASE_INTRO);
@@ -893,7 +893,7 @@ class boss_the_lich_king : public CreatureScript
                             DoCast(me, SPELL_EMOTE_SHOUT_NO_SHEATH, false);
                             break;
                         case EVENT_INTRO_EMOTE_1:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NO_SHEATHE);
                             break;
                         case EVENT_INTRO_CAST_FREEZE:
                             Talk(SAY_LK_INTRO_3);
@@ -902,7 +902,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_FINISH_INTRO:
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             me->SetReactState(REACT_AGGRESSIVE);
                             events.SetPhase(PHASE_ONE);
                             break;
@@ -966,14 +966,14 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_QUAKE:
                             events.SetPhase(PHASE_TWO);
-                            me->ClearUnitState(UNIT_STAT_CASTING);  // clear state to ensure check in DoCastAOE passes
+                            me->ClearUnitState(UNIT_STATE_CASTING);  // clear state to ensure check in DoCastAOE passes
                             DoCastAOE(SPELL_QUAKE);
                             SendMusicToPlayers(MUSIC_SPECIAL);
                             Talk(SAY_LK_QUAKE);
                             break;
                         case EVENT_QUAKE_2:
                             events.SetPhase(PHASE_THREE);
-                            me->ClearUnitState(UNIT_STAT_CASTING);  // clear state to ensure check in DoCastAOE passes
+                            me->ClearUnitState(UNIT_STATE_CASTING);  // clear state to ensure check in DoCastAOE passes
                             DoCastAOE(SPELL_QUAKE);
                             SendMusicToPlayers(MUSIC_SPECIAL);
                             Talk(SAY_LK_QUAKE);
@@ -1043,7 +1043,7 @@ class boss_the_lich_king : public CreatureScript
                             DoCastAOE(SPELL_EMOTE_QUESTION_NO_SHEATH);
                             break;
                         case EVENT_OUTRO_EMOTE_TALK:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_TALK_NO_SHEATHE);
                             break;
                         case EVENT_OUTRO_TALK_3:
                             if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HIGHLORD_TIRION_FORDRING)))
@@ -1059,7 +1059,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_OUTRO_RAISE_DEAD:
                             DoCastAOE(SPELL_RAISE_DEAD);
-                            me->ClearUnitState(UNIT_STAT_CASTING);
+                            me->ClearUnitState(UNIT_STATE_CASTING);
                             SendMusicToPlayers(MUSIC_FINAL);
                             break;
                         case EVENT_OUTRO_TALK_5:
@@ -1071,7 +1071,7 @@ class boss_the_lich_king : public CreatureScript
                             Talk(SAY_LK_OUTRO_6);
                             if (Creature* tirion = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_HIGHLORD_TIRION_FORDRING)))
                                 tirion->SetFacingToObject(me);
-                            me->ClearUnitState(UNIT_STAT_CASTING);
+                            me->ClearUnitState(UNIT_STATE_CASTING);
                             DoCastAOE(SPELL_SUMMON_BROKEN_FROSTMOURNE_3);
                             SetEquipmentSlots(false, EQUIP_UNEQUIP);
                             break;
@@ -1255,7 +1255,7 @@ class npc_tirion_fordring_tft : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -1268,7 +1268,7 @@ class npc_tirion_fordring_tft : public CreatureScript
                             _events.ScheduleEvent(EVENT_INTRO_CHARGE, 5000, 0, PHASE_INTRO);
                             break;
                         case EVENT_INTRO_EMOTE_1:
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NOSHEATHE);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_POINT_NO_SHEATHE);
                             break;
                         case EVENT_INTRO_CHARGE:
                             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -1349,7 +1349,7 @@ class npc_shambling_horror_icc : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -1429,7 +1429,7 @@ class npc_raging_spirit : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -1498,7 +1498,7 @@ class npc_valkyr_shadowguard : public CreatureScript
                     _events.Reset();
                     DoCastAOE(SPELL_EJECT_ALL_PASSENGERS);
                     me->GetMotionMaster()->MoveTargetedHome();
-                    me->ClearUnitState(UNIT_STAT_EVADE);
+                    me->ClearUnitState(UNIT_STATE_EVADE);
                 }
             }
 
@@ -1564,7 +1564,7 @@ class npc_valkyr_shadowguard : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = _events.ExecuteEvent())
@@ -1825,7 +1825,7 @@ class npc_terenas_menethil : public CreatureScript
                             if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                             {
                                 lichKing->AI()->DoAction(ACTION_FINISH_OUTRO);
-                                lichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                                lichKing->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_NPC);
                                 if (Creature* tirion = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HIGHLORD_TIRION_FORDRING)))
                                     tirion->AI()->AttackStart(lichKing);
                             }

@@ -104,11 +104,19 @@ void AggroAllPlayers(Creature* pTemp)
 
             if(pPlayer->isAlive())
             {
+<<<<<<< HEAD
                 pTemp->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
                 pTemp->SetReactState(REACT_AGGRESSIVE);
                 pTemp->SetInCombatWith(pPlayer);
                 pPlayer->SetInCombatWith(pTemp);
                 pTemp->AddThreat(pPlayer, 100.0f);
+=======
+                temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+                temp->SetReactState(REACT_AGGRESSIVE);
+                temp->SetInCombatWith(player);
+                player->SetInCombatWith(temp);
+                temp->AddThreat(player, 0.0f);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
             }
         }
     }
@@ -310,7 +318,12 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
+<<<<<<< HEAD
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+=======
+            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
 
         InstanceScript* pInstance;
@@ -449,7 +462,12 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
+<<<<<<< HEAD
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+=======
+            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
 
         InstanceScript* pInstance;
@@ -583,7 +601,12 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
+<<<<<<< HEAD
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+=======
+            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
 
         InstanceScript* pInstance;
@@ -732,7 +755,12 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
+<<<<<<< HEAD
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+=======
+            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
 
         InstanceScript* pInstance;
@@ -906,7 +934,12 @@ public:
             uiPhaseTimer = 0;
 
             me->SetReactState(REACT_PASSIVE);
+<<<<<<< HEAD
             me->SetFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+=======
+            // THIS IS A HACK, SHOULD BE REMOVED WHEN THE EVENT IS FULL SCRIPTED
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
+>>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
 
         InstanceScript* pInstance;
