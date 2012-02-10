@@ -132,7 +132,7 @@ struct Condition
         mNegativeCondition  = false;
     }
 
-    bool Meets(Player* player, Unit* invoker = NULL);
+    bool Meets(WorldObject* player, WorldObject* invoker = NULL);
     bool isLoaded() const { return mConditionType > CONDITION_NONE || mReferenceId; }
 };
 
@@ -157,7 +157,7 @@ class ConditionMgr
         bool isConditionTypeValid(Condition* cond);
         ConditionList GetConditionReferences(uint32 refId);
 
-        bool IsPlayerMeetToConditions(Player* player, ConditionList const& conditions, Unit* invoker = NULL);
+        bool IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions, WorldObject* invoker = NULL);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
         ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
         ConditionList GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID);
@@ -167,7 +167,7 @@ class ConditionMgr
         bool addToLootTemplate(Condition* cond, LootTemplate* loot);
         bool addToGossipMenus(Condition* cond);
         bool addToGossipMenuItems(Condition* cond);
-        bool IsPlayerMeetToConditionList(Player* player, ConditionList const& conditions, Unit* invoker = NULL);
+        bool IsObjectMeetToConditionList(WorldObject* player, ConditionList const& conditions, WorldObject* invoker = NULL);
 
         bool isGroupable(ConditionSourceType sourceType) const
         {

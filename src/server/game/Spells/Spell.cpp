@@ -4720,7 +4720,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     if (Player* plrCaster = m_caster->GetCharmerOrOwnerPlayerOrPlayerItself())
     {
         ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL, m_spellInfo->Id);
-        if (!conditions.empty() && !sConditionMgr->IsPlayerMeetToConditions(plrCaster, conditions))
+        if (!conditions.empty() && !sConditionMgr->IsObjectMeetToConditions(plrCaster, conditions))
             return SPELL_FAILED_DONT_REPORT;
     }
 

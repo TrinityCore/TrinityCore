@@ -90,7 +90,7 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
                 if (Player* player = unit->ToPlayer())
                 {
                     ConditionList conds = sConditionMgr->GetConditionsForSmartEvent((*i).entryOrGuid, (*i).event_id, (*i).source_type);
-                    meets = sConditionMgr->IsPlayerMeetToConditions(player, conds);
+                    meets = sConditionMgr->IsObjectMeetToConditions(player, conds);
                 }
             }
             
