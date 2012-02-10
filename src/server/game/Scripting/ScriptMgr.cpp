@@ -1036,14 +1036,12 @@ void ScriptMgr::OnAuctionExpire(AuctionHouseObject* ah, AuctionEntry* entry)
     FOREACH_SCRIPT(AuctionHouseScript)->OnAuctionExpire(ah, entry);
 }
 
-bool ScriptMgr::OnConditionCheck(Condition* condition, WorldObject* object, WorldObject* invoker)
+bool ScriptMgr::OnConditionCheck(Condition* condition, ConditionSourceInfo& sourceInfo)
 {
     ASSERT(condition);
-    ASSERT(object);
-    // invoker can be NULL.
 
     GET_SCRIPT_RET(ConditionScript, condition->mScriptId, tmpscript, true);
-    return tmpscript->OnConditionCheck(condition, object, invoker);
+    return tmpscript->OnConditionCheck(condition, sourceInfo);
 }
 
 void ScriptMgr::OnInstall(Vehicle* veh)
