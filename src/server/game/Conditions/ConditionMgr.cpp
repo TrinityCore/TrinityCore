@@ -163,7 +163,6 @@ bool Condition::Meets(WorldObject* object, WorldObject* invoker)
         }
         case CONDITION_SPELL_SCRIPT_TARGET:
             condMeets = true;//spell target condition is handled in spellsystem, here it is always true
-            refId = 0;//cant have references! use CONDITION_SOURCE_TYPE_SPELL for it
             break;
         case CONDITION_CREATURE_TARGET:
         {
@@ -284,11 +283,11 @@ bool Condition::Meets(WorldObject* object, WorldObject* invoker)
         condMeets = !condMeets;
 
     if (Player* player = object->ToPlayer())
-        if (sendErrorMsg && ErrorTextd && (!condMeets || !refMeets))//send special error from DB
+        if (sendErrorMsg && ErrorTextd && (!condMeets))//send special error from DB
             player->m_ConditionErrorMsgId = ErrorTextd;
 
     bool script = sScriptMgr->OnConditionCheck(this, object, invoker); // Returns true by default.
-    return condMeets && refMeets && script;
+    return condMeets && script;
 }
 
 ConditionMgr::ConditionMgr()
@@ -1477,7 +1476,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             }
             if (cond->mConditionValue2)
             {
-                sLog->outErrorDb("DrunkState condition has useless data in value2 (%u)!", cond->mConditionValue3);
+                sLog->outErrorDb("DrunkState condition has useless data in value2 (%u)!", cond->mConditionValue2);
                 return false;
             }
             if (cond->mConditionValue3)
