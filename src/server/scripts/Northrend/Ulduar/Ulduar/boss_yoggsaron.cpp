@@ -548,7 +548,7 @@ public:
                 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
                 
             if (phase == PHASE_1)
@@ -805,7 +805,7 @@ public:
             }
             else insaneTimer -= diff;
                 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
                 
             if (phase == PHASE_2)
@@ -1257,7 +1257,7 @@ public:
             {
                 DoCast(SPELL_DEATH_RAY_DAMAGE);
                 DoCast(SPELL_DEATH_RAY_DAMAGE_VISUAL);
-                me->ClearUnitState(UNIT_STAT_CASTING);
+                me->ClearUnitState(UNIT_STATE_CASTING);
                 me->GetMotionMaster()->MoveRandom(10.0f);
                 RayTimer = 15000;
             }
@@ -1398,7 +1398,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (DiminishTimer <= 0)
@@ -1413,7 +1413,7 @@ public:
 
         void DamageTaken(Unit *attacker, uint32 &damage)
         {
-            if (attacker->IsWithinMeleeRange(me) && me->HasUnitState(UNIT_STAT_CASTING))
+            if (attacker->IsWithinMeleeRange(me) && me->HasUnitState(UNIT_STATE_CASTING))
                 me->InterruptNonMeleeSpells(true, SPELL_DIMINISH_POWER);
         }
     };
@@ -1483,7 +1483,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             if (ApathyTimer <= 0)
@@ -1811,7 +1811,7 @@ public:
 
         void UpdateAI(const uint32 uiDiff)
         {
-            if (!UpdateVictim() || me->HasUnitState(UNIT_STAT_CASTING))
+            if (!UpdateVictim() || me->HasUnitState(UNIT_STATE_CASTING))
                 return;
                 
             if (!me->HasAura(SPELL_FURY_OF_THE_STORMS))

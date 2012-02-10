@@ -1321,7 +1321,7 @@ class spell_gen_ribbon_pole_dancer_check : public SpellScriptLoader
                     return;
 
                 // check if aura needs to be removed
-                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 20.0f) || !target->HasUnitState(UNIT_STAT_CASTING))
+                if (!target->FindNearestGameObject(GO_RIBBON_POLE, 20.0f) || !target->HasUnitState(UNIT_STATE_CASTING))
                 {
                     target->InterruptNonMeleeSpells(false);
                     target->RemoveAurasDueToSpell(GetId());

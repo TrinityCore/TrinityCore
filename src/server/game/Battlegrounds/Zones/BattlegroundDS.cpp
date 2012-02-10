@@ -37,9 +37,6 @@ BattlegroundDS::BattlegroundDS()
     m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
     m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
-
-    m_knockback = 5000;
-    m_knockbackCheck = true;
 }
 
 BattlegroundDS::~BattlegroundDS()
@@ -49,61 +46,29 @@ BattlegroundDS::~BattlegroundDS()
 
 void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
-        if (GetStartTime() >= 75*IN_MILLISECONDS)
+    if (getWaterFallTimer() < diff)
+    {
+        if (isWaterFallActive())
         {
-<<<<<<< HEAD
-            for(BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end();itr++)
-            {
-                Player *plr = ObjectAccessor::FindPlayer(itr->first);
-                if (plr && plr->isAlive() && plr->GetPositionX() < 1260 && plr->GetPositionY() >755 && plr->GetPositionY() < 775 && plr->GetPositionZ() > 13)
-                {
-                    KnockBackPlayer(plr, 6.15f, 50.00f, 5.00f);
-                    plr->RemoveAurasDueToSpell(48018);
-                } 
-                if (plr && plr->isAlive() && plr->GetPositionX() > 1330 && plr->GetPositionY() >805 && plr->GetPositionY() < 825 && plr->GetPositionZ() > 13)
-                {
-                    KnockBackPlayer(plr, 3.10f, 50.00f, 5.00f);
-                    plr->RemoveAurasDueToSpell(48018);
-                }
-            }
-=======
             setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
             SpawnBGObject(BG_DS_OBJECT_WATER_2, getWaterFallTimer());
             // turn off collision
             if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
                 gob->EnableCollision(false);
             setWaterFallActive(false);
->>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
-
-        if (getWaterFallTimer() < diff)
+        else
         {
-<<<<<<< HEAD
-            if (isWaterFallActive())
-            {
-                setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-                for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                    SpawnBGObject(i, getWaterFallTimer());
-                setWaterFallActive(false);
-            }
-            else
-            {
-                setWaterFallTimer(BG_DS_WATERFALL_DURATION);
-                for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                    SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-                setWaterFallActive(true);
-            }
-=======
             setWaterFallTimer(BG_DS_WATERFALL_DURATION);
             SpawnBGObject(BG_DS_OBJECT_WATER_2, RESPAWN_IMMEDIATELY);
             // Turn on collision
             if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
                 gob->EnableCollision(true);
             setWaterFallActive(true);
->>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
         }
-        else
-            setWaterFallTimer(getWaterFallTimer() - diff);
+    }
+    else
+        setWaterFallTimer(getWaterFallTimer() - diff);
 }
 
 void BattlegroundDS::StartingEventCloseDoors()
@@ -125,9 +90,6 @@ void BattlegroundDS::StartingEventOpenDoors()
 
     for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
         SpawnBGObject(i, getWaterFallTimer());
-
-    m_knockback = 5000;
-    m_knockbackCheck = true;
 }
 
 void BattlegroundDS::AddPlayer(Player* player)
@@ -200,8 +162,6 @@ void BattlegroundDS::Reset()
 {
     //call parent's class reset
     Battleground::Reset();
-    m_knockback = 5000;
-    m_knockbackCheck = true;
 }
 
 bool BattlegroundDS::SetupBattleground()
@@ -221,21 +181,4 @@ bool BattlegroundDS::SetupBattleground()
     }
 
     return true;
-}
-
-void BattlegroundDS::KnockBackPlayer(Unit *pPlayer, float angle, float horizontalSpeed, float verticalSpeed)
-{
-    if(pPlayer->GetTypeId() == TYPEID_PLAYER)
-    {
-        WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+2);
-        data.append(pPlayer->GetPackGUID());
-        data << uint32(0);
-        data << float(cos(angle));
-        data << float(sin(angle));
-        data << float(horizontalSpeed);
-        data << float(-verticalSpeed);
-        ((Player*)pPlayer)->GetSession()->SendPacket(&data);
-    }
-    else
-        sLog->outError("The target of KnockBackPlayer must be a player !");
 }

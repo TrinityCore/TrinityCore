@@ -3349,10 +3349,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 49206: // Summon Gargoyle
                 spellInfo->DurationIndex = 587;
                 break;
-            case 65783: // Ogre Pinata
-                        // because of bug in dbc
-                spellInfo->maxLevel = 1;
-            break;
             // ULDUAR SPELLS
             //
             case 62374: // Pursued (Flame Leviathan)

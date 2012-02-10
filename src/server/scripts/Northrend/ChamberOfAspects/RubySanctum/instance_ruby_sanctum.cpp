@@ -285,7 +285,6 @@ public:
 
             if (uiData == DONE)
             {
-<<<<<<< HEAD
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
@@ -297,53 +296,6 @@ public:
 
                 SaveToDB();
                 OUT_SAVE_INST_DATA_COMPLETE;
-=======
-                if (!InstanceScript::SetBossState(type, state))
-                    return false;
-
-                switch (type)
-                {
-                    case DATA_BALTHARUS_THE_WARBORN:
-                    {
-                        if (state == DONE && GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE)
-                        {
-                            HandleGameObject(FlameWallsGUID, true);
-                            if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
-                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                        }
-                        break;
-                    }
-                    case DATA_SAVIANA_RAGEFIRE:
-                    {
-                        if (state == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
-                        {
-                            HandleGameObject(FlameWallsGUID, true);
-                            if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
-                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
-                        }
-                        break;
-                    }
-                    case DATA_GENERAL_ZARITHRIAN:
-                        if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
-                            HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
-                        /*
-                        if (state == DONE)
-                            if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
-                                halionController->AI()->DoAction(ACTION_INTRO_HALION);
-                        */
-                        break;
-                    case DATA_HALION:
-                        /*
-                        if (state != IN_PROGRESS)
-                            HandleGameObject(FlameRingGUID, true);
-                        */
-                        break;
-                    default:
-                        break;
-                }
-
-                return true;
->>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
             }
         }
 

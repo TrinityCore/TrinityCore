@@ -19,8 +19,6 @@
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
 
-#include "Unit.h"
-
 class Battleground;
 
 enum BattlegroundDSObjectTypes
@@ -45,10 +43,10 @@ enum BattlegroundDSObjects
 };
 
 enum BattlegroundDSData
-{
-    BG_DS_WATERFALL_TIMER_MIN                    = 35000,
+{ // These values are NOT blizzlike... need the correct data!
+    BG_DS_WATERFALL_TIMER_MIN                    = 30000,
     BG_DS_WATERFALL_TIMER_MAX                    = 60000,
-    BG_DS_WATERFALL_DURATION                     = 30000,
+    BG_DS_WATERFALL_DURATION                     = 10000,
 };
 
 class BattlegroundDSScore : public BattlegroundScore
@@ -80,9 +78,6 @@ class BattlegroundDS : public Battleground
     private:
         uint32 m_waterTimer;
         bool m_waterfallActive;
-        bool m_knockbackCheck;
-        uint32 m_knockback;
-        void KnockBackPlayer(Unit *pPlayer, float angle, float horizontalSpeed, float verticalSpeed);
 
         virtual void PostUpdateImpl(uint32 diff);
     protected:

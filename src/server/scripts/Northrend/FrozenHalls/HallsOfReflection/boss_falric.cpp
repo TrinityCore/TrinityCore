@@ -206,7 +206,6 @@ public:
                    Summon();
                 }
 
-<<<<<<< HEAD
                 if (m_uiSummonTimer < uiDiff) 
                 {
                         ++SummonCount;
@@ -222,9 +221,6 @@ public:
             }
 
             if (!UpdateVictim())
-=======
-            if (me->HasUnitState(UNIT_STATE_CASTING))
->>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
                 return;
 
             if(m_uiStrikeTimer < uiDiff)

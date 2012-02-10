@@ -3191,17 +3191,6 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 {
                     float radius = m_spellInfo->Effects[effIndex].CalcRadius();
 
-<<<<<<< HEAD
-                    uint32 amount = damage > 0 ? damage : 1;
-                    if (m_spellInfo->Id == 18662 || // Curse of Doom
-                        properties->Id == 2081)     // Mechanical Dragonling, Arcanite Dragonling, Mithril Dragonling TODO: Research on meaning of basepoints
-                        amount = 1;
-
-                    if ((properties->Id == 2081 || m_spellInfo->Id == 13258 || m_spellInfo->Id == 13166) && !m_CastItem)
-                        return;
-
-=======
->>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
                     TempSummonType summonType = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
 
                     for (uint32 count = 0; count < numSummons; ++count)
@@ -7319,26 +7308,7 @@ void Spell::SummonGuardian(uint32 i, uint32 entry, SummonPropertiesEntry const* 
 
     float radius = 5.0f;
     int32 duration = m_spellInfo->GetDuration();
-<<<<<<< HEAD
-    switch (m_spellInfo->Id)
-    {
-        case 1122: // Inferno
-        case 4073:  // Mechanical Dragonling
-        case 12749: // Mithril Mechanical Dragonling
-        case 18662: // Curse of Doom
-        case 19804: // Arcanite Dragonling
-        case 48739: // Winterfin First Responder
-        case 65783: // Ogre Pinata
-            amount = 1;
-            break;
-        case 49028: // Dancing Rune Weapon
-            if (AuraEffect* aurEff = m_originalCaster->GetAuraEffect(63330, 0)) // glyph of Dancing Rune Weapon
-                duration += aurEff->GetAmount();
-            break;
-    }
-=======
     
->>>>>>> 5365bd25fae59a6ae225534b779bd6c14779599a
     if (Player* modOwner = m_originalCaster->GetSpellModOwner())
         modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DURATION, duration);
 
