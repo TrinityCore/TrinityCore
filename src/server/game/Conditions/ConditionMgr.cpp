@@ -209,12 +209,7 @@ bool Condition::Meets(WorldObject* object, WorldObject* invoker)
         case CONDITION_SPELL:
         {
             if (Player* player = object->ToPlayer())
-            {
-                if (mConditionValue2 == 1)
-                    condMeets = player->HasSpell(mConditionValue1);
-                else
-                    condMeets = !player->HasSpell(mConditionValue1);
-            }
+                condMeets = player->HasSpell(mConditionValue1);
             break;
         }
         case CONDITION_LEVEL:
