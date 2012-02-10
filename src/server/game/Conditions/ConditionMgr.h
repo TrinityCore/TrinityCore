@@ -114,6 +114,7 @@ struct Condition
     uint32                  ErrorTextd;
     uint32                  mReferenceId;
     uint32                  mScriptId;
+    bool                    mNegativeCondition;
 
     Condition()
     {
@@ -128,6 +129,7 @@ struct Condition
         mReferenceId        = 0;
         ErrorTextd          = 0;
         mScriptId           = 0;
+        mNegativeCondition  = false;
     }
 
     bool Meets(Player* player, Unit* invoker = NULL);
