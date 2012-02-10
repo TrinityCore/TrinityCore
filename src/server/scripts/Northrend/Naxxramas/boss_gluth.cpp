@@ -18,19 +18,29 @@
 #include "ScriptPCH.h"
 #include "naxxramas.h"
 
-#define SPELL_MORTAL_WOUND      25646
-#define SPELL_ENRAGE            RAID_MODE(28371, 54427)
-#define SPELL_DECIMATE          RAID_MODE(28374, 54426)
-#define SPELL_BERSERK           26662
-#define SPELL_INFECTED_WOUND    29306
-
-#define MOB_ZOMBIE  16360
+enum Spells
+{
+    SPELL_MORTAL_WOUND      = 25646,
+    SPELL_ENRAGE_10         = 28371,
+    SPELL_ENRAGE_25         = 54427,
+    SPELL_DECIMATE_10       = 28374,
+    SPELL_DECIMATE_25       = 54426,
+    SPELL_BERSERK           = 26662,
+    SPELL_INFECTED_WOUND    = 29306,
+};
 
 const Position PosSummon[3] =
 {
     {3267.9f, -3172.1f, 297.42f, 0.94f},
     {3253.2f, -3132.3f, 297.42f, 0},
     {3308.3f, -3185.8f, 297.42f, 1.58f},
+};
+
+enum ScriptTexts
+{
+    EMOTE_ENRAGE,
+    EMOTE_DECIMATE,
+    EMOTE_NEARBY,
 };
 
 enum Events
@@ -42,8 +52,6 @@ enum Events
     EVENT_BERSERK,
     EVENT_SUMMON,
 };
-
-#define EMOTE_NEARBY    " spots a nearby zombie to devour!"
 
 class boss_gluth : public CreatureScript
 {
@@ -65,11 +73,10 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (who->GetEntry() == MOB_ZOMBIE && me->IsWithinDistInMap(who, 7))
+            if (who->GetEntry() == NPC_ZOMBIE && me->IsWithinDistInMap(who, 7))
             {
                 SetGazeOn(who);
-                // TODO: use a script text
-                me->MonsterTextEmote(EMOTE_NEARBY, 0, true);
+                Talk(EMOTE_NEARBY);
             }
             else
                 BossAI::MoveInLineOfSight(who);
@@ -81,13 +88,13 @@ public:
             events.ScheduleEvent(EVENT_WOUND, 10000);
             events.ScheduleEvent(EVENT_ENRAGE, 15000);
             events.ScheduleEvent(EVENT_DECIMATE, 105000);
-            events.ScheduleEvent(EVENT_BERSERK, 8*60000);
+            events.ScheduleEvent(EVENT_BERSERK, 480000);
             events.ScheduleEvent(EVENT_SUMMON, 15000);
         }
 
         void JustSummoned(Creature* summon)
         {
-            if (summon->GetEntry() == MOB_ZOMBIE)
+            if (summon->GetEntry() == NPC_ZOMBIE)
                 summon->AI()->AttackStart(me);
             summons.Summon(summon);
         }
@@ -108,28 +115,28 @@ public:
                         events.ScheduleEvent(EVENT_WOUND, 10000);
                         break;
                     case EVENT_ENRAGE:
-                        // TODO : Add missing text
-                        DoCast(me, SPELL_ENRAGE);
+                        Talk(EMOTE_ENRAGE);
+                        DoCast(me, RAID_MODE(SPELL_ENRAGE_10, SPELL_ENRAGE_25));
                         events.ScheduleEvent(EVENT_ENRAGE, 15000);
                         break;
                     case EVENT_DECIMATE:
-                        // TODO : Add missing text
-                        DoCastAOE(SPELL_DECIMATE);
+                        Talk(EMOTE_DECIMATE);
+                        DoCastAOE(RAID_MODE(SPELL_DECIMATE_10, SPELL_DECIMATE_25));
                         events.ScheduleEvent(EVENT_DECIMATE, 105000);
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK);
-                        events.ScheduleEvent(EVENT_BERSERK, 5*60000);
+                        events.ScheduleEvent(EVENT_BERSERK, 300000);
                         break;
                     case EVENT_SUMMON:
                         for (int32 i = 0; i < RAID_MODE(1, 2); ++i)
-                            DoSummon(MOB_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
+                            DoSummon(NPC_ZOMBIE, PosSummon[rand() % RAID_MODE(1, 3)]);
                         events.ScheduleEvent(EVENT_SUMMON, 10000);
                         break;
                 }
             }
 
-            if (me->getVictim() && me->getVictim()->GetEntry() == MOB_ZOMBIE)
+            if (me->getVictim() && me->getVictim()->GetEntry() == NPC_ZOMBIE)
             {
                 if (me->IsWithinMeleeRange(me->getVictim()))
                 {

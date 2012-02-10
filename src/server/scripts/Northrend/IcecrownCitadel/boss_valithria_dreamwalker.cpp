@@ -25,6 +25,8 @@
 #include "GridNotifiersImpl.h"
 #include "icecrown_citadel.h"
 
+#define MAP_NAXXRAMAS 533
+
 enum Texts
 {
     // The Lich King
@@ -590,6 +592,8 @@ class npc_the_lich_king_controller : public CreatureScript
 
             void Reset()
             {
+                if (me->GetMapId() == MAP_NAXXRAMAS)
+                    return;
                 _events.Reset();
                 _events.ScheduleEvent(EVENT_GLUTTONOUS_ABOMINATION_SUMMONER, 5000);
                 _events.ScheduleEvent(EVENT_SUPPRESSER_SUMMONER, 10000);
@@ -601,17 +605,23 @@ class npc_the_lich_king_controller : public CreatureScript
 
             void JustReachedHome()
             {
+                if (me->GetMapId() == MAP_NAXXRAMAS)
+                    return;
                 me->setActive(false);
             }
 
             void EnterCombat(Unit* /*target*/)
             {
+                if (me->GetMapId() == MAP_NAXXRAMAS)
+                    return;
                 Talk(SAY_LICH_KING_INTRO);
                 me->setActive(true);
             }
 
             void JustSummoned(Creature* summon)
             {
+                if (me->GetMapId() == MAP_NAXXRAMAS)
+                    return;
                 // must not be in dream phase
                 summon->SetPhaseMask((summon->GetPhaseMask() & ~0x10), true);
                 if (summon->GetEntry() != NPC_SUPPRESSER)
@@ -621,6 +631,8 @@ class npc_the_lich_king_controller : public CreatureScript
 
             void UpdateAI(uint32 const diff)
             {
+                if (me->GetMapId() == MAP_NAXXRAMAS)
+                    return;
                 if (!UpdateVictim())
                     return;
 
@@ -661,7 +673,7 @@ class npc_the_lich_king_controller : public CreatureScript
 
         CreatureAI* GetAI(Creature* creature) const
         {
-            return new npc_the_lich_king_controllerAI(creature);
+            return GetIcecrownCitadelAI<npc_the_lich_king_controllerAI>(creature);
         }
 };
 
