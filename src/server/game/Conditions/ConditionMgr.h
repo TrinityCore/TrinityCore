@@ -30,7 +30,7 @@ enum ConditionType
 {                                                           // value1           value2      value3
     CONDITION_NONE                  = 0,                    // 0                0           0                  always true
     CONDITION_AURA                  = 1,                    // spell_id         effindex    use target?        true if player (or target, if value3) has aura of spell_id with effect effindex
-    CONDITION_ITEM                  = 2,                    // item_id          count       0                  true if has #count of item_ids
+    CONDITION_ITEM                  = 2,                    // item_id          count       bank               true if has #count of item_ids (if 'bank' is set it searches in bank slots too)
     CONDITION_ITEM_EQUIPPED         = 3,                    // item_id          0           0                  true if has item_id equipped
     CONDITION_ZONEID                = 4,                    // zone_id          0           0                  true if in zone_id
     CONDITION_REPUTATION_RANK       = 5,                    // faction_id       min_rank    0                  true if has min_rank for faction_id
