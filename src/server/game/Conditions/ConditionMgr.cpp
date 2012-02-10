@@ -394,7 +394,7 @@ void ConditionMgr::LoadConditions(bool isReload)
     }
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, "
-                                             " ConditionValue1, ConditionValue2, ConditionValue3, ErrorTextId, ScriptName, NegateCondition FROM conditions");
+                                             " ConditionValue1, ConditionValue2, ConditionValue3, NegativeCondition, ErrorTextId, ScriptName FROM conditions");
 
     if (!result)
     {
@@ -420,9 +420,9 @@ void ConditionMgr::LoadConditions(bool isReload)
         cond->mConditionValue1           = fields[6].GetUInt32();
         cond->mConditionValue2           = fields[7].GetUInt32();
         cond->mConditionValue3           = fields[8].GetUInt32();
-        cond->ErrorTextd                 = fields[9].GetUInt32();
-        cond->mScriptId                  = sObjectMgr->GetScriptId(fields[10].GetCString());
-        cond->mNegativeCondition         = fields[11].GetUInt8();
+        cond->mNegativeCondition         = fields[9].GetUInt8();
+        cond->ErrorTextd                 = fields[10].GetUInt32();
+        cond->mScriptId                  = sObjectMgr->GetScriptId(fields[11].GetCString());
 
         if (iConditionTypeOrReference >= 0)
             cond->mConditionType = ConditionType(iConditionTypeOrReference);
