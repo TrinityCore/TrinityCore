@@ -496,7 +496,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     ResetMap();
     Map* newMap = sMapMgr->CreateBaseMap(newMapid);
     SetMap(newMap);
-    ASSERT (GetMap());
+    ASSERT(GetMap());
     AddToWorld();
 
     if (oldMap != newMap)
