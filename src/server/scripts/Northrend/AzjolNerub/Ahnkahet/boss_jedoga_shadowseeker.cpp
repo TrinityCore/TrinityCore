@@ -159,7 +159,7 @@ public:
         void DoAction(int32 const action)
         {
             if (action == ACTION_INITIAND_KILLED)
-                volunteerWork = false;
+                volunteerWork = true;
         }
 
         uint32 GetData(uint32 type)
