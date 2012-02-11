@@ -46,25 +46,34 @@ BattlegroundDS::~BattlegroundDS()
 
 void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
     if (getWaterFallTimer() < diff)
     {
-        if (isWaterFallActive())
+        if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_OFF) // Add the water
         {
-            setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-            SpawnBGObject(BG_DS_OBJECT_WATER_2, getWaterFallTimer());
+            DoorClose(BG_DS_OBJECT_WATER_2);
+            setWaterFallTimer(BG_DS_WATERFALL_WARNING_DURATION);
+            setWaterFallStatus(BG_DS_WATERFALL_STATUS_WARNING);
+        }
+        else if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_WARNING) // Active collision
+        {
+            if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
+                gob->SetGoState(GO_STATE_READY);
+
+            setWaterFallTimer(BG_DS_WATERFALL_DURATION);
+            setWaterFallStatus(BG_DS_WATERFALL_STATUS_ON);
+        }
+        else //if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_ON) // Remove collision and water
+        {
             // turn off collision
             if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
                 gob->SetGoState(GO_STATE_ACTIVE);
-            setWaterFallActive(false);
-        }
-        else
-        {
-            setWaterFallTimer(BG_DS_WATERFALL_DURATION);
-            SpawnBGObject(BG_DS_OBJECT_WATER_2, RESPAWN_IMMEDIATELY);
-            // Turn on collision
-            if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
-                gob->SetGoState(GO_STATE_READY);
-            setWaterFallActive(true);
+
+            DoorOpen(BG_DS_OBJECT_WATER_2);
+            setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
+            setWaterFallStatus(BG_DS_WATERFALL_STATUS_OFF);
         }
     }
     else
@@ -86,9 +95,11 @@ void BattlegroundDS::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 
     setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-    setWaterFallActive(false);
+    setWaterFallStatus(BG_DS_WATERFALL_STATUS_OFF);
 
-    SpawnBGObject(BG_DS_OBJECT_WATER_2, getWaterFallTimer());
+    SpawnBGObject(BG_DS_OBJECT_WATER_2, RESPAWN_IMMEDIATELY);
+    DoorOpen(BG_DS_OBJECT_WATER_2);
+
     // Turn off collision
     if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[BG_DS_OBJECT_WATER_1]))
         gob->SetGoState(GO_STATE_ACTIVE);
