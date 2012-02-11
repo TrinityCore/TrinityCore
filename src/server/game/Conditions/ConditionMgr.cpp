@@ -312,6 +312,16 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 condMeets = CompareValues(static_cast<ComparisionType>(mConditionValue2), unit->GetHealthPct(), static_cast<float>(mConditionValue1));
             break;
         }
+        case CONDITION_WORLD_STATE:
+        {
+            condMeets = mConditionValue2 == sWorld->getWorldState(mConditionValue1);
+            break;
+        }
+        case CONDITION_PHASEMASK:
+        {
+            condMeets = (bool)(object->GetPhaseMask() & mConditionValue1);
+            break;
+        }
         default:
             condMeets = false;
             break;
@@ -1673,6 +1683,27 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
         case CONDITION_AREAID:
         case CONDITION_INSTANCE_DATA:
             break;
+        case CONDITION_WORLD_STATE:
+        {
+            if (!sWorld->getWorldState(cond->mConditionValue1))
+            {
+                sLog->outErrorDb("World state condition has non existing world state in value1 (%u), skipped", cond->mConditionValue1);
+                return false;
+            }
+            if (cond->mConditionValue2)
+                sLog->outErrorDb("World state condition has useless data in value2 (%u)!", cond->mConditionValue2);
+            if (cond->mConditionValue3)
+                sLog->outErrorDb("World state condition has useless data in value3 (%u)!", cond->mConditionValue3);
+            break;
+        }
+        case CONDITION_PHASEMASK:
+        {
+            if (cond->mConditionValue2)
+                sLog->outErrorDb("World state condition has useless data in value2 (%u)!", cond->mConditionValue2);
+            if (cond->mConditionValue3)
+                sLog->outErrorDb("World state condition has useless data in value3 (%u)!", cond->mConditionValue3);
+            break;
+        }
         default:
             break;
     }
