@@ -36,7 +36,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     // object not present, return false
     if (!object)
     {
-        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "Condition object not found");
+		sLog->outDebug(LOG_FILTER_CONDITIONSYS, "Condition object not found for condition (Entry: %u Type: %u Group: %u)", mSourceEntry, mSourceType, mSourceGroup);
         return false;
     }
     bool condMeets = false;
@@ -334,6 +334,8 @@ uint32 Condition::GetMaxAvailableConditionTargets()
     {
         case CONDITION_SOURCE_TYPE_SPELL:
             return 2;
+		case CONDITION_SOURCE_TYPE_SMART_EVENT:
+			return 2;
         default:
             return 1;
     }
