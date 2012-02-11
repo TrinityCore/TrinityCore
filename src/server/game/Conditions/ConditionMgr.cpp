@@ -36,7 +36,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     // object not present, return false
     if (!object)
     {
-		sLog->outDebug(LOG_FILTER_CONDITIONSYS, "Condition object not found for condition (Entry: %u Type: %u Group: %u)", mSourceEntry, mSourceType, mSourceGroup);
+        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "Condition object not found for condition (Entry: %u Type: %u Group: %u)", mSourceEntry, mSourceType, mSourceGroup);
         return false;
     }
     bool condMeets = false;
