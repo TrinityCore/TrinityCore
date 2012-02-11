@@ -1690,8 +1690,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("World state condition has non existing world state in value1 (%u), skipped", cond->mConditionValue1);
                 return false;
             }
-            if (cond->mConditionValue2)
-                sLog->outErrorDb("World state condition has useless data in value2 (%u)!", cond->mConditionValue2);
             if (cond->mConditionValue3)
                 sLog->outErrorDb("World state condition has useless data in value3 (%u)!", cond->mConditionValue3);
             break;
