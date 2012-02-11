@@ -231,11 +231,16 @@ void BattlegroundRV::TogglePillarCollision(bool apply)
     {
         if (GameObject* gob = GetBgMap()->GetGameObject(m_BgObjects[i]))
         {
-            bool startOpen = (gob->GetGoType() == GAMEOBJECT_TYPE_DOOR || gob->GetGoType() == GAMEOBJECT_TYPE_BUTTON ? gob->GetGOInfo()->door.startOpen : false);
-            if (startOpen)
-                gob->EnableCollision(!apply);
-            else
-                gob->EnableCollision(apply);
+            if (i >= BG_RV_OBJECT_PILAR_COLLISION_1)
+            {
+                uint32 _state = GO_STATE_READY;
+                if (gob->GetGOInfo()->door.startOpen)
+                    _state = GO_STATE_ACTIVE;
+                gob->SetGoState(apply ? (GOState)_state : (GOState)(!_state));
+                
+                if (gob->GetGOInfo()->door.startOpen)
+                    gob->EnableCollision(apply); // Forced collision toggle
+            }
  
             for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
                 if (Player* player = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(itr->first, 0, HIGHGUID_PLAYER)))
