@@ -319,7 +319,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         }
         case CONDITION_PHASEMASK:
         {
-            condMeets = (bool)(object->GetPhaseMask() & mConditionValue1);
+            condMeets = object->GetPhaseMask() & mConditionValue1;
             break;
         }
         default:
