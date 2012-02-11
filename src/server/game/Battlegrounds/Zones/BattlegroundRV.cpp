@@ -239,7 +239,7 @@ void BattlegroundRV::TogglePillarCollision(bool apply)
                 gob->SetGoState(apply ? (GOState)_state : (GOState)(!_state));
                 
                 if (gob->GetGOInfo()->door.startOpen)
-                    gob->EnableCollision(apply); // Forced collision toggle
+                    gob->EnableCollision(!apply); // Forced collision toggle
             }
  
             for (BattlegroundPlayerMap::iterator itr = m_Players.begin(); itr != m_Players.end(); ++itr)
