@@ -16,9 +16,6 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup world The World
-/// @{
-/// \file
 
 #ifndef __WORLD_H
 #define __WORLD_H
@@ -167,6 +164,8 @@ enum WorldBoolConfigs
     CONFIG_PDUMP_NO_OVERWRITE,
     CONFIG_WARDEN_ENABLED,
 	CONFIG_CHANNEL_ON_CITY_ONLY_FLAG,
+    CONFIG_QUEST_IGNORE_AUTO_ACCEPT,
+    CONFIG_QUEST_IGNORE_AUTO_COMPLETE,
     BOOL_CONFIG_VALUE_COUNT
 };
 

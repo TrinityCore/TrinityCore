@@ -222,7 +222,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetUInt32Value(GAMEOBJECT_LEVEL, m_period);
     SetEntry(goinfo->entry);
 
-    SetUInt32Value(GAMEOBJECT_DISPLAYID, goinfo->displayId);
+    SetDisplayId(goinfo->displayId);
 
     SetGoState(GO_STATE_READY);
     SetGoType(GameobjectTypes(goinfo->type));
@@ -496,7 +496,7 @@ void Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
     ResetMap();
     Map* newMap = sMapMgr->CreateBaseMap(newMapid);
     SetMap(newMap);
-    ASSERT (GetMap());
+    ASSERT(GetMap());
     AddToWorld();
 
     if (oldMap != newMap)

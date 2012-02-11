@@ -30,6 +30,8 @@
 #include "SharedDefines.h"
 #include "GridRefManager.h"
 #include "MapRefManager.h"
+#include "DynamicTree.h"
+#include "GameObjectModel.h"
 
 #include <bitset>
 #include <list>
@@ -425,7 +427,12 @@ class Map : public GridRefManager<NGridType>
         InstanceMap* ToInstanceMap(){ if (IsDungeon())  return reinterpret_cast<InstanceMap*>(this); else return NULL;  }
         const InstanceMap* ToInstanceMap() const { if (IsDungeon())  return (const InstanceMap*)((InstanceMap*)this); else return NULL;  }
         float GetWaterOrGroundLevel(float x, float y, float z, float* ground = NULL, bool swim = false) const;
-
+        float GetHeight(uint32 phasemask, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
+        bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
+        void Balance() { m_dyn_tree.balance(); }
+        void Remove(const GameObjectModel& mdl) { m_dyn_tree.remove(mdl); }
+        void Insert(const GameObjectModel& mdl) { m_dyn_tree.insert(mdl); }
+        bool Contains(const GameObjectModel& mdl) const { return m_dyn_tree.contains(mdl);}
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
@@ -481,6 +488,7 @@ class Map : public GridRefManager<NGridType>
         uint32 i_InstanceId;
         uint32 m_unloadTimer;
         float m_VisibleDistance;
+        DynamicMapTree m_dyn_tree;
 
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;
