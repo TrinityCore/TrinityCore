@@ -2307,6 +2307,22 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
     return true;
 }
 
+void Player::KnockBackWithAngle(float angle, float horizontalSpeed, float verticalSpeed)
+{
+    float vsin = sin(angle);
+    float vcos = cos(angle);
+
+    // Effect propertly implemented only for players
+    WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+4);
+    data.append(GetPackGUID());
+    data << uint32(0);                                  // Sequence
+    data << float(vcos);                                // x direction
+    data << float(vsin);                                // y direction
+    data << float(horizontalSpeed);                     // Horizontal speed
+    data << float(-verticalSpeed);                      // Z Movement speed (vertical)
+    GetSession()->SendPacket(&data);
+}
+
 bool Player::TeleportToBGEntryPoint()
 {
     if (m_bgData.joinPos.m_mapId == MAPID_INVALID)

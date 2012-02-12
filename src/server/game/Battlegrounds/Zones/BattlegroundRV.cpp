@@ -102,6 +102,8 @@ void BattlegroundRV::StartingEventOpenDoors()
 
     setState(BG_RV_STATE_OPEN_FENCES);
     setTimer(BG_RV_FIRST_TIMER);
+
+    TogglePillarCollision(true);
 }
 
 void BattlegroundRV::AddPlayer(Player* player)
@@ -148,6 +150,10 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
 
 bool BattlegroundRV::HandlePlayerUnderMap(Player* player)
 {
+    // Wait for elevators to Go up, before start checking for UnderMaped players
+    if(GetStartTime() < uint32(StartDelayTimes[BG_STARTING_EVENT_FIRST] + 20*IN_MILLISECONDS))
+       return true;
+
     player->TeleportTo(GetMapId(), 763.5f, -284, 28.276f, 2.422f, false);
     return true;
 }

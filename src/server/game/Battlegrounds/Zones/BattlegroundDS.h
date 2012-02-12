@@ -43,11 +43,10 @@ enum BattlegroundDSObjects
 };
 
 enum BattlegroundDSData
-{ // These values are NOT blizzlike... need the correct data!
-    BG_DS_WATERFALL_TIMER_MIN                    = 30000,
-    BG_DS_WATERFALL_TIMER_MAX                    = 60000,
-    BG_DS_WATERFALL_WARNING_DURATION             = 7000,
-    BG_DS_WATERFALL_DURATION                     = 10000,
+{
+    BG_DS_WATERFALL_TIMER                        = 30000,
+    BG_DS_WATERFALL_WARNING_DURATION             = 5000,
+    BG_DS_WATERFALL_DURATION                     = 25000,
 
     BG_DS_WATERFALL_STATUS_WARNING               = 1, // Water starting to fall, but no LoS Blocking nor movement blocking
     BG_DS_WATERFALL_STATUS_ON                    = 2, // LoS and Movement blocking active
@@ -83,6 +82,7 @@ class BattlegroundDS : public Battleground
     private:
         uint32 _waterfallTimer;
         uint8 _waterfallStatus;
+        uint32 _KnockbackTimer;
 
         virtual void PostUpdateImpl(uint32 diff);
     protected:
