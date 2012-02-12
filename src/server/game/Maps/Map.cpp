@@ -500,7 +500,7 @@ void Map::VisitNearbyCellsOf(WorldObject* obj, TypeContainerVisitor<Trinity::Obj
 
 void Map::Update(const uint32 t_diff)
 {
-    m_dyn_tree.update(t_diff);
+    _dynamicTree.update(t_diff);
     /// update worldsessions for existing players
     for (m_mapRefIter = m_mapRefManager.begin(); m_mapRefIter != m_mapRefManager.end(); ++m_mapRefIter)
     {
@@ -1800,12 +1800,26 @@ void Map::GetZoneAndAreaIdByAreaFlag(uint32& zoneid, uint32& areaid, uint16 area
 bool Map::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
 {
     return VMAP::VMapFactory::createOrGetVMapManager()->isInLineOfSight(GetId(), x1, y1, z1, x2, y2, z2)
-        && m_dyn_tree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask);
+        && _dynamicTree.isInLineOfSight(x1, y1, z1, x2, y2, z2, phasemask);
+}
+
+bool Map::getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float& ry, float& rz, float modifyDist)
+{
+    Vector3 startPos = Vector3(x1, y1, z1);
+    Vector3 dstPos = Vector3(x2, y2, z2);
+
+    Vector3 resultPos;
+    bool result = _dynamicTree.getObjectHitPos(phasemask, startPos, dstPos, resultPos, modifyDist);
+
+    rx = resultPos.x;
+    ry = resultPos.y;
+    rz = resultPos.z;
+    return result;
 }
 
 float Map::GetHeight(uint32 phasemask, float x, float y, float z, bool vmap/*=true*/, float maxSearchDist/*=DEFAULT_HEIGHT_SEARCH*/) const
 {
-    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), m_dyn_tree.getHeight(x, y, z, maxSearchDist, phasemask));
+    return std::max<float>(GetHeight(x, y, z, vmap, maxSearchDist), _dynamicTree.getHeight(x, y, z, maxSearchDist, phasemask));
 }
 
 bool Map::IsInWater(float x, float y, float pZ, LiquidData* data) const
