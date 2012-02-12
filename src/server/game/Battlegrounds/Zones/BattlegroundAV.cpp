@@ -29,13 +29,13 @@
 
 BattlegroundAV::BattlegroundAV()
 {
-    m_BgObjects.resize(BG_AV_OBJECT_MAX);
-    m_BgCreatures.resize(AV_CPLACE_MAX+AV_STATICCPLACE_MAX);
+    BgObjects.resize(BG_AV_OBJECT_MAX);
+    BgCreatures.resize(AV_CPLACE_MAX+AV_STATICCPLACE_MAX);
 
-    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AV_START_TWO_MINUTES;
-    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AV_START_ONE_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AV_START_HALF_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AV_HAS_BEGUN;
+    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AV_START_TWO_MINUTES;
+    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AV_START_ONE_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AV_START_HALF_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AV_HAS_BEGUN;
 }
 
 BattlegroundAV::~BattlegroundAV()
@@ -430,7 +430,7 @@ void BattlegroundAV::AddPlayer(Player* player)
     Battleground::AddPlayer(player);
     //create score and add it to map, default values are set in constructor
     BattlegroundAVScore* sc = new BattlegroundAVScore;
-    m_PlayerScores[player->GetGUID()] = sc;
+    PlayerScores[player->GetGUID()] = sc;
     if (m_MaxLevel == 0)
         m_MaxLevel=(player->getLevel()%10 == 0)? player->getLevel() : (player->getLevel()-(player->getLevel()%10))+10; //TODO: just look at the code \^_^/ --but queue-info should provide this information..
 
@@ -532,8 +532,8 @@ void BattlegroundAV::HandleAreaTrigger(Player* Source, uint32 Trigger)
 void BattlegroundAV::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
 
-    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if (itr == m_PlayerScores.end())                         // player not found...
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
+    if (itr == PlayerScores.end())                         // player not found...
         return;
 
     switch (type)
@@ -585,7 +585,7 @@ void BattlegroundAV::EventPlayerDestroyedPoint(BG_AV_Nodes node)
     {
         uint8 tmp = node-BG_AV_NODES_DUNBALDAR_SOUTH;
         //despawn marshal
-        if (m_BgCreatures[AV_CPLACE_A_MARSHAL_SOUTH + tmp])
+        if (BgCreatures[AV_CPLACE_A_MARSHAL_SOUTH + tmp])
             DelCreature(AV_CPLACE_A_MARSHAL_SOUTH + tmp);
         else
             sLog->outError("BG_AV: playerdestroyedpoint: marshal %i doesn't exist", AV_CPLACE_A_MARSHAL_SOUTH + tmp);
@@ -649,10 +649,10 @@ void BattlegroundAV::ChangeMineOwner(uint8 mine, uint32 team, bool initial)
         sLog->outDebug(LOG_FILTER_BATTLEGROUND, "bg_av depopulating mine %i (0=north, 1=south)", mine);
         if (mine == AV_SOUTH_MINE)
             for (uint16 i=AV_CPLACE_MINE_S_S_MIN; i <= AV_CPLACE_MINE_S_S_MAX; i++)
-                if (m_BgCreatures[i])
+                if (BgCreatures[i])
                     DelCreature(i); //TODO just set the respawntime to 999999
         for (uint16 i=((mine == AV_NORTH_MINE)?AV_CPLACE_MINE_N_1_MIN:AV_CPLACE_MINE_S_1_MIN); i <= ((mine == AV_NORTH_MINE)?AV_CPLACE_MINE_N_3:AV_CPLACE_MINE_S_3); i++)
-            if (m_BgCreatures[i])
+            if (BgCreatures[i])
                 DelCreature(i); //TODO here also
     }
     SendMineWorldStates(mine);
@@ -750,7 +750,7 @@ void BattlegroundAV::PopulateNode(BG_AV_Nodes node)
         else
            creatureid = (owner == ALLIANCE)? AV_NPC_A_GRAVEDEFENSE3 : AV_NPC_H_GRAVEDEFENSE3;
         //spiritguide
-        if (m_BgCreatures[node])
+        if (BgCreatures[node])
             DelCreature(node);
         if (!AddSpiritGuide(node, BG_AV_CreaturePos[node][0], BG_AV_CreaturePos[node][1], BG_AV_CreaturePos[node][2], BG_AV_CreaturePos[node][3], owner))
             sLog->outError("AV: couldn't spawn spiritguide at node %i", node);
@@ -783,10 +783,10 @@ void BattlegroundAV::DePopulateNode(BG_AV_Nodes node)
 {
     uint32 c_place = AV_CPLACE_DEFENSE_STORM_AID + (4 * node);
     for (uint8 i=0; i<4; i++)
-        if (m_BgCreatures[c_place+i])
+        if (BgCreatures[c_place+i])
             DelCreature(c_place+i);
     //spiritguide
-    if (!IsTower(node) && m_BgCreatures[node])
+    if (!IsTower(node) && BgCreatures[node])
         DelCreature(node);
 
     //remove bonus honor aura trigger creature when node is lost
@@ -1029,7 +1029,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             SpawnBGObject(BG_AV_OBJECT_AURA_N_FIRSTAID_STATION+3*node, RESPAWN_IMMEDIATELY); //neutral aura spawn
             SpawnBGObject(BG_AV_OBJECT_AURA_A_FIRSTAID_STATION+GetTeamIndexByTeamId(owner)+3*node, RESPAWN_ONE_DAY); //teeamaura despawn
             // Those who are waiting to resurrect at this object are taken to the closest own object's graveyard
-            std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[node]];
+            std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
             if (!ghost_list.empty())
             {
                 Player* player;
@@ -1044,7 +1044,7 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
                     else
                         player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
                 }
-                m_ReviveQueue[m_BgCreatures[node]].clear();
+                m_ReviveQueue[BgCreatures[node]].clear();
             }
         }
         DePopulateNode(node);
@@ -1490,7 +1490,7 @@ void BattlegroundAV::ResetBGSubclass()
 
     m_Mine_Timer=AV_MINE_TICK_TIMER;
     for (uint16 i = 0; i < AV_CPLACE_MAX+AV_STATICCPLACE_MAX; i++)
-        if (m_BgCreatures[i])
+        if (BgCreatures[i])
             DelCreature(i);
 
 }

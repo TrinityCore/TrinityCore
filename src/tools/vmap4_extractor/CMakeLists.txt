@@ -31,18 +31,18 @@ elseif( WIN32 )
   )
 endif()
 
-add_executable(vmap3extractor ${sources})
+add_executable(vmap4extractor ${sources})
 
-target_link_libraries(vmap3extractor
+target_link_libraries(vmap4extractor
   ${BZIP2_LIBRARIES}
   ${ZLIB_LIBRARIES}
   mpq
 )
 
-add_dependencies(vmap3extractor mpq)
+add_dependencies(vmap4extractor mpq)
 
 if( UNIX )
-  install(TARGETS vmap3extractor DESTINATION bin)
+  install(TARGETS vmap4extractor DESTINATION bin)
 elseif( WIN32 )
-  install(TARGETS vmap3extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
+  install(TARGETS vmap4extractor DESTINATION "${CMAKE_INSTALL_PREFIX}")
 endif()

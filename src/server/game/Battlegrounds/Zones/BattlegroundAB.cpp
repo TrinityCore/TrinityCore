@@ -31,13 +31,13 @@
 BattlegroundAB::BattlegroundAB()
 {
     m_BuffChange = true;
-    m_BgObjects.resize(BG_AB_OBJECT_MAX);
-    m_BgCreatures.resize(BG_AB_ALL_NODES_COUNT + 5);//+5 for aura triggers
+    BgObjects.resize(BG_AB_OBJECT_MAX);
+    BgCreatures.resize(BG_AB_ALL_NODES_COUNT + 5);//+5 for aura triggers
 
-    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AB_START_TWO_MINUTES;
-    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AB_START_HALF_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AB_HAS_BEGUN;
+    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_BG_AB_START_TWO_MINUTES;
+    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_AB_START_ONE_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_AB_START_HALF_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_AB_HAS_BEGUN;
 }
 
 BattlegroundAB::~BattlegroundAB()
@@ -202,7 +202,7 @@ void BattlegroundAB::AddPlayer(Player* player)
     //create score and add it to map, default values are set in the constructor
     BattlegroundABScore* sc = new BattlegroundABScore;
 
-    m_PlayerScores[player->GetGUID()] = sc;
+    PlayerScores[player->GetGUID()] = sc;
 }
 
 void BattlegroundAB::RemovePlayer(Player* /*player*/, uint64 /*guid*/, uint32 /*team*/)
@@ -395,7 +395,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
         DelCreature(node+7);//NULL checks are in DelCreature! 0-6 spirit guides
 
     // Those who are waiting to resurrect at this node are taken to the closest own node's graveyard
-    std::vector<uint64> ghost_list = m_ReviveQueue[m_BgCreatures[node]];
+    std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
     if (!ghost_list.empty())
     {
         WorldSafeLocsEntry const* ClosestGrave = NULL;
@@ -413,7 +413,7 @@ void BattlegroundAB::_NodeDeOccupied(uint8 node)
         }
     }
 
-    if (m_BgCreatures[node])
+    if (BgCreatures[node])
         DelCreature(node);
 
     // buff object isn't despawned
@@ -426,11 +426,11 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
         return;
 
     uint8 node = BG_AB_NODE_STABLES;
-    GameObject* obj = GetBgMap()->GetGameObject(m_BgObjects[node*8+7]);
+    GameObject* obj = GetBgMap()->GetGameObject(BgObjects[node*8+7]);
     while ((node < BG_AB_DYNAMIC_NODES_COUNT) && ((!obj) || (!source->IsWithinDistInMap(obj, 10))))
     {
         ++node;
-        obj = GetBgMap()->GetGameObject(m_BgObjects[node*8+BG_AB_OBJECT_AURA_CONTESTED]);
+        obj = GetBgMap()->GetGameObject(BgObjects[node*8+BG_AB_OBJECT_AURA_CONTESTED]);
     }
 
     if (node == BG_AB_DYNAMIC_NODES_COUNT)
@@ -614,7 +614,7 @@ void BattlegroundAB::Reset()
     }
 
     for (uint8 i = 0; i < BG_AB_ALL_NODES_COUNT + 5; ++i)//+5 for aura triggers
-        if (m_BgCreatures[i])
+        if (BgCreatures[i])
             DelCreature(i);
 }
 
@@ -673,8 +673,8 @@ WorldSafeLocsEntry const* BattlegroundAB::GetClosestGraveYard(Player* player)
 
 void BattlegroundAB::UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor)
 {
-    BattlegroundScoreMap::iterator itr = m_PlayerScores.find(Source->GetGUID());
-    if (itr == m_PlayerScores.end())                         // player not found...
+    BattlegroundScoreMap::iterator itr = PlayerScores.find(Source->GetGUID());
+    if (itr == PlayerScores.end())                         // player not found...
         return;
 
     switch (type)

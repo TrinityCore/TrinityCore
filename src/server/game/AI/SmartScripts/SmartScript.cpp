@@ -85,14 +85,9 @@ void SmartScript::ProcessEventsFor(SMART_EVENT e, Unit* unit, uint32 var0, uint3
         if (eventType == e/* && (!(*i).event.event_phase_mask || IsInPhase((*i).event.event_phase_mask)) && !((*i).event.event_flags & SMART_EVENT_FLAG_NOT_REPEATABLE && (*i).runOnce)*/)
         {
             bool meets = true;
-            if (unit)
-            {
-                if (Player* player = unit->ToPlayer())
-                {
-                    ConditionList conds = sConditionMgr->GetConditionsForSmartEvent((*i).entryOrGuid, (*i).event_id, (*i).source_type);
-                    meets = sConditionMgr->IsPlayerMeetToConditions(player, conds);
-                }
-            }
+            ConditionList conds = sConditionMgr->GetConditionsForSmartEvent((*i).entryOrGuid, (*i).event_id, (*i).source_type);
+            ConditionSourceInfo info = ConditionSourceInfo(unit, GetBaseObject());
+            meets = sConditionMgr->IsObjectMeetToConditions(info, conds);
             
             if (meets)
                 ProcessEvent(*i, unit, var0, var1, bvar, spell, gob);
@@ -2781,6 +2776,19 @@ void SmartScript::InstallEvents()
 
         mInstallEvents.clear();
     }
+}
+
+bool SmartScript::ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3)
+{
+    if (c == 0) return true;
+    if (!u || !u->ToPlayer()) return false;
+    Condition cond;
+    cond.mConditionType = ConditionType(uint32(c));
+    cond.mConditionValue1 = uint32(v1);
+    cond.mConditionValue1 = uint32(v2);
+    cond.mConditionValue1 = uint32(v3);
+    ConditionSourceInfo srcInfo = ConditionSourceInfo(u->ToPlayer());
+    return cond.Meets(srcInfo);
 }
 
 void SmartScript::OnUpdate(uint32 const diff)
