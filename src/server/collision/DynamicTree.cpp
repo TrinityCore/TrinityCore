@@ -176,6 +176,54 @@ struct DynamicTreeIntersectionCallback_WithLogger
     bool didHit() const { return did_hit;}
 };
 
+bool DynamicMapTree::getIntersectionTime(const uint32 phasemask, const G3D::Ray& ray, const Vector3& endPos, float& maxDist) const
+{
+    float distance = maxDist;
+    DynamicTreeIntersectionCallback callback(phasemask);
+    impl.intersectRay(ray, callback, distance, endPos);
+    if (callback.didHit())
+        maxDist = distance;
+    return callback.didHit();
+}
+
+bool DynamicMapTree::getObjectHitPos(const uint32 phasemask, const Vector3& startPos, const Vector3& endPos, Vector3& resultHit, float modifyDist) const
+{
+    bool result = false;
+    float maxDist = (endPos - startPos).magnitude();
+    // valid map coords should *never ever* produce float overflow, but this would produce NaNs too
+    ASSERT(maxDist < std::numeric_limits<float>::max());
+    // prevent NaN values which can cause BIH intersection to enter infinite loop
+    if (maxDist < 1e-10f)
+    {
+        resultHit = endPos;
+        return false;
+    }
+    Vector3 dir = (endPos - startPos)/maxDist;              // direction with length of 1
+    G3D::Ray ray(startPos, dir);
+    float dist = maxDist;
+    if (getIntersectionTime(phasemask, ray, endPos, dist))
+    {
+        resultHit = startPos + dir * dist;
+        if (modifyDist < 0)
+        {
+            if ((resultHit - startPos).magnitude() > -modifyDist)
+                resultHit = resultHit + dir*modifyDist;
+            else
+                resultHit = startPos;
+        }
+        else
+            resultHit = resultHit + dir*modifyDist;
+
+        result = true;
+    }
+    else
+    {
+        resultHit = endPos;
+        result = false;
+    }
+    return result;
+}
+
 bool DynamicMapTree::isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const
 {
     Vector3 v1(x1,y1,z1), v2(x2,y2,z2);
