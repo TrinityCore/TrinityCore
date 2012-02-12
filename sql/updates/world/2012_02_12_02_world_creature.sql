@@ -2,7 +2,7 @@ SET @GUID := 40489;
 SET @NPC :=3254;
 
 DELETE FROM `creature` WHERE `guid` BETWEEN @GUID AND @GUID+7;
-INSERT INTO creature (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
+INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@GUID  ,@NPC,1,1,1,0,0, 10.3997021, -2316.43555, 92.1945343, 2.91896486,120,0,0,1,0,0,0,0,0),
 (@GUID+1,@NPC,1,1,1,0,0,346.736572 , -2606.38916, 91.7916641, 1.58010352,120,0,0,1,0,0,0,0,0),
 (@GUID+2,@NPC,1,1,1,0,0, 83.07206  , -2545.2085 , 98.107666 , 1.86412442,120,0,0,1,0,0,0,0,0),
