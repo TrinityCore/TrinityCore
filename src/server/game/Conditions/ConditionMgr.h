@@ -41,7 +41,7 @@ enum ConditionType
     CONDITION_QUESTREWARDED         = 8,                    // quest_id         0              0                  true if quest_id was rewarded before
     CONDITION_QUESTTAKEN            = 9,                    // quest_id         0,             0                  true while quest active
     CONDITION_DRUNKENSTATE          = 10,                   // DrunkenState     0,             0                  true if player is drunk enough
-    CONDITION_UNUSED_11             = 11,
+    CONDITION_WORLD_STATE           = 11,                   // index            value          0                  true if world has the value for the index
     CONDITION_ACTIVE_EVENT          = 12,                   // event_id         0              0                  true if event is active
     CONDITION_INSTANCE_DATA         = 13,                   // entry            data           0                  true if data is set in current instance
     CONDITION_QUEST_NONE            = 14,                   // quest_id         0              0                  true if doesn't have quest saved
@@ -56,7 +56,7 @@ enum ConditionType
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
     CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType, TargetEntry,    0
     CONDITION_SPELL                 = 25,                   // spell_id         0              0                  true if player has learned spell
-    CONDITION_UNUSED_26             = 26,
+    CONDITION_PHASEMASK             = 26,                   // phasemask        0              0                  true if object is in phasemask
     CONDITION_LEVEL                 = 27,                   // level            ComparisonType 0                  true if unit's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0              0                  true if player has quest_id with all objectives complete, but not yet rewarded
     CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance       0                  true if there is a creature of entry in range
