@@ -81,14 +81,14 @@ class BattlegroundDS : public Battleground
         void HandleKillPlayer(Player* player, Player* killer);
         bool HandlePlayerUnderMap(Player* player);
     private:
-        uint32 m_waterTimer;
-        uint8 m_waterfallStatus;
+        uint32 _waterfallTimer;
+        uint8 _waterfallStatus;
 
         virtual void PostUpdateImpl(uint32 diff);
     protected:
-        uint32 getWaterFallStatus() { return m_waterfallStatus; };
-        void setWaterFallStatus(uint32 status) { m_waterfallStatus = status; };
-        void setWaterFallTimer(uint32 timer) { m_waterTimer = timer; };
-        uint32 getWaterFallTimer() { return m_waterTimer; };
+        uint32 getWaterFallStatus() { return _waterfallStatus; };
+        void setWaterFallStatus(uint32 status) { _waterfallStatus = status; };
+        void setWaterFallTimer(uint32 timer) { _waterfallTimer = timer; };
+        uint32 getWaterFallTimer() { return _waterfallTimer; };
 };
 #endif
