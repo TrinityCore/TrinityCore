@@ -132,9 +132,10 @@ void GameObject::AddToWorld()
 
         sObjectAccessor->AddObject(this);
         bool startOpen = (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? GetGOInfo()->door.startOpen : false);
+        bool toggledState = (GetGOData() ? GetGOData()->go_state == GO_STATE_ACTIVE : false);
         if (m_model/* && (GetGoType() == GAMEOBJECT_TYPE_DOOR || GetGoType() == GAMEOBJECT_TYPE_BUTTON ? !GetGOInfo()->door.startOpen : true)*/)
             GetMap()->Insert(*m_model);
-        if (startOpen)
+        if (startOpen || toggledState)
             EnableCollision(false);
         WorldObject::AddToWorld();
     }
