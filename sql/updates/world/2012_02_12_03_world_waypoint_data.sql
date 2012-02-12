@@ -1,5 +1,5 @@
 SET @NPC := 26841;
-SET @GUID := 40496; -- need 9
+SET @GUID := 40497; -- need 9
 
 SET @SPAWN0 := (@GUID  )*10;
 SET @SPAWN1 := (@GUID+1)*10;
@@ -23,7 +23,7 @@ INSERT INTO creature (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equip
 (@GUID+7,@NPC,571,1,1,0,0,3995.586,447.6094,88.55691,1.320955,120,0,0,1,0,0,0,0,0),
 (@GUID+8,@NPC,571,1,1,0,0,3869.004,707.384,134.3378,4.695541,120,0,0,1,0,0,0,0,0);
 
-DELETE FROM `creature_addon` WHERE `guid` IN (@GUID,@GUID+1,@GUID+2,@GUID+3,@GUID+6,@GUID+7);
+DELETE FROM `creature_addon` WHERE `guid` BETWEEN @GUID AND @GUID+8;
 INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`,`auras`) VALUES
 (@GUID  ,@SPAWN0,0,0,0,0,''),
 (@GUID+1,@SPAWN1,0,0,0,0,''),
@@ -35,7 +35,7 @@ INSERT INTO `creature_addon` (`guid`,`path_id`,`mount`,`bytes1`,`bytes2`,`emote`
 (@GUID+7,@SPAWN7,0,0,0,0,''),
 (@GUID+8,@SPAWN8,0,0,0,0,'');
 
-DELETE FROM `waypoint_data` WHERE `id` IN (@NPC1,@NPC2,@NPC3,@NPC4,@NPC5,@NPC6);
+DELETE FROM `waypoint_data` WHERE `id` IN (@SPAWN0,@SPAWN1,@SPAWN2,@SPAWN3,@SPAWN4,@SPAWN5,@SPAWN6,@SPAWN7,@SPAWN8);
 INSERT INTO `waypoint_data` (`id`,`point`,`position_x`,`position_y`,`position_z`,`orientation`,`delay`,`move_flag`,`action`,`action_chance`,`wpguid`) VALUES
 -- 1st
 (@SPAWN0,0,4716.777,833.6211,169.0006,0,0,0,0,100,0),
