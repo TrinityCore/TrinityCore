@@ -37,7 +37,8 @@ bool Model::open()
     if (!ok)
     {
         f.close();
-        printf("Error loading model %s\n", filename.c_str());
+        // Do not show this error on console to avoid confusion, the extractor can continue working even if some models fail to load
+        //printf("Error loading model %s\n", filename.c_str());
         return false;
     }
 
