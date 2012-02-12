@@ -1568,7 +1568,7 @@ void ObjectMgr::RemoveCreatureFromGrid(uint32 guid, CreatureData const* data)
     }
 }
 
-uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, float rotation0, float rotation1, float rotation2, float rotation3)
+uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float z, float o, uint32 spawntimedelay, QuaternionData rotation)
 {
     GameObjectTemplate const* goinfo = GetGameObjectTemplate(entry);
     if (!goinfo)
@@ -1586,10 +1586,10 @@ uint32 ObjectMgr::AddGOData(uint32 entry, uint32 mapId, float x, float y, float 
     data.posY           = y;
     data.posZ           = z;
     data.orientation    = o;
-    data.rotation0      = rotation0;
-    data.rotation1      = rotation1;
-    data.rotation2      = rotation2;
-    data.rotation3      = rotation3;
+    data.rotation.x     = rotation.x;
+    data.rotation.y     = rotation.y;
+    data.rotation.z     = rotation.z;
+    data.rotation.w     = rotation.w;
     data.spawntimesecs  = spawntimedelay;
     data.animprogress   = 100;
     data.spawnMask      = 1;
@@ -1773,10 +1773,10 @@ void ObjectMgr::LoadGameobjects()
         data.posY           = fields[ 4].GetFloat();
         data.posZ           = fields[ 5].GetFloat();
         data.orientation    = fields[ 6].GetFloat();
-        data.rotation0      = fields[ 7].GetFloat();
-        data.rotation1      = fields[ 8].GetFloat();
-        data.rotation2      = fields[ 9].GetFloat();
-        data.rotation3      = fields[10].GetFloat();
+        data.rotation.x     = fields[ 7].GetFloat();
+        data.rotation.y     = fields[ 8].GetFloat();
+        data.rotation.z     = fields[ 9].GetFloat();
+        data.rotation.w     = fields[10].GetFloat();
         data.spawntimesecs  = fields[11].GetInt32();
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(data.mapid);
@@ -1811,15 +1811,27 @@ void ObjectMgr::LoadGameobjects()
         int16 gameEvent     = fields[16].GetInt16();
         uint32 PoolId        = fields[17].GetUInt32();
 
-        if (data.rotation2 < -1.0f || data.rotation2 > 1.0f)
+        if (data.rotation.x < -1.0f || data.rotation.x > 1.0f)
         {
-            sLog->outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation2 (%f) value, skip", guid, data.id, data.rotation2);
+            sLog->outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid rotation0 (%f) value, skip", guid, data.id, data.rotation.x);
             continue;
         }
 
-        if (data.rotation3 < -1.0f || data.rotation3 > 1.0f)
+        if (data.rotation.y < -1.0f || data.rotation.y > 1.0f)
         {
-            sLog->outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation3 (%f) value, skip", guid, data.id, data.rotation3);
+            sLog->outErrorDb("Table `gameobject` have gameobject (GUID: %u Entry: %u) with invalid rotation1 (%f) value, skip", guid, data.id, data.rotation.y);
+            continue;
+        }
+
+        if (data.rotation.z < -1.0f || data.rotation.z > 1.0f)
+        {
+            sLog->outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation2 (%f) value, skip", guid, data.id, data.rotation.z);
+            continue;
+        }
+
+        if (data.rotation.w < -1.0f || data.rotation.w > 1.0f)
+        {
+            sLog->outErrorDb("Table `gameobject` has gameobject (GUID: %u Entry: %u) with invalid rotation3 (%f) value, skip", guid, data.id, data.rotation.w);
             continue;
         }
 
@@ -1843,6 +1855,66 @@ void ObjectMgr::LoadGameobjects()
 
     sLog->outString(">> Loaded %lu gameobjects in %u ms", (unsigned long)mGameObjectDataMap.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
+}
+
+void ObjectMgr::LoadGameObjectAddon()
+{
+    uint32 oldMSTime = getMSTime();
+
+    //                                                0    1               2               3               4
+    QueryResult result = WorldDatabase.Query("SELECT guid, path_rotation0, path_rotation1, path_rotation2, path_rotation3, FROM gameobject_addon");
+
+    if (!result)
+    {
+        sLog->outErrorDb(">> Loaded 0 gameobjects addon definitions. DB table `gameobject_addon` is empty.");
+        sLog->outString();
+        return;
+    }
+
+    uint32 count = 0;
+    do 
+    {
+        Field* fields = result->Fetch();
+
+        uint32 guid = fields[0].GetUInt32();
+
+        if (mGameObjectDataMap.find(guid) == mGameObjectDataMap.end())
+        {
+            sLog->outErrorDb("Gameobject (GUID: %u) does not exist but has a record in `gameobject_addon`", guid);
+            continue;
+        }
+
+        GameObjectDataAddon const* addon = GetGameObjectAddonTemplate(guid);
+        if (!addon)
+            return;
+
+        GameObjectDataAddon& gameObjectAddon = GameObjectAddonStore[guid];
+
+        gameObjectAddon.path_rotation.x = fields[1].GetFloat();
+        gameObjectAddon.path_rotation.y = fields[2].GetFloat();
+        gameObjectAddon.path_rotation.z = fields[3].GetFloat();
+        gameObjectAddon.path_rotation.w = fields[4].GetFloat();
+
+        if (!gameObjectAddon.path_rotation.isUnit())
+        {
+            sLog->outErrorDb("Gameobject (GUID: %u) has invalid path rotation", guid);
+            const_cast<GameObjectDataAddon*>(addon)->path_rotation = QuaternionData(0.f, 0.f, 0.f, 1.f);
+        }
+        ++count;
+    }
+    while (result->NextRow());
+
+    sLog->outString(">> Loaded %lu gameobject addons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString();
+}
+
+GameObjectDataAddon const* ObjectMgr::GetGameObjectAddonTemplate(uint32 lowguid)
+{
+    GameObjectAddonContainer::const_iterator itr = GameObjectAddonStore.find(lowguid);
+    if (itr != GameObjectAddonStore.end())
+        return &(itr->second);
+
+    return NULL;
 }
 
 void ObjectMgr::AddGameobjectToGrid(uint32 guid, GameObjectData const* data)
