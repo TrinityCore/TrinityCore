@@ -14086,7 +14086,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
         if (source->ToGameObject()->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
             PrepareQuestMenu(source->GetGUID());
 
-    for (GossipMenuItemsMap::const_iterator itr = menuItemBounds.first; itr != menuItemBounds.second; ++itr)
+    for (GossipMenuItemsContainer::const_iterator itr = menuItemBounds.first; itr != menuItemBounds.second; ++itr)
     {
         bool canTalk = true;
         if (!sConditionMgr->IsObjectMeetToConditions(this, itr->second.Conditions))
@@ -14390,7 +14390,7 @@ uint32 Player::GetGossipTextId(uint32 menuId)
 
     GossipMenusMapBounds menuBounds = sObjectMgr->GetGossipMenusMapBounds(menuId);
 
-    for (GossipMenusMap::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
+    for (GossipMenusContainer::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
         if (sConditionMgr->IsObjectMeetToConditions(this, itr->second.conditions))
             textId = itr->second.text_id;
 
@@ -22384,7 +22384,7 @@ void Player::UpdateForQuestWorldObjects()
                 continue;
 
             SpellClickInfoMapBounds clickPair = sObjectMgr->GetSpellClickInfoMapBounds(obj->GetEntry());
-            for (SpellClickInfoMap::const_iterator _itr = clickPair.first; _itr != clickPair.second; ++_itr)
+            for (SpellClickInfoContainer::const_iterator _itr = clickPair.first; _itr != clickPair.second; ++_itr)
                 if (_itr->second.questStart || _itr->second.questEnd)
                 {
                     obj->BuildCreateUpdateBlockForPlayer(&udata, this);
@@ -24161,7 +24161,7 @@ bool Player::canSeeSpellClickOn(Creature const* c) const
     if (clickPair.first == clickPair.second)
         return true;
 
-    for (SpellClickInfoMap::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
+    for (SpellClickInfoContainer::const_iterator itr = clickPair.first; itr != clickPair.second; ++itr)
         if (itr->second.IsFitToRequirements(this, c))
             return true;
 
