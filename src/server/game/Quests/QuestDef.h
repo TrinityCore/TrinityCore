@@ -360,17 +360,17 @@ class Quest
 
 struct QuestStatusData
 {
-    QuestStatusData(): m_status(QUEST_STATUS_NONE), m_explored(false), m_timer(0), m_playercount(0)
+    QuestStatusData(): Status(QUEST_STATUS_NONE), Explored(false), Timer(0), PlayerCount(0)
     {
-        memset(m_itemcount, 0, QUEST_ITEM_OBJECTIVES_COUNT * sizeof(uint16));
-        memset(m_creatureOrGOcount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint16));
+        memset(ItemCount, 0, QUEST_ITEM_OBJECTIVES_COUNT * sizeof(uint16));
+        memset(CreatureOrGOCount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint16));
     }
 
-    QuestStatus m_status;
-    bool m_explored;
-    uint32 m_timer;
-    uint16 m_itemcount[QUEST_ITEM_OBJECTIVES_COUNT];
-    uint16 m_creatureOrGOcount[QUEST_OBJECTIVES_COUNT];
-    uint16 m_playercount;
+    QuestStatus Status;
+    uint32 Timer;
+    uint16 ItemCount[QUEST_ITEM_OBJECTIVES_COUNT];
+    uint16 CreatureOrGOCount[QUEST_OBJECTIVES_COUNT];
+    uint16 PlayerCount;
+    bool Explored;
 };
 #endif
