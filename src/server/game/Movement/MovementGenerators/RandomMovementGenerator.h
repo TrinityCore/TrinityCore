@@ -28,18 +28,19 @@ class RandomMovementGenerator
     public:
         RandomMovementGenerator(float spawn_dist = 0.0f) : i_nextMoveTime(0), wander_distance(spawn_dist) {}
 
-        void _setRandomLocation(T &);
+        void SetRandomLocation(T &);
         void Initialize(T &);
         void Finalize(T &);
         void Reset(T &);
+        void Interrupt(T &);
         bool Update(T &, const uint32);
         bool GetResetPosition(T&, float& x, float& y, float& z);
         MovementGeneratorType GetMovementGeneratorType() { return RANDOM_MOTION_TYPE; }
     private:
-        TimeTrackerSmall i_nextMoveTime;
+        TimeTrackerSmall _nextMoveTime;
 
-        uint32 i_nextMove;
-        float wander_distance;
+        uint32 _nextMove;
+        float _wanderDistance;
 };
 #endif
 

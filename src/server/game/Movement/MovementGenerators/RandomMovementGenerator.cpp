@@ -33,7 +33,7 @@
 #endif
 
 template<>
-void RandomMovementGenerator<Creature>::_setRandomLocation(Creature& creature)
+void RandomMovementGenerator<Creature>::SetRandomLocation(Creature& creature)
 {
     float respX, respY, respZ, respO, currZ, destX, destY, destZ, travelDistZ;
     creature.GetHomePosition(respX, respY, respZ, respO);
@@ -46,7 +46,7 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature& creature)
     bool is_air_ok = creature.canFly();
 
     const float angle = float(rand_norm()) * static_cast<float>(M_PI*2.0f);
-    const float range = float(rand_norm()) * wander_distance;
+    const float range = float(rand_norm()) * _wanderDistance;
     const float distanceX = range * cos(angle);
     const float distanceY = range * sin(angle);
 
@@ -98,9 +98,9 @@ void RandomMovementGenerator<Creature>::_setRandomLocation(Creature& creature)
     }
 
     if (is_air_ok)
-        i_nextMoveTime.Reset(0);
+        _nextMoveTime.Reset(0);
     else
-        i_nextMoveTime.Reset(urand(500, 10000));
+        _nextMoveTime.Reset(urand(500, 10000));
 
     creature.AddUnitState(UNIT_STATE_ROAMING_MOVE);
 
@@ -120,11 +120,11 @@ void RandomMovementGenerator<Creature>::Initialize(Creature &creature)
     if (!creature.isAlive())
         return;
 
-    if (!wander_distance)
-        wander_distance = creature.GetRespawnRadius();
+    if (!_wanderDistance)
+        _wanderDistance = creature.GetRespawnRadius();
 
-    creature.AddUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
-    _setRandomLocation(creature);
+    creature.AddUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+    SetRandomLocation(creature);
 }
 
 template<>
@@ -135,9 +135,16 @@ RandomMovementGenerator<Creature>::Reset(Creature &creature)
 }
 
 template<>
+void RandomMovementGenerator<Creature>::Interrupt(Creature &creature)
+{
+    creature.ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
+    creature.SetWalk(false);
+}
+
+template<>
 void RandomMovementGenerator<Creature>::Finalize(Creature &creature)
 {
-    creature.ClearUnitState(UNIT_STATE_ROAMING|UNIT_STATE_ROAMING_MOVE);
+    creature.ClearUnitState(UNIT_STATE_ROAMING | UNIT_STATE_ROAMING_MOVE);
     creature.SetWalk(false);
 }
 
@@ -147,16 +154,16 @@ RandomMovementGenerator<Creature>::Update(Creature &creature, const uint32 diff)
 {
     if (creature.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED | UNIT_STATE_DISTRACTED))
     {
-        i_nextMoveTime.Reset(0);  // Expire the timer
+        _nextMoveTime.Reset(0);  // Expire the timer
         creature.ClearUnitState(UNIT_STATE_ROAMING_MOVE);
         return true;
     }
 
     if (creature.movespline->Finalized())
     {
-        i_nextMoveTime.Update(diff);
-        if (i_nextMoveTime.Passed())
-            _setRandomLocation(creature);
+        _nextMoveTime.Update(diff);
+        if (_nextMoveTime.Passed())
+            SetRandomLocation(creature);
     }
     return true;
 }
