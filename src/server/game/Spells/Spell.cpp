@@ -1928,15 +1928,15 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType, Spe
 
             for (ConditionList::const_iterator i_spellST = conditions.begin(); i_spellST != conditions.end(); ++i_spellST)
             {
-                if ((*i_spellST)->mConditionType != CONDITION_SPELL_SCRIPT_TARGET)
+                if ((*i_spellST)->ConditionType != CONDITION_SPELL_SCRIPT_TARGET)
                     continue;
-                if ((*i_spellST)->mConditionValue3 && !((*i_spellST)->mConditionValue3 & (1 << uint32(effIndex))))
+                if ((*i_spellST)->ConditionValue3 && !((*i_spellST)->ConditionValue3 & (1 << uint32(effIndex))))
                     continue;
-                switch ((*i_spellST)->mConditionValue1)
+                switch ((*i_spellST)->ConditionValue1)
                 {
                     case SPELL_TARGET_TYPE_CONTROLLED:
                         for (Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
-                            if ((*itr)->GetEntry() == (*i_spellST)->mConditionValue2 && (*itr)->IsWithinDistInMap(m_caster, range))
+                            if ((*itr)->GetEntry() == (*i_spellST)->ConditionValue2 && (*itr)->IsWithinDistInMap(m_caster, range))
                             {
                                 goScriptTarget = NULL;
                                 creatureScriptTarget = (*itr)->ToCreature();
@@ -1944,9 +1944,9 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType, Spe
                             }
                         break;
                     case SPELL_TARGET_TYPE_GAMEOBJECT:
-                        if ((*i_spellST)->mConditionValue2)
+                        if ((*i_spellST)->ConditionValue2)
                         {
-                            if (GameObject* go = m_caster->FindNearestGameObject((*i_spellST)->mConditionValue2, range))
+                            if (GameObject* go = m_caster->FindNearestGameObject((*i_spellST)->ConditionValue2, range))
                             {
                                 // remember found target and range, next attempt will find more near target with another entry
                                 goScriptTarget = go;
@@ -1966,11 +1966,11 @@ WorldObject* Spell::SearchNearbyTarget(float range, SpellTargets TargetType, Spe
                         }
                         break;
                     case SPELL_TARGET_TYPE_CREATURE:
-                        if (m_targets.GetUnitTarget() && m_targets.GetUnitTarget()->GetEntry() == (*i_spellST)->mConditionValue2)
+                        if (m_targets.GetUnitTarget() && m_targets.GetUnitTarget()->GetEntry() == (*i_spellST)->ConditionValue2)
                             return m_targets.GetUnitTarget();
                     case SPELL_TARGET_TYPE_DEAD:
                     default:
-                        if (Creature* cre = m_caster->FindNearestCreature((*i_spellST)->mConditionValue2, range, (*i_spellST)->mConditionValue1 != SPELL_TARGET_TYPE_DEAD))
+                        if (Creature* cre = m_caster->FindNearestCreature((*i_spellST)->ConditionValue2, range, (*i_spellST)->ConditionValue1 != SPELL_TARGET_TYPE_DEAD))
                         {
                             creatureScriptTarget = cre;
                             goScriptTarget = NULL;
@@ -2531,16 +2531,16 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                 {
                     for (ConditionList::const_iterator i_spellST = conditions.begin(); i_spellST != conditions.end(); ++i_spellST)
                     {
-                        if ((*i_spellST)->mConditionType != CONDITION_SPELL_SCRIPT_TARGET)
+                        if ((*i_spellST)->ConditionType != CONDITION_SPELL_SCRIPT_TARGET)
                             continue;
-                        if ((*i_spellST)->mConditionValue3 && !((*i_spellST)->mConditionValue3 & effectMask))
+                        if ((*i_spellST)->ConditionValue3 && !((*i_spellST)->ConditionValue3 & effectMask))
                             continue;
-                        if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_CREATURE)
-                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, (*i_spellST)->mConditionValue2);
-                        else if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_CONTROLLED)
+                        if ((*i_spellST)->ConditionValue1 == SPELL_TARGET_TYPE_CREATURE)
+                            SearchAreaTarget(unitList, radius, pushType, SPELL_TARGETS_ENTRY, (*i_spellST)->ConditionValue2);
+                        else if ((*i_spellST)->ConditionValue1 == SPELL_TARGET_TYPE_CONTROLLED)
                         {
                             for (Unit::ControlList::iterator itr = m_caster->m_Controlled.begin(); itr != m_caster->m_Controlled.end(); ++itr)
-                                if ((*itr)->GetEntry() == (*i_spellST)->mConditionValue2 &&
+                                if ((*itr)->GetEntry() == (*i_spellST)->ConditionValue2 &&
                                     (*itr)->IsInMap(m_caster)) // For 60243 and 52173 need skip radius check or use range (no radius entry for effect)
                                     unitList.push_back(*itr);
                         }
@@ -2626,12 +2626,12 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                 {
                     for (ConditionList::const_iterator i_spellST = conditions.begin(); i_spellST != conditions.end(); ++i_spellST)
                     {
-                        if ((*i_spellST)->mConditionType != CONDITION_SPELL_SCRIPT_TARGET)
+                        if ((*i_spellST)->ConditionType != CONDITION_SPELL_SCRIPT_TARGET)
                             continue;
-                        if ((*i_spellST)->mConditionValue3 && !((*i_spellST)->mConditionValue3 & effectMask))
+                        if ((*i_spellST)->ConditionValue3 && !((*i_spellST)->ConditionValue3 & effectMask))
                             continue;
-                        if ((*i_spellST)->mConditionValue1 == SPELL_TARGET_TYPE_GAMEOBJECT)
-                            SearchGOAreaTarget(gobjectList, radius, pushType, SPELL_TARGETS_GO, (*i_spellST)->mConditionValue2);
+                        if ((*i_spellST)->ConditionValue1 == SPELL_TARGET_TYPE_GAMEOBJECT)
+                            SearchGOAreaTarget(gobjectList, radius, pushType, SPELL_TARGETS_GO, (*i_spellST)->ConditionValue2);
                     }
                 }
                 else
