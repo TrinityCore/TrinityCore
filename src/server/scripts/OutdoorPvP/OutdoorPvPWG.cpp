@@ -399,8 +399,8 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
     }
 
     // Load Graveyard
-    GraveYardMap::const_iterator graveLow  = sObjectMgr->mGraveYardMap.lower_bound(ZONE_WINTERGRASP);
-    GraveYardMap::const_iterator graveUp   = sObjectMgr->mGraveYardMap.upper_bound(ZONE_WINTERGRASP);
+    GraveYardContainer::const_iterator graveLow  = sObjectMgr->GraveYardStore.lower_bound(ZONE_WINTERGRASP);
+    GraveYardContainer::const_iterator graveUp   = sObjectMgr->GraveYardStore.upper_bound(ZONE_WINTERGRASP);
     for (AreaPOIList::iterator itr = areaPOIs.begin(); itr != areaPOIs.end();)
     {
         if ((*itr)->icon[1] == 8)
@@ -413,7 +413,7 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
                 continue;
             }
 
-            GraveYardMap::const_iterator graveItr;
+            GraveYardContainer::const_iterator graveItr;
             for (graveItr = graveLow; graveItr != graveUp; ++graveItr)
                 if (graveItr->second.safeLocId == loc->ID)
                     break;
@@ -422,7 +422,7 @@ bool OutdoorPvPWG::SetupOutdoorPvP()
                 GraveYardData graveData;
                 graveData.safeLocId = loc->ID;
                 graveData.team = 0;
-                graveItr = sObjectMgr->mGraveYardMap.insert(std::make_pair(ZONE_WINTERGRASP, graveData));
+                graveItr = sObjectMgr->GraveYardStore.insert(std::make_pair(ZONE_WINTERGRASP, graveData));
             }
 
             for (BuildingStateMap::iterator stateItr = m_buildingStates.begin(); stateItr != m_buildingStates.end(); ++stateItr)
