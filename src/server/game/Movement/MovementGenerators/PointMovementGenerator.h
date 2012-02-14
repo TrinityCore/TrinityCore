@@ -27,11 +27,12 @@ class PointMovementGenerator
 : public MovementGeneratorMedium< T, PointMovementGenerator<T> >
 {
     public:
-        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, float _speed = 0.0f) : id(_id),
-            i_x(_x), i_y(_y), i_z(_z), speed(_speed) {}
+        PointMovementGenerator(uint32 _id, float _x, float _y, float _z, float _speed = 0.0f) : _id(_id),
+            _x(_x), _y(_y), _z(_z), _speed(_speed) {}
 
         void Initialize(T &);
         void Finalize(T &);
+        void Interrupt(T &);
         void Reset(T &);
         bool Update(T &, const uint32 &);
 
@@ -39,11 +40,11 @@ class PointMovementGenerator
 
         MovementGeneratorType GetMovementGeneratorType() { return POINT_MOTION_TYPE; }
 
-        bool GetDestination(float& x, float& y, float& z) const { x=i_x; y=i_y; z=i_z; return true; }
+        bool GetDestination(float& x, float& y, float& z) const { x = _x; y = _y; z = _z; return true; }
     private:
-        uint32 id;
-        float i_x, i_y, i_z;
-        float speed;
+        uint32 _id;
+        float _x, _y, _z;
+        float _speed;
 };
 
 class AssistanceMovementGenerator
@@ -61,14 +62,14 @@ class AssistanceMovementGenerator
 class EffectMovementGenerator : public MovementGenerator
 {
     public:
-        explicit EffectMovementGenerator(uint32 Id) : m_Id(Id) {}
+        explicit EffectMovementGenerator(uint32 Id) : _Id(Id) {}
         void Initialize(Unit &) {}
         void Finalize(Unit &unit);
         void Reset(Unit &) {}
         bool Update(Unit &u, const uint32);
         MovementGeneratorType GetMovementGeneratorType() { return EFFECT_MOTION_TYPE; }
     private:
-        uint32 m_Id;
+        uint32 _Id;
 };
 
 #endif
