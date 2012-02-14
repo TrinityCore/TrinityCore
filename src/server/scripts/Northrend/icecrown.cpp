@@ -170,7 +170,7 @@ enum eArgentValiant
     SPELL_CHARGE                = 63010,
     SPELL_SHIELD_BREAKER        = 65147,
 
-    NPC_ARGENT_VALIANT_CREDIT   = 24108
+    NPC_ARGENT_VALIANT_CREDIT   = 38595
 };
 
 class npc_argent_valiant : public CreatureScript
