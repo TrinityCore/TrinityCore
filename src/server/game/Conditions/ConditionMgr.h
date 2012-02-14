@@ -28,7 +28,7 @@ class WorldObject;
 class LootTemplate;
 struct Condition;
 
-enum ConditionType
+enum ConditionTypes
 {                                                           // value1           value2         value3
     CONDITION_NONE                  = 0,                    // 0                0              0                  always true
     CONDITION_AURA                  = 1,                    // spell_id         effindex       use target?        true if player (or target, if value3) has aura of spell_id with effect effindex
@@ -140,40 +140,40 @@ struct ConditionSourceInfo
 
 struct Condition
 {
-    ConditionSourceType     mSourceType;        //SourceTypeOrReferenceId
-    uint32                  mSourceGroup;
-    int32                   mSourceEntry;
-    uint32                  mSourceId;          // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
-    uint32                  mElseGroup;
-    ConditionType           mConditionType;     //ConditionTypeOrReference
-    uint8                   mConditionTarget;
-    uint32                  mConditionValue1;
-    uint32                  mConditionValue2;
-    uint32                  mConditionValue3;
-    uint32                  ErrorTextd;
-    uint32                  mReferenceId;
-    uint32                  mScriptId;
-    bool                    mNegativeCondition;
+    ConditionSourceType     SourceType;        //SourceTypeOrReferenceId
+    uint32                  SourceGroup;
+    int32                   SourceEntry;
+    uint32                  SourceId;          // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
+    uint32                  ElseGroup;
+    ConditionTypes          ConditionType;     //ConditionTypeOrReference
+    uint32                  ConditionValue1;
+    uint32                  ConditionValue2;
+    uint32                  ConditionValue3;
+    uint32                  ErrorTextId;
+    uint32                  ReferenceId;
+    uint32                  ScriptId;
+    uint8                   ConditionTarget;
+    bool                    NegativeCondition;
 
     Condition()
     {
-        mSourceType         = CONDITION_SOURCE_TYPE_NONE;
-        mSourceGroup        = 0;
-        mSourceEntry        = 0;
-        mElseGroup          = 0;
-        mConditionType      = CONDITION_NONE;
-        mConditionTarget    = 0;
-        mConditionValue1    = 0;
-        mConditionValue2    = 0;
-        mConditionValue3    = 0;
-        mReferenceId        = 0;
-        ErrorTextd          = 0;
-        mScriptId           = 0;
-        mNegativeCondition  = false;
+        SourceType         = CONDITION_SOURCE_TYPE_NONE;
+        SourceGroup        = 0;
+        SourceEntry        = 0;
+        ElseGroup          = 0;
+        ConditionType      = CONDITION_NONE;
+        ConditionTarget    = 0;
+        ConditionValue1    = 0;
+        ConditionValue2    = 0;
+        ConditionValue3    = 0;
+        ReferenceId        = 0;
+        ErrorTextId          = 0;
+        ScriptId           = 0;
+        NegativeCondition  = false;
     }
 
     bool Meets(ConditionSourceInfo& sourceInfo);
-    bool isLoaded() const { return mConditionType > CONDITION_NONE || mReferenceId; }
+    bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId; }
     uint32 GetMaxAvailableConditionTargets();
 };
 

@@ -2783,10 +2783,10 @@ bool SmartScript::ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3)
     if (c == 0) return true;
     if (!u || !u->ToPlayer()) return false;
     Condition cond;
-    cond.mConditionType = ConditionType(uint32(c));
-    cond.mConditionValue1 = uint32(v1);
-    cond.mConditionValue1 = uint32(v2);
-    cond.mConditionValue1 = uint32(v3);
+    cond.ConditionType = ConditionTypes(uint32(c));
+    cond.ConditionValue1 = uint32(v1);
+    cond.ConditionValue1 = uint32(v2);
+    cond.ConditionValue1 = uint32(v3);
     ConditionSourceInfo srcInfo = ConditionSourceInfo(u->ToPlayer());
     return cond.Meets(srcInfo);
 }
