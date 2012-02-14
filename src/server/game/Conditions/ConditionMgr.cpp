@@ -374,34 +374,34 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
     std::map<uint32, bool> ElseGroupStore;
     for (ConditionList::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
     {
-        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u", (*i)->mConditionType, (*i)->mConditionValue1);
+        sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u", (*i)->ConditionType, (*i)->ConditionValue1);
         if ((*i)->isLoaded())
         {
-            std::map<uint32, bool>::const_iterator itr = ElseGroupStore.find((*i)->mElseGroup);
+            std::map<uint32, bool>::const_iterator itr = ElseGroupStore.find((*i)->ElseGroup);
             if (itr == ElseGroupStore.end())
-                ElseGroupStore[(*i)->mElseGroup] = true;
+                ElseGroupStore[(*i)->ElseGroup] = true;
             else if (!(*itr).second)
                 continue;
 
-            if ((*i)->mReferenceId)//handle reference
+            if ((*i)->ReferenceId)//handle reference
             {
-                ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find((*i)->mReferenceId);
+                ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find((*i)->ReferenceId);
                 if (ref != ConditionReferenceStore.end())
                 {
                     if (!IsObjectMeetToConditionList(sourceInfo, (*ref).second))
-                        ElseGroupStore[(*i)->mElseGroup] = false;
+                        ElseGroupStore[(*i)->ElseGroup] = false;
                 }
                 else
                 {
                     sLog->outDebug(LOG_FILTER_CONDITIONSYS, "IsPlayerMeetToConditionList: Reference template -%u not found",
-                        (*i)->mReferenceId);//checked at loading, should never happen
+                        (*i)->ReferenceId);//checked at loading, should never happen
                 }
 
             }
             else //handle normal condition
             {
                 if (!(*i)->Meets(sourceInfo))
-                    ElseGroupStore[(*i)->mElseGroup] = false;
+                    ElseGroupStore[(*i)->ElseGroup] = false;
             }
         }
     }
