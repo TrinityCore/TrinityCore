@@ -65,11 +65,8 @@ void PointMovementGenerator<T>::Reset(T &unit)
 }
 
 template<class T>
-bool PointMovementGenerator<T>::Update(T &unit, const uint32 &diff)
+bool PointMovementGenerator<T>::Update(T &unit, uint32 const& diff)
 {
-    if (!&unit)
-        return false;
-
     if (unit.HasUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED))
     {
         unit.ClearUnitState(UNIT_STATE_ROAMING_MOVE);
