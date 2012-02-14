@@ -3481,14 +3481,6 @@ void Spell::update(uint32 difftime)
         {
             if (m_timer > 0)
             {
-                // Cancel the cast if the target is not in line of sight
-                if (m_targets.GetUnitTarget() && !m_caster->IsWithinLOSInMap(m_targets.GetUnitTarget()))
-                {
-                    SendCastResult(SPELL_FAILED_LINE_OF_SIGHT);
-                    cancel();
-                    return;
-                }
-
                 if (difftime >= (uint32)m_timer)
                     m_timer = 0;
                 else
