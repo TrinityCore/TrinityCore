@@ -2255,6 +2255,7 @@ public:
 #define GOSSIP_ENGINEERING3   "Sholazar Basin."
 #define GOSSIP_ENGINEERING4   "Icecrown."
 #define GOSSIP_ENGINEERING5   "Storm Peaks."
+#define GOSSIP_ENGINEERING6   "Underground..."
 
 enum eWormhole
 {
@@ -2262,6 +2263,8 @@ enum eWormhole
     SPELL_SHOLAZAR_BASIN        = 67835,
     SPELL_ICECROWN              = 67836,
     SPELL_STORM_PEAKS           = 67837,
+    SPELL_ANOMALY               = 68080,
+    SPELL_UNDERGROUND           = 68081,
 
     TEXT_WORMHOLE               = 907
 };
@@ -2269,7 +2272,11 @@ enum eWormhole
 class npc_wormhole : public CreatureScript
 {
 public:
-    npc_wormhole() : CreatureScript("npc_wormhole") { }
+    npc_wormhole() : CreatureScript("npc_wormhole")
+    {
+        if (urand(0, 99) < 2) // Underground option proc chance
+            DoCast(me, SPELL_ANOMALY);
+    }
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
@@ -2282,6 +2289,8 @@ public:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                if (me->HasAura(SPELL_ANOMALY))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ENGINEERING6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 6);
 
                 player->PlayerTalkClass->SendGossipMenu(TEXT_WORMHOLE, creature->GetGUID());
             }
@@ -2296,28 +2305,32 @@ public:
 
         switch (action)
         {
-            case GOSSIP_ACTION_INFO_DEF + 1: //Borean Tundra
+            case GOSSIP_ACTION_INFO_DEF + 1: // Borean Tundra
                 player->CLOSE_GOSSIP_MENU();
-                if (roll) //At the moment we don't have chance on spell_target_position table so we hack this
+                if (roll) // At the moment we don't have chance on spell_target_position table so we hack this
                     player->TeleportTo(571, 4305.505859f, 5450.839844f, 63.005806f, 0.627286f);
                 else
                     player->TeleportTo(571, 3201.936279f, 5630.123535f, 133.658798f, 3.855272f);
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 2: //Howling Fjord
+            case GOSSIP_ACTION_INFO_DEF + 2: // Howling Fjord
                 player->CLOSE_GOSSIP_MENU();
                 player->CastSpell(player, SPELL_HOWLING_FJORD, true);
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 3: //Sholazar Basin
+            case GOSSIP_ACTION_INFO_DEF + 3: // Sholazar Basin
                 player->CLOSE_GOSSIP_MENU();
                 player->CastSpell(player, SPELL_SHOLAZAR_BASIN, true);
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 4: //Icecrown
+            case GOSSIP_ACTION_INFO_DEF + 4: // Icecrown
                 player->CLOSE_GOSSIP_MENU();
                 player->CastSpell(player, SPELL_ICECROWN, true);
                 break;
-            case GOSSIP_ACTION_INFO_DEF + 5: //Storm peaks
+            case GOSSIP_ACTION_INFO_DEF + 5: // Storm peaks
                 player->CLOSE_GOSSIP_MENU();
                 player->CastSpell(player, SPELL_STORM_PEAKS, true);
+                break;
+            case GOSSIP_ACTION_INFO_DEF + 6: // Underground
+                player->CLOSE_GOSSIP_MENU();
+                player->CastSpell(player, SPELL_UNDERGROUND, true);
                 break;
         }
         return true;
