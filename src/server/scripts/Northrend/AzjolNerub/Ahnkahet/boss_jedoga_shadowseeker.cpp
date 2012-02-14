@@ -400,8 +400,8 @@ public:
                 if (Creature* boss = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_JEDOGA_SHADOWSEEKER)))
                 {
                     if (!CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerok)
-                        CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
-
+                    CAST_AI(boss_jedoga_shadowseeker::boss_jedoga_shadowseekerAI, boss->AI())->bOpFerokFail = true;
+                    if (Killer->GetTypeId() == TYPEID_PLAYER)
                     boss->AI()->DoAction(ACTION_INITIAND_KILLED);
                 }
 
