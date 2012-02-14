@@ -881,7 +881,7 @@ bool Item::IsTargetValidForItemUse(Unit* pUnitTarget)
 
     for (ConditionList::const_iterator itr = conditions.begin(); itr != conditions.end(); ++itr)
     {
-        ItemRequiredTarget irt(ItemRequiredTargetType((*itr)->mConditionValue1), (*itr)->mConditionValue2);
+        ItemRequiredTarget irt(ItemRequiredTargetType((*itr)->ConditionValue1), (*itr)->ConditionValue2);
         if (irt.IsFitToRequirements(pUnitTarget))
             return true;
     }

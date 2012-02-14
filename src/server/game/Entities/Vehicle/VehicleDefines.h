@@ -65,14 +65,14 @@ struct VehicleAccessory
     VehicleAccessory(uint32 entry, int8 seatId, bool isMinion, uint8 summonType, uint32 summonTime) :
         AccessoryEntry(entry), SeatId(seatId), IsMinion(isMinion), SummonedType(summonType), SummonTime(summonTime) {}
     uint32 AccessoryEntry;
-    int8 SeatId;
     uint32 IsMinion;
-    uint8 SummonedType;
     uint32 SummonTime;
+    int8 SeatId;
+    uint8 SummonedType;
 };
 
 typedef std::vector<VehicleAccessory> VehicleAccessoryList;
-typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryMap;
+typedef std::map<uint32, VehicleAccessoryList> VehicleAccessoryContainer;
 typedef std::map<int8, VehicleSeat> SeatMap;
 
 #endif
