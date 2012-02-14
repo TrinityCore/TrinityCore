@@ -446,7 +446,6 @@ class spell_pal_righteous_defense_trigger : public SpellScriptLoader
                 }*/
             }
 
-
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
                 /*if (Unit* target = GetHitUnit())

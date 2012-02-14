@@ -797,6 +797,8 @@ enum RaiseDead
 {
     SPELL_RAISE_DEAD_GHOUL_SUMMON   = 48289,
     SPELL_MASTER_OF_GHOULS          = 52143,
+    SPELL_GLYPH_OF_RAISE_DEAD       = 60200,
+    ITEM_CORPSE_DUST_REAGENT        = 37201,
 };
 
 class spell_dk_raise_dead : public SpellScriptLoader
@@ -810,91 +812,81 @@ class spell_dk_raise_dead : public SpellScriptLoader
 
             bool Load()
             {
+                _hadCorpse = false;
+                _ghoulSpellId = 0;
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
             bool Validate(SpellInfo const* /*SpellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(SPELL_RAISE_DEAD_GHOUL_SUMMON) || !sSpellMgr->GetSpellInfo(SPELL_MASTER_OF_GHOULS))
+                if (!sSpellMgr->GetSpellInfo(SPELL_RAISE_DEAD_GHOUL_SUMMON) || !sSpellMgr->GetSpellInfo(SPELL_MASTER_OF_GHOULS) || !sSpellMgr->GetSpellInfo(SPELL_GLYPH_OF_RAISE_DEAD))
                     return false;
                 return true;
             }
 
-            void HandleScriptEffect(SpellEffIndex effIndex)
+            void HandleScriptEffect(SpellEffIndex /*effIndex*/)
             {
-                if (WorldLocation const* dest = GetTargetDest())
-                    targets.SetDst(dest->GetPositionX(),dest->GetPositionY(),dest->GetPositionZ(),dest->GetOrientation());
-                else
-                {
-                    targets.SetDst(*caster);
-                    // Corpse not found - take reagents (only not triggered cast can take them)
-                    _triggered = false;
-                }
+                _hadCorpse = true;
+                _dest.Relocate(GetTargetDest());
             }
 
-            void HandleDummy(SpellEffIndex effIndex)
+            void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                CustomSpellValues values;
                 Player* caster = GetCaster()->ToPlayer();
-                int32 bp = caster->HasAura(SPELL_MASTER_OF_GHOULS) ? GetEffectValue() : GetSpellInfo()->Effects[EFFECT_1].BasePoints;
+                _ghoulSpellId = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
-                values.AddSpellMod(SPELLVALUE_BASE_POINT0, bp);
-
-                // Remove cooldown - summon spells have category
+                if (GetCaster()->HasAura(SPELL_MASTER_OF_GHOULS))
+                    _ghoulSpellId = uint32(GetEffectValue());
+                // Remove cooldown - summon spells have the same category
                 caster->RemoveSpellCooldown(GetSpellInfo()->Id, true);
-                caster->CastSpell(targets, sSpellMgr->GetSpellInfo(SPELL_RAISE_DEAD_GHOUL_SUMMON), &values, _triggered ? TRIGGERED_FULL_MASK : TRIGGERED_NONE, 0, 0, GetOriginalCaster()->GetGUID());
+                caster->CastSpell(caster,SPELL_RAISE_DEAD_GHOUL_SUMMON, _hadCorpse);
+            }
+            void HandleDummyReagentSpell(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+                if (_hadCorpse)
+                {
+                    float x, y, z;
+                    _dest.GetPosition(x, y, z);
+                    caster->CastSpell(x, y, z, _ghoulSpellId , true);
+                }
+                else
+                    caster->CastSpell(caster, _ghoulSpellId, true);
+            }
+
+            SpellCastResult CheckCast()
+            {
+                if (!_hadCorpse && (!GetCaster()->HasAura(SPELL_GLYPH_OF_RAISE_DEAD) && GetCaster()->ToPlayer()->HasItemCount(ITEM_CORPSE_DUST_REAGENT,1)))
+                {
+                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NEED_CORPSE_DUST_IF_NO_TARGET);
+                    return SPELL_FAILED_CUSTOM_ERROR;
+                }
+                return SPELL_CAST_OK;
             }
 
             void Register()
             {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
-                OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+                if (GetSpellInfo()->Id == SPELL_RAISE_DEAD_GHOUL_SUMMON)
+                {
+                    OnCheckCast += SpellCheckCastFn(spell_dk_raise_dead_SpellScript::CheckCast);
+                    OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleDummyReagentSpell, EFFECT_0, SPELL_EFFECT_DUMMY);
+                }
+                else
+                {
+                    OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                    OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+                }
             }
 
         private:
-            bool _triggered = true;
-            SpellCastTargets _targets;
-            
+            uint32 _ghoulSpellId;
+            Position _dest;
+            bool _hadCorpse;
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_dk_raise_dead_SpellScript();
-        }
-};
-
-class spell_dk_raise_dead_summon : public SpellScriptLoader
-{
-    public:
-        spell_dk_raise_dead_summon() : SpellScriptLoader("spell_dk_raise_dead_summon") { }
-
-        class spell_dk_raise_dead_summon_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_dk_raise_dead_summon_SpellScript);
-
-            void HandleDummy(SpellEffIndex effIndex)
-            {
-                SpellCastTargets targets;
-                Unit* caster = GetCaster();
-
-                if (WorldLocation const* dest = GetTargetDest())
-                    targets.SetDst(dest->GetPositionX(),dest->GetPositionY(),dest->GetPositionZ(),dest->GetOrientation());
-                else
-                    targets.SetDst(*caster);
-
-                caster->CastSpell(targets, sSpellMgr->GetSpellInfo(GetEffectValue()), &CustomSpellValues());
-            }
-
-            void Register()
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_dk_raise_dead_summon_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-            
-        };
-
-        SpellScript* GetSpellScript() const
-        {
-            return new spell_dk_raise_dead_summon_SpellScript();
         }
 };
 
@@ -917,5 +909,4 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_coil();
     new spell_dk_death_grip();
     new spell_dk_raise_dead();
-    new spell_dk_raise_dead_summon();
 }

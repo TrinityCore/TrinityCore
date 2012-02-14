@@ -598,23 +598,11 @@ WorldObject* Spell::FindCorpseUsing()
     // non-standard target selection
     float max_range = m_spellInfo->GetMaxRange(false);
 
-    CellCoord p(Trinity::ComputeCellCoord(m_caster->GetPositionX(), m_caster->GetPositionY()));
-    Cell cell(p);
-    cell.SetNoCreate();
-
     WorldObject* result = NULL;
 
     T u_check(m_caster, max_range);
     Trinity::WorldObjectSearcher<T> searcher(m_caster, result, u_check);
-
-    TypeContainerVisitor<Trinity::WorldObjectSearcher<T>, GridTypeMapContainer > grid_searcher(searcher);
-    cell.Visit(p, grid_searcher, *m_caster->GetMap(), *m_caster, max_range);
-
-    if (!result)
-    {
-        TypeContainerVisitor<Trinity::WorldObjectSearcher<T>, WorldTypeMapContainer > world_searcher(searcher);
-        cell.Visit(p, world_searcher, *m_caster->GetMap(), *m_caster, max_range);
-    }
+    m_caster->GetMap()->VisitFirstFound(m_caster->GetPositionX(), m_caster->GetPositionY(), max_range, searcher);
 
     return result;
 }
@@ -2550,11 +2538,15 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     {
                         case 46584: // Raise Dead
                         {
-                            if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck> ())
+                            if (WorldObject* result = FindCorpseUsing<Trinity::RaiseDeadObjectCheck>())
                             {
                                 switch (result->GetTypeId())
                                 {
                                     case TYPEID_UNIT:
+                                    case TYPEID_PLAYER:
+                                        unitList.push_back(result->ToUnit());
+                                        // no break;
+                                    case TYPEID_CORPSE: // wont work until corpses are allowed in target lists, but at least will send dest in packet
                                         m_targets.SetDst(*result);
                                         break;
                                     default:
@@ -2578,7 +2570,7 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                             {
                                 CleanupTargetList();
 
-                                WorldObject* result = FindCorpseUsing <Trinity::ExplodeCorpseObjectCheck> ();
+                                WorldObject* result = FindCorpseUsing<Trinity::ExplodeCorpseObjectCheck>();
 
                                 if (result)
                                 {

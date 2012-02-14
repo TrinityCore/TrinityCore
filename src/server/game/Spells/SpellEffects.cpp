@@ -848,12 +848,12 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
                     m_caster->CastSpell(unitTarget, spell->Id, true);
                 return;
             }
-            // Righteous Defense
+            /*// Righteous Defense
             case 31980:
             {
                 m_caster->CastSpell(unitTarget, 31790, true);
                 return;
-            }
+            }*/
             // Cloak of Shadows
             case 35729:
             {
