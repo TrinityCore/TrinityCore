@@ -1038,7 +1038,7 @@ GridMap::GridMap()
     _liquidWidth  = 0;
     _liquidHeight = 0;
     _liquidLevel = INVALID_HEIGHT;
-    _liquidType = NULL;
+    _liquidData = NULL;
     _liquidMap  = NULL;
 }
 
@@ -1100,12 +1100,12 @@ void GridMap::unloadData()
     delete[] _areaMap;
     delete[] m_V9;
     delete[] m_V8;
-    delete[] _liquidType;
+    delete[] _liquidData;
     delete[] _liquidMap;
     _areaMap = NULL;
     m_V9 = NULL;
     m_V8 = NULL;
-    _liquidType = NULL;
+    _liquidData = NULL;
     _liquidMap  = NULL;
     _gridGetHeight = &GridMap::getHeightFromFlat;
 }
@@ -1191,8 +1191,8 @@ bool GridMap::loadLiquidData(FILE* in, uint32 offset, uint32 /*size*/)
 
     if (!(header.flags & MAP_LIQUID_NO_TYPE))
     {
-        _liquidType = new uint8 [16*16];
-        if (fread(_liquidType, sizeof(uint8), 16*16, in) != 16*16)
+        _liquidData = new uint8 [16*16];
+        if (fread(_liquidData, sizeof(uint8), 16*16, in) != 16*16)
             return false;
     }
     if (!(header.flags & MAP_LIQUID_NO_HEIGHT))
@@ -1458,21 +1458,21 @@ float GridMap::getLiquidLevel(float x, float y)
 
 uint8 GridMap::getTerrainType(float x, float y)
 {
-    if (!_liquidType)
+    if (!_liquidData)
         return 0;
 
     x = 16 * (32 - x/SIZE_OF_GRIDS);
     y = 16 * (32 - y/SIZE_OF_GRIDS);
     int lx = (int)x & 15;
     int ly = (int)y & 15;
-    return _liquidType[lx*16 + ly];
+    return _liquidData[lx*16 + ly];
 }
 
 // Get water state on map
 inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data)
 {
     // Check water type (if no water return)
-    if (!_liquidType && !_liquidType)
+    if (!_liquidType && !_liquidData)
         return LIQUID_MAP_NO_WATER;
 
     // Get cell
@@ -1483,7 +1483,7 @@ inline ZLiquidStatus GridMap::getLiquidStatus(float x, float y, float z, uint8 R
     int y_int = (int)cy & (MAP_RESOLUTION-1);
 
     // Check water type in cell
-    uint8 type = _liquidType ? _liquidType[(x_int>>3)*16 + (y_int>>3)] : _liquidType;
+    uint8 type = _liquidData ? _liquidData[(x_int>>3)*16 + (y_int>>3)] : _liquidType;
     if (type == 0)
         return LIQUID_MAP_NO_WATER;
 
