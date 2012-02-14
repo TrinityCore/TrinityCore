@@ -20,13 +20,13 @@
 #include "Log.h"
 
 ResultSet::ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount) :
-m_rowCount(rowCount),
-m_fieldCount(fieldCount),
-m_result(result),
-m_fields(fields)
+_rowCount(rowCount),
+_fieldCount(fieldCount),
+_result(result),
+_fields(fields)
 {
-    m_currentRow = new Field[m_fieldCount];
-    ASSERT(m_currentRow);
+    _currentRow = new Field[_fieldCount];
+    ASSERT(_currentRow);
 }
 
 PreparedResultSet::PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, uint64 rowCount, uint32 fieldCount) :
@@ -150,18 +150,18 @@ bool ResultSet::NextRow()
 {
     MYSQL_ROW row;
 
-    if (!m_result)
+    if (!_result)
         return false;
 
-    row = mysql_fetch_row(m_result);
+    row = mysql_fetch_row(_result);
     if (!row)
     {
         CleanUp();
         return false;
     }
 
-    for (uint32 i = 0; i < m_fieldCount; i++)
-        m_currentRow[i].SetStructuredValue(row[i], m_fields[i].type);
+    for (uint32 i = 0; i < _fieldCount; i++)
+        _currentRow[i].SetStructuredValue(row[i], _fields[i].type);
 
     return true;
 }
@@ -196,16 +196,16 @@ bool PreparedResultSet::_NextRow()
 
 void ResultSet::CleanUp()
 {
-    if (m_currentRow)
+    if (_currentRow)
     {
-        delete [] m_currentRow;
-        m_currentRow = NULL;
+        delete [] _currentRow;
+        _currentRow = NULL;
     }
 
-    if (m_result)
+    if (_result)
     {
-        mysql_free_result(m_result);
-        m_result = NULL;
+        mysql_free_result(_result);
+        _result = NULL;
     }
 }
 

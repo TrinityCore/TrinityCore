@@ -4736,8 +4736,8 @@ SpellCastResult Spell::CheckCast(bool strict)
             if (Player* playerCaster = m_caster->ToPlayer())
             {
                 if (playerCaster->GetSession() && condInfo.mLastFailedCondition
-                    && condInfo.mLastFailedCondition->ErrorTextd)
-                    playerCaster->GetSession()->SendNotification(condInfo.mLastFailedCondition->ErrorTextd);
+                    && condInfo.mLastFailedCondition->ErrorTextId)
+                    playerCaster->GetSession()->SendNotification(condInfo.mLastFailedCondition->ErrorTextId);
             }
             return SPELL_FAILED_DONT_REPORT;
         }
