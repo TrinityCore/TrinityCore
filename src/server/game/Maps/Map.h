@@ -163,7 +163,7 @@ class GridMap
 
     // Liquid data
     float _liquidLevel;
-    uint8* _liquidType;
+    uint8* _liquidData;
     float* _liquidMap;
     uint16 _gridArea;
     uint16 _liquidType;
