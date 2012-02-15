@@ -29,6 +29,7 @@ enum eSpells
     SPELL_PUNCTURE_WOUND        = 70278,
     SPELL_SHOVELLED             = 69572,
     SPELL_LEAPING_FACE_MAUL     = 69504, // Geist Ambusher
+    SPELL_GLACIAL_STRIKE        = 70292,
 };
 
 enum eEvents
@@ -287,10 +288,13 @@ class spell_trash_mob_glacial_strike : public SpellScriptLoader
 
             void PeriodicTick(AuraEffect const* /*aurEff*/)
             {
-                if (GetTarget()->IsFullHealth())
+                if (Player* target = GetTarget()->ToPlayer())
                 {
-                    GetTarget()->RemoveAura(GetId(), AURA_REMOVE_BY_ENEMY_SPELL);
-                    PreventDefaultAction();
+                    if (target->IsFullHealth())
+                    {
+                       target->RemoveAurasDueToSpell(SPELL_GLACIAL_STRIKE);
+                       PreventDefaultAction();
+                    }
                 }
             }
 
