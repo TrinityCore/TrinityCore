@@ -14089,7 +14089,7 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
     for (GossipMenuItemsContainer::const_iterator itr = menuItemBounds.first; itr != menuItemBounds.second; ++itr)
     {
         bool canTalk = true;
-        if (!sConditionMgr->IsObjectMeetToConditions(this, itr->second.Conditions))
+        if (!sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.Conditions))
             continue;
 
         if (source->GetTypeId() == TYPEID_UNIT)
@@ -14233,7 +14233,7 @@ void Player::SendPreparedGossip(WorldObject* source)
     uint32 textId = GetGossipTextId(source);
 
     if (uint32 menuId = PlayerTalkClass->GetGossipMenu().GetMenuId())
-        textId = GetGossipTextId(menuId);
+        textId = GetGossipTextId(menuId, source);
 
     PlayerTalkClass->SendGossipMenu(textId, source->GetGUID());
 }
@@ -14378,10 +14378,10 @@ uint32 Player::GetGossipTextId(WorldObject* source)
     if (!source)
         return DEFAULT_GOSSIP_MESSAGE;
 
-    return GetGossipTextId(GetDefaultGossipMenuForSource(source));
+    return GetGossipTextId(GetDefaultGossipMenuForSource(source), source);
 }
 
-uint32 Player::GetGossipTextId(uint32 menuId)
+uint32 Player::GetGossipTextId(uint32 menuId, WorldObject* source)
 {
     uint32 textId = DEFAULT_GOSSIP_MESSAGE;
 
@@ -14391,8 +14391,10 @@ uint32 Player::GetGossipTextId(uint32 menuId)
     GossipMenusMapBounds menuBounds = sObjectMgr->GetGossipMenusMapBounds(menuId);
 
     for (GossipMenusContainer::const_iterator itr = menuBounds.first; itr != menuBounds.second; ++itr)
-        if (sConditionMgr->IsObjectMeetToConditions(this, itr->second.conditions))
+    {
+        if (sConditionMgr->IsObjectMeetToConditions(this, source, itr->second.conditions))
             textId = itr->second.text_id;
+    }
 
     return textId;
 }
@@ -19862,7 +19864,7 @@ void Player::VehicleSpellInitialize()
         }
 
         ConditionList conditions = sConditionMgr->GetConditionsForVehicleSpell(veh->GetEntry(), spellId);
-        if (!sConditionMgr->IsObjectMeetToConditions(this, conditions))
+        if (!sConditionMgr->IsObjectMeetToConditions(this, veh, conditions))
         {
             sLog->outDebug(LOG_FILTER_CONDITIONSYS, "VehicleSpellInitialize: conditions not met for Vehicle entry %u spell %u", veh->ToCreature()->GetEntry(), spellId);
             data << uint16(0) << uint8(0) << uint8(i+8);
