@@ -1083,19 +1083,16 @@ private:
 
     Player* _killer;
     Unit* _victim;
-    bool _isBattleGround;
-
-    bool _isPvP;
-
     Group* _group;
     float _groupRate;
-    uint8 _maxLevel;
     Player* _maxNotGrayMember;
     uint32 _count;
     uint32 _sumLevel;
-    bool _isFullXP;
-
     uint32 _xp;
+    bool _isFullXP;
+    uint8 _maxLevel;
+    bool _isBattleGround;
+    bool _isPvP;
 };
 
 /* World of Warcraft Armory */
