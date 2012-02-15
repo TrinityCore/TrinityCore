@@ -1,6 +1,7 @@
 -- Love is in the Air
 SET @OGUID := 24399;
-SET @CGUID := 40489;
+SET @CGUID := 40506;
+SET @OLDGUID := 40489; -- wrong guids
 SET @EVENT := 8;
 
 -- Quest chain
@@ -103,6 +104,7 @@ UPDATE `creature_template` SET `minlevel`=70, `maxlevel`=75 WHERE `entry`=37671;
 UPDATE `creature_template` SET `npcflag`=`npcflag`|1, `gossip_menu_id`=10991 WHERE `entry`=38293; -- Junior Inspector (gossip menu not confirmed)
 
 DELETE FROM `creature` WHERE `id` IN (38293,38065,37671) AND `guid` BETWEEN @CGUID+0 AND @CGUID+3;
+DELETE FROM `creature` WHERE `id` IN (38293,38065,37671) AND `guid` BETWEEN @OLDGUID+0 AND @OLDGUID+3;
 INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equipment_id`,`position_x`,`position_y`,`position_z`,`orientation`,`spawntimesecs`,`spawndist`,`currentwaypoint`,`curhealth`,`curmana`,`MovementType`,`npcflag`,`unit_flags`,`dynamicflags`) VALUES
 (@CGUID+0, 38293, 530, 1, 1, 0, 0, -4022.81, -11842.7, 0.0062171, 5.89912, 300, 0, 0, 955, 0, 0, 0, 0, 0), -- Junior Inspector
 (@CGUID+1, 38065, 1, 1, 1, 0, 0, 1380.22, -4426.79, 30.6681, 2.03572, 300, 0, 0, 12600, 0, 0, 0, 0, 0), -- Crown Supply Sentry <Crown Chemical Co.>
@@ -110,6 +112,7 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 (@CGUID+3, 37671, 0, 1, 1, 30912, 0, -9028.63, 344.994, 93.2389, 3.37679, 300, 0, 0, 42, 0, 0, 0, 0, 0); -- Crown Supply Guard
 
 DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @CGUID+0 AND @CGUID+3 AND `eventEntry`=@EVENT;
+DELETE FROM `game_event_creature` WHERE `guid` BETWEEN @OLDGUID+0 AND @OLDGUID+3 AND `eventEntry`=@EVENT;
 INSERT INTO `game_event_creature` (`guid`, `eventEntry`) VALUES
 (@CGUID+0, @EVENT),
 (@CGUID+1, @EVENT),
