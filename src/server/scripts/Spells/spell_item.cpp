@@ -1183,7 +1183,6 @@ void AddSC_item_spell_scripts()
     new spell_item_trigger_spell("spell_item_mechanical_dragonling", SPELL_MECHANICAL_DRAGONLING);
     // 23075 Mithril Mechanical Dragonling
     new spell_item_trigger_spell("spell_item_mithril_mechanical_dragonling", SPELL_MITHRIL_MECHANICAL_DRAGONLING);
-
     new spell_item_deviate_fish();
     new spell_item_flask_of_the_north();
     new spell_item_gnomish_death_ray();
@@ -1196,7 +1195,6 @@ void AddSC_item_spell_scripts()
     new spell_item_underbelly_elixir();
     new spell_item_shadowmourne();
     new spell_item_red_rider_air_rifle();
-
     new spell_item_create_heart_candy();
     new spell_item_book_of_glyph_mastery();
     new spell_item_gift_of_the_harvester();

@@ -2880,6 +2880,8 @@ bool ChatHandler::HandleBanCharacterCommand(const char *args)
     if (!reason)
         return false;
 
+   std::string banReason = reason;
+
     if (!normalizePlayerName(name))
     {
         SendSysMessage(LANG_PLAYER_NOT_FOUND);
@@ -2891,12 +2893,24 @@ bool ChatHandler::HandleBanCharacterCommand(const char *args)
     {
         case BAN_SUCCESS:
         {
+            banReason = banReason + " Забанил " + m_session->GetPlayer()->GetName();
+
             if (atoi(duration) > 0)
-                PSendSysMessage(LANG_BAN_YOUBANNED, name.c_str(), secsToTimeString(TimeStringToSecs(duration), true).c_str(), reason);
+            {
+                if (CONFIG_SHOW_BAN_IN_WORLD)
+                    sWorld->SendWorldText(LANG_BAN_YOUBANNED,name.c_str(),secsToTimeString(TimeStringToSecs(duration),true).c_str(),banReason.c_str());
+                else
+                    PSendSysMessage(LANG_BAN_YOUBANNED,name.c_str(),secsToTimeString(TimeStringToSecs(duration),true).c_str(),banReason.c_str()); 
+            }
             else
-                PSendSysMessage(LANG_BAN_YOUPERMBANNED, name.c_str(), reason);
-            break;
+            { 
+                if (CONFIG_SHOW_BAN_IN_WORLD)
+                    sWorld->SendWorldText(LANG_BAN_YOUPERMBANNED,name.c_str(),banReason.c_str());
+                else
+                    PSendSysMessage(LANG_BAN_YOUPERMBANNED,name.c_str(),banReason.c_str());
+            }
         }
+        break;
         case BAN_NOTFOUND:
         {
             PSendSysMessage(LANG_BAN_NOTFOUND, "character", name.c_str());
@@ -2934,6 +2948,8 @@ bool ChatHandler::HandleBanHelper(BanMode mode, const char *args)
     if (!reason)
         return false;
 
+    std::string banReason = reason;
+  
     switch (mode)
     {
         case BAN_ACCOUNT:
@@ -2961,11 +2977,22 @@ bool ChatHandler::HandleBanHelper(BanMode mode, const char *args)
     switch (sWorld->BanAccount(mode, nameOrIP, duration, reason, m_session ? m_session->GetPlayerName() : ""))
     {
         case BAN_SUCCESS:
-            if (atoi(duration)>0)
-                PSendSysMessage(LANG_BAN_YOUBANNED, nameOrIP.c_str(), secsToTimeString(TimeStringToSecs(duration), true).c_str(), reason);
-            else
-                PSendSysMessage(LANG_BAN_YOUPERMBANNED, nameOrIP.c_str(), reason);
-            break;
+             banReason = banReason + " Забанил " + m_session->GetPlayer()->GetName();
+             if (atoi(duration) > 0)
+             {
+                 if (CONFIG_SHOW_BAN_IN_WORLD)
+                     sWorld->SendWorldText(LANG_BAN_YOUBANNED,nameOrIP.c_str(),secsToTimeString(TimeStringToSecs(duration),true).c_str(),banReason.c_str());
+                 else
+                     PSendSysMessage(LANG_BAN_YOUBANNED,nameOrIP.c_str(),secsToTimeString(TimeStringToSecs(duration),true).c_str(),banReason.c_str());
+             }
+             else
+             {
+                 if (CONFIG_SHOW_BAN_IN_WORLD)
+                     sWorld->SendWorldText(LANG_BAN_YOUPERMBANNED,nameOrIP.c_str(),banReason.c_str());
+                 else
+                     PSendSysMessage(LANG_BAN_YOUPERMBANNED,nameOrIP.c_str(),banReason.c_str());
+             }            
+             break;
         case BAN_SYNTAX_ERROR:
             return false;
         case BAN_NOTFOUND:
@@ -3154,6 +3181,25 @@ bool ChatHandler::HandleBanInfoCharacterCommand(const char *args)
     return true;
 }
 
+bool ChatHandler::HandleBanInfoAccountByCharCommand(const char *args)
+{
+    Player* target;
+    uint64 target_guid;
+    if (!extractPlayerTarget((char*)args, &target, &target_guid))
+        return false;
+
+    uint32 accountid = target ? target->GetSession()->GetAccountId() : sObjectMgr->GetPlayerAccountIdByGUID(target_guid);
+
+    std::string accountname;
+    if (!AccountMgr::GetName(accountid,accountname))
+    {
+        PSendSysMessage(LANG_BANINFO_NOCHARACTER);
+        return true;
+    }
+
+    return HandleBanInfoHelper(accountid, accountname.c_str());
+}
+
 bool ChatHandler::HandleBanInfoHelper(uint32 accountid, char const* accountname)
 {
     QueryResult result = LoginDatabase.PQuery("SELECT FROM_UNIXTIME(bandate), unbandate-bandate, active, unbandate, banreason, bannedby FROM account_banned WHERE id = '%u' ORDER BY bandate ASC", accountid);
@@ -3324,6 +3370,26 @@ bool ChatHandler::HandleBanListAccountCommand(const char *args)
     if (!result)
     {
         PSendSysMessage(LANG_BANLIST_NOACCOUNT);
+        return true;
+    }
+
+    return HandleBanListHelper(result);
+}
+
+bool ChatHandler::HandleBanListPlayerAccountCommand(const char *args)
+{
+    LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
+
+    char* cFilter = strtok((char*)args, " ");
+    if(!cFilter)
+        return false;
+
+    std::string filter = cFilter;
+    LoginDatabase.EscapeString(filter);
+    QueryResult result = CharacterDatabase.PQuery("SELECT account FROM characters WHERE name "_LIKE_" "_CONCAT3_("'%%'","'%s'","'%%'"),filter.c_str());
+    if (!result)
+    {
+        PSendSysMessage(LANG_BANLIST_NOCHARACTER);
         return true;
     }
 

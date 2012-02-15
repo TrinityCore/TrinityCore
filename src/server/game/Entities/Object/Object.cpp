@@ -1235,6 +1235,16 @@ void WorldObject::_Create(uint32 guidlow, HighGuid guidhigh, uint32 phaseMask)
     m_phaseMask = phaseMask;
 }
 
+float WorldObject::GetObjectSize() const 
+{ 
+   if (GetTypeId() == TYPEID_UNIT) 
+   { 
+       if (this->ToCreature()->isHunterPet()) 
+           return DEFAULT_WORLD_OBJECT_SIZE; 
+   } 
+   return (m_valuesCount > UNIT_FIELD_COMBATREACH) ? m_floatValues[UNIT_FIELD_COMBATREACH] : DEFAULT_WORLD_OBJECT_SIZE; 
+}
+
 uint32 WorldObject::GetZoneId() const
 {
     return GetBaseMap()->GetZoneId(m_positionX, m_positionY, m_positionZ);
@@ -1714,6 +1724,19 @@ bool WorldObject::canSeeOrDetect(WorldObject const* obj, bool ignoreStealth, boo
         }
         else
             return false;
+    }
+
+    // Traps can only be detected within melee distance
+    if (const GameObject *thisGO = obj->ToGameObject())
+    {
+        if (thisGO->GetGoType() == GAMEOBJECT_TYPE_TRAP && thisGO->GetOwnerGUID() && ToPlayer())
+        {
+            if (thisGO->GetOwner() == ToPlayer() ||
+                obj->IsWithinDist(this, ToPlayer()->HasAura(2836) ? 20.0f : 4.0f, false)) // Detect Traps increases chance to detect traps
+                return true;
+
+            return false;
+        }
     }
 
     if (obj->IsInvisibleDueToDespawn())
@@ -2356,7 +2379,7 @@ Pet* Player::SummonPet(uint32 entry, float x, float y, float z, float ang, PetTy
     return pet;
 }
 
-GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime)
+GameObject* WorldObject::SummonGameObject(uint32 entry, const Position &pos, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime) const
 {
     if (!IsInWorld())
         return NULL;
@@ -2369,7 +2392,7 @@ GameObject* WorldObject::SummonGameObject(uint32 entry, float x, float y, float 
     }
     Map* map = GetMap();
     GameObject* go = new GameObject();
-    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), x, y, z, ang, rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
+    if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, map, GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(), rotation0, rotation1, rotation2, rotation3, 100, GO_STATE_READY))
     {
         delete go;
         return NULL;
@@ -2419,6 +2442,15 @@ GameObject* WorldObject::FindNearestGameObject(uint32 entry, float range) const
     Trinity::GameObjectLastSearcher<Trinity::NearestGameObjectEntryInObjectRangeCheck> searcher(this, go, checker);
     VisitNearbyGridObject(range, searcher);
     return go;
+}
+
+Player* WorldObject::FindNearestPlayer(float range, bool alive)
+{
+  Player* player = NULL;
+  Trinity::AnyPlayerInObjectRangeCheck check(this, GetVisibilityRange());
+  Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(this, player, check);
+  VisitNearbyWorldObject(range, searcher);
+  return player;
 }
 
 void WorldObject::GetGameObjectListWithEntryInGrid(std::list<GameObject*>& gameobjectList, uint32 entry, float maxSearchRange) const

@@ -1,0 +1,14 @@
+NPC Teleport for Trinity
+
+Original author : Wilibald09
+
+Allows you to add a custom NPC for teleporting, using .npc add 100000.
+The default NPC is entry 100000.
+
+All settings are located in the DB, so you can customize and add destinations,
+set level restrictions and also charge the player for teleporting.
+
+Installation:
+
+Run the query setup_npc_teleport.sql located in the trinity sql directory on
+your world DB. This will setup the DB and you can customize from there.

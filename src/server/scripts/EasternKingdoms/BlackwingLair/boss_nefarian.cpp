@@ -192,7 +192,7 @@ public:
                         break;
                     case 2:
                         DoScriptText(SAY_DRUID, me);
-                        DoCast(me, SPELL_DRUID);
+                        //DoCast(me, SPELL_DRUID);
                         break;
                     case 3:
                         DoScriptText(SAY_PRIEST, me);

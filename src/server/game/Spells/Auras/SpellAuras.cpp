@@ -357,6 +357,22 @@ void Aura::_InitEffects(uint8 effMask, Unit* caster, int32 *baseAmount)
         else
             m_effects[i] = NULL;
     }
+
+    // Mixology
+    if (m_spellInfo->SpellFamilyName == SPELLFAMILY_POTION && caster /*&& caster->IsPlayer()*/ && caster->HasAura(53042))
+    {
+        if (sSpellMgr->IsSpellMemberOfSpellGroup(m_spellInfo->Id, SPELL_GROUP_ELIXIR_BATTLE) ||
+            sSpellMgr->IsSpellMemberOfSpellGroup(m_spellInfo->Id, SPELL_GROUP_ELIXIR_GUARDIAN))
+        {
+            m_maxDuration *= 2;
+            m_duration = m_maxDuration;
+            for (uint8 i = 0 ; i < MAX_SPELL_EFFECTS; ++i)
+            {
+                if (effMask & (uint8(1) << i))
+                    m_effects[i]->SetAmount((int32)(m_effects[i]->GetAmount() * 1.3f));
+            }
+        }
+    }
 }
 
 Aura::~Aura()
@@ -1209,8 +1225,8 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (target->GetTypeId() == TYPEID_PLAYER)
                             if (GameObject* obj = target->GetGameObject(48018))
                             {
-                                target->NearTeleportTo(obj->GetPositionX(), obj->GetPositionY(), obj->GetPositionZ(), obj->GetOrientation());
-                                target->RemoveMovementImpairingAuras();
+                                target->ToPlayer()->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
+                                target->ToPlayer()->RemoveMovementImpairingAuras();
                             }
                         break;
                 }
@@ -1329,6 +1345,30 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             }
                         }
                         break;
+                    case 63830: // Malady of the Mind
+                    case 63881:
+                    {
+                        if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                            break;
+                        // it will attempt to jump to a nearby friend when removed
+                        std::list<Unit*> unitList;
+                        target->GetRaidMember(unitList, 10);
+                        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                        {
+                            Unit* pUnit = *itr;
+                            if (!pUnit || pUnit == target)
+                                continue;
+
+                            pUnit->CastSpell(pUnit, 63881, true, 0, 0);
+                            return;
+                        }
+                        break;
+                    }
+                    case 64465: // Shadow Beacon
+                        if (removeMode != AURA_REMOVE_BY_EXPIRE)
+                            break;
+                        target->CastSpell(target, 64468, true, 0, 0, GetCasterGUID());
+                        break;
                 }
                 break;
             case SPELLFAMILY_MAGE:
@@ -1400,6 +1440,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (caster->GetTypeId() == TYPEID_PLAYER && caster->ToPlayer()->isHonorOrXPTarget(target))
                             caster->CastSpell(target, 18662, true, NULL, GetEffect(0));
                     }
+                    break;
                 }
                 // Improved Fear
                 else if (GetSpellInfo()->SpellFamilyFlags[1] & 0x00000400)
@@ -1529,9 +1570,25 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     target->RemoveAurasWithFamily(SPELLFAMILY_ROGUE, 0x0000800, 0, 0, target->GetGUID());
                 break;
             case SPELLFAMILY_PALADIN:
-                // Remove the immunity shield marker on Forbearance removal if AW marker is not present
-                if (GetId() == 25771 && target->HasAura(61988) && !target->HasAura(61987))
-                    target->RemoveAura(61988);
+                switch (GetId())
+                {                   
+                    case 25771: // Remove the immunity shield marker on Forbearance removal if AW marker is not present
+                        if (target->HasAura(61988) && !target->HasAura(61987))
+                            target->RemoveAura(61988);
+                        break;
+                    case 199997: // Divine Storm Helper (SERVERSIDE)
+                    {
+                        int32 damage = aurApp->GetBase()->GetEffect(EFFECT_0)->GetAmount();
+
+                        if (!damage)
+                            break;
+
+                        caster->CastCustomSpell(target, 54171, &damage, NULL, NULL, true);
+                        break;
+                    }
+                    default:
+                        break;
+                }
                 break;
             case SPELLFAMILY_DEATHKNIGHT:
                 // Blood of the North
@@ -1551,6 +1608,24 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 }
                 break;
             case SPELLFAMILY_HUNTER:
+                // Wyvern Sting
+                // If implemented through spell_linked_spell it can't proc from breaking by damage
+                if (removeMode != AURA_REMOVE_BY_DEATH &&
+                    GetSpellInfo()->SpellFamilyFlags[1] & 0x1000 && caster)
+                {
+                    uint32 spell_id = 0;
+                    switch(GetId())
+                    {
+                        case 19386: spell_id = 24131; break;
+                        case 24132: spell_id = 24134; break;
+                        case 24133: spell_id = 24135; break;
+                        case 27068: spell_id = 27069; break;
+                        case 49011: spell_id = 49009; break;
+                        case 49012: spell_id = 49010; break;
+                    }
+                    caster->CastSpell(target, spell_id, true);
+                }
+                break;
                 // Glyph of Freezing Trap
                 if (GetSpellInfo()->SpellFamilyFlags[0] & 0x00000008)
                     if (caster && caster->HasAura(56845))

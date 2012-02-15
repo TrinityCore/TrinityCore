@@ -48,6 +48,7 @@
 #include "BattlegroundEY.h"
 #include "BattlegroundWS.h"
 #include "OutdoorPvPMgr.h"
+#include "OutdoorPvPWG.h"
 #include "Language.h"
 #include "SocialMgr.h"
 #include "Util.h"
@@ -276,6 +277,35 @@ void Spell::EffectInstaKill(SpellEffIndex /*effIndex*/)
 
     if (!unitTarget || !unitTarget->isAlive())
         return;
+
+    // Demonic Sacrifice
+    if (m_spellInfo->Id == 18788 && unitTarget->GetTypeId() == TYPEID_UNIT)
+    {
+        uint32 entry = unitTarget->GetEntry();
+        uint32 spellID;
+        switch (entry)
+        {
+            case   416: spellID = 18789; break;               //imp
+            case   417: spellID = 18792; break;               //fellhunter
+            case  1860: spellID = 18790; break;               //void
+            case  1863: spellID = 18791; break;               //succubus
+            case 17252: spellID = 35701; break;               //fellguard
+            default:
+                sLog->outError("EffectInstaKill: Unhandled creature entry (%u) case.", entry);
+                return;
+        }
+
+        m_caster->CastSpell(m_caster, spellID, true);
+    }
+    //Death pact should affect only his ghoul
+    if (m_spellInfo->Id == 48743)
+    {
+        if (unitTarget->GetTypeId() != TYPEID_UNIT || unitTarget->GetEntry() != 26125)
+            return;
+        //Do not harm other ghouls
+        if (unitTarget->GetOwnerGUID() != m_caster->GetGUID())
+            return;
+    }
 
     if (m_caster == unitTarget)                              // prevent interrupt message
         finish();
@@ -703,6 +733,17 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     damage += CalculatePctN(block_value, m_spellInfo->Effects[EFFECT_1].CalcValue());
                     break;
                 }
+		//Item - Icecrown 25 Normal Dagger Proc
+                if (m_spellInfo->Id == 71887 || m_spellInfo->Id == 71881)
+                    if (Aura * aur = m_caster->GetAura(71880))
+                        if (roll_chance_i(25))
+                        m_caster->CastSpell(m_caster, 71883, true);
+                break;
+		//Item - Icecrown 25 Heroic Dagger Proc
+		if (m_spellInfo->Id == 71886 || m_spellInfo->Id == 71882)
+                    if (Aura * aur = m_caster->GetAura(71892))
+                        if (roll_chance_i(35))
+                        m_caster->CastSpell(m_caster, 71888, true);
                 break;
             }
             case SPELLFAMILY_DEATHKNIGHT:
@@ -1008,6 +1049,16 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     m_caster->CastSpell(m_caster, 42337, true, NULL);
                     return;
                 }
+                case 45980:                                 // Re-Cursive Transmatter Injection
+                {
+                    if(!unitTarget)
+                        return;
+                    Player* pPlayer = m_caster->ToPlayer();
+                    pPlayer->CastSpell(pPlayer, 46022, false);
+                    if(Creature* pCreature = pPlayer->FindNearestCreature(25773, 10.0f, true))
+                        pPlayer->KilledMonsterCredit(pCreature->GetEntry(), pCreature->GetGUID()); // rest is done by EventAI
+                    unitTarget->DestroyForPlayer(pPlayer);
+                }
                 case 47170:                                 // Impale Leviroth
                 {
                     if (!unitTarget || (unitTarget->GetEntry() != 26452 && unitTarget->HealthAbovePct(95)))
@@ -1099,13 +1150,15 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                 }
                 case 51582:                                 //Rocket Boots Engaged (Rocket Boots Xtreme and Rocket Boots Xtreme Lite)
                 {
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                    if (!m_CastItem) 
                         return;
 
                     if (Battleground* bg = m_caster->ToPlayer()->GetBattleground())
                         bg->EventPlayerDroppedFlag(m_caster->ToPlayer());
 
+                    ((Player*)m_caster)->RemoveSpellCooldown(30452, true);
                     m_caster->CastSpell(m_caster, 30452, true, NULL);
+                    ((Player*)m_caster)->AddSpellCooldown(30452,m_CastItem->GetEntry(), time(NULL)+300);
                     return;
                 }
                 case 52759:                                 // Ancestral Awakening
@@ -1239,7 +1292,14 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
             {
                 int32 bp0 = damage;
                 m_caster->CastCustomSpell(unitTarget, 50783, &bp0, NULL, NULL, true, 0);
-                return;
+
+                // Item - Warrior T10 Melee 4P Bonus
+                if (Aura * aura = m_caster->GetAura(46916))
+                    if (aura->GetCharges())
+                    {
+                        m_caster->ToPlayer()->RestoreSpellMods(this, 46916);
+                        aura->DropCharge();
+                    }
             }
             // Execute
             if (m_spellInfo->SpellFamilyFlags[EFFECT_0] & SPELLFAMILYFLAG_WARRIOR_EXECUTE)
@@ -1266,6 +1326,10 @@ void Spell::EffectDummy(SpellEffIndex effIndex)
                     rageUsed += aurEff->GetAmount() * 10;
 
                 bp = damage + int32(rageUsed * m_spellInfo->Effects[effIndex].DamageMultiplier + m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
+
+                // Item - Warrior T10 Melee 4P Bonus
+                if (Aura * aura = m_caster->GetAura(52437))
+                    aura->DropCharge();
                 break;
             }
             // Concussion Blow
@@ -1624,12 +1688,6 @@ void Spell::EffectTriggerSpell(SpellEffIndex effIndex)
 
                 for (uint32 j = 0; j < spell->StackAmount; ++j)
                     m_caster->CastSpell(unitTarget, spell->Id, true);
-                return;
-            }
-            // Righteous Defense
-            case 31980:
-            {
-                m_caster->CastSpell(unitTarget, 31790, true);
                 return;
             }
             // Cloak of Shadows
@@ -2604,6 +2662,10 @@ void Spell::EffectEnergize(SpellEffIndex effIndex)
     int level_diff = 0;
     switch (m_spellInfo->Id)
     {
+        case 2687:                                          // Bloodrage
+            if (m_caster->HasAura(70844))
+                m_caster->CastSpell(m_caster, 70845, true);
+            break;
         case 9512:                                          // Restore Energy
             level_diff = m_caster->getLevel() - 40;
             level_multiplier = 2;
@@ -4456,8 +4518,85 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
     {
         case SPELLFAMILY_GENERIC:
         {
+            if (unitTarget && unitTarget->HasAura(63050))
+            {
+                // reduces Sanity by %
+                uint32 sanityCount = 0;
+                switch(m_spellInfo->Id)
+                {
+                    case 63803: // Brain Link
+                    case 64168: // Lunatic Gaze
+                        sanityCount = 2; break;
+                    case 63830: // Malady of the Mind 10
+                    case 63881: // Malady of the Mind 25
+                        sanityCount = 3; break;
+                    case 64164: // Lunatic Gaze P3
+                        sanityCount = 4; break;
+                    case 63795: // Psychosis
+                        sanityCount = 9; break;
+                    case 64059: // Induce Madness
+                        sanityCount = 100; break;
+                }
+                if (sanityCount)
+                {
+                    if (Aura *aur = unitTarget->GetAura(63050))
+                    {
+                        int32 stack = aur->GetStackAmount() - sanityCount;
+                        if (stack <= 0)
+                            unitTarget->RemoveAurasDueToSpell(63050);
+                        else
+                            unitTarget->SetAuraStack(63050, unitTarget, stack);
+                    }
+                }
+            }
+
             switch (m_spellInfo->Id)
             {
+                //Sunreaver Disguis
+                case 69672:
+                {
+                    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                    if (unitTarget->ToPlayer()->getGender() == GENDER_FEMALE)
+                        unitTarget->CastSpell(unitTarget, 70973, false);
+                    else
+                        unitTarget->CastSpell(unitTarget, 70974, false);
+
+                    return;
+                        
+                }
+                //Silver Covenant Disguise
+                case 69673:
+                {
+                    if (unitTarget->GetTypeId() != TYPEID_PLAYER)
+                    return;
+
+                    if (unitTarget->ToPlayer()->getGender() == GENDER_FEMALE)
+                        unitTarget->CastSpell(unitTarget, 70971, false);
+                    else
+                        unitTarget->CastSpell(unitTarget, 70972, false);
+
+                    return;
+                        
+                }
+                // Teleport to Lake Wintergrasp
+                case 58622:
+                {
+                  if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+                     if (unitTarget->getLevel() > 74)
+                     {
+                       if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
+                          unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
+                       else if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
+                          unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_HORDE_CAMP, true);
+                       else if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
+                          unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
+                       else if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
+                          unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_ALLIENCE_CAMP, true);
+                     }
+                    return;
+                }
                 // Glyph of Backstab
                 case 63975:
                 {
@@ -4556,6 +4695,33 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 26465:
                     unitTarget->RemoveAuraFromStack(26464);
                     return;
+                               // Argent Tournament  Mount spells
+                               case 62575:
+                               {
+                                       if(m_caster->GetCharmerOrOwner())
+                                               m_caster->GetCharmerOrOwner()->CastSpell(unitTarget,62626,true );
+                                               return;
+                               }
+                               case 62960:
+                               {
+                                       if (!unitTarget)
+                                               return;
+                                       m_caster->CastSpell(unitTarget,62563,true );
+                                       m_caster->CastSpell(unitTarget,68321,true );
+                                       return;
+                               }
+                               case 62626:
+                               case 68321:
+                               {
+                                       if(!unitTarget)
+                                               return;
+                                       if (unitTarget->GetAura(62719))
+                                               unitTarget->RemoveAuraFromStack(62719);
+
+                                       if(unitTarget->GetAura(64100))
+                                               unitTarget->RemoveAuraFromStack(64100);
+                                       return;
+                               }
                 // Shadow Flame (All script effects, not just end ones to prevent player from dodging the last triggered spell)
                 case 22539:
                 case 22972:
@@ -7287,9 +7453,23 @@ void Spell::EffectPlayerNotification(SpellEffIndex effIndex)
     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;
 
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
     switch (m_spellInfo->Id)
     {
         case 58730: // Restricted Flight Area
+           {
+             if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+             {
+                if (pvpWG->isWarTime()==true)
+                {
+                   unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
+                   unitTarget->PlayDirectSound(9417); // Fel Reaver sound
+                   unitTarget->MonsterTextEmote("The air is too thin in Wintergrasp for normal flight. You will be ejected in 9 sec.",unitTarget->GetGUID(),true);
+                } else unitTarget->RemoveAura(58730);
+              }
+            break;
+            }
         case 58600: // Restricted Flight Area
             unitTarget->ToPlayer()->GetSession()->SendNotification(LANG_ZONE_NOFLYZONE);
             break;

@@ -142,9 +142,11 @@ class ChatHandler
         bool HandleBanIPCommand(const char* args);
         bool HandleBanInfoAccountCommand(const char* args);
         bool HandleBanInfoCharacterCommand(const char* args);
+        bool HandleBanInfoAccountByCharCommand(const char* args);
         bool HandleBanInfoIPCommand(const char* args);
         bool HandleBanListAccountCommand(const char* args);
         bool HandleBanListCharacterCommand(const char* args);
+        bool HandleBanListPlayerAccountCommand(const char* args);
         bool HandleBanListIPCommand(const char* args);
 
         bool HandleCastCommand(const char *args);
@@ -357,6 +359,14 @@ class ChatHandler
         bool HandleUnBanHelper(BanMode mode, char const* args);
         void HandleCharacterLevel(Player* player, uint64 playerGuid, uint32 oldLevel, uint32 newLevel);
         void HandleLearnSkillRecipesHelper(Player* player, uint32 skill_id);
+
+        // Wintergrasp
+        bool HandleWintergraspStatusCommand(const char *args);
+        bool HandleWintergraspStartCommand(const char *args);
+        bool HandleWintergraspStopCommand(const char *args);
+        bool HandleWintergraspEnableCommand(const char *args);
+        bool HandleWintergraspSwitchTeamCommand(const char *args);
+        bool HandleWintergraspTimerCommand(const char *args);
 
         // Stores informations about a deleted character
         struct DeletedInfo
