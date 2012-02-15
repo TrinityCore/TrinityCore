@@ -4815,6 +4815,11 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     SpellCastResult castResult = SPELL_CAST_OK;
 
+    // script hook
+    castResult = CallScriptCheckCastHandlers();
+    if (castResult != SPELL_CAST_OK)
+        return castResult;
+
     // always (except passive spells) check items (focus object can be required for any type casts)
     if (!m_spellInfo->IsPassive())
     {
@@ -4842,11 +4847,6 @@ SpellCastResult Spell::CheckCast(bool strict)
         if (castResult != SPELL_CAST_OK)
             return castResult;
     }
-
-    // script hook
-    castResult = CallScriptCheckCastHandlers();
-    if (castResult != SPELL_CAST_OK)
-        return castResult;
 
     for (int i = 0; i < MAX_SPELL_EFFECTS; i++)
     {
@@ -5752,17 +5752,26 @@ SpellCastResult Spell::CheckItems()
     if (!m_CastItem)
     {
         if (m_castItemGUID)
+        {
+            sLog->outString("castitemguid = %u",m_castItemGUID);
             return SPELL_FAILED_ITEM_NOT_READY;
+        }
     }
     else
     {
         uint32 itemid = m_CastItem->GetEntry();
         if (!p_caster->HasItemCount(itemid, 1))
+        {
+            sLog->outString("castitementry = %u",itemid);
             return SPELL_FAILED_ITEM_NOT_READY;
+        }
 
         ItemTemplate const* proto = m_CastItem->GetTemplate();
         if (!proto)
+        {
+            sLog->outString("notemplate %u",m_CastItem->GetEntry());
             return SPELL_FAILED_ITEM_NOT_READY;
+        }
 
         for (int i = 0; i < MAX_ITEM_SPELLS; ++i)
             if (proto->Spells[i].SpellCharges)

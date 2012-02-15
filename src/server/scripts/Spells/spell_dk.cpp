@@ -829,9 +829,10 @@ class spell_dk_raise_dead : public SpellScriptLoader
                 Player* caster = GetCaster()->ToPlayer();
                 uint32 ghoulSpellId = GetEffectValue();
 
-                if (GetCaster()->HasAura(SPELL_MASTER_OF_GHOULS))
+                if (caster->HasAura(SPELL_MASTER_OF_GHOULS))
                     ghoulSpellId = uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue());
                 sLog->outString("spell id=%u",ghoulSpellId);
+                caster->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id,true);
                 caster->CastSpell(GetHitUnit(), ghoulSpellId, false);
                 _handledFromScript = true;
             }
@@ -843,10 +844,10 @@ class spell_dk_raise_dead : public SpellScriptLoader
                     Player* caster = GetCaster()->ToPlayer();
                     int32 ghoulSpellId = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
-                    if (GetCaster()->HasAura(SPELL_MASTER_OF_GHOULS))
+                    if (caster->HasAura(SPELL_MASTER_OF_GHOULS))
                         ghoulSpellId = GetEffectValue();
                     sLog->outString("spell id2=%u",ghoulSpellId);
-                    caster->CastCustomSpell(caster,SPELL_RAISE_DEAD_GHOUL_SUMMON, &ghoulSpellId, 0, 0, false);
+                    caster->CastCustomSpell(caster,SPELL_RAISE_DEAD_GHOUL_SUMMON, &ghoulSpellId, 0, 0, caster->HasAura(SPELL_GLYPH_OF_RAISE_DEAD));
                 }
             }
 
@@ -889,15 +890,15 @@ class spell_dk_raise_dead_reagent : public SpellScriptLoader
 
             void HandleDummyReagentSpell(SpellEffIndex /*effIndex*/)
             {
+                GetCaster()->ToPlayer()->RemoveSpellCooldown(SPELL_RAISE_DEAD_SPELL,true);
                 GetCaster()->CastSpell(GetCaster(), GetEffectValue(), true);
             }
 
             SpellCastResult CheckCast()
             {
-                sLog->outString("castcheck");
-                if (!GetTriggeringSpell() && !GetCaster()->HasAura(SPELL_GLYPH_OF_RAISE_DEAD) && GetCaster()->ToPlayer()->HasItemCount(ITEM_CORPSE_DUST_REAGENT,1))
+                if (!GetTriggeringSpell() && !GetCaster()->ToPlayer()->HasItemCount(ITEM_CORPSE_DUST_REAGENT,1))
                 {
-                    GetCaster()->ToPlayer()->SendCooldownEvent(sSpellMgr->GetSpellInfo(SPELL_RAISE_DEAD_SPELL));
+                    GetCaster()->ToPlayer()->RemoveSpellCooldown(SPELL_RAISE_DEAD_SPELL,true);
                     SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NEED_CORPSE_DUST_IF_NO_TARGET);
                     return SPELL_FAILED_CUSTOM_ERROR;
                 }
@@ -936,4 +937,5 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_death_coil();
     new spell_dk_death_grip();
     new spell_dk_raise_dead();
+    new spell_dk_raise_dead_reagent();
 }
