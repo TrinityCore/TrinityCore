@@ -171,7 +171,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
             return;
     }
 
-    if (GetPlayer()->HasUnitState(UNIT_STAT_DIED))
+    if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
 
     Item* items[MAX_AUCTION_ITEMS];
