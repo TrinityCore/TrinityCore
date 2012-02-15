@@ -343,6 +343,10 @@ uint32 Condition::GetMaxAvailableConditionTargets()
     switch(SourceType)
     {
         case CONDITION_SOURCE_TYPE_SPELL:
+        case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:
+        case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
+        case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
+        case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
             return 2;
 		case CONDITION_SOURCE_TYPE_SMART_EVENT:
 			return 2;
@@ -415,6 +419,12 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
 bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions)
 {
     ConditionSourceInfo srcInfo = ConditionSourceInfo(object);
+    return IsObjectMeetToConditions(srcInfo, conditions);
+}
+
+bool ConditionMgr::IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionList const& conditions)
+{
+    ConditionSourceInfo srcInfo = ConditionSourceInfo(object1, object2);
     return IsObjectMeetToConditions(srcInfo, conditions);
 }
 
