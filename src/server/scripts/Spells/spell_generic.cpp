@@ -929,10 +929,10 @@ public:
 
             // get queststatus
             QuestStatusMap::const_iterator itr = owner->ToPlayer()->getQuestStatusMap().find(13906);
-            if (itr->second.m_status != QUEST_STATUS_INCOMPLETE)
+            if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
                 return;
 
-            switch(uint8(itr->second.m_itemcount[1]/5))
+            switch(uint8(itr->second.ItemCount[1]/5))
             {
             case 1: target->SetDisplayId(PROG_5_9);   break;
             case 2: target->SetDisplayId(PROG_10_14); break;
