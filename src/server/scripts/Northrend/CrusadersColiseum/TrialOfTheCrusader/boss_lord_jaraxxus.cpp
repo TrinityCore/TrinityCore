@@ -68,7 +68,6 @@ enum BossSpells
 {
     SPELL_LEGION_FLAME                = 66197, // player should run away from raid because he triggers Legion Flame
     SPELL_LEGION_FLAME_EFFECT         = 66201, // used by trigger npc
-    SPELL_TOUCH_OF_JARAXXUS           = 66209, // used only in 25H
     SPELL_NETHER_POWER                = 66228, // +20% of spell damage per stack, stackable up to 5/10 times, must be dispelled/stealed
     SPELL_FEL_LIGHTING                = 66528, // jumps to nearby targets
     SPELL_FEL_FIREBALL                = 66532, // does heavy damage to the tank, interruptable
@@ -120,7 +119,6 @@ public:
         uint32 m_uiIncinerateFleshTimer;
         uint32 m_uiNetherPowerTimer;
         uint32 m_uiLegionFlameTimer;
-        uint32 m_uiTouchOfJaraxxusTimer;
         uint32 m_uiSummonNetherPortalTimer;
         uint32 m_uiSummonInfernalEruptionTimer;
 
@@ -134,7 +132,6 @@ public:
             m_uiIncinerateFleshTimer = urand(20*IN_MILLISECONDS, 25*IN_MILLISECONDS);
             m_uiNetherPowerTimer = 40*IN_MILLISECONDS;
             m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
-            m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
             m_uiSummonNetherPortalTimer = 1*MINUTE*IN_MILLISECONDS;
             m_uiSummonInfernalEruptionTimer = 2*MINUTE*IN_MILLISECONDS;
             Summons.DespawnAll();
@@ -239,13 +236,6 @@ public:
                 }
                 m_uiLegionFlameTimer = 30*IN_MILLISECONDS;
             } else m_uiLegionFlameTimer -= uiDiff;
-
-            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_HEROIC && m_uiTouchOfJaraxxusTimer <= uiDiff)
-            {
-                if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
-                    DoCast(target, SPELL_TOUCH_OF_JARAXXUS);
-                m_uiTouchOfJaraxxusTimer = urand(10*IN_MILLISECONDS, 15*IN_MILLISECONDS);
-            } else m_uiTouchOfJaraxxusTimer -= uiDiff;
 
             DoMeleeAttackIfReady();
         }
