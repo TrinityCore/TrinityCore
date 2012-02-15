@@ -5665,7 +5665,7 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (target->isInFlight())
         return;
 
-    target->TeleportTo(target->GetStartPosition(), m_caster == m_caster ? TELE_TO_SPELL : 0);
+    target->TeleportTo(target->GetStartPosition(), TELE_TO_SPELL);
     // homebind location is loaded always
     // target->TeleportTo(target->m_homebindMapId, target->m_homebindX, target->m_homebindY, target->m_homebindZ, target->GetOrientation(), (m_caster == m_caster ? TELE_TO_SPELL : 0));
 

@@ -530,20 +530,38 @@ namespace Trinity
     class RaiseDeadObjectCheck
     {
         public:
-            RaiseDeadObjectCheck(Unit* funit, float range) : i_funit(funit), i_range(range) {}
+            RaiseDeadObjectCheck(Unit* source, float range) : _source(source), i_range(range) {}
             bool operator()(Creature* u)
             {
-                if (i_funit->GetTypeId() != TYPEID_PLAYER || !((Player*)i_funit)->isHonorOrXPTarget(u) ||
-                    u->getDeathState() != CORPSE || u->isInFlight() ||
+                if (_source->GetTypeId() != TYPEID_PLAYER || !((Player*)_source)->isHonorOrXPTarget(u) ||
+                    u->getDeathState() != CORPSE ||
                     (u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1))) == 0 ||
                     (u->GetDisplayId() != u->GetNativeDisplayId()))
                     return false;
 
-                return i_funit->IsWithinDistInMap(u, i_range);
+                return _source->IsWithinDistInMap(u, i_range);
+            }
+
+            bool operator()(Player* u)
+            {
+                if (_source == u || _source->GetTypeId() != TYPEID_PLAYER || !((Player*)_source)->isHonorOrXPTarget(u) ||
+                    u->HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST) || u->isInFlight() || !u->isDead() ||
+                    (u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1))) == 0)
+                    return false;
+
+                return _source->IsWithinDistInMap(u, i_range);
+            }
+
+            bool operator()(Corpse* u)
+            {
+                if (_source->GetTypeId() != TYPEID_PLAYER || u->GetType() == CORPSE_BONES)
+                    return false;
+
+                return _source->IsWithinDistInMap(u, i_range);
             }
             template<class NOT_INTERESTED> bool operator()(NOT_INTERESTED*) { return false; }
         private:
-            Unit* const i_funit;
+            Unit* const _source;
             float i_range;
     };
 
