@@ -199,6 +199,7 @@ class ConditionMgr
         ConditionList GetConditionReferences(uint32 refId);
 
         bool IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions);
+        bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionList const& conditions);
         bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
         ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
