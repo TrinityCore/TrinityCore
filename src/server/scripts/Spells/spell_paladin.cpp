@@ -428,7 +428,8 @@ class spell_pal_righteous_defense_trigger : public SpellScriptLoader
 
             void HandleTargets(std::list<Unit*>& targetList)
             {
-                /*if (targetList.size() > 3)
+                sLog->outString("targetlist size = %u",targetList.size());
+                if (targetList.size() > 3)
                 {
                     std::list<Unit*> newTargets;
                     for (uint32 i = 0;i < 3;)
@@ -443,18 +444,18 @@ class spell_pal_righteous_defense_trigger : public SpellScriptLoader
                         i--;
                     }
                     targetList = newTargets;
-                }*/
+                }
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                /*if (Unit* target = GetHitUnit())
-                    GetCaster()->CastSpell(target, SPELL_RIGHTEOUS_DEFENSE_TAUNT, true);*/
+                if (Unit* target = GetHitUnit())
+                    GetCaster()->CastSpell(target, SPELL_RIGHTEOUS_DEFENSE_TAUNT, true);
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_pal_righteous_defense_trigger_SpellScript::HandleTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_pal_righteous_defense_trigger_SpellScript::HandleTargets, EFFECT_0, TARGET_SRC_CASTER);
                 OnEffectHitTarget += SpellEffectFn(spell_pal_righteous_defense_trigger_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
@@ -476,7 +477,7 @@ class spell_pal_righteous_defense_target : public SpellScriptLoader
 
             void FindTarget(std::list<Unit*>& targetList)
             {
-                /*for (std::list<Unit*>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
+                for (std::list<Unit*>::const_iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                     if (Unit* target = *itr)
                         if (!target->IsFriendlyTo(GetCaster()))
                             if (Unit* newTarget = target->getVictim())
@@ -485,7 +486,7 @@ class spell_pal_righteous_defense_target : public SpellScriptLoader
                                     targetList.clear();
                                     targetList.push_back(newTarget);
                                     return;
-                                }*/
+                                }
             }
 
             void Register()
