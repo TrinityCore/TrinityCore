@@ -1222,6 +1222,8 @@ void World::LoadConfigSettings(bool reload)
     m_bool_configs[CONFIG_PDUMP_NO_PATHS] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowPaths", true);
     m_bool_configs[CONFIG_CHANNEL_ON_CITY_ONLY_FLAG]  = ConfigMgr::GetBoolDefault("Channel.CityOnlyFlag", true);
 	m_bool_configs[CONFIG_PDUMP_NO_OVERWRITE] = ConfigMgr::GetBoolDefault("PlayerDump.DisallowOverwrite", true);
+	m_int_configs[CONFIG_INT_CHAT_DISABLE_TIME] = ConfigMgr::GetIntDefault("Chat.DisableWhenCreate", 60);
+
 
     sScriptMgr->OnConfigLoad(reload);
 }

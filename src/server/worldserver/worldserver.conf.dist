@@ -1865,6 +1865,12 @@ ChatLevelReq.Whisper = 1
 ChatLevelReq.Say = 1
 
 #
+#	Chat.DisableWhenCreate
+#		Discription: Time requirement for characters on start to be able to use say/yell/emote.
+#		Default: 60 sec (equal to 1 min)
+Chat.DisableWhenCreate = 60
+
+#
 #    AllowPlayerCommands
 #        Description: Allow players to use commands.
 #        Default:     1 - (Enabled)
