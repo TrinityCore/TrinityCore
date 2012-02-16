@@ -203,11 +203,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_AREAID:
             condMeets = object->GetAreaId() == ConditionValue1;
             break;
-        case CONDITION_ITEM_TARGET:
-        {
-            condMeets = true; //handled in Item::IsTargetValidForItemUse
-            break;
-        }
         case CONDITION_SPELL:
         {
             if (Player* player = object->ToPlayer())
@@ -553,6 +548,9 @@ void ConditionMgr::LoadConditions(bool isReload)
         if (iConditionTypeOrReference >= 0)
             cond->ConditionType = ConditionTypes(iConditionTypeOrReference);
 
+        if (iSourceTypeOrReferenceId >= 0)
+            cond->SourceType = ConditionSourceType(iSourceTypeOrReferenceId);
+
         if (iConditionTypeOrReference < 0)//it has a reference
         {
             if (iConditionTypeOrReference == iSourceTypeOrReferenceId)//self referencing, skip
@@ -600,8 +598,6 @@ void ConditionMgr::LoadConditions(bool isReload)
             count++;
             continue;
         }//end of reference templates
-
-        cond->SourceType = ConditionSourceType(iSourceTypeOrReferenceId);
 
         //if not a reference and SourceType is invalid, skip
         if (iConditionTypeOrReference >= 0 && !isSourceTypeValid(cond))
@@ -1092,50 +1088,6 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET:
-        {
-            if (cond->ConditionType != CONDITION_ITEM_TARGET)
-            {
-                sLog->outErrorDb("SourceEntry %u in `condition` table, has ConditionType %u. Only CONDITION_ITEM_TARGET(24) is valid for CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET(18), ignoring.", cond->SourceEntry, uint32(cond->ConditionType));
-                return false;
-            }
-
-            ItemTemplate const* pItemProto = sObjectMgr->GetItemTemplate(cond->SourceEntry);
-            if (!pItemProto)
-            {
-                sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `item_tamplate`, ignoring.", cond->SourceEntry);
-                return false;
-            }
-
-            bool bIsItemSpellValid = false;
-            for (uint8 i = 0; i < MAX_ITEM_PROTO_SPELLS; ++i)
-            {
-                if (SpellInfo const* pSpellInfo = sSpellMgr->GetSpellInfo(pItemProto->Spells[i].SpellId))
-                {
-                    if (pItemProto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_USE ||
-                        pItemProto->Spells[i].SpellTrigger == ITEM_SPELLTRIGGER_ON_NO_DELAY_USE)
-                    {
-                        ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET, pSpellInfo->Id);//script loading is done before item target loading
-                        if (!conditions.empty())
-                            break;
-
-                        if (pSpellInfo->NeedsExplicitUnitTarget())
-                        {
-                            bIsItemSpellValid = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (!bIsItemSpellValid)
-            {
-                sLog->outErrorDb("Conditions: CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET for item %u, which either doesn't have item spelltrigger or its spells don't allow caster to select a unit target"
-                                ", or the spells are already listed in CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET conditions.", cond->SourceEntry);
-                break;
-            }
-            break;
-        }
         case CONDITION_SOURCE_TYPE_QUEST_ACCEPT:
             if (!sObjectMgr->GetQuestTemplate(cond->SourceEntry))
             {
@@ -1163,6 +1115,9 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
             break;
+        case CONDITION_SOURCE_TYPE_UNUSED_18:
+            sLog->outErrorDb("Found SourceTypeOrReferenceId = CONDITION_SOURCE_TYPE_UNUSED_18 in `condition` table - ignoring");
+            return false;
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
@@ -1467,24 +1422,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Map condition has useless data in value2 (%u)!", cond->ConditionValue2);
             if (cond->ConditionValue3)
                 sLog->outErrorDb("Map condition has useless data in value3 (%u)!", cond->ConditionValue3);
-            break;
-        }
-        case CONDITION_ITEM_TARGET:
-        {
-            if (!cond->ConditionValue1 || cond->ConditionValue1 > MAX_ITEM_REQ_TARGET_TYPE)
-            {
-                sLog->outErrorDb("ItemTarget condition has incorrect target type (%u), skipped", cond->ConditionValue1);
-                return false;
-            }
-
-            if (!cond->ConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->ConditionValue2))
-            {
-                sLog->outErrorDb("ItemTarget condition has non existing creature template entry (%u) as target, skipped", cond->ConditionValue2);
-                return false;
-            }
-
-            if (cond->ConditionValue3)
-                sLog->outErrorDb("ItemTarget condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
         case CONDITION_SPELL:

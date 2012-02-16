@@ -54,7 +54,7 @@ enum ConditionTypes
     CONDITION_TARGET_RANGE          = 21,                   // minDistance      maxDist        0                  true if target is closer then minDist and further then maxDist or if max is 0 then max dist is infinit
     CONDITION_MAPID                 = 22,                   // map_id           0              0                  true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
-    CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType, TargetEntry,    0
+    CONDITION_UNUSED_24             = 24,                   //
     CONDITION_SPELL                 = 25,                   // spell_id         0              0                  true if player has learned spell
     CONDITION_PHASEMASK             = 26,                   // phasemask        0              0                  true if object is in phasemask
     CONDITION_LEVEL                 = 27,                   // level            ComparisonType 0                  true if unit's level is equal to param1 (param2 can modify the statement)
@@ -92,7 +92,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15,
     CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16,
     CONDITION_SOURCE_TYPE_SPELL                          = 17,
-    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18,
+    CONDITION_SOURCE_TYPE_UNUSED_18                      = 18,
     CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,
     CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,

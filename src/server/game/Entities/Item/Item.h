@@ -268,7 +268,6 @@ class Item : public Object
         uint32 GetEnchantRequiredLevel() const;
 
         bool IsFitToSpellRequirements(SpellInfo const* spellInfo) const;
-        bool IsTargetValidForItemUse(Unit* pUnitTarget);
         bool IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const;
         bool GemsFitSockets() const;
 
