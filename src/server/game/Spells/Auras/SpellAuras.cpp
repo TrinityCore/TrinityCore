@@ -1840,6 +1840,10 @@ bool Aura::CanStackWith(Aura const* existingAura) const
 
     if (!sameCaster)
     {
+        // Channeled auras can stack if not forbidden by db or aura type
+        if (existingAura->GetSpellInfo()->IsChanneled())
+            return true;
+
         if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS)
             return true;
 
