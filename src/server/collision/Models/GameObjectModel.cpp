@@ -36,7 +36,7 @@ using G3D::AABox;
 struct GameobjectModelData
 {
     GameobjectModelData(const std::string& name_, const AABox& box) :
-        name(name_), bound(box) {}
+        bound(box), name(name_) {}
 
     AABox bound;
     std::string name;
@@ -55,19 +55,17 @@ void LoadGameObjectModelList()
     char buff[500];
     while (!feof(model_list_file))
     {
-        fread(&displayId,sizeof(uint32),1,model_list_file);
-        fread(&name_length,sizeof(uint32),1,model_list_file);
-
-        if (name_length >= sizeof(buff))
+        Vector3 v1, v2;
+        if (fread(&displayId, sizeof(uint32), 1, model_list_file) != 1
+            || fread(&name_length, sizeof(uint32), 1, model_list_file) != 1
+            || name_length >= sizeof(buff)
+            || fread(&buff, sizeof(char), name_length, model_list_file) != name_length
+            || fread(&v1, sizeof(Vector3), 1, model_list_file) != 1
+            || fread(&v2, sizeof(Vector3), 1, model_list_file) != 1)
         {
             printf("\nFile '%s' seems to be corrupted", VMAP::GAMEOBJECT_MODELS);
             break;
         }
-
-        fread(&buff, sizeof(char), name_length,model_list_file);
-        Vector3 v1, v2;
-        fread(&v1, sizeof(Vector3), 1, model_list_file);
-        fread(&v2, sizeof(Vector3), 1, model_list_file);
 
         model_list.insert
         (

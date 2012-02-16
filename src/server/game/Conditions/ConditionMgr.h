@@ -255,10 +255,11 @@ template <class T> bool CompareValues(ComparisionType type,  T val1, T val2)
             return val1 >= val2;
         case COMP_TYPE_LOW_EQ:
             return val1 <= val2;
+        default:
+            // incorrect parameter
+            ASSERT(false);
+            return false;
     }
-    // incorrect parameter
-    ASSERT(false);
-    return false;
 }
 
 #define sConditionMgr ACE_Singleton<ConditionMgr, ACE_Null_Mutex>::instance()
