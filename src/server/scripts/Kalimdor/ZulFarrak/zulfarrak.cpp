@@ -152,7 +152,7 @@ public:
                                 switchFactionIfAlive(instance, ENTRY_MURTA);
                             }
                     }
-                    postGossipStep++;
+                    ++postGossipStep;
                 }
                 else Text_Timer -= diff;
             }

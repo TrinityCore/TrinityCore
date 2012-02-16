@@ -196,7 +196,7 @@ public:
         void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_CRYSTAL_HANDLER)
-                crystalHandlerAmount++;
+                ++crystalHandlerAmount;
 
             lSummons.Summon(summon);
         }

@@ -580,14 +580,14 @@ class boss_freya : public CreatureScript
                     case 1:
                         DoScriptText(SAY_SUMMON_TRIO, me);
                         DoCast(SPELL_SUMMON_TRIO);
-                        trioWaveCount++;
+                        ++trioWaveCount;
                         break;
                     case 2:
                         DoScriptText(SAY_SUMMON_CONSERVATOR, me);
                         DoCast(SPELL_SUMMON_ANCIENT_CONSERVATOR);
                         break;
                 }
-                waveCount++;
+                ++waveCount;
             }
 
             void JustDied(Unit* /*who*/)

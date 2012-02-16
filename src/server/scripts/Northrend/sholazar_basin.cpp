@@ -509,7 +509,7 @@ public:
                             case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_1, LANG_UNIVERSAL, 0);  break;
                         }
                         sayTimer = 3000;
-                        sayStep++;
+                        ++sayStep;
                         break;
                     }
                     case 1:
@@ -521,7 +521,7 @@ public:
                             case NPC_TAMARA:  me->MonsterSay(SAY_TAMARA_2, LANG_UNIVERSAL, 0);  break;
                         }
                         sayTimer = 3000;
-                        sayStep++;
+                        ++sayStep;
                         break;
                     }
                     case 2:
@@ -554,7 +554,7 @@ public:
             if (itr->second.Status != QUEST_STATUS_INCOMPLETE)
                 return;
 
-            for (uint8 i=0; i<3; i++)
+            for (uint8 i=0; i<3; ++i)
             {
                 switch (i)
                 {

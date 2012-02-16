@@ -6998,7 +6998,7 @@ void Spell::EffectActivateRune(SpellEffIndex effIndex)
             {
                 // Should always update the rune with the lowest cd
                 if (player->GetRuneCooldown(l) >= player->GetRuneCooldown(l+1))
-                    l++;
+                    ++l;
                 player->SetRuneCooldown(l, 0);
                 --count;
                 // is needed to push through to the client that the rune is active

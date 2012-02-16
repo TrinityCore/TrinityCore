@@ -381,7 +381,7 @@ void AuctionHouseMgr::LoadAuctions()
         }
 
         GetAuctionsMap(aItem->factionTemplateId)->AddAuction(aItem);
-        count++;
+        ++count;
     } while (result->NextRow());
 
     CharacterDatabase.CommitTransaction(trans);

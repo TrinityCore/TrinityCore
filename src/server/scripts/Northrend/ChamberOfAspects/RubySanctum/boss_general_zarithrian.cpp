@@ -240,12 +240,12 @@ class npc_onyx_flamecaller : public CreatureScript
             {
                 if (me->GetPositionY() < 500.0f)
                 {
-                    for (uint8 i = 0; i < MAX_PATH_FLAMECALLER_WAYPOINTS; i++)
+                    for (uint8 i = 0; i < MAX_PATH_FLAMECALLER_WAYPOINTS; ++i)
                         AddWaypoint(i, FlamecallerWaypoints[i].GetPositionX(), FlamecallerWaypoints[i].GetPositionY(), FlamecallerWaypoints[i].GetPositionZ());
                 }
                 else
                 {
-                    for (uint8 i = 0, j = MAX_PATH_FLAMECALLER_WAYPOINTS; j < MAX_PATH_FLAMECALLER_WAYPOINTS*2; j++, i++)
+                    for (uint8 i = 0, j = MAX_PATH_FLAMECALLER_WAYPOINTS; j < MAX_PATH_FLAMECALLER_WAYPOINTS*2; ++j, ++i)
                         AddWaypoint(i, FlamecallerWaypoints[j].GetPositionX(), FlamecallerWaypoints[j].GetPositionY(), FlamecallerWaypoints[j].GetPositionZ());
                 }
             }
@@ -276,7 +276,7 @@ class npc_onyx_flamecaller : public CreatureScript
                                 break;
                             }
                             DoCastVictim(SPELL_LAVA_GOUT);
-                            _lavaGoutCount++;
+                            ++_lavaGoutCount;
                             _events.ScheduleEvent(EVENT_LAVA_GOUT, 1500);
                             break;
                         default:

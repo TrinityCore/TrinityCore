@@ -1296,7 +1296,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, bool removeLeaderFlag /*= true
             else if (tank == LFG_TANKS_NEEDED)
                 return false;
             else
-                tank++;
+                ++tank;
         }
 
         if (it->second & ROLE_HEALER)
@@ -1311,7 +1311,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, bool removeLeaderFlag /*= true
             else if (healer == LFG_HEALERS_NEEDED)
                 return false;
             else
-                healer++;
+                ++healer;
         }
 
         if (it->second & ROLE_DAMAGE)
@@ -1326,7 +1326,7 @@ bool LFGMgr::CheckGroupRoles(LfgRolesMap& groles, bool removeLeaderFlag /*= true
             else if (damage == LFG_DPS_NEEDED)
                 return false;
             else
-                damage++;
+                ++damage;
         }
     }
     return (tank + healer + damage) == uint8(groles.size());

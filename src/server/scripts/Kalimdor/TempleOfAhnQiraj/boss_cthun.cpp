@@ -687,7 +687,7 @@ public:
                         FleshTentaclesKilled = 0;
 
                         //Spawn flesh tentacle
-                        for (uint8 i = 0; i < 2; i++)
+                        for (uint8 i = 0; i < 2; ++i)
                         {
                             Creature* spawned = me->SummonCreature(MOB_FLESH_TENTACLE, FleshTentaclePos[i], TEMPSUMMON_CORPSE_DESPAWN);
                             if (!spawned)
@@ -860,7 +860,7 @@ public:
                         FleshTentaclesKilled = 0;
 
                         //Spawn flesh tentacle
-                        for (uint8 i = 0; i < 2; i++)
+                        for (uint8 i = 0; i < 2; ++i)
                         {
                             Creature* spawned = me->SummonCreature(MOB_FLESH_TENTACLE, FleshTentaclePos[i], TEMPSUMMON_CORPSE_DESPAWN);
                             if (!spawned)

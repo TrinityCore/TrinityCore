@@ -376,7 +376,7 @@ class boss_xt002 : public CreatureScript
 
                 // Phase 2 has officially started
                 _phase = 2;
-                _heartExposed++;
+                ++_heartExposed;
             }
 
             void SetPhaseOne()

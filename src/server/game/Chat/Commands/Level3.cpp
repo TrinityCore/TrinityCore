@@ -840,7 +840,7 @@ bool ChatHandler::HandleLookupItemSetCommand(const char *args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in ItemSet.dbc
-    for (uint32 id = 0; id < sItemSetStore.GetNumRows(); id++)
+    for (uint32 id = 0; id < sItemSetStore.GetNumRows(); ++id)
     {
         ItemSetEntry const* set = sItemSetStore.LookupEntry(id);
         if (set)
@@ -913,7 +913,7 @@ bool ChatHandler::HandleLookupSkillCommand(const char *args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in SkillLine.dbc
-    for (uint32 id = 0; id < sSkillLineStore.GetNumRows(); id++)
+    for (uint32 id = 0; id < sSkillLineStore.GetNumRows(); ++id)
     {
         SkillLineEntry const* skillInfo = sSkillLineStore.LookupEntry(id);
         if (skillInfo)
@@ -1000,7 +1000,7 @@ bool ChatHandler::HandleLookupSpellCommand(const char *args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in Spell.dbc
-    for (uint32 id = 0; id < sSpellMgr->GetSpellInfoStoreSize(); id++)
+    for (uint32 id = 0; id < sSpellMgr->GetSpellInfoStoreSize(); ++id)
     {
         SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(id);
         if (spellInfo)
@@ -1485,7 +1485,7 @@ bool ChatHandler::HandleLookupTaxiNodeCommand(const char * args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in TaxiNodes.dbc
-    for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); id++)
+    for (uint32 id = 0; id < sTaxiNodesStore.GetNumRows(); ++id)
     {
         TaxiNodesEntry const* nodeEntry = sTaxiNodesStore.LookupEntry(id);
         if (nodeEntry)
@@ -1555,7 +1555,7 @@ bool ChatHandler::HandleLookupMapCommand(const char *args)
     bool found = false;
 
     // search in Map.dbc
-    for (uint32 id = 0; id < sMapStore.GetNumRows(); id++)
+    for (uint32 id = 0; id < sMapStore.GetNumRows(); ++id)
     {
         MapEntry const* MapInfo = sMapStore.LookupEntry(id);
         if (MapInfo)
@@ -1569,7 +1569,7 @@ bool ChatHandler::HandleLookupMapCommand(const char *args)
             if (!Utf8FitTo(name, wnamepart))
             {
                 loc = LOCALE_enUS;
-                for (; loc < TOTAL_LOCALES; loc++)
+                for (; loc < TOTAL_LOCALES; ++loc)
                 {
                     if (m_session && loc == m_session->GetSessionDbcLocale())
                         continue;
@@ -4122,7 +4122,7 @@ bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
             InstanceSave* save = itr->second.save;
             std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
             PSendSysMessage("map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
-            counter++;
+            ++counter;
         }
     }
     PSendSysMessage("player binds: %d", counter);
@@ -4138,7 +4138,7 @@ bool ChatHandler::HandleInstanceListBindsCommand(const char* /*args*/)
                 InstanceSave* save = itr->second.save;
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
                 PSendSysMessage("map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no",  save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
-                counter++;
+                ++counter;
             }
         }
     }
@@ -4182,7 +4182,7 @@ bool ChatHandler::HandleInstanceUnbindCommand(const char *args)
                 std::string timeleft = GetTimeString(save->GetResetTime() - time(NULL));
                 PSendSysMessage("unbinding map: %d inst: %d perm: %s diff: %d canReset: %s TTR: %s", itr->first, save->GetInstanceId(), itr->second.perm ? "yes" : "no", save->GetDifficulty(), save->CanReset() ? "yes" : "no", timeleft.c_str());
                 player->UnbindInstance(itr, Difficulty(i));
-                counter++;
+                ++counter;
             }
             else
                 ++itr;

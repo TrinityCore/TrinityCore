@@ -180,7 +180,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recv_data)
     //    {
     //        uint8 unk12, unk13;
     //        uint64 guid;
-    //        for (int i=0; i<count; i++)
+    //        for (int i=0; i<count; ++i)
     //        {
     //            recv_data.readPackGUID(guid);
     //            recv_data >> (uint8)unk12;

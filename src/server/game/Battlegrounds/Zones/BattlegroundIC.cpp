@@ -36,17 +36,17 @@ BattlegroundIC::BattlegroundIC()
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_IC_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_IC_HAS_BEGUN;
 
-    for (uint8 i = 0; i < 2; i++)
+    for (uint8 i = 0; i < 2; ++i)
         factionReinforcements[i] = MAX_REINFORCEMENTS;
 
-    for (uint8 i = 0; i < BG_IC_MAXDOOR; i++)
+    for (uint8 i = 0; i < BG_IC_MAXDOOR; ++i)
         GateStatus[i] = BG_IC_GATE_OK;
 
     closeFortressDoorsTimer = CLOSE_DOORS_TIME; // the doors are closed again... in a special way
     doorsClosed = false;
     resourceTimer = IC_RESOURCE_TIME;
 
-    for (uint8 i = NODE_TYPE_REFINERY; i < MAX_NODE_TYPES; i++)
+    for (uint8 i = NODE_TYPE_REFINERY; i < MAX_NODE_TYPES; ++i)
         nodePoint[i] =  nodePointInitial[i];
 
     siegeEngineWorkshopTimer = WORKSHOP_UPDATE_TIME;
@@ -138,7 +138,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                 if (docksTimer <= diff)
                 {
                     // we need to confirm this, i am not sure if this every 3 minutes
-                    for (uint8 u = (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_1_A : BG_IC_NPC_CATAPULT_1_H); u < (nodePoint[i].faction  == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_4_A : BG_IC_NPC_CATAPULT_4_H); u++)
+                    for (uint8 u = (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_1_A : BG_IC_NPC_CATAPULT_1_H); u < (nodePoint[i].faction  == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_4_A : BG_IC_NPC_CATAPULT_4_H); ++u)
                     {
                         if (Creature* catapult = GetBGCreature(u))
                         {
@@ -148,7 +148,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     }
 
                     // we need to confirm this is blizzlike, not sure if it is every 3 minutes
-                    for (uint8 u = (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_1_A : BG_IC_NPC_GLAIVE_THROWER_1_H); u < (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_2_A : BG_IC_NPC_GLAIVE_THROWER_2_H); u++)
+                    for (uint8 u = (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_1_A : BG_IC_NPC_GLAIVE_THROWER_1_H); u < (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_2_A : BG_IC_NPC_GLAIVE_THROWER_2_H); ++u)
                     {
                         if (Creature* glaiveThrower = GetBGCreature(u))
                         {
@@ -186,7 +186,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
                     }
 
                     // we need to confirm if it is every 3 minutes
-                    for (uint8 u = (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_1_A : BG_IC_NPC_DEMOLISHER_1_H); u < (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_4_A : BG_IC_NPC_DEMOLISHER_4_H); u++)
+                    for (uint8 u = (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_1_A : BG_IC_NPC_DEMOLISHER_1_H); u < (nodePoint[i].faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_4_A : BG_IC_NPC_DEMOLISHER_4_H); ++u)
                     {
                         if (Creature* demolisher = GetBGCreature(u))
                         {
@@ -235,7 +235,7 @@ void BattlegroundIC::PostUpdateImpl(uint32 diff)
 
     if (resourceTimer <= diff)
     {
-        for (uint8 i = 0; i < NODE_TYPE_DOCKS; i++)
+        for (uint8 i = 0; i < NODE_TYPE_DOCKS; ++i)
         {
             if (nodePoint[i].nodeState == NODE_STATE_CONTROLLED_A ||
                 nodePoint[i].nodeState == NODE_STATE_CONTROLLED_H)
@@ -269,7 +269,7 @@ void BattlegroundIC::StartingEventOpenDoors()
     DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_1);
     DoorOpen(BG_IC_GO_DOODAD_VR_PORTCULLIS01_2);
 
-    for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTERS_SPAWNS; i++)
+    for (uint8 i = 0; i < MAX_FORTRESS_TELEPORTERS_SPAWNS; ++i)
     {
         if (!AddObject(BG_IC_Teleporters[i].type, BG_IC_Teleporters[i].entry,
             BG_IC_Teleporters[i].x, BG_IC_Teleporters[i].y,
@@ -286,7 +286,7 @@ bool BattlegroundIC::IsAllNodesConrolledByTeam(uint32 team) const
     for (int i = 0; i < NODE_TYPE_WORKSHOP; ++i)
     {
         if (nodePoint[i].nodeState == controlledState)
-            count++;
+            ++count;
     }
 
     return count == NODE_TYPE_WORKSHOP;
@@ -353,19 +353,19 @@ void BattlegroundIC::FillInitialWorldStates(WorldPacket& data)
     data << uint32(BG_IC_ALLIANCE_RENFORT) << uint32(factionReinforcements[TEAM_ALLIANCE]);
     data << uint32(BG_IC_HORDE_RENFORT) << uint32(factionReinforcements[TEAM_HORDE]);
 
-    for (uint8 i = 0; i < MAX_FORTRESS_GATES_SPAWNS; i++)
+    for (uint8 i = 0; i < MAX_FORTRESS_GATES_SPAWNS; ++i)
     {
         uint32 uws = GetWorldStateFromGateEntry(BG_IC_ObjSpawnlocs[i].entry, (GateStatus[GetGateIDFromEntry(BG_IC_ObjSpawnlocs[i].entry)] == BG_IC_GATE_DESTROYED ? true : false));
         data << uint32(uws) << uint32(1);
     }
 
-    for (uint8 i = 0 ; i < MAX_NODE_TYPES ; i++)
+    for (uint8 i = 0 ; i < MAX_NODE_TYPES ; ++i)
         data << uint32(nodePoint[i].worldStates[nodePoint[i].nodeState]) << uint32(1);
 }
 
 bool BattlegroundIC::SetupBattleground()
 {
-    for (uint8 i = 0; i < MAX_NORMAL_GAMEOBJECTS_SPAWNS; i++)
+    for (uint8 i = 0; i < MAX_NORMAL_GAMEOBJECTS_SPAWNS; ++i)
     {
         if (!AddObject(BG_IC_ObjSpawnlocs[i].type, BG_IC_ObjSpawnlocs[i].entry,
             BG_IC_ObjSpawnlocs[i].x, BG_IC_ObjSpawnlocs[i].y,
@@ -377,7 +377,7 @@ bool BattlegroundIC::SetupBattleground()
         }
     }
 
-    for (uint8 i = 0; i < MAX_NORMAL_NPCS_SPAWNS; i++)
+    for (uint8 i = 0; i < MAX_NORMAL_NPCS_SPAWNS; ++i)
     {
         if (!AddCreature(BG_IC_NpcSpawnlocs[i].entry, BG_IC_NpcSpawnlocs[i].type, BG_IC_NpcSpawnlocs[i].team,
             BG_IC_NpcSpawnlocs[i].x, BG_IC_NpcSpawnlocs[i].y,
@@ -415,13 +415,13 @@ bool BattlegroundIC::SetupBattleground()
     }
 
     // setting correct factions for Keep Cannons
-    for (uint8 i = BG_IC_NPC_KEEP_CANNON_1; i < BG_IC_NPC_KEEP_CANNON_12; i++)
+    for (uint8 i = BG_IC_NPC_KEEP_CANNON_1; i < BG_IC_NPC_KEEP_CANNON_12; ++i)
         GetBGCreature(i)->setFaction(BG_IC_Factions[0]);
-    for (uint8 i = BG_IC_NPC_KEEP_CANNON_13; i < BG_IC_NPC_KEEP_CANNON_25; i++)
+    for (uint8 i = BG_IC_NPC_KEEP_CANNON_13; i < BG_IC_NPC_KEEP_CANNON_25; ++i)
         GetBGCreature(i)->setFaction(BG_IC_Factions[1]);
 
     // correcting spawn time for keeps bombs
-    for (uint8 i = BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_1; i < BG_IC_GO_HUGE_SEAFORIUM_BOMBS_H_4; i++)
+    for (uint8 i = BG_IC_GO_HUGE_SEAFORIUM_BOMBS_A_1; i < BG_IC_GO_HUGE_SEAFORIUM_BOMBS_H_4; ++i)
         GetBGObject(i)->SetRespawnTime(10);
 
     return true;
@@ -501,7 +501,7 @@ void BattlegroundIC::EventPlayerClickedOnFlag(Player* player, GameObject* target
         return;
 
     // All the node points are iterated to find the clicked one
-    for (uint8 i = 0; i < MAX_NODE_TYPES; i++)
+    for (uint8 i = 0; i < MAX_NODE_TYPES; ++i)
     {
         if (nodePoint[i].gameobject_entry == target_obj->GetEntry())
         {
@@ -588,7 +588,7 @@ void BattlegroundIC::UpdateNodeWorldState(ICNodePoint* nodePoint)
     uint32 worldstate = nodePoint->worldStates[nodePoint->nodeState];
 
     // with this we are sure we dont bug the client
-    for (uint8 i = 0; i < 4; i++)
+    for (uint8 i = 0; i < 4; ++i)
         UpdateWorldState(nodePoint->worldStates[i], 0);
 
     UpdateWorldState(worldstate, 1);
@@ -626,7 +626,7 @@ void BattlegroundIC::HandleContestedNodes(ICNodePoint* nodePoint)
         if (gunshipAlliance && gunshipHorde)
             (nodePoint->faction == TEAM_ALLIANCE ? gunshipHorde : gunshipAlliance)->BuildStopMovePacket(GetBgMap());
 
-        for (uint8 u = BG_IC_GO_HANGAR_TELEPORTER_1; u < BG_IC_GO_HANGAR_TELEPORTER_3; u++)
+        for (uint8 u = BG_IC_GO_HANGAR_TELEPORTER_1; u < BG_IC_GO_HANGAR_TELEPORTER_3; ++u)
             DelObject(u);
     }
 }
@@ -649,7 +649,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             if (!gunshipAlliance || !gunshipHorde)
                 break;
 
-            for (uint8 u = 0; u < MAX_HANGAR_TELEPORTERS_SPAWNS; u++)
+            for (uint8 u = 0; u < MAX_HANGAR_TELEPORTERS_SPAWNS; ++u)
             {
                 uint8 type = BG_IC_GO_HANGAR_TELEPORTER_1+u;
                 AddObject(type, (nodePoint->faction == TEAM_ALLIANCE ? GO_ALLIANCE_GUNSHIP_PORTAL : GO_HORDE_GUNSHIP_PORTAL),
@@ -681,7 +681,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                 docksTimer = DOCKS_UPDATE_TIME;
 
             // we must del opposing faction vehicles when the node is captured (unused ones)
-            for (uint8 i = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_1_H : BG_IC_NPC_GLAIVE_THROWER_1_A); i < (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_2_H : BG_IC_NPC_GLAIVE_THROWER_2_A); i++)
+            for (uint8 i = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_1_H : BG_IC_NPC_GLAIVE_THROWER_1_A); i < (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_2_H : BG_IC_NPC_GLAIVE_THROWER_2_A); ++i)
             {
                 if (Creature* glaiveThrower = GetBGCreature(i))
                 {
@@ -693,7 +693,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                 }
             }
 
-            for (uint8 i = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_1_H : BG_IC_NPC_CATAPULT_1_A); i < (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_4_H  : BG_IC_NPC_CATAPULT_4_A); i++)
+            for (uint8 i = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_1_H : BG_IC_NPC_CATAPULT_1_A); i < (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_4_H  : BG_IC_NPC_CATAPULT_4_A); ++i)
             {
                 if (Creature* catapult = GetBGCreature(i))
                 {
@@ -706,7 +706,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             }
 
             // spawning glaive throwers
-            for (uint8 i = 0; i < MAX_GLAIVE_THROWERS_SPAWNS_PER_FACTION; i++)
+            for (uint8 i = 0; i < MAX_GLAIVE_THROWERS_SPAWNS_PER_FACTION; ++i)
             {
                 uint8 type = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_GLAIVE_THROWER_1_A : BG_IC_NPC_GLAIVE_THROWER_1_H)+i;
 
@@ -721,7 +721,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
             }
 
             // spawning catapults
-            for (uint8 i = 0; i < MAX_CATAPULTS_SPAWNS_PER_FACTION; i++)
+            for (uint8 i = 0; i < MAX_CATAPULTS_SPAWNS_PER_FACTION; ++i)
             {
                 uint8 type = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_CATAPULT_1_A : BG_IC_NPC_CATAPULT_1_H)+i;
 
@@ -743,7 +743,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                 if (!recapture)
                 {
                     // we must del opposing faction vehicles when the node is captured (unused ones)
-                    for (uint8 i = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_1_H : BG_IC_NPC_DEMOLISHER_1_A); i < (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_4_H : BG_IC_NPC_DEMOLISHER_4_A); i++)
+                    for (uint8 i = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_1_H : BG_IC_NPC_DEMOLISHER_1_A); i < (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_4_H : BG_IC_NPC_DEMOLISHER_4_A); ++i)
                     {
                         if (Creature* demolisher = GetBGCreature(i))
                         {
@@ -756,7 +756,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                         }
                     }
 
-                    for (uint8 i = 0; i < MAX_DEMOLISHERS_SPAWNS_PER_FACTION; i++)
+                    for (uint8 i = 0; i < MAX_DEMOLISHERS_SPAWNS_PER_FACTION; ++i)
                     {
                         uint8 type = (nodePoint->faction == TEAM_ALLIANCE ? BG_IC_NPC_DEMOLISHER_1_A : BG_IC_NPC_DEMOLISHER_1_H)+i;
 
@@ -799,7 +799,7 @@ void BattlegroundIC::HandleCapturedNodes(ICNodePoint* nodePoint, bool recapture)
                     }
                 }
 
-                for (uint8 i = 0; i < MAX_WORKSHOP_BOMBS_SPAWNS_PER_FACTION; i++)
+                for (uint8 i = 0; i < MAX_WORKSHOP_BOMBS_SPAWNS_PER_FACTION; ++i)
                 {
                     AddObject(BG_IC_GO_SEAFORIUM_BOMBS_1+i, GO_SEAFORIUM_BOMBS,
                     workshopBombs[i].GetPositionX(), workshopBombs[i].GetPositionY(),
@@ -939,7 +939,7 @@ Transport* BattlegroundIC::CreateTransport(uint32 goEntry, uint32 period)
     //If we someday decide to use the grid to track transports, here:
     t->SetMap(GetBgMap());
 
-    for (uint8 i = 0; i < 5; i++)
+    for (uint8 i = 0; i < 5; ++i)
         t->AddNPCPassenger(0, (goEntry == GO_HORDE_GUNSHIP ? NPC_HORDE_GUNSHIP_CANNON : NPC_ALLIANCE_GUNSHIP_CANNON), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionX() : allianceGunshipPassengers[i].GetPositionX()), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionY() : allianceGunshipPassengers[i].GetPositionY()), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetPositionZ() : allianceGunshipPassengers[i].GetPositionZ()), (goEntry == GO_HORDE_GUNSHIP ? hordeGunshipPassengers[i].GetOrientation() : allianceGunshipPassengers[i].GetOrientation()));
 
     return t;

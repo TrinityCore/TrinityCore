@@ -2931,7 +2931,7 @@ void ObjectMgr::LoadPetLevelInfo()
         pLevelInfo->mana   = fields[3].GetUInt16();
         pLevelInfo->armor  = fields[9].GetUInt16();
 
-        for (int i = 0; i < MAX_STATS; i++)
+        for (int i = 0; i < MAX_STATS; ++i)
         {
             pLevelInfo->stats[i] = fields[i+4].GetUInt16();
         }
@@ -3425,7 +3425,7 @@ void ObjectMgr::LoadPlayerInfo()
 
             PlayerLevelInfo* pLevelInfo = &pInfo->levelInfo[current_level-1];
 
-            for (int i = 0; i < MAX_STATS; i++)
+            for (int i = 0; i < MAX_STATS; ++i)
             {
                 pLevelInfo->stats[i] = fields[i+3].GetUInt8();
             }
@@ -5203,7 +5203,7 @@ void ObjectMgr::LoadGossipText()
 
         GossipText& gText = _gossipTextStore[Text_ID];
 
-        for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; i++)
+        for (int i = 0; i < MAX_GOSSIP_TEXT_OPTIONS; ++i)
         {
             gText.Options[i].Text_0           = fields[cic++].GetString();
             gText.Options[i].Text_1           = fields[cic++].GetString();
@@ -7696,7 +7696,7 @@ void ObjectMgr::LoadGameObjectForQuests()
                 if (itr->second._generic.questID > 0)            //quests objects
                 {
                     _gameObjectForQuestStore.insert(itr->second.entry);
-                    count++;
+                    ++count;
                 }
                 break;
             }
@@ -7705,7 +7705,7 @@ void ObjectMgr::LoadGameObjectForQuests()
                 if (itr->second.goober.questId > 0)              //quests objects
                 {
                     _gameObjectForQuestStore.insert(itr->second.entry);
-                    count++;
+                    ++count;
                 }
                 break;
             }
@@ -8242,7 +8242,6 @@ void ObjectMgr::LoadTrainerSpell()
 
     do
     {
-
         Field* fields = result->Fetch();
 
         uint32 entry         = fields[0].GetUInt32();
@@ -8254,8 +8253,7 @@ void ObjectMgr::LoadTrainerSpell()
 
         AddSpellToTrainer(entry, spell, spellCost, reqSkill, reqSkillValue, reqLevel);
 
-        count++;
-
+        ++count;
     }
     while (result->NextRow());
 

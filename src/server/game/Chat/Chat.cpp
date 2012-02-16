@@ -52,7 +52,7 @@ static size_t getCommandTableSize(const ChatCommand* commands)
         return 0;
     size_t count = 0;
     while (commands[count].Name != NULL)
-        count++;
+        ++count;
     return count;
 }
 
@@ -737,7 +737,7 @@ bool ChatHandler::SetDataForCommandInTable(ChatCommand* table, const char* text,
 
     while (*text == ' ') ++text;
 
-    for (uint32 i = 0; table[i].Name != NULL; i++)
+    for (uint32 i = 0; table[i].Name != NULL; ++i)
     {
         // for data fill use full explicit command names
         if (table[i].Name != cmd)

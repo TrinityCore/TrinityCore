@@ -145,7 +145,7 @@ void GroupMgr::LoadGroups()
 
             // Increase the next available storage ID
             if (storageId == NextGroupDbStoreId)
-                NextGroupDbStoreId++;
+                ++NextGroupDbStoreId;
 
             ++count;
         }

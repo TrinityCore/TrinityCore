@@ -201,7 +201,7 @@ class boss_janalai : public CreatureScript
                     else
                         WallNum = 2;
 
-                    for (uint8 j = 0; j < WallNum; j++)
+                    for (uint8 j = 0; j < WallNum; ++j)
                     {
                         if (WallNum == 3)
                             wall = me->SummonCreature(MOB_FIRE_BOMB, FireWallCoords[i][0], FireWallCoords[i][1]+5*(j-1), FireWallCoords[i][2], FireWallCoords[i][3], TEMPSUMMON_TIMED_DESPAWN, 15000);

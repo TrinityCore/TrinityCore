@@ -244,7 +244,7 @@ bool QuestChatLink::ValidateName(char* buffer, const char* context)
     bool res = (_quest->GetTitle() == buffer);
     if (!res)
         if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(_quest->GetQuestId()))
-            for (uint8 i = 0; i < ql->Title.size(); i++)
+            for (uint8 i = 0; i < ql->Title.size(); ++i)
                 if (ql->Title[i] == buffer)
                 {
                     res = true;

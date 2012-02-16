@@ -124,7 +124,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     ItemSetEffect* eff = NULL;
     size_t setindex = 0;
-    for (; setindex < player->ItemSetEff.size(); setindex++)
+    for (; setindex < player->ItemSetEff.size(); ++setindex)
     {
         if (player->ItemSetEff[setindex] && player->ItemSetEff[setindex]->setid == setid)
         {
@@ -139,7 +139,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     --eff->item_count;
 
-    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; x++)
+    for (uint32 x = 0; x < MAX_ITEM_SET_SPELLS; ++x)
     {
         if (!set->spells[x])
             continue;
@@ -148,7 +148,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
         if (set->items_to_triggerspell[x] <= eff->item_count)
             continue;
 
-        for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; z++)
+        for (uint32 z = 0; z < MAX_ITEM_SET_SPELLS; ++z)
         {
             if (eff->spells[z] && eff->spells[z]->Id == set->spells[x])
             {

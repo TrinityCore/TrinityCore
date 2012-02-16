@@ -882,12 +882,12 @@ void Group::GroupLoot(Loot* loot, WorldObject* pLootedObject)
                 {
                     if (member->IsWithinDistInMap(pLootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
                     {
-                        r->totalPlayersRolling++;
+                        ++r->totalPlayersRolling;
 
                         if (member->GetPassOnGroupLoot())
                         {
                             r->playerVote[member->GetGUID()] = PASS;
-                            r->totalPass++;
+                            ++r->totalPass;
                             // can't broadcast the pass now. need to wait until all rolling players are known.
                         }
                         else
@@ -968,11 +968,11 @@ void Group::NeedBeforeGreed(Loot* loot, WorldObject* lootedObject)
                 bool allowedForPlayer = i->AllowedForPlayer(playerToRoll);
                 if (allowedForPlayer && playerToRoll->IsWithinDistInMap(lootedObject, sWorld->getFloatConfig(CONFIG_GROUP_XP_DISTANCE), false))
                 {
-                    r->totalPlayersRolling++;
+                    ++r->totalPlayersRolling;
                     if (playerToRoll->GetPassOnGroupLoot())
                     {
                         r->playerVote[playerToRoll->GetGUID()] = PASS;
-                        r->totalPass++;
+                        ++r->totalPass;
                         // can't broadcast the pass now. need to wait until all rolling players are known.
                     }
                     else

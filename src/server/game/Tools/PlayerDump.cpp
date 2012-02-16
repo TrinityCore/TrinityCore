@@ -66,7 +66,7 @@ static bool findtoknth(std::string &str, int n, std::string::size_type &s, std::
 {
     int i; s = e = 0;
     std::string::size_type size = str.size();
-    for (i = 1; s < size && i < n; s++) if (str[s] == ' ') ++i;
+    for (i = 1; s < size && i < n; ++s) if (str[s] == ' ') ++i;
     if (i < n)
         return false;
 

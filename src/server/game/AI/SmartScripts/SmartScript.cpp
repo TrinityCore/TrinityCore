@@ -360,7 +360,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             emotes[5] = e.action.randomEmote.emote6;
             uint32 temp[SMART_ACTION_PARAM_COUNT];
             uint32 count = 0;
-            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; i++)
+            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; ++i)
             {
                 if (emotes[i])
                 {
@@ -780,7 +780,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             phases[5] = e.action.randomPhase.phase6;
             uint32 temp[SMART_ACTION_PARAM_COUNT];
             uint32 count = 0;
-            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; i++)
+            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; ++i)
             {
                 if (phases[i] > 0)
                 {
@@ -1583,7 +1583,7 @@ void SmartScript::ProcessAction(SmartScriptHolder& e, Unit* unit, uint32 var0, u
             actions[5] = e.action.randTimedActionList.entry6;
             uint32 temp[SMART_ACTION_PARAM_COUNT];
             uint32 count = 0;
-            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; i++)
+            for (uint8 i = 0; i < SMART_ACTION_PARAM_COUNT; ++i)
             {
                 if (actions[i] > 0)
                 {

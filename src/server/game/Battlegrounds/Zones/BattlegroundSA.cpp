@@ -47,7 +47,7 @@ void BattlegroundSA::Reset()
 {
     TotalTime = 0;
     Attackers = ((urand(0, 1)) ? TEAM_ALLIANCE : TEAM_HORDE);
-    for (uint8 i = 0; i <= 5; i++)
+    for (uint8 i = 0; i <= 5; ++i)
         GateStatus[i] = BG_SA_GATE_OK;
     ShipsStarted = false;
     gateDestroyed = false;
@@ -68,25 +68,25 @@ bool BattlegroundSA::ResetObjs()
     uint32 atF = BG_SA_Factions[Attackers];
     uint32 defF = BG_SA_Factions[Attackers ? TEAM_ALLIANCE : TEAM_HORDE];
 
-    for (uint8 i = 0; i <BG_SA_MAXOBJ; i++)
+    for (uint8 i = 0; i <BG_SA_MAXOBJ; ++i)
         DelObject(i);
 
-    for (uint8 i = 0; i < BG_SA_MAXNPC; i++)
+    for (uint8 i = 0; i < BG_SA_MAXNPC; ++i)
         DelCreature(i);
 
-    for (uint8 i = BG_SA_MAXNPC; i < BG_SA_MAXNPC + BG_SA_MAX_GY; i++)
+    for (uint8 i = BG_SA_MAXNPC; i < BG_SA_MAXNPC + BG_SA_MAX_GY; ++i)
         DelCreature(i);
 
-    for (uint8 i = 0; i < 6; i++)
+    for (uint8 i = 0; i < 6; ++i)
         GateStatus[i] = BG_SA_GATE_OK;
 
-    for (uint8 i = 0; i < BG_SA_BOAT_ONE; i++)
+    for (uint8 i = 0; i < BG_SA_BOAT_ONE; ++i)
     {
         if (!AddObject(i, BG_SA_ObjEntries[i], BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1], BG_SA_ObjSpawnlocs[i][2], BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
     }
 
-    for (uint8 i = BG_SA_BOAT_ONE; i < BG_SA_SIGIL_1; i++)
+    for (uint8 i = BG_SA_BOAT_ONE; i < BG_SA_SIGIL_1; ++i)
     {
         uint32 boatid=0;
         switch (i)
@@ -104,7 +104,7 @@ bool BattlegroundSA::ResetObjs()
           BG_SA_ObjSpawnlocs[i][3], 0, 0, 0, 0, RESPAWN_ONE_DAY))
             return false;
     }
-    for (uint8 i = BG_SA_SIGIL_1; i < BG_SA_CENTRAL_FLAG; i++)
+    for (uint8 i = BG_SA_SIGIL_1; i < BG_SA_CENTRAL_FLAG; ++i)
     {
         if (!AddObject(i, BG_SA_ObjEntries[i],
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
@@ -121,7 +121,7 @@ bool BattlegroundSA::ResetObjs()
 
     //Cannons and demolishers - NPCs are spawned
     //By capturing GYs.
-    for (uint8 i = 0; i < BG_SA_NPC_SPARKLIGHT; i++)
+    for (uint8 i = 0; i < BG_SA_NPC_SPARKLIGHT; ++i)
     {
         if (!AddCreature(BG_SA_NpcEntries[i], i, (Attackers == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE),
               BG_SA_NpcSpawnlocs[i][0], BG_SA_NpcSpawnlocs[i][1],
@@ -132,7 +132,7 @@ bool BattlegroundSA::ResetObjs()
     OverrideGunFaction();
     DemolisherStartState(true);
 
-    for (uint8 i = 0; i <= BG_SA_TITAN_RELIC; i++)
+    for (uint8 i = 0; i <= BG_SA_TITAN_RELIC; ++i)
     {
         SpawnBGObject(i, RESPAWN_IMMEDIATELY);
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
@@ -141,14 +141,14 @@ bool BattlegroundSA::ResetObjs()
     GetBGObject(BG_SA_TITAN_RELIC)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
     GetBGObject(BG_SA_TITAN_RELIC)->Refresh();
 
-    for (uint8 i = 0; i <= 5; i++)
+    for (uint8 i = 0; i <= 5; ++i)
         GateStatus[i] = BG_SA_GATE_OK;
 
     TotalTime = 0;
     ShipsStarted = false;
 
     //Graveyards!
-    for (uint8 i = 0;i < BG_SA_MAX_GY; i++)
+    for (uint8 i = 0;i < BG_SA_MAX_GY; ++i)
     {
         WorldSafeLocsEntry const* sg = NULL;
         sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
@@ -173,7 +173,7 @@ bool BattlegroundSA::ResetObjs()
     }
 
     //GY capture points
-    for (uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_PORTAL_DEFFENDER_BLUE; i++)
+    for (uint8 i = BG_SA_CENTRAL_FLAG; i < BG_SA_PORTAL_DEFFENDER_BLUE; ++i)
     {
         AddObject(i, (BG_SA_ObjEntries[i] - (Attackers == TEAM_ALLIANCE ? 1:0)),
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
@@ -182,7 +182,7 @@ bool BattlegroundSA::ResetObjs()
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, atF);
     }
 
-    for (uint8 i = BG_SA_PORTAL_DEFFENDER_BLUE; i < BG_SA_BOMB; i++)
+    for (uint8 i = BG_SA_PORTAL_DEFFENDER_BLUE; i < BG_SA_BOMB; ++i)
     {
         AddObject(i, BG_SA_ObjEntries[i],
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
@@ -191,7 +191,7 @@ bool BattlegroundSA::ResetObjs()
         GetBGObject(i)->SetUInt32Value(GAMEOBJECT_FACTION, defF);
     }
 
-    for (uint8 i = BG_SA_BOMB; i < BG_SA_MAXOBJ; i++)
+    for (uint8 i = BG_SA_BOMB; i < BG_SA_MAXOBJ; ++i)
     {
         AddObject(i, BG_SA_ObjEntries[BG_SA_BOMB],
             BG_SA_ObjSpawnlocs[i][0], BG_SA_ObjSpawnlocs[i][1],
@@ -243,7 +243,7 @@ bool BattlegroundSA::ResetObjs()
     UpdateWorldState(BG_SA_YELLOW_GATEWS, 1);
     UpdateWorldState(BG_SA_ANCIENT_GATEWS, 1);
 
-    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
+    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             if (Player* player = ObjectAccessor::FindPlayer(itr->first))
                 SendTransportInit(player);
@@ -260,7 +260,7 @@ void BattlegroundSA::StartShips()
     DoorOpen(BG_SA_BOAT_ONE);
     DoorOpen(BG_SA_BOAT_TWO);
 
-    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; i++)
+    for (int i = BG_SA_BOAT_ONE; i <= BG_SA_BOAT_TWO; ++i)
     {
         for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
         {
@@ -566,13 +566,13 @@ void BattlegroundSA::OverrideGunFaction()
     if (!BgCreatures[0])
         return;
 
-    for (uint8 i = BG_SA_GUN_1; i <= BG_SA_GUN_10;i++)
+    for (uint8 i = BG_SA_GUN_1; i <= BG_SA_GUN_10;++i)
     {
         if (Creature* gun = GetBGCreature(i))
             gun->setFaction(BG_SA_Factions[Attackers? TEAM_ALLIANCE : TEAM_HORDE]);
     }
 
-    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4;i++)
+    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4;++i)
     {
         if (Creature* dem = GetBGCreature(i))
             dem->setFaction(BG_SA_Factions[Attackers]);
@@ -584,7 +584,7 @@ void BattlegroundSA::DemolisherStartState(bool start)
     if (!BgCreatures[0])
         return;
 
-    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4; i++)
+    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4; ++i)
     {
         if (Creature* dem = GetBGCreature(i))
         {
@@ -659,7 +659,7 @@ WorldSafeLocsEntry const* BattlegroundSA::GetClosestGraveYard(Player* player)
     closest = sWorldSafeLocsStore.LookupEntry(safeloc);
     nearest = sqrt((closest->x - x)*(closest->x - x) + (closest->y - y)*(closest->y - y)+(closest->z - z)*(closest->z - z));
 
-    for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; i++)
+    for (uint8 i = BG_SA_RIGHT_CAPTURABLE_GY; i < BG_SA_MAX_GY; ++i)
     {
         if (GraveyardStatus[i] != player->GetTeamId())
             continue;
@@ -861,7 +861,7 @@ void BattlegroundSA::EndBattleground(uint32 winner)
 
 void BattlegroundSA::UpdateDemolisherSpawns()
 {
-    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4; i++)
+    for (uint8 i = BG_SA_DEMOLISHER_1; i <= BG_SA_DEMOLISHER_4; ++i)
     {
         if (BgCreatures[i])
         {

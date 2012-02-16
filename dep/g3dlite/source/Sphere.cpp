@@ -112,45 +112,45 @@ bool Sphere::culledBy(
         return false;
     }
 
-	uint32 inMask = _inMask;
-	assert(numPlanes < 31);
+    uint32 inMask = _inMask;
+    assert(numPlanes < 31);
 
     childMask = 0;
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
-    for (int p = 0; p < numPlanes; p++) {
+    // vertices are in the negative half space.
+    for (int p = 0; p < numPlanes; ++p) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-		
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+        
             bool culledLow = ! plane[p].halfSpaceContainsFinite(center + plane[p].normal() * radius);
             bool culledHigh = ! plane[p].halfSpaceContainsFinite(center - plane[p].normal() * radius);
 
-			if (culledLow) {
-				// Plane p culled the sphere
-				cullingPlane = p;
+            if (culledLow) {
+                // Plane p culled the sphere
+                cullingPlane = p;
 
                 // The caller should not recurse into the children,
                 // since the parent is culled.  If they do recurse,
                 // make them only test against this one plane, which
                 // will immediately cull the volume.
                 childMask = 1 << p;
-				return true;
+                return true;
 
             } else if (culledHigh) {
                 // The bounding volume straddled the plane; we have
                 // to keep testing against this plane
                 childMask |= (1 << p);
             }
-		}
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 
@@ -158,32 +158,32 @@ bool Sphere::culledBy(
 bool Sphere::culledBy(
     const class Plane*  plane,
     int                 numPlanes,
-	int&				cullingPlane,
-	const uint32		_inMask) const {
+    int&				cullingPlane,
+    const uint32		_inMask) const {
 
-	uint32 inMask = _inMask;
-	assert(numPlanes < 31);
+    uint32 inMask = _inMask;
+    assert(numPlanes < 31);
 
     // See if there is one plane for which all of the
-	// vertices are in the negative half space.
-    for (int p = 0; p < numPlanes; p++) {
+    // vertices are in the negative half space.
+    for (int p = 0; p < numPlanes; ++p) {
 
-		// Only test planes that are not masked
-		if ((inMask & 1) != 0) {
-			bool culled = ! plane[p].halfSpaceContains(center + plane[p].normal() * radius);
-			if (culled) {
-				// Plane p culled the sphere
-				cullingPlane = p;
-				return true;
+        // Only test planes that are not masked
+        if ((inMask & 1) != 0) {
+            bool culled = ! plane[p].halfSpaceContains(center + plane[p].normal() * radius);
+            if (culled) {
+                // Plane p culled the sphere
+                cullingPlane = p;
+                return true;
             }
-		}
+        }
 
         // Move on to the next bit.
-		inMask = inMask >> 1;
+        inMask = inMask >> 1;
     }
 
     // None of the planes could cull this box
-	cullingPlane = -1;
+    cullingPlane = -1;
     return false;
 }
 

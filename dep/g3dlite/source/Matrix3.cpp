@@ -116,7 +116,7 @@ bool Matrix3::isOrthonormal() const {
 //----------------------------------------------------------------------------
 Matrix3::Matrix3(const Quat& _q) {
     // Implementation from Watt and Watt, pg 362
-	// See also http://www.flipcode.com/documents/matrfaq.html#Q54
+    // See also http://www.flipcode.com/documents/matrfaq.html#Q54
     Quat q = _q;
     q.unitize();
     float xx = 2.0f * q.x * q.x;
@@ -226,12 +226,10 @@ void Matrix3::setRow(int iRow, const Vector3 &vector) {
 
 //----------------------------------------------------------------------------
 bool Matrix3::operator== (const Matrix3& rkMatrix) const {
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             if ( elt[iRow][iCol] != rkMatrix.elt[iRow][iCol] )
                 return false;
-        }
-    }
 
     return true;
 }
@@ -245,12 +243,10 @@ bool Matrix3::operator!= (const Matrix3& rkMatrix) const {
 Matrix3 Matrix3::operator+ (const Matrix3& rkMatrix) const {
     Matrix3 kSum;
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             kSum.elt[iRow][iCol] = elt[iRow][iCol] +
                                           rkMatrix.elt[iRow][iCol];
-        }
-    }
 
     return kSum;
 }
@@ -259,12 +255,10 @@ Matrix3 Matrix3::operator+ (const Matrix3& rkMatrix) const {
 Matrix3 Matrix3::operator- (const Matrix3& rkMatrix) const {
     Matrix3 kDiff;
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             kDiff.elt[iRow][iCol] = elt[iRow][iCol] -
                                            rkMatrix.elt[iRow][iCol];
-        }
-    }
 
     return kDiff;
 }
@@ -273,48 +267,40 @@ Matrix3 Matrix3::operator- (const Matrix3& rkMatrix) const {
 Matrix3 Matrix3::operator* (const Matrix3& rkMatrix) const {
     Matrix3 kProd;
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             kProd.elt[iRow][iCol] =
                 elt[iRow][0] * rkMatrix.elt[0][iCol] +
                 elt[iRow][1] * rkMatrix.elt[1][iCol] +
                 elt[iRow][2] * rkMatrix.elt[2][iCol];
-        }
-    }
 
     return kProd;
 }
 
 Matrix3& Matrix3::operator+= (const Matrix3& rkMatrix) {
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             elt[iRow][iCol] = elt[iRow][iCol] + rkMatrix.elt[iRow][iCol];
-        }
-    }
 
     return *this;
 }
 
 Matrix3& Matrix3::operator-= (const Matrix3& rkMatrix) {
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             elt[iRow][iCol] = elt[iRow][iCol] - rkMatrix.elt[iRow][iCol];
-        }
-    }
 
     return *this;
 }
 
 Matrix3& Matrix3::operator*= (const Matrix3& rkMatrix) {
     Matrix3 mulMat;
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             mulMat.elt[iRow][iCol] =
                 elt[iRow][0] * rkMatrix.elt[0][iCol] +
                 elt[iRow][1] * rkMatrix.elt[1][iCol] +
                 elt[iRow][2] * rkMatrix.elt[2][iCol];
-        }
-    }
 
     *this = mulMat;
     return *this;
@@ -324,11 +310,9 @@ Matrix3& Matrix3::operator*= (const Matrix3& rkMatrix) {
 Matrix3 Matrix3::operator- () const {
     Matrix3 kNeg;
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             kNeg[iRow][iCol] = -elt[iRow][iCol];
-        }
-    }
 
     return kNeg;
 }
@@ -337,11 +321,9 @@ Matrix3 Matrix3::operator- () const {
 Matrix3 Matrix3::operator* (float fScalar) const {
     Matrix3 kProd;
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             kProd[iRow][iCol] = fScalar * elt[iRow][iCol];
-        }
-    }
 
     return kProd;
 }
@@ -352,11 +334,9 @@ Matrix3& Matrix3::operator/= (float fScalar) {
 
 Matrix3& Matrix3::operator*= (float fScalar) {
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             elt[iRow][iCol] *= fScalar;
-        }
-    }
 
     return *this;
 }
@@ -365,11 +345,9 @@ Matrix3& Matrix3::operator*= (float fScalar) {
 Matrix3 operator* (double fScalar, const Matrix3& rkMatrix) {
     Matrix3 kProd;
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             kProd[iRow][iCol] = fScalar * rkMatrix.elt[iRow][iCol];
-        }
-    }
 
     return kProd;
 }
@@ -386,11 +364,9 @@ Matrix3 operator* (int fScalar, const Matrix3& rkMatrix) {
 Matrix3 Matrix3::transpose () const {
     Matrix3 kTranspose;
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             kTranspose[iRow][iCol] = elt[iCol][iRow];
-        }
-    }
 
     return kTranspose;
 }
@@ -429,10 +405,9 @@ bool Matrix3::inverse (Matrix3& rkInverse, float fTolerance) const {
 
     float fInvDet = 1.0 / fDet;
 
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++)
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             rkInverse[iRow][iCol] *= fInvDet;
-    }
 
     return true;
 }
@@ -558,7 +533,7 @@ void Matrix3::bidiagonalize (Matrix3& kA, Matrix3& kL,
             kL[1][2] = kL[2][1] = fB;
             kL[2][2] = fC;
         } else {
-            for (int iRow = 0; iRow < 3; iRow++) {
+            for (int iRow = 0; iRow < 3; ++iRow) {
                 float fTmp0 = kL[iRow][1];
                 float fTmp1 = kL[iRow][2];
                 kL[iRow][1] = fA * fTmp0 + fB * fTmp1;
@@ -597,7 +572,7 @@ void Matrix3::golubKahanStep (Matrix3& kA, Matrix3& kL,
 
     int iRow;
 
-    for (iRow = 0; iRow < 3; iRow++) {
+    for (iRow = 0; iRow < 3; ++iRow) {
         fTmp0 = kR[0][iRow];
         fTmp1 = kR[1][iRow];
         kR[0][iRow] = fCos * fTmp0 - fSin * fTmp1;
@@ -631,7 +606,7 @@ void Matrix3::golubKahanStep (Matrix3& kA, Matrix3& kL,
 
     int iCol;
 
-    for (iCol = 0; iCol < 3; iCol++) {
+    for (iCol = 0; iCol < 3; ++iCol) {
         fTmp0 = kL[iCol][0];
         fTmp1 = kL[iCol][1];
         kL[iCol][0] = fCos * fTmp0 - fSin * fTmp1;
@@ -663,7 +638,7 @@ void Matrix3::golubKahanStep (Matrix3& kA, Matrix3& kL,
 
     kA[2][2] *= fCos;
 
-    for (iRow = 0; iRow < 3; iRow++) {
+    for (iRow = 0; iRow < 3; ++iRow) {
         fTmp0 = kR[1][iRow];
         fTmp1 = kR[2][iRow];
         kR[1][iRow] = fCos * fTmp0 - fSin * fTmp1;
@@ -691,7 +666,7 @@ void Matrix3::golubKahanStep (Matrix3& kA, Matrix3& kL,
 
     kA[2][2] = fSin * fTmp0 + fCos * fTmp1;
 
-    for (iCol = 0; iCol < 3; iCol++) {
+    for (iCol = 0; iCol < 3; ++iCol) {
         fTmp0 = kL[iCol][1];
         fTmp1 = kL[iCol][2];
         kL[iCol][1] = fCos * fTmp0 - fSin * fTmp1;
@@ -707,7 +682,7 @@ void Matrix3::singularValueDecomposition (Matrix3& kL, Vector3& kS,
     Matrix3 kA = *this;
     bidiagonalize(kA, kL, kR);
 
-    for (int i = 0; i < ms_iSvdMaxIterations; i++) {
+    for (int i = 0; i < ms_iSvdMaxIterations; ++i) {
         float fTmp, fTmp0, fTmp1;
         float fSin0, fCos0, fTan0;
         float fSin1, fCos1, fTan1;
@@ -731,7 +706,7 @@ void Matrix3::singularValueDecomposition (Matrix3& kL, Vector3& kS,
                 fCos0 = 1.0 / sqrt(1.0 + fTan0 * fTan0);
                 fSin0 = fTan0 * fCos0;
 
-                for (iCol = 0; iCol < 3; iCol++) {
+                for (iCol = 0; iCol < 3; ++iCol) {
                     fTmp0 = kL[iCol][1];
                     fTmp1 = kL[iCol][2];
                     kL[iCol][1] = fCos0 * fTmp0 - fSin0 * fTmp1;
@@ -742,7 +717,7 @@ void Matrix3::singularValueDecomposition (Matrix3& kL, Vector3& kS,
                 fCos1 = 1.0 / sqrt(1.0 + fTan1 * fTan1);
                 fSin1 = -fTan1 * fCos1;
 
-                for (iRow = 0; iRow < 3; iRow++) {
+                for (iRow = 0; iRow < 3; ++iRow) {
                     fTmp0 = kR[1][iRow];
                     fTmp1 = kR[2][iRow];
                     kR[1][iRow] = fCos1 * fTmp0 - fSin1 * fTmp1;
@@ -765,7 +740,7 @@ void Matrix3::singularValueDecomposition (Matrix3& kL, Vector3& kS,
                 fCos0 = 1.0 / sqrt(1.0 + fTan0 * fTan0);
                 fSin0 = fTan0 * fCos0;
 
-                for (iCol = 0; iCol < 3; iCol++) {
+                for (iCol = 0; iCol < 3; ++iCol) {
                     fTmp0 = kL[iCol][0];
                     fTmp1 = kL[iCol][1];
                     kL[iCol][0] = fCos0 * fTmp0 - fSin0 * fTmp1;
@@ -776,7 +751,7 @@ void Matrix3::singularValueDecomposition (Matrix3& kL, Vector3& kS,
                 fCos1 = 1.0 / sqrt(1.0 + fTan1 * fTan1);
                 fSin1 = -fTan1 * fCos1;
 
-                for (iRow = 0; iRow < 3; iRow++) {
+                for (iRow = 0; iRow < 3; ++iRow) {
                     fTmp0 = kR[0][iRow];
                     fTmp1 = kR[1][iRow];
                     kR[0][iRow] = fCos1 * fTmp0 - fSin1 * fTmp1;
@@ -796,11 +771,11 @@ void Matrix3::singularValueDecomposition (Matrix3& kL, Vector3& kS,
     }
 
     // positize diagonal
-    for (iRow = 0; iRow < 3; iRow++) {
+    for (iRow = 0; iRow < 3; ++iRow) {
         if ( kS[iRow] < 0.0 ) {
             kS[iRow] = -kS[iRow];
 
-            for (iCol = 0; iCol < 3; iCol++)
+            for (iCol = 0; iCol < 3; ++iCol)
                 kR[iRow][iCol] = -kR[iRow][iCol];
         }
     }
@@ -813,20 +788,18 @@ void Matrix3::singularValueComposition (const Matrix3& kL,
     Matrix3 kTmp;
 
     // product S*R
-    for (iRow = 0; iRow < 3; iRow++) {
-        for (iCol = 0; iCol < 3; iCol++)
+    for (iRow = 0; iRow < 3; ++iRow)
+        for (iCol = 0; iCol < 3; ++iCol)
             kTmp[iRow][iCol] = kS[iRow] * kR[iRow][iCol];
-    }
 
     // product L*S*R
-    for (iRow = 0; iRow < 3; iRow++) {
-        for (iCol = 0; iCol < 3; iCol++) {
+    for (iRow = 0; iRow < 3; ++iRow)
+        for (iCol = 0; iCol < 3; ++iCol) {
             elt[iRow][iCol] = 0.0;
 
-            for (int iMid = 0; iMid < 3; iMid++)
+            for (int iMid = 0; iMid < 3; ++iMid)
                 elt[iRow][iCol] += kL[iRow][iMid] * kTmp[iMid][iCol];
         }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -962,11 +935,10 @@ void Matrix3::qDUDecomposition (Matrix3& kQ,
                 kQ[0][2] * kQ[1][0] * kQ[2][1] - kQ[0][2] * kQ[1][1] * kQ[2][0] -
                 kQ[0][1] * kQ[1][0] * kQ[2][2] - kQ[0][0] * kQ[1][2] * kQ[2][1];
 
-    if ( fDet < 0.0 ) {
-        for (int iRow = 0; iRow < 3; iRow++)
-            for (int iCol = 0; iCol < 3; iCol++)
+    if ( fDet < 0.0 )
+        for (int iRow = 0; iRow < 3; ++iRow)
+            for (int iCol = 0; iCol < 3; ++iCol)
                 kQ[iRow][iCol] = -kQ[iRow][iCol];
-    }
 
     // build "right" matrix R
     Matrix3 kR;
@@ -1046,23 +1018,23 @@ void Matrix3::polarDecomposition(Matrix3 &R, Matrix3 &S) const{
       Xit = tmp.transpose();
       
       if (resid < BigEps) {
-	// close enough use simple iteration
-	X += Xit;
-	X *= 0.5f;
+    // close enough use simple iteration
+    X += Xit;
+    X *= 0.5f;
       }
       else {
-	// not close to convergence, compute acceleration factor
+    // not close to convergence, compute acceleration factor
         float gamma = sqrt( sqrt(
                   (Xit.l1Norm()* Xit.lInfNorm())/(X.l1Norm()*X.lInfNorm()) ) );
 
-	X *= 0.5f * gamma;
-	tmp = Xit;
-	tmp *= 0.5f / gamma;
-	X += tmp;
+    X *= 0.5f * gamma;
+    tmp = Xit;
+    tmp *= 0.5f / gamma;
+    X += tmp;
       }
       
       resid = X.diffOneNorm(Xit);
-      iter++;
+      ++iter;
     }
 
     R = X;
@@ -1134,7 +1106,7 @@ float Matrix3::maxCubicRoot (float afCoeff[3]) {
     // Newton's method to find root
     float fTwoC2 = 2.0f * afCoeff[2];
 
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; ++i) {
         fPoly = afCoeff[0] + fX * (afCoeff[1] + fX * (afCoeff[2] + fX));
 
         if ( G3D::abs(fPoly) <= fEpsilon )
@@ -1154,26 +1126,23 @@ float Matrix3::spectralNorm () const {
     int iRow, iCol;
     float fPmax = 0.0;
 
-    for (iRow = 0; iRow < 3; iRow++) {
-        for (iCol = 0; iCol < 3; iCol++) {
+    for (iRow = 0; iRow < 3; ++iRow)
+        for (iCol = 0; iCol < 3; ++iCol) {
             kP[iRow][iCol] = 0.0;
 
-            for (int iMid = 0; iMid < 3; iMid++) {
+            for (int iMid = 0; iMid < 3; ++iMid)
                 kP[iRow][iCol] +=
                     elt[iMid][iRow] * elt[iMid][iCol];
-            }
 
             if ( kP[iRow][iCol] > fPmax )
                 fPmax = kP[iRow][iCol];
         }
-    }
 
     float fInvPmax = 1.0 / fPmax;
 
-    for (iRow = 0; iRow < 3; iRow++) {
-        for (iCol = 0; iCol < 3; iCol++)
+    for (iRow = 0; iRow < 3; ++iRow)
+        for (iCol = 0; iCol < 3; ++iCol)
             kP[iRow][iCol] *= fInvPmax;
-    }
 
     float afCoeff[3];
     afCoeff[0] = -(kP[0][0] * (kP[1][1] * kP[2][2] - kP[1][2] * kP[2][1]) +
@@ -1215,7 +1184,7 @@ float Matrix3::l1Norm() const {
       float f = fabs(elt[0][c])+ fabs(elt[1][c]) + fabs(elt[2][c]);
       
       if (f > oneNorm) {
-	oneNorm = f;
+    oneNorm = f;
       }
     }
     return oneNorm;
@@ -1231,7 +1200,7 @@ float Matrix3::lInfNorm() const {
       float f = fabs(elt[r][0]) + fabs(elt[r][1])+ fabs(elt[r][2]);
       
       if (f > infNorm) {
-	infNorm = f;
+    infNorm = f;
       }
     }
     return infNorm;
@@ -1244,10 +1213,10 @@ float Matrix3::diffOneNorm(const Matrix3 &y) const{
     for (int c = 0; c < 3; ++c){
     
       float f = fabs(elt[0][c] - y[0][c]) + fabs(elt[1][c] - y[1][c])
-	+ fabs(elt[2][c] - y[2][c]);
+    + fabs(elt[2][c] - y[2][c]);
       
       if (f > oneNorm) {
-	oneNorm = f;
+    oneNorm = f;
       }
     }
     return oneNorm;
@@ -1732,14 +1701,14 @@ bool Matrix3::qLAlgorithm (float afDiag[3], float afSubDiag[3]) {
     // QL iteration with implicit shifting to reduce matrix from tridiagonal
     // to diagonal
 
-    for (int i0 = 0; i0 < 3; i0++) {
+    for (int i0 = 0; i0 < 3; ++i0) {
         const int iMaxIter = 32;
         int iIter;
 
-        for (iIter = 0; iIter < iMaxIter; iIter++) {
+        for (iIter = 0; iIter < iMaxIter; ++iIter) {
             int i1;
 
-            for (i1 = i0; i1 <= 1; i1++) {
+            for (i1 = i0; i1 <= 1; ++i1) {
                 float fSum = G3D::abs(afDiag[i1]) +
                             G3D::abs(afDiag[i1 + 1]);
 
@@ -1789,7 +1758,7 @@ bool Matrix3::qLAlgorithm (float afDiag[3], float afSubDiag[3]) {
                 afDiag[i2 + 1] = fTmp0 + fTmp2;
                 fTmp0 = fCos * fTmp1 - fTmp4;
 
-                for (int iRow = 0; iRow < 3; iRow++) {
+                for (int iRow = 0; iRow < 3; ++iRow) {
                     fTmp3 = elt[iRow][i2 + 1];
                     elt[iRow][i2 + 1] = fSin * elt[iRow][i2] +
                                                fCos * fTmp3;
@@ -1820,7 +1789,7 @@ void Matrix3::eigenSolveSymmetric (float afEigenvalue[3],
     kMatrix.tridiagonal(afEigenvalue, afSubDiag);
     kMatrix.qLAlgorithm(afEigenvalue, afSubDiag);
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 3; ++i) {
         akEigenvector[i][0] = kMatrix[0][i];
         akEigenvector[i][1] = kMatrix[1][i];
         akEigenvector[i][2] = kMatrix[2][i];
@@ -1841,11 +1810,9 @@ void Matrix3::eigenSolveSymmetric (float afEigenvalue[3],
 //----------------------------------------------------------------------------
 void Matrix3::tensorProduct (const Vector3& rkU, const Vector3& rkV,
                              Matrix3& rkProduct) {
-    for (int iRow = 0; iRow < 3; iRow++) {
-        for (int iCol = 0; iCol < 3; iCol++) {
+    for (int iRow = 0; iRow < 3; ++iRow)
+        for (int iCol = 0; iCol < 3; ++iCol)
             rkProduct[iRow][iCol] = rkU[iRow] * rkV[iCol];
-        }
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -1922,9 +1889,9 @@ void Matrix3::_transpose(const Matrix3& A, Matrix3& out) {
 //-----------------------------------------------------------------------------
 std::string Matrix3::toString() const {
     return G3D::format("[%g, %g, %g; %g, %g, %g; %g, %g, %g]", 
-			elt[0][0], elt[0][1], elt[0][2],
-			elt[1][0], elt[1][1], elt[1][2],
-			elt[2][0], elt[2][1], elt[2][2]);
+            elt[0][0], elt[0][1], elt[0][2],
+            elt[1][0], elt[1][1], elt[1][2],
+            elt[2][0], elt[2][1], elt[2][2]);
 }
 
 

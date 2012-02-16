@@ -551,7 +551,7 @@ class World
         /// Increase/Decrease number of players
         inline void IncreasePlayerCount()
         {
-            m_PlayerCount++;
+            ++m_PlayerCount;
             m_MaxPlayerCount = std::max(m_MaxPlayerCount, m_PlayerCount);
         }
         inline void DecreasePlayerCount() { m_PlayerCount--; }

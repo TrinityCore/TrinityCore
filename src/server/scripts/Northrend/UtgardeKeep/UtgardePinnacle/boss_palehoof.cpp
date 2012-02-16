@@ -117,7 +117,7 @@ public:
 
             me->GetMotionMaster()->MoveTargetedHome();
 
-            for (uint32 i = 0; i < 4; i++)
+            for (uint32 i = 0; i < 4; ++i)
                 DoneAdds[i] = false;
             AddCount = 0;
 
@@ -238,7 +238,7 @@ public:
             {
                 //select random not yet defeated add
                 uint8 next = urand(0, 3);
-                for (uint8 i = 0; i < 16; i++)
+                for (uint8 i = 0; i < 16; ++i)
                 {
                     if (!DoneAdds[i % 4])
                     {

@@ -75,16 +75,16 @@ void SmartWaypointMgr::LoadFromDB()
             sLog->outErrorDb("SmartWaypointMgr::LoadFromDB: Path entry %u, unexpected point id %u, expected %u.", entry, id, last_id);
         }
 
-        last_id++;
+        ++last_id;
         (*path)[id] = wp;
 
         if (last_entry != entry)
         {
-            count++;
+            ++count;
             waypoint_map[entry] = path;
         }
         last_entry = entry;
-        total++;
+        ++total;
     }
     while (result->NextRow());
 
@@ -96,7 +96,7 @@ void SmartAIMgr::LoadSmartAIFromDB()
 {
     uint32 oldMSTime = getMSTime();
 
-    for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; i++)
+    for (uint8 i = 0; i < SMART_SCRIPT_TYPE_MAX; ++i)
         mEventMap[i].clear();  //Drop Existing SmartAI List
 
     PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_SMART_SCRIPTS);

@@ -59,7 +59,7 @@ void BigNumber::SetQword(uint64 val)
 void BigNumber::SetBinary(const uint8 *bytes, int len)
 {
     uint8 t[1000];
-    for (int i = 0; i < len; i++) t[i] = bytes[len - 1 - i];
+    for (int i = 0; i < len; ++i) t[i] = bytes[len - 1 - i];
     BN_bin2bn(t, len, _bn);
 }
 

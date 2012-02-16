@@ -171,7 +171,7 @@ int WorldSocket::SendPacket (const WorldPacket& pct)
         uint32 p = 0;
         while (p < pct.size())
         {
-            for (uint32 j = 0; j < 16 && p < pct.size(); j++)
+            for (uint32 j = 0; j < 16 && p < pct.size(); ++j)
                 sWorldLog->outLog("%.2X ", const_cast<WorldPacket&>(pct)[p++]);
 
             sWorldLog->outLog("\n");
@@ -698,7 +698,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
         uint32 p = 0;
         while (p < new_pct->size())
         {
-            for (uint32 j = 0; j < 16 && p < new_pct->size(); j++)
+            for (uint32 j = 0; j < 16 && p < new_pct->size(); ++j)
                 sWorldLog->outLog ("%.2X ", (*new_pct)[p++]);
 
             sWorldLog->outLog ("\n");

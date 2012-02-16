@@ -153,7 +153,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
 
         lastChance = (*iter).probability;
         totalChance += (*iter).probability;
-        count++;
+        ++count;
     }
     int32 offset = -1;
     if (!isEqualChanced)
@@ -162,7 +162,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup, uint64 whisp
         {
             uint32 chance = uint32((*iter).probability);
             uint32 r = urand(0, 100);
-            offset++;
+            ++offset;
             if (r <= chance)
                 break;
         }

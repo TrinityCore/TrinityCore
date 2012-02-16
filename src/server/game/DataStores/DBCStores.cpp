@@ -474,7 +474,7 @@ void LoadDBCStores(const std::string& dataPath)
     {
         TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
         if (!talentInfo) continue;
-        for (int j = 0; j < MAX_TALENT_RANK; j++)
+        for (int j = 0; j < MAX_TALENT_RANK; ++j)
             if (talentInfo->RankID[j])
                 sTalentSpellPosMap[talentInfo->RankID[j]] = TalentSpellPos(i, j);
     }

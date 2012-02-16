@@ -345,9 +345,9 @@ int ShortenASTARRoute(short int *pathlist, int number)
     {
         qboolean shortened = qfalse;
 
-        for (temp2 = 0; temp2 < temp; temp2++)
+        for (temp2 = 0; temp2 < temp; ++temp2)
         {
-            for (link = 0; link < nodes[pathlist[temp]].enodenum; link++)
+            for (link = 0; link < nodes[pathlist[temp]].enodenum; ++link)
             {
                 if (nodes[pathlist[temp]].links[link].flags & PATH_BLOCKED)
                     continue;
@@ -380,7 +380,7 @@ int ShortenASTARRoute(short int *pathlist, int number)
 
     upto = count;
 
-    for (temp = 0; temp < count; temp++)
+    for (temp = 0; temp < count; ++temp)
     {
         pathlist[temp] = temppathlist[upto];
         --upto;

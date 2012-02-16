@@ -229,7 +229,7 @@ class boss_razorscale_controller : public CreatureScript
                             events.ScheduleEvent(EVENT_BUILD_HARPOON_3, 90000);
                         break;
                     case ACTION_PLACE_BROKEN_HARPOON:
-                        for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
+                        for (uint8 n = 0; n < RAID_MODE(2, 4); ++n)
                             me->SummonGameObject(GO_RAZOR_BROKEN_HARPOON, PosHarpoon[n].GetPositionX(), PosHarpoon[n].GetPositionY(), PosHarpoon[n].GetPositionZ(), 2.286f, 0, 0, 0, 0, 180000);
                         break;
                 }
@@ -644,7 +644,7 @@ class npc_expedition_commander : public CreatureScript
                             Phase = 2;
                             break;
                         case 2:
-                            for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
+                            for (uint8 n = 0; n < RAID_MODE(2, 4); ++n)
                             {
                                 Engineer[n] = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                                 Engineer[n]->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -657,7 +657,7 @@ class npc_expedition_commander : public CreatureScript
                             AttackStartTimer = 14000;
                             break;
                         case 3:
-                            for (uint8 n = 0; n < 4; n++)
+                            for (uint8 n = 0; n < 4; ++n)
                             {
                                 Defender[n] = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                                 Defender[n]->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -667,7 +667,7 @@ class npc_expedition_commander : public CreatureScript
                             Phase = 4;
                             break;
                         case 4:
-                            for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
+                            for (uint8 n = 0; n < RAID_MODE(2, 4); ++n)
                                 Engineer[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             for (uint8 n = 0; n < 4; ++n)
                                 Defender[n]->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);

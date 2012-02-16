@@ -80,7 +80,7 @@ void SmartAI::UpdateDespawn(const uint32 diff)
         {
             me->SetVisible(false);
             mDespawnTime = 5000;
-            mDespawnState++;
+            ++mDespawnState;
         }
         else
             me->DespawnOrUnsummon();
@@ -99,7 +99,7 @@ WayPoint* SmartAI::GetNextWayPoint()
     if (!mWayPoints || mWayPoints->empty())
         return NULL;
 
-    mCurrentWPID++;
+    ++mCurrentWPID;
     WPPath::const_iterator itr = mWayPoints->find(mCurrentWPID);
     if (itr != mWayPoints->end())
     {

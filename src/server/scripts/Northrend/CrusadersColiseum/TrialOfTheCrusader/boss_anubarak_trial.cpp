@@ -214,7 +214,7 @@ public:
             if (m_instance)
                 m_instance->SetData(TYPE_ANUBARAK, FAIL);
             //Summon Scarab Swarms neutral at random places
-            for (int i=0; i < 10; i++)
+            for (int i=0; i < 10; ++i)
                 if (Creature* temp = me->SummonCreature(NPC_SCARAB, AnubarakLoc[1].GetPositionX()+urand(0, 50)-25, AnubarakLoc[1].GetPositionY()+urand(0, 50)-25, AnubarakLoc[1].GetPositionZ()))
                     temp->setFaction(31);
         }
@@ -265,10 +265,10 @@ public:
             //Despawn Scarab Swarms neutral
             Summons.DoAction(NPC_SCARAB, ACTION_SCARAB_SUBMERGE);
             //Spawn Burrow
-            for (int i=0; i < 4; i++)
+            for (int i=0; i < 4; ++i)
                 me->SummonCreature(NPC_BURROW, AnubarakLoc[i+2]);
             //Spawn Frost Spheres
-            for (int i=0; i < 6; i++)
+            for (int i=0; i < 6; ++i)
                 if (Unit* summoned = me->SummonCreature(NPC_FROST_SPHERE, SphereSpawn[i]))
                     m_aSphereGUID[i] = summoned->GetGUID();
         }
@@ -335,11 +335,11 @@ public:
                          */
                         std::list<uint64>::iterator i = m_vBurrowGUID.begin();
                         uint32 at = urand(0, m_vBurrowGUID.size()-1);
-                        for (uint32 k = 0; k < at; k++)
+                        for (uint32 k = 0; k < at; ++k)
                             ++i;
                         if (Creature* pBurrow = Unit::GetCreature(*me, *i))
                             pBurrow->CastSpell(pBurrow, 66340, false);
-                        m_uiScarabSummoned++;
+                        ++m_uiScarabSummoned;
                         m_uiSummonScarabTimer = 4*IN_MILLISECONDS;
                         if (m_uiScarabSummoned == 4) m_uiSummonScarabTimer = RAID_MODE(4, 20)*IN_MILLISECONDS;
 

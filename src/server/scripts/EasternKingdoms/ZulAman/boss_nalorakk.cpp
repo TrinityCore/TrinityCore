@@ -214,7 +214,7 @@ class boss_nalorakk : public CreatureScript
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE1);
 
                                         (*me).GetMotionMaster()->MovePoint(1, NalorakkWay[1][0], NalorakkWay[1][1], NalorakkWay[1][2]);
-                                        MovePhase ++;
+                                        ++MovePhase;
                                         inMove = true;
 
                                         SendAttacker(who);
@@ -227,7 +227,7 @@ class boss_nalorakk : public CreatureScript
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE2);
 
                                         (*me).GetMotionMaster()->MovePoint(3, NalorakkWay[3][0], NalorakkWay[3][1], NalorakkWay[3][2]);
-                                        MovePhase ++;
+                                        ++MovePhase;
                                         inMove = true;
 
                                         SendAttacker(who);
@@ -240,7 +240,7 @@ class boss_nalorakk : public CreatureScript
                                         DoPlaySoundToSet(me, SOUND_NALORAKK_WAVE3);
 
                                         (*me).GetMotionMaster()->MovePoint(6, NalorakkWay[6][0], NalorakkWay[6][1], NalorakkWay[6][2]);
-                                        MovePhase ++;
+                                        ++MovePhase;
                                         inMove = true;
 
                                         SendAttacker(who);
@@ -323,7 +323,7 @@ class boss_nalorakk : public CreatureScript
                         case 3:
                         case 4:
                         case 6:
-                            MovePhase ++;
+                            ++MovePhase;
                             waitTimer = 1;
                             inMove = true;
                             return;

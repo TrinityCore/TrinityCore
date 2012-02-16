@@ -694,7 +694,7 @@ class npc_simon_bunny : public CreatureScript
                             _events.ScheduleEvent(EVENT_SIMON_TOO_LONG_TIME, 500);
                         else
                             _events.ScheduleEvent(EVENT_SIMON_GAME_TICK, 3000);
-                        gameTicks++;
+                        ++gameTicks;
                         break;
                     case EVENT_SIMON_RESET_CLUSTERS:
                         PrepareClusters(true);
@@ -723,7 +723,7 @@ class npc_simon_bunny : public CreatureScript
                             _events.ScheduleEvent(EVENT_SIMON_SETUP_PRE_GAME, 1000);
                         break;
                     case ACTION_SIMON_CORRECT_FULL_SEQUENCE:
-                        gameLevel++;
+                        ++gameLevel;
                         DoAction(ACTION_SIMON_ROUND_FINISHED);
                         break;
                     case ACTION_SIMON_WRONG_SEQUENCE:
@@ -829,11 +829,11 @@ class npc_simon_bunny : public CreatureScript
             {
                 DoPlaySoundToSet(me, SOUND_DISABLE_NODE);
 
-                for (uint32 clusterId = SIMON_BLUE; clusterId < SIMON_MAX_COLORS; clusterId++)
+                for (uint32 clusterId = SIMON_BLUE; clusterId < SIMON_MAX_COLORS; ++clusterId)
                     if (GameObject* cluster = me->FindNearestGameObject(clusterIds[clusterId], searchDistance))
                         cluster->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
-                for (uint32 auraId = GO_AURA_BLUE; auraId <= GO_AURA_YELLOW; auraId++)
+                for (uint32 auraId = GO_AURA_BLUE; auraId <= GO_AURA_YELLOW; ++auraId)
                     if (GameObject* auraGo = me->FindNearestGameObject(auraId, searchDistance))
                         auraGo->RemoveFromWorld();
 
@@ -869,7 +869,7 @@ class npc_simon_bunny : public CreatureScript
             void GenerateColorSequence()
             {
                 colorSequence.clear();
-                for (uint8 i = 0; i <= gameLevel; i++)
+                for (uint8 i = 0; i <= gameLevel; ++i)
                     colorSequence.push_back(RAND(SIMON_BLUE, SIMON_RED, SIMON_GREEN, SIMON_YELLOW));
 
                 for (std::list<uint8>::const_iterator i = colorSequence.begin(); i != colorSequence.end(); ++i)
@@ -880,14 +880,14 @@ class npc_simon_bunny : public CreatureScript
             // Remove any existant glowing auras over clusters and set clusters ready for interating with them.
             void PrepareClusters(bool clustersOnly = false)
             {
-                for (uint32 clusterId = SIMON_BLUE; clusterId < SIMON_MAX_COLORS; clusterId++)
+                for (uint32 clusterId = SIMON_BLUE; clusterId < SIMON_MAX_COLORS; ++clusterId)
                     if (GameObject* cluster = me->FindNearestGameObject(clusterIds[clusterId], searchDistance))
                         cluster->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                 if (clustersOnly)
                     return;
 
-                for (uint32 auraId = GO_AURA_BLUE; auraId <= GO_AURA_YELLOW; auraId++)
+                for (uint32 auraId = GO_AURA_BLUE; auraId <= GO_AURA_YELLOW; ++auraId)
                     if (GameObject* auraGo = me->FindNearestGameObject(auraId, searchDistance))
                         auraGo->RemoveFromWorld();
             }
@@ -932,7 +932,7 @@ class npc_simon_bunny : public CreatureScript
             */
             void SetUpPreGame()
             {
-                for (uint32 clusterId = SIMON_BLUE; clusterId < SIMON_MAX_COLORS; clusterId++)
+                for (uint32 clusterId = SIMON_BLUE; clusterId < SIMON_MAX_COLORS; ++clusterId)
                 {
                     if (GameObject* cluster = me->FindNearestGameObject(clusterIds[clusterId], 2.0f*searchDistance))
                     {
@@ -1017,7 +1017,7 @@ class npc_simon_bunny : public CreatureScript
                 }
                 else
                 {
-                    fails++;
+                    ++fails;
 
                     if (Player* player = me->GetPlayer(*me, playerGUID))
                         DoCast(player, SPELL_BAD_PRESS_TRIGGER, true);
