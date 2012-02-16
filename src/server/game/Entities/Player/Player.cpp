@@ -434,9 +434,9 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 // 5. Credit instance encounter.
 KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
     // 1. Initialize internal variables to default values.
-    _killer(killer), _victim(victim), _isBattleGround(isBattleGround),
-    _isPvP(false), _group(killer->GetGroup()), _groupRate(1.0f),
-    _maxLevel(0), _maxNotGrayMember(NULL), _count(0), _sumLevel(0), _isFullXP(false), _xp(0)
+    _killer(killer), _victim(victim), _group(killer->GetGroup()),
+    _groupRate(1.0f), _maxNotGrayMember(NULL), _count(0), _sumLevel(0), _xp(0),
+    _isFullXP(false), _maxLevel(0), _isBattleGround(isBattleGround), _isPvP(false)
 {
     // mark the credit as pvp if victim is player
     if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -11830,7 +11830,7 @@ InventoryResult Player::CanRollForItemInLFG(ItemTemplate const* proto, WorldObje
     Map const* map = lootedObject->GetMap();
     if (uint32 dungeonId = sLFGMgr->GetDungeon(GetGroup()->GetGUID(), true))
         if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
-            if (dungeon->map == map->GetId() && dungeon->difficulty == map->GetDifficulty())
+            if (uint32(dungeon->map) == map->GetId() && dungeon->difficulty == map->GetDifficulty())
                 lootedObjectInDungeon = true;
 
     if (!lootedObjectInDungeon)
@@ -12024,7 +12024,6 @@ Item* Player::StoreItem(ItemPosCountVec const& dest, Item* pItem, bool update)
         return NULL;
 
     Item* lastItem = pItem;
-    uint32 entry = pItem->GetEntry();
     for (ItemPosCountVec::const_iterator itr = dest.begin(); itr != dest.end();)
     {
         uint16 pos = itr->pos;

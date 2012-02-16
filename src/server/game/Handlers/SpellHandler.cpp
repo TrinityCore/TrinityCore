@@ -165,24 +165,6 @@ void WorldSession::HandleUseItemOpcode(WorldPacket& recvPacket)
     targets.Read(recvPacket, pUser);
     HandleClientCastFlags(recvPacket, castFlags, targets);
 
-    if (!pItem->IsTargetValidForItemUse(targets.GetUnitTarget()))
-    {
-        // free gray item after use fail
-        pUser->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
-
-        // send spell error
-        if (SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spellId))
-        {
-            // for implicit area/coord target spells
-            if (!targets.GetUnitTarget())
-                Spell::SendCastResult(_player, spellInfo, castCount, SPELL_FAILED_NO_VALID_TARGETS);
-            // for explicit target spells
-            else
-                Spell::SendCastResult(_player, spellInfo, castCount, SPELL_FAILED_BAD_TARGETS);
-        }
-        return;
-    }
-
     // Note: If script stop casting it must send appropriate data to client to prevent stuck item in gray state.
     if (!sScriptMgr->OnItemUse(pUser, pItem, targets))
     {
