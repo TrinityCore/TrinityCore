@@ -49,12 +49,12 @@ enum ConditionTypes
     CONDITION_RACE                  = 16,                   // race             0              0                  true if player's race is equal to race
     CONDITION_ACHIEVEMENT           = 17,                   // achievement_id   0              0                  true if achievement is complete
     CONDITION_SPELL_SCRIPT_TARGET   = 18,                   // SpellScriptTargetType, TargetEntry,            0
-    CONDITION_CREATURE_TARGET       = 19,                   // creature entry   0              0                  true if current target is creature with value1 entry
-    CONDITION_TARGET_HEALTH_BELOW_PCT = 20,                 // 0-100            0              0                  true if target's health is below value1 percent, false if over or no target
-    CONDITION_TARGET_RANGE          = 21,                   // minDistance      maxDist        0                  true if target is closer then minDist and further then maxDist or if max is 0 then max dist is infinit
+    CONDITION_UNUSED_19             = 19,                   //
+    CONDITION_UNUSED_20             = 20,                   //
+    CONDITION_UNUSED_21             = 21,                   //
     CONDITION_MAPID                 = 22,                   // map_id           0              0                  true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
-    CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType, TargetEntry,    0
+    CONDITION_UNUSED_24             = 24,                   //
     CONDITION_SPELL                 = 25,                   // spell_id         0              0                  true if player has learned spell
     CONDITION_PHASEMASK             = 26,                   // phasemask        0              0                  true if object is in phasemask
     CONDITION_LEVEL                 = 27,                   // level            ComparisonType 0                  true if unit's level is equal to param1 (param2 can modify the statement)
@@ -92,7 +92,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15,
     CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16,
     CONDITION_SOURCE_TYPE_SPELL                          = 17,
-    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18,
+    CONDITION_SOURCE_TYPE_UNUSED_18                      = 18,
     CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,
     CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
@@ -255,10 +255,11 @@ template <class T> bool CompareValues(ComparisionType type,  T val1, T val2)
             return val1 >= val2;
         case COMP_TYPE_LOW_EQ:
             return val1 <= val2;
+        default:
+            // incorrect parameter
+            ASSERT(false);
+            return false;
     }
-    // incorrect parameter
-    ASSERT(false);
-    return false;
 }
 
 #define sConditionMgr ACE_Singleton<ConditionMgr, ACE_Null_Mutex>::instance()

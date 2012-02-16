@@ -17,7 +17,7 @@ using G3D::Ray;
 
 template<class Node>
 struct NodeCreator{
-    static Node * makeNode(int x, int y) { return new Node();}
+    static Node * makeNode(int /*x*/, int /*y*/) { return new Node();}
 };
 
 template<class T,

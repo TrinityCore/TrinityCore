@@ -37,8 +37,8 @@
 #include "Vehicle.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint8 effMask):
-_target(target), _base(aura), _slot(MAX_AURAS), _flags(AFLAG_NONE),
-_effectsToApply(effMask), _removeMode(AURA_REMOVE_NONE), _needClientUpdate(false)
+_target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
+_flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false)
 {
     ASSERT(GetTarget() && GetBase());
 
