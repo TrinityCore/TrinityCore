@@ -2814,12 +2814,12 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     unitList.remove(m_targets.GetUnitTarget());
                 Trinity::RandomResizeList(unitList, maxTargets);
             }
+
+            CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
+
+            for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                AddUnitTarget(*itr, effectMask, false);
         }
-
-        CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
-
-        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-            AddUnitTarget(*itr, effectMask, false);
 
         if (!gobjectList.empty())
         {
