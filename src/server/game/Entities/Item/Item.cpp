@@ -1074,25 +1074,6 @@ bool Item::IsBindedNotWith(Player const* player) const
     return true;
 }
 
-bool ItemRequiredTarget::IsFitToRequirements(Unit* pUnitTarget) const
-{
-    if (pUnitTarget->GetTypeId() != TYPEID_UNIT)
-        return false;
-
-    if (pUnitTarget->GetEntry() != m_uiTargetEntry)
-        return false;
-
-    switch (m_uiType)
-    {
-        case ITEM_TARGET_TYPE_CREATURE:
-            return pUnitTarget->isAlive();
-        case ITEM_TARGET_TYPE_DEAD:
-            return !pUnitTarget->isAlive();
-        default:
-            return false;
-    }
-}
-
 void Item::BuildUpdate(UpdateDataMapType& data_map)
 {
     if (Player* owner = GetOwner())
