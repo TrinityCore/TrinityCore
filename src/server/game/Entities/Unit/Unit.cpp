@@ -12164,7 +12164,7 @@ bool Unit::_IsValidAttackTarget(Unit const* target, SpellInfo const* bySpell) co
             if (FactionTemplateEntry const* factionTemplate = creature->getFactionTemplateEntry())
                 if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionTemplate->faction))
                     if (FactionState const* repState = player->GetReputationMgr().GetState(factionEntry))
-                        if (repState->Flags & FACTION_FLAG_PEACE_FORCED)
+                        if (!(repState->Flags & FACTION_FLAG_AT_WAR))
                             return false;
         }
     }
