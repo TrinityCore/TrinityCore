@@ -187,7 +187,7 @@ void MoveSpline::Initialize(const MoveSplineInitArgs& args)
 }
 
 MoveSpline::MoveSpline() : m_Id(0), time_passed(0),
-    vertical_acceleration(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0), initialOrientation(0.f)
+    vertical_acceleration(0.f), initialOrientation(0.f), effect_start_time(0), point_Idx(0), point_Idx_offset(0)
 {
     splineflags.done = true;
 }
