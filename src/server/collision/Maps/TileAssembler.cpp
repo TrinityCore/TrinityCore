@@ -344,16 +344,15 @@ namespace VMAP
         char buff[500];
         while (!feof(model_list))
         {
-            fread(&displayId,sizeof(uint32),1,model_list);
-            fread(&name_length,sizeof(uint32),1,model_list);
-
-            if (name_length >= sizeof(buff))
+            if (fread(&displayId, sizeof(uint32), 1, model_list) != 1
+                || fread(&name_length, sizeof(uint32), 1, model_list) != 1
+                || name_length >= sizeof(buff)
+                || fread(&buff, sizeof(char), name_length, model_list) != name_length)
             {
                 std::cout << "\nFile 'temp_gameobject_models' seems to be corrupted" << std::endl;
                 break;
             }
 
-            fread(&buff,sizeof(char),name_length,model_list);
             std::string model_name(buff, name_length);
 
             WorldModel_Raw raw_model;
