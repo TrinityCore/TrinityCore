@@ -1507,7 +1507,7 @@ class spell_gen_luck_of_the_draw : public SpellScriptLoader
 
                 const LfgDungeonSet dungeons = sLFGMgr->GetSelectedDungeons(GetUnitOwner()->GetGUID());
                 LfgDungeonSet::const_iterator itr = dungeons.begin();
-                
+
                 if (itr == dungeons.end())
                 {
                     Remove(AURA_REMOVE_BY_DEFAULT);
@@ -1796,6 +1796,7 @@ class spell_gen_mounted_charge: public SpellScriptLoader
                         {
                             case SPELL_CHARGE_TRIGGER_TRIAL_CHAMPION:
                                 spellId = SPELL_CHARGE_CHARGING_EFFECT_20K_1;
+                                break;
                             case SPELL_CHARGE_TRIGGER_FACTION_MOUNTS:
                                 spellId = SPELL_CHARGE_CHARGING_EFFECT_8K5;
                                 break;
