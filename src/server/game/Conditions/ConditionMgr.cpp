@@ -49,15 +49,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_AURA:
         {
             if (Unit* unit = object->ToUnit())
-            {
-                if (!ConditionValue3)
-                    condMeets = unit->HasAuraEffect(ConditionValue1, ConditionValue2);
-                else if (Player* player = unit->ToPlayer())
-                {
-                    if (Unit* target = player->GetSelectedUnit())
-                        condMeets = target->HasAuraEffect(ConditionValue1, ConditionValue2);
-                }
-            }
+                condMeets = unit->HasAuraEffect(ConditionValue1, ConditionValue2);
             break;
         }
         case CONDITION_ITEM:
@@ -165,38 +157,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_SPELL_SCRIPT_TARGET:
             condMeets = true;//spell target condition is handled in spellsystem, here it is always true
             break;
-        case CONDITION_CREATURE_TARGET:
-        {
-            if (Player* player = object->ToPlayer())
-            {
-                Unit* target = player->GetSelectedUnit();
-                if (target)
-                    if (Creature* cTarget = target->ToCreature())
-                        if (cTarget->GetEntry() == ConditionValue1)
-                            condMeets = true;
-            }
-            break;
-        }
-        case CONDITION_TARGET_HEALTH_BELOW_PCT:
-        {
-            if (Player* player = object->ToPlayer())
-            {
-                Unit* target = player->GetSelectedUnit();
-                if (target)
-                    condMeets = !target->HealthAbovePct(ConditionValue1);
-                break;
-            }
-        }
-        case CONDITION_TARGET_RANGE:
-        {
-            if (Player* player = object->ToPlayer())
-            {
-                if (Unit* target = player->GetSelectedUnit())
-                    if (player->GetDistance(target) >= ConditionValue1 && (!ConditionValue2 || player->GetDistance(target) <= ConditionValue2))
-                        condMeets = true;
-            }
-            break;
-        }
         case CONDITION_MAPID:
             condMeets = object->GetMapId() == ConditionValue1;
             break;
@@ -1116,7 +1076,7 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
             break;
         case CONDITION_SOURCE_TYPE_UNUSED_18:
-            sLog->outErrorDb("Found SourceTypeOrReferenceId = CONDITION_SOURCE_TYPE_UNUSED_18 in `condition` table - ignoring");
+            sLog->outErrorDb("Found SourceTypeOrReferenceId = CONDITION_SOURCE_TYPE_UNUSED_18 in `conditions` table - ignoring");
             return false;
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
@@ -1157,6 +1117,8 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Aura condition has non existing effect index (%u) (must be 0..2), skipped", cond->ConditionValue2);
                 return false;
             }
+            if (cond->ConditionValue3)
+                sLog->outErrorDb("Aura condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
         case CONDITION_ITEM:
@@ -1368,45 +1330,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                     break;
                 }
             }
-            break;
-        }
-        case CONDITION_CREATURE_TARGET:
-        {
-            if (!cond->ConditionValue1 && !sObjectMgr->GetCreatureTemplate(cond->ConditionValue1))
-            {
-                sLog->outErrorDb("CreatureTarget condition has non existing creature template entry (%u) as target, skipped", cond->ConditionValue1);
-                return false;
-            }
-
-            if (cond->ConditionValue2)
-                sLog->outErrorDb("CreatureTarget condition has useless data in value2 (%u)!", cond->ConditionValue2);
-            if (cond->ConditionValue3)
-                sLog->outErrorDb("CreatureTarget condition has useless data in value3 (%u)!", cond->ConditionValue3);
-            break;
-        }
-        case CONDITION_TARGET_HEALTH_BELOW_PCT:
-        {
-            if (cond->ConditionValue1 > 100)
-            {
-                sLog->outErrorDb("TargetHealthBelowPct condition has invalid data in value1 (%u), skipped", cond->ConditionValue1);
-                return false;
-            }
-
-            if (cond->ConditionValue2)
-                sLog->outErrorDb("TargetHealthBelowPct condition has useless data in value2 (%u)!", cond->ConditionValue2);
-            if (cond->ConditionValue3)
-                sLog->outErrorDb("TargetHealthBelowPct condition has useless data in value3 (%u)!", cond->ConditionValue3);
-            break;
-        }
-        case CONDITION_TARGET_RANGE:
-        {
-            if (cond->ConditionValue2 && cond->ConditionValue2 < cond->ConditionValue1)//maxDist can be 0 for infinit max range
-            {
-                sLog->outErrorDb("TargetRange condition has max distance closer then min distance, skipped");
-                return false;
-            }
-            if (cond->ConditionValue3)
-                sLog->outErrorDb("TargetRange condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
         case CONDITION_MAPID:
@@ -1649,6 +1572,18 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Phasemask condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
+        case CONDITION_UNUSED_19:
+            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
+            return false;
+        case CONDITION_UNUSED_20:
+            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
+            return false;
+        case CONDITION_UNUSED_21:
+            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
+            return false;
+        case CONDITION_UNUSED_24:
+            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
+            return false;
         default:
             break;
     }

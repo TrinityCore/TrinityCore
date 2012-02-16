@@ -201,25 +201,7 @@ enum ItemUpdateState
     ITEM_REMOVED                                 = 3
 };
 
-enum ItemRequiredTargetType
-{
-    ITEM_TARGET_TYPE_CREATURE   = 1,
-    ITEM_TARGET_TYPE_DEAD       = 2
-};
-
-#define MAX_ITEM_REQ_TARGET_TYPE 2
-
 #define MAX_ITEM_SPELLS 5
-
-struct ItemRequiredTarget
-{
-    ItemRequiredTarget(ItemRequiredTargetType uiType, uint32 uiTargetEntry) : m_uiType(uiType), m_uiTargetEntry(uiTargetEntry) {}
-    ItemRequiredTargetType m_uiType;
-    uint32 m_uiTargetEntry;
-
-    // helpers
-    bool IsFitToRequirements(Unit* pUnitTarget) const;
-};
 
 bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 
