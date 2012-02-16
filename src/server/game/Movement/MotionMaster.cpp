@@ -365,10 +365,7 @@ void MotionMaster::MoveJump(float x, float y, float z, float speedXY, float spee
     init.SetParabolic(max_height,0);
     init.SetVelocity(speedXY);
     init.Launch();
-    if (_owner->GetTypeId() == TYPEID_PLAYER)
-        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
-    else
-        Mutate(new EffectMovementGenerator(id), MOTION_SLOT_ACTIVE);
+    Mutate(new EffectMovementGenerator(id), MOTION_SLOT_CONTROLLED);
 }
 
 void MotionMaster::MoveFall(uint32 id/*=0*/)
