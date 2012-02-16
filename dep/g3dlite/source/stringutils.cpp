@@ -151,7 +151,7 @@ std::string wordWrap(
         if (c < input.size()) {
             // Collapse multiple spaces.
             while ((input[c] == ' ') && (c < input.size())) {
-                c++;
+                ++c;
             }
         }
     }

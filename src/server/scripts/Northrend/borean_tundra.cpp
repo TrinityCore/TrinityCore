@@ -1948,7 +1948,7 @@ public:
                 if (Bonker_agro == 0)
                 {
                     DoScriptText(SAY_bonker_1, me);
-                    Bonker_agro++;
+                    ++Bonker_agro;
                 }
                 DoMeleeAttackIfReady();
             }

@@ -54,7 +54,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
         Vector3 d( gridBox.hi - gridBox.lo );
         if (d.x < 0 || d.y < 0 || d.z < 0)
             throw std::logic_error("negative node extents");
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; ++i)
         {
             if (nodeBox.hi[i] < gridBox.lo[i] || nodeBox.lo[i] > gridBox.hi[i])
             {
@@ -80,7 +80,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
             if (center <= split)
             {
                 // stay left
-                i++;
+                ++i;
                 if (clipL < maxb)
                     clipL = maxb;
             }
@@ -191,7 +191,7 @@ void BIH::subdivide(int left, int right, std::vector<uint32> &tempTree, buildDat
                     tempTree[nodeIndex + 2] = floatToRawIntBits(prevClip);
                 }
                 // count stats for the unused leaf
-                depth++;
+                ++depth;
                 stats.updateLeaf(depth, 0);
                 // now we keep going as we are, with a new nodeIndex:
                 nodeIndex = nextIndex;
@@ -271,7 +271,7 @@ bool BIH::readFromFile(FILE* rf)
 
 void BIH::BuildStats::updateLeaf(int depth, int n)
 {
-    numLeaves++;
+    ++numLeaves;
     minDepth = std::min(depth, minDepth);
     maxDepth = std::max(depth, maxDepth);
     sumDepth += depth;

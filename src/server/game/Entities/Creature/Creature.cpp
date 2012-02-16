@@ -68,7 +68,7 @@ bool VendorItemData::RemoveItem(uint32 item_id)
     {
         if ((*i)->item == item_id)
         {
-            i = m_items.erase(i++);
+            i = m_items.erase(++i);
             found = true;
         }
         else
@@ -1680,7 +1680,7 @@ SpellInfo const* Creature::reachWithSpellAttack(Unit* pVictim)
         }
 
         bool bcontinue = true;
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
+        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             if ((spellInfo->Effects[j].Effect == SPELL_EFFECT_SCHOOL_DAMAGE)       ||
                 (spellInfo->Effects[j].Effect == SPELL_EFFECT_INSTAKILL)            ||
@@ -1727,7 +1727,7 @@ SpellInfo const* Creature::reachWithSpellCure(Unit* pVictim)
         }
 
         bool bcontinue = true;
-        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; j++)
+        for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
         {
             if ((spellInfo->Effects[j].Effect == SPELL_EFFECT_HEAL))
             {

@@ -154,14 +154,14 @@ public:
         {
             std::vector<Position> vChampionJumpOrigin;
             if (playerTeam == ALLIANCE)
-                for (uint8 i = 0; i < 5; i++)
+                for (uint8 i = 0; i < 5; ++i)
                     vChampionJumpOrigin.push_back(FactionChampionLoc[i]);
             else
-                for (uint8 i = 5; i < 10; i++)
+                for (uint8 i = 5; i < 10; ++i)
                     vChampionJumpOrigin.push_back(FactionChampionLoc[i]);
 
             std::vector<Position> vChampionJumpTarget;
-            for (uint8 i = 10; i < 20; i++)
+            for (uint8 i = 10; i < 20; ++i)
                 vChampionJumpTarget.push_back(FactionChampionLoc[i]);
             std::vector<uint32> vChampionEntries = SelectChampions(playerTeam);
 

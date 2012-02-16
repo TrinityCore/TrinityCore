@@ -211,7 +211,7 @@ class DBCStorage
                                         validSqlColumn = false;
                                 }
                                 if (validSqlColumn && (columnNumber != (sql->formatString->size()-1)))
-                                    sqlColumnNumber++;
+                                    ++sqlColumnNumber;
                             }
                             else
                             {

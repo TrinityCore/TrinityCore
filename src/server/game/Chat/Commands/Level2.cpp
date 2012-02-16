@@ -1050,7 +1050,7 @@ bool ChatHandler::HandleLookupTitleCommand(const char* args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
 
     // Search in CharTitles.dbc
-    for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
+    for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); ++id)
     {
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
         if (titleInfo)
@@ -1123,7 +1123,7 @@ bool ChatHandler::HandleCharacterTitlesCommand(const char* args)
     char const* knownStr = GetTrinityString(LANG_KNOWN);
 
     // Search in CharTitles.dbc
-    for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
+    for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); ++id)
     {
         CharTitlesEntry const* titleInfo = sCharTitlesStore.LookupEntry(id);
         if (titleInfo && target->HasTitle(titleInfo))

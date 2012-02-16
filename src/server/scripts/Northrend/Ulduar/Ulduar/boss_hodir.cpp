@@ -935,7 +935,7 @@ class spell_biting_cold : public SpellScriptLoader
                         if (target->isMoving())
                             itr->second = 1;
                         else
-                            itr->second++;
+                            ++itr->second;
                     }
 
                     found = true;

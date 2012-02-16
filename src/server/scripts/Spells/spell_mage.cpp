@@ -129,7 +129,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 // check if spell ids exist in dbc
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < 6; ++i)
                     if (!sSpellMgr->GetSpellInfo(spell_list[i]))
                         return false;
                 return true;

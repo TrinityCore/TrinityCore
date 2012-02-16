@@ -381,7 +381,7 @@ static int guiPrompt(
         2, 2, width - 4, height - buttonHeight - 7, IDC_MESSAGE);
 
     int i;
-    for (i = 0; i < numChoices; i++) {
+    for (i = 0; i < numChoices; ++i) {
 
         int x = buttonSpacing + i * (buttonWidth + buttonSpacing);
         int y = height - buttonHeight - buttonSpacing;
@@ -500,7 +500,7 @@ static int textPrompt(
         while ((c < 0) || (c >= numChoices)) { 
             printf("\n");
 
-            for (int i = 0; i < numChoices; i++) {
+            for (int i = 0; i < numChoices; ++i) {
                 if (numChoices <= 3) {
                     printf("  (%d) %s ", i, choice[i]);
                 } else {
@@ -567,12 +567,12 @@ static pascal OSStatus DoCommandEvent(EventHandlerCallRef handlerRef, EventRef e
     CallbackData& callbackData = *(CallbackData*)userData;
 
 #   pragma unused(handlerRef)
-	
+    
     callbackData.whichButton[0] = callbackData.myIndex;
-	
+    
     // If we get here we can close the window
     ::QuitAppModalLoopForWindow(callbackData.refWindow);
-	
+    
     // Return noErr to indicate that we handled the event
     return noErr;
 }
@@ -597,7 +597,7 @@ static int guiPrompt
                     (CARBON_BUTTON_SPACING*numChoices))) / 
             (numChoices/iNumButtonRows);
     }
-	
+    
     // Window Variables
     Rect	rectWin = {0, 0, 200 + ((iNumButtonRows-1) * (CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)), 550};			// top, left, bottom, right
     CFStringRef	szWindowTitle = CFStringCreateWithCString(kCFAllocatorDefault, windowTitle, kCFStringEncodingUTF8);
@@ -626,7 +626,7 @@ static int guiPrompt
 
     int whichButton=-1;
     CallbackData        callbackData[numChoices];
-	
+    
     // Create the Buttons and assign event handlers
     for (int i = 0; i < numChoices; ++i) {
         bounds[i].top	 = 160 + ((CARBON_BUTTON_HEIGHT+CARBON_BUTTON_SPACING)*(i%iNumButtonRows));

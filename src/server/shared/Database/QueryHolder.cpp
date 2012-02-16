@@ -130,7 +130,7 @@ void SQLQueryHolder::SetPreparedResult(size_t index, PreparedResultSet* result)
 
 SQLQueryHolder::~SQLQueryHolder()
 {
-    for (size_t i = 0; i < m_queries.size(); i++)
+    for (size_t i = 0; i < m_queries.size(); ++i)
     {
         /// if the result was never used, free the resources
         /// results used already (getresult called) are expected to be deleted
@@ -163,7 +163,7 @@ bool SQLQueryHolderTask::Execute()
     /// we can do this, we are friends
     std::vector<SQLQueryHolder::SQLResultPair> &queries = m_holder->m_queries;
 
-    for (size_t i = 0; i < queries.size(); i++)
+    for (size_t i = 0; i < queries.size(); ++i)
     {
         /// execute all queries in the holder and pass the results
         if (SQLElementData* data = &queries[i].first)

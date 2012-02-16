@@ -208,7 +208,7 @@ void BattlegroundEY::CheckSomeoneLeftPoint()
                 else
                 {
                     //player is neat flag, so update count:
-                    m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(player->GetTeam())]++;
+                    ++m_CurrentPointPlayersCount[2 * i + GetTeamIndexByTeamId(player->GetTeam())];
                     ++j;
                 }
             }

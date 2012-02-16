@@ -1773,7 +1773,7 @@ void SpellMgr::LoadSpellProcEvents()
                 sLog->outErrorDb("Spell %u listed in `spell_proc_event` probally not triggered spell", entry);
                 continue;
             }
-            customProc++;
+            ++customProc;
         }
         ++count;
     } while (result->NextRow());

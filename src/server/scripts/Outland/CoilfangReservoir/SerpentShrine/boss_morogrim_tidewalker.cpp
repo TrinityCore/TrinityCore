@@ -252,7 +252,7 @@ public:
                     Unit* pGlobuleTarget;
                     std::set<uint64> globulelist;
                     std::set<uint64>::const_iterator itr;
-                    for (uint8 g = 0; g < 4; g++)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
+                    for (uint8 g = 0; g < 4; ++g)  //one unit can't cast more than one spell per update, so some players have to cast for us XD
                     {
                         counter = 0;
                         do

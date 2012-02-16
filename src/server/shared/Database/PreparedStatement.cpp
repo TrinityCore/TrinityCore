@@ -34,7 +34,7 @@ void PreparedStatement::BindParameters()
     ASSERT (m_stmt);
 
     uint32 i = 0;
-    for (; i < statement_data.size(); i++)
+    for (; i < statement_data.size(); ++i)
     {
         switch (statement_data[i].type)
         {
@@ -335,7 +335,7 @@ std::string MySQLPreparedStatement::getQueryString(const char *query)
     std::string queryString = query;
 
     uint32 pos = 0;
-    for (uint32 i = 0; i < m_stmt->statement_data.size(); i++)
+    for (uint32 i = 0; i < m_stmt->statement_data.size(); ++i)
     {
         pos = queryString.find("?", pos);
         std::stringstream replace;

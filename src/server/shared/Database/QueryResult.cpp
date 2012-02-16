@@ -127,7 +127,7 @@ m_length(NULL)
                                                            *m_rBind[fIndex].length );
                 }
         }
-        m_rowPosition++;
+        ++m_rowPosition;
     }
     m_rowPosition = 0;
 
@@ -160,7 +160,7 @@ bool ResultSet::NextRow()
         return false;
     }
 
-    for (uint32 i = 0; i < _fieldCount; i++)
+    for (uint32 i = 0; i < _fieldCount; ++i)
         _currentRow[i].SetStructuredValue(row[i], _fields[i].type);
 
     return true;

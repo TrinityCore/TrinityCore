@@ -325,7 +325,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         {
                             Phase = 3;
                             for (int i=0; i <= 2; ++i)
-                                for (int j=1; j <= 4; j++)
+                                for (int j=1; j <= 4; ++j)
                                     SummonMinion(NPC_SOLARIUM_AGENT, Portals[i][0], Portals[i][1], Portals[i][2]);
 
                             DoScriptText(SAY_SUMMON1, me);
@@ -348,7 +348,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 me->GetMotionMaster()->Clear();
                                 me->SetPosition(Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O);
 
-                                for (int j=0; j <= 2; j++)
+                                for (int j=0; j <= 2; ++j)
                                     if (j != i)
                                         SummonMinion(NPC_SOLARIUM_PRIEST, Portals[j][0], Portals[j][1], Portals[j][2]);
 

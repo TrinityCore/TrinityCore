@@ -73,7 +73,7 @@ void MapManager::InitializeVisibilityDistanceInfo()
 void MapManager::checkAndCorrectGridStatesArray()
 {
     bool ok = true;
-    for (int i=0; i<MAX_GRID_STATE; i++)
+    for (int i=0; i<MAX_GRID_STATE; ++i)
     {
         if (i_GridStates[i] != si_GridStates[i])
         {
@@ -351,7 +351,7 @@ uint32 MapManager::GetNumInstances()
             continue;
         MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
         for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
-            if (mitr->second->IsDungeon()) ret++;
+            if (mitr->second->IsDungeon()) ++ret;
     }
     return ret;
 }

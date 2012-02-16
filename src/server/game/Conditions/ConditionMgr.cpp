@@ -595,7 +595,7 @@ void ConditionMgr::LoadConditions(bool isReload)
                 ConditionReferenceStore[uRefId] = mCondList;
             }
             ConditionReferenceStore[uRefId].push_back(cond);//add to reference storage
-            count++;
+            ++count;
             continue;
         }//end of reference templates
 

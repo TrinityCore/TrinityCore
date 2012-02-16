@@ -931,7 +931,7 @@ void PoolMgr::LoadFromDB()
                 if (!pool_pool_id)
                 {
                     SpawnPool(pool_entry);
-                    count++;
+                    ++count;
                 }
             }
             while (result->NextRow());

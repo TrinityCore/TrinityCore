@@ -309,7 +309,7 @@ public:
         }
 
         void SpawnPyramidWave(uint32 wave){
-            for (int i = 0; i < pyramidSpawnTotal; i++)
+            for (int i = 0; i < pyramidSpawnTotal; ++i)
             {
                 if (pyramidSpawns[i][0] == (float)wave)
                 {
@@ -344,7 +344,7 @@ public:
         void SendAddsUpStairs(uint32 count)
         {
             //pop a add from list, send him up the stairs...
-            for (uint32 addCount = 0; addCount<count && !addsAtBase.empty(); addCount++)
+            for (uint32 addCount = 0; addCount<count && !addsAtBase.empty(); ++addCount)
             {
                 if (Creature* add = instance->GetCreature(*addsAtBase.begin()))
                 {

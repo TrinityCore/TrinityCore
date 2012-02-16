@@ -984,7 +984,7 @@ void GameEventMgr::Initialize()
         uint32 maxEventId = fields[0].GetUInt16();
 
         // Id starts with 1 and vector with 0, thus increment
-        maxEventId++;
+        ++maxEventId;
 
         mGameEvent.resize(maxEventId);
         mGameEventCreatureGuids.resize(maxEventId * 2 - 1);
