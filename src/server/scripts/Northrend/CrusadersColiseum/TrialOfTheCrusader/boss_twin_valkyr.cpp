@@ -308,7 +308,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void EnableDualWield(bool mode = true)
     {
-        SetEquipmentSlots(false, m_uiWeapon, mode ? m_uiWeapon : EQUIP_UNEQUIP, EQUIP_UNEQUIP);
+        SetEquipmentSlots(false, m_uiWeapon, mode ? m_uiWeapon : int32(EQUIP_UNEQUIP), EQUIP_UNEQUIP);
         me->SetCanDualWield(mode);
         me->UpdateDamagePhysical(mode ? OFF_ATTACK : BASE_ATTACK);
     }

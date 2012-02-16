@@ -40,7 +40,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         return false;
     }
     bool condMeets = false;
-    bool sendErrorMsg = false;
     switch (ConditionType)
     {
         case CONDITION_NONE:
@@ -724,7 +723,7 @@ bool ConditionMgr::addToGossipMenus(Condition* cond)
     {
         for (GossipMenusContainer::iterator itr = pMenuBounds.first; itr != pMenuBounds.second; ++itr)
         {
-            if ((*itr).second.entry == cond->SourceGroup && (*itr).second.text_id == cond->SourceEntry)
+            if ((*itr).second.entry == cond->SourceGroup && (*itr).second.text_id == uint32(cond->SourceEntry))
             {
                 (*itr).second.conditions.push_back(cond);
                 return true;
@@ -743,7 +742,7 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond)
     {
         for (GossipMenuItemsContainer::iterator itr = pMenuItemBounds.first; itr != pMenuItemBounds.second; ++itr)
         {
-            if ((*itr).second.MenuId == cond->SourceGroup && (*itr).second.OptionIndex == cond->SourceEntry)
+            if ((*itr).second.MenuId == cond->SourceGroup && (*itr).second.OptionIndex == uint32(cond->SourceEntry))
             {
                 (*itr).second.Conditions.push_back(cond);
                 return true;

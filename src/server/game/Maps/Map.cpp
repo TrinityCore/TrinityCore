@@ -2374,7 +2374,7 @@ bool InstanceMap::AddPlayerToMap(Player* player)
                 if (uint32 dungeonId = sLFGMgr->GetDungeon(group->GetGUID(), true))
                     if (LFGDungeonEntry const* dungeon = sLFGDungeonStore.LookupEntry(dungeonId))
                         if (LFGDungeonEntry const* randomDungeon = sLFGDungeonStore.LookupEntry(*(sLFGMgr->GetSelectedDungeons(player->GetGUID()).begin())))
-                            if (dungeon->map == GetId() && dungeon->difficulty == GetDifficulty() && randomDungeon->type == LFG_TYPE_RANDOM)
+                            if (uint32(dungeon->map) == GetId() && dungeon->difficulty == GetDifficulty() && randomDungeon->type == LFG_TYPE_RANDOM)
                                 player->CastSpell(player, LFG_SPELL_LUCK_OF_THE_DRAW, true);
         }
 
