@@ -562,11 +562,13 @@ struct mob_unleashed_ballAI : public ScriptedAI
     {
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
         float y = y0;
-        float x = float(urand(uint32(x0 - r), uint32(x0 + r)));
+        float x = frand(x0 - r, x0 + r);
+        float sq = pow(r, 2) - pow(x - x0, 2);
+        float rt = sqrtf(fabs(sq));
         if (urand(0, 1))
-            y = y0 + sqrt(pow(r, 2) - pow((x-x0), 2));
+            y = y0 + rt;
         else
-            y = y0 - sqrt(pow(r, 2) - pow((x-x0), 2));
+            y = y0 - rt;
         me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
     }
 
