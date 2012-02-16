@@ -831,8 +831,9 @@ class spell_dk_raise_dead : public SpellScriptLoader
 
                 if (caster->HasAura(SPELL_MASTER_OF_GHOULS))
                     ghoulSpellId = uint32(GetSpellInfo()->Effects[EFFECT_2].CalcValue());
-                sLog->outString("spell id=%u",ghoulSpellId);
-                caster->ToPlayer()->RemoveSpellCooldown(GetSpellInfo()->Id,true);
+                else
+                    caster->ToPlayer()->SendCooldownEvent(GetSpellInfo());
+
                 caster->CastSpell(GetHitUnit(), ghoulSpellId, false);
                 _handledFromScript = true;
             }
@@ -846,8 +847,10 @@ class spell_dk_raise_dead : public SpellScriptLoader
 
                     if (caster->HasAura(SPELL_MASTER_OF_GHOULS))
                         ghoulSpellId = GetEffectValue();
-                    sLog->outString("spell id2=%u",ghoulSpellId);
-                    caster->CastCustomSpell(caster,SPELL_RAISE_DEAD_GHOUL_SUMMON, &ghoulSpellId, 0, 0, caster->HasAura(SPELL_GLYPH_OF_RAISE_DEAD));
+                    else
+                        caster->ToPlayer()->SendCooldownEvent(GetSpellInfo());
+
+                    caster->CastCustomSpell(caster,SPELL_RAISE_DEAD_GHOUL_SUMMON, &ghoulSpellId, 0, 0, true);
                 }
             }
 
@@ -890,18 +893,16 @@ class spell_dk_raise_dead_reagent : public SpellScriptLoader
 
             void HandleDummyReagentSpell(SpellEffIndex /*effIndex*/)
             {
-                GetCaster()->ToPlayer()->RemoveSpellCooldown(SPELL_RAISE_DEAD_SPELL,true);
                 GetCaster()->CastSpell(GetCaster(), GetEffectValue(), true);
             }
 
             SpellCastResult CheckCast()
             {
-                if (!GetTriggeringSpell() && !GetCaster()->ToPlayer()->HasItemCount(ITEM_CORPSE_DUST_REAGENT,1))
-                {
-                    GetCaster()->ToPlayer()->RemoveSpellCooldown(SPELL_RAISE_DEAD_SPELL,true);
-                    SetCustomCastResultMessage(SPELL_CUSTOM_ERROR_NEED_CORPSE_DUST_IF_NO_TARGET);
-                    return SPELL_FAILED_CUSTOM_ERROR;
-                }
+                if (!GetCaster()->HasAura(SPELL_GLYPH_OF_RAISE_DEAD))
+                    if (!GetCaster()->ToPlayer()->HasItemCount(ITEM_CORPSE_DUST_REAGENT,1))
+                        return SPELL_FAILED_REAGENTS;
+                    else
+                        GetSpell()->TakeReagents();
                 return SPELL_CAST_OK;
             }
 
