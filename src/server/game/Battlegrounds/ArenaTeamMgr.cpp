@@ -117,7 +117,7 @@ void ArenaTeamMgr::LoadArenaTeams()
     uint32 count = 0;
     do
     {
-        ArenaTeam* newArenaTeam = new ArenaTeam;
+        ArenaTeam* newArenaTeam = new ArenaTeam();
 
         if (!newArenaTeam->LoadArenaTeamFromDB(result) || !newArenaTeam->LoadMembersFromDB(result2))
         {
@@ -168,8 +168,8 @@ void ArenaTeamMgr::DistributeArenaPoints()
     PlayerPoints.clear();
 
     sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_ONLINE_END);
-
     sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_START);
+
     for (ArenaTeamContainer::iterator titr = GetArenaTeamMapBegin(); titr != GetArenaTeamMapEnd(); ++titr)
     {
         if (ArenaTeam* at = titr->second)
@@ -181,6 +181,5 @@ void ArenaTeamMgr::DistributeArenaPoints()
     }
 
     sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_TEAM_END);
-
     sWorld->SendWorldText(LANG_DIST_ARENA_POINTS_END);
 }

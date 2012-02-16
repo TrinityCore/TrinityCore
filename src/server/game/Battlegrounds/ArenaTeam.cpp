@@ -291,8 +291,7 @@ void ArenaTeam::SetCaptain(uint64 guid)
     CharacterDatabase.Execute(stmt);
 
     // Enable remove/promote buttons
-    Player* newCaptain = ObjectAccessor::FindPlayer(guid);
-    if (newCaptain)
+    if (Player* newCaptain = ObjectAccessor::FindPlayer(guid))
     {
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
         sLog->outArena("Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
@@ -541,7 +540,7 @@ bool ArenaTeam::IsMember(uint64 guid) const
 uint32 ArenaTeam::GetPoints(uint32 memberRating)
 {
     // Returns how many points would be awarded with this team type with this rating
-    float points;
+    float points = 0.0f;
 
     uint32 rating = memberRating + 150 < Stats.Rating ? memberRating : Stats.Rating;
 
@@ -561,7 +560,7 @@ uint32 ArenaTeam::GetPoints(uint32 memberRating)
     else if (Type == ARENA_TEAM_3v3)
         points *= 0.88f;
 
-    return (uint32) points;
+    return (uint32)points;
 }
 
 uint32 ArenaTeam::GetAverageMMR(Group* group) const

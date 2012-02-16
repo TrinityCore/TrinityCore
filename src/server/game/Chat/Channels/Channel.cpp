@@ -119,7 +119,6 @@ void Channel::UpdateChannelInDB() const
 
         sLog->outDebug(LOG_FILTER_CHATSYS, "Channel(%s) updated in database", m_name.c_str());
     }
-
 }
 
 void Channel::UpdateChannelUseageInDB() const

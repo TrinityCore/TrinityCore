@@ -322,7 +322,6 @@ void AuctionHouseMgr::LoadAuctionItems()
 
     do
     {
-
         Field* fields = result->Fetch();
 
         uint32 item_guid        = fields[11].GetUInt32();

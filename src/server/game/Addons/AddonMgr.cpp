@@ -78,7 +78,7 @@ void SaveAddon(AddonInfo const& addon)
 
     CharacterDatabase.Execute(stmt);
 
-    m_knownAddons.push_back(SavedAddon(addon.Name, addon.CRC));
+    m_knownAddons.push_back(SavedAddon(name, addon.CRC));
 }
 
 SavedAddon const* GetAddonInfo(const std::string& name)
