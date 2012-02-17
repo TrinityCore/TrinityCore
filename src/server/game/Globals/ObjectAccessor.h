@@ -191,6 +191,7 @@ class ObjectAccessor
         // ACCESS LIKE THAT IS NOT THREAD SAFE
         static Pet* FindPet(uint64);
         static Player* FindPlayer(uint64);
+        static Creature* FindCreature(uint64);
         static Unit* FindUnit(uint64);
         static Player* FindPlayerByName(const char* name);
 

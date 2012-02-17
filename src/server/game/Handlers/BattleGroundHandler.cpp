@@ -25,6 +25,7 @@
 
 #include "ArenaTeam.h"
 #include "BattlegroundMgr.h"
+#include "BattlegroundWS.h"
 #include "Battleground.h"
 #include "Chat.h"
 #include "Language.h"
@@ -250,43 +251,144 @@ void WorldSession::HandleBattlegroundPlayerPositionsOpcode(WorldPacket & /*recv_
     Battleground* bg = _player->GetBattleground();
     if (!bg)                                                 // can't be received if player not in battleground
         return;
-
-    uint32 count = 0;
-    Player* aplr = NULL;
-    Player* hplr = NULL;
-
-    if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
+        
+    switch(bg->GetTypeID(true))
     {
-        aplr = ObjectAccessor::FindPlayer(guid);
-        if (aplr)
-            ++count;
+        case BATTLEGROUND_WS:
+            {
+                uint32 count1 = 0;                                  //always constant zero?
+                uint32 count2 = 0;                                  //count of next fields
+
+                Player *ali_plr = sObjectMgr->GetPlayer(((BattlegroundWS*)bg)->GetAllianceFlagPickerGUID());
+                if (ali_plr)
+                    ++count2;
+
+                Player *horde_plr = sObjectMgr->GetPlayer(((BattlegroundWS*)bg)->GetHordeFlagPickerGUID());
+                if (horde_plr)
+                    ++count2;
+
+                WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, (4+4+16*count1+16*count2));
+                data << count1;                                     // alliance flag holders count - obsolete, now always 0
+                /*for (uint8 i = 0; i < count1; ++i)
+                {
+                    data << uint64(0);                              // guid
+                    data << (float)0;                               // x
+                    data << (float)0;                               // y
+                }*/
+                data << count2;                                     // horde flag holders count - obsolete, now count of next fields
+                if (ali_plr)
+                {
+                    data << (uint64)ali_plr->GetGUID();
+                    data << (float)ali_plr->GetPositionX();
+                    data << (float)ali_plr->GetPositionY();
+                }
+                if (horde_plr)
+                {
+                    data << (uint64)horde_plr->GetGUID();
+                    data << (float)horde_plr->GetPositionX();
+                    data << (float)horde_plr->GetPositionY();
+                }
+
+                SendPacket(&data);
+            }
+            break;
+        case BATTLEGROUND_EY:
+            //TODO : fix me!
+            break;
+        case BATTLEGROUND_AB:
+        case BATTLEGROUND_AV:
+            {
+                //for other BG types - send default
+                WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, (4+4));
+                data << uint32(0);
+                data << uint32(0);
+                SendPacket(&data);
+            }
+            break;
+        default:
+            //maybe it is sent also in arena - do nothing
+            break;
+
+    switch(bg->GetTypeID(true))
+    {
+        case BATTLEGROUND_WS:
+            {
+                uint32 count1 = 0;                                  //always constant zero?
+                uint32 count2 = 0;                                  //count of next fields
+
+                Player *ali_plr = sObjectMgr->GetPlayer(((BattlegroundWS*)bg)->GetAllianceFlagPickerGUID());
+                if (ali_plr)
+                    ++count2;
+
+                Player *horde_plr = sObjectMgr->GetPlayer(((BattlegroundWS*)bg)->GetHordeFlagPickerGUID());
+                if (horde_plr)
+                    ++count2;
+
+                WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, (4+4+16*count1+16*count2));
+                data << count1;                                     // alliance flag holders count - obsolete, now always 0
+                /*for (uint8 i = 0; i < count1; ++i)
+                {
+                    data << uint64(0);                              // guid
+                    data << (float)0;                               // x
+                    data << (float)0;                               // y
+                }*/
+                data << count2;                                     // horde flag holders count - obsolete, now count of next fields
+                if (ali_plr)
+                {
+                    data << (uint64)ali_plr->GetGUID();
+                    data << (float)ali_plr->GetPositionX();
+                    data << (float)ali_plr->GetPositionY();
+                }
+                if (horde_plr)
+                {
+                    data << (uint64)horde_plr->GetGUID();
+                    data << (float)horde_plr->GetPositionX();
+                    data << (float)horde_plr->GetPositionY();
+                }
+
+                SendPacket(&data);
+            }
+            break;
+        default:
+            uint32 count = 0;
+            Player* aplr = NULL;
+            Player* hplr = NULL;
+
+            if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_ALLIANCE))
+            {
+                aplr = ObjectAccessor::FindPlayer(guid);
+                if (aplr)
+                    ++count;
+            }
+
+            if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
+            {
+                hplr = ObjectAccessor::FindPlayer(guid);
+                if (hplr)
+                    ++count;
+            }
+
+            WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * count);
+            data << 0;
+            data << count;
+            if (aplr)
+            {
+                data << uint64(aplr->GetGUID());
+                data << float(aplr->GetPositionX());
+                data << float(aplr->GetPositionY());
+            }
+
+            if (hplr)
+            {
+                data << uint64(hplr->GetGUID());
+                data << float(hplr->GetPositionX());
+                data << float(hplr->GetPositionY());
+            }
+            
+            SendPacket(&data);
+            break;
     }
 
-    if (uint64 guid = bg->GetFlagPickerGUID(BG_TEAM_HORDE))
-    {
-        hplr = ObjectAccessor::FindPlayer(guid);
-        if (hplr)
-            ++count;
-    }
-
-    WorldPacket data(MSG_BATTLEGROUND_PLAYER_POSITIONS, 4 + 4 + 16 * count);
-    data << 0;
-    data << count;
-    if (aplr)
-    {
-        data << uint64(aplr->GetGUID());
-        data << float(aplr->GetPositionX());
-        data << float(aplr->GetPositionY());
-    }
-
-    if (hplr)
-    {
-        data << uint64(hplr->GetGUID());
-        data << float(hplr->GetPositionX());
-        data << float(hplr->GetPositionY());
-    }
-
-    SendPacket(&data);
 }
 
 void WorldSession::HandlePVPLogDataOpcode(WorldPacket & /*recv_data*/)
