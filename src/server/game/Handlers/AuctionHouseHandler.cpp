@@ -123,6 +123,12 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     uint64 itemGUIDs[MAX_AUCTION_ITEMS]; // 160 slot = 4x 36 slot bag + backpack 16 slot
     uint32 count[MAX_AUCTION_ITEMS];
 
+    if (itemsCount > MAX_AUCTION_ITEMS)
+    {
+        SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_INTERNAL_ERROR);
+        return;
+    }
+    
     for (uint32 i = 0; i < itemsCount; ++i)
     {
         recv_data >> itemGUIDs[i];
@@ -150,12 +156,6 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
     if (!auctionHouseEntry)
     {
         sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: HandleAuctionSellItem - Unit (GUID: %u) has wrong faction.", GUID_LOPART(auctioneer));
-        return;
-    }
-
-    if (itemsCount > MAX_AUCTION_ITEMS)
-    {
-        SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_INTERNAL_ERROR);
         return;
     }
 
