@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,8 +28,7 @@
 #include "SpellAuras.h"
 
 template<class T>
-inline void
-Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
+inline void Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
 {
     for (typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
     {
@@ -38,8 +37,7 @@ Trinity::VisibleNotifier::Visit(GridRefManager<T> &m)
     }
 }
 
-inline void
-Trinity::ObjectUpdater::Visit(CreatureMapType &m)
+inline void Trinity::ObjectUpdater::Visit(CreatureMapType &m)
 {
     for (CreatureMapType::iterator iter = m.begin(); iter != m.end(); ++iter)
         if (iter->getSource()->IsInWorld())

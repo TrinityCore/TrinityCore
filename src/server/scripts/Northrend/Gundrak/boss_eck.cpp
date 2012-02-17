@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,7 +43,7 @@ public:
     {
         boss_eckAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiBerserkTimer;
@@ -53,7 +53,7 @@ public:
 
         bool bBerserk;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -64,14 +64,14 @@ public:
 
             bBerserk = false;
 
-            if (pInstance)
-                pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -126,8 +126,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_ECK_THE_FEROCIOUS_EVENT, DONE);
         }
     };
 
@@ -147,17 +147,17 @@ public:
     {
         npc_ruins_dwellerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void JustDied(Unit* /*who*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
-                if (pInstance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
+                instance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
+                if (instance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
                     me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS);
             }
         }

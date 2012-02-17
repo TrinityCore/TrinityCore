@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -110,10 +110,10 @@ class go_keystone_chamber : public GameObjectScript
 public:
     go_keystone_chamber() : GameObjectScript("go_keystone_chamber") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGo)
+    bool OnGossipHello(Player* /*player*/, GameObject* go)
     {
-        if (InstanceScript* pInstance = pGo->GetInstanceScript())
-            pInstance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
+        if (InstanceScript* instance = go->GetInstanceScript())
+            instance->SetData(DATA_IRONAYA_SEAL, IN_PROGRESS); //door animation and save state.
 
         return false;
     }

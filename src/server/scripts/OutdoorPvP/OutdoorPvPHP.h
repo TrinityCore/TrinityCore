@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +89,7 @@ class OPvPCapturePointHP : public OPvPCapturePoint
 {
     public:
 
-        OPvPCapturePointHP(OutdoorPvP * pvp, OutdoorPvPHPTowerType type);
+        OPvPCapturePointHP(OutdoorPvP* pvp, OutdoorPvPHPTowerType type);
 
         void ChangeState();
 
@@ -108,8 +108,6 @@ class OPvPCapturePointHP : public OPvPCapturePoint
 
 class OutdoorPvPHP : public OutdoorPvP
 {
-    friend class OPvPCapturePointHP;
-
     public:
 
         OutdoorPvPHP();
@@ -126,6 +124,12 @@ class OutdoorPvPHP : public OutdoorPvP
         void SendRemoveWorldStates(Player* player);
 
         void HandleKillImpl(Player* player, Unit* killed);
+
+        uint32 GetAllianceTowersControlled() const;
+        void SetAllianceTowersControlled(uint32 count);
+
+        uint32 GetHordeTowersControlled() const;
+        void SetHordeTowersControlled(uint32 count);
 
     private:
 

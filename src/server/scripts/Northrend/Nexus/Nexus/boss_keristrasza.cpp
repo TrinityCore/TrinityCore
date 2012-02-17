@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -63,10 +63,10 @@ public:
     {
         boss_keristraszaAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         std::list<uint64> intenseColdList;
         uint64 auiContainmentSphereGUIDs[DATA_CONTAINMENT_SPHERES];
@@ -90,8 +90,8 @@ public:
 
             RemovePrison(CheckContainmentSpheres());
 
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -99,16 +99,16 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoCastAOE(SPELL_INTENSE_COLD);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KERISTRASZA_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_KERISTRASZA_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -118,18 +118,18 @@ public:
 
         bool CheckContainmentSpheres(bool remove_prison = false)
         {
-            if (!pInstance)
+            if (!instance)
                 return false;
 
-            auiContainmentSphereGUIDs[0] = pInstance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[1] = pInstance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
-            auiContainmentSphereGUIDs[2] = pInstance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[0] = instance->GetData64(ANOMALUS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[1] = instance->GetData64(ORMOROKS_CONTAINMET_SPHERE);
+            auiContainmentSphereGUIDs[2] = instance->GetData64(TELESTRAS_CONTAINMET_SPHERE);
 
             GameObject* ContainmentSpheres[DATA_CONTAINMENT_SPHERES];
 
             for (uint8 i = 0; i < DATA_CONTAINMENT_SPHERES; ++i)
             {
-                ContainmentSpheres[i] = pInstance->instance->GetGameObject(auiContainmentSphereGUIDs[i]);
+                ContainmentSpheres[i] = instance->instance->GetGameObject(auiContainmentSphereGUIDs[i]);
                 if (!ContainmentSpheres[i])
                     return false;
                 if (ContainmentSpheres[i]->GetGoState() != GO_STATE_ACTIVE)
@@ -144,20 +144,20 @@ public:
         {
             if (remove)
             {
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 if (me->HasAura(SPELL_FROZEN_PRISON))
                     me->RemoveAurasDueToSpell(SPELL_FROZEN_PRISON);
             }
             else
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 DoCast(me, SPELL_FROZEN_PRISON, false);
             }
         }
 
-        void SetGUID(uint64 const& guid, int32 id/* = 0 */)
+        void SetGUID(uint64 guid, int32 id/* = 0 */)
         {
             if (id == DATA_INTENSE_COLD)
                 intenseColdList.push_back(guid);
@@ -210,13 +210,13 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        InstanceScript *pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = pGO->GetInstanceScript();
 
-        Creature* pKeristrasza = Unit::GetCreature(*pGO, pInstance ? pInstance->GetData64(DATA_KERISTRASZA) : 0);
+        Creature* pKeristrasza = Unit::GetCreature(*pGO, instance ? instance->GetData64(DATA_KERISTRASZA) : 0);
         if (pKeristrasza && pKeristrasza->isAlive())
         {
             // maybe these are hacks :(
-            pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+            pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
             pGO->SetGoState(GO_STATE_ACTIVE);
 
             CAST_AI(boss_keristrasza::boss_keristraszaAI, pKeristrasza->AI())->CheckContainmentSpheres(true);
@@ -237,12 +237,13 @@ class spell_intense_cold : public SpellScriptLoader
 
             void HandlePeriodicTick(AuraEffect const* aurEff)
             {
-                Unit* caster = GetCaster();
-                if (!caster)
+                if (aurEff->GetBase()->GetStackAmount() < 2)
                     return;
-
-                if (aurEff->GetBase()->GetStackAmount() >= 2)
-                    caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
+                Unit* caster = GetCaster();
+                //TODO: the caster should be boss but not the player
+                if (!caster || !caster->GetAI())
+                    return;
+                caster->GetAI()->SetGUID(GetTarget()->GetGUID(), DATA_INTENSE_COLD);
             }
 
             void Register()

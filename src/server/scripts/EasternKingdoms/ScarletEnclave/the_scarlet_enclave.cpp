@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,9 +51,11 @@ public:
             phase = 0;
 
             me->GetPosition(x, y, z);
-            z += 4; x -= 3.5; y -= 5;
+            z += 4.0f;
+            x -= 3.5f;
+            y -= 5.0f;
             me->GetMotionMaster()->Clear(false);
-            me->GetMap()->CreatureRelocation(me, x, y, z, 0.0f);
+            me->SetPosition(x, y, z, 0.0f);
         }
 
         void UpdateAI(const uint32 diff)
@@ -69,7 +71,7 @@ public:
                 if (!player)
                     phase = 3;
 
-                switch(phase)
+                switch (phase)
                 {
                     case 0:
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -78,7 +80,9 @@ public:
                         break;
                     case 1:
                         player->GetClosePoint(x, y, z, me->GetObjectSize());
-                        z += 2.5; x -= 2; y -= 1.5;
+                        z += 2.5f;
+                        x -= 2.0f;
+                        y -= 1.5f;
                         me->GetMotionMaster()->MovePoint(0, x, y, z);
                         me->SetTarget(player->GetGUID());
                         me->SetVisible(true);
@@ -87,7 +91,7 @@ public:
                     case 2:
                         if (!player->isRessurectRequested())
                         {
-                            me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOMSPELL01);
+                            me->HandleEmoteCommand(EMOTE_ONESHOT_CUSTOM_SPELL_01);
                             DoCast(player, SPELL_REVIVE, true);
                             me->MonsterWhisper(VALK_WHISPER, player->GetGUID());
                         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,14 +44,14 @@ class instance_sunken_temple : public InstanceMapScript
 public:
     instance_sunken_temple() : InstanceMapScript("instance_sunken_temple", 109) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_sunken_temple_InstanceMapScript(pMap);
+        return new instance_sunken_temple_InstanceMapScript(map);
     }
 
     struct instance_sunken_temple_InstanceMapScript : public InstanceScript
     {
-        instance_sunken_temple_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_sunken_temple_InstanceMapScript(Map* map) : InstanceScript(map)
         {
         }
 
@@ -94,7 +94,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_ATALAI_STATUE1: GOAtalaiStatue1 = go->GetGUID();   break;
                 case GO_ATALAI_STATUE2: GOAtalaiStatue2 = go->GetGUID();   break;
@@ -108,7 +108,7 @@ public:
 
          virtual void Update(uint32 /*diff*/) // correct order goes form 1-6
          {
-             switch(State)
+             switch (State)
              {
              case GO_ATALAI_STATUE1:
                 if (!s1 && !s2 && !s3 && !s4 && !s5 && !s6)

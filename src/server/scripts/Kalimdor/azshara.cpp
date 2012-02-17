@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -63,7 +63,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) { }
 
-        void SpellHit(Unit* Hitter, const SpellEntry *Spellkind)
+        void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
         {
             if (!spellhit &&
                 Hitter->GetTypeId() == TYPEID_PLAYER &&
@@ -354,10 +354,10 @@ public:
                 if (Teleport_Timer <= diff)
                 {
                     //temp solution - unit can't be teleported by core using spelleffect 5, only players
-                    Map* pMap = me->GetMap();
-                    if (pMap)
+                    Map* map = me->GetMap();
+                    if (map)
                     {
-                        pMap->CreatureRelocation(me, 3706.39f, -3969.15f, 35.9118f, 0);
+                        me->SetPosition(3706.39f, -3969.15f, 35.9118f, 0);
                         me->AI_SendMoveToPacket(3706.39f, -3969.15f, 35.9118f, 0, 0, 0);
                     }
                     //begin swimming and summon depth charges

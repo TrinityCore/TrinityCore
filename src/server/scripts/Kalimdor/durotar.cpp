@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
  */
 
 #include "ScriptPCH.h"
+#include "Vehicle.h"
 
 /*######
 ##Quest 5441: Lazy Peons
@@ -67,7 +68,7 @@ public:
                 work = true;
         }
 
-        void SpellHit(Unit* caster, const SpellEntry * spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_AWAKEN_PEON && caster->GetTypeId() == TYPEID_PLAYER
                 && CAST_PLR(caster)->GetQuestStatus(QUEST_LAZY_PEONS) == QUEST_STATUS_INCOMPLETE)
@@ -83,7 +84,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             if (work == true)
-                me->HandleEmoteCommand(466);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_WORK_CHOPWOOD);
             if (m_uiRebuffTimer <= uiDiff)
             {
                 DoCast(me, SPELL_BUFF_SLEEP);
@@ -391,7 +392,7 @@ class npc_troll_volunteer : public CreatureScript
                     me->DespawnOrUnsummon();
             }
 
-            void SpellHit(Unit* caster, SpellEntry const* spell)
+            void SpellHit(Unit* caster, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_AOE_TURNIN && caster->GetEntry() == NPC_URUZIN && !_complete)
                 {
@@ -399,7 +400,7 @@ class npc_troll_volunteer : public CreatureScript
                     DoCast(me, SPELL_TURNIN);
                     DoCast(me, SPELL_QUEST_CREDIT);
                     me->RemoveAurasDueToSpell(SPELL_MOUNTING_CHECK);
-                    me->Unmount();
+                    me->Dismount();
                     Talk(SAY_VOLUNTEER_END);
                     me->GetMotionMaster()->MovePoint(POINT_URUZIN, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ());
                 }
@@ -424,9 +425,9 @@ class spell_mount_check : public SpellScriptLoader
         class spell_mount_check_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_mount_check_AuraScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_MOUNTING_CHECK))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MOUNTING_CHECK))
                     return false;
                 return true;
             }
@@ -446,7 +447,7 @@ class spell_mount_check : public SpellScriptLoader
                             target->Mount(mountid);
                 }
                 else if (!owner->IsMounted() && target->IsMounted())
-                    target->Unmount();
+                    target->Dismount();
 
                 target->SetSpeed(MOVE_RUN, owner->GetSpeedRate(MOVE_RUN));
                 target->SetSpeed(MOVE_WALK, owner->GetSpeedRate(MOVE_WALK));
@@ -472,11 +473,11 @@ class spell_voljin_war_drums : public SpellScriptLoader
         class spell_voljin_war_drums_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_voljin_war_drums_SpellScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_MOTIVATE_1))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MOTIVATE_1))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_MOTIVATE_2))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MOTIVATE_2))
                     return false;
                return true;
             }
@@ -498,7 +499,7 @@ class spell_voljin_war_drums : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_voljin_war_drums_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_voljin_war_drums_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -529,12 +530,12 @@ class spell_voodoo : public SpellScriptLoader
         {
             PrepareSpellScript(spell_voodoo_SpellScript)
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_BREW) || !sSpellStore.LookupEntry(SPELL_GHOSTLY) ||
-                    !sSpellStore.LookupEntry(SPELL_HEX1) || !sSpellStore.LookupEntry(SPELL_HEX2) ||
-                    !sSpellStore.LookupEntry(SPELL_HEX3) || !sSpellStore.LookupEntry(SPELL_GROW) ||
-                    !sSpellStore.LookupEntry(SPELL_LAUNCH))
+                if (!sSpellMgr->GetSpellInfo(SPELL_BREW) || !sSpellMgr->GetSpellInfo(SPELL_GHOSTLY) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HEX1) || !sSpellMgr->GetSpellInfo(SPELL_HEX2) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_HEX3) || !sSpellMgr->GetSpellInfo(SPELL_GROW) ||
+                    !sSpellMgr->GetSpellInfo(SPELL_LAUNCH))
                     return false;
                 return true;
             }
@@ -552,7 +553,7 @@ class spell_voodoo : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_voodoo_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_voodoo_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 

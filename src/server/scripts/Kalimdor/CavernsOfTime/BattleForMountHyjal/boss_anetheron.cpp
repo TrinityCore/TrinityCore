@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,22 +66,16 @@ public:
     {
         boss_anetheronAI(Creature* c) : hyjal_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
-            pGo = false;
+            instance = c->GetInstanceScript();
+            go = false;
             pos = 0;
-            SpellEntry *TempSpell = GET_SPELL(SPELL_SLEEP);
-            if (TempSpell && TempSpell->EffectImplicitTargetA[0] != 1)
-            {
-                TempSpell->EffectImplicitTargetA[0] = 1;
-                TempSpell->EffectImplicitTargetB[0] = 0;
-            }
         }
 
         uint32 SwarmTimer;
         uint32 SleepTimer;
         uint32 AuraTimer;
         uint32 InfernoTimer;
-        bool pGo;
+        bool go;
         uint32 pos;
 
         void Reset()
@@ -92,14 +86,14 @@ public:
             AuraTimer = 5000;
             InfernoTimer = 45000;
 
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
+            if (instance && IsEvent)
+                instance->SetData(DATA_ANETHERONEVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
+            if (instance && IsEvent)
+                instance->SetData(DATA_ANETHERONEVENT, IN_PROGRESS);
             DoPlaySoundToSet(me, SOUND_ONAGGRO);
             me->MonsterYell(SAY_ONAGGRO, LANG_UNIVERSAL, 0);
         }
@@ -126,9 +120,9 @@ public:
         void WaypointReached(uint32 i)
         {
             pos = i;
-            if (i == 7 && pInstance)
+            if (i == 7 && instance)
             {
-                Unit* target = Unit::GetUnit((*me), pInstance->GetData64(DATA_JAINAPROUDMOORE));
+                Unit* target = Unit::GetUnit((*me), instance->GetData64(DATA_JAINAPROUDMOORE));
                 if (target && target->isAlive())
                     me->AddThreat(target, 0.0f);
             }
@@ -137,8 +131,8 @@ public:
         void JustDied(Unit* victim)
         {
             hyjal_trashAI::JustDied(victim);
-            if (pInstance && IsEvent)
-                pInstance->SetData(DATA_ANETHERONEVENT, DONE);
+            if (instance && IsEvent)
+                instance->SetData(DATA_ANETHERONEVENT, DONE);
             DoPlaySoundToSet(me, SOUND_ONDEATH);
             me->MonsterYell(SAY_ONDEATH, LANG_UNIVERSAL, 0);
         }
@@ -149,10 +143,10 @@ public:
             {
                 //Must update npc_escortAI
                 npc_escortAI::UpdateAI(diff);
-                if (!pGo)
+                if (!go)
                 {
-                    pGo = true;
-                    if (pInstance)
+                    go = true;
+                    if (instance)
                     {
                         AddWaypoint(0, 4896.08f,    -1576.35f,    1333.65f);
                         AddWaypoint(1, 4898.68f,    -1615.02f,    1329.48f);
@@ -256,15 +250,15 @@ public:
     {
         mob_towering_infernalAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
-            if (pInstance)
-                AnetheronGUID = pInstance->GetData64(DATA_ANETHERON);
+            instance = c->GetInstanceScript();
+            if (instance)
+                AnetheronGUID = instance->GetData64(DATA_ANETHERON);
         }
 
         uint32 ImmolationTimer;
         uint32 CheckTimer;
         uint64 AnetheronGUID;
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -287,7 +281,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsHostileTo(who))
+            if (me->IsWithinDist(who, 50) && !me->isInCombat() && me->IsValidAttackTarget(who))
                 AttackStart(who);
         }
 

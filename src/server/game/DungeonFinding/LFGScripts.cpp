@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,9 +37,9 @@ void LFGScripts::OnAddMember(Group* group, uint64 guid)
 
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnAddMember [" UI64FMTD "]: added [" UI64FMTD "]", gguid, guid);
     LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_CLEAR_LOCK_LIST);
-    for (GroupReference *itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
+    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
     {
-        if (Player *plrg = itr->getSource())
+        if (Player* plrg = itr->getSource())
         {
             plrg->GetSession()->SendLfgUpdatePlayer(updateData);
             plrg->GetSession()->SendLfgUpdateParty(updateData);
@@ -51,11 +51,11 @@ void LFGScripts::OnAddMember(Group* group, uint64 guid)
         sLFGMgr->Leave(NULL, group);
 
     if (sLFGMgr->GetState(guid) == LFG_STATE_QUEUED)
-        if (Player *plr = sObjectMgr->GetPlayer(guid))
-            sLFGMgr->Leave(plr);
+        if (Player* player = ObjectAccessor::FindPlayer(guid))
+            sLFGMgr->Leave(player);
 }
 
-void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method, uint64 kicker, const char* reason)
+void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, uint64 kicker, const char* reason)
 {
     uint64 gguid = group->GetGUID();
     if (!gguid || method == GROUP_REMOVEMETHOD_DEFAULT)
@@ -82,7 +82,8 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
     }
 
     sLFGMgr->ClearState(guid);
-    if (Player *plr = sObjectMgr->GetPlayer(guid))
+    sLFGMgr->SetState(guid, LFG_STATE_NONE);
+    if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
         /*
         if (method == GROUP_REMOVEMETHOD_LEAVE)
@@ -92,9 +93,9 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod& method,
         */
 
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
-        plr->GetSession()->SendLfgUpdateParty(updateData);
-        if (plr->GetMap()->IsDungeon())                    // Teleport player out the dungeon
-            sLFGMgr->TeleportPlayer(plr, true);
+        player->GetSession()->SendLfgUpdateParty(updateData);
+        if (player->GetMap()->IsDungeon())                    // Teleport player out the dungeon
+            sLFGMgr->TeleportPlayer(player, true);
     }
 
     if (sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON)// Need more players to finish the dungeon
@@ -116,17 +117,17 @@ void LFGScripts::OnChangeLeader(Group* group, uint64 newLeaderGuid, uint64 oldLe
         return;
 
     sLog->outDebug(LOG_FILTER_LFG, "LFGScripts::OnChangeLeader [" UI64FMTD "]: old [" UI64FMTD "] new [" UI64FMTD "]", gguid, newLeaderGuid, oldLeaderGuid);
-    Player *plr = sObjectMgr->GetPlayer(newLeaderGuid);
+    Player* player = ObjectAccessor::FindPlayer(newLeaderGuid);
 
     LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_LEADER);
-    if (plr)
-        plr->GetSession()->SendLfgUpdateParty(updateData);
+    if (player)
+        player->GetSession()->SendLfgUpdateParty(updateData);
 
-    plr = sObjectMgr->GetPlayer(oldLeaderGuid);
-    if (plr)
+    player = ObjectAccessor::FindPlayer(oldLeaderGuid);
+    if (player)
     {
         updateData.updateType = LFG_UPDATETYPE_GROUP_DISBAND;
-        plr->GetSession()->SendLfgUpdateParty(updateData);
+        player->GetSession()->SendLfgUpdateParty(updateData);
     }
 }
 

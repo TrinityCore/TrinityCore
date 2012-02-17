@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ class instance_zulgurub : public InstanceMapScript
 
         struct instance_zulgurub_InstanceMapScript : public InstanceScript
         {
-            instance_zulgurub_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+            instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             //If all High Priest bosses were killed. Lorkhan, Zath and Ohgan are added too.
             uint32 m_auiEncounter[MAX_ENCOUNTERS];
@@ -65,7 +65,7 @@ class instance_zulgurub : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature)
             {
-                switch(creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                     case 11347: m_uiLorKhanGUID = creature->GetGUID(); break;
                     case 11348: m_uiZathGUID = creature->GetGUID(); break;
@@ -76,7 +76,7 @@ class instance_zulgurub : public InstanceMapScript
 
             void SetData(uint32 uiType, uint32 uiData)
             {
-                switch(uiType)
+                switch (uiType)
                 {
                     case DATA_ARLOKK:
                         m_auiEncounter[0] = uiData;
@@ -114,7 +114,7 @@ class instance_zulgurub : public InstanceMapScript
 
             uint32 GetData(uint32 uiType)
             {
-                switch(uiType)
+                switch (uiType)
                 {
                     case DATA_ARLOKK:
                         return m_auiEncounter[0];
@@ -138,7 +138,7 @@ class instance_zulgurub : public InstanceMapScript
 
             uint64 GetData64(uint32 uiData)
             {
-                switch(uiData)
+                switch (uiData)
                 {
                     case DATA_LORKHAN:
                         return m_uiLorKhanGUID;
@@ -153,9 +153,9 @@ class instance_zulgurub : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_zulgurub_InstanceMapScript(pMap);
+            return new instance_zulgurub_InstanceMapScript(map);
         }
 };
 

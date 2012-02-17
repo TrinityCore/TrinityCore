@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -197,7 +197,7 @@ public:
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
             me->SetSpeed(MOVE_RUN, me->GetSpeedRate(MOVE_RUN), true);
 
-            switch(id)
+            switch (id)
             {
                 case HORSEMEN_THANE:
                     me->GetMotionMaster()->MovePoint(0, WaypointPositions[0]);
@@ -226,7 +226,7 @@ public:
 
                 Unit* eventStarter = Unit::GetUnit(*me, uiEventStarterGUID);
 
-                if (eventStarter && me->canAttack(eventStarter))
+                if (eventStarter && me->IsValidAttackTarget(eventStarter))
                     AttackStart(eventStarter);
                 else if (!UpdateVictim())
                 {
@@ -250,7 +250,7 @@ public:
         // switch to "who" if nearer than current target.
         void SelectNearestTarget(Unit* who)
         {
-            if (me->getVictim() && me->GetDistanceOrder(who, me->getVictim()) && me->canAttack(who))
+            if (me->getVictim() && me->GetDistanceOrder(who, me->getVictim()) && me->IsValidAttackTarget(who))
             {
                 me->getThreatManager().modifyThreatPercent(me->getVictim(), -100);
                 me->AddThreat(who, 1000000.0f);
@@ -342,12 +342,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_MARK:
                         if (!(rand()%5))

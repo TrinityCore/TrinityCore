@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,10 +69,10 @@ public:
     {
         boss_gurtogg_bloodboilAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 TargetGUID;
 
@@ -93,8 +93,8 @@ public:
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, NOT_STARTED);
 
             TargetGUID = 0;
 
@@ -121,8 +121,8 @@ public:
         {
             DoZoneInCombat();
             DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-                pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -132,8 +132,8 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_GURTOGGBLOODBOILEVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }
@@ -142,13 +142,13 @@ public:
         void CastBloodboil()
         {
             // Get the Threat List
-            std::list<HostileReference *> m_threatlist = me->getThreatManager().getThreatList();
+            std::list<HostileReference*> m_threatlist = me->getThreatManager().getThreatList();
 
             if (m_threatlist.empty()) // He doesn't have anyone in his threatlist, useless to continue
                 return;
 
-            std::list<Unit* > targets;
-            std::list<HostileReference *>::const_iterator itr = m_threatlist.begin();
+            std::list<Unit*> targets;
+            std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr!= m_threatlist.end(); ++itr)             //store the threat list in a different container
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
@@ -163,10 +163,10 @@ public:
             targets.resize(5);
 
             //Aura each player in the targets list with Bloodboil. Aura code copied+pasted from Aura command in Level3.cpp
-            /*SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(SPELL_BLOODBOIL);
+            /*SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BLOODBOIL);
             if (spellInfo)
             {
-                for (std::list<Unit* >::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
+                for (std::list<Unit*>::const_iterator itr = targets.begin(); itr != targets.end(); ++itr)
                 {
                     Unit* target = *itr;
                     if (!target) return;
@@ -176,7 +176,7 @@ public:
                         if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
 
-                        Aura *Aur = new Aura(spellInfo, i, target, target, target);
+                        Aura* Aur = new Aura(spellInfo, i, target, target, target);
                         target->AddAura(Aur);
                     }
                 }
@@ -185,14 +185,14 @@ public:
 
         void RevertThreatOnTarget(uint64 guid)
         {
-            Unit* pUnit = NULL;
-            pUnit = Unit::GetUnit((*me), guid);
-            if (pUnit)
+            Unit* unit = NULL;
+            unit = Unit::GetUnit((*me), guid);
+            if (unit)
             {
-                if (DoGetThreat(pUnit))
-                    DoModifyThreatPercent(pUnit, -100);
+                if (DoGetThreat(unit))
+                    DoModifyThreatPercent(unit, -100);
                 if (TargetThreat)
-                    me->AddThreat(pUnit, TargetThreat);
+                    me->AddThreat(unit, TargetThreat);
             }
         }
 

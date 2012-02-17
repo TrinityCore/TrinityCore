@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,10 +56,10 @@ public:
     {
         boss_temporusAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 Haste_Timer;
         uint32 SpellReflection_Timer;
@@ -88,8 +88,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_RIFT, SPECIAL);
+            if (instance)
+                instance->SetData(TYPE_RIFT, SPECIAL);
         }
 
         void MoveInLineOfSight(Unit* who)

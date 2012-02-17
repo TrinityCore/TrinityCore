@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -91,12 +91,12 @@ public:
     {
         boss_morogrim_tidewalkerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
-        Map::PlayerList const *PlayerList;
+        Map::PlayerList const* PlayerList;
 
         uint32 TidalWave_Timer;
         uint32 WateryGrave_Timer;
@@ -123,16 +123,16 @@ public:
             Earthquake = false;
             Phase2 = false;
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, NOT_STARTED);
         }
 
         void StartEvent()
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -144,8 +144,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_MOROGRIMTIDEWALKEREVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -157,7 +157,7 @@ public:
 
         void ApplyWateryGrave(Unit* player, uint8 i)
         {
-            switch(i)
+            switch (i)
             {
             case 0: player->CastSpell(player, SPELL_WATERY_GRAVE_1, true); break;
             case 1: player->CastSpell(player, SPELL_WATERY_GRAVE_2, true); break;
@@ -316,7 +316,7 @@ public:
             if (!who || me->getVictim())
                 return;
 
-            if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who))
+            if (me->canCreatureAttack(who))
             {
                 //no attack radius check - it attacks the first target that moves in his los
                 //who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);

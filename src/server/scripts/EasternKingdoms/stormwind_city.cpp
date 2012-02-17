@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,6 @@ EndScriptData */
 /* ContentData
 npc_archmage_malin
 npc_bartleby
-npc_dashel_stonefist
 npc_lady_katrana_prestor
 npc_tyrion
 npc_tyrion_spybot
@@ -90,9 +89,9 @@ class npc_bartleby : public CreatureScript
 public:
     npc_bartleby() : CreatureScript("npc_bartleby") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_BEAT)
+        if (quest->GetQuestId() == QUEST_BEAT)
         {
             creature->setFaction(FACTION_ENEMY);
             creature->AI()->AttackStart(player);
@@ -140,78 +139,6 @@ public:
 
                 if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
                     CAST_PLR(pDoneBy)->AreaExploredOrEventHappens(QUEST_BEAT);
-                EnterEvadeMode();
-            }
-        }
-    };
-
-};
-
-/*######
-## npc_dashel_stonefist
-######*/
-
-enum eDashel
-{
-    QUEST_MISSING_DIPLO_PT8     = 1447,
-    FACTION_HOSTILE             = 168
-};
-
-class npc_dashel_stonefist : public CreatureScript
-{
-public:
-    npc_dashel_stonefist() : CreatureScript("npc_dashel_stonefist") { }
-
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
-    {
-        if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT8)
-        {
-            creature->setFaction(FACTION_HOSTILE);
-            CAST_AI(npc_dashel_stonefist::npc_dashel_stonefistAI, creature->AI())->AttackStart(player);
-        }
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_dashel_stonefistAI(creature);
-    }
-
-    struct npc_dashel_stonefistAI : public ScriptedAI
-    {
-        npc_dashel_stonefistAI(Creature* c) : ScriptedAI(c)
-        {
-            m_uiNormalFaction = c->getFaction();
-        }
-
-        uint32 m_uiNormalFaction;
-
-        void Reset()
-        {
-            if (me->getFaction() != m_uiNormalFaction)
-                me->setFaction(m_uiNormalFaction);
-        }
-
-        void AttackedBy(Unit* pAttacker)
-        {
-            if (me->getVictim())
-                return;
-
-            if (me->IsFriendlyTo(pAttacker))
-                return;
-
-            AttackStart(pAttacker);
-        }
-
-        void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
-        {
-            if (uiDamage > me->GetHealth() || me->HealthBelowPctDamaged(15, uiDamage))
-            {
-                uiDamage = 0;
-
-                if (pDoneBy->GetTypeId() == TYPEID_PLAYER)
-                    CAST_PLR(pDoneBy)->AreaExploredOrEventHappens(QUEST_MISSING_DIPLO_PT8);
-
                 EnterEvadeMode();
             }
         }
@@ -346,7 +273,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 14:
                     SetEscortPaused(true);
@@ -387,7 +314,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             if (Creature* pGuard = me->FindNearestCreature(NPC_STORMWIND_ROYAL, 8.0f, true))
@@ -510,7 +437,7 @@ public:
                 Unit* summoner = me->ToTempSummon()->GetSummoner();
                 if (summoner && summoner->GetTypeId() == TYPEID_UNIT && summoner->IsAIEnabled)
                 {
-                    npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI *ai =
+                    npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI* ai =
                         CAST_AI(npc_lord_gregor_lescovar::npc_lord_gregor_lescovarAI, summoner->GetAI());
                     if (ai)
                     {
@@ -577,7 +504,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 1:
                     SetEscortPaused(true);
@@ -605,7 +532,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             DoScriptText(SAY_QUEST_ACCEPT_ATTACK, me);
@@ -696,9 +623,9 @@ class npc_tyrion : public CreatureScript
 public:
     npc_tyrion() : CreatureScript("npc_tyrion") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_THE_ATTACK)
+        if (quest->GetQuestId() == QUEST_THE_ATTACK)
         {
             if (Creature* pSpybot = creature->FindNearestCreature(NPC_TYRION_SPYBOT, 5.0f, true))
             {
@@ -716,7 +643,6 @@ void AddSC_stormwind_city()
 {
     new npc_archmage_malin();
     new npc_bartleby();
-    new npc_dashel_stonefist();
     new npc_lady_katrana_prestor();
     new npc_tyrion();
     new npc_tyrion_spybot();

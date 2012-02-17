@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -49,6 +49,8 @@ class Battleground;
 
 #define BG_AV_KILL_SURVIVING_CAPTAIN    2
 #define BG_AV_REP_SURVIVING_CAPTAIN     125
+
+#define AV_EVENT_START_BATTLE           9166 // Achievement: The Alterac Blitz
 
 enum BG_AV_Sounds
 { //TODO: get out if there comes a sound when neutral team captures mine
@@ -1534,29 +1536,26 @@ class BattlegroundAVScore : public BattlegroundScore
 
 class BattlegroundAV : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundAV();
         ~BattlegroundAV();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void AddPlayer(Player* player);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         virtual void ResetBGSubclass();
 
         /*general stuff*/
         void UpdateScore(uint16 team, int16 points);
-       void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+       void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         /*handlestuff*/ //these are functions which get called from extern
-        virtual void EventPlayerClickedOnFlag(Player *source, GameObject* target_obj);
+        virtual void EventPlayerClickedOnFlag(Player* source, GameObject* target_obj);
         void HandleKillPlayer(Player* player, Player* killer);
         void HandleKillUnit(Creature* unit, Player* killer);
         void HandleQuestComplete(uint32 questid, Player* player);
@@ -1566,7 +1565,13 @@ class BattlegroundAV : public Battleground
 
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
+        /* achievement req. */
+        bool IsBothMinesControlledByTeam(uint32 team) const;
+        bool IsAllTowersControlledAndCaptainAlive(uint32 team) const;
+
     private:
+        virtual void PostUpdateImpl(uint32 diff);
+
         /* Nodes occupying */
         void EventPlayerAssaultsPoint(Player* player, uint32 object);
         void EventPlayerDefendsPoint(Player* player, uint32 object);

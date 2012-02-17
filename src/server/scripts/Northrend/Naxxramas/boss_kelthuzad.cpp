@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -74,6 +74,7 @@ enum Event
     EVENT_TRIGGER,
 
     EVENT_PHASE,
+    EVENT_MORTAL_WOUND,
 };
 
 enum Spells
@@ -121,6 +122,10 @@ enum Spells
     //death knight
     SPELL_PLAGUE_STRIKE                                    = 49921,
     SPELL_HOWLING_BLAST                                    = 51411,
+
+    // Abomination spells
+    SPELL_FRENZY                                           = 28468,
+    SPELL_MORTAL_WOUND                                     = 28467,
 };
 
 enum Creatures
@@ -302,6 +307,9 @@ public:
 
             FindGameObjects();
 
+            if (instance)
+                instance->SetData(DATA_ABOMINATION_KILLED, 0);
+
             if (GameObject* pKTTrigger = me->GetMap()->GetGameObject(KTTriggerGUID))
             {
                 pKTTrigger->ResetDoorOrButton();
@@ -388,7 +396,7 @@ public:
             {
                 while (uint32 eventId = events.GetEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_WASTE:
                             DoSummon(NPC_WASTE, Pos[RAND(0, 3, 6, 9)]);
@@ -478,12 +486,12 @@ public:
                     else uiGuardiansOfIcecrownTimer -= diff;
                 }
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 if (uint32 eventId = events.GetEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_BOLT:
                             DoCastVictim(RAID_MODE(SPELL_FROST_BOLT, H_SPELL_FROST_BOLT));
@@ -532,7 +540,7 @@ public:
 
                                     if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, NotCharmedTargetSelector()))
                                     {
-                                        switch(player->getClass())
+                                        switch (player->getClass())
                                         {
                                             case CLASS_DRUID:
                                                 if (urand(0, 1))
@@ -650,16 +658,16 @@ class at_kelthuzad_center : public AreaTriggerScript
 public:
     at_kelthuzad_center() : AreaTriggerScript("at_kelthuzad_center") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
         if (player->isGameMaster())
             return false;
 
-        InstanceScript* pInstance = player->GetInstanceScript();
-        if (!pInstance || pInstance->IsEncounterInProgress() || pInstance->GetBossState(BOSS_KELTHUZAD) == DONE)
+        InstanceScript* instance = player->GetInstanceScript();
+        if (!instance || instance->IsEncounterInProgress() || instance->GetBossState(BOSS_KELTHUZAD) == DONE)
             return false;
 
-        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, pInstance->GetData64(DATA_KELTHUZAD)));
+        Creature* pKelthuzad = CAST_CRE(Unit::GetUnit(*player, instance->GetData64(DATA_KELTHUZAD)));
         if (!pKelthuzad)
             return false;
 
@@ -668,14 +676,14 @@ public:
             return false;
 
         pKelthuzadAI->AttackStart(player);
-        if (GameObject* trigger = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_KELTHUZAD_TRIGGER)))
+        if (GameObject* trigger = instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
         {
             if (trigger->getLootState() == GO_READY)
                 trigger->UseDoorOrButton();
 
             // Note: summon must be done by trigger and not by KT.
             // Otherwise, they attack immediately as KT is in combat.
-            for (uint8 i = 0; i <= MAX_ABOMINATIONS; ++i)
+            for (uint8 i = 0; i < MAX_ABOMINATIONS; ++i)
             {
                 if (Creature* sum = trigger->SummonCreature(NPC_ABOMINATION, PosAbominations[i]))
                 {
@@ -684,7 +692,7 @@ public:
                     sum->SetReactState(REACT_DEFENSIVE);
                 }
             }
-            for (uint8 i = 0; i <= MAX_WASTES; ++i)
+            for (uint8 i = 0; i < MAX_WASTES; ++i)
             {
                 if (Creature* sum = trigger->SummonCreature(NPC_WASTE, PosWastes[i]))
                 {
@@ -693,7 +701,7 @@ public:
                     sum->SetReactState(REACT_DEFENSIVE);
                 }
             }
-            for (uint8 i = 0; i <= MAX_WEAVERS; ++i)
+            for (uint8 i = 0; i < MAX_WEAVERS; ++i)
             {
                 if (Creature* sum = trigger->SummonCreature(NPC_WEAVER, PosWeavers[i]))
                 {
@@ -709,8 +717,86 @@ public:
 
 };
 
+class npc_kelthuzad_abomination : public CreatureScript
+{
+    public:
+        npc_kelthuzad_abomination() : CreatureScript("npc_kelthuzad_abomination") { }
+
+        struct npc_kelthuzad_abominationAI : public ScriptedAI
+        {
+            npc_kelthuzad_abominationAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = me->GetInstanceScript();
+            }
+
+            InstanceScript* instance;
+            EventMap events;
+
+            void Reset()
+            {
+                events.Reset();
+                events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(2000, 5000));
+                DoCast(me, SPELL_FRENZY, true);
+            }
+
+            void UpdateAI(uint32 const diff)
+            {
+                if (!UpdateVictim())
+                    return;
+
+                events.Update(diff);
+
+                while (uint32 eventId = events.ExecuteEvent())
+                {
+                    switch (eventId)
+                    {
+                        case EVENT_MORTAL_WOUND:
+                            DoCastVictim(SPELL_MORTAL_WOUND, true);
+                            events.ScheduleEvent(EVENT_MORTAL_WOUND, urand(10000, 15000));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void JustDied(Unit* /*who*/)
+            {
+                if (instance)
+                    instance->SetData(DATA_ABOMINATION_KILLED, instance->GetData(DATA_ABOMINATION_KILLED) + 1);
+            }
+        };
+
+        CreatureAI* GetAI(Creature* creature) const
+        {
+            return new npc_kelthuzad_abominationAI(creature);
+        }
+};
+
+class achievement_just_cant_get_enough : public AchievementCriteriaScript
+{
+   public:
+       achievement_just_cant_get_enough() : AchievementCriteriaScript("achievement_just_cant_get_enough")
+       {
+       }
+
+       bool OnCheck(Player* /*player*/, Unit* target)
+       {
+           if (!target)
+               return false;
+
+           if (InstanceScript* instance = target->GetInstanceScript())
+               if (instance->GetData(DATA_ABOMINATION_KILLED) >= 18)
+                   return true;
+
+           return false;
+       }
+};
+
 void AddSC_boss_kelthuzad()
 {
     new boss_kelthuzad();
     new at_kelthuzad_center();
+    new npc_kelthuzad_abomination();
+    new achievement_just_cant_get_enough();
 }

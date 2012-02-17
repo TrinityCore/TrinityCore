@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,7 +38,7 @@ EndScriptData */
 
 #define SPELL_ARCANE_EXPLOSION      25679
 #define SPELL_EARTH_SHOCK           26194
-#define SPELL_TRUE_FULFILLMENT4     26526
+#define SPELL_TRUE_FULFILLMENT      785
 #define SPELL_BLINK                 28391
 
 class ov_mycoordinates
@@ -82,10 +82,10 @@ public:
 
         void Reset()
         {
-            ArcaneExplosion_Timer = 6000 + rand()%6000;
+            ArcaneExplosion_Timer = urand(6000, 12000);
             EarthShock_Timer = 2000;
             FullFillment_Timer = 15000;
-            Blink_Timer = 8000 + rand()%12000;
+            Blink_Timer = urand(8000, 20000);
             Invisible_Timer = 500;
 
             Images75 = false;
@@ -128,7 +128,7 @@ public:
             if (ArcaneExplosion_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_ARCANE_EXPLOSION);
-                ArcaneExplosion_Timer = 8000 + rand()%10000;
+                ArcaneExplosion_Timer = urand(8000, 18000);
             } else ArcaneExplosion_Timer -= diff;
 
             //If we are within range melee the target
@@ -157,21 +157,21 @@ public:
                 switch (urand(0, 2))
                 {
                     case 0:
-                        me->GetMap()->CreatureRelocation(me, -8340.782227f, 2083.814453f, 125.648788f, 0.0f);
+                        me->SetPosition(-8340.782227f, 2083.814453f, 125.648788f, 0.0f);
                         DoResetThreat();
                         break;
                     case 1:
-                        me->GetMap()->CreatureRelocation(me, -8341.546875f, 2118.504639f, 133.058151f, 0.0f);
+                        me->SetPosition(-8341.546875f, 2118.504639f, 133.058151f, 0.0f);
                         DoResetThreat();
                         break;
                     case 2:
-                        me->GetMap()->CreatureRelocation(me, -8318.822266f, 2058.231201f, 133.058151f, 0.0f);
+                        me->SetPosition(-8318.822266f, 2058.231201f, 133.058151f, 0.0f);
                         DoResetThreat();
                         break;
                 }
                 DoStopAttack();
 
-                Blink_Timer= 20000 + rand()%20000;
+                Blink_Timer= urand(20000, 40000);
             } else Blink_Timer -= diff;
 
             int procent = (int) (me->GetHealthPct() + 0.5f);
@@ -238,7 +238,7 @@ public:
             {
                 if (Player* target = CAST_PLR(SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true)))
                 {
-                    if (Group *pGrp = target->GetGroup())
+                    if (Group* pGrp = target->GetGroup())
                         for (uint8 ico = 0; ico < TARGETICONCOUNT; ++ico)
                         {
                             //if (grp->m_targetIcons[ico] == me->GetGUID()) -- private member :(
@@ -252,7 +252,7 @@ public:
             me->RemoveAllAuras();
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
             me->SetVisible(false);
-            me->GetMap()->CreatureRelocation(me, bossc->x, bossc->y, bossc->z, bossc->r);
+            me->SetPosition(bossc->x, bossc->y, bossc->z, bossc->r);
             Invisible = true;
             DoResetThreat();
             DoStopAttack();

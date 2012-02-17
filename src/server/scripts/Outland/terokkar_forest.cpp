@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -95,9 +95,9 @@ public:
             if (done_by->GetTypeId() == TYPEID_PLAYER)
                 if (me->HealthBelowPctDamaged(30, damage))
             {
-                if (Group* pGroup = CAST_PLR(done_by)->GetGroup())
+                if (Group* group = CAST_PLR(done_by)->GetGroup())
                 {
-                    for (GroupReference *itr = pGroup->GetFirstMember(); itr != NULL; itr = itr->next())
+                    for (GroupReference* itr = group->GetFirstMember(); itr != NULL; itr = itr->next())
                     {
                         Player* pGroupie = itr->getSource();
                         if (pGroupie &&
@@ -210,7 +210,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 8:
                     player->AreaExploredOrEventHappens(10898);
@@ -474,7 +474,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
             case 0:
                 {
@@ -548,17 +548,17 @@ class go_skull_pile : public GameObjectScript
 public:
     go_skull_pile() : GameObjectScript("go_skull_pile") { }
 
-    bool OnGossipSelect(Player* player, GameObject* pGo, uint32 uiSender, uint32 uiAction)
+    bool OnGossipSelect(Player* player, GameObject* go, uint32 uiSender, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiSender)
+        switch (uiSender)
         {
-            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, pGo, uiAction); break;
+            case GOSSIP_SENDER_MAIN:    SendActionMenu(player, go, uiAction); break;
         }
         return true;
     }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         if ((player->GetQuestStatus(11885) == QUEST_STATUS_INCOMPLETE) || player->GetQuestRewardStatus(11885))
         {
@@ -568,13 +568,13 @@ public:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_S_VAKKIZ_THE_WINDRAGER, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 4);
         }
 
-        player->SEND_GOSSIP_MENU(pGo->GetGOInfo()->questgiver.gossipID, pGo->GetGUID());
+        player->SEND_GOSSIP_MENU(go->GetGOInfo()->questgiver.gossipID, go->GetGUID());
         return true;
     }
 
-    void SendActionMenu(Player* player, GameObject* /*pGo*/, uint32 uiAction)
+    void SendActionMenu(Player* player, GameObject* /*go*/, uint32 uiAction)
     {
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                   player->CastSpell(player, 40642, false);
@@ -645,9 +645,9 @@ class npc_akuno : public CreatureScript
 public:
     npc_akuno() : CreatureScript("npc_akuno") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
+        if (quest->GetQuestId() == QUEST_ESCAPING_THE_TOMB)
         {
             if (npc_akunoAI* pEscortAI = CAST_AI(npc_akuno::npc_akunoAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID());
@@ -676,7 +676,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 3:
                     me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,6 @@
 #include "GridDefines.h"
 #include "MapInstanced.h"
 #include "InstanceScript.h"
-#include "DestinationHolderImp.h"
 #include "Config.h"
 #include "World.h"
 #include "CellImpl.h"
@@ -95,13 +94,13 @@ void MapManager::checkAndCorrectGridStatesArray()
         ++i_GridStateErrorCount;
 }
 
-Map* MapManager::_createBaseMap(uint32 id)
+Map* MapManager::CreateBaseMap(uint32 id)
 {
-    Map *m = _findMap(id);
+    Map* m = FindBaseMap(id);
 
     if (m == NULL)
     {
-        ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, NULL);
+        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
         const MapEntry* entry = sMapStore.LookupEntry(id);
         if (entry && entry->Instanceable())
@@ -119,27 +118,34 @@ Map* MapManager::_createBaseMap(uint32 id)
     return m;
 }
 
-Map* MapManager::CreateMap(uint32 id, const WorldObject* obj, uint32 /*instanceId*/)
+Map* MapManager::FindBaseNonInstanceMap(uint32 mapId) const
 {
-    ASSERT(obj);
-    //if (!obj->IsInWorld()) sLog->outError("GetMap: called for map %d with object (typeid %d, guid %d, mapid %d, instanceid %d) who is not in world!", id, obj->GetTypeId(), obj->GetGUIDLow(), obj->GetMapId(), obj->GetInstanceId());
-    Map *m = _createBaseMap(id);
+    Map* map = FindBaseMap(mapId);
+    if(map && map->Instanceable())
+        return NULL;
+    return map;
+}
 
-    if (m && (obj->GetTypeId() == TYPEID_PLAYER) && m->Instanceable()) m = ((MapInstanced*)m)->CreateInstance(id, (Player*)obj);
+Map* MapManager::CreateMap(uint32 id, Player* player)
+{
+    Map* m = CreateBaseMap(id);
+
+    if (m && m->Instanceable())
+        m = ((MapInstanced*)m)->CreateInstanceForPlayer(id, player);
 
     return m;
 }
 
 Map* MapManager::FindMap(uint32 mapid, uint32 instanceId) const
 {
-    Map *map = _findMap(mapid);
+    Map* map = FindBaseMap(mapid);
     if (!map)
         return NULL;
 
     if (!map->Instanceable())
         return instanceId == 0 ? map : NULL;
 
-    return ((MapInstanced*)map)->FindMap(instanceId);
+    return ((MapInstanced*)map)->FindInstanceMap(instanceId);
 }
 
 bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
@@ -201,8 +207,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                 if (corpseMap == mapid)
                     break;
 
-                InstanceTemplate const* instance = sObjectMgr->GetInstanceTemplate(corpseMap);
-                corpseMap = instance ? instance->Parent : 0;
+                InstanceTemplate const* corpseInstance = sObjectMgr->GetInstanceTemplate(corpseMap);
+                corpseMap = corpseInstance ? corpseInstance->Parent : 0;
             } while (corpseMap);
 
             if (!corpseMap)
@@ -213,6 +219,8 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
                 return false;
             }
             sLog->outDebug(LOG_FILTER_MAPS, "MAP: Player '%s' has corpse in instance '%s' and can enter.", player->GetName(), mapName);
+            player->ResurrectPlayer(0.5f, false);
+            player->SpawnCorpseBones();
         }
         else
             sLog->outDebug(LOG_FILTER_MAPS, "Map::CanPlayerEnter - player '%s' is dead but does not have a corpse!", player->GetName());
@@ -246,7 +254,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player, bool loginCheck)
             instaceIdToCheck = save->GetInstanceId();
 
         // instanceId can never be 0 - will not be found
-        if (!player->CheckInstanceCount(instaceIdToCheck))
+        if (!player->CheckInstanceCount(instaceIdToCheck) && !player->isDead())
         {
             player->SendTransferAborted(mapid, TRANSFER_ABORT_TOO_MANY_INSTANCES);
             return false;
@@ -278,8 +286,8 @@ void MapManager::Update(uint32 diff)
         iter->second->DelayedUpdate(uint32(i_timer.GetCurrent()));
 
     sObjectAccessor->Update(uint32(i_timer.GetCurrent()));
-    for (TransportSet::iterator iter = m_Transports.begin(); iter != m_Transports.end(); ++iter)
-        (*iter)->Update(uint32(i_timer.GetCurrent()));
+    for (TransportSet::iterator itr = m_Transports.begin(); itr != m_Transports.end(); ++itr)
+        (*itr)->Update(uint32(i_timer.GetCurrent()));
 
     i_timer.SetCurrent(0);
 }
@@ -290,7 +298,7 @@ void MapManager::DoDelayedMovesAndRemoves()
 
 bool MapManager::ExistMapAndVMap(uint32 mapid, float x, float y)
 {
-    GridPair p = Trinity::ComputeGridPair(x, y);
+    GridCoord p = Trinity::ComputeGridCoord(x, y);
 
     int gx=63-p.x_coord;
     int gy=63-p.y_coord;
@@ -333,15 +341,15 @@ void MapManager::UnloadAll()
 
 uint32 MapManager::GetNumInstances()
 {
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, 0);
+    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
-        Map *map = itr->second;
+        Map* map = itr->second;
         if (!map->Instanceable())
             continue;
-        MapInstanced::InstancedMaps &maps = ((MapInstanced *)map)->GetInstancedMaps();
+        MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
         for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
             if (mitr->second->IsDungeon()) ret++;
     }
@@ -350,15 +358,15 @@ uint32 MapManager::GetNumInstances()
 
 uint32 MapManager::GetNumPlayersInInstances()
 {
-    ACE_GUARD_RETURN(ACE_Thread_Mutex, Guard, Lock, 0);
+    TRINITY_GUARD(ACE_Thread_Mutex, Lock);
 
     uint32 ret = 0;
     for (MapMapType::iterator itr = i_maps.begin(); itr != i_maps.end(); ++itr)
     {
-        Map *map = itr->second;
+        Map* map = itr->second;
         if (!map->Instanceable())
             continue;
-        MapInstanced::InstancedMaps &maps = ((MapInstanced *)map)->GetInstancedMaps();
+        MapInstanced::InstancedMaps &maps = ((MapInstanced*)map)->GetInstancedMaps();
         for (MapInstanced::InstancedMaps::iterator mitr = maps.begin(); mitr != maps.end(); ++mitr)
             if (mitr->second->IsDungeon())
                 ret += ((InstanceMap*)mitr->second)->GetPlayers().getSize();

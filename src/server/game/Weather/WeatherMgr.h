@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,46 +23,22 @@
 #ifndef __WEATHERMGR_H
 #define __WEATHERMGR_H
 
-#include "Common.h"
-#include "SharedDefines.h"
-#include "Timer.h"
-#include "Weather.h"
-#include <ace/Singleton.h>
+#include "Define.h"
 
-class WeatherMgr
+class Weather;
+class Player;
+
+namespace WeatherMgr
 {
-    friend class ACE_Singleton<WeatherMgr, ACE_Null_Mutex>;
-    WeatherMgr() {}
-    ~WeatherMgr();
+    void LoadWeatherData();
 
-    public:
+    Weather* FindWeather(uint32 id);
+    Weather* AddWeather(uint32 zone_id);
+    void RemoveWeather(uint32 zone_id);
 
-        void LoadWeatherData();
+    void SendFineWeatherUpdateToPlayer(Player* player);
 
-        Weather* FindWeather(uint32 id) const;
-        Weather* AddWeather(uint32 zone_id);
-        void RemoveWeather(uint32 zone_id);
-
-        WeatherData const* GetWeatherChances(uint32 zone_id) const
-        {
-            WeatherZoneMap::const_iterator itr = mWeatherZoneMap.find(zone_id);
-            if (itr != mWeatherZoneMap.end())
-                return &itr->second;
-            else
-                return NULL;
-        }
-
-        void Update(uint32 diff);
-
-        typedef UNORDERED_MAP<uint32, Weather*> WeatherMap;
-        typedef UNORDERED_MAP<uint32, WeatherData> WeatherZoneMap;
-
-    private:
-
-        WeatherMap m_weathers;
-        WeatherZoneMap mWeatherZoneMap;
-};
-
-#define sWeatherMgr ACE_Singleton<WeatherMgr, ACE_Null_Mutex>::instance()
+    void Update(uint32 diff);
+}
 
 #endif

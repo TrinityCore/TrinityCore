@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -72,8 +72,8 @@ class CreatureTextMgr
     private:
         CreatureTextRepeatIds GetRepeatGroup(Creature* source, uint8 textGroup);
         void SetRepeatId(Creature* source, uint8 textGroup, uint8 id);
-        void BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const;
-        void SendChatPacket(WorldPacket *data, WorldObject* source, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const;
+        void BuildMonsterChat(WorldPacket* data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const;
+        void SendChatPacket(WorldPacket* data, WorldObject* source, ChatMsg msgType, uint64 whisperGuid, TextRange range, Team team, bool gmOnly) const;
 
         CreatureTextMap mTextMap;
         CreatureTextRepeatMap mTextRepeatMap;

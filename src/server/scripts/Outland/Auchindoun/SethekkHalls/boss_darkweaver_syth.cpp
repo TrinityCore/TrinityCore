@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -157,7 +157,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_FLAME_SHOCK);
 
-                flameshock_timer = 10000 + rand()%5000;
+                flameshock_timer = urand(10000, 15000);
             } else flameshock_timer -= diff;
 
             if (arcaneshock_timer <= diff)
@@ -165,7 +165,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_ARCANE_SHOCK);
 
-                arcaneshock_timer = 10000 + rand()%5000;
+                arcaneshock_timer = urand(10000, 15000);
             } else arcaneshock_timer -= diff;
 
             if (frostshock_timer <= diff)
@@ -173,7 +173,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_FROST_SHOCK);
 
-                frostshock_timer = 10000 + rand()%5000;
+                frostshock_timer = urand(10000, 15000);
             } else frostshock_timer -= diff;
 
             if (shadowshock_timer <= diff)
@@ -181,7 +181,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_SHADOW_SHOCK);
 
-                shadowshock_timer = 10000 + rand()%5000;
+                shadowshock_timer = urand(10000, 15000);
             } else shadowshock_timer -= diff;
 
             if (chainlightning_timer <= diff)

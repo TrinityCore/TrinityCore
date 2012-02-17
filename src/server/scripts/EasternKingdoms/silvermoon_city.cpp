@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -85,7 +85,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* Hitter, const SpellEntry *Spellkind)
+        void SpellHit(Unit* Hitter, const SpellInfo* Spellkind)
         {
             if ((Spellkind->Id == SPELL_SHIMMERING_VESSEL) && !spellHit &&
                 (Hitter->GetTypeId() == TYPEID_PLAYER) && (CAST_PLR(Hitter)->IsActiveQuest(QUEST_REDEEMING_THE_DEAD)))

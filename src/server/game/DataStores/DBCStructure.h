@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@
 #include "Define.h"
 #include "Path.h"
 #include "Util.h"
-#include "Vehicle.h"
 
 #include <map>
 #include <set>
@@ -724,7 +723,7 @@ struct CinematicSequencesEntry
 struct CreatureDisplayInfoEntry
 {
     uint32      Displayid;                                  // 0        m_ID
-                                                            // 1        m_modelID
+    uint32      ModelId;                                    // 1        m_modelID
                                                             // 2        m_soundID
                                                             // 3        m_extendedDisplayInfoID
     float       scale;                                      // 4        m_creatureModelScale
@@ -753,6 +752,28 @@ struct CreatureFamilyEntry
     char*   Name[16];                                       // 10-25    m_name_lang
                                                             // 26 string flags
                                                             // 27       m_iconFile
+};
+
+struct CreatureModelDataEntry
+{
+    uint32 Id;
+    //uint32 Flags;
+    //char* ModelPath[16]
+    //uint32 Unk1;
+    float Scale;                                             // Used in calculation of unit collision data
+    //int32 Unk2
+    //int32 Unk3
+    //uint32 Unk4
+    //uint32 Unk5
+    //float Unk6
+    //uint32 Unk7
+    //float Unk8
+    //uint32 Unk9
+    //uint32 Unk10
+    //float CollisionWidth;
+    float CollisionHeight;
+    float MountHeight;                                       // Used in calculation of unit collision data when mounted
+    //float Unks[11]
 };
 
 #define MAX_CREATURE_SPELL_DATA_SLOT 4
@@ -871,6 +892,12 @@ struct FactionEntry
                                                             // 39 string flags
     //char*     description[16];                            // 40-55    m_description_lang
                                                             // 56 string flags
+
+    // helpers
+    bool CanHaveReputation() const
+    {
+        return reputationListID >= 0;
+    }
 };
 
 #define MAX_FACTION_RELATIONS 4
@@ -890,8 +917,6 @@ struct FactionTemplateEntry
     // helpers
     bool IsFriendlyTo(FactionTemplateEntry const& entry) const
     {
-        if (ID == entry.ID)
-            return true;
         if (entry.faction)
         {
             for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
@@ -905,8 +930,6 @@ struct FactionTemplateEntry
     }
     bool IsHostileTo(FactionTemplateEntry const& entry) const
     {
-        if (ID == entry.ID)
-            return false;
         if (entry.faction)
         {
             for (int i = 0; i < MAX_FACTION_RELATIONS; ++i)
@@ -932,7 +955,7 @@ struct FactionTemplateEntry
 struct GameObjectDisplayInfoEntry
 {
     uint32      Displayid;                                  // 0        m_ID
-    // char* filename;                                      // 1
+    char* filename;                                      // 1
     //uint32  unk1[10];   //2-11
     float   minX;
     float   minY;
@@ -1055,7 +1078,7 @@ struct HolidaysEntry
     //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
     //char *textureFilename;                                // 51       m_textureFilename
     //uint32 priority;                                      // 52       m_priority
-    //uint32 calendarFilterType;                            // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk,1 = Darkmoon Festival, 2 = Yearly holiday)
+    //uint32 calendarFilterType;                            // 53       m_calendarFilterType (-1 = Fishing Contest, 0 = Unk, 1 = Darkmoon Festival, 2 = Yearly holiday)
     //uint32 flags;                                         // 54       m_flags (0 = Darkmoon Faire, Fishing Contest and Wotlk Launch, rest is 1)
 };
 
@@ -1173,12 +1196,12 @@ struct LFGDungeonEntry
     uint32  reclevel;                                       // 20
     uint32  recminlevel;                                    // 21
     uint32  recmaxlevel;                                    // 22
-    int32  map;                                             // 23
+    int32   map;                                            // 23
     uint32  difficulty;                                     // 24
-    //uint32  unk;                                          // 25
+    //uint32  flags;                                        // 25
     uint32  type;                                           // 26
-    //uint32  unk2;                                         // 27
-    //char*   unk3;                                         // 28
+    //uint32  unk;                                          // 27
+    //char*   iconname;                                     // 28
     uint32  expansion;                                      // 29
     //uint32  unk4;                                         // 30
     uint32  grouptype;                                      // 31
@@ -1186,6 +1209,28 @@ struct LFGDungeonEntry
     // Helpers
     uint32 Entry() const { return ID + (type << 24); }
 };
+
+/*
+struct LiquidTypeEntry
+{
+    uint32      ID;                                         // 0
+    char*       name;                                       // 1
+    uint32      flags;                                      // 2        Water: 1|2|4|8, Magma: 8|16|32|64, Slime: 2|64|256, WMO Ocean: 1|2|4|8|512
+    uint32      type;                                       // 3        0: Water, 1: Ocean, 2: Magma, 3: Slime
+    uint32      soundid;                                    // 4        Reference to SoundEntries.dbc
+    uint32      spellID;                                    // 5        Reference to Spell.dbc
+    float       unk0[4];                                    // 6-9
+    uint32      unk1;                                       // 10       Light?
+    float       particleScale                               // 11       0: Slime, 1: Water/Ocean, 4: Magma
+    uint32      particleMovement;                           // 12
+    uint32      unk2                                        // 13
+    uint32      LiquidMaterialID                            // 14       Reference to LiquidMaterial.dbc
+    char*       texture[6];                                 // 15-20
+    uint32      unk3[2]                                     // 21-22
+    float       unk4[18];                                   // 23-40
+    uint32      unk5[4]                                     // 41-44
+};
+*/
 
 #define MAX_LOCK_CASE 8
 
@@ -1491,7 +1536,7 @@ struct SpellEntry
     uint32    AttributesEx4;                                // 8        m_attributesExD
     uint32    AttributesEx5;                                // 9        m_attributesExE
     uint32    AttributesEx6;                                // 10       m_attributesExF
-    uint32    AttributesEx7;                                // 11       3.2.0 (0x20 - totems, 0x4 - paladin auras, etc...)
+    uint32    AttributesEx7;                                // 11       m_attributesExG
     uint32    Stances;                                      // 12       m_shapeshiftMask
     // uint32 unk_320_2;                                    // 13       3.2.0
     uint32    StancesNot;                                   // 14       m_shapeshiftExclude
@@ -1539,7 +1584,7 @@ struct SpellEntry
     uint32    Effect[MAX_SPELL_EFFECTS];                    // 71-73    m_effect
     int32     EffectDieSides[MAX_SPELL_EFFECTS];            // 74-76    m_effectDieSides
     float     EffectRealPointsPerLevel[MAX_SPELL_EFFECTS];  // 77-79    m_effectRealPointsPerLevel
-    int32     EffectBasePoints[MAX_SPELL_EFFECTS];          // 80-82    m_effectBasePoints (don't must be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
+    int32     EffectBasePoints[MAX_SPELL_EFFECTS];          // 80-82    m_effectBasePoints (must not be used in spell/auras explicitly, must be used cached Spell::m_currentBasePoints)
     uint32    EffectMechanic[MAX_SPELL_EFFECTS];            // 83-85    m_effectMechanic
     uint32    EffectImplicitTargetA[MAX_SPELL_EFFECTS];     // 86-88    m_implicitTargetA
     uint32    EffectImplicitTargetB[MAX_SPELL_EFFECTS];     // 89-91    m_implicitTargetB
@@ -1589,10 +1634,6 @@ struct SpellEntry
     float     EffectBonusMultiplier[MAX_SPELL_EFFECTS];     // 229-231  3.2.0
     //uint32  spellDescriptionVariableID;                   // 232      3.2.0
     //uint32  SpellDifficultyId;                            // 233      3.3.0
-
-    private:
-        // prevent creating custom entries (copy data from original in fact)
-        SpellEntry(SpellEntry const&);                      // DON'T must have implementation
 };
 
 typedef std::set<uint32> SpellCategorySet;
@@ -1624,9 +1665,9 @@ struct SpellFocusObjectEntry
 struct SpellRadiusEntry
 {
     uint32    ID;
-    float     radiusHostile;
+    float     radiusMin;
     //uint32    Unk    //always 0
-    float     radiusFriend;
+    float     radiusMax;
 };
 
 struct SpellRangeEntry
@@ -1635,7 +1676,7 @@ struct SpellRangeEntry
     float     minRangeHostile;
     float     minRangeFriend;
     float     maxRangeHostile;
-    float     maxRangeFriend;                               //friend means unattackable unit here
+    float     maxRangeFriend;
     uint32    type;
     //char*     Name[16];                                   // 7-23 unused
                                                             // 24 string flags, unused
@@ -1898,9 +1939,10 @@ struct VehicleSeatEntry
                                                             // 46-57 added in 3.1, floats mostly
 
     bool CanEnterOrExit() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT; }
-    bool CanSwitchFromSeat() const { return m_flags & VEHICLE_SEAT_FLAG_B_CANSWITCH; }
+    bool CanSwitchFromSeat() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH; }
     bool IsUsableByOverride() const { return (m_flags & VEHICLE_SEAT_FLAG_UNCONTROLLED)
-                                    || (m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3)); }
+                                    || (m_flagsB & (VEHICLE_SEAT_FLAG_B_USABLE_FORCED | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2 |
+                                        VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3 | VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4)); }
     bool IsEjectable() const { return m_flagsB & VEHICLE_SEAT_FLAG_B_EJECTABLE; }
 };
 

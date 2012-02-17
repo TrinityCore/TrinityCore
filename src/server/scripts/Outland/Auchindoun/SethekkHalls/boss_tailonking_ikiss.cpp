@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -66,10 +66,10 @@ public:
     {
         boss_talon_king_ikissAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 ArcaneVolley_Timer;
         uint32 Sheep_Timer;
@@ -93,7 +93,7 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
+            if (!me->getVictim() && me->canCreatureAttack(who))
             {
                 if (!Intro && me->IsWithinDistInMap(who, 100))
                 {
@@ -122,8 +122,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_IKISSDOOREVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_IKISSDOOREVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)

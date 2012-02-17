@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,12 +38,12 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        if (InstanceScript* pInstance = pGO->GetInstanceScript())
+        if (InstanceScript* instance = pGO->GetInstanceScript())
         {
-            if (pInstance->GetData(TYPE_BARREL_DIVERSION) == DONE)
+            if (instance->GetData(TYPE_BARREL_DIVERSION) == DONE)
                 return false;
 
-            pInstance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
+            instance->SetData(TYPE_BARREL_DIVERSION, IN_PROGRESS);
         }
 
         return false;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -149,11 +149,11 @@ public:
     {
         boss_grandmaster_vorpilAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             Intro = false;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
         bool Intro, HelpYell;
         bool sumportals;
 
@@ -165,15 +165,15 @@ public:
 
         void Reset()
         {
-            ShadowBoltVolley_Timer = 7000 + rand()%7000;
+            ShadowBoltVolley_Timer = urand(7000, 14000);
             DrawShadows_Timer = 45000;
             summonTraveler_Timer = 90000;
             banish_Timer = 17000;
             HelpYell = false;
             destroyPortals();
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_GRANDMASTERVORPILEVENT, NOT_STARTED);
         }
 
         void summonPortals()
@@ -237,8 +237,8 @@ public:
             DoScriptText(SAY_DEATH, me);
             destroyPortals();
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_GRANDMASTERVORPILEVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -246,15 +246,15 @@ public:
             DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
             summonPortals();
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRANDMASTERVORPILEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_GRANDMASTERVORPILEVENT, IN_PROGRESS);
         }
 
         void MoveInLineOfSight(Unit* who)
         {
             ScriptedAI::MoveInLineOfSight(who);
 
-            if (!Intro && me->IsWithinLOSInMap(who)&& me->IsWithinDistInMap(who, 100) && me->IsHostileTo(who))
+            if (!Intro && me->IsWithinLOSInMap(who)&& me->IsWithinDistInMap(who, 100) && me->IsValidAttackTarget(who))
             {
                 DoScriptText(SAY_INTRO, me);
                 Intro = true;
@@ -269,7 +269,7 @@ public:
             if (ShadowBoltVolley_Timer <= diff)
             {
                 DoCast(me, SPELL_SHADOWBOLT_VOLLEY);
-                ShadowBoltVolley_Timer = 15000 + rand()%15000;
+                ShadowBoltVolley_Timer = urand(15000, 30000);
             } else ShadowBoltVolley_Timer -= diff;
 
             if (IsHeroic() && banish_Timer <= diff)
@@ -284,14 +284,14 @@ public:
 
             if (DrawShadows_Timer <= diff)
             {
-                Map* pMap = me->GetMap();
-                Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                Map* map = me->GetMap();
+                Map::PlayerList const &PlayerList = map->GetPlayers();
                 for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                     if (Player* i_pl = i->getSource())
                         if (i_pl->isAlive() && !i_pl->HasAura(SPELL_BANISH))
                             i_pl->TeleportTo(me->GetMapId(), VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0, TELE_TO_NOT_LEAVE_COMBAT);
 
-                me->GetMap()->CreatureRelocation(me, VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0.0f);
+                me->SetPosition(VorpilPosition[0], VorpilPosition[1], VorpilPosition[2], 0.0f);
                 DoCast(me, SPELL_DRAW_SHADOWS, true);
 
                 DoCast(me, SPELL_RAIN_OF_FIRE);

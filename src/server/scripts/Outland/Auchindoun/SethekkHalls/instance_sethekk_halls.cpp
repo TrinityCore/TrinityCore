@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -37,14 +37,14 @@ class instance_sethekk_halls : public InstanceMapScript
 public:
     instance_sethekk_halls() : InstanceMapScript("instance_sethekk_halls", 556) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_sethekk_halls_InstanceMapScript(pMap);
+        return new instance_sethekk_halls_InstanceMapScript(map);
     }
 
     struct instance_sethekk_halls_InstanceMapScript : public InstanceScript
     {
-        instance_sethekk_halls_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_sethekk_halls_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 AnzuEncounter;
         uint64 m_uiIkissDoorGUID;
@@ -74,7 +74,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_IKISSDOOREVENT:
                     if (data == DONE)

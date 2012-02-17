@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@ go_manaforge_control_console
 npc_commander_dawnforge
 npc_bessy
 npc_maxx_a_million
+go_captain_tyralius_prison
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -100,7 +101,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) {}
 
-        /*void SpellHit(Unit* caster, const SpellEntry *spell)
+        /*void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             //we have no way of telling the Creature was hit by spell -> got aura applied after 10-12 seconds
             //then no way for the mobs to actually stop the shutdown as intended.
@@ -117,7 +118,7 @@ public:
                 Unit* p = Unit::GetUnit((*me), someplayer);
                 if (p && p->GetTypeId() == TYPEID_PLAYER)
                 {
-                    switch(me->GetEntry())
+                    switch (me->GetEntry())
                     {
                         case ENTRY_BNAAR_C_CONSOLE:
                             CAST_PLR(p)->FailQuest(10299);
@@ -141,14 +142,14 @@ public:
 
             if (goConsole)
             {
-                if (GameObject* pGo = GameObject::GetGameObject((*me), goConsole))
-                    pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                if (GameObject* go = GameObject::GetGameObject((*me), goConsole))
+                    go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
             }
         }
 
         void DoWaveSpawnForCreature(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case ENTRY_BNAAR_C_CONSOLE:
                     if (rand()%2)
@@ -202,7 +203,7 @@ public:
         }
         void DoFinalSpawnForCreature(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case ENTRY_BNAAR_C_CONSOLE:
                     add = me->SummonCreature(ENTRY_SUNFURY_TECH, 2946.52f, 4201.42f, 163.47f, 3.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
@@ -237,7 +238,7 @@ public:
         {
             if (Event_Timer <= diff)
             {
-                switch(Phase)
+                switch (Phase)
                 {
                     case 1:
                         if (someplayer)
@@ -277,8 +278,8 @@ public:
                         }
                         if (goConsole)
                         {
-                            if (GameObject* pGo = GameObject::GetGameObject((*me), goConsole))
-                                pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+                            if (GameObject* go = GameObject::GetGameObject((*me), goConsole))
+                                go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
                         }
                         ++Phase;
                         break;
@@ -307,17 +308,17 @@ class go_manaforge_control_console : public GameObjectScript
 public:
     go_manaforge_control_console() : GameObjectScript("go_manaforge_control_console") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (pGo->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
+        if (go->GetGoType() == GAMEOBJECT_TYPE_QUESTGIVER)
         {
-            player->PrepareQuestMenu(pGo->GetGUID());
-            player->SendPreparedQuest(pGo->GetGUID());
+            player->PrepareQuestMenu(go->GetGUID());
+            player->SendPreparedQuest(go->GetGUID());
         }
 
         Creature* manaforge = NULL;
 
-        switch(pGo->GetAreaId())
+        switch (go->GetAreaId())
         {
             case 3726:                                          //b'naar
                 if ((player->GetQuestStatus(10299) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(10329) == QUEST_STATUS_INCOMPLETE) &&
@@ -344,8 +345,8 @@ public:
         if (manaforge)
         {
             CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->someplayer = player->GetGUID();
-            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = pGo->GetGUID();
-            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
+            CAST_AI(npc_manaforge_control_console::npc_manaforge_control_consoleAI, manaforge->AI())->goConsole = go->GetGUID();
+            go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_IN_USE);
         }
         return true;
     }
@@ -565,7 +566,7 @@ public:
                 break;
                 //Phase 6
             case 6:
-                switch(PhaseSubphase)
+                switch (PhaseSubphase)
                 {
                     //Subphase 1: Turn Dawnforge and Ardonis
                 case 0:
@@ -584,7 +585,7 @@ public:
                 break;
                 //Phase 7 Pathaleons say 3 Sentence, every sentence need a subphase
             case 7:
-                switch(PhaseSubphase)
+                switch (PhaseSubphase)
                 {
                     //Subphase 1
                 case 0:
@@ -640,7 +641,7 @@ class at_commander_dawnforge : public AreaTriggerScript
 public:
     at_commander_dawnforge() : AreaTriggerScript("at_commander_dawnforge") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
         //if player lost aura or not have at all, we should not try start event.
         if (!player->HasAura(SPELL_SUNFURY_DISGUISE))
@@ -681,7 +682,7 @@ class npc_professor_dabiri : public CreatureScript
 public:
     npc_professor_dabiri() : CreatureScript("npc_professor_dabiri") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == QUEST_DIMENSIUS)
             DoScriptText(WHISPER_DABIRI, creature, player);
@@ -782,7 +783,7 @@ public:
                 PlayerGUID = who->GetGUID();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry * /*spell*/)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* /*spell*/)
         {
             DoCast(me, SPELL_DE_MATERIALIZE);
         }
@@ -795,7 +796,7 @@ public:
                 Materialize = true;
             }
 
-            if (me->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || me->HasUnitState(UNIT_STAT_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
+            if (me->HasAuraType(SPELL_AURA_MOD_DECREASE_SPEED) || me->HasUnitState(UNIT_STATE_ROOT)) // if the mob is rooted/slowed by spells eg.: Entangling Roots, Frost Nova, Hamstring, Crippling Poison, etc. => remove it
                 DoCast(me, SPELL_PHASE_SLIP);
 
             if (!UpdateVictim())
@@ -809,17 +810,15 @@ public:
 
                 for (std::list<HostileReference*>::const_iterator itr = AggroList.begin(); itr != AggroList.end(); ++itr)
                 {
-                    if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
-                        if (pUnit->GetCreateMana() > 0)
-                            UnitsWithMana.push_back(pUnit);
+                        if (unit->GetCreateMana() > 0)
+                            UnitsWithMana.push_back(unit);
                     }
                 }
                 if (!UnitsWithMana.empty())
                 {
-                    std::list<Unit*>::const_iterator it = UnitsWithMana.begin();
-                    std::advance(it, rand() % UnitsWithMana.size());
-                    DoCast(*it, SPELL_MANA_BURN);
+                    DoCast(SelectRandomContainerElement(UnitsWithMana), SPELL_MANA_BURN);
                     ManaBurnTimer = 8000 + (rand() % 10 * 1000); // 8-18 sec cd
                 }
                 else
@@ -905,7 +904,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 3: //first spawn
                     me->SummonCreature(SPAWN_FIRST, 2449.67f, 2183.11f, 96.85f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -958,7 +957,7 @@ class npc_maxx_a_million_escort : public CreatureScript
 public:
     npc_maxx_a_million_escort() : CreatureScript("npc_maxx_a_million_escort") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_maxx_a_million_escortAI(creature);
     }
@@ -1034,9 +1033,9 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
+        if (quest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
         {
             if (npc_maxx_a_million_escortAI* pEscortAI = CAST_AI(npc_maxx_a_million_escort::npc_maxx_a_million_escortAI, creature->AI()))
             {
@@ -1046,6 +1045,36 @@ public:
         }
         return true;
     }
+};
+
+/*######
+## go_captain_tyralius_prison
+######*/
+
+enum CaptainTyralius
+{
+    NPC_CAPTAIN_TYRALIUS    = 20787,
+    SAY_FREE                = 0,
+};
+
+class go_captain_tyralius_prison : public GameObjectScript
+{
+    public:
+        go_captain_tyralius_prison() : GameObjectScript("go_captain_tyralius_prison") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if (Creature* tyralius = go->FindNearestCreature(NPC_CAPTAIN_TYRALIUS, 1.0f))
+            {
+                go->UseDoorOrButton();
+
+                player->KilledMonsterCredit(NPC_CAPTAIN_TYRALIUS, 0);
+
+                tyralius->AI()->Talk(SAY_FREE);
+                tyralius->ForcedDespawn(8000);
+            }
+            return true;
+        }
 };
 
 void AddSC_netherstorm()
@@ -1058,4 +1087,5 @@ void AddSC_netherstorm()
     new mob_phase_hunter();
     new npc_bessy();
     new npc_maxx_a_million_escort();
+    new go_captain_tyralius_prison();
 }

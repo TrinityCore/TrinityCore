@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,6 +37,10 @@ enum PaladinSpells
     SPELL_BLESSING_OF_LOWER_CITY_PALADIN         = 37879,
     SPELL_BLESSING_OF_LOWER_CITY_PRIEST          = 37880,
     SPELL_BLESSING_OF_LOWER_CITY_SHAMAN          = 37881,
+
+    SPELL_DIVINE_STORM                           = 53385,
+    SPELL_DIVINE_STORM_DUMMY                     = 54171,
+    SPELL_DIVINE_STORM_HEAL                      = 54172,
 };
 
 // 31850 - Ardent Defender
@@ -58,8 +62,8 @@ public:
 
         bool Load()
         {
-            healPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_1);
-            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0);
+            healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
+            absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
             return GetUnitOwner()->ToPlayer();
         }
 
@@ -69,7 +73,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             Unit* victim = GetTarget();
             int32 remainingHealth = victim->GetHealth() - dmgInfo.GetDamage();
@@ -109,7 +113,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_pal_ardent_defender_AuraScript();
     }
@@ -123,15 +127,15 @@ public:
     class spell_pal_blessing_of_faith_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_blessing_of_faith_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_DRUID))
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLESSING_OF_LOWER_CITY_DRUID))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_PALADIN))
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLESSING_OF_LOWER_CITY_PALADIN))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_PRIEST))
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLESSING_OF_LOWER_CITY_PRIEST))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_BLESSING_OF_LOWER_CITY_SHAMAN))
+            if (!sSpellMgr->GetSpellInfo(SPELL_BLESSING_OF_LOWER_CITY_SHAMAN))
                 return false;
             return true;
         }
@@ -141,7 +145,7 @@ public:
             if (Unit* unitTarget = GetHitUnit())
             {
                 uint32 spell_id = 0;
-                switch(unitTarget->getClass())
+                switch (unitTarget->getClass())
                 {
                     case CLASS_DRUID:   spell_id = SPELL_BLESSING_OF_LOWER_CITY_DRUID; break;
                     case CLASS_PALADIN: spell_id = SPELL_BLESSING_OF_LOWER_CITY_PALADIN; break;
@@ -157,11 +161,11 @@ public:
         void Register()
         {
             // add dummy effect spell handler to Blessing of Faith
-            OnEffect += SpellEffectFn(spell_pal_blessing_of_faith_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_blessing_of_faith_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const
     {
         return new spell_pal_blessing_of_faith_SpellScript();
     }
@@ -177,9 +181,9 @@ public:
     class spell_pal_blessing_of_sanctuary_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_pal_blessing_of_sanctuary_AuraScript)
-        bool Validate(SpellEntry const* /*entry*/)
+        bool Validate(SpellInfo const* /*entry*/)
         {
-            if (!sSpellStore.LookupEntry(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF))
+            if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_BLESSING_OF_SANCTUARY_BUFF))
                 return false;
             return true;
         }
@@ -204,7 +208,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_pal_blessing_of_sanctuary_AuraScript();
     }
@@ -219,9 +223,9 @@ public:
     class spell_pal_guarded_by_the_light_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_guarded_by_the_light_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(PALADIN_SPELL_DIVINE_PLEA))
+            if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_DIVINE_PLEA))
                 return false;
             return true;
         }
@@ -235,7 +239,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_pal_guarded_by_the_light_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_guarded_by_the_light_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
@@ -253,9 +257,9 @@ public:
     class spell_pal_holy_shock_SpellScript : public SpellScript
     {
         PrepareSpellScript(spell_pal_holy_shock_SpellScript)
-        bool Validate(SpellEntry const *spellEntry)
+        bool Validate(SpellInfo const* spellEntry)
         {
-            if (!sSpellStore.LookupEntry(PALADIN_SPELL_HOLY_SHOCK_R1))
+            if (!sSpellMgr->GetSpellInfo(PALADIN_SPELL_HOLY_SHOCK_R1))
                 return false;
 
             // can't use other spell than holy shock due to spell_ranks dependency
@@ -289,11 +293,11 @@ public:
         void Register()
         {
             // add dummy effect spell handler to Holy Shock
-            OnEffect += SpellEffectFn(spell_pal_holy_shock_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_holy_shock_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const
     {
         return new spell_pal_holy_shock_SpellScript();
     }
@@ -310,20 +314,54 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             if (Unit* unitTarget = GetHitUnit())
-                if (SpellEntry const* spell_proto = sSpellStore.LookupEntry(GetEffectValue()))
+                if (SpellInfo const* spell_proto = sSpellMgr->GetSpellInfo(GetEffectValue()))
                     GetCaster()->CastSpell(unitTarget, spell_proto, true, NULL);
         }
 
         void Register()
         {
             // add dummy effect spell handler to Judgement of Command
-            OnEffect += SpellEffectFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_pal_judgement_of_command_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
-    SpellScript *GetSpellScript() const
+    SpellScript* GetSpellScript() const
     {
         return new spell_pal_judgement_of_command_SpellScript();
+    }
+};
+
+class spell_pal_divine_storm : public SpellScriptLoader
+{
+public:
+    spell_pal_divine_storm() : SpellScriptLoader("spell_pal_divine_storm") { }
+
+    class spell_pal_divine_storm_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_pal_divine_storm_SpellScript);
+
+        uint32 healPct;
+
+        bool Load()
+        {
+            healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
+            return true;
+        }
+
+        void TriggerHeal()
+        {
+            GetCaster()->CastCustomSpell(SPELL_DIVINE_STORM_DUMMY, SPELLVALUE_BASE_POINT0, (GetHitDamage() * healPct) / 100, GetCaster(), true);
+        }
+
+        void Register()
+        {
+            AfterHit += SpellHitFn(spell_pal_divine_storm_SpellScript::TriggerHeal);
+        }
+    };
+
+    SpellScript* GetSpellScript() const
+    {
+        return new spell_pal_divine_storm_SpellScript();
     }
 };
 
@@ -335,4 +373,5 @@ void AddSC_paladin_spell_scripts()
     new spell_pal_guarded_by_the_light();
     new spell_pal_holy_shock();
     new spell_pal_judgement_of_command();
+    new spell_pal_divine_storm();
 }

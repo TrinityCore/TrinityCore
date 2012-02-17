@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -91,7 +91,7 @@ class boss_doomwalker : public CreatureScript
 
             void MoveInLineOfSight(Unit* who)
             {
-                if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsHostileTo(who))
+                if (who && who->GetTypeId() == TYPEID_PLAYER && me->IsValidAttackTarget(who))
                     if (who->HasAura(SPELL_MARK_DEATH, 0))
                         who->CastSpell(who, SPELL_AURA_DEATH, 1);
             }
@@ -103,12 +103,12 @@ class boss_doomwalker : public CreatureScript
 
                 _events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
-                while(uint32 eventId = _events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_ENRAGE:
                             if (!HealthAbovePct(20))

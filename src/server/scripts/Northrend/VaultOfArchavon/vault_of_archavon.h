@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,5 +35,16 @@ enum Data
 };
 
 #define MAX_ENCOUNTER 4
+
+enum AchievementCriteriaIds
+{
+    CRITERIA_EARTH_WIND_FIRE_10 = 12018,
+    CRITERIA_EARTH_WIND_FIRE_25 = 12019,
+};
+
+enum AchievementSpells
+{
+    SPELL_EARTH_WIND_FIRE_ACHIEVEMENT_CHECK = 68308,
+};
 
 #endif

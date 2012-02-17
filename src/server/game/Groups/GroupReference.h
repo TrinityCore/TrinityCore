@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,7 +34,7 @@ class GroupReference : public Reference<Group, Player>
     public:
         GroupReference() : Reference<Group, Player>(), iSubGroup(0) {}
         ~GroupReference() { unlink(); }
-        GroupReference *next() { return (GroupReference*)Reference<Group, Player>::next(); }
+        GroupReference* next() { return (GroupReference*)Reference<Group, Player>::next(); }
         uint8 getSubGroup() const { return iSubGroup; }
         void setSubGroup(uint8 pSubGroup) { iSubGroup = pSubGroup; }
 };

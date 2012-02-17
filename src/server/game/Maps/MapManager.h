@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,18 +33,16 @@ struct TransportCreatureProto;
 class MapManager
 {
     friend class ACE_Singleton<MapManager, ACE_Thread_Mutex>;
-    typedef UNORDERED_MAP<uint32, Map*> MapMapType;
-    typedef std::vector<bool> InstanceIds;
 
     public:
-
-        Map* CreateMap(uint32, const WorldObject* obj, uint32 instanceId);
-        Map const* CreateBaseMap(uint32 id) const { return const_cast<MapManager*>(this)->_createBaseMap(id); }
-        Map* FindMap(uint32 mapid, uint32 instanceId = 0) const;
+        Map* CreateBaseMap(uint32 mapId);
+        Map* FindBaseNonInstanceMap(uint32 mapId) const;
+        Map* CreateMap(uint32 mapId, Player* player);
+        Map* FindMap(uint32 mapId, uint32 instanceId) const;
 
         uint16 GetAreaFlag(uint32 mapid, float x, float y, float z) const
         {
-            Map const* m = CreateBaseMap(mapid);
+            Map const* m = const_cast<MapManager*>(this)->CreateBaseMap(mapid);
             return m->GetAreaFlag(x, y, z);
         }
         uint32 GetAreaId(uint32 mapid, float x, float y, float z) const
@@ -126,7 +124,7 @@ class MapManager
         void LoadTransports();
         void LoadTransportNPCs();
 
-        typedef std::set<Transport *> TransportSet;
+        typedef std::set<Transport*> TransportSet;
         TransportSet m_Transports;
 
         typedef std::map<uint32, TransportSet> TransportMap;
@@ -151,23 +149,25 @@ class MapManager
         MapUpdater * GetMapUpdater() { return &m_updater; }
 
     private:
+        typedef UNORDERED_MAP<uint32, Map*> MapMapType;
+        typedef std::vector<bool> InstanceIds;
+
         // debugging code, should be deleted some day
         void checkAndCorrectGridStatesArray();              // just for debugging to find some memory overwrites
         GridState* i_GridStates[MAX_GRID_STATE];            // shadow entries to the global array in Map.cpp
         int i_GridStateErrorCount;
-    private:
+
         MapManager();
         ~MapManager();
 
-        MapManager(const MapManager &);
-        MapManager& operator=(const MapManager &);
-
-        Map* _createBaseMap(uint32 id);
-        Map* _findMap(uint32 id) const
+        Map* FindBaseMap(uint32 mapId) const
         {
-            MapMapType::const_iterator iter = i_maps.find(id);
+            MapMapType::const_iterator iter = i_maps.find(mapId);
             return (iter == i_maps.end() ? NULL : iter->second);
         }
+
+        MapManager(const MapManager &);
+        MapManager& operator=(const MapManager &);
 
         ACE_Thread_Mutex Lock;
         uint32 i_gridCleanUpDelay;

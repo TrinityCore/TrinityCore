@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,7 +34,7 @@ struct hyjal_trashAI : public npc_escortAI
     void DamageTaken(Unit* done_by, uint32 &damage);
 
     public:
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool IsEvent;
         uint32 Delay;
         uint32 LastOverronPos;

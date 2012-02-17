@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -29,20 +29,20 @@ class PetAI : public CreatureAI
 {
     public:
 
-        explicit PetAI(Creature *c);
+        explicit PetAI(Creature* c);
 
         void EnterEvadeMode();
         void JustDied(Unit* /*who*/) { _stopAttack(); }
 
         void UpdateAI(const uint32);
-        static int Permissible(const Creature *);
+        static int Permissible(const Creature*);
 
         void KilledUnit(Unit* /*victim*/);
         void AttackStart(Unit* target);
         void MovementInform(uint32 moveType, uint32 data);
 
     private:
-        bool _isVisible(Unit *) const;
+        bool _isVisible(Unit*) const;
         bool _needToStop(void);
         void _stopAttack(void);
 
@@ -50,15 +50,13 @@ class PetAI : public CreatureAI
 
         TimeTracker i_tracker;
         bool inCombat;
-        bool targetHasCC;
         std::set<uint64> m_AllySet;
         uint32 m_updateAlliesTimer;
 
-        Unit *SelectNextTarget();
+        Unit* SelectNextTarget();
         void HandleReturnMovement();
         void DoAttack(Unit* target, bool chase);
-        bool _CanAttack(Unit* target);
-        bool _CheckTargetCC(Unit* target);
+        bool CanAttack(Unit* target);
 };
 #endif
 

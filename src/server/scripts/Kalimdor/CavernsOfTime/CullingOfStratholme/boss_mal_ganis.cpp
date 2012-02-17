@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,7 +34,8 @@ enum Spells
     H_SPELL_MIND_BLAST                          = 58850,
     SPELL_SLEEP                                 = 52721, //Puts an enemy to sleep for up to 10 sec. Any damage caused will awaken the target.
     H_SPELL_SLEEP                               = 58849,
-    SPELL_VAMPIRIC_TOUCH                        = 52723 //Heals the caster for half the damage dealt by a melee attack.
+    SPELL_VAMPIRIC_TOUCH                        = 52723, //Heals the caster for half the damage dealt by a melee attack.
+    SPELL_KILL_CREDIT                           = 58630  // Non-existing spell as encounter credit, created in spell_dbc
 };
 
 enum Yells
@@ -78,7 +79,7 @@ public:
     {
         boss_mal_ganisAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiCarrionSwarmTimer;
@@ -94,7 +95,7 @@ public:
 
         CombatPhases Phase;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -107,15 +108,15 @@ public:
              uiSleepTimer = urand(15000, 20000);
              uiOutroTimer = 1000;
 
-             if (pInstance)
-                 pInstance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
+             if (instance)
+                 instance->SetData(DATA_MAL_GANIS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-                pInstance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_MAL_GANIS_EVENT, IN_PROGRESS);
         }
 
         void DamageTaken(Unit* done_by, uint32 &damage)
@@ -126,7 +127,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            switch(Phase)
+            switch (Phase)
             {
                 case COMBAT:
                     //Return since we have no target
@@ -154,13 +155,13 @@ public:
                         return;
                     }
 
-                    if (Creature* pArthas = me->GetCreature(*me, pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0))
+                    if (Creature* pArthas = me->GetCreature(*me, instance ? instance->GetData64(DATA_ARTHAS) : 0))
                         if (pArthas->isDead())
                         {
                             EnterEvadeMode();
                             me->DisappearAndDie();
-                            if (pInstance)
-                                pInstance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
+                            if (instance)
+                                instance->SetData(DATA_MAL_GANIS_EVENT, FAIL);
                         }
 
                     if (uiCarrionSwarmTimer < diff)
@@ -195,7 +196,7 @@ public:
                 case OUTRO:
                     if (uiOutroTimer < diff)
                     {
-                        switch(uiOutroStep)
+                        switch (uiOutroStep)
                         {
                             case 1:
                                 DoScriptText(SAY_ESCAPE_SPEECH_1, me);
@@ -204,7 +205,7 @@ public:
                                 uiOutroTimer = 8000;
                                 break;
                             case 2:
-                                me->SetTarget(pInstance ? pInstance->GetData64(DATA_ARTHAS) : 0);
+                                me->SetTarget(instance ? instance->GetData64(DATA_ARTHAS) : 0);
                                 me->HandleEmoteCommand(29);
                                 DoScriptText(SAY_ESCAPE_SPEECH_2, me);
                                 ++uiOutroStep;
@@ -233,13 +234,12 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_MAL_GANIS_EVENT, DONE);
+                instance->SetData(DATA_MAL_GANIS_EVENT, DONE);
 
-                // give achievement credit to players. criteria use spell 58630 which doesn't exist.
-                if (pInstance)
-                    pInstance->DoUpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, 58630);
+                // give achievement credit and LFG rewards to players. criteria use spell 58630 which doesn't exist, but it was created in spell_dbc
+                DoCast(me, SPELL_KILL_CREDIT);
             }
         }
 

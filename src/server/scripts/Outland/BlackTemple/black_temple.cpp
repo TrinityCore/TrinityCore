@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,9 +55,9 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        InstanceScript* pInstance = creature->GetInstanceScript();
+        InstanceScript* instance = creature->GetInstanceScript();
 
-        if (pInstance && (pInstance->GetData(DATA_SUPREMUSEVENT) >= DONE) && (pInstance->GetData(DATA_HIGHWARLORDNAJENTUSEVENT) >= DONE))
+        if (instance && (instance->GetData(DATA_SUPREMUSEVENT) >= DONE) && (instance->GetData(DATA_HIGHWARLORDNAJENTUSEVENT) >= DONE))
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_OLUM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());

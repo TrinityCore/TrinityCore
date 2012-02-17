@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -95,7 +95,7 @@ class boss_nazan : public CreatureScript
             uint32 Turn_Timer;
             bool flight;
             uint64 VazrudenGUID;
-            SpellEntry *liquid_fire;
+            SpellInfo* liquid_fire;
 
             void Reset()
             {
@@ -117,7 +117,7 @@ class boss_nazan : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* target, const SpellEntry* entry)
+            void SpellHitTarget(Unit* target, const SpellInfo* entry)
             {
                 if (target && entry->Id == uint32(SPELL_FIREBALL))
                     me->SummonCreature(ENTRY_LIQUID_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 30000);
@@ -337,7 +337,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         VazrudenGUID = 0;
                     }
                     summoned = false;
-                    me->ClearUnitState(UNIT_STAT_ROOT);
+                    me->ClearUnitState(UNIT_STATE_ROOT);
                     me->SetVisible(true);
                 }
             }
@@ -352,7 +352,7 @@ class boss_vazruden_the_herald : public CreatureScript
                         NazanGUID = Nazan->GetGUID();
                     summoned = true;
                     me->SetVisible(false);
-                    me->AddUnitState(UNIT_STAT_ROOT);
+                    me->AddUnitState(UNIT_STATE_ROOT);
                 }
             }
 
@@ -397,7 +397,7 @@ class boss_vazruden_the_herald : public CreatureScript
 
             void UpdateAI(const uint32 diff)
             {
-                switch(phase)
+                switch (phase)
                 {
                 case 0: // circle around the platform
                     return;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,14 +42,14 @@ class instance_old_hillsbrad : public InstanceMapScript
 public:
     instance_old_hillsbrad() : InstanceMapScript("instance_old_hillsbrad", 560) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_old_hillsbrad_InstanceMapScript(pMap);
+        return new instance_old_hillsbrad_InstanceMapScript(map);
     }
 
     struct instance_old_hillsbrad_InstanceMapScript : public InstanceScript
     {
-        instance_old_hillsbrad_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_old_hillsbrad_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 mBarrelCount;
@@ -103,7 +103,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case THRALL_ENTRY:
                     ThrallGUID = creature->GetGUID();
@@ -127,7 +127,7 @@ public:
                 return;
             }
 
-            switch(type)
+            switch (type)
             {
                 case TYPE_BARREL_DIVERSION:
                 {
@@ -202,7 +202,7 @@ public:
 
         uint32 GetData(uint32 data)
         {
-            switch(data)
+            switch (data)
             {
                 case TYPE_BARREL_DIVERSION:
                     return m_auiEncounter[0];
@@ -222,7 +222,7 @@ public:
 
         uint64 GetData64(uint32 data)
         {
-            switch(data)
+            switch (data)
             {
                 case DATA_THRALL:
                     return ThrallGUID;

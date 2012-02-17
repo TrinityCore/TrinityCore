@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,17 +71,17 @@ void EventProcessor::KillAllEvents(bool force)
 
         i_old->second->to_Abort = true;
         i_old->second->Abort(m_time);
-        if(force || i_old->second->IsDeletable())
+        if (force || i_old->second->IsDeletable())
         {
             delete i_old->second;
 
-            if(!force)                                      // need per-element cleanup
+            if (!force)                                      // need per-element cleanup
                 m_events.erase (i_old);
         }
     }
 
     // fast clear event list (in force case)
-    if(force)
+    if (force)
         m_events.clear();
 }
 

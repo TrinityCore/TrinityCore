@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -71,7 +71,7 @@ public:
             me->RestoreFaction();
         }
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TYPEID_PLAYER && me->isAlive() && !uiSpeech_counter)
             {
@@ -109,7 +109,7 @@ public:
                         return;
                     }
 
-                    switch(uiSpeech_counter)
+                    switch (uiSpeech_counter)
                     {
                         case 1: DoScriptText(SAY_PERSUADED1, me); uiSpeech_timer = 8000; break;
                         case 2: DoScriptText(SAY_PERSUADED2, me); uiSpeech_timer = 8000; break;
@@ -177,9 +177,9 @@ class npc_koltira_deathweaver : public CreatureScript
 public:
     npc_koltira_deathweaver() : CreatureScript("npc_koltira_deathweaver") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_BREAKOUT)
+        if (quest->GetQuestId() == QUEST_BREAKOUT)
         {
             creature->SetStandState(UNIT_STAND_STATE_STAND);
 
@@ -220,7 +220,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 0:
                     DoScriptText(SAY_BREAKOUT1, me);
@@ -248,7 +248,7 @@ public:
                     me->Mount(MODEL_DEATH_KNIGHT_MOUNT);
                     break;
                 case 10:
-                    me->Unmount();
+                    me->Dismount();
                     break;
             }
         }
@@ -264,7 +264,7 @@ public:
                 m_uiValrothGUID = summoned->GetGUID();
 
             summoned->AddThreat(me, 0.0f);
-            summoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            summoned->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void SummonAcolyte(uint32 uiAmount)
@@ -281,7 +281,7 @@ public:
             {
                 if (m_uiWave_Timer <= uiDiff)
                 {
-                    switch(m_uiWave)
+                    switch (m_uiWave)
                     {
                         case 0:
                             DoScriptText(SAY_BREAKOUT3, me);
@@ -305,9 +305,9 @@ public:
                             break;
                         case 4:
                         {
-                            Creature* pTemp = Unit::GetCreature(*me, m_uiValrothGUID);
+                            Creature* temp = Unit::GetCreature(*me, m_uiValrothGUID);
 
-                            if (!pTemp || !pTemp->isAlive())
+                            if (!temp || !temp->isAlive())
                             {
                                 DoScriptText(SAY_BREAKOUT8, me);
                                 m_uiWave_Timer = 5000;
@@ -378,7 +378,7 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_TREE2, me);
-            me->Unmount();
+            me->Dismount();
             uiStage = 0;
         }
 
@@ -397,7 +397,7 @@ public:
             {
                 if (uiStage_timer <= diff)
                 {
-                    switch(uiStage)
+                    switch (uiStage)
                     {
                     case 1:
                         me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
@@ -482,21 +482,21 @@ public:
             {
                 Shout();
                 DoCast(me, SPELL_RENEW);
-                uiRenew_timer = 1000 + rand()%5000;
+                uiRenew_timer = urand(1000, 6000);
             } else uiRenew_timer -= diff;
 
             if (uiInquisitor_Penance_timer <= diff)
             {
                 Shout();
                 DoCast(me->getVictim(), SPELL_INQUISITOR_PENANCE);
-                uiInquisitor_Penance_timer = 2000 + rand()%5000;
+                uiInquisitor_Penance_timer = urand(2000, 7000);
             } else uiInquisitor_Penance_timer -= diff;
 
             if (uiValroth_Smite_timer <= diff)
             {
                 Shout();
                 DoCast(me->getVictim(), SPELL_VALROTH_SMITE);
-                uiValroth_Smite_timer = 1000 + rand()%5000;
+                uiValroth_Smite_timer = urand(1000, 6000);
             } else uiValroth_Smite_timer -= diff;
 
             DoMeleeAttackIfReady();
@@ -605,12 +605,12 @@ public:
             ExecuteSpeech_Counter = 0;
             PlayerGUID = 0;
 
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         bool MeetQuestCondition(Unit* player)
         {
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case 29061:                                     // Ellen Stanbridge
                     if (CAST_PLR(player)->GetQuestStatus(12742) == QUEST_STATUS_INCOMPLETE)
@@ -682,10 +682,10 @@ public:
 
                     //TODO: simplify text's selection
 
-                    switch(player->getRace())
+                    switch (player->getRace())
                     {
                         case RACE_HUMAN:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_1, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -702,7 +702,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_6, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -713,7 +713,7 @@ public:
                             }
                             break;
                         case RACE_ORC:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_1, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -730,7 +730,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_8, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -741,7 +741,7 @@ public:
                             }
                             break;
                         case RACE_DWARF:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_2, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -758,7 +758,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_3, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -769,7 +769,7 @@ public:
                             }
                             break;
                         case RACE_NIGHTELF:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_1, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -786,7 +786,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_7, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -797,7 +797,7 @@ public:
                             }
                             break;
                         case RACE_UNDEAD_PLAYER:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_1, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -814,7 +814,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_4, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -825,7 +825,7 @@ public:
                             }
                             break;
                         case RACE_TAUREN:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_1, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -842,7 +842,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_9, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -853,7 +853,7 @@ public:
                             }
                             break;
                         case RACE_GNOME:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_1, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -870,7 +870,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_5, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -881,7 +881,7 @@ public:
                             }
                             break;
                         case RACE_TROLL:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_3, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -898,7 +898,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_10, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -909,7 +909,7 @@ public:
                             }
                             break;
                         case RACE_BLOODELF:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_1, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -926,7 +926,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_1, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:
@@ -937,7 +937,7 @@ public:
                             }
                             break;
                         case RACE_DRAENEI:
-                            switch(ExecuteSpeech_Counter)
+                            switch (ExecuteSpeech_Counter)
                             {
                                 case 0: DoScriptText(SAY_EXEC_START_1, me, player); break;
                                 case 1: me->SetStandState(UNIT_STAND_STATE_STAND); break;
@@ -954,7 +954,7 @@ public:
                                 case 9:
                                     DoScriptText(SAY_EXEC_TIME_2, me, player);
                                     me->SetStandState(UNIT_STAND_STATE_KNEEL);
-                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                                     break;
                                 case 10: DoScriptText(SAY_EXEC_WAITING, me, player); break;
                                 case 11:

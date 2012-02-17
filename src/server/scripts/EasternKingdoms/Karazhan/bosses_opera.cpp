@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -88,11 +88,11 @@ EndScriptData */
 #define CREATURE_CYCLONE        18412
 #define CREATURE_CRONE          18168
 
-void SummonCroneIfReady(InstanceScript* pInstance, Creature* creature)
+void SummonCroneIfReady(InstanceScript* instance, Creature* creature)
 {
-    pInstance->SetData(DATA_OPERA_OZ_DEATHCOUNT, SPECIAL);  // Increment DeathCount
+    instance->SetData(DATA_OPERA_OZ_DEATHCOUNT, SPECIAL);  // Increment DeathCount
 
-    if (pInstance->GetData(DATA_OPERA_OZ_DEATHCOUNT) == 4)
+    if (instance->GetData(DATA_OPERA_OZ_DEATHCOUNT) == 4)
     {
         if (Creature* pCrone = creature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, creature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
         {
@@ -116,10 +116,10 @@ public:
     {
         boss_dorotheeAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 AggroTimer;
 
@@ -158,8 +158,8 @@ public:
         {
             DoScriptText(SAY_DOROTHEE_DEATH, me);
 
-            if (pInstance)
-                SummonCroneIfReady(pInstance, me);
+            if (instance)
+                SummonCroneIfReady(instance, me);
         }
 
         void AttackStart(Unit* who)
@@ -298,10 +298,10 @@ public:
     {
         boss_strawmanAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 AggroTimer;
         uint32 BrainBashTimer;
@@ -340,7 +340,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry *Spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
         {
             if ((Spell->SchoolMask == SPELL_SCHOOL_MASK_FIRE) && (!(rand()%10)))
             {
@@ -357,8 +357,8 @@ public:
         {
             DoScriptText(SAY_STRAWMAN_DEATH, me);
 
-            if (pInstance)
-                SummonCroneIfReady(pInstance, me);
+            if (instance)
+                SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -413,10 +413,10 @@ public:
     {
         boss_tinheadAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 AggroTimer;
         uint32 CleaveTimer;
@@ -463,8 +463,8 @@ public:
         {
             DoScriptText(SAY_TINHEAD_DEATH, me);
 
-            if (pInstance)
-                SummonCroneIfReady(pInstance, me);
+            if (instance)
+                SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -523,10 +523,10 @@ public:
     {
         boss_roarAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 AggroTimer;
         uint32 MangleTimer;
@@ -571,8 +571,8 @@ public:
         {
             DoScriptText(SAY_ROAR_DEATH, me);
 
-            if (pInstance)
-                SummonCroneIfReady(pInstance, me);
+            if (instance)
+                SummonCroneIfReady(instance, me);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -632,10 +632,10 @@ public:
     {
         boss_croneAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 CycloneTimer;
         uint32 ChainLightningTimer;
@@ -655,20 +655,20 @@ public:
         {
             DoScriptText(RAND(SAY_CRONE_AGGRO, SAY_CRONE_AGGRO2), me);
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_CRONE_DEATH, me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(TYPE_OPERA, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                instance->SetData(TYPE_OPERA, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                     pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
             }
         }
@@ -745,7 +745,7 @@ public:
 };
 
 /**************************************/
-/**** Opera Red Riding Hood Event ****/
+/**** Opera Red Riding Hood Event* ***/
 /************************************/
 
 /**** Yells for the Wolf ****/
@@ -761,7 +761,7 @@ public:
 
 #define GOSSIP_GRANDMA          "What phat lewtz you have grandmother?"
 
-/**** The Wolf's Entry ****/
+/**** The Wolf's Entry* ***/
 #define CREATURE_BIG_BAD_WOLF           17521
 
 class npc_grandmother : public CreatureScript
@@ -807,10 +807,10 @@ public:
     {
         boss_bigbadwolfAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 ChaseTimer;
         uint32 FearTimer;
@@ -824,7 +824,7 @@ public:
         void Reset()
         {
             ChaseTimer = 30000;
-            FearTimer = 25000 + rand()%10000;
+            FearTimer = urand(25000, 35000);
             SwipeTimer = 5000;
 
             HoodGUID = 0;
@@ -847,13 +847,13 @@ public:
         {
             DoPlaySoundToSet(me, SOUND_WOLF_DEATH);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(TYPE_OPERA, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                instance->SetData(TYPE_OPERA, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                     pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
             }
         }
@@ -920,7 +920,7 @@ public:
 };
 
 /**********************************************/
-/******** Opera Romeo and Juliet Event *******/
+/******** Opera Romeo and Juliet Event* ******/
 /********************************************/
 
 /**** Speech *****/
@@ -1006,13 +1006,13 @@ public:
     {
         boss_julianneAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             EntryYellTimer = 1000;
             AggroYellTimer = 10000;
             IsFakingDeath = false;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 EntryYellTimer;
         uint32 AggroYellTimer;
@@ -1080,7 +1080,7 @@ public:
             me->DespawnOrUnsummon();
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry *Spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* Spell)
         {
             if (Spell->Id == SPELL_DRINK_POISON)
             {
@@ -1095,12 +1095,12 @@ public:
         {
             DoScriptText(SAY_JULIANNE_DEATH02, me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(TYPE_OPERA, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
-                if (GameObject* pSideEntrance = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                instance->SetData(TYPE_OPERA, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                     pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
             }
         }
@@ -1129,12 +1129,12 @@ public:
     {
         boss_romuloAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             EntryYellTimer = 8000;
             AggroYellTimer = 15000;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 JulianneGUID;
         uint32 Phase;
@@ -1250,13 +1250,13 @@ public:
         {
             DoScriptText(SAY_ROMULO_DEATH, me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(TYPE_OPERA, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_STAGEDOORLEFT), true);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
+                instance->SetData(TYPE_OPERA, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORLEFT), true);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_STAGEDOORRIGHT), true);
 
-                if (GameObject* pSideEntrance = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
+                if (GameObject* pSideEntrance = instance->instance->GetGameObject(instance->GetData64(DATA_GO_SIDE_ENTRANCE_DOOR)))
                     pSideEntrance->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED);
             }
         }

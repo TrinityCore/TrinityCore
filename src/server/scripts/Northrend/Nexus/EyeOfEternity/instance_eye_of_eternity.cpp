@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -86,6 +86,7 @@ public:
             return true;
         }
 
+        //TODO: this should be handled in map, maybe add a summon function in map
         // There is no other way afaik...
         void SpawnGameObject(uint32 entry, Position& pos)
         {
@@ -98,7 +99,7 @@ public:
                 return;
             }
 
-            instance->Add(go);
+            instance->AddToMap(go);
         }
 
         void OnGameObjectCreate(GameObject* go)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,34 +36,34 @@ public:
 
     struct boss_aku_maiAI : public ScriptedAI
     {
-        boss_aku_maiAI(Creature* c) : ScriptedAI(c)
+        boss_aku_maiAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        uint32 uiPoisonCloudTimer;
+        uint32 poisonCloudTimer;
         bool bIsEnraged;
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
-            uiPoisonCloudTimer = urand(5000, 9000);
+            poisonCloudTimer = urand(5000, 9000);
             bIsEnraged = false;
-            if (pInstance)
-                pInstance->SetData(TYPE_AKU_MAI, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_AKU_MAI, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_AKU_MAI, DONE);
+            if (instance)
+                instance->SetData(TYPE_AKU_MAI, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -71,11 +71,11 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiPoisonCloudTimer < diff)
+            if (poisonCloudTimer < diff)
             {
                 DoCastVictim(SPELL_POISON_CLOUD);
-                uiPoisonCloudTimer = urand(25000, 50000);
-            } else uiPoisonCloudTimer -= diff;
+                poisonCloudTimer = urand(25000, 50000);
+            } else poisonCloudTimer -= diff;
 
             if (!bIsEnraged && HealthBelowPct(30))
             {
@@ -86,7 +86,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_aku_mai()

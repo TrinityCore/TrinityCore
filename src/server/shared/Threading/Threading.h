@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ namespace ACE_Based
             void incReference() { ++m_refs; }
             void decReference()
             {
-                if(!--m_refs)
+                if (!--m_refs)
                     delete this;
             }
         private:
@@ -95,7 +95,7 @@ namespace ACE_Based
 
             ACE_thread_t m_iThreadId;
             ACE_hthread_t m_hThreadHandle;
-            Runnable * m_task;
+            Runnable* m_task;
 
             typedef ACE_TSS<Thread> ThreadStorage;
             //global object - container for Thread class representation of every thread

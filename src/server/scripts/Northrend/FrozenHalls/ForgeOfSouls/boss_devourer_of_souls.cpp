@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -114,6 +114,8 @@ struct outroPosition
     { { 0, 0 }, { 0.0f, 0.0f, 0.0f, 0.0f } }
 };
 
+Position const CrucibleSummonPos = {5672.294f,2520.686f, 713.4386f, 0.9599311f};
+
 #define DATA_THREE_FACED        1
 
 class boss_devourer_of_souls : public CreatureScript
@@ -129,7 +131,7 @@ class boss_devourer_of_souls : public CreatureScript
 
             void InitializeAI()
             {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(FoSScriptName))
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(FoSScriptName))
                     me->IsAIEnabled = false;
                 else if (!me->isDead())
                     Reset();
@@ -154,6 +156,8 @@ class boss_devourer_of_souls : public CreatureScript
             {
                 DoScriptText(RAND(SAY_FACE_ANGER_AGGRO, SAY_FACE_DESIRE_AGGRO), me);
 
+                if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn
+                    instance->instance->SummonCreature(NPC_CRUCIBLE_OF_SOULS, CrucibleSummonPos);
                 events.ScheduleEvent(EVENT_PHANTOM_BLAST, 5000);
                 events.ScheduleEvent(EVENT_MIRRORED_SOUL, 8000);
                 events.ScheduleEvent(EVENT_WELL_OF_SOULS, 30000);
@@ -171,7 +175,7 @@ class boss_devourer_of_souls : public CreatureScript
                     {
                         if (player->GetAura(SPELL_MIRRORED_SOUL))
                         {
-                            int32 mirrorDamage = (uiDamage * 45)/100;
+                            int32 mirrorDamage = (uiDamage* 45)/100;
                             me->CastCustomSpell(player, 69034, &mirrorDamage, 0, 0, true);
                         }
                         else
@@ -234,7 +238,7 @@ class boss_devourer_of_souls : public CreatureScript
                 }
             }
 
-            void SpellHitTarget(Unit* /*target*/, const SpellEntry *spell)
+            void SpellHitTarget(Unit* /*target*/, const SpellInfo* spell)
             {
                 if (spell->Id == H_SPELL_PHANTOM_BLAST)
                     threeFaced = false;
@@ -256,12 +260,12 @@ class boss_devourer_of_souls : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_PHANTOM_BLAST:
                             DoCastVictim(SPELL_PHANTOM_BLAST);
@@ -302,6 +306,7 @@ class boss_devourer_of_souls : public CreatureScript
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {
                                 me->SetOrientation(me->GetAngle(target));
+                                me->SendMovementFlagUpdate();
                                 DoCast(me, SPELL_WAILING_SOULS_BEAM);
                             }
 
@@ -328,6 +333,7 @@ class boss_devourer_of_souls : public CreatureScript
                         case EVENT_WAILING_SOULS_TICK:
                             beamAngle += beamAngleDiff;
                             me->SetOrientation(beamAngle);
+                            me->SendMovementFlagUpdate();
                             me->StopMoving();
 
                             DoCast(me, SPELL_WAILING_SOULS);
@@ -360,7 +366,7 @@ class boss_devourer_of_souls : public CreatureScript
             uint64 mirroredSoulTarget;
         };
 
-        CreatureAI *GetAI(Creature* creature) const
+        CreatureAI* GetAI(Creature* creature) const
         {
             return new boss_devourer_of_soulsAI(creature);
         }

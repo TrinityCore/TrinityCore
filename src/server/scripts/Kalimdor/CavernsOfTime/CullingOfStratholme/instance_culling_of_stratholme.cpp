@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,14 +40,14 @@ class instance_culling_of_stratholme : public InstanceMapScript
     public:
         instance_culling_of_stratholme() : InstanceMapScript("instance_culling_of_stratholme", 595) { }
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_culling_of_stratholme_InstanceMapScript(pMap);
+            return new instance_culling_of_stratholme_InstanceMapScript(map);
         }
 
         struct instance_culling_of_stratholme_InstanceMapScript : public InstanceScript
         {
-            instance_culling_of_stratholme_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+            instance_culling_of_stratholme_InstanceMapScript(Map* map) : InstanceScript(map)
             {
                 _arthasGUID = 0;
                 _meathookGUID = 0;
@@ -248,8 +248,8 @@ class instance_culling_of_stratholme : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << "C S " << _encounterState[0] << " " << _encounterState[1] << " "
-                    << _encounterState[2] << " " << _encounterState[3] << " " << _encounterState[4];
+                saveStream << "C S " << _encounterState[0] << ' ' << _encounterState[1] << ' '
+                    << _encounterState[2] << ' ' << _encounterState[3] << ' ' << _encounterState[4];
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();

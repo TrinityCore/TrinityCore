@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -81,13 +81,26 @@ struct AABound
 
 class BIH
 {
-    public:
-        BIH() {};
-        template< class T, class BoundsFunc >
-        void build(const std::vector<T> &primitives, BoundsFunc &getBounds, uint32 leafSize = 3, bool printStats=false)
+    private:
+        void init_empty()
         {
-            if(primitives.empty())
+            tree.clear();
+            objects.clear();
+            // create space for the first node
+            tree.push_back(3 << 30); // dummy leaf
+            tree.insert(tree.end(), 2, 0);
+        }
+    public:
+        BIH() { init_empty(); }
+        template< class BoundsFunc, class PrimArray >
+        void build(const PrimArray &primitives, BoundsFunc &getBounds, uint32 leafSize = 3, bool printStats=false)
+        {
+            if (primitives.size() == 0)
+            {
+                init_empty();
                 return;
+            }
+
             buildData dat;
             dat.maxPrims = leafSize;
             dat.numPrims = primitives.size();
@@ -156,7 +169,7 @@ class BIH
             uint32 offsetBack3[3];
             // compute custom offsets from direction sign bit
 
-            for(int i=0; i<3; ++i)
+            for (int i=0; i<3; ++i)
             {
                 offsetFront[i] = floatToRawIntBits(dir[i]) >> 31;
                 offsetBack[i] = offsetFront[i] ^ 1;
@@ -218,7 +231,7 @@ class BIH
                             int n = tree[node + 1];
                             while (n > 0) {
                                 bool hit = intersectCallback(r, objects[offset], maxDist, stopAtFirst);
-                                if(stopAtFirst && hit) return;
+                                if (stopAtFirst && hit) return;
                                 --n;
                                 ++offset;
                             }
@@ -334,8 +347,8 @@ class BIH
             }
         }
 
-        bool writeToFile(FILE *wf) const;
-        bool readFromFile(FILE *rf);
+        bool writeToFile(FILE* wf) const;
+        bool readFromFile(FILE* rf);
 
     protected:
         std::vector<uint32> tree;
@@ -376,7 +389,7 @@ class BIH
                 maxObjects(0xFFFFFFFF), sumDepth(0), minDepth(0x0FFFFFFF),
                 maxDepth(0xFFFFFFFF), numBVH2(0)
             {
-                for(int i=0; i<6; ++i) numLeavesN[i] = 0;
+                for (int i=0; i<6; ++i) numLeavesN[i] = 0;
             }
 
             void updateInner() { numNodes++; }

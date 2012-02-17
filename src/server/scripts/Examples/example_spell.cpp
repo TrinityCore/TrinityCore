@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,10 +48,10 @@ class spell_ex_5581 : public SpellScriptLoader
 
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 // check if spellid 70522 exists in dbc, we will trigger it later
-                if (!sSpellStore.LookupEntry(SPELL_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGERED))
                     return false;
                 return true;
             }
@@ -76,10 +76,60 @@ class spell_ex_5581 : public SpellScriptLoader
                 delete localVariable2;
             }
 
-            void HandleDummy(SpellEffIndex /*effIndex*/)
+            void HandleBeforeCast()
             {
+                // this hook is executed before anything about casting the spell is done
+                // after this hook is executed all the machinery starts
+                sLog->outString("Caster just finished preparing the spell (cast bar has expired)");
+            }
+
+            void HandleOnCast()
+            {
+                // cast is validated and spell targets are selected at this moment
+                // this is a last place when the spell can be safely interrupted
+                sLog->outString("Spell is about to do take reagents, power, launch missile, do visuals and instant spell effects");
+            }
+
+            void HandleAfterCast()
+            {
+                sLog->outString("All immediate actions for the spell are finished now");
+                // this is a safe for triggering additional effects for a spell without interfering 
+                // with visuals or with other effects of the spell
+                //GetCaster()->CastSpell(target, SPELL_TRIGGERED, true);
+            }
+
+            SpellCastResult CheckRequirement()
+            {
+                // in this hook you can add additional requirements for spell caster (and throw a client error if reqs're not passed) 
+                // in this case we're disallowing to select non-player as a target of the spell
+                //if (!GetTargetUnit() || GetTargetUnit()->ToPlayer())
+                    //return SPELL_FAILED_BAD_TARGETS;
+                return SPELL_CAST_OK;
+            }
+
+
+            void HandleDummyLaunch(SpellEffIndex /*effIndex*/)
+            {
+                sLog->outString("Spell %u with SPELL_EFFECT_DUMMY is just launched!", GetSpellInfo()->Id);
+            }
+
+            void HandleDummyLaunchTarget(SpellEffIndex /*effIndex*/)
+            {
+                uint64 targetGUID = 0;
+                if (Unit* unitTarget = GetHitUnit())
+                    targetGUID = unitTarget->GetGUID();
                 // we're handling SPELL_EFFECT_DUMMY in effIndex 0 here
-                sLog->outString("SPELL_EFFECT_DUMMY is executed on target!");
+                sLog->outString("Spell %u with SPELL_EFFECT_DUMMY is just launched at it's target: " UI64FMTD "!", GetSpellInfo()->Id, targetGUID);
+            }
+
+            void HandleDummyHit(SpellEffIndex /*effIndex*/)
+            {
+                sLog->outString("Spell %u with SPELL_EFFECT_DUMMY has hit!", GetSpellInfo()->Id);
+            }
+
+            void HandleDummyHitTarget(SpellEffIndex /*effIndex*/)
+            {
+                sLog->outString("SPELL_EFFECT_DUMMY is hits it's target!");
                 // make caster cast a spell on a unit target of effect
                 if (Unit* target = GetHitUnit())
                     GetCaster()->CastSpell(target, SPELL_TRIGGERED, true);
@@ -109,16 +159,25 @@ class spell_ex_5581 : public SpellScriptLoader
             // register functions used in spell script - names of these functions do not matter
             void Register()
             {
-                // we're registering our function here
-                // function HandleDummy will be called when unit is hit by spell, just before default effect 0 handler
-                //OnEffect += SpellEffectFn(spell_ex_5581SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-                OnEffect += SpellEffectFn(spell_ex_5581SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // we're registering our functions here
+                BeforeCast += SpellCastFn(spell_ex_5581SpellScript::HandleBeforeCast);
+                OnCast += SpellCastFn(spell_ex_5581SpellScript::HandleOnCast);
+                AfterCast += SpellCastFn(spell_ex_5581SpellScript::HandleAfterCast);
+                OnCheckCast += SpellCheckCastFn(spell_ex_5581SpellScript::CheckRequirement);
+                // function HandleDummy will be called when spell is launched, independant from targets selected for spell, just before default effect 0 launch handler
+                OnEffectLaunch += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyLaunch, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // function HandleDummy will be called when spell is launched at target, just before default effect 0 launch at target handler
+                OnEffectLaunchTarget += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyLaunchTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // function HandleDummy will be called when spell hits it's destination, independant from targets selected for spell, just before default effect 0 hit handler
+                OnEffectHit += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyHit, EFFECT_0, SPELL_EFFECT_DUMMY);
+                // function HandleDummy will be called when unit is hit by spell, just before default effect 0 hit target handler
+                OnEffectHitTarget += SpellEffectFn(spell_ex_5581SpellScript::HandleDummyHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
                 // this will prompt an error on startup because effect 0 of spell 49375 is set to SPELL_EFFECT_DUMMY, not SPELL_EFFECT_APPLY_AURA
-                //OnEffect += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                //OnEffectHitTarget += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
                 // this will make HandleDummy function to be called on first != 0 effect of spell 49375
-                //OnEffect += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
+                //OnEffectHitTarget += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_FIRST_FOUND, SPELL_EFFECT_ANY);
                 // this will make HandleDummy function to be called on all != 0 effect of spell 49375
-                //OnEffect += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
+                //OnEffectHitTarget += SpellEffectFn(spell_gen_49375SpellScript::HandleDummy, EFFECT_ALL, SPELL_EFFECT_ANY);
                 // bind handler to BeforeHit event of the spell
                 BeforeHit += SpellHitFn(spell_ex_5581SpellScript::HandleBeforeHit);
                 // bind handler to OnHit event of the spell
@@ -147,10 +206,10 @@ class spell_ex_66244 : public SpellScriptLoader
             PrepareAuraScript(spell_ex_66244AuraScript);
             // function called on server startup
             // checks if script has data required for it to work
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 // check if spellid exists in dbc, we will trigger it later
-                if (!sSpellStore.LookupEntry(SPELL_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRIGGERED))
                     return false;
                 return true;
             }
@@ -379,7 +438,7 @@ class spell_ex : public SpellScriptLoader
         {
             PrepareSpellScript(spell_ex_SpellScript);
 
-            //bool Validate(SpellEntry const* spellEntry){return true;}
+            //bool Validate(SpellInfo const* spellEntry){return true;}
             //bool Load(){return true;}
             //void Unload(){}
 
@@ -406,7 +465,7 @@ class spell_ex : public SpellScriptLoader
         class spell_ex_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_ex)
-            //bool Validate(SpellEntry const* spellEntry){return true;}
+            //bool Validate(SpellInfo const* spellEntry){return true;}
             //bool Load(){return true;}
             //void Unload(){}
 

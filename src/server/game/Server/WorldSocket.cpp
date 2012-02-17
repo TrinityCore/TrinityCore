@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -44,6 +44,7 @@
 #include "Log.h"
 #include "WorldLog.h"
 #include "ScriptMgr.h"
+#include "AccountMgr.h"
 
 #if defined(__GNUC__)
 #pragma pack(1)
@@ -309,7 +310,7 @@ int WorldSocket::handle_input (ACE_HANDLE)
             if ((errno == EWOULDBLOCK) ||
                 (errno == EAGAIN))
             {
-                return Update();                           // interesting line , isn't it ?
+                return Update();                           // interesting line, isn't it ?
             }
 
             sLog->outStaticDebug("WorldSocket::handle_input: Peer error closing connection errno = %s", ACE_OS::strerror (errno));
@@ -384,7 +385,7 @@ int WorldSocket::handle_output_queue (GuardType& g)
     if (msg_queue()->is_empty())
         return cancel_wakeup_output(g);
 
-    ACE_Message_Block *mblk;
+    ACE_Message_Block* mblk;
 
     if (msg_queue()->dequeue_head(mblk, (ACE_Time_Value*)&ACE_Time_Value::zero) == -1)
     {
@@ -494,8 +495,8 @@ int WorldSocket::handle_input_header (void)
 
     if ((header.size < 4) || (header.size > 10240) || (header.cmd  > 10240))
     {
-        Player *_player = m_Session ? m_Session->GetPlayer() : NULL;
-        sLog->outError ("WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d , cmd: %d)",
+        Player* _player = m_Session ? m_Session->GetPlayer() : NULL;
+        sLog->outError ("WorldSocket::handle_input_header(): client (account: %u, char [GUID: %u, name: %s]) sent malformed packet (size: %d, cmd: %d)",
             m_Session ? m_Session->GetAccountId() : 0,
             _player ? _player->GetGUIDLow() : 0,
             _player ? _player->GetName() : "<none>",
@@ -598,7 +599,7 @@ int WorldSocket::handle_input_missing_data (void)
 
         // Its possible on some error situations that this happens
         // for example on closing when epoll receives more chunked data and stuff
-        // hope this is not hack , as proper m_RecvWPct is asserted around
+        // hope this is not hack, as proper m_RecvWPct is asserted around
         if (!m_RecvWPct)
         {
             sLog->outError ("Forcing close on input m_RecvWPct = NULL");
@@ -707,7 +708,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
 
     try
     {
-        switch(opcode)
+        switch (opcode)
         {
             case CMSG_PING:
                 return HandlePing (*new_pct);
@@ -721,7 +722,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return HandleAuthSession (*new_pct);
             case CMSG_KEEP_ALIVE:
-                sLog->outStaticDebug ("CMSG_KEEP_ALIVE , size: " UI64FMTD, uint64(new_pct->size()));
+                sLog->outStaticDebug ("CMSG_KEEP_ALIVE, size: " UI64FMTD, uint64(new_pct->size()));
                 sScriptMgr->OnPacketReceive(this, WorldPacket(*new_pct));
                 return 0;
             default:
@@ -734,7 +735,7 @@ int WorldSocket::ProcessIncoming (WorldPacket* new_pct)
                     // Catches people idling on the login screen and any lingering ingame connections.
                     m_Session->ResetTimeOutTime();
 
-                    // OK , give the packet to WorldSession
+                    // OK, give the packet to WorldSession
                     aptr.release();
                     // WARNINIG here we call it with locks held.
                     // Its possible to cause deadlock if QueuePacket calls back
@@ -801,7 +802,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     recvPacket >> clientSeed;
     recvPacket >> unk5 >> unk6 >> unk7;
     recvPacket >> unk4;
-    recvPacket.read (digest, 20);
+    recvPacket.read(digest, 20);
 
     sLog->outStaticDebug ("WorldSocket::HandleAuthSession: client %u, unk2 %u, account %s, unk3 %u, clientseed %u",
                 BuiltNumberClient,
@@ -849,7 +850,6 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     uint32 world_expansion = sWorld->getIntConfig(CONFIG_EXPANSION);
     if (expansion > world_expansion)
         expansion = world_expansion;
-    //expansion = ((sWorld->getIntConfig(CONFIG_EXPANSION) > fields[6].GetUInt8()) ? fields[6].GetUInt8() : sWorld->getIntConfig(CONFIG_EXPANSION));
 
     N.SetHexStr ("894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7");
     g.SetDword (7);
@@ -882,14 +882,21 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     }
 
     id = fields[0].GetUInt32();
-    /*
-    if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
-        security = SEC_ADMINISTRATOR;
-        */
-
     K.SetHexStr (fields[1].GetCString());
 
-    time_t mutetime = time_t (fields[7].GetUInt64());
+    int64 mutetime = fields[7].GetInt64();
+    //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
+    if (mutetime < 0)
+    {
+        mutetime = time(NULL) + llabs(mutetime);
+
+        PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_MUTE_TIME);
+
+        stmt->setInt64(0, mutetime);
+        stmt->setUInt32(1, id);
+
+        LoginDatabase.Execute(stmt);
+    }
 
     locale = LocaleConstant (fields[8].GetUInt8());
     if (locale >= TOTAL_LOCALES)
@@ -935,7 +942,7 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
     // Check locked state for server
     AccountTypes allowedAccountType = sWorld->GetPlayerSecurityLimit();
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Allowed Level: %u Player Level %u", allowedAccountType, AccountTypes(security));
-    if (allowedAccountType > SEC_PLAYER && AccountTypes(security) < allowedAccountType)
+    if (AccountTypes(security) < allowedAccountType)
     {
         WorldPacket Packet (SMSG_AUTH_RESPONSE, 1);
         Packet << uint8 (AUTH_UNAVAILABLE);
@@ -976,18 +983,24 @@ int WorldSocket::HandleAuthSession (WorldPacket& recvPacket)
                 account.c_str(),
                 address.c_str());
 
-    // Update the last_ip in the database
-    // No SQL injection, username escaped.
-    LoginDatabase.EscapeString (address);
+    // Check if this user is by any chance a recruiter
+    result = LoginDatabase.PQuery ("SELECT 1  FROM account WHERE recruiter = %u", id);
 
-    LoginDatabase.PExecute ("UPDATE account "
-                            "SET last_ip = '%s' "
-                            "WHERE username = '%s'",
-                            address.c_str(),
-                            safe_account.c_str());
+    bool isRecruiter = false;
+    if (result)
+        isRecruiter = true;
+
+    // Update the last_ip in the database
+
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LAST_IP);
+
+    stmt->setString(0, address);
+    stmt->setString(1, account);
+
+    LoginDatabase.Execute(stmt);
 
     // NOTE ATM the socket is single-threaded, have this in mind ...
-    ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter), -1);
+    ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
     m_Crypt.Init(&K);
 
@@ -1032,7 +1045,7 @@ int WorldSocket::HandlePing (WorldPacket& recvPacket)
             {
                 ACE_GUARD_RETURN (LockType, Guard, m_SessionLock, -1);
 
-                if (m_Session && m_Session->GetSecurity() == SEC_PLAYER)
+                if (m_Session && AccountMgr::IsPlayerAccount(m_Session->GetSecurity()))
                 {
                     Player* _player = m_Session->GetPlayer();
                     sLog->outError("WorldSocket::HandlePing: Player (account: %u, GUID: %u, name: %s) kicked for over-speed pings (address: %s)",

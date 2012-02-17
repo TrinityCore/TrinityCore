@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -367,8 +367,8 @@ class instance_stratholme : public InstanceMapScript
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << EncounterState[0] << " " << EncounterState[1] << " " << EncounterState[2] << " "
-                    << EncounterState[3] << " " << EncounterState[4] << " " << EncounterState[5];
+                saveStream << EncounterState[0] << ' ' << EncounterState[1] << ' ' << EncounterState[2] << ' '
+                    << EncounterState[3] << ' ' << EncounterState[4] << ' ' << EncounterState[5];
 
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return saveStream.str();

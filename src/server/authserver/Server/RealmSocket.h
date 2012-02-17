@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,6 +24,7 @@
 #include <ace/SOCK_Stream.h>
 #include <ace/Message_Block.h>
 #include <ace/Basic_Types.h>
+#include "Common.h"
 
 class RealmSocket : public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_NULL_SYNCH>
 {
@@ -52,7 +53,9 @@ public:
 
     bool send(const char *buf, size_t len);
 
-    const std::string& get_remote_address(void) const;
+    const std::string& getRemoteAddress(void) const;
+
+    const uint16 getRemotePort(void) const;
 
     virtual int open(void *);
 
@@ -69,8 +72,9 @@ private:
     ssize_t noblk_send(ACE_Message_Block &message_block);
 
     ACE_Message_Block input_buffer_;
-    Session *session_;
-    std::string remote_address_;
+    Session* session_;
+    std::string _remoteAddress;
+    uint16 _remotePort;
 };
 
 #endif /* __REALMSOCKET_H__ */

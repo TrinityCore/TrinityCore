@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -35,34 +35,42 @@ EndContentData */
 # npc_torek
 ####*/
 
-#define SAY_READY                   -1000106
-#define SAY_MOVE                    -1000107
-#define SAY_PREPARE                 -1000108
-#define SAY_WIN                     -1000109
-#define SAY_END                     -1000110
+enum TorekSays
+{
+    SAY_READY                  = 0,
+    SAY_MOVE                   = 1,
+    SAY_PREPARE                = 2,
+    SAY_WIN                    = 3,
+    SAY_END                    = 4,
+};
 
-#define SPELL_REND                  11977
-#define SPELL_THUNDERCLAP           8078
+enum TorekSpells
+{
+    SPELL_REND                  = 11977,
+    SPELL_THUNDERCLAP           = 8078,
+};
 
-#define QUEST_TOREK_ASSULT          6544
+enum TorekMisc
+{
+    QUEST_TOREK_ASSULT          = 6544,
 
-#define ENTRY_SPLINTERTREE_RAIDER   12859
-#define ENTRY_DURIEL                12860
-#define ENTRY_SILVERWING_SENTINEL   12896
-#define ENTRY_SILVERWING_WARRIOR    12897
+    ENTRY_SPLINTERTREE_RAIDER   = 12859,
+    ENTRY_DURIEL                = 12860,
+    ENTRY_SILVERWING_SENTINEL   = 12896,
+    ENTRY_SILVERWING_WARRIOR    = 12897,
+};
 
 class npc_torek : public CreatureScript
 {
     public:
 
-        npc_torek()
-            : CreatureScript("npc_torek")
+        npc_torek() : CreatureScript("npc_torek")
         {
         }
 
         struct npc_torekAI : public npc_escortAI
         {
-            npc_torekAI(Creature* c) : npc_escortAI(c) {}
+            npc_torekAI(Creature* creature) : npc_escortAI(creature) {}
 
             uint32 Rend_Timer;
             uint32 Thunderclap_Timer;
@@ -78,10 +86,10 @@ class npc_torek : public CreatureScript
                 switch (i)
                 {
                 case 1:
-                    DoScriptText(SAY_MOVE, me, player);
+                    Talk(SAY_MOVE, player->GetGUID());
                     break;
                 case 8:
-                    DoScriptText(SAY_PREPARE, me, player);
+                    Talk(SAY_PREPARE, player->GetGUID());
                     break;
                 case 19:
                     //TODO: verify location and creatures amount.
@@ -96,7 +104,7 @@ class npc_torek : public CreatureScript
                         player->GroupEventHappens(QUEST_TOREK_ASSULT, me);
                     break;
                 case 21:
-                    DoScriptText(SAY_END, me, player);
+                    Talk(SAY_END, player->GetGUID());
                     break;
                 }
             }
@@ -148,7 +156,7 @@ class npc_torek : public CreatureScript
             if (quest->GetQuestId() == QUEST_TOREK_ASSULT)
             {
                 //TODO: find companions, make them follow Torek, at any time (possibly done by core/database in future?)
-                DoScriptText(SAY_READY, creature, player);
+                creature->AI()->Talk(SAY_READY, player->GetGUID());
                 creature->setFaction(113);
 
                 if (npc_escortAI* pEscortAI = CAST_AI(npc_torekAI, creature->AI()))
@@ -186,7 +194,7 @@ class npc_ruul_snowhoof : public CreatureScript
                 if (!player)
                     return;
 
-                switch(i)
+                switch (i)
                 {
                 case 0:    {
                         me->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
@@ -319,7 +327,7 @@ class npc_muglash : public CreatureScript
             {
                 Player* player = GetPlayerForEscort();
 
-                switch(i)
+                switch (i)
                 {
                     case 0:
                         if (player)
@@ -329,9 +337,9 @@ class npc_muglash : public CreatureScript
                         if (player)
                             DoScriptText(SAY_MUG_BRAZIER, me, player);
 
-                        if (GameObject* pGo = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
+                        if (GameObject* go = GetClosestGameObjectWithEntry(me, GO_NAGA_BRAZIER, INTERACTION_DISTANCE*2))
                         {
-                            pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                             SetEscortPaused(true);
                         }
                         break;
@@ -382,7 +390,7 @@ class npc_muglash : public CreatureScript
 
             void DoWaveSummon()
             {
-                switch(m_uiWaveId)
+                switch (m_uiWaveId)
                 {
                     case 1:
                         me->SummonCreature(NPC_WRATH_RIDER,     m_afFirstNagaCoord[0][0], m_afFirstNagaCoord[0][1], m_afFirstNagaCoord[0][2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);

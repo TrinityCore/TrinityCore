@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -68,10 +68,10 @@ public:
     {
         boss_blackheart_the_inciterAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         bool InciteChaos;
         uint32 InciteChaos_Timer;
@@ -87,8 +87,8 @@ public:
             Charge_Timer = 5000;
             Knockback_Timer = 15000;
 
-            if (pInstance)
-                pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -100,16 +100,16 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_BLACKHEARTTHEINCITEREVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -133,12 +133,12 @@ public:
             {
                 DoCast(me, SPELL_INCITE_CHAOS);
 
-                std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                 {
                     Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                     if (target && target->GetTypeId() == TYPEID_PLAYER)
-                        target->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
+                        me->CastSpell(target, SPELL_INCITE_CHAOS_B, true);
                 }
 
                 DoResetThreat();
@@ -152,14 +152,14 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     DoCast(target, SPELL_CHARGE);
-                Charge_Timer = 15000 + rand()%10000;
+                Charge_Timer = urand(15000, 25000);
             } else Charge_Timer -= diff;
 
             //Knockback_Timer
             if (Knockback_Timer <= diff)
             {
                 DoCast(me, SPELL_WAR_STOMP);
-                Knockback_Timer = 18000 + rand()%6000;
+                Knockback_Timer = urand(18000, 24000);
             } else Knockback_Timer -= diff;
 
             DoMeleeAttackIfReady();

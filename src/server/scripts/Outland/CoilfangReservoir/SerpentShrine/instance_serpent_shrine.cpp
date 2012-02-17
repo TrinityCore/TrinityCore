@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,13 +54,13 @@ class go_bridge_console : public GameObjectScript
 
         bool OnGossipHello(Player* /*player*/, GameObject* go)
         {
-            InstanceScript* pInstance = go->GetInstanceScript();
+            InstanceScript* instance = go->GetInstanceScript();
 
-            if (!pInstance)
+            if (!instance)
                 return false;
 
-            if (pInstance)
-                pInstance->SetData(DATA_CONTROL_CONSOLE, DONE);
+            if (instance)
+                instance->SetData(DATA_CONTROL_CONSOLE, DONE);
 
             return true;
         }
@@ -73,7 +73,7 @@ class instance_serpent_shrine : public InstanceMapScript
 
         struct instance_serpentshrine_cavern_InstanceMapScript : public InstanceScript
         {
-            instance_serpentshrine_cavern_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+            instance_serpentshrine_cavern_InstanceMapScript(Map* map) : InstanceScript(map)
             {
             }
 
@@ -383,8 +383,8 @@ class instance_serpent_shrine : public InstanceMapScript
             {
                 OUT_SAVE_INST_DATA;
                 std::ostringstream stream;
-                stream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
-                    << m_auiEncounter[3] << " " << m_auiEncounter[4] << " " << m_auiEncounter[5] << " " << TrashCount;
+                stream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' '
+                    << m_auiEncounter[3] << ' ' << m_auiEncounter[4] << ' ' << m_auiEncounter[5] << ' ' << TrashCount;
                 OUT_SAVE_INST_DATA_COMPLETE;
                 return stream.str();
             }
@@ -434,9 +434,9 @@ class instance_serpent_shrine : public InstanceMapScript
             bool DoSpawnFrenzy;
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_serpentshrine_cavern_InstanceMapScript(pMap);
+            return new instance_serpentshrine_cavern_InstanceMapScript(map);
         }
 };
 

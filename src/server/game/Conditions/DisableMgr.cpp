@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,25 +16,34 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SpellMgr.h"
-#include "ObjectMgr.h"
 #include "DisableMgr.h"
+#include "ObjectMgr.h"
 #include "OutdoorPvP.h"
+#include "SpellMgr.h"
 #include "VMapManager2.h"
 
-DisableMgr::DisableMgr()
+namespace DisableMgr
 {
+
+namespace
+{
+    struct DisableData
+    {
+        uint8 flags;
+        std::set<uint32> params[2];                             // params0, params1
+    };
+
+    // single disables here with optional data
+    typedef std::map<uint32, DisableData> DisableTypeMap;
+    // global disable map by source
+    typedef std::map<DisableType, DisableTypeMap> DisableMap;
+
+    DisableMap m_DisableMap;
+
+    uint8 MAX_DISABLE_TYPES = 7;
 }
 
-DisableMgr::~DisableMgr()
-{
-    for (DisableMap::iterator itr = m_DisableMap.begin(); itr != m_DisableMap.end(); ++itr)
-        itr->second.clear();
-
-    m_DisableMap.clear();
-}
-
-void DisableMgr::LoadDisables()
+void LoadDisables()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -77,8 +86,7 @@ void DisableMgr::LoadDisables()
         switch (type)
         {
             case DISABLE_TYPE_SPELL:
-            {
-                if (!(sSpellStore.LookupEntry(entry) || flags & SPELL_DISABLE_DEPRECATED_SPELL))
+                if (!(sSpellMgr->GetSpellInfo(entry) || flags & SPELL_DISABLE_DEPRECATED_SPELL))
                 {
                     sLog->outErrorDb("Spell entry %u from `disables` doesn't exist in dbc, skipped.", entry);
                     continue;
@@ -104,7 +112,7 @@ void DisableMgr::LoadDisables()
                         data.params[1].insert(atoi(tokens[i++]));
                 }
 
-            }   break;
+                break;
             // checked later
             case DISABLE_TYPE_QUEST:
                 break;
@@ -217,14 +225,14 @@ void DisableMgr::LoadDisables()
 
         m_DisableMap[type].insert(DisableTypeMap::value_type(entry, data));
         ++total_count;
-   }
+    }
     while (result->NextRow());
 
     sLog->outString(">> Loaded %u disables in %u ms", total_count, GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
-void DisableMgr::CheckQuestDisables()
+void CheckQuestDisables()
 {
     uint32 oldMSTime = getMSTime();
 
@@ -255,7 +263,7 @@ void DisableMgr::CheckQuestDisables()
     sLog->outString();
 }
 
-bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)
+bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags)
 {
     ASSERT(type < MAX_DISABLE_TYPES);
     if (m_DisableMap[type].empty())
@@ -269,26 +277,25 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit,
     {
         case DISABLE_TYPE_SPELL:
         {
-            uint8 flags = itr->second.flags;
+            uint8 spellFlags = itr->second.flags;
             if (unit)
             {
-
-                if ((flags & SPELL_DISABLE_PLAYER && unit->GetTypeId() == TYPEID_PLAYER) ||
-                    (unit->GetTypeId() == TYPEID_UNIT && ((unit->ToCreature()->isPet() && flags & SPELL_DISABLE_PET) || flags & SPELL_DISABLE_CREATURE)))
+                if ((spellFlags & SPELL_DISABLE_PLAYER && unit->GetTypeId() == TYPEID_PLAYER) ||
+                    (unit->GetTypeId() == TYPEID_UNIT && ((unit->ToCreature()->isPet() && spellFlags & SPELL_DISABLE_PET) || spellFlags & SPELL_DISABLE_CREATURE)))
                 {
-                    if (flags & SPELL_DISABLE_MAP)
+                    if (spellFlags & SPELL_DISABLE_MAP)
                     {
                         std::set<uint32> const& mapIds = itr->second.params[0];
                         if (mapIds.find(unit->GetMapId()) != mapIds.end())
                             return true;                                        // Spell is disabled on current map
 
-                        if (!(flags & SPELL_DISABLE_AREA))
+                        if (!(spellFlags & SPELL_DISABLE_AREA))
                             return false;                                       // Spell is disabled on another map, but not this one, return false
 
                         // Spell is disabled in an area, but not explicitly our current mapId. Continue processing.
                     }
 
-                    if (flags & SPELL_DISABLE_AREA)
+                    if (spellFlags & SPELL_DISABLE_AREA)
                     {
                         std::set<uint32> const& areaIds = itr->second.params[1];
                         if (areaIds.find(unit->GetAreaId()) != areaIds.end())
@@ -301,8 +308,10 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit,
 
                 return false;
             }
-            else if (flags & SPELL_DISABLE_DEPRECATED_SPELL)    // call not from spellcast
+            else if (spellFlags & SPELL_DISABLE_DEPRECATED_SPELL)    // call not from spellcast
                 return true;
+
+            break;
         }
         case DISABLE_TYPE_MAP:
             if (Player const* player = unit->ToPlayer())
@@ -313,7 +322,7 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit,
                     uint8 disabledModes = itr->second.flags;
                     Difficulty targetDifficulty = player->GetDifficulty(mapEntry->IsRaid());
                     GetDownscaledMapDifficultyData(entry, targetDifficulty);
-                    switch(targetDifficulty)
+                    switch (targetDifficulty)
                     {
                         case DUNGEON_DIFFICULTY_NORMAL:
                             return disabledModes & DUNGEON_STATUSFLAG_NORMAL;
@@ -346,3 +355,5 @@ bool DisableMgr::IsDisabledFor(DisableType type, uint32 entry, Unit const* unit,
 
     return false;
 }
+
+} // Namespace

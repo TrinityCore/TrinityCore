@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@ LfgPlayerData::~LfgPlayerData()
 
 void LfgPlayerData::SetState(LfgState state)
 {
-    switch(state)
+    switch (state)
     {
         case LFG_STATE_NONE:
         case LFG_STATE_DUNGEON:

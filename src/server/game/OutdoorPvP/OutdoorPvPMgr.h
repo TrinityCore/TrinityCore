@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,38 +38,37 @@ struct OutdoorPvPData
 // class to handle player enter / leave / areatrigger / GO use events
 class OutdoorPvPMgr
 {
-    public:
+    friend class ACE_Singleton<OutdoorPvPMgr, ACE_Null_Mutex>;
 
-        // ctor
+    private:
         OutdoorPvPMgr();
-
-        // dtor
         ~OutdoorPvPMgr();
 
+    public:
         // create outdoor pvp events
         void InitOutdoorPvP();
 
         // called when a player enters an outdoor pvp area
-        void HandlePlayerEnterZone(Player* plr, uint32 areaflag);
+        void HandlePlayerEnterZone(Player* player, uint32 areaflag);
 
         // called when player leaves an outdoor pvp area
-        void HandlePlayerLeaveZone(Player* plr, uint32 areaflag);
+        void HandlePlayerLeaveZone(Player* player, uint32 areaflag);
 
         // called when player resurrects
-        void HandlePlayerResurrects(Player* plr, uint32 areaflag);
+        void HandlePlayerResurrects(Player* player, uint32 areaflag);
 
         // return assigned outdoor pvp
-        OutdoorPvP * GetOutdoorPvPToZoneId(uint32 zoneid);
+        OutdoorPvP* GetOutdoorPvPToZoneId(uint32 zoneid);
 
         // handle custom (non-exist in dbc) spell if registered
-        bool HandleCustomSpell(Player* plr, uint32 spellId, GameObject* go);
+        bool HandleCustomSpell(Player* player, uint32 spellId, GameObject* go);
 
         // handle custom go if registered
-        bool HandleOpenGo(Player* plr, uint64 guid);
+        bool HandleOpenGo(Player* player, uint64 guid);
 
-        ZoneScript * GetZoneScript(uint32 zoneId);
+        ZoneScript* GetZoneScript(uint32 zoneId);
 
-        void AddZone(uint32 zoneid, OutdoorPvP * handle);
+        void AddZone(uint32 zoneid, OutdoorPvP* handle);
 
         void Update(uint32 diff);
 
@@ -77,13 +76,12 @@ class OutdoorPvPMgr
 
         bool CanTalkTo(Player* player, Creature* creature, GossipMenuItems const& gso);
 
-        void HandleDropFlag(Player* plr, uint32 spellId);
+        void HandleDropFlag(Player* player, uint32 spellId);
 
+    private:
         typedef std::vector<OutdoorPvP*> OutdoorPvPSet;
         typedef std::map<uint32 /* zoneid */, OutdoorPvP*> OutdoorPvPMap;
         typedef std::map<OutdoorPvPTypes, OutdoorPvPData*> OutdoorPvPDataMap;
-
-    private:
 
         // contains all initiated outdoor pvp events
         // used when initing / cleaning up

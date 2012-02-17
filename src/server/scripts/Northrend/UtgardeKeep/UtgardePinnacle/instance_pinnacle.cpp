@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,14 +39,14 @@ class instance_utgarde_pinnacle : public InstanceMapScript
 public:
     instance_utgarde_pinnacle() : InstanceMapScript("instance_utgarde_pinnacle", 575) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_pinnacle(pMap);
+        return new instance_pinnacle(map);
     }
 
     struct instance_pinnacle : public InstanceScript
     {
-        instance_pinnacle(Map* pMap) : InstanceScript(pMap) {}
+        instance_pinnacle(Map* map) : InstanceScript(map) {}
 
         uint64 uiSvalaSorrowgrave;
         uint64 uiGortokPalehoof;
@@ -104,7 +104,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case BOSS_SVALA_SORROWGRAVE:  uiSvalaSorrowgrave = creature->GetGUID();  break;
                 case BOSS_GORTOK_PALEHOOF:    uiGortokPalehoof = creature->GetGUID();    break;
@@ -121,7 +121,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case ENTRY_SKADI_THE_RUTHLESS_DOOR:
                     uiSkadiTheRuthlessDoor = go->GetGUID();
@@ -136,7 +136,7 @@ public:
                     if (m_auiEncounter[1] == DONE)
                     {
                         HandleGameObject(0, true, go);
-                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     break;
             }
@@ -144,7 +144,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_SVALA_SORROWGRAVE_EVENT:
                     m_auiEncounter[0] = data;
@@ -170,13 +170,17 @@ public:
 
         void SetData64(uint32 type, uint64 data)
         {
-            if (type == DATA_SACRIFICED_PLAYER)
-                uiSacrificedPlayer = data;
+            switch (type)
+            {
+                case DATA_SACRIFICED_PLAYER:
+                    uiSacrificedPlayer = data;
+                    break;
+            }
         }
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_SVALA_SORROWGRAVE_EVENT:        return m_auiEncounter[0];
                 case DATA_GORTOK_PALEHOOF_EVENT:          return m_auiEncounter[1];
@@ -188,7 +192,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_SVALA_SORROWGRAVE:      return uiSvalaSorrowgrave;
                 case DATA_GORTOK_PALEHOOF:        return uiGortokPalehoof;
@@ -201,6 +205,7 @@ public:
                 case DATA_MOB_ORB:                return uiPalehoofOrb;
                 case DATA_SVALA:                  return uiSvala;
                 case DATA_GORTOK_PALEHOOF_SPHERE: return uiGortokPalehoofSphere;
+                case DATA_SACRIFICED_PLAYER:      return uiSacrificedPlayer;
             }
 
             return 0;
@@ -211,8 +216,8 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "U P " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-                << m_auiEncounter[2] << " " << m_auiEncounter[3];
+            saveStream << "U P " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
+                << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
 
             str_data = saveStream.str();
 

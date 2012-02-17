@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,11 +43,11 @@ class npc_corporal_keeshan : public CreatureScript
 public:
     npc_corporal_keeshan() : CreatureScript("npc_corporal_keeshan") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_MISSING_IN_ACTION)
+        if (quest->GetQuestId() == QUEST_MISSING_IN_ACTION)
         {
-            CAST_AI(npc_corporal_keeshan::npc_corporal_keeshanAI, creature->AI())->Start(true, false, player->GetGUID(), pQuest);
+            CAST_AI(npc_corporal_keeshan::npc_corporal_keeshanAI, creature->AI())->Start(true, false, player->GetGUID(), quest);
             DoScriptText(SAY_CORPORAL_1, creature);
         }
 
@@ -86,7 +86,7 @@ public:
             if (uiI >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALKING)
                 me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 
-            switch(uiI)
+            switch (uiI)
             {
                 case 39:
                     SetEscortPaused(true);
@@ -115,7 +115,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             me->SetStandState(UNIT_STAND_STATE_SIT);

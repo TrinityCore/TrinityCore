@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ class npc_four_car_garage : public CreatureScript
                 {
                     uint32 spellId = 0;
 
-                    switch(me->GetEntry())
+                    switch (me->GetEntry())
                     {
                         case NPC_DEMOLISHER:
                             spellId = SPELL_DRIVING_CREDIT_DEMOLISHER;

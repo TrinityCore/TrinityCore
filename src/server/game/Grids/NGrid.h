@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,7 +69,7 @@ typedef enum
 
 template
 <
-unsigned int N,
+uint32 N,
 class ACTIVE_OBJECT,
 class WORLD_OBJECT_TYPES,
 class GRID_OBJECT_TYPES
@@ -77,7 +77,6 @@ class GRID_OBJECT_TYPES
 class NGrid
 {
     public:
-
         typedef Grid<ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> GridType;
         NGrid(uint32 id, int32 x, int32 y, time_t expiry, bool unload = true)
             : i_gridId(id), i_x(x), i_y(y), i_cellstate(GRID_STATE_INVALID), i_GridObjectDataLoaded(false)
@@ -85,21 +84,19 @@ class NGrid
             i_GridInfo = GridInfo(expiry, unload);
         }
 
-        const GridType& operator()(unsigned short x, unsigned short y) const
+        GridType& GetGridType(const uint32 x, const uint32 y)
         {
-            ASSERT(x < N);
-            ASSERT(y < N);
+            ASSERT(x < N && y < N);
             return i_cells[x][y];
         }
 
-        GridType& operator()(unsigned short x, unsigned short y)
+        GridType const& GetGridType(const uint32 x, const uint32 y) const
         {
-            ASSERT(x < N);
-            ASSERT(y < N);
+            ASSERT(x < N && y < N);
             return i_cells[x][y];
         }
 
-        const uint32& GetGridId(void) const { return i_gridId; }
+        uint32 GetGridId(void) const { return i_gridId; }
         void SetGridId(const uint32 id) const { i_gridId = id; }
         grid_state_t GetGridState(void) const { return i_cellstate; }
         void SetGridState(grid_state_t s) { i_cellstate = s; }
@@ -123,56 +120,68 @@ class NGrid
         void ResetTimeTracker(time_t interval) { i_GridInfo.ResetTimeTracker(interval); }
         void UpdateTimeTracker(time_t diff) { i_GridInfo.UpdateTimeTracker(diff); }
 
+        /*
         template<class SPECIFIC_OBJECT> void AddWorldObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj)
         {
-            getGridType(x, y).AddWorldObject(obj);
+            GetGridType(x, y).AddWorldObject(obj);
         }
 
         template<class SPECIFIC_OBJECT> void RemoveWorldObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj)
         {
-            getGridType(x, y).RemoveWorldObject(obj);
+            GetGridType(x, y).RemoveWorldObject(obj);
         }
 
-        template<class T, class TT> void Visit(TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
+        template<class SPECIFIC_OBJECT> void AddGridObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj)
         {
-            for (unsigned int x=0; x < N; ++x)
-                for (unsigned int y=0; y < N; ++y)
-                    getGridType(x, y).Visit(visitor);
+            GetGridType(x, y).AddGridObject(obj);
         }
 
-        template<class T, class TT> void Visit(const uint32 &x, const uint32 &y, TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
+        template<class SPECIFIC_OBJECT> void RemoveGridObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj)
         {
-            getGridType(x, y).Visit(visitor);
+            GetGridType(x, y).RemoveGridObject(obj);
+        }
+        */
+
+        // Visit all Grids (cells) in NGrid (grid)
+        template<class T, class TT>
+        void VisitAllGrids(TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
+        {
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    GetGridType(x, y).Visit(visitor);
         }
 
-        unsigned int ActiveObjectsInGrid(void) const
+        // Visit a single Grid (cell) in NGrid (grid)
+        template<class T, class TT>
+        void VisitGrid(const uint32 x, const uint32 y, TypeContainerVisitor<T, TypeMapContainer<TT> > &visitor)
         {
-            unsigned int count=0;
-            for (unsigned int x=0; x < N; ++x)
-                for (unsigned int y=0; y < N; ++y)
+            GetGridType(x, y).Visit(visitor);
+        }
+
+        //This gets the player count in grid
+        //I disable this to avoid confusion (active object usually means something else)
+        /*
+        uint32 GetActiveObjectCountInGrid() const
+        {
+            uint32 count = 0;
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
                     count += i_cells[x][y].ActiveObjectsInGrid();
             return count;
         }
+        */
 
-        template<class SPECIFIC_OBJECT> bool AddGridObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj)
+        template<class T>
+        uint32 GetWorldObjectCountInNGrid() const
         {
-            return getGridType(x, y).AddGridObject(obj);
-        }
-
-        template<class SPECIFIC_OBJECT> bool RemoveGridObject(const uint32 x, const uint32 y, SPECIFIC_OBJECT *obj)
-        {
-            return getGridType(x, y).RemoveGridObject(obj);
+            uint32 count = 0;
+            for (uint32 x = 0; x < N; ++x)
+                for (uint32 y = 0; y < N; ++y)
+                    count += i_cells[x][y].template GetWorldObjectCountInGrid<T>();
+            return count;
         }
 
     private:
-
-        GridType& getGridType(const uint32& x, const uint32& y)
-        {
-            ASSERT(x < N);
-            ASSERT(y < N);
-            return i_cells[x][y];
-        }
-
         uint32 i_gridId;
         GridInfo i_GridInfo;
         GridReference<NGrid<N, ACTIVE_OBJECT, WORLD_OBJECT_TYPES, GRID_OBJECT_TYPES> > i_Reference;

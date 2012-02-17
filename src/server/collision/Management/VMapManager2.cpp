@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -52,17 +52,6 @@ namespace VMAP
     }
 
     Vector3 VMapManager2::convertPositionToInternalRep(float x, float y, float z) const
-    {
-        Vector3 pos;
-        const float mid = 0.5f * 64.0f * 533.33333333f;
-        pos.x = mid - x;
-        pos.y = mid - y;
-        pos.z = z;
-
-        return pos;
-    }
-
-    Vector3 VMapManager2::convertPositionToMangosRep(float x, float y, float z) const
     {
         Vector3 pos;
         const float mid = 0.5f * 64.0f * 533.33333333f;
@@ -143,7 +132,7 @@ namespace VMAP
 
     bool VMapManager2::isInLineOfSight(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2)
     {
-        if (!isLineOfSightCalcEnabled() || sDisableMgr->IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_LOS))
+        if (!isLineOfSightCalcEnabled() || DisableMgr::IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_LOS))
             return true;
 
         InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
@@ -166,7 +155,7 @@ namespace VMAP
     */
     bool VMapManager2::getObjectHitPos(unsigned int mapId, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist)
     {
-        if (isLineOfSightCalcEnabled() && !sDisableMgr->IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_LOS))
+        if (isLineOfSightCalcEnabled() && !DisableMgr::IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_LOS))
         {
             InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
             if (instanceTree != iInstanceMapTrees.end())
@@ -175,7 +164,7 @@ namespace VMAP
                 Vector3 pos2 = convertPositionToInternalRep(x2, y2, z2);
                 Vector3 resultPos;
                 bool result = instanceTree->second->getObjectHitPos(pos1, pos2, resultPos, modifyDist);
-                resultPos = convertPositionToMangosRep(resultPos.x, resultPos.y, resultPos.z);
+                resultPos = convertPositionToInternalRep(resultPos.x, resultPos.y, resultPos.z);
                 rx = resultPos.x;
                 ry = resultPos.y;
                 rz = resultPos.z;
@@ -196,7 +185,7 @@ namespace VMAP
 
     float VMapManager2::getHeight(unsigned int mapId, float x, float y, float z, float maxSearchDist)
     {
-        if (isHeightCalcEnabled() && !sDisableMgr->IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_HEIGHT))
+        if (isHeightCalcEnabled() && !DisableMgr::IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_HEIGHT))
         {
             InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
             if (instanceTree != iInstanceMapTrees.end())
@@ -215,14 +204,14 @@ namespace VMAP
 
     bool VMapManager2::getAreaInfo(unsigned int mapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const
     {
-        if (!sDisableMgr->IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_AREAFLAG))
+        if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_AREAFLAG))
         {
             InstanceTreeMap::const_iterator instanceTree = iInstanceMapTrees.find(mapId);
             if (instanceTree != iInstanceMapTrees.end())
             {
                 Vector3 pos = convertPositionToInternalRep(x, y, z);
                 bool result = instanceTree->second->getAreaInfo(pos, flags, adtId, rootId, groupId);
-                // z is not touched by convertPositionToMangosRep(), so just copy
+                // z is not touched by convertPositionToInternalRep(), so just copy
                 z = pos.z;
                 return result;
             }
@@ -233,7 +222,7 @@ namespace VMAP
 
     bool VMapManager2::GetLiquidLevel(uint32 mapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const
     {
-        if (!sDisableMgr->IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_LIQUIDSTATUS))
+        if (!DisableMgr::IsDisabledFor(DISABLE_TYPE_VMAP, mapId, NULL, VMAP_DISABLE_LIQUIDSTATUS))
         {
             InstanceTreeMap::const_iterator instanceTree = iInstanceMapTrees.find(mapId);
             if (instanceTree != iInstanceMapTrees.end())
@@ -256,8 +245,11 @@ namespace VMAP
         return false;
     }
 
-    WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename)
+    WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags/* Only used when creating the model */)
     {
+        //! Critical section, thread safe access to iLoadedModelFiles
+        TRINITY_GUARD(ACE_Thread_Mutex, LoadedModelFilesLock);
+
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {
@@ -269,6 +261,7 @@ namespace VMAP
                 return NULL;
             }
             sLog->outDebug(LOG_FILTER_MAPS, "VMapManager2: loading file '%s%s'", basepath.c_str(), filename.c_str());
+            worldmodel->Flags = flags;
             model = iLoadedModelFiles.insert(std::pair<std::string, ManagedModel>(filename, ManagedModel())).first;
             model->second.setModel(worldmodel);
         }
@@ -278,6 +271,9 @@ namespace VMAP
 
     void VMapManager2::releaseModelInstance(const std::string &filename)
     {
+        //! Critical section, thread safe access to iLoadedModelFiles
+        TRINITY_GUARD(ACE_Thread_Mutex, LoadedModelFilesLock);
+
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
         {

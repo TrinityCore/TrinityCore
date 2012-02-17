@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -80,12 +80,12 @@ class boss_kelidan_the_breaker : public CreatureScript
         {
             boss_kelidan_the_breakerAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 for (uint8 i=0; i<5; ++i)
                     Channelers[i] = 0;
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 ShadowVolley_Timer;
             uint32 BurningNova_Timer;
@@ -105,8 +105,8 @@ class boss_kelidan_the_breaker : public CreatureScript
                 Firenova = false;
                 addYell = false;
                 SummonChannelers();
-                if (pInstance)
-                    pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, NOT_STARTED);
             }
 
             void EnterCombat(Unit* who)
@@ -115,8 +115,8 @@ class boss_kelidan_the_breaker : public CreatureScript
                 if (me->IsNonMeleeSpellCasted(false))
                     me->InterruptNonMeleeSpells(true);
                 DoStartMovement(who);
-                if (pInstance)
-                    pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, IN_PROGRESS);
             }
 
             void KilledUnit(Unit* /*victim*/)
@@ -187,12 +187,12 @@ class boss_kelidan_the_breaker : public CreatureScript
             {
                 DoScriptText(SAY_DIE, me);
 
-                if (!pInstance)
+                if (!instance)
                     return;
 
-                pInstance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR1), true);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_DOOR6), true);
+                instance->SetData(TYPE_KELIDAN_THE_BREAKER_EVENT, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_DOOR1), true);
+                instance->HandleGameObject(instance->GetData64(DATA_DOOR6), true);
             }
 
             void UpdateAI(const uint32 diff)
@@ -247,9 +247,9 @@ class boss_kelidan_the_breaker : public CreatureScript
 
                     DoScriptText(SAY_NOVA, me);
 
-                    if (SpellEntry *nova = GET_SPELL(SPELL_BURNING_NOVA))
+                    if (SpellInfo const* nova = sSpellMgr->GetSpellInfo(SPELL_BURNING_NOVA))
                     {
-                        if (Aura * aura = Aura::TryRefreshStackOrCreate(nova, MAX_EFFECT_MASK, me, me))
+                        if (Aura* aura = Aura::TryRefreshStackOrCreate(nova, MAX_EFFECT_MASK, me, me))
                             aura->ApplyForTargets();
                     }
 

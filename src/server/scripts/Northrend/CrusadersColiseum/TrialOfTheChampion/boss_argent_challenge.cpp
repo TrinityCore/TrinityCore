@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -78,17 +78,17 @@ class spell_eadric_radiance : public SpellScriptLoader
             PrepareSpellScript(spell_eadric_radiance_SpellScript);
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(OrientationCheck(GetCaster()));
+                unitList.remove_if (OrientationCheck(GetCaster()));
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_eadric_radiance_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_eadric_radiance_SpellScript();
         }
@@ -102,12 +102,12 @@ public:
     {
         boss_eadricAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             creature->SetReactState(REACT_PASSIVE);
             creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiVenganceTimer;
         uint32 uiRadianceTimer;
@@ -142,8 +142,8 @@ public:
             if (MovementType != POINT_MOTION_TYPE)
                 return;
 
-            if (pInstance)
-                pInstance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
+            if (instance)
+                instance->SetData(BOSS_ARGENT_CHALLENGE_E, DONE);
 
             me->DisappearAndDie();
         }
@@ -207,7 +207,7 @@ public:
     {
         boss_paletressAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
 
             MemoryGUID = 0;
             creature->SetReactState(REACT_PASSIVE);
@@ -215,7 +215,7 @@ public:
             creature->RestoreFaction();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         Creature* pMemory;
         uint64 MemoryGUID;
@@ -268,8 +268,8 @@ public:
             if (MovementType != POINT_MOTION_TYPE || Point != 0)
                 return;
 
-            if (pInstance)
-                pInstance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
+            if (instance)
+                instance->SetData(BOSS_ARGENT_CHALLENGE_P, DONE);
 
             me->DisappearAndDie();
         }
@@ -317,7 +317,7 @@ public:
                 {
                     me->InterruptNonMeleeSpells(true);
                     uint8 uiTarget = urand(0, 1);
-                    switch(uiTarget)
+                    switch (uiTarget)
                     {
                         case 0:
                             DoCast(me, SPELL_RENEW);
@@ -437,13 +437,13 @@ public:
     {
         npc_argent_soldierAI(Creature* creature) : npc_escortAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
             me->SetReactState(REACT_DEFENSIVE);
             SetDespawnAtEnd(false);
             uiWaypoint = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8 uiWaypoint;
 
@@ -451,7 +451,7 @@ public:
         {
             if (uiPoint == 0)
             {
-                switch(uiWaypoint)
+                switch (uiWaypoint)
                 {
                     case 0:
                         me->SetOrientation(5.81f);
@@ -470,10 +470,10 @@ public:
 
         void SetData(uint32 uiType, uint32 /*uiData*/)
         {
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case NPC_ARGENT_LIGHWIELDER:
-                    switch(uiType)
+                    switch (uiType)
                     {
                         case 0:
                             AddWaypoint(0, 712.14f, 628.42f, 411.88f);
@@ -487,7 +487,7 @@ public:
                     }
                     break;
                 case NPC_ARGENT_MONK:
-                    switch(uiType)
+                    switch (uiType)
                     {
                         case 0:
                             AddWaypoint(0, 713.12f, 632.97f, 411.90f);
@@ -501,7 +501,7 @@ public:
                     }
                     break;
                 case NPC_PRIESTESS:
-                    switch(uiType)
+                    switch (uiType)
                     {
                         case 0:
                             AddWaypoint(0, 715.06f, 637.07f, 411.91f);
@@ -532,8 +532,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, pInstance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
+            if (instance)
+                instance->SetData(DATA_ARGENT_SOLDIER_DEFEATED, instance->GetData(DATA_ARGENT_SOLDIER_DEFEATED) + 1);
         }
     };
 

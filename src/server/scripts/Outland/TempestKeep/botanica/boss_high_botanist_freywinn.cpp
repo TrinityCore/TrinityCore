@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -93,7 +93,7 @@ class boss_high_botanist_freywinn : public CreatureScript
 
             void DoSummonSeedling()
             {
-                switch(rand()%4)
+                switch (rand()%4)
                 {
                     case 0: DoCast(me, SPELL_PLANT_WHITE); break;
                     case 1: DoCast(me, SPELL_PLANT_GREEN); break;

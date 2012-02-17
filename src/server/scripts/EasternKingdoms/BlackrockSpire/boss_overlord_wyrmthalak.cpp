@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,10 +71,10 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_BLAST_WAVE, 20*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_SHOUT, 2*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE, 6*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_KNOCK_AWAY, 12*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_BLAST_WAVE, 20 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_SHOUT,       2 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE,      6 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_KNOCK_AWAY, 12 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*who*/)
@@ -91,9 +91,9 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
-                    if (Creature* warlord = me->SummonCreature(NPC_SPIRESTONE_WARLORD, SummonLocation1, TEMPSUMMON_TIMED_DESPAWN, 300*IN_MILLISECONDS))
+                    if (Creature* warlord = me->SummonCreature(NPC_SPIRESTONE_WARLORD, SummonLocation1, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS))
                         warlord->AI()->AttackStart(target);
-                    if (Creature* berserker = me->SummonCreature(NPC_SMOLDERTHORN_BERSERKER, SummonLocation2, TEMPSUMMON_TIMED_DESPAWN, 300*IN_MILLISECONDS))
+                    if (Creature* berserker = me->SummonCreature(NPC_SMOLDERTHORN_BERSERKER, SummonLocation2, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS))
                         berserker->AI()->AttackStart(target);
                     Summoned = true;
                 }
@@ -101,7 +101,7 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -110,19 +110,19 @@ public:
                 {
                     case EVENT_BLAST_WAVE:
                         DoCast(me->getVictim(), SPELL_BLASTWAVE);
-                        events.ScheduleEvent(EVENT_BLAST_WAVE, 20*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_BLAST_WAVE, 20 * IN_MILLISECONDS);
                         break;
                     case EVENT_SHOUT:
                         DoCast(me->getVictim(), SPELL_SHOUT);
-                        events.ScheduleEvent(EVENT_SHOUT, 10*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_SHOUT, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
                         DoCast(me->getVictim(), SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 7*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CLEAVE, 7 * IN_MILLISECONDS);
                         break;
                     case EVENT_KNOCK_AWAY:
                         DoCast(me->getVictim(), SPELL_KNOCKAWAY);
-                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 14*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_KNOCK_AWAY, 14 * IN_MILLISECONDS);
                         break;
                 }
             }

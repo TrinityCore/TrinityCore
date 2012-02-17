@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -117,17 +117,14 @@ public:
     {
         boss_kalecgosAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             SathGUID = 0;
             DoorGUID = 0;
             bJustReset = false;
             me->setActive(true);
-            SpellEntry *TempSpell = GET_SPELL(SPELL_SPECTRAL_BLAST);
-            if (TempSpell)
-                TempSpell->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ENEMY;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 ArcaneBuffetTimer;
         uint32 FrostBreathTimer;
@@ -149,10 +146,10 @@ public:
 
         void Reset()
         {
-            if (pInstance)
+            if (instance)
             {
-                SathGUID = pInstance->GetData64(DATA_SATHROVARR);
-                pInstance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
+                SathGUID = instance->GetData64(DATA_SATHROVARR);
+                instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
 
             if (Creature* Sath = Unit::GetCreature(*me, SathGUID))
@@ -334,7 +331,7 @@ public:
             if (bJustReset)//boss is invisible, don't attack
                 return;
 
-            if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)))
+            if (!me->getVictim() && me->IsValidAttackTarget(who))
             {
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius))
@@ -354,8 +351,8 @@ public:
             DoScriptText(SAY_EVIL_AGGRO, me);
             DoZoneInCombat();
 
-            if (pInstance)
-                pInstance->SetData(DATA_KALECGOS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_KALECGOS_EVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -392,7 +389,7 @@ public:
 
         void GoodEnding()
         {
-            switch(TalkSequence)
+            switch (TalkSequence)
             {
             case 1:
                 me->setFaction(35);
@@ -414,7 +411,7 @@ public:
 
         void BadEnding()
         {
-            switch(TalkSequence)
+            switch (TalkSequence)
             {
             case 1:
                 DoScriptText(SAY_EVIL_ENRAGE, me);
@@ -448,7 +445,7 @@ public:
 
     struct boss_kalecAI : public ScriptedAI
     {
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 RevitalizeTimer;
         uint32 HeroicStrikeTimer;
@@ -461,13 +458,13 @@ public:
 
         boss_kalecAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         void Reset()
         {
-            if (pInstance)
-                SathGUID = pInstance->GetData64(DATA_SATHROVARR);
+            if (instance)
+                SathGUID = instance->GetData64(DATA_SATHROVARR);
 
             RevitalizeTimer = 5000;
             HeroicStrikeTimer = 3000;
@@ -494,7 +491,7 @@ public:
 
             if (YellTimer <= diff)
             {
-                switch(YellSequence)
+                switch (YellSequence)
                 {
                 case 0:
                     DoScriptText(SAY_GOOD_AGGRO, me);
@@ -543,14 +540,14 @@ class kalecgos_teleporter : public GameObjectScript
 public:
     kalecgos_teleporter() : GameObjectScript("kalecgos_teleporter") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         uint8 SpectralPlayers = 0;
-        Map* pMap = pGo->GetMap();
-        if (!pMap->IsDungeon())
+        Map* map = go->GetMap();
+        if (!map->IsDungeon())
             return true;
 
-        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+        Map::PlayerList const &PlayerList = map->GetPlayers();
         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
         {
             if (i->getSource() && i->getSource()->GetPositionZ() < DEMON_REALM_Z + 5)
@@ -580,12 +577,12 @@ public:
     {
         boss_sathrovarrAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             KalecGUID = 0;
             KalecgosGUID = 0;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 CorruptionStrikeTimer;
         uint32 AgonyCurseTimer;
@@ -603,10 +600,10 @@ public:
         {
             me->SetFullHealth();//dunno why it does not resets health at evade..
             me->setActive(true);
-            if (pInstance)
+            if (instance)
             {
-                KalecgosGUID = pInstance->GetData64(DATA_KALECGOS_DRAGON);
-                pInstance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
+                KalecgosGUID = instance->GetData64(DATA_KALECGOS_DRAGON);
+                instance->SetData(DATA_KALECGOS_EVENT, NOT_STARTED);
             }
             if (KalecGUID)
             {
@@ -615,7 +612,7 @@ public:
                 KalecGUID = 0;
             }
 
-            ShadowBoltTimer = 7000 + rand()%3 * 1000;
+            ShadowBoltTimer = urand(7, 10) * 1000;
             AgonyCurseTimer = 20000;
             CorruptionStrikeTimer = 13000;
             CheckTimer = 1000;
@@ -664,7 +661,7 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_SATH_DEATH, me);
-            me->GetMap()->CreatureRelocation(me, me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
+            me->SetPosition(me->GetPositionX(), me->GetPositionY(), DRAGON_REALM_Z, me->GetOrientation());
             TeleportAllPlayersBack();
             if (Creature* Kalecgos = Unit::GetCreature(*me, KalecgosGUID))
             {
@@ -672,15 +669,15 @@ public:
                 CAST_AI(boss_kalecgos::boss_kalecgosAI, Kalecgos->AI())->isFriendly = true;
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_KALECGOS_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_KALECGOS_EVENT, DONE);
         }
 
         void TeleportAllPlayersBack()
         {
-            Map* pMap = me->GetMap();
-            if (!pMap->IsDungeon()) return;
-            Map::PlayerList const &PlayerList = pMap->GetPlayers();
+            Map* map = me->GetMap();
+            if (!map->IsDungeon()) return;
+            Map::PlayerList const &PlayerList = map->GetPlayers();
             for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
             {
                 if (i->getSource()->GetPositionZ() <= DRAGON_REALM_Z-5)
@@ -763,11 +760,11 @@ public:
             {
                 for (std::list<HostileReference*>::const_iterator itr = me->getThreatManager().getThreatList().begin(); itr != me->getThreatManager().getThreatList().end(); ++itr)
                 {
-                    if (Unit* pUnit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
+                    if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
                     {
-                        if (pUnit->GetPositionZ() > me->GetPositionZ()+5)
+                        if (unit->GetPositionZ() > me->GetPositionZ()+5)
                         {
-                            me->getThreatManager().modifyThreatPercent(pUnit, -100);
+                            me->getThreatManager().modifyThreatPercent(unit, -100);
                         }
                     }
                 }

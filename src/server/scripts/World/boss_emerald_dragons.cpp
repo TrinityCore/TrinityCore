@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
 * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -122,7 +122,7 @@ struct emerald_dragonAI : public WorldBossAI
                 // Despawntime is 2 minutes, so reschedule it for new cast after 2 minutes + a minor "random time" (30 seconds at max)
                 DoCast(me, SPELL_SEEPING_FOG_LEFT, true);
                 DoCast(me, SPELL_SEEPING_FOG_RIGHT, true);
-                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(120000,150000));
+                events.ScheduleEvent(EVENT_SEEPING_FOG, urand(120000, 150000));
                 break;
             case EVENT_NOXIOUS_BREATH:
                 // Noxious Breath is cast on random intervals, no less than 7.5 seconds between
@@ -144,7 +144,7 @@ struct emerald_dragonAI : public WorldBossAI
 
         events.Update(diff);
 
-        if (me->HasUnitState(UNIT_STAT_CASTING))
+        if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
         while (uint32 eventId = events.ExecuteEvent())
@@ -241,12 +241,12 @@ class spell_dream_fog_sleep : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(DreamFogTargetSelector());
+                unitList.remove_if (DreamFogTargetSelector());
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_dream_fog_sleep_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dream_fog_sleep_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
@@ -281,18 +281,18 @@ class spell_mark_of_nature : public SpellScriptLoader
         {
             PrepareSpellScript(spell_mark_of_nature_SpellScript);
 
-            bool Validate(SpellEntry const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_MARK_OF_NATURE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_NATURE))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_AURA_OF_NATURE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_AURA_OF_NATURE))
                     return false;
                 return true;
             }
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove_if(MarkOfNatureTargetSelector());
+                unitList.remove_if (MarkOfNatureTargetSelector());
             }
 
             void HandleEffect(SpellEffIndex effIndex)
@@ -305,8 +305,8 @@ class spell_mark_of_nature : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnEffect += SpellEffectFn(spell_mark_of_nature_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_mark_of_nature_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnEffectHitTarget += SpellEffectFn(spell_mark_of_nature_SpellScript::HandleEffect, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
             }
         };
 

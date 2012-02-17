@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,7 +57,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->CLOSE_GOSSIP_MENU();
@@ -172,7 +172,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF + 1:
                 player->CLOSE_GOSSIP_MENU();
@@ -348,7 +348,7 @@ public:
         void EnterCombat(Unit* who)
         {
             uint32 rnd = rand()%2;
-            switch(rnd)
+            switch (rnd)
             {
                 case 0: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_1, me, who); break;
                 case 1: DoScriptText(CLINTAR_SPIRIT_SAY_UNDER_ATTACK_2, me, who); break;
@@ -402,10 +402,10 @@ public:
                     return;
                 }
 
-                switch(CurrWP)
+                switch (CurrWP)
                 {
                     case 0:
-                        switch(Step)
+                        switch (Step)
                         {
                             case 0:
                                 me->Say(CLINTAR_SPIRIT_SAY_START, 0, PlayerGUID);
@@ -418,7 +418,7 @@ public:
                         }
                         break;
                     case 6:
-                        switch(Step)
+                        switch (Step)
                         {
                             case 0:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
@@ -433,7 +433,7 @@ public:
                         }
                         break;
                     case 15:
-                        switch(Step)
+                        switch (Step)
                         {
                             case 0:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
@@ -447,7 +447,7 @@ public:
                         }
                         break;
                     case 16:
-                        switch(Step)
+                        switch (Step)
                         {
                             case 0:
                                 DoScriptText(CLINTAR_SPIRIT_SAY_GET_TWO, me, player);
@@ -460,7 +460,7 @@ public:
                         }
                         break;
                     case 20:
-                        switch(Step)
+                        switch (Step)
                         {
                             case 0:
                                 {
@@ -480,7 +480,7 @@ public:
                         }
                         break;
                     case 24:
-                        switch(Step)
+                        switch (Step)
                         {
                             case 0:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 133);
@@ -494,7 +494,7 @@ public:
                         }
                         break;
                     case 25:
-                        switch(Step)
+                        switch (Step)
                         {
                             case 0:
                                 DoScriptText(CLINTAR_SPIRIT_SAY_GET_THREE, me, player);
@@ -507,7 +507,7 @@ public:
                         }
                         break;
                     case 40:
-                        switch(Step)
+                        switch (Step)
                         {
                             case 0:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, 2);
@@ -559,7 +559,7 @@ class npc_clintar_dreamwalker : public CreatureScript
 public:
     npc_clintar_dreamwalker() : CreatureScript("npc_clintar_dreamwalker") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
         if (quest->GetQuestId() == 10965)
         {
@@ -573,8 +573,150 @@ public:
 };
 
 /*####
-#
+# npc_omen
 ####*/
+
+enum Omen
+{
+    NPC_OMEN                    = 15467,
+
+    SPELL_OMEN_CLEAVE           = 15284,
+    SPELL_OMEN_STARFALL         = 26540,
+    SPELL_OMEN_SUMMON_SPOTLIGHT = 26392,
+    SPELL_ELUNE_CANDLE          = 26374,
+
+    GO_ELUNE_TRAP_1             = 180876,
+    GO_ELUNE_TRAP_2             = 180877,
+
+    EVENT_CAST_CLEAVE           = 1,
+    EVENT_CAST_STARFALL         = 2,
+    EVENT_DESPAWN               = 3,
+};
+
+class npc_omen : public CreatureScript
+{
+public:
+    npc_omen() : CreatureScript("npc_omen") { }
+
+    struct npc_omenAI : public ScriptedAI
+    {
+        npc_omenAI(Creature* creature) : ScriptedAI(creature)
+        {
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+            me->GetMotionMaster()->MovePoint(1, 7549.977f, -2855.137f, 456.9678f);
+        }
+
+        EventMap events;
+
+        void MovementInform(uint32 type, uint32 pointId)
+        {
+            if (type != POINT_MOTION_TYPE)
+                return;
+
+            if (pointId == 1)
+            {
+                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
+                if (Player* player = me->SelectNearestPlayer(40.0f))
+                    AttackStart(player);
+            }
+        }
+
+        void EnterCombat(Unit* /*attacker*/)
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(3000, 5000));
+            events.ScheduleEvent(EVENT_CAST_STARFALL, urand(8000, 10000));
+        }
+
+        void JustDied(Unit* /*killer*/)
+        {
+            DoCast(SPELL_OMEN_SUMMON_SPOTLIGHT);
+        }
+
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
+        {
+            if (spell->Id == SPELL_ELUNE_CANDLE)
+            {
+                if (me->HasAura(SPELL_OMEN_STARFALL))
+                    me->RemoveAurasDueToSpell(SPELL_OMEN_STARFALL);
+
+                events.RescheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+            }
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (!UpdateVictim())
+                return;
+
+            events.Update(diff);
+
+            switch (events.ExecuteEvent())
+            {
+                case EVENT_CAST_CLEAVE:
+                    DoCastVictim(SPELL_OMEN_CLEAVE);
+                    events.ScheduleEvent(EVENT_CAST_CLEAVE, urand(8000, 10000));
+                    break;
+                case EVENT_CAST_STARFALL:
+                    if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
+                        DoCast(target, SPELL_OMEN_STARFALL);
+                    events.ScheduleEvent(EVENT_CAST_STARFALL, urand(14000, 16000));
+                    break;
+            }
+
+            DoMeleeAttackIfReady();
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_omenAI(creature);
+    }
+};
+
+class npc_giant_spotlight : public CreatureScript
+{
+public:
+    npc_giant_spotlight() : CreatureScript("npc_giant_spotlight") { }
+
+    struct npc_giant_spotlightAI : public ScriptedAI
+    {
+        npc_giant_spotlightAI(Creature* creature) : ScriptedAI(creature) {}
+
+        EventMap events;
+
+        void Reset()
+        {
+            events.Reset();
+            events.ScheduleEvent(EVENT_DESPAWN, 5*MINUTE*IN_MILLISECONDS);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            events.Update(diff);
+
+            if (events.ExecuteEvent() == EVENT_DESPAWN)
+            {
+                if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_1, 5.0f))
+                    trap->RemoveFromWorld();
+
+                if (GameObject* trap = me->FindNearestGameObject(GO_ELUNE_TRAP_2, 5.0f))
+                    trap->RemoveFromWorld();
+
+                if (Creature* omen = me->FindNearestCreature(NPC_OMEN, 5.0f, false))
+                    omen->DespawnOrUnsummon();
+
+                me->DespawnOrUnsummon();
+            }
+        }
+    };
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_giant_spotlightAI(creature);
+    }
+};
 
 void AddSC_moonglade()
 {
@@ -583,4 +725,6 @@ void AddSC_moonglade()
     new npc_silva_filnaveth();
     new npc_clintar_dreamwalker();
     new npc_clintar_spirit();
+    new npc_omen();
+    new npc_giant_spotlight();
 }

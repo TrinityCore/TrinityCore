@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -95,10 +95,10 @@ public:
     {
         boss_aranAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 SecondarySpellTimer;
         uint32 NormalCastTimer;
@@ -149,11 +149,11 @@ public:
             Drinking = false;
             DrinkInturrupted = false;
 
-            if (pInstance)
+            if (instance)
             {
                 // Not in progress
-                pInstance->SetData(TYPE_ARAN, NOT_STARTED);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+                instance->SetData(TYPE_ARAN, NOT_STARTED);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
             }
         }
 
@@ -166,10 +166,10 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(TYPE_ARAN, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), true);
+                instance->SetData(TYPE_ARAN, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), true);
             }
         }
 
@@ -177,23 +177,23 @@ public:
         {
             DoScriptText(RAND(SAY_AGGRO1, SAY_AGGRO2, SAY_AGGRO3), me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(TYPE_ARAN, IN_PROGRESS);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+                instance->SetData(TYPE_ARAN, IN_PROGRESS);
+                instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
             }
         }
 
         void FlameWreathEffect()
         {
             std::vector<Unit*> targets;
-            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
+            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
 
-            if (!t_list.size())
+            if (t_list.empty())
                 return;
 
             //store the threat list in a different container
-            for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
@@ -228,9 +228,9 @@ public:
             {
                 if (CloseDoorTimer <= diff)
                 {
-                    if (pInstance)
+                    if (instance)
                     {
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_LIBRARY_DOOR), false);
+                        instance->HandleGameObject(instance->GetData64(DATA_GO_LIBRARY_DOOR), false);
                         CloseDoorTimer = 0;
                     }
                 } else CloseDoorTimer -= diff;
@@ -424,10 +424,10 @@ public:
 
                 for (uint32 i = 0; i < 4; ++i)
                 {
-                    if (Creature* pUnit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
+                    if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
                     {
-                        pUnit->Attack(me->getVictim(), true);
-                        pUnit->setFaction(me->getFaction());
+                        unit->Attack(me->getVictim(), true);
+                        unit->setFaction(me->getFaction());
                     }
                 }
 
@@ -438,10 +438,10 @@ public:
             {
                 for (uint32 i = 0; i < 5; ++i)
                 {
-                    if (Creature* pUnit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                    if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
-                        pUnit->Attack(me->getVictim(), true);
-                        pUnit->setFaction(me->getFaction());
+                        unit->Attack(me->getVictim(), true);
+                        unit->setFaction(me->getFaction());
                     }
                 }
 
@@ -464,11 +464,11 @@ public:
                         if (!FlameWreathTarget[i])
                             continue;
 
-                        Unit* pUnit = Unit::GetUnit(*me, FlameWreathTarget[i]);
-                        if (pUnit && !pUnit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
+                        Unit* unit = Unit::GetUnit(*me, FlameWreathTarget[i]);
+                        if (unit && !unit->IsWithinDist2d(FWTargPosX[i], FWTargPosY[i], 3))
                         {
-                            pUnit->CastSpell(pUnit, 20476, true, 0, 0, me->GetGUID());
-                            pUnit->CastSpell(pUnit, 11027, true);
+                            unit->CastSpell(unit, 20476, true, 0, 0, me->GetGUID());
+                            unit->CastSpell(unit, 11027, true);
                             FlameWreathTarget[i] = 0;
                         }
                     }
@@ -486,12 +486,12 @@ public:
                 DrinkInturrupted = true;
         }
 
-        void SpellHit(Unit* /*pAttacker*/, const SpellEntry* Spell)
+        void SpellHit(Unit* /*pAttacker*/, const SpellInfo* Spell)
         {
             //We only care about interrupt effects and only if they are durring a spell currently being casted
-            if ((Spell->Effect[0] != SPELL_EFFECT_INTERRUPT_CAST &&
-                Spell->Effect[1] != SPELL_EFFECT_INTERRUPT_CAST &&
-                Spell->Effect[2] != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCasted(false))
+            if ((Spell->Effects[0].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
+                Spell->Effects[1].Effect != SPELL_EFFECT_INTERRUPT_CAST &&
+                Spell->Effects[2].Effect != SPELL_EFFECT_INTERRUPT_CAST) || !me->IsNonMeleeSpellCasted(false))
                 return;
 
             //Interrupt effect

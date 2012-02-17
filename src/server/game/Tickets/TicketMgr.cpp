@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -79,7 +79,7 @@ bool GmTicket::LoadFromDB(Field* fields)
 void GmTicket::SaveToDB(SQLTransaction& trans) const
 {
     uint8 index = 0;
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_ADD_GM_TICKET);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GM_TICKET);
     stmt->setUInt32(  index, _id);
     stmt->setUInt32(++index, GUID_LOPART(_playerGuid));
     stmt->setString(++index, _playerName);
@@ -200,6 +200,19 @@ TicketMgr::TicketMgr() : _status(true), _lastTicketId(0), _lastSurveyId(0), _ope
 
 void TicketMgr::Initialize() { SetStatus(sWorld->getBoolConfig(CONFIG_ALLOW_TICKETS)); }
 
+void TicketMgr::ResetTickets()
+{
+    for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
+        if (itr->second->IsClosed())
+            sTicketMgr->RemoveTicket(itr->second->GetId());
+
+    _lastTicketId = 0;
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_ALL_GM_TICKETS);
+
+    CharacterDatabase.Execute(stmt);
+}
+
 void TicketMgr::LoadTickets()
 {
     uint32 oldMSTime = getMSTime();
@@ -213,7 +226,7 @@ void TicketMgr::LoadTickets()
     _lastTicketId = 0;
     _openTicketCount = 0;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_LOAD_GM_TICKETS);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GM_TICKETS);
     PreparedQueryResult result = CharacterDatabase.Query(stmt);
     if (!result)
     {

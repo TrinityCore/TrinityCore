@@ -1,4 +1,5 @@
-build/
+
+build*/
 .directory
 .mailmap
 *.orig
@@ -8,3 +9,8 @@ build/
 *.kdev*
 *.bak
 *.patch
+*.diff
+*.REMOTE.*
+*.BACKUP.*
+*.BASE.*
+*.LOCAL.*

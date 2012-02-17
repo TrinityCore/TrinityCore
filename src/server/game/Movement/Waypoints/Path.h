@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,7 +54,7 @@ class Path
 
         float GetTotalLength() const { return GetTotalLength(0, size()); }
 
-        float GetPassedLength(uint32 curnode, float x, float y, float z)
+        float GetPassedLength(uint32 curnode, float x, float y, float z) const
         {
             float len = GetTotalLength(0, curnode);
 

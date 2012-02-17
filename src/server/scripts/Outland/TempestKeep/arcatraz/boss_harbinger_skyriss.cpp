@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,11 +69,11 @@ class boss_harbinger_skyriss : public CreatureScript
         {
             boss_harbinger_skyrissAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
                 Intro = false;
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* instance;
 
             bool Intro;
             bool IsImage33;
@@ -89,7 +89,7 @@ class boss_harbinger_skyriss : public CreatureScript
             void Reset()
             {
                 if (!Intro)
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
                 IsImage33 = false;
                 IsImage66 = false;
@@ -115,8 +115,8 @@ class boss_harbinger_skyriss : public CreatureScript
             void JustDied(Unit* /*Killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
-                if (pInstance)
-                    pInstance->SetData(TYPE_HARBINGERSKYRISS, DONE);
+                if (instance)
+                    instance->SetData(TYPE_HARBINGERSKYRISS, DONE);
             }
 
             void JustSummoned(Creature* summon)
@@ -158,33 +158,33 @@ class boss_harbinger_skyriss : public CreatureScript
             {
                 if (!Intro)
                 {
-                    if (!pInstance)
+                    if (!instance)
                         return;
 
                     if (Intro_Timer <= diff)
                     {
-                        switch(Intro_Phase)
+                        switch (Intro_Phase)
                         {
                         case 1:
                             DoScriptText(SAY_INTRO, me);
-                            pInstance->HandleGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD), true);
+                            instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), true);
                             ++Intro_Phase;
                             Intro_Timer = 25000;
                             break;
                         case 2:
                             DoScriptText(SAY_AGGRO, me);
-                            if (Unit* mellic = Unit::GetUnit(*me, pInstance->GetData64(DATA_MELLICHAR)))
+                            if (Unit* mellic = Unit::GetUnit(*me, instance->GetData64(DATA_MELLICHAR)))
                             {
                                 //should have a better way to do this. possibly spell exist.
                                 mellic->setDeathState(JUST_DIED);
                                 mellic->SetHealth(0);
-                                pInstance->SetData(TYPE_SHIELD_OPEN, IN_PROGRESS);
+                                instance->SetData(TYPE_SHIELD_OPEN, IN_PROGRESS);
                             }
                             ++Intro_Phase;
                             Intro_Timer = 3000;
                             break;
                         case 3:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             Intro = true;
                             break;
                         }

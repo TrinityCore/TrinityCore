@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -133,7 +133,7 @@ struct TimeTrackerSmall
 {
     public:
 
-        TimeTrackerSmall(uint32 expiry)
+        TimeTrackerSmall(uint32 expiry = 0)
             : i_expiryTime(expiry)
         {
         }
@@ -172,7 +172,7 @@ struct PeriodicTimer
         {
         }
 
-        bool Update(const uint32 &diff)
+        bool Update(const uint32 diff)
         {
             if ((i_expireTime -= diff) > 0)
                 return false;

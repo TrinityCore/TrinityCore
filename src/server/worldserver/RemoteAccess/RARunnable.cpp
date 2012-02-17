@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,22 +33,17 @@
 
 #include "RASocket.h"
 
-RARunnable::RARunnable() : m_Reactor(NULL)
+RARunnable::RARunnable()
 {
-    ACE_Reactor_Impl* imp = 0;
+    ACE_Reactor_Impl* imp = NULL;
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)
-
     imp = new ACE_Dev_Poll_Reactor();
-
     imp->max_notify_iterations (128);
     imp->restart (1);
-
 #else
-
     imp = new ACE_TP_Reactor();
     imp->max_notify_iterations (128);
-
 #endif
 
     m_Reactor = new ACE_Reactor (imp, 1);
@@ -61,14 +56,13 @@ RARunnable::~RARunnable()
 
 void RARunnable::run()
 {
-    if (!sConfig->GetBoolDefault("Ra.Enable", false))
+    if (!ConfigMgr::GetBoolDefault("Ra.Enable", false))
         return;
 
     ACE_Acceptor<RASocket, ACE_SOCK_ACCEPTOR> acceptor;
 
-    uint16 raport = sConfig->GetIntDefault("Ra.Port", 3443);
-    std::string stringip = sConfig->GetStringDefault("Ra.IP", "0.0.0.0");
-
+    uint16 raport = ConfigMgr::GetIntDefault("Ra.Port", 3443);
+    std::string stringip = ConfigMgr::GetStringDefault("Ra.IP", "0.0.0.0");
     ACE_INET_Addr listen_addr(raport, stringip.c_str());
 
     if (acceptor.open(listen_addr, m_Reactor) == -1)
@@ -84,7 +78,6 @@ void RARunnable::run()
         // don't be too smart to move this outside the loop
         // the run_reactor_event_loop will modify interval
         ACE_Time_Value interval(0, 100000);
-
         if (m_Reactor->run_reactor_event_loop(interval) == -1)
             break;
     }

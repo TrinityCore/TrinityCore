@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,11 +59,11 @@ public:
             events.ScheduleEvent(EVENT_BERSERK, 12*60000);
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
             if (spell->Id == uint32(SPELL_SLIME_SPRAY))
             {
-                if (TempSummon *slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (TempSummon* slime = me->SummonCreature(MOB_FALLOUT_SLIME, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     DoZoneInCombat(slime);
             }
         }
@@ -77,7 +77,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_CLOUD:
                         DoCastAOE(SPELL_POISON_CLOUD);

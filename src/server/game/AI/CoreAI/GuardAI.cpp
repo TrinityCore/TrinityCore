@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,8 +40,8 @@ bool GuardAI::CanSeeAlways(WorldObject const* obj)
     if (!obj->isType(TYPEMASK_UNIT))
         return false;
 
-    std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-    for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
     {
         if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
             if (unit == obj)
@@ -57,8 +57,8 @@ void GuardAI::MoveInLineOfSight(Unit* unit)
     if (!me->canFly() && me->GetDistanceZ(unit) > CREATURE_Z_ATTACK_RANGE)
         return;
 
-    if (!me->getVictim() && me->canAttack(unit) &&
-        (unit->IsHostileToPlayers() || me->IsHostileTo(unit) /*|| u->getVictim() && me->IsFriendlyTo(u->getVictim())*/) &&
+    if (!me->getVictim() && me->IsValidAttackTarget(unit) &&
+        (unit->IsHostileToPlayers() || me->IsHostileTo(unit)) &&
         unit->isInAccessiblePlaceFor(me))
     {
         float attackRadius = me->GetAttackDistance(unit);
@@ -115,8 +115,8 @@ void GuardAI::EnterEvadeMode()
     me->CombatStop(true);
     i_state = STATE_NORMAL;
 
-    // Remove TargetedMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
-    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == TARGETED_MOTION_TYPE)
+    // Remove ChaseMovementGenerator from MotionMaster stack list, and add HomeMovementGenerator instead
+    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == CHASE_MOTION_TYPE)
         me->GetMotionMaster()->MoveTargetedHome();
 }
 
@@ -126,13 +126,17 @@ void GuardAI::UpdateAI(const uint32 /*diff*/)
     if (!UpdateVictim())
         return;
 
-    i_victimGuid = me->getVictim()->GetGUID();
+    Unit* const victim = me->getVictim();
+    if (!victim)
+        return;
+
+    i_victimGuid = victim->GetGUID();
 
     if (me->isAttackReady())
     {
-        if (me->IsWithinMeleeRange(me->getVictim()))
+        if (me->IsWithinMeleeRange(victim))
         {
-            me->AttackerStateUpdate(me->getVictim());
+            me->AttackerStateUpdate(victim);
             me->resetAttackTimer();
         }
     }
@@ -140,6 +144,6 @@ void GuardAI::UpdateAI(const uint32 /*diff*/)
 
 void GuardAI::JustDied(Unit* killer)
 {
-    if (Player* pkiller = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
-        me->SendZoneUnderAttackMessage(pkiller);
+    if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
+        me->SendZoneUnderAttackMessage(player);
 }

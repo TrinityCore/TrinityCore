@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -108,7 +108,7 @@ public:
 
     struct netherspite_infernalAI : public ScriptedAI
     {
-        netherspite_infernalAI(Creature* c) : ScriptedAI(c) ,
+        netherspite_infernalAI(Creature* c) : ScriptedAI(c),
             HellfireTimer(0), CleanupTimer(0), malchezaar(0), point(NULL) {}
 
         uint32 HellfireTimer;
@@ -149,7 +149,7 @@ public:
                 CAST_CRE(pMalchezaar)->AI()->KilledUnit(who);
         }
 
-        void SpellHit(Unit* /*who*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*who*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_INFERNAL_RELAY)
             {
@@ -185,10 +185,10 @@ public:
     {
         boss_malchezaarAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
         uint32 EnfeebleTimer;
         uint32 EnfeebleResetTimer;
         uint32 ShadowNovaTimer;
@@ -234,8 +234,8 @@ public:
             SunderArmorTimer = urand(5000, 10000);
             phase = 1;
 
-            if (pInstance)
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), true);
+            if (instance)
+                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -255,16 +255,16 @@ public:
             for (uint8 i = 0; i < TOTAL_INFERNAL_POINTS; ++i)
                 positions.push_back(&InfernalPoints[i]);
 
-            if (pInstance)
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), true);
+            if (instance)
+                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), true);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
+            if (instance)
+                instance->HandleGameObject(instance->GetData64(DATA_GO_NETHER_DOOR), false); // Open the door leading further in
         }
 
         void InfernalCleanup()
@@ -297,7 +297,7 @@ public:
             SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
 
             //damage
-            const CreatureTemplate *cinfo = me->GetCreatureInfo();
+            const CreatureTemplate* cinfo = me->GetCreatureInfo();
             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
             me->UpdateDamagePhysical(BASE_ATTACK);
@@ -305,18 +305,18 @@ public:
 
         void EnfeebleHealthEffect()
         {
-            const SpellEntry *info = GetSpellStore()->LookupEntry(SPELL_ENFEEBLE_EFFECT);
+            const SpellInfo* info = sSpellMgr->GetSpellInfo(SPELL_ENFEEBLE_EFFECT);
             if (!info)
                 return;
 
-            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-            std::vector<Unit* > targets;
+            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+            std::vector<Unit*> targets;
 
             if (t_list.empty())
                 return;
 
             //begin + 1, so we don't target the one with the highest threat
-            std::list<HostileReference *>::const_iterator itr = t_list.begin();
+            std::list<HostileReference*>::const_iterator itr = t_list.begin();
             std::advance(itr, 1);
             for (; itr != t_list.end(); ++itr) //store the threat list in a different container
                 if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
@@ -328,7 +328,7 @@ public:
                 targets.erase(targets.begin()+rand()%targets.size());
 
             uint32 i = 0;
-            for (std::vector<Unit* >::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
+            for (std::vector<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter, ++i)
                 if (Unit* target = *iter)
                 {
                     enfeeble_targets[i] = target->GetGUID();
@@ -393,7 +393,7 @@ public:
                 EnfeebleResetTimer = 0;
             } else EnfeebleResetTimer -= diff;
 
-            if (me->HasUnitState(UNIT_STAT_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
+            if (me->HasUnitState(UNIT_STATE_STUNNED))      // While shifting to phase 2 malchezaar stuns himself
                 return;
 
             if (me->GetUInt64Value(UNIT_FIELD_TARGET) != me->getVictim()->GetGUID())
@@ -420,7 +420,7 @@ public:
                     SetEquipmentSlots(false, EQUIP_ID_AXE, EQUIP_ID_AXE, EQUIP_NO_CHANGE);
 
                     //damage
-                    const CreatureTemplate *cinfo = me->GetCreatureInfo();
+                    const CreatureTemplate* cinfo = me->GetCreatureInfo();
                     me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2*cinfo->mindmg);
                     me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2*cinfo->maxdmg);
                     me->UpdateDamagePhysical(BASE_ATTACK);

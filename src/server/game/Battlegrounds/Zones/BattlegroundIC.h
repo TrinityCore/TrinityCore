@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -93,7 +93,6 @@ enum gameobjectsIC
 
     GO_FLAGPOLE_1 = 195131,
     GO_FLAGPOLE_2 = 195439,
-    GO_FLAGPOLE_3 = 195131,
 
     GO_GUNSHIP_PORTAL_1 = 195371,
     GO_GUNSHIP_PORTAL_2 = 196413,
@@ -270,6 +269,7 @@ enum BG_IC_GOs
     BG_IC_GO_FLAGPOLE_1_3,
     BG_IC_GO_FLAGPOLE_1_4,
     BG_IC_GO_FLAGPOLE_1_5,
+    BG_IC_GO_FLAGPOLE_1_6,
 
     BG_IC_GO_HANGAR_BANNER,
 
@@ -624,6 +624,7 @@ const ICGo BG_IC_ObjSpawnlocs[MAX_NORMAL_GAMEOBJECTS_SPAWNS] =
     {BG_IC_GO_FLAGPOLE_1_3, GO_FLAGPOLE_1, 807.78f, -1000.07f, 132.381f, -1.91986f}, // Flagpole
     {BG_IC_GO_FLAGPOLE_1_4, GO_FLAGPOLE_1, 776.229f, -804.283f, 6.45052f, 1.6057f}, // Flagpole
     {BG_IC_GO_FLAGPOLE_1_5, GO_FLAGPOLE_1, 251.016f, -1159.32f, 17.2376f, -2.25147f}, // Flagpole
+    {BG_IC_GO_FLAGPOLE_1_6, GO_FLAGPOLE_1, 1269.502f, -400.809f, 37.62525f, -1.762782f}, // Flagpole
 
     {BG_IC_GO_HORDE_KEEP_PORTCULLIS, GO_HORDE_KEEP_PORTCULLIS, 1283.05f, -765.878f, 50.8297f, -3.13286f}, // Horde Keep Portcullis
 
@@ -857,38 +858,36 @@ class BattlegroundICScore : public BattlegroundScore
 
 class BattlegroundIC : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         BattlegroundIC();
         ~BattlegroundIC();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void AddPlayer(Player* player);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
+        virtual void PostUpdateImpl(uint32 diff);
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger);
         bool SetupBattleground();
         void SpawnLeader(uint32 teamid);
         void HandleKillUnit(Creature* unit, Player* killer);
         void HandleKillPlayer(Player* player, Player* killer);
         void EndBattleground(uint32 winner);
-        void EventPlayerClickedOnFlag(Player *source, GameObject* /*target_obj*/);
+        void EventPlayerClickedOnFlag(Player* source, GameObject* /*target_obj*/);
 
-        void EventPlayerDamagedGO(Player* /*plr*/, GameObject* go, uint32 eventType);
+        void EventPlayerDamagedGO(Player* /*player*/, GameObject* go, uint32 eventType);
         void DestroyGate(Player* player, GameObject* go);
 
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         /* Scorekeeping */
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
 
         void FillInitialWorldStates(WorldPacket& data);
 
-        void DoAction(uint32 action, uint64 const& var);
+        void DoAction(uint32 action, uint64 var);
 
         virtual void HandlePlayerResurrect(Player* player);
 
@@ -913,7 +912,7 @@ class BattlegroundIC : public Battleground
         uint32 GetGateIDFromEntry(uint32 id)
         {
             uint32 i = 0;
-            switch(id)
+            switch (id)
             {
                 case GO_HORDE_GATE_1: i = BG_IC_H_FRONT ;break;
                 case GO_HORDE_GATE_2: i = BG_IC_H_WEST ;break;
@@ -929,7 +928,7 @@ class BattlegroundIC : public Battleground
         {
             uint32 uws = 0;
 
-            switch(id)
+            switch (id)
             {
                 case GO_HORDE_GATE_1:
                     uws = (open ? BG_IC_GATE_FRONT_H_WS_OPEN : BG_IC_GATE_FRONT_H_WS_CLOSED);

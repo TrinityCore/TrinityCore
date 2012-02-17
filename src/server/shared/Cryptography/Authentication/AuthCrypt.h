@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,6 @@
 #ifndef _AUTHCRYPT_H
 #define _AUTHCRYPT_H
 
-#include <Common.h>
 #include "Cryptography/ARC4.h"
 
 class BigNumber;
@@ -30,7 +29,7 @@ class AuthCrypt
         AuthCrypt();
         ~AuthCrypt();
 
-        void Init(BigNumber *K);
+        void Init(BigNumber* K);
         void DecryptRecv(uint8 *, size_t);
         void EncryptSend(uint8 *, size_t);
 

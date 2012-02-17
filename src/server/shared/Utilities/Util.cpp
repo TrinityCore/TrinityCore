@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -17,7 +17,6 @@
  */
 
 #include "Util.h"
-
 #include "utf8.h"
 #ifdef USE_SFMT_FOR_RNG
 #include "SFMT.h"
@@ -31,17 +30,22 @@
 typedef ACE_TSS<SFMTRand> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
-int32 irand (int32 min, int32 max)
+int32 irand(int32 min, int32 max)
 {
     return int32(sfmtRand->IRandom(min, max));
 }
 
-uint32 urand (uint32 min, uint32 max)
+uint32 urand(uint32 min, uint32 max)
 {
     return sfmtRand->URandom(min, max);
 }
 
-int32 rand32 ()
+float frand(float min, float max)
+{
+    return float(sfmtRand->Random() * (max - min) + min);
+}
+
+int32 rand32()
 {
     return int32(sfmtRand->BRandom());
 }
@@ -51,27 +55,33 @@ double rand_norm(void)
     return sfmtRand->Random();
 }
 
-double rand_chance (void)
+double rand_chance(void)
 {
     return sfmtRand->Random() * 100.0;
 }
+
 #else
 typedef ACE_TSS<MTRand> MTRandTSS;
 static MTRandTSS mtRand;
 
 int32 irand(int32 min, int32 max)
 {
-    return int32(mtRand->randInt (max - min)) + min;
+    return int32(mtRand->randInt(max - min)) + min;
 }
 
 uint32 urand(uint32 min, uint32 max)
 {
-    return mtRand->randInt (max - min) + min;
+    return mtRand->randInt(max - min) + min;
+}
+
+float frand(float min, float max)
+{
+    return float(mtRand->randExc(max - min) + min);
 }
 
 int32 rand32()
 {
-    return mtRand->randInt ();
+    return mtRand->randInt();
 }
 
 double rand_norm(void)
@@ -128,9 +138,9 @@ void stripLineInvisibleChars(std::string &str)
     bool space = false;
     for (size_t pos = 0; pos < str.size(); ++pos)
     {
-        if(invChars.find(str[pos])!=std::string::npos)
+        if (invChars.find(str[pos])!=std::string::npos)
         {
-            if(!space)
+            if (!space)
             {
                 str[wpos++] = ' ';
                 space = true;
@@ -138,7 +148,7 @@ void stripLineInvisibleChars(std::string &str)
         }
         else
         {
-            if(wpos!=pos)
+            if (wpos!=pos)
                 str[wpos++] = str[pos];
             else
                 ++wpos;
@@ -146,9 +156,9 @@ void stripLineInvisibleChars(std::string &str)
         }
     }
 
-    if(wpos < str.size())
+    if (wpos < str.size())
         str.erase(wpos, str.size());
-    if(str.find("|TInterface")!=std::string::npos)
+    if (str.find("|TInterface")!=std::string::npos)
         str.clear();
 
 }
@@ -161,15 +171,15 @@ std::string secsToTimeString(uint64 timeInSecs, bool shortText, bool hoursOnly)
     uint64 days    = timeInSecs / DAY;
 
     std::ostringstream ss;
-    if(days)
+    if (days)
         ss << days << (shortText ? "d" : " Day(s) ");
-    if(hours || hoursOnly)
+    if (hours || hoursOnly)
         ss << hours << (shortText ? "h" : " Hour(s) ");
-    if(!hoursOnly)
+    if (!hoursOnly)
     {
-        if(minutes)
+        if (minutes)
             ss << minutes << (shortText ? "m" : " Minute(s) ");
-        if(secs || (!days && !hours && !minutes) )
+        if (secs || (!days && !hours && !minutes) )
             ss << secs << (shortText ? "s" : " Second(s).");
     }
 
@@ -182,16 +192,16 @@ uint32 TimeStringToSecs(const std::string& timestring)
     uint32 buffer     = 0;
     uint32 multiplier = 0;
 
-    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); itr++ )
+    for (std::string::const_iterator itr = timestring.begin(); itr != timestring.end(); ++itr)
     {
-        if(isdigit(*itr))
+        if (isdigit(*itr))
         {
             buffer*=10;
             buffer+= (*itr)-'0';
         }
         else
         {
-            switch(*itr)
+            switch (*itr)
             {
                 case 'd': multiplier = DAY;     break;
                 case 'h': multiplier = HOUR;    break;
@@ -225,7 +235,7 @@ std::string TimeToTimestampStr(time_t t)
 /// Check if the string is a valid ip address representation
 bool IsIPAddress(char const* ipaddress)
 {
-    if(!ipaddress)
+    if (!ipaddress)
         return false;
 
     // Let the big boys do it.
@@ -236,7 +246,7 @@ bool IsIPAddress(char const* ipaddress)
 /// create PID file
 uint32 CreatePIDFile(const std::string& filename)
 {
-    FILE * pid_file = fopen (filename.c_str(), "w" );
+    FILE* pid_file = fopen (filename.c_str(), "w" );
     if (pid_file == NULL)
         return 0;
 
@@ -270,7 +280,7 @@ void utf8truncate(std::string& utf8str, size_t len)
     try
     {
         size_t wlen = utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size());
-        if(wlen <= len)
+        if (wlen <= len)
             return;
 
         std::wstring wstr;
@@ -291,9 +301,9 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
     try
     {
         size_t len = utf8::distance(utf8str, utf8str+csize);
-        if(len > wsize)
+        if (len > wsize)
         {
-            if(wsize > 0)
+            if (wsize > 0)
                 wstr[0] = L'\0';
             wsize = 0;
             return false;
@@ -305,7 +315,7 @@ bool Utf8toWStr(char const* utf8str, size_t csize, wchar_t* wstr, size_t& wsize)
     }
     catch(std::exception)
     {
-        if(wsize > 0)
+        if (wsize > 0)
             wstr[0] = L'\0';
         wsize = 0;
         return false;
@@ -318,11 +328,11 @@ bool Utf8toWStr(const std::string& utf8str, std::wstring& wstr)
 {
     try
     {
-        size_t len = utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size());
-        wstr.resize(len);
-
-        if (len)
+        if (size_t len = utf8::distance(utf8str.c_str(), utf8str.c_str()+utf8str.size()))
+        {
+            wstr.resize(len);
             utf8::utf8to16(utf8str.c_str(), utf8str.c_str()+utf8str.size(), &wstr[0]);
+        }
     }
     catch(std::exception)
     {
@@ -384,7 +394,7 @@ typedef wchar_t const* const* wstrlist;
 std::wstring GetMainPartOfName(std::wstring wname, uint32 declension)
 {
     // supported only Cyrillic cases
-    if(wname.size() < 1 || !isCyrillicCharacter(wname[0]) || declension > 5)
+    if (wname.size() < 1 || !isCyrillicCharacter(wname[0]) || declension > 5)
         return wname;
 
     // Important: end length must be <= MAX_INTERNAL_PLAYER_NAME-MAX_PLAYER_NAME (3 currently)
@@ -419,7 +429,7 @@ std::wstring GetMainPartOfName(std::wstring wname, uint32 declension)
     {
         size_t len = size_t((*itr)[-1]);                    // get length from string size field
 
-        if(wname.substr(wname.size()-len, len)==*itr)
+        if (wname.substr(wname.size()-len, len)==*itr)
             return wname.substr(0, wname.size()-len);
     }
 
@@ -430,7 +440,7 @@ bool utf8ToConsole(const std::string& utf8str, std::string& conStr)
 {
 #if PLATFORM == PLATFORM_WINDOWS
     std::wstring wstr;
-    if(!Utf8toWStr(utf8str, wstr))
+    if (!Utf8toWStr(utf8str, wstr))
         return false;
 
     conStr.resize(wstr.size());
@@ -462,19 +472,19 @@ bool Utf8FitTo(const std::string& str, std::wstring search)
 {
     std::wstring temp;
 
-    if(!Utf8toWStr(str, temp))
+    if (!Utf8toWStr(str, temp))
         return false;
 
     // converting to lower case
     wstrToLower( temp );
 
-    if(temp.find(search) == std::wstring::npos)
+    if (temp.find(search) == std::wstring::npos)
         return false;
 
     return true;
 }
 
-void utf8printf(FILE *out, const char *str, ...)
+void utf8printf(FILE* out, const char *str, ...)
 {
     va_list ap;
     va_start(ap, str);
@@ -482,7 +492,7 @@ void utf8printf(FILE *out, const char *str, ...)
     va_end(ap);
 }
 
-void vutf8printf(FILE *out, const char *str, va_list* ap)
+void vutf8printf(FILE* out, const char *str, va_list* ap)
 {
 #if PLATFORM == PLATFORM_WINDOWS
     char temp_buf[32*1024];
@@ -509,7 +519,7 @@ void hexEncodeByteArray(uint8* bytes, uint32 arrayLen, std::string& result)
         {
             unsigned char nibble = 0x0F & (bytes[i]>>((1-j)*4));
             char encodedNibble;
-            if(nibble < 0x0A)
+            if (nibble < 0x0A)
                 encodedNibble = '0'+nibble;
             else
                 encodedNibble = 'A'+nibble-0x0A;

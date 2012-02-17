@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@ void CreatureTextMgr::LoadCreatureTexts()
     mTextMap.clear(); // for reload case
     mTextRepeatMap.clear(); //reset all currently used temp texts
 
-    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_LOAD_CRETEXT);
+    PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_SEL_CREATURE_TEXT);
     PreparedQueryResult result = WorldDatabase.Query(stmt);
 
     if (!result)
@@ -256,7 +256,7 @@ void CreatureTextMgr::SendChatString(WorldObject* source, char const* text, Chat
     SendChatPacket(&data, source, msgtype, whisperGuid, range, team, gmOnly);//send our packet
 }
 
-void CreatureTextMgr::BuildMonsterChat(WorldPacket *data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const
+void CreatureTextMgr::BuildMonsterChat(WorldPacket* data, WorldObject* source, ChatMsg msgType, char const* text, Language language, uint64 whisperGuid) const
 {
     if (!source)
         return;
@@ -320,7 +320,7 @@ void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, Cha
         {
             if (range == TEXT_RANGE_NORMAL)//ignores team and gmOnly
             {
-                Player* player = sObjectMgr->GetPlayer(whisperGuid);
+                Player* player = ObjectAccessor::FindPlayer(whisperGuid);
                 if (!player || !player->GetSession())
                     return;
                 player->GetSession()->SendPacket(data);
@@ -381,12 +381,12 @@ void CreatureTextMgr::SendChatPacket(WorldPacket* data, WorldObject* source, Cha
             const SessionMap smap = sWorld->GetAllSessions();
             for (SessionMap::const_iterator iter = smap.begin(); iter != smap.end(); ++iter)
             {
-                if (Player* plr = (*iter).second->GetPlayer())
+                if (Player* player = (*iter).second->GetPlayer())
                 {
                     if (data->GetOpcode() == SMSG_MESSAGECHAT)//override whisperguid with actual player's guid
-                        data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(plr->GetGUID()));
-                    if (plr->GetSession()  && (!team || Team(plr->GetTeam()) == team) && (!gmOnly || plr->isGameMaster()))
-                        plr->GetSession()->SendPacket(data);
+                        data->put<uint64>(1+4+8+4+4+(int32)(strlen(source->GetName())+1), uint64(player->GetGUID()));
+                    if (player->GetSession()  && (!team || Team(player->GetTeam()) == team) && (!gmOnly || player->isGameMaster()))
+                        player->GetSession()->SendPacket(data);
                 }
             }
             return;

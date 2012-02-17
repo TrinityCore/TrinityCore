@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -173,9 +173,9 @@ public:
             std::list<Unit*> targets;
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                if (pUnit && pUnit->isAlive())
-                    targets.push_back(pUnit);
+                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                if (unit && unit->isAlive())
+                    targets.push_back(unit);
             }
             targets.sort(Trinity::ObjectDistanceOrderPred(me));
             Unit* target = targets.front();
@@ -221,10 +221,10 @@ public:
     {
         boss_teron_gorefiendAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 IncinerateTimer;
         uint32 SummonDoomBlossomTimer;
@@ -243,10 +243,10 @@ public:
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_TERONGOREFIENDEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_TERONGOREFIENDEVENT, NOT_STARTED);
 
-            IncinerateTimer = 20000 + rand()%11000;
+            IncinerateTimer = urand(20000, 31000);
             SummonDoomBlossomTimer = 12000;
             EnrageTimer = 600000;
             CrushingShadowsTimer = 22000;
@@ -267,12 +267,12 @@ public:
 
         void MoveInLineOfSight(Unit* who)
         {
-            if (!Intro && who->GetTypeId() == TYPEID_PLAYER && who->isTargetableForAttack() && me->IsHostileTo(who) && who->isInAccessiblePlaceFor(me))
+            if (!Intro && who->GetTypeId() == TYPEID_PLAYER && me->canCreatureAttack(who))
             {
                 if (me->IsWithinDistInMap(who, VISIBLE_RANGE) && me->IsWithinLOSInMap(who))
                 {
-                    if (pInstance)
-                        pInstance->SetData(DATA_TERONGOREFIENDEVENT, IN_PROGRESS);
+                    if (instance)
+                        instance->SetData(DATA_TERONGOREFIENDEVENT, IN_PROGRESS);
 
                     me->GetMotionMaster()->Clear(false);
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -293,8 +293,8 @@ public:
 
         void JustDied(Unit* /*victim*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_TERONGOREFIENDEVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }
@@ -322,11 +322,11 @@ public:
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i != m_threatlist.end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && pUnit->isAlive())
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && unit->isAlive())
                 {
-                    float threat = DoGetThreat(pUnit);
-                    Blossom->AddThreat(pUnit, threat);
+                    float threat = DoGetThreat(unit);
+                    Blossom->AddThreat(unit, threat);
                 }
             }
         }
@@ -389,9 +389,9 @@ public:
                     Done = true;
                     if (AggroTargetGUID)
                     {
-                        Unit* pUnit = Unit::GetUnit((*me), AggroTargetGUID);
-                        if (pUnit)
-                            AttackStart(pUnit);
+                        Unit* unit = Unit::GetUnit((*me), AggroTargetGUID);
+                        if (unit)
+                            AttackStart(unit);
 
                         DoZoneInCombat();
                     }
@@ -435,7 +435,7 @@ public:
                     float X = CalculateRandomLocation(target->GetPositionX(), 20);
                     float Y = CalculateRandomLocation(target->GetPositionY(), 20);
                     float Z = target->GetPositionZ();
-                    Z = me->GetMap()->GetHeight(X, Y, Z);
+                    Z = me->GetMap()->GetHeight(me->GetPhaseMask(), X, Y, Z);
                     Creature* DoomBlossom = me->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                     if (DoomBlossom)
                     {
@@ -460,7 +460,7 @@ public:
                 {
                     DoScriptText(RAND(SAY_SPECIAL1, SAY_SPECIAL2), me);
                     DoCast(target, SPELL_INCINERATE);
-                    IncinerateTimer = 20000 + rand()%31 * 1000;
+                    IncinerateTimer = urand(20, 51) * 1000;
                 }
             } else IncinerateTimer -= diff;
 
@@ -469,7 +469,7 @@ public:
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0);
                 if (target && target->isAlive())
                     DoCast(target, SPELL_CRUSHING_SHADOWS);
-                CrushingShadowsTimer = 10000 + rand()%16 * 1000;
+                CrushingShadowsTimer = urand(10, 26) * 1000;
             } else CrushingShadowsTimer -= diff;
 
             /*** NOTE FOR FUTURE DEV: UNCOMMENT BELOW ONLY IF MIND CONTROL IS FULLY IMPLEMENTED **/
@@ -492,7 +492,7 @@ public:
             if (RandomYellTimer <= diff)
             {
                 DoScriptText(RAND(SAY_SPELL1, SAY_SPELL2), me);
-                RandomYellTimer = 50000 + rand()%51 * 1000;
+                RandomYellTimer = urand(50, 101) * 1000;
             } else RandomYellTimer -= diff;
 
             if (!me->HasAura(SPELL_BERSERK))

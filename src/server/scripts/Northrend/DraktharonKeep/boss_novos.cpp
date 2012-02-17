@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,7 +74,7 @@ public:
     {
         boss_novosAI(Creature* c) : Scripted_NoMovementAI(c), lSummons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiTimer;
@@ -89,7 +89,7 @@ public:
 
         CombatPhase Phase;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -100,22 +100,22 @@ public:
             lSummons.DespawnAll();
             crystalHandlerAmount = 0;
 
-            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
+                instance->SetData(DATA_NOVOS_EVENT, NOT_STARTED);
                 for (uint8 n = 0; n < 4; ++n)
-                    luiCrystals.push_back(pInstance->GetData64(DATA_NOVOS_CRYSTAL_1 + n));
+                    luiCrystals.push_back(instance->GetData64(DATA_NOVOS_CRYSTAL_1 + n));
                 for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
                 {
-                    if (GameObject* pTemp = pInstance->instance->GetGameObject(*itr))
-                        pTemp->SetGoState(GO_STATE_READY);
+                    if (GameObject* temp = instance->instance->GetGameObject(*itr))
+                        temp->SetGoState(GO_STATE_READY);
                 }
             }
         }
@@ -127,16 +127,16 @@ public:
             uiCrystalHandlerTimer = 30*IN_MILLISECONDS;
             uiTimer = 1*IN_MILLISECONDS;
             DoCast(SPELL_ARCANE_FIELD);
-            if (pInstance)
+            if (instance)
             {
                 for (std::list<uint64>::const_iterator itr = luiCrystals.begin(); itr != luiCrystals.end(); ++itr)
                 {
-                    if (GameObject* pTemp = pInstance->instance->GetGameObject(*itr))
-                        pTemp->SetGoState(GO_STATE_ACTIVE);
+                    if (GameObject* temp = instance->instance->GetGameObject(*itr))
+                        temp->SetGoState(GO_STATE_ACTIVE);
                 }
-                pInstance->SetData(DATA_NOVOS_EVENT, IN_PROGRESS);
+                instance->SetData(DATA_NOVOS_EVENT, IN_PROGRESS);
             }
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
@@ -181,8 +181,8 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
-            if (pInstance)
-                pInstance->SetData(DATA_NOVOS_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_NOVOS_EVENT, DONE);
             lSummons.DespawnAll();
         }
 
@@ -219,15 +219,15 @@ public:
         {
             if (!luiCrystals.empty())
             {
-                if (pInstance)
-                    if (GameObject* pTemp = pInstance->instance->GetGameObject(luiCrystals.back()))
-                        pTemp->SetGoState(GO_STATE_READY);
+                if (instance)
+                    if (GameObject* temp = instance->instance->GetGameObject(luiCrystals.back()))
+                        temp->SetGoState(GO_STATE_READY);
                 luiCrystals.pop_back();
             }
             if (luiCrystals.empty())
             {
                 me->CastStop();
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 Phase = PHASE_2;
@@ -241,7 +241,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_novosAI(creature);
     }
@@ -262,12 +262,12 @@ public:
     {
         mob_crystal_handlerAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiFlashOfDarknessTimer;
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -276,7 +276,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NOVOS) : 0))
                 CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->RemoveCrystal();
         }
 
@@ -298,13 +298,13 @@ public:
         {
             if (type != POINT_MOTION_TYPE || id != 0)
                 return;
-            if (Creature* pNovos = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+            if (Creature* pNovos = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_NOVOS) : 0))
                 if (Unit* target = CAST_AI(boss_novos::boss_novosAI, pNovos->AI())->GetRandomTarget())
                     AttackStart(target);
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_crystal_handlerAI(creature);
     }
@@ -319,16 +319,16 @@ public:
     {
         mob_novos_minionAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         void MovementInform(uint32 type, uint32 id)
         {
             if (type != POINT_MOTION_TYPE || id !=0)
                 return;
-            if (Creature* Novos = ObjectAccessor::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_NOVOS) : 0))
+            if (Creature* Novos = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_NOVOS) : 0))
             {
                 Novos->AI()->DoAction(ACTION_MINION_REACHED);
                 if (Unit* target = CAST_AI(boss_novos::boss_novosAI, Novos->AI())->GetRandomTarget())
@@ -337,7 +337,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_novos_minionAI(creature);
     }

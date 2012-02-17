@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,114 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Grizzly_Hills
-SD%Complete: 80
-SDComment: Quest support: 12231, 12247
-SDCategory: Grizzly Hills
-EndScriptData */
-
-/* ContentData
-npc_orsonn_and_kodian
-EndContentData */
-
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
-
-#define GOSSIP_ITEM1 "You're free to go Orsonn, but first tell me what's wrong with the furbolg."
-#define GOSSIP_ITEM2 "What happened then?"
-#define GOSSIP_ITEM3 "Thank you, Son of Ursoc. I'll see what can be done."
-#define GOSSIP_ITEM4 "Who was this stranger?"
-#define GOSSIP_ITEM5 "Thank you, Kodian. I'll do what I can."
-
-enum eEnums
-{
-    GOSSIP_TEXTID_ORSONN1       = 12793,
-    GOSSIP_TEXTID_ORSONN2       = 12794,
-    GOSSIP_TEXTID_ORSONN3       = 12796,
-
-    GOSSIP_TEXTID_KODIAN1       = 12797,
-    GOSSIP_TEXTID_KODIAN2       = 12798,
-
-    NPC_ORSONN                  = 27274,
-    NPC_KODIAN                  = 27275,
-
-    //trigger creatures
-    NPC_ORSONN_CREDIT           = 27322,
-    NPC_KODIAN_CREDIT           = 27321,
-
-    QUEST_CHILDREN_OF_URSOC     = 12247,
-    QUEST_THE_BEAR_GODS_OFFSPRING        = 12231
-};
-
-class npc_orsonn_and_kodian : public CreatureScript
-{
-public:
-    npc_orsonn_and_kodian() : CreatureScript("npc_orsonn_and_kodian") { }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->GetQuestStatus(QUEST_CHILDREN_OF_URSOC) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_BEAR_GODS_OFFSPRING) == QUEST_STATUS_INCOMPLETE)
-        {
-            switch(creature->GetEntry())
-            {
-                case NPC_ORSONN:
-                    if (!player->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_ORSONN_CREDIT) || !player->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_ORSONN_CREDIT))
-                    {
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN1, creature->GetGUID());
-                        return true;
-                    }
-                    break;
-                case NPC_KODIAN:
-                    if (!player->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_KODIAN_CREDIT) || !player->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_KODIAN_CREDIT))
-                    {
-                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
-                        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN1, creature->GetGUID());
-                        return true;
-                    }
-                    break;
-            }
-        }
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN2, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN3, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+3:
-                player->CLOSE_GOSSIP_MENU();
-                player->TalkedToCreature(NPC_ORSONN_CREDIT, creature->GetGUID());
-                break;
-
-            case GOSSIP_ACTION_INFO_DEF+4:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
-                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN2, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+5:
-                player->CLOSE_GOSSIP_MENU();
-                player->TalkedToCreature(NPC_KODIAN_CREDIT, creature->GetGUID());
-                break;
-        }
-
-        return true;
-    }
-};
 
 /*######
 ## Quest 12027: Mr. Floppy's Perilous Adventure
@@ -325,7 +219,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_emilyAI(creature);
     }
@@ -351,7 +245,7 @@ public:
         {
             if (Creature* Emily = GetClosestCreatureWithEntry(me, NPC_EMILY, 50.0f))
             {
-                switch(Who->GetEntry())
+                switch (Who->GetEntry())
                 {
                     case NPC_HUNGRY_WORG:
                         DoScriptText(SAY_WORGHAGGRO2, Emily);
@@ -376,7 +270,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_mrfloppyAI(creature);
     }
@@ -421,7 +315,7 @@ public:
                 m_gender = uiData;
         }
 
-        void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
              if (pSpell->Id == SPELL_OUTHOUSE_GROANS)
             {
@@ -440,7 +334,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_outhouse_bunnyAI(creature);
     }
@@ -476,15 +370,16 @@ public:
                 if (me->FindNearestGameObject(OBJECT_HAUNCH, 2.0f))
                 {
                     me->SetStandState(UNIT_STAND_STATE_DEAD);
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->SetUInt32Value(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
                 }
                 m_uiPhase = 0;
             }
+            DoMeleeAttackIfReady();
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_tallhorn_stagAI(creature);
     }
@@ -520,14 +415,14 @@ public:
             // call this each update tick?
             if (me->FindNearestCreature(TALLHORN_STAG, 0.2f))
             {
-                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+                me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
             }
             else
                 if (m_uiPhase)
                 {
                     if (m_uiTimer <= uiDiff)
                     {
-                        switch(m_uiPhase)
+                        switch (m_uiPhase)
                         {
                             case 1:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_LOOT);
@@ -550,7 +445,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_amberpine_woodsmanAI(creature);
     }
@@ -594,14 +489,14 @@ public:
                 me->DespawnOrUnsummon(DespawnTimer);
         }
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(12288) == QUEST_STATUS_INCOMPLETE)
             {
                 caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
                 DoScriptText(RAND(RANDOM_SAY_1, RANDOM_SAY_2, RANDOM_SAY_3), caster);
-                if(me->IsStandState())
+                if (me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
                 else
                 {
@@ -620,7 +515,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_wounded_skirmisherAI(creature);
     }
@@ -643,7 +538,7 @@ class npc_lightning_sentry : public CreatureScript
 public:
     npc_lightning_sentry() : CreatureScript("npc_lightning_sentry") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_lightning_sentryAI(creature);
     }
@@ -710,7 +605,7 @@ class npc_venture_co_straggler : public CreatureScript
 public:
     npc_venture_co_straggler() : CreatureScript("npc_venture_co_straggler") { }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_venture_co_stragglerAI(creature);
     }
@@ -729,7 +624,7 @@ public:
             uiPlayerGUID = 0;
             uiTimer = 0;
             uiChopTimer = urand(10000, 12500);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
@@ -784,11 +679,11 @@ public:
             DoMeleeAttackIfReady();
         }
 
-        void SpellHit(Unit* pCaster, const SpellEntry *pSpell)
+        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
             if (pCaster && pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_SMOKE_BOMB)
             {
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_PASSIVE);
                 me->CombatStop(false);
                 uiPlayerGUID = pCaster->GetGUID();
@@ -800,7 +695,6 @@ public:
 
 void AddSC_grizzly_hills()
 {
-    new npc_orsonn_and_kodian;
     new npc_emily;
     new npc_mrfloppy;
     new npc_outhouse_bunny;

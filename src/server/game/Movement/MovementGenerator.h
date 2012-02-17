@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,13 +38,11 @@ class MovementGenerator
 
         virtual void Reset(Unit &) = 0;
 
-        virtual bool Update(Unit &, const uint32 &time_diff) = 0;
+        virtual bool Update(Unit &, const uint32 time_diff) = 0;
 
         virtual MovementGeneratorType GetMovementGeneratorType() = 0;
 
         virtual void unitSpeedChanged() { }
-
-        virtual bool GetDestination(float& /*x*/, float& /*y*/, float& /*z*/) const { return false; }
 };
 
 template<class T, class D>
@@ -66,7 +64,7 @@ class MovementGeneratorMedium : public MovementGenerator
             //u->AssertIsType<T>();
             (static_cast<D*>(this))->Reset(*((T*)&u));
         }
-        bool Update(Unit &u, const uint32 &time_diff)
+        bool Update(Unit &u, const uint32 time_diff)
         {
             //u->AssertIsType<T>();
             return (static_cast<D*>(this))->Update(*((T*)&u), time_diff);
@@ -76,7 +74,7 @@ class MovementGeneratorMedium : public MovementGenerator
         void Initialize(T &u);
         void Finalize(T &u);
         void Reset(T &u);
-        bool Update(T &u, const uint32 &time_diff);
+        bool Update(T &u, const uint32 time_diff);
 };
 
 struct SelectableMovement : public FactoryHolder<MovementGenerator, MovementGeneratorType>

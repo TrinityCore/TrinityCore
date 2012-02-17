@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ public:
     {
         instance_blackrock_spireMapScript(InstanceMap* map) : InstanceScript(map) {}
 
-        uint32 Encounter[MAX_ENCOUNTER];
+        uint32 encounter[MAX_ENCOUNTER];
         std::string m_strInstData;
         uint64 HighlordOmokk;
         uint64 ShadowHunterVoshgajin;
@@ -53,27 +53,27 @@ public:
         void Initialize()
         {
             SetBossNumber(MAX_ENCOUNTER);
-            HighlordOmokk = 0;
-            ShadowHunterVoshgajin = 0;
-            WarMasterVoone = 0;
-            MotherSmolderweb = 0;
-            UrokDoomhowl = 0;
-            QuartermasterZigris = 0;
-            GizrultheSlavener = 0;
-            Halycon = 0;
-            OverlordWyrmthalak = 0;
-            PyroguardEmberseer = 0;
-            WarchiefRendBlackhand = 0;
-            Gyth = 0;
-            TheBeast = 0;
-            GeneralDrakkisath = 0;
+            HighlordOmokk           = 0;
+            ShadowHunterVoshgajin   = 0;
+            WarMasterVoone          = 0;
+            MotherSmolderweb        = 0;
+            UrokDoomhowl            = 0;
+            QuartermasterZigris     = 0;
+            GizrultheSlavener       = 0;
+            Halycon                 = 0;
+            OverlordWyrmthalak      = 0;
+            PyroguardEmberseer      = 0;
+            WarchiefRendBlackhand   = 0;
+            Gyth                    = 0;
+            TheBeast                = 0;
+            GeneralDrakkisath       = 0;
         }
 
         bool IsEncounterInProgress() const
         {
             for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
             {
-                if (Encounter[i] == IN_PROGRESS)
+                if (encounter[i] == IN_PROGRESS)
                     return true;
             }
             return false;
@@ -81,7 +81,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_OMOKK:
                     HighlordOmokk = creature->GetGUID();
@@ -130,7 +130,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_WHELP_SPAWNER:
                     go->CastSpell(NULL, SPELL_SUMMON_ROOKERY_WHELP);
@@ -169,7 +169,7 @@ public:
 
         uint64 GetData64(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_OMOKK:
                     return HighlordOmokk;

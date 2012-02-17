@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,17 +84,17 @@ public:
 
     bool IsClosed() const { return _closedBy; }
     bool IsCompleted() const { return _completed; }
-    bool IsFromPlayer(const uint64& guid) const { return guid == _playerGuid; }
+    bool IsFromPlayer(uint64 guid) const { return guid == _playerGuid; }
     bool IsAssigned() const { return _assignedTo != 0; }
-    bool IsAssignedTo(const uint64& guid) const { return guid == _assignedTo; }
-    bool IsAssignedNotTo(const uint64& guid) const { return IsAssigned() && !IsAssignedTo(guid); }
+    bool IsAssignedTo(uint64 guid) const { return guid == _assignedTo; }
+    bool IsAssignedNotTo(uint64 guid) const { return IsAssigned() && !IsAssignedTo(guid); }
 
     uint32 GetId() const { return _id; }
-    Player* GetPlayer() const { return sObjectMgr->GetPlayer(_playerGuid); }
+    Player* GetPlayer() const { return ObjectAccessor::FindPlayer(_playerGuid); }
     std::string GetPlayerName() const { return _playerName; }
     std::string GetMessage() const { return _message; }
-    Player* GetAssignedPlayer() const { return sObjectMgr->GetPlayer(_assignedTo); }
-    const uint64& GetAssignedToGUID() const { return _assignedTo; }
+    Player* GetAssignedPlayer() const { return ObjectAccessor::FindPlayer(_assignedTo); }
+    uint64 GetAssignedToGUID() const { return _assignedTo; }
     std::string GetAssignedToName() const
     {
         std::string name;
@@ -104,11 +104,11 @@ public:
 
         return name;
     }
-    const uint64& GetLastModifiedTime() const { return _lastModifiedTime; }
+    uint64 GetLastModifiedTime() const { return _lastModifiedTime; }
     GMTicketEscalationStatus GetEscalatedStatus() const { return _escalatedStatus; }
 
     void SetEscalatedStatus(GMTicketEscalationStatus escalatedStatus) { _escalatedStatus = escalatedStatus; }
-    void SetAssignedTo(const uint64& guid, bool isAdmin)
+    void SetAssignedTo(uint64 guid, bool isAdmin)
     {
         _assignedTo = guid;
         if (isAdmin && _escalatedStatus == TICKET_IN_ESCALATION_QUEUE)
@@ -162,8 +162,10 @@ typedef std::map<uint32, GmTicket*> GmTicketList;
 
 class TicketMgr
 {
-    TicketMgr();
     friend class ACE_Singleton<TicketMgr, ACE_Null_Mutex>;
+
+private:
+    TicketMgr();
 
 public:
     void LoadTickets();
@@ -178,7 +180,7 @@ public:
         return NULL;
     }
 
-    GmTicket* GetTicketByPlayer(const uint64& playerGuid)
+    GmTicket* GetTicketByPlayer(uint64 playerGuid)
     {
         for (GmTicketList::const_iterator itr = _ticketList.begin(); itr != _ticketList.end(); ++itr)
             if (itr->second && itr->second->IsFromPlayer(playerGuid) && !itr->second->IsClosed())
@@ -211,6 +213,7 @@ public:
     uint32 GetNextSurveyID() { return ++_lastSurveyId; }
 
     void Initialize();
+    void ResetTickets();
 
     void ShowList(ChatHandler& handler, bool onlineOnly) const;
     void ShowClosedList(ChatHandler& handler) const;

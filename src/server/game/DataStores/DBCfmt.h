@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,8 +38,9 @@ const char ChatChannelsEntryfmt[]="nixssssssssssssssssxxxxxxxxxxxxxxxxxx";
 const char ChrClassesEntryfmt[]="nxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixii";
 const char ChrRacesEntryfmt[]="nxixiixixxxxixssssssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxi";
 const char CinematicSequencesEntryfmt[]="nxxxxxxxxx";
-const char CreatureDisplayInfofmt[]="nxxxfxxxxxxxxxxx";
+const char CreatureDisplayInfofmt[]="nixxfxxxxxxxxxxx";
 const char CreatureFamilyfmt[]="nfifiiiiixssssssssssssssssxx";
+const char CreatureModelDatafmt[]="nxxxfxxxxxxxxxxffxxxxxxxxxxx";
 const char CreatureSpellDatafmt[]="niiiixxxx";
 const char CreatureTypefmt[]="nxxxxxxxxxxxxxxxxxx";
 const char CurrencyTypesfmt[]="xnxi";
@@ -51,7 +52,7 @@ const char EmotesEntryfmt[]="nxxiiix";
 const char EmotesTextEntryfmt[]="nxixxxxxxxxxxxxxxxx";
 const char FactionEntryfmt[]="niiiiiiiiiiiiiiiiiiffixssssssssssssssssxxxxxxxxxxxxxxxxxx";
 const char FactionTemplateEntryfmt[]="niiiiiiiiiiiii";
-const char GameObjectDisplayInfofmt[]="nxxxxxxxxxxxffffffx";
+const char GameObjectDisplayInfofmt[]="nsxxxxxxxxxxffffffx";
 const char GemPropertiesEntryfmt[]="nixxi";
 const char GlyphPropertiesfmt[]="niii";
 const char GlyphSlotfmt[]="nii";
@@ -77,6 +78,7 @@ const char ItemRandomPropertiesfmt[]="nxiiixxssssssssssssssssx";
 const char ItemRandomSuffixfmt[]="nssssssssssssssssxxiiixxiiixx";
 const char ItemSetEntryfmt[]="dssssssssssssssssxiiiiiiiiiixxxxxxxiiiiiiiiiiiiiiiiii";
 const char LFGDungeonEntryfmt[]="nxxxxxxxxxxxxxxxxxiiiiiiixixxixixxxxxxxxxxxxxxxxx";
+//const char LiquidTypeEntryfmt[]="nsiiiiffffifiiisssssiiffffffffffffffffffiiii";
 const char LockEntryfmt[]="niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 const char MailTemplateEntryfmt[]="nxxxxxxxxxxxxxxxxxssssssssssssssssx";
 const char MapEntryfmt[]="nxixxssssssssssssssssxixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxixiffxiix";
@@ -99,7 +101,7 @@ const std::string CustomSpellDifficultyfmt="ppppp";
 const std::string CustomSpellDifficultyIndex="id";
 const char SpellDurationfmt[]="niii";
 const char SpellEntryfmt[]="niiiiiiiiiiiixixiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiifxiiiiiiiiiiiiiiiiiiiiiiiiiiiifffiiiiiiiiiiiiiiiiiiiiifffiiiiiiiiiiiiiiifffiiiiiiiiiiiiixssssssssssssssssxssssssssssssssssxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxiiiiiiiiiiixfffxxxiiiiixxfffxx";
-const std::string CustomSpellEntryfmt="pappppppppaapapapaaaaaaaaaaapaaapapppppppaaaaapaapaaaaaaaaaaaaaaaaaappppppppppppppppppppppppppppppppppppaaaaaapppppppppaaapppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaappppppppapppaaaaappaaaaaaa";
+const std::string CustomSpellEntryfmt="papppppppppppapapaaaaaaaaaaapaaapapppppppaaaaapaapaaaaaaaaaaaaaaaaaappppppppppppppppppppppppppppppppppppaaaaaapppppppppaaapppppppppaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaappppppppapppaaaaappaaaaaaa";
 const std::string CustomSpellEntryIndex = "Id";
 const char SpellFocusObjectfmt[]="nxxxxxxxxxxxxxxxxx";
 const char SpellItemEnchantmentfmt[]="nxiiiiiixxxiiissssssssssssssssxiiiiiii";

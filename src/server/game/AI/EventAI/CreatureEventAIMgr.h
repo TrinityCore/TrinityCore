@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,10 +25,12 @@
 class CreatureEventAIMgr
 {
     friend class ACE_Singleton<CreatureEventAIMgr, ACE_Null_Mutex>;
-    CreatureEventAIMgr(){};
-    public:
+
+    private:
+        CreatureEventAIMgr(){};
         ~CreatureEventAIMgr(){};
 
+    public:
         void LoadCreatureEventAI_Texts();
         void LoadCreatureEventAI_Summons();
         void LoadCreatureEventAI_Scripts();

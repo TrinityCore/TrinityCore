@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -121,7 +121,7 @@ class Player;
 class Pet : public Guardian
 {
     public:
-        explicit Pet(Player *owner, PetType type = MAX_PET_TYPE);
+        explicit Pet(Player* owner, PetType type = MAX_PET_TYPE);
         virtual ~Pet();
 
         void AddToWorld();
@@ -134,10 +134,10 @@ class Pet : public Guardian
 
         bool IsPermanentPetFor(Player* owner);              // pet have tab in character windows and set UNIT_FIELD_PETNUMBER
 
-        bool Create (uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
+        bool Create (uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
-        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map * map, uint32 phaseMask);
+        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
         bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
         bool isBeingLoaded() const { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
@@ -176,8 +176,7 @@ class Pet : public Guardian
         void UpdateDamagePhysical(WeaponAttackType attType);
         */
 
-        bool CanTakeMoreActiveSpells(uint32 SpellIconID);
-        void ToggleAutocast(uint32 spellid, bool apply);
+        void ToggleAutocast(SpellInfo const* spellInfo, bool apply);
 
         bool HasSpell(uint32 spell) const;
 
@@ -193,7 +192,7 @@ class Pet : public Guardian
         void _LoadSpells();
         void _SaveSpells(SQLTransaction& trans);
 
-        bool addSpell(uint32 spell_id, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
+        bool addSpell(uint32 spellId, ActiveStates active = ACT_DECIDE, PetSpellState state = PETSPELL_NEW, PetSpellType type = PETSPELL_NORMAL);
         bool learnSpell(uint32 spell_id);
         void learnSpellHighRank(uint32 spellid);
         void InitLevelupSpellsForLevel();
@@ -216,7 +215,7 @@ class Pet : public Guardian
 
         uint32  m_usedTalentCount;
 
-        const uint64& GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
+        uint64 GetAuraUpdateMaskForRaid() const { return m_auraRaidUpdateMask; }
         void SetAuraUpdateMaskForRaid(uint8 slot) { m_auraRaidUpdateMask |= (uint64(1) << slot); }
         void ResetAuraUpdateMaskForRaid() { m_auraRaidUpdateMask = 0; }
 
@@ -224,9 +223,9 @@ class Pet : public Guardian
 
         bool    m_removed;                                  // prevent overwrite pet state in DB at next Pet::Update if pet already removed(saved)
 
-        Player *GetOwner() { return m_owner; }
+        Player* GetOwner() { return m_owner; }
     protected:
-        Player *m_owner;
+        Player* m_owner;
         uint32  m_happinessTimer;
         PetType m_petType;
         int32   m_duration;                                 // time until unsummon (used mostly for summoned guardians and not used for controlled pets)

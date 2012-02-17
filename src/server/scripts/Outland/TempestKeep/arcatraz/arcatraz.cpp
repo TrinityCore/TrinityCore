@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,19 +38,18 @@ EndContentData */
 
 enum eMillhouseSays
 {
-    SAY_INTRO_1                = -1552010,
-    SAY_INTRO_2                = -1552011,
-    SAY_WATER                  = -1552012,
-    SAY_BUFFS                  = -1552013,
-    SAY_DRINK                  = -1552014,
-    SAY_READY                  = -1552015,
-    SAY_KILL_1                 = -1552016,
-    SAY_KILL_2                 = -1552017,
-    SAY_PYRO                   = -1552018,
-    SAY_ICEBLOCK               = -1552019,
-    SAY_LOWHP                  = -1552020,
-    SAY_DEATH                  = -1552021,
-    SAY_COMPLETE               = -1552022,
+    SAY_INTRO_1                = 0,
+    SAY_INTRO_2                = 1,
+    SAY_WATER                  = 2,
+    SAY_BUFFS                  = 3,
+    SAY_DRINK                  = 4,
+    SAY_READY                  = 5,
+    SAY_KILL                   = 6,
+    SAY_PYRO                   = 7,
+    SAY_ICEBLOCK               = 8,
+    SAY_LOWHP                  = 9,
+    SAY_DEATH                  = 10,
+    SAY_COMPLETE               = 11,
 };
 
 enum eMillhouseSpells
@@ -78,10 +77,10 @@ class npc_millhouse_manastorm : public CreatureScript
         {
             npc_millhouse_manastormAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 EventProgress_Timer;
             uint32 Phase;
@@ -101,13 +100,13 @@ class npc_millhouse_manastorm : public CreatureScript
                 Pyroblast_Timer = 1000;
                 Fireball_Timer = 2500;
 
-                if (pInstance)
+                if (instance)
                 {
-                    if (pInstance->GetData(TYPE_WARDEN_2) == DONE)
+                    if (instance->GetData(TYPE_WARDEN_2) == DONE)
                         Init = true;
 
-                    if (pInstance->GetData(TYPE_HARBINGERSKYRISS) == DONE)
-                        DoScriptText(SAY_COMPLETE, me);
+                    if (instance->GetData(TYPE_HARBINGERSKYRISS) == DONE)
+                        Talk(SAY_COMPLETE);
                 }
             }
 
@@ -126,15 +125,15 @@ class npc_millhouse_manastorm : public CreatureScript
 
             void KilledUnit(Unit* /*victim*/)
             {
-                DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+                Talk(SAY_KILL);
             }
 
             void JustDied(Unit* /*victim*/)
             {
-                DoScriptText(SAY_DEATH, me);
+                Talk(SAY_DEATH);
 
                 /*for questId 10886 (heroic mode only)
-                if (pInstance && pInstance->GetData(TYPE_HARBINGERSKYRISS) != DONE)
+                if (instance && instance->GetData(TYPE_HARBINGERSKYRISS) != DONE)
                 ->FailQuest();*/
             }
 
@@ -146,38 +145,38 @@ class npc_millhouse_manastorm : public CreatureScript
                     {
                         if (Phase < 8)
                         {
-                            switch(Phase)
+                            switch (Phase)
                             {
                             case 1:
-                                DoScriptText(SAY_INTRO_1, me);
+                                Talk(SAY_INTRO_1);
                                 EventProgress_Timer = 18000;
                                 break;
                             case 2:
-                                DoScriptText(SAY_INTRO_2, me);
+                                Talk(SAY_INTRO_2);
                                 EventProgress_Timer = 18000;
                                 break;
                             case 3:
-                                DoScriptText(SAY_WATER, me);
+                                Talk(SAY_WATER);
                                 DoCast(me, SPELL_CONJURE_WATER);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 4:
-                                DoScriptText(SAY_BUFFS, me);
+                                Talk(SAY_BUFFS);
                                 DoCast(me, SPELL_ICE_ARMOR);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 5:
-                                DoScriptText(SAY_DRINK, me);
+                                Talk(SAY_DRINK);
                                 DoCast(me, SPELL_ARCANE_INTELLECT);
                                 EventProgress_Timer = 7000;
                                 break;
                             case 6:
-                                DoScriptText(SAY_READY, me);
+                                Talk(SAY_READY);
                                 EventProgress_Timer = 6000;
                                 break;
                             case 7:
-                                if (pInstance)
-                                    pInstance->SetData(TYPE_WARDEN_2, DONE);
+                                if (instance)
+                                    instance->SetData(TYPE_WARDEN_2, DONE);
                                 Init = true;
                                 break;
                             }
@@ -192,7 +191,7 @@ class npc_millhouse_manastorm : public CreatureScript
                     return;
                 if (!LowHp && HealthBelowPct(20))
                 {
-                    DoScriptText(SAY_LOWHP, me);
+                    Talk(SAY_LOWHP);
                     LowHp = true;
                 }
 
@@ -201,7 +200,7 @@ class npc_millhouse_manastorm : public CreatureScript
                     if (me->IsNonMeleeSpellCasted(false))
                         return;
 
-                    DoScriptText(SAY_PYRO, me);
+                    Talk(SAY_PYRO);
 
                     DoCast(me->getVictim(), SPELL_PYROBLAST);
                     Pyroblast_Timer = 40000;
@@ -232,14 +231,14 @@ class npc_millhouse_manastorm : public CreatureScript
 
 enum eWardenSays
 {
-    YELL_INTRO1         = -1552023,
-    YELL_INTRO2         = -1552024,
-    YELL_RELEASE1       = -1552025,
-    YELL_RELEASE2A      = -1552026,
-    YELL_RELEASE2B      = -1552027,
-    YELL_RELEASE3       = -1552028,
-    YELL_RELEASE4       = -1552029,
-    YELL_WELCOME        = -1552030,
+    YELL_INTRO1         = 0,
+    YELL_INTRO2         = 1,
+    YELL_RELEASE1       = 2,
+    YELL_RELEASE2A      = 3,
+    YELL_RELEASE2B      = 4,
+    YELL_RELEASE3       = 5,
+    YELL_RELEASE4       = 6,
+    YELL_WELCOME        = 7,
 };
 
 enum eWardenUnits
@@ -274,18 +273,18 @@ class npc_warden_mellichar : public CreatureScript
 {
     public:
 
-        npc_warden_mellichar()
-            : CreatureScript("npc_warden_mellichar")
+        npc_warden_mellichar() : CreatureScript("npc_warden_mellichar")
         {
         }
+
         struct npc_warden_mellicharAI : public ScriptedAI
         {
             npc_warden_mellicharAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             bool IsRunning;
             bool CanSpawn;
@@ -304,8 +303,8 @@ class npc_warden_mellichar : public CreatureScript
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 DoCast(me, SPELL_TARGET_OMEGA);
 
-                if (pInstance)
-                    pInstance->SetData(TYPE_HARBINGERSKYRISS, NOT_STARTED);
+                if (instance)
+                    instance->SetData(TYPE_HARBINGERSKYRISS, NOT_STARTED);
             }
 
             void AttackStart(Unit* /*who*/) {}
@@ -315,7 +314,7 @@ class npc_warden_mellichar : public CreatureScript
                 if (IsRunning)
                     return;
 
-                if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)) && who->isInAccessiblePlaceFor(me))
+                if (!me->getVictim() && me->canCreatureAttack(who))
                 {
                     if (!me->canFly() && me->GetDistanceZ(who) > CREATURE_Z_ATTACK_RANGE)
                         return;
@@ -330,34 +329,34 @@ class npc_warden_mellichar : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                DoScriptText(YELL_INTRO1, me);
+                Talk(YELL_INTRO1);
                 DoCast(me, SPELL_BUBBLE_VISUAL);
 
-                if (pInstance)
+                if (instance)
                 {
-                    pInstance->SetData(TYPE_HARBINGERSKYRISS, IN_PROGRESS);
-                    pInstance->HandleGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD), false);
+                    instance->SetData(TYPE_HARBINGERSKYRISS, IN_PROGRESS);
+                    instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), false);
                     IsRunning = true;
                 }
             }
 
             bool CanProgress()
             {
-                if (pInstance)
+                if (instance)
                 {
-                    if (Phase == 7 && pInstance->GetData(TYPE_WARDEN_4) == DONE)
+                    if (Phase == 7 && instance->GetData(TYPE_WARDEN_4) == DONE)
                         return true;
-                    if (Phase == 6 && pInstance->GetData(TYPE_WARDEN_3) == DONE)
+                    if (Phase == 6 && instance->GetData(TYPE_WARDEN_3) == DONE)
                         return true;
-                    if (Phase == 5 && pInstance->GetData(TYPE_WARDEN_2) == DONE)
+                    if (Phase == 5 && instance->GetData(TYPE_WARDEN_2) == DONE)
                         return true;
                     if (Phase == 4)
                         return true;
-                    if (Phase == 3 && pInstance->GetData(TYPE_WARDEN_1) == DONE)
+                    if (Phase == 3 && instance->GetData(TYPE_WARDEN_1) == DONE)
                         return true;
-                    if (Phase == 2 && pInstance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS)
+                    if (Phase == 2 && instance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS)
                         return true;
-                    if (Phase == 1 && pInstance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS)
+                    if (Phase == 1 && instance->GetData(TYPE_HARBINGERSKYRISS) == IN_PROGRESS)
                         return true;
                     return false;
                 }
@@ -366,32 +365,32 @@ class npc_warden_mellichar : public CreatureScript
 
             void DoPrepareForPhase()
             {
-                if (pInstance)
+                if (instance)
                 {
                     me->InterruptNonMeleeSpells(true);
                     me->RemoveAurasByType(SPELL_AURA_DUMMY);
 
-                    switch(Phase)
+                    switch (Phase)
                     {
                     case 2:
                         DoCast(me, SPELL_TARGET_ALPHA);
-                        pInstance->SetData(TYPE_WARDEN_1, IN_PROGRESS);
-                        pInstance->HandleGameObject(pInstance->GetData64(DATA_SPHERE_SHIELD), false);
+                        instance->SetData(TYPE_WARDEN_1, IN_PROGRESS);
+                        instance->HandleGameObject(instance->GetData64(DATA_SPHERE_SHIELD), false);
                         break;
                     case 3:
                         DoCast(me, SPELL_TARGET_BETA);
-                        pInstance->SetData(TYPE_WARDEN_2, IN_PROGRESS);
+                        instance->SetData(TYPE_WARDEN_2, IN_PROGRESS);
                         break;
                     case 5:
                         DoCast(me, SPELL_TARGET_DELTA);
-                        pInstance->SetData(TYPE_WARDEN_3, IN_PROGRESS);
+                        instance->SetData(TYPE_WARDEN_3, IN_PROGRESS);
                         break;
                     case 6:
                         DoCast(me, SPELL_TARGET_GAMMA);
-                        pInstance->SetData(TYPE_WARDEN_4, IN_PROGRESS);
+                        instance->SetData(TYPE_WARDEN_4, IN_PROGRESS);
                         break;
                     case 7:
-                        pInstance->SetData(TYPE_WARDEN_5, IN_PROGRESS);
+                        instance->SetData(TYPE_WARDEN_5, IN_PROGRESS);
                         break;
                     }
                     CanSpawn = true;
@@ -405,9 +404,9 @@ class npc_warden_mellichar : public CreatureScript
 
                 if (EventProgress_Timer <= diff)
                 {
-                    if (pInstance)
+                    if (instance)
                     {
-                        if (pInstance->GetData(TYPE_HARBINGERSKYRISS) == FAIL)
+                        if (instance->GetData(TYPE_HARBINGERSKYRISS) == FAIL)
                         {
                             Reset();
                             return;
@@ -420,7 +419,7 @@ class npc_warden_mellichar : public CreatureScript
                         if (Phase != 7)
                             DoCast(me, SPELL_TARGET_OMEGA);
 
-                        switch(Phase)
+                        switch (Phase)
                         {
                         case 2:
                             switch (urand(0, 1))
@@ -437,7 +436,7 @@ class npc_warden_mellichar : public CreatureScript
                             me->SummonCreature(ENTRY_MILLHOUSE, 413.292f, -148.378f, 42.56f, 6.27f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                             break;
                         case 4:
-                            DoScriptText(YELL_RELEASE2B, me);
+                            Talk(YELL_RELEASE2B);
                             break;
                         case 5:
                             switch (urand(0, 1))
@@ -463,7 +462,7 @@ class npc_warden_mellichar : public CreatureScript
                             break;
                         case 7:
                             me->SummonCreature(ENTRY_SKYRISS, 445.763f, -191.639f, 44.64f, 1.60f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
-                            DoScriptText(YELL_WELCOME, me);
+                            Talk(YELL_WELCOME);
                             break;
                         }
                         CanSpawn = false;
@@ -471,20 +470,20 @@ class npc_warden_mellichar : public CreatureScript
                     }
                     if (CanProgress())
                     {
-                        switch(Phase)
+                        switch (Phase)
                         {
                         case 1:
-                            DoScriptText(YELL_INTRO2, me);
+                            Talk(YELL_INTRO2);
                             EventProgress_Timer = 10000;
                             ++Phase;
                             break;
                         case 2:
-                            DoScriptText(YELL_RELEASE1, me);
+                            Talk(YELL_RELEASE1);
                             DoPrepareForPhase();
                             EventProgress_Timer = 7000;
                             break;
                         case 3:
-                            DoScriptText(YELL_RELEASE2A, me);
+                            Talk(YELL_RELEASE2A);
                             DoPrepareForPhase();
                             EventProgress_Timer = 10000;
                             break;
@@ -493,12 +492,12 @@ class npc_warden_mellichar : public CreatureScript
                             EventProgress_Timer = 15000;
                             break;
                         case 5:
-                            DoScriptText(YELL_RELEASE3, me);
+                            Talk(YELL_RELEASE3);
                             DoPrepareForPhase();
                             EventProgress_Timer = 15000;
                             break;
                         case 6:
-                            DoScriptText(YELL_RELEASE4, me);
+                            Talk(YELL_RELEASE4);
                             DoPrepareForPhase();
                             EventProgress_Timer = 15000;
                             break;
@@ -524,14 +523,16 @@ class npc_warden_mellichar : public CreatureScript
 # mob_zerekethvoidzone (this script probably not needed in future -> `creature_template_addon`.`auras`='36120 0')
 #####*/
 
-#define SPELL_VOID_ZONE_DAMAGE 36120
+enum ZerekethSpell
+{
+    SPELL_VOID_ZONE_DAMAGE = 36120,
+};
 
 class mob_zerekethvoidzone : public CreatureScript
 {
     public:
 
-        mob_zerekethvoidzone()
-            : CreatureScript("mob_zerekethvoidzone")
+        mob_zerekethvoidzone() : CreatureScript("mob_zerekethvoidzone")
         {
         }
         struct mob_zerekethvoidzoneAI : public ScriptedAI
@@ -555,10 +556,10 @@ class mob_zerekethvoidzone : public CreatureScript
             return new mob_zerekethvoidzoneAI(creature);
         }
 };
+
 void AddSC_arcatraz()
 {
     new npc_millhouse_manastorm();
     new npc_warden_mellichar();
     new mob_zerekethvoidzone();
 }
-

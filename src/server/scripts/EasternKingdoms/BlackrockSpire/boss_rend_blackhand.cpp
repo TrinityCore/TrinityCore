@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,9 +56,9 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_WHIRLWIND, 20*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_CLEAVE, 5*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_THUNDERCLAP, 9*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_WHIRLWIND,  20 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CLEAVE,      5 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_THUNDERCLAP, 9 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*who*/)
@@ -73,7 +73,7 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -82,15 +82,15 @@ public:
                 {
                     case EVENT_WHIRLWIND:
                         DoCast(me->getVictim(), SPELL_WHIRLWIND);
-                        events.ScheduleEvent(EVENT_WHIRLWIND, 18*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_WHIRLWIND, 18 * IN_MILLISECONDS);
                         break;
                     case EVENT_CLEAVE:
                         DoCast(me->getVictim(), SPELL_CLEAVE);
-                        events.ScheduleEvent(EVENT_CLEAVE, 10*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CLEAVE, 10 * IN_MILLISECONDS);
                         break;
                     case EVENT_THUNDERCLAP:
                         DoCast(me->getVictim(), SPELL_THUNDERCLAP);
-                        events.ScheduleEvent(EVENT_THUNDERCLAP, 16*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_THUNDERCLAP, 16 * IN_MILLISECONDS);
                         break;
                 }
             }

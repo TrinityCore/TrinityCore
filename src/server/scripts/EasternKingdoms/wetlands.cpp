@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -69,7 +69,7 @@ public:
 
         void WaypointReached(uint32 uiPointId)
         {
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 2:
                     if (me->HasStealthAura())
@@ -144,9 +144,9 @@ class npc_mikhail : public CreatureScript
 public:
     npc_mikhail() : CreatureScript("npc_mikhail") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
+        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
         {
             Creature* pSlim = creature->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
 
@@ -157,7 +157,7 @@ public:
                 pSlim->CastSpell(pSlim, SPELL_STEALTH, true);
 
             if (npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI* pEscortAI = CAST_AI(npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI, pSlim->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
         return false;
     }

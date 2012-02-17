@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,14 +54,16 @@ enum eSpells
 
     SPELL_BLACK_KNIGHT_RES  = 67693,
 
-    SPELL_LEAP                = 67749,
-    SPELL_LEAP_H            = 67880
+    SPELL_LEAP              = 67749,
+    SPELL_LEAP_H            = 67880,
+
+    SPELL_KILL_CREDIT       = 68663
 };
 
 enum eModels
 {
-     MODEL_SKELETON = 29846,
-     MODEL_GHOST    = 21300
+    MODEL_SKELETON = 29846,
+    MODEL_GHOST    = 21300
 };
 
 enum ePhases
@@ -80,10 +82,10 @@ public:
     {
         boss_black_knightAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         std::list<uint64> SummonList;
 
@@ -109,7 +111,7 @@ public:
         {
             RemoveSummons();
             me->SetDisplayId(me->GetNativeDisplayId());
-            me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+            me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
 
             bEventInProgress = false;
             bEvent = false;
@@ -137,9 +139,9 @@ public:
 
             for (std::list<uint64>::const_iterator itr = SummonList.begin(); itr != SummonList.end(); ++itr)
             {
-                if (Creature* pTemp = Unit::GetCreature(*me, *itr))
-                    if (pTemp)
-                        pTemp->DisappearAndDie();
+                if (Creature* temp = Unit::GetCreature(*me, *itr))
+                    if (temp)
+                        temp->DisappearAndDie();
             }
             SummonList.clear();
         }
@@ -165,11 +167,11 @@ public:
                     uiPhase++;
                     uiResurrectTimer = 4000;
                     bEventInProgress = false;
-                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                 } else uiResurrectTimer -= uiDiff;
             }
 
-            switch(uiPhase)
+            switch (uiPhase)
             {
                 case PHASE_UNDEAD:
                 case PHASE_SKELETON:
@@ -189,7 +191,7 @@ public:
                         DoCastVictim(SPELL_OBLITERATE);
                         uiObliterateTimer = urand(17000, 19000);
                     } else uiObliterateTimer -= uiDiff;
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case PHASE_UNDEAD:
                         {
@@ -209,14 +211,14 @@ public:
                             if (!bSummonArmy)
                             {
                                 bSummonArmy = true;
-                                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                                 DoCast(me, SPELL_ARMY_DEAD);
                             }
                             if (!bDeathArmyDone)
                             {
                                 if (uiDeathArmyCheckTimer <= uiDiff)
                                 {
-                                    me->ClearUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                                    me->ClearUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                                     uiDeathArmyCheckTimer = 0;
                                     bDeathArmyDone = true;
                                 } else uiDeathArmyCheckTimer -= uiDiff;
@@ -261,7 +263,7 @@ public:
                 }
             }
 
-            if (!me->HasUnitState(UNIT_STAT_ROOT) && !me->HealthBelowPct(1))
+            if (!me->HasUnitState(UNIT_STATE_ROOT) && !me->HealthBelowPct(1))
                 DoMeleeAttackIfReady();
         }
 
@@ -271,9 +273,9 @@ public:
             {
                 uiDamage = 0;
                 me->SetHealth(0);
-                me->AddUnitState(UNIT_STAT_ROOT | UNIT_STAT_STUNNED);
+                me->AddUnitState(UNIT_STATE_ROOT | UNIT_STATE_STUNNED);
                 RemoveSummons();
-                switch(uiPhase)
+                switch (uiPhase)
                 {
                     case PHASE_UNDEAD:
                         me->SetDisplayId(MODEL_SKELETON);
@@ -288,8 +290,10 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(BOSS_BLACK_KNIGHT, DONE);
+            DoCast(me, SPELL_KILL_CREDIT);
+
+            if (instance)
+                instance->SetData(BOSS_BLACK_KNIGHT, DONE);
         }
     };
 
@@ -325,7 +329,7 @@ public:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 100, true))
                 {
                     if (target && target->isAlive())
-                    DoCast(target, (SPELL_LEAP));
+                        DoCast(target, (SPELL_LEAP));
                 }
                 uiAttackTimer = 3500;
             } else uiAttackTimer -= uiDiff;

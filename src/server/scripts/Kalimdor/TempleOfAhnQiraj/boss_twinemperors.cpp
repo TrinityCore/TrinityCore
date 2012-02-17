@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -63,10 +63,10 @@ struct boss_twinemperorsAI : public ScriptedAI
 {
     boss_twinemperorsAI(Creature* c): ScriptedAI(c)
     {
-        pInstance = c->GetInstanceScript();
+        instance = c->GetInstanceScript();
     }
 
-    InstanceScript *pInstance;
+    InstanceScript* instance;
 
     uint32 Heal_Timer;
     uint32 Teleport_Timer;
@@ -88,17 +88,17 @@ struct boss_twinemperorsAI : public ScriptedAI
         AfterTeleport = false;
         tspellcasted = false;
         AfterTeleportTimer = 0;
-        Abuse_Bug_Timer = 10000 + rand()%7000;
+        Abuse_Bug_Timer = urand(10000, 17000);
         BugsTimer = 2000;
-        me->ClearUnitState(UNIT_STAT_STUNNED);
+        me->ClearUnitState(UNIT_STATE_STUNNED);
         DontYellWhenDead = false;
         EnrageTimer = 15*60000;
     }
 
     Creature* GetOtherBoss()
     {
-        if (pInstance)
-            return Unit::GetCreature(*me, pInstance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
+        if (instance)
+            return Unit::GetCreature(*me, instance->GetData64(IAmVeklor() ? DATA_VEKNILASH : DATA_VEKLOR));
         else
             return NULL;
     }
@@ -147,7 +147,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         {
             // TODO: we should activate the other boss location so he can start attackning even if nobody
             // is near I dont know how to do that
-            ScriptedAI *otherAI = CAST_AI(ScriptedAI, pOtherBoss->AI());
+            ScriptedAI* otherAI = CAST_AI(ScriptedAI, pOtherBoss->AI());
             if (!pOtherBoss->isInCombat())
             {
                 DoPlaySoundToSet(me, IAmVeklor() ? SOUND_VL_AGGRO : SOUND_VN_AGGRO);
@@ -157,7 +157,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         }
     }
 
-    void SpellHit(Unit* caster, const SpellEntry *entry)
+    void SpellHit(Unit* caster, const SpellInfo* entry)
     {
         if (caster == me)
             return;
@@ -204,7 +204,7 @@ struct boss_twinemperorsAI : public ScriptedAI
 
     void TeleportToMyBrother()
     {
-        if (!pInstance)
+        if (!instance)
             return;
 
         Teleport_Timer = TELEPORTTIME;
@@ -216,15 +216,12 @@ struct boss_twinemperorsAI : public ScriptedAI
         if (pOtherBoss)
         {
             //me->MonsterYell("Teleporting ...", LANG_UNIVERSAL, 0);
-            float other_x = pOtherBoss->GetPositionX();
-            float other_y = pOtherBoss->GetPositionY();
-            float other_z = pOtherBoss->GetPositionZ();
-            float other_o = pOtherBoss->GetOrientation();
-
-            Map *thismap = me->GetMap();
-            thismap->CreatureRelocation(pOtherBoss, me->GetPositionX(),
-                me->GetPositionY(),    me->GetPositionZ(), me->GetOrientation());
-            thismap->CreatureRelocation(me, other_x, other_y, other_z, other_o);
+            Position thisPos;
+            thisPos.Relocate(me);
+            Position otherPos;
+            otherPos.Relocate(pOtherBoss);
+            pOtherBoss->SetPosition(thisPos);
+            me->SetPosition(otherPos);
 
             SetAfterTeleport();
             CAST_AI(boss_twinemperorsAI,  pOtherBoss->AI())->SetAfterTeleport();
@@ -237,7 +234,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         DoStopAttack();
         DoResetThreat();
         DoCast(me, SPELL_TWIN_TELEPORT_VISUAL);
-        me->AddUnitState(UNIT_STAT_STUNNED);
+        me->AddUnitState(UNIT_STATE_STUNNED);
         AfterTeleport = true;
         AfterTeleportTimer = 2000;
         tspellcasted = false;
@@ -249,9 +246,9 @@ struct boss_twinemperorsAI : public ScriptedAI
         {
             if (!tspellcasted)
             {
-                me->ClearUnitState(UNIT_STAT_STUNNED);
+                me->ClearUnitState(UNIT_STATE_STUNNED);
                 DoCast(me, SPELL_TWIN_TELEPORT);
-                me->AddUnitState(UNIT_STAT_STUNNED);
+                me->AddUnitState(UNIT_STATE_STUNNED);
             }
 
             tspellcasted = true;
@@ -259,7 +256,7 @@ struct boss_twinemperorsAI : public ScriptedAI
             if (AfterTeleportTimer <= diff)
             {
                 AfterTeleport = false;
-                me->ClearUnitState(UNIT_STAT_STUNNED);
+                me->ClearUnitState(UNIT_STATE_STUNNED);
                 if (Unit* nearu = me->SelectNearestTarget(100))
                 {
                     //DoYell(nearu->GetName(), LANG_UNIVERSAL, 0);
@@ -294,7 +291,7 @@ struct boss_twinemperorsAI : public ScriptedAI
         if (!who || me->getVictim())
             return;
 
-        if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who))
+        if (me->canCreatureAttack(who))
         {
             float attackRadius = me->GetAttackDistance(who);
             if (attackRadius < PULL_RANGE)
@@ -350,7 +347,7 @@ struct boss_twinemperorsAI : public ScriptedAI
                 if (c)
                 {
                     CastSpellOnBug(c);
-                    Abuse_Bug_Timer = 10000 + rand()%7000;
+                    Abuse_Bug_Timer = urand(10000, 17000);
                 }
                 else
                 {
@@ -410,9 +407,9 @@ public:
         void Reset()
         {
             TwinReset();
-            UpperCut_Timer = 14000 + rand()%15000;
-            UnbalancingStrike_Timer = 8000 + rand()%10000;
-            Scarabs_Timer = 7000 + rand()%7000;
+            UpperCut_Timer = urand(14000, 29000);
+            UnbalancingStrike_Timer = urand(8000, 18000);
+            Scarabs_Timer = urand(7000, 14000);
 
                                                                 //Added. Can be removed if its included in DB.
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_MAGIC, true);
@@ -498,9 +495,9 @@ public:
         {
             TwinReset();
             ShadowBolt_Timer = 0;
-            Blizzard_Timer = 15000 + rand()%5000;
+            Blizzard_Timer = urand(15000, 20000);
             ArcaneBurst_Timer = 1000;
-            Scorpions_Timer = 7000 + rand()%7000;
+            Scorpions_Timer = urand(7000, 14000);
 
             //Added. Can be removed if its included in DB.
             me->ApplySpellImmune(0, IMMUNITY_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, true);

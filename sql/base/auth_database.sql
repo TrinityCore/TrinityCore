@@ -61,7 +61,7 @@ CREATE TABLE `account` (
   `last_login` timestamp NOT NULL default '0000-00-00 00:00:00',
   `online` tinyint(4) NOT NULL default '0',
   `expansion` tinyint(3) unsigned NOT NULL default '2',
-  `mutetime` bigint(40) unsigned NOT NULL default '0',
+  `mutetime` bigint(40) NOT NULL default '0',
   `locale` tinyint(3) unsigned NOT NULL default '0',
   `recruiter` int(11) NOT NULL default '0',
   PRIMARY KEY  (`id`),

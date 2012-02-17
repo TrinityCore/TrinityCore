@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,11 +39,11 @@ public:
     {
         npc_dragonflayer_forge_masterAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             fm_Type = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         uint8 fm_Type;
 
         void Reset()
@@ -54,18 +54,18 @@ public:
 
         void CheckForge()
         {
-           if (pInstance)
+           if (instance)
             {
-                switch(fm_Type)
+                switch (fm_Type)
                 {
                 case 1:
-                    pInstance->SetData(EVENT_FORGE_1, me->isAlive() ? NOT_STARTED : DONE);
+                    instance->SetData(EVENT_FORGE_1, me->isAlive() ? NOT_STARTED : DONE);
                     break;
                 case 2:
-                    pInstance->SetData(EVENT_FORGE_2, me->isAlive() ? NOT_STARTED : DONE);
+                    instance->SetData(EVENT_FORGE_2, me->isAlive() ? NOT_STARTED : DONE);
                     break;
                 case 3:
-                    pInstance->SetData(EVENT_FORGE_3, me->isAlive() ? NOT_STARTED : DONE);
+                    instance->SetData(EVENT_FORGE_3, me->isAlive() ? NOT_STARTED : DONE);
                     break;
                 }
             }
@@ -74,18 +74,18 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             if (fm_Type == 0) fm_Type = GetForgeMasterType();
-            if (pInstance)
+            if (instance)
             {
-                switch(fm_Type)
+                switch (fm_Type)
                 {
                 case 1:
-                    pInstance->SetData(EVENT_FORGE_1, DONE);
+                    instance->SetData(EVENT_FORGE_1, DONE);
                     break;
                 case 2:
-                    pInstance->SetData(EVENT_FORGE_2, DONE);
+                    instance->SetData(EVENT_FORGE_2, DONE);
                     break;
                 case 3:
-                    pInstance->SetData(EVENT_FORGE_3, DONE);
+                    instance->SetData(EVENT_FORGE_3, DONE);
                     break;
                 }
             }
@@ -94,22 +94,22 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             if (fm_Type == 0) fm_Type = GetForgeMasterType();
-            if (pInstance)
+            if (instance)
             {
-                switch(fm_Type)
+                switch (fm_Type)
                 {
                 case 1:
-                    pInstance->SetData(EVENT_FORGE_1, IN_PROGRESS);
+                    instance->SetData(EVENT_FORGE_1, IN_PROGRESS);
                     break;
                 case 2:
-                    pInstance->SetData(EVENT_FORGE_2, IN_PROGRESS);
+                    instance->SetData(EVENT_FORGE_2, IN_PROGRESS);
                     break;
                 case 3:
-                    pInstance->SetData(EVENT_FORGE_3, IN_PROGRESS);
+                    instance->SetData(EVENT_FORGE_3, IN_PROGRESS);
                     break;
                 }
             }
-            me->SetUInt32Value(UNIT_NPC_EMOTESTATE , EMOTE_ONESHOT_NONE);
+            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_ONESHOT_NONE);
         }
 
         uint8 GetForgeMasterType()

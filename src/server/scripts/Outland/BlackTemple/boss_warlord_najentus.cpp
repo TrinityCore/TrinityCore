@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -74,10 +74,10 @@ public:
     {
         boss_najentusAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
 
         uint64 SpineTargetGUID;
@@ -88,25 +88,25 @@ public:
 
             SpineTargetGUID = 0;
 
-            if (pInstance)
-                pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, NOT_STARTED);
         }
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(rand()%2 ? SAY_SLAY1 : SAY_SLAY2, me);
+            DoScriptText(urand(0, 1) ? SAY_SLAY1 : SAY_SLAY2, me);
             events.DelayEvents(5000, GCD_YELL);
         }
 
         void JustDied(Unit* /*victim*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, DONE);
 
             DoScriptText(SAY_DEATH, me);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_HURL_SPINE && me->HasAura(SPELL_TIDAL_SHIELD))
             {
@@ -118,8 +118,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_HIGHWARLORDNAJENTUSEVENT, IN_PROGRESS);
 
             DoScriptText(SAY_AGGRO, me);
             DoZoneInCombat();
@@ -154,7 +154,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SHIELD:
                         DoCast(me, SPELL_TIDAL_SHIELD, true);
@@ -175,7 +175,7 @@ public:
                             SpineTargetGUID = target->GetGUID();
                             //must let target summon, otherwise you cannot click the spine
                             target->SummonGameObject(GOBJECT_SPINE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), me->GetOrientation(), 0, 0, 0, 0, 30);
-                            DoScriptText(rand()%2 ? SAY_NEEDLE1 : SAY_NEEDLE2, me);
+                            DoScriptText(urand(0, 1) ? SAY_NEEDLE1 : SAY_NEEDLE2, me);
                             events.DelayEvents(1500, GCD_CAST);
                             events.DelayEvents(15000, GCD_YELL);
                         }
@@ -212,14 +212,14 @@ class go_najentus_spine : public GameObjectScript
 public:
     go_najentus_spine() : GameObjectScript("go_najentus_spine") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (InstanceScript* pInstance = pGo->GetInstanceScript())
-            if (Creature* Najentus = Unit::GetCreature(*pGo, pInstance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
+        if (InstanceScript* instance = go->GetInstanceScript())
+            if (Creature* Najentus = Unit::GetCreature(*go, instance->GetData64(DATA_HIGHWARLORDNAJENTUS)))
                 if (CAST_AI(boss_najentus::boss_najentusAI, Najentus->AI())->RemoveImpalingSpine())
                 {
                     player->CastSpell(player, SPELL_CREATE_NAJENTUS_SPINE, true);
-                    pGo->Delete();
+                    go->Delete();
                 }
         return true;
     }

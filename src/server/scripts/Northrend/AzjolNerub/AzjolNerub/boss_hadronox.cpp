@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,12 +53,12 @@ public:
     {
         boss_hadronoxAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             fMaxDistance = 50.0f;
             bFirstTime = true;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiAcidTimer;
         uint32 uiLeechTimer;
@@ -83,8 +83,8 @@ public:
             uiDoorsTimer = urand(20*IN_MILLISECONDS, 30*IN_MILLISECONDS);
             uiCheckDistanceTimer = 2*IN_MILLISECONDS;
 
-            if (pInstance && (pInstance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
-                pInstance->SetData(DATA_HADRONOX_EVENT, FAIL);
+            if (instance && (instance->GetData(DATA_HADRONOX_EVENT) != DONE && !bFirstTime))
+                instance->SetData(DATA_HADRONOX_EVENT, FAIL);
 
             bFirstTime = false;
         }
@@ -101,14 +101,14 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HADRONOX_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_HADRONOX_EVENT, DONE);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_HADRONOX_EVENT, IN_PROGRESS);
             me->SetInCombatWithZone();
         }
 
@@ -118,7 +118,7 @@ public:
                 return;
 
             float x=0.0f, y=0.0f, z=0.0f;
-            me->GetRespawnCoord(x, y, z);
+            me->GetRespawnPosition(x, y, z);
 
             if (uiCheckDistanceTimer <= uiDiff)
                 uiCheckDistanceTimer = 5*IN_MILLISECONDS;
@@ -188,7 +188,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new boss_hadronoxAI(creature);
     }

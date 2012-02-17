@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -78,9 +78,9 @@ enum HighGuid
 #define _GUID_LOPART_2(x) (uint32)(uint64(x)         & UI64LIT(0x00000000FFFFFFFF))
 #define _GUID_LOPART_3(x) (uint32)(uint64(x)         & UI64LIT(0x0000000000FFFFFF))
 
-inline bool IsGuidHaveEnPart(uint64 const& guid)
+inline bool IsGuidHaveEnPart(uint64 guid)
 {
-    switch(GUID_HIPART(guid))
+    switch (GUID_HIPART(guid))
     {
         case HIGHGUID_ITEM:
         case HIGHGUID_PLAYER:
@@ -104,7 +104,7 @@ inline bool IsGuidHaveEnPart(uint64 const& guid)
 
 inline char const* GetLogNameForGuid(uint64 guid)
 {
-    switch(GUID_HIPART(guid))
+    switch (GUID_HIPART(guid))
     {
         case HIGHGUID_ITEM:         return "item";
         case HIGHGUID_PLAYER:       return guid ? "player" : "none";

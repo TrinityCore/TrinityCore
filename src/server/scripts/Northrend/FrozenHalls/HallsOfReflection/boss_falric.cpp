@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,15 +67,15 @@ public:
 
             uiHopelessnessCount = 0;
 
-            if (pInstance)
-                pInstance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_FALRIC_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-                pInstance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_FALRIC_EVENT, IN_PROGRESS);
 
             events.ScheduleEvent(EVENT_QUIVERING_STRIKE, 23000);
             events.ScheduleEvent(EVENT_IMPENDING_DESPAIR, 9000);
@@ -86,8 +86,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_FALRIC_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_FALRIC_EVENT, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -103,7 +103,7 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             switch (events.ExecuteEvent())

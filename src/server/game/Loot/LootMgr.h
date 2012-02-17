@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -149,7 +149,7 @@ struct LootItem
     bool AllowedForPlayer(Player const* player) const;
 
     void AddAllowedLooter(Player const* player);
-    AllowedLooterSet* GetAllowedLooters() { return &allowedGUIDs; }
+    const AllowedLooterSet & GetAllowedLooters() const { return allowedGUIDs; }
 };
 
 struct QuestItem
@@ -169,7 +169,7 @@ class LootTemplate;
 
 typedef std::vector<QuestItem> QuestItemList;
 typedef std::vector<LootItem> LootItemList;
-typedef std::map<uint32, QuestItemList *> QuestItemMap;
+typedef std::map<uint32, QuestItemList*> QuestItemMap;
 typedef std::vector<LootStoreItem> LootStoreItemList;
 typedef UNORDERED_MAP<uint32, LootTemplate*> LootTemplateMap;
 
@@ -357,9 +357,9 @@ struct Loot
 struct LootView
 {
     Loot &loot;
-    Player *viewer;
+    Player* viewer;
     PermissionTypes permission;
-    LootView(Loot &_loot, Player *_viewer, PermissionTypes _permission = ALL_PERMISSION)
+    LootView(Loot &_loot, Player* _viewer, PermissionTypes _permission = ALL_PERMISSION)
         : loot(_loot), viewer(_viewer), permission(_permission) {}
 };
 

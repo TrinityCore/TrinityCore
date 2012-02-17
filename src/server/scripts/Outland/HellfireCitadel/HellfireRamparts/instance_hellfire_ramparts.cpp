@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,7 +36,7 @@ class instance_ramparts : public InstanceMapScript
 
         struct instance_ramparts_InstanceMapScript : public InstanceScript
         {
-            instance_ramparts_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+            instance_ramparts_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             uint32 m_auiEncounter[MAX_ENCOUNTER];
             uint64 m_uiChestNGUID;
@@ -53,7 +53,7 @@ class instance_ramparts : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch(go->GetEntry())
+                switch (go->GetEntry())
                 {
                     case 185168:
                         m_uiChestNGUID = go->GetGUID();
@@ -68,7 +68,7 @@ class instance_ramparts : public InstanceMapScript
             {
                 sLog->outDebug(LOG_FILTER_TSCR, "TSCR: Instance Ramparts: SetData received for type %u with data %u", uiType, uiData);
 
-                switch(uiType)
+                switch (uiType)
                 {
                     case TYPE_VAZRUDEN:
                         if (uiData == DONE && m_auiEncounter[1] == DONE && !spawned)
@@ -90,9 +90,9 @@ class instance_ramparts : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_ramparts_InstanceMapScript(pMap);
+            return new instance_ramparts_InstanceMapScript(map);
         }
 };
 

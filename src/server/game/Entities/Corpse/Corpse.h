@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,23 +55,23 @@ class Corpse : public WorldObject, public GridObject<Corpse>
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create(uint32 guidlow, Map *map);
-        bool Create(uint32 guidlow, Player *owner);
+        bool Create(uint32 guidlow, Map* map);
+        bool Create(uint32 guidlow, Player* owner);
 
         void SaveToDB();
-        bool LoadFromDB(uint32 guid, Field *fields);
+        bool LoadCorpseFromDB(uint32 guid, Field* fields);
 
         void DeleteBonesFromWorld();
         void DeleteFromDB(SQLTransaction& trans);
 
-        uint64 const& GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
+        uint64 GetOwnerGUID() const { return GetUInt64Value(CORPSE_FIELD_OWNER); }
 
         time_t const& GetGhostTime() const { return m_time; }
         void ResetGhostTime() { m_time = time(NULL); }
         CorpseType GetType() const { return m_type; }
 
-        GridPair const& GetGrid() const { return m_grid; }
-        void SetGrid(GridPair const& grid) { m_grid = grid; }
+        GridCoord const& GetGridCoord() const { return _gridCoord; }
+        void SetGridCoord(GridCoord const& gridCoord) { _gridCoord = gridCoord; }
 
         Loot loot;                                          // remove insignia ONLY at BG
         Player* lootRecipient;
@@ -88,7 +88,7 @@ class Corpse : public WorldObject, public GridObject<Corpse>
     private:
         CorpseType m_type;
         time_t m_time;
-        GridPair m_grid;                                    // gride for corpse position for fast search
+        GridCoord _gridCoord;                                    // gride for corpse position for fast search
 };
 #endif
 

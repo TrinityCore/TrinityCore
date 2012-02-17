@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,9 +37,9 @@ class spell_warr_last_stand : public SpellScriptLoader
         {
             PrepareSpellScript(spell_warr_last_stand_SpellScript);
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(WARRIOR_SPELL_LAST_STAND_TRIGGERED))
                     return false;
                 return true;
             }
@@ -53,11 +53,11 @@ class spell_warr_last_stand : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Last Stand
-                OnEffect += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_warr_last_stand_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_warr_last_stand_SpellScript();
         }
@@ -79,18 +79,78 @@ class spell_warr_improved_spell_reflection : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_PARTY_CASTER);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_warr_improved_spell_reflection_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_PARTY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_warr_improved_spell_reflection_SpellScript();
         }
+};
+
+enum DamageReductionAura
+{
+    SPELL_BLESSING_OF_SANCTUARY         = 20911,
+    SPELL_GREATER_BLESSING_OF_SANCTUARY = 25899,
+    SPELL_RENEWED_HOPE                  = 63944,
+    SPELL_DAMAGE_REDUCTION_AURA         = 68066,
+};
+
+class spell_warr_vigilance : public SpellScriptLoader
+{
+public:
+    spell_warr_vigilance() : SpellScriptLoader("spell_warr_vigilance") { }
+
+    class spell_warr_vigilance_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_warr_vigilance_AuraScript);
+
+        bool Validate(SpellInfo const* /*SpellEntry*/)
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_DAMAGE_REDUCTION_AURA))
+                return false;
+            return true;
+        }
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+            target->CastSpell(target, SPELL_DAMAGE_REDUCTION_AURA, true);
+        }
+
+        void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            Unit* target = GetTarget();
+
+            if (!target->HasAura(SPELL_DAMAGE_REDUCTION_AURA))
+                return;
+
+            if (target->HasAura(SPELL_BLESSING_OF_SANCTUARY) ||
+                target->HasAura(SPELL_GREATER_BLESSING_OF_SANCTUARY) ||
+                target->HasAura(SPELL_RENEWED_HOPE))
+                    return;
+
+            target->RemoveAurasDueToSpell(SPELL_DAMAGE_REDUCTION_AURA);
+        }
+
+        void Register()
+        {
+            OnEffectApply += AuraEffectApplyFn(spell_warr_vigilance_AuraScript::OnApply, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+            OnEffectRemove += AuraEffectRemoveFn(spell_warr_vigilance_AuraScript::OnRemove, EFFECT_0, SPELL_AURA_PROC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
+        }
+
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_warr_vigilance_AuraScript();
+    }
 };
 
 void AddSC_warrior_spell_scripts()
 {
     new spell_warr_last_stand();
     new spell_warr_improved_spell_reflection();
+    new spell_warr_vigilance();
 }

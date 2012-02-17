@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -64,9 +64,9 @@ public:
         void Reset()
         {
             SonicBoom_Timer = 30000;
-            MurmursTouch_Timer = 8000 + rand()%12000;
+            MurmursTouch_Timer = urand(8000, 20000);
             Resonance_Timer = 5000;
-            MagneticPull_Timer = 15000 + rand()%15000;
+            MagneticPull_Timer = urand(15000, 30000);
             ThunderingStorm_Timer = 15000;
             SonicShock_Timer = 10000;
             SonicBoom = false;
@@ -79,8 +79,8 @@ public:
 
         void SonicBoomEffect()
         {
-            std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-            for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+            std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+            for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
                Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                if (target && target->GetTypeId() == TYPEID_PLAYER)
@@ -98,7 +98,7 @@ public:
         void EnterCombat(Unit* /*who*/) { }
 
         // Sonic Boom instant damage (needs core fix instead of this)
-        void SpellHitTarget(Unit* target, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
             if (target && target->isAlive() && spell && spell->Id == uint32(SPELL_SONIC_BOOM_EFFECT))
                 me->DealDamage(target, (target->GetHealth()*90)/100, NULL, SPELL_DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NATURE, spell);
@@ -133,7 +133,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 80, true))
                     DoCast(target, SPELL_MURMURS_TOUCH);
-                MurmursTouch_Timer = 25000 + rand()%10000;
+                MurmursTouch_Timer = urand(25000, 35000);
             } else MurmursTouch_Timer -= diff;
 
             // Resonance

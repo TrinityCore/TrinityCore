@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -106,7 +106,7 @@ public:
         {
             me->SetReactState(REACT_PASSIVE);
             if (!me->GetEquipmentId())
-                if (const CreatureTemplate *info = sObjectMgr->GetCreatureTemplate(28406))
+                if (const CreatureTemplate* info = sObjectMgr->GetCreatureTemplate(28406))
                     if (info->equipmentId)
                         const_cast<CreatureTemplate*>(me->GetCreatureInfo())->equipmentId = info->equipmentId;
         }
@@ -125,7 +125,7 @@ public:
             phase = PHASE_CHAINED;
             events.Reset();
             me->setFaction(7);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
             me->LoadEquipment(0, true);
         }
@@ -173,7 +173,7 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            switch(phase)
+            switch (phase)
             {
             case PHASE_CHAINED:
                 if (!anchorGUID)
@@ -230,7 +230,7 @@ public:
                     else
                     {
                         me->setFaction(14);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         phase = PHASE_ATTACKING;
 
                         if (Player* target = Unit::GetPlayer(*me, playerGUID))
@@ -247,7 +247,7 @@ public:
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                     case EVENT_ICY_TOUCH:
                         DoCast(me->getVictim(), SPELL_ICY_TOUCH);
@@ -297,7 +297,7 @@ public:
 
         uint64 prisonerGUID;
 
-        void SetGUID(const uint64 &guid, int32 /*id*/)
+        void SetGUID(uint64 guid, int32 /*id*/)
         {
             if (!prisonerGUID)
                 prisonerGUID = guid;
@@ -313,9 +313,9 @@ class go_acherus_soul_prison : public GameObjectScript
 public:
     go_acherus_soul_prison() : GameObjectScript("go_acherus_soul_prison") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (Creature* anchor = pGo->FindNearestCreature(29521, 15))
+        if (Creature* anchor = go->FindNearestCreature(29521, 15))
             if (uint64 prisonerGUID = anchor->AI()->GetGUID())
                 if (Creature* prisoner = Creature::GetCreature(*player, prisonerGUID))
                     CAST_AI(npc_unworthy_initiate::npc_unworthy_initiateAI, prisoner->AI())->EventStart(anchor, player);
@@ -378,7 +378,7 @@ public:
                     return true;
             }
 
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
             int32 uiSayId = rand()% (sizeof(m_auiRandomSay)/sizeof(int32));
@@ -436,7 +436,7 @@ public:
             m_bIsDuelInProgress = false;
         }
 
-        void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+        void SpellHit(Unit* pCaster, const SpellInfo* pSpell)
         {
             if (!m_bIsDuelInProgress && pSpell->Id == SPELL_DUEL)
             {
@@ -478,8 +478,8 @@ public:
                     {
                         me->setFaction(FACTION_HOSTILE);
 
-                        if (Unit* pUnit = Unit::GetUnit(*me, m_uiDuelerGUID))
-                            AttackStart(pUnit);
+                        if (Unit* unit = Unit::GetUnit(*me, m_uiDuelerGUID))
+                            AttackStart(unit);
                     }
                     else
                         m_uiDuelTimer -= uiDiff;
@@ -553,7 +553,7 @@ public:
 
             if (PhaseTimer <= diff)
             {
-                switch(Phase)
+                switch (Phase)
                 {
                    case 0:
                         me->MonsterSay(SAY_DARK_RIDER, LANG_UNIVERSAL, 0);
@@ -625,7 +625,7 @@ public:
     {
         npc_salanar_the_horsemanAI(Creature* c) : ScriptedAI(c) {}
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == DELIVER_STOLEN_HORSE)
             {
@@ -877,13 +877,13 @@ public:
     {
         npc_scarlet_miner_cartAI(Creature* c) : PassiveAI(c), minerGUID(0)
         {
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             me->SetDisplayId(me->GetCreatureInfo()->Modelid1); // Modelid2 is a horse.
         }
 
         uint64 minerGUID;
 
-        void SetGUID(const uint64 &guid, int32 /*id*/)
+        void SetGUID(uint64 guid, int32 /*id*/)
         {
             minerGUID = guid;
         }
@@ -1009,7 +1009,7 @@ public:
                         me->SetInFront(car);
                         me->SendMovementFlagUpdate();
                         car->Relocate(car->GetPositionX(), car->GetPositionY(), me->GetPositionZ() + 1);
-                        car->SendMonsterStop();
+                        car->StopMoving();
                         car->RemoveAura(SPELL_CART_DRAG);
                     }
                     me->MonsterSay(SAY_SCARLET_MINER2, LANG_UNIVERSAL, 0);

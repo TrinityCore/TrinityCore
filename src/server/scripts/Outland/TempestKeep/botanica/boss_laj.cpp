@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -86,7 +86,7 @@ class boss_laj : public CreatureScript
 
             void DoTransform()
             {
-                switch(rand()%5)
+                switch (rand()%5)
                 {
                     case 0:
                         me->SetDisplayId(MODEL_DEFAULT);
@@ -133,7 +133,7 @@ class boss_laj : public CreatureScript
 
             void DoSummons()
             {
-                switch(rand()%4)
+                switch (rand()%4)
                 {
                     case 0:
                         DoCast(me, SPELL_SUMMON_LASHER_1, true);

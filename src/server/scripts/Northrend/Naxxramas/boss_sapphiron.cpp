@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -84,7 +84,7 @@ public:
         boss_sapphironAI(Creature* c) : BossAI(c, BOSS_SAPPHIRON)
             , phase(PHASE_NULL)
         {
-            pMap = me->GetMap();
+            map = me->GetMap();
         }
 
         Phases phase;
@@ -93,7 +93,7 @@ public:
 
         bool CanTheHundredClub; // needed for achievement: The Hundred Club(2146, 2147)
         uint32 CheckFrostResistTimer;
-        Map* pMap;
+        Map* map;
 
         void InitializeAI()
         {
@@ -132,7 +132,7 @@ public:
             CheckPlayersFrostResist();
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry *spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_ICEBOLT)
             {
@@ -153,12 +153,12 @@ public:
             CheckPlayersFrostResist();
             if (CanTheHundredClub)
             {
-                AchievementEntry const *AchievTheHundredClub = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_HUNDRED_CLUB);
+                AchievementEntry const* AchievTheHundredClub = GetAchievementStore()->LookupEntry(ACHIEVEMENT_THE_HUNDRED_CLUB);
                 if (AchievTheHundredClub)
                 {
-                    if (pMap && pMap->IsDungeon())
+                    if (map && map->IsDungeon())
                     {
-                        Map::PlayerList const &players = pMap->GetPlayers();
+                        Map::PlayerList const &players = map->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                             itr->getSource()->CompletedAchievement(AchievTheHundredClub);
                     }
@@ -183,9 +183,9 @@ public:
 
         void CheckPlayersFrostResist()
         {
-            if (CanTheHundredClub && pMap && pMap->IsDungeon())
+            if (CanTheHundredClub && map && map->IsDungeon())
             {
-                Map::PlayerList const &players = pMap->GetPlayers();
+                Map::PlayerList const &players = map->GetPlayers();
                 for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
                 {
                     if (itr->getSource()->GetResistance(SPELL_SCHOOL_FROST) > MAX_FROST_RESISTANCE)
@@ -215,8 +215,8 @@ public:
             {
                 if (Player* player = Unit::GetPlayer(*me, itr->first))
                     player->RemoveAura(SPELL_ICEBOLT);
-                if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
-                    pGo->Delete();
+                if (GameObject* go = GameObject::GetGameObject(*me, itr->second))
+                    go->Delete();
             }
             iceblocks.clear();
         }
@@ -244,7 +244,7 @@ public:
             {
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_BERSERK:
                             DoScriptText(EMOTE_ENRAGE, me);
@@ -271,14 +271,18 @@ public:
                             break;
                         }
                         case EVENT_FLIGHT:
-                            phase = PHASE_FLIGHT;
-                            events.SetPhase(PHASE_FLIGHT);
-                            me->SetReactState(REACT_PASSIVE);
-                            me->AttackStop();
-                            float x, y, z, o;
-                            me->GetHomePosition(x, y, z, o);
-                            me->GetMotionMaster()->MovePoint(1, x, y, z);
-                            return;
+                            if (HealthAbovePct(10))
+                            {
+                                phase = PHASE_FLIGHT;
+                                events.SetPhase(PHASE_FLIGHT);
+                                me->SetReactState(REACT_PASSIVE);
+                                me->AttackStop();
+                                float x, y, z, o;
+                                me->GetHomePosition(x, y, z, o);
+                                me->GetMotionMaster()->MovePoint(1, x, y, z);
+                                return;
+                            }
+                            break;
                     }
                 }
 
@@ -288,7 +292,7 @@ public:
             {
                 if (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_LIFTOFF:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
@@ -373,10 +377,10 @@ public:
 
                 for (IceBlockMap::const_iterator itr = iceblocks.begin(); itr != iceblocks.end(); ++itr)
                 {
-                    if (GameObject* pGo = GameObject::GetGameObject(*me, itr->second))
+                    if (GameObject* go = GameObject::GetGameObject(*me, itr->second))
                     {
-                        if (pGo->IsInBetween(me, target, 2.0f)
-                            && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(pGo->GetPositionX(), pGo->GetPositionY()) < 5.0f)
+                        if (go->IsInBetween(me, target, 2.0f)
+                            && me->GetExactDist2d(target->GetPositionX(), target->GetPositionY()) - me->GetExactDist2d(go->GetPositionX(), go->GetPositionY()) < 5.0f)
                         {
                             target->ApplySpellImmune(0, IMMUNITY_ID, SPELL_FROST_EXPLOSION, true);
                             targets.push_back(target);

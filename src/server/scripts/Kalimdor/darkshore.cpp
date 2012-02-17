@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -70,15 +70,15 @@ class npc_kerlonian : public CreatureScript
 public:
     npc_kerlonian() : CreatureScript("npc_kerlonian") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_SLEEPER_AWAKENED)
+        if (quest->GetQuestId() == QUEST_SLEEPER_AWAKENED)
         {
             if (npc_kerlonianAI* pKerlonianAI = CAST_AI(npc_kerlonian::npc_kerlonianAI, creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
                 DoScriptText(SAY_KER_START, creature, player);
-                pKerlonianAI->StartFollow(player, FACTION_KER_ESCORTEE, pQuest);
+                pKerlonianAI->StartFollow(player, FACTION_KER_ESCORTEE, quest);
             }
         }
 
@@ -122,7 +122,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
+        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell)
         {
             if (HasFollowState(STATE_FOLLOW_INPROGRESS | STATE_FOLLOW_PAUSED) && pSpell->Id == SPELL_AWAKEN)
                 ClearSleeping();
@@ -209,9 +209,9 @@ class npc_prospector_remtravel : public CreatureScript
 public:
     npc_prospector_remtravel() : CreatureScript("npc_prospector_remtravel") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_ABSENT_MINDED_PT2)
+        if (quest->GetQuestId() == QUEST_ABSENT_MINDED_PT2)
         {
             if (npc_escortAI* pEscortAI = CAST_AI(npc_prospector_remtravel::npc_prospector_remtravelAI, creature->AI()))
                 pEscortAI->Start(false, false, player->GetGUID());
@@ -238,7 +238,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 0:
                     DoScriptText(SAY_REM_START, me, player);

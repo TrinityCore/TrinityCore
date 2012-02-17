@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -441,12 +441,12 @@ public:
         else if (target->ToCreature()->isPet())
         {
             Unit* owner = target->GetOwner();
-            if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet *)target)->IsPermanentPetFor(owner->ToPlayer()))
+            if (owner && owner->GetTypeId() == TYPEID_PLAYER && ((Pet*)target)->IsPermanentPetFor(owner->ToPlayer()))
             {
                 // check online security
                 if (handler->HasLowerSecurity(owner->ToPlayer(), 0))
                     return false;
-                ((Pet *)target)->SetFreeTalentPoints(tp);
+                ((Pet*)target)->SetFreeTalentPoints(tp);
                 owner->ToPlayer()->SendTalentsInfoData(true);
                 return true;
             }
@@ -725,7 +725,7 @@ public:
         uint32 num = 0;
 
         num = atoi((char*)args);
-        switch(num)
+        switch (num)
         {
         case 1:
             mId=14340;
@@ -1129,7 +1129,12 @@ public:
 
         uint16 drunkMod = drunklevel * 0xFFFF / 100;
 
-        handler->GetSession()->GetPlayer()->SetDrunkValue(drunkMod);
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+            target = handler->GetSession()->GetPlayer();
+
+        if (target)
+            target->SetDrunkValue(drunkMod);
 
         return true;
     }
@@ -1211,7 +1216,7 @@ public:
             }
         }
 
-        FactionEntry const *factionEntry = sFactionStore.LookupEntry(factionId);
+        FactionEntry const* factionEntry = sFactionStore.LookupEntry(factionId);
 
         if (!factionEntry)
         {
@@ -1282,7 +1287,7 @@ public:
             return false;
 
         uint32 anim_id = atoi((char*)args);
-        handler->GetSession()->GetPlayer()->SetUInt32Value(UNIT_NPC_EMOTESTATE , anim_id);
+        handler->GetSession()->GetPlayer()->SetUInt32Value(UNIT_NPC_EMOTESTATE, anim_id);
 
         return true;
     }

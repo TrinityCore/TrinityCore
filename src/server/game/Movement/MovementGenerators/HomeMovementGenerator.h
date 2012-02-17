@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,8 +20,6 @@
 #define TRINITY_HOMEMOVEMENTGENERATOR_H
 
 #include "MovementGenerator.h"
-#include "DestinationHolder.h"
-#include "Traveller.h"
 
 class Creature;
 
@@ -34,24 +32,18 @@ class HomeMovementGenerator<Creature>
 {
     public:
 
-        HomeMovementGenerator() {}
+        HomeMovementGenerator() : arrived(false) {}
         ~HomeMovementGenerator() {}
 
         void Initialize(Creature &);
         void Finalize(Creature &);
         void Reset(Creature &);
-        bool Update(Creature &, const uint32 &);
-        void modifyTravelTime(uint32 travel_time) { i_travel_timer = travel_time; }
+        bool Update(Creature &, const uint32);
         MovementGeneratorType GetMovementGeneratorType() { return HOME_MOTION_TYPE; }
-
-        bool GetDestination(float& x, float& y, float& z) const { i_destinationHolder.GetDestination(x, y, z); return true; }
 
     private:
         void _setTargetLocation(Creature &);
-        DestinationHolder< Traveller<Creature> > i_destinationHolder;
-
-        float ori;
-        uint32 i_travel_timer;
+        bool arrived;
 };
 #endif
 

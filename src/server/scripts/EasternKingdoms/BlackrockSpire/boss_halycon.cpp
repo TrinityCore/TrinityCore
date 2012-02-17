@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,8 +59,8 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            events.ScheduleEvent(EVENT_CROWD_PUMMEL, 8*IN_MILLISECONDS);
-            events.ScheduleEvent(EVENT_MIGHTY_BLOW, 14*IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_CROWD_PUMMEL, 8 * IN_MILLISECONDS);
+            events.ScheduleEvent(EVENT_MIGHTY_BLOW, 14 * IN_MILLISECONDS);
         }
 
         void JustDied(Unit* /*who*/)
@@ -76,13 +76,13 @@ public:
             //Summon Gizrul
             if (!Summoned && HealthBelowPct(25))
             {
-                me->SummonCreature(NPC_GIZRUL_THE_SLAVENER, SummonLocation, TEMPSUMMON_TIMED_DESPAWN, 300*IN_MILLISECONDS);
+                me->SummonCreature(NPC_GIZRUL_THE_SLAVENER, SummonLocation, TEMPSUMMON_TIMED_DESPAWN, 300 * IN_MILLISECONDS);
                 Summoned = true;
             }
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -91,11 +91,11 @@ public:
                 {
                     case EVENT_CROWD_PUMMEL:
                         DoCast(me->getVictim(), SPELL_CROWDPUMMEL);
-                        events.ScheduleEvent(EVENT_CROWD_PUMMEL, 14*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_CROWD_PUMMEL, 14 * IN_MILLISECONDS);
                         break;
                     case EVENT_MIGHTY_BLOW:
                         DoCast(me->getVictim(), SPELL_MIGHTYBLOW);
-                        events.ScheduleEvent(EVENT_MIGHTY_BLOW, 10*IN_MILLISECONDS);
+                        events.ScheduleEvent(EVENT_MIGHTY_BLOW, 10 * IN_MILLISECONDS);
                         break;
                 }
             }

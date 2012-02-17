@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,9 +48,9 @@ class boss_hazzarah : public CreatureScript
 
             void Reset()
             {
-                ManaBurn_Timer = 4000 + rand()%6000;
-                Sleep_Timer = 10000 + rand()%8000;
-                Illusions_Timer = 10000 + rand()%8000;
+                ManaBurn_Timer = urand(4000, 10000);
+                Sleep_Timer = urand(10000, 18000);
+                Illusions_Timer = urand(10000, 18000);
             }
 
             void EnterCombat(Unit* /*who*/)
@@ -66,14 +66,14 @@ class boss_hazzarah : public CreatureScript
                 if (ManaBurn_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_MANABURN);
-                    ManaBurn_Timer = 8000 + rand()%8000;
+                    ManaBurn_Timer = urand(8000, 16000);
                 } else ManaBurn_Timer -= diff;
 
                 //Sleep_Timer
                 if (Sleep_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_SLEEP);
-                    Sleep_Timer = 12000 + rand()%8000;
+                    Sleep_Timer = urand(12000, 20000);
                 } else Sleep_Timer -= diff;
 
                 //Illusions_Timer
@@ -93,7 +93,7 @@ class boss_hazzarah : public CreatureScript
                             Illusion->AI()->AttackStart(target);
                     }
 
-                    Illusions_Timer = 15000 + rand()%10000;
+                    Illusions_Timer = urand(15000, 25000);
                 } else Illusions_Timer -= diff;
 
                 DoMeleeAttackIfReady();
