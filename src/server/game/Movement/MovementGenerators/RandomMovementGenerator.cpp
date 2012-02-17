@@ -35,9 +35,8 @@
 template<>
 void RandomMovementGenerator<Creature>::_setRandomLocation(Creature& creature)
 {
-    float respX, respY, respZ, respO, currZ, destX, destY, destZ, travelDistZ;
+    float respX, respY, respZ, respO, destX, destY, destZ, travelDistZ;
     creature.GetHomePosition(respX, respY, respZ, respO);
-    currZ = creature.GetPositionZ();
     Map const* map = creature.GetBaseMap();
 
     // For 2D/3D system selection

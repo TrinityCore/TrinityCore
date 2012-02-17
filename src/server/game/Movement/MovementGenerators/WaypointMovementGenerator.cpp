@@ -78,7 +78,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature& creature)
 
     if (i_path->at(i_currentNode)->event_id && urand(0, 99) < i_path->at(i_currentNode)->event_chance)
     {
-        sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Creature movement start script %u at point %u for %u.", i_path->at(i_currentNode)->event_id, i_currentNode, creature.GetGUID());
+        sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Creature movement start script %u at point %u for "UI64FMTD".", i_path->at(i_currentNode)->event_id, i_currentNode, creature.GetGUID());
         creature.GetMap()->ScriptsStart(sWaypointScripts, i_path->at(i_currentNode)->event_id, &creature, NULL/*, false*/);
     }
 
@@ -201,20 +201,17 @@ void FlightPathMovementGenerator::Initialize(Player &player)
     InitEndGridInfo();
 }
 
-void FlightPathMovementGenerator::Finalize(Player & player)
+void FlightPathMovementGenerator::Finalize(Player& player)
 {
     // remove flag to prevent send object build movement packets for flight state and crash (movement generator already not at top of stack)
     player.ClearUnitState(UNIT_STATE_IN_FLIGHT);
 
     player.Dismount();
-    player.RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
+    player.RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_TAXI_FLIGHT);
 
-    if(player.m_taxi.empty())
+    if (player.m_taxi.empty())
     {
         player.getHostileRefManager().setOnlineOfflineState(true);
-        if(player.pvpInfo.inHostileArea)
-            player.CastSpell(&player, 2479, true);
-
         // update z position to ground and orientation for landing point
         // this prevent cheating with landing  point at lags
         // when client side flight end early in comparison server side
@@ -243,7 +240,7 @@ void FlightPathMovementGenerator::Reset(Player & player)
     init.Launch();
 }
 
-bool FlightPathMovementGenerator::Update(Player &player, const uint32 diff)
+bool FlightPathMovementGenerator::Update(Player &player, const uint32 /*diff*/)
 {
     uint32 pointId = (uint32)player.movespline->currentPathIdx();
     if (pointId > i_currentNode)
