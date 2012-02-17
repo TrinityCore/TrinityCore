@@ -2869,12 +2869,12 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     unitList.remove(m_targets.GetUnitTarget());
                 Trinity::RandomResizeList(unitList, maxTargets);
             }
+
+            CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
+
+            for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                AddUnitTarget(*itr, effectMask, false);
         }
-
-        CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
-
-        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-            AddUnitTarget(*itr, effectMask, false);
 
         if (!gobjectList.empty())
         {
@@ -4708,7 +4708,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     Unit::AuraEffectList const& blockSpells = m_caster->GetAuraEffectsByType(SPELL_AURA_BLOCK_SPELL_FAMILY);
     for (Unit::AuraEffectList::const_iterator blockItr = blockSpells.begin(); blockItr != blockSpells.end(); ++blockItr)
-        if ((*blockItr)->GetMiscValue() == m_spellInfo->SpellFamilyName)
+        if (uint32((*blockItr)->GetMiscValue()) == m_spellInfo->SpellFamilyName)
             return SPELL_FAILED_SPELL_UNAVAILABLE;
 
     bool reqCombat = true;
