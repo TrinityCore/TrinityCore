@@ -1107,7 +1107,7 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
                     if (!data->Meets(GetPlayer(), unit))
                         continue;
 
-                SetCriteriaProgress(achievementCriteria, 1);
+                SetCriteriaProgress(achievementCriteria, 1, PROGRESS_ACCUMULATE);
                 break;
             }
             case ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET:
