@@ -3064,6 +3064,9 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
         case 629:
         case 181:
         case 715:
+        case 1562:
+        case 833:
+        case 1161:
             numSummons = (damage > 0) ? damage : 1;
             break;
         default:
