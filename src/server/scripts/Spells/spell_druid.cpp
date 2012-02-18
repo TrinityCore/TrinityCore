@@ -21,7 +21,6 @@
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
  */
 
-#include "ScriptPCH.h"
 #include "SpellAuraEffects.h"
 
 enum DruidSpells
@@ -42,9 +41,7 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(DRUID_INCREASED_MOONFIRE_DURATION))
-                    return false;
-                if (!sSpellMgr->GetSpellInfo(DRUID_NATURES_SPLENDOR))
+                if (!sSpellMgr->GetSpellInfo(DRUID_INCREASED_MOONFIRE_DURATION) || !sSpellMgr->GetSpellInfo(DRUID_NATURES_SPLENDOR))
                     return false;
                 return true;
             }
@@ -305,14 +302,16 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
         {
             PrepareAuraScript(spell_dru_swift_flight_passive_AuraScript);
 
+            bool Load()
+            {
+                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+            }
+
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
-                Unit* caster = GetCaster();
-                if (!caster || !caster->ToPlayer())
-                    return;
-
-                if (caster->ToPlayer()->Has310Flyer(false))
-                    amount = 310;
+                if (Player* caster = GetCaster()->ToPlayer())
+                    if (caster->Has310Flyer(false))
+                        amount = 310;
             }
 
             void Register()
@@ -327,6 +326,47 @@ class spell_dru_swift_flight_passive : public SpellScriptLoader
         }
 };
 
+class spell_dru_starfall_dummy : public SpellScriptLoader
+{
+    public:
+        spell_dru_starfall_dummy() : SpellScriptLoader("spell_dru_starfall_dummy") { }
+
+        class spell_dru_starfall_dummy_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dru_starfall_dummy_SpellScript);
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                if (GetTriggeringSpell())
+                    sLog->outString("triggering spell = %u",GetTriggeringSpell()->Id);
+
+                Unit* caster = GetCaster();
+                if (caster->IsInDisallowedMountForm() || caster->IsMounted())
+                {
+                    if (SpellInfo const* spellInfo = GetTriggeringSpell())
+                        caster->RemoveAurasDueToSpell(spellInfo->Id);
+                    return;
+                }
+
+                //Any effect which causes you to lose control of your character will supress the starfall effect.
+                if (caster->HasUnitState(UNIT_STATE_CONTROLLED))
+                    return;
+
+                caster->CastSpell(GetHitUnit(), GetEffectValue(), true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dru_starfall_dummy_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dru_starfall_dummy_SpellScript();
+        }
+};
+
 void AddSC_druid_spell_scripts()
 {
     new spell_dru_glyph_of_starfire();
@@ -336,4 +376,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_starfall_aoe();
     new spell_dru_swift_flight_passive();
+    new spell_dru_starfall_dummy();
 }

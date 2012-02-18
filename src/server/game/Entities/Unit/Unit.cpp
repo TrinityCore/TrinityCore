@@ -9768,6 +9768,7 @@ void Unit::SetMinion(Minion *minion, bool apply)
         {
             // Send infinity cooldown - client does that automatically but after relog cooldown needs to be set again
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(minion->GetUInt32Value(UNIT_CREATED_BY_SPELL));
+
             if (spellInfo && (spellInfo->Attributes & SPELL_ATTR0_DISABLED_WHILE_ACTIVE))
                 ToPlayer()->AddSpellAndCategoryCooldowns(spellInfo, 0, NULL, true);
         }
