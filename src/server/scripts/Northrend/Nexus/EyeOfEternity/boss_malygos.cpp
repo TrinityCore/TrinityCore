@@ -31,7 +31,6 @@ Script Data End */
 #include "eye_of_eternity.h"
 #include "ScriptedEscortAI.h"
 
-// not implemented
 enum Achievements
 {
     ACHIEV_TIMED_START_EVENT                      = 20387,
@@ -242,6 +241,9 @@ public:
             _cannotMove = true;
 
             me->SetFlying(true);
+            
+            if (instance)
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         uint32 GetData(uint32 data)
@@ -359,7 +361,10 @@ public:
 
             Talk(SAY_AGGRO_P_ONE);
 
-            DoCast(SPELL_BERSEKER);
+            DoCast(SPELL_BERSEKER); // periodic aura, first tick in 10 minutes
+            
+            if (instance)
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
         }
 
         void KilledUnit(Unit* who)
