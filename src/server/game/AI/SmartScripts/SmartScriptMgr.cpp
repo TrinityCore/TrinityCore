@@ -260,7 +260,7 @@ bool SmartAIMgr::IsTargetValid(SmartScriptHolder const& e)
         }
         case SMART_TARGET_GAMEOBJECT_GUID:
         {
-            if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry)) 
+            if (e.target.goGUID.entry && !IsGameObjectValid(e, e.target.goGUID.entry))
                 return false;
             break;
         }

@@ -24,7 +24,7 @@ enum Yells
     YELL_RESPAWN1                                 = -1810010, // no creature_text
     YELL_RESPAWN2                                 = -1810011, // no creature_text
     YELL_RANDOM                                   = 2,
-	YELL_SPELL                                    = 3,
+    YELL_SPELL                                    = 3,
 };
 
 enum Spells

@@ -333,7 +333,7 @@ class spell_warr_execute : public SpellScriptLoader
                     if (AuraEffect* aurEff = caster->GetAuraEffect(SPELL_GLYPH_OF_EXECUTION, EFFECT_0))
                         rageUsed += aurEff->GetAmount() * 10;
 
-                    
+
                     int32 bp = GetEffectValue() + int32(rageUsed * spellInfo->Effects[effIndex].DamageMultiplier + caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.2f);
                     caster->CastCustomSpell(target,SPELL_EXECUTE,&bp,0,0,true,0,0,GetOriginalCaster()->GetGUID());
                 }

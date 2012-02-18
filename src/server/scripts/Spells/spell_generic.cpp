@@ -1599,7 +1599,7 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_gen_spirit_healer_res_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
-        };  
+        };
 
         SpellScript* GetSpellScript() const
         {

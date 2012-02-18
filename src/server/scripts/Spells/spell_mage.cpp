@@ -87,7 +87,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                
+
                 Player* caster = GetCaster()->ToPlayer();
                 // immediately finishes the cooldown on Frost spells
                 const SpellCooldowns& cm = caster->GetSpellCooldownMap();

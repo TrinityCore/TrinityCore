@@ -328,7 +328,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
                     {
                         sLog->outString("THREATREDUCTION");
                         caster->CastSpell(target, SPELL_SOULSHATTER, true);
-                    } else 
+                    } else
                         sLog->outString("can have threat? %b . threat number? %f ",target->CanHaveThreatList(),target->getThreatManager().getThreat(caster));
             }
 
@@ -363,7 +363,7 @@ class spell_warl_life_tap : public SpellScriptLoader
         class spell_warl_life_tap_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_warl_life_tap_SpellScript);
-            
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;

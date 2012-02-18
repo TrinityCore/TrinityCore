@@ -14826,7 +14826,7 @@ Unit* Unit::SelectNearbyTarget(Unit* exclude, float dist) const
     // remove current target
     if (getVictim())
         targets.remove(getVictim());
-        
+
     if (exclude)
         targets.remove(exclude);
 

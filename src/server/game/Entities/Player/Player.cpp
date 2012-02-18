@@ -14828,7 +14828,7 @@ void Player::AddQuest(Quest const* quest, Object* questGiver)
     uint16 log_slot = FindQuestSlot(0);
 
     if (log_slot >= MAX_QUEST_LOG_SIZE) // Player does not have any free slot in the quest log
-        return; 
+        return;
 
     uint32 quest_id = quest->GetQuestId();
 
