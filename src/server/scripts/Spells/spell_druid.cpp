@@ -342,7 +342,7 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
 
                 Unit* caster = GetCaster();
                 // Shapeshifting into an animal form or mounting cancels the effect
-                if (caster->GetCreatureType() == CREATURE_TYPE_BEAST() || caster->IsMounted())
+                if (caster->GetCreatureType() == CREATURE_TYPE_BEAST || caster->IsMounted())
                 {
                     if (SpellInfo const* spellInfo = GetTriggeringSpell())
                         caster->RemoveAurasDueToSpell(spellInfo->Id);

@@ -292,3 +292,12 @@ void WorldSession::HandleActivateTaxiOpcode(WorldPacket & recv_data)
 
     GetPlayer()->ActivateTaxiPathTo(nodes, npc);
 }
+
+void WorldSession::SendActivateTaxiReply(ActivateTaxiReply reply)
+{
+    WorldPacket data(SMSG_ACTIVATETAXIREPLY, 4);
+    data << uint32(reply);
+    SendPacket(&data);
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Sent SMSG_ACTIVATETAXIREPLY");
+}
