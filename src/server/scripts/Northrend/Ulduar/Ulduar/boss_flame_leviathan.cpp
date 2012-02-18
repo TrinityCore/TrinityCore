@@ -1670,7 +1670,7 @@ class spell_pursue : public SpellScriptLoader
                     if (Creature* caster = GetCaster()->ToCreature())
                         caster->AI()->EnterEvadeMode();
                 }
-                else 
+                else
                 {
                     //! In the end, only one target should be selected
                     _target = SelectRandomContainerElement(targets);

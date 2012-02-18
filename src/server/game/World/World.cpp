@@ -1276,7 +1276,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading GameObject models...");
     LoadGameObjectModelList();
-    
+
     sLog->outString("Loading Script Names...");
     sObjectMgr->LoadScriptNames();
 

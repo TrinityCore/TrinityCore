@@ -165,14 +165,14 @@ public:
                                 DoCast(target, SPELL_FROST_BOLT_VOLLEY);
                         }
                         frostBoltVolleyTimer = urand(5000, 8000);
-                    } 
+                    }
                     else frostBoltVolleyTimer -= diff;
-                    
+
                     if (frostNovaTimer <= diff)
                     {
                         DoCastAOE(SPELL_FROST_NOVA, false);
                         frostNovaTimer = urand(25000, 30000);
-                    } 
+                    }
                     else frostNovaTimer -= diff;
                     break;
                 }

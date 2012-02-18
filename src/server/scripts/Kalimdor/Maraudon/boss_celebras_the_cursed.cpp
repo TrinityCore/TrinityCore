@@ -77,7 +77,7 @@ public:
                 if (target)
                     DoCast(target, SPELL_WRATH);
                 Wrath_Timer = 8000;
-            } 
+            }
             else Wrath_Timer -= diff;
 
             //EntanglingRoots
@@ -85,7 +85,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_ENTANGLINGROOTS);
                 EntanglingRoots_Timer = 20000;
-            } 
+            }
             else EntanglingRoots_Timer -= diff;
 
             //CorruptForces
@@ -94,7 +94,7 @@ public:
                 me->InterruptNonMeleeSpells(false);
                 DoCast(me, SPELL_CORRUPT_FORCES);
                 CorruptForces_Timer = 20000;
-            } 
+            }
             else CorruptForces_Timer -= diff;
 
             DoMeleeAttackIfReady();

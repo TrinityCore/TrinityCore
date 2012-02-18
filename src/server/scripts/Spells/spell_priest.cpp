@@ -252,7 +252,7 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
                 Unit* target = GetTarget();
                 if (dmgInfo.GetAttacker() == target)
                     return;
-                
+
                 if (Unit* caster = GetCaster())
                     if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(PRIEST_SPELL_REFLECTIVE_SHIELD_R1, EFFECT_0))
                     {

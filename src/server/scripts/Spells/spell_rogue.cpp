@@ -258,7 +258,7 @@ class spell_rog_shiv : public SpellScriptLoader
         class spell_rog_shiv_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_rog_shiv_SpellScript);
-            
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -321,7 +321,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                     return;
 
                 Player* player = GetCaster()->ToPlayer();
-                
+
                 if (Unit* target = GetHitUnit())
                 {
 

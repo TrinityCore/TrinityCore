@@ -128,7 +128,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
         SendAuctionCommandResult(0, AUCTION_SELL_ITEM, AUCTION_INTERNAL_ERROR);
         return;
     }
-    
+
     for (uint32 i = 0; i < itemsCount; ++i)
     {
         recv_data >> itemGUIDs[i];
@@ -188,7 +188,7 @@ void WorldSession::HandleAuctionSellItem(WorldPacket & recv_data)
             return;
         }
 
-        if (sAuctionMgr->GetAItem(item->GetGUIDLow()) || !item->CanBeTraded() || item->IsNotEmptyBag() || 
+        if (sAuctionMgr->GetAItem(item->GetGUIDLow()) || !item->CanBeTraded() || item->IsNotEmptyBag() ||
             item->GetTemplate()->Flags & ITEM_PROTO_FLAG_CONJURED || item->GetUInt32Value(ITEM_FIELD_DURATION) ||
             item->GetCount() < count[i])
         {

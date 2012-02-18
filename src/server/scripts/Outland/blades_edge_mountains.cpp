@@ -977,7 +977,7 @@ class npc_simon_bunny : public CreatureScript
                 uint32 rewSpell = 0;
                 switch (level)
                 {
-                    case 6: 
+                    case 6:
                         if (large)
                             GivePunishment();
                         else

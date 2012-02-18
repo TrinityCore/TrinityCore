@@ -813,7 +813,7 @@ class spell_item_book_of_glyph_mastery : public SpellScriptLoader
         class spell_item_book_of_glyph_mastery_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_item_book_of_glyph_mastery_SpellScript);
-            
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
@@ -1123,7 +1123,7 @@ class spell_item_purify_helboar_meat : public SpellScriptLoader
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
-            
+
             bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_PURIFIED_HELBOAR_MEAT) ||  !sSpellMgr->GetSpellInfo(SPELL_SUMMON_TOXIC_HELBOAR_MEAT))
@@ -1162,7 +1162,7 @@ class spell_item_crystal_prison_dummy_dnd : public SpellScriptLoader
         class spell_item_crystal_prison_dummy_dnd_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_item_crystal_prison_dummy_dnd_SpellScript);
-            
+
             bool Validate(SpellInfo const* /*spell*/)
             {
                 if (!sObjectMgr->GetGameObjectTemplate(OBJECT_IMPRISONED_DOOMGUARD))
@@ -1229,7 +1229,7 @@ class spell_item_reindeer_transformation : public SpellScriptLoader
 
                     caster->RemoveAurasByType(SPELL_AURA_MOUNTED);
                     //5 different spells used depending on mounted speed and if mount can fly or not
-                    
+
                     if (flyspeed >= 4.1f)
                         // Flying Reindeer
                         caster->CastSpell(caster, SPELL_FLYING_REINDEER_310, true); //310% flying Reindeer
@@ -1328,7 +1328,7 @@ class spell_item_poultryizer : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                if (GetCastItem() && GetHitUnit()) 
+                if (GetCastItem() && GetHitUnit())
                     GetCaster()->CastSpell(GetHitUnit(), roll_chance_i(80) ? SPELL_POULTRYIZER_SUCCESS : SPELL_POULTRYIZER_BACKFIRE , true, GetCastItem());
             }
 
@@ -1358,7 +1358,7 @@ class spell_item_socrethars_stone : public SpellScriptLoader
         class spell_item_socrethars_stone_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_item_socrethars_stone_SpellScript);
-            
+
             bool Load()
             {
                 return (GetCaster()->GetAreaId() == 3900 || GetCaster()->GetAreaId() == 3742);

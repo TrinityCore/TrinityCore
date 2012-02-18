@@ -154,7 +154,7 @@ enum SMART_EVENT
     SMART_EVENT_IS_BEHIND_TARGET         = 67,      //1             // cooldownMin, CooldownMax
     SMART_EVENT_GAME_EVENT_START         = 68,      //1             // game_event.Entry
     SMART_EVENT_GAME_EVENT_END           = 69,      //1             // game_event.Entry
-    SMART_EVENT_GO_STATE_CHANGED         = 70,      //                 go state    
+    SMART_EVENT_GO_STATE_CHANGED         = 70,      //                 go state
 
     SMART_EVENT_END                      = 71,
 };
@@ -341,16 +341,16 @@ struct SmartEvent
             uint32 cooldownMax;
         } behindTarget;
 
-        struct 
+        struct
         {
             uint32 gameEventId;
         } gameEvent;
-        
+
         struct
         {
             uint32 state;
         } goStateChanged;
-        
+
         struct
         {
             uint32 param1;
@@ -872,7 +872,7 @@ struct SmartAction
         {
             uint32 goRespawnTime;
         } RespawnTarget;
-        
+
         struct
         {
             uint32 gossipMenuId;
@@ -883,12 +883,12 @@ struct SmartAction
         {
             uint32 state;
         } setGoLootState;
-        
+
         struct
         {
             uint32 id;
         } sendTargetToTarget;
-        
+
         struct
         {
             uint32 param1;
