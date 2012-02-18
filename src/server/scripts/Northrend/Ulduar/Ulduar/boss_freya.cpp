@@ -593,7 +593,7 @@ class boss_freya : public CreatureScript
             void JustDied(Unit* /*who*/)
             {
                 //! Freya's chest is dynamically spawned on death by different spells.
-                const uint32 summonSpell[2][4] = 
+                const uint32 summonSpell[2][4] =
                 {
                               /* 0Elder, 1Elder, 2Elder, 3Elder */
                     /* 10N */    {62950, 62953, 62955, 62957},

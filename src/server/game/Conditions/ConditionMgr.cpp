@@ -193,7 +193,7 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         case CONDITION_OBJECT_ENTRY:
         {
             if (object->GetTypeId() == ConditionValue1)
-                condMeets = (!ConditionValue2) || (object->GetEntry() == ConditionValue2);         
+                condMeets = (!ConditionValue2) || (object->GetEntry() == ConditionValue2);
             break;
         }
         case CONDITION_TYPE_MASK:
@@ -302,8 +302,8 @@ uint32 Condition::GetMaxAvailableConditionTargets()
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
             return 2;
-		case CONDITION_SOURCE_TYPE_SMART_EVENT:
-			return 2;
+        case CONDITION_SOURCE_TYPE_SMART_EVENT:
+            return 2;
         default:
             return 1;
     }
@@ -1437,7 +1437,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                     return false;
             }
             if (cond->ConditionValue3)
-                sLog->outErrorDb("ObjectEntry condition has useless data in value3 (%u)!", cond->ConditionValue3);        
+                sLog->outErrorDb("ObjectEntry condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
         case CONDITION_TYPE_MASK:

@@ -698,7 +698,7 @@ class spell_dk_death_strike : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_dk_death_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
             }
-            
+
         };
 
         SpellScript* GetSpellScript() const
@@ -747,7 +747,7 @@ class spell_dk_death_coil : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_dk_death_coil_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
-            
+
         };
 
         SpellScript* GetSpellScript() const
@@ -776,7 +776,7 @@ class spell_dk_death_grip : public SpellScriptLoader
                     GetSummonPosition(effIndex, pos, 0.0f, 0);
 
                     if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), damage, true);                
+                        target->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), damage, true);
                 }
             }
 
@@ -784,7 +784,7 @@ class spell_dk_death_grip : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_dk_death_grip_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
-            
+
         };
 
         SpellScript* GetSpellScript() const

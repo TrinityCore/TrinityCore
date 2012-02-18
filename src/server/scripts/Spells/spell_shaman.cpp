@@ -427,7 +427,7 @@ class spell_sha_healing_stream_totem : public SpellScriptLoader
                         {
                             if (triggeringSpell)
                                 damage = int32(owner->SpellHealingBonus(target, triggeringSpell, damage, HEAL));
-                            
+
                             // Restorative Totems
                             if (AuraEffect* dummy = owner->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_SHAMAN, ICON_ID_RESTORATIVE_TOTEMS, 1))
                                 AddPctN(damage, dummy->GetAmount());
@@ -486,7 +486,7 @@ class spell_sha_mana_spring_totem : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_sha_mana_spring_totem_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
-            
+
         };
 
         SpellScript* GetSpellScript() const
@@ -529,7 +529,7 @@ class spell_sha_lava_lash : public SpellScriptLoader
             {
                 OnEffectHitTarget += SpellEffectFn(spell_sha_lava_lash_SpellScript::HandleDummy, EFFECT_1, SPELL_EFFECT_DUMMY);
             }
-            
+
         };
 
         SpellScript* GetSpellScript() const

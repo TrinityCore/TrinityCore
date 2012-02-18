@@ -34,7 +34,7 @@ enum Spells
     SPELL_RITUAL_DISARM                           = 54159,
     SPELL_RITUAL_STRIKE_EFF_1                     = 48277,
     SPELL_RITUAL_STRIKE_EFF_2                     = 59930,
-    
+
     SPELL_SUMMONED_VIS                            = 64446,
     SPELL_RITUAL_CHANNELER_1                      = 48271,
     SPELL_RITUAL_CHANNELER_2                      = 48274,
@@ -62,7 +62,7 @@ enum Yells
     SAY_SLAY                                      = 3,
     SAY_DEATH                                     = 4,
     SAY_SACRIFICE_PLAYER                          = 5,
-    
+
     // Image of Arthas
     SAY_DIALOG_OF_ARTHAS_1                        = 0,
     SAY_DIALOG_OF_ARTHAS_2                        = 1
@@ -101,7 +101,7 @@ enum SvalaPoint
 
 #define DATA_INCREDIBLE_HULK 2043
 
-static const float spectatorWP[2][3] = 
+static const float spectatorWP[2][3] =
 {
     {296.95f,-312.76f,86.36f},
     {297.69f,-275.81f,86.36f}
@@ -133,7 +133,7 @@ public:
         InstanceScript* instance;
         SummonList summons;
         SvalaPhase Phase;
-        
+
         Position pos;
         float x, y, z;
 
@@ -157,7 +157,7 @@ public:
 
             summons.DespawnAll();
             me->RemoveAllAuras();
-            
+
             if (Phase > INTRO)
             {
                 me->SetFlying(true);
@@ -177,7 +177,7 @@ public:
                 instance->SetData64(DATA_SACRIFICED_PLAYER, 0);
             }
         }
-        
+
         void JustReachedHome()
         {
             if (Phase > INTRO)
@@ -188,23 +188,23 @@ public:
                 me->SendMovementFlagUpdate();
             }
         }
-        
+
         void EnterCombat(Unit* /*who*/)
         {
             Talk(SAY_AGGRO);
-            
+
             sinsterStrikeTimer = 7 * IN_MILLISECONDS;
             callFlamesTimer = urand(10 * IN_MILLISECONDS, 20 * IN_MILLISECONDS);
 
             if (instance)
                 instance->SetData(DATA_SVALA_SORROWGRAVE_EVENT, IN_PROGRESS);
         }
-        
+
         void JustSummoned(Creature* summon)
         {
             if (summon->GetEntry() == CREATURE_RITUAL_CHANNELER)
                 summon->CastSpell(summon, SPELL_SUMMONED_VIS, true);
-            
+
             summons.Summon(summon);
         }
 
@@ -222,7 +222,7 @@ public:
             {
                 Phase = INTRO;
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                
+
                 if (GameObject* mirror = GetClosestGameObjectWithEntry(me, OBJECT_UTGARDE_MIRROR, 100.0f))
                     mirror->SetGoState(GO_STATE_READY);
 
@@ -233,13 +233,13 @@ public:
                 }
             }
         }
-        
+
         void KilledUnit(Unit* victim)
         {
             if (victim != me)
                 Talk(SAY_SLAY);
         }
-        
+
         void DamageTaken(Unit* attacker, uint32 &damage)
         {
             if (Phase == SVALADEAD)
@@ -532,7 +532,7 @@ public:
                 if (IsHeroic())
                     DoCast(me, SPELL_SHADOWS_IN_THE_DARK);
         }
-        
+
         void UpdateAI(const uint32 diff)
         {
             if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -648,7 +648,7 @@ class npc_scourge_hulk : public CreatureScript
             {
                 return type == DATA_INCREDIBLE_HULK ? killedByRitualStrike : 0;
             }
-            
+
             void DamageTaken(Unit* attacker, uint32 &damage)
             {
                 if (damage >= me->GetHealth() && attacker->GetEntry() == CREATURE_SVALA_SORROWGRAVE)

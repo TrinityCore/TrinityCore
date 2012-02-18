@@ -50,12 +50,12 @@ class spell_hun_aspect_of_the_beast : public SpellScriptLoader
         class spell_hun_aspect_of_the_beast_AuraScript : public AuraScript
         {
             PrepareAuraScript(spell_hun_aspect_of_the_beast_AuraScript);
-            
+
             bool Load()
             {
                 return GetCaster()->GetTypeId() == TYPEID_PLAYER;
             }
-            
+
             bool Validate(SpellInfo const* /*entry*/)
             {
                 if (!sSpellMgr->GetSpellInfo(HUNTER_SPELL_ASPECT_OF_THE_BEAST_PET))
@@ -506,7 +506,7 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
         class spell_hun_pet_carrion_feeder_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_hun_pet_carrion_feeder_SpellScript);
-            
+
             bool Load()
             {
                 if (!GetCaster()->isPet())
