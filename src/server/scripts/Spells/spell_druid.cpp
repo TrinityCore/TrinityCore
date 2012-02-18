@@ -341,7 +341,8 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
                     sLog->outString("triggering spell = %u",GetTriggeringSpell()->Id);
 
                 Unit* caster = GetCaster();
-                if (caster->IsInDisallowedMountForm() || caster->IsMounted())
+                // Shapeshifting into an animal form or mounting cancels the effect
+                if (caster->GetCreatureType() == CREATURE_TYPE_BEAST() || caster->IsMounted())
                 {
                     if (SpellInfo const* spellInfo = GetTriggeringSpell())
                         caster->RemoveAurasDueToSpell(spellInfo->Id);
