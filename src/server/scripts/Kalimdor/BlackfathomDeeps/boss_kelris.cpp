@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,36 +44,36 @@ public:
 
     struct boss_kelrisAI : public ScriptedAI
     {
-        boss_kelrisAI(Creature* c) : ScriptedAI(c)
+        boss_kelrisAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = c->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        uint32 uiMindBlastTimer;
-        uint32 uiSleepTimer;
+        uint32 mindBlastTimer;
+        uint32 sleepTimer;
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
-            uiMindBlastTimer = urand(2000, 5000);
-            uiSleepTimer = urand(9000, 12000);
-            if (pInstance)
-                pInstance->SetData(TYPE_KELRIS, NOT_STARTED);
+            mindBlastTimer = urand(2000, 5000);
+            sleepTimer = urand(9000, 12000);
+            if (instance)
+                instance->SetData(TYPE_KELRIS, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
-            if (pInstance)
-                pInstance->SetData(TYPE_KELRIS, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_KELRIS, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             DoScriptText(SAY_DEATH, me);
-            if (pInstance)
-                pInstance->SetData(TYPE_KELRIS, DONE);
+            if (instance)
+                instance->SetData(TYPE_KELRIS, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -81,26 +81,25 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (uiMindBlastTimer < diff)
+            if (mindBlastTimer < diff)
             {
                 DoCastVictim(SPELL_MIND_BLAST);
-                uiMindBlastTimer = urand(7000, 9000);
-            } else uiMindBlastTimer -= diff;
+                mindBlastTimer = urand(7000, 9000);
+            } else mindBlastTimer -= diff;
 
-            if (uiSleepTimer < diff)
+            if (sleepTimer < diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                 {
                     DoScriptText(SAY_SLEEP, me);
                     DoCast(target, SPELL_SLEEP);
                 }
-                uiSleepTimer = urand(15000, 20000);
-            } else uiSleepTimer -= diff;
+                sleepTimer = urand(15000, 20000);
+            } else sleepTimer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_kelris()

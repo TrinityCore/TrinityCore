@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 #ifndef TRINITY_DISABLEMGR_H
 #define TRINITY_DISABLEMGR_H
 
-#include <ace/Singleton.h>
+#include "Define.h"
 
 class Unit;
 
@@ -54,34 +54,11 @@ enum VmapDisableTypes
     VMAP_DISABLE_LIQUIDSTATUS   = 0x8,
 };
 
-#define MAX_DISABLE_TYPES 7
-
-struct DisableData
+namespace DisableMgr
 {
-    uint8 flags;
-    std::set<uint32> params[2];                             // params0, params1
-};
-
-typedef std::map<uint32, DisableData> DisableTypeMap;       // single disables here with optional data
-typedef std::map<DisableType, DisableTypeMap> DisableMap;   // global disable map by source
-
-class DisableMgr
-{
-    friend class ACE_Singleton<DisableMgr, ACE_Null_Mutex>;
-    DisableMgr();
-    ~DisableMgr();
-
-    public:
-
-        void LoadDisables();
-        bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
-        void CheckQuestDisables();
-
-    protected:
-
-        DisableMap m_DisableMap;
-};
-
-#define sDisableMgr ACE_Singleton<DisableMgr, ACE_Null_Mutex>::instance()
+    void LoadDisables();
+    bool IsDisabledFor(DisableType type, uint32 entry, Unit const* unit, uint8 flags = 0);
+    void CheckQuestDisables();
+}
 
 #endif //TRINITY_DISABLEMGR_H

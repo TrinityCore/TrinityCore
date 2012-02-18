@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -116,7 +116,7 @@ public:
                 me->UpdateEntry(NPC_KYLE_FRENZIED);
         }
 
-        void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+        void SpellHit(Unit* pCaster, SpellInfo const* pSpell)
         {
             if (!me->getVictim() && !bEvent && pSpell->Id == SPELL_LUNCH)
             {
@@ -157,25 +157,25 @@ public:
                     uiEventTimer = 5000;
                     ++uiEventPhase;
 
-                    switch(uiEventPhase)
+                    switch (uiEventPhase)
                     {
                         case 1:
-                            if (Unit* pUnit = Unit::GetUnit(*me, uiPlayerGUID))
+                            if (Unit* unit = Unit::GetUnit(*me, uiPlayerGUID))
                             {
-                                if (GameObject* pGo = pUnit->GetGameObject(SPELL_LUNCH))
+                                if (GameObject* go = unit->GetGameObject(SPELL_LUNCH))
                                 {
                                     m_bIsMovingToLunch = true;
-                                    me->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                                    me->GetMotionMaster()->MovePoint(POINT_ID, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
                                 }
                             }
                             break;
                         case 2:
                             DoScriptText(EMOTE_EAT_LUNCH, me);
-                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USESTANDING);
+                            me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_USE_STANDING);
                             break;
                         case 3:
-                            if (Player* pUnit = Unit::GetPlayer(*me, uiPlayerGUID))
-                                pUnit->TalkedToCreature(me->GetEntry(), me->GetGUID());
+                            if (Player* unit = Unit::GetPlayer(*me, uiPlayerGUID))
+                                unit->TalkedToCreature(me->GetEntry(), me->GetGUID());
 
                             me->UpdateEntry(NPC_KYLE_FRIENDLY);
                             break;

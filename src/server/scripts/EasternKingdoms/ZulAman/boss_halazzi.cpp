@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -61,7 +61,6 @@ EndScriptData */
 #define SPELL_SHRED_ARMOR               43243
 
 #define MOB_TOTEM                       24224
-#define SPELL_LIGHTNING                 43301
 
 enum PhaseHalazzi
 {
@@ -86,14 +85,10 @@ class boss_halazzi : public CreatureScript
         {
             boss_halazziAI(Creature* c) : ScriptedAI(c)
             {
-                pInstance = c->GetInstanceScript();
-                // need to find out what controls totem's spell cooldown
-                SpellEntry *TempSpell = GET_SPELL(SPELL_LIGHTNING);
-                if (TempSpell && TempSpell->CastingTimeIndex != 5)
-                    TempSpell->CastingTimeIndex = 5; // 2000 ms casting time
+                instance = c->GetInstanceScript();
             }
 
-            InstanceScript *pInstance;
+            InstanceScript* instance;
 
             uint32 FrenzyTimer;
             uint32 SaberlashTimer;
@@ -110,8 +105,8 @@ class boss_halazzi : public CreatureScript
 
             void Reset()
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_HALAZZIEVENT, NOT_STARTED);
 
                 TransformCount = 0;
                 BerserkTimer = 600000;
@@ -125,8 +120,8 @@ class boss_halazzi : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_HALAZZIEVENT, IN_PROGRESS);
 
                 me->MonsterYell(YELL_AGGRO, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_AGGRO);
@@ -147,7 +142,7 @@ class boss_halazzi : public CreatureScript
                     damage = 0;
             }
 
-            void SpellHit(Unit*, const SpellEntry *spell)
+            void SpellHit(Unit*, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_TRANSFORM_SPLIT2)
                     EnterPhase(PHASE_HUMAN);
@@ -160,7 +155,7 @@ class boss_halazzi : public CreatureScript
 
             void EnterPhase(PhaseHalazzi NextPhase)
             {
-                switch(NextPhase)
+                switch (NextPhase)
                 {
                 case PHASE_LYNX:
                 case PHASE_ENRAGE:
@@ -268,7 +263,7 @@ class boss_halazzi : public CreatureScript
                                 DoCast(target, SPELL_EARTHSHOCK);
                             else
                                 DoCast(target, SPELL_FLAMESHOCK);
-                            ShockTimer = 10000 + rand()%5000;
+                            ShockTimer = urand(10000, 15000);
                         }
                     } else ShockTimer -= diff;
 
@@ -331,8 +326,8 @@ class boss_halazzi : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_HALAZZIEVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_HALAZZIEVENT, DONE);
 
                 me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_DEATH);

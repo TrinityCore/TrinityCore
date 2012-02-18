@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -68,10 +68,10 @@ public:
     {
         boss_gruulAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 m_uiGrowth_Timer;
         uint32 m_uiCaveIn_Timer;
@@ -92,16 +92,16 @@ public:
             m_uiHurtfulStrike_Timer= 8000;
             m_uiReverberation_Timer= 60000+45000;
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRUULEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_GRUULEVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_GRUULEVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -113,14 +113,14 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_GRUULEVENT, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GRUULDOOR), true);         // Open the encounter door
+                instance->SetData(DATA_GRUULEVENT, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GRUULDOOR), true);         // Open the encounter door
             }
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry* pSpell)
+        void SpellHitTarget(Unit* target, const SpellInfo* pSpell)
         {
             //This to emulate effect1 (77) of SPELL_GROUND_SLAM, knock back to any direction
             //It's initially wrong, since this will cause fall damage, which is by comments, not intended.
@@ -151,7 +151,7 @@ public:
                     m_bPerformingGroundSlam = false;
 
                     //and correct movement, if not already
-                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
                     {
                         if (me->getVictim())
                             me->GetMotionMaster()->MoveChase(me->getVictim());
@@ -213,7 +213,7 @@ public:
                 if (m_uiReverberation_Timer <= uiDiff)
                 {
                     DoCast(me->getVictim(), SPELL_REVERBERATION, true);
-                    m_uiReverberation_Timer = 15000 + rand()%10000;
+                    m_uiReverberation_Timer = urand(15000, 25000);
                 }
                 else
                     m_uiReverberation_Timer -= uiDiff;

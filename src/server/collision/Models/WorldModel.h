@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,8 +56,8 @@ namespace VMAP
             float *GetHeightStorage() { return iHeight; }
             uint8 *GetFlagsStorage() { return iFlags; }
             uint32 GetFileSize();
-            bool writeToFile(FILE *wf);
-            static bool readFromFile(FILE *rf, WmoLiquid *&liquid);
+            bool writeToFile(FILE* wf);
+            static bool readFromFile(FILE* rf, WmoLiquid* &liquid);
         private:
             WmoLiquid(): iHeight(0), iFlags(0) {};
             uint32 iTilesX;  //!< number of tiles in x direction, each
@@ -80,13 +80,13 @@ namespace VMAP
 
             //! pass mesh data to object and create BIH. Passed vectors get get swapped with old geometry!
             void setMeshData(std::vector<Vector3> &vert, std::vector<MeshTriangle> &tri);
-            void setLiquidData(WmoLiquid *liquid) { iLiquid = liquid; }
+            void setLiquidData(WmoLiquid*& liquid) { iLiquid = liquid; liquid = NULL; }
             bool IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit) const;
             bool IsInsideObject(const Vector3 &pos, const Vector3 &down, float &z_dist) const;
             bool GetLiquidLevel(const Vector3 &pos, float &liqHeight) const;
             uint32 GetLiquidType() const;
-            bool writeToFile(FILE *wf);
-            bool readFromFile(FILE *rf);
+            bool writeToFile(FILE* wf);
+            bool readFromFile(FILE* rf);
             const G3D::AABox& GetBound() const { return iBound; }
             uint32 GetMogpFlags() const { return iMogpFlags; }
             uint32 GetWmoID() const { return iGroupWMOID; }
@@ -97,7 +97,7 @@ namespace VMAP
             std::vector<Vector3> vertices;
             std::vector<MeshTriangle> triangles;
             BIH meshTree;
-            WmoLiquid *iLiquid;
+            WmoLiquid* iLiquid;
     };
     /*! Holds a model (converted M2 or WMO) in its original coordinate space */
     class WorldModel
@@ -113,6 +113,7 @@ namespace VMAP
             bool GetLocationInfo(const G3D::Vector3 &p, const G3D::Vector3 &down, float &dist, LocationInfo &info) const;
             bool writeFile(const std::string &filename);
             bool readFile(const std::string &filename);
+            uint32 Flags;
         protected:
             uint32 RootWMOID;
             std::vector<GroupModel> groupModels;

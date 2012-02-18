@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,7 +27,7 @@ class WorldObject;
 class Unit;
 class Creature;
 class Player;
-struct SpellEntry;
+class SpellInfo;
 
 #define TIME_INTERVAL_LOOK   5000
 #define VISIBILITY_RANGE    10000
@@ -111,10 +111,10 @@ class CreatureAI : public UnitAI
         virtual void SummonedCreatureDies(Creature* /*summon*/, Unit* /*killer*/) {}
 
         // Called when hit by a spell
-        virtual void SpellHit(Unit* /*caster*/, SpellEntry const* /*spell*/) {}
+        virtual void SpellHit(Unit* /*caster*/, SpellInfo const* /*spell*/) {}
 
         // Called when spell hits a target
-        virtual void SpellHitTarget(Unit* /*target*/, SpellEntry const* /*spell*/) {}
+        virtual void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) {}
 
         // Called when the creature is target of hostile action: swing, hostile spell landed, fear/etc)
         //virtual void AttackedBy(Unit* attacker);
@@ -133,7 +133,7 @@ class CreatureAI : public UnitAI
         // Called at reaching home after evade
         virtual void JustReachedHome() {}
 
-        void DoZoneInCombat(Creature* creature = NULL);
+        void DoZoneInCombat(Creature* creature = NULL, float maxRangeToNearestTarget = 50.0f);
 
         // Called at text emote receive from player
         virtual void ReceiveEmote(Player* /*player*/, uint32 /*emoteId*/) {}
@@ -142,7 +142,7 @@ class CreatureAI : public UnitAI
 
         // Called when creature attack expected (if creature can and no have current victim)
         // Note: for reaction at hostile action must be called AttackedBy function.
-        //virtual void AttackStart(Unit* ) {}
+        //virtual void AttackStart(Unit*) {}
 
         // Called at World update tick
         //virtual void UpdateAI(const uint32 /*diff*/) {}
@@ -150,7 +150,7 @@ class CreatureAI : public UnitAI
         /// == State checks =================================
 
         // Is unit visible for MoveInLineOfSight
-        //virtual bool IsVisible(Unit* ) const { return false; }
+        //virtual bool IsVisible(Unit*) const { return false; }
 
         // called when the corpse of this creature gets removed
         virtual void CorpseRemoved(uint32& /*respawnDelay*/) {}

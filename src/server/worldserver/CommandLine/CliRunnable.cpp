@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ char * command_finder(const char* text, int state)
 {
     static int idx, len;
     const char* ret;
-    ChatCommand *cmd = ChatHandler::getCommandTable();
+    ChatCommand* cmd = ChatHandler::getCommandTable();
 
     if (!state)
     {
@@ -104,9 +104,7 @@ void utf8print(void* /*arg*/, const char* str)
     printf(temp_buf);
 #else
 {
-    va_list v;
-    vprintf(str, v);
-    va_end(v);
+    printf("%s", str);
     fflush(stdout);
 }
 #endif
@@ -117,6 +115,7 @@ void commandFinished(void*, bool /*success*/)
     printf("TC> ");
     fflush(stdout);
 }
+
 /**
  * Collects all GUIDs (and related info) from deleted characters which are still in the database.
  *
@@ -157,7 +156,7 @@ bool ChatHandler::GetDeletedCharacterInfoList(DeletedInfoList& foundList, std::s
             info.accountId  = fields[2].GetUInt32();
 
             // account name will be empty for not existed account
-            sAccountMgr->GetName(info.accountId, info.accountName);
+            AccountMgr::GetName(info.accountId, info.accountName);
 
             info.deleteDate = time_t(fields[3].GetUInt32());
 
@@ -280,7 +279,7 @@ void ChatHandler::HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo
     }
 
     // check character count
-    uint32 charcount = sAccountMgr->GetCharactersCount(delInfo.accountId);
+    uint32 charcount = AccountMgr::GetCharactersCount(delInfo.accountId);
     if (charcount >= 10)
     {
         PSendSysMessage(LANG_CHARACTER_DELETED_SKIP_FULL, delInfo.name.c_str(), delInfo.lowguid, delInfo.accountId);
@@ -293,8 +292,13 @@ void ChatHandler::HandleCharacterDeletedRestoreHelper(DeletedInfo const& delInfo
         return;
     }
 
-    CharacterDatabase.PExecute("UPDATE characters SET name='%s', account='%u', deleteDate=NULL, deleteInfos_Name=NULL, deleteInfos_Account=NULL WHERE deleteDate IS NOT NULL AND guid = %u",
-        delInfo.name.c_str(), delInfo.accountId, delInfo.lowguid);
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UDP_RESTORE_DELETE_INFO);
+
+    stmt->setString(0, delInfo.name);
+    stmt->setUInt32(1, delInfo.accountId);
+    stmt->setUInt32(2, delInfo.lowguid);
+
+    CharacterDatabase.Execute(stmt);
 }
 
 /**
@@ -352,7 +356,7 @@ bool ChatHandler::HandleCharacterDeletedRestoreCommand(const char* args)
         if (newAccount && newAccount != delInfo.accountId)
         {
             delInfo.accountId = newAccount;
-            sAccountMgr->GetName(newAccount, delInfo.accountName);
+            AccountMgr::GetName(newAccount, delInfo.accountName);
         }
 
         HandleCharacterDeletedRestoreHelper(delInfo);
@@ -447,7 +451,7 @@ bool ChatHandler::HandleCharacterEraseCommand(const char* args){
     uint64 character_guid;
     uint32 account_id;
 
-    Player* player = sObjectMgr->GetPlayer(character_name.c_str());
+    Player* player = sObjectAccessor->FindPlayerByName(character_name.c_str());
     if (player)
     {
         character_guid = player->GetGUID();
@@ -468,7 +472,7 @@ bool ChatHandler::HandleCharacterEraseCommand(const char* args){
     }
 
     std::string account_name;
-    sAccountMgr->GetName (account_id, account_name);
+    AccountMgr::GetName (account_id, account_name);
 
     Player::DeleteFromDB(character_guid, account_id, true, true);
     PSendSysMessage(LANG_CHARACTER_DELETED, character_name.c_str(), GUID_LOPART(character_guid), account_name.c_str(), account_id);
@@ -534,7 +538,7 @@ bool ChatHandler::HandleServerSetDiffTimeCommand(const char *args)
 bool ChatHandler::HandleServerToggleQueryLogging(const char* /* args */)
 {
     sLog->SetSQLDriverQueryLogging(!sLog->GetSQLDriverQueryLogging());
-    if(sLog->GetSQLDriverQueryLogging())
+    if (sLog->GetSQLDriverQueryLogging())
         PSendSysMessage(LANG_SQLDRIVER_QUERY_LOGGING_ENABLED);
     else
         PSendSysMessage(LANG_SQLDRIVER_QUERY_LOGGING_DISABLED);
@@ -564,11 +568,12 @@ void CliRunnable::run()
 {
     ///- Display the list of available CLI functions then beep
     //sLog->outString("");
-    #if PLATFORM != PLATFORM_WINDOWS
+#if PLATFORM != PLATFORM_WINDOWS
     rl_attempted_completion_function = cli_completion;
     rl_event_hook = cli_hook_func;
-    #endif
-    if (sConfig->GetBoolDefault("BeepAtStart", true))
+#endif
+
+    if (ConfigMgr::GetBoolDefault("BeepAtStart", true))
         printf("\a");                                       // \a = Alert
 
     // print this here the first time
@@ -582,49 +587,49 @@ void CliRunnable::run()
 
         char *command_str ;             // = fgets(commandbuf, sizeof(commandbuf), stdin);
 
-        #if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS
         char commandbuf[256];
         command_str = fgets(commandbuf, sizeof(commandbuf), stdin);
-        #else
+#else
         command_str = readline("TC>");
         rl_bind_key('\t', rl_complete);
-        #endif
+#endif
+
         if (command_str != NULL)
         {
-            for (int x=0; command_str[x]; x++)
-                if (command_str[x]=='\r'||command_str[x]=='\n')
+            for (int x=0; command_str[x]; ++x)
+                if (command_str[x] == '\r' || command_str[x] == '\n')
                 {
-                    command_str[x]=0;
+                    command_str[x] = 0;
                     break;
                 }
 
             if (!*command_str)
             {
-                #if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS
                 printf("TC>");
-                #endif
+#endif
                 continue;
             }
 
             std::string command;
             if (!consoleToUtf8(command_str, command))         // convert from console encoding to utf8
             {
-                #if PLATFORM == PLATFORM_WINDOWS
+#if PLATFORM == PLATFORM_WINDOWS
                 printf("TC>");
-                #endif
+#endif
                 continue;
             }
+
             fflush(stdout);
             sWorld->QueueCliCommand(new CliCommandHolder(NULL, command.c_str(), &utf8print, &commandFinished));
-            #if PLATFORM != PLATFORM_WINDOWS
+#if PLATFORM != PLATFORM_WINDOWS
             add_history(command.c_str());
-            #endif
-
+#endif
         }
         else if (feof(stdin))
         {
             World::StopNow(SHUTDOWN_EXIT_CODE);
         }
-
     }
 }

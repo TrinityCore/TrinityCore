@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,6 +39,7 @@ void AddSC_warrior_spell_scripts();
 void AddSC_quest_spell_scripts();
 void AddSC_item_spell_scripts();
 void AddSC_example_spell_scripts();
+void AddSC_holiday_spell_scripts();
 
 void AddSC_SmartSCripts();
 
@@ -53,6 +54,7 @@ void AddSC_go_commandscript();
 void AddSC_gobject_commandscript();
 void AddSC_honor_commandscript();
 void AddSC_learn_commandscript();
+void AddSC_misc_commandscript();
 void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
 void AddSC_quest_commandscript();
@@ -479,6 +481,7 @@ void AddSC_boss_blood_prince_council();
 void AddSC_boss_blood_queen_lana_thel();
 void AddSC_boss_valithria_dreamwalker();
 void AddSC_boss_sindragosa();
+void AddSC_boss_the_lich_king();
 void AddSC_icecrown_citadel_teleport();
 void AddSC_instance_icecrown_citadel();
 void AddSC_icecrown_citadel();
@@ -569,6 +572,7 @@ void AddSC_the_eye();
 void AddSC_boss_gatewatcher_iron_hand();     //TK The Mechanar
 void AddSC_boss_nethermancer_sepethrea();
 void AddSC_boss_pathaleon_the_calculator();
+void AddSC_boss_mechano_lord_capacitus();
 void AddSC_instance_mechanar();
 
 void AddSC_blades_edge_mountains();
@@ -640,6 +644,7 @@ void AddSpellScripts()
     AddSC_quest_spell_scripts();
     AddSC_item_spell_scripts();
     AddSC_example_spell_scripts();
+    AddSC_holiday_spell_scripts();
 }
 
 void AddCommandScripts()
@@ -654,6 +659,7 @@ void AddCommandScripts()
     AddSC_gobject_commandscript();
     AddSC_honor_commandscript();
     AddSC_learn_commandscript();
+    AddSC_misc_commandscript();
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
     AddSC_quest_commandscript();
@@ -1029,6 +1035,7 @@ void AddOutlandScripts()
     AddSC_boss_gatewatcher_iron_hand();     //TK The Mechanar
     AddSC_boss_nethermancer_sepethrea();
     AddSC_boss_pathaleon_the_calculator();
+    AddSC_boss_mechano_lord_capacitus();
     AddSC_instance_mechanar();
 
     AddSC_blades_edge_mountains();
@@ -1181,6 +1188,7 @@ void AddNorthrendScripts()
     AddSC_boss_blood_queen_lana_thel();
     AddSC_boss_valithria_dreamwalker();
     AddSC_boss_sindragosa();
+    AddSC_boss_the_lich_king();
     AddSC_icecrown_citadel_teleport();
     AddSC_instance_icecrown_citadel();
     AddSC_icecrown_citadel();

@@ -399,7 +399,7 @@ void WheatyExceptionReport::printTracesForAllThreads()
         }
         CloseHandle(threadHandle);
     }
-  } while(Thread32Next(hThreadSnap, &te32));
+  } while (Thread32Next(hThreadSnap, &te32));
 
 //  Don't forget to clean up the snapshot object.
   CloseHandle(hThreadSnap);
@@ -470,7 +470,7 @@ PEXCEPTION_POINTERS pExceptionInfo)
     _tprintf(_T("RAX:%016I64X\r\nRBX:%016I64X\r\nRCX:%016I64X\r\nRDX:%016I64X\r\nRSI:%016I64X\r\nRDI:%016I64X\r\n")
         _T("R8: %016I64X\r\nR9: %016I64X\r\nR10:%016I64X\r\nR11:%016I64X\r\nR12:%016I64X\r\nR13:%016I64X\r\nR14:%016I64X\r\nR15:%016I64X\r\n")
         , pCtx->Rax, pCtx->Rbx, pCtx->Rcx, pCtx->Rdx,
-        pCtx->Rsi, pCtx->Rdi , pCtx->R9, pCtx->R10, pCtx->R11, pCtx->R12, pCtx->R13, pCtx->R14, pCtx->R15);
+        pCtx->Rsi, pCtx->Rdi, pCtx->R9, pCtx->R10, pCtx->R11, pCtx->R12, pCtx->R13, pCtx->R14, pCtx->R15);
     _tprintf(_T("CS:RIP:%04X:%016I64X\r\n"), pCtx->SegCs, pCtx->Rip);
     _tprintf(_T("SS:RSP:%04X:%016X  RBP:%08X\r\n"),
         pCtx->SegSs, pCtx->Rsp, pCtx->Rbp);

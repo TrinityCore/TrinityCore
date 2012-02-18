@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,6 @@ Script Data End */
 // Find sniffed spawn position for chest
 // Implement a better way to disappear the gameobjects
 // Implement achievements
-// Implement scaling for player's drakes (should be done with aura 66668, it is casted - but it is not working as it should)
 // Remove hack that re-adds targets to the aggro list after they enter to a vehicle when it works as expected
 // Improve whatever can be improved :)
 
@@ -150,7 +149,7 @@ enum MalygosSays
 
 #define MAX_HOVER_DISK_WAYPOINTS 18
 
-// Sniffed data (x,y,z)
+// Sniffed data (x, y,z)
 const Position HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS] =
 {
    {782.9821f, 1296.652f, 282.1114f, 0.0f},
@@ -175,7 +174,7 @@ const Position HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS] =
 
 #define GROUND_Z 268
 
-// Source: Sniffs (x,y,z)
+// Source: Sniffs (x, y,z)
 #define MALYGOS_MAX_WAYPOINTS 16
 const Position MalygosPhaseTwoWaypoints[MALYGOS_MAX_WAYPOINTS] =
 {
@@ -221,53 +220,54 @@ public:
         boss_malygosAI(Creature* creature) : BossAI(creature, DATA_MALYGOS_EVENT)
         {
             // If we enter in combat when MovePoint generator is active, it overrwrites our homeposition
-            homePosition = creature->GetHomePosition();
+            _homePosition = creature->GetHomePosition();
         }
 
         void Reset()
         {
-
             _Reset();
 
-            bersekerTimer = 0;
-            currentPos = 0;
+            _bersekerTimer = 0;
+            _currentPos = 0;
 
             SetPhase(PHASE_ONE, true);
 
-            delayedMovementTimer = 8000;
-            delayedMovement = false;
+            _delayedMovementTimer = 8000;
+            _delayedMovement = false;
 
-            summonDeaths = 0;
+            _summonDeaths = 0;
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-            cannotMove = true;
+            _cannotMove = true;
+
+            me->SetFlying(true);
         }
 
         uint32 GetData(uint32 data)
         {
             if (data == DATA_SUMMON_DEATHS)
-                return summonDeaths;
+                return _summonDeaths;
             else if (data == DATA_PHASE)
-                return phase;
+                return _phase;
 
             return 0;
         }
 
         void SetData(uint32 data, uint32 value)
         {
-            if (data == DATA_SUMMON_DEATHS && phase == PHASE_TWO)
+            if (data == DATA_SUMMON_DEATHS && _phase == PHASE_TWO)
             {
-                summonDeaths = value;
+                _summonDeaths = value;
 
-                if (summonDeaths >= MAX_SUMMONS_PHASE_TWO)
+                if (_summonDeaths >= MAX_SUMMONS_PHASE_TWO)
                     StartPhaseThree();
             }
         }
 
         void EnterEvadeMode()
         {
-            me->SetHomePosition(homePosition);
+            me->SetHomePosition(_homePosition);
 
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
 
@@ -277,15 +277,15 @@ public:
                 instance->SetBossState(DATA_MALYGOS_EVENT, FAIL);
         }
 
-        void SetPhase(uint8 _phase, bool setEvents = false)
+        void SetPhase(uint8 phase, bool setEvents = false)
         {
             events.Reset();
 
-            events.SetPhase(_phase);
-            phase = _phase;
+            events.SetPhase(phase);
+            _phase = phase;
 
             if (setEvents)
-                SetPhaseEvents(_phase);
+                SetPhaseEvents();
         }
 
         void StartPhaseThree()
@@ -320,7 +320,7 @@ public:
             me->GetMotionMaster()->MovePoint(MOVE_CENTER_PLATFORM, MalygosPositions[0].GetPositionX(), MalygosPositions[0].GetPositionY(), MalygosPositions[0].GetPositionZ());
         }
 
-        void SetPhaseEvents(uint8 _phase)
+        void SetPhaseEvents()
         {
             switch (_phase)
             {
@@ -353,6 +353,8 @@ public:
             _EnterCombat();
 
             me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetFlying(false);
+
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
             Talk(SAY_AGGRO_P_ONE);
@@ -365,21 +367,21 @@ public:
             if (who->GetTypeId() != TYPEID_PLAYER)
                 return;
 
-            switch (phase)
+            switch (_phase)
             {
-            case PHASE_ONE:
-                Talk(SAY_KILLED_PLAYER_P_ONE);
-                break;
-            case PHASE_TWO:
-                Talk(SAY_KILLED_PLAYER_P_TWO);
-                break;
-            case PHASE_THREE:
-                Talk(SAY_KILLED_PLAYER_P_THREE);
-                break;
+                case PHASE_ONE:
+                    Talk(SAY_KILLED_PLAYER_P_ONE);
+                    break;
+                case PHASE_TWO:
+                    Talk(SAY_KILLED_PLAYER_P_TWO);
+                    break;
+                case PHASE_THREE:
+                    Talk(SAY_KILLED_PLAYER_P_THREE);
+                    break;
             }
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_POWER_SPARK_MALYGOS)
             {
@@ -400,13 +402,13 @@ public:
                 // not sure about the distance | I think it is better check this here than in the UpdateAI function...
                 if (who->GetDistance(me) <= 2.5f)
                     who->CastSpell(me, SPELL_POWER_SPARK_MALYGOS, true);
-
             }
         }
 
         void PrepareForVortex()
         {
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetFlying(true);
 
             me->GetMotionMaster()->MovementExpired();
             me->GetMotionMaster()->MovePoint(MOVE_VORTEX, MalygosPositions[1].GetPositionX(), MalygosPositions[1].GetPositionY(), MalygosPositions[1].GetPositionZ());
@@ -434,15 +436,16 @@ public:
                     ExecuteVortex();
                     break;
                 case MOVE_DEEP_BREATH_ROTATION:
-                    currentPos = currentPos == MALYGOS_MAX_WAYPOINTS - 1 ? 0 : currentPos+1;
+                    _currentPos = _currentPos == MALYGOS_MAX_WAYPOINTS - 1 ? 0 : _currentPos+1;
                     me->GetMotionMaster()->MovementExpired();
-                    me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[currentPos]);
+                    me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[_currentPos]);
                     break;
                 case MOVE_INIT_PHASE_ONE:
                     me->SetInCombatWithZone();
                     break;
                 case MOVE_CENTER_PLATFORM:
-                    cannotMove = false;
+                    // Malygos is already flying here, there is no need to set it again.
+                    _cannotMove = false;
                     // malygos will move into center of platform and then he does not chase dragons, he just turns to his current target.
                     me->GetMotionMaster()->MoveIdle();
                     break;
@@ -454,22 +457,21 @@ public:
             SetPhase(PHASE_TWO, true);
 
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetFlying(true);
 
             me->GetMotionMaster()->MoveIdle();
             me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[0]);
 
-            Creature* summon = me->SummonCreature(NPC_HOVER_DISK_CASTER, HoverDiskWaypoints[MAX_HOVER_DISK_WAYPOINTS-1]);
-            if (summon && summon->IsAIEnabled)
-                summon->AI()->DoAction(ACTION_HOVER_DISK_START_WP_2);
-            summon = me->SummonCreature(NPC_HOVER_DISK_CASTER, HoverDiskWaypoints[0]);
-            if (summon && summon->IsAIEnabled)
-                summon->AI()->DoAction(ACTION_HOVER_DISK_START_WP_1);
-
             for (uint8 i = 0; i < 2; i++)
             {
+                // Starting position. One starts from the first waypoint and another from the last.
+                uint8 pos = !i ? MAX_HOVER_DISK_WAYPOINTS-1 : 0;
+                if (Creature* summon = me->SummonCreature(NPC_HOVER_DISK_CASTER, HoverDiskWaypoints[pos]))
+                    if (summon->IsAIEnabled)
+                        summon->AI()->DoAction(ACTION_HOVER_DISK_START_WP_1+i);
+
                 // not sure about its position.
-                summon = me->SummonCreature(NPC_HOVER_DISK_MELEE, HoverDiskWaypoints[0]);
-                if (summon)
+                if (Creature* summon = me->SummonCreature(NPC_HOVER_DISK_MELEE, HoverDiskWaypoints[0]))
                     summon->SetInCombatWithZone();
             }
         }
@@ -481,9 +483,9 @@ public:
 
             events.Update(diff);
 
-            if (phase == PHASE_THREE)
+            if (_phase == PHASE_THREE)
             {
-                if (!cannotMove)
+                if (!_cannotMove)
                 {
                     // it can change if the player falls from the vehicle.
                     if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != IDLE_MOTION_TYPE)
@@ -502,18 +504,18 @@ public:
             }
 
             // we need a better way for pathing
-            if (delayedMovement)
+            if (_delayedMovement)
             {
-                if (delayedMovementTimer <= diff)
+                if (_delayedMovementTimer <= diff)
                 {
-                    me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[currentPos]);
-                    delayedMovementTimer = 8000;
-                    delayedMovement = false;
-                } delayedMovementTimer -= diff;
+                    me->GetMotionMaster()->MovePoint(MOVE_DEEP_BREATH_ROTATION, MalygosPhaseTwoWaypoints[_currentPos]);
+                    _delayedMovementTimer = 8000;
+                    _delayedMovement = false;
+                } _delayedMovementTimer -= diff;
             }
 
             // at 50 % health malygos switch to phase 2
-            if (me->GetHealthPct() <= 50.0f && phase == PHASE_ONE)
+            if (me->GetHealthPct() <= 50.0f && _phase == PHASE_ONE)
                 StartPhaseTwo();
 
             // the boss is handling vortex
@@ -521,7 +523,7 @@ public:
                 return;
 
             // We can't cast if we are casting already.
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
@@ -561,7 +563,7 @@ public:
                         break;
                     case EVENT_SURGE_POWER:
                         me->GetMotionMaster()->MoveIdle();
-                        delayedMovement = true;
+                        _delayedMovement = true;
                         DoCast(SPELL_SURGE_POWER);
                         events.ScheduleEvent(EVENT_SURGE_POWER, urand(60, 70)*IN_MILLISECONDS, 0, PHASE_TWO);
                         break;
@@ -611,17 +613,16 @@ public:
         }
 
     private:
-        uint8 phase;
-        uint32 bersekerTimer;
-        uint8 currentPos; // used for phase 2 rotation...
-        bool delayedMovement; // used in phase2.
-        uint32 delayedMovementTimer; // used in phase 2
-        uint8 summonDeaths;
-        Position homePosition; // it can get bugged because core thinks we are pathing
-        bool mustTalk;
-        bool cannotMove;
+        uint8 _phase;
+        uint32 _bersekerTimer;
+        uint8 _currentPos; // used for phase 2 rotation...
+        bool _delayedMovement; // used in phase 2.
+        uint32 _delayedMovementTimer; // used in phase 2
+        uint8 _summonDeaths;
+        Position _homePosition; // it can get bugged because core thinks we are pathing
+        bool _mustTalk;
+        bool _cannotMove;
     };
-
 };
 
 class spell_malygos_vortex_dummy : public SpellScriptLoader
@@ -650,7 +651,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_malygos_vortex_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_malygos_vortex_dummy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -699,6 +700,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
                         malygos->SetInCombatWithZone();
 
                         malygos->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        malygos->SetFlying(false);
 
                         malygos->GetMotionMaster()->MoveChase(caster->getVictim());
                         malygos->RemoveAura(SPELL_VORTEX_1);
@@ -733,12 +735,12 @@ public:
     {
         npc_portal_eoeAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            _instance = creature->GetInstanceScript();
         }
 
         void Reset()
         {
-            summonTimer = urand(5, 7)*IN_MILLISECONDS;
+            _summonTimer = urand(5, 7)*IN_MILLISECONDS;
         }
 
         void UpdateAI(uint32 const diff)
@@ -747,9 +749,9 @@ public:
                 !me->HasAura(SPELL_PORTAL_OPENED))
                 DoCast(me, SPELL_PORTAL_VISUAL_CLOSED, true);
 
-            if (instance)
+            if (_instance)
             {
-                if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                 {
                     if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE)
                     {
@@ -762,11 +764,12 @@ public:
             if (!me->HasAura(SPELL_PORTAL_OPENED))
                 return;
 
-            if (summonTimer <= diff)
+            if (_summonTimer <= diff)
             {
                 DoCast(SPELL_SUMMON_POWER_PARK);
-                summonTimer = urand(5, 7)*IN_MILLISECONDS;
-            } else summonTimer -= diff;
+                _summonTimer = urand(5, 7)*IN_MILLISECONDS;
+            } else
+                _summonTimer -= diff;
         }
 
         void JustSummoned(Creature* summon)
@@ -775,8 +778,8 @@ public:
         }
 
     private:
-        uint32 summonTimer;
-        InstanceScript* instance;
+        uint32 _summonTimer;
+        InstanceScript* _instance;
     };
 };
 
@@ -795,7 +798,7 @@ public:
     {
         npc_power_sparkAI(Creature* creature) : ScriptedAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            _instance = creature->GetInstanceScript();
 
             MoveToMalygos();
         }
@@ -809,19 +812,19 @@ public:
         {
             me->GetMotionMaster()->MoveIdle();
 
-            if (instance)
+            if (_instance)
             {
-                if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                     me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
             }
         }
 
         void UpdateAI(uint32 const /*diff*/)
         {
-            if (!instance)
+            if (!_instance)
                 return;
 
-            if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
+            if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
             {
                 if (malygos->AI()->GetData(DATA_PHASE) != PHASE_ONE)
                 {
@@ -835,7 +838,7 @@ public:
                     return;
                 }
 
-                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+                if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
                     me->GetMotionMaster()->MoveFollow(malygos, 0.0f, 0.0f);
             }
         }
@@ -851,7 +854,7 @@ public:
         }
 
     private:
-        InstanceScript* instance;
+        InstanceScript* _instance;
     };
 };
 
@@ -874,7 +877,7 @@ public:
              else
                 me->SetInCombatWithZone();
 
-            instance = creature->GetInstanceScript();
+            _instance = creature->GetInstanceScript();
         }
 
         void PassengerBoarded(Unit* unit, int8 /*seat*/, bool apply)
@@ -894,9 +897,9 @@ public:
                 if (unit->GetTypeId() == TYPEID_UNIT)
                 {
                     // This will only be called if the passenger dies
-                    if (instance)
+                    if (_instance)
                     {
-                        if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
+                        if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                             malygos->AI()->SetData(DATA_SUMMON_DEATHS, malygos->AI()->GetData(DATA_SUMMON_DEATHS)+1);
                     }
 
@@ -905,7 +908,7 @@ public:
 
                 me->GetMotionMaster()->MoveIdle();
 
-                if (me->GetEntry() == NPC_HOVER_DISK_MELEE)
+                if (me->GetEntry() == NPC_HOVER_DISK_MELEE || me->GetEntry() == NPC_HOVER_DISK_CASTER)
                 {
                     // Hack: Fall ground function can fail (remember the platform is a gameobject), we will teleport the disk to the ground
                     if (me->GetPositionZ() > GROUND_Z)
@@ -960,7 +963,7 @@ public:
         }
 
     private:
-        InstanceScript* instance;
+        InstanceScript* _instance;
     };
 };
 
@@ -1013,47 +1016,54 @@ public:
     {
         npc_wyrmrest_skytalonAI(Creature* creature) : NullCreatureAI(creature)
         {
-            instance = creature->GetInstanceScript();
+            _instance = creature->GetInstanceScript();
 
-            timer = 1000;
-            entered = false;
+            _timer = 1000;
+            _entered = false;
+        }
+
+        void PassengerBoarded(Unit* /*unit*/, int8 /*seat*/, bool apply)
+        {
+            if (!apply)
+                me->DespawnOrUnsummon();
         }
 
         // we can't call this in reset function, it fails.
         void MakePlayerEnter()
         {
-            if (!instance)
+            if (!_instance)
                 return;
 
             if (Unit* summoner = me->ToTempSummon()->GetSummoner())
             {
-                if (Creature* malygos = Unit::GetCreature(*me, instance->GetData64(DATA_MALYGOS)))
+                if (Creature* malygos = Unit::GetCreature(*me, _instance->GetData64(DATA_MALYGOS)))
                 {
                     summoner->CastSpell(me, SPELL_RIDE_RED_DRAGON, true);
-                    float victim_threat = malygos->getThreatManager().getThreat(summoner);
+                    float victimThreat = malygos->getThreatManager().getThreat(summoner);
                     malygos->getThreatManager().resetAllAggro();
                     malygos->AI()->AttackStart(me);
-                    malygos->AddThreat(me, victim_threat);
+                    malygos->AddThreat(me, victimThreat);
                 }
             }
         }
 
         void UpdateAI(const uint32 diff)
         {
-            if (!entered)
+            if (!_entered)
             {
-                if (timer <= diff)
+                if (_timer <= diff)
                 {
                     MakePlayerEnter();
-                    entered = true;
-                } else timer -= diff;
+                    _entered = true;
+                } else
+                    _timer -= diff;
             }
         }
 
     private:
-        InstanceScript* instance;
-        uint32 timer;
-        bool entered;
+        InstanceScript* _instance;
+        uint32 _timer;
+        bool _entered;
     };
 };
 
@@ -1068,7 +1078,7 @@ enum AlexstraszaYells
 class npc_alexstrasza_eoe : public CreatureScript
 {
 public:
-    npc_alexstrasza_eoe() : CreatureScript("npc_alexstrasza_eoe") { }
+    npc_alexstrasza_eoe() : CreatureScript("npc_alexstrasza_eoe") {}
 
     CreatureAI* GetAI(Creature* creature) const
     {
@@ -1081,28 +1091,27 @@ public:
 
         void Reset()
         {
-            events.Reset();
-
-            events.ScheduleEvent(EVENT_YELL_1, 0);
+            _events.Reset();
+            _events.ScheduleEvent(EVENT_YELL_1, 0);
         }
 
         void UpdateAI(uint32 const /*diff*/)
         {
-            while (uint32 eventId = events.ExecuteEvent())
+            while (uint32 eventId = _events.ExecuteEvent())
             {
                 switch (eventId)
                 {
                     case EVENT_YELL_1:
                         Talk(SAY_ONE);
-                        events.ScheduleEvent(EVENT_YELL_2, 4*IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_YELL_2, 4*IN_MILLISECONDS);
                         break;
                     case EVENT_YELL_2:
                         Talk(SAY_TWO);
-                        events.ScheduleEvent(EVENT_YELL_3, 4*IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_YELL_3, 4*IN_MILLISECONDS);
                         break;
                     case EVENT_YELL_3:
                         Talk(SAY_THREE);
-                        events.ScheduleEvent(EVENT_YELL_4, 7*IN_MILLISECONDS);
+                        _events.ScheduleEvent(EVENT_YELL_4, 7*IN_MILLISECONDS);
                         break;
                     case EVENT_YELL_4:
                         Talk(SAY_FOUR);
@@ -1111,14 +1120,14 @@ public:
             }
         }
     private:
-        EventMap events;
+        EventMap _events;
     };
 };
 
 class achievement_denyin_the_scion : public AchievementCriteriaScript
 {
     public:
-        achievement_denyin_the_scion() : AchievementCriteriaScript("achievement_denyin_the_scion") { }
+        achievement_denyin_the_scion() : AchievementCriteriaScript("achievement_denyin_the_scion") {}
 
         bool OnCheck(Player* source, Unit* /*target*/)
         {

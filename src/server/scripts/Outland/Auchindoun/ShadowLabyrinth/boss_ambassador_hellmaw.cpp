@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -58,10 +58,10 @@ public:
     {
         boss_ambassador_hellmawAI(Creature* creature) : npc_escortAI(creature)
         {
-            m_pInstance = creature->GetInstanceScript();
+            m_instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* m_pInstance;
+        InstanceScript* m_instance;
 
         uint32 EventCheck_Timer;
         uint32 CorrosiveAcid_Timer;
@@ -74,24 +74,24 @@ public:
         void Reset()
         {
             EventCheck_Timer = 5000;
-            CorrosiveAcid_Timer = 5000 + rand()%5000;
-            Fear_Timer = 25000 + rand()%5000;
+            CorrosiveAcid_Timer = urand(5000, 10000);
+            Fear_Timer = urand(25000, 30000);
             Enrage_Timer = 180000;
             Intro = false;
             IsBanished = true;
             Enraged = false;
 
-            if (m_pInstance && me->isAlive())
+            if (m_instance && me->isAlive())
             {
-                if (m_pInstance->GetData(TYPE_OVERSEER) != DONE)
+                if (m_instance->GetData(TYPE_OVERSEER) != DONE)
                     DoCast(me, SPELL_BANISH, true);
             }
         }
 
         void JustReachedHome()
         {
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_HELLMAW, FAIL);
+            if (m_instance)
+                m_instance->SetData(TYPE_HELLMAW, FAIL);
         }
 
         void MoveInLineOfSight(Unit* who)
@@ -114,15 +114,15 @@ public:
             IsBanished = false;
             Intro = true;
 
-            if (m_pInstance)
+            if (m_instance)
             {
-                if (m_pInstance->GetData(TYPE_HELLMAW) != FAIL)
+                if (m_instance->GetData(TYPE_HELLMAW) != FAIL)
                 {
                     DoScriptText(SAY_INTRO, me);
                     Start(true, false, 0, NULL, false, true);
                 }
 
-                m_pInstance->SetData(TYPE_HELLMAW, IN_PROGRESS);
+                m_instance->SetData(TYPE_HELLMAW, IN_PROGRESS);
             }
         }
 
@@ -140,8 +140,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_HELLMAW, DONE);
+            if (m_instance)
+                m_instance->SetData(TYPE_HELLMAW, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -150,9 +150,9 @@ public:
             {
                 if (EventCheck_Timer <= diff)
                 {
-                    if (m_pInstance)
+                    if (m_instance)
                     {
-                        if (m_pInstance->GetData(TYPE_OVERSEER) == DONE)
+                        if (m_instance->GetData(TYPE_OVERSEER) == DONE)
                         {
                             DoIntro();
                             return;
@@ -182,13 +182,13 @@ public:
             if (CorrosiveAcid_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CORROSIVE_ACID);
-                CorrosiveAcid_Timer = 15000 + rand()%10000;
+                CorrosiveAcid_Timer = urand(15000, 25000);
             } else CorrosiveAcid_Timer -= diff;
 
             if (Fear_Timer <= diff)
             {
                 DoCast(me, SPELL_FEAR);
-                Fear_Timer = 20000 + rand()%15000;
+                Fear_Timer = urand(20000, 35000);
             } else Fear_Timer -= diff;
 
             if (IsHeroic())

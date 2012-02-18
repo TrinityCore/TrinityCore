@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@
 
 #include "ScriptPCH.h"
 #include "SpellAuraEffects.h"
+#include "GridNotifiers.h"
 
 enum PriestSpells
 {
@@ -46,14 +47,14 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
 
             uint32 healPct;
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                return sSpellStore.LookupEntry(PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL) != NULL;
+                return sSpellMgr->GetSpellInfo(PRIEST_SPELL_GUARDIAN_SPIRIT_HEAL) != NULL;
             }
 
             bool Load()
             {
-                healPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_1);
+                healPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue();
                 return true;
             }
 
@@ -63,7 +64,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 Unit* target = GetTarget();
                 if (dmgInfo.GetDamage() < target->GetHealth())
@@ -83,7 +84,7 @@ class spell_pri_guardian_spirit : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_pri_guardian_spirit_AuraScript();
         }
@@ -113,7 +114,7 @@ class spell_pri_mana_burn : public SpellScriptLoader
             }
         };
 
-        SpellScript * GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_pri_mana_burn_SpellScript;
         }
@@ -130,16 +131,16 @@ class spell_pri_mind_sear : public SpellScriptLoader
 
             void FilterTargets(std::list<Unit*>& unitList)
             {
-                unitList.remove(GetTargetUnit());
+                unitList.remove_if (Trinity::ObjectGUIDCheck(GetCaster()->GetUInt64Value(UNIT_FIELD_CHANNEL_OBJECT)));
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_pri_mind_sear_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_pri_mind_sear_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_pri_mind_sear_SpellScript();
         }
@@ -165,11 +166,11 @@ class spell_pri_pain_and_suffering_proc : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_pri_pain_and_suffering_proc_SpellScript::HandleEffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_pain_and_suffering_proc_SpellScript::HandleEffectScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_pri_pain_and_suffering_proc_SpellScript;
         }
@@ -184,9 +185,9 @@ class spell_pri_penance : public SpellScriptLoader
         {
             PrepareSpellScript(spell_pri_penance_SpellScript);
 
-            bool Validate(SpellEntry const* spellEntry)
+            bool Validate(SpellInfo const* spellEntry)
             {
-                if (!sSpellStore.LookupEntry(PRIEST_SPELL_PENANCE_R1))
+                if (!sSpellMgr->GetSpellInfo(PRIEST_SPELL_PENANCE_R1))
                     return false;
                 // can't use other spell than this penance due to spell_ranks dependency
                 if (sSpellMgr->GetFirstSpellInChain(PRIEST_SPELL_PENANCE_R1) != sSpellMgr->GetFirstSpellInChain(spellEntry->Id))
@@ -220,11 +221,11 @@ class spell_pri_penance : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Penance
-                OnEffect += SpellEffectFn(spell_pri_penance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_pri_penance_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_pri_penance_SpellScript;
         }
@@ -240,12 +241,12 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
         {
             PrepareAuraScript(spell_pri_reflective_shield_trigger_AuraScript);
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                return sSpellStore.LookupEntry(PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED) && sSpellStore.LookupEntry(PRIEST_SPELL_REFLECTIVE_SHIELD_R1);
+                return sSpellMgr->GetSpellInfo(PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED) && sSpellMgr->GetSpellInfo(PRIEST_SPELL_REFLECTIVE_SHIELD_R1);
             }
 
-            void Trigger(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Trigger(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 Unit* target = GetTarget();
                 if (dmgInfo.GetAttacker() == target)
@@ -253,7 +254,7 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 if (!caster)
                     return;
-                if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(PRIEST_SPELL_REFLECTIVE_SHIELD_R1, EFFECT_0))
+                if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(PRIEST_SPELL_REFLECTIVE_SHIELD_R1, EFFECT_0))
                 {
                     int32 bp = CalculatePctN(absorbAmount, talentAurEff->GetAmount());
                     target->CastCustomSpell(dmgInfo.GetAttacker(), PRIEST_SPELL_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
@@ -266,7 +267,7 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_pri_reflective_shield_trigger_AuraScript();
         }

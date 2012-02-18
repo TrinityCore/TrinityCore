@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -24,7 +24,6 @@ SDCategory: Items
 EndScriptData */
 
 /* ContentData
-item_draenei_fishing_net(i23654)    Hacklike implements chance to spawn item or creature
 item_nether_wraith_beacon(i31742)   Summons creatures for quest Becoming a Spellfire Tailor (q10832)
 item_flying_machine(i34060, i34061)  Engineering crafted flying machines
 item_gor_dreks_ointment(i30175)     Protecting Our Own(q10488)
@@ -54,7 +53,7 @@ public:
         bool disabled = false;
 
         //for special scripts
-        switch(itemId)
+        switch (itemId)
         {
            case 24538:
                 if (player->GetAreaId() != 3628)
@@ -65,7 +64,7 @@ public:
                     disabled = true;
                     break;
            case 34475:
-                if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry(SPELL_ARCANE_CHARGES))
+                if (const SpellInfo* pSpellInfo = sSpellMgr->GetSpellInfo(SPELL_ARCANE_CHARGES))
                     Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_ON_GROUND);
                     break;
         }
@@ -77,45 +76,6 @@ public:
         // error
         player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
         return true;
-    }
-};
-
-/*#####
-# item_draenei_fishing_net
-#####*/
-
-class item_draenei_fishing_net : public ItemScript
-{
-public:
-    item_draenei_fishing_net() : ItemScript("item_draenei_fishing_net") { }
-
-    //This is just a hack and should be removed from here.
-    //Creature/Item are in fact created before spell are sucessfully casted, without any checks at all to ensure proper/expected behavior.
-    bool OnUse(Player* player, Item* /*pItem*/, SpellCastTargets const& /*targets*/)
-    {
-        if (player->GetQuestStatus(9452) == QUEST_STATUS_INCOMPLETE)
-        {
-            if (urand(0, 99) < 35)
-            {
-                Creature* Murloc = player->SummonCreature(17102, player->GetPositionX(), player->GetPositionY()+20, player->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000);
-                if (Murloc)
-                    Murloc->AI()->AttackStart(player);
-            }
-            else
-            {
-                ItemPosCountVec dest;
-                uint32 itemId = 23614;
-                InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemId, 1);
-                if (msg == EQUIP_ERR_OK)
-                {
-                    if (Item* item = player->StoreNewItem(dest, itemId, true))
-                        player->SendNewItem(item, 1, false, true);
-                }
-                else
-                    player->SendEquipError(msg, NULL, NULL, itemId);
-            }
-        }
-        return false;
     }
 };
 
@@ -261,28 +221,28 @@ public:
 
     bool OnUse(Player* player, Item* /*pItem*/, SpellCastTargets const & /*targets*/)
     {
-        GameObject* pGo = NULL;
+        GameObject* go = NULL;
         for (uint8 i = 0; i < CaribouTrapsNum; ++i)
         {
-            pGo = player->FindNearestGameObject(CaribouTraps[i], 5.0f);
-            if (pGo)
+            go = player->FindNearestGameObject(CaribouTraps[i], 5.0f);
+            if (go)
                 break;
         }
 
-        if (!pGo)
+        if (!go)
             return false;
 
-        if (pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || pGo->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || pGo->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
+        if (go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, true) || go->FindNearestCreature(NPC_NESINGWARY_TRAPPER, 10.0f, false) || go->FindNearestGameObject(GO_HIGH_QUALITY_FUR, 2.0f))
             return true;
 
         float x, y, z;
-        pGo->GetClosePoint(x, y, z, pGo->GetObjectSize() / 3, 7.0f);
-        pGo->SummonGameObject(GO_HIGH_QUALITY_FUR, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
-        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, pGo->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
+        go->GetClosePoint(x, y, z, go->GetObjectSize() / 3, 7.0f);
+        go->SummonGameObject(GO_HIGH_QUALITY_FUR, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ(), 0, 0, 0, 0, 0, 1000);
+        if (TempSummon* summon = player->SummonCreature(NPC_NESINGWARY_TRAPPER, x, y, z, go->GetOrientation(), TEMPSUMMON_DEAD_DESPAWN, 1000))
         {
             summon->SetVisible(false);
             summon->SetReactState(REACT_PASSIVE);
-            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
         return false;
     }
@@ -313,7 +273,7 @@ public:
         {
             player->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
 
-            if (const SpellEntry* pSpellInfo = GetSpellStore()->LookupEntry(SPELL_PETROV_BOMB))
+            if (const SpellInfo* pSpellInfo = sSpellMgr->GetSpellInfo(SPELL_PETROV_BOMB))
                 Spell::SendCastResult(player, pSpellInfo, 1, SPELL_FAILED_NOT_HERE);
 
             return true;
@@ -418,7 +378,7 @@ public:
             } else
                 player->SendEquipError(EQUIP_ERR_OUT_OF_RANGE, pItem, NULL);
         } else
-            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW , pItem, NULL);
+            player->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW, pItem, NULL);
         return true;
     }
 };
@@ -452,7 +412,6 @@ public:
 void AddSC_item_scripts()
 {
     new item_only_for_flight();
-    new item_draenei_fishing_net();
     new item_nether_wraith_beacon();
     new item_gor_dreks_ointment();
     new item_incendiary_explosives();

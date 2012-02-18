@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,7 +38,7 @@ class Bag : public Item
         bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
 
         void Clear();
-        void StoreItem(uint8 slot, Item *pItem, bool update);
+        void StoreItem(uint8 slot, Item* pItem, bool update);
         void RemoveItem(uint8 slot, bool update);
 
         Item* GetItemByPos(uint8 slot) const;
@@ -58,7 +58,7 @@ class Bag : public Item
         // overwrite virtual Item::DeleteFromDB
         void DeleteFromDB(SQLTransaction& trans);
 
-        void BuildCreateUpdateBlockForPlayer(UpdateData *data, Player *target) const;
+        void BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) const;
 
     protected:
 

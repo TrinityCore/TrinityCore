@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +32,12 @@ Script Data End */
 enum Spells
 {
     SPELL_TRESPASSER_A = 54028,
-    SPELL_TRESPASSER_H = 54029
+    SPELL_TRESPASSER_H = 54029,
+
+    SPELL_SUNREAVER_DISGUISE_FEMALE        = 70973,
+    SPELL_SUNREAVER_DISGUISE_MALE          = 70974,
+    SPELL_SILVER_COVENANT_DISGUISE_FEMALE  = 70971,
+    SPELL_SILVER_COVENANT_DISGUISE_MALE    = 70972,
 };
 
 enum NPCs // All outdoor guards are within 35.0f of these NPCs
@@ -70,8 +75,11 @@ public:
                 return;
 
             Player* player = who->GetCharmerOrOwnerPlayerOrPlayerItself();
-
-            if (!player || player->isGameMaster() || player->IsBeingTeleported())
+            
+            if (!player || player->isGameMaster() || player->IsBeingTeleported() ||
+                // If player has Disguise aura for quest A Meeting With The Magister or An Audience With The Arcanist, do not teleport it away but let it pass
+                player->HasAura(SPELL_SUNREAVER_DISGUISE_FEMALE) || player->HasAura(SPELL_SUNREAVER_DISGUISE_MALE) ||
+                player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE))
                 return;
 
             switch (me->GetEntry())
@@ -108,7 +116,7 @@ public:
         void UpdateAI(const uint32 /*diff*/){}
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_mageguard_dalaranAI(creature);
     }

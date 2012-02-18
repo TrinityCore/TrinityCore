@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,12 +18,11 @@
 
 #include "AuthCrypt.h"
 #include "Cryptography/HMACSHA1.h"
-#include "Logging/Log.h"
 #include "Cryptography/BigNumber.h"
 
 AuthCrypt::AuthCrypt() : _clientDecrypt(SHA_DIGEST_LENGTH), _serverEncrypt(SHA_DIGEST_LENGTH)
+    , _initialized(false)
 {
-    _initialized = false;
 }
 
 AuthCrypt::~AuthCrypt()
@@ -31,7 +30,7 @@ AuthCrypt::~AuthCrypt()
 
 }
 
-void AuthCrypt::Init(BigNumber *K)
+void AuthCrypt::Init(BigNumber* K)
 {
     uint8 ServerEncryptionKey[SEED_KEY_SIZE] = { 0xCC, 0x98, 0xAE, 0x04, 0xE8, 0x97, 0xEA, 0xCA, 0x12, 0xDD, 0xC0, 0x93, 0x42, 0x91, 0x53, 0x57 };
     HmacHash serverEncryptHmac(SEED_KEY_SIZE, (uint8*)ServerEncryptionKey);

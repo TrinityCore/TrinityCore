@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -158,6 +158,10 @@ enum WorldBoolConfigs
     CONFIG_ALLOW_TICKETS,
     CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES,
     CONFIG_PRESERVE_CUSTOM_CHANNELS,
+    CONFIG_PDUMP_NO_PATHS,
+    CONFIG_PDUMP_NO_OVERWRITE,
+    CONFIG_QUEST_IGNORE_AUTO_ACCEPT,
+    CONFIG_QUEST_IGNORE_AUTO_COMPLETE,
     CONFIG_WINTERGRASP_ENABLE,
     BOOL_CONFIG_VALUE_COUNT
 };
@@ -518,6 +522,14 @@ struct CliCommandHolder
 
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
 
+struct CharacterNameData
+{
+    std::string m_name;
+    uint8 m_class;
+    uint8 m_race;
+    uint8 m_gender;
+};
+
 /// The World
 class World
 {
@@ -528,7 +540,7 @@ class World
         ~World();
 
         WorldSession* FindSession(uint32 id) const;
-        void AddSession(WorldSession *s);
+        void AddSession(WorldSession* s);
         void SendAutoBroadcast();
         bool RemoveSession(uint32 id);
         /// Get the number of current active sessions
@@ -631,7 +643,8 @@ class World
         void SendServerMessage(ServerMessageType type, const char *text = "", Player* player = NULL);
 
         /// Are we in the middle of a shutdown?
-        bool IsShutdowning() const { return m_ShutdownTimer > 0; }
+        bool IsShuttingDown() const { return m_ShutdownTimer > 0; }
+        uint32 GetShutDownTimeLeft() const { return m_ShutdownTimer; }
         void ShutdownServ(uint32 time, uint32 options, uint8 exitcode);
         void ShutdownCancel();
         void ShutdownMsg(bool show = false, Player* player = NULL);
@@ -719,10 +732,9 @@ class World
 
         LocaleConstant GetAvailableDbcLocale(LocaleConstant locale) const { if (m_availableDbcLocaleMask & (1 << locale)) return locale; else return m_defaultDbcLocale; }
 
-        //used World DB version
+        // used World DB version
         void LoadDBVersion();
         char const* GetDBVersion() const { return m_DBVersion.c_str(); }
-        char const* GetCreatureEventAIVersion() const { return m_CreatureEventAIVersion.c_str(); }
 
         void RecordTimeDiff(const char * text, ...);
 
@@ -736,8 +748,14 @@ class World
 
         bool isEventKillStart;
 
+        CharacterNameData const* GetCharacterNameData(uint32 guid) const;
+        void AddCharacterNameData(uint32 guid, std::string const& name, uint8 gender, uint8 race, uint8 playerClass);
+        void UpdateCharacterNameData(uint32 guid, std::string const& name, uint8 gender = GENDER_NONE, uint8 race = RACE_NONE);
+        void DeleteCharaceterNameData(uint32 guid) { _characterNameDataMap.erase(guid); }
+
         uint32 GetCleaningFlags() const { return m_CleaningFlags; }
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
+        void   ResetEventSeasonalQuests(uint16 event_id);
     protected:
         void _UpdateGameTime();
         // callback for UpdateRealmCharacters
@@ -813,17 +831,18 @@ class World
         //Player Queue
         Queue m_QueuedPlayer;
 
-        //sessions that are added async
+        // sessions that are added async
         void AddSession_(WorldSession* s);
         ACE_Based::LockedQueue<WorldSession*, ACE_Thread_Mutex> addSessQueue;
 
-        //used versions
+        // used versions
         std::string m_DBVersion;
-        std::string m_CreatureEventAIVersion;
 
         std::list<std::string> m_Autobroadcasts;
 
-    private:
+        std::map<uint32, CharacterNameData> _characterNameDataMap;
+        void LoadCharacterNameData();
+
         void ProcessQueryCallbacks();
         ACE_Future_Set<PreparedQueryResult> m_realmCharCallbacks;
 };

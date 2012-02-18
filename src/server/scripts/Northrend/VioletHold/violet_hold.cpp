@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -256,13 +256,13 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
                 CAST_AI(npc_sinclari_vh::npc_sinclariAI, (creature->AI()))->uiPhase = 1;
-                if (InstanceScript *pInstance = creature->GetInstanceScript())
-                    pInstance->SetData(DATA_MAIN_EVENT_PHASE, SPECIAL);
+                if (InstanceScript* instance = creature->GetInstanceScript())
+                    instance->SetData(DATA_MAIN_EVENT_PHASE, SPECIAL);
                 break;
             case GOSSIP_ACTION_INFO_DEF+2:
                 player->SEND_GOSSIP_MENU(13854, creature->GetGUID());
@@ -277,9 +277,9 @@ public:
 
     bool OnGossipHello(Player* player, Creature* creature)
     {
-        if (InstanceScript* pInstance = creature->GetInstanceScript())
+        if (InstanceScript* instance = creature->GetInstanceScript())
         {
-            switch (pInstance->GetData(DATA_MAIN_EVENT_PHASE))
+            switch (instance->GetData(DATA_MAIN_EVENT_PHASE))
             {
                 case NOT_STARTED:
                 case FAIL: // Allow to start event if not started or wiped
@@ -307,10 +307,10 @@ public:
     {
         npc_sinclariAI(Creature* creature) : ScriptedAI(creature)
         {
-           pInstance = creature->GetInstanceScript();
+           instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint8  uiPhase;
         uint32 uiTimer;
@@ -347,7 +347,7 @@ public:
             {
                 if (uiTimer <= uiDiff)
                 {
-                    switch(uiPhase)
+                    switch (uiPhase)
                     {
                         case 1:
                             DoScriptText(SAY_SINCLARI_1, me);
@@ -394,8 +394,8 @@ public:
                             uiPhase = 5;
                             break;
                         case 5:
-                            if (pInstance)
-                                pInstance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
+                            if (instance)
+                                instance->SetData(DATA_MAIN_EVENT_PHASE, IN_PROGRESS);
                             me->SetReactState(REACT_PASSIVE);
                             uiTimer = 0;
                             uiPhase = 0;
@@ -428,51 +428,51 @@ public:
     {
         mob_azure_saboteurAI(Creature* c):npc_escortAI(c)
         {
-            pInstance           = c->GetInstanceScript();
+            instance           = c->GetInstanceScript();
             bHasGotMovingPoints = false;
             uiBoss = 0;
             Reset();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool bHasGotMovingPoints;
         uint32 uiBoss;
 
         void Reset()
         {
-            if (pInstance && !uiBoss)
-                uiBoss = pInstance->GetData(DATA_WAVE_COUNT) == 6 ? pInstance->GetData(DATA_FIRST_BOSS) : pInstance->GetData(DATA_SECOND_BOSS);
+            if (instance && !uiBoss)
+                uiBoss = instance->GetData(DATA_WAVE_COUNT) == 6 ? instance->GetData(DATA_FIRST_BOSS) : instance->GetData(DATA_SECOND_BOSS);
             me->SetReactState(REACT_PASSIVE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE|UNIT_FLAG_NON_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_NON_ATTACKABLE);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
 
         void WaypointReached(uint32 uiWPointId)
         {
-            switch(uiBoss)
+            switch (uiBoss)
             {
                 case 1:
-                    if(uiWPointId == 2)
+                    if (uiWPointId == 2)
                         FinishPointReached();
                     break;
                 case 2:
-                    if(uiWPointId == 2)
+                    if (uiWPointId == 2)
                         FinishPointReached();
                     break;
                 case 3:
-                    if(uiWPointId == 1)
+                    if (uiWPointId == 1)
                         FinishPointReached();
                     break;
                 case 4:
-                    if(uiWPointId == 0)
+                    if (uiWPointId == 0)
                         FinishPointReached();
                     break;
                 case 5:
-                    if(uiWPointId == 0)
+                    if (uiWPointId == 0)
                         FinishPointReached();
                     break;
                 case 6:
-                    if(uiWPointId == 4)
+                    if (uiWPointId == 4)
                         FinishPointReached();
                     break;
             }
@@ -480,28 +480,28 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
+            if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
                 me->CastStop();
 
             npc_escortAI::UpdateAI(diff);
 
-            if(!bHasGotMovingPoints)
+            if (!bHasGotMovingPoints)
             {
                 bHasGotMovingPoints = true;
-                switch(uiBoss)
+                switch (uiBoss)
                 {
                     case 1:
-                        for(int i=0;i<3;i++)
+                        for (int i=0;i<3;i++)
                             AddWaypoint(i, SaboteurFinalPos1[i][0], SaboteurFinalPos1[i][1], SaboteurFinalPos1[i][2], 0);
                         me->SetHomePosition(SaboteurFinalPos1[2][0], SaboteurFinalPos1[2][1], SaboteurFinalPos1[2][2], 4.762346f);
                         break;
                     case 2:
-                        for(int i=0;i<3;i++)
+                        for (int i=0;i<3;i++)
                             AddWaypoint(i, SaboteurFinalPos2[i][0], SaboteurFinalPos2[i][1], SaboteurFinalPos2[i][2], 0);
                         me->SetHomePosition(SaboteurFinalPos2[2][0], SaboteurFinalPos2[2][1], SaboteurFinalPos2[2][2], 1.862674f);
                         break;
                     case 3:
-                        for(int i=0;i<2;i++)
+                        for (int i=0;i<2;i++)
                             AddWaypoint(i, SaboteurFinalPos3[i][0], SaboteurFinalPos3[i][1], SaboteurFinalPos3[i][2], 0);
                         me->SetHomePosition(SaboteurFinalPos3[1][0], SaboteurFinalPos3[1][1], SaboteurFinalPos3[1][2], 5.500638f);
                         break;
@@ -514,7 +514,7 @@ public:
                         me->SetHomePosition(SaboteurFinalPos5[0], SaboteurFinalPos5[1], SaboteurFinalPos5[2], 1.100841f);
                         break;
                     case 6:
-                        for(int i=0;i<5;i++)
+                        for (int i=0;i<5;i++)
                             AddWaypoint(i, SaboteurFinalPos6[i][0], SaboteurFinalPos6[i][1], SaboteurFinalPos6[i][2], 0);
                         me->SetHomePosition(SaboteurFinalPos6[4][0], SaboteurFinalPos6[4][1], SaboteurFinalPos6[4][2], 0.983031f);
                         break;
@@ -529,10 +529,10 @@ public:
         {
             me->CastSpell(me, SABOTEUR_SHIELD_DISRUPTION, false);
             me->DisappearAndDie();
-            Creature* pSaboPort = Unit::GetCreature((*me), pInstance->GetData64(DATA_SABOTEUR_PORTAL));
+            Creature* pSaboPort = Unit::GetCreature((*me), instance->GetData64(DATA_SABOTEUR_PORTAL));
             if (pSaboPort)
                 pSaboPort->DisappearAndDie();
-            pInstance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
+            instance->SetData(DATA_START_BOSS_ENCOUNTER, 1);
         }
     };
 
@@ -552,7 +552,7 @@ public:
     {
         npc_teleportation_portalAI(Creature* c) : ScriptedAI(c), listOfMobs(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             uiTypeOfMobsPortal = urand(0, 1);    // 0 - elite mobs   1 - portal guardian or portal keeper with regular mobs
             bPortalGuardianOrKeeperOrEliteSpawn = false;
         }
@@ -563,7 +563,7 @@ public:
 
         SummonList listOfMobs;
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -577,20 +577,20 @@ public:
 
         void UpdateAI(const uint32 diff)
         {
-            if (!pInstance) //Massive usage of pInstance, global check
+            if (!instance) //Massive usage of instance, global check
                 return;
 
-            if (pInstance->GetData(DATA_REMOVE_NPC) == 1)
+            if (instance->GetData(DATA_REMOVE_NPC) == 1)
             {
                 me->DespawnOrUnsummon();
-                pInstance->SetData(DATA_REMOVE_NPC, 0);
+                instance->SetData(DATA_REMOVE_NPC, 0);
             }
 
-            uint8 uiWaveCount = pInstance->GetData(DATA_WAVE_COUNT);
+            uint8 uiWaveCount = instance->GetData(DATA_WAVE_COUNT);
             if ((uiWaveCount == 6) || (uiWaveCount == 12)) //Don't spawn mobs on boss encounters
                 return;
 
-            switch(uiTypeOfMobsPortal)
+            switch (uiTypeOfMobsPortal)
             {
                 // spawn elite mobs and then set portals visibility to make it look like it dissapeard
                 case 0:
@@ -624,7 +624,7 @@ public:
                     {
                         if (bPortalGuardianOrKeeperOrEliteSpawn)
                         {
-                            uint8 k = pInstance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
+                            uint8 k = instance->GetData(DATA_WAVE_COUNT) < 12 ? 3 : 4;
                             for (uint8 i = 0; i < k; ++i)
                             {
                                 uint32 entry = RAND(CREATURE_AZURE_INVADER_1, CREATURE_AZURE_INVADER_2, CREATURE_AZURE_SPELLBREAKER_1, CREATURE_AZURE_SPELLBREAKER_2, CREATURE_AZURE_MAGE_SLAYER_1, CREATURE_AZURE_MAGE_SLAYER_2, CREATURE_AZURE_BINDER_1, CREATURE_AZURE_BINDER_2);
@@ -652,22 +652,22 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_WAVE_COUNT, pInstance->GetData(DATA_WAVE_COUNT)+1);
+            if (instance)
+                instance->SetData(DATA_WAVE_COUNT, instance->GetData(DATA_WAVE_COUNT)+1);
         }
 
         void JustSummoned(Creature* summoned)
         {
             listOfMobs.Summon(summoned);
             if (summoned)
-                pInstance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
+                instance->SetData64(DATA_ADD_TRASH_MOB, summoned->GetGUID());
         }
 
         void SummonedMobDied(Creature* summoned)
         {
             listOfMobs.Despawn(summoned);
             if (summoned)
-                pInstance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
+                instance->SetData64(DATA_DEL_TRASH_MOB, summoned->GetGUID());
         }
     };
 
@@ -677,22 +677,22 @@ struct violet_hold_trashAI : public npc_escortAI
 {
     violet_hold_trashAI(Creature* c):npc_escortAI(c)
     {
-        pInstance = c->GetInstanceScript();
+        instance = c->GetInstanceScript();
         bHasGotMovingPoints = false;
-        if (pInstance)
-            portalLocationID = pInstance->GetData(DATA_PORTAL_LOCATION);
+        if (instance)
+            portalLocationID = instance->GetData(DATA_PORTAL_LOCATION);
         Reset();
     }
 
     public:
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         bool bHasGotMovingPoints;
         uint32 portalLocationID;
         uint32 secondPortalRouteID;
 
     void WaypointReached(uint32 uiPointId)
     {
-        switch(portalLocationID)
+        switch (portalLocationID)
         {
             case 0:
                 if (uiPointId == 5)
@@ -723,52 +723,52 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void UpdateAI(const uint32)
     {
-        if (pInstance && pInstance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
+        if (instance && instance->GetData(DATA_MAIN_EVENT_PHASE) != IN_PROGRESS)
             me->CastStop();
 
         if (!bHasGotMovingPoints)
         {
             bHasGotMovingPoints = true;
-                switch(portalLocationID)
+                switch (portalLocationID)
             {
                 case 0:
-                    for(int i=0;i<6;i++)
+                    for (int i=0;i<6;i++)
                         AddWaypoint(i, FirstPortalWPs[i][0]+irand(-1, 1), FirstPortalWPs[i][1]+irand(-1, 1), FirstPortalWPs[i][2]+irand(-1, 1), 0);
                     me->SetHomePosition(FirstPortalWPs[5][0], FirstPortalWPs[5][1], FirstPortalWPs[5][2], 3.149439f);
                     break;
                 case 1:
                     secondPortalRouteID = urand(0, 1);
-                    switch(secondPortalRouteID)
+                    switch (secondPortalRouteID)
                     {
                         case 0:
-                            for(int i=0;i<9;i++)
+                            for (int i=0;i<9;i++)
                                 AddWaypoint(i, SecondPortalFirstWPs[i][0]+irand(-1, 1), SecondPortalFirstWPs[i][1]+irand(-1, 1), SecondPortalFirstWPs[i][2], 0);
                             me->SetHomePosition(SecondPortalFirstWPs[8][0]+irand(-1, 1), SecondPortalFirstWPs[8][1]+irand(-1, 1), SecondPortalFirstWPs[8][2]+irand(-1, 1), 3.149439f);
                             break;
                         case 1:
-                            for(int i=0;i<8;i++)
+                            for (int i=0;i<8;i++)
                                 AddWaypoint(i, SecondPortalSecondWPs[i][0]+irand(-1, 1), SecondPortalSecondWPs[i][1]+irand(-1, 1), SecondPortalSecondWPs[i][2], 0);
                             me->SetHomePosition(SecondPortalSecondWPs[7][0], SecondPortalSecondWPs[7][1], SecondPortalSecondWPs[7][2], 3.149439f);
                             break;
                     }
                     break;
                 case 2:
-                    for(int i=0;i<8;i++)
+                    for (int i=0;i<8;i++)
                         AddWaypoint(i, ThirdPortalWPs[i][0]+irand(-1, 1), ThirdPortalWPs[i][1]+irand(-1, 1), ThirdPortalWPs[i][2], 0);
                         me->SetHomePosition(ThirdPortalWPs[7][0], ThirdPortalWPs[7][1], ThirdPortalWPs[7][2], 3.149439f);
                     break;
                 case 3:
-                    for(int i=0;i<9;i++)
+                    for (int i=0;i<9;i++)
                         AddWaypoint(i, FourthPortalWPs[i][0]+irand(-1, 1), FourthPortalWPs[i][1]+irand(-1, 1), FourthPortalWPs[i][2], 0);
                     me->SetHomePosition(FourthPortalWPs[8][0], FourthPortalWPs[8][1], FourthPortalWPs[8][2], 3.149439f);
                     break;
                 case 4:
-                    for(int i=0;i<6;i++)
+                    for (int i=0;i<6;i++)
                         AddWaypoint(i, FifthPortalWPs[i][0]+irand(-1, 1), FifthPortalWPs[i][1]+irand(-1, 1), FifthPortalWPs[i][2], 0);
                     me->SetHomePosition(FifthPortalWPs[5][0], FifthPortalWPs[5][1], FifthPortalWPs[5][2], 3.149439f);
                     break;
                 case 5:
-                    for(int i=0;i<4;i++)
+                    for (int i=0;i<4;i++)
                         AddWaypoint(i, SixthPoralWPs[i][0]+irand(-1, 1), SixthPoralWPs[i][1]+irand(-1, 1), SixthPoralWPs[i][2], 0);
                     me->SetHomePosition(SixthPoralWPs[3][0], SixthPoralWPs[3][1], SixthPoralWPs[3][2], 3.149439f);
                     break;
@@ -780,18 +780,18 @@ struct violet_hold_trashAI : public npc_escortAI
 
     void JustDied(Unit* /*unit*/)
     {
-        if (Creature* portal = Unit::GetCreature((*me), pInstance->GetData64(DATA_TELEPORTATION_PORTAL)))
+        if (Creature* portal = Unit::GetCreature((*me), instance->GetData64(DATA_TELEPORTATION_PORTAL)))
             CAST_AI(npc_teleportation_portal_vh::npc_teleportation_portalAI, portal->AI())->SummonedMobDied(me);
-        if (pInstance)
-            pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
+        if (instance)
+            instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_REMOVE, 1);
     }
 
     void CreatureStartAttackDoor()
     {
         me->SetReactState(REACT_PASSIVE);
         DoCast(SPELL_DESTROY_DOOR_SEAL);
-        if (pInstance)
-            pInstance->SetData(DATA_NPC_PRESENCE_AT_DOOR_ADD, 1);
+        if (instance)
+            instance->SetData(DATA_NPC_PRESENCE_AT_DOOR_ADD, 1);
     }
 
 };
@@ -810,7 +810,7 @@ public:
     {
         mob_azure_invaderAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiCleaveTimer;
@@ -888,7 +888,7 @@ public:
     {
         mob_azure_binderAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneExplosionTimer;
@@ -966,7 +966,7 @@ public:
     {
         mob_azure_mage_slayerAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneEmpowermentTimer;
@@ -1026,7 +1026,7 @@ public:
     {
         mob_azure_raiderAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiConcussionBlowTimer;
@@ -1078,7 +1078,7 @@ public:
     {
         mob_azure_stalkerAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
         uint32 uiBackstabTimer;
         uint32 uiTacticalBlinkTimer;
@@ -1137,7 +1137,7 @@ public:
     {
         mob_azure_spellbreakerAI(Creature* c) : violet_hold_trashAI(c)
         {
-             pInstance = c->GetInstanceScript();
+             instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneBlastTimer;
@@ -1221,7 +1221,7 @@ public:
     {
         mob_azure_captainAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiMortalStrikeTimer;
@@ -1273,7 +1273,7 @@ public:
     {
         mob_azure_sorcerorAI(Creature* c) : violet_hold_trashAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiArcaneStreamTimer;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -49,18 +49,18 @@ enum SelectAggroTarget
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
+struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
 {
     const Unit* me;
     float m_dist;
     bool m_playerOnly;
     int32 m_aura;
 
-    // pUnit: the reference unit
+    // unit: the reference unit
     // dist: if 0: ignored, if > 0: maximum distance to the reference unit, if < 0: minimum distance to the reference unit
     // playerOnly: self explaining
     // aura: if 0: ignored, if > 0: the target shall have the aura, if < 0, the target shall NOT have the aura
-    DefaultTargetSelector(Unit const* pUnit, float dist, bool playerOnly, int32 aura) : me(pUnit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
+    DefaultTargetSelector(Unit const* unit, float dist, bool playerOnly, int32 aura) : me(unit), m_dist(dist), m_playerOnly(playerOnly), m_aura(aura) {}
 
     bool operator()(Unit const* target) const
     {
@@ -97,6 +97,33 @@ struct DefaultTargetSelector : public std::unary_function<Unit* , bool>
     }
 };
 
+// Target selector for spell casts checking range, auras and attributes
+// TODO: Add more checks from Spell::CheckCast
+struct SpellTargetSelector : public std::unary_function<Unit*, bool>
+{
+    public:
+        SpellTargetSelector(Unit* caster, uint32 spellId);
+        bool operator()(Unit const* target) const;
+
+    private:
+        Unit const* _caster;
+        SpellInfo const* _spellInfo;
+};
+
+// Very simple target selector, will just skip main target
+// NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
+//       because tank will not be in the temporary list
+struct NonTankTargetSelector : public std::unary_function<Unit*, bool>
+{
+    public:
+        NonTankTargetSelector(Creature* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
+        bool operator()(Unit const* target) const;
+
+    private:
+        Creature const* _source;
+        bool _playerOnly;
+};
+
 class UnitAI
 {
     protected:
@@ -120,15 +147,15 @@ class UnitAI
         virtual void DoAction(int32 const /*param*/) {}
         virtual uint32 GetData(uint32 /*id = 0*/) { return 0; }
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
-        virtual void SetGUID(uint64 const&/*guid*/, int32 /*id*/ = 0) {}
+        virtual void SetGUID(uint64 /*guid*/, int32 /*id*/ = 0) {}
         virtual uint64 GetGUID(int32 /*id*/ = 0) { return 0; }
 
         Unit* SelectTarget(SelectAggroTarget targetType, uint32 position = 0, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
         // Select the targets satifying the predicate.
-        // predicate shall extend std::unary_function<Unit* , bool>
+        // predicate shall extend std::unary_function<Unit*, bool>
         template <class PREDICATE> Unit* SelectTarget(SelectAggroTarget targetType, uint32 position, PREDICATE const& predicate)
         {
-            const std::list<HostileReference* > &threatlist = me->getThreatManager().getThreatList();
+            const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
             if (position >= threatlist.size())
                 return NULL;
 
@@ -162,7 +189,7 @@ class UnitAI
                 case SELECT_TARGET_RANDOM:
                 {
                     std::list<Unit*>::iterator itr = targetList.begin();
-                    std::advance(itr, urand(position, targetList.size()-1));
+                    std::advance(itr, urand(position, targetList.size() - 1));
                     return *itr;
                 }
                 default:
@@ -172,11 +199,11 @@ class UnitAI
             return NULL;
         }
 
-        void SelectTargetList(std::list<Unit*> &targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
+        void SelectTargetList(std::list<Unit*>& targetList, uint32 num, SelectAggroTarget targetType, float dist = 0.0f, bool playerOnly = false, int32 aura = 0);
 
         // Select the targets satifying the predicate.
-        // predicate shall extend std::unary_function<Unit* , bool>
-        template <class PREDICATE> void SelectTargetList(std::list<Unit*> &targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
+        // predicate shall extend std::unary_function<Unit*, bool>
+        template <class PREDICATE> void SelectTargetList(std::list<Unit*>& targetList, PREDICATE const& predicate, uint32 maxTargets, SelectAggroTarget targetType)
         {
             std::list<HostileReference*> const& threatlist = me->getThreatManager().getThreatList();
             if (threatlist.empty())
@@ -240,6 +267,7 @@ class UnitAI
         virtual void sQuestComplete(Player* /*player*/, Quest const* /*quest*/) {}
         virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) {}
         virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
+        virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
 };
 
 class PlayerAI : public UnitAI
@@ -247,7 +275,7 @@ class PlayerAI : public UnitAI
     protected:
         Player* const me;
     public:
-        explicit PlayerAI(Player* p) : UnitAI((Unit*)p), me(p) {}
+        explicit PlayerAI(Player* player) : UnitAI((Unit*)player), me(player) {}
 
         void OnCharmed(bool apply);
 };

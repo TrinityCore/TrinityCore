@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,9 +54,9 @@ class npc_daphne_stilwell : public CreatureScript
 public:
     npc_daphne_stilwell() : CreatureScript("npc_daphne_stilwell") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_TOME_VALOR)
+        if (quest->GetQuestId() == QUEST_TOME_VALOR)
         {
             DoScriptText(SAY_DS_START, creature);
 
@@ -83,7 +83,7 @@ public:
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING))
             {
-                switch(uiWPHolder)
+                switch (uiWPHolder)
                 {
                     case 7: DoScriptText(SAY_DS_DOWN_1, me); break;
                     case 8: DoScriptText(SAY_DS_DOWN_2, me); break;
@@ -105,12 +105,12 @@ public:
 
             uiWPHolder = uiPoint;
 
-            switch(uiPoint)
+            switch (uiPoint)
             {
                 case 4:
                     SetEquipmentSlots(false, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE, EQUIP_ID_RIFLE);
                     me->SetSheath(SHEATH_STATE_RANGED);
-                    me->HandleEmoteCommand(EMOTE_STATE_USESTANDING_NOSHEATHE);
+                    me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
                     break;
                 case 7:
                     me->SummonCreature(NPC_DEFIAS_RAIDER, -11450.836f, 1569.755f, 54.267f, 4.230f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
@@ -141,7 +141,7 @@ public:
                 case 13:
                     SetEquipmentSlots(true);
                     me->SetSheath(SHEATH_STATE_UNARMED);
-                    me->HandleEmoteCommand(EMOTE_STATE_USESTANDING_NOSHEATHE);
+                    me->HandleEmoteCommand(EMOTE_STATE_USE_STANDING_NO_SHEATHE);
                     break;
                 case 17:
                     player->GroupEventHappens(QUEST_TOME_VALOR, me);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -98,7 +98,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_WRAP:
                         // TODO : Add missing text
@@ -163,7 +163,7 @@ public:
 
         uint64 victimGUID;
 
-        void SetGUID(const uint64 &guid, int32 /*param*/)
+        void SetGUID(uint64 guid, int32 /*param*/)
         {
             victimGUID = guid;
             if (me->m_spells[0] && victimGUID)

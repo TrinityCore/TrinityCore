@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,9 +46,9 @@ class spell_mage_blast_wave : public SpellScriptLoader
         class spell_mage_blast_wave_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_blast_wave_SpellScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_GLYPH_OF_BLAST_WAVE))
                     return false;
                 return true;
             }
@@ -61,11 +61,11 @@ class spell_mage_blast_wave : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_mage_blast_wave_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_blast_wave_SpellScript::HandleKnockBack, EFFECT_2, SPELL_EFFECT_KNOCK_BACK);
             }
         };
 
-        SpellScript * GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_mage_blast_wave_SpellScript();
         }
@@ -90,11 +90,11 @@ class spell_mage_cold_snap : public SpellScriptLoader
                 const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
-                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE &&
-                        (GetSpellSchoolMask(spellInfo) & SPELL_SCHOOL_MASK_FROST) &&
-                        spellInfo->Id != SPELL_MAGE_COLD_SNAP && GetSpellRecoveryTime(spellInfo) > 0)
+                        (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
+                        spellInfo->Id != SPELL_MAGE_COLD_SNAP && spellInfo->GetRecoveryTime() > 0)
                     {
                         caster->ToPlayer()->RemoveSpellCooldown((itr++)->first, true);
                     }
@@ -106,7 +106,7 @@ class spell_mage_cold_snap : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Cold Snap
-                OnEffect += SpellEffectFn(spell_mage_cold_snap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_mage_cold_snap_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -126,11 +126,11 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
             PrepareSpellScript(spell_mage_polymorph_cast_visual_SpellScript)
             static const uint32 spell_list[6];
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
                 // check if spell ids exist in dbc
                 for (int i = 0; i < 6; i++)
-                    if (!sSpellStore.LookupEntry(spell_list[i]))
+                    if (!sSpellMgr->GetSpellInfo(spell_list[i]))
                         return false;
                 return true;
             }
@@ -145,7 +145,7 @@ class spell_mage_polymorph_cast_visual : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Polymorph visual
-                OnEffect += SpellEffectFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_mage_polymorph_cast_visual_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -173,37 +173,35 @@ class spell_mage_summon_water_elemental : public SpellScriptLoader
         class spell_mage_summon_water_elemental_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_mage_summon_water_elemental_SpellScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT))
                     return false;
                 return true;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                if (Unit* unitTarget = GetHitUnit())
-                {
-                    // Glyph of Eternal Water
-                    if (unitTarget->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
-                        unitTarget->CastSpell(unitTarget, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);
-                    else
-                        unitTarget->CastSpell(unitTarget, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
-                }
+                Unit* caster = GetCaster();
+                // Glyph of Eternal Water
+                if (caster->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
+                    caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);
+                else
+                    caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
             }
 
             void Register()
             {
                 // add dummy effect spell handler to Summon Water Elemental
-                OnEffect += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_mage_summon_water_elemental_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript * GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_mage_summon_water_elemental_SpellScript();
         }
@@ -225,18 +223,18 @@ public:
             SPELL_MAGE_FROST_WARDING_R1 = 28332,
         };
 
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            return sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_TRIGGERED)
-                && sSpellStore.LookupEntry(SPELL_MAGE_FROST_WARDING_R1);
+            return sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_TRIGGERED)
+                && sSpellMgr->GetSpellInfo(SPELL_MAGE_FROST_WARDING_R1);
         }
 
-        void Absorb(AuraEffect * aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect* aurEff, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             Unit* target = GetTarget();
-            if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
+            if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_FROST_WARDING_R1, EFFECT_0))
             {
-                int32 chance = SpellMgr::CalculateSpellEffectAmount(talentAurEff->GetSpellProto(), EFFECT_1);
+                int32 chance = talentAurEff->GetSpellInfo()->Effects[EFFECT_1].CalcValue();
 
                 if (roll_chance_i(chance))
                 {
@@ -253,7 +251,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_mage_frost_warding_trigger_AuraScript();
     }
@@ -268,17 +266,17 @@ public:
         SPELL_MAGE_INCANTERS_ABSORBTION_R1 = 44394,
     };
 
-    bool Validate(SpellEntry const* /*spellEntry*/)
+    bool Validate(SpellInfo const* /*spellEntry*/)
     {
-        return sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
-            && sSpellStore.LookupEntry(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
+        return sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED)
+            && sSpellMgr->GetSpellInfo(SPELL_MAGE_INCANTERS_ABSORBTION_R1);
     }
 
-    void Trigger(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+    void Trigger(AuraEffect* aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
     {
         Unit* target = GetTarget();
 
-        if (AuraEffect * talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
+        if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_MAGE_INCANTERS_ABSORBTION_R1, EFFECT_0))
         {
             int32 bp = CalculatePctN(absorbAmount, talentAurEff->GetAmount());
             target->CastCustomSpell(target, SPELL_MAGE_INCANTERS_ABSORBTION_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
@@ -302,7 +300,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_mage_incanters_absorbtion_absorb_AuraScript();
     }
@@ -324,7 +322,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_mage_incanters_absorbtion_manashield_AuraScript();
     }

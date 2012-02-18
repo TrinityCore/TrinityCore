@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -22,6 +22,7 @@
 #include "IVMapManager.h"
 #include "Dynamic/UnorderedMap.h"
 #include "Define.h"
+#include <ace/Thread_Mutex.h>
 
 //===========================================================
 
@@ -71,6 +72,8 @@ namespace VMAP
             // Tree to check collision
             ModelFileMap iLoadedModelFiles;
             InstanceTreeMap iInstanceMapTrees;
+            // Mutex for iLoadedModelFiles
+            ACE_Thread_Mutex LoadedModelFilesLock;
 
             bool _loadMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY);
             /* void _unloadMap(uint32 pMapId, uint32 x, uint32 y); */
@@ -78,7 +81,6 @@ namespace VMAP
         public:
             // public for debug
             G3D::Vector3 convertPositionToInternalRep(float x, float y, float z) const;
-            G3D::Vector3 convertPositionToMangosRep(float x, float y, float z) const;
             static std::string getMapFileName(unsigned int mapId);
 
             VMapManager2();
@@ -101,7 +103,7 @@ namespace VMAP
             bool getAreaInfo(unsigned int pMapId, float x, float y, float& z, uint32& flags, int32& adtId, int32& rootId, int32& groupId) const;
             bool GetLiquidLevel(uint32 pMapId, float x, float y, float z, uint8 reqLiquidType, float& level, float& floor, uint32& type) const;
 
-            WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename);
+            WorldModel* acquireModelInstance(const std::string& basepath, const std::string& filename, uint32 flags = 0);
             void releaseModelInstance(const std::string& filename);
 
             // what's the use of this? o.O

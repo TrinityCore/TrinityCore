@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -101,9 +101,9 @@ class npc_gilthares : public CreatureScript
 public:
     npc_gilthares() : CreatureScript("npc_gilthares") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_FREE_FROM_HOLD)
+        if (quest->GetQuestId() == QUEST_FREE_FROM_HOLD)
         {
             creature->setFaction(FACTION_ESCORTEE);
             creature->SetStandState(UNIT_STAND_STATE_STAND);
@@ -111,7 +111,7 @@ public:
             DoScriptText(SAY_GIL_START, creature, player);
 
             if (npc_giltharesAI* pEscortAI = CAST_AI(npc_gilthares::npc_giltharesAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -134,7 +134,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 16:
                     DoScriptText(SAY_GIL_AT_LAST, me, player);
@@ -265,7 +265,7 @@ public:
             me->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_FLARE || spell->Id == SPELL_FOLLY)
             {
@@ -490,7 +490,7 @@ public:
 
                     if (Wave_Timer <= diff)
                     {
-                        if (AffrayChallenger[Wave] && Wave < 6 && !EventBigWill)
+                        if (Wave < 6 && AffrayChallenger[Wave] && !EventBigWill)
                         {
                             DoScriptText(SAY_TWIGGY_FLATHEAD_FRAY, me);
                             Creature* creature = Unit::GetCreature((*me), AffrayChallenger[Wave]);
@@ -512,7 +512,7 @@ public:
                                 //creature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32f);
                                 //creature->GetMotionMaster()->MovePoint(1, -1684, -4333, 2.78f);
                                 creature->GetMotionMaster()->MovePoint(2, -1682, -4329, 2.79f);
-                                creature->HandleEmoteCommand(EMOTE_STATE_READYUNARMED);
+                                creature->HandleEmoteCommand(EMOTE_STATE_READY_UNARMED);
                                 EventBigWill = true;
                                 Wave_Timer = 1000;
                             }
@@ -597,7 +597,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
             case 0:
                 DoScriptText(SAY_STARTUP1, me);
@@ -606,9 +606,9 @@ public:
                 SetRun(false);
                 break;
             case 17:
-                if (Creature* pTemp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+                if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
                 {
-                    DoScriptText(SAY_MERCENARY, pTemp);
+                    DoScriptText(SAY_MERCENARY, temp);
                     me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                 }
                 break;
@@ -625,7 +625,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 9:
                     DoScriptText(SAY_STARTUP2, me, player);
@@ -654,7 +654,7 @@ public:
                 {
                     if (m_uiPostEventTimer <= uiDiff)
                     {
-                        switch(m_uiPostEventCount)
+                        switch (m_uiPostEventCount)
                         {
                             case 0:
                                 DoScriptText(SAY_PROGRESS_2, me);

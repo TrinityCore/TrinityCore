@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "ChatLink.h"
 #include "SpellMgr.h"
 #include "ObjectMgr.h"
+#include "SpellInfo.h"
 
 // Supported shift-links (client generated and server side)
 // |color|Hachievement:achievement_id:player_guid:0:0:0:0:0:0:0:0|h[name]|h|r
@@ -164,7 +165,7 @@ bool ItemChatLink::Initialize(std::istringstream& iss)
     return true;
 }
 
-inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const *locale, char* const* suffixStrings) const
+inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const* locale, char* const* suffixStrings) const
 {
     std::stringstream ss;
     if (locale == NULL || index >= locale->Name.size())
@@ -172,7 +173,7 @@ inline std::string ItemChatLink::FormatName(uint8 index, ItemLocale const *local
     else
         ss << locale->Name[index];
     if (suffixStrings)
-        ss << " " << suffixStrings[index];
+        ss << ' ' << suffixStrings[index];
     return ss.str();
 }
 
@@ -185,7 +186,7 @@ bool ItemChatLink::ValidateName(char* buffer, const char* context)
     bool res = (FormatName(LOCALE_enUS, NULL, suffixStrings) == buffer);
     if (!res)
     {
-        ItemLocale const *il = sObjectMgr->GetItemLocale(_item->ItemId);
+        ItemLocale const* il = sObjectMgr->GetItemLocale(_item->ItemId);
         for (uint8 index = LOCALE_koKR; index < TOTAL_LOCALES; ++index)
         {
             if (FormatName(index, il, suffixStrings) == buffer)
@@ -242,7 +243,7 @@ bool QuestChatLink::ValidateName(char* buffer, const char* context)
 
     bool res = (_quest->GetTitle() == buffer);
     if (!res)
-        if (QuestLocale const *ql = sObjectMgr->GetQuestLocale(_quest->GetQuestId()))
+        if (QuestLocale const* ql = sObjectMgr->GetQuestLocale(_quest->GetQuestId()))
             for (uint8 i = 0; i < ql->Title.size(); i++)
                 if (ql->Title[i] == buffer)
                 {
@@ -268,7 +269,7 @@ bool SpellChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate spell
-    _spell = sSpellStore.LookupEntry(spellId);
+    _spell = sSpellMgr->GetSpellInfo(spellId);
     if (!_spell)
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |spell command", iss.str().c_str(), spellId);
@@ -290,13 +291,13 @@ bool SpellChatLink::ValidateName(char* buffer, const char* context)
             sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line not found for spell %u", context, _spell->Id);
             return false;
         }
-        SkillLineAbilityEntry const *skillInfo = bounds.first->second;
+        SkillLineAbilityEntry const* skillInfo = bounds.first->second;
         if (!skillInfo)
         {
             sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line ability not found for spell %u", context, _spell->Id);
             return false;
         }
-        SkillLineEntry const *skillLine = sSkillLineStore.LookupEntry(skillInfo->skillId);
+        SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(skillInfo->skillId);
         if (!skillLine)
         {
             sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): skill line not found for skill %u", context, skillInfo->skillId);
@@ -405,7 +406,7 @@ bool TradeChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate spell
-    _spell = sSpellStore.LookupEntry(spellId);
+    _spell = sSpellMgr->GetSpellInfo(spellId);
     if (!_spell)
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |trade command", iss.str().c_str(), spellId);
@@ -456,14 +457,14 @@ bool TalentChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate talent
-    TalentEntry const *talentInfo = sTalentStore.LookupEntry(_talentId);
+    TalentEntry const* talentInfo = sTalentStore.LookupEntry(_talentId);
     if (!talentInfo)
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid talent id %u in |talent command", iss.str().c_str(), _talentId);
         return false;
     }
     // Validate talent's spell
-    _spell = sSpellStore.LookupEntry(talentInfo->RankID[0]);
+    _spell = sSpellMgr->GetSpellInfo(talentInfo->RankID[0]);
     if (!_spell)
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |trade command", iss.str().c_str(), talentInfo->RankID[0]);
@@ -495,7 +496,7 @@ bool EnchantmentChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate spell
-    _spell = sSpellStore.LookupEntry(spellId);
+    _spell = sSpellMgr->GetSpellInfo(spellId);
     if (!_spell)
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |enchant command", iss.str().c_str(), spellId);
@@ -534,7 +535,7 @@ bool GlyphChatLink::Initialize(std::istringstream& iss)
         return false;
     }
     // Validate glyph's spell
-    _spell = sSpellStore.LookupEntry(_glyph->SpellId);
+    _spell = sSpellMgr->GetSpellInfo(_glyph->SpellId);
     if (!_spell)
     {
         sLog->outDebug(LOG_FILTER_CHATSYS, "ChatHandler::isValidChatMessage('%s'): got invalid spell id %u in |glyph command", iss.str().c_str(), _glyph->SpellId);

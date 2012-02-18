@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ template <class TO, class FROM> class RefManager : public LinkedListHead
         void clearReferences()
         {
             LinkedListElement* ref;
-            while((ref = getFirst()) != NULL)
+            while ((ref = getFirst()) != NULL)
             {
                 ((Reference<TO, FROM>*) ref)->invalidate();
                 ref->delink();                              // the delink might be already done by invalidate(), but doing it here again does not hurt and insures an empty list

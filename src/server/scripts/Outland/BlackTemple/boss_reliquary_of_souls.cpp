@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -144,11 +144,11 @@ public:
     {
         boss_reliquary_of_soulsAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             EssenceGUID = 0;
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint64 EssenceGUID;
 
@@ -161,8 +161,8 @@ public:
 
         void Reset()
         {
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, NOT_STARTED);
 
             if (EssenceGUID)
             {
@@ -184,8 +184,8 @@ public:
         {
             me->AddThreat(who, 10000.0f);
             DoZoneInCombat();
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, IN_PROGRESS);
 
             Phase = 1;
             Counter = 0;
@@ -216,20 +216,20 @@ public:
             std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                if (pUnit)
+                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                if (unit)
                 {
-                    DoModifyThreatPercent(pUnit, -100);
-                    float threat = target->getThreatManager().getThreat(pUnit);
-                    me->AddThreat(pUnit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
+                    DoModifyThreatPercent(unit, -100);
+                    float threat = target->getThreatManager().getThreat(unit);
+                    me->AddThreat(unit, threat);       // This makes it so that the unit has the same amount of threat in Reliquary's threatlist as in the target creature's (One of the Essences).
                 }
             }
         }
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_RELIQUARYOFSOULSEVENT, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -256,7 +256,7 @@ public:
 
             if (Timer <= diff)
             {
-                switch(Counter)
+                switch (Counter)
                 {
                 case 0:
                     me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_READY2H);  // I R ANNNGRRRY!
@@ -438,9 +438,9 @@ public:
             std::list<HostileReference*>::const_iterator itr = m_threatlist.begin();
             for (; itr != m_threatlist.end(); ++itr)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
-                if (pUnit && pUnit->isAlive() && (pUnit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
-                    targets.push_back(pUnit);
+                Unit* unit = Unit::GetUnit((*me), (*itr)->getUnitGuid());
+                if (unit && unit->isAlive() && (unit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
+                    targets.push_back(unit);
             }
             if (targets.empty())
                 return; // No targets added for some reason. No point continuing.
@@ -536,11 +536,11 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry *spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL))
                 for (uint8 i = 0; i < 3; ++i)
-                    if (spell->Effect[i] == SPELL_EFFECT_INTERRUPT_CAST)
+                    if (spell->Effects[i].Effect == SPELL_EFFECT_INTERRUPT_CAST)
                         if (me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_SOUL_SHOCK
                             || me->GetCurrentSpell(CURRENT_GENERIC_SPELL)->m_spellInfo->Id == SPELL_DEADEN)
                             me->InterruptSpell(CURRENT_GENERIC_SPELL, false);
@@ -582,7 +582,7 @@ public:
             {
                 me->InterruptNonMeleeSpells(false);
                 DoCast(me->getVictim(), SPELL_DEADEN);
-                DeadenTimer = 25000 + rand()%10000;
+                DeadenTimer = urand(25000, 35000);
                 if (!(rand()%2))
                 {
                     DoScriptText(DESI_SAY_SPEC, me);
@@ -676,7 +676,7 @@ public:
             if (SoulScreamTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SOUL_SCREAM);
-                SoulScreamTimer = 9000 + rand()%2000;
+                SoulScreamTimer = urand(9000, 11000);
                 if (!(rand()%3))
                 {
                     DoScriptText(ANGER_SAY_SPEC, me);

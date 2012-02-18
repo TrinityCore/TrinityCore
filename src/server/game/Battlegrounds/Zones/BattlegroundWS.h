@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -157,41 +157,38 @@ class BattlegroundWGScore : public BattlegroundScore
 
 class BattlegroundWS : public Battleground
 {
-    friend class BattlegroundMgr;
-
     public:
         /* Construction */
         BattlegroundWS();
         ~BattlegroundWS();
-        void Update(uint32 diff);
 
         /* inherited from BattlegroundClass */
-        virtual void AddPlayer(Player *plr);
+        virtual void AddPlayer(Player* player);
         virtual void StartingEventCloseDoors();
         virtual void StartingEventOpenDoors();
 
         /* BG Flags */
-        uint64 GetAllianceFlagPickerGUID() const    { return m_FlagKeepers[BG_TEAM_ALLIANCE]; }
-        uint64 GetHordeFlagPickerGUID() const       { return m_FlagKeepers[BG_TEAM_HORDE]; }
+        uint64 GetFlagPickerGUID(int32 team) const
+        {
+            if (team == BG_TEAM_ALLIANCE || team == BG_TEAM_HORDE)
+                return m_FlagKeepers[team];
+            return 0;
+        }
         void SetAllianceFlagPicker(uint64 guid)     { m_FlagKeepers[BG_TEAM_ALLIANCE] = guid; }
         void SetHordeFlagPicker(uint64 guid)        { m_FlagKeepers[BG_TEAM_HORDE] = guid; }
         bool IsAllianceFlagPickedup() const         { return m_FlagKeepers[BG_TEAM_ALLIANCE] != 0; }
         bool IsHordeFlagPickedup() const            { return m_FlagKeepers[BG_TEAM_HORDE] != 0; }
         void RespawnFlag(uint32 Team, bool captured);
         void RespawnFlagAfterDrop(uint32 Team);
-        uint8 GetFlagState(uint32 team)             { return m_FlagState[GetTeamIndexByTeamId(team)]; }
-        void AddTimedAura(uint32 aura);
-        void RemoveTimedAura(uint32 aura);
-        bool IsBrutalTimerDone;
-        bool IsForceTimerDone;
+        uint8 GetFlagState(uint32 team)             { return _flagState[GetTeamIndexByTeamId(team)]; }
 
         /* Battleground Events */
-        virtual void EventPlayerDroppedFlag(Player *Source);
-        virtual void EventPlayerClickedOnFlag(Player *Source, GameObject* target_obj);
-        virtual void EventPlayerCapturedFlag(Player *Source);
+        virtual void EventPlayerDroppedFlag(Player* Source);
+        virtual void EventPlayerClickedOnFlag(Player* Source, GameObject* target_obj);
+        virtual void EventPlayerCapturedFlag(Player* Source);
 
-        void RemovePlayer(Player *plr, uint64 guid, uint32 team);
-        void HandleAreaTrigger(Player *Source, uint32 Trigger);
+        void RemovePlayer(Player* player, uint64 guid, uint32 team);
+        void HandleAreaTrigger(Player* Source, uint32 Trigger);
         void HandleKillPlayer(Player* player, Player* killer);
         bool SetupBattleground();
         virtual void Reset();
@@ -199,9 +196,9 @@ class BattlegroundWS : public Battleground
         virtual WorldSafeLocsEntry const* GetClosestGraveYard(Player* player);
 
         void UpdateFlagState(uint32 team, uint32 value);
-        void SetLastFlagCapture(uint32 team)                { m_LastFlagCaptureTeam = team; }
+        void SetLastFlagCapture(uint32 team)                { _lastFlagCaptureTeam = team; }
         void UpdateTeamScore(uint32 team);
-        void UpdatePlayerScore(Player *Source, uint32 type, uint32 value, bool doAddHonor = true);
+        void UpdatePlayerScore(Player* Source, uint32 type, uint32 value, bool doAddHonor = true);
         void SetDroppedFlagGUID(uint64 guid, uint32 TeamID)  { m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)] = guid;}
         uint64 GetDroppedFlagGUID(uint32 TeamID)             { return m_DroppedFlagGUID[GetTeamIndexByTeamId(TeamID)];}
         virtual void FillInitialWorldStates(WorldPacket& data);
@@ -214,18 +211,20 @@ class BattlegroundWS : public Battleground
     private:
         uint64 m_FlagKeepers[2];                            // 0 - alliance, 1 - horde
         uint64 m_DroppedFlagGUID[2];
-        uint8 m_FlagState[2];                               // for checking flag state
-        int32 m_FlagsTimer[2];
-        int32 m_FlagsDropTimer[2];
-        uint32 m_LastFlagCaptureTeam;                       // Winner is based on this if score is equal
+        uint8 _flagState[2];                               // for checking flag state
+        int32 _flagsTimer[2];
+        int32 _flagsDropTimer[2];
+        uint32 _lastFlagCaptureTeam;                       // Winner is based on this if score is equal
 
         uint32 m_ReputationCapture;
         uint32 m_HonorWinKills;
         uint32 m_HonorEndKills;
-        int32 m_FlagSpellForceTimer;
-        bool m_BothFlagsKept;
-        uint8 m_FlagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
-        uint8 m_minutesElapsed;
+        int32 _flagSpellForceTimer;
+        bool _bothFlagsKept;
+        uint8 _flagDebuffState;                            // 0 - no debuffs, 1 - focused assault, 2 - brutal assault
+        uint8 _minutesElapsed;
+
+        virtual void PostUpdateImpl(uint32 diff);
 };
 #endif
 

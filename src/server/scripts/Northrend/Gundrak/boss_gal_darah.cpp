@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -77,7 +77,7 @@ public:
     {
         boss_gal_darahAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiStampedeTimer;
@@ -96,7 +96,7 @@ public:
 
         bool bStartOfTransformation;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
@@ -118,16 +118,16 @@ public:
 
             me->SetDisplayId(DISPLAY_TROLL);
 
-            if (pInstance)
-                pInstance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -148,7 +148,7 @@ public:
                             DoScriptText(SAY_TRANSFORM_1, me);
                             uiTransformationTimer = 5*IN_MILLISECONDS;
                             bStartOfTransformation = true;
-                            me->ClearUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
+                            me->ClearUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
                             me->SetReactState(REACT_AGGRESSIVE);
                         }
                         else
@@ -158,7 +158,7 @@ public:
                             if (bStartOfTransformation)
                             {
                                 bStartOfTransformation = false;
-                                me->AddUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
+                                me->AddUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
                                 me->SetReactState(REACT_PASSIVE);
                             }
                         }
@@ -191,7 +191,7 @@ public:
                             DoScriptText(SAY_TRANSFORM_2, me);
                             uiTransformationTimer = 9*IN_MILLISECONDS;
                             bStartOfTransformation = true;
-                            me->ClearUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
+                            me->ClearUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
                             me->SetReactState(REACT_AGGRESSIVE);
                         }
                         else
@@ -201,7 +201,7 @@ public:
                             if (bStartOfTransformation)
                             {
                                 bStartOfTransformation = false;
-                                me->AddUnitState(UNIT_STAT_STUNNED|UNIT_STAT_ROOT);
+                                me->AddUnitState(UNIT_STATE_STUNNED|UNIT_STATE_ROOT);
                                 me->SetReactState(REACT_PASSIVE);
                             }
                         }
@@ -269,8 +269,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_GAL_DARAH_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_GAL_DARAH_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

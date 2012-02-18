@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,7 +71,7 @@ public:
 
     struct boss_chromaggusAI : public ScriptedAI
     {
-        boss_chromaggusAI(Creature* c) : ScriptedAI(c)
+        boss_chromaggusAI(Creature* creature) : ScriptedAI(creature)
         {
             //Select the 2 breaths that we are going to use until despawned
             //5 possiblities for the first breath, 4 for the second, 20 total possiblites
@@ -197,9 +197,7 @@ public:
             Enraged = false;
         }
 
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
+        void EnterCombat(Unit* /*who*/) {}
 
         void UpdateAI(const uint32 diff)
         {
@@ -244,24 +242,24 @@ public:
                 std::list<HostileReference*> threatlist = me->getThreatManager().getThreatList();
                 for (std::list<HostileReference*>::const_iterator i = threatlist.begin(); i != threatlist.end(); ++i)
                 {
-                    Unit* pUnit;
+                    Unit* unit;
                     if ((*i) && (*i)->getSource())
                     {
-                        pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                        if (pUnit)
+                        unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                        if (unit)
                         {
                             //Cast affliction
-                            DoCast(pUnit, RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
+                            DoCast(unit, RAND(SPELL_BROODAF_BLUE, SPELL_BROODAF_BLACK,
                                                SPELL_BROODAF_RED, SPELL_BROODAF_BRONZE, SPELL_BROODAF_GREEN), true);
 
                             //Chromatic mutation if target is effected by all afflictions
-                            if (pUnit->HasAura(SPELL_BROODAF_BLUE)
-                                && pUnit->HasAura(SPELL_BROODAF_BLACK)
-                                && pUnit->HasAura(SPELL_BROODAF_RED)
-                                && pUnit->HasAura(SPELL_BROODAF_BRONZE)
-                                && pUnit->HasAura(SPELL_BROODAF_GREEN))
+                            if (unit->HasAura(SPELL_BROODAF_BLUE)
+                                && unit->HasAura(SPELL_BROODAF_BLACK)
+                                && unit->HasAura(SPELL_BROODAF_RED)
+                                && unit->HasAura(SPELL_BROODAF_BRONZE)
+                                && unit->HasAura(SPELL_BROODAF_GREEN))
                             {
-                                //pTarget->RemoveAllAuras();
+                                //target->RemoveAllAuras();
                                 //DoCast(target, SPELL_CHROMATIC_MUT_1);
 
                                 //Chromatic mutation is causing issues
@@ -269,8 +267,8 @@ public:
                                 //So instead we instant kill our target
 
                                 //WORKAROUND
-                                if (pUnit->GetTypeId() == TYPEID_PLAYER)
-                                    pUnit->CastSpell(pUnit, 5, false);
+                                if (unit->GetTypeId() == TYPEID_PLAYER)
+                                    unit->CastSpell(unit, 5, false);
                             }
                         }
                     }
@@ -297,7 +295,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_chromaggus()

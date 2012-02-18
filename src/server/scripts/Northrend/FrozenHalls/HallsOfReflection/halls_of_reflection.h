@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,10 +81,10 @@ struct boss_horAI : ScriptedAI
 {
     boss_horAI(Creature* creature) : ScriptedAI(creature), summons(creature)
     {
-        pInstance = me->GetInstanceScript();
+        instance = me->GetInstanceScript();
     }
 
-    InstanceScript* pInstance;
+    InstanceScript* instance;
     EventMap events;
     SummonList summons;
 
@@ -96,7 +96,7 @@ struct boss_horAI : ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void DamageTaken(Unit* /*pWho*/, uint32 &uiDamage)
+    void DamageTaken(Unit* /*who*/, uint32 &uiDamage)
     {
         if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
             uiDamage = 0;
@@ -104,7 +104,7 @@ struct boss_horAI : ScriptedAI
 
     void DoAction(const int32 actionID)
     {
-        switch(actionID)
+        switch (actionID)
         {
             case ACTION_ENTER_COMBAT:  // called by InstanceScript when boss shall enter in combat.
                 // Just in case. Should have been done by InstanceScript
@@ -114,8 +114,8 @@ struct boss_horAI : ScriptedAI
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
 
-                if (Unit* pUnit = me->SelectNearestTarget())
-                    AttackStart(pUnit);
+                if (Unit* unit = me->SelectNearestTarget())
+                    AttackStart(unit);
 
                 DoZoneInCombat();
                 break;
@@ -147,9 +147,9 @@ struct boss_horAI : ScriptedAI
         if (summons.empty())
         {
             if (summoned->isAlive())
-                pInstance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
+                instance->SetData(DATA_WAVE_COUNT, NOT_STARTED);
             else
-                pInstance->SetData(DATA_WAVE_COUNT, SPECIAL);
+                instance->SetData(DATA_WAVE_COUNT, SPECIAL);
         }
     }
 };

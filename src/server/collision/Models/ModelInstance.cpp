@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,7 +26,7 @@ using G3D::Ray;
 
 namespace VMAP
 {
-    ModelInstance::ModelInstance(const ModelSpawn &spawn, WorldModel *model): ModelSpawn(spawn), iModel(model)
+    ModelInstance::ModelInstance(const ModelSpawn &spawn, WorldModel* model): ModelSpawn(spawn), iModel(model)
     {
         iInvRot = G3D::Matrix3::fromEulerAnglesZYX(G3D::pi()*iRot.y/180.f, G3D::pi()*iRot.x/180.f, G3D::pi()*iRot.z/180.f).inverse();
         iInvScale = 1.f/iScale;
@@ -49,7 +49,7 @@ namespace VMAP
 //        std::cout << "Ray crosses bound of '" << name << "'\n";
 /*        std::cout << "ray from:" << pRay.origin().x << ", " << pRay.origin().y << ", " << pRay.origin().z
                   << " dir:" << pRay.direction().x << ", " << pRay.direction().y << ", " << pRay.direction().z
-                  << " t/tmax:" << time << "/" << pMaxDist;
+                  << " t/tmax:" << time << '/' << pMaxDist;
         std::cout << "\nBound lo:" << iBound.low().x << ", " << iBound.low().y << ", " << iBound.low().z << " hi: "
                   << iBound.high().x << ", " << iBound.high().y << ", " << iBound.high().z << std::endl; */
         // child bounds are defined in object space:
@@ -57,7 +57,7 @@ namespace VMAP
         Ray modRay(p, iInvRot * pRay.direction());
         float distance = pMaxDist * iInvScale;
         bool hit = iModel->IntersectRay(modRay, distance, pStopAtFirstHit);
-        if(hit)
+        if (hit)
         {
             distance *= iScale;
             pMaxDist = distance;
@@ -151,7 +151,7 @@ namespace VMAP
         return false;
     }
 
-    bool ModelSpawn::readFromFile(FILE *rf, ModelSpawn &spawn)
+    bool ModelSpawn::readFromFile(FILE* rf, ModelSpawn &spawn)
     {
         uint32 check = 0, nameLen;
         check += fread(&spawn.flags, sizeof(uint32), 1, rf);
@@ -197,7 +197,7 @@ namespace VMAP
         return true;
     }
 
-    bool ModelSpawn::writeToFile(FILE *wf, const ModelSpawn &spawn)
+    bool ModelSpawn::writeToFile(FILE* wf, const ModelSpawn &spawn)
     {
         uint32 check=0;
         check += fwrite(&spawn.flags, sizeof(uint32), 1, wf);

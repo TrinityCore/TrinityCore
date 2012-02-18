@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,21 +25,21 @@
 class PassiveAI : public CreatureAI
 {
     public:
-        explicit PassiveAI(Creature *c);
+        explicit PassiveAI(Creature* c);
 
-        void MoveInLineOfSight(Unit *) {}
-        void AttackStart(Unit *) {}
+        void MoveInLineOfSight(Unit*) {}
+        void AttackStart(Unit*) {}
         void UpdateAI(const uint32);
 
-        static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
+        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
 
 class PossessedAI : public CreatureAI
 {
     public:
-        explicit PossessedAI(Creature *c);
+        explicit PossessedAI(Creature* c);
 
-        void MoveInLineOfSight(Unit *) {}
+        void MoveInLineOfSight(Unit*) {}
         void AttackStart(Unit* target);
         void UpdateAI(const uint32);
         void EnterEvadeMode() {}
@@ -47,37 +47,37 @@ class PossessedAI : public CreatureAI
         void JustDied(Unit*);
         void KilledUnit(Unit* victim);
 
-        static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
+        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
 
 class NullCreatureAI : public CreatureAI
 {
     public:
-        explicit NullCreatureAI(Creature *c);
+        explicit NullCreatureAI(Creature* c);
 
-        void MoveInLineOfSight(Unit *) {}
-        void AttackStart(Unit *) {}
+        void MoveInLineOfSight(Unit*) {}
+        void AttackStart(Unit*) {}
         void UpdateAI(const uint32) {}
         void EnterEvadeMode() {}
         void OnCharmed(bool /*apply*/) {}
 
-        static int Permissible(const Creature *) { return PERMIT_BASE_IDLE;  }
+        static int Permissible(const Creature*) { return PERMIT_BASE_IDLE;  }
 };
 
 class CritterAI : public PassiveAI
 {
     public:
-        explicit CritterAI(Creature *c) : PassiveAI(c) {}
+        explicit CritterAI(Creature* c) : PassiveAI(c) {}
 
-        void DamageTaken(Unit *done_by, uint32 & /*damage*/);
+        void DamageTaken(Unit* done_by, uint32& /*damage*/);
         void EnterEvadeMode();
 };
 
 class TriggerAI : public NullCreatureAI
 {
     public:
-        explicit TriggerAI(Creature *c) : NullCreatureAI(c) {}
-        void IsSummonedBy(Unit *summoner);
+        explicit TriggerAI(Creature* c) : NullCreatureAI(c) {}
+        void IsSummonedBy(Unit* summoner);
 };
 
 #endif

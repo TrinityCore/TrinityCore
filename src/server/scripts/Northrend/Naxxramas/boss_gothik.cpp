@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -278,7 +278,7 @@ class boss_gothik : public CreatureScript
                 }
                 else
                 {
-                    switch(entry)
+                    switch (entry)
                     {
                         case MOB_LIVE_TRAINEE:
                         {
@@ -343,10 +343,10 @@ class boss_gothik : public CreatureScript
                 return false;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 uint32 spellId = 0;
-                switch(spell->Id)
+                switch (spell->Id)
                 {
                     case SPELL_INFORM_LIVE_TRAINEE: spellId = SPELL_INFORM_DEAD_TRAINEE;    break;
                     case SPELL_INFORM_LIVE_KNIGHT:  spellId = SPELL_INFORM_DEAD_KNIGHT;     break;
@@ -354,24 +354,24 @@ class boss_gothik : public CreatureScript
                 }
                 if (spellId && me->isInCombat())
                 {
-                    me->HandleEmoteCommand(EMOTE_ONESHOT_SPELLCAST);
+                    me->HandleEmoteCommand(EMOTE_ONESHOT_SPELL_CAST);
                     if (Creature* pRandomDeadTrigger = Unit::GetCreature(*me, DeadTriggerGUID[rand() % POS_DEAD]))
                         me->CastSpell(pRandomDeadTrigger, spellId, true);
                 }
             }
 
-            void DamageTaken(Unit* /*who*/ , uint32& damage)
+            void DamageTaken(Unit* /*who*/, uint32& damage)
             {
                 if (!phaseTwo)
                     damage = 0;
             }
 
-            void SpellHitTarget(Unit* target, SpellEntry const* spell)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (!me->isInCombat())
                     return;
 
-                switch(spell->Id)
+                switch (spell->Id)
                 {
                     case SPELL_INFORM_DEAD_TRAINEE:
                         DoSummon(MOB_DEAD_TRAINEE, target, 0);
@@ -400,12 +400,12 @@ class boss_gothik : public CreatureScript
                         instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
                 }
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
                 {
-                    switch(eventId)
+                    switch (eventId)
                     {
                         case EVENT_SUMMON:
                             if (waves[waveCount].entry)

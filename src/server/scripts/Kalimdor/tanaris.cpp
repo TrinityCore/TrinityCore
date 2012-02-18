@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -178,7 +178,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 0: DoScriptText(WHISPER_CUSTODIAN_1, me, player); break;
                 case 1: DoScriptText(WHISPER_CUSTODIAN_2, me, player); break;
@@ -279,7 +279,7 @@ class npc_steward_of_time : public CreatureScript
 public:
     npc_steward_of_time() : CreatureScript("npc_steward_of_time") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const *quest)
+    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
     {
         if (quest->GetQuestId() == 10279)                      //Quest: To The Master's Lair
             player->CastSpell(player, 34891, true);               //(Flight through Caverns)
@@ -410,7 +410,7 @@ public:
             creature->setFaction(113);
             creature->SetFullHealth();
             creature->SetUInt32Value(UNIT_FIELD_BYTES_1, 0);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             DoScriptText(SAY_OOX_START, creature);
 
             if (npc_escortAI* pEscortAI = CAST_AI(npc_OOX17::npc_OOX17AI, creature->AI()))
@@ -435,7 +435,7 @@ public:
             if (!player)
                 return;
 
-            switch(i) {
+            switch (i) {
                 case 23:
                     me->SummonCreature(SPAWN_FIRST, -8350.96f, -4445.79f, 10.10f, 6.20f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     me->SummonCreature(SPAWN_FIRST, -8355.96f, -4447.79f, 10.10f, 6.27f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
@@ -506,12 +506,12 @@ class npc_tooga : public CreatureScript
 public:
     npc_tooga() : CreatureScript("npc_tooga") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_TOOGA)
+        if (quest->GetQuestId() == QUEST_TOOGA)
         {
             if (npc_toogaAI* pToogaAI = CAST_AI(npc_tooga::npc_toogaAI, creature->AI()))
-                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, pQuest);
+                pToogaAI->StartFollow(player, FACTION_TOOG_ESCORTEE, quest);
         }
 
         return true;
@@ -591,7 +591,7 @@ public:
                             return;
                         }
 
-                        switch(m_uiPhasePostEvent)
+                        switch (m_uiPhasePostEvent)
                         {
                             case 1:
                                 DoScriptText(SAY_TOOG_POST_1, me);

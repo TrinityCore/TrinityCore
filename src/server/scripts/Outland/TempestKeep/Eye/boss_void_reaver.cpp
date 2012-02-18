@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,10 +55,10 @@ class boss_void_reaver : public CreatureScript
         {
             boss_void_reaverAI(Creature* creature) : ScriptedAI(creature)
             {
-                pInstance = creature->GetInstanceScript();
+                instance = creature->GetInstanceScript();
             }
 
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint32 Pounding_Timer;
             uint32 ArcaneOrb_Timer;
@@ -76,8 +76,8 @@ class boss_void_reaver : public CreatureScript
 
                 Enraged = false;
 
-                        if (pInstance && me->isAlive())
-                            pInstance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
+                        if (instance && me->isAlive())
+                            instance->SetData(DATA_VOIDREAVEREVENT, NOT_STARTED);
             }
 
             void KilledUnit(Unit* /*victim*/)
@@ -90,16 +90,16 @@ class boss_void_reaver : public CreatureScript
                 DoScriptText(SAY_DEATH, me);
                 DoZoneInCombat();
 
-                if (pInstance)
-                    pInstance->SetData(DATA_VOIDREAVEREVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_VOIDREAVEREVENT, DONE);
             }
 
             void EnterCombat(Unit* /*who*/)
             {
                 DoScriptText(SAY_AGGRO, me);
 
-                if (pInstance)
-                    pInstance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_VOIDREAVEREVENT, IN_PROGRESS);
             }
 
             void UpdateAI(const uint32 diff)
@@ -119,9 +119,9 @@ class boss_void_reaver : public CreatureScript
                 if (ArcaneOrb_Timer <= diff)
                 {
                     Unit* target = NULL;
-                    std::list<HostileReference *> t_list = me->getThreatManager().getThreatList();
-                    std::vector<Unit* > target_list;
-                    for (std::list<HostileReference *>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
+                    std::list<HostileReference*> t_list = me->getThreatManager().getThreatList();
+                    std::vector<Unit*> target_list;
+                    for (std::list<HostileReference*>::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
                         target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                         if (!target)
@@ -132,13 +132,13 @@ class boss_void_reaver : public CreatureScript
                         target = NULL;
                     }
 
-                    if (target_list.size())
+                    if (!target_list.empty())
                         target = *(target_list.begin()+rand()%target_list.size());
                     else
                         target = me->getVictim();
 
                     if (target)
-                        me->CastSpell(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), SPELL_ARCANE_ORB, false, NULL, NULL, 0, target);
+                        me->CastSpell(target, SPELL_ARCANE_ORB, false, NULL, NULL, 0);
                     ArcaneOrb_Timer = 3000;
                 }
                 else

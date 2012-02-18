@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -74,14 +74,14 @@ enum AchievementFlags
 
 enum AchievementCriteriaCondition
 {
-    ACHIEVEMENT_CRITERIA_CONDITION_NONE         = 0,
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH     = 1,    // reset progress on death
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK1         = 2,    // only used in "Complete a daily quest every day for five consecutive days"
-    ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP       = 3,    // requires you to be on specific map, reset at change
-    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE      = 4,    // only used in "Win 10 arenas without losing"
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK2         = 9,    // unk
-    ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP = 10,   // requires the player not to be in group
-    ACHIEVEMENT_CRITERIA_CONDITION_UNK3         = 13,   // unk
+    ACHIEVEMENT_CRITERIA_CONDITION_NONE            = 0,
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_DEATH        = 1,    // reset progress on death
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK1            = 2,    // only used in "Complete a daily quest every day for five consecutive days"
+    ACHIEVEMENT_CRITERIA_CONDITION_BG_MAP          = 3,    // requires you to be on specific map, reset at change
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_LOSE         = 4,    // only used in "Win 10 arenas without losing"
+    ACHIEVEMENT_CRITERIA_CONDITION_NO_SPELL_HIT    = 9,    // requires the player not to be hit by specific spell
+    ACHIEVEMENT_CRITERIA_CONDITION_NOT_IN_GROUP    = 10,   // requires the player not to be in group
+    ACHIEVEMENT_CRITERIA_CONDITION_UNK3            = 13,   // unk
 };
 
 enum AchievementCriteriaFlags
@@ -97,7 +97,7 @@ enum AchievementCriteriaFlags
 enum AchievementCriteriaTimedTypes
 {
     ACHIEVEMENT_TIMED_TYPE_EVENT            = 1,    // Timer is started by internal event with id in timerStartEvent
-    ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by acceting quest with entry in timerStartEvent
+    ACHIEVEMENT_TIMED_TYPE_QUEST            = 2,    // Timer is started by accepting quest with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_SPELL_CASTER     = 5,    // Timer is started by casting a spell with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET     = 6,    // Timer is started by being target of spell with entry in timerStartEvent
     ACHIEVEMENT_TIMED_TYPE_CREATURE         = 7,    // Timer is started by killing creature with entry in timerStartEvent
@@ -278,6 +278,8 @@ enum Difficulty
     RAID_DIFFICULTY_25MAN_HEROIC = 3,
 };
 
+#define RAID_DIFFICULTY_MASK_25MAN 1    // since 25man difficulties are 1 and 3, we can check them like that
+
 #define MAX_DUNGEON_DIFFICULTY     3
 #define MAX_RAID_DIFFICULTY        4
 #define MAX_DIFFICULTY             4
@@ -305,6 +307,7 @@ enum FactionTemplateFlags
 {
     FACTION_TEMPLATE_FLAG_PVP               = 0x00000800,   // flagged for PvP
     FACTION_TEMPLATE_FLAG_CONTESTED_GUARD   = 0x00001000,   // faction will attack players that were involved in PvP combats
+    FACTION_TEMPLATE_FLAG_HOSTILE_BY_DEFAULT= 0x00002000,
 };
 
 enum FactionMasks
@@ -409,6 +412,32 @@ enum SummonPropFlags
     SUMMON_PROP_FLAG_UNK14           = 0x00002000,          // Guides, player follows
     SUMMON_PROP_FLAG_UNK15           = 0x00004000,          // Force of Nature, Shadowfiend, Feral Spirit, Summon Water Elemental
     SUMMON_PROP_FLAG_UNK16           = 0x00008000,          // Light/Dark Bullet, Soul/Fiery Consumption, Twisted Visage, Twilight Whelp. Phase related?
+};
+
+enum VehicleSeatFlags
+{
+    VEHICLE_SEAT_FLAG_HIDE_PASSENGER             = 0x00000200,           // Passenger is hidden
+    VEHICLE_SEAT_FLAG_UNK1                       = 0x00000400,           // needed for CGCamera__SyncFreeLookFacing
+    VEHICLE_SEAT_FLAG_CAN_CONTROL                = 0x00000800,           // Lua_UnitInVehicleControlSeat
+    VEHICLE_SEAT_FLAG_CAN_CAST_MOUNT_SPELL       = 0x00001000,           // Can cast spells with SPELL_AURA_MOUNTED from seat (possibly 4.x only, 0 seats on 3.3.5a)
+    VEHICLE_SEAT_FLAG_UNCONTROLLED               = 0x00002000,           // can override !& VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT
+    VEHICLE_SEAT_FLAG_CAN_ATTACK                 = 0x00004000,           // Can attack, cast spells and use items from vehicle
+    VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT          = 0x02000000,           // Lua_CanExitVehicle - can enter and exit at free will
+    VEHICLE_SEAT_FLAG_CAN_SWITCH                 = 0x04000000,           // Lua_CanSwitchVehicleSeats
+    VEHICLE_SEAT_FLAG_CAN_CAST                   = 0x20000000,           // Lua_UnitHasVehicleUI
+    VEHICLE_SEAT_FLAG_UNK2                       = 0x40000000,           // checked in conjunction with 0x800 in CastSpell2
+};
+
+enum VehicleSeatFlagsB
+{
+    VEHICLE_SEAT_FLAG_B_NONE                     = 0x00000000,
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED            = 0x00000002,
+    VEHICLE_SEAT_FLAG_B_TARGETS_IN_RAIDUI        = 0x00000008,           // Lua_UnitTargetsVehicleInRaidUI
+    VEHICLE_SEAT_FLAG_B_EJECTABLE                = 0x00000020,           // ejectable
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_2          = 0x00000040,
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_3          = 0x00000100,
+    VEHICLE_SEAT_FLAG_B_USABLE_FORCED_4          = 0x02000000,
+    VEHICLE_SEAT_FLAG_B_VEHICLE_PLAYERFRAME_UI   = 0x80000000,           // Lua_UnitHasVehiclePlayerFrameUI - actually checked for flagsb &~ 0x80000000
 };
 
 #endif

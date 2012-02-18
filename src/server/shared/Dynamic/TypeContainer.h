@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -108,11 +108,11 @@ class TypeMapContainer
         }
 
         ///  Removes the object from the container, and returns the removed object
-        template<class SPECIFIC_TYPE> bool remove(SPECIFIC_TYPE* obj)
-        {
-            SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj);
-            return (t != NULL);
-        }
+        //template<class SPECIFIC_TYPE> bool remove(SPECIFIC_TYPE* obj)
+        //{
+        //    SPECIFIC_TYPE* t = Trinity::Remove(i_elements, obj);
+        //    return (t != NULL);
+        //}
 
         ContainerMapList<OBJECT_TYPES> & GetElements(void) { return i_elements; }
         const ContainerMapList<OBJECT_TYPES> & GetElements(void) const { return i_elements;}

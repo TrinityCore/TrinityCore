@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +89,7 @@ class boss_garfrost : public CreatureScript
 
             void InitializeAI()
             {
-                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != GetScriptId(PoSScriptName))
+                if (!instance || static_cast<InstanceMap*>(me->GetMap())->GetScriptId() != sObjectMgr->GetScriptId(PoSScriptName))
                     me->IsAIEnabled = false;
                 else if (!me->isDead())
                     Reset();
@@ -165,11 +165,11 @@ class boss_garfrost : public CreatureScript
                 events.ScheduleEvent(EVENT_RESUME_ATTACK, 5000);
             }
 
-            void SpellHitTarget(Unit* target, const SpellEntry* spell)
+            void SpellHitTarget(Unit* target, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_PERMAFROST_HELPER)
                 {
-                    if (Aura *aura = target->GetAura(SPELL_PERMAFROST_HELPER))
+                    if (Aura* aura = target->GetAura(SPELL_PERMAFROST_HELPER))
                         _permafrostStack = std::max<uint32>(_permafrostStack, aura->GetStackAmount());
                 }
                 else if (spell->Id == SPELL_FORGE_BLADE)
@@ -190,7 +190,7 @@ class boss_garfrost : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -270,7 +270,7 @@ class spell_garfrost_permafrost : public SpellScriptLoader
                     {
                         for (std::list<GameObject*>::const_iterator itr = blockList.begin(); itr != blockList.end(); ++itr)
                         {
-                            if ((*itr)->isVisibleForInState(target))
+                            if (!(*itr)->IsInvisibleDueToDespawn())
                             {
                                 if ((*itr)->IsInBetween(caster, target, 4.0f))
                                 {

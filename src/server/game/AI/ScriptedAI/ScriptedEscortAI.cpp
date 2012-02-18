@@ -90,7 +90,7 @@ bool npc_escortAI::AssistPlayerInCombat(Unit* who)
 
 void npc_escortAI::MoveInLineOfSight(Unit* who)
 {
-    if (!me->HasUnitState(UNIT_STAT_STUNNED) && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me))
+    if (!me->HasUnitState(UNIT_STATE_STUNNED) && who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me))
     {
         if (HasEscortState(STATE_ESCORT_ESCORTING) && AssistPlayerInCombat(who))
             return;
@@ -218,7 +218,7 @@ void npc_escortAI::UpdateAI(uint32 const diff)
                     if (m_bCanReturnToStart)
                     {
                         float fRetX, fRetY, fRetZ;
-                        me->GetRespawnCoord(fRetX, fRetY, fRetZ);
+                        me->GetRespawnPosition(fRetX, fRetY, fRetZ);
 
                         me->GetMotionMaster()->MovePoint(POINT_HOME, fRetX, fRetY, fRetZ);
 
@@ -493,7 +493,7 @@ void npc_escortAI::SetEscortPaused(bool on)
 
 bool npc_escortAI::SetNextWaypoint(uint32 pointId, float x, float y, float z, float orientation)
 {
-    me->SetPosition(x, y, z, orientation);
+    me->UpdatePosition(x, y, z, orientation);
     return SetNextWaypoint(pointId, false, true);
 }
 
@@ -516,7 +516,7 @@ bool npc_escortAI::SetNextWaypoint(uint32 pointId, bool setPosition, bool resetW
         if (waypoint.id == pointId)
         {
             if (setPosition)
-                me->SetPosition(waypoint.x, waypoint.y, waypoint.z, me->GetOrientation());
+                me->UpdatePosition(waypoint.x, waypoint.y, waypoint.z, me->GetOrientation());
 
             CurrentWP = WaypointList.begin();
             return true;
@@ -543,7 +543,6 @@ bool npc_escortAI::GetWaypointPosition(uint32 pointId, float& x, float& y, float
     if (waypoints.empty())
         return false;
 
-    ScriptPointVector::const_iterator itrEnd = waypoints.end();
     for (ScriptPointVector::const_iterator itr = waypoints.begin(); itr != waypoints.end(); ++itr)
     {
         if (itr->uiPointId == pointId)

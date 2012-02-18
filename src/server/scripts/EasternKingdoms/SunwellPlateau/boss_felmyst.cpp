@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -117,21 +117,10 @@ public:
     {
         boss_felmystAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
-
-            // wait for core patch be accepted
-            /*SpellEntry *TempSpell = GET_SPELL(SPELL_ENCAPSULATE_EFFECT);
-            if (TempSpell->SpellIconID == 2294)
-                TempSpell->SpellIconID = 2295;
-            TempSpell = GET_SPELL(SPELL_VAPOR_TRIGGER);
-            if ((TempSpell->Attributes & SPELL_ATTR0_PASSIVE) == 0)
-                TempSpell->Attributes |= SPELL_ATTR0_PASSIVE;
-            TempSpell = GET_SPELL(SPELL_FOG_CHARM2);
-            if ((TempSpell->Attributes & SPELL_ATTR0_PASSIVE) == 0)
-                TempSpell->Attributes |= SPELL_ATTR0_PASSIVE;*/
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
         PhaseFelmyst phase;
         EventMap events;
 
@@ -155,8 +144,8 @@ public:
             DespawnSummons(MOB_VAPOR_TRAIL);
             me->setActive(false);
 
-            if (pInstance)
-                pInstance->SetData(DATA_FELMYST_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_FELMYST_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -169,8 +158,8 @@ public:
             DoCast(me, AURA_NOXIOUS_FUMES, true);
             EnterPhase(PHASE_GROUND);
 
-            if (pInstance)
-                pInstance->SetData(DATA_FELMYST_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_FELMYST_EVENT, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who)
@@ -199,11 +188,11 @@ public:
         {
             DoScriptText(YELL_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_FELMYST_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_FELMYST_EVENT, DONE);
         }
 
-        void SpellHit(Unit* caster, const SpellEntry *spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             // workaround for linked aura
             /*if (spell->Id == SPELL_VAPOR_FORCE)
@@ -250,7 +239,7 @@ public:
 
         void EnterPhase(PhaseFelmyst NextPhase)
         {
-            switch(NextPhase)
+            switch (NextPhase)
             {
             case PHASE_GROUND:
                 me->CastStop(SPELL_FOG_BREATH);
@@ -278,7 +267,7 @@ public:
 
         void HandleFlightSequence()
         {
-            switch(uiFlightCount)
+            switch (uiFlightCount)
             {
             case 0:
                 //me->AttackStop();
@@ -295,7 +284,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if (!target)
-                    target = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
+                    target = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_PLAYER_GUID) : 0);
 
                 if (!target)
                 {
@@ -322,7 +311,7 @@ public:
 
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if (!target)
-                    target = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
+                    target = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_PLAYER_GUID) : 0);
 
                 if (!target)
                 {
@@ -330,7 +319,7 @@ public:
                     return;
                 }
 
-                //pTarget->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
+                //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
                 Creature* pVapor = me->SummonCreature(MOB_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
                 if (pVapor)
                 {
@@ -352,7 +341,7 @@ public:
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 150, true);
                 if (!target)
-                    target = Unit::GetUnit(*me, pInstance ? pInstance->GetData64(DATA_PLAYER_GUID) : 0);
+                    target = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_PLAYER_GUID) : 0);
 
                 if (!target)
                 {
@@ -427,7 +416,7 @@ public:
 
             if (phase == PHASE_GROUND)
             {
-                switch(events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_BERSERK:
                         DoScriptText(YELL_BERSERK, me);
@@ -462,7 +451,7 @@ public:
 
             if (phase == PHASE_FLIGHT)
             {
-                switch(events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_BERSERK:
                         DoScriptText(YELL_BERSERK, me);
@@ -495,15 +484,14 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
 
-            CellPair pair(Trinity::ComputeCellPair(x, y));
+            CellCoord pair(Trinity::ComputeCellCoord(x, y));
             Cell cell(pair);
-            cell.data.Part.reserved = ALL_DISTRICT;
             cell.SetNoCreate();
 
             Trinity::AllCreaturesOfEntryInRange check(me, entry, 100);
             Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
             TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
-            cell.Visit(pair, cSearcher, *(me->GetMap()));
+            cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
 
             for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
             {

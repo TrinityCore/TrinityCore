@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -111,7 +111,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* Caster, const SpellEntry *Spell)
+        void SpellHit(Unit* Caster, const SpellInfo* Spell)
         {
             if (Spell->SpellFamilyFlags[2] & 0x080000000)
             {
@@ -243,7 +243,7 @@ public:
         void Reset()
         {
             Dynamite_Timer = 8000;
-            Emote_Timer = 120000 + rand()%30000;
+            Emote_Timer = urand(120000, 150000);
 
             me->setFaction(NormFaction);
             me->SetUInt32Value(UNIT_NPC_FLAGS, NpcFlags);
@@ -264,7 +264,7 @@ public:
                 {
                     DoScriptText(SAY_TEXT, me);
                     DoScriptText(SAY_EMOTE, me);
-                    Emote_Timer = 120000 + rand()%30000;
+                    Emote_Timer = urand(120000, 150000);
                 } else Emote_Timer -= diff;
             }
             else if (IsTreeEvent)
@@ -376,7 +376,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
             case 0:
                 DoScriptText(SAY_START, me, player);
@@ -479,7 +479,7 @@ public:
         {
             Creature* Spark = Unit::GetCreature(*me, SparkGUID);
 
-            switch(Step)
+            switch (Step)
             {
             case 0:
                 if (Spark)
@@ -586,11 +586,11 @@ class go_ravager_cage : public GameObjectScript
 public:
     go_ravager_cage() : GameObjectScript("go_ravager_cage") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         if (player->GetQuestStatus(QUEST_STRENGTH_ONE) == QUEST_STATUS_INCOMPLETE)
         {
-            if (Creature* ravager = pGo->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
+            if (Creature* ravager = go->FindNearestCreature(NPC_DEATH_RAVAGER, 5.0f, true))
             {
                 ravager->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 ravager->SetReactState(REACT_AGGRESSIVE);

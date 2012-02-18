@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,7 @@
 
 RASocket::RASocket()
 {
-    iMinLevel = sConfig->GetIntDefault("RA.MinLevel", 3);
+    iMinLevel = ConfigMgr::GetIntDefault("RA.MinLevel", 3);
 }
 
 RASocket::~RASocket()
@@ -187,7 +187,7 @@ int RASocket::check_access_level(const std::string& user)
         return -1;
     }
 
-    Field *fields = result->Fetch();
+    Field* fields = result->Fetch();
 
     if (fields[1].GetUInt32() < iMinLevel)
     {
@@ -213,7 +213,7 @@ int RASocket::check_password(const std::string& user, const std::string& pass)
     AccountMgr::normalizeString(safe_pass);
     LoginDatabase.EscapeString(safe_pass);
 
-    std::string hash = sAccountMgr->CalculateShaPassHash(safe_user, safe_pass);
+    std::string hash = AccountMgr::CalculateShaPassHash(safe_user, safe_pass);
 
     QueryResult check = LoginDatabase.PQuery(
             "SELECT 1 FROM account WHERE username = '%s' AND sha_pass_hash = '%s'",
@@ -257,8 +257,85 @@ int RASocket::authenticate()
     return 0;
 }
 
+
+int RASocket::subnegotiate()
+{
+    char buf[1024];
+
+    ACE_Data_Block db(sizeof (buf),
+        ACE_Message_Block::MB_DATA,
+        buf,
+        0,
+        0,
+        ACE_Message_Block::DONT_DELETE,
+        0);
+
+    ACE_Message_Block message_block(&db,
+        ACE_Message_Block::DONT_DELETE,
+        0);
+
+    const size_t recv_size = message_block.space();
+
+    // Wait a maximum of 1000ms for negotiation packet - not all telnet clients may send it
+    ACE_Time_Value waitTime = ACE_Time_Value(1);
+    const ssize_t n = peer().recv(message_block.wr_ptr(),
+        recv_size, &waitTime);
+
+    if (n <= 0)
+        return int(n);
+
+    if (n >= 1024)
+    {
+        sLog->outRemote("RASocket::subnegotiate: allocated buffer 1024 bytes was too small for negotiation packet, size: %u", uint32(n));
+        return -1;
+    }
+
+    buf[n] = '\0';
+
+    #ifdef _DEBUG
+    for (uint8 i = 0; i < n; )
+    {
+        uint8 iac = buf[i];
+        if (iac == 0xFF)   // "Interpret as Command" (IAC)
+        {
+            uint8 command = buf[++i];
+            std::stringstream ss;
+            switch (command)
+            {
+                case 0xFB:        // WILL
+                    ss << "WILL ";
+                    break;
+                case 0xFC:        // WON'T
+                    ss << "WON'T ";
+                    break;
+                case 0xFD:        // DO
+                    ss << "DO ";
+                    break;
+                case 0xFE:        // DON'T
+                    ss << "DON'T ";
+                    break;
+                default:
+                    return -1;      // not allowed
+            }
+
+            uint8 param = buf[++i];
+            ss << uint32(param);
+            sLog->outRemote(ss.str().c_str());
+        }
+        ++i;
+    }
+    #endif
+
+    //! Just send back end of subnegotiation packet
+    uint8 const reply[2] = {0xFF, 0xF0};
+    return peer().send(reply, 2);
+}
+
 int RASocket::svc(void)
 {
+    //! Subnegotiation may differ per client - do not react on it
+    subnegotiate();
+
     if (send("Authentication required\r\n") == -1)
         return -1;
 
@@ -272,7 +349,7 @@ int RASocket::svc(void)
     if (send(std::string(sWorld->GetMotd()) + "\r\n") == -1)
         return -1;
 
-    for(;;)
+    for (;;)
     {
         // show prompt
         const char* tc_prompt = "TC> ";

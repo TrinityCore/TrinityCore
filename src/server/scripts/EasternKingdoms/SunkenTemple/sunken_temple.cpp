@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -39,7 +39,7 @@ class at_malfurion_stormrage : public AreaTriggerScript
 public:
     at_malfurion_stormrage() : AreaTriggerScript("at_malfurion_stormrage") { }
 
-    bool OnTrigger(Player* player, const AreaTriggerEntry * /*at*/)
+    bool OnTrigger(Player* player, const AreaTriggerEntry* /*at*/)
     {
         if (player->GetInstanceScript() && !player->FindNearestCreature(15362, 15))
             player->SummonCreature(15362, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), -1.52f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 100000);
@@ -56,10 +56,10 @@ class go_atalai_statue : public GameObjectScript
 public:
     go_atalai_statue() : GameObjectScript("go_atalai_statue") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
-        if (InstanceScript* pInstance = player->GetInstanceScript())
-            pInstance->SetData(EVENT_STATE, pGo->GetEntry());
+        if (InstanceScript* instance = player->GetInstanceScript())
+            instance->SetData(EVENT_STATE, go->GetEntry());
         return false;
     }
 

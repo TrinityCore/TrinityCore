@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,7 +31,7 @@ RealmSocket::Session::Session(void) {}
 
 RealmSocket::Session::~Session(void) { }
 
-RealmSocket::RealmSocket(void) : input_buffer_(4096), session_(NULL), remote_address_()
+RealmSocket::RealmSocket(void) : input_buffer_(4096), session_(NULL), _remoteAddress()
 {
     reference_counting_policy().value(ACE_Event_Handler::Reference_Counting_Policy::ENABLED);
 
@@ -63,7 +63,8 @@ int RealmSocket::open(void * arg)
         return -1;
     }
 
-    remote_address_ = addr.get_host_addr();
+    _remoteAddress = addr.get_host_addr();
+    _remotePort = addr.get_port_number();
 
     // Register with ACE Reactor
     if (Base::open(arg) == -1)
@@ -89,9 +90,14 @@ int RealmSocket::close(int)
     return 0;
 }
 
-const std::string& RealmSocket::get_remote_address(void) const
+const std::string& RealmSocket::getRemoteAddress(void) const
 {
-    return remote_address_;
+    return _remoteAddress;
+}
+
+const uint16 RealmSocket::getRemotePort(void) const
+{
+    return _remotePort;
 }
 
 size_t RealmSocket::recv_len(void) const
@@ -177,7 +183,7 @@ bool RealmSocket::send(const char *buf, size_t len)
         message_block.rd_ptr(un);
     }
 
-    ACE_Message_Block *mb = message_block.clone();
+    ACE_Message_Block* mb = message_block.clone();
 
     if (msg_queue()->enqueue_tail(mb, (ACE_Time_Value *)(&ACE_Time_Value::zero)) == -1)
     {
@@ -196,7 +202,7 @@ int RealmSocket::handle_output(ACE_HANDLE)
     if (closing_)
         return -1;
 
-    ACE_Message_Block *mb = 0;
+    ACE_Message_Block* mb = 0;
 
     if (msg_queue()->is_empty())
     {

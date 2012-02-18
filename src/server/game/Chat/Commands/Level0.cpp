@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -54,7 +54,7 @@ bool ChatHandler::HandleCommandsCommand(const char* /*args*/)
 
 bool ChatHandler::HandleStartCommand(const char* /*args*/)
 {
-    Player *chr = m_session->GetPlayer();
+    Player* chr = m_session->GetPlayer();
 
     if (chr->isInFlight())
     {
@@ -84,8 +84,8 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
 
 bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
 {
-    uint32 PlayersNum = sWorld->GetPlayerCount();
-    uint32 MaxPlayersNum = sWorld->GetMaxPlayerCount();
+    uint32 playersNum = sWorld->GetPlayerCount();
+    uint32 maxPlayersNum = sWorld->GetMaxPlayerCount();
     uint32 activeClientsNum = sWorld->GetActiveSessionCount();
     uint32 queuedClientsNum = sWorld->GetQueuedSessionCount();
     uint32 maxActiveClientsNum = sWorld->GetMaxActiveSessionCount();
@@ -94,10 +94,13 @@ bool ChatHandler::HandleServerInfoCommand(const char* /*args*/)
     uint32 updateTime = sWorld->GetUpdateTime();
 
     SendSysMessage(_FULLVERSION);
-    PSendSysMessage(LANG_CONNECTED_PLAYERS, PlayersNum, MaxPlayersNum);
+    PSendSysMessage(LANG_CONNECTED_PLAYERS, playersNum, maxPlayersNum);
     PSendSysMessage(LANG_CONNECTED_USERS, activeClientsNum, maxActiveClientsNum, queuedClientsNum, maxQueuedClientsNum);
     PSendSysMessage(LANG_UPTIME, uptime.c_str());
-    PSendSysMessage("Update time diff: %u.", updateTime);
+    PSendSysMessage(LANG_UPDATE_DIFF, updateTime);
+    //! Can't use sWorld->ShutdownMsg here in case of console command
+    if (sWorld->IsShuttingDown())
+        PSendSysMessage(LANG_SHUTDOWN_TIMELEFT, secsToTimeString(sWorld->GetShutDownTimeLeft()).c_str());
 
     return true;
 }
@@ -119,7 +122,7 @@ bool ChatHandler::HandleDismountCommand(const char* /*args*/)
         return false;
     }
 
-    m_session->GetPlayer()->Unmount();
+    m_session->GetPlayer()->Dismount();
     m_session->GetPlayer()->RemoveAurasByType(SPELL_AURA_MOUNTED);
     return true;
 }
@@ -129,9 +132,9 @@ bool ChatHandler::HandleSaveCommand(const char* /*args*/)
     Player* player = m_session->GetPlayer();
 
     // save GM account without delay and output message
-    if (m_session->GetSecurity() > SEC_PLAYER)
+    if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
     {
-        if (Player *target = getSelectedPlayer())
+        if (Player* target = getSelectedPlayer())
             target->SaveToDB();
         else
             player->SaveToDB();

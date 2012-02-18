@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,85 +19,17 @@
 /* ScriptData
 SDName: Silverpine_Forest
 SD%Complete: 100
-SDComment: Quest support: 1886, 435, 452
+SDComment: Quest support: 435, 452
 SDCategory: Silverpine Forest
 EndScriptData */
 
 /* ContentData
-npc_astor_hadren
 npc_deathstalker_erland
 pyrewood_ambush
 EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
-
-/*######
-## npc_astor_hadren
-######*/
-
-#define GOSSIP_HAH "You're Astor Hadren, right?"
-#define GOSSIP_SAH "You've got something I need, Astor. And I'll be taking it now."
-
-class npc_astor_hadren : public CreatureScript
-{
-public:
-    npc_astor_hadren() : CreatureScript("npc_astor_hadren") { }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_astor_hadrenAI(creature);
-    }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch (uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF + 1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
-                player->SEND_GOSSIP_MENU(624, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF + 2:
-                player->CLOSE_GOSSIP_MENU();
-                creature->setFaction(21);
-                if (player)
-                    CAST_AI(npc_astor_hadren::npc_astor_hadrenAI, creature->AI())->AttackStart(player);
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(1886) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HAH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        player->SEND_GOSSIP_MENU(623, creature->GetGUID());
-
-        return true;
-    }
-
-    struct npc_astor_hadrenAI : public ScriptedAI
-    {
-        npc_astor_hadrenAI(Creature* c) : ScriptedAI(c) {}
-
-        void Reset()
-        {
-            me->setFaction(68);
-        }
-
-        void EnterCombat(Unit* /*who*/)
-        {
-        }
-
-        void JustDied(Unit* /*who*/)
-        {
-            me->setFaction(68);
-        }
-    };
-
-};
 
 /*######
 ## npc_deathstalker_erland
@@ -141,7 +73,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
             case 1: DoScriptText(SAY_START, me, player);break;
             case 13:
@@ -225,9 +157,9 @@ class pyrewood_ambush : public CreatureScript
 public:
     pyrewood_ambush() : CreatureScript("pyrewood_ambush") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest *pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest *quest)
     {
-        if (pQuest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress)
+        if (quest->GetQuestId() == QUEST_PYREWOOD_AMBUSH && !CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress)
         {
             CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->QuestInProgress = true;
             CAST_AI(pyrewood_ambush::pyrewood_ambushAI, creature->AI())->Phase = 0;
@@ -386,7 +318,6 @@ public:
 
 void AddSC_silverpine_forest()
 {
-    new npc_astor_hadren();
     new npc_deathstalker_erland();
     new pyrewood_ambush();
 }

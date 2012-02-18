@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,6 +26,8 @@
 #include "ScriptMgr.h"
 #include "CreatureAI.h"
 #include "ZoneScript.h"
+#include "SpellMgr.h"
+#include "SpellInfo.h"
 
 Vehicle::Vehicle(Unit* unit, VehicleEntry const* vehInfo, uint32 creatureEntry) : _me(unit), _vehicleInfo(vehInfo), _usableSeatNum(0), _creatureEntry(creatureEntry)
 {
@@ -73,11 +75,11 @@ void Vehicle::Install()
                     if (!creature->m_spells[i])
                         continue;
 
-                    SpellEntry const* spellInfo = sSpellStore.LookupEntry(creature->m_spells[i]);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(creature->m_spells[i]);
                     if (!spellInfo)
                         continue;
 
-                    if (spellInfo->powerType == POWER_ENERGY)
+                    if (spellInfo->PowerType == POWER_ENERGY)
                     {
                         _me->setPowerType(POWER_ENERGY);
                         _me->SetMaxPower(POWER_ENERGY, 100);
@@ -157,7 +159,7 @@ void Vehicle::ApplyAllImmunities()
         _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_UNATTACKABLE, true);
         _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_SCHOOL_ABSORB, true);
         _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_SHIELD, true);
-        _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_IMMUNE_SHIELD , true);
+        _me->ApplySpellImmune(0, IMMUNITY_MECHANIC, MECHANIC_IMMUNE_SHIELD, true);
 
         // ... Resistance, Split damage, Change stats ...
         _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_DAMAGE_SHIELD, true);
@@ -170,12 +172,12 @@ void Vehicle::ApplyAllImmunities()
     // Different immunities for vehicles goes below
     switch (GetVehicleInfo()->m_ID)
     {
-        case 160: //Isle of conquest turret
-        case 244: //Wintergrasp turret
-            _me->SetControlled(true, UNIT_STAT_ROOT);
-            //me->AddUnitMovementFlag(MOVEMENTFLAG_ROOT);
-            //me->SetSpeed(MOVE_TURN_RATE, 0.7f);
-            //me->SetSpeed(MOVE_PITCH_RATE, 0.7f);
+        // code below prevents a bug with movable cannons
+        case 160: // Strand of the Ancients
+        case 244: // Wintergrasp
+        case 510: // Isle of Conquest
+            _me->SetControlled(true, UNIT_STATE_ROOT);
+            // why we need to apply this? we can simple add immunities to slow mechanic in DB
             //me->m_movementInfo.flags2=59;
             _me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_AURA_MOD_DECREASE_SPEED, true);
             break;
@@ -190,13 +192,13 @@ void Vehicle::RemoveAllPassengers()
 
     // Passengers always cast an aura with SPELL_AURA_CONTROL_VEHICLE on the vehicle
     // We just remove the aura and the unapply handler will make the target leave the vehicle.
-    // We don't need to iterate over m_Seats
+    // We don't need to iterate over Seats
     _me->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE);
 
     // Following the above logic, this assertion should NEVER fail.
     // Even in 'hacky' cases, there should at least be VEHICLE_SPELL_RIDE_HARDCODED on us.
     // SeatMap::const_iterator itr;
-    // for (itr = m_Seats.begin(); itr != m_Seats.end(); ++itr)
+    // for (itr = Seats.begin(); itr != Seats.end(); ++itr)
     //    ASSERT(!itr->second.passenger);
 }
 
@@ -340,8 +342,8 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
         }
     }
 
-    if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK11))
-        unit->AddUnitState(UNIT_STAT_ONVEHICLE);
+    if (seat->second.SeatInfo->m_flags && !(seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_UNK1))
+        unit->AddUnitState(UNIT_STATE_ONVEHICLE);
 
     unit->AddUnitMovementFlag(MOVEMENTFLAG_ONTRANSPORT);
     VehicleSeatEntry const* veSeat = seat->second.SeatInfo;
@@ -363,7 +365,7 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
     if (_me->IsInWorld())
     {
         unit->SendClearTarget();                                // SMSG_BREAK_TARGET
-        unit->SetControlled(true, UNIT_STAT_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
+        unit->SetControlled(true, UNIT_STATE_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
                                                                 // also adds MOVEMENTFLAG_ROOT
         unit->SendMonsterMoveTransport(_me);                     // SMSG_MONSTER_MOVE_TRANSPORT
 
@@ -406,7 +408,7 @@ void Vehicle::RemovePassenger(Unit* unit)
         ++_usableSeatNum;
     }
 
-    unit->ClearUnitState(UNIT_STAT_ONVEHICLE);
+    unit->ClearUnitState(UNIT_STATE_ONVEHICLE);
 
     if (_me->GetTypeId() == TYPEID_UNIT && unit->GetTypeId() == TYPEID_PLAYER && seat->first == 0 && seat->second.SeatInfo->m_flags & VEHICLE_SEAT_FLAG_CAN_CONTROL)
         _me->RemoveCharmedBy(unit);
@@ -432,8 +434,7 @@ void Vehicle::RemovePassenger(Unit* unit)
 
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
-    Map* map = _me->GetMap();
-    ASSERT(map != NULL);
+    ASSERT(_me->GetMap());
 
     // not sure that absolute position calculation is correct, it must depend on vehicle orientation and pitch angle
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)
@@ -448,7 +449,7 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
             float pz = z + passenger->m_movementInfo.t_pos.m_positionZ;
             float po = ang + passenger->m_movementInfo.t_pos.m_orientation;
 
-            passenger->SetPosition(px, py, pz, po);
+            passenger->UpdatePosition(px, py, pz, po);
         }
 }
 
@@ -459,20 +460,6 @@ void Vehicle::Dismiss()
     _me->DestroyForNearbyPlayers();
     _me->CombatStop();
     _me->AddObjectToRemoveList();
-}
-
-void Vehicle::TeleportVehicle(float x, float y, float z, float ang)
-{
-    vehiclePlayers.clear();
-    for(int8 i = 0; i < 8; i++)
-        if (Unit* player = GetPassenger(i))
-            vehiclePlayers.insert(player->GetGUID());
-
-    RemoveAllPassengers(); // this can unlink Guns from Siege Engines
-    _me->NearTeleportTo(x, y, z, ang);
-    for (GuidSet::const_iterator itr = vehiclePlayers.begin(); itr != vehiclePlayers.end(); ++itr)
-        if(Unit* plr = sObjectAccessor->FindUnit(*itr))
-                plr->NearTeleportTo(x, y, z, ang);
 }
 
 void Vehicle::InitMovementInfoForBase()

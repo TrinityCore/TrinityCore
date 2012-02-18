@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,13 +15,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: GO_Scripts
-SD%Complete: 100
-SDComment: Quest support: 4285, 4287, 4288(crystal pylons), 4296, 6481, 10990, 10991, 10992, Field_Repair_Bot->Teaches spell 22704. Barov_journal->Teaches spell 26089, 12843, 12982, 2936. Soulwell
-SDCategory: Game Objects
-EndScriptData */
 
 /* ContentData
 go_cat_figurine (the "trap" version of GO, two different exist)
@@ -47,6 +40,16 @@ go_jotunheim_cage
 go_table_theka
 go_soulwell
 go_bashir_crystalforge
+go_ethereal_teleport_pad
+go_soulwell
+go_dragonflayer_cage
+go_tadpole_cage
+go_black_cage
+go_amberpine_outhouse
+go_hive_pod
+go_gjalerbron_cage
+go_large_gjalerbron_cage
+go_veil_skith_cage
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -165,7 +168,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* /*pGO*/)
     {
-        if (player->HasSkill(SKILL_ENGINERING) && player->GetBaseSkillValue(SKILL_ENGINERING) >= 300 && !player->HasSpell(22704))
+        if (player->HasSkill(SKILL_ENGINEERING) && player->GetBaseSkillValue(SKILL_ENGINEERING) >= 300 && !player->HasSpell(22704))
         {
             player->CastSpell(player, 22864, false);
         }
@@ -313,11 +316,11 @@ public:
         {
             if (!creature->IsHostileTo(player))
             {
-                uint32 Spell = 0;
-
                 if (FactionTemplateEntry const* pFaction = creature->getFactionTemplateEntry())
                 {
-                    switch(pFaction->faction)
+                    uint32 Spell = 0;
+
+                    switch (pFaction->faction)
                     {
                         case 1011: Spell = SPELL_REP_LC; break;
                         case 935: Spell = SPELL_REP_SHAT; break;
@@ -434,7 +437,7 @@ public:
         float fX, fY, fZ;
         pGO->GetClosePoint(fX, fY, fZ, pGO->GetObjectSize(), INTERACTION_DISTANCE);
 
-        switch(pGO->GetEntry())
+        switch (pGO->GetEntry())
         {
             case GO_SHRINE_HAWK:
                 BirdEntry = NPC_HAWK_GUARD;
@@ -566,7 +569,7 @@ public:
     bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->CastSpell(player, SPELL_CREATE_1_FLASK_OF_BEAST, false);
@@ -625,7 +628,7 @@ public:
     bool OnGossipSelect(Player* player, GameObject* pGO, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->CastSpell(player, SPELL_CREATE_1_FLASK_OF_SORCERER, false);
@@ -675,7 +678,7 @@ public:
 
     bool OnGossipHello(Player* player, GameObject* pGO)
     {
-        switch(pGO->GetEntry())
+        switch (pGO->GetEntry())
         {
             case MATRIX_PUNCHOGRAPH_3005_A:
                 if (player->HasItemCount(ITEM_WHITE_PUNCH_CARD, 1))
@@ -853,7 +856,7 @@ public:
 
         pPrisoner->DisappearAndDie();
         player->KilledMonsterCredit(NPC_EBON_BLADE_PRISONER_HUMAN, 0);
-        switch(pPrisoner->GetEntry())
+        switch (pPrisoner->GetEntry())
         {
             case NPC_EBON_BLADE_PRISONER_HUMAN:
                 player->CastSpell(player, SPELL_SUMMON_BLADE_KNIGHT_H, true);
@@ -922,6 +925,32 @@ public:
 };
 
 /*######
+## go_ethereal_teleport_pad
+######*/
+
+enum eEtherealTeleportPad
+{
+    NPC_IMAGE_WIND_TRADER               = 20518,
+    ITEM_TELEPORTER_POWER_PACK          = 28969,
+};
+
+class go_ethereal_teleport_pad : public GameObjectScript
+{
+public:
+    go_ethereal_teleport_pad() : GameObjectScript("go_ethereal_teleport_pad") { }
+
+    bool OnGossipHello(Player* player, GameObject* pGO)
+    {
+        if (!player->HasItemCount(ITEM_TELEPORTER_POWER_PACK, 1))
+            return false;
+
+        pGO->SummonCreature(NPC_IMAGE_WIND_TRADER, pGO->GetPositionX(), pGO->GetPositionY(), pGO->GetPositionZ(), pGO->GetAngle(player), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+
+        return true;
+    }
+};
+
+/*######
 ## go_soulwell
 ######*/
 
@@ -936,7 +965,7 @@ public:
         if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
             return true;
 
-        if (!player->IsInSameRaidWith(static_cast<Player* >(caster)))
+        if (!player->IsInSameRaidWith(static_cast<Player*>(caster)))
             return true;
 
         // Repeating this at every use is ugly and inefficient. But as long as we don't have proper
@@ -1009,7 +1038,7 @@ public:
         if (qInfo)
         {
             //TODO: prisoner should help player for a short period of time
-            player->KilledMonsterCredit(qInfo->ReqCreatureOrGOId[0], 0);
+            player->KilledMonsterCredit(qInfo->RequiredNpcOrGo[0], 0);
             pPrisoner->DisappearAndDie();
         }
         return true;
@@ -1152,6 +1181,7 @@ public:
 
 /*######
 ## Quest 1126: Hive in the Tower
+## go_hive_pod
 ######*/
 
 enum eHives
@@ -1176,14 +1206,115 @@ public:
 
 class go_massive_seaforium_charge : public GameObjectScript
 {
-public:
-    go_massive_seaforium_charge() : GameObjectScript("go_massive_seaforium_charge") { }
+    public:
+        go_massive_seaforium_charge() : GameObjectScript("go_massive_seaforium_charge") { }
 
-    bool OnGossipHello(Player* /*player*/, GameObject* pGo)
-    {
-        pGo->SetLootState(GO_JUST_DEACTIVATED);
-        return true;
-    }
+        bool OnGossipHello(Player* /*player*/, GameObject* go)
+        {
+            go->SetLootState(GO_JUST_DEACTIVATED);
+            return true;
+        }
+};
+
+/*######
+## go_gjalerbron_cage
+######*/
+
+enum OfKeysAndCages
+{
+    QUEST_ALLIANCE_OF_KEYS_AND_CAGES    = 11231,
+    QUEST_HORDE_OF_KEYS_AND_CAGES       = 11265,
+    NPC_GJALERBRON_PRISONER             = 24035,
+    SAY_FREE                            = 0,
+};
+
+class go_gjalerbron_cage : public GameObjectScript
+{
+    public:
+        go_gjalerbron_cage() : GameObjectScript("go_gjalerbron_cage") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE) ||
+                (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE))
+            {
+                if (Creature* prisoner = go->FindNearestCreature(NPC_GJALERBRON_PRISONER, 5.0f))
+                {
+                    go->UseDoorOrButton();
+
+                    if (player)
+                        player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, 0);
+
+                    prisoner->AI()->Talk(SAY_FREE);
+                    prisoner->ForcedDespawn(6000);
+                }
+            }
+            return true;
+        }
+};
+
+/*########
+## go_large_gjalerbron_cage
+#####*/
+
+class go_large_gjalerbron_cage : public GameObjectScript
+{
+    public:
+        go_large_gjalerbron_cage() : GameObjectScript("go_large_gjalerbron_cage") { }
+
+        bool OnGossipHello(Player* player, GameObject* go)
+        {
+            if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE) ||
+                (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_OF_KEYS_AND_CAGES) == QUEST_STATUS_INCOMPLETE))
+            {
+                std::list<Creature*> prisonerList;
+                GetCreatureListWithEntryInGrid(prisonerList, go, NPC_GJALERBRON_PRISONER, INTERACTION_DISTANCE);
+                for (std::list<Creature*>::const_iterator itr = prisonerList.begin(); itr != prisonerList.end(); ++itr)
+                {
+                    go->UseDoorOrButton();
+                    player->KilledMonsterCredit(NPC_GJALERBRON_PRISONER, (*itr)->GetGUID());
+                    (*itr)->ForcedDespawn(6000);
+                    (*itr)->AI()->Talk(SAY_FREE);
+                }
+            }
+            return false;
+        }
+};
+
+/*########
+#### go_veil_skith_cage
+#####*/
+
+enum MissingFriends
+{
+   QUEST_MISSING_FRIENDS    = 10852,
+   NPC_CAPTIVE_CHILD        = 22314,
+   SAY_FREE_0               = 0,
+};
+
+class go_veil_skith_cage : public GameObjectScript
+{
+    public:
+       go_veil_skith_cage() : GameObjectScript("go_veil_skith_cage") { }
+
+       bool OnGossipHello(Player* player, GameObject* go)
+       {
+           if (player->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
+           {
+               std::list<Creature*> childrenList;
+               GetCreatureListWithEntryInGrid(childrenList, go, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
+               for (std::list<Creature*>::const_iterator itr = childrenList.begin(); itr != childrenList.end(); ++itr)
+               {
+                   go->UseDoorOrButton();
+                   player->KilledMonsterCredit(NPC_CAPTIVE_CHILD, (*itr)->GetGUID());
+                   (*itr)->ForcedDespawn(5000);
+                   (*itr)->GetMotionMaster()->MovePoint(1, go->GetPositionX()+5, go->GetPositionY(), go->GetPositionZ());
+                   (*itr)->AI()->Talk(SAY_FREE_0);
+                   (*itr)->GetMotionMaster()->Clear();
+               }
+           }        
+           return false;
+       }
 };
 
 void AddSC_go_scripts()
@@ -1217,6 +1348,7 @@ void AddSC_go_scripts()
     new go_jotunheim_cage;
     new go_table_theka;
     new go_inconspicuous_landmark;
+    new go_ethereal_teleport_pad;
     new go_soulwell;
     new go_tadpole_cage;
     new go_dragonflayer_cage;
@@ -1224,4 +1356,7 @@ void AddSC_go_scripts()
     new go_amberpine_outhouse;
     new go_hive_pod;
     new go_massive_seaforium_charge;
+    new go_gjalerbron_cage;
+    new go_large_gjalerbron_cage;
+    new go_veil_skith_cage;
 }

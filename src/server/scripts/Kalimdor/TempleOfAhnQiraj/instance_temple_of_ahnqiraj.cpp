@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,14 +31,14 @@ class instance_temple_of_ahnqiraj : public InstanceMapScript
 public:
     instance_temple_of_ahnqiraj() : InstanceMapScript("instance_temple_of_ahnqiraj", 531) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_temple_of_ahnqiraj_InstanceMapScript(pMap);
+        return new instance_temple_of_ahnqiraj_InstanceMapScript(map);
     }
 
     struct instance_temple_of_ahnqiraj_InstanceMapScript : public InstanceScript
     {
-        instance_temple_of_ahnqiraj_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_temple_of_ahnqiraj_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         //If Vem is dead...
         bool IsBossDied[3];
@@ -91,7 +91,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_VEMISDEAD:
                     if (IsBossDied[0])
@@ -119,7 +119,7 @@ public:
 
         uint64 GetData64 (uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_SKERAM:
                     return SkeramGUID;
@@ -137,7 +137,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_VEM_DEATH:
                     IsBossDied[0] = true;

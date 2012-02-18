@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -80,17 +80,10 @@ public:
     {
         boss_the_lurker_belowAI(Creature* c) : Scripted_NoMovementAI(c), Summons(me)
         {
-            pInstance = c->GetInstanceScript();
-            SpellEntry *TempSpell = GET_SPELL(SPELL_SPOUT_ANIM);
-            if (TempSpell)
-            {
-                TempSpell->Effect[0] = 0;//remove all spell effect, only anim is needed
-                TempSpell->Effect[1] = 0;
-                TempSpell->Effect[2] = 0;
-            }
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         SummonList Summons;
 
         bool Spawned;
@@ -110,7 +103,7 @@ public:
 
         bool CheckCanStart()//check if players fished
         {
-            if (pInstance && pInstance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
+            if (instance && instance->GetData(DATA_STRANGE_POOL) == NOT_STARTED)
                 return false;
             return true;
         }
@@ -135,23 +128,23 @@ public:
 
             Summons.DespawnAll();
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
-                pInstance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
+                instance->SetData(DATA_THELURKERBELOWEVENT, NOT_STARTED);
+                instance->SetData(DATA_STRANGE_POOL, NOT_STARTED);
             }
             DoCast(me, SPELL_SUBMERGE);//submerge anim
             me->SetVisible(false);//we start invis under water, submerged
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_THELURKERBELOWEVENT, DONE);
-                pInstance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
+                instance->SetData(DATA_THELURKERBELOWEVENT, DONE);
+                instance->SetData(DATA_STRANGE_POOL, IN_PROGRESS);
             }
 
             Summons.DespawnAll();
@@ -159,8 +152,8 @@ public:
 
         void EnterCombat(Unit* who)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_THELURKERBELOWEVENT, IN_PROGRESS);
             Scripted_NoMovementAI::EnterCombat(who);
         }
 
@@ -168,7 +161,7 @@ public:
         {
             if (!CanStartEvent)//boss is invisible, don't attack
                 return;
-            if (!me->getVictim() && who->isTargetableForAttack() && (me->IsHostileTo(who)))
+            if (!me->getVictim() && who->IsValidAttackTarget(me))
             {
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius))
@@ -212,7 +205,7 @@ public:
                     {
                         WaitTimer = 3000;
                         CanStartEvent = true;//fresh fished from pool
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
                     else
@@ -241,7 +234,7 @@ public:
                 {
                     me->MonsterTextEmote(EMOTE_SPOUT, 0, true);
                     me->SetReactState(REACT_PASSIVE);
-                    me->GetMotionMaster()->MoveRotate(20000, rand()%2 ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
+                    me->GetMotionMaster()->MoveRotate(20000, urand(0, 1) ? ROTATE_DIRECTION_LEFT : ROTATE_DIRECTION_RIGHT);
                     SpoutTimer = 45000;
                     WhirlTimer = 20000;//whirl directly after spout
                     RotTimer = 20000;
@@ -258,8 +251,8 @@ public:
                 if (CheckTimer <= diff)//check if there are players in melee range
                 {
                     InRange = false;
-                    Map* pMap = me->GetMap();
-                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                    Map* map = me->GetMap();
+                    Map::PlayerList const &PlayerList = map->GetPlayers();
                     if (!PlayerList.isEmpty())
                     {
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
@@ -273,10 +266,10 @@ public:
 
                 if (RotTimer)
                 {
-                    Map* pMap = me->GetMap();
-                    if (pMap->IsDungeon())
+                    Map* map = me->GetMap();
+                    if (map->IsDungeon())
                     {
-                        Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                        Map::PlayerList const &PlayerList = map->GetPlayers();
                         for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         {
                             if (i->getSource() && i->getSource()->isAlive() && me->HasInArc(float(diff/20000*M_PI*2), i->getSource()) && me->IsWithinDist(i->getSource(), SPOUT_DIST) && !i->getSource()->IsInWater())
@@ -332,7 +325,7 @@ public:
                     Submerged = false;
                     me->InterruptNonMeleeSpells(false);//shouldn't be any
                     me->RemoveAllAuras();
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->RemoveFlag(UNIT_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);
                     DoCast(me, SPELL_EMERGE, true);
                     Spawned = false;
@@ -351,7 +344,7 @@ public:
 
                 if (!Spawned)
                 {
-                    me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->SetUInt32Value(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     //spawn adds
                     for (uint8 i = 0; i < 9; ++i)
                     {
@@ -410,9 +403,6 @@ public:
     {
         mob_coilfang_ambusherAI(Creature* c) : Scripted_NoMovementAI(c)
         {
-            SpellEntry *TempSpell = GET_SPELL(SPELL_SHOOT);
-            if (TempSpell)
-                TempSpell->Effect[0] = 2;//change spell effect from weapon % dmg to simple phisical dmg
         }
 
         uint32 MultiShotTimer;
@@ -434,7 +424,7 @@ public:
         {
             if (!who || me->getVictim()) return;
 
-            if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who) && me->IsWithinDistInMap(who, 45))
+            if (who->isInAccessiblePlaceFor(me) && me->IsValidAttackTarget(who) && me->IsWithinDistInMap(who, 45))
             {
                 AttackStart(who);
             }

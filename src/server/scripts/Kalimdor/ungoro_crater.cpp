@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -180,14 +180,14 @@ class npc_ringo : public CreatureScript
 public:
     npc_ringo() : CreatureScript("npc_ringo") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_A_LITTLE_HELP)
+        if (quest->GetQuestId() == QUEST_A_LITTLE_HELP)
         {
             if (npc_ringoAI* pRingoAI = CAST_AI(npc_ringo::npc_ringoAI, creature->AI()))
             {
                 creature->SetStandState(UNIT_STAND_STATE_STAND);
-                pRingoAI->StartFollow(player, FACTION_ESCORTEE, pQuest);
+                pRingoAI->StartFollow(player, FACTION_ESCORTEE, quest);
             }
         }
 
@@ -237,7 +237,7 @@ public:
             }
         }
 
-        void SpellHit(Unit* /*pCaster*/, const SpellEntry* pSpell)
+        void SpellHit(Unit* /*pCaster*/, const SpellInfo* pSpell)
         {
             if (HasFollowState(STATE_FOLLOW_INPROGRESS | STATE_FOLLOW_PAUSED) && pSpell->Id == SPELL_REVIVE_RINGO)
                 ClearFaint();
@@ -283,7 +283,7 @@ public:
                             return;
                         }
 
-                        switch(m_uiEndEventProgress)
+                        switch (m_uiEndEventProgress)
                         {
                             case 1:
                                 DoScriptText(SAY_RIN_END_1, me);

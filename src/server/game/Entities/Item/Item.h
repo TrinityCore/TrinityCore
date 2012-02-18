@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 #include "ItemPrototype.h"
 #include "DatabaseEnv.h"
 
-struct SpellEntry;
+class SpellInfo;
 class Bag;
 class Unit;
 
@@ -33,7 +33,7 @@ struct ItemSetEffect
 {
     uint32 setid;
     uint32 item_count;
-    SpellEntry const *spells[8];
+    SpellInfo const* spells[8];
 };
 
 enum InventoryResult
@@ -221,7 +221,7 @@ struct ItemRequiredTarget
     bool IsFitToRequirements(Unit* pUnitTarget) const;
 };
 
-bool ItemCanGoIntoBag(ItemTemplate const *proto, ItemTemplate const *pBagProto);
+bool ItemCanGoIntoBag(ItemTemplate const* proto, ItemTemplate const* pBagProto);
 
 class Item : public Object
 {
@@ -235,7 +235,7 @@ class Item : public Object
 
         ItemTemplate const* GetTemplate() const;
 
-        uint64 const& GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
+        uint64 GetOwnerGUID()    const { return GetUInt64Value(ITEM_FIELD_OWNER); }
         void SetOwnerGUID(uint64 guid) { SetUInt64Value(ITEM_FIELD_OWNER, guid); }
         Player* GetOwner()const;
 
@@ -251,7 +251,7 @@ class Item : public Object
         static void DeleteFromInventoryDB(SQLTransaction& trans, uint32 itemGuid);
         void DeleteFromInventoryDB(SQLTransaction& trans);
         void SaveRefundDataToDB();
-        void DeleteRefundDataFromDB();
+        void DeleteRefundDataFromDB(SQLTransaction* trans);
 
         Bag* ToBag() { if (IsBag()) return reinterpret_cast<Bag*>(this); else return NULL; }
         const Bag* ToBag() const { if (IsBag()) return reinterpret_cast<const Bag*>(this); else return NULL; }
@@ -264,10 +264,10 @@ class Item : public Object
         void SetInTrade(bool b = true) { mb_in_trade = b; }
         bool IsInTrade() const { return mb_in_trade; }
 
-        bool HasEnchantRequiredSkill(const Player *pPlayer) const;
+        bool HasEnchantRequiredSkill(const Player* player) const;
         uint32 GetEnchantRequiredLevel() const;
 
-        bool IsFitToSpellRequirements(SpellEntry const* spellInfo) const;
+        bool IsFitToSpellRequirements(SpellInfo const* spellInfo) const;
         bool IsTargetValidForItemUse(Unit* pUnitTarget);
         bool IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const;
         bool GemsFitSockets() const;
@@ -280,11 +280,11 @@ class Item : public Object
         InventoryResult CanBeMergedPartlyWith(ItemTemplate const* proto) const;
 
         uint8 GetSlot() const {return m_slot;}
-        Bag *GetContainer() { return m_container; }
+        Bag* GetContainer() { return m_container; }
         uint8 GetBagSlot() const;
         void SetSlot(uint8 slot) { m_slot = slot; }
         uint16 GetPos() const { return uint16(GetBagSlot()) << 8 | GetSlot(); }
-        void SetContainer(Bag *container) { m_container = container; }
+        void SetContainer(Bag* container) { m_container = container; }
 
         bool IsInBag() const { return m_container != NULL; }
         bool IsEquipped() const;
@@ -321,7 +321,7 @@ class Item : public Object
 
         // Update States
         ItemUpdateState GetState() const { return uState; }
-        void SetState(ItemUpdateState state, Player *forplayer = NULL);
+        void SetState(ItemUpdateState state, Player* forplayer = NULL);
         void AddToUpdateQueueOf(Player* player);
         void RemoveFromUpdateQueueOf(Player* player);
         bool IsInUpdateQueue() const { return uQueuePos != -1; }
@@ -339,7 +339,7 @@ class Item : public Object
         bool IsConjuredConsumable() const { return GetTemplate()->IsConjuredConsumable(); }
 
         // Item Refund system
-        void SetNotRefundable(Player *owner, bool changestate = true);
+        void SetNotRefundable(Player* owner, bool changestate = true, SQLTransaction* trans = NULL);
         void SetRefundRecipient(uint32 pGuidLow) { m_refundRecipient = pGuidLow; }
         void SetPaidMoney(uint32 money) { m_paidMoney = money; }
         void SetPaidExtendedCost(uint32 iece) { m_paidExtendedCost = iece; }
@@ -347,12 +347,13 @@ class Item : public Object
         uint32 GetPaidMoney() { return m_paidMoney; }
         uint32 GetPaidExtendedCost() { return m_paidExtendedCost; }
 
-        void UpdatePlayedTime(Player *owner);
+        void UpdatePlayedTime(Player* owner);
         uint32 GetPlayedTime();
         bool IsRefundExpired();
 
         // Soulbound trade system
-        void SetSoulboundTradeable(AllowedLooterSet* allowedLooters, Player* currentOwner, bool apply);
+        void SetSoulboundTradeable(AllowedLooterSet& allowedLooters);
+        void ClearSoulboundTradeable(Player* currentOwner);
         bool CheckSoulboundTradeExpire();
 
         void BuildUpdate(UpdateDataMapType&);
@@ -361,7 +362,7 @@ class Item : public Object
     private:
         std::string m_text;
         uint8 m_slot;
-        Bag *m_container;
+        Bag* m_container;
         ItemUpdateState uState;
         int16 uQueuePos;
         bool mb_in_trade;                                   // true if item is currently in trade-window

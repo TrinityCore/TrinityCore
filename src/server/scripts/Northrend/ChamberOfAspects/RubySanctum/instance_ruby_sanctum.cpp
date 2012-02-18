@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -189,7 +189,7 @@ class instance_ruby_sanctum : public InstanceMapScript
                         {
                             HandleGameObject(FlameWallsGUID, true);
                             if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
-                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                         }
                         break;
                     }
@@ -199,16 +199,24 @@ class instance_ruby_sanctum : public InstanceMapScript
                         {
                             HandleGameObject(FlameWallsGUID, true);
                             if (Creature* zarithrian = instance->GetCreature(GeneralZarithrianGUID))
-                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                                zarithrian->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                         }
                         break;
                     }
                     case DATA_GENERAL_ZARITHRIAN:
                         if (GetBossState(DATA_SAVIANA_RAGEFIRE) == DONE && GetBossState(DATA_BALTHARUS_THE_WARBORN) == DONE)
                             HandleGameObject(FlameWallsGUID, state != IN_PROGRESS);
+                        /*
                         if (state == DONE)
                             if (Creature* halionController = instance->SummonCreature(NPC_HALION_CONTROLLER, HalionControllerSpawnPos))
                                 halionController->AI()->DoAction(ACTION_INTRO_HALION);
+                        */
+                        break;
+                    case DATA_HALION:
+                        /*
+                        if (state != IN_PROGRESS)
+                            HandleGameObject(FlameRingGUID, true);
+                        */
                         break;
                     default:
                         break;

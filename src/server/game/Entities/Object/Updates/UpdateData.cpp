@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -34,7 +34,7 @@ void UpdateData::AddOutOfRangeGUID(std::set<uint64>& guids)
     m_outOfRangeGUIDs.insert(guids.begin(), guids.end());
 }
 
-void UpdateData::AddOutOfRangeGUID(const uint64 &guid)
+void UpdateData::AddOutOfRangeGUID(uint64 guid)
 {
     m_outOfRangeGUIDs.insert(guid);
 }

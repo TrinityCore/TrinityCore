@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@
 #ifndef _AUTH_HMAC_H
 #define _AUTH_HMAC_H
 
-#include "Common.h"
+#include "Define.h"
+#include <string>
 #include <openssl/hmac.h>
 #include <openssl/sha.h>
 
@@ -32,11 +33,11 @@ class HmacHash
     public:
         HmacHash(uint32 len, uint8 *seed);
         ~HmacHash();
-        void UpdateBigNumber(BigNumber *bn);
+        void UpdateBigNumber(BigNumber* bn);
         void UpdateData(const uint8 *data, int length);
         void UpdateData(const std::string &str);
         void Finalize();
-        uint8 *ComputeHash(BigNumber *bn);
+        uint8 *ComputeHash(BigNumber* bn);
         uint8 *GetDigest() { return (uint8*)m_digest; }
         int GetLength() const { return SHA_DIGEST_LENGTH; }
     private:

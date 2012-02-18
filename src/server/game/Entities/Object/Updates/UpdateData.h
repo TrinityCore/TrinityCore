@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,10 +53,10 @@ class UpdateData
         UpdateData();
 
         void AddOutOfRangeGUID(std::set<uint64>& guids);
-        void AddOutOfRangeGUID(const uint64 &guid);
+        void AddOutOfRangeGUID(uint64 guid);
         void AddUpdateBlock(const ByteBuffer &block);
         bool BuildPacket(WorldPacket* packet);
-        bool HasData() { return m_blockCount > 0 || !m_outOfRangeGUIDs.empty(); }
+        bool HasData() const { return m_blockCount > 0 || !m_outOfRangeGUIDs.empty(); }
         void Clear();
 
         std::set<uint64> const& GetOutOfRangeGUIDs() const { return m_outOfRangeGUIDs; }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -64,10 +64,10 @@ public:
     {
         boss_darkmaster_gandlingAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 ArcaneMissiles_Timer;
         uint32 ShadowShield_Timer;
@@ -88,8 +88,8 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_GANDLING, DONE);
+            if (instance)
+                instance->SetData(TYPE_GANDLING, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -108,14 +108,14 @@ public:
             if (ShadowShield_Timer <= diff)
             {
                 DoCast(me, SPELL_SHADOWSHIELD);
-                ShadowShield_Timer = 14000 + rand()%14000;
+                ShadowShield_Timer = urand(14000, 28000);
             } else ShadowShield_Timer -= diff;
 
             //Curse_Timer
             if (Curse_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CURSE);
-                Curse_Timer = 15000 + rand()%12000;
+                Curse_Timer = urand(15000, 27000);
             } else Curse_Timer -= diff;
 
             //Teleporting Random Target to one of the six pre boss rooms and spawn 3-4 skeletons near the gamer.
@@ -132,7 +132,7 @@ public:
                             DoModifyThreatPercent(target, -100);
 
                         Creature* Summoned = NULL;
-                        switch(rand()%6)
+                        switch (rand()%6)
                         {
                             case 0:
                                 DoTeleportPlayer(target, 250.0696f, 0.3921f, 84.8408f, 3.149f);
@@ -214,7 +214,7 @@ public:
                                 break;
                         }
                     }
-                    Teleport_Timer = 20000 + rand()%15000;
+                    Teleport_Timer = urand(20000, 35000);
                 } else Teleport_Timer -= diff;
             }
 

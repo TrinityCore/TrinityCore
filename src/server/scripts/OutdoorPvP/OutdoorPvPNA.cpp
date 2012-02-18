@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,7 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
     uint32 cnt = 0;
     for (std::map<uint32, uint64>::iterator itr = m_Creatures.begin(); itr != m_Creatures.end(); ++itr)
     {
-        switch(itr->first)
+        switch (itr->first)
         {
         case NA_NPC_GUARD_01:
         case NA_NPC_GUARD_02:
@@ -63,19 +63,20 @@ uint32 OPvPCapturePointNA::GetAliveGuardsCount()
         case NA_NPC_GUARD_13:
         case NA_NPC_GUARD_14:
         case NA_NPC_GUARD_15:
-        {
-            if (Creature* cr = HashMapHolder<Creature>::Find(itr->second))
-            {
+            if (Creature const* const cr = HashMapHolder<Creature>::Find(itr->second))
                 if (cr->isAlive())
                     ++cnt;
-            }
-        }
-        break;
+            break;
         default:
             break;
         }
     }
     return cnt;
+}
+
+uint32 OPvPCapturePointNA::GetControllingFaction() const
+{
+    return m_ControllingFaction;
 }
 
 void OPvPCapturePointNA::SpawnNPCsForTeam(uint32 team)
@@ -197,7 +198,7 @@ void OPvPCapturePointNA::HandlePlayerLeave(Player* player)
     OPvPCapturePoint::HandlePlayerLeave(player);
 }
 
-OPvPCapturePointNA::OPvPCapturePointNA(OutdoorPvP *pvp) :
+OPvPCapturePointNA::OPvPCapturePointNA(OutdoorPvP* pvp) :
 OPvPCapturePoint(pvp), m_capturable(true), m_GuardsAlive(0), m_ControllingFaction(0),
 m_WyvernStateNorth(0), m_WyvernStateSouth(0), m_WyvernStateEast(0), m_WyvernStateWest(0),
 m_HalaaState(HALAA_N), m_RespawnTimer(NA_RESPAWN_TIME), m_GuardCheckTimer(NA_GUARD_CHECK_TIME)
@@ -223,7 +224,7 @@ bool OutdoorPvPNA::SetupOutdoorPvP()
 void OutdoorPvPNA::HandlePlayerEnterZone(Player* player, uint32 zone)
 {
     // add buffs
-    if (player->GetTeam() == m_obj->m_ControllingFaction)
+    if (player->GetTeam() == m_obj->GetControllingFaction())
         player->CastSpell(player, NA_CAPTURE_BUFF, true);
     OutdoorPvP::HandlePlayerEnterZone(player, zone);
 }
@@ -334,7 +335,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
     std::vector<uint32> nodes;
     nodes.resize(2);
     bool retval = false;
-    switch(spellId)
+    switch (spellId)
     {
     case NA_SPELL_FLY_NORTH:
         nodes[0] = FlightPathStartNodes[NA_ROOST_N];
@@ -383,7 +384,7 @@ bool OPvPCapturePointNA::HandleCustomSpell(Player* player, uint32 spellId, GameO
         int32 count = 10;
         uint32 itemid = 24538;
                                                                 // bomb id count
-        uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count, &noSpaceForCount);
+        InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, itemid, count, &noSpaceForCount);
         if (msg != EQUIP_ERR_OK)                               // convert to possible store amount
             count -= noSpaceForCount;
 
@@ -422,7 +423,7 @@ int32 OPvPCapturePointNA::HandleOpenGo(Player* player, uint64 guid)
         int32 add = -1;
         int32 add2 = -1;
 
-        switch(retval)
+        switch (retval)
         {
         case NA_DESTROYED_ROOST_S:
             del = NA_DESTROYED_ROOST_S;
@@ -568,7 +569,7 @@ bool OPvPCapturePointNA::Update(uint32 diff)
 void OPvPCapturePointNA::ChangeState()
 {
     uint32 artkit = 21;
-    switch(m_State)
+    switch (m_State)
     {
         case OBJECTIVESTATE_NEUTRAL:
             m_HalaaState = HALAA_N;
@@ -620,16 +621,16 @@ void OPvPCapturePointNA::SendChangePhase()
 
 void OPvPCapturePointNA::UpdateHalaaWorldState()
 {
-    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEUTRAL , uint32(bool(m_HalaaState & HALAA_N)));
-    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEU_A , uint32(bool(m_HalaaState & HALAA_N_A)));
-    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEU_H , uint32(bool(m_HalaaState & HALAA_N_H)));
-    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_HORDE , uint32(bool(m_HalaaState & HALAA_H)));
-    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_ALLIANCE , uint32(bool(m_HalaaState & HALAA_A)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEUTRAL, uint32(bool(m_HalaaState & HALAA_N)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEU_A, uint32(bool(m_HalaaState & HALAA_N_A)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_NEU_H, uint32(bool(m_HalaaState & HALAA_N_H)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_HORDE, uint32(bool(m_HalaaState & HALAA_H)));
+    m_PvP->SendUpdateWorldState(NA_MAP_HALAA_ALLIANCE, uint32(bool(m_HalaaState & HALAA_A)));
 }
 
 void OPvPCapturePointNA::UpdateWyvernRoostWorldState(uint32 roost)
 {
-    switch(roost)
+    switch (roost)
     {
     case NA_ROOST_S:
         m_PvP->SendUpdateWorldState(NA_MAP_WYVERN_SOUTH_NEU_H, uint32(bool(m_WyvernStateSouth & WYVERN_NEU_HORDE)));

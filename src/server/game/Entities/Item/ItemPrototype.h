@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -527,7 +527,7 @@ const uint32 MaxItemSubclassValues[MAX_ITEM_CLASS] =
 
 inline uint8 ItemSubClassToDurabilityMultiplierId(uint32 ItemClass, uint32 ItemSubClass)
 {
-    switch(ItemClass)
+    switch (ItemClass)
     {
         case ITEM_CLASS_WEAPON: return ItemSubClass;
         case ITEM_CLASS_ARMOR:  return ItemSubClass + 21;
@@ -656,7 +656,7 @@ struct ItemTemplate
     // helpers
     bool CanChangeEquipStateInCombat() const
     {
-        switch(InventoryType)
+        switch (InventoryType)
         {
             case INVTYPE_RELIC:
             case INVTYPE_SHIELD:
@@ -664,7 +664,7 @@ struct ItemTemplate
                 return true;
         }
 
-        switch(Class)
+        switch (Class)
         {
             case ITEM_CLASS_WEAPON:
             case ITEM_CLASS_PROJECTILE:
@@ -729,7 +729,6 @@ struct ItemTemplate
     bool IsWeaponVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_WEAPON_ENCHANTMENT; }
     bool IsArmorVellum() const { return Class == ITEM_CLASS_TRADE_GOODS && SubClass == ITEM_SUBCLASS_ARMOR_ENCHANTMENT; }
     bool IsConjuredConsumable() const { return Class == ITEM_CLASS_CONSUMABLE && (Flags & ITEM_PROTO_FLAG_CONJURED); }
-
 };
 
 // Benchmarked: Faster than std::map (insert/find)

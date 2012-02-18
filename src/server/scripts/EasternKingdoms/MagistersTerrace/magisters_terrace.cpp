@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -59,7 +59,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF:
                 player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_KAEL_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
@@ -128,24 +128,24 @@ public:
         // some targeting issues with the spell, so use this workaround as temporary solution
         void DoWorkaroundForQuestCredit()
         {
-            Map* pMap = me->GetMap();
+            Map* map = me->GetMap();
 
-            if (!pMap || pMap->IsHeroic())
+            if (!map || map->IsHeroic())
                 return;
 
-            Map::PlayerList const &lList = pMap->GetPlayers();
+            Map::PlayerList const &lList = map->GetPlayers();
 
             if (lList.isEmpty())
                 return;
 
-            SpellEntry const* pSpell = GetSpellStore()->LookupEntry(SPELL_ORB_KILL_CREDIT);
+            SpellInfo const* pSpell = sSpellMgr->GetSpellInfo(SPELL_ORB_KILL_CREDIT);
 
             for (Map::PlayerList::const_iterator i = lList.begin(); i != lList.end(); ++i)
             {
                 if (Player* player = i->getSource())
                 {
-                    if (pSpell && pSpell->EffectMiscValue[0])
-                        player->KilledMonsterCredit(pSpell->EffectMiscValue[0], 0);
+                    if (pSpell && pSpell->Effects[0].MiscValue)
+                        player->KilledMonsterCredit(pSpell->Effects[0].MiscValue, 0);
                 }
             }
         }

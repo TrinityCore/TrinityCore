@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -153,9 +153,9 @@ class boss_zuljin : public CreatureScript
         {
             boss_zuljinAI(Creature* c) : ScriptedAI(c), Summons(me)
             {
-                pInstance = c->GetInstanceScript();
+                instance = c->GetInstanceScript();
             }
-            InstanceScript* pInstance;
+            InstanceScript* instance;
 
             uint64 SpiritGUID[4];
             uint64 ClawTargetGUID;
@@ -186,8 +186,8 @@ class boss_zuljin : public CreatureScript
 
             void Reset()
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_ZULJINEVENT, NOT_STARTED);
+                if (instance)
+                    instance->SetData(DATA_ZULJINEVENT, NOT_STARTED);
 
                 Phase = 0;
 
@@ -223,8 +223,8 @@ class boss_zuljin : public CreatureScript
 
             void EnterCombat(Unit* /*who*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
+                if (instance)
+                    instance->SetData(DATA_ZULJINEVENT, IN_PROGRESS);
 
                 DoZoneInCombat();
 
@@ -254,8 +254,8 @@ class boss_zuljin : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                if (pInstance)
-                    pInstance->SetData(DATA_ZULJINEVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_ZULJINEVENT, DONE);
 
                 me->MonsterYell(YELL_DEATH, LANG_UNIVERSAL, 0);
                 DoPlaySoundToSet(me, SOUND_DEATH);
@@ -340,7 +340,7 @@ class boss_zuljin : public CreatureScript
 
             void EnterPhase(uint32 NextPhase)
             {
-                switch(NextPhase)
+                switch (NextPhase)
                 {
                 case 0:
                     break;
@@ -430,7 +430,7 @@ class boss_zuljin : public CreatureScript
                     if (Whirlwind_Timer <= diff)
                     {
                         DoCast(me, SPELL_WHIRLWIND);
-                        Whirlwind_Timer = 15000 + rand()%5000;
+                        Whirlwind_Timer = urand(15000, 20000);
                     } else Whirlwind_Timer -= diff;
 
                     if (Grievous_Throw_Timer <= diff)
@@ -489,7 +489,7 @@ class boss_zuljin : public CreatureScript
                                         ++Claw_Counter;
                                         if (Claw_Counter == 12)
                                         {
-                                            Claw_Rage_Timer = 15000 + rand()%5000;
+                                            Claw_Rage_Timer = urand(15000, 20000);
                                             me->SetSpeed(MOVE_RUN, 1.2f);
                                             AttackStart(Unit::GetUnit(*me, TankGUID));
                                             TankGUID = 0;
@@ -537,7 +537,7 @@ class boss_zuljin : public CreatureScript
                                     ++Claw_Counter;
                                     if (Claw_Counter == 9)
                                     {
-                                        Lynx_Rush_Timer = 15000 + rand()%5000;
+                                        Lynx_Rush_Timer = urand(15000, 20000);
                                         me->SetSpeed(MOVE_RUN, 1.2f);
                                         AttackStart(Unit::GetUnit(*me, TankGUID));
                                         TankGUID = 0;
@@ -608,9 +608,9 @@ class mob_zuljin_vortex : public CreatureScript
 
             void Reset() {}
 
-            void EnterCombat(Unit* /*pTarget*/) {}
+            void EnterCombat(Unit* /*target*/) {}
 
-            void SpellHit(Unit* caster, const SpellEntry* spell)
+            void SpellHit(Unit* caster, const SpellInfo* spell)
             {
                 if (spell->Id == SPELL_ZAP_INFORM)
                     DoCast(caster, SPELL_ZAP_DAMAGE, true);

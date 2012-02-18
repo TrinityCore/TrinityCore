@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -57,7 +57,7 @@ void LoadRandomEnchantmentsTable()
 
         do
         {
-            Field *fields = result->Fetch();
+            Field* fields = result->Fetch();
 
             uint32 entry = fields[0].GetUInt32();
             uint32 ench = fields[1].GetUInt32();
@@ -120,19 +120,19 @@ uint32 GetItemEnchantMod(int32 entry)
 
 uint32 GenerateEnchSuffixFactor(uint32 item_id)
 {
-    ItemTemplate const *itemProto = sObjectMgr->GetItemTemplate(item_id);
+    ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(item_id);
 
     if (!itemProto)
         return 0;
     if (!itemProto->RandomSuffix)
         return 0;
 
-    RandomPropertiesPointsEntry const *randomProperty = sRandomPropertiesPointsStore.LookupEntry(itemProto->ItemLevel);
+    RandomPropertiesPointsEntry const* randomProperty = sRandomPropertiesPointsStore.LookupEntry(itemProto->ItemLevel);
     if (!randomProperty)
         return 0;
 
     uint32 suffixFactor;
-    switch(itemProto->InventoryType)
+    switch (itemProto->InventoryType)
     {
         // Items of that type don`t have points
         case INVTYPE_NON_EQUIP:

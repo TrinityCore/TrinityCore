@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@ enum Data
     DATA_UROK_DOOMHOWL,                       // not scripted
     DATA_QUARTERMASTER_ZIGRIS,
     DATA_GIZRUL_THE_SLAVENER,                 // not scripted
-    DATA_HALYCON ,
+    DATA_HALYCON,
     DATA_OVERLORD_WYRMTHALAK,
     DATA_PYROGAURD_EMBERSEER,
     DATA_WARCHIEF_REND_BLACKHAND,

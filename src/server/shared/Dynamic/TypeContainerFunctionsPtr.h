@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -101,7 +101,7 @@ namespace Trinity
     template<class SPECIFIC_TYPE, class H, class T> CountedPtr<SPECIFIC_TYPE>& Find(const ContainerMapList<TypeList<H, T> >&elements, OBJECT_HANDLE hdl, CountedPtr<SPECIFIC_TYPE>* fake)
     {
         CountedPtr<SPECIFIC_TYPE> &t = Find(elements._elements, hdl, fake);
-        if(!t)
+        if (!t)
             t = Find(elements._TailElement, hdl, fake);
 
         return t;
@@ -136,7 +136,7 @@ namespace Trinity
     template<class SPECIFIC_TYPE> bool Remove(ContainerMapList<SPECIFIC_TYPE> &elements, CountedPtr<SPECIFIC_TYPE> &obj, OBJECT_HANDLE hdl)
     {
         typename std::map<OBJECT_HANDLE, CountedPtr<SPECIFIC_TYPE> >::iterator iter = elements._element.find(hdl);
-        if( iter != elements._element.end() )
+        if ( iter != elements._element.end() )
         {
             elements._element.erase(iter);
             return true;

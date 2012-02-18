@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
 #include "SpellScript.h"
 #include "SpellMgr.h"
 
-bool _SpellScript::_Validate(SpellEntry const* entry)
+bool _SpellScript::_Validate(SpellInfo const* entry)
 {
     if (!Validate(entry))
     {
@@ -52,6 +52,11 @@ void _SpellScript::_Init(std::string const* scriptname, uint32 spellId)
     m_scriptSpellId = spellId;
 }
 
+std::string const* _SpellScript::_GetScriptName() const
+{
+    return m_scriptName;
+}
+
 _SpellScript::EffectHook::EffectHook(uint8 _effIndex)
 {
     // effect index must be in range <0;2>, allow use of special effindexes
@@ -59,7 +64,7 @@ _SpellScript::EffectHook::EffectHook(uint8 _effIndex)
     effIndex = _effIndex;
 }
 
-uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellEntry const* spellEntry)
+uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellInfo const* spellEntry)
 {
     uint8 mask = 0;
     if ((effIndex == EFFECT_ALL) || (effIndex == EFFECT_FIRST_FOUND))
@@ -80,14 +85,14 @@ uint8 _SpellScript::EffectHook::GetAffectedEffectsMask(SpellEntry const* spellEn
     return mask;
 }
 
-bool _SpellScript::EffectHook::IsEffectAffected(SpellEntry const* spellEntry, uint8 effIndex)
+bool _SpellScript::EffectHook::IsEffectAffected(SpellInfo const* spellEntry, uint8 effIndex)
 {
     return GetAffectedEffectsMask(spellEntry) & 1<<effIndex;
 }
 
 std::string _SpellScript::EffectHook::EffIndexToString()
 {
-    switch(effIndex)
+    switch (effIndex)
     {
         case EFFECT_ALL:
             return "EFFECT_ALL";
@@ -103,18 +108,18 @@ std::string _SpellScript::EffectHook::EffIndexToString()
     return "Invalid Value";
 }
 
-bool _SpellScript::EffectNameCheck::Check(SpellEntry const* spellEntry, uint8 effIndex)
+bool _SpellScript::EffectNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex)
 {
-    if (!spellEntry->Effect[effIndex] && !effName)
+    if (!spellEntry->Effects[effIndex].Effect && !effName)
         return true;
-    if (!spellEntry->Effect[effIndex])
+    if (!spellEntry->Effects[effIndex].Effect)
         return false;
-    return (effName == SPELL_EFFECT_ANY) || (spellEntry->Effect[effIndex] == effName);
+    return (effName == SPELL_EFFECT_ANY) || (spellEntry->Effects[effIndex].Effect == effName);
 }
 
 std::string _SpellScript::EffectNameCheck::ToString()
 {
-    switch(effName)
+    switch (effName)
     {
         case SPELL_EFFECT_ANY:
             return "SPELL_EFFECT_ANY";
@@ -125,18 +130,18 @@ std::string _SpellScript::EffectNameCheck::ToString()
     }
 }
 
-bool _SpellScript::EffectAuraNameCheck::Check(SpellEntry const* spellEntry, uint8 effIndex)
+bool _SpellScript::EffectAuraNameCheck::Check(SpellInfo const* spellEntry, uint8 effIndex)
 {
-    if (!spellEntry->EffectApplyAuraName[effIndex] && !effAurName)
+    if (!spellEntry->Effects[effIndex].ApplyAuraName && !effAurName)
         return true;
-    if (!spellEntry->EffectApplyAuraName[effIndex])
+    if (!spellEntry->Effects[effIndex].ApplyAuraName)
         return false;
-    return (effAurName == SPELL_EFFECT_ANY) || (spellEntry->EffectApplyAuraName[effIndex] == effAurName);
+    return (effAurName == SPELL_EFFECT_ANY) || (spellEntry->Effects[effIndex].ApplyAuraName == effAurName);
 }
 
 std::string _SpellScript::EffectAuraNameCheck::ToString()
 {
-    switch(effAurName)
+    switch (effAurName)
     {
         case SPELL_AURA_ANY:
             return "SPELL_AURA_ANY";
@@ -145,6 +150,16 @@ std::string _SpellScript::EffectAuraNameCheck::ToString()
             sprintf (num, "%u", effAurName);
             return num;
     }
+}
+
+SpellScript::CastHandler::CastHandler(SpellCastFnType _pCastHandlerScript)
+{
+    pCastHandlerScript = _pCastHandlerScript;
+}
+
+void SpellScript::CastHandler::Call(SpellScript* spellScript)
+{
+    (spellScript->*pCastHandlerScript)();
 }
 
 SpellScript::CheckCastHandler::CheckCastHandler(SpellCheckCastFnType checkCastHandlerScript)
@@ -168,7 +183,7 @@ std::string SpellScript::EffectHandler::ToString()
     return "Index: " + EffIndexToString() + " Name: " +_SpellScript::EffectNameCheck::ToString();
 }
 
-bool SpellScript::EffectHandler::CheckEffect(SpellEntry const* spellEntry, uint8 effIndex)
+bool SpellScript::EffectHandler::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
 {
     return _SpellScript::EffectNameCheck::Check(spellEntry, effIndex);
 }
@@ -201,11 +216,11 @@ std::string SpellScript::UnitTargetHandler::ToString()
     return oss.str();
 }
 
-bool SpellScript::UnitTargetHandler::CheckEffect(SpellEntry const* spellEntry, uint8 effIndex)
+bool SpellScript::UnitTargetHandler::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
 {
     if (!targetType)
         return false;
-    return (effIndex == EFFECT_ALL) || (spellEntry->EffectImplicitTargetA[effIndex] == targetType || spellEntry->EffectImplicitTargetB[effIndex] == targetType);
+    return (effIndex == EFFECT_ALL) || (spellEntry->Effects[effIndex].TargetA.GetTarget() == targetType || spellEntry->Effects[effIndex].TargetB.GetTarget() == targetType);
 }
 
 void SpellScript::UnitTargetHandler::Call(SpellScript* spellScript, std::list<Unit*>& unitTargets)
@@ -213,11 +228,23 @@ void SpellScript::UnitTargetHandler::Call(SpellScript* spellScript, std::list<Un
     (spellScript->*pUnitTargetHandlerScript)(unitTargets);
 }
 
-bool SpellScript::_Validate(SpellEntry const* entry)
+bool SpellScript::_Validate(SpellInfo const* entry)
 {
-    for (std::list<EffectHandler>::iterator itr = OnEffect.begin(); itr != OnEffect.end();  ++itr)
+    for (std::list<EffectHandler>::iterator itr = OnEffectLaunch.begin(); itr != OnEffectLaunch.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
-            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffect` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectLaunch` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<EffectHandler>::iterator itr = OnEffectLaunchTarget.begin(); itr != OnEffectLaunchTarget.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectLaunchTarget` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<EffectHandler>::iterator itr = OnEffectHit.begin(); itr != OnEffectHit.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectHit` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
+
+    for (std::list<EffectHandler>::iterator itr = OnEffectHitTarget.begin(); itr != OnEffectHitTarget.end();  ++itr)
+        if (!(*itr).GetAffectedEffectsMask(entry))
+            sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectHitTarget` of SpellScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
 
     for (std::list<UnitTargetHandler>::iterator itr = OnUnitTargetSelect.begin(); itr != OnUnitTargetSelect.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
@@ -251,6 +278,33 @@ void SpellScript::_FinishScriptCall()
     m_currentScriptState = SPELL_SCRIPT_STATE_NONE;
 }
 
+bool SpellScript::IsInCheckCastHook() const
+{
+    return m_currentScriptState == SPELL_SCRIPT_HOOK_CHECK_CAST;
+}
+bool SpellScript::IsInTargetHook() const
+{
+    switch (m_currentScriptState)
+    {
+        case SPELL_SCRIPT_HOOK_EFFECT_LAUNCH_TARGET:
+        case SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET:
+        case SPELL_SCRIPT_HOOK_BEFORE_HIT:
+        case SPELL_SCRIPT_HOOK_HIT:
+        case SPELL_SCRIPT_HOOK_AFTER_HIT:
+            return true;
+    }
+    return false;
+}
+bool SpellScript::IsInHitPhase() const
+{
+    return (m_currentScriptState >= HOOK_SPELL_HIT_START && m_currentScriptState < HOOK_SPELL_HIT_END);
+}
+
+bool SpellScript::IsInEffectHook() const
+{
+    return (m_currentScriptState >= SPELL_SCRIPT_HOOK_EFFECT_LAUNCH && m_currentScriptState <= SPELL_SCRIPT_HOOK_EFFECT_HIT_TARGET);
+}
+
 Unit* SpellScript::GetCaster()
 {
      return m_spell->GetCaster();
@@ -261,7 +315,7 @@ Unit* SpellScript::GetOriginalCaster()
      return m_spell->GetOriginalCaster();
 }
 
-SpellEntry const* SpellScript::GetSpellInfo()
+SpellInfo const* SpellScript::GetSpellInfo()
 {
     return m_spell->GetSpellInfo();
 }
@@ -295,9 +349,9 @@ Item* SpellScript::GetTargetItem()
 
 Unit* SpellScript::GetHitUnit()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitUnit was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitUnit was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return NULL;
     }
     return m_spell->unitTarget;
@@ -305,9 +359,9 @@ Unit* SpellScript::GetHitUnit()
 
 Creature* SpellScript::GetHitCreature()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitCreature was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitCreature was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return NULL;
     }
     if (m_spell->unitTarget)
@@ -318,9 +372,9 @@ Creature* SpellScript::GetHitCreature()
 
 Player* SpellScript::GetHitPlayer()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitPlayer was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitPlayer was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return NULL;
     }
     if (m_spell->unitTarget)
@@ -331,9 +385,9 @@ Player* SpellScript::GetHitPlayer()
 
 Item* SpellScript::GetHitItem()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitItem was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitItem was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return NULL;
     }
     return m_spell->itemTarget;
@@ -341,9 +395,9 @@ Item* SpellScript::GetHitItem()
 
 GameObject* SpellScript::GetHitGObj()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitGObj was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitGObj was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return NULL;
     }
     return m_spell->gameObjTarget;
@@ -351,9 +405,9 @@ GameObject* SpellScript::GetHitGObj()
 
 int32 SpellScript::GetHitDamage()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitDamage was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitDamage was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return 0;
     }
     return m_spell->m_damage;
@@ -361,9 +415,9 @@ int32 SpellScript::GetHitDamage()
 
 void SpellScript::SetHitDamage(int32 damage)
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::SetHitDamage was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::SetHitDamage was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
     }
     m_spell->m_damage = damage;
@@ -371,9 +425,9 @@ void SpellScript::SetHitDamage(int32 damage)
 
 int32 SpellScript::GetHitHeal()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitHeal was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitHeal was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return 0;
     }
     return m_spell->m_healing;
@@ -381,9 +435,9 @@ int32 SpellScript::GetHitHeal()
 
 void SpellScript::SetHitHeal(int32 heal)
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::SetHitHeal was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::SetHitHeal was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
     }
     m_spell->m_healing = heal;
@@ -391,9 +445,9 @@ void SpellScript::SetHitHeal(int32 heal)
 
 Aura* SpellScript::GetHitAura()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitAura was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::GetHitAura was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return NULL;
     }
     if (!m_spell->m_spellAura)
@@ -405,9 +459,9 @@ Aura* SpellScript::GetHitAura()
 
 void SpellScript::PreventHitAura()
 {
-    if (!IsInHitPhase())
+    if (!IsInTargetHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitAura was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitAura was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
     }
     if (m_spell->m_spellAura)
@@ -416,9 +470,9 @@ void SpellScript::PreventHitAura()
 
 void SpellScript::PreventHitEffect(SpellEffIndex effIndex)
 {
-    if (!IsInHitPhase())
+    if (!IsInHitPhase() && !IsInEffectHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitEffect was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitEffect was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
     }
     m_hitPreventEffectMask |= 1 << effIndex;
@@ -427,9 +481,9 @@ void SpellScript::PreventHitEffect(SpellEffIndex effIndex)
 
 void SpellScript::PreventHitDefaultEffect(SpellEffIndex effIndex)
 {
-    if (!IsInHitPhase())
+    if (!IsInHitPhase() && !IsInEffectHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitDefaultEffect was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitDefaultEffect was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return;
     }
     m_hitPreventDefaultEffectMask |= 1 << effIndex;
@@ -439,7 +493,7 @@ int32 SpellScript::GetEffectValue()
 {
     if (!IsInEffectHook())
     {
-        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitDefaultEffect was called while spell not in hit phase!", m_scriptName->c_str(), m_scriptSpellId);
+        sLog->outError("TSCR: Script: `%s` Spell: `%u`: function SpellScript::PreventHitDefaultEffect was called, but function has no effect in current hook!", m_scriptName->c_str(), m_scriptSpellId);
         return 0;
     }
     return m_spell->damage;
@@ -453,6 +507,11 @@ Item* SpellScript::GetCastItem()
 void SpellScript::CreateItem(uint32 effIndex, uint32 itemId)
 {
     m_spell->DoCreateItem(effIndex, itemId);
+}
+
+SpellInfo const* SpellScript::GetTriggeringSpell()
+{
+    return m_spell->m_triggeredByAuraSpell;
 }
 
 void SpellScript::FinishCast(SpellCastResult result)
@@ -472,11 +531,24 @@ void SpellScript::SetCustomCastResultMessage(SpellCustomErrors result)
     m_spell->m_customError = result;
 }
 
-bool AuraScript::_Validate(SpellEntry const* entry)
+SpellValue const* SpellScript::GetSpellValue()
+{
+    return m_spell->m_spellValue;
+}
+
+bool AuraScript::_Validate(SpellInfo const* entry)
 {
     for (std::list<CheckAreaTargetHandler>::iterator itr = DoCheckAreaTarget.begin(); itr != DoCheckAreaTarget.end();  ++itr)
-        if (!HasAreaAuraEffect(entry))
+        if (!entry->HasAreaAuraEffect())
             sLog->outError("TSCR: Spell `%u` of script `%s` does not have area aura effect - handler bound to hook `DoCheckAreaTarget` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+
+    for (std::list<AuraDispelHandler>::iterator itr = OnDispel.begin(); itr != OnDispel.end();  ++itr)
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+            sLog->outError("TSCR: Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `OnDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+
+    for (std::list<AuraDispelHandler>::iterator itr = AfterDispel.begin(); itr != AfterDispel.end();  ++itr)
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+            sLog->outError("TSCR: Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `AfterDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
     for (std::list<EffectApplyHandler>::iterator itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
@@ -543,12 +615,22 @@ bool AuraScript::CheckAreaTargetHandler::Call(AuraScript* auraScript, Unit* _tar
     return (auraScript->*pHandlerScript)(_target);
 }
 
+AuraScript::AuraDispelHandler::AuraDispelHandler(AuraDispelFnType _pHandlerScript)
+{
+    pHandlerScript = _pHandlerScript;
+}
+
+void AuraScript::AuraDispelHandler::Call(AuraScript* auraScript, DispelInfo* _dispelInfo)
+{
+    (auraScript->*pHandlerScript)(_dispelInfo);
+}
+
 AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
     : _SpellScript::EffectAuraNameCheck(_effName), _SpellScript::EffectHook(_effIndex)
 {
 }
 
-bool AuraScript::EffectBase::CheckEffect(SpellEntry const* spellEntry, uint8 effIndex)
+bool AuraScript::EffectBase::CheckEffect(SpellInfo const* spellEntry, uint8 effIndex)
 {
     return _SpellScript::EffectAuraNameCheck::Check(spellEntry, effIndex);
 }
@@ -703,9 +785,9 @@ void AuraScript::PreventDefaultAction()
     }
 }
 
-SpellEntry const* AuraScript::GetSpellProto() const
+SpellInfo const* AuraScript::GetSpellInfo() const
 {
-    return m_aura->GetSpellProto();
+    return m_aura->GetSpellInfo();
 }
 
 uint32 AuraScript::GetId() const
@@ -713,7 +795,7 @@ uint32 AuraScript::GetId() const
     return m_aura->GetId();
 }
 
-uint64 const& AuraScript::GetCasterGUID() const
+uint64 AuraScript::GetCasterGUID() const
 {
     return m_aura->GetCasterGUID();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -65,7 +65,7 @@ public:
         {
             if (me->GetEntry() == NPC_CENARION_HOLD_INFANTRY)
                 DoScriptText(RAND(SAY_GUARD_SIL_AGGRO1, SAY_GUARD_SIL_AGGRO2, SAY_GUARD_SIL_AGGRO3), me, who);
-            if (SpellEntry const* spell = me->reachWithSpellAttack(who))
+            if (SpellInfo const* spell = me->reachWithSpellAttack(who))
                 DoCast(who, spell->Id);
         }
 
@@ -83,7 +83,7 @@ public:
                 if (buffTimer <= diff)
                 {
                     //Find a spell that targets friendly and applies an aura (these are generally buffs)
-                    SpellEntry const *info = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
+                    SpellInfo const* info = SelectSpell(me, 0, 0, SELECT_TARGET_ANY_FRIEND, 0, 0, 0, 0, SELECT_EFFECT_AURA);
 
                     if (info && !globalCooldown)
                     {
@@ -111,7 +111,7 @@ public:
                 if (me->IsWithinMeleeRange(me->getVictim()))
                 {
                     bool healing = false;
-                    SpellEntry const *info = NULL;
+                    SpellInfo const* info = NULL;
 
                     //Select a healing spell if less than 30% hp
                     if (me->HealthBelowPct(30))
@@ -147,7 +147,7 @@ public:
                 if (!me->IsNonMeleeSpellCasted(false))
                 {
                     bool healing = false;
-                    SpellEntry const *info = NULL;
+                    SpellInfo const* info = NULL;
 
                     //Select a healing spell if less than 30% hp ONLY 33% of the time
                     if (me->HealthBelowPct(30) && 33 > urand(0, 99))
@@ -179,7 +179,7 @@ public:
                         globalCooldown = GENERIC_CREATURE_COOLDOWN;
 
                     }                                               //If no spells available and we arn't moving run to target
-                    else if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+                    else if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
                     {
                         //Cancel our current spell and then mutate new movement generator
                         me->InterruptNonMeleeSpells(false);
@@ -194,7 +194,7 @@ public:
 
         void DoReplyToTextEmote(uint32 emote)
         {
-            switch(emote)
+            switch (emote)
             {
                 case TEXT_EMOTE_KISS:    me->HandleEmoteCommand(EMOTE_ONESHOT_BOW);    break;
                 case TEXT_EMOTE_WAVE:    me->HandleEmoteCommand(EMOTE_ONESHOT_WAVE);   break;
@@ -207,7 +207,7 @@ public:
 
         void ReceiveEmote(Player* player, uint32 textEmote)
         {
-            switch(me->GetEntry())
+            switch (me->GetEntry())
             {
                 case NPC_STORMWIND_CITY_GUARD:
                 case NPC_STORMWIND_CITY_PATROLLER:
@@ -228,7 +228,7 @@ public:
         uint32 buffTimer;
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
        return new guard_genericAI(creature);
     }
@@ -301,7 +301,7 @@ public:
         bool canTeleport;
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new guard_shattrath_scryerAI(creature);
     }
@@ -365,7 +365,7 @@ public:
         bool canTeleport;
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new guard_shattrath_aldorAI(creature);
     }

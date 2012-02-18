@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -42,8 +42,8 @@ enum TrinityStrings
     LANG_GMS_ON_SRV                     = 16,
     LANG_GMS_NOT_LOGGED                 = 17,
     LANG_YOU_IN_FLIGHT                  = 18,
-    //LANG_YOU_IN_BATTLEGROUND            = 19, not used
-    //LANG_TARGET_IN_FLIGHT               = 20, not used
+    LANG_UPDATE_DIFF                    = 19,
+    LANG_SHUTDOWN_TIMELEFT              = 20,
     LANG_CHAR_IN_FLIGHT                 = 21,
     LANG_CHAR_NON_MOUNTED               = 22,
     LANG_YOU_IN_COMBAT                  = 23,
@@ -267,7 +267,7 @@ enum TrinityStrings
     LANG_COMMAND_ADDVENDORITEMITEMS     = 280,
     LANG_COMMAND_KICKSELF               = 281,
     LANG_COMMAND_KICKMESSAGE            = 282,
-    //                                    283, not used
+    LANG_COMMAND_DISABLE_CHAT_DELAYED   = 283,
     LANG_COMMAND_WHISPERACCEPTING       = 284,
     LANG_COMMAND_WHISPERON              = 285,
     LANG_COMMAND_WHISPEROFF             = 286,
@@ -399,7 +399,7 @@ enum TrinityStrings
     LANG_COMMAND_GRAVEYARDALRLINKED     = 450,
     LANG_COMMAND_GRAVEYARDLINKED        = 451,
     LANG_COMMAND_GRAVEYARDWRONGZONE     = 452,
-    //                                  = 453,
+    //                                  = 453, see LANG_PINFO_BAN
     LANG_COMMAND_GRAVEYARDERROR         = 454,
     LANG_COMMAND_GRAVEYARD_NOTEAM       = 455,
     LANG_COMMAND_GRAVEYARD_ANY          = 456,
@@ -492,9 +492,9 @@ enum TrinityStrings
     LANG_MOVEGENS_WAYPOINT              = 529,
     LANG_MOVEGENS_ANIMAL_RANDOM         = 530,
     LANG_MOVEGENS_CONFUSED              = 531,
-    LANG_MOVEGENS_TARGETED_PLAYER       = 532,
-    LANG_MOVEGENS_TARGETED_CREATURE     = 533,
-    LANG_MOVEGENS_TARGETED_NULL         = 534,
+    LANG_MOVEGENS_CHASE_PLAYER          = 532,
+    LANG_MOVEGENS_CHASE_CREATURE        = 533,
+    LANG_MOVEGENS_CHASE_NULL            = 534,
     LANG_MOVEGENS_HOME_CREATURE         = 535,
     LANG_MOVEGENS_HOME_PLAYER           = 536,
     LANG_MOVEGENS_FLIGHT                = 537,
@@ -512,7 +512,10 @@ enum TrinityStrings
 
     LANG_PINFO_ACCOUNT                  = 548,
     LANG_PINFO_LEVEL                    = 549,
-    LANG_PINFO_MUTE_BAN                 = 550,
+    LANG_PINFO_MUTE                     = 550,
+    LANG_PINFO_BAN                      = 453,
+    LANG_PINFO_MAP_ONLINE               = 714,
+    LANG_PINFO_MAP_OFFLINE              = 716,
 
     LANG_YOU_SET_EXPLORE_ALL            = 551,
     LANG_YOU_SET_EXPLORE_NOTHING        = 552,
@@ -570,6 +573,7 @@ enum TrinityStrings
     LANG_GMLIST                         = 597,
     LANG_GMLIST_HEADER                  = 598,
     LANG_GMLIST_EMPTY                   = 599,
+
     // End Level 3 list, continued at 1100
 
     // Battleground
@@ -656,9 +660,9 @@ enum TrinityStrings
     LANG_BG_QUEUE_ANNOUNCE_SELF         = 711,
     LANG_BG_QUEUE_ANNOUNCE_WORLD        = 712,
     LANG_YOUR_ARENA_LEVEL_REQ_ERROR     = 713,
-//                                      = 714, not used
+//                                      = 714, see LANG_PINFO_MAP_ONLINE
     LANG_YOUR_BG_LEVEL_REQ_ERROR        = 715,
-//                                      = 716, not used
+//                                      = 716, see LANG_PINFO_MAP_OFFLINE
     LANG_BG_STARTED_ANNOUNCE_WORLD      = 717,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_JOIN= 718,
     LANG_ARENA_QUEUE_ANNOUNCE_WORLD_EXIT= 719,
@@ -800,7 +804,14 @@ enum TrinityStrings
     LANG_BANLIST_CHARACTERS_HEADER      = 1133,
     LANG_ALLOW_TICKETS                  = 1134,
     LANG_DISALLOW_TICKETS               = 1135,
-    // Room for more level 3              1136-1199 not used
+    LANG_CHAR_NOT_BANNED                = 1136,
+    LANG_DEV_ON                         = 1137,
+    LANG_DEV_OFF                        = 1138,
+    LANG_MOVEGENS_FOLLOW_PLAYER         = 1139,
+    LANG_MOVEGENS_FOLLOW_CREATURE       = 1140,
+    LANG_MOVEGENS_FOLLOW_NULL           = 1141,
+    LANG_MOVEGENS_EFFECT                = 1142,
+    // Room for more level 3              1143-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
@@ -904,6 +915,8 @@ enum TrinityStrings
     LANG_COMMAND_TICKETLISTADDCOMMENT   = 2024,
     LANG_COMMAND_TICKETLISTAGECREATE    = 2025,
     LANG_COMMAND_TICKETSHOWESCALATEDLIST = 2026,
+    LANG_COMMAND_TICKETPENDING          = 2027,
+    LANG_COMMAND_TICKETRESET            = 2028,
 
     // Trinity strings                    5000-9999
     LANG_COMMAND_FREEZE                 = 5000,
@@ -937,7 +950,9 @@ enum TrinityStrings
     LANG_GOINFO_NAME                    = 5027,
     LANG_GOINFO_LOOTID                  = 5028,
     LANG_COMMAND_LOOKUP_MAX_RESULTS     = 5029,
-    // Room for more Trinity strings      5030-9999
+    LANG_FLEE                           = 5030,
+    LANG_NPCINFO_AIINFO                 = 5031,
+    // Room for more Trinity strings      5032-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,

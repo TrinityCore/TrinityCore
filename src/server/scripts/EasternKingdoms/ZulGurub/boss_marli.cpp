@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,10 +53,10 @@ class boss_marli : public CreatureScript
         {
             boss_marliAI(Creature* c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceScript();
+                m_instance = c->GetInstanceScript();
             }
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_instance;
 
             uint32 SpawnStartSpiders_Timer;
             uint32 PoisonVolley_Timer;
@@ -91,8 +91,8 @@ class boss_marli : public CreatureScript
             void JustDied(Unit* /*Killer*/)
             {
                 DoScriptText(SAY_DEATH, me);
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_MARLI, DONE);
+                if (m_instance)
+                    m_instance->SetData(DATA_MARLI, DONE);
             }
 
             void UpdateAI(const uint32 diff)
@@ -105,13 +105,13 @@ class boss_marli : public CreatureScript
                     if (PoisonVolley_Timer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_POISONVOLLEY);
-                        PoisonVolley_Timer = 10000 + rand()%10000;
+                        PoisonVolley_Timer = urand(10000, 20000);
                     } else PoisonVolley_Timer -= diff;
 
                     if (!PhaseTwo && Aspect_Timer <= diff)
                     {
                         DoCast(me->getVictim(), SPELL_ASPECT_OF_MARLI);
-                        Aspect_Timer = 13000 + rand()%5000;
+                        Aspect_Timer = urand(13000, 18000);
                     } else Aspect_Timer -= diff;
 
                     if (!Spawned && SpawnStartSpiders_Timer <= diff)
@@ -149,14 +149,14 @@ class boss_marli : public CreatureScript
                         Creature* Spider = me->SummonCreature(15041, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                         if (Spider)
                             Spider->AI()->AttackStart(target);
-                        SpawnSpider_Timer = 12000 + rand()%5000;
+                        SpawnSpider_Timer = urand(12000, 17000);
                     } else SpawnSpider_Timer -= diff;
 
                     if (!PhaseTwo && Transform_Timer <= diff)
                     {
                         DoScriptText(SAY_TRANSFORM, me);
                         DoCast(me, SPELL_SPIDER_FORM);
-                        const CreatureTemplate *cinfo = me->GetCreatureInfo();
+                        const CreatureTemplate* cinfo = me->GetCreatureInfo();
                         me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 35)));
                         me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 35)));
                         me->UpdateDamagePhysical(BASE_ATTACK);
@@ -185,7 +185,7 @@ class boss_marli : public CreatureScript
                             if (target)
                             {
                                 DoCast(target, SPELL_CHARGE);
-                                //me->GetMap()->CreatureRelocation(me, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
+                                //me->SetPosition(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0);
                                 //me->SendMonsterMove(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, true, 1);
                                 AttackStart(target);
                             }
@@ -196,7 +196,7 @@ class boss_marli : public CreatureScript
                         if (TransformBack_Timer <= diff)
                         {
                             me->SetDisplayId(15220);
-                            const CreatureTemplate *cinfo = me->GetCreatureInfo();
+                            const CreatureTemplate* cinfo = me->GetCreatureInfo();
                             me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 1)));
                             me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 1)));
                             me->UpdateDamagePhysical(BASE_ATTACK);

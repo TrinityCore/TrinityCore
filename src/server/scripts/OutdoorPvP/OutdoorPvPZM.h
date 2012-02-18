@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -168,11 +168,9 @@ class OutdoorPvPZM;
 
 class OPvPCapturePointZM_Beacon : public OPvPCapturePoint
 {
-    friend class OutdoorPvPZM;
-
     public:
 
-        OPvPCapturePointZM_Beacon(OutdoorPvP * pvp, ZM_BeaconType type);
+        OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type);
 
         void ChangeState();
 
@@ -201,11 +199,9 @@ enum ZM_GraveYardState
 
 class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 {
-    friend class OutdoorPvPZM;
-
     public:
 
-        OPvPCapturePointZM_GraveYard(OutdoorPvP * pvp);
+        OPvPCapturePointZM_GraveYard(OutdoorPvP* pvp);
 
         bool Update(uint32 diff);
 
@@ -225,6 +221,8 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
         bool CanTalkTo(Player* player, Creature* c, GossipMenuItems const& gso);
 
+        uint32 GetGraveYardState() const;
+
     private:
 
         uint32 m_GraveYardState;
@@ -238,8 +236,6 @@ class OPvPCapturePointZM_GraveYard : public OPvPCapturePoint
 
 class OutdoorPvPZM : public OutdoorPvP
 {
-    friend class OPvPCapturePointZM_Beacon;
-
     public:
 
         OutdoorPvPZM();
@@ -256,6 +252,12 @@ class OutdoorPvPZM : public OutdoorPvP
         void SendRemoveWorldStates(Player* player);
 
         void HandleKillImpl(Player* player, Unit* killed);
+
+        uint32 GetAllianceTowersControlled() const;
+        void SetAllianceTowersControlled(uint32 count);
+
+        uint32 GetHordeTowersControlled() const;
+        void SetHordeTowersControlled(uint32 count);
 
     private:
 

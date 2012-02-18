@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -252,11 +252,9 @@ class OutdoorPvPNA;
 
 class OPvPCapturePointNA : public OPvPCapturePoint
 {
-    friend class OutdoorPvPNA;
-
     public:
 
-        OPvPCapturePointNA(OutdoorPvP * pvp);
+        OPvPCapturePointNA(OutdoorPvP* pvp);
 
         bool Update(uint32 diff);
 
@@ -275,6 +273,7 @@ class OPvPCapturePointNA : public OPvPCapturePoint
         int32 HandleOpenGo(Player* player, uint64 guid);
 
         uint32 GetAliveGuardsCount();
+        uint32 GetControllingFaction() const;
 
     protected:
 
@@ -312,8 +311,6 @@ class OPvPCapturePointNA : public OPvPCapturePoint
 
 class OutdoorPvPNA : public OutdoorPvP
 {
-    friend class OPvPCapturePointNA;
-
     public:
 
         OutdoorPvPNA();

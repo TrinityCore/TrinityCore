@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -279,7 +279,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 events.Reset();
                 events.SetPhase(PHASE_COMBAT);
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 if (!_introDone)
                 {
                     DoCast(me, SPELL_GRIP_OF_AGONY);
@@ -314,7 +314,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void AttackStart(Unit* victim)
             {
-                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
                     return;
 
                 ScriptedAI::AttackStart(victim);
@@ -324,7 +324,7 @@ class boss_deathbringer_saurfang : public CreatureScript
             {
                 ScriptedAI::EnterEvadeMode();
                 if (_introDone)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             }
 
             void JustReachedHome()
@@ -377,7 +377,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                 instance->HandleGameObject(instance->GetData64(GO_SAURFANG_S_DOOR), false);
             }
 
-            void SpellHitTarget(Unit* target, SpellEntry const* spell)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 switch (spell->Id)
                 {
@@ -403,7 +403,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -434,7 +434,7 @@ class boss_deathbringer_saurfang : public CreatureScript
                         case EVENT_INTRO_FINISH:
                             events.SetPhase(PHASE_COMBAT);
                             _introDone = true;
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             break;
                         case EVENT_SUMMON_BLOOD_BEAST:
                             for (uint32 i10 = 0; i10 < 2; ++i10)
@@ -608,7 +608,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->SendMovementFlagUpdate();
                         me->Relocate(me->GetPositionX(), me->GetPositionY(), 539.2917f);
-                        me->SendMonsterMove(me->GetPositionX(), me->GetPositionY(), 539.2917f, SPLINEFLAG_FALLING, 0, 0.0f);
+                        me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), 539.2917f, 0.0f);
                         for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
                             (*itr)->AI()->DoAction(ACTION_DESPAWN);
                         break;
@@ -625,7 +625,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
@@ -719,7 +719,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                                 float x, y, z;
                                 deathbringer->GetClosePoint(x, y, z, deathbringer->GetObjectSize());
                                 me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-                                me->GetMotionMaster()->MovePoint(POINT_CORPSE , x, y, z);
+                                me->GetMotionMaster()->MovePoint(POINT_CORPSE, x, y, z);
                             }
                             break;
                         case EVENT_OUTRO_HORDE_5:   // move
@@ -815,7 +815,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                         me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
                         me->SendMovementFlagUpdate();
                         me->Relocate(me->GetPositionX(), me->GetPositionY(), 539.2917f);
-                        me->SendMonsterMove(me->GetPositionX(), me->GetPositionY(), 539.2917f, SPLINEFLAG_FALLING, 0, 0.0f);
+                        me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), 539.2917f, 0.0f);
                         for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++itr)
                             (*itr)->AI()->DoAction(ACTION_DESPAWN);
                         break;
@@ -828,7 +828,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                 }
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
@@ -930,7 +930,7 @@ class npc_saurfang_event : public CreatureScript
                 _index = data;
             }
 
-            void SpellHit(Unit* /*caster*/, SpellEntry const* spell)
+            void SpellHit(Unit* /*caster*/, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
@@ -966,11 +966,11 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_blood_link_SpellScript);
 
-            bool Validate(SpellEntry const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_POWER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_POWER))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_BLOOD_POWER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_POWER))
                     return false;
                 return true;
             }
@@ -985,7 +985,7 @@ class spell_deathbringer_blood_link : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_deathbringer_blood_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_blood_link_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1004,9 +1004,9 @@ class spell_deathbringer_blood_link_aura : public SpellScriptLoader
         {
             PrepareAuraScript(spell_deathbringer_blood_link_AuraScript);
 
-            bool Validate(SpellEntry const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
+                if (!sSpellMgr->GetSpellInfo(SPELL_MARK_OF_THE_FALLEN_CHAMPION))
                     return false;
                 return true;
             }
@@ -1096,9 +1096,9 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_rune_of_blood_SpellScript);
 
-            bool Validate(SpellEntry const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_DUMMY))
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
                     return false;
                 return true;
             }
@@ -1112,7 +1112,7 @@ class spell_deathbringer_rune_of_blood : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_deathbringer_rune_of_blood_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_rune_of_blood_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1131,9 +1131,9 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
         {
             PrepareSpellScript(spell_deathbringer_blood_nova_SpellScript);
 
-            bool Validate(SpellEntry const* /*spellInfo*/)
+            bool Validate(SpellInfo const* /*spellInfo*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_BLOOD_LINK_DUMMY))
+                if (!sSpellMgr->GetSpellInfo(SPELL_BLOOD_LINK_DUMMY))
                     return false;
                 return true;
             }
@@ -1147,7 +1147,7 @@ class spell_deathbringer_blood_nova : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_deathbringer_blood_nova_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_deathbringer_blood_nova_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -1189,9 +1189,7 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                 if (targetsAtRange < minTargets)
                     targetsAtRange = std::min<uint32>(unitList.size() - 1, minTargets);
 
-                std::list<Unit*>::iterator itr = unitList.begin();
-                std::advance(itr, urand(0, targetsAtRange));
-                target = *itr;
+                target = SelectRandomContainerElement(unitList);
                 unitList.clear();
                 unitList.push_back(target);
             }
@@ -1208,8 +1206,8 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsInitial, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_blood_nova_targeting_SpellScript::FilterTargetsSubsequent, EFFECT_1, TARGET_UNIT_SRC_AREA_ENEMY);
             }
 
             Unit* target;
@@ -1241,16 +1239,14 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
                 if (unitList.empty())
                     return;
 
-                std::list<Unit*>::iterator itr = unitList.begin();
-                std::advance(itr, urand(0, unitList.size() - 1));
-                Unit* target = *itr;
+                Unit* target = SelectRandomContainerElement(unitList);
                 unitList.clear();
                 unitList.push_back(target);
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_boiling_blood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_SRC);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_deathbringer_boiling_blood_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
             }
         };
 

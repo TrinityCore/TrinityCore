@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -172,7 +172,7 @@ bool SQLQueryHolderTask::Execute()
             {
                 case SQL_ELEMENT_RAW:
                 {
-                    char const *sql = data->element.query;
+                    char const* sql = data->element.query;
                     if (sql)
                         m_holder->SetResult(i, m_conn->Query(sql));
                     break;

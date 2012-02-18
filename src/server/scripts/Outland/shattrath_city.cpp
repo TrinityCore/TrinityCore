@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -330,7 +330,7 @@ public:
             if (!player)
                 return;
 
-            switch(i)
+            switch (i)
             {
                 case 0: DoScriptText(SAY1, me, player); break;
                 case 4: DoScriptText(WHISP1, me, player); break;
@@ -369,7 +369,7 @@ public:
             {
                 if (CAST_PLR(who)->GetQuestStatus(10211) == QUEST_STATUS_INCOMPLETE)
                 {
-                    float Radius = 10.0;
+                    float Radius = 10.0f;
                     if (me->IsWithinDistInMap(who, Radius))
                     {
                         Start(false, false, who->GetGUID());
@@ -449,7 +449,7 @@ public:
         {
             Player* player = Unit::GetPlayer(*me, PlayerGUID);
 
-            switch(Step)
+            switch (Step)
             {
             case 0:{ me->SetInFront(player);
                 Unit* Creepjack = me->FindNearestCreature(NPC_CREEPJACK, 20);
@@ -632,7 +632,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
         case GOSSIP_ACTION_INFO_DEF+1:
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, KHADGAR_GOSSIP_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);

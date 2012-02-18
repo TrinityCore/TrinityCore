@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,15 +26,18 @@ EndScriptData */
 #include "ScriptPCH.h"
 #include "scarlet_monastery.h"
 
-enum eEnums
+enum Says
 {
     SAY_AGGRO               = -1189011,
     SAY_HEALTH1             = -1189012,
     SAY_HEALTH2             = -1189013,
     SAY_KILL                = -1189014,
-    SAY_TRIGGER_VORREL      = -1189015,
+    SAY_TRIGGER_VORREL      = -1189015
+};
 
-    SPELL_SHADOWWORDPAIN    = 2767,
+enum Spells
+{
+    SPELL_SHADOWWORDPAIN    = 2767
 };
 
 class boss_interrogator_vishas : public CreatureScript
@@ -49,12 +52,12 @@ public:
 
     struct boss_interrogator_vishasAI : public ScriptedAI
     {
-        boss_interrogator_vishasAI(Creature* c) : ScriptedAI(c)
+        boss_interrogator_vishasAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool Yell30;
         bool Yell60;
@@ -77,11 +80,11 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (!pInstance)
+            if (!instance)
                 return;
 
             //Any other actions to do with vorrel? setStandState?
-            if (Unit* vorrel = Unit::GetUnit(*me, pInstance->GetData64(DATA_VORREL)))
+            if (Unit* vorrel = Unit::GetUnit(*me, instance->GetData64(DATA_VORREL)))
                 DoScriptText(SAY_TRIGGER_VORREL, vorrel);
         }
 
@@ -107,13 +110,13 @@ public:
             if (ShadowWordPain_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_SHADOWWORDPAIN);
-                ShadowWordPain_Timer = 5000 + rand()%10000;
-            } else ShadowWordPain_Timer -= diff;
+                ShadowWordPain_Timer = urand(5000, 15000);
+            }
+            else ShadowWordPain_Timer -= diff;
 
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_interrogator_vishas()

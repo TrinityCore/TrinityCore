@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -103,16 +103,21 @@ const int Colors = int(WHITE)+1;
 class Log
 {
     friend class ACE_Singleton<Log, ACE_Thread_Mutex>;
-    Log();
-    ~Log();
+
+    private:
+        Log();
+        ~Log();
 
     public:
         void Initialize();
+
+        void ReloadConfig();
 
         void InitColors(const std::string& init_str);
         void SetColor(bool stdout_stream, ColorTypes color);
         void ResetColor(bool stdout_stream);
 
+        void outErrorST( const char * err, ... )                ATTR_PRINTF(2, 3);
         void outDB( LogTypes type, const char * str );
         void outString( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outString( );

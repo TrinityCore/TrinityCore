@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -43,14 +43,14 @@ class instance_shadow_labyrinth : public InstanceMapScript
 public:
     instance_shadow_labyrinth() : InstanceMapScript("instance_shadow_labyrinth", 555) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_shadow_labyrinth_InstanceMapScript(pMap);
+        return new instance_shadow_labyrinth_InstanceMapScript(map);
     }
 
     struct instance_shadow_labyrinth_InstanceMapScript : public InstanceScript
     {
-        instance_shadow_labyrinth_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_shadow_labyrinth_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -82,7 +82,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case REFECTORY_DOOR:
                     m_uiRefectoryDoorGUID = go->GetGUID();
@@ -99,7 +99,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 18732:
                     m_uiGrandmasterVorpil = creature->GetGUID();
@@ -116,7 +116,7 @@ public:
 
         void SetData(uint32 type, uint32 uiData)
         {
-            switch(type)
+            switch (type)
             {
                 case TYPE_HELLMAW:
                     m_auiEncounter[0] = uiData;
@@ -167,8 +167,8 @@ public:
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-                    << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4];
+                saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
+                    << m_auiEncounter[2] << ' ' << m_auiEncounter[3] << ' ' << m_auiEncounter[4];
 
                 str_data = saveStream.str();
 
@@ -179,7 +179,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case TYPE_HELLMAW: return m_auiEncounter[0];
                 case TYPE_OVERSEER: return m_auiEncounter[1];

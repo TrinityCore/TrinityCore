@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -33,91 +33,6 @@ EndContentData */
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
-
-/*######
-## npc_prospector_anvilward
-######*/
-
-#define GOSSIP_HELLO    "I need a moment of your time, sir."
-#define GOSSIP_SELECT   "Why... yes, of course. I've something to show you right inside this building, Mr. Anvilward."
-
-enum eProspectorAnvilward
-{
-    SAY_ANVIL1                                  = -1000209,
-    SAY_ANVIL2                                  = -1000210,
-    QUEST_THE_DWARVEN_SPY                       = 8483,
-};
-
-class npc_prospector_anvilward : public CreatureScript
-{
-public:
-    npc_prospector_anvilward() : CreatureScript("npc_prospector_anvilward") { }
-
-    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
-        {
-            case GOSSIP_ACTION_INFO_DEF+1:
-                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_SELECT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
-                player->SEND_GOSSIP_MENU(8240, creature->GetGUID());
-                break;
-            case GOSSIP_ACTION_INFO_DEF+2:
-                player->CLOSE_GOSSIP_MENU();
-                if (npc_escortAI* pEscortAI = CAST_AI(npc_prospector_anvilward::npc_prospector_anvilwardAI, creature->AI()))
-                    pEscortAI->Start(true, false, player->GetGUID());
-                break;
-        }
-        return true;
-    }
-
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (player->GetQuestStatus(QUEST_THE_DWARVEN_SPY) == QUEST_STATUS_INCOMPLETE)
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_HELLO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
-
-        player->SEND_GOSSIP_MENU(8239, creature->GetGUID());
-        return true;
-    }
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_prospector_anvilwardAI(creature);
-    }
-
-    struct npc_prospector_anvilwardAI : public npc_escortAI
-    {
-        // CreatureAI functions
-        npc_prospector_anvilwardAI(Creature* c) : npc_escortAI(c) {}
-
-        // Pure Virtual Functions
-        void WaypointReached(uint32 i)
-        {
-            Player* player = GetPlayerForEscort();
-
-            if (!player)
-                return;
-
-            switch (i)
-            {
-                case 0: DoScriptText(SAY_ANVIL1, me, player); break;
-                case 5: DoScriptText(SAY_ANVIL2, me, player); break;
-                case 6: me->setFaction(24); break;
-            }
-        }
-
-        void Reset()
-        {
-            me->RestoreFaction();
-        }
-
-        void JustDied(Unit* /*killer*/)
-        {
-            me->RestoreFaction();
-        }
-    };
-
-};
 
 /*######
 ## Quest 9686 Second Trial
@@ -154,10 +69,10 @@ enum eFaction
 
 enum eSays
 {
-    TEXT_SECOND_TRIAL_1               = -1000637,
-    TEXT_SECOND_TRIAL_2               = -1000638,
-    TEXT_SECOND_TRIAL_3               = -1000639,
-    TEXT_SECOND_TRIAL_4               = -1000640,
+    TEXT_SECOND_TRIAL_1               = 0,
+    TEXT_SECOND_TRIAL_2               = 1,
+    TEXT_SECOND_TRIAL_3               = 2,
+    TEXT_SECOND_TRIAL_4               = 3,
 };
 
 struct Locations
@@ -222,7 +137,7 @@ public:
           spellJudLight   = false;
           spellCommand    = false;
 
-          switch(me->GetEntry())
+          switch (me->GetEntry())
           {
               case CHAMPION_BLOODWRATH:
                   spellFlashLight = true;
@@ -289,7 +204,7 @@ public:
                 if (timerJustice <= diff)
                 {
                     DoCast(me, SPELL_SEAL_OF_JUSTICE);
-                    timerJustice = 10000 + rand()%10000;
+                    timerJustice = urand(10000, 20000);
                 }
                 else
                     timerJustice -= diff;
@@ -300,7 +215,7 @@ public:
                 if (timerJudLight <= diff)
                 {
                     DoCast(me, SPELL_JUDGEMENT_OF_LIGHT);
-                    timerJudLight = 10000 + rand()%10000;
+                    timerJudLight = urand(10000, 20000);
                 }
                 else
                     timerJudLight -= diff;
@@ -311,7 +226,7 @@ public:
                   if (timerCommand <= diff)
                   {
                       DoCast(me, SPELL_SEAL_OF_COMMAND);
-                      timerCommand = 20000 + rand()%20000;
+                      timerCommand = urand(20000, 40000);
                   }
                   else
                       timerCommand -= diff;
@@ -346,7 +261,7 @@ class npc_second_trial_controller : public CreatureScript
 public:
     npc_second_trial_controller() : CreatureScript("npc_second_trial_controller") { }
 
-    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const *quest)
+    bool OnQuestAccept(Player* /*player*/, Creature* creature, Quest const* quest)
     {
         // One Player exclusive quest, wait for user go activation
         if (quest->GetQuestId() == QUEST_SECOND_TRIAL)
@@ -417,19 +332,19 @@ public:
                     {
                         CAST_AI(npc_second_trial_paladin::npc_secondTrialAI, paladinSpawn->AI())->Activate(me->GetGUID());
 
-                        switch(paladinPhase)
+                        switch (paladinPhase)
                         {
                         case 0:
-                            DoScriptText(TEXT_SECOND_TRIAL_1, me);
+                            Talk(TEXT_SECOND_TRIAL_1);
                             break;
                         case 1:
-                            DoScriptText(TEXT_SECOND_TRIAL_2, me);
+                            Talk(TEXT_SECOND_TRIAL_2);
                             break;
                         case 2:
-                            DoScriptText(TEXT_SECOND_TRIAL_3, me);
+                            Talk(TEXT_SECOND_TRIAL_3);
                             break;
                         case 3:
-                            DoScriptText(TEXT_SECOND_TRIAL_4, me);
+                            Talk(TEXT_SECOND_TRIAL_4);
                             break;
                         }
                     }
@@ -711,7 +626,6 @@ public:
 
 void AddSC_eversong_woods()
 {
-    new npc_prospector_anvilward();
     new npc_second_trial_controller();
     new npc_second_trial_paladin();
     new go_second_trial();

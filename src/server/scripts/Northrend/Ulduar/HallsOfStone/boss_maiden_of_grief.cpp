@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -67,10 +67,10 @@ public:
     {
         boss_maiden_of_griefAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 PartingSorrowTimer;
         uint32 StormOfGriefTimer;
@@ -79,15 +79,15 @@ public:
 
         void Reset()
         {
-            PartingSorrowTimer = 25000 + rand()%5000;
+            PartingSorrowTimer = urand(25000, 30000);
             StormOfGriefTimer = 10000;
             ShockOfSorrowTimer = 20000+rand()%5000;
-            PillarOfWoeTimer = 5000 + rand()%10000;
+            PillarOfWoeTimer = urand(5000, 15000);
 
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, NOT_STARTED);
-                pInstance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+                instance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, NOT_STARTED);
+                instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
         }
 
@@ -95,17 +95,17 @@ public:
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
+            if (instance)
             {
-                if (GameObject* pDoor = pInstance->instance->GetGameObject(pInstance->GetData64(DATA_MAIDEN_DOOR)))
+                if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_MAIDEN_DOOR)))
                     if (pDoor->GetGoState() == GO_STATE_READY)
                     {
                         EnterEvadeMode();
                         return;
                     }
 
-                pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, IN_PROGRESS);
-                pInstance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
+                instance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, IN_PROGRESS);
+                instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_GOOD_GRIEF_START_EVENT);
             }
         }
 
@@ -124,14 +124,14 @@ public:
                     if (target)
                         DoCast(target, SPELL_PARTING_SORROW);
 
-                    PartingSorrowTimer = 30000 + rand()%10000;
+                    PartingSorrowTimer = urand(30000, 40000);
                 } else PartingSorrowTimer -= diff;
             }
 
             if (StormOfGriefTimer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_STORM_OF_GRIEF_N, true);
-                StormOfGriefTimer = 15000 + rand()%5000;
+                StormOfGriefTimer = urand(15000, 20000);
             } else StormOfGriefTimer -= diff;
 
             if (ShockOfSorrowTimer <= diff)
@@ -139,7 +139,7 @@ public:
                 DoResetThreat();
                 DoScriptText(SAY_STUN, me);
                 DoCast(me, SPELL_SHOCK_OF_SORROW_N);
-                ShockOfSorrowTimer = 20000 + rand()%10000;
+                ShockOfSorrowTimer = urand(20000, 30000);
             } else ShockOfSorrowTimer -= diff;
 
             if (PillarOfWoeTimer <= diff)
@@ -151,7 +151,7 @@ public:
                 else
                     DoCast(me->getVictim(), SPELL_PILLAR_OF_WOE_N);
 
-                PillarOfWoeTimer = 5000 + rand()%20000;
+                PillarOfWoeTimer = urand(5000, 25000);
             } else PillarOfWoeTimer -= diff;
 
             DoMeleeAttackIfReady();
@@ -161,8 +161,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_MAIDEN_OF_GRIEF_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

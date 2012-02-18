@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,7 +45,7 @@ class instance_the_eye : public InstanceMapScript
 
         struct instance_the_eye_InstanceMapScript : public InstanceScript
         {
-            instance_the_eye_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+            instance_the_eye_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             uint64 ThaladredTheDarkener;
             uint64 LordSanguinar;
@@ -85,7 +85,7 @@ class instance_the_eye : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature)
             {
-                switch(creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                 case 20064:
                     ThaladredTheDarkener = creature->GetGUID();
@@ -113,7 +113,7 @@ class instance_the_eye : public InstanceMapScript
 
             uint64 GetData64(uint32 identifier)
             {
-                switch(identifier)
+                switch (identifier)
                 {
                 case DATA_THALADREDTHEDARKENER:         return ThaladredTheDarkener;
                 case DATA_LORDSANGUINAR:                return LordSanguinar;
@@ -128,7 +128,7 @@ class instance_the_eye : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_ALAREVENT:
                     AlarEventPhase = data;
@@ -151,7 +151,7 @@ class instance_the_eye : public InstanceMapScript
 
             uint32 GetData(uint32 type)
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_ALAREVENT:                        return AlarEventPhase;
                 case DATA_HIGHASTROMANCERSOLARIANEVENT:     return m_auiEncounter[1];
@@ -165,7 +165,7 @@ class instance_the_eye : public InstanceMapScript
             {
                 OUT_SAVE_INST_DATA;
                 std::ostringstream stream;
-                stream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
+                stream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' ' << m_auiEncounter[3];
                 char* out = new char[stream.str().length() + 1];
                 strcpy(out, stream.str().c_str());
                 if (out)
@@ -194,9 +194,9 @@ class instance_the_eye : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_the_eye_InstanceMapScript(pMap);
+            return new instance_the_eye_InstanceMapScript(map);
         }
 };
 void AddSC_instance_the_eye()

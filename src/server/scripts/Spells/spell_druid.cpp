@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,11 +40,11 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dru_glyph_of_starfire_SpellScript);
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(DRUID_INCREASED_MOONFIRE_DURATION))
+                if (!sSpellMgr->GetSpellInfo(DRUID_INCREASED_MOONFIRE_DURATION))
                     return false;
-                if (!sSpellStore.LookupEntry(DRUID_NATURES_SPLENDOR))
+                if (!sSpellMgr->GetSpellInfo(DRUID_NATURES_SPLENDOR))
                     return false;
                 return true;
             }
@@ -58,7 +58,7 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
                         Aura* aura = aurEff->GetBase();
 
                         uint32 countMin = aura->GetMaxDuration();
-                        uint32 countMax = GetSpellMaxDuration(aura->GetSpellProto()) + 9000;
+                        uint32 countMax = aura->GetSpellInfo()->GetMaxDuration() + 9000;
                         if (caster->HasAura(DRUID_INCREASED_MOONFIRE_DURATION))
                             countMax += 3000;
                         if (caster->HasAura(DRUID_NATURES_SPLENDOR))
@@ -74,7 +74,7 @@ class spell_dru_glyph_of_starfire : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_dru_glyph_of_starfire_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_dru_glyph_of_starfire_SpellScript::HandleScriptEffect, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -98,7 +98,7 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
 
             bool Load()
             {
-                absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
                 return true;
             }
 
@@ -108,7 +108,7 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // reduces all damage taken while Stunned in Moonkin Form
                 if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN))
@@ -122,7 +122,7 @@ class spell_dru_moonkin_form_passive : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_moonkin_form_passive_AuraScript();
         }
@@ -142,7 +142,7 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
 
             bool Load()
             {
-                absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_1, GetCaster());
+                absorbPct = GetSpellInfo()->Effects[EFFECT_1].CalcValue(GetCaster());
                 return true;
             }
 
@@ -152,7 +152,7 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+            void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
             {
                 // reduces all damage taken while Stunned in Cat Form
                 if (GetTarget()->GetShapeshiftForm() == FORM_CAT && GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN))
@@ -166,7 +166,7 @@ class spell_dru_primal_tenacity : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_primal_tenacity_AuraScript();
         }
@@ -186,7 +186,7 @@ class spell_dru_savage_defense : public SpellScriptLoader
 
             bool Load()
             {
-                absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+                absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
                 return true;
             }
 
@@ -196,7 +196,7 @@ class spell_dru_savage_defense : public SpellScriptLoader
                 amount = -1;
             }
 
-            void Absorb(AuraEffect * aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
+            void Absorb(AuraEffect* aurEff, DamageInfo & /*dmgInfo*/, uint32 & absorbAmount)
             {
                 absorbAmount = uint32(CalculatePctN(GetTarget()->GetTotalAttackPowerValue(BASE_ATTACK), absorbPct));
                 aurEff->SetAmount(0);
@@ -209,7 +209,7 @@ class spell_dru_savage_defense : public SpellScriptLoader
             }
         };
 
-        AuraScript *GetAuraScript() const
+        AuraScript* GetAuraScript() const
         {
             return new spell_dru_savage_defense_AuraScript();
         }
@@ -251,16 +251,15 @@ class spell_dru_t10_restoration_4p_bonus : public SpellScriptLoader
                         return;
                     }
 
-                    std::list<Unit*>::const_iterator it2 = tempTargets.begin();
-                    std::advance(it2, urand(0, tempTargets.size() - 1));
+                    Unit* target = SelectRandomContainerElement(tempTargets);
                     unitList.clear();
-                    unitList.push_back(*it2);
+                    unitList.push_back(target);
                 }
             }
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_t10_restoration_4p_bonus_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ALLY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_t10_restoration_4p_bonus_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ALLY);
             }
         };
 
@@ -286,13 +285,45 @@ class spell_dru_starfall_aoe : public SpellScriptLoader
 
             void Register()
             {
-                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_starfall_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_AREA_ENEMY_DST);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_dru_starfall_aoe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_dru_starfall_aoe_SpellScript();
+        }
+};
+
+// 40121 - Swift Flight Form (Passive)
+class spell_dru_swift_flight_passive : public SpellScriptLoader
+{
+    public:
+        spell_dru_swift_flight_passive() : SpellScriptLoader("spell_dru_swift_flight_passive") { }
+
+        class spell_dru_swift_flight_passive_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_dru_swift_flight_passive_AuraScript);
+
+            void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
+            {
+                Unit* caster = GetCaster();
+                if (!caster || !caster->ToPlayer())
+                    return;
+
+                if (caster->ToPlayer()->Has310Flyer(false))
+                    amount = 310;
+            }
+
+            void Register()
+            {
+                DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_dru_swift_flight_passive_AuraScript::CalculateAmount, EFFECT_1, SPELL_AURA_MOD_INCREASE_VEHICLE_FLIGHT_SPEED);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_dru_swift_flight_passive_AuraScript();
         }
 };
 
@@ -304,4 +335,5 @@ void AddSC_druid_spell_scripts()
     new spell_dru_savage_defense();
     new spell_dru_t10_restoration_4p_bonus();
     new spell_dru_starfall_aoe();
+    new spell_dru_swift_flight_passive();
 }

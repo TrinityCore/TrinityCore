@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,16 +33,16 @@ class instance_gundrak : public InstanceMapScript
 public:
     instance_gundrak() : InstanceMapScript("instance_gundrak", 604) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_gundrak_InstanceMapScript(pMap);
+        return new instance_gundrak_InstanceMapScript(map);
     }
 
     struct instance_gundrak_InstanceMapScript : public InstanceScript
     {
-        instance_gundrak_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_gundrak_InstanceMapScript(Map* map) : InstanceScript(map)
         {
-            bHeroicMode = pMap->IsHeroic();
+            bHeroicMode = map->IsHeroic();
         }
 
         bool bHeroicMode;
@@ -138,7 +138,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case CREATURE_SLAD_RAN: uiSladRan = creature->GetGUID(); break;
                 case CREATURE_MOORABI: uiMoorabi = creature->GetGUID(); break;
@@ -154,16 +154,16 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 192518:
                     uiSladRanAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiSladRanStatueState == GO_STATE_ACTIVE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
                         {
                             ++phase;
@@ -174,11 +174,11 @@ public:
                 case 192519:
                     uiMoorabiAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiMoorabiStatueState == GO_STATE_ACTIVE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
                         {
                             ++phase;
@@ -189,11 +189,11 @@ public:
                 case 192520:
                     uiDrakkariColossusAltar = go->GetGUID();
                     // Make sure that they start out as unusuable
-                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                    go->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     if (m_auiEncounter[0] == DONE)
                     {
                         if (uiDrakkariColossusStatueState == GO_STATE_ACTIVE)
-                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         else
                         {
                             ++phase;
@@ -253,7 +253,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
             case DATA_SLAD_RAN_EVENT:
                 m_auiEncounter[0] = data;
@@ -261,7 +261,7 @@ public:
                 {
                   GameObject* go = instance->GetGameObject(uiSladRanAltar);
                   if (go)
-                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
                 break;
             case DATA_MOORABI_EVENT:
@@ -270,7 +270,7 @@ public:
                 {
                   GameObject* go = instance->GetGameObject(uiMoorabiAltar);
                   if (go)
-                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                   if (bHeroicMode)
                       HandleGameObject(uiEckTheFerociousDoor, true);
                 }
@@ -281,7 +281,7 @@ public:
                 {
                   GameObject* go = instance->GetGameObject(uiDrakkariColossusAltar);
                   if (go)
-                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                      go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
                 break;
             case DATA_GAL_DARAH_EVENT:
@@ -317,7 +317,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_SLAD_RAN_EVENT:
                     return m_auiEncounter[0];
@@ -338,7 +338,7 @@ public:
 
         uint64 GetData64(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_SLAD_RAN_ALTAR:
                     return uiSladRanAltar;
@@ -366,11 +366,11 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "G D " << m_auiEncounter[0] << " " << m_auiEncounter[1] << " "
-                 << m_auiEncounter[2] << " " << m_auiEncounter[3] << " " << m_auiEncounter[4] << " "
-                 << (uiSladRanStatue ? GetObjState(uiSladRanStatue) : GO_STATE_ACTIVE) << " " << (uiMoorabiStatue ? GetObjState(uiMoorabiStatue) : GO_STATE_ACTIVE) << " "
-                 << (uiDrakkariColossusStatue ? GetObjState(uiDrakkariColossusStatue) : GO_STATE_ACTIVE) << " " << (uiGalDarahStatue ? GetObjState(uiGalDarahStatue) : GO_STATE_READY) << " "
-                 << (uiBridge ? GetObjState(uiBridge) : GO_STATE_ACTIVE) << " " << (uiCollision ? GetObjState(uiCollision) : GO_STATE_READY);
+            saveStream << "G D " << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' '
+                 << m_auiEncounter[2] << ' ' << m_auiEncounter[3] << ' ' << m_auiEncounter[4] << ' '
+                 << (uiSladRanStatue ? GetObjState(uiSladRanStatue) : GO_STATE_ACTIVE) << ' ' << (uiMoorabiStatue ? GetObjState(uiMoorabiStatue) : GO_STATE_ACTIVE) << ' '
+                 << (uiDrakkariColossusStatue ? GetObjState(uiDrakkariColossusStatue) : GO_STATE_ACTIVE) << ' ' << (uiGalDarahStatue ? GetObjState(uiGalDarahStatue) : GO_STATE_READY) << ' '
+                 << (uiBridge ? GetObjState(uiBridge) : GO_STATE_ACTIVE) << ' ' << (uiCollision ? GetObjState(uiCollision) : GO_STATE_READY);
 
             str_data = saveStream.str();
 
@@ -521,31 +521,31 @@ public:
 
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
-        InstanceScript *pInstance = pGO->GetInstanceScript();
+        InstanceScript* instance = pGO->GetInstanceScript();
         uint64 uiStatue = 0;
 
-        pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+        pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
         pGO->SetGoState(GO_STATE_ACTIVE);
 
-        if (pInstance)
+        if (instance)
         {
             switch (pGO->GetEntry())
             {
                 case 192518:
-                    uiStatue = pInstance->GetData64(DATA_SLAD_RAN_STATUE);
+                    uiStatue = instance->GetData64(DATA_SLAD_RAN_STATUE);
                     break;
                 case 192519:
-                    uiStatue = pInstance->GetData64(DATA_MOORABI_STATUE);
+                    uiStatue = instance->GetData64(DATA_MOORABI_STATUE);
                     break;
                 case 192520:
-                    uiStatue = pInstance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE);
+                    uiStatue = instance->GetData64(DATA_DRAKKARI_COLOSSUS_STATUE);
                     break;
             }
 
-            if (!pInstance->GetData64(DATA_STATUE_ACTIVATE))
+            if (!instance->GetData64(DATA_STATUE_ACTIVATE))
             {
-                pInstance->SetData64(DATA_STATUE_ACTIVATE, uiStatue);
-                pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                instance->SetData64(DATA_STATUE_ACTIVATE, uiStatue);
+                pGO->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 pGO->SetGoState(GO_STATE_ACTIVE);
             }
             return true;

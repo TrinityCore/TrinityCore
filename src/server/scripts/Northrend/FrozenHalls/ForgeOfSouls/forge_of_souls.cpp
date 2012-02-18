@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -156,11 +156,11 @@ public:
     {
         npc_sylvanas_fosAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         EventMap events;
         Phase phase;
@@ -173,7 +173,7 @@ public:
 
         void DoAction(const int32 actionId)
         {
-            switch(actionId)
+            switch (actionId)
             {
                 case ACTION_INTRO:
                 {
@@ -189,11 +189,11 @@ public:
         {
             if (phase == PHASE_INTRO)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);
-                switch(events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_INTRO_1:
                         DoScriptText(SAY_SYLVANAS_INTRO_1, me);
@@ -254,7 +254,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
@@ -267,7 +267,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_sylvanas_fosAI(creature);
     }
@@ -282,11 +282,11 @@ public:
     {
         npc_jaina_fosAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
             me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         EventMap events;
         Phase phase;
@@ -299,7 +299,7 @@ public:
 
         void DoAction(const int32 actionId)
         {
-            switch(actionId)
+            switch (actionId)
             {
                 case ACTION_INTRO:
                 {
@@ -315,11 +315,11 @@ public:
         {
             if (phase == PHASE_INTRO)
             {
-                if (!pInstance)
+                if (!instance)
                     return;
 
                 events.Update(diff);
-                switch(events.ExecuteEvent())
+                switch (events.ExecuteEvent())
                 {
                     case EVENT_INTRO_1:
                         DoScriptText(SAY_JAINA_INTRO_1, me);
@@ -391,7 +391,7 @@ public:
     bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
     {
         player->PlayerTalkClass->ClearMenus();
-        switch(uiAction)
+        switch (uiAction)
         {
             case GOSSIP_ACTION_INFO_DEF+1:
                 player->CLOSE_GOSSIP_MENU();
@@ -404,7 +404,7 @@ public:
         return true;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_jaina_fosAI(creature);
     }
@@ -441,12 +441,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SPITE:
                         DoCastVictim(SPELL_SPITE);
@@ -459,7 +459,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_spiteful_apparitionAI(creature);
     }
@@ -497,12 +497,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_VEIL_OF_SHADOWS:
                         DoCastVictim(SPELL_VEIL_OF_SHADOWS);
@@ -519,7 +519,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_spectral_wardenAI(creature);
     }
@@ -555,12 +555,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SHROUD_OF_RUNES:
                         DoCast(me, SPELL_SHROUD_OF_RUNES);
@@ -576,7 +576,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_soulguard_watchmanAI(creature);
     }
@@ -612,12 +612,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_FROST_NOVA:
                         DoCast(me, SPELL_FROST_NOVA);
@@ -635,7 +635,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_soulguard_reaperAI(creature);
     }
@@ -672,12 +672,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_BONE_VOLLEY:
                         DoCastAOE(SPELL_BONE_VOLLEY);
@@ -698,7 +698,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_soulguard_bonecasterAI(creature);
     }
@@ -738,12 +738,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_RAISE_DEAD:
                         DoCast(me, SPELL_RAISE_DEAD);
@@ -771,7 +771,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_soulguard_animatorAI(creature);
     }
@@ -811,12 +811,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_RAISE_DEAD:
                         DoCast(me, SPELL_RAISE_DEAD);
@@ -843,7 +843,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_soulguard_adeptAI(creature);
     }
@@ -878,12 +878,12 @@ public:
 
             events.Update(diff);
 
-            if (me->HasUnitState(UNIT_STAT_CASTING))
+            if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_SOUL_STRIKE:
                         DoCast(me->getVictim(), SPELL_SOUL_STRIKE);
@@ -896,7 +896,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new mob_soul_horrorAI(creature);
     }

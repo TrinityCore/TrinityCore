@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -50,7 +50,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 
         struct instance_magtheridons_lair_InstanceMapScript : public InstanceScript
         {
-            instance_magtheridons_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+            instance_magtheridons_lair_InstanceMapScript(Map* map) : InstanceScript(map)
             {
             }
 
@@ -86,7 +86,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 
             void OnCreatureCreate(Creature* creature)
             {
-                switch(creature->GetEntry())
+                switch (creature->GetEntry())
                 {
                 case 17257:
                     MagtheridonGUID = creature->GetGUID();
@@ -99,7 +99,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch(go->GetEntry())
+                switch (go->GetEntry())
                 {
                 case 181713:
                     go->SetUInt32Value(GAMEOBJECT_FLAGS, 0);
@@ -121,7 +121,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 
             uint64 GetData64(uint32 type)
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_MAGTHERIDON:
                     return MagtheridonGUID;
@@ -131,7 +131,7 @@ class instance_magtheridons_lair : public InstanceMapScript
 
             void SetData(uint32 type, uint32 data)
             {
-                switch(type)
+                switch (type)
                 {
                 case DATA_MAGTHERIDON_EVENT:
                     m_auiEncounter[0] = data;
@@ -141,7 +141,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                        HandleGameObject(DoorGUID, true);
                     break;
                 case DATA_CHANNELER_EVENT:
-                    switch(data)
+                    switch (data)
                     {
                     case NOT_STARTED: // Reset all channelers once one is reset.
                         if (m_auiEncounter[1] != NOT_STARTED)
@@ -223,7 +223,7 @@ class instance_magtheridons_lair : public InstanceMapScript
                         Creature* Magtheridon = instance->GetCreature(MagtheridonGUID);
                         if (Magtheridon && Magtheridon->isAlive())
                         {
-                            Magtheridon->ClearUnitState(UNIT_STAT_STUNNED);
+                            Magtheridon->ClearUnitState(UNIT_STATE_STUNNED);
                             Magtheridon->AI()->AttackStart(Magtheridon->SelectNearestTarget(999));
                         }
                         CageTimer = 0;
@@ -250,9 +250,9 @@ class instance_magtheridons_lair : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_magtheridons_lair_InstanceMapScript(pMap);
+            return new instance_magtheridons_lair_InstanceMapScript(map);
         }
 };
 

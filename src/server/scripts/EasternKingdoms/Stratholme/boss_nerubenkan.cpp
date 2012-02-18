@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,10 +45,10 @@ public:
     {
         boss_nerubenkanAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 EncasingWebs_Timer;
         uint32 PierceArmor_Timer;
@@ -69,8 +69,8 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
-                pInstance->SetData(TYPE_NERUB, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_NERUB, IN_PROGRESS);
         }
 
         void RaiseUndeadScarab(Unit* victim)

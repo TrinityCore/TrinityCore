@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -96,7 +96,7 @@ public:
             CastTimer = 5000;
         }
 
-        void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+        void SpellHit(Unit* pCaster, SpellInfo const* pSpell)
         {
             if (bCanEat || bIsEating)
                 return;
@@ -117,7 +117,7 @@ public:
             {
                 bIsEating = true;
                 EatTimer = 7000;
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
             }
         }
 
@@ -129,9 +129,9 @@ public:
                 {
                     if (bCanEat && !bIsEating)
                     {
-                        if (Unit* pUnit = Unit::GetUnit(*me, uiPlayerGUID))
+                        if (Unit* unit = Unit::GetUnit(*me, uiPlayerGUID))
                         {
-                            if (GameObject* pGo = pUnit->FindNearestGameObject(GO_CARCASS, 10))
+                            if (GameObject* go = unit->FindNearestGameObject(GO_CARCASS, 10))
                             {
                                 if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
                                     me->GetMotionMaster()->MovementExpired();
@@ -139,7 +139,7 @@ public:
                                 me->GetMotionMaster()->MoveIdle();
                                 me->StopMoving();
 
-                                me->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                                me->GetMotionMaster()->MovePoint(POINT_ID, go->GetPositionX(), go->GetPositionY(), go->GetPositionZ());
                             }
                         }
                         bCanEat = false;
@@ -153,8 +153,8 @@ public:
                         {
                             pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, 0);
 
-                            if (GameObject* pGo = pPlr->FindNearestGameObject(GO_CARCASS, 10))
-                                pGo->Delete();
+                            if (GameObject* go = pPlr->FindNearestGameObject(GO_CARCASS, 10))
+                                go->Delete();
                         }
 
                         Reset();
@@ -228,7 +228,7 @@ public:
             me->SetVisible(true);
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (!caster)
                 return;
@@ -353,7 +353,7 @@ public:
             PoisonTimer = 0;
         }
 
-        void SpellHit(Unit* caster, const SpellEntry* spell)
+        void SpellHit(Unit* caster, const SpellInfo* spell)
         {
             if (!caster)
                 return;
@@ -452,7 +452,7 @@ public:
         if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
         {
             ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30658, 1, false);
+            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30658, 1, NULL);
             if (msg == EQUIP_ERR_OK)
             {
                 player->StoreNewItem(dest, 30658, 1, true);
@@ -462,7 +462,7 @@ public:
         if (uiAction == GOSSIP_ACTION_INFO_DEF+2)
         {
             ItemPosCountVec dest;
-            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30659, 1, false);
+            uint8 msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, 30659, 1, NULL);
             if (msg == EQUIP_ERR_OK)
             {
                 player->StoreNewItem(dest, 30659, 1, true);
@@ -635,26 +635,31 @@ public:
 # npc_karynaku
 ####*/
 
-enum eKarynaku
+enum Karynaku
 {
     QUEST_ALLY_OF_NETHER    = 10870,
+    QUEST_ZUHULED_THE_WACK  = 10866,
 
-    TAXI_PATH_ID            = 649
+    NPC_ZUHULED_THE_WACKED  = 11980,
+
+    TAXI_PATH_ID            = 649,
 };
 
 class npc_karynaku : public CreatureScript
 {
-public:
-    npc_karynaku() : CreatureScript("npc_karynaku") { }
+    public:
+        npc_karynaku() : CreatureScript("npc_karynaku") { }
 
-    bool OnQuestAccept(Player* player, Creature* /*creature*/, Quest const* quest)
-    {
-        if (quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
-            player->ActivateTaxiPathTo(TAXI_PATH_ID);        //player->ActivateTaxiPathTo(649);
+        bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
+        {
+            if (quest->GetQuestId() == QUEST_ALLY_OF_NETHER)
+                player->ActivateTaxiPathTo(TAXI_PATH_ID);
 
-        return true;
-    }
+            if (quest->GetQuestId() == QUEST_ZUHULED_THE_WACK)
+                creature->SummonCreature(NPC_ZUHULED_THE_WACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
 
+            return true;
+        }
 };
 
 /*####
@@ -771,7 +776,7 @@ public:
                 return 0;
             }
 
-            switch(Step)
+            switch (Step)
             {
             case 0: return 0; break;
             case 1: me->GetMotionMaster()->MovePoint(0, -5104.41f, 595.297f, 85.6838f); return 9000; break;
@@ -914,15 +919,15 @@ class npc_earthmender_wilda : public CreatureScript
 public:
     npc_earthmender_wilda() : CreatureScript("npc_earthmender_wilda") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, const Quest* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
+        if (quest->GetQuestId() == QUEST_ESCAPE_COILSCAR)
         {
             DoScriptText(SAY_WIL_START, creature, player);
             creature->setFaction(FACTION_EARTHEN);
 
             if (npc_earthmender_wildaAI* pEscortAI = CAST_AI(npc_earthmender_wilda::npc_earthmender_wildaAI, creature->AI()))
-                pEscortAI->Start(false, false, player->GetGUID(), pQuest);
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
         return true;
     }
@@ -950,7 +955,7 @@ public:
             if (!player)
                 return;
 
-            switch(uiPointId)
+            switch (uiPointId)
             {
                 case 13:
                     DoScriptText(SAY_WIL_PROGRESS1, me, player);
@@ -998,8 +1003,7 @@ public:
                 case 50:
                     DoScriptText(SAY_WIL_END, me, player);
 
-                    if (Player* player = GetPlayerForEscort())
-                        player->GroupEventHappens(QUEST_ESCAPE_COILSCAR, me);
+                    player->GroupEventHappens(QUEST_ESCAPE_COILSCAR, me);
                     break;
             }
         }
@@ -1191,7 +1195,7 @@ public:
             AggroTargetGUID = 0;
             Timers = false;
 
-            me->AddUnitState(UNIT_STAT_ROOT);
+            me->AddUnitState(UNIT_STATE_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetTarget(0);
         }
@@ -1215,7 +1219,7 @@ public:
 
             AnimationTimer = TorlothAnim[AnimationCount].Timer;
 
-            switch(AnimationCount)
+            switch (AnimationCount)
             {
             case 0:
                 me->SetUInt32Value(UNIT_FIELD_BYTES_1, 8);
@@ -1235,7 +1239,7 @@ public:
                 if (Player* AggroTarget = (Unit::GetPlayer(*me, AggroTargetGUID)))
                 {
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    me->ClearUnitState(UNIT_STAT_ROOT);
+                    me->ClearUnitState(UNIT_STATE_ROOT);
 
                     float x, y, z;
                     AggroTarget->GetPosition(x, y, z);
@@ -1295,7 +1299,7 @@ public:
         void JustDied(Unit* slayer)
         {
             if (slayer)
-                switch(slayer->GetTypeId())
+                switch (slayer->GetTypeId())
                 {
                     case TYPEID_UNIT:
                         if (Unit* owner = slayer->GetOwner())
@@ -1379,7 +1383,7 @@ public:
             if (!player)
                 return;
 
-            if (Group *EventGroup = player->GetGroup())
+            if (Group* EventGroup = player->GetGroup())
             {
                 Player* GroupMember;
 
@@ -1749,7 +1753,7 @@ public:
             uint32 entry = 0;
             uint32 credit = 0;
 
-            switch(me->GetEntry()) {
+            switch (me->GetEntry()) {
               case ENTRY_ENRAGED_FIRE_SPIRIT:
                 entry  = ENTRY_FIERY_SOUL;
                 //credit = SPELL_FIERY_SOUL_CAPTURED_CREDIT;

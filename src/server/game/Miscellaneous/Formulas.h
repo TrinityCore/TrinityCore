@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -156,7 +156,7 @@ namespace Trinity
             return baseGain;
         }
 
-        inline uint32 Gain(Player *pl, Unit *u)
+        inline uint32 Gain(Player* player, Unit* u)
         {
             uint32 gain;
 
@@ -167,7 +167,7 @@ namespace Trinity
                 gain = 0;
             else
             {
-                gain = BaseGain(pl->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
+                gain = BaseGain(player->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
 
                 if (gain != 0 && u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isElite())
                 {
@@ -181,7 +181,7 @@ namespace Trinity
                 gain = uint32(gain * sWorld->getRate(RATE_XP_KILL));
             }
 
-            sScriptMgr->OnGainCalculation(gain, pl, u);
+            sScriptMgr->OnGainCalculation(gain, player, u);
             return gain;
         }
 

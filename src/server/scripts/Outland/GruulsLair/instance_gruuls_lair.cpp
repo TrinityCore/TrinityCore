@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,14 +38,14 @@ class instance_gruuls_lair : public InstanceMapScript
 public:
     instance_gruuls_lair() : InstanceMapScript("instance_gruuls_lair", 565) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_gruuls_lair_InstanceMapScript(pMap);
+        return new instance_gruuls_lair_InstanceMapScript(map);
     }
 
     struct instance_gruuls_lair_InstanceMapScript : public InstanceScript
     {
-        instance_gruuls_lair_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_gruuls_lair_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
 
@@ -84,7 +84,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 18835: KigglerTheCrazed = creature->GetGUID(); break;
                 case 18836: BlindeyeTheSeer = creature->GetGUID();  break;
@@ -96,13 +96,16 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 184468:
                     MaulgarDoor = go->GetGUID();
-                    if (m_auiEncounter[0] == DONE) HandleGameObject(0, true, go);
+                    if (m_auiEncounter[0] == DONE)
+                        HandleGameObject(0, true, go);
                     break;
-                case 184662: GruulDoor = go->GetGUID(); break;
+                case 184662:
+                    GruulDoor = go->GetGUID();
+                    break;
             }
         }
 
@@ -114,7 +117,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_MAULGAREVENT_TANK:    return MaulgarEvent_Tank;
                 case DATA_KIGGLERTHECRAZED:     return KigglerTheCrazed;
@@ -130,7 +133,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_MAULGAREVENT:
                     if (data == DONE) HandleGameObject(MaulgarDoor, true);
@@ -147,7 +150,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_MAULGAREVENT: return m_auiEncounter[0];
                 case DATA_GRUULEVENT:   return m_auiEncounter[1];
@@ -159,7 +162,7 @@ public:
         {
             OUT_SAVE_INST_DATA;
             std::ostringstream stream;
-            stream << m_auiEncounter[0] << " " << m_auiEncounter[1];
+            stream << m_auiEncounter[0] << ' ' << m_auiEncounter[1];
             char* out = new char[stream.str().length() + 1];
             strcpy(out, stream.str().c_str());
             if (out)

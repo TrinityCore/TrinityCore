@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,9 +66,9 @@ public:
 
         uint32 entry = atol(cId);
 
-        Quest const* pQuest = sObjectMgr->GetQuestTemplate(entry);
+        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
-        if (!pQuest)
+        if (!quest)
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -77,7 +77,7 @@ public:
 
         // check item starting quest (it can work incorrectly if added without item in inventory)
         ItemTemplateContainer const* itc = sObjectMgr->GetItemTemplateStore();
-        ItemTemplateContainer::const_iterator result = find_if(itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
+        ItemTemplateContainer::const_iterator result = find_if (itc->begin(), itc->end(), Finder<uint32, ItemTemplate>(entry, &ItemTemplate::StartQuest));
 
         if (result != itc->end())
         {
@@ -87,9 +87,9 @@ public:
         }
 
         // ok, normal (creature/GO starting) quest
-        if (player->CanAddQuest(pQuest, true))
+        if (player->CanAddQuest(quest, true))
         {
-            player->AddQuest(pQuest, NULL);
+            player->AddQuest(quest, NULL);
 
             if (player->CanCompleteQuest(entry))
                 player->CompleteQuest(entry);
@@ -116,9 +116,9 @@ public:
 
         uint32 entry = atol(cId);
 
-        Quest const* pQuest = sObjectMgr->GetQuestTemplate(entry);
+        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
-        if (!pQuest)
+        if (!quest)
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -128,13 +128,13 @@ public:
         // remove all quest entries for 'entry' from quest log
         for (uint8 slot = 0; slot < MAX_QUEST_LOG_SIZE; ++slot)
         {
-            uint32 quest = player->GetQuestSlotQuestId(slot);
-            if (quest == entry)
+            uint32 logQuest = player->GetQuestSlotQuestId(slot);
+            if (logQuest == entry)
             {
                 player->SetQuestSlot(slot, 0);
 
                 // we ignore unequippable quest items in this case, its' still be equipped
-                player->TakeQuestSourceItem(quest, false);
+                player->TakeQuestSourceItem(logQuest, false);
             }
         }
 
@@ -163,10 +163,10 @@ public:
 
         uint32 entry = atol(cId);
 
-        Quest const* pQuest = sObjectMgr->GetQuestTemplate(entry);
+        Quest const* quest = sObjectMgr->GetQuestTemplate(entry);
 
         // If player doesn't have the quest
-        if (!pQuest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
+        if (!quest || player->GetQuestStatus(entry) == QUEST_STATUS_NONE)
         {
             handler->PSendSysMessage(LANG_COMMAND_QUEST_NOTFOUND, entry);
             handler->SetSentErrorMessage(true);
@@ -176,8 +176,8 @@ public:
         // Add quest items for quests that require items
         for (uint8 x = 0; x < QUEST_ITEM_OBJECTIVES_COUNT; ++x)
         {
-            uint32 id = pQuest->ReqItemId[x];
-            uint32 count = pQuest->ReqItemCount[x];
+            uint32 id = quest->RequiredItemId[x];
+            uint32 count = quest->RequiredItemCount[x];
             if (!id || !count)
                 continue;
 
@@ -195,10 +195,10 @@ public:
         // All creature/GO slain/casted (not required, but otherwise it will display "Creature slain 0/10")
         for (uint8 i = 0; i < QUEST_OBJECTIVES_COUNT; ++i)
         {
-            int32 creature = pQuest->ReqCreatureOrGOId[i];
-            uint32 creaturecount = pQuest->ReqCreatureOrGOCount[i];
+            int32 creature = quest->RequiredNpcOrGo[i];
+            uint32 creaturecount = quest->RequiredNpcOrGoCount[i];
 
-            if (uint32 spell_id = pQuest->ReqSpell[i])
+            if (uint32 spell_id = quest->RequiredSpellCast[i])
             {
                 for (uint16 z = 0; z < creaturecount; ++z)
                     player->CastedCreatureOrGO(creature, 0, spell_id);
@@ -217,27 +217,27 @@ public:
         }
 
         // If the quest requires reputation to complete
-        if (uint32 repFaction = pQuest->GetRepObjectiveFaction())
+        if (uint32 repFaction = quest->GetRepObjectiveFaction())
         {
-            uint32 repValue = pQuest->GetRepObjectiveValue();
+            uint32 repValue = quest->GetRepObjectiveValue();
             uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
             if (curRep < repValue)
-                if (FactionEntry const *factionEntry = sFactionStore.LookupEntry(repFaction))
+                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
                     player->GetReputationMgr().SetReputation(factionEntry, repValue);
         }
 
         // If the quest requires a SECOND reputation to complete
-        if (uint32 repFaction = pQuest->GetRepObjectiveFaction2())
+        if (uint32 repFaction = quest->GetRepObjectiveFaction2())
         {
-            uint32 repValue2 = pQuest->GetRepObjectiveValue2();
+            uint32 repValue2 = quest->GetRepObjectiveValue2();
             uint32 curRep = player->GetReputationMgr().GetReputation(repFaction);
             if (curRep < repValue2)
-                if (FactionEntry const *factionEntry = sFactionStore.LookupEntry(repFaction))
+                if (FactionEntry const* factionEntry = sFactionStore.LookupEntry(repFaction))
                     player->GetReputationMgr().SetReputation(factionEntry, repValue2);
         }
 
         // If the quest requires money
-        int32 ReqOrRewMoney = pQuest->GetRewOrReqMoney();
+        int32 ReqOrRewMoney = quest->GetRewOrReqMoney();
         if (ReqOrRewMoney < 0)
             player->ModifyMoney(-ReqOrRewMoney);
 

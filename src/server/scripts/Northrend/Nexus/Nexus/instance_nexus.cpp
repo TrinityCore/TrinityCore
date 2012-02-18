@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -31,14 +31,14 @@ class instance_nexus : public InstanceMapScript
 public:
     instance_nexus() : InstanceMapScript("instance_nexus", 576) { }
 
-    InstanceScript *GetInstanceScript(InstanceMap *pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_nexus_InstanceMapScript(pMap);
+        return new instance_nexus_InstanceMapScript(map);
     }
 
     struct instance_nexus_InstanceMapScript : public InstanceScript
     {
-        instance_nexus_InstanceMapScript(Map *pMap) : InstanceScript(pMap) {}
+        instance_nexus_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[NUMBER_OF_ENCOUNTERS];
 
@@ -129,21 +129,21 @@ public:
                 {
                     AnomalusContainmentSphere = go->GetGUID();
                     if (m_auiEncounter[1] == DONE)
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 }
                 case 188528:
                 {
                     OrmoroksContainmentSphere = go->GetGUID();
                     if (m_auiEncounter[2] == DONE)
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 }
                 case 188526:
                 {
                     TelestrasContainmentSphere = go->GetGUID();
                     if (m_auiEncounter[0] == DONE)
-                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                        go->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     break;
                 }
             }
@@ -151,7 +151,7 @@ public:
 
         uint32 GetData(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_MAGUS_TELESTRA_EVENT: return m_auiEncounter[0];
                 case DATA_ANOMALUS_EVENT:       return m_auiEncounter[1];
@@ -171,7 +171,7 @@ public:
                     {
                         GameObject* Sphere = instance->GetGameObject(TelestrasContainmentSphere);
                         if (Sphere)
-                            Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     m_auiEncounter[0] = data;
                     break;
@@ -181,7 +181,7 @@ public:
                     if (data == DONE)
                     {
                         if (GameObject* Sphere = instance->GetGameObject(AnomalusContainmentSphere))
-                            Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     m_auiEncounter[1] = data;
                     break;
@@ -191,7 +191,7 @@ public:
                     if (data == DONE)
                     {
                         if (GameObject* Sphere = instance->GetGameObject(OrmoroksContainmentSphere))
-                            Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                            Sphere->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     }
                     m_auiEncounter[2] = data;
                     break;
@@ -206,7 +206,7 @@ public:
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
+                saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' '
                     << m_auiEncounter[3];
 
                 strInstData = saveStream.str();
@@ -218,7 +218,7 @@ public:
 
         uint64 GetData64(uint32 uiIdentifier)
         {
-            switch(uiIdentifier)
+            switch (uiIdentifier)
             {
                 case DATA_ANOMALUS:                 return Anomalus;
                 case DATA_KERISTRASZA:              return Keristrasza;

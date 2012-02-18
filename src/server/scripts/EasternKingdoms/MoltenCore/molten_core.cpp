@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,16 +30,19 @@ EndContentData */
 #include "ScriptPCH.h"
 #include "ScriptedSimpleAI.h"
 
-#define SPELL_CONE_OF_FIRE          19630
-#define SPELL_BITE                  19771
+enum Spells
+{
+    SPELL_CONE_OF_FIRE          = 19630,
+    SPELL_BITE                  = 19771,
 
-//Random Debuff (each hound has only one of these)
-#define SPELL_GROUND_STOMP          19364
-#define SPELL_ANCIENT_DREAD         19365
-#define SPELL_CAUTERIZING_FLAMES    19366
-#define SPELL_WITHERING_HEAT        19367
-#define SPELL_ANCIENT_DESPAIR       19369
-#define SPELL_ANCIENT_HYSTERIA      19372
+    //Random Debuff (each hound has only one of these)
+    SPELL_GROUND_STOMP          = 19364,
+    SPELL_ANCIENT_DREAD         = 19365,
+    SPELL_CAUTERIZING_FLAMES    = 19366,
+    SPELL_WITHERING_HEAT        = 19367,
+    SPELL_ANCIENT_DESPAIR       = 19369,
+    SPELL_ANCIENT_HYSTERIA      = 19372
+};
 
 class mob_ancient_core_hound : public CreatureScript
 {
@@ -48,7 +51,7 @@ public:
 
     CreatureAI* GetAI(Creature* creature) const
     {
-        SimpleAI *ai = new SimpleAI(creature);
+        SimpleAI* ai = new SimpleAI(creature);
 
         ai->Spell[0].Enabled          = true;
         ai->Spell[0].Spell_Id         = SPELL_CONE_OF_FIRE;
@@ -75,7 +78,6 @@ public:
 
         return ai;
     }
-
 };
 
 void AddSC_molten_core()

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -38,18 +38,18 @@ public:
 
     bool OnUse(Player* player, Item* item, SpellCastTargets const& targets)
     {
-        InstanceScript *pInstance = player->GetInstanceScript();
+        InstanceScript* instance = player->GetInstanceScript();
 
-        if (!pInstance)
+        if (!instance)
         {
             player->GetSession()->SendNotification("Instance script not initialized");
             return true;
         }
-        if (pInstance->GetData(EVENT_STATE)!= CANNON_NOT_USED)
+        if (instance->GetData(EVENT_STATE)!= CANNON_NOT_USED)
             return false;
         if (targets.GetGOTarget() && targets.GetGOTarget()->GetEntry() == GO_DEFIAS_CANNON)
         {
-            pInstance->SetData(EVENT_STATE, CANNON_GUNPOWDER_USED);
+            instance->SetData(EVENT_STATE, CANNON_GUNPOWDER_USED);
         }
 
         player->DestroyItemCount(item->GetEntry(), 1, true);

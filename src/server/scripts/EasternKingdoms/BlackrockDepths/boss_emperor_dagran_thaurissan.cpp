@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -16,14 +16,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* ScriptData
-SDName: Boss_Emperor_Dagran_Thaurissan
-SD%Complete: 99
-SDComment:
-SDCategory: Blackrock Depths
-EndScriptData */
-
 #include "ScriptPCH.h"
+#include "blackrock_depths.h"
 
 enum Yells
 {
@@ -49,17 +43,21 @@ public:
 
     struct boss_draganthaurissanAI : public ScriptedAI
     {
-        boss_draganthaurissanAI(Creature* c) : ScriptedAI(c) {}
+        boss_draganthaurissanAI(Creature* creature) : ScriptedAI(creature)
+        {
+            instance = me->GetInstanceScript();
+        }
 
+        InstanceScript* instance;
         uint32 HandOfThaurissan_Timer;
         uint32 AvatarOfFlame_Timer;
         //uint32 Counter;
 
         void Reset()
         {
-            HandOfThaurissan_Timer = 4000;
-            AvatarOfFlame_Timer = 25000;
-            //Counter= 0;
+            HandOfThaurissan_Timer   = 4000;
+            AvatarOfFlame_Timer      = 25000;
+            //Counter                = 0;
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -71,6 +69,15 @@ public:
         void KilledUnit(Unit* /*victim*/)
         {
             DoScriptText(SAY_SLAY, me);
+        }
+
+        void JustDied(Unit* /*who*/)
+        {
+            if (Creature* Moira = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(DATA_MOIRA) : 0))
+            {
+                Moira->AI()->EnterEvadeMode();
+                Moira->setFaction(35);
+            }
         }
 
         void UpdateAI(const uint32 diff)
@@ -93,7 +100,7 @@ public:
                 //else
                 //{
                     HandOfThaurissan_Timer = 5000;
-                    //Counter = 0;
+                    //Counter              = 0;
                 //}
             } else HandOfThaurissan_Timer -= diff;
 
@@ -107,7 +114,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_draganthaurissan()

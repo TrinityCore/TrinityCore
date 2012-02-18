@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ public:
 
     struct instance_azjol_nerub_InstanceScript : public InstanceScript
     {
-        instance_azjol_nerub_InstanceScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_azjol_nerub_InstanceScript(Map* map) : InstanceScript(map) {}
 
         uint64 uiKrikthir;
         uint64 uiHadronox;
@@ -71,7 +71,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 28684:    uiKrikthir = creature->GetGUID();        break;
                 case 28921:    uiHadronox = creature->GetGUID();        break;
@@ -105,7 +105,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_KRIKTHIR_THE_GATEWATCHER:     return uiKrikthir;
                 case DATA_HADRONOX:                     return uiHadronox;
@@ -120,7 +120,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
             case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:
                 auiEncounter[0] = data;
@@ -149,7 +149,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_KRIKTHIR_THE_GATEWATCHER_EVENT:   return auiEncounter[0];
                 case DATA_HADRONOX_EVENT:                   return auiEncounter[1];
@@ -164,7 +164,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "A N " << auiEncounter[0] << " " << auiEncounter[1] << " "
+            saveStream << "A N " << auiEncounter[0] << ' ' << auiEncounter[1] << ' '
                 << auiEncounter[2];
 
             OUT_SAVE_INST_DATA_COMPLETE;
@@ -203,7 +203,7 @@ public:
         }
     };
 
-    InstanceScript* GetInstanceScript(InstanceMap *map) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
         return new instance_azjol_nerub_InstanceScript(map);
     }

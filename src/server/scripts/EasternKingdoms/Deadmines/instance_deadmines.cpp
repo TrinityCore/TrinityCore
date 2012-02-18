@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2008 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -53,7 +53,7 @@ class instance_deadmines : public InstanceMapScript
 
         struct instance_deadmines_InstanceMapScript : public InstanceScript
         {
-            instance_deadmines_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+            instance_deadmines_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
             uint64 FactoryDoorGUID;
             uint64 IronCladDoorGUID;
@@ -186,7 +186,7 @@ class instance_deadmines : public InstanceMapScript
 
             void OnGameObjectCreate(GameObject* go)
             {
-                switch(go->GetEntry())
+                switch (go->GetEntry())
                 {
                     case GO_FACTORY_DOOR:   FactoryDoorGUID = go->GetGUID(); break;
                     case GO_IRONCLAD_DOOR:  IronCladDoorGUID = go->GetGUID();  break;
@@ -251,9 +251,9 @@ class instance_deadmines : public InstanceMapScript
             }
         };
 
-        InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+        InstanceScript* GetInstanceScript(InstanceMap* map) const
         {
-            return new instance_deadmines_InstanceMapScript(pMap);
+            return new instance_deadmines_InstanceMapScript(map);
         }
 };
 

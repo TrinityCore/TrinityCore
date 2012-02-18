@@ -1,5 +1,5 @@
  /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,14 +46,14 @@ class instance_hyjal : public InstanceMapScript
 public:
     instance_hyjal() : InstanceMapScript("instance_hyjal", 534) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_mount_hyjal_InstanceMapScript(pMap);
+        return new instance_mount_hyjal_InstanceMapScript(map);
     }
 
     struct instance_mount_hyjal_InstanceMapScript : public InstanceScript
     {
-        instance_mount_hyjal_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_mount_hyjal_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string str_data;
@@ -117,7 +117,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 182060:
                     HordeGate = go->GetGUID();
@@ -141,7 +141,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 17767: RageWinterchill = creature->GetGUID(); break;
                 case 17808: Anetheron = creature->GetGUID(); break;
@@ -156,7 +156,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_RAGEWINTERCHILL: return RageWinterchill;
                 case DATA_ANETHERON: return Anetheron;
@@ -173,7 +173,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_RAGEWINTERCHILLEVENT: m_auiEncounter[0] = data; break;
                 case DATA_ANETHERONEVENT:
@@ -191,13 +191,13 @@ public:
                             Creature* creature = instance->GetCreature(Azgalor);
                             if (creature)
                             {
-                                Creature* pUnit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                Creature* unit = creature->SummonCreature(21987, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
 
-                                Map* pMap = creature->GetMap();
-                                if (pMap->IsDungeon() && pUnit)
+                                Map* map = creature->GetMap();
+                                if (map->IsDungeon() && unit)
                                 {
-                                    pUnit->SetVisible(false);
-                                    Map::PlayerList const &PlayerList = pMap->GetPlayers();
+                                    unit->SetVisible(false);
+                                    Map::PlayerList const &PlayerList = map->GetPlayers();
                                     if (PlayerList.isEmpty())
                                          return;
 
@@ -205,9 +205,9 @@ public:
                                     {
                                          if (i->getSource())
                                          {
-                                            WorldPacket data(SMSG_MESSAGECHAT, 200);
-                                            pUnit->BuildMonsterChat(&data, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
-                                            i->getSource()->GetSession()->SendPacket(&data);
+                                            WorldPacket packet(SMSG_MESSAGECHAT, 200);
+                                            unit->BuildMonsterChat(&packet, CHAT_MSG_MONSTER_YELL, YELL_EFFORTS, 0, YELL_EFFORTS_NAME, i->getSource()->GetGUID());
+                                            i->getSource()->GetSession()->SendPacket(&packet);
 
                                             WorldPacket data2(SMSG_PLAY_SOUND, 4);
                                             data2 << 10986;
@@ -267,10 +267,10 @@ public:
                 OUT_SAVE_INST_DATA;
 
                 std::ostringstream saveStream;
-                saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
-                    << m_auiEncounter[3] << " " << m_auiEncounter[4]
-                    << " " << allianceRetreat << " " << hordeRetreat
-                    << " " << RaidDamage;
+                saveStream << m_auiEncounter[0] << ' ' << m_auiEncounter[1] << ' ' << m_auiEncounter[2] << ' '
+                    << m_auiEncounter[3] << ' ' << m_auiEncounter[4]
+                    << ' ' << allianceRetreat << ' ' << hordeRetreat
+                    << ' ' << RaidDamage;
 
                 str_data = saveStream.str();
 
@@ -282,7 +282,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_RAGEWINTERCHILLEVENT: return m_auiEncounter[0];
                 case DATA_ANETHERONEVENT:      return m_auiEncounter[1];

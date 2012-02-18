@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,10 +20,14 @@
 #define TRINITYCORE_ARENATEAM_H
 
 #include "QueryResult.h"
-#include "Player.h"
-#include "ObjectMgr.h"
+#include <ace/Singleton.h>
+#include <list>
+#include <map>
 
 class WorldSession;
+class WorldPacket;
+class Player;
+class Group;
 
 enum ArenaTeamCommandTypes
 {
@@ -93,7 +97,7 @@ struct ArenaTeamMember
     uint16 PersonalRating;
     uint16 MatchMakerRating;
 
-    void ModifyPersonalRating(Player* plr, int32 mod, uint32 slot);
+    void ModifyPersonalRating(Player* player, int32 mod, uint32 type);
     void ModifyMatchmakerRating(int32 mod, uint32 slot);
 };
 
@@ -115,7 +119,7 @@ class ArenaTeam
         ArenaTeam();
         ~ArenaTeam();
 
-        bool Create(uint32 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
+        bool Create(uint64 captainGuid, uint8 type, std::string teamName, uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor, uint8 borderStyle, uint32 borderColor);
         void Disband(WorldSession* session);
 
         typedef std::list<ArenaTeamMember> MemberList;
@@ -124,17 +128,17 @@ class ArenaTeam
         uint32 GetType() const            { return Type; }
         uint8  GetSlot() const            { return GetSlotByType(GetType()); }
         static uint8 GetSlotByType(uint32 type);
-        const uint64& GetCaptain() const  { return CaptainGuid; }
+        uint64 GetCaptain() const  { return CaptainGuid; }
         std::string GetName() const       { return TeamName; }
         const ArenaTeamStats& GetStats() const { return Stats; }
 
         uint32 GetRating() const          { return Stats.Rating; }
         uint32 GetAverageMMR(Group* group) const;
 
-        void SetCaptain(const uint64& guid);
-        bool AddMember(const uint64& PlayerGuid);
+        void SetCaptain(uint64 guid);
+        bool AddMember(uint64 PlayerGuid);
 
-        // Shouldn't be const uint64& ed, because than can reference guid from members on Disband
+        // Shouldn't be uint64 ed, because than can reference guid from members on Disband
         // and this method removes given record from list. So invalid reference can happen.
         void DelMember(uint64 guid, bool cleanDb);
 
@@ -142,9 +146,9 @@ class ArenaTeam
         bool   Empty() const                  { return Members.empty(); }
         MemberList::iterator m_membersBegin() { return Members.begin(); }
         MemberList::iterator m_membersEnd()   { return Members.end(); }
-        bool IsMember(const uint64& guid) const;
+        bool IsMember(uint64 guid) const;
 
-        ArenaTeamMember* GetMember(const uint64& guid);
+        ArenaTeamMember* GetMember(uint64 guid);
         ArenaTeamMember* GetMember(const std::string& name);
 
         bool IsFighting() const;
@@ -164,14 +168,14 @@ class ArenaTeam
         void Inspect(WorldSession* session, uint64 guid);
 
         uint32 GetPoints(uint32 MemberRating);
-        int32  GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won, bool calculating_mmr = false);
-        int32  GetPersonalRatingMod(int32 base_rating, uint32 ownRating, uint32 opponentRating);
+        int32  GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
+        int32  GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
         float  GetChanceAgainst(uint32 ownRating, uint32 opponentRating);
-        int32  WonAgainst(uint32 againstRating);
-        void   MemberWon(Player* plr, uint32 againstMatchmakerRating, int32 teamratingchange = 12);
-        int32  LostAgainst(uint32 againstRating);
-        void   MemberLost(Player* plr, uint32 againstMatchmakerRating, int32 teamratingchange = -12);
-        void   OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 teamratingchange = -12);
+        int32  WonAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
+        void   MemberWon(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange);
+        int32  LostAgainst(uint32 Own_MMRating, uint32 Opponent_MMRating, int32& rating_change);
+        void   MemberLost(Player* player, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
+        void   OfflineMemberLost(uint64 guid, uint32 againstMatchmakerRating, int32 MatchmakerRatingChange = -12);
 
         void UpdateArenaPointsHelper(std::map<uint32, uint32> & PlayerPoints);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -30,7 +30,7 @@ class GameObjectAI
     protected:
         GameObject* const go;
     public:
-        explicit GameObjectAI(GameObject *g) : go(g) {}
+        explicit GameObjectAI(GameObject* g) : go(g) {}
         virtual ~GameObjectAI() {}
 
         virtual void UpdateAI(const uint32 /*diff*/) {}
@@ -55,12 +55,14 @@ class GameObjectAI
         virtual uint32 GetDialogStatus(Player* /*player*/) {return 100;}
         virtual void Destroyed(Player* /*player*/, uint32 /*eventId*/) {}
         virtual void SetData(uint32 /*id*/, uint32 /*value*/) {}
+        virtual void OnGameEvent(bool /*start*/, uint16 /*eventId*/) {}
+        virtual void OnStateChanged(uint32 /*state*/, Unit* /*unit*/) { }
 };
 
 class NullGameObjectAI : public GameObjectAI
 {
     public:
-        explicit NullGameObjectAI(GameObject *g);
+        explicit NullGameObjectAI(GameObject* g);
 
         void UpdateAI(const uint32 /*diff*/) {}
 

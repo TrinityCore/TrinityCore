@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -46,6 +46,7 @@ class RASocket: public ACE_Svc_Handler<ACE_SOCK_STREAM, ACE_MT_SYNCH>
         int recv_line(ACE_Message_Block& buffer);
         int process_command(const std::string& command);
         int authenticate();
+        int subnegotiate();     //! Used by telnet protocol RFC 854 / 855
         int check_access_level(const std::string& user);
         int check_password(const std::string& user, const std::string& pass);
         int send(const std::string& line);

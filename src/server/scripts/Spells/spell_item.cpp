@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,9 +42,9 @@ public:
     public:
         spell_item_trigger_spell_SpellScript(uint32 triggeredSpellId) : SpellScript(), _triggeredSpellId(triggeredSpellId) { }
 
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(_triggeredSpellId))
+            if (!sSpellMgr->GetSpellInfo(_triggeredSpellId))
                 return false;
             return true;
         }
@@ -57,7 +57,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_trigger_spell_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_item_trigger_spell_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -87,10 +87,10 @@ public:
     {
         PrepareSpellScript(spell_item_deviate_fish_SpellScript)
     public:
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
             for (uint32 spellId = SPELL_SLEEPY; spellId <= SPELL_HEALTHY_SPIRIT; ++spellId)
-                if (!sSpellStore.LookupEntry(spellId))
+                if (!sSpellMgr->GetSpellInfo(spellId))
                     return false;
             return true;
         }
@@ -107,7 +107,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_deviate_fish_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_item_deviate_fish_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -135,13 +135,13 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_flask_of_the_north_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_SP))
+            if (!sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_SP))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_AP))
+            if (!sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_AP))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_FLASK_OF_THE_NORTH_STR))
+            if (!sSpellMgr->GetSpellInfo(SPELL_FLASK_OF_THE_NORTH_STR))
                 return false;
             return true;
         }
@@ -184,7 +184,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_flask_of_the_north_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_item_flask_of_the_north_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -211,11 +211,11 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_gnomish_death_ray_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_GNOMISH_DEATH_RAY_SELF))
+            if (!sSpellMgr->GetSpellInfo(SPELL_GNOMISH_DEATH_RAY_SELF))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_GNOMISH_DEATH_RAY_TARGET))
+            if (!sSpellMgr->GetSpellInfo(SPELL_GNOMISH_DEATH_RAY_TARGET))
                 return false;
             return true;
         }
@@ -234,7 +234,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_gnomish_death_ray_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_item_gnomish_death_ray_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -264,17 +264,17 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_make_a_wish_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_MR_PINCHYS_BLESSING))
+            if (!sSpellMgr->GetSpellInfo(SPELL_MR_PINCHYS_BLESSING))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_SUMMON_MIGHTY_MR_PINCHY))
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_MIGHTY_MR_PINCHY))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_SUMMON_FURIOUS_MR_PINCHY))
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FURIOUS_MR_PINCHY))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_TINY_MAGICAL_CRAWDAD))
+            if (!sSpellMgr->GetSpellInfo(SPELL_TINY_MAGICAL_CRAWDAD))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_MR_PINCHYS_GIFT))
+            if (!sSpellMgr->GetSpellInfo(SPELL_MR_PINCHYS_GIFT))
                 return false;
             return true;
         }
@@ -298,7 +298,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_make_a_wish_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_item_make_a_wish_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -353,7 +353,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_mingos_fortune_generator_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_item_mingos_fortune_generator_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -381,13 +381,13 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_net_o_matic_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_NET_O_MATIC_TRIGGERED1))
+            if (!sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED1))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_NET_O_MATIC_TRIGGERED2))
+            if (!sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED2))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_NET_O_MATIC_TRIGGERED3))
+            if (!sSpellMgr->GetSpellInfo(SPELL_NET_O_MATIC_TRIGGERED3))
                 return false;
             return true;
         }
@@ -409,7 +409,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_net_o_matic_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_item_net_o_matic_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -437,13 +437,13 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_noggenfogger_elixir_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1))
+            if (!sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED2))
+            if (!sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED2))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3))
+            if (!sSpellMgr->GetSpellInfo(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3))
                 return false;
             return true;
         }
@@ -466,7 +466,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_noggenfogger_elixir_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_item_noggenfogger_elixir_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -495,10 +495,10 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_savory_deviate_delight_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
             for (uint32 spellId = SPELL_FLIP_OUT_MALE; spellId <= SPELL_YAAARRRR_FEMALE; ++spellId)
-                if (!sSpellStore.LookupEntry(spellId))
+                if (!sSpellMgr->GetSpellInfo(spellId))
                     return false;
             return true;
         }
@@ -522,7 +522,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_savory_deviate_delight_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_item_savory_deviate_delight_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -553,19 +553,19 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_six_demon_bag_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_FROSTBOLT))
+            if (!sSpellMgr->GetSpellInfo(SPELL_FROSTBOLT))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_POLYMORPH))
+            if (!sSpellMgr->GetSpellInfo(SPELL_POLYMORPH))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_SUMMON_FELHOUND_MINION))
+            if (!sSpellMgr->GetSpellInfo(SPELL_SUMMON_FELHOUND_MINION))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_FIREBALL))
+            if (!sSpellMgr->GetSpellInfo(SPELL_FIREBALL))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_CHAIN_LIGHTNING))
+            if (!sSpellMgr->GetSpellInfo(SPELL_CHAIN_LIGHTNING))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_ENVELOPING_WINDS))
+            if (!sSpellMgr->GetSpellInfo(SPELL_ENVELOPING_WINDS))
                 return false;
             return true;
         }
@@ -604,7 +604,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_six_demon_bag_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_item_six_demon_bag_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -632,13 +632,13 @@ public:
     {
     public:
         PrepareSpellScript(spell_item_underbelly_elixir_SpellScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_UNDERBELLY_ELIXIR_TRIGGERED1))
+            if (!sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED1))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_UNDERBELLY_ELIXIR_TRIGGERED2))
+            if (!sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED2))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_UNDERBELLY_ELIXIR_TRIGGERED3))
+            if (!sSpellMgr->GetSpellInfo(SPELL_UNDERBELLY_ELIXIR_TRIGGERED3))
                 return false;
             return true;
         }
@@ -660,7 +660,7 @@ public:
 
         void Register()
         {
-            OnEffect += SpellEffectFn(spell_item_underbelly_elixir_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHit += SpellEffectFn(spell_item_underbelly_elixir_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -688,13 +688,13 @@ public:
         PrepareAuraScript(spell_item_shadowmourne_AuraScript)
         spell_item_shadowmourne_AuraScript() : AuraScript() { }
 
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(SPELL_SHADOWMOURNE_VISUAL_LOW))
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_VISUAL_LOW))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_SHADOWMOURNE_VISUAL_HIGH))
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_VISUAL_HIGH))
                 return false;
-            if (!sSpellStore.LookupEntry(SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF))
+            if (!sSpellMgr->GetSpellInfo(SPELL_SHADOWMOURNE_CHAOS_BANE_BUFF))
                 return false;
             return true;
         }
@@ -755,13 +755,13 @@ class spell_item_red_rider_air_rifle : public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_red_rider_air_rifle_SpellScript);
 
-            bool Validate(SpellEntry const* /*spell*/)
+            bool Validate(SpellInfo const* /*spell*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_AIR_RIFLE_HOLD_VISUAL))
+                if (!sSpellMgr->GetSpellInfo(SPELL_AIR_RIFLE_HOLD_VISUAL))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_AIR_RIFLE_SHOOT))
+                if (!sSpellMgr->GetSpellInfo(SPELL_AIR_RIFLE_SHOOT))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_AIR_RIFLE_SHOOT_SELF))
+                if (!sSpellMgr->GetSpellInfo(SPELL_AIR_RIFLE_SHOOT_SELF))
                     return false;
                 return true;
             }
@@ -784,7 +784,7 @@ class spell_item_red_rider_air_rifle : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_item_red_rider_air_rifle_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_item_red_rider_air_rifle_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -838,7 +838,7 @@ class spell_item_create_heart_candy : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_item_create_heart_candy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_item_create_heart_candy_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
@@ -976,13 +976,13 @@ class spell_item_vanquished_clutches : public SpellScriptLoader
         {
             PrepareSpellScript(spell_item_vanquished_clutches_SpellScript);
 
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_CRUSHER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_CRUSHER))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_CONSTRICTOR))
+                if (!sSpellMgr->GetSpellInfo(SPELL_CONSTRICTOR))
                     return false;
-                if (!sSpellStore.LookupEntry(SPELL_CORRUPTOR))
+                if (!sSpellMgr->GetSpellInfo(SPELL_CORRUPTOR))
                     return false;
                 return true;
             }
@@ -995,7 +995,7 @@ class spell_item_vanquished_clutches : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_item_vanquished_clutches_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_item_vanquished_clutches_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
@@ -1032,9 +1032,9 @@ class spell_item_ashbringer : public SpellScriptLoader
         class spell_item_ashbringer_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_item_ashbringer_SpellScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(SPELL_ASHBRINGER))
+                if (!sSpellMgr->GetSpellInfo(SPELL_ASHBRINGER))
                     return false;
                 return true;
             }
@@ -1057,13 +1057,119 @@ class spell_item_ashbringer : public SpellScriptLoader
 
             void Register()
             {
-                OnEffect += SpellEffectFn(spell_item_ashbringer_SpellScript::OnDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHit += SpellEffectFn(spell_item_ashbringer_SpellScript::OnDummyEffect, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
         SpellScript* GetSpellScript() const
         {
             return new spell_item_ashbringer_SpellScript();
+        }
+};
+
+enum MagicEater
+{
+    SPELL_WILD_MAGIC                             = 58891,
+    SPELL_WELL_FED_1                             = 57288,
+    SPELL_WELL_FED_2                             = 57139,
+    SPELL_WELL_FED_3                             = 57111,
+    SPELL_WELL_FED_4                             = 57286,
+    SPELL_WELL_FED_5                             = 57291,
+};
+
+class spell_magic_eater_food : public SpellScriptLoader
+{
+    public:
+        spell_magic_eater_food() : SpellScriptLoader("spell_magic_eater_food")
+        {
+        }
+
+        class spell_magic_eater_food_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_magic_eater_food_AuraScript);
+
+            void HandleTriggerSpell(AuraEffect const* /*aurEff*/)
+            {
+                PreventDefaultAction();
+                Unit* target = GetTarget();
+
+                switch (urand(0, 5))
+                {
+                    case 0:
+                        target->CastSpell(target, SPELL_WILD_MAGIC, true);
+                        break;
+                    case 1:
+                        target->CastSpell(target, SPELL_WELL_FED_1, true);
+                        break;
+                    case 2:
+                        target->CastSpell(target, SPELL_WELL_FED_2, true);
+                        break;
+                    case 3:
+                        target->CastSpell(target, SPELL_WELL_FED_3, true);
+                        break;
+                    case 4:
+                        target->CastSpell(target, SPELL_WELL_FED_4, true);
+                        break;
+                    case 5:
+                        target->CastSpell(target, SPELL_WELL_FED_5, true);
+                        break;
+                    }
+            }
+
+            void Register()
+            {
+                OnEffectPeriodic += AuraEffectPeriodicFn(spell_magic_eater_food_AuraScript::HandleTriggerSpell, EFFECT_1, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
+            }
+        };
+
+        AuraScript* GetAuraScript() const
+        {
+            return new spell_magic_eater_food_AuraScript();
+        }
+};
+
+enum Refocus
+{
+    SPELL_AIMED_SHOT    = 19434,
+    SPELL_MULTISHOT     = 2643,
+    SPELL_VOLLEY        = 42243,
+};
+
+class spell_item_refocus : public SpellScriptLoader
+{
+    public:
+        spell_item_refocus() : SpellScriptLoader("spell_item_refocus") { }
+
+        class spell_item_refocus_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_refocus_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                Player* caster = GetCaster()->ToPlayer();
+
+                if (!caster || caster->getClass() != CLASS_HUNTER)
+                    return;
+
+                if (caster->HasSpellCooldown(SPELL_AIMED_SHOT))
+                    caster->RemoveSpellCooldown(SPELL_AIMED_SHOT, true);
+
+                if (caster->HasSpellCooldown(SPELL_MULTISHOT))
+                    caster->RemoveSpellCooldown(SPELL_MULTISHOT, true);
+
+                if (caster->HasSpellCooldown(SPELL_VOLLEY))
+                    caster->RemoveSpellCooldown(SPELL_VOLLEY, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_refocus_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_refocus_SpellScript();
         }
 };
 
@@ -1098,4 +1204,6 @@ void AddSC_item_spell_scripts()
     new spell_item_vanquished_clutches();
 
     new spell_item_ashbringer();
+    new spell_magic_eater_food();
+    new spell_item_refocus();
 }

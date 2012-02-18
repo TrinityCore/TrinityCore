@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,7 @@
 #include "CharacterDatabaseCleaner.h"
 #include "World.h"
 #include "Database/DatabaseEnv.h"
+#include "SpellMgr.h"
 #include "DBCStores.h"
 
 void CharacterDatabaseCleaner::CleanDatabase()
@@ -79,8 +80,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     std::ostringstream ss;
     do
     {
-
-        Field *fields = result->Fetch();
+        Field* fields = result->Fetch();
 
         uint32 id = fields[0].GetUInt32();
 
@@ -92,16 +92,16 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
                 found = true;
             }
             else
-                ss << ", ";
+                ss << ',';
 
             ss << id;
         }
     }
-    while(result->NextRow());
+    while (result->NextRow());
 
     if (found)
     {
-        ss << ")";
+        ss << ')';
         CharacterDatabase.Execute(ss.str().c_str());
     }
 }
@@ -128,7 +128,7 @@ void CharacterDatabaseCleaner::CleanCharacterSkills()
 
 bool CharacterDatabaseCleaner::SpellCheck(uint32 spell_id)
 {
-    return sSpellStore.LookupEntry(spell_id) && !GetTalentSpellPos(spell_id);
+    return sSpellMgr->GetSpellInfo(spell_id) && !GetTalentSpellPos(spell_id);
 }
 
 void CharacterDatabaseCleaner::CleanCharacterSpell()
@@ -138,7 +138,7 @@ void CharacterDatabaseCleaner::CleanCharacterSpell()
 
 bool CharacterDatabaseCleaner::TalentCheck(uint32 talent_id)
 {
-    TalentEntry const *talentInfo = sTalentStore.LookupEntry(talent_id);
+    TalentEntry const* talentInfo = sTalentStore.LookupEntry(talent_id);
     if (!talentInfo)
         return false;
 

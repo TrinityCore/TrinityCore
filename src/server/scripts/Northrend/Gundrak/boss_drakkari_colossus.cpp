@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,7 +97,7 @@ class boss_drakkari_colossus : public CreatureScript
                 if (GetData(DATA_INTRO_DONE))
                 {
                     me->SetReactState(REACT_AGGRESSIVE);
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                     me->RemoveAura(SPELL_FREEZE_ANIM);
                 }
 
@@ -149,7 +149,7 @@ class boss_drakkari_colossus : public CreatureScript
                         me->GetMotionMaster()->MoveIdle();
 
                         me->SetReactState(REACT_PASSIVE);
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         DoCast(me, SPELL_FREEZE_ANIM);
                         break;
                     case ACTION_UNFREEZE_COLOSSUS:
@@ -158,7 +158,7 @@ class boss_drakkari_colossus : public CreatureScript
                             return;
 
                         me->SetReactState(REACT_AGGRESSIVE);
-                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                         me->RemoveAura(SPELL_FREEZE_ANIM);
 
                         me->SetInCombatWithZone();
@@ -172,7 +172,7 @@ class boss_drakkari_colossus : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage)
             {
-                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
+                if (me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
                     damage = 0;
 
                 if (phase == COLOSSUS_PHASE_NORMAL ||
@@ -212,7 +212,7 @@ class boss_drakkari_colossus : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -289,7 +289,7 @@ class boss_drakkari_elemental : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -335,7 +335,7 @@ class boss_drakkari_elemental : public CreatureScript
                             damage = 0;
 
                             // to prevent spell spaming
-                            if (me->HasUnitState(UNIT_STAT_CHARGING))
+                            if (me->HasUnitState(UNIT_STATE_CHARGING))
                                 return;
 
                             // not sure about this, the idea of this code is to prevent bug the elemental
@@ -359,7 +359,7 @@ class boss_drakkari_elemental : public CreatureScript
                 me->DespawnOrUnsummon();
             }
 
-            void SpellHitTarget(Unit* target, SpellEntry const* spell)
+            void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_MERGE)
                 {

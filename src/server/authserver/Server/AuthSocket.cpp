@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -27,6 +27,7 @@
 #include "AuthSocket.h"
 #include "AuthCodes.h"
 #include "SHA1.h"
+#include "openssl/crypto.h"
 
 #define ChunkSize 2048
 
@@ -147,11 +148,11 @@ typedef struct AuthHandler
 class PatcherRunnable: public ACE_Based::Runnable
 {
 public:
-    PatcherRunnable(class AuthSocket *);
+    PatcherRunnable(class AuthSocket*);
     void run();
 
 private:
-    AuthSocket * mySocket;
+    AuthSocket* mySocket;
 };
 
 typedef struct PATCH_INFO
@@ -208,7 +209,7 @@ AuthSocket::~AuthSocket(void) {}
 // Accept the connection and set the s random value for SRP6
 void AuthSocket::OnAccept(void)
 {
-    sLog->outBasic("Accepting connection from '%s'", socket().get_remote_address().c_str());
+    sLog->outBasic("'%s:%d' Accepting connection", socket().getRemoteAddress().c_str(), socket().getRemotePort());
 }
 
 void AuthSocket::OnClose(void)
@@ -246,7 +247,7 @@ void AuthSocket::OnRead()
         // Report unknown packets in the error log
         if (i == AUTH_TOTAL_COMMANDS)
         {
-            sLog->outError("[Auth] got unknown packet from '%s'", socket().get_remote_address().c_str());
+            sLog->outError("[Auth] got unknown packet from '%s'", socket().getRemoteAddress().c_str());
             socket().shutdown();
             return;
         }
@@ -282,7 +283,7 @@ void AuthSocket::_SetVSFields(const std::string& rI)
     v_hex = v.AsHexStr();
     s_hex = s.AsHexStr();
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_VS);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_VS);
     stmt->setString(0, v_hex);
     stmt->setString(1, s_hex);
     stmt->setString(2, _login);
@@ -347,22 +348,22 @@ bool AuthSocket::_HandleLogonChallenge()
     pkt << (uint8)0x00;
 
     // Verify that this IP is not in the ip_banned table
-    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_SET_EXPIREDIPBANS));
+    LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_DEL_EXPIRED_IP_BANS));
 
-    const std::string& ip_address = socket().get_remote_address();
-    PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_IPBANNED);
+    const std::string& ip_address = socket().getRemoteAddress();
+    PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_IP_BANNED);
     stmt->setString(0, ip_address);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (result)
     {
         pkt << (uint8)WOW_FAIL_BANNED;
-        sLog->outBasic("[AuthChallenge] Banned ip %s tried to login!", ip_address.c_str());
+        sLog->outBasic("'%s:%d' [AuthChallenge] Banned ip tries to login!",socket().getRemoteAddress().c_str(), socket().getRemotePort());
     }
     else
     {
         // Get the account details from the account table
         // No SQL injection (prepared statement)
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_LOGONCHALLENGE);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_LOGONCHALLENGE);
         stmt->setString(0, _login);
 
         PreparedQueryResult res2 = LoginDatabase.Query(stmt);
@@ -392,10 +393,10 @@ bool AuthSocket::_HandleLogonChallenge()
             if (!locked)
             {
                 //set expired bans to inactive
-                LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_SET_EXPIREDACCBANS));
+                LoginDatabase.Execute(LoginDatabase.GetPreparedStatement(LOGIN_UPD_EXPIRED_ACCOUNT_BANS));
 
                 // If the account is banned, reject the logon attempt
-                stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCBANNED);
+                stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_BANNED);
                 stmt->setUInt32(0, fields[1].GetUInt32());
                 PreparedQueryResult banresult = LoginDatabase.Query(stmt);
                 if (banresult)
@@ -403,12 +404,12 @@ bool AuthSocket::_HandleLogonChallenge()
                     if ((*banresult)[0].GetUInt64() == (*banresult)[1].GetUInt64())
                     {
                         pkt << (uint8)WOW_FAIL_BANNED;
-                        sLog->outBasic("[AuthChallenge] Banned account %s tried to login!", _login.c_str());
+                        sLog->outBasic("'%s:%d' [AuthChallenge] Banned account %s tried to login!", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str ());
                     }
                     else
                     {
                         pkt << (uint8)WOW_FAIL_SUSPENDED;
-                        sLog->outBasic("[AuthChallenge] Temporarily banned account %s tried to login!", _login.c_str());
+                        sLog->outBasic("'%s:%d' [AuthChallenge] Temporarily banned account %s tried to login!", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str ());
                     }
                 }
                 else
@@ -479,7 +480,9 @@ bool AuthSocket::_HandleLogonChallenge()
                     for (int i = 0; i < 4; ++i)
                         _localizationName[i] = ch->country[4-i-1];
 
-                    sLog->outBasic("[AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName));
+                    sLog->outBasic("'%s:%d' [AuthChallenge] account %s is using '%c%c%c%c' locale (%u)", socket().getRemoteAddress().c_str(), socket().getRemotePort(),
+                            _login.c_str (), ch->country[3], ch->country[2], ch->country[1], ch->country[0], GetLocaleByName(_localizationName)
+                        );
                 }
             }
         }
@@ -589,15 +592,15 @@ bool AuthSocket::_HandleLogonProof()
     // Check if SRP6 results match (password is correct), else send an error
     if (!memcmp(M.AsByteArray(), lp.M1, 20))
     {
-        sLog->outBasic("User '%s' successfully authenticated", _login.c_str());
+        sLog->outBasic("'%s:%d' User '%s' successfully authenticated", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str());
 
         // Update the sessionkey, last_ip, last login time and reset number of failed logins in the account table for this account
         // No SQL injection (escaped user name) and IP address as received by socket
         const char *K_hex = K.AsHexStr();
 
-        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_LOGONPROOF);
+        PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_LOGONPROOF);
         stmt->setString(0, K_hex);
-        stmt->setString(1, socket().get_remote_address().c_str());
+        stmt->setString(1, socket().getRemoteAddress().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
         stmt->setString(3, _login);
         LoginDatabase.Execute(stmt);
@@ -615,8 +618,8 @@ bool AuthSocket::_HandleLogonProof()
             memcpy(proof.M2, sha.GetDigest(), 20);
             proof.cmd = AUTH_LOGON_PROOF;
             proof.error = 0;
-            proof.unk1 = 0x00800000;
-            proof.unk2 = 0x00;
+            proof.unk1 = 0x00800000;    // Accountflags. 0x01 = GM, 0x08 = Trial, 0x00800000 = Pro pass (arena tournament)
+            proof.unk2 = 0x00;          // SurveyId
             proof.unk3 = 0x00;
             socket().send((char *)&proof, sizeof(proof));
         }
@@ -637,17 +640,17 @@ bool AuthSocket::_HandleLogonProof()
         char data[4] = { AUTH_LOGON_PROOF, WOW_FAIL_UNKNOWN_ACCOUNT, 3, 0 };
         socket().send(data, sizeof(data));
 
-        sLog->outBasic("[AuthChallenge] account %s tried to login with wrong password!", _login.c_str());
+        sLog->outBasic("'%s:%d' [AuthChallenge] account %s tried to login with invalid password!", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str ());
 
-        uint32 MaxWrongPassCount = sConfig->GetIntDefault("WrongPass.MaxCount", 0);
+        uint32 MaxWrongPassCount = ConfigMgr::GetIntDefault("WrongPass.MaxCount", 0);
         if (MaxWrongPassCount > 0)
         {
             //Increment number of failed logins by one and if it reaches the limit temporarily ban that account or IP
-            PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_FAILEDLOGINS);
+            PreparedStatement *stmt = LoginDatabase.GetPreparedStatement(LOGIN_UPD_FAILEDLOGINS);
             stmt->setString(0, _login);
             LoginDatabase.Execute(stmt);
 
-            stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_FAILEDLOGINS);
+            stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_FAILEDLOGINS);
             stmt->setString(0, _login);
 
             if (PreparedQueryResult loginfail = LoginDatabase.Query(stmt))
@@ -656,28 +659,29 @@ bool AuthSocket::_HandleLogonProof()
 
                 if (failed_logins >= MaxWrongPassCount)
                 {
-                    uint32 WrongPassBanTime = sConfig->GetIntDefault("WrongPass.BanTime", 600);
-                    bool WrongPassBanType = sConfig->GetBoolDefault("WrongPass.BanType", false);
+                    uint32 WrongPassBanTime = ConfigMgr::GetIntDefault("WrongPass.BanTime", 600);
+                    bool WrongPassBanType = ConfigMgr::GetBoolDefault("WrongPass.BanType", false);
 
                     if (WrongPassBanType)
                     {
                         uint32 acc_id = (*loginfail)[0].GetUInt32();
-                        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_ACCAUTOBANNED);
+                        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_ACCOUNT_AUTO_BANNED);
                         stmt->setUInt32(0, acc_id);
                         stmt->setUInt32(1, WrongPassBanTime);
                         LoginDatabase.Execute(stmt);
 
-                        sLog->outBasic("[AuthChallenge] account %s got banned for '%u' seconds because it failed to authenticate '%u' times",
-                            _login.c_str(), WrongPassBanTime, failed_logins);
+                        sLog->outBasic("'%s:%d' [AuthChallenge] account %s got banned for '%u' seconds because it failed to authenticate '%u' times",
+                            socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str(), WrongPassBanTime, failed_logins);
                     }
                     else
                     {
-                        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SET_IPAUTOBANNED);
-                        stmt->setString(0, socket().get_remote_address());
+                        stmt = LoginDatabase.GetPreparedStatement(LOGIN_INS_IP_AUTO_BANNED);
+                        stmt->setString(0, socket().getRemoteAddress());
                         stmt->setUInt32(1, WrongPassBanTime);
                         LoginDatabase.Execute(stmt);
 
-                        sLog->outBasic("[AuthChallenge] IP %s got banned for '%u' seconds because account %s failed to authenticate '%u' times", socket().get_remote_address().c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
+                        sLog->outBasic("'%s:%d' [AuthChallenge] IP %s got banned for '%u' seconds because account %s failed to authenticate '%u' times",
+                            socket().getRemoteAddress().c_str(), socket().getRemotePort(), socket().getRemoteAddress().c_str(), WrongPassBanTime, _login.c_str(), failed_logins);
                     }
                 }
             }
@@ -722,14 +726,14 @@ bool AuthSocket::_HandleReconnectChallenge()
 
     _login = (const char*)ch->I;
 
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_SESSIONKEY);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_SESSIONKEY);
     stmt->setString(0, _login);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
 
     // Stop if the account is not found
     if (!result)
     {
-        sLog->outError("[ERROR] user %s tried to login and we cannot find his session key in the database.", _login.c_str());
+        sLog->outError("'%s:%d' [ERROR] user %s tried to login and we cannot find his session key in the database.", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str());
         socket().shutdown();
         return false;
     }
@@ -789,7 +793,7 @@ bool AuthSocket::_HandleReconnectProof()
     }
     else
     {
-        sLog->outError("[ERROR] user %s tried to login, but session invalid.", _login.c_str());
+        sLog->outError("'%s:%d' [ERROR] user %s tried to login, but session is invalid.", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str());
         socket().shutdown();
         return false;
     }
@@ -806,12 +810,12 @@ bool AuthSocket::_HandleRealmList()
 
     // Get the user id (else close the connection)
     // No SQL injection (prepared statement)
-    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_ACCIDBYNAME);
+    PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_ID_BY_NAME);
     stmt->setString(0, _login);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
     if (!result)
     {
-        sLog->outError("[ERROR] user %s tried to login and we cannot find him in the database.", _login.c_str());
+        sLog->outError("'%s:%d' [ERROR] user %s tried to login but we cannot find him in the database.", socket().getRemoteAddress().c_str(), socket().getRemotePort(), _login.c_str());
         socket().shutdown();
         return false;
     }
@@ -837,7 +841,7 @@ bool AuthSocket::_HandleRealmList()
         uint8 AmountOfCharacters;
 
         // No SQL injection. id of realm is controlled by the database.
-        stmt = LoginDatabase.GetPreparedStatement(LOGIN_GET_NUMCHARSONREALM);
+        stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_NUM_CHARS_ON_REALM);
         stmt->setUInt32(0, i->second.m_ID);
         stmt->setUInt32(1, id);
         result = LoginDatabase.Query(stmt);
@@ -948,7 +952,7 @@ bool AuthSocket::_HandleXferAccept()
     return true;
 }
 
-PatcherRunnable::PatcherRunnable(class AuthSocket * as)
+PatcherRunnable::PatcherRunnable(class AuthSocket* as)
 {
     mySocket = as;
 }
@@ -1016,7 +1020,7 @@ void Patcher::LoadPatchMD5(char *szFileName)
     // Try to open the patch file
     std::string path = "./patches/";
     path += szFileName;
-    FILE *pPatch = fopen(path.c_str(), "rb");
+    FILE* pPatch = fopen(path.c_str(), "rb");
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Loading patch info from %s\n", path.c_str());
 
     if (!pPatch)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,13 +23,14 @@
 class GuildMgr
 {
     friend class ACE_Singleton<GuildMgr, ACE_Null_Mutex>;
+private:
     GuildMgr();
     ~GuildMgr();
 
 public:
     typedef UNORDERED_MAP<uint32, Guild*> GuildContainer;
 
-    Guild* GetGuildByLeader(uint64 const& guid) const;
+    Guild* GetGuildByLeader(uint64 guid) const;
     Guild* GetGuildById(uint32 guildId) const;
     Guild* GetGuildByName(const std::string& guildName) const;
     std::string GetGuildNameById(uint32 guildId) const;

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,13 +40,13 @@ class SmartScript
         void GetScript();
         void FillScript(SmartAIEventList e, WorldObject* obj, AreaTriggerEntry const* at);
 
-        void ProcessEventsFor(SMART_EVENT e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellEntry* spell = NULL, GameObject* gob = NULL);
-        void ProcessEvent(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellEntry* spell = NULL, GameObject* gob = NULL);
+        void ProcessEventsFor(SMART_EVENT e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
+        void ProcessEvent(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
         bool CheckTimer(SmartScriptHolder const& e) const;
         void RecalcTimer(SmartScriptHolder& e, uint32 min, uint32 max);
         void UpdateTimer(SmartScriptHolder& e, uint32 const diff);
         void InitTimer(SmartScriptHolder& e);
-        void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellEntry* spell = NULL, GameObject* gob = NULL);
+        void ProcessAction(SmartScriptHolder& e, Unit* unit = NULL, uint32 var0 = 0, uint32 var1 = 0, bool bvar = false, const SpellInfo* spell = NULL, GameObject* gob = NULL);
         ObjectList* GetTargets(SmartScriptHolder const& e, Unit* invoker = NULL);
         ObjectList* GetWorldObjectsInDist(float dist);
         void InstallTemplate(SmartScriptHolder const& e);
@@ -84,17 +84,7 @@ class SmartScript
             return obj && obj->GetTypeId() == TYPEID_GAMEOBJECT;
         }
 
-        bool ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3)
-        {
-            if (c == 0) return true;
-            if (!u || !u->ToPlayer()) return false;
-            Condition cond;
-            cond.mConditionType = ConditionType(uint32(c));
-            cond.mConditionValue1 = uint32(v1);
-            cond.mConditionValue1 = uint32(v2);
-            cond.mConditionValue1 = uint32(v3);
-            return cond.Meets(u->ToPlayer());
-        }
+        bool ConditionValid(Unit* u, int32 c, int32 v1, int32 v2, int32 v3);
 
         void OnUpdate(const uint32 diff);
         void OnMoveInLineOfSight(Unit* who);
@@ -151,37 +141,35 @@ class SmartScript
             return NULL;
         }
 
-        GameObject* FindGameObjectNear(WorldObject* pSearchObject, uint32 guid) const
+        GameObject* FindGameObjectNear(WorldObject* searchObject, uint32 guid) const
         {
-            GameObject* pGameObject = NULL;
+            GameObject* gameObject = NULL;
 
-            CellPair p(Trinity::ComputeCellPair(pSearchObject->GetPositionX(), pSearchObject->GetPositionY()));
+            CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
             Cell cell(p);
-            cell.data.Part.reserved = ALL_DISTRICT;
 
-            Trinity::GameObjectWithDbGUIDCheck goCheck(*pSearchObject, guid);
-            Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(pSearchObject, pGameObject, goCheck);
+            Trinity::GameObjectWithDbGUIDCheck goCheck(*searchObject, guid);
+            Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck> checker(searchObject, gameObject, goCheck);
 
             TypeContainerVisitor<Trinity::GameObjectSearcher<Trinity::GameObjectWithDbGUIDCheck>, GridTypeMapContainer > objectChecker(checker);
-            cell.Visit(p, objectChecker, *pSearchObject->GetMap());
+            cell.Visit(p, objectChecker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
 
-            return pGameObject;
+            return gameObject;
         }
 
-        Creature* FindCreatureNear(WorldObject* pSearchObject, uint32 guid) const
+        Creature* FindCreatureNear(WorldObject* searchObject, uint32 guid) const
         {
-            Creature* crea = NULL;
-            CellPair p(Trinity::ComputeCellPair(pSearchObject->GetPositionX(), pSearchObject->GetPositionY()));
+            Creature* creature = NULL;
+            CellCoord p(Trinity::ComputeCellCoord(searchObject->GetPositionX(), searchObject->GetPositionY()));
             Cell cell(p);
-            cell.data.Part.reserved = ALL_DISTRICT;
 
-            Trinity::CreatureWithDbGUIDCheck target_check(pSearchObject, guid);
-            Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(pSearchObject, crea, target_check);
+            Trinity::CreatureWithDbGUIDCheck target_check(searchObject, guid);
+            Trinity::CreatureSearcher<Trinity::CreatureWithDbGUIDCheck> checker(searchObject, creature, target_check);
 
             TypeContainerVisitor<Trinity::CreatureSearcher <Trinity::CreatureWithDbGUIDCheck>, GridTypeMapContainer > unit_checker(checker);
-            cell.Visit(p, unit_checker, *pSearchObject->GetMap());
+            cell.Visit(p, unit_checker, *searchObject->GetMap(), *searchObject, searchObject->GetGridActivationRange());
 
-            return crea;
+            return creature;
         }
 
         ObjectListMap* mTargetStorage;
@@ -224,13 +212,12 @@ class SmartScript
         }
 
         void DecPhase(int32 p = 1) { mEventPhase  -= (mEventPhase < (uint32)p ? (uint32)p - mEventPhase : (uint32)p); }
-        bool IsInPhase(uint32 p) const { return mEventPhase & p; }
+        bool IsInPhase(uint32 p) const { return (1 << (mEventPhase - 1)) & p; }
         void SetPhase(uint32 p = 0) { mEventPhase = p; }
 
         SmartAIEventList mEvents;
         SmartAIEventList mInstallEvents;
         SmartAIEventList mTimedActionList;
-        bool mResumeActionList;
         Creature* me;
         uint64 meOrigGUID;
         GameObject* go;
@@ -239,7 +226,6 @@ class SmartScript
         SmartScriptType mScriptType;
         uint32 mEventPhase;
 
-        uint32 mInvinceabilityHpLevel;
         UNORDERED_MAP<int32, int32> mStoredDecimals;
         uint32 mPathId;
         SmartAIEventList mStoredEvents;
@@ -248,7 +234,7 @@ class SmartScript
         uint32 mTextTimer;
         uint32 mLastTextID;
         uint64 mTextGUID;
-        Creature* talker;
+        uint32 mTalkerEntry;
         bool mUseTextTimer;
 
         SMARTAI_TEMPLATE mTemplate;

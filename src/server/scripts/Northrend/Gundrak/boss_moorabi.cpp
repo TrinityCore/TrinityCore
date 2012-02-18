@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,10 +59,10 @@ public:
     {
         boss_moorabiAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         bool bPhase;
 
@@ -79,8 +79,8 @@ public:
             uiTransformationTImer = 12*IN_MILLISECONDS;
             bPhase = false;
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_MOORABI_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
@@ -88,8 +88,8 @@ public:
             DoScriptText(SAY_AGGRO, me);
             DoCast(me, SPELL_MOJO_FRENZY, true);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_MOORABI_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -155,8 +155,8 @@ public:
          {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_MOORABI_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_MOORABI_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)

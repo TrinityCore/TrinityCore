@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -66,14 +66,14 @@ class instance_dark_portal : public InstanceMapScript
 public:
     instance_dark_portal() : InstanceMapScript("instance_dark_portal", 269) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_dark_portal_InstanceMapScript(pMap);
+        return new instance_dark_portal_InstanceMapScript(map);
     }
 
     struct instance_dark_portal_InstanceMapScript : public InstanceScript
     {
-        instance_dark_portal_InstanceMapScript(Map* pMap) : InstanceScript(pMap)
+        instance_dark_portal_InstanceMapScript(Map* map) : InstanceScript(map)
         {
         }
 
@@ -149,7 +149,7 @@ public:
 
         uint8 GetRiftWaveId()
         {
-            switch(mRiftPortalCount)
+            switch (mRiftPortalCount)
             {
             case 6:
                 mRiftWaveId = 2;
@@ -166,7 +166,7 @@ public:
 
         void SetData(uint32 type, uint32 data)
         {
-            switch(type)
+            switch (type)
             {
             case TYPE_MEDIVH:
                 if (data == SPECIAL && m_auiEncounter[0] == IN_PROGRESS)
@@ -237,7 +237,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
             case TYPE_MEDIVH:
                 return m_auiEncounter[0];
@@ -294,22 +294,22 @@ public:
 
                 CurrentRiftId = tmp;
 
-                Creature* pTemp = pMedivh->SummonCreature(C_TIME_RIFT,
+                Creature* temp = pMedivh->SummonCreature(C_TIME_RIFT,
                     PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
                     TEMPSUMMON_CORPSE_DESPAWN, 0);
-                if (pTemp)
+                if (temp)
                 {
-                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-                    pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
-                    if (Creature* pBoss = SummonedPortalBoss(pTemp))
+                    if (Creature* pBoss = SummonedPortalBoss(temp))
                     {
                         if (pBoss->GetEntry() == C_AEONUS)
                             pBoss->AddThreat(pMedivh, 0.0f);
                         else
                         {
-                            pBoss->AddThreat(pTemp, 0.0f);
-                            pTemp->CastSpell(pBoss, SPELL_RIFT_CHANNEL, false);
+                            pBoss->AddThreat(temp, 0.0f);
+                            temp->CastSpell(pBoss, SPELL_RIFT_CHANNEL, false);
                         }
                     }
                 }

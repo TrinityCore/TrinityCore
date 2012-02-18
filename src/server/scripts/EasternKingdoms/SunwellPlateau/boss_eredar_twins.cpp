@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -99,10 +99,10 @@ public:
     {
         boss_sacrolashAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         bool SisterDeath;
         bool Enraged;
@@ -118,9 +118,9 @@ public:
         {
             Enraged = false;
 
-            if (pInstance)
+            if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
                 if (Temp)
                 {
                     if (Temp->isDead())
@@ -142,23 +142,23 @@ public:
                 SisterDeath = false;
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* who)
         {
             DoZoneInCombat();
 
-            if (pInstance)
+            if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
+                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -174,16 +174,16 @@ public:
             {
                 DoScriptText(SAY_SAC_DEAD, me);
 
-                if (pInstance)
-                    pInstance->SetData(DATA_EREDAR_TWINS_EVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_EREDAR_TWINS_EVENT, DONE);
             }
             else
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            switch(spell->Id)
+            switch (spell->Id)
             {
             case SPELL_SHADOW_BLADES:
             case SPELL_SHADOW_NOVA:
@@ -199,7 +199,7 @@ public:
 
         void HandleTouchedSpells(Unit* target, uint32 TouchedType)
         {
-            switch(TouchedType)
+            switch (TouchedType)
             {
             case SPELL_FLAME_TOUCHED:
                 if (!target->HasAura(SPELL_DARK_FLAME))
@@ -228,10 +228,10 @@ public:
         {
             if (!SisterDeath)
             {
-                if (pInstance)
+                if (instance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me), pInstance->GetData64(DATA_ALYTHESS));
+                    Temp = Unit::GetUnit((*me), instance->GetData64(DATA_ALYTHESS));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_ALYTHESS_DEAD, me);
@@ -357,11 +357,11 @@ public:
     {
         boss_alythessAI(Creature* c) : Scripted_NoMovementAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
             IntroStepCounter = 10;
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         bool SisterDeath;
         bool Enraged;
@@ -380,9 +380,9 @@ public:
         {
             Enraged = false;
 
-            if (pInstance)
+            if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
                 if (Temp)
                 {
                     if (Temp->isDead())
@@ -405,23 +405,23 @@ public:
                 SisterDeath = false;
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_EREDAR_TWINS_EVENT, NOT_STARTED);
         }
 
         void EnterCombat(Unit* who)
         {
             DoZoneInCombat();
 
-            if (pInstance)
+            if (instance)
             {
-                Unit* Temp =  Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
+                Unit* Temp =  Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
                 if (Temp && Temp->isAlive() && !(Temp->getVictim()))
                     CAST_CRE(Temp)->AI()->AttackStart(who);
             }
 
-            if (pInstance)
-                pInstance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_EREDAR_TWINS_EVENT, IN_PROGRESS);
         }
 
         void AttackStart(Unit* who)
@@ -437,9 +437,8 @@ public:
             if (!who || me->getVictim())
                 return;
 
-            if (who->isTargetableForAttack() && who->isInAccessiblePlaceFor(me) && me->IsHostileTo(who))
+            if (me->canCreatureAttack(who))
             {
-
                 float attackRadius = me->GetAttackDistance(who);
                 if (me->IsWithinDistInMap(who, attackRadius) && me->GetDistanceZ(who) <= CREATURE_Z_ATTACK_RANGE && me->IsWithinLOSInMap(who))
                 {
@@ -469,16 +468,16 @@ public:
             {
                 DoScriptText(YELL_ALY_DEAD, me);
 
-                if (pInstance)
-                    pInstance->SetData(DATA_EREDAR_TWINS_EVENT, DONE);
+                if (instance)
+                    instance->SetData(DATA_EREDAR_TWINS_EVENT, DONE);
             }
             else
                 me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            switch(spell->Id)
+            switch (spell->Id)
             {
 
             case SPELL_BLAZE:
@@ -495,7 +494,7 @@ public:
 
         void HandleTouchedSpells(Unit* target, uint32 TouchedType)
         {
-            switch(TouchedType)
+            switch (TouchedType)
             {
             case SPELL_FLAME_TOUCHED:
                 if (!target->HasAura(SPELL_DARK_FLAME))
@@ -525,7 +524,7 @@ public:
 
         uint32 IntroStep(uint32 step)
         {
-            Creature* Sacrolash = Unit::GetCreature(*me, pInstance ? pInstance->GetData64(DATA_SACROLASH) : 0);
+            Creature* Sacrolash = Unit::GetCreature(*me, instance ? instance->GetData64(DATA_SACROLASH) : 0);
             switch (step)
             {
             case 0: return 0;
@@ -565,10 +564,10 @@ public:
 
             if (!SisterDeath)
             {
-                if (pInstance)
+                if (instance)
                 {
                     Unit* Temp = NULL;
-                    Temp = Unit::GetUnit((*me), pInstance->GetData64(DATA_SACROLASH));
+                    Temp = Unit::GetUnit((*me), instance->GetData64(DATA_SACROLASH));
                     if (Temp && Temp->isDead())
                     {
                         DoScriptText(YELL_SISTER_SACROLASH_DEAD, me);
@@ -580,9 +579,9 @@ public:
             }
             if (!me->getVictim())
             {
-                if (pInstance)
+                if (instance)
                 {
-                    Creature* sisiter = Unit::GetCreature((*me), pInstance->GetData64(DATA_SACROLASH));
+                    Creature* sisiter = Unit::GetCreature((*me), instance->GetData64(DATA_SACROLASH));
                     if (sisiter && !sisiter->isDead() && sisiter->getVictim())
                     {
                         me->AddThreat(sisiter->getVictim(), 0.0f);
@@ -701,9 +700,9 @@ public:
 
         void EnterCombat(Unit* /*who*/){}
 
-        void SpellHitTarget(Unit* target, const SpellEntry* spell)
+        void SpellHitTarget(Unit* target, const SpellInfo* spell)
         {
-            switch(spell->Id)
+            switch (spell->Id)
             {
 
             case SPELL_SHADOW_FURY:

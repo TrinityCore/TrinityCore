@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -32,12 +32,12 @@ EndScriptData */
 #define SAY_WATCH               -1309018
 #define SAY_WATCH_WHISPER       -1309019                    //is this text for real? easter egg?
 
-#define SPELL_CHARGE            24315
-#define SPELL_CLEAVE            20691
+#define SPELL_CHARGE            24408
+#define SPELL_CLEAVE            7160
 #define SPELL_FEAR              29321
-#define SPELL_WHIRLWIND         24236
-#define SPELL_MORTAL_STRIKE     24573
-#define SPELL_ENRAGE            23537
+#define SPELL_WHIRLWIND         15589
+#define SPELL_MORTAL_STRIKE     16856
+#define SPELL_ENRAGE            24318
 #define SPELL_WATCH             24314
 #define SPELL_LEVEL_UP          24312
 
@@ -57,7 +57,7 @@ class boss_mandokir : public CreatureScript
         {
             boss_mandokirAI(Creature* c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceScript();
+                m_instance = c->GetInstanceScript();
             }
 
             uint32 KillCount;
@@ -72,7 +72,7 @@ class boss_mandokir : public CreatureScript
             float targetY;
             float targetZ;
 
-            InstanceScript *m_pInstance;
+            InstanceScript* m_instance;
 
             bool endWatch;
             bool someWatched;
@@ -91,9 +91,9 @@ class boss_mandokir : public CreatureScript
                 MortalStrike_Timer = 1000;
                 Check_Timer = 1000;
 
-                targetX = 0.0;
-                targetY = 0.0;
-                targetZ = 0.0;
+                targetX = 0.0f;
+                targetY = 0.0f;
+                targetZ = 0.0f;
                 TargetInRange = 0;
 
                 WatchTarget = 0;
@@ -116,9 +116,9 @@ class boss_mandokir : public CreatureScript
                     {
                         DoScriptText(SAY_DING_KILL, me);
 
-                        if (m_pInstance)
+                        if (m_instance)
                         {
-                            uint64 JindoGUID = m_pInstance->GetData64(DATA_JINDO);
+                            uint64 JindoGUID = m_instance->GetData64(DATA_JINDO);
                             if (JindoGUID)
                             {
                                 if (Unit* jTemp = Unit::GetUnit(*me, JindoGUID))
@@ -149,7 +149,7 @@ class boss_mandokir : public CreatureScript
                     if (!CombatStart)
                     {
                         //At combat Start Mandokir is mounted so we must unmount it first
-                        me->Unmount();
+                        me->Dismount();
 
                         //And summon his raptor
                         me->SummonCreature(14988, me->getVictim()->GetPositionX(), me->getVictim()->GetPositionY(), me->getVictim()->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 35000);
@@ -160,23 +160,23 @@ class boss_mandokir : public CreatureScript
                     {
                         if (WatchTarget)                             //If someone is watched and If the Position of the watched target is different from the one stored, or are attacking, mandokir will charge him
                         {
-                            Unit* pUnit = Unit::GetUnit(*me, WatchTarget);
+                            Unit* unit = Unit::GetUnit(*me, WatchTarget);
 
-                            if (pUnit && (
-                                targetX != pUnit->GetPositionX() ||
-                                targetY != pUnit->GetPositionY() ||
-                                targetZ != pUnit->GetPositionZ() ||
-                                pUnit->isInCombat()))
+                            if (unit && (
+                                targetX != unit->GetPositionX() ||
+                                targetY != unit->GetPositionY() ||
+                                targetZ != unit->GetPositionZ() ||
+                                unit->isInCombat()))
                             {
-                                if (me->IsWithinMeleeRange(pUnit))
+                                if (me->IsWithinMeleeRange(unit))
                                 {
-                                    DoCast(pUnit, 24316);
+                                    DoCast(unit, 24316);
                                 }
                                 else
                                 {
-                                    DoCast(pUnit, SPELL_CHARGE);
-                                    //me->SendMonsterMove(pUnit->GetPositionX(), pUnit->GetPositionY(), pUnit->GetPositionZ(), 0, true, 1);
-                                    AttackStart(pUnit);
+                                    DoCast(unit, SPELL_CHARGE);
+                                    //me->SendMonsterMove(unit->GetPositionX(), unit->GetPositionY(), unit->GetPositionZ(), 0, true, 1);
+                                    AttackStart(unit);
                                 }
                             }
                         }
@@ -198,12 +198,12 @@ class boss_mandokir : public CreatureScript
 
                     if ((Watch_Timer < 1000) && endWatch)           //1 sec before the debuf expire, store the target position
                     {
-                        Unit* pUnit = Unit::GetUnit(*me, WatchTarget);
-                        if (pUnit)
+                        Unit* unit = Unit::GetUnit(*me, WatchTarget);
+                        if (unit)
                         {
-                            targetX = pUnit->GetPositionX();
-                            targetY = pUnit->GetPositionY();
-                            targetZ = pUnit->GetPositionZ();
+                            targetX = unit->GetPositionX();
+                            targetY = unit->GetPositionY();
+                            targetZ = unit->GetPositionZ();
                         }
                         endWatch = false;
                     }
@@ -232,8 +232,8 @@ class boss_mandokir : public CreatureScript
                             std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                             for (; i != me->getThreatManager().getThreatList().end(); ++i)
                             {
-                                Unit* pUnit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                                if (pUnit && me->IsWithinMeleeRange(pUnit))
+                                Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
+                                if (unit && me->IsWithinMeleeRange(unit))
                                     ++TargetInRange;
                             }
 
@@ -256,9 +256,9 @@ class boss_mandokir : public CreatureScript
                     //Checking if Ohgan is dead. If yes Mandokir will enrage.
                     if (Check_Timer <= diff)
                     {
-                        if (m_pInstance)
+                        if (m_instance)
                         {
-                            if (m_pInstance->GetData(DATA_OHGAN) == DONE)
+                            if (m_instance->GetData(DATA_OHGAN) == DONE)
                             {
                                 if (!RaptorDead)
                                 {
@@ -296,11 +296,11 @@ class mob_ohgan : public CreatureScript
         {
             mob_ohganAI(Creature* c) : ScriptedAI(c)
             {
-                m_pInstance = c->GetInstanceScript();
+                m_instance = c->GetInstanceScript();
             }
 
             uint32 SunderArmor_Timer;
-            InstanceScript *m_pInstance;
+            InstanceScript* m_instance;
 
             void Reset()
             {
@@ -311,8 +311,8 @@ class mob_ohgan : public CreatureScript
 
             void JustDied(Unit* /*Killer*/)
             {
-                if (m_pInstance)
-                    m_pInstance->SetData(DATA_OHGAN, DONE);
+                if (m_instance)
+                    m_instance->SetData(DATA_OHGAN, DONE);
             }
 
             void UpdateAI (const uint32 diff)
@@ -325,7 +325,7 @@ class mob_ohgan : public CreatureScript
                 if (SunderArmor_Timer <= diff)
                 {
                     DoCast(me->getVictim(), SPELL_SUNDERARMOR);
-                    SunderArmor_Timer = 10000 + rand()%5000;
+                    SunderArmor_Timer = urand(10000, 15000);
                 } else SunderArmor_Timer -= diff;
 
                 DoMeleeAttackIfReady();

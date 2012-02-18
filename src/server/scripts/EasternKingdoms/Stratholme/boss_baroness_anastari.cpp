@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,10 +45,10 @@ public:
     {
         boss_baroness_anastariAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = me->GetInstanceScript();
+            instance = me->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 BansheeWail_Timer;
         uint32 BansheeCurse_Timer;
@@ -69,8 +69,8 @@ public:
 
          void JustDied(Unit* /*Killer*/)
          {
-             if (pInstance)
-                 pInstance->SetData(TYPE_BARONESS, IN_PROGRESS);
+             if (instance)
+                 instance->SetData(TYPE_BARONESS, IN_PROGRESS);
          }
 
         void UpdateAI(const uint32 diff)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,14 +48,14 @@ public:
             ROG_SPELL_CHEAT_DEATH_COOLDOWN = 31231,
         };
 
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            return sSpellStore.LookupEntry(ROG_SPELL_CHEAT_DEATH_COOLDOWN);
+            return sSpellMgr->GetSpellInfo(ROG_SPELL_CHEAT_DEATH_COOLDOWN);
         }
 
         bool Load()
         {
-            absorbChance = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0);
+            absorbChance = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
             return GetUnitOwner()->ToPlayer();
         }
 
@@ -65,7 +65,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             Unit* target = GetTarget();
             if (dmgInfo.GetDamage() < target->GetHealth())
@@ -95,7 +95,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_rog_cheat_death_AuraScript();
     }
@@ -115,7 +115,7 @@ public:
 
         bool Load()
         {
-            absorbPct = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), EFFECT_0, GetCaster());
+            absorbPct = GetSpellInfo()->Effects[EFFECT_0].CalcValue(GetCaster());
             return true;
         }
 
@@ -125,7 +125,7 @@ public:
             amount = -1;
         }
 
-        void Absorb(AuraEffect * /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
+        void Absorb(AuraEffect* /*aurEff*/, DamageInfo & dmgInfo, uint32 & absorbAmount)
         {
             // reduces all damage taken while stun or fear
             if (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_FLEEING) || (GetTarget()->GetUInt32Value(UNIT_FIELD_FLAGS) & (UNIT_FLAG_STUNNED) && GetTarget()->HasAuraWithMechanic(1<<MECHANIC_STUN)))
@@ -139,7 +139,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_rog_nerves_of_steel_AuraScript();
     }
@@ -153,9 +153,9 @@ class spell_rog_preparation : public SpellScriptLoader
         class spell_rog_preparation_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_rog_preparation_SpellScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(ROGUE_SPELL_GLYPH_OF_PREPARATION))
+                if (!sSpellMgr->GetSpellInfo(ROGUE_SPELL_GLYPH_OF_PREPARATION))
                     return false;
                 return true;
             }
@@ -170,7 +170,7 @@ class spell_rog_preparation : public SpellScriptLoader
                 const SpellCooldowns& cm = caster->ToPlayer()->GetSpellCooldownMap();
                 for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
                 {
-                    SpellEntry const *spellInfo = sSpellStore.LookupEntry(itr->first);
+                    SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
                     if (spellInfo->SpellFamilyName == SPELLFAMILY_ROGUE)
                     {
@@ -198,11 +198,11 @@ class spell_rog_preparation : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Preparation
-                OnEffect += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_preparation_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_rog_preparation_SpellScript();
         }
@@ -217,9 +217,9 @@ public:
     class spell_rog_prey_on_the_weak_AuraScript : public AuraScript
     {
         PrepareAuraScript(spell_rog_prey_on_the_weak_AuraScript)
-        bool Validate(SpellEntry const* /*spellEntry*/)
+        bool Validate(SpellInfo const* /*spellEntry*/)
         {
-            if (!sSpellStore.LookupEntry(ROGUE_SPELL_PREY_ON_THE_WEAK))
+            if (!sSpellMgr->GetSpellInfo(ROGUE_SPELL_PREY_ON_THE_WEAK))
                 return false;
             return true;
         }
@@ -232,7 +232,7 @@ public:
             {
                 if (!target->HasAura(ROGUE_SPELL_PREY_ON_THE_WEAK))
                 {
-                    int32 bp = SpellMgr::CalculateSpellEffectAmount(GetSpellProto(), 0);
+                    int32 bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
                     target->CastCustomSpell(target, ROGUE_SPELL_PREY_ON_THE_WEAK, &bp, 0, 0, true);
                 }
             }
@@ -246,7 +246,7 @@ public:
         }
     };
 
-    AuraScript *GetAuraScript() const
+    AuraScript* GetAuraScript() const
     {
         return new spell_rog_prey_on_the_weak_AuraScript();
     }
@@ -260,9 +260,9 @@ class spell_rog_shiv : public SpellScriptLoader
         class spell_rog_shiv_SpellScript : public SpellScript
         {
             PrepareSpellScript(spell_rog_shiv_SpellScript)
-            bool Validate(SpellEntry const* /*spellEntry*/)
+            bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellStore.LookupEntry(ROGUE_SPELL_SHIV_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(ROGUE_SPELL_SHIV_TRIGGERED))
                     return false;
                 return true;
             }
@@ -280,11 +280,11 @@ class spell_rog_shiv : public SpellScriptLoader
             void Register()
             {
                 // add dummy effect spell handler to Shiv
-                OnEffect += SpellEffectFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnEffectHitTarget += SpellEffectFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
             }
         };
 
-        SpellScript *GetSpellScript() const
+        SpellScript* GetSpellScript() const
         {
             return new spell_rog_shiv_SpellScript();
         }
@@ -348,10 +348,10 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                         if (enchant->type[s] != ITEM_ENCHANTMENT_TYPE_COMBAT_SPELL)
                             continue;
 
-                        SpellEntry const* spellInfo = sSpellStore.LookupEntry(enchant->spellid[s]);
+                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->spellid[s]);
                         if (!spellInfo)
                         {
-                            sLog->outError("Player::CastItemCombatSpell Enchant %i, cast unknown spell %i", enchant->ID, enchant->spellid[s]);
+                            sLog->outError("Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName(), player->GetGUIDLow(), enchant->spellid[s]);
                             continue;
                         }
 
@@ -363,7 +363,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                         if (spellInfo->SpellFamilyFlags.IsEqual(0x10000, 0x80000, 0))
                             continue;
 
-                        if (IsPositiveSpell(enchant->spellid[s]))
+                        if (spellInfo->IsPositive())
                             player->CastSpell(player, enchant->spellid[s], true, item);
                         else
                             player->CastSpell(target, enchant->spellid[s], true, item);

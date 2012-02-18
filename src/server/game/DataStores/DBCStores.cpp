@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
 
 #include "DBCStores.h"
 
-#include "Logging/Log.h"
+#include "Log.h"
 #include "SharedDefines.h"
 #include "SpellMgr.h"
 
@@ -46,7 +46,7 @@ struct WMOAreaTableTripple
     int32 adtId;
 };
 
-typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const *> WMOAreaInfoByTripple;
+typedef std::map<WMOAreaTableTripple, WMOAreaTableEntry const*> WMOAreaInfoByTripple;
 
 DBCStorage <AreaTableEntry> sAreaStore(AreaTableEntryfmt);
 DBCStorage <AreaGroupEntry> sAreaGroupStore(AreaGroupEntryfmt);
@@ -71,6 +71,7 @@ DBCStorage <ChrRacesEntry> sChrRacesStore(ChrRacesEntryfmt);
 DBCStorage <CinematicSequencesEntry> sCinematicSequencesStore(CinematicSequencesEntryfmt);
 DBCStorage <CreatureDisplayInfoEntry> sCreatureDisplayInfoStore(CreatureDisplayInfofmt);
 DBCStorage <CreatureFamilyEntry> sCreatureFamilyStore(CreatureFamilyfmt);
+DBCStorage <CreatureModelDataEntry> sCreatureModelDataStore(CreatureModelDatafmt);
 DBCStorage <CreatureSpellDataEntry> sCreatureSpellDataStore(CreatureSpellDatafmt);
 DBCStorage <CreatureTypeEntry> sCreatureTypeStore(CreatureTypefmt);
 DBCStorage <CurrencyTypesEntry> sCurrencyTypesStore(CurrencyTypesfmt);
@@ -118,7 +119,7 @@ DBCStorage <ItemRandomSuffixEntry> sItemRandomSuffixStore(ItemRandomSuffixfmt);
 DBCStorage <ItemSetEntry> sItemSetStore(ItemSetEntryfmt);
 
 DBCStorage <LFGDungeonEntry> sLFGDungeonStore(LFGDungeonEntryfmt);
-
+//DBCStorage <LiquidTypeEntry> sLiquidTypeStore(LiquidTypeEntryfmt);
 DBCStorage <LockEntry> sLockStore(LockEntryfmt);
 
 DBCStorage <MailTemplateEntry> sMailTemplateStore(MailTemplateEntryfmt);
@@ -224,7 +225,11 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
             if (!(availableDbcLocales & (1 << i)))
                 continue;
 
-            std::string localizedName = dbcPath + localeNames[i] + "/" + filename;
+            std::string localizedName(dbcPath);
+            localizedName.append(localeNames[i]);
+            localizedName.push_back('/');
+            localizedName.append(filename);
+
             if (!storage.LoadStringsFrom(localizedName.c_str()))
                 availableDbcLocales &= ~(1<<i);             // mark as not available for speedup next checks
         }
@@ -235,7 +240,7 @@ inline void LoadDBC(uint32& availableDbcLocales, StoreProblemList& errors, DBCSt
         if (FILE* f = fopen(dbcFilename.c_str(), "rb"))
         {
             char buf[100];
-            snprintf(buf, 100, " (exists, but has %d fields instead of " SIZEFMTD ") Possible wrong client version.", storage.GetFieldCount(), strlen(storage.GetFormat()));
+            snprintf(buf, 100, " (exists, but has %u fields instead of " SIZEFMTD ") Possible wrong client version.", storage.GetFieldCount(), strlen(storage.GetFormat()));
             errors.push_back(dbcFilename + buf);
             fclose(f);
         }
@@ -288,6 +293,7 @@ void LoadDBCStores(const std::string& dataPath)
     LoadDBC(availableDbcLocales, bad_dbc_files, sCinematicSequencesStore,     dbcPath, "CinematicSequences.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureDisplayInfoStore,    dbcPath, "CreatureDisplayInfo.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureFamilyStore,         dbcPath, "CreatureFamily.dbc");
+    LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureModelDataStore,      dbcPath, "CreatureModelData.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureSpellDataStore,      dbcPath, "CreatureSpellData.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCreatureTypeStore,           dbcPath, "CreatureType.dbc");
     LoadDBC(availableDbcLocales, bad_dbc_files, sCurrencyTypesStore,          dbcPath, "CurrencyTypes.dbc");
@@ -359,7 +365,7 @@ void LoadDBCStores(const std::string& dataPath)
     // fill data
     for (uint32 i = 1; i < sMapDifficultyStore.GetNumRows(); ++i)
         if (MapDifficultyEntry const* entry = sMapDifficultyStore.LookupEntry(i))
-            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, strlen(entry->areaTriggerText)>0);
+            sMapDifficultyMap[MAKE_PAIR32(entry->MapId, entry->Difficulty)] = MapDifficulty(entry->resetTime, entry->maxPlayers, entry->areaTriggerText[0] != '\0');
     sMapDifficultyStore.Clear();
 
     LoadDBC(availableDbcLocales, bad_dbc_files, sMovieStore,                  dbcPath, "Movie.dbc");
@@ -393,14 +399,14 @@ void LoadDBCStores(const std::string& dataPath)
 
     for (uint32 j = 0; j < sSkillLineAbilityStore.GetNumRows(); ++j)
     {
-        SkillLineAbilityEntry const *skillLine = sSkillLineAbilityStore.LookupEntry(j);
+        SkillLineAbilityEntry const* skillLine = sSkillLineAbilityStore.LookupEntry(j);
 
         if (!skillLine)
             continue;
 
         SpellEntry const* spellInfo = sSpellStore.LookupEntry(skillLine->spellId);
 
-        if (spellInfo && IsPassiveSpell(spellInfo->Id))
+        if (spellInfo && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
         {
             for (uint32 i = 1; i < sCreatureFamilyStore.GetNumRows(); ++i)
             {
@@ -439,7 +445,7 @@ void LoadDBCStores(const std::string& dataPath)
     // Create Spelldifficulty searcher
     for (uint32 i = 0; i < sSpellDifficultyStore.GetNumRows(); ++i)
     {
-        SpellDifficultyEntry const *spellDiff = sSpellDifficultyStore.LookupEntry(i);
+        SpellDifficultyEntry const* spellDiff = sSpellDifficultyStore.LookupEntry(i);
         if (!spellDiff)
             continue;
 
@@ -466,7 +472,7 @@ void LoadDBCStores(const std::string& dataPath)
     // create talent spells set
     for (unsigned int i = 0; i < sTalentStore.GetNumRows(); ++i)
     {
-        TalentEntry const *talentInfo = sTalentStore.LookupEntry(i);
+        TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
         if (!talentInfo) continue;
         for (int j = 0; j < MAX_TALENT_RANK; j++)
             if (talentInfo->RankID[j])
@@ -480,7 +486,7 @@ void LoadDBCStores(const std::string& dataPath)
         // now have all max ranks (and then bit amount used for store talent ranks in inspect)
         for (uint32 talentTabId = 1; talentTabId < sTalentTabStore.GetNumRows(); ++talentTabId)
         {
-            TalentTabEntry const *talentTabInfo = sTalentTabStore.LookupEntry(talentTabId);
+            TalentTabEntry const* talentTabInfo = sTalentTabStore.LookupEntry(talentTabId);
             if (!talentTabInfo)
                 continue;
 
@@ -578,10 +584,9 @@ void LoadDBCStores(const std::string& dataPath)
             if (node->map_id < 2 || i == 82 || i == 83 || i == 93 || i == 94)
                 sOldContinentsNodesMask[field] |= submask;
 
-            // fix DK node at Ebon Hold
-            if (i == 315) {
+            // fix DK node at Ebon Hold and Shadow Vault flight master
+            if (i == 315 || i == 333)
                 ((TaxiNodesEntry*)node)->MountCreatureID[1] = 32981;
-            }
         }
     }
 
@@ -645,7 +650,7 @@ char* GetPetName(uint32 petfamily, uint32 dbclang)
 {
     if (!petfamily)
         return NULL;
-    CreatureFamilyEntry const *pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
+    CreatureFamilyEntry const* pet_family = sCreatureFamilyStore.LookupEntry(petfamily);
     if (!pet_family)
         return NULL;
     return pet_family->Name[dbclang]?pet_family->Name[dbclang]:NULL;
@@ -735,7 +740,7 @@ ContentLevels GetContentLevelsForMapAndZone(uint32 mapid, uint32 zoneId)
     if (!mapEntry)
         return CONTENT_1_60;
 
-    switch(mapEntry->Expansion())
+    switch (mapEntry->Expansion())
     {
         default: return CONTENT_1_60;
         case 1:  return CONTENT_61_70;
@@ -860,7 +865,6 @@ uint32 const* GetTalentTabPages(uint8 cls)
 
 // script support functions
  DBCStorage <SoundEntriesEntry>  const* GetSoundEntriesStore()   { return &sSoundEntriesStore;   }
- DBCStorage <SpellEntry>         const* GetSpellStore()          { return &sSpellStore;          }
  DBCStorage <SpellRangeEntry>    const* GetSpellRangeStore()     { return &sSpellRangeStore;     }
  DBCStorage <FactionEntry>       const* GetFactionStore()        { return &sFactionStore;        }
  DBCStorage <ItemEntry>          const* GetItemDisplayStore()    { return &sItemStore;           }

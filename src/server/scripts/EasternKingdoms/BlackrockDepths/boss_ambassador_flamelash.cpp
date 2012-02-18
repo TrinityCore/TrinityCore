@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -15,13 +15,6 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
-/* ScriptData
-SDName: Boss_Ambassador_Flamelash
-SD%Complete: 100
-SDComment:
-SDCategory: Blackrock Depths
-EndScriptData */
 
 #include "ScriptPCH.h"
 
@@ -42,15 +35,15 @@ public:
 
     struct boss_ambassador_flamelashAI : public ScriptedAI
     {
-        boss_ambassador_flamelashAI(Creature* c) : ScriptedAI(c) {}
+        boss_ambassador_flamelashAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint32 FireBlast_Timer;
         uint32 Spirit_Timer;
 
         void Reset()
         {
-            FireBlast_Timer = 2000;
-            Spirit_Timer = 24000;
+            FireBlast_Timer    = 2000;
+            Spirit_Timer       = 24000;
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -88,7 +81,6 @@ public:
             DoMeleeAttackIfReady();
         }
     };
-
 };
 
 void AddSC_boss_ambassador_flamelash()

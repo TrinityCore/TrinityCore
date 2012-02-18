@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -84,7 +84,7 @@ class boss_sulfuron : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -101,17 +101,9 @@ class boss_sulfuron : public CreatureScript
                             break;
                         case EVENT_INSPIRE:
                         {
-                            Creature* target = NULL;
                             std::list<Creature*> healers = DoFindFriendlyMissingBuff(45.0f, SPELL_INSPIRE);
                             if (!healers.empty())
-                            {
-                                std::list<Creature*>::const_iterator itr = healers.begin();
-                                std::advance(itr, urand(0, healers.size()-1));
-                                target = *itr;
-                            }
-
-                            if (target)
-                                DoCast(target, SPELL_INSPIRE);
+                                DoCast(SelectRandomContainerElement(healers), SPELL_INSPIRE);
 
                             DoCast(me, SPELL_INSPIRE);
                             events.ScheduleEvent(EVENT_INSPIRE, urand(20000, 26000));
@@ -177,7 +169,7 @@ class mob_flamewaker_priest : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())

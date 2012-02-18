@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -80,10 +80,10 @@ public:
     {
         boss_ionarAI(Creature* creature) : ScriptedAI(creature), lSparkList(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         SummonList lSparkList;
 
@@ -116,16 +116,16 @@ public:
             if (!me->IsVisible())
                 me->SetVisible(true);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_IONAR, NOT_STARTED);
+            if (instance)
+                instance->SetData(TYPE_IONAR, NOT_STARTED);
         }
 
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(TYPE_IONAR, IN_PROGRESS);
+            if (instance)
+                instance->SetData(TYPE_IONAR, IN_PROGRESS);
         }
 
         void JustDied(Unit* /*killer*/)
@@ -134,8 +134,8 @@ public:
 
             lSparkList.DespawnAll();
 
-            if (pInstance)
-                pInstance->SetData(TYPE_IONAR, DONE);
+            if (instance)
+                instance->SetData(TYPE_IONAR, DONE);
         }
 
         void KilledUnit(Unit* /*victim*/)
@@ -143,7 +143,7 @@ public:
             DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
         }
 
-        void SpellHit(Unit* /*caster*/, const SpellEntry* spell)
+        void SpellHit(Unit* /*caster*/, const SpellInfo* spell)
         {
             if (spell->Id == SPELL_DISPERSE)
             {
@@ -310,10 +310,10 @@ public:
     {
         mob_spark_of_ionarAI(Creature* creature) : ScriptedAI(creature)
         {
-            pInstance = creature->GetInstanceScript();
+            instance = creature->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         uint32 uiCheckTimer;
 
@@ -325,7 +325,7 @@ public:
 
         void MovementInform(uint32 uiType, uint32 uiPointId)
         {
-            if (uiType != POINT_MOTION_TYPE || !pInstance)
+            if (uiType != POINT_MOTION_TYPE || !instance)
                 return;
 
             if (uiPointId == DATA_POINT_CALLBACK)
@@ -340,7 +340,7 @@ public:
         void UpdateAI(const uint32 uiDiff)
         {
             // Despawn if the encounter is not running
-            if (pInstance && pInstance->GetData(TYPE_IONAR) != IN_PROGRESS)
+            if (instance && instance->GetData(TYPE_IONAR) != IN_PROGRESS)
             {
                 me->DespawnOrUnsummon();
                 return;
@@ -349,9 +349,9 @@ public:
             // Prevent them to follow players through the whole instance
             if (uiCheckTimer <= uiDiff)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    Creature* pIonar = pInstance->instance->GetCreature(pInstance->GetData64(DATA_IONAR));
+                    Creature* pIonar = instance->instance->GetCreature(instance->GetData64(DATA_IONAR));
                     if (pIonar && pIonar->isAlive())
                     {
                         if (me->GetDistance(pIonar) > DATA_MAX_SPARK_DISTANCE)

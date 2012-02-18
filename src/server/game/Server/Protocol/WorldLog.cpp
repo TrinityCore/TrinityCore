@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2009 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,28 +40,28 @@ WorldLog::~WorldLog()
 /// Open the log file (if specified so in the configuration file)
 void WorldLog::Initialize()
 {
-    std::string logsDir = sConfig->GetStringDefault("LogsDir", "");
+    std::string logsDir = ConfigMgr::GetStringDefault("LogsDir", "");
 
     if (!logsDir.empty())
     {
         if ((logsDir.at(logsDir.length()-1) != '/') && (logsDir.at(logsDir.length()-1) != '\\'))
-            logsDir.append("/");
+            logsDir.push_back('/');
     }
 
-    std::string logname = sConfig->GetStringDefault("WorldLogFile", "");
+    std::string logname = ConfigMgr::GetStringDefault("WorldLogFile", "");
     if (!logname.empty())
     {
         i_file = fopen((logsDir+logname).c_str(), "w");
     }
 
-    m_dbWorld = sConfig->GetBoolDefault("LogDB.World", false); // can be VERY heavy if enabled
+    m_dbWorld = ConfigMgr::GetBoolDefault("LogDB.World", false); // can be VERY heavy if enabled
 }
 
-void WorldLog::outTimestampLog(char const *fmt, ...)
+void WorldLog::outTimestampLog(char const* fmt, ...)
 {
     if (LogWorld())
     {
-        ACE_GUARD(ACE_Thread_Mutex, Guard, Lock);
+        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
         ASSERT(i_file);
 
         Log::outTimestamp(i_file);
@@ -85,11 +85,11 @@ void WorldLog::outTimestampLog(char const *fmt, ...)
     }
 }
 
-void WorldLog::outLog(char const *fmt, ...)
+void WorldLog::outLog(char const* fmt, ...)
 {
     if (LogWorld())
     {
-        ACE_GUARD(ACE_Thread_Mutex, Guard, Lock);
+        TRINITY_GUARD(ACE_Thread_Mutex, Lock);
         ASSERT(i_file);
 
         va_list args;

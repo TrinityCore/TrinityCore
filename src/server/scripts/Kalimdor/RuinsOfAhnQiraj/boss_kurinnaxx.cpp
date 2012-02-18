@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,7 @@ class boss_kurinnaxx : public CreatureScript
                 _Reset();
                 _enraged = false;
                 events.ScheduleEvent(EVENT_MORTAL_WOUND, 8000);
-                events.ScheduleEvent(EVENT_SANDTRAP, urand(5000,15000));
+                events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
                 events.ScheduleEvent(EVENT_TRASH, 1000);
                 events.ScheduleEvent(EVENT_WIDE_SLASH, 11000);
             }
@@ -75,7 +75,7 @@ class boss_kurinnaxx : public CreatureScript
 
                 events.Update(diff);
 
-                if (me->HasUnitState(UNIT_STAT_CASTING))
+                if (me->HasUnitState(UNIT_STATE_CASTING))
                     return;
 
                 while (uint32 eventId = events.ExecuteEvent())
@@ -89,9 +89,9 @@ class boss_kurinnaxx : public CreatureScript
                         case EVENT_SANDTRAP:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                                 target->CastSpell(target, SPELL_SANDTRAP, true);
-                            else
-                                me->getVictim()->CastSpell(me->getVictim(), SPELL_SANDTRAP, true);
-                            events.ScheduleEvent(EVENT_SANDTRAP, urand(5000,15000));
+                            else if (Unit* victim = me->getVictim())
+                                victim->CastSpell(victim, SPELL_SANDTRAP, true);
+                            events.ScheduleEvent(EVENT_SANDTRAP, urand(5000, 15000));
                             break;
                         case EVENT_WIDE_SLASH:
                             DoCast(me, SPELL_WIDE_SLASH);

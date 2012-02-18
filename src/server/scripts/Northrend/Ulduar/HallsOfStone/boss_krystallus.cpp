@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,7 +63,7 @@ public:
     {
         boss_krystallusAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
         uint32 uiBoulderTossTimer;
@@ -74,27 +74,27 @@ public:
 
         bool bIsSlam;
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
 
         void Reset()
         {
             bIsSlam = false;
 
-            uiBoulderTossTimer = 3000 + rand()%6000;
-            uiGroundSpikeTimer = 9000 + rand()%5000;
-            uiGroundSlamTimer = 15000 + rand()%3000;
-            uiStompTimer = 20000 + rand()%9000;
+            uiBoulderTossTimer = urand(3000, 9000);
+            uiGroundSpikeTimer = urand(9000, 14000);
+            uiGroundSlamTimer = urand(15000, 18000);
+            uiStompTimer = urand(20000, 29000);
             uiShatterTimer = 0;
 
-            if (pInstance)
-                pInstance->SetData(DATA_KRYSTALLUS_EVENT, NOT_STARTED);
+            if (instance)
+                instance->SetData(DATA_KRYSTALLUS_EVENT, NOT_STARTED);
         }
         void EnterCombat(Unit* /*who*/)
         {
             DoScriptText(SAY_AGGRO, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KRYSTALLUS_EVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_KRYSTALLUS_EVENT, IN_PROGRESS);
         }
 
         void UpdateAI(const uint32 diff)
@@ -107,20 +107,20 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_BOULDER_TOSS);
-                uiBoulderTossTimer = 9000 + rand()%6000;
+                uiBoulderTossTimer = urand(9000, 15000);
             } else uiBoulderTossTimer -= diff;
 
             if (uiGroundSpikeTimer <= diff)
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true))
                     DoCast(target, SPELL_GROUND_SPIKE);
-                uiGroundSpikeTimer = 12000 + rand()%5000;
+                uiGroundSpikeTimer = urand(12000, 17000);
             } else uiGroundSpikeTimer -= diff;
 
             if (uiStompTimer <= diff)
             {
                 DoCast(me, SPELL_STOMP);
-                uiStompTimer = 20000 + rand()%9000;
+                uiStompTimer = urand(20000, 29000);
             } else uiStompTimer -= diff;
 
             if (uiGroundSlamTimer <= diff)
@@ -128,7 +128,7 @@ public:
                 DoCast(me, SPELL_GROUND_SLAM);
                 bIsSlam = true;
                 uiShatterTimer = 10000;
-                uiGroundSlamTimer = 15000 + rand()%3000;
+                uiGroundSlamTimer = urand(15000, 18000);
             } else uiGroundSlamTimer -= diff;
 
             if (bIsSlam)
@@ -146,8 +146,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance)
-                pInstance->SetData(DATA_KRYSTALLUS_EVENT, DONE);
+            if (instance)
+                instance->SetData(DATA_KRYSTALLUS_EVENT, DONE);
         }
 
         void KilledUnit(Unit* victim)
@@ -157,7 +157,7 @@ public:
             DoScriptText(SAY_KILL, me);
         }
 
-        void SpellHitTarget(Unit* target, const SpellEntry* pSpell)
+        void SpellHitTarget(Unit* target, const SpellInfo* pSpell)
         {
             //this part should be in the core
             if (pSpell->Id == SPELL_SHATTER || pSpell->Id == H_SPELL_SHATTER)
@@ -174,7 +174,7 @@ public:
                     bIsSlam = false;
 
                     //and correct movement, if not already
-                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != TARGETED_MOTION_TYPE)
+                    if (me->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
                     {
                         if (me->getVictim())
                             me->GetMotionMaster()->MoveChase(me->getVictim());

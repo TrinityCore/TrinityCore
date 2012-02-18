@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,12 +39,14 @@ public:
             { "",               SEC_GAMEMASTER,     false, &HandleHonorAddCommand,             "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
+
         static ChatCommand honorCommandTable[] =
         {
             { "add",            SEC_GAMEMASTER,     false, NULL,               "", honorAddCommandTable },
             { "update",         SEC_GAMEMASTER,     false, &HandleHonorUpdateCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
+
         static ChatCommand commandTable[] =
         {
             { "honor",          SEC_GAMEMASTER,     false, NULL,                  "", honorCommandTable },
@@ -52,7 +54,8 @@ public:
         };
         return commandTable;
     }
-    static bool HandleHonorAddCommand(ChatHandler* handler, const char* args)
+
+    static bool HandleHonorAddCommand(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
@@ -73,7 +76,8 @@ public:
         target->RewardHonor(NULL, 1, amount);
         return true;
     }
-    static bool HandleHonorAddKillCommand(ChatHandler* handler, const char* /*args*/)
+
+    static bool HandleHonorAddKillCommand(ChatHandler* handler, char const* /*args*/)
     {
         Unit* target = handler->getSelectedUnit();
         if (!target)
@@ -90,7 +94,8 @@ public:
         handler->GetSession()->GetPlayer()->RewardHonor(target, 1);
         return true;
     }
-    static bool HandleHonorUpdateCommand(ChatHandler* handler, const char* /*args*/)
+
+    static bool HandleHonorUpdateCommand(ChatHandler* handler, char const* /*args*/)
     {
         Player* target = handler->getSelectedPlayer();
         if (!target)

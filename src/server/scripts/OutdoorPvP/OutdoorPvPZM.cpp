@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +26,7 @@
 #include "World.h"
 #include "ScriptPCH.h"
 
-OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP *pvp, ZM_BeaconType type)
+OPvPCapturePointZM_Beacon::OPvPCapturePointZM_Beacon(OutdoorPvP* pvp, ZM_BeaconType type)
 : OPvPCapturePoint(pvp), m_TowerType(type), m_TowerState(ZM_TOWERSTATE_N)
 {
     SetCapturePointData(ZMCapturePoints[type].entry, ZMCapturePoints[type].map, ZMCapturePoints[type].x, ZMCapturePoints[type].y, ZMCapturePoints[type].z, ZMCapturePoints[type].o, ZMCapturePoints[type].rot0, ZMCapturePoints[type].rot1, ZMCapturePoints[type].rot2, ZMCapturePoints[type].rot3);
@@ -76,32 +76,38 @@ void OPvPCapturePointZM_Beacon::ChangeState()
     // if changing from controlling alliance to horde
     if (m_OldState == OBJECTIVESTATE_ALLIANCE)
     {
-        if (((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled)
-            ((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled--;
+        if (uint32 alliance_towers = ((OutdoorPvPZM*)m_PvP)->GetAllianceTowersControlled())
+            ((OutdoorPvPZM*)m_PvP)->SetAllianceTowersControlled(--alliance_towers);
         sWorld->SendZoneText(ZM_GRAVEYARD_ZONE, sObjectMgr->GetTrinityStringForDBCLocale(ZMBeaconLoseA[m_TowerType]));
     }
     // if changing from controlling horde to alliance
     else if (m_OldState == OBJECTIVESTATE_HORDE)
     {
-        if (((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled)
-            ((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled--;
+        if (uint32 horde_towers = ((OutdoorPvPZM*)m_PvP)->GetHordeTowersControlled())
+            ((OutdoorPvPZM*)m_PvP)->SetHordeTowersControlled(--horde_towers);
         sWorld->SendZoneText(ZM_GRAVEYARD_ZONE, sObjectMgr->GetTrinityStringForDBCLocale(ZMBeaconLoseH[m_TowerType]));
     }
 
-    switch(m_State)
+    switch (m_State)
     {
         case OBJECTIVESTATE_ALLIANCE:
+        {
             m_TowerState = ZM_TOWERSTATE_A;
-            if (((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled<ZM_NUM_BEACONS)
-                ((OutdoorPvPZM*)m_PvP)->m_AllianceTowersControlled++;
+            uint32 alliance_towers = ((OutdoorPvPZM*)m_PvP)->GetAllianceTowersControlled();
+            if (alliance_towers < ZM_NUM_BEACONS)
+                ((OutdoorPvPZM*)m_PvP)->SetAllianceTowersControlled(++alliance_towers);
             sWorld->SendZoneText(ZM_GRAVEYARD_ZONE, sObjectMgr->GetTrinityStringForDBCLocale(ZMBeaconCaptureA[m_TowerType]));
             break;
+        }
         case OBJECTIVESTATE_HORDE:
+        {
             m_TowerState = ZM_TOWERSTATE_H;
-            if (((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled<ZM_NUM_BEACONS)
-                ((OutdoorPvPZM*)m_PvP)->m_HordeTowersControlled++;
+            uint32 horde_towers = ((OutdoorPvPZM*)m_PvP)->GetHordeTowersControlled();
+            if (horde_towers < ZM_NUM_BEACONS)
+                ((OutdoorPvPZM*)m_PvP)->SetHordeTowersControlled(++horde_towers);
             sWorld->SendZoneText(ZM_GRAVEYARD_ZONE, sObjectMgr->GetTrinityStringForDBCLocale(ZMBeaconCaptureH[m_TowerType]));
             break;
+        }
         case OBJECTIVESTATE_NEUTRAL:
         case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
         case OBJECTIVESTATE_NEUTRAL_HORDE_CHALLENGE:
@@ -143,12 +149,12 @@ void OutdoorPvPZM::HandlePlayerEnterZone(Player* player, uint32 zone)
 {
     if (player->GetTeam() == ALLIANCE)
     {
-        if (m_GraveYard->m_GraveYardState & ZM_GRAVEYARD_A)
+        if (m_GraveYard->GetGraveYardState() & ZM_GRAVEYARD_A)
             player->CastSpell(player, ZM_CAPTURE_BUFF, true);
     }
     else
     {
-        if (m_GraveYard->m_GraveYardState & ZM_GRAVEYARD_H)
+        if (m_GraveYard->GetGraveYardState() & ZM_GRAVEYARD_H)
             player->CastSpell(player, ZM_CAPTURE_BUFF, true);
     }
     OutdoorPvP::HandlePlayerEnterZone(player, zone);
@@ -244,7 +250,7 @@ int32 OPvPCapturePointZM_GraveYard::HandleOpenGo(Player* player, uint64 guid)
     return retval;
 }
 
-OPvPCapturePointZM_GraveYard::OPvPCapturePointZM_GraveYard(OutdoorPvP *pvp)
+OPvPCapturePointZM_GraveYard::OPvPCapturePointZM_GraveYard(OutdoorPvP* pvp)
 : OPvPCapturePoint(pvp)
 {
     m_BothControllingFaction = 0;
@@ -288,7 +294,7 @@ void OPvPCapturePointZM_GraveYard::SetBeaconState(uint32 controlling_faction)
         return;
     m_BothControllingFaction = controlling_faction;
 
-    switch(controlling_faction)
+    switch (controlling_faction)
     {
     case ALLIANCE:
         // if ally already controls the gy and taken back both beacons, return, nothing to do for us
@@ -311,7 +317,7 @@ void OPvPCapturePointZM_GraveYard::SetBeaconState(uint32 controlling_faction)
             if (m_FlagCarrierGUID)
             {
                 // remove flag from carrier, reset flag carrier guid
-                Player* p = sObjectMgr->GetPlayer(m_FlagCarrierGUID);
+                Player* p = ObjectAccessor::FindPlayer(m_FlagCarrierGUID);
                 if (p)
                 {
                    p->RemoveAurasDueToSpell(ZM_BATTLE_STANDARD_A);
@@ -370,7 +376,7 @@ bool OPvPCapturePointZM_GraveYard::HandleGossipOption(Player* player, uint64 gui
 
 bool OPvPCapturePointZM_GraveYard::HandleDropFlag(Player* /*player*/, uint32 spellId)
 {
-    switch(spellId)
+    switch (spellId)
     {
     case ZM_BATTLE_STANDARD_A:
         m_FlagCarrierGUID = 0;
@@ -380,6 +386,31 @@ bool OPvPCapturePointZM_GraveYard::HandleDropFlag(Player* /*player*/, uint32 spe
         return true;
     }
     return false;
+}
+
+uint32 OPvPCapturePointZM_GraveYard::GetGraveYardState() const
+{
+    return m_GraveYardState;
+}
+
+uint32 OutdoorPvPZM::GetAllianceTowersControlled() const
+{
+    return m_AllianceTowersControlled;
+}
+
+void OutdoorPvPZM::SetAllianceTowersControlled(uint32 count)
+{
+    m_AllianceTowersControlled = count;
+}
+
+uint32 OutdoorPvPZM::GetHordeTowersControlled() const
+{
+    return m_HordeTowersControlled;
+}
+
+void OutdoorPvPZM::SetHordeTowersControlled(uint32 count)
+{
+    m_HordeTowersControlled = count;
 }
 
 void OutdoorPvPZM::FillInitialWorldStates(WorldPacket &data)

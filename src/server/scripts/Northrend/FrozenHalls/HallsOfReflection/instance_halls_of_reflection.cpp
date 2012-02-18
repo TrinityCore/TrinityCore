@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -101,14 +101,14 @@ class instance_halls_of_reflection : public InstanceMapScript
 public:
     instance_halls_of_reflection() : InstanceMapScript("instance_halls_of_reflection", 668) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_halls_of_reflection_InstanceMapScript(pMap);
+        return new instance_halls_of_reflection_InstanceMapScript(map);
     }
 
     struct instance_halls_of_reflection_InstanceMapScript : public InstanceScript
     {
-        instance_halls_of_reflection_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {};
+        instance_halls_of_reflection_InstanceMapScript(Map* map) : InstanceScript(map) {};
 
         uint64 uiFalric;
         uint64 uiMarwyn;
@@ -157,7 +157,7 @@ public:
                 if (Player* player = players.begin()->getSource())
                     uiTeamInInstance = player->GetTeam();
 
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case NPC_FALRIC:
                     uiFalric = creature->GetGUID();
@@ -180,7 +180,7 @@ public:
         void OnGameObjectCreate(GameObject* go)
         {
             // TODO: init state depending on encounters
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case GO_FROSTMOURNE:
                     uiFrostmourne = go->GetGUID();
@@ -221,7 +221,7 @@ public:
             if (uiWaveCount && data == NOT_STARTED)
                 DoWipe();
 
-            switch(type)
+            switch (type)
             {
                 case DATA_FALRIC_EVENT:
                     uiEncounter[0] = data;
@@ -244,7 +244,7 @@ public:
 
         uint32 GetData(uint32 type)
         {
-            switch(type)
+            switch (type)
             {
                 case DATA_FALRIC_EVENT:         return uiEncounter[0];
                 case DATA_MARWYN_EVENT:         return uiEncounter[1];
@@ -258,7 +258,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_FALRIC:               return uiFalric;
                 case DATA_MARWYN:               return uiMarwyn;
@@ -274,7 +274,7 @@ public:
             OUT_SAVE_INST_DATA;
 
             std::ostringstream saveStream;
-            saveStream << "H R 1 " << uiEncounter[0] << " " << uiEncounter[1] << " " << uiEncounter[2];
+            saveStream << "H R 1 " << uiEncounter[0] << ' ' << uiEncounter[1] << ' ' << uiEncounter[2];
 
             OUT_SAVE_INST_DATA_COMPLETE;
             return saveStream.str();
@@ -320,7 +320,7 @@ public:
             DoUpdateWorldState(WORLD_STATE_HOR, 1);
             DoUpdateWorldState(WORLD_STATE_HOR_WAVE_COUNT, uiWaveCount);
 
-            switch(uiWaveCount)
+            switch (uiWaveCount)
             {
                 case 1:
                 case 2:
@@ -407,7 +407,7 @@ public:
 
             events.Update(diff);
 
-            switch(events.ExecuteEvent())
+            switch (events.ExecuteEvent())
             {
                 case EVENT_NEXT_WAVE:
                     uiWaveCount++;

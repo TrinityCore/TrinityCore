@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2008 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -91,19 +91,22 @@ namespace ACE_Based
                     return false;
 
                 result = _queue.front();
-                if(!check.Process(result))
+                if (!check.Process(result))
                     return false;
 
                 _queue.pop_front();
                 return true;
             }
 
-            //! Peeks at the top of the queue. Remember to unlock after use.
-            T& peek()
+            //! Peeks at the top of the queue. Check if the queue is empty before calling! Remember to unlock after use if autoUnlock == false.
+            T& peek(bool autoUnlock = false)
             {
                 lock();
 
                 T& result = _queue.front();
+
+                if (autoUnlock)
+                    unlock();
 
                 return result;
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -93,21 +93,21 @@ public:
     {
         boss_supremusAI(Creature* c) : ScriptedAI(c), summons(me)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript* pInstance;
+        InstanceScript* instance;
         EventMap events;
         SummonList summons;
         uint32 phase;
 
         void Reset()
         {
-            if (pInstance)
+            if (instance)
             {
                 if (me->isAlive())
                 {
-                    pInstance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
+                    instance->SetData(DATA_SUPREMUSEVENT, NOT_STARTED);
                     //ToggleDoors(true);
                 }
                 //else ToggleDoors(false);
@@ -121,8 +121,8 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            if (pInstance)
-                pInstance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
+            if (instance)
+                instance->SetData(DATA_SUPREMUSEVENT, IN_PROGRESS);
 
             ChangePhase();
             events.ScheduleEvent(EVENT_BERSERK, 900000, GCD_CAST);
@@ -157,10 +157,10 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_SUPREMUSEVENT, DONE);
-                pInstance->HandleGameObject(pInstance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
+                instance->SetData(DATA_SUPREMUSEVENT, DONE);
+                instance->HandleGameObject(instance->GetData64(DATA_GAMEOBJECT_SUPREMUS_DOORS), true);
             }
             summons.DespawnAll();
         }
@@ -177,13 +177,13 @@ public:
             std::list<HostileReference*>::const_iterator i = m_threatlist.begin();
             for (i = m_threatlist.begin(); i!= m_threatlist.end(); ++i)
             {
-                Unit* pUnit = Unit::GetUnit((*me), (*i)->getUnitGuid());
-                if (pUnit && me->IsWithinMeleeRange(pUnit))
+                Unit* unit = Unit::GetUnit((*me), (*i)->getUnitGuid());
+                if (unit && me->IsWithinMeleeRange(unit))
                 {
-                    if (pUnit->GetHealth() > health)
+                    if (unit->GetHealth() > health)
                     {
-                        health = pUnit->GetHealth();
-                        target = pUnit;
+                        health = unit->GetHealth();
+                        target = unit;
                     }
                 }
             }
@@ -200,7 +200,7 @@ public:
 
             while (uint32 eventId = events.ExecuteEvent())
             {
-                switch(eventId)
+                switch (eventId)
                 {
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);

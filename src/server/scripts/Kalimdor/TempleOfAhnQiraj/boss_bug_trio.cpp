@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -51,10 +51,10 @@ public:
     {
         boss_kriAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 Cleave_Timer;
         uint32 ToxicVolley_Timer;
@@ -65,8 +65,8 @@ public:
 
         void Reset()
         {
-            Cleave_Timer = 4000 + rand()%4000;
-            ToxicVolley_Timer = 6000 + rand()%6000;
+            Cleave_Timer = urand(4000, 8000);
+            ToxicVolley_Timer = urand(6000, 12000);
             Check_Timer = 2000;
 
             VemDead = false;
@@ -79,13 +79,13 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                if (pInstance->GetData(DATA_BUG_TRIO_DEATH) < 2)
+                if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)
                                                                 // Unlootable if death
                     me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
-                pInstance->SetData(DATA_BUG_TRIO_DEATH, 1);
+                instance->SetData(DATA_BUG_TRIO_DEATH, 1);
             }
         }
         void UpdateAI(const uint32 diff)
@@ -98,14 +98,14 @@ public:
             if (Cleave_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_CLEAVE);
-                Cleave_Timer = 5000 + rand()%7000;
+                Cleave_Timer = urand(5000, 12000);
             } else Cleave_Timer -= diff;
 
             //ToxicVolley_Timer
             if (ToxicVolley_Timer <= diff)
             {
                 DoCast(me->getVictim(), SPELL_TOXIC_VOLLEY);
-                ToxicVolley_Timer = 10000 + rand()%5000;
+                ToxicVolley_Timer = urand(10000, 15000);
             } else ToxicVolley_Timer -= diff;
 
             if (!HealthAbovePct(5) && !Death)
@@ -119,7 +119,7 @@ public:
                 //Checking if Vem is dead. If yes we will enrage.
                 if (Check_Timer <= diff)
                 {
-                    if (pInstance && pInstance->GetData(DATA_VEMISDEAD))
+                    if (instance && instance->GetData(DATA_VEMISDEAD))
                     {
                         DoCast(me, SPELL_ENRAGE);
                         VemDead = true;
@@ -148,10 +148,10 @@ public:
     {
         boss_vemAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 Charge_Timer;
         uint32 KnockBack_Timer;
@@ -161,8 +161,8 @@ public:
 
         void Reset()
         {
-            Charge_Timer = 15000 + rand()%12000;
-            KnockBack_Timer = 8000 + rand()%12000;
+            Charge_Timer = urand(15000, 27000);
+            KnockBack_Timer = urand(8000, 20000);
             Enrage_Timer = 120000;
 
             Enraged = false;
@@ -170,13 +170,13 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                pInstance->SetData(DATA_VEM_DEATH, 0);
-                if (pInstance->GetData(DATA_BUG_TRIO_DEATH) < 2)
+                instance->SetData(DATA_VEM_DEATH, 0);
+                if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)
                                                                 // Unlootable if death
                     me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                pInstance->SetData(DATA_BUG_TRIO_DEATH, 1);
+                instance->SetData(DATA_BUG_TRIO_DEATH, 1);
             }
         }
 
@@ -202,7 +202,7 @@ public:
                     AttackStart(target);
                 }
 
-                Charge_Timer = 8000 + rand()%8000;
+                Charge_Timer = urand(8000, 16000);
             } else Charge_Timer -= diff;
 
             //KnockBack_Timer
@@ -211,7 +211,7 @@ public:
                 DoCast(me->getVictim(), SPELL_KNOCKBACK);
                 if (DoGetThreat(me->getVictim()))
                     DoModifyThreatPercent(me->getVictim(), -80);
-                KnockBack_Timer = 15000 + rand()%10000;
+                KnockBack_Timer = urand(15000, 25000);
             } else KnockBack_Timer -= diff;
 
             //Enrage_Timer
@@ -241,10 +241,10 @@ public:
     {
         boss_yaujAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 Heal_Timer;
         uint32 Fear_Timer;
@@ -254,8 +254,8 @@ public:
 
         void Reset()
         {
-            Heal_Timer = 25000 + rand()%15000;
-            Fear_Timer = 12000 + rand()%12000;
+            Heal_Timer = urand(25000, 40000);
+            Fear_Timer = urand(12000, 24000);
             Check_Timer = 2000;
 
             VemDead = false;
@@ -263,12 +263,12 @@ public:
 
         void JustDied(Unit* /*Killer*/)
         {
-            if (pInstance)
+            if (instance)
             {
-                if (pInstance->GetData(DATA_BUG_TRIO_DEATH) < 2)
+                if (instance->GetData(DATA_BUG_TRIO_DEATH) < 2)
                                                                 // Unlootable if death
                     me->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
-                pInstance->SetData(DATA_BUG_TRIO_DEATH, 1);
+                instance->SetData(DATA_BUG_TRIO_DEATH, 1);
             }
 
             for (uint8 i = 0; i < 10; ++i)
@@ -301,10 +301,10 @@ public:
             //Casting Heal to other twins or herself.
             if (Heal_Timer <= diff)
             {
-                if (pInstance)
+                if (instance)
                 {
-                    Unit* pKri = Unit::GetUnit((*me), pInstance->GetData64(DATA_KRI));
-                    Unit* pVem = Unit::GetUnit((*me), pInstance->GetData64(DATA_VEM));
+                    Unit* pKri = Unit::GetUnit((*me), instance->GetData64(DATA_KRI));
+                    Unit* pVem = Unit::GetUnit((*me), instance->GetData64(DATA_VEM));
 
                     switch (urand(0, 2))
                     {
@@ -330,9 +330,9 @@ public:
             {
                 if (!VemDead)
                 {
-                    if (pInstance)
+                    if (instance)
                     {
-                        if (pInstance->GetData(DATA_VEMISDEAD))
+                        if (instance->GetData(DATA_VEMISDEAD))
                         {
                             DoCast(me, SPELL_ENRAGE);
                             VemDead = true;

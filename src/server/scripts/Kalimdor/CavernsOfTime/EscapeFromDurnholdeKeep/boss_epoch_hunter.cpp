@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -56,10 +56,10 @@ public:
     {
         boss_epoch_hunterAI(Creature* c) : ScriptedAI(c)
         {
-            pInstance = c->GetInstanceScript();
+            instance = c->GetInstanceScript();
         }
 
-        InstanceScript *pInstance;
+        InstanceScript* instance;
 
         uint32 SandBreath_Timer;
         uint32 ImpendingDeath_Timer;
@@ -68,8 +68,8 @@ public:
 
         void Reset()
         {
-            SandBreath_Timer = 8000 + rand()%8000;
-            ImpendingDeath_Timer = 25000 + rand()%5000;
+            SandBreath_Timer = urand(8000, 16000);
+            ImpendingDeath_Timer = urand(25000, 30000);
             WingBuffet_Timer = 35000;
             Mda_Timer = 40000;
         }
@@ -88,8 +88,8 @@ public:
         {
             DoScriptText(SAY_DEATH, me);
 
-            if (pInstance && pInstance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
-                pInstance->SetData(TYPE_THRALL_PART4, DONE);
+            if (instance && instance->GetData(TYPE_THRALL_EVENT) == IN_PROGRESS)
+                instance->SetData(TYPE_THRALL_PART4, DONE);
         }
 
         void UpdateAI(const uint32 diff)
@@ -108,7 +108,7 @@ public:
 
                 DoScriptText(RAND(SAY_BREATH1, SAY_BREATH2), me);
 
-                SandBreath_Timer = 10000 + rand()%10000;
+                SandBreath_Timer = urand(10000, 20000);
             } else SandBreath_Timer -= diff;
 
             if (ImpendingDeath_Timer <= diff)

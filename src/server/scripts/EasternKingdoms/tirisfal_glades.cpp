@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -48,12 +48,12 @@ class npc_calvin_montague : public CreatureScript
 public:
     npc_calvin_montague() : CreatureScript("npc_calvin_montague") { }
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        if (pQuest->GetQuestId() == QUEST_590)
+        if (quest->GetQuestId() == QUEST_590)
         {
             creature->setFaction(FACTION_HOSTILE);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             CAST_AI(npc_calvin_montague::npc_calvin_montagueAI, creature->AI())->AttackStart(player);
         }
         return true;
@@ -80,8 +80,8 @@ public:
 
             me->RestoreFaction();
 
-            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE))
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            if (!me->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC))
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         void EnterCombat(Unit* /*who*/) {}
@@ -101,7 +101,7 @@ public:
                 uiDamage = 0;
 
                 me->RestoreFaction();
-                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                 me->CombatStop(true);
 
                 m_uiPhase = 1;
@@ -123,7 +123,7 @@ public:
                     return;
                 }
 
-                switch(m_uiPhase)
+                switch (m_uiPhase)
                 {
                     case 1:
                         DoScriptText(SAY_COMPLETE, me);
@@ -171,7 +171,7 @@ class go_mausoleum_door : public GameObjectScript
 public:
     go_mausoleum_door() : GameObjectScript("go_mausoleum_door") { }
 
-    bool OnGossipHello(Player* player, GameObject* /*pGo*/)
+    bool OnGossipHello(Player* player, GameObject* /*go*/)
     {
         if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
             return false;
@@ -193,14 +193,14 @@ class go_mausoleum_trigger : public GameObjectScript
 public:
     go_mausoleum_trigger() : GameObjectScript("go_mausoleum_trigger") { }
 
-    bool OnGossipHello(Player* player, GameObject* pGo)
+    bool OnGossipHello(Player* player, GameObject* go)
     {
         if (player->GetQuestStatus(QUEST_ULAG) != QUEST_STATUS_INCOMPLETE)
             return false;
 
         if (GameObject* pDoor = player->FindNearestGameObject(GO_DOOR, 30.0f))
         {
-            pGo->SetGoState(GO_STATE_ACTIVE);
+            go->SetGoState(GO_STATE_ACTIVE);
             pDoor->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND);
             return true;
         }

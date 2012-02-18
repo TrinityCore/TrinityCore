@@ -1249,6 +1249,22 @@ Quests.HighLevelHideDiff = 7
 Quests.IgnoreRaid = 0
 
 #
+#    Quests.IgnoreAutoAccept
+#        Description: Ignore auto accept flag. Clients will have to manually accept all quests.
+#        Default:     0 - (Disabled, DB values determine if quest is marked auto accept or not.)
+#                     1 - (Enabled, clients will not be told to automatically accept any quest.)
+
+Quests.IgnoreAutoAccept = 0
+
+#
+#    Quests.IgnoreAutoComplete
+#        Description: Ignore auto complete flag. Clients will have to manually complete all quests.
+#        Default:     0 - (Disabled, DB values determine if quest is marked auto complete or not.)
+#                     1 - (Enabled, clients will not be told to automatically complete any quest.)
+
+Quests.IgnoreAutoComplete = 0
+
+#
 #    Guild.EventLogRecordsCount
 #        Description: Number of log entries for guild events that are stored per guild. Old entries
 #                     will be overwritten if the number of log entries exceed the configured value.
@@ -1795,7 +1811,8 @@ Channel.RestrictedLfg = 1
 
 #
 #    Channel.SilentlyGMJoin
-#        Description: Silently join GM characters to channels
+#        Description: Silently join GM characters to channels. If set to 1, channel kick and ban
+#                     commands issued by a GM will not be broadcasted.
 #        Default:     0 - (Disabled, Join with announcement)
 #                     1 - (Enabled, Join without announcement)
 
@@ -2095,7 +2112,7 @@ Rate.Drop.Item.ReferencedAmount = 1
 #        Description: Experience rates.
 #        Default:     1 - (Rate.XP.Kill)
 #                     1 - (Rate.XP.Quest)
-#                     1 - ( Rate.XP.Explore)
+#                     1 - (Rate.XP.Explore)
 
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
@@ -2207,8 +2224,10 @@ Rate.MoveSpeed = 1
 
 #
 #    Rate.InstanceResetTime
-#        Description: Multiplier for the number of days in between global raid/heroic instance
-#                     resets.
+#        Description: Multiplier for the rate between global raid/heroic instance resets 
+#                     (dbc value). Higher value increases the time between resets, 
+#                     lower value lowers the time, you need clean instance_reset in 
+#                     characters db in order to let new values work.
 #        Default:     1
 
 Rate.InstanceResetTime = 1
@@ -2817,6 +2836,20 @@ LevelReq.Auction = 1
 #        Default:     1
 
 LevelReq.Mail = 1
+
+#
+#     PlayerDump.DisallowPaths
+#        Description: Disallow using paths in PlayerDump output files
+#        Default:     1
+
+PlayerDump.DisallowPaths = 1
+
+#
+#     PlayerDump.DisallowOverwrite
+#        Description: Disallow overwriting existing files with PlayerDump
+#        Default:     1
+
+PlayerDump.DisallowOverwrite = 1
 
 #
 ###################################################################################################

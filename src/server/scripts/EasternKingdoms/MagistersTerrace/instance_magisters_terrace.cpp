@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,14 +40,14 @@ class instance_magisters_terrace : public InstanceMapScript
 public:
     instance_magisters_terrace() : InstanceMapScript("instance_magisters_terrace", 585) { }
 
-    InstanceScript* GetInstanceScript(InstanceMap* pMap) const
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
     {
-        return new instance_magisters_terrace_InstanceMapScript(pMap);
+        return new instance_magisters_terrace_InstanceMapScript(map);
     }
 
     struct instance_magisters_terrace_InstanceMapScript : public InstanceScript
     {
-        instance_magisters_terrace_InstanceMapScript(Map* pMap) : InstanceScript(pMap) {}
+        instance_magisters_terrace_InstanceMapScript(Map* map) : InstanceScript(map) {}
 
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         uint32 DelrissaDeathCount;
@@ -97,7 +97,7 @@ public:
 
         uint32 GetData(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_SELIN_EVENT:          return m_auiEncounter[0];
                 case DATA_VEXALLUS_EVENT:       return m_auiEncounter[1];
@@ -111,7 +111,7 @@ public:
 
         void SetData(uint32 identifier, uint32 data)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_SELIN_EVENT:       m_auiEncounter[0] = data;  break;
                 case DATA_VEXALLUS_EVENT:
@@ -139,7 +139,7 @@ public:
 
         void OnCreatureCreate(Creature* creature)
         {
-            switch(creature->GetEntry())
+            switch (creature->GetEntry())
             {
                 case 24723: SelinGUID = creature->GetGUID(); break;
                 case 24560: DelrissaGUID = creature->GetGUID(); break;
@@ -149,7 +149,7 @@ public:
 
         void OnGameObjectCreate(GameObject* go)
         {
-            switch(go->GetEntry())
+            switch (go->GetEntry())
             {
                 case 187896:  VexallusDoorGUID = go->GetGUID();       break;
                 //SunwellRaid Gate 02
@@ -165,7 +165,7 @@ public:
 
         uint64 GetData64(uint32 identifier)
         {
-            switch(identifier)
+            switch (identifier)
             {
                 case DATA_SELIN:                return SelinGUID;
                 case DATA_DELRISSA:             return DelrissaGUID;
