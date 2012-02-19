@@ -21,7 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_warl_".
  */
 
-#include "Spell.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
 enum WarlockSpells

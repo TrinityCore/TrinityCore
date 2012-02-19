@@ -22,9 +22,14 @@
  * Scriptnames of files in this file should be prefixed with "spell_gen_"
  */
 
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 #include "SkillDiscovery.h"
+#include "Cell.h"
+#include "CellImpl.h"
 #include "GridNotifiers.h"
+#include "InstanceScript.h"
 #include "Group.h"
 #include "LFGMgr.h"
 

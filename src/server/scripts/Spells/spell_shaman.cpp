@@ -21,6 +21,10 @@
  * Scriptnames of files in this file should be prefixed with "spell_sha_".
  */
 
+#include "ScriptMgr.h"
+#include "GridNotifiers.h"
+#include "Unit.h"
+#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
 enum ShamanSpells
