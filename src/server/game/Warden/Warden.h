@@ -95,7 +95,7 @@ struct ClientWardenModule
     uint8 Id[16];
     uint8 Key[16];
     uint32 CompressedSize;
-    uint8 *CompressedData;
+    uint8* CompressedData;
 };
 
 class WorldSession;
@@ -110,7 +110,7 @@ class Warden
         ~Warden();
 
         virtual void Init(WorldSession* session, BigNumber* k);
-        virtual ClientWardenModule* GetModuleForClient(WorldSession* session);
+        virtual ClientWardenModule* GetModuleForClient();
         virtual void InitializeModule();
         virtual void RequestHash();
         virtual void HandleHashResult(ByteBuffer &buff);
@@ -130,17 +130,17 @@ class Warden
         std::string Penalty(WardenCheck* check = NULL);
 
     private:
-        WorldSession *_session;
+        WorldSession* _session;
         uint8 _inputKey[16];
         uint8 _outputKey[16];
         uint8 _seed[16];
         ARC4 _inputCrypto;
         ARC4 _outputCrypto;
         uint32 _checkTimer;                          // Timer for sending check requests
-        bool _dataSent;
         uint32 _clientResponseTimer;                 // Timer for client response delay
+        bool _dataSent;
         uint32 _previousTimestamp;
-        ClientWardenModule *_module;
+        ClientWardenModule* _module;
         bool _initialized;
 };
 
