@@ -21,6 +21,10 @@
  * Scriptnames of files in this file should be prefixed with "spell_item_".
  */
 
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 #include "SkillDiscovery.h"
 
 // Generic script for handling item dummy effects which trigger another spell.

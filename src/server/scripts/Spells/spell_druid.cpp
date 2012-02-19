@@ -21,6 +21,8 @@
  * Scriptnames of files in this file should be prefixed with "spell_dru_".
  */
 
+#include "ScriptMgr.h"
+#include "SpellScript.h"
 #include "SpellAuraEffects.h"
 
 enum DruidSpells
