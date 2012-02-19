@@ -28,14 +28,14 @@
 class WorldSession;
 class Warden;
 
-class WardenMac : Warden
+class WardenMac : public Warden
 {
     public:
         WardenMac();
         ~WardenMac();
 
         void Init(WorldSession* session, BigNumber* k);
-        ClientWardenModule* GetModuleForClient(WorldSession* session);
+        ClientWardenModule* GetModuleForClient();
         void InitializeModule();
         void RequestHash();
         void HandleHashResult(ByteBuffer& buff);

@@ -96,8 +96,10 @@ m_playerRecentlyLogout(false), m_playerSave(false),
 m_sessionDbcLocale(sWorld->GetAvailableDbcLocale(locale)),
 m_sessionDbLocaleIndex(locale),
 m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
-isRecruiter(isARecruiter), timeLastWhoCommand(0),_warden(NULL)
+isRecruiter(isARecruiter), timeLastWhoCommand(0)
 {
+    _warden = NULL;
+
     if (sock)
     {
         m_Address = sock->GetRemoteAddress();
@@ -1123,13 +1125,13 @@ void WorldSession::InitWarden(BigNumber* k, std::string os)
 {
     if (os == "Win")
     {
-        _warden = (Warden*)new WardenWin();
+        _warden = new WardenWin();
         _warden->Init(this, k);
     }
     else if (os == "OSX")
     {
         // Disabled as it is causing the client to crash
-        // _warden = (Warden*)new WardenMac();
+        // _warden = new WardenMac();
         // _warden->Init(this, k);
     }
 }
