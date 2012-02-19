@@ -337,9 +337,6 @@ class spell_dru_starfall_dummy : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                if (GetTriggeringSpell())
-                    sLog->outString("triggering spell = %u",GetTriggeringSpell()->Id);
-
                 Unit* caster = GetCaster();
                 // Shapeshifting into an animal form or mounting cancels the effect
                 if (caster->GetCreatureType() == CREATURE_TYPE_BEAST || caster->IsMounted())
