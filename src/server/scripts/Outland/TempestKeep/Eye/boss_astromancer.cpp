@@ -23,6 +23,10 @@ SDComment:
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+
 #include "the_eye.h"
 
 enum eEnums

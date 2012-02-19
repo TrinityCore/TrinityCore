@@ -21,6 +21,9 @@
  * Scriptnames of files in this file should be prefixed with "spell_warr_".
  */
 
+#include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 enum WarriorSpells
 {
