@@ -34,7 +34,7 @@
 #include "WardenCheckMgr.h"
 #include "AccountMgr.h"
 
-WardenWin::WardenWin()
+WardenWin::WardenWin() : Warden()
 {
 }
 
@@ -68,14 +68,14 @@ void WardenWin::Init(WorldSession* session, BigNumber *k)
     sLog->outDebug(LOG_FILTER_WARDEN, "  Seed: %s", ByteArrayToHexStr(_seed, 16).c_str());
     sLog->outDebug(LOG_FILTER_WARDEN, "Loading Module...");
 
-    _module = GetModuleForClient(_session);
+    _module = GetModuleForClient();
 
     sLog->outDebug(LOG_FILTER_WARDEN, "Module Key: %s", ByteArrayToHexStr(_module->Key, 16).c_str());
     sLog->outDebug(LOG_FILTER_WARDEN, "Module ID: %s", ByteArrayToHexStr(_module->Id, 16).c_str());
     RequestModule();
 }
 
-ClientWardenModule *WardenWin::GetModuleForClient(WorldSession *session)
+ClientWardenModule* WardenWin::GetModuleForClient()
 {
     ClientWardenModule *mod = new ClientWardenModule;
 
@@ -339,7 +339,7 @@ void WardenWin::RequestData()
     for (std::list<uint16>::iterator itr = _currentChecks.begin(); itr != _currentChecks.end(); ++itr)
         stream << *itr << " ";
 
-    sLog->outWarden(stream.str().c_str());
+    sLog->outWarden("%s", stream.str().c_str());
 }
 
 void WardenWin::HandleData(ByteBuffer &buff)
