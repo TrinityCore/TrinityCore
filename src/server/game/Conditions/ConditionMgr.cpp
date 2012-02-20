@@ -301,7 +301,6 @@ uint32 Condition::GetMaxAvailableConditionTargets()
         case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
-            return 2;
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
             return 2;
         default:
