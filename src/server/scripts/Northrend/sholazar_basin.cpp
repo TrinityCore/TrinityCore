@@ -676,7 +676,7 @@ enum MiscLifewarden
     NPC_SERVANT = 28320, // Servant of Freya
 
     WHISPER_ACTIVATE = 0,
-    
+
     SPELL_FREYA_DUMMY = 51318,
     SPELL_LIFEFORCE = 51395,
     SPELL_FREYA_DUMMY_TRIGGER = 51335,

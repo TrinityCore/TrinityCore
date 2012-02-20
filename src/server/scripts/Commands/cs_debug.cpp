@@ -1041,7 +1041,7 @@ public:
         handler->GetSession()->GetPlayer()->HandleEmoteCommand(animId);
         return true;
     }
-    
+
     static bool HandleDebugLoSCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (Unit* unit = handler->getSelectedUnit())

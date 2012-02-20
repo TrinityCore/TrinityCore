@@ -496,7 +496,7 @@ public:
         float z;
         float ort = port ? (float)atof(port) : player->GetOrientation();
         uint32 mapId = id ? (uint32)atoi(id) : player->GetMapId();
-        
+
         if (goZ)
         {
             z = (float)atof(goZ);

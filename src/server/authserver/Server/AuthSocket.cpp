@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <algorithm>
 #include <openssl/md5.h>
 
 #include "Common.h"
@@ -343,6 +344,13 @@ bool AuthSocket::_HandleLogonChallenge()
     _login = (const char*)ch->I;
     _build = ch->build;
     _expversion = (AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : NO_VALID_EXP_FLAG) | (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG);
+    _os = (const char*)ch->os;
+
+    if (_os.size() > 4)
+        return false;
+
+    // Restore string order as its byte order is reversed
+    std::reverse(_os.begin(), _os.end());
 
     pkt << (uint8)AUTH_LOGON_CHALLENGE;
     pkt << (uint8)0x00;
@@ -602,7 +610,8 @@ bool AuthSocket::_HandleLogonProof()
         stmt->setString(0, K_hex);
         stmt->setString(1, socket().getRemoteAddress().c_str());
         stmt->setUInt32(2, GetLocaleByName(_localizationName));
-        stmt->setString(3, _login);
+        stmt->setString(3, _os);
+        stmt->setString(4, _login);
         LoginDatabase.Execute(stmt);
 
         OPENSSL_free((void*)K_hex);
@@ -741,6 +750,13 @@ bool AuthSocket::_HandleReconnectChallenge()
     // Reinitialize build, expansion and the account securitylevel
     _build = ch->build;
     _expversion = (AuthHelper::IsPostBCAcceptedClientBuild(_build) ? POST_BC_EXP_FLAG : NO_VALID_EXP_FLAG) | (AuthHelper::IsPreBCAcceptedClientBuild(_build) ? PRE_BC_EXP_FLAG : NO_VALID_EXP_FLAG);
+    _os = (const char*)ch->os;
+
+    if (_os.size() > 4)
+        return false;
+
+    // Restore string order as its byte order is reversed
+    std::reverse(_os.begin(), _os.end());
 
     Field* fields = result->Fetch();
     uint8 secLevel = fields[2].GetUInt8();

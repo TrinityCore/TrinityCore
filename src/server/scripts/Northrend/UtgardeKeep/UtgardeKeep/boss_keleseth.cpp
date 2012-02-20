@@ -18,7 +18,7 @@
 /* ScriptData
 SDName: Boss_Prince_Keleseth
 SD%Complete: 100
-SDComment:  
+SDComment:
 SDCategory: Utgarde Keep
 EndScriptData */
 
@@ -158,7 +158,7 @@ public:
         {
             if (data == DATA_ON_THE_ROCKS)
                 return onTheRocks;
-           
+
             return 0;
         }
 

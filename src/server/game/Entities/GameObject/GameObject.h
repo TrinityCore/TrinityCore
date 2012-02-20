@@ -710,7 +710,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
         uint8 GetGoAnimProgress() const { return GetByteValue(GAMEOBJECT_BYTES_1, 3); }
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_BYTES_1, 3, animprogress); }
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
-        
+
         void SetPhaseMask(uint32 newPhaseMask, bool update);
         void EnableCollision(bool enable);
 
@@ -795,7 +795,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>
 
         std::string GetAIName() const;
         void SetDisplayId(uint32 displayid);
-        
+
         GameObjectModel * m_model;
     protected:
         bool AIM_Initialize();

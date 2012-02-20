@@ -903,7 +903,8 @@ void ObjectMgr::LoadCreatureAddons()
 
         uint32 guid = fields[0].GetUInt32();
 
-        if (_creatureDataStore.find(guid) == _creatureDataStore.end())
+        CreatureData const* creData = GetCreatureData(guid);
+        if (!creData)
         {
             sLog->outErrorDb("Creature (GUID: %u) does not exist but has a record in `creature_addon`", guid);
             continue;
@@ -912,6 +913,12 @@ void ObjectMgr::LoadCreatureAddons()
         CreatureAddon& creatureAddon = _creatureAddonStore[guid];
 
         creatureAddon.path_id = fields[1].GetUInt32();
+        if (creData->movementType == WAYPOINT_MOTION_TYPE && !creatureAddon.path_id)
+        {
+            const_cast<CreatureData*>(creData)->movementType = IDLE_MOTION_TYPE;
+            sLog->outErrorDb("Creature (GUID %u) has movement type set to WAYPOINT_MOTION_TYPE but no path assigned", guid);
+        }
+
         creatureAddon.mount   = fields[2].GetUInt32();
         creatureAddon.bytes1  = fields[3].GetUInt32();
         creatureAddon.bytes2  = fields[4].GetUInt32();
@@ -6701,7 +6708,7 @@ void ObjectMgr::LoadCorpses()
     PreparedQueryResult result = CharacterDatabase.Query(CharacterDatabase.GetPreparedStatement(CHAR_SEL_CORPSES));
     if (!result)
     {
-        sLog->outString(">> Loaded 0 corpses. DB table `pet_name_generation` is empty.");
+        sLog->outString(">> Loaded 0 corpses. DB table `corpse` is empty.");
         sLog->outString();
         return;
     }
