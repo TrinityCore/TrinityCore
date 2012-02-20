@@ -149,7 +149,7 @@ public:
         GameObject* object = new GameObject;
         uint32 guidLow = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-        if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMaskForSpawn(), x, y, z, o, QuaternionData(0.0f, 0.0f, 0.0f, 0.0f)))
         {
             delete object;
             return false;
@@ -413,7 +413,7 @@ public:
         }
 
         object->Relocate(object->GetPositionX(), object->GetPositionY(), object->GetPositionZ(), o);
-        object->UpdateRotationFields();
+        //object->UpdateRotationFields();
         object->DestroyForNearbyPlayers();
         object->UpdateObjectVisibility();
 
