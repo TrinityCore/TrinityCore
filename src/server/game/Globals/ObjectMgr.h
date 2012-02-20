@@ -625,6 +625,9 @@ class ObjectMgr
         void LoadGameObjectTemplate();
         void AddGameobjectInfo(GameObjectTemplate* goinfo);
 
+        GameObjectDataAddon const* GetGameObjectAddonTemplate(uint32 lowguid);
+        GameObjectAddonContainer const* GetGameObjectAddonTemplate() { return &GameObjectAddonStore; }
+
         CreatureTemplate const* GetCreatureTemplate(uint32 entry);
         CreatureTemplateContainer const* GetCreatureTemplates() { return &_creatureTemplateStore; }
         CreatureModelInfo const* GetCreatureModelInfo(uint32 modelId);
@@ -864,6 +867,7 @@ class ObjectMgr
         void LoadEquipmentTemplates();
         void LoadGameObjectLocales();
         void LoadGameobjects();
+        void LoadGameObjectAddon();
         void LoadGameobjectRespawnTimes();
         void LoadItemTemplates();
         void LoadItemLocales();
@@ -1096,7 +1100,7 @@ class ObjectMgr
         void RemoveCreatureFromGrid(uint32 guid, CreatureData const* data);
         void AddGameobjectToGrid(uint32 guid, GameObjectData const* data);
         void RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data);
-        uint32 AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, float rotation0 = 0, float rotation1 = 0, float rotation2 = 0, float rotation3 = 0);
+        uint32 AddGOData(uint32 entry, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0, QuaternionData rotation = QuaternionData());
         uint32 AddCreData(uint32 entry, uint32 team, uint32 map, float x, float y, float z, float o, uint32 spawntimedelay = 0);
         bool MoveCreData(uint32 guid, uint32 map, Position pos);
 
@@ -1298,35 +1302,36 @@ class ObjectMgr
         typedef UNORDERED_MAP<uint32, ItemSetNameEntry> ItemSetNameContainer;
         ItemSetNameContainer _itemSetNameStore;
 
-        MapObjectGuids _mapObjectGuidsStore;
-        CreatureDataContainer _creatureDataStore;
-        CreatureTemplateContainer _creatureTemplateStore;
-        CreatureModelContainer _creatureModelStore;
-        CreatureAddonContainer _creatureAddonStore;
-        CreatureAddonContainer _creatureTemplateAddonStore;
-        EquipmentInfoContainer _equipmentInfoStore;
-        LinkedRespawnContainer _linkedRespawnStore;
-        CreatureLocaleContainer _creatureLocaleStore;
-        GameObjectDataContainer _gameObjectDataStore;
-        GameObjectLocaleContainer _gameObjectLocaleStore;
-        GameObjectTemplateContainer _gameObjectTemplateStore;
+        MapObjectGuids mMapObjectGuids;
+        CreatureDataMap mCreatureDataMap;
+        CreatureTemplateContainer CreatureTemplateStore;
+        CreatureModelContainer CreatureModelStore;
+        CreatureAddonContainer CreatureAddonStore;
+        CreatureAddonContainer CreatureTemplateAddonStore;
+        EquipmentInfoContainer EquipmentInfoStore;
+        GameObjectAddonContainer GameObjectAddonStore;
+        LinkedRespawnMap mLinkedRespawnMap;
+        CreatureLocaleMap mCreatureLocaleMap;
+        GameObjectDataMap mGameObjectDataMap;
+        GameObjectLocaleMap mGameObjectLocaleMap;
+        GameObjectTemplateContainer GameObjectTemplateStore;
 
-        ItemTemplateContainer _itemTemplateStore;
-        ItemLocaleContainer _itemLocaleStore;
-        ItemSetNameLocaleContainer _itemSetNameLocaleStore;
-        QuestLocaleContainer _questLocaleStore;
-        NpcTextLocaleContainer _npcTextLocaleStore;
-        PageTextLocaleContainer _pageTextLocaleStore;
-        TrinityStringLocaleContainer _trinityStringLocaleStore;
-        GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
-        PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
-        RespawnTimes _creatureRespawnTimes;
-        ACE_Thread_Mutex _creatureRespawnTimesMutex;
-        RespawnTimes _goRespawnTimes;
-        ACE_Thread_Mutex _goRespawnTimesMutex;
+        ItemTemplateContainer ItemTemplateStore;
+        ItemLocaleMap mItemLocaleMap;
+        ItemSetNameLocaleMap mItemSetNameLocaleMap;
+        QuestLocaleMap mQuestLocaleMap;
+        NpcTextLocaleMap mNpcTextLocaleMap;
+        PageTextLocaleMap mPageTextLocaleMap;
+        TrinityStringLocaleMap mTrinityStringLocaleMap;
+        GossipMenuItemsLocaleMap mGossipMenuItemsLocaleMap;
+        PointOfInterestLocaleMap mPointOfInterestLocaleMap;
+        RespawnTimes mCreatureRespawnTimes;
+        ACE_Thread_Mutex m_CreatureRespawnTimesMtx;
+        RespawnTimes mGORespawnTimes;
+        ACE_Thread_Mutex m_GORespawnTimesMtx;
 
-        CacheVendorItemContainer _cacheVendorItemStore;
-        CacheTrainerSpellContainer _cacheTrainerSpellStore;
+        CacheVendorItemMap m_mCacheVendorItemMap;
+        CacheTrainerSpellMap m_mCacheTrainerSpellMap;
 
         std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
         std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate

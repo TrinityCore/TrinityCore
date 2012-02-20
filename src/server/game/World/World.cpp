@@ -1416,6 +1416,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Gameobject Data...");
     sObjectMgr->LoadGameobjects();
 
+    sLog->outString("Loading Gameobject Addon Data..." );
+    sObjectMgr->LoadGameObjectAddon();
+
     sLog->outString("Loading Gameobject Respawn Data...");       // must be after PackInstances()
     sObjectMgr->LoadGameobjectRespawnTimes();
 
