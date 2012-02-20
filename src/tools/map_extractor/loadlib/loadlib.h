@@ -1,6 +1,8 @@
 #ifndef LOAD_LIB_H
 #define LOAD_LIB_H
 
+#include "StormLib.h"
+
 #ifdef _WIN32
 typedef __int64            int64;
 typedef __int32            int32;
@@ -42,6 +44,7 @@ struct file_MVER
     uint32 ver;
 };
 
+
 class FileLoader{
     uint8  *data;
     uint32  data_size;
@@ -53,7 +56,7 @@ public:
     file_MVER *version;
     FileLoader();
     ~FileLoader();
-    bool loadFile(char *filename, bool log = true);
+    bool loadFile(HANDLE mpq, char *filename, bool log = true);
     virtual void free();
 };
 #endif
