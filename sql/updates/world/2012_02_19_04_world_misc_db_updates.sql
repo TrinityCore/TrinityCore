@@ -11,9 +11,9 @@ UPDATE `creature_template` SET `gossip_menu_id`=8511 WHERE `entry`=22004;
 DELETE FROM `gossip_menu` WHERE `entry`=8511 AND `text_id`=10645;
 INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (8511,10645);
 -- Spiritcaller Dohgar
-UPDATE `creature_template` SET `gossip_menu_id`=8315 WHERE `entry`=22312;
-DELETE FROM `gossip_menu` WHERE `entry`=8315 AND `text_id`=10647;
-INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (8315,10647);
+UPDATE `creature_template` SET `gossip_menu_id`=8513 WHERE `entry`=22312;
+DELETE FROM `gossip_menu` WHERE `entry`=8513 AND `text_id`=10647;
+INSERT INTO `gossip_menu` (`entry`,`text_id`) VALUES (8513,10647);
 -- Ogrin <Stable Master>
 UPDATE `creature_template` SET `gossip_menu_id`=9821 WHERE `entry`=22468;
 -- Wanted Poster "Blade's Edge Mountains"
