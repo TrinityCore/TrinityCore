@@ -34,8 +34,6 @@
     #define OPEN_FLAGS (O_RDONLY | O_BINARY)
 #endif
 
-typedef std::list<HANDLE> Archives;
-Archives WorldMpqs;
 HANDLE WorldMpq = NULL;
 HANDLE LocaleMpq = NULL;
 
@@ -430,13 +428,6 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
     if (!adt.loadFile(WorldMpq, filename))
         return false;
 
-    adt_MCIN *cells = adt.a_grid->getMCIN();
-    if (!cells)
-    {
-        printf("Can't find cells in '%s'\n", filename);
-        return false;
-    }
-
     memset(liquid_show, 0, sizeof(liquid_show));
     memset(liquid_type, 0, sizeof(liquid_type));
 
@@ -451,7 +442,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
     {
         for(int j=0;j<ADT_CELLS_PER_GRID;j++)
         {
-            adt_MCNK * cell = cells->getMCNK(i,j);
+            adt_MCNK * cell = adt.cells[i][j];
             uint32 areaid = cell->areaid;
             if(areaid && areaid <= maxAreaId)
             {
@@ -506,7 +497,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
     {
         for(int j=0;j<ADT_CELLS_PER_GRID;j++)
         {
-            adt_MCNK * cell = cells->getMCNK(i,j);
+            adt_MCNK * cell = adt.cells[i][j];
             if (!cell)
                 continue;
             // Height values for triangles stored in order:
@@ -748,7 +739,7 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
         {
             for(int j=0;j<ADT_CELLS_PER_GRID;j++)
             {
-                adt_MCNK *cell = cells->getMCNK(i, j);
+                adt_MCNK *cell = adt.cells[i][j];
                 if (!cell)
                     continue;
 
@@ -1058,7 +1049,7 @@ bool LoadLocaleMPQFile(int locale)
         memset(buff, 0, sizeof(buff));
         if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
         {
-            prefix = NULL;
+            prefix = "";
             _stprintf(buff, _T("./Data/%s/wow-update-%s-%u.MPQ"), LocalesT[locale], LocalesT[locale], Builds[i]);
         }
         else
@@ -1071,9 +1062,6 @@ bool LoadLocaleMPQFile(int locale)
         {
             if (GetLastError() != ERROR_FILE_NOT_FOUND)
                 _tprintf(_T("Cannot open patch archive %s\n"), buff);
-            //SFileCloseArchive(mpq);
-            //err = true;
-            //break;
             continue;
         }
     }
@@ -1096,14 +1084,11 @@ void LoadCommonMPQFiles()
     for(int i = 1; i < count; ++i)
     {
         _stprintf(filename, _T("%s/Data/%s"), input_path, CONF_mpq_list[i]);
-        //if (FileExists(filename))
+        if (!SFileOpenPatchArchive(WorldMpq, filename, "", 0))
         {
-            if (!SFileOpenPatchArchive(WorldMpq, filename, NULL, 0))
-            {
-                if (GetLastError() != ERROR_PATH_NOT_FOUND)
-                    _tprintf(_T("Cannot open archive %s\n"), filename);
-                break;
-            }
+            if (GetLastError() != ERROR_PATH_NOT_FOUND)
+                _tprintf(_T("Cannot open archive %s\n"), filename);
+            break;
         }
     }
 
@@ -1113,7 +1098,7 @@ void LoadCommonMPQFiles()
         memset(filename, 0, sizeof(filename));
         if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
         {
-            prefix = NULL;
+            prefix = "";
             _stprintf(filename, _T("%s/Data/wow-update-base-%u.MPQ"), input_path, Builds[i]);
         }
         else
@@ -1122,13 +1107,10 @@ void LoadCommonMPQFiles()
             _stprintf(filename, _T("%s/Data/wow-update-%u.MPQ"), input_path, Builds[i]);
         }
 
-        if (!SFileOpenPatchArchive(LocaleMpq, filename, prefix, 0))
+        if (!SFileOpenPatchArchive(WorldMpq, filename, prefix, 0))
         {
             if (GetLastError() != ERROR_PATH_NOT_FOUND)
                 _tprintf(_T("Cannot open patch archive %s\n"), filename);
-            //SFileCloseArchive(mpq);
-            //err = true;
-            //break;
             continue;
         }
     }
