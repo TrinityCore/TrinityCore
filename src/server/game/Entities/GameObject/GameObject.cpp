@@ -461,11 +461,6 @@ void GameObject::Update(uint32 diff)
                         if (goInfo->trap.spellId)
                             CastSpell(ok, goInfo->trap.spellId);
 
-						// allow to use scripts
-                        if (ok->GetTypeId() == TYPEID_PLAYER)
-                            if (sScriptMgr->OnGossipHello(ok->ToPlayer(), this))
-                                return;
-
                         m_cooldownTime = time(NULL) + (goInfo->trap.cooldown ? goInfo->trap.cooldown :  uint32(4));   // template or 4 seconds
 
                         if (goInfo->trap.type == 1)
