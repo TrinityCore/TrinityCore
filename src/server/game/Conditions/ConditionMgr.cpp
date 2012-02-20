@@ -299,6 +299,7 @@ uint32 Condition::GetMaxAvailableConditionTargets()
         case CONDITION_SOURCE_TYPE_SPELL:
         case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:
         case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
+        case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
@@ -409,17 +410,34 @@ ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType 
     return spellCond;
 }
 
-ConditionList ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID)
+
+ConditionList ConditionMgr::GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId)
 {
     ConditionList cond;
-    VehicleSpellConditionContainer::const_iterator itr = VehicleSpellConditionStore.find(creatureID);
-    if (itr != VehicleSpellConditionStore.end())
+    CreatureSpellConditionContainer::const_iterator itr = SpellClickEventConditionStore.find(creatureId);
+    if (itr != SpellClickEventConditionStore.end())
     {
-        ConditionTypeContainer::const_iterator i = (*itr).second.find(spellID);
+        ConditionTypeContainer::const_iterator i = (*itr).second.find(spellId);
         if (i != (*itr).second.end())
         {
             cond = (*i).second;
-            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForVehicleSpell: found conditions for Vehicle entry %u spell %u", creatureID, spellID);
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForSpellClickEvent: found conditions for Vehicle entry %u spell %u", creatureId, spellId);
+        }
+    }
+    return cond;
+}
+
+ConditionList ConditionMgr::GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId)
+{
+    ConditionList cond;
+    CreatureSpellConditionContainer::const_iterator itr = VehicleSpellConditionStore.find(creatureId);
+    if (itr != VehicleSpellConditionStore.end())
+    {
+            ConditionTypeContainer::const_iterator i = (*itr).second.find(spellId);
+        if (i != (*itr).second.end())
+        {
+            cond = (*i).second;
+            sLog->outDebug(LOG_FILTER_CONDITIONSYS, "GetConditionsForVehicleSpell: found conditions for Vehicle entry %u spell %u", creatureId, spellId);
         }
     }
     return cond;
@@ -1073,9 +1091,19 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                 return false;
             }
             break;
-        case CONDITION_SOURCE_TYPE_UNUSED_18:
-            sLog->outErrorDb("Found SourceTypeOrReferenceId = CONDITION_SOURCE_TYPE_UNUSED_18 in `conditions` table - ignoring");
-            return false;
+        case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
+            if (!sObjectMgr->GetCreatureTemplate(cond->SourceGroup))
+            {
+                sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `creature_template`, ignoring.", cond->SourceGroup);
+                return false;
+            }
+
+            if (!sSpellMgr->GetSpellInfo(cond->SourceEntry))
+            {
+                sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
+                return false;
+            }
+            break;
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU:
         case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
         case CONDITION_SOURCE_TYPE_SMART_EVENT:
@@ -1110,7 +1138,7 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 return false;
             }
 
-            if (cond->ConditionValue2 > 2)
+            if (cond->ConditionValue2 > EFFECT_2)
             {
                 sLog->outErrorDb("Aura condition has non existing effect index (%u) (must be 0..2), skipped", cond->ConditionValue2);
                 return false;
@@ -1574,13 +1602,13 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
             sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
             return false;
         case CONDITION_UNUSED_20:
-            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
+            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_20 in `conditions` table - ignoring");
             return false;
         case CONDITION_UNUSED_21:
-            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
+            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_21 in `conditions` table - ignoring");
             return false;
         case CONDITION_UNUSED_24:
-            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
+            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_24 in `conditions` table - ignoring");
             return false;
         default:
             break;
@@ -1612,7 +1640,7 @@ void ConditionMgr::Clean()
 
     ConditionStore.clear();
 
-    for (VehicleSpellConditionContainer::iterator itr = VehicleSpellConditionStore.begin(); itr != VehicleSpellConditionStore.end(); ++itr)
+    for (CreatureSpellConditionContainer::iterator itr = VehicleSpellConditionStore.begin(); itr != VehicleSpellConditionStore.end(); ++itr)
     {
         for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
         {
