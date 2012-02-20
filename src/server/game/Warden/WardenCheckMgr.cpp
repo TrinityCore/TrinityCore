@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -179,7 +179,7 @@ void WardenCheckMgr::LoadWardenChecks()
     sLog->outString();
 }
 
-WardenCheck* WardenCheckMgr::GetWardenDataById(uint32 Id)
+WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)
 {
     if (Id < CheckStore.size())
         return CheckStore[Id];
@@ -187,7 +187,7 @@ WardenCheck* WardenCheckMgr::GetWardenDataById(uint32 Id)
     return NULL;
 }
 
-WardenCheckResult* WardenCheckMgr::GetWardenResultById(uint32 Id)
+WardenCheckResult* WardenCheckMgr::GetWardenResultById(uint16 Id)
 {
     CheckResultContainer::const_iterator itr = CheckResultStore.find(Id);
     if (itr != CheckResultStore.end())
