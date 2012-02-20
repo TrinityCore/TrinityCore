@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -40,42 +40,6 @@ Warden::~Warden()
     delete _module;
     _module = NULL;
     _initialized = false;
-}
-
-void Warden::Init(WorldSession* /*session*/, BigNumber* /*k*/)
-{
-    ASSERT(false);
-}
-
-ClientWardenModule* Warden::GetModuleForClient()
-{
-    ASSERT(false);
-    return NULL;
-}
-
-void Warden::InitializeModule()
-{
-    ASSERT(false);
-}
-
-void Warden::RequestHash()
-{
-    ASSERT(false);
-}
-
-void Warden::HandleHashResult(ByteBuffer& /*buff*/)
-{
-    ASSERT(false);
-}
-
-void Warden::RequestData()
-{
-    ASSERT(false);
-}
-
-void Warden::HandleData(ByteBuffer& /*buff*/)
-{
-    ASSERT(false);
 }
 
 void Warden::SendModuleToClient()
