@@ -258,7 +258,7 @@ namespace VMAP
         uint32 groups = raw_model.groupsArray.size();
         if (groups != 1)
             printf("Warning: '%s' does not seem to be a M2 model!\n", modelFilename.c_str());
-            
+
         AABox modelBound;
         bool boundEmpty=true;
 
@@ -308,7 +308,7 @@ namespace VMAP
         WorldModel_Raw raw_model;
         if (!raw_model.Read(filename.c_str()))
             return false;
-            
+
         // write WorldModel
         WorldModel model;
         model.setRootWmoID(raw_model.RootWMOID);
@@ -327,12 +327,12 @@ namespace VMAP
 
             model.setGroupModels(groupsArray);
         }
-        
+
         success = model.writeFile(iDestDir + "/" + pModelFilename + ".vmo");
         //std::cout << "readRawFile2: '" << pModelFilename << "' tris: " << nElements << " nodes: " << nNodes << std::endl;
         return success;
     }
-    
+
     void TileAssembler::exportGameobjectModels()
     {
         FILE* model_list = fopen((iSrcDir + "/" + GAMEOBJECT_MODELS).c_str(), "rb");
@@ -405,13 +405,13 @@ namespace VMAP
         READ_OR_RETURN(&mogpflags, sizeof(uint32));
         READ_OR_RETURN(&GroupWMOID, sizeof(uint32));
 
-            
+
         Vector3 vec1, vec2;
         READ_OR_RETURN(&vec1, sizeof(Vector3));
 
         READ_OR_RETURN(&vec2, sizeof(Vector3));
         bounds.set(vec1, vec2);
-        
+
         READ_OR_RETURN(&liquidflags, sizeof(uint32));
 
         // will this ever be used? what is it good for anyway??
@@ -475,7 +475,7 @@ namespace VMAP
             size = hlq.xtiles*hlq.ytiles;
             READ_OR_RETURN(liquid->GetFlagsStorage(), size);
         }
-     
+
         return true;
     }
 
@@ -484,7 +484,7 @@ namespace VMAP
     {
         delete liquid;
     }
-    
+
     bool WorldModel_Raw::Read(const char * path)
     {
         FILE* rf = fopen(path, "rb");
@@ -493,7 +493,7 @@ namespace VMAP
             printf("ERROR: Can't open raw model file: %s\n", path);
             return false;
         }
-        
+
         char ident[8];
         int readOperation = 0;
 

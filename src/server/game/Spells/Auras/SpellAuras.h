@@ -21,6 +21,7 @@
 
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include "Unit.h"
 
 class Unit;
 class SpellInfo;
@@ -186,7 +187,7 @@ class Aura
         bool CanStackWith(Aura const* existingAura) const;
 
         // Proc system
-        // this subsystem is not yet in use - the core of it is functional, but still some research has to be done 
+        // this subsystem is not yet in use - the core of it is functional, but still some research has to be done
         // and some dependant problems fixed before it can replace old proc system (for example cooldown handling)
         // currently proc system functionality is implemented in Unit::ProcDamageAndSpell
         bool IsProcOnCooldown() const;

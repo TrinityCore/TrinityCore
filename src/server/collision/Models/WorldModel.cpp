@@ -17,6 +17,7 @@
  */
 
 #include "WorldModel.h"
+#include "ModelInstance.h"
 #include "VMapDefinitions.h"
 #include "MapTree.h"
 

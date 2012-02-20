@@ -171,7 +171,7 @@ class GridMap
     uint8 _liquidOffY;
     uint8 _liquidWidth;
     uint8 _liquidHeight;
-    
+
 
     bool loadAreaData(FILE* in, uint32 offset, uint32 size);
     bool loadHeihgtData(FILE* in, uint32 offset, uint32 size);

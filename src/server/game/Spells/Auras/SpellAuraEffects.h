@@ -104,7 +104,7 @@ class AuraEffect
         int32 m_periodicTimer;
         int32 m_amplitude;
         uint32 m_tickNumber;
-        
+
         uint8 const m_effIndex;
         bool m_canBeRecalculated;
         bool m_isPeriodic;
