@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -109,13 +109,13 @@ class Warden
         Warden();
         ~Warden();
 
-        virtual void Init(WorldSession* session, BigNumber* k);
-        virtual ClientWardenModule* GetModuleForClient();
-        virtual void InitializeModule();
-        virtual void RequestHash();
-        virtual void HandleHashResult(ByteBuffer &buff);
-        virtual void RequestData();
-        virtual void HandleData(ByteBuffer &buff);
+        virtual void Init(WorldSession* session, BigNumber* k) = 0;
+        virtual ClientWardenModule* GetModuleForClient() = 0;
+        virtual void InitializeModule() = 0;
+        virtual void RequestHash() = 0;
+        virtual void HandleHashResult(ByteBuffer &buff) = 0;
+        virtual void RequestData() = 0;
+        virtual void HandleData(ByteBuffer &buff) = 0;
 
         void SendModuleToClient();
         void RequestModule();
