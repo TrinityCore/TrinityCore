@@ -1,7 +1,6 @@
 #ifndef MPQ_H
 #define MPQ_H
 
-#include "loadlib/loadlib.h"
 #include "libmpq/mpq.h"
 #include <string.h>
 #include <ctype.h>

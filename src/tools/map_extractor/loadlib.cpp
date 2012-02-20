@@ -1,10 +1,7 @@
 #define _CRT_SECURE_NO_DEPRECATE
 
 #include "loadlib.h"
-#include "mpq_libmpq04.h"
 #include <cstdio>
-
-class MPQFile;
 
 FileLoader::FileLoader()
 {
@@ -18,29 +15,31 @@ FileLoader::~FileLoader()
     free();
 }
 
-bool FileLoader::loadFile(char *filename, bool log)
+bool FileLoader::loadFile(HANDLE mpq, char* filename, bool log)
 {
     free();
-    MPQFile mf(filename);
-    if(mf.isEof())
+    HANDLE file;
+    if (!SFileOpenFileEx(mpq, filename, SFILE_OPEN_PATCHED_FILE, &file))
     {
         if (log)
             printf("No such file %s\n", filename);
         return false;
     }
 
-    data_size = mf.getSize();
-
-    data = new uint8 [data_size];
+    data_size = SFileGetFileSize(file, NULL);
+    data = new uint8[data_size];
     if (data)
     {
-        mf.read(data, data_size);
-        mf.close();
+        SFileReadFile(file, data, data_size, NULL/*bytesRead*/, NULL);
         if (prepareLoadedData())
+        {
+            SFileCloseFile(file);
             return true;
+        }
     }
-    printf("Error loading %s", filename);
-    mf.close();
+
+    printf("Error loading %s\n", filename);
+    SFileCloseFile(file);
     free();
     return false;
 }
