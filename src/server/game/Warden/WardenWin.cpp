@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -205,7 +205,7 @@ void WardenWin::RequestData()
 
     _serverTicks = getMSTime();
 
-    uint32 id;
+    uint16 id;
     uint8 type;
     WardenCheck* wd;
     _currentChecks.clear();

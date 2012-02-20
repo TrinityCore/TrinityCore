@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -55,8 +55,8 @@ class WardenCheckMgr
         typedef std::vector<WardenCheck*> CheckContainer;
         typedef std::map<uint32, WardenCheckResult*> CheckResultContainer;
 
-        WardenCheck* GetWardenDataById(uint32 Id);
-        WardenCheckResult* GetWardenResultById(uint32 Id);
+        WardenCheck* GetWardenDataById(uint16 Id);
+        WardenCheckResult* GetWardenResultById(uint16 Id);
 
         uint32 InternalDataID;
         std::vector<uint16> MemChecksIdPool;
