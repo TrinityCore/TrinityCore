@@ -25,7 +25,7 @@
 #include "SpellAuras.h"
 #include "Vehicle.h"
 
-enum eWGBfData
+enum WGBfData
 {
     BATTLEFIELD_WG_ZONEID                        = 4197,             // Wintergrasp
     BATTLEFIELD_WG_MAPID                         = 571,              // Northrend
