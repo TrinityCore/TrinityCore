@@ -1148,7 +1148,7 @@ int main(int argc, char * arg[])
             if (build > CONF_TargetBuild)
             {
                 printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], build, CONF_TargetBuild);
-                return;
+                return 0;
             }
 
             printf("Detected client build: %u\n", build);
