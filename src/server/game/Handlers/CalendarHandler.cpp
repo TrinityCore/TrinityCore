@@ -88,7 +88,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
     data << uint32(counter);                               // raid reset count
 
     std::set<uint32> sentMaps;
-    
+
     ResetTimeByMapDifficultyMap const& resets = sInstanceSaveMgr->GetResetTimeMap();
     for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
     {
@@ -102,7 +102,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
             continue;
 
         sentMaps.insert(mapId);
-        
+
         data << uint32(mapId);
         data << uint32(itr->second - cur_time);
         data << uint32(mapEntry->unk_time);

@@ -675,8 +675,39 @@ void Spell::InitExplicitTargets(SpellCastTargets const& targets)
         m_targets.RemoveSrc();
 }
 
+void Spell::SelectExplicitTargets()
+{
+    // here go all explicit target changes made to explicit targets after spell prepare phase is finished
+    if (Unit* target = m_targets.GetUnitTarget())
+    {
+        // check for explicit target redirection, for Grounding Totem for example
+        if (m_spellInfo->GetExplicitTargetMask() & TARGET_FLAG_UNIT_ENEMY
+            || (m_spellInfo->GetExplicitTargetMask() & TARGET_FLAG_UNIT && !m_spellInfo->IsPositive()))
+        {
+            Unit* redirect;
+            switch (m_spellInfo->DmgClass)
+            {
+                case SPELL_DAMAGE_CLASS_MAGIC:
+                    redirect = m_caster->GetMagicHitRedirectTarget(target, m_spellInfo);
+                    break;
+                case SPELL_DAMAGE_CLASS_MELEE:
+                case SPELL_DAMAGE_CLASS_RANGED:
+                    redirect = m_caster->GetMeleeHitRedirectTarget(target, m_spellInfo);
+                    break;
+                default:
+                    redirect = NULL;
+                    break;
+            }
+            if (redirect && (redirect != target))
+                m_targets.SetUnitTarget(redirect);
+        }
+    }
+}
+
 void Spell::SelectSpellTargets()
 {
+    // select targets for cast phase
+    SelectExplicitTargets();
     uint32 processedTargets = 0;
     for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
     {
@@ -2080,16 +2111,7 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
             switch (cur.GetTarget())
             {
                 case TARGET_UNIT_TARGET_ENEMY:
-                    if (Unit* magnet = m_caster->SelectMagnetTarget(target, m_spellInfo))
-                        if (magnet != target)
-                            m_targets.SetUnitTarget(magnet);
-                    pushType = PUSH_CHAIN;
-                    break;
                 case TARGET_UNIT_TARGET_ANY:
-                    if (!m_spellInfo->IsPositive())
-                        if (Unit* magnet = m_caster->SelectMagnetTarget(target, m_spellInfo))
-                            if (magnet != target)
-                                m_targets.SetUnitTarget(magnet);
                     pushType = PUSH_CHAIN;
                     break;
                 case TARGET_UNIT_TARGET_CHAINHEAL_ALLY:
@@ -2815,12 +2837,12 @@ uint32 Spell::SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur)
                     unitList.remove(m_targets.GetUnitTarget());
                 Trinity::RandomResizeList(unitList, maxTargets);
             }
+
+            CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
+
+            for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                AddUnitTarget(*itr, effectMask, false);
         }
-
-        CallScriptAfterUnitTargetSelectHandlers(unitList, SpellEffIndex(i));
-
-        for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
-            AddUnitTarget(*itr, effectMask, false);
 
         if (!gobjectList.empty())
         {
@@ -4652,7 +4674,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 
     Unit::AuraEffectList const& blockSpells = m_caster->GetAuraEffectsByType(SPELL_AURA_BLOCK_SPELL_FAMILY);
     for (Unit::AuraEffectList::const_iterator blockItr = blockSpells.begin(); blockItr != blockSpells.end(); ++blockItr)
-        if ((*blockItr)->GetMiscValue() == m_spellInfo->SpellFamilyName)
+        if (uint32((*blockItr)->GetMiscValue()) == m_spellInfo->SpellFamilyName)
             return SPELL_FAILED_SPELL_UNAVAILABLE;
 
     bool reqCombat = true;

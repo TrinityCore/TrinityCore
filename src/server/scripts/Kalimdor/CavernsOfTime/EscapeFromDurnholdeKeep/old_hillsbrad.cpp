@@ -139,9 +139,9 @@ public:
 #define SPEED_RUN               (1.0f)
 #define SPEED_MOUNT             (1.6f)
 
-#define THRALL_WEAPON_MODEL     22106
+#define THRALL_WEAPON_ITEM     927
 #define THRALL_WEAPON_INFO      218169346
-#define THRALL_SHIELD_MODEL     18662
+#define THRALL_SHIELD_ITEM     2129
 #define THRALL_SHIELD_INFO      234948100
 #define THRALL_MODEL_UNEQUIPPED 17292
 #define THRALL_MODEL_EQUIPPED   18165
@@ -309,10 +309,10 @@ public:
                     break;
                 case 9:
                     DoScriptText(SAY_TH_ARMORY, me);
-                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, THRALL_WEAPON_MODEL);
+                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID, THRALL_WEAPON_ITEM);
                     //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO, THRALL_WEAPON_INFO);
                     //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+1, 781);
-                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, THRALL_SHIELD_MODEL);
+                    me->SetUInt32Value(UNIT_VIRTUAL_ITEM_SLOT_ID+1, THRALL_SHIELD_ITEM);
                     //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+2, THRALL_SHIELD_INFO);
                     //me->SetUInt32Value(UNIT_VIRTUAL_ITEM_INFO+3, 1038);
                     break;

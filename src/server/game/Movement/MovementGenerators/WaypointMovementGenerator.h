@@ -42,7 +42,7 @@ template<class T, class P>
 class PathMovementBase
 {
     public:
-        PathMovementBase() : i_currentNode(0), i_path(NULL) {}
+        PathMovementBase() : i_path(NULL), i_currentNode(0) {}
         virtual ~PathMovementBase() {};
 
         // template pattern, not defined .. override required
@@ -63,7 +63,8 @@ class WaypointMovementGenerator<Creature>
 public PathMovementBase<Creature, WaypointPath const*>
 {
     public:
-        WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true) : i_nextMoveTime(0), path_id(_path_id), m_isArrivalDone(false), repeating(_repeating)  {}
+        WaypointMovementGenerator(uint32 _path_id = 0, bool _repeating = true)
+            : i_nextMoveTime(0), m_isArrivalDone(false), path_id(_path_id), repeating(_repeating)  {}
         ~WaypointMovementGenerator() { i_path = NULL; }
         void Initialize(Creature &);
         void Finalize(Creature &);

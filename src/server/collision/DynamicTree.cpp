@@ -43,10 +43,11 @@ template<> struct BoundsTrait< GameObjectModel> {
     static void getBounds2(const GameObjectModel* g, G3D::AABox& out) { out = g->getBounds();}
 };
 
+/*
 static bool operator == (const GameObjectModel& mdl, const GameObjectModel& mdl2){
     return &mdl == &mdl2;
 }
-
+*/
 
 int valuesPerNode = 5, numMeanSplits = 3;
 

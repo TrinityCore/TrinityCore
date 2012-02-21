@@ -80,7 +80,7 @@ public:
                 me->SetDisplayId(11172);
                 Invisible = false;
                 //me->m_canMove = true;
-            } 
+            }
             else if (Invisible)
             {
                 Invisible_Timer -= diff;
@@ -97,7 +97,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_TOXICVOLLEY);
                 ToxicVolley_Timer = 9000;
-            } 
+            }
             else ToxicVolley_Timer -= diff;
 
             //Uppercut_Timer
@@ -105,7 +105,7 @@ public:
             {
                 DoCast(me->getVictim(), SPELL_UPPERCUT);
                 Uppercut_Timer = 12000;
-            } 
+            }
             else Uppercut_Timer -= diff;
 
             //Adds_Timer
@@ -127,7 +127,7 @@ public:
                 Invisible_Timer = 15000;
 
                 Adds_Timer = 40000;
-            } 
+            }
             else Adds_Timer -= diff;
 
             DoMeleeAttackIfReady();

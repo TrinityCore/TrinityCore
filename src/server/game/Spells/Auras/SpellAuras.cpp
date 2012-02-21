@@ -37,8 +37,8 @@
 #include "Vehicle.h"
 
 AuraApplication::AuraApplication(Unit* target, Unit* caster, Aura* aura, uint8 effMask):
-_target(target), _base(aura), _slot(MAX_AURAS), _flags(AFLAG_NONE),
-_effectsToApply(effMask), _removeMode(AURA_REMOVE_NONE), _needClientUpdate(false)
+_target(target), _base(aura), _removeMode(AURA_REMOVE_NONE), _slot(MAX_AURAS),
+_flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false)
 {
     ASSERT(GetTarget() && GetBase());
 
@@ -1840,6 +1840,10 @@ bool Aura::CanStackWith(Aura const* existingAura) const
 
     if (!sameCaster)
     {
+        // Channeled auras can stack if not forbidden by db or aura type
+        if (existingAura->GetSpellInfo()->IsChanneled())
+            return true;
+
         if (m_spellInfo->AttributesEx3 & SPELL_ATTR3_STACK_FOR_DIFF_CASTERS)
             return true;
 
@@ -2041,7 +2045,7 @@ void Aura::TriggerProcOnEvent(AuraApplication* aurApp, ProcEventInfo& eventInfo)
         if (aurApp->HasEffect(i))
             // TODO: OnEffectProc hook here (allowing prevention of selected effects)
             GetEffect(i)->HandleProc(aurApp, eventInfo);
-            // TODO: AfterEffectProc hook here 
+            // TODO: AfterEffectProc hook here
 
     // TODO: AfterProc hook here
 
