@@ -1031,6 +1031,43 @@ void ExtractDBCFiles(int l, bool basicLocale)
     printf("Extracted %u DBC files\n\n", count);
 }
 
+void ExtractDB2Files(int l, bool basicLocale)
+{
+    printf("Extracting db2 files...\n");
+
+    SFILE_FIND_DATA foundFile;
+    memset(&foundFile, 0, sizeof(foundFile));
+    HANDLE listFile = SListFileFindFirstFile(LocaleMpq, NULL, "DBFilesClient\\*db2", &foundFile);
+    HANDLE dbcFile = NULL;
+    uint32 count = 0;
+    if (listFile)
+    {
+        std::string outputPath = "./dbc/";
+        if (!basicLocale)
+        {
+            outputPath += Locales[l];
+            outputPath += "/";
+        }
+
+        std::string filename;
+
+        do
+        {
+            if (!SFileOpenFileEx(LocaleMpq, foundFile.cFileName, SFILE_OPEN_PATCHED_FILE, &dbcFile))
+                continue;
+
+            filename = foundFile.cFileName;
+            filename = outputPath + filename.substr(filename.rfind('\\'));
+            if (ExtractFile(dbcFile, filename.c_str()))
+                ++count;
+
+            SFileCloseFile(dbcFile);
+        } while (SListFileFindNextFile(listFile, &foundFile));
+    }
+
+    printf("Extracted %u DB2 files\n\n", count);
+}
+
 bool LoadLocaleMPQFile(int locale)
 {
     TCHAR buff[512];
@@ -1165,6 +1202,7 @@ int main(int argc, char * arg[])
         }
 
         ExtractDBCFiles(i, FirstLocale < 0);
+        ExtractDB2Files(i, FirstLocale < 0);
 
         if (FirstLocale < 0)
         {
