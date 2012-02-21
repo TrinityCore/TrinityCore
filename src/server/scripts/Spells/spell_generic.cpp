@@ -1585,19 +1585,17 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
 
             bool Load()
             {
-                return GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetOriginalCaster() && GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                if (Player* originalCaster = GetOriginalCaster()->ToPlayer())
+                Player* originalCaster = GetOriginalCaster()->ToPlayer();
+                if (Unit* target = GetHitUnit())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
-                        data << uint64(target->GetGUID());
-                        originalCaster->GetSession()->SendPacket(&data);
-                    }
+                    WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
+                    data << uint64(target->GetGUID());
+                    originalCaster->GetSession()->SendPacket(&data);
                 }
             }
 
