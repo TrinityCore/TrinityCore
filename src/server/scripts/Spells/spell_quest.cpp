@@ -1025,9 +1025,9 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 // http://old01.wowhead.com/quest=9452 - Red Snapper - Very Tasty!
 enum RedSnapperVeryTasty
 {
-    SPELL_CAST_NET      = 29866,
-    ITEM_RED_SNAPPER    = 23614,
-    NPC_ANGRY_MURLOC    = 17102,
+    SPELL_CAST_NET          = 29866,
+    ITEM_RED_SNAPPER        = 23614,
+    SPELL_NEW_SUMMON_TEST   = 49214,
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1047,16 +1047,10 @@ class spell_q9452_cast_net: public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Player* caster = GetCaster()->ToPlayer();
-                switch (urand(0, 2))
-                {
-                    case 0: case 1:
-                        caster->AddItem(ITEM_RED_SNAPPER, 1);
-                        break;
-                    case 2:
-                        if (Creature* murloc = caster->SummonCreature(NPC_ANGRY_MURLOC, caster->GetPositionX()+5, caster->GetPositionY(), caster->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 120000))
-                            murloc->AI()->AttackStart(caster);
-                        break;
-                }
+                if (roll_chance_i(66))
+                    caster->AddItem(ITEM_RED_SNAPPER, 1);
+                else
+                    caster->CastSpell(caster, SPELL_NEW_SUMMON_TEST, true);
             }
 
             void Register()
