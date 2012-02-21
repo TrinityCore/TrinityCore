@@ -21,6 +21,7 @@
 
 #include "SpellAuraDefines.h"
 #include "SpellInfo.h"
+#include "Unit.h"
 
 class Unit;
 class SpellInfo;
@@ -46,13 +47,13 @@ class AuraApplication
     friend void Unit::RemoveAura(AuraApplication * aurApp, AuraRemoveMode mode);
     friend AuraApplication * Unit::_CreateAuraApplication(Aura* aura, uint8 effMask);
     private:
-        Unit* const m_target;
-        Aura* const m_base;
-        uint8 m_slot;                                   // Aura slot on unit
-        uint8 m_flags;                                  // Aura info flag
-        uint8 m_effectsToApply;                         // Used only at spell hit to determine which effect should be applied
-        AuraRemoveMode m_removeMode:8;                  // Store info for know remove aura reason
-        bool m_needClientUpdate:1;
+        Unit* const _target;
+        Aura* const _base;
+        AuraRemoveMode _removeMode:8;                  // Store info for know remove aura reason
+        uint8 _slot;                                   // Aura slot on unit
+        uint8 _flags;                                  // Aura info flag
+        uint8 _effectsToApply;                         // Used only at spell hit to determine which effect should be applied
+        bool _needClientUpdate:1;
 
         explicit AuraApplication(Unit* target, Unit* caster, Aura* base, uint8 effMask);
         void _Remove();
@@ -61,22 +62,22 @@ class AuraApplication
         void _HandleEffect(uint8 effIndex, bool apply);
     public:
 
-        Unit* GetTarget() const { return m_target; }
-        Aura* GetBase() const { return m_base; }
+        Unit* GetTarget() const { return _target; }
+        Aura* GetBase() const { return _base; }
 
-        uint8 GetSlot() const { return m_slot; }
-        uint8 GetFlags() const { return m_flags; }
-        uint8 GetEffectMask() const { return m_flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
-        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return m_flags & (1<<effect); }
-        bool IsPositive() const { return m_flags & AFLAG_POSITIVE; }
-        bool IsSelfcasted() const { return m_flags & AFLAG_CASTER; }
-        uint8 GetEffectsToApply() const { return m_effectsToApply; }
+        uint8 GetSlot() const { return _slot; }
+        uint8 GetFlags() const { return _flags; }
+        uint8 GetEffectMask() const { return _flags & (AFLAG_EFF_INDEX_0 | AFLAG_EFF_INDEX_1 | AFLAG_EFF_INDEX_2); }
+        bool HasEffect(uint8 effect) const { ASSERT(effect < MAX_SPELL_EFFECTS);  return _flags & (1<<effect); }
+        bool IsPositive() const { return _flags & AFLAG_POSITIVE; }
+        bool IsSelfcasted() const { return _flags & AFLAG_CASTER; }
+        uint8 GetEffectsToApply() const { return _effectsToApply; }
 
-        void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
-        AuraRemoveMode GetRemoveMode() const {return m_removeMode;}
+        void SetRemoveMode(AuraRemoveMode mode) { _removeMode = mode; }
+        AuraRemoveMode GetRemoveMode() const {return _removeMode;}
 
-        void SetNeedClientUpdate() { m_needClientUpdate = true;}
-        bool IsNeedClientUpdate() const { return m_needClientUpdate;}
+        void SetNeedClientUpdate() { _needClientUpdate = true;}
+        bool IsNeedClientUpdate() const { return _needClientUpdate;}
         void BuildUpdatePacket(ByteBuffer& data, bool remove) const;
         void ClientUpdate(bool remove = false);
 };
@@ -186,7 +187,7 @@ class Aura
         bool CanStackWith(Aura const* existingAura) const;
 
         // Proc system
-        // this subsystem is not yet in use - the core of it is functional, but still some research has to be done 
+        // this subsystem is not yet in use - the core of it is functional, but still some research has to be done
         // and some dependant problems fixed before it can replace old proc system (for example cooldown handling)
         // currently proc system functionality is implemented in Unit::ProcDamageAndSpell
         bool IsProcOnCooldown() const;

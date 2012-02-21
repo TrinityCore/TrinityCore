@@ -1041,8 +1041,8 @@ public:
         handler->GetSession()->GetPlayer()->HandleEmoteCommand(animId);
         return true;
     }
-    
-    static bool HandleDebugLoSCommand(ChatHandler* handler, char const* args)
+
+    static bool HandleDebugLoSCommand(ChatHandler* handler, char const* /*args*/)
     {
         if (Unit* unit = handler->getSelectedUnit())
             handler->PSendSysMessage("Unit %s (GuidLow: %u) is %sin LoS", unit->GetName(), unit->GetGUIDLow(), handler->GetSession()->GetPlayer()->IsWithinLOSInMap(unit) ? "" : "not ");

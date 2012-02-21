@@ -1309,7 +1309,7 @@ void World::SetInitialWorldSettings()
 
     sLog->outString("Loading GameObject models...");
     LoadGameObjectModelList();
-    
+
     sLog->outString("Loading Script Names...");
     sObjectMgr->LoadScriptNames();
 
@@ -1612,6 +1612,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Creature Formations...");
     FormationMgr::LoadCreatureFormations();
 
+    sLog->outString("Loading World States...");              // must be loaded before battleground, outdoor PvP and conditions
+    LoadWorldStates();
+
     sLog->outString("Loading Conditions...");
     sConditionMgr->LoadConditions();
 
@@ -1738,9 +1741,6 @@ void World::SetInitialWorldSettings()
     sGameEventMgr->StartArenaSeason();
 
     sTicketMgr->Initialize();
-
-    sLog->outString("Loading World States...");              // must be loaded before battleground and outdoor PvP
-    LoadWorldStates();
 
     ///- Initialize Battlegrounds
     sLog->outString("Starting Battleground System");

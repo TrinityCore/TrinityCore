@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,7 +23,8 @@
 #include "Database/DatabaseEnv.h"
 #include "Util.h"
 #include "WardenCheckMgr.h"
-#include "WardenWin.h"
+#include "Warden.h"
+
 
 WardenCheckMgr::WardenCheckMgr()
 {
@@ -32,7 +33,7 @@ WardenCheckMgr::WardenCheckMgr()
 
 WardenCheckMgr::~WardenCheckMgr()
 {
-    for (int i = 0; i < CheckStore.size(); ++i)
+    for (uint16 i = 0; i < CheckStore.size(); ++i)
         delete CheckStore[i];
 
     for (CheckResultContainer::iterator itr = CheckResultStore.begin(); itr != CheckResultStore.end(); ++itr)
@@ -50,7 +51,7 @@ void WardenCheckMgr::LoadWardenChecks()
     }
 
     // For reload case
-    for (int i = 0; i < CheckStore.size(); ++i)
+    for (uint16 i = 0; i < CheckStore.size(); ++i)
         delete CheckStore[i];
 
     CheckStore.clear();
@@ -71,7 +72,9 @@ void WardenCheckMgr::LoadWardenChecks()
 
     Field* fields = result->Fetch();
 
-    CheckStore.resize(fields[0].GetUInt32() + 1);
+    uint32 maxCheckId = fields[0].GetUInt32();
+
+    CheckStore.resize(maxCheckId + 1);
 
     //                                    0    1     2     3        4       5      6
     result = WorldDatabase.Query("SELECT id, type, data, result, address, length, str FROM warden_checks ORDER BY id ASC");
@@ -81,7 +84,7 @@ void WardenCheckMgr::LoadWardenChecks()
     {
         Field* fields = result->Fetch();
 
-        uint32 id               = fields[0].GetUInt32();
+        uint16 id               = fields[0].GetUInt16();
         uint8 checkType         = fields[1].GetUInt8();
         std::string data        = fields[2].GetString();
         std::string checkResult = fields[3].GetString();
@@ -91,6 +94,9 @@ void WardenCheckMgr::LoadWardenChecks()
 
         WardenCheck* wardenCheck = new WardenCheck();
         wardenCheck->Type = checkType;
+
+        // Initialize action with default action from config
+        wardenCheck->Action = WardenActions(sWorld->getIntConfig(CONFIG_WARDEN_CLIENT_FAIL_ACTION));
 
         if (checkType == PAGE_CHECK_A || checkType == PAGE_CHECK_B || checkType == DRIVER_CHECK)
         {
@@ -145,11 +151,35 @@ void WardenCheckMgr::LoadWardenChecks()
     }
     while (result->NextRow());
 
-    sLog->outString(">> Loaded %u warden checks.", count);
+    // Fetch overrides from char db and overwrite default action in CheckStore
+    QueryResult overrideResult = CharacterDatabase.Query("SELECT wardenId, action FROM warden_action");
+
+    uint32 overrideCount = 0;
+
+    if(overrideResult)
+    {
+        do
+        {
+            Field * fields = overrideResult->Fetch();
+
+            uint16 checkId = fields[0].GetUInt16();
+
+            // Check if override check ID actually exists in current Warden checks
+            if (checkId > maxCheckId)
+                sLog->outError("Warden check action override for invalid check (ID: %u, action: %u), skipped", checkId, fields[1].GetUInt8());
+            else
+                CheckStore[fields[0].GetUInt16()]->Action = WardenActions(fields[1].GetUInt8());
+
+            ++overrideCount;
+        }
+        while (overrideResult->NextRow());
+    }
+
+    sLog->outString(">> Loaded %u warden checks and %u action overrides.", count, overrideCount);
     sLog->outString();
 }
 
-WardenCheck* WardenCheckMgr::GetWardenDataById(uint32 Id)
+WardenCheck* WardenCheckMgr::GetWardenDataById(uint16 Id)
 {
     if (Id < CheckStore.size())
         return CheckStore[Id];
@@ -157,7 +187,7 @@ WardenCheck* WardenCheckMgr::GetWardenDataById(uint32 Id)
     return NULL;
 }
 
-WardenCheckResult* WardenCheckMgr::GetWardenResultById(uint32 Id)
+WardenCheckResult* WardenCheckMgr::GetWardenResultById(uint16 Id)
 {
     CheckResultContainer::const_iterator itr = CheckResultStore.find(Id);
     if (itr != CheckResultStore.end())

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -28,14 +28,14 @@
 class WorldSession;
 class Warden;
 
-class WardenMac : Warden
+class WardenMac : public Warden
 {
     public:
         WardenMac();
         ~WardenMac();
 
         void Init(WorldSession* session, BigNumber* k);
-        ClientWardenModule* GetModuleForClient(WorldSession* session);
+        ClientWardenModule* GetModuleForClient();
         void InitializeModule();
         void RequestHash();
         void HandleHashResult(ByteBuffer& buff);

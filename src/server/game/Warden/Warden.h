@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -23,6 +23,7 @@
 #include "Cryptography/ARC4.h"
 #include "Cryptography/BigNumber.h"
 #include "ByteBuffer.h"
+#include "WardenCheckMgr.h"
 
 enum WardenOpcodes
 {
@@ -41,6 +42,19 @@ enum WardenOpcodes
     WARDEN_SMSG_MODULE_INITIALIZE               = 3,
     WARDEN_SMSG_MEM_CHECKS_REQUEST              = 4,        // byte len; while(!EOF) { byte unk(1); byte index(++); string module(can be 0); int offset; byte len; byte[] bytes_to_compare[len]; }
     WARDEN_SMSG_HASH_REQUEST                    = 5
+};
+
+enum WardenCheckType
+{
+    MEM_CHECK               = 0xF3, // 243: byte moduleNameIndex + uint Offset + byte Len (check to ensure memory isn't modified)
+    PAGE_CHECK_A            = 0xB2, // 178: uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans all pages for specified hash)
+    PAGE_CHECK_B            = 0xBF, // 191: uint Seed + byte[20] SHA1 + uint Addr + byte Len (scans only pages starts with MZ+PE headers for specified hash)
+    MPQ_CHECK               = 0x98, // 152: byte fileNameIndex (check to ensure MPQ file isn't modified)
+    LUA_STR_CHECK           = 0x8B, // 139: byte luaNameIndex (check to ensure LUA string isn't used)
+    DRIVER_CHECK            = 0x71, // 113: uint Seed + byte[20] SHA1 + byte driverNameIndex (check to ensure driver isn't loaded)
+    TIMING_CHECK            = 0x57, //  87: empty (check to ensure GetTickCount() isn't detoured)
+    PROC_CHECK              = 0x7E, // 126: uint Seed + byte[20] SHA1 + byte moluleNameIndex + byte procNameIndex + uint Offset + byte Len (check to ensure proc isn't detoured)
+    MODULE_CHECK            = 0xD9, // 217: uint Seed + byte[20] SHA1 (check to ensure module isn't injected)
 };
 
 #if defined(__GNUC__)
@@ -81,7 +95,7 @@ struct ClientWardenModule
     uint8 Id[16];
     uint8 Key[16];
     uint32 CompressedSize;
-    uint8 *CompressedData;
+    uint8* CompressedData;
 };
 
 class WorldSession;
@@ -95,13 +109,13 @@ class Warden
         Warden();
         ~Warden();
 
-        virtual void Init(WorldSession* session, BigNumber* k);
-        virtual ClientWardenModule* GetModuleForClient(WorldSession* session);
-        virtual void InitializeModule();
-        virtual void RequestHash();
-        virtual void HandleHashResult(ByteBuffer &buff);
-        virtual void RequestData();
-        virtual void HandleData(ByteBuffer &buff);
+        virtual void Init(WorldSession* session, BigNumber* k) = 0;
+        virtual ClientWardenModule* GetModuleForClient() = 0;
+        virtual void InitializeModule() = 0;
+        virtual void RequestHash() = 0;
+        virtual void HandleHashResult(ByteBuffer &buff) = 0;
+        virtual void RequestData() = 0;
+        virtual void HandleData(ByteBuffer &buff) = 0;
 
         void SendModuleToClient();
         void RequestModule();
@@ -112,21 +126,21 @@ class Warden
         static bool IsValidCheckSum(uint32 checksum, const uint8 *data, const uint16 length);
         static uint32 BuildChecksum(const uint8 *data, uint32 length);
 
-        std::string Penalty();
+        // If no check is passed, the default action from config is executed
+        std::string Penalty(WardenCheck* check = NULL);
 
     private:
-        WorldSession *_session;
+        WorldSession* _session;
         uint8 _inputKey[16];
         uint8 _outputKey[16];
         uint8 _seed[16];
         ARC4 _inputCrypto;
         ARC4 _outputCrypto;
         uint32 _checkTimer;                          // Timer for sending check requests
-        bool _dataSent;
         uint32 _clientResponseTimer;                 // Timer for client response delay
-        time_t _requestSent;                         // DEBUG CODE
+        bool _dataSent;
         uint32 _previousTimestamp;
-        ClientWardenModule *_module;
+        ClientWardenModule* _module;
         bool _initialized;
 };
 

@@ -28,7 +28,7 @@ class WorldObject;
 class LootTemplate;
 struct Condition;
 
-enum ConditionType
+enum ConditionTypes
 {                                                           // value1           value2         value3
     CONDITION_NONE                  = 0,                    // 0                0              0                  always true
     CONDITION_AURA                  = 1,                    // spell_id         effindex       use target?        true if player (or target, if value3) has aura of spell_id with effect effindex
@@ -41,7 +41,7 @@ enum ConditionType
     CONDITION_QUESTREWARDED         = 8,                    // quest_id         0              0                  true if quest_id was rewarded before
     CONDITION_QUESTTAKEN            = 9,                    // quest_id         0,             0                  true while quest active
     CONDITION_DRUNKENSTATE          = 10,                   // DrunkenState     0,             0                  true if player is drunk enough
-    CONDITION_UNUSED_11             = 11,
+    CONDITION_WORLD_STATE           = 11,                   // index            value          0                  true if world has the value for the index
     CONDITION_ACTIVE_EVENT          = 12,                   // event_id         0              0                  true if event is active
     CONDITION_INSTANCE_DATA         = 13,                   // entry            data           0                  true if data is set in current instance
     CONDITION_QUEST_NONE            = 14,                   // quest_id         0              0                  true if doesn't have quest saved
@@ -49,14 +49,14 @@ enum ConditionType
     CONDITION_RACE                  = 16,                   // race             0              0                  true if player's race is equal to race
     CONDITION_ACHIEVEMENT           = 17,                   // achievement_id   0              0                  true if achievement is complete
     CONDITION_SPELL_SCRIPT_TARGET   = 18,                   // SpellScriptTargetType, TargetEntry,            0
-    CONDITION_CREATURE_TARGET       = 19,                   // creature entry   0              0                  true if current target is creature with value1 entry
-    CONDITION_TARGET_HEALTH_BELOW_PCT = 20,                 // 0-100            0              0                  true if target's health is below value1 percent, false if over or no target
-    CONDITION_TARGET_RANGE          = 21,                   // minDistance      maxDist        0                  true if target is closer then minDist and further then maxDist or if max is 0 then max dist is infinit
+    CONDITION_UNUSED_19             = 19,                   //
+    CONDITION_UNUSED_20             = 20,                   //
+    CONDITION_UNUSED_21             = 21,                   //
     CONDITION_MAPID                 = 22,                   // map_id           0              0                  true if in map_id
     CONDITION_AREAID                = 23,                   // area_id          0              0                  true if in area_id
-    CONDITION_ITEM_TARGET           = 24,                   // ItemRequiredTargetType, TargetEntry,    0
+    CONDITION_UNUSED_24             = 24,                   //
     CONDITION_SPELL                 = 25,                   // spell_id         0              0                  true if player has learned spell
-    CONDITION_UNUSED_26             = 26,
+    CONDITION_PHASEMASK             = 26,                   // phasemask        0              0                  true if object is in phasemask
     CONDITION_LEVEL                 = 27,                   // level            ComparisonType 0                  true if unit's level is equal to param1 (param2 can modify the statement)
     CONDITION_QUEST_COMPLETE        = 28,                   // quest_id         0              0                  true if player has quest_id with all objectives complete, but not yet rewarded
     CONDITION_NEAR_CREATURE         = 29,                   // creature entry   distance       0                  true if there is a creature of entry in range
@@ -92,7 +92,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15,
     CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16,
     CONDITION_SOURCE_TYPE_SPELL                          = 17,
-    CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET           = 18,
+    CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT              = 18,
     CONDITION_SOURCE_TYPE_QUEST_ACCEPT                   = 19,
     CONDITION_SOURCE_TYPE_QUEST_SHOW_MARK                = 20,
     CONDITION_SOURCE_TYPE_VEHICLE_SPELL                  = 21,
@@ -140,47 +140,47 @@ struct ConditionSourceInfo
 
 struct Condition
 {
-    ConditionSourceType     mSourceType;        //SourceTypeOrReferenceId
-    uint32                  mSourceGroup;
-    int32                   mSourceEntry;
-    uint32                  mSourceId;          // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
-    uint32                  mElseGroup;
-    ConditionType           mConditionType;     //ConditionTypeOrReference
-    uint8                   mConditionTarget;
-    uint32                  mConditionValue1;
-    uint32                  mConditionValue2;
-    uint32                  mConditionValue3;
-    uint32                  ErrorTextd;
-    uint32                  mReferenceId;
-    uint32                  mScriptId;
-    bool                    mNegativeCondition;
+    ConditionSourceType     SourceType;        //SourceTypeOrReferenceId
+    uint32                  SourceGroup;
+    int32                   SourceEntry;
+    uint32                  SourceId;          // So far, only used in CONDITION_SOURCE_TYPE_SMART_EVENT
+    uint32                  ElseGroup;
+    ConditionTypes          ConditionType;     //ConditionTypeOrReference
+    uint32                  ConditionValue1;
+    uint32                  ConditionValue2;
+    uint32                  ConditionValue3;
+    uint32                  ErrorTextId;
+    uint32                  ReferenceId;
+    uint32                  ScriptId;
+    uint8                   ConditionTarget;
+    bool                    NegativeCondition;
 
     Condition()
     {
-        mSourceType         = CONDITION_SOURCE_TYPE_NONE;
-        mSourceGroup        = 0;
-        mSourceEntry        = 0;
-        mElseGroup          = 0;
-        mConditionType      = CONDITION_NONE;
-        mConditionTarget    = 0;
-        mConditionValue1    = 0;
-        mConditionValue2    = 0;
-        mConditionValue3    = 0;
-        mReferenceId        = 0;
-        ErrorTextd          = 0;
-        mScriptId           = 0;
-        mNegativeCondition  = false;
+        SourceType         = CONDITION_SOURCE_TYPE_NONE;
+        SourceGroup        = 0;
+        SourceEntry        = 0;
+        ElseGroup          = 0;
+        ConditionType      = CONDITION_NONE;
+        ConditionTarget    = 0;
+        ConditionValue1    = 0;
+        ConditionValue2    = 0;
+        ConditionValue3    = 0;
+        ReferenceId        = 0;
+        ErrorTextId        = 0;
+        ScriptId           = 0;
+        NegativeCondition  = false;
     }
 
     bool Meets(ConditionSourceInfo& sourceInfo);
-    bool isLoaded() const { return mConditionType > CONDITION_NONE || mReferenceId; }
+    bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId; }
     uint32 GetMaxAvailableConditionTargets();
 };
 
 typedef std::list<Condition*> ConditionList;
 typedef std::map<uint32, ConditionList> ConditionTypeContainer;
 typedef std::map<ConditionSourceType, ConditionTypeContainer> ConditionContainer;
-typedef std::map<uint32, ConditionTypeContainer> VehicleSpellConditionContainer;
+typedef std::map<uint32, ConditionTypeContainer> CreatureSpellConditionContainer;
 typedef std::map<std::pair<int32, uint32 /*SAI source_type*/>, ConditionTypeContainer> SmartEventConditionContainer;
 
 typedef std::map<uint32, ConditionList> ConditionReferenceContainer;//only used for references
@@ -199,10 +199,12 @@ class ConditionMgr
         ConditionList GetConditionReferences(uint32 refId);
 
         bool IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions);
+        bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionList const& conditions);
         bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
+        ConditionList GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId);
         ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
-        ConditionList GetConditionsForVehicleSpell(uint32 creatureID, uint32 spellID);
+        ConditionList GetConditionsForVehicleSpell(uint32 creatureId, uint32 spellId);
 
     private:
         bool isSourceTypeValid(Condition* cond);
@@ -227,6 +229,7 @@ class ConditionMgr
                     sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE ||
                     sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU ||
                     sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION ||
+                    sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
                     sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
                     sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
         }
@@ -236,7 +239,8 @@ class ConditionMgr
 
         ConditionContainer                ConditionStore;
         ConditionReferenceContainer       ConditionReferenceStore;
-        VehicleSpellConditionContainer    VehicleSpellConditionStore;
+        CreatureSpellConditionContainer   VehicleSpellConditionStore;
+        CreatureSpellConditionContainer   SpellClickEventConditionStore;
         SmartEventConditionContainer      SmartEventConditionStore;
 };
 
@@ -254,10 +258,11 @@ template <class T> bool CompareValues(ComparisionType type,  T val1, T val2)
             return val1 >= val2;
         case COMP_TYPE_LOW_EQ:
             return val1 <= val2;
+        default:
+            // incorrect parameter
+            ASSERT(false);
+            return false;
     }
-    // incorrect parameter
-    ASSERT(false);
-    return false;
 }
 
 #define sConditionMgr ACE_Singleton<ConditionMgr, ACE_Null_Mutex>::instance()

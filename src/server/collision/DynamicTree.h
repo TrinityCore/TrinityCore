@@ -16,7 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
- 
+
 #ifndef _DYNTREE_H
 #define _DYNTREE_H
 
@@ -46,6 +46,8 @@ public:
     ~DynamicMapTree();
 
     bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
+    bool getIntersectionTime(uint32 phasemask, const G3D::Ray& ray, const Vector3& endPos, float& maxDist) const;
+    bool getObjectHitPos(uint32 phasemask, const Vector3& pPos1, const Vector3& pPos2, Vector3& pResultHitPos, float pModifyDist) const;
     float getHeight(float x, float y, float z, float maxSearchDist, uint32 phasemask) const;
 
     void insert(const GameObjectModel&);

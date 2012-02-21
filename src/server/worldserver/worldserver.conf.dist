@@ -473,6 +473,7 @@ LogFileLevel = 0
 #             1048576 - Anything related to loot
 #             2097152 - Anything related to guilds
 #             4194304 - Anything related to transports
+#             8388608 - Anything related to Warden anti cheat
 #
 #                       Simply add the values together to create a bitmask.
 #                       For more info see enum DebugLogFilters in Log.h
@@ -1459,14 +1460,13 @@ Warden.NumMemChecks = 3
 Warden.NumOtherChecks = 7
 
 #
-#    Warden.DebugLogFile
-#        Description: Debug log file for Warden, ClientCheckFailAction will be sent to regular
-#                     server log.
+#    Warden.LogFile
+#        Description: Client check fails will be logged here.
 #        Default:     ""           - (Disabled)
 #                     "Warden.log" - (Enabled)
 #
 
-Warden.DebugLogFile = ""
+Warden.LogFile = ""
 
 #
 #    Warden.ClientResponseDelay
@@ -1487,7 +1487,9 @@ Warden.ClientCheckHoldOff = 30
 
 #
 #    Warden.ClientCheckFailAction
-#        Description:
+#        Description: Default action being taken if a client check failed. Actions can be
+#                     overwritten for each single check via warden_action table in characters 
+#                     database.
 #        Default:     0 - (Disabled, Logging only)
 #                     1 - (Kick)
 #                     2 - (Ban)
