@@ -65,6 +65,16 @@ typedef GridRefManager<DynamicObject>   DynamicObjectMapType;
 typedef GridRefManager<GameObject>      GameObjectMapType;
 typedef GridRefManager<Player>          PlayerMapType;
 
+enum GridMapTypeMask
+{
+    GRID_MAP_TYPE_MASK_CORPSE = 0x01,
+    GRID_MAP_TYPE_MASK_CREATURE = 0x02,
+    GRID_MAP_TYPE_MASK_DYNAMICOBJECT = 0x04,
+    GRID_MAP_TYPE_MASK_GAMEOBJECT = 0x08,
+    GRID_MAP_TYPE_MASK_PLAYER = 0x10,
+    GRID_MAP_TYPE_MASK_ALL = 0x1F
+};
+
 typedef Grid<Player, AllWorldObjectTypes, AllGridObjectTypes> GridType;
 typedef NGrid<MAX_NUMBER_OF_CELLS, Player, AllWorldObjectTypes, AllGridObjectTypes> NGridType;
 

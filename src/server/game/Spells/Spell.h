@@ -79,19 +79,6 @@ enum SpellRangeFlag
     SPELL_RANGE_RANGED              = 2,     //hunter range and ranged weapon
 };
 
-enum SpellNotifyPushType
-{
-    PUSH_NONE           = 0,
-    PUSH_IN_FRONT,
-    PUSH_IN_BACK,
-    PUSH_IN_LINE,
-    PUSH_IN_THIN_LINE,
-    PUSH_SRC_CENTER,
-    PUSH_DST_CENTER,
-    PUSH_CASTER_CENTER, //this is never used in grid search
-    PUSH_CHAIN,
-};
-
 class SpellCastTargets
 {
     public:
@@ -210,17 +197,6 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_HIT_TARGET,
 };
 
-enum SpellTargets
-{
-    SPELL_TARGETS_NONE      = 0,
-    SPELL_TARGETS_ALLY,
-    SPELL_TARGETS_ENEMY,
-    SPELL_TARGETS_ENTRY,
-    SPELL_TARGETS_CHAINHEAL,
-    SPELL_TARGETS_ANY,
-    SPELL_TARGETS_GO
-};
-
 namespace Trinity
 {
     struct SpellNotifierCreatureAndPlayer;
@@ -228,7 +204,6 @@ namespace Trinity
 
 class Spell
 {
-    friend struct Trinity::SpellNotifierCreatureAndPlayer;
     friend void Unit::SetCurrentCastedSpell(Spell* pSpell);
     friend class SpellScript;
     public:
@@ -364,6 +339,32 @@ class Spell
         Spell(Unit* caster, SpellInfo const* info, TriggerCastFlags triggerFlags, uint64 originalCasterGUID = 0, bool skipCheck = false);
         ~Spell();
 
+        void InitExplicitTargets(SpellCastTargets const& targets);
+        void SelectExplicitTargets();
+
+        void SelectSpellTargets();
+        void SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32& processedEffectMask);
+        void SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
+        void SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
+        void SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, uint32 effMask);
+        void SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void SelectImplicitDestDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void SelectImplicitTargetObjectTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType);
+        void SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType, WorldObject* target, uint32 effMask);
+        void SelectImplicitTrajTargets();
+
+        void SelectEffectTypeImplicitTargets(uint8 effIndex);
+
+        uint32 GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionList* condList);
+        template<class SEARCHER> void SearchTargets(SEARCHER& searcher, uint32 containerMask, Unit* referer, Position const* pos, float radius);
+
+        WorldObject* SearchNearbyTarget(float range, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList = NULL);
+        void SearchAreaTargets(std::list<WorldObject*>& targets, float range, Position const* position, Unit* referer, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectionType, ConditionList* condList);
+        void SearchChainTargets(std::list<WorldObject*>& targets, uint32 chainTargets, WorldObject* target, SpellTargetObjectTypes objectType, SpellTargetCheckTypes selectType, ConditionList* condList, bool isChainHeal);
+
         void prepare(SpellCastTargets const* targets, AuraEffect const* triggeredByAura = NULL);
         void cancel();
         void update(uint32 difftime);
@@ -403,15 +404,6 @@ class Spell
         void DoCreateItem(uint32 i, uint32 itemtype);
         void WriteSpellGoTargets(WorldPacket* data);
         void WriteAmmoToPacket(WorldPacket* data);
-
-        void InitExplicitTargets(SpellCastTargets const& targets);
-        void SelectExplicitTargets();
-        void SelectSpellTargets();
-        void SelectEffectTypeImplicitTargets(uint8 effIndex);
-        uint32 SelectEffectTargets(uint32 i, SpellImplicitTargetInfo const& cur);
-        void SelectTrajTargets();
-
-        template<typename T> WorldObject* FindCorpseUsing();
 
         bool CheckEffectTarget(Unit const* target, uint32 eff) const;
         bool CanAutoCast(Unit* target);
@@ -607,10 +599,6 @@ class Spell
         void DoAllEffectOnTarget(GOTargetInfo* target);
         void DoAllEffectOnTarget(ItemTargetInfo* target);
         bool UpdateChanneledTargetList();
-        void SearchAreaTarget(std::list<Unit*> &unitList, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry = 0);
-        void SearchGOAreaTarget(std::list<GameObject*> &gobjectList, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry = 0);
-        void SearchChainTarget(std::list<Unit*> &unitList, float radius, uint32 unMaxTargets, SpellTargets TargetType);
-        WorldObject* SearchNearbyTarget(float range, SpellTargets TargetType, SpellEffIndex effIndex);
         bool IsValidDeadOrAliveTarget(Unit const* target) const;
         void HandleLaunchPhase();
         void DoAllEffectOnLaunchTarget(TargetInfo& targetInfo, float* multiplier);
@@ -676,98 +664,52 @@ class Spell
 
 namespace Trinity
 {
-    struct SpellNotifierCreatureAndPlayer
+    struct WorldObjectSpellTargetCheck
     {
-        std::list<Unit*> *i_data;
-        SpellNotifyPushType i_push_type;
-        float i_radius;
-        SpellTargets i_TargetType;
-        const Unit* const i_source;
-        uint32 i_entry;
-        const Position* const i_pos;
-        SpellInfo const* i_spellProto;
+        Unit* _caster;
+        Unit* _referer;
+        SpellInfo const* _spellInfo;
+        SpellTargetCheckTypes _targetSelectionType;
+        ConditionSourceInfo* _condSrcInfo;
+        ConditionList* _condList;
 
-        SpellNotifierCreatureAndPlayer(Unit* source, std::list<Unit*> &data, float radius, SpellNotifyPushType type,
-            SpellTargets TargetType = SPELL_TARGETS_ENEMY, const Position* pos = NULL, uint32 entry = 0, SpellInfo const* spellProto = NULL)
-            : i_data(&data), i_push_type(type), i_radius(radius), i_TargetType(TargetType),
-            i_source(source), i_entry(entry), i_pos(pos), i_spellProto(spellProto)
-        {
-            ASSERT(i_source);
-        }
-
-        template<class T> inline void Visit(GridRefManager<T>& m)
-        {
-            for (typename GridRefManager<T>::iterator itr = m.begin(); itr != m.end(); ++itr)
-            {
-                Unit* target = (Unit*)itr->getSource();
-
-                if (i_spellProto->CheckTarget(i_source, target, true) != SPELL_CAST_OK)
-                    continue;
-
-                switch (i_TargetType)
-                {
-                    case SPELL_TARGETS_ENEMY:
-                        if (target->isTotem())
-                            continue;
-                        if (!i_source->_IsValidAttackTarget(target, i_spellProto))
-                            continue;
-                        break;
-                    case SPELL_TARGETS_ALLY:
-                        if (target->isTotem())
-                            continue;
-                        if (!i_source->_IsValidAssistTarget(target, i_spellProto))
-                            continue;
-                        break;
-                    case SPELL_TARGETS_ENTRY:
-                        if (target->GetEntry()!= i_entry)
-                            continue;
-                        break;
-                    case SPELL_TARGETS_ANY:
-                    default:
-                        break;
-                }
-
-                switch (i_push_type)
-                {
-                    case PUSH_SRC_CENTER:
-                    case PUSH_DST_CENTER:
-                    case PUSH_CHAIN:
-                    default:
-                        if (target->IsWithinDist3d(i_pos, i_radius))
-                            i_data->push_back(target);
-                        break;
-                    case PUSH_IN_FRONT:
-                        if (i_source->isInFront(target, i_radius, static_cast<float>(M_PI/2)))
-                            i_data->push_back(target);
-                        break;
-                    case PUSH_IN_BACK:
-                        if (i_source->isInBack(target, i_radius, static_cast<float>(M_PI/2)))
-                            i_data->push_back(target);
-                        break;
-                    case PUSH_IN_LINE:
-                        if (i_source->HasInLine(target, i_radius, i_source->GetObjectSize()))
-                            i_data->push_back(target);
-                        break;
-                    case PUSH_IN_THIN_LINE: // only traj
-                        if (i_pos->HasInLine(target, i_radius, 0))
-                            i_data->push_back(target);
-                        break;
-                }
-            }
-        }
-
-        #ifdef _WIN32
-        template<> inline void Visit(CorpseMapType &) {}
-        template<> inline void Visit(GameObjectMapType &) {}
-        template<> inline void Visit(DynamicObjectMapType &) {}
-        #endif
+        WorldObjectSpellTargetCheck(Unit* caster, Unit* referer, SpellInfo const* spellInfo,
+            SpellTargetCheckTypes selectionType, ConditionList* condList);
+        WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck();
+        bool operator()(WorldObject* target);
     };
 
-    #ifndef _WIN32
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(CorpseMapType&) {}
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(GameObjectMapType&) {}
-    template<> inline void SpellNotifierCreatureAndPlayer::Visit(DynamicObjectMapType&) {}
-    #endif
+    struct WorldObjectSpellNearbyTargetCheck : public WorldObjectSpellTargetCheck
+    {
+        float _range;
+        Position const* _position;
+        WorldObjectSpellNearbyTargetCheck(float range, Unit* caster, SpellInfo const* spellInfo,
+            SpellTargetCheckTypes selectionType, ConditionList* condList);
+        bool operator()(WorldObject* target);
+    };
+
+    struct WorldObjectSpellAreaTargetCheck : public WorldObjectSpellTargetCheck
+    {
+        float _range;
+        Position const* _position;
+        WorldObjectSpellAreaTargetCheck(float range, Position const* position, Unit* caster,
+            Unit* referer, SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionList* condList);
+        bool operator()(WorldObject* target);
+    };
+
+    struct WorldObjectSpellConeTargetCheck : public WorldObjectSpellAreaTargetCheck
+    {
+        float _coneAngle;
+        WorldObjectSpellConeTargetCheck(float coneAngle, float range, Unit* caster,
+            SpellInfo const* spellInfo, SpellTargetCheckTypes selectionType, ConditionList* condList);
+        bool operator()(WorldObject* target);
+    };
+
+    struct WorldObjectSpellTrajTargetCheck : public WorldObjectSpellAreaTargetCheck
+    {
+        WorldObjectSpellTrajTargetCheck(float range, Position const* position, Unit* caster, SpellInfo const* spellInfo);
+        bool operator()(WorldObject* target);
+    };
 }
 
 typedef void(Spell::*pEffect)(SpellEffIndex effIndex);
