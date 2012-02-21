@@ -27,7 +27,7 @@ enum Yells
     SAY_PHASE2          = -1658005,
     SAY_PHASE3          = -1658006,
 
-    SAY_TYRANNUS_DEATH  = -1659007,
+    SAY_TYRANNUS_DEATH  = -1658007,
 };
 
 enum Spells
