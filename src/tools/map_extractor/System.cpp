@@ -286,14 +286,11 @@ void ReadAreaTableDBC()
     }
 
     size_t area_count = dbc.getRecordCount();
-    size_t maxid = dbc.getMaxId();
-    areas = new uint16[maxid + 1];
-    memset(areas, 0xff, (maxid + 1) * sizeof(uint16));
-
-    for(uint32 x = 0; x < area_count; ++x)
-        areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
-
     maxAreaId = dbc.getMaxId();
+    areas = new uint16[maxAreaId + 1];
+
+    for (uint32 x = 0; x < area_count; ++x)
+        areas[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
     SFileCloseFile(dbcFile);
     printf("Done! (%u areas loaded)\n", area_count);
@@ -438,24 +435,27 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32 
     map.buildMagic = build;
 
     // Get area flags data
-    for (int i=0;i<ADT_CELLS_PER_GRID;i++)
+    for (int i = 0; i < ADT_CELLS_PER_GRID; ++i)
     {
-        for(int j=0;j<ADT_CELLS_PER_GRID;j++)
+        for (int j = 0; j < ADT_CELLS_PER_GRID; ++j)
         {
-            adt_MCNK * cell = adt.cells[i][j];
+            adt_MCNK* cell = adt.cells[i][j];
             uint32 areaid = cell->areaid;
-            if(areaid && areaid <= maxAreaId)
+            if (areaid && areaid <= maxAreaId)
             {
-                if(areas[areaid] != 0xffff)
+                if (areas[areaid] != 0xFFFF)
                 {
                     area_flags[i][j] = areas[areaid];
                     continue;
                 }
+
                 printf("File: %s\nCan't find area flag for areaid %u [%d, %d].\n", filename, areaid, cell->ix, cell->iy);
             }
+
             area_flags[i][j] = 0xffff;
         }
     }
+
     //============================================
     // Try pack area data
     //============================================
@@ -1069,7 +1069,7 @@ bool LoadLocaleMPQFile(int locale)
     return true;
 }
 
-void LoadCommonMPQFiles()
+void LoadCommonMPQFiles(uint32 build)
 {
     TCHAR filename[512];
     _stprintf(filename, _T("%s/Data/world.MPQ"), input_path);
@@ -1080,16 +1080,16 @@ void LoadCommonMPQFiles()
         return;
     }
 
-    int count = sizeof(CONF_mpq_list)/sizeof(char*);
-    for(int i = 1; i < count; ++i)
+    int count = sizeof(CONF_mpq_list) / sizeof(char*);
+    for (int i = 1; i < count; ++i)
     {
+        if (build < 15211 && !strcmp("world2.MPQ", CONF_mpq_list[i]))   // 4.3.2 and higher MPQ
+            continue;
+
         _stprintf(filename, _T("%s/Data/%s"), input_path, CONF_mpq_list[i]);
         if (!SFileOpenPatchArchive(WorldMpq, filename, "", 0))
-        {
             if (GetLastError() != ERROR_PATH_NOT_FOUND)
                 _tprintf(_T("Cannot open archive %s\n"), filename);
-            break;
-        }
     }
 
     char const* prefix = NULL;
@@ -1131,51 +1131,49 @@ int main(int argc, char * arg[])
     {
         TCHAR tmp1[512];
         _stprintf(tmp1, _T("%s/Data/%s/locale-%s.MPQ"), input_path, Locales[i], Locales[i]);
-        //if (FileExists(tmp1))
+
+        //Open MPQs
+        if (!LoadLocaleMPQFile(i))
         {
-
-            //Open MPQs
-            if (!LoadLocaleMPQFile(i))
-            {
-                if (GetLastError() != ERROR_PATH_NOT_FOUND)
-                    printf("Unable to load %s locale archives!\n", Locales[i]);
-                continue;
-            }
-
-            printf("Detected locale: %s\n", Locales[i]);
-            if ((CONF_extract & EXTRACT_DBC) == 0)
-            {
-                FirstLocale = i;
-                build = ReadBuild(FirstLocale);
-                if (build > CONF_TargetBuild)
-                {
-                    printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], build, CONF_TargetBuild);
-                    break;
-                }
-                printf("Detected client build: %u\n", build);
-                break;
-            }
-
-            //Extract DBC files
-            uint32 tempBuild = ReadBuild(i);
-            printf("Detected client build %u for locale %s\n", tempBuild, Locales[i]);
-            if (tempBuild > CONF_TargetBuild)
-            {
-                printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], tempBuild, CONF_TargetBuild);
-                continue;
-            }
-
-            ExtractDBCFiles(i, FirstLocale < 0);
-
-            if (FirstLocale < 0)
-            {
-                FirstLocale = i;
-                build = tempBuild;
-            }
-
-            //Close MPQs
-            SFileCloseArchive(LocaleMpq);
+            if (GetLastError() != ERROR_PATH_NOT_FOUND)
+                printf("Unable to load %s locale archives!\n", Locales[i]);
+            continue;
         }
+
+        printf("Detected locale: %s\n", Locales[i]);
+        if ((CONF_extract & EXTRACT_DBC) == 0)
+        {
+            FirstLocale = i;
+            build = ReadBuild(i);
+            if (build > CONF_TargetBuild)
+            {
+                printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], build, CONF_TargetBuild);
+                return;
+            }
+
+            printf("Detected client build: %u\n", build);
+            break;
+        }
+
+        //Extract DBC files
+        uint32 tempBuild = ReadBuild(i);
+        printf("Detected client build %u for locale %s\n", tempBuild, Locales[i]);
+        if (tempBuild > CONF_TargetBuild)
+        {
+            printf("Base locale-%s.MPQ has build higher than target build (%u > %u), nothing extracted!\n", Locales[i], tempBuild, CONF_TargetBuild);
+            continue;
+        }
+
+        ExtractDBCFiles(i, FirstLocale < 0);
+
+        if (FirstLocale < 0)
+        {
+            FirstLocale = i;
+            build = tempBuild;
+        }
+
+        //Close MPQs
+        SFileCloseArchive(LocaleMpq);
     }
 
     if (FirstLocale < 0)
@@ -1190,7 +1188,7 @@ int main(int argc, char * arg[])
 
         // Open MPQs
         LoadLocaleMPQFile(FirstLocale);
-        LoadCommonMPQFiles();
+        LoadCommonMPQFiles(build);
 
         // Extract maps
         ExtractMapsFromMpq(build);

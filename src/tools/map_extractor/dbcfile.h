@@ -26,8 +26,8 @@ class DBCFile
 
         class NotFound: public Exception
         {
-        public:
-            NotFound(): Exception("Key was not found") { }
+            public:
+                NotFound(): Exception("Key was not found") { }
         };
 
         // Iteration over database
