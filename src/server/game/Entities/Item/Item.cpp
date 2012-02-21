@@ -870,24 +870,6 @@ bool Item::IsFitToSpellRequirements(SpellInfo const* spellInfo) const
     return true;
 }
 
-bool Item::IsTargetValidForItemUse(Unit* pUnitTarget)
-{
-    ConditionList conditions = sConditionMgr->GetConditionsForNotGroupedEntry(CONDITION_SOURCE_TYPE_ITEM_REQUIRED_TARGET, GetTemplate()->ItemId);
-    if (conditions.empty())
-        return true;
-
-    if (!pUnitTarget)
-        return false;
-
-    for (ConditionList::const_iterator itr = conditions.begin(); itr != conditions.end(); ++itr)
-    {
-        ItemRequiredTarget irt(ItemRequiredTargetType((*itr)->ConditionValue1), (*itr)->ConditionValue2);
-        if (irt.IsFitToRequirements(pUnitTarget))
-            return true;
-    }
-    return false;
-}
-
 void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint32 charges)
 {
     // Better lost small time at check in comparison lost time at item save to DB.
@@ -1090,25 +1072,6 @@ bool Item::IsBindedNotWith(Player const* player) const
         return false;
 
     return true;
-}
-
-bool ItemRequiredTarget::IsFitToRequirements(Unit* pUnitTarget) const
-{
-    if (pUnitTarget->GetTypeId() != TYPEID_UNIT)
-        return false;
-
-    if (pUnitTarget->GetEntry() != m_uiTargetEntry)
-        return false;
-
-    switch (m_uiType)
-    {
-        case ITEM_TARGET_TYPE_CREATURE:
-            return pUnitTarget->isAlive();
-        case ITEM_TARGET_TYPE_DEAD:
-            return !pUnitTarget->isAlive();
-        default:
-            return false;
-    }
 }
 
 void Item::BuildUpdate(UpdateDataMapType& data_map)

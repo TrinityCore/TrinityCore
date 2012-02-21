@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef _GAMEOBJECT_MODEL_H
 #define _GAMEOBJECT_MODEL_H
 
@@ -57,7 +57,7 @@ public:
 
     const G3D::Vector3& getPosition() const { return iPos;}
 
-    /**	Enables\disables collision. */
+    /**    Enables\disables collision. */
     void disable() { phasemask = 0;}
     void enable(uint32 ph_mask) { phasemask = ph_mask;}
 

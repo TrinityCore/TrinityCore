@@ -23,7 +23,10 @@ SDComment:
 SDCategory: Tempest Keep, The Eye
 EndScriptData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
+#include "SpellScript.h"
+
 #include "the_eye.h"
 
 enum eEnums
@@ -40,6 +43,7 @@ enum eEnums
 
     SPELL_ARCANE_MISSILES               = 33031,
     SPELL_WRATH_OF_THE_ASTROMANCER      = 42783,
+    SPELL_WRATH_OF_THE_ASTROMANCER_DOT  = 42784,
     SPELL_BLINDING_LIGHT                = 33009,
     SPELL_FEAR                          = 34322,
     SPELL_VOID_BOLT                     = 39329,
@@ -491,9 +495,74 @@ class mob_solarium_priest : public CreatureScript
             return new mob_solarium_priestAI (Creature);
         }
 };
+
+class spell_astromancer_wrath_of_the_astromancer : public SpellScriptLoader
+{
+    public:
+        spell_astromancer_wrath_of_the_astromancer() : SpellScriptLoader("spell_astromancer_wrath_of_the_astromancer") { }
+
+        class spell_astromancer_wrath_of_the_astromancer_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_astromancer_wrath_of_the_astromancer_SpellScript);
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_WRATH_OF_THE_ASTROMANCER_DOT))
+                    return false;
+                return true;
+            }
+
+            bool Load()
+            {
+                _targetCount = 0;
+                return true;
+            }
+
+            void CountTargets(std::list<Unit*>& targetList)
+            {
+                _targetCount = targetList.size();
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                if (Unit* caster = GetOriginalCaster())
+                    if (Unit* target = GetHitUnit())
+                    {
+                        if (!target->isAlive() || !_targetCount)
+                            return;
+
+                        int32 damage = 10000 / _targetCount;
+
+                        SpellNonMeleeDamage damageInfo(caster, target, GetSpellInfo()->Id, GetSpellInfo()->SchoolMask);
+                        damageInfo.damage = damage;
+
+                        caster->CalcAbsorbResist(target, GetSpellInfo()->GetSchoolMask(), DOT, damage, &damageInfo.absorb, &damageInfo.resist, GetSpellInfo());
+                        caster->DealDamageMods(target, damageInfo.damage, &damageInfo.absorb);
+                        caster->SendSpellNonMeleeDamageLog(&damageInfo);
+                        caster->DealSpellDamage(&damageInfo, false);
+                    }
+            }
+
+        private:
+            int32 _targetCount;
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_astromancer_wrath_of_the_astromancer_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_astromancer_wrath_of_the_astromancer_SpellScript::CountTargets, EFFECT_0, TARGET_DEST_CASTER_RADIUS);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_astromancer_wrath_of_the_astromancer_SpellScript();
+        }
+};
+
 void AddSC_boss_high_astromancer_solarian()
 {
     new boss_high_astromancer_solarian();
     new mob_solarium_priest();
+    new spell_astromancer_wrath_of_the_astromancer();
 }
 
