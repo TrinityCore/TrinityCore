@@ -83,12 +83,12 @@ void LFGMgr::_LoadFromDB(Field* fields, uint64 guid)
     uint32 dungeon = fields[16].GetUInt32();
 
     uint8 state = fields[17].GetUInt8();
-    
+
     if (!dungeon || !state)
         return;
 
     SetDungeon(guid, dungeon);
-    
+
     switch (state)
     {
         case LFG_STATE_DUNGEON:
@@ -104,19 +104,19 @@ void LFGMgr::_SaveToDB(uint64 guid, uint32 db_guid)
 {
     if (!IS_GROUP(guid))
         return;
-        
+
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_LFG_DATA);
 
     stmt->setUInt32(0, db_guid);
 
     CharacterDatabase.Execute(stmt);
-    
+
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_LFG_DATA);
     stmt->setUInt32(0, db_guid);
-    
+
     stmt->setUInt32(1, GetDungeon(guid));
     stmt->setUInt32(2, GetState(guid));
-        
+
     CharacterDatabase.Execute(stmt);
 }
 
@@ -999,7 +999,7 @@ bool LFGMgr::CheckCompatibility(LfgGuidList check, LfgProposal*& pProposal)
                 LfgQueueInfo* queue = itQueue->second;
                 if (!queue)
                     continue;
-        
+
                 for (LfgRolesMap::const_iterator itPlayer = queue->roles.begin(); itPlayer != queue->roles.end(); ++itPlayer)
                 {
                     if (*itPlayers == ObjectAccessor::FindPlayer(itPlayer->first))

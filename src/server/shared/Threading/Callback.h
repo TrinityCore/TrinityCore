@@ -96,7 +96,7 @@ class QueryCallback
         {
             return _stage;
         }
-        
+
         //! Resets all underlying variables (param, result and stage)
         void Reset()
         {

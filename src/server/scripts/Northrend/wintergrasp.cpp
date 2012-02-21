@@ -14,13 +14,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-#include "ScriptPCH.h"
 #include "BattlefieldMgr.h"
 #include "BattlefieldWG.h"
 #include "Battlefield.h"
 #include "ScriptSystem.h"
 #include "WorldSession.h"
 #include "ObjectMgr.h"
+#include "Vehicle.h"
 
 #define GOSSIP_HELLO_DEMO1  "Build catapult."
 #define GOSSIP_HELLO_DEMO2  "Build demolisher."

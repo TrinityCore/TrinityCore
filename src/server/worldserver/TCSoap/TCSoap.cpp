@@ -30,7 +30,7 @@ void TCSoapRunnable::run()
     soap.accept_timeout = 3;
     soap.recv_timeout = 5;
     soap.send_timeout = 5;
-    if (soap_bind(&soap, m_host.c_str(), m_port, 100) < 0)
+    if (!soap_valid_socket(soap_bind(&soap, m_host.c_str(), m_port, 100)))
     {
         sLog->outError("TCSoap: couldn't bind to %s:%d", m_host.c_str(), m_port);
         exit(-1);

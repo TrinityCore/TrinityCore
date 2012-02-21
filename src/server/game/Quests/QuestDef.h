@@ -360,7 +360,7 @@ class Quest
 
 struct QuestStatusData
 {
-    QuestStatusData(): Status(QUEST_STATUS_NONE), Explored(false), Timer(0), PlayerCount(0)
+    QuestStatusData(): Status(QUEST_STATUS_NONE), Timer(0), PlayerCount(0), Explored(false)
     {
         memset(ItemCount, 0, QUEST_ITEM_OBJECTIVES_COUNT * sizeof(uint16));
         memset(CreatureOrGOCount, 0, QUEST_OBJECTIVES_COUNT * sizeof(uint16));

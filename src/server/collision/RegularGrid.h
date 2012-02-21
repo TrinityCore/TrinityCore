@@ -17,7 +17,7 @@ using G3D::Ray;
 
 template<class Node>
 struct NodeCreator{
-    static Node * makeNode(int x, int y) { return new Node();}
+    static Node * makeNode(int /*x*/, int /*y*/) { return new Node();}
 };
 
 template<class T,
@@ -135,7 +135,7 @@ public:
         float ky_inv = ray.invDirection().y, by = ray.origin().y;
 
         int stepX, stepY;
-        float tMaxX, tMaxY; 
+        float tMaxX, tMaxY;
         if (kx_inv >= 0)
         {
             stepX = 1;
@@ -215,4 +215,4 @@ public:
 #undef CELL_SIZE
 #undef HGRID_MAP_SIZE
 
-#endif 
+#endif
