@@ -15328,14 +15328,6 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     if (!victim->GetHealth())
         return;
 
-    // Inform pets (if any) when player kills target)
-    if (Player* player = ToPlayer())
-    {
-        Pet* pet = player->GetPet();
-        if (pet && pet->isAlive() && pet->isControlled())
-            pet->AI()->KilledUnit(victim);
-    }
-
     // find player: owner of controlled `this` or `this` itself maybe
     Player* player = GetCharmerOrOwnerPlayerOrPlayerItself();
     Creature* creature = victim->ToCreature();
@@ -15462,6 +15454,16 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
     {
         sLog->outStaticDebug("SET JUST_DIED");
         victim->setDeathState(JUST_DIED);
+    }
+
+    // Inform pets (if any) when player kills target)
+    // MUST come after victim->setDeathState(JUST_DIED); or pet next target
+    // selection will get stuck on same target and break pet react state
+    if (Player* player = ToPlayer())
+    {
+        Pet* pet = player->GetPet();
+        if (pet && pet->isAlive() && pet->isControlled())
+            pet->AI()->KilledUnit(victim);
     }
 
     // 10% durability loss on death
