@@ -998,7 +998,7 @@ void ExtractDBCFiles(int l, bool basicLocale)
 
     SFILE_FIND_DATA foundFile;
     memset(&foundFile, 0, sizeof(foundFile));
-    HANDLE listFile = SListFileFindFirstFile(LocaleMpq, NULL, "DBFilesClient\\*dbc", &foundFile);
+    HANDLE listFile = SFileFindFirstFile(LocaleMpq, "DBFilesClient\\*dbc", &foundFile, NULL);
     HANDLE dbcFile = NULL;
     uint32 count = 0;
     if (listFile)
@@ -1017,7 +1017,10 @@ void ExtractDBCFiles(int l, bool basicLocale)
         do
         {
             if (!SFileOpenFileEx(LocaleMpq, foundFile.cFileName, SFILE_OPEN_PATCHED_FILE, &dbcFile))
+            {
+                printf("Unable to open file %s in the archive\n", foundFile.cFileName);
                 continue;
+            }
 
             filename = foundFile.cFileName;
             filename = outputPath + filename.substr(filename.rfind('\\'));
@@ -1025,7 +1028,9 @@ void ExtractDBCFiles(int l, bool basicLocale)
                 ++count;
 
             SFileCloseFile(dbcFile);
-        } while (SListFileFindNextFile(listFile, &foundFile));
+        } while (SFileFindNextFile(listFile, &foundFile));
+
+        SFileFindClose(listFile);
     }
 
     printf("Extracted %u DBC files\n\n", count);
@@ -1037,7 +1042,7 @@ void ExtractDB2Files(int l, bool basicLocale)
 
     SFILE_FIND_DATA foundFile;
     memset(&foundFile, 0, sizeof(foundFile));
-    HANDLE listFile = SListFileFindFirstFile(LocaleMpq, NULL, "DBFilesClient\\*db2", &foundFile);
+    HANDLE listFile = SFileFindFirstFile(LocaleMpq, "DBFilesClient\\*db2", &foundFile, NULL);
     HANDLE dbcFile = NULL;
     uint32 count = 0;
     if (listFile)
@@ -1054,7 +1059,10 @@ void ExtractDB2Files(int l, bool basicLocale)
         do
         {
             if (!SFileOpenFileEx(LocaleMpq, foundFile.cFileName, SFILE_OPEN_PATCHED_FILE, &dbcFile))
+            {
+                printf("Unable to open file %s in the archive\n", foundFile.cFileName);
                 continue;
+            }
 
             filename = foundFile.cFileName;
             filename = outputPath + filename.substr(filename.rfind('\\'));
@@ -1062,7 +1070,9 @@ void ExtractDB2Files(int l, bool basicLocale)
                 ++count;
 
             SFileCloseFile(dbcFile);
-        } while (SListFileFindNextFile(listFile, &foundFile));
+        } while (SFileFindNextFile(listFile, &foundFile));
+
+        SFileFindClose(listFile);
     }
 
     printf("Extracted %u DB2 files\n\n", count);
@@ -1072,7 +1082,7 @@ bool LoadLocaleMPQFile(int locale)
 {
     TCHAR buff[512];
     memset(buff, 0, sizeof(buff));
-    _stprintf(buff, _T("./Data/%s/locale-%s.MPQ"), LocalesT[locale], LocalesT[locale]);
+    _stprintf(buff, _T("%s/Data/%s/locale-%s.MPQ"), input_path, LocalesT[locale], LocalesT[locale]);
     if (!SFileOpenArchive(buff, 0, MPQ_OPEN_READ_ONLY, &LocaleMpq))
     {
         if (GetLastError() != ERROR_PATH_NOT_FOUND)
@@ -1087,12 +1097,12 @@ bool LoadLocaleMPQFile(int locale)
         if (Builds[i] > LAST_DBC_IN_DATA_BUILD)
         {
             prefix = "";
-            _stprintf(buff, _T("./Data/%s/wow-update-%s-%u.MPQ"), LocalesT[locale], LocalesT[locale], Builds[i]);
+            _stprintf(buff, _T("%s/Data/%s/wow-update-%s-%u.MPQ"), input_path, LocalesT[locale], LocalesT[locale], Builds[i]);
         }
         else
         {
             prefix = Locales[locale];
-            _stprintf(buff, _T("./Data/wow-update-%u.MPQ"), Builds[i]);
+            _stprintf(buff, _T("%s/Data/wow-update-%u.MPQ"), input_path, Builds[i]);
         }
 
         if (!SFileOpenPatchArchive(LocaleMpq, buff, prefix, 0))
