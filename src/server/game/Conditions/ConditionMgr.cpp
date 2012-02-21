@@ -26,6 +26,7 @@
 #include "ConditionMgr.h"
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
+#include "Spell.h"
 
 // Checks if object meets the condition
 // Can have CONDITION_SOURCE_TYPE_NONE && !mReferenceId if called from a special event (ie: eventAI)
@@ -94,14 +95,14 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
         }
         case CONDITION_CLASS:
         {
-            if (Player* player = object->ToPlayer())
-                condMeets = player->getClassMask() & ConditionValue1;
+            if (Unit* unit = object->ToUnit())
+                condMeets = unit->getClassMask() & ConditionValue1;
             break;
         }
         case CONDITION_RACE:
         {
-            if (Player* player = object->ToPlayer())
-                condMeets = player->getRaceMask() & ConditionValue1;
+            if (Unit* unit = object->ToUnit())
+                condMeets = unit->getRaceMask() & ConditionValue1;
             break;
         }
         case CONDITION_SKILL:
@@ -153,9 +154,6 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
                 condMeets = ((InstanceMap*)map)->GetInstanceScript()->GetData(ConditionValue1) == ConditionValue2;
             break;
         }
-        case CONDITION_SPELL_SCRIPT_TARGET:
-            condMeets = true;//spell target condition is handled in spellsystem, here it is always true
-            break;
         case CONDITION_MAPID:
             condMeets = object->GetMapId() == ConditionValue1;
             break;
@@ -291,12 +289,153 @@ bool Condition::Meets(ConditionSourceInfo& sourceInfo)
     return condMeets && script;
 }
 
+uint32 Condition::GetSearcherTypeMaskForCondition()
+{
+    // build mask of types for which condition can return true
+    // this is used for speeding up gridsearches
+    if (NegativeCondition)
+        return (GRID_MAP_TYPE_MASK_ALL);
+    uint32 mask = 0;
+    switch (ConditionType)
+    {
+        case CONDITION_NONE:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_AURA:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_ITEM:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_ITEM_EQUIPPED:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_ZONEID:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_REPUTATION_RANK:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_ACHIEVEMENT:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_TEAM:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_CLASS:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_RACE:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_SKILL:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUESTREWARDED:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUESTTAKEN:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUEST_COMPLETE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_QUEST_NONE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_ACTIVE_EVENT:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_INSTANCE_DATA:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_MAPID:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_AREAID:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_SPELL:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_LEVEL:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_DRUNKENSTATE:
+            mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_NEAR_CREATURE:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_NEAR_GAMEOBJECT:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_OBJECT_ENTRY:
+            switch (ConditionValue1)
+            {
+                case TYPEID_UNIT:
+                    mask |= GRID_MAP_TYPE_MASK_CREATURE;
+                    break;
+                case TYPEID_PLAYER:
+                    mask |= GRID_MAP_TYPE_MASK_PLAYER;
+                    break;
+                case TYPEID_GAMEOBJECT:
+                    mask |= GRID_MAP_TYPE_MASK_GAMEOBJECT;
+                    break;
+                case TYPEID_CORPSE:
+                    mask |= GRID_MAP_TYPE_MASK_CORPSE;
+                    break;
+                default:
+                    break;
+            }
+        case CONDITION_TYPE_MASK:
+            if (ConditionValue1 & TYPEMASK_UNIT)
+                mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            if (ConditionValue1 & TYPEMASK_PLAYER)
+                mask |= GRID_MAP_TYPE_MASK_PLAYER;
+            if (ConditionValue1 & TYPEMASK_GAMEOBJECT)
+                mask |= GRID_MAP_TYPE_MASK_GAMEOBJECT;
+            if (ConditionValue1 & TYPEMASK_CORPSE)
+                mask |= GRID_MAP_TYPE_MASK_CORPSE;
+            break;
+        case CONDITION_RELATION_TO:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_REACTION_TO:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_DISTANCE_TO:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_ALIVE:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_HP_VAL:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_HP_PCT:
+            mask |= GRID_MAP_TYPE_MASK_CREATURE | GRID_MAP_TYPE_MASK_PLAYER;
+            break;
+        case CONDITION_WORLD_STATE:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        case CONDITION_PHASEMASK:
+            mask |= GRID_MAP_TYPE_MASK_ALL;
+            break;
+        default:
+            ASSERT(false && "Condition::GetSearcherTypeMaskForCondition - missing condition handling!");
+            break;
+    }
+    return mask;
+}
+
 uint32 Condition::GetMaxAvailableConditionTargets()
 {
     // returns number of targets which are available for given source type
     switch(SourceType)
     {
         case CONDITION_SOURCE_TYPE_SPELL:
+        case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
         case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:
         case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
         case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
@@ -327,8 +466,49 @@ ConditionList ConditionMgr::GetConditionReferences(uint32 refId)
     return conditions;
 }
 
+uint32 ConditionMgr::GetSearcherTypeMaskForConditionList(ConditionList const& conditions)
+{
+    if (conditions.empty())
+        return GRID_MAP_TYPE_MASK_ALL;
+    //     groupId, typeMask
+    std::map<uint32, uint32> ElseGroupStore;
+    for (ConditionList::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
+    {
+        // no point of having not loaded conditions in list
+        ASSERT((*i)->isLoaded() && "ConditionMgr::GetSearcherTypeMaskForConditionList - not yet loaded condition found in list");
+        std::map<uint32, uint32>::const_iterator itr = ElseGroupStore.find((*i)->ElseGroup);
+        // group not filled yet, fill with widest mask possible
+        if (itr == ElseGroupStore.end())
+            ElseGroupStore[(*i)->ElseGroup] = GRID_MAP_TYPE_MASK_ALL;
+        // no point of checking anymore, empty mask
+        else if (!(*itr).second)
+            continue;
+
+        if ((*i)->ReferenceId) // handle reference
+        {
+            ConditionReferenceContainer::const_iterator ref = ConditionReferenceStore.find((*i)->ReferenceId);
+            ASSERT(ref != ConditionReferenceStore.end() && "ConditionMgr::GetSearcherTypeMaskForConditionList - incorrect reference");
+            ElseGroupStore[(*i)->ElseGroup] &= GetSearcherTypeMaskForConditionList((*ref).second);
+        }
+        else // handle normal condition
+        {
+            // object will match conditions in one ElseGroupStore only when it matches all of them
+            // so, let's find a smallest possible mask which satisfies all conditions
+            ElseGroupStore[(*i)->ElseGroup] &= (*i)->GetSearcherTypeMaskForCondition();
+        }
+    }
+    // object will match condition when one of the checks in ElseGroupStore is matching
+    // so, let's include all possible masks
+    uint32 mask = 0;
+    for (std::map<uint32, uint32>::const_iterator i = ElseGroupStore.begin(); i != ElseGroupStore.end(); ++i)
+        mask |= i->second;
+
+    return mask;
+}
+
 bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionList const& conditions)
 {
+    //     groupId, groupCheckPassed
     std::map<uint32, bool> ElseGroupStore;
     for (ConditionList::const_iterator i = conditions.begin(); i != conditions.end(); ++i)
     {
@@ -389,6 +569,32 @@ bool ConditionMgr::IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, Con
 
     sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsObjectMeetToConditions");
     return IsObjectMeetToConditionList(sourceInfo, conditions);
+}
+
+bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType) const
+{
+    return (sourceType == CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE ||
+            sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU ||
+            sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION ||
+            sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
+            sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET ||
+            sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
+}
+
+bool ConditionMgr::CanHaveSourceIdSet(ConditionSourceType sourceType) const
+{
+    return (sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
 }
 
 ConditionList ConditionMgr::GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry)
@@ -487,6 +693,7 @@ void ConditionMgr::LoadConditions(bool isReload)
 
         sLog->outString("Re-Loading `gossip_menu_option` Table for Conditions!");
         sObjectMgr->LoadGossipMenuItems();
+        sSpellMgr->UnloadSpellInfoImplicitTargetConditionLists();
     }
 
     QueryResult result = WorldDatabase.Query("SELECT SourceTypeOrReferenceId, SourceGroup, SourceEntry, SourceId, ElseGroup, ConditionTypeOrReference, ConditionTarget, "
@@ -583,16 +790,23 @@ void ConditionMgr::LoadConditions(bool isReload)
         }
 
         //Grouping is only allowed for some types (loot templates, gossip menus, gossip items)
-        if (cond->SourceGroup && !isGroupable(cond->SourceType))
+        if (cond->SourceGroup && !CanHaveSourceGroupSet(cond->SourceType))
         {
-            sLog->outErrorDb("Condition type %u has not allowed grouping %u!", uint32(cond->SourceType), cond->SourceGroup);
+            sLog->outErrorDb("Condition type %u has not allowed value of SourceGroup = %u!", uint32(cond->SourceType), cond->SourceGroup);
             delete cond;
             continue;
         }
-        else if (cond->SourceGroup)
+        if (cond->SourceId && !CanHaveSourceIdSet(cond->SourceType))
+        {
+            sLog->outErrorDb("Condition type %u has not allowed value of SourceId = %u!", uint32(cond->SourceType), cond->SourceId);
+            delete cond;
+            continue;
+        }
+
+        if (cond->SourceGroup)
         {
             bool valid = false;
-            //handle grouped conditions
+            // handle grouped conditions
             switch (cond->SourceType)
             {
                 case CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE:
@@ -636,6 +850,9 @@ void ConditionMgr::LoadConditions(bool isReload)
                     break;
                 case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
                     valid = addToGossipMenuItems(cond);
+                    break;
+                case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
+                    valid = addToSpellImplicitTargetConditions(cond);
                     break;
                 case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
                 {
@@ -769,6 +986,78 @@ bool ConditionMgr::addToGossipMenuItems(Condition* cond)
 
     sLog->outErrorDb("addToGossipMenuItems: GossipMenuId %u Item %u not found", cond->SourceGroup, cond->SourceEntry);
     return false;
+}
+
+bool ConditionMgr::addToSpellImplicitTargetConditions(Condition* cond)
+{
+    uint32 conditionEffMask = cond->SourceGroup;
+    SpellInfo* spellInfo = const_cast<SpellInfo*>(sSpellMgr->GetSpellInfo(cond->SourceEntry));
+    ASSERT(spellInfo);
+    std::list<uint32> sharedMasks;
+    for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        // check if effect is already a part of some shared mask
+        bool found = false;
+        for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+        {
+            if ((1<<i) & *itr)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            continue;
+
+        // build new shared mask with found effect
+        uint32 sharedMask = (1<<i);
+        ConditionList* cmp = spellInfo->Effects[i].ImplicitTargetConditions;
+        for (uint8 effIndex = i+1; effIndex < MAX_SPELL_EFFECTS; ++effIndex)
+        {
+            if (spellInfo->Effects[effIndex].ImplicitTargetConditions == cmp)
+                sharedMask |= 1<<effIndex;
+        }
+        sharedMasks.push_back(sharedMask);
+    }
+
+    for (std::list<uint32>::iterator itr = sharedMasks.begin(); itr != sharedMasks.end(); ++itr)
+    {
+        // some effect indexes should have same data
+        if (uint32 commonMask = *itr & conditionEffMask)
+        {
+            uint8 firstEffIndex = 0;
+            for (; firstEffIndex < MAX_SPELL_EFFECTS; ++firstEffIndex)
+                if ((1<<firstEffIndex) & *itr)
+                    break;
+
+            // get shared data
+            ConditionList* sharedList = spellInfo->Effects[firstEffIndex].ImplicitTargetConditions;
+
+            // there's already data entry for that sharedMask
+            if (sharedList)
+            {
+                // we have overlapping masks in db
+                if (conditionEffMask != *itr)
+                {
+                    sLog->outErrorDb("SourceEntry %u in `condition` table, has incorrect SourceGroup %u (spell effectMask) set - "
+                        "effect masks are overlapping (all SourceGroup values having given bit set must be equal) - ignoring.", cond->SourceEntry, cond->SourceGroup);
+                    return false;
+                }
+            }
+            // no data for shared mask, we can create new submask
+            else
+            {
+                // add new list, create new shared mask
+                sharedList = new ConditionList();
+                for (uint8 i = firstEffIndex; i < MAX_SPELL_EFFECTS; ++i)
+                    if ((1<<i) & commonMask)
+                        spellInfo->Effects[i].ImplicitTargetConditions = sharedList;
+            }
+            sharedList->push_back(cond);
+            break;
+        }
+    }
+    return true;
 }
 
 bool ConditionMgr::isSourceTypeValid(Condition* cond)
@@ -985,64 +1274,48 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
             }
             break;
         }
-        case CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET:
+        case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
         {
-            if (cond->ConditionType != CONDITION_SPELL_SCRIPT_TARGET)
-            {
-                sLog->outErrorDb("SourceEntry %u in `condition` table, has ConditionType %u. Only CONDITION_SPELL_SCRIPT_TARGET(18) is valid for CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET(14), ignoring.", cond->SourceEntry, uint32(cond->ConditionType));
-                return false;
-            }
-
-            SpellInfo const* spellProto = sSpellMgr->GetSpellInfo(cond->SourceEntry);
-            if (!spellProto)
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(cond->SourceEntry);
+            if (!spellInfo)
             {
                 sLog->outErrorDb("SourceEntry %u in `condition` table, does not exist in `spell.dbc`, ignoring.", cond->SourceEntry);
                 return false;
             }
 
-            bool targetfound = false;
+            if ((cond->SourceGroup > MAX_EFFECT_MASK) || !cond->SourceGroup)
+            {
+                sLog->outErrorDb("SourceEntry %u in `condition` table, has incorrect SourceGroup %u (spell effectMask) set , ignoring.", cond->SourceEntry, cond->SourceGroup);
+                return false;
+            }
+
+            uint32 origGroup = cond->SourceGroup;
+
             for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
             {
-                if (spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_SRC_AREA_ENTRY ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_SRC_AREA_ENTRY ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_DEST_AREA_ENTRY ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_DEST_AREA_ENTRY ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_NEARBY_ENTRY ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_NEARBY_ENTRY ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_NEARBY_ENTRY ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_GAMEOBJECT_NEARBY_ENTRY ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_SRC_AREA ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_GAMEOBJECT_SRC_AREA ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_GAMEOBJECT_DEST_AREA ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_GAMEOBJECT_DEST_AREA ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_DEST_NEARBY_ENTRY ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_DEST_NEARBY_ENTRY ||
-                    spellProto->Effects[i].TargetA.GetTarget() == TARGET_UNIT_CONE_ENTRY ||
-                    spellProto->Effects[i].TargetB.GetTarget() == TARGET_UNIT_CONE_ENTRY)
+                if (!((1<<i) & cond->SourceGroup))
+                    continue;
+
+                switch (spellInfo->Effects[i].TargetA.GetSelectionCategory())
                 {
-                    targetfound = true;
-                    //break;
+                    case TARGET_SELECT_CATEGORY_NEARBY:
+                    case TARGET_SELECT_CATEGORY_CONE:
+                    case TARGET_SELECT_CATEGORY_AREA:
+                        continue;
                 }
-                else if (cond->ConditionValue3 & (1 << i))
+                switch (spellInfo->Effects[i].TargetB.GetSelectionCategory())
                 {
-                    cond->ConditionValue3 &= ~(1 << i);
-                    sLog->outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DEST_NEARBY_ENTRY (46)"
-                                    ", TARGET_UNIT_SRC_AREA_ENTRY(7), TARGET_UNIT_DEST_AREA_ENTRY(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
-                                    "TARGET_GAMEOBJECT_SRC_AREA(51), TARGET_GAMEOBJECT_DEST_AREA(52) in effect %u", cond->SourceEntry, uint32(i));
+                    case TARGET_SELECT_CATEGORY_NEARBY:
+                    case TARGET_SELECT_CATEGORY_CONE:
+                    case TARGET_SELECT_CATEGORY_AREA:
+                        continue;
                 }
+                sLog->outErrorDb("SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(i));
+                cond->SourceGroup &= ~(1<<i);
             }
-            if (!targetfound && !cond->ConditionValue3) // cond->mConditionValue3 already errored up there
-            {
-                sLog->outErrorDb("SourceEntry %u in `condition` table does not have any implicit target TARGET_UNIT_NEARBY_ENTRY(38) or TARGET_DEST_NEARBY_ENTRY (46)"
-                                ", TARGET_UNIT_SRC_AREA_ENTRY(7), TARGET_UNIT_DEST_AREA_ENTRY(8), TARGET_UNIT_CONE_ENTRY(60), TARGET_GAMEOBJECT_NEARBY_ENTRY(40)"
-                                "TARGET_GAMEOBJECT_SRC_AREA(51), TARGET_GAMEOBJECT_DEST_AREA(52)", cond->SourceEntry);
+            // all effects were removed, no need to add the condition at all
+            if (!cond->SourceGroup)
                 return false;
-            }
-            if ((cond->ConditionValue1 == SPELL_TARGET_TYPE_DEAD) && !spellProto->IsAllowingDeadTarget())
-            {
-                sLog->outErrorDb("SourceEntry %u in `condition` table does have SPELL_TARGET_TYPE_DEAD specified but spell does not have SPELL_ATTR2_CAN_TARGET_DEAD", cond->SourceEntry);
-                return false;
-            }
             break;
         }
         case CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE:
@@ -1318,46 +1591,6 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Race condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
-        case CONDITION_SPELL_SCRIPT_TARGET:
-        {
-            if (cond->ConditionValue1 >= MAX_SPELL_TARGET_TYPE)
-            {
-                sLog->outErrorDb("SpellTarget condition has non existing spell target type (%u), skipped", cond->ConditionValue1);
-                return false;
-            }
-
-            switch (cond->ConditionValue1)
-            {
-                case SPELL_TARGET_TYPE_GAMEOBJECT:
-                {
-                    if (cond->ConditionValue2 && !sObjectMgr->GetGameObjectTemplate(cond->ConditionValue2))
-                    {
-                        sLog->outErrorDb("SpellTarget condition has non existing gameobject (%u) as target, skipped", cond->ConditionValue2);
-                        return false;
-                    }
-                    break;
-                }
-                case SPELL_TARGET_TYPE_CONTROLLED:
-                case SPELL_TARGET_TYPE_CREATURE:
-                case SPELL_TARGET_TYPE_DEAD:
-                {
-                    if (cond->ConditionValue2 && !sObjectMgr->GetCreatureTemplate(cond->ConditionValue2))
-                    {
-                        sLog->outErrorDb("SpellTarget condition has non existing creature template entry (%u) as target, skipped", cond->ConditionValue2);
-                        return false;
-                    }
-
-                    const CreatureTemplate* cInfo = sObjectMgr->GetCreatureTemplate(cond->ConditionValue2);
-                    if (cond->SourceEntry == 30427 && !cInfo->SkinLootId)
-                    {
-                        sLog->outErrorDb("SpellTarget condition has creature entry %u as a target of spellid 30427, but this creature has no skinlootid. Gas extraction will not work!, skipped", cond->ConditionValue2);
-                        return false;
-                    }
-                    break;
-                }
-            }
-            break;
-        }
         case CONDITION_MAPID:
         {
             MapEntry const* me = sMapStore.LookupEntry(cond->ConditionValue1);
@@ -1598,6 +1831,9 @@ bool ConditionMgr::isConditionTypeValid(Condition* cond)
                 sLog->outErrorDb("Phasemask condition has useless data in value3 (%u)!", cond->ConditionValue3);
             break;
         }
+        case CONDITION_UNUSED_18:
+            sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_18 in `conditions` table - ignoring");
+            return false;
         case CONDITION_UNUSED_19:
             sLog->outErrorDb("Found ConditionTypeOrReference = CONDITION_UNUSED_19 in `conditions` table - ignoring");
             return false;

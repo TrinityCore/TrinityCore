@@ -336,7 +336,6 @@ class SpellScript : public _SpellScript
         void PreventHitHeal() { SetHitHeal(0); }
         Spell* GetSpell() { return m_spell; }
         void GetSummonPosition(uint32 i, Position &pos, float radius, uint32 count);
-        void SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry);
         // returns current spell hit target aura
         Aura* GetHitAura();
         // prevents applying aura on current spell hit target
