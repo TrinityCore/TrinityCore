@@ -218,7 +218,6 @@ class ConditionMgr
         bool addToSpellImplicitTargetConditions(Condition* cond);
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
 
-                    sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
         void Clean(); // free up resources
         std::list<Condition*> AllocatedMemoryStore; // some garbage collection :)
 

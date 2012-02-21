@@ -589,6 +589,7 @@ bool ConditionMgr::CanHaveSourceGroupSet(ConditionSourceType sourceType) const
             sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION ||
             sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
             sourceType == CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET ||
+            sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
             sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
 }
 
