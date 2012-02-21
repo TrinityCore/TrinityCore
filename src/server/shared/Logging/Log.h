@@ -54,8 +54,6 @@ enum DebugLogFilters
     LOG_FILTER_BATTLEFIELD              = 0x01000000,   // Battlefield related
 };
 
-};
-
 enum LogTypes
 {
     LOG_TYPE_STRING = 0,
