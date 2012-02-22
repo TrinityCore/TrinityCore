@@ -886,7 +886,7 @@ void Spell::SelectImplicitChannelTargets(SpellEffIndex effIndex, SpellImplicitTa
         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitChannelTargets: cannot find channel spell for spell ID %u, effect %u", m_spellInfo->Id, effIndex);
         return;
     }
-    switch (targetType.GetType())
+    switch (targetType.GetTarget())
     {
         case TARGET_UNIT_CHANNEL_TARGET:
             // unit target may be no longer avalible - teleported out of map for example
@@ -1350,7 +1350,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
 
 void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
-    switch(targetType.GetType())
+    switch(targetType.GetTarget())
     {
         case TARGET_DEST_CASTER:
             m_targets.SetDst(*m_caster);
@@ -1393,18 +1393,18 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
     float dist;
     float angle = targetType.CalcDirectionAngle();
     float objSize = m_caster->GetObjectSize();
-    if (targetType.GetType() == TARGET_DEST_CASTER_SUMMON)
+    if (targetType.GetTarget() == TARGET_DEST_CASTER_SUMMON)
         dist = PET_FOLLOW_DIST;
     else
         dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
 
     if (dist < objSize)
         dist = objSize;
-    else if (targetType.GetType() == TARGET_DEST_CASTER_RANDOM)
+    else if (targetType.GetTarget() == TARGET_DEST_CASTER_RANDOM)
         dist = objSize + (dist - objSize) * (float)rand_norm();
 
     Position pos;
-    if (targetType.GetType() == TARGET_DEST_CASTER_FRONT_LEAP)
+    if (targetType.GetTarget() == TARGET_DEST_CASTER_FRONT_LEAP)
         m_caster->GetFirstCollisionPosition(pos, dist, angle);
     else
         m_caster->GetNearPosition(pos, dist, angle);
@@ -1430,7 +1430,7 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
     float dist = m_spellInfo->Effects[effIndex].CalcRadius(m_caster);
     if (dist < objSize)
         dist = objSize;
-    else if (targetType.GetType() == TARGET_DEST_TARGET_RANDOM)
+    else if (targetType.GetTarget() == TARGET_DEST_TARGET_RANDOM)
         dist = objSize + (dist - objSize) * (float)rand_norm();
 
     Position pos;
@@ -1536,7 +1536,7 @@ void Spell::SelectImplicitChainTargets(SpellEffIndex effIndex, SpellImplicitTarg
 
         std::list<WorldObject*> targets;
         SearchChainTargets(targets, maxTargets - 1, target, targetType.GetObjectType(), targetType.GetCheckType()
-            , m_spellInfo->Effects[effIndex].ImplicitTargetConditions, targetType.GetType() == TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
+            , m_spellInfo->Effects[effIndex].ImplicitTargetConditions, targetType.GetTarget() == TARGET_UNIT_TARGET_CHAINHEAL_ALLY);
 
         // for backward compability
         std::list<Unit*> unitTargets;
