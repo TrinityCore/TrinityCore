@@ -17102,6 +17102,9 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << float (GetTransOffsetO());
         *data << uint32(GetTransTime());
         *data << uint8 (GetTransSeat());
+
+        if (GetExtraUnitMovementFlags() & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
+            *data << uint32(m_movementInfo.t_time2);
     }
 
     // 0x02200000
