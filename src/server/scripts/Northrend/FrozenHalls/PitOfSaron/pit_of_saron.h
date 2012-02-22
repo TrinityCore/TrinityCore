@@ -90,6 +90,7 @@ enum CreatureIds
 enum GameObjectIds
 {
     GO_SARONITE_ROCK                            = 196485,
+    GO_ICE_WALL                                 = 201885,
 };
 
 #endif
