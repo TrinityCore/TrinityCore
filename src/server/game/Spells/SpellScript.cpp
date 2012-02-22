@@ -473,11 +473,6 @@ void SpellScript::GetSummonPosition(uint32 i, Position &pos, float radius = 0.0f
     m_spell->GetSummonPosition(i, pos, radius, count);
 }
 
-void SpellScript::SearchAreaTarget(std::list<Unit*> &TagUnitMap, float radius, SpellNotifyPushType type, SpellTargets TargetType, uint32 entry)
-{
-    m_spell->SearchAreaTarget(TagUnitMap, radius, type, TargetType, entry);
-}
-
 void SpellScript::PreventHitEffect(SpellEffIndex effIndex)
 {
     if (!IsInHitPhase() && !IsInEffectHook())

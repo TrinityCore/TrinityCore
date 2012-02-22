@@ -84,7 +84,12 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         //typedef std::stack<MovementGenerator *> Impl;
         typedef MovementGenerator* _Ty;
 
-        void pop() { Impl[_top] = NULL; --_top; }
+        void pop()
+        {
+            Impl[_top] = NULL;
+            while (!top())
+                --_top;
+        }
         void push(_Ty _Val) { ++_top; Impl[_top] = _Val; }
 
         bool needInitTop() const { return _needInit[_top]; }

@@ -221,10 +221,12 @@ class spell_item_gnomish_death_ray : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
+                {
                     if (urand(0, 99) < 15)
                         caster->CastSpell(caster, SPELL_GNOMISH_DEATH_RAY_SELF, true, NULL);    // failure
                     else
                         caster->CastSpell(target, SPELL_GNOMISH_DEATH_RAY_TARGET, true, NULL);
+                }
             }
 
             void Register()
@@ -1290,10 +1292,12 @@ class spell_item_nigh_invulnerability : public SpellScriptLoader
             {
                 Unit* caster = GetCaster();
                 if (Item* castItem = GetCastItem())
+                {
                     if (roll_chance_i(86))                  // Nigh-Invulnerability   - success
                         caster->CastSpell(caster, SPELL_NIGH_INVULNERABILITY, true, castItem);
                     else                                    // Complete Vulnerability - backfire in 14% casts
                         caster->CastSpell(caster, SPELL_COMPLETE_VULNERABILITY, true, castItem);
+                }
             }
 
             void Register()

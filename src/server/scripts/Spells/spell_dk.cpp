@@ -749,6 +749,7 @@ class spell_dk_death_coil : public SpellScriptLoader
                 int32 damage = GetEffectValue();
                 Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
+                {
                     if (caster->IsFriendlyTo(target))
                     {
                         int32 bp = int32(damage * 1.5f);
@@ -756,6 +757,7 @@ class spell_dk_death_coil : public SpellScriptLoader
                     }
                     else
                         caster->CastCustomSpell(target, SPELL_DEATH_COIL_DAMAGE, &damage, NULL, NULL, true);
+                }
             }
 
             void Register()
@@ -783,9 +785,7 @@ class spell_dk_death_grip : public SpellScriptLoader
             void HandleDummy(SpellEffIndex effIndex)
             {
                 int32 damage = GetEffectValue();
-                Spell* baseSpell = GetSpell();
                 Position pos;
-                Unit* caster = GetCaster();
                 if (Unit* target = GetHitUnit())
                 {
                     GetSummonPosition(effIndex, pos, 0.0f, 0);
