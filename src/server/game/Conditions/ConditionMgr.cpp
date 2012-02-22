@@ -1303,14 +1303,20 @@ bool ConditionMgr::isSourceTypeValid(Condition* cond)
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
                         continue;
+                    default:
+                        break;
                 }
+                
                 switch (spellInfo->Effects[i].TargetB.GetSelectionCategory())
                 {
                     case TARGET_SELECT_CATEGORY_NEARBY:
                     case TARGET_SELECT_CATEGORY_CONE:
                     case TARGET_SELECT_CATEGORY_AREA:
                         continue;
+                    default:
+                        break;
                 }
+
                 sLog->outErrorDb("SourceEntry %u SourceGroup %u in `condition` table - spell %u does not have implicit targets of types: _AREA_, _CONE_, _NEARBY_ for effect %u, SourceGroup needs correction, ignoring.", cond->SourceEntry, origGroup, cond->SourceEntry, uint32(i));
                 cond->SourceGroup &= ~(1<<i);
             }

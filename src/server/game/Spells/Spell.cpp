@@ -797,6 +797,9 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
                     GetSpellInfo()->Effects[effIndex].CalcRadius(m_caster) == GetSpellInfo()->Effects[j].CalcRadius(m_caster))
                     effectMask |= 1 << j;
             processedEffectMask |= effectMask;
+            break;
+        default:
+            break;
     }
 
     switch(targetType.GetSelectionCategory())
@@ -917,7 +920,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
         return;
     }
 
-    float range;
+    float range = 0.0f;
     switch (targetType.GetCheckType())
     {
         case TARGET_CHECK_ENEMY:
@@ -941,7 +944,7 @@ void Spell::SelectImplicitNearbyTargets(SpellEffIndex effIndex, SpellImplicitTar
     ConditionList* condList = m_spellInfo->Effects[effIndex].ImplicitTargetConditions;
 
     // handle emergency case - try to use other provided targets if no conditions provided
-    if (targetType.GetCheckType() == TARGET_CHECK_ENTRY && !condList || condList->empty())
+    if (targetType.GetCheckType() == TARGET_CHECK_ENTRY && (!condList || condList->empty()))
     {
         sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell::SelectImplicitNearbyTargets: no conditions entry for target with TARGET_CHECK_ENTRY of spell ID %u, effect %u - selecting default targets", m_spellInfo->Id, effIndex);
         switch (targetType.GetObjectType())
@@ -1383,6 +1386,8 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
              m_targets.SetDst(x, y, z, m_caster->GetOrientation());
              return;
         }
+        default:
+            break;
     }
 
     float dist;
@@ -1416,6 +1421,8 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
         case TARGET_DEST_TARGET_ANY:
             m_targets.SetDst(*target);
             return;
+        default:
+            break;
     }
 
     float angle = targetType.CalcDirectionAngle();
@@ -1444,6 +1451,8 @@ void Spell::SelectImplicitDestDestTargets(SpellEffIndex effIndex, SpellImplicitT
         case TARGET_DEST_TRAJ:
             SelectImplicitTrajTargets();
             return;
+        default:
+            break;
     }
 
     float angle = targetType.CalcDirectionAngle();
@@ -1491,6 +1500,8 @@ void Spell::SelectImplicitCasterObjectTargets(SpellEffIndex effIndex, SpellImpli
             if (m_caster->GetTypeId() == TYPEID_UNIT && m_caster->ToCreature()->IsVehicle())
                 if (Unit *unit = m_caster->GetVehicleKit()->GetPassenger(targetType.GetTarget() - TARGET_UNIT_PASSENGER_0))
                     AddUnitTarget(unit, 1 << effIndex);
+            break;
+        default:
             break;
     }
 }
@@ -1777,6 +1788,8 @@ uint32 Spell::GetSearcherTypeMask(SpellTargetObjectTypes objType, ConditionList*
         case TARGET_OBJECT_TYPE_GOBJ:
         case TARGET_OBJECT_TYPE_GOBJ_ITEM:
             retMask &= GRID_MAP_TYPE_MASK_GAMEOBJECT;
+            break;
+        default:
             break;
     }
     if (!(m_spellInfo->AttributesEx2 & SPELL_ATTR2_CAN_TARGET_DEAD))
@@ -7211,7 +7224,7 @@ namespace Trinity
 
 WorldObjectSpellTargetCheck::WorldObjectSpellTargetCheck(Unit* caster, Unit* referer, SpellInfo const* spellInfo,
             SpellTargetCheckTypes selectionType, ConditionList* condList) : _caster(caster), _referer(referer), _spellInfo(spellInfo), 
-    _condList(condList), _targetSelectionType(selectionType)
+    _targetSelectionType(selectionType), _condList(condList)
 {
     if (condList)
         _condSrcInfo = new ConditionSourceInfo(NULL, caster);
