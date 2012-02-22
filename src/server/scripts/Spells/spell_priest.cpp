@@ -255,7 +255,7 @@ class spell_pri_reflective_shield_trigger : public SpellScriptLoader
                 if (dmgInfo.GetAttacker() == target)
                     return;
 
-                if (Unit* caster = GetCaster())
+                if (GetCaster())
                     if (AuraEffect* talentAurEff = target->GetAuraEffectOfRankedSpell(PRIEST_SPELL_REFLECTIVE_SHIELD_R1, EFFECT_0))
                     {
                         int32 bp = CalculatePctN(absorbAmount, talentAurEff->GetAmount());

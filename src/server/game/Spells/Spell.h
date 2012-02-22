@@ -675,7 +675,7 @@ namespace Trinity
 
         WorldObjectSpellTargetCheck(Unit* caster, Unit* referer, SpellInfo const* spellInfo,
             SpellTargetCheckTypes selectionType, ConditionList* condList);
-        WorldObjectSpellTargetCheck::~WorldObjectSpellTargetCheck();
+        ~WorldObjectSpellTargetCheck();
         bool operator()(WorldObject* target);
     };
 
