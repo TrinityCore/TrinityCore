@@ -16,3 +16,22 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
  
+ /* ScriptData
+SDName: Searing_Gorge
+SD%Complete:
+SDComment: 
+SDCategory: Searing Gorge
+EndScriptData */
+
+/* ContentData  	
+EndContentData */
+	  	
+#include "ScriptPCH.h"
+
+/*######	
+##	
+######*/
+  	
+void AddSC_searing_gorge()
+{  	
+}
