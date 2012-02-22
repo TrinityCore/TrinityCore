@@ -1441,6 +1441,13 @@ void Spell::SelectImplicitTargetDestTargets(SpellEffIndex effIndex, SpellImplici
 
 void Spell::SelectImplicitDestDestTargets(SpellEffIndex effIndex, SpellImplicitTargetInfo const& targetType)
 {
+    // set destination to caster if no dest provided
+    // can only happen if previous destination target could not be set for some reason
+    // (not found nearby target, or channel target for example
+    // maybe we should abort the spell in such case?
+    if (!m_targets.HasDst())
+        m_targets.SetDst(*m_caster);
+
     switch(targetType.GetTarget())
     {
         case TARGET_DEST_DYNOBJ_ENEMY:
