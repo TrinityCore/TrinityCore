@@ -26,15 +26,6 @@
 #include "BattlefieldMgr.h"
 #include "Opcodes.h"
 
-enum BFLeaveReason
-{
-    BF_LEAVE_REASON_CLOSE     = 0x00000001,
-    //BF_LEAVE_REASON_UNK1      = 0x00000002, (not used)
-    //BF_LEAVE_REASON_UNK2      = 0x00000004, (not used)
-    BF_LEAVE_REASON_EXITED    = 0x00000008,
-    BF_LEAVE_REASON_LOW_LEVEL = 0x00000010,
-};
-
 //This send to player windows for invite player to join the war
 //Param1:(BattleId) the BattleId of Bf
 //Param2:(ZoneId) the zone where the battle is (4197 for wg)
@@ -97,7 +88,7 @@ void WorldSession::SendBfLeaveMessage(uint32 BattleId, BFLeaveReason reason)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_EJECTED, 7);
     data << uint32(BattleId);
-    data << uint8(reason);//byte Reason (1=close invite,8="exited",10="to low level")
+    data << uint8(reason);//byte Reason
     data << uint8(2);//byte BattleStatus
     data << uint8(0);//bool Relocated
     SendPacket(&data);

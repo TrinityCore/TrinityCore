@@ -103,17 +103,9 @@ void Battlefield::HandlePlayerLeaveZone(Player *plr, uint32 /*zone */ )
         {
             m_PlayersInWar[plr->GetTeamId()].erase(plr->GetGUID());
             plr->GetSession()->SendBfLeaveMessage(m_BattleId);
-            if (Group* group = GetGroupPlayer(plr->GetGUID(), plr->GetTeamId()))       // remove from raid group if player is member
-            {
-                // I think that now is not a hack
-                if (!group->RemoveMember(plr->GetGUID()))   // group was disbanded
-                {
-                    m_Groups[plr->GetTeamId()].erase(group->GetGUID());
-                    group->SetBattlefieldGroup(NULL);
-                    sGroupMgr->RemoveGroup(group);
-                    delete group;
-                }
-            }
+            if (Group* group = plr->GetGroup())       // remove from raid group if player is member
+                group->RemoveMember(plr->GetGUID());
+
             OnPlayerLeaveWar(plr);                          //For scripting
         }
     }
