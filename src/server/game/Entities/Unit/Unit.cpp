@@ -280,7 +280,6 @@ Unit::~Unit()
     _DeleteRemovedAuras();
 
     delete m_charmInfo;
-    delete m_vehicleKit;
     delete movespline;
 
     ASSERT(!m_duringRemoveFromWorld);
@@ -13807,7 +13806,11 @@ void Unit::RemoveFromWorld()
     {
         m_duringRemoveFromWorld = true;
         if (IsVehicle())
+        {
             GetVehicleKit()->Uninstall();
+            delete m_vehicleKit;
+            m_vehicleKit = NULL;
+        }
 
         RemoveCharmAuras();
         RemoveBindSightAuras();
@@ -13816,6 +13819,7 @@ void Unit::RemoveFromWorld()
         RemoveAllGameObjects();
         RemoveAllDynObjects();
 
+        ExitVehicle();  // Remove applied auras with SPELL_AURA_CONTROL_VEHICLE
         UnsummonAllTotems();
         RemoveAllControlled();
 
