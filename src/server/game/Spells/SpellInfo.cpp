@@ -1581,10 +1581,10 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
     if (!(AttributesEx6 & SPELL_ATTR6_CAN_TARGET_INVISIBLE) && !caster->canSeeOrDetect(target, implicit))
         return SPELL_FAILED_BAD_TARGETS;
 
-    Unit const* unitTarget;
+    Unit const* unitTarget = target->ToUnit();
 
     // creature/player specific target checks
-    if (unitTarget = target->ToUnit())
+    if (unitTarget)
     {
         if (AttributesEx & SPELL_ATTR1_CANT_TARGET_IN_COMBAT && unitTarget->isInCombat())
             return SPELL_FAILED_TARGET_AFFECTING_COMBAT;
