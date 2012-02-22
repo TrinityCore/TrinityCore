@@ -13692,7 +13692,6 @@ void Unit::RemoveFromWorld()
         RemoveAllGameObjects();
         RemoveAllDynObjects();
 
-        ExitVehicle();
         UnsummonAllTotems();
         RemoveAllControlled();
 
@@ -15591,9 +15590,6 @@ void Unit::Kill(Unit* victim, bool durabilityLoss)
         if (Player* killed = victim->ToPlayer())
             sScriptMgr->OnPlayerKilledByCreature(killerCre, killed);
     }
-
-    if (victim->GetVehicle())
-        victim->ExitVehicle();
 }
 
 void Unit::SetControlled(bool apply, UnitState state)
@@ -17002,12 +16998,21 @@ void Unit::ChangeSeat(int8 seatId, bool next)
 
 void Unit::ExitVehicle(Position const* exitPosition)
 {
-    // This function can be called at upper level code to initialize an exit from the passenger's side.
+    //! This function can be called at upper level code to initialize an exit from the passenger's side.
     if (!m_vehicle)
         return;
 
     GetVehicleBase()->RemoveAurasByType(SPELL_AURA_CONTROL_VEHICLE, GetGUID());
-   _ExitVehicle(exitPosition);
+    //! The following call would not even be executed successfully as the 
+    //! SPELL_AURA_CONTROL_VEHICLE unapply handler already calls _ExitVehicle without
+    //! specifying an exitposition. The subsequent call below would return on if (!m_vehicle).
+    /*_ExitVehicle(exitPosition);*/
+    //! To do:
+    //! We need to allow SPELL_AURA_CONTROL_VEHICLE unapply handlers in spellscripts
+    //! to specify exit coordinates and either store those per passenger, or we need to
+    //! init spline movement based on those coordinates in unapply handlers, and
+    //! relocate exiting passengers based on Unit::moveSpline data. Either way,
+    //! Coming Soon™
 }
 
 void Unit::_ExitVehicle(Position const* exitPosition)
