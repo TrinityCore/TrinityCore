@@ -852,6 +852,26 @@ void ConditionMgr::LoadConditions(bool isReload)
                 case CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION:
                     valid = addToGossipMenuItems(cond);
                     break;
+                case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
+                {
+                    //if no list for npc create one
+                    if (SpellClickEventConditionStore.find(cond->SourceGroup) == SpellClickEventConditionStore.end())
+                    {
+                        ConditionTypeContainer cmap;
+                        SpellClickEventConditionStore[cond->SourceGroup] = cmap;
+                    }
+                    //if no list for spellclick spell create one
+                    if (SpellClickEventConditionStore[cond->SourceGroup].find(cond->SourceEntry) == SpellClickEventConditionStore[cond->SourceGroup].end())
+                    {
+                        ConditionList clist;
+                        SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry] = clist;
+                    }
+                    SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
+                    valid = true;
+                    ++count;
+                    continue;   // do not add to m_AllocatedMemory to avoid double deleting
+                    break;
+                }
                 case CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET:
                     valid = addToSpellImplicitTargetConditions(cond);
                     break;
