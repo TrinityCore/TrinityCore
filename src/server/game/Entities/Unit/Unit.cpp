@@ -13682,11 +13682,7 @@ void Unit::RemoveFromWorld()
     {
         m_duringRemoveFromWorld = true;
         if (IsVehicle())
-        {
-            GetVehicleKit()->Uninstall();
-            delete m_vehicleKit;
-            m_vehicleKit = NULL;
-        }
+            RemoveVehicleKit();
 
         RemoveCharmAuras();
         RemoveBindSightAuras();
