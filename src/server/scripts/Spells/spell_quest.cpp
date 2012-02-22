@@ -1071,6 +1071,42 @@ class spell_q9452_cast_net: public SpellScriptLoader
         }
 };
 
+#define SAY_1 "Sons of Hodir! I humbly present to you..."
+#define SAY_2 "The Helm of Hodir!"
+#define NPC_KILLCREDIT 30210 // Hodir's Helm KC Bunny
+
+class spell_q12987_read_pronouncement : public SpellScriptLoader
+{
+public:
+    spell_q12987_read_pronouncement() : SpellScriptLoader("spell_q12987_read_pronouncement") { }
+
+    class spell_q12987_read_pronouncement_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_q12987_read_pronouncement_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            // player must cast kill credit and do emote text, according to sniff
+            if (Player* target = GetTarget()->ToPlayer())
+            {
+                target->MonsterWhisper(SAY_1, target->GetGUID(), true);
+                target->KilledMonsterCredit(NPC_KILLCREDIT, 0);
+                target->MonsterWhisper(SAY_2, target->GetGUID(), true);
+            }
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_q12987_read_pronouncement_AuraScript::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_q12987_read_pronouncement_AuraScript();
+    }
+};
+
 void AddSC_quest_spell_scripts()
 {
     new spell_q55_sacred_cleansing();
@@ -1096,4 +1132,5 @@ void AddSC_quest_spell_scripts()
     new spell_q13280_13283_plant_battle_standard();
     new spell_q14112_14145_chum_the_water();
     new spell_q9452_cast_net();
+    new spell_q12987_read_pronouncement();
 }
