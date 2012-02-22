@@ -84,11 +84,11 @@ void WorldSession::SendBfEntered(uint32 BattleId)
     SendPacket(&data);
 }
 
-void WorldSession::SendBfLeaveMessage(uint32 BattleId, uint8 reason)
+void WorldSession::SendBfLeaveMessage(uint32 BattleId, BFLeaveReason reason)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_EJECTED, 7);
     data << uint32(BattleId);
-    data << uint8(reason);//byte Reason (1=close invite,8="exited",10="to low level")
+    data << uint8(reason);//byte Reason
     data << uint8(2);//byte BattleStatus
     data << uint8(0);//bool Relocated
     SendPacket(&data);
