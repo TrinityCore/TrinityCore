@@ -837,7 +837,7 @@ void Spell::SelectEffectImplicitTargets(SpellEffIndex effIndex, SpellImplicitTar
                              SelectImplicitCasterDestTargets(effIndex, targetType);
                              break;
                          case TARGET_REFERENCE_TYPE_TARGET:
-                             SelectImplicitCasterDestTargets(effIndex, targetType);
+                             SelectImplicitTargetDestTargets(effIndex, targetType);
                              break;
                          case TARGET_REFERENCE_TYPE_DEST:
                              SelectImplicitDestDestTargets(effIndex, targetType);
