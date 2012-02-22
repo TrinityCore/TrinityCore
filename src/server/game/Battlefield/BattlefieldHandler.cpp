@@ -58,15 +58,16 @@ void WorldSession::SendBfInvitePlayerToQueue(uint32 BattleId)
 //This send packet for inform player that he join queue
 //Param1:(BattleId) the BattleId of Bf
 //Param2:(ZoneId) the zone where the battle is (4197 for wg)
-void WorldSession::SendBfQueueInviteResponce(uint32 BattleId, uint32 ZoneId)
+//Param3:(CanQueue) if able to queue
+//Param4:(Full) on log in is full
+void WorldSession::SendBfQueueInviteResponce(uint32 BattleId,uint32 ZoneId, bool CanQueue, bool Full)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_QUEUE_REQUEST_RESPONSE, 11);
     data << uint32(BattleId);
     data << uint32(ZoneId);
-    data << uint8(1);                                       //Accepted
-    data << uint8(0);                                       //Logging In
-    data << uint8(1);                                       //Warmup
-
+    data << uint8((CanQueue ? 1 : 0));  //Accepted          //0 you cannot queue wg     //1 you are queued     
+    data << uint8((Full ? 0 : 1));      //Logging In        //0 wg full                 //1 queue for upcoming
+    data << uint8(1); //Warmup
     SendPacket(&data);
 }
 
@@ -80,19 +81,16 @@ void WorldSession::SendBfEntered(uint32 BattleId)
     data << uint8(1);                                       //unk
     data << uint8(1);                                       //unk
     data << uint8(_player->isAFK() ? 1 : 0);                //Clear AFK
-
     SendPacket(&data);
 }
 
-//Send when player is kick from Battlefield
-void WorldSession::SendBfLeaveMessage(uint32 BattleId)
+void WorldSession::SendBfLeaveMessage(uint32 BattleId, uint8 reason)
 {
     WorldPacket data(SMSG_BATTLEFIELD_MGR_EJECTED, 7);
     data << uint32(BattleId);
-    data << uint8(8);                                       //byte Reason
-    data << uint8(2);                                       //byte BattleStatus
-    data << uint8(0);                                       //bool Relocated
-
+    data << uint8(reason);//byte Reason (1=close invite,8="exited",10="to low level")
+    data << uint8(2);//byte BattleStatus
+    data << uint8(0);//bool Relocated
     SendPacket(&data);
 }
 

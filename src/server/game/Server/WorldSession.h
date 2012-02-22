@@ -787,9 +787,9 @@ class WorldSession
         // Battlefield
         void SendBfInvitePlayerToWar(uint32 BattleId,uint32 ZoneId,uint32 time);
         void SendBfInvitePlayerToQueue(uint32 BattleId);
-        void SendBfQueueInviteResponce(uint32 BattleId,uint32 ZoneId);
+        void SendBfQueueInviteResponce(uint32 BattleId,uint32 ZoneId, bool CanQueue = true, bool Full = false);
         void SendBfEntered(uint32 BattleId);
-        void SendBfLeaveMessage(uint32 BattleId);
+        void SendBfLeaveMessage(uint32 BattleId, uint8 reason = 8);
         void HandleBfQueueInviteResponse(WorldPacket &recv_data);
         void HandleBfEntryInviteResponse(WorldPacket &recv_data);
         void HandleBfExitRequest(WorldPacket &recv_data);
