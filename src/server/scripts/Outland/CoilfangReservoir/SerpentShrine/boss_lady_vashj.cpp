@@ -779,7 +779,7 @@ public:
 
         void Reset()
         {
-            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetLevitate(true);
             me->setFaction(14);
             movement_timer = 0;
             ToxicSpore_Timer = 5000;
