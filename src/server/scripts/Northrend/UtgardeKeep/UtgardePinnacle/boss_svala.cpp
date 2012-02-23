@@ -340,7 +340,7 @@ public:
                                     if ((*itr)->isAlive())
                                     {
                                         (*itr)->SetStandState(UNIT_STAND_STATE_STAND);
-                                        (*itr)->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                        (*itr)->SetWalk(false);
                                         (*itr)->GetMotionMaster()->MovePoint(1, spectatorWP[0][0], spectatorWP[0][1], spectatorWP[0][2]);
                                     }
                                 }

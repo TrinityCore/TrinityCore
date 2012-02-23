@@ -480,7 +480,7 @@ public:
                     if (temp->isAlive() && !temp->getVictim())
                     {
                         if (temp->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
-                            temp->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            temp->SetWalk(false);
 
                         if (temp->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
                             temp->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
