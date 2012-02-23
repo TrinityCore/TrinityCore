@@ -82,7 +82,7 @@ void WardenCheckMgr::LoadWardenChecks()
     uint32 count = 0;
     do
     {
-        Field* fields = result->Fetch();
+        fields = result->Fetch();
 
         uint16 id               = fields[0].GetUInt16();
         uint8 checkType         = fields[1].GetUInt8();
@@ -156,11 +156,11 @@ void WardenCheckMgr::LoadWardenChecks()
 
     uint32 overrideCount = 0;
 
-    if(overrideResult)
+    if (overrideResult)
     {
         do
         {
-            Field * fields = overrideResult->Fetch();
+            fields = overrideResult->Fetch();
 
             uint16 checkId = fields[0].GetUInt16();
 
