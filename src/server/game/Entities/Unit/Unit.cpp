@@ -17475,9 +17475,9 @@ bool Unit::SetLevitate(bool enable)
         return false;
 
     if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
     else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
 
     return true;
 }
