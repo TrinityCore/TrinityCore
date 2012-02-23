@@ -71,7 +71,7 @@ class npc_xerestrasza : public CreatureScript
                     _isIntro = false;
 
                     Talk(SAY_XERESTRASZA_EVENT);
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(true);
                     me->GetMotionMaster()->MovePoint(0, xerestraszaMovePos);
 
                     _events.ScheduleEvent(EVENT_XERESTRASZA_EVENT_1, 16000);

@@ -389,7 +389,7 @@ public:
             {
                 if (player->isAlive())
                 {
-                    summon->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    summon->SetWalk(false);
                     summon->GetMotionMaster()->MovePoint(0, afCenter[0], afCenter[1], afCenter[2]);
                     summon->AI()->AttackStart(player);
                     return;
