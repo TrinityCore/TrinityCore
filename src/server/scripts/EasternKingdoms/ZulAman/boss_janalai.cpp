@@ -501,7 +501,7 @@ class mob_janalai_hatcher : public CreatureScript
 
             void Reset()
             {
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(true);
                 side =(me->GetPositionY() < 1150);
                 waypoint = 0;
                 isHatching = false;

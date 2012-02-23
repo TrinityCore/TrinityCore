@@ -764,7 +764,7 @@ public:
                 DoScriptText(RAND(SAY_DOC1, SAY_DOC2, SAY_DOC3), me);
 
                 uint32 mobId = me->GetEntry();
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(false);
 
                 switch (mobId)
                 {

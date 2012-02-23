@@ -95,7 +95,7 @@ class boss_warchief_kargath_bladefist : public CreatureScript
                 removeAdds();
 
                 me->SetSpeed(MOVE_RUN, 2);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(false);
 
                 summoned = 2;
                 InBlade = false;

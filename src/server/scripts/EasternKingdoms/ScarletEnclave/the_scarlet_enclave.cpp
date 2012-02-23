@@ -74,7 +74,7 @@ public:
                 switch (phase)
                 {
                     case 0:
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                        me->SetWalk(false);
                         me->HandleEmoteCommand(EMOTE_STATE_FLYGRABCLOSED);
                         FlyBackTimer = 500;
                         break;
