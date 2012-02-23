@@ -1912,7 +1912,7 @@ class OrientationCheck
 
         bool operator() (Unit* unit)
         {
-            return !unit->isInFront(caster, 40.0f, 2.5f);
+            return !unit->isInFront(caster, 2.5f) || !unit->IsWithinDist(caster, 40.0f);
         }
 
     private:
