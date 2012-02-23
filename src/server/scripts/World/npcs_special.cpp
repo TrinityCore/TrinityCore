@@ -421,7 +421,7 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
             me->Relocate(x, y, z + 0.94f);
-            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetLevitate(true);
             me->HandleEmoteCommand(EMOTE_ONESHOT_DANCE);
             WorldPacket data;                       //send update position to client
             me->BuildHeartBeatMsg(&data);
