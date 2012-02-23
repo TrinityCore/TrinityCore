@@ -172,7 +172,7 @@ struct boss_twin_baseAI : public ScriptedAI
     uint32 m_uiTouchSpellId;
 
     void Reset() {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->ModifyAuraState(m_uiAuraState, true);
         /* Uncomment this once that they are flying above the ground
@@ -205,7 +205,7 @@ struct boss_twin_baseAI : public ScriptedAI
         {
             case 1:
                 m_instance->DoUseDoorOrButton(m_instance->GetData64(GO_MAIN_GATE_DOOR));
-                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
                 me->SetReactState(REACT_AGGRESSIVE);
                 break;
         }
@@ -308,7 +308,7 @@ struct boss_twin_baseAI : public ScriptedAI
 
     void EnableDualWield(bool mode = true)
     {
-        SetEquipmentSlots(false, m_uiWeapon, mode ? m_uiWeapon : EQUIP_UNEQUIP, EQUIP_UNEQUIP);
+        SetEquipmentSlots(false, m_uiWeapon, mode ? m_uiWeapon : int32(EQUIP_UNEQUIP), EQUIP_UNEQUIP);
         me->SetCanDualWield(mode);
         me->UpdateDamagePhysical(mode ? OFF_ATTACK : BASE_ATTACK);
     }
@@ -562,17 +562,19 @@ struct mob_unleashed_ballAI : public ScriptedAI
     {
         float x0 = ToCCommonLoc[1].GetPositionX(), y0 = ToCCommonLoc[1].GetPositionY(), r = 47.0f;
         float y = y0;
-        float x = float(urand(uint32(x0 - r), uint32(x0 + r)));
+        float x = frand(x0 - r, x0 + r);
+        float sq = pow(r, 2) - pow(x - x0, 2);
+        float rt = sqrtf(fabs(sq));
         if (urand(0, 1))
-            y = y0 + sqrt(pow(r, 2) - pow((x-x0), 2));
+            y = y0 + rt;
         else
-            y = y0 - sqrt(pow(r, 2) - pow((x-x0), 2));
+            y = y0 - rt;
         me->GetMotionMaster()->MovePoint(0, x, y, me->GetPositionZ());
     }
 
     void Reset()
     {
-        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
         me->SetReactState(REACT_PASSIVE);
         me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
         me->SetFlying(true);

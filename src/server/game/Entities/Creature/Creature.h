@@ -211,7 +211,7 @@ struct CreatureBaseStats
     static CreatureBaseStats const* GetBaseStats(uint8 level, uint8 unitClass);
 };
 
-typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsMap;
+typedef UNORDERED_MAP<uint16, CreatureBaseStats> CreatureBaseStatsContainer;
 
 struct CreatureLocale
 {
@@ -723,7 +723,6 @@ class Creature : public Unit, public GridObject<Creature>, public MapCreature
 
         static float _GetHealthMod(int32 Rank);
 
-        uint32 m_lootMoney;
         uint64 m_lootRecipient;
         uint32 m_lootRecipientGroup;
 

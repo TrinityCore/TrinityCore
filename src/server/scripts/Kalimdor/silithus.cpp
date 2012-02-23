@@ -1425,7 +1425,7 @@ class go_wind_stone : public GameObjectScript
                     break;
             }
 
-            player->SEND_GOSSIP_MENU(player->GetGossipTextId(gossipId), go->GetGUID());
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(gossipId, go), go->GetGUID());
             return true;
         }
 

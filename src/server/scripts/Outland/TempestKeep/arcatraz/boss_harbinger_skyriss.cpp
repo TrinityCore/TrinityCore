@@ -89,7 +89,7 @@ class boss_harbinger_skyriss : public CreatureScript
             void Reset()
             {
                 if (!Intro)
-                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                    me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
                 IsImage33 = false;
                 IsImage66 = false;
@@ -184,7 +184,7 @@ class boss_harbinger_skyriss : public CreatureScript
                             Intro_Timer = 3000;
                             break;
                         case 3:
-                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
                             Intro = true;
                             break;
                         }

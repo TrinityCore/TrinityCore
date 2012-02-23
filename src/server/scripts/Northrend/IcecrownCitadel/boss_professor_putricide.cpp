@@ -196,7 +196,7 @@ class boss_professor_putricide : public CreatureScript
                     me->GetMotionMaster()->MovementExpired();
 
                 if (instance->GetBossState(DATA_ROTFACE) == DONE && instance->GetBossState(DATA_FESTERGUT) == DONE)
-                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
+                    me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_NOT_SELECTABLE);
             }
 
             void EnterCombat(Unit* who)
@@ -948,7 +948,7 @@ class spell_putricide_ooze_summon : public SpellScriptLoader
                     uint32 triggerSpellId = GetSpellInfo()->Effects[aurEff->GetEffIndex()].TriggerSpell;
                     float x, y, z;
                     GetTarget()->GetPosition(x, y, z);
-                    z = GetTarget()->GetMap()->GetHeight(x, y, z, true, 25.0f);
+                    z = GetTarget()->GetMap()->GetHeight(GetTarget()->GetPhaseMask(), x, y, z, true, 25.0f);
                     x += 10.0f * cosf(caster->GetOrientation());
                     y += 10.0f * sinf(caster->GetOrientation());
                     caster->CastSpell(x, y, z, triggerSpellId, true, NULL, NULL, GetCasterGUID());

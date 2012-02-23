@@ -241,9 +241,8 @@ void WorldSession::HandlePetitionBuyOpcode(WorldPacket & recv_data)
     CharacterDatabase.CommitTransaction(trans);
 }
 
-void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
+void WorldSession::HandlePetitionShowSignOpcode(WorldPacket& recv_data)
 {
-                                                            // ok
     sLog->outDebug(LOG_FILTER_NETWORKIO, "Received opcode CMSG_PETITION_SHOW_SIGNATURES");
 
     uint8 signs = 0;
@@ -256,7 +255,7 @@ void WorldSession::HandlePetitionShowSignOpcode(WorldPacket & recv_data)
     QueryResult result = CharacterDatabase.PQuery("SELECT type FROM petition WHERE petitionguid = '%u'", petitionguid_low);
     if (!result)
     {
-        sLog->outError("Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
+        sLog->outDebug(LOG_FILTER_PLAYER_ITEMS, "Petition %u is not found for player %u %s", GUID_LOPART(petitionguid), GetPlayer()->GetGUIDLow(), GetPlayer()->GetName());
         return;
     }
     Field* fields = result->Fetch();

@@ -26,17 +26,17 @@
 
 BattlegroundDS::BattlegroundDS()
 {
-    m_BgObjects.resize(BG_DS_OBJECT_MAX);
+    BgObjects.resize(BG_DS_OBJECT_MAX);
 
-    m_StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
-    m_StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
-    m_StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
-    m_StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
+    StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
+    StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
+    StartDelayTimes[BG_STARTING_EVENT_THIRD]  = BG_START_DELAY_15S;
+    StartDelayTimes[BG_STARTING_EVENT_FOURTH] = BG_START_DELAY_NONE;
     //we must set messageIds
-    m_StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
-    m_StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
-    m_StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
-    m_StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
+    StartMessageIds[BG_STARTING_EVENT_FIRST]  = LANG_ARENA_ONE_MINUTE;
+    StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_ARENA_THIRTY_SECONDS;
+    StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_ARENA_FIFTEEN_SECONDS;
+    StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_ARENA_HAS_BEGUN;
 }
 
 BattlegroundDS::~BattlegroundDS()
@@ -46,21 +46,34 @@ BattlegroundDS::~BattlegroundDS()
 
 void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
     if (getWaterFallTimer() < diff)
     {
-        if (isWaterFallActive())
+        if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_OFF) // Add the water
         {
-            setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                SpawnBGObject(i, getWaterFallTimer());
-            setWaterFallActive(false);
+            DoorClose(BG_DS_OBJECT_WATER_2);
+            setWaterFallTimer(BG_DS_WATERFALL_WARNING_DURATION);
+            setWaterFallStatus(BG_DS_WATERFALL_STATUS_WARNING);
         }
-        else
+        else if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_WARNING) // Active collision
         {
+            if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
+                gob->SetGoState(GO_STATE_READY);
+
             setWaterFallTimer(BG_DS_WATERFALL_DURATION);
-            for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-                SpawnBGObject(i, RESPAWN_IMMEDIATELY);
-            setWaterFallActive(true);
+            setWaterFallStatus(BG_DS_WATERFALL_STATUS_ON);
+        }
+        else //if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_ON) // Remove collision and water
+        {
+            // turn off collision
+            if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
+                gob->SetGoState(GO_STATE_ACTIVE);
+
+            DoorOpen(BG_DS_OBJECT_WATER_2);
+            setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
+            setWaterFallStatus(BG_DS_WATERFALL_STATUS_OFF);
         }
     }
     else
@@ -82,19 +95,23 @@ void BattlegroundDS::StartingEventOpenDoors()
         SpawnBGObject(i, 60);
 
     setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
-    setWaterFallActive(false);
+    setWaterFallStatus(BG_DS_WATERFALL_STATUS_OFF);
 
-    for (uint32 i = BG_DS_OBJECT_WATER_1; i <= BG_DS_OBJECT_WATER_2; ++i)
-        SpawnBGObject(i, getWaterFallTimer());
+    SpawnBGObject(BG_DS_OBJECT_WATER_2, RESPAWN_IMMEDIATELY);
+    DoorOpen(BG_DS_OBJECT_WATER_2);
+
+    // Turn off collision
+    if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
+        gob->SetGoState(GO_STATE_ACTIVE);
 }
 
 void BattlegroundDS::AddPlayer(Player* player)
 {
     Battleground::AddPlayer(player);
     //create score and add it to map, default values are set in constructor
-    BattlegroundDSScore* sc = new BattlegroundDSScore;
+    BattlegroundDSScore* score = new BattlegroundDSScore;
 
-    m_PlayerScores[player->GetGUID()] = sc;
+    PlayerScores[player->GetGUID()] = score;
 
     UpdateArenaWorldState();
 }

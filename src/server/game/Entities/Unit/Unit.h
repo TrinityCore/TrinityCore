@@ -589,8 +589,8 @@ enum UnitFlags
     UNIT_FLAG_PREPARATION           = 0x00000020,           // don't take reagents for spells with SPELL_ATTR5_NO_REAGENT_WHILE_PREP
     UNIT_FLAG_UNK_6                 = 0x00000040,
     UNIT_FLAG_NOT_ATTACKABLE_1      = 0x00000080,           // ?? (UNIT_FLAG_PVP_ATTACKABLE | UNIT_FLAG_NOT_ATTACKABLE_1) is NON_PVP_ATTACKABLE
-    UNIT_FLAG_OOC_NOT_ATTACKABLE    = 0x00000100,           // 2.0.8 - (OOC Out Of Combat) Can not be attacked when not in combat. Removed if unit for some reason enter combat.
-    UNIT_FLAG_PASSIVE               = 0x00000200,           // makes you unable to attack everything. Almost identical to our "civilian"-term. Will ignore it's surroundings and not engage in combat unless "called upon" or engaged by another unit.
+    UNIT_FLAG_IMMUNE_TO_PC          = 0x00000100,           // disables combat/assistance with PlayerCharacters (PC) - see Unit::_IsValidAttackTarget, Unit::_IsValidAssistTarget
+    UNIT_FLAG_IMMUNE_TO_NPC         = 0x00000200,           // disables combat/assistance with NonPlayerCharacters (NPC) - see Unit::_IsValidAttackTarget, Unit::_IsValidAssistTarget
     UNIT_FLAG_LOOTING               = 0x00000400,           // loot animation
     UNIT_FLAG_PET_IN_COMBAT         = 0x00000800,           // in combat?, 2.0.8
     UNIT_FLAG_PVP                   = 0x00001000,           // changed in 3.0.3
@@ -786,6 +786,25 @@ enum MeleeHitOutcome
 {
     MELEE_HIT_EVADE, MELEE_HIT_MISS, MELEE_HIT_DODGE, MELEE_HIT_BLOCK, MELEE_HIT_PARRY,
     MELEE_HIT_GLANCING, MELEE_HIT_CRIT, MELEE_HIT_CRUSHING, MELEE_HIT_NORMAL
+};
+
+class DispelInfo
+{
+private:
+    Unit* const m_dispeller;
+    uint32 const m_dispellerSpellId;
+    uint8 m_chargesRemoved;
+public:
+    explicit DispelInfo(Unit* _dispeller, uint32 _dispellerSpellId, uint8 _chargesRemoved) :
+    m_dispeller(_dispeller), m_dispellerSpellId(_dispellerSpellId), m_chargesRemoved(_chargesRemoved) {}
+
+    Unit* GetDispeller() { return m_dispeller; }
+    uint32 GetDispellerSpellId() { return m_dispellerSpellId; }
+    uint8 GetRemovedCharges() { return m_chargesRemoved; }
+    void SetRemovedCharges(uint8 amount)
+    {
+        m_chargesRemoved = amount;
+    }
 };
 
 struct CleanDamage
@@ -1280,7 +1299,7 @@ class Unit : public WorldObject
         void CombatStop(bool includingCast = false);
         void CombatStopWithPets(bool includingCast = false);
         void StopAttackFaction(uint32 faction_id);
-        Unit* SelectNearbyTarget(float dist = NOMINAL_MELEE_RANGE) const;
+        Unit* SelectNearbyTarget(Unit* exclude = NULL, float dist = NOMINAL_MELEE_RANGE) const;
         void SendMeleeAttackStop(Unit* victim = NULL);
         void SendMeleeAttackStart(Unit* pVictim);
 
@@ -1377,7 +1396,6 @@ class Unit : public WorldObject
         bool IsNeutralToAll() const;
         bool IsInPartyWith(Unit const* unit) const;
         bool IsInRaidWith(Unit const* unit) const;
-        bool IsTargetMatchingCheck(Unit const* target, SpellTargetSelectionCheckTypes check) const;
         void GetPartyMemberInDist(std::list<Unit*> &units, float dist);
         void GetPartyMembers(std::list<Unit*> &units);
         void GetRaidMember(std::list<Unit*> &units, float dist);
@@ -1539,6 +1557,8 @@ class Unit : public WorldObject
 
         bool HasAuraTypeWithFamilyFlags(AuraType auraType, uint32 familyName, uint32 familyFlags) const;
         bool virtual HasSpell(uint32 /*spellID*/) const { return false; }
+        bool HasBreakableByDamageAuraType(AuraType type, uint32 excludeAura = 0) const;
+        bool HasBreakableByDamageCrowdControlAura(Unit* excludeCasterChannel = NULL) const;
 
         bool HasStealthAura()      const { return HasAuraType(SPELL_AURA_MOD_STEALTH); }
         bool HasInvisibilityAura() const { return HasAuraType(SPELL_AURA_MOD_INVISIBILITY); }
@@ -1747,7 +1767,7 @@ class Unit : public WorldObject
 
         void RemoveAurasDueToSpell(uint32 spellId, uint64 casterGUID = 0, uint8 reqEffMask = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
         void RemoveAuraFromStack(uint32 spellId, uint64 casterGUID = 0, AuraRemoveMode removeMode = AURA_REMOVE_BY_DEFAULT);
-        void RemoveAurasDueToSpellByDispel(uint32 spellId, uint64 casterGUID, Unit* dispeller, uint8 chargesRemoved = 1);
+        void RemoveAurasDueToSpellByDispel(uint32 spellId, uint32 dispellerSpellId, uint64 casterGUID, Unit* dispeller, uint8 chargesRemoved = 1);
         void RemoveAurasDueToSpellBySteal(uint32 spellId, uint64 casterGUID, Unit* stealer);
         void RemoveAurasDueToItemSpell(Item* castItem, uint32 spellId);
         void RemoveAurasByType(AuraType auraType, uint64 casterGUID = 0, Aura* except = NULL, bool negative = true, bool positive = true);
@@ -1990,7 +2010,8 @@ class Unit : public WorldObject
         uint32 BuildAuraStateUpdateForTarget(Unit* target) const;
         bool HasAuraState(AuraStateType flag, SpellInfo const* spellProto = NULL, Unit const* Caster = NULL) const ;
         void UnsummonAllTotems();
-        Unit* SelectMagnetTarget(Unit* victim, SpellInfo const* spellInfo = NULL);
+        Unit* GetMagicHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo);
+        Unit* GetMeleeHitRedirectTarget(Unit* victim, SpellInfo const* spellInfo = NULL);
         int32 SpellBaseDamageBonus(SpellSchoolMask schoolMask);
         int32 SpellBaseHealingBonus(SpellSchoolMask schoolMask);
         int32 SpellBaseDamageBonusForVictim(SpellSchoolMask schoolMask, Unit* pVictim);

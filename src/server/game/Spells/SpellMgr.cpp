@@ -104,9 +104,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Hamstring - limit duration to 10s in PvP
             if (spellproto->SpellFamilyFlags[0] & 0x2)
                 return DIMINISHING_LIMITONLY;
-            // Improved Hamstring
-            else if (spellproto->AttributesEx3 & 0x80000 && spellproto->SpellIconID == 23)
-                return DIMINISHING_ROOT;
             // Charge Stun (own diminishing)
             else if (spellproto->SpellFamilyFlags[0] & 0x01000000)
                 return DIMINISHING_CHARGE;
@@ -2647,9 +2644,18 @@ void SpellMgr::UnloadSpellInfoStore()
     for (uint32 i = 0; i < mSpellInfoMap.size(); ++i)
     {
         if (mSpellInfoMap[i])
-          delete mSpellInfoMap[i];
+            delete mSpellInfoMap[i];
     }
     mSpellInfoMap.clear();
+}
+
+void SpellMgr::UnloadSpellInfoImplicitTargetConditionLists()
+{
+    for (uint32 i = 0; i < mSpellInfoMap.size(); ++i)
+    {
+        if (mSpellInfoMap[i])
+            mSpellInfoMap[i]->_UnloadImplicitTargetConditionLists();
+    }
 }
 
 void SpellMgr::LoadSpellCustomAttr()
@@ -2893,6 +2899,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 64588: // Thrust (Argent Tournament)
             case 66479: // Thrust (Argent Tournament)
             case 68505: // Thrust (Argent Tournament)
+            case 62709: // Counterattack! (Argent Tournament)
             case 62626: // Break-Shield (Argent Tournament, Player)
             case 64590: // Break-Shield (Argent Tournament, Player)
             case 64342: // Break-Shield (Argent Tournament, NPC)

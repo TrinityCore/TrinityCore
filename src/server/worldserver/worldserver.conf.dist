@@ -11,6 +11,7 @@
 #    PERFORMANCE SETTINGS
 #    SERVER LOGGING
 #    SERVER SETTINGS
+#    WARDEN SETTINGS
 #    PLAYER INTERACTION
 #    CREATURE SETTINGS
 #    CHAT SETTINGS
@@ -472,7 +473,8 @@ LogFileLevel = 0
 #             1048576 - Anything related to loot
 #             2097152 - Anything related to guilds
 #             4194304 - Anything related to transports
-#             8388608 - Incoming/outgoing Opcodes
+#             8388608 - Anything related to Warden anti cheat
+#            16777216 - Incoming/outgoing Opcodes
 #
 #                       Simply add the values together to create a bitmask.
 #                       For more info see enum DebugLogFilters in Log.h
@@ -1250,6 +1252,22 @@ Quests.HighLevelHideDiff = 7
 Quests.IgnoreRaid = 0
 
 #
+#    Quests.IgnoreAutoAccept
+#        Description: Ignore auto accept flag. Clients will have to manually accept all quests.
+#        Default:     0 - (Disabled, DB values determine if quest is marked auto accept or not.)
+#                     1 - (Enabled, clients will not be told to automatically accept any quest.)
+
+Quests.IgnoreAutoAccept = 0
+
+#
+#    Quests.IgnoreAutoComplete
+#        Description: Ignore auto complete flag. Clients will have to manually complete all quests.
+#        Default:     0 - (Disabled, DB values determine if quest is marked auto complete or not.)
+#                     1 - (Enabled, clients will not be told to automatically complete any quest.)
+
+Quests.IgnoreAutoComplete = 0
+
+#
 #    Guild.EventLogRecordsCount
 #        Description: Number of log entries for guild events that are stored per guild. Old entries
 #                     will be overwritten if the number of log entries exceed the configured value.
@@ -1411,6 +1429,82 @@ DBC.EnforceItemAttributes = 1
 #        Default:     5
 
 AccountInstancesPerHour = 5
+
+#
+###################################################################################################
+
+###################################################################################################
+# WARDEN SETTINGS
+#
+#    Warden.Enabled
+#        Description: Enable Warden anticheat system.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+Warden.Enabled = 0
+
+#
+#    Warden.NumMemChecks
+#        Description: Number of Warden memory checks that are sent to the client each cycle.
+#        Default:     3 - (Enabled)
+#                     0 - (Disabled)
+
+Warden.NumMemChecks = 3
+
+#
+#    Warden.NumOtherChecks
+#        Description: Number of Warden checks other than memory checks that are added to request
+#                     each checking cycle.
+#        Default:     7 - (Enabled)
+#                     0 - (Disabled)
+
+Warden.NumOtherChecks = 7
+
+#
+#    Warden.LogFile
+#        Description: Client check fails will be logged here.
+#        Default:     ""           - (Disabled)
+#                     "Warden.log" - (Enabled)
+#
+
+Warden.LogFile = ""
+
+#
+#    Warden.ClientResponseDelay
+#        Description: Time (in seconds) before client is getting disconnecting for not responding.
+#        Default:     600 - (10 Minutes)
+#                     0 - (Disabled, client won't be kicked)
+
+Warden.ClientResponseDelay = 600
+
+#
+#    Warden.ClientCheckHoldOff
+#        Description: Time (in seconds) to wait before sending the next check request to the client.
+#                     A low number increases traffic and load on client and server side.
+#        Default:     30 - (30 Seconds)
+#                     0  - (Send check as soon as possible)
+
+Warden.ClientCheckHoldOff = 30
+
+#
+#    Warden.ClientCheckFailAction
+#        Description: Default action being taken if a client check failed. Actions can be
+#                     overwritten for each single check via warden_action table in characters 
+#                     database.
+#        Default:     0 - (Disabled, Logging only)
+#                     1 - (Kick)
+#                     2 - (Ban)
+
+Warden.ClientCheckFailAction = 0
+
+#
+#    Warden.BanDuration
+#        Description: Time (in seconds) an account will be banned if ClientCheckFailAction is set
+#                     to ban.
+#        Default:     86400 - (24 hours)
+#                     0     - (Permanent ban)
+
+Warden.BanDuration = 86400
 
 #
 ###################################################################################################
@@ -2446,14 +2540,14 @@ Arena.QueueAnnouncer.Enable = 0
 
 #
 #    Arena.ArenaSeason.ID
-#        Description: Current area season id shown in clients.
+#        Description: Current arena season id shown in clients.
 #        Default:     8
 
 Arena.ArenaSeason.ID = 8
 
 #
 #    Arena.ArenaSeason.InProgress
-#        Description: State of current area season.
+#        Description: State of current arena season.
 #        Default:     1 - (Active)
 #                     0 - (Finished)
 

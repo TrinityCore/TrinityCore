@@ -1312,7 +1312,7 @@ class go_veil_skith_cage : public GameObjectScript
                    (*itr)->AI()->Talk(SAY_FREE_0);
                    (*itr)->GetMotionMaster()->Clear();
                }
-           }        
+           }
            return false;
        }
 };

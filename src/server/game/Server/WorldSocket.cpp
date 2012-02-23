@@ -869,7 +869,8 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         "expansion, "               //6
         "mutetime, "                //7
         "locale, "                  //8
-        "recruiter "                //9
+        "recruiter, "               //9
+        "os "
         "FROM account "
         "WHERE username = '%s'",
         safe_account.c_str());
@@ -926,10 +927,10 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     id = fields[0].GetUInt32();
     /*
     if (security > SEC_ADMINISTRATOR)                        // prevent invalid security settings in DB
-    security = SEC_ADMINISTRATOR;
-    */
+        security = SEC_ADMINISTRATOR;
+        */
 
-    K.SetHexStr (fields[1].GetCString());
+    k.SetHexStr (fields[1].GetCString());
 
     int64 mutetime = fields[7].GetInt64();
     //! Negative mutetime indicates amount of seconds to be muted effective on next login - which is now.
@@ -950,6 +951,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
         locale = LOCALE_enUS;
 
     uint32 recruiter = fields[9].GetUInt32();
+    std::string os = fields[10].GetString();
 
     // Checks gmlevel per Realm
     result = LoginDatabase.PQuery ("SELECT "
@@ -1000,8 +1002,6 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     }
 
     // Check that Key and account name are the same on client and server
-    SHA1Hash sha;
-
     uint32 t = 0;
     uint32 seed = m_Seed;
 
@@ -1009,7 +1009,7 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     sha.UpdateData ((uint8 *) & t, 4);
     sha.UpdateData ((uint8 *) & clientSeed, 4);
     sha.UpdateData ((uint8 *) & seed, 4);
-    sha.UpdateBigNumbers (&K, NULL);
+    sha.UpdateBigNumbers (&k, NULL);
     sha.Finalize();
 
     std::string address = GetRemoteAddress();
@@ -1037,12 +1037,16 @@ int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
     // NOTE ATM the socket is single-threaded, have this in mind ...
     ACE_NEW_RETURN (m_Session, WorldSession (id, this, AccountTypes(security), expansion, mutetime, locale, recruiter, isRecruiter), -1);
 
-    m_Crypt.Init(&K);
+    m_Crypt.Init(&k);
 
     m_Session->LoadGlobalAccountData();
     m_Session->LoadTutorialsData();
     packetAddon.rpos(0);
     m_Session->ReadAddonsInfo(packetAddon);
+
+    // Initialize Warden system only if it is enabled by config
+    if (sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+        m_Session->InitWarden(&k, os);
 
     // Sleep this Network thread for
     uint32 sleepTime = sWorld->getIntConfig(CONFIG_SESSION_ADD_DELAY);

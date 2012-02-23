@@ -50,7 +50,8 @@ enum DebugLogFilters
     LOG_FILTER_LOOT                     = 0x00100000,   // Loot related
     LOG_FILTER_GUILD                    = 0x00200000,   // Guild related
     LOG_FILTER_TRANSPORTS               = 0x00400000,   // Transport related
-    LOG_FILTER_OPCODES                  = 0x00800000,   // OpCodes
+    LOG_FILTER_WARDEN                   = 0x00800000,   // Warden related
+    LOG_FILTER_OPCODES                  = 0x01000000,   // OpCodes
 };
 
 enum LogTypes
@@ -137,6 +138,7 @@ class Log
         void outChat( const char * str, ... )                   ATTR_PRINTF(2, 3);
         void outArena( const char * str, ... )                  ATTR_PRINTF(2, 3);
         void outSQLDriver( const char* str, ... )               ATTR_PRINTF(2, 3);
+        void outWarden( const char * str, ... )                 ATTR_PRINTF(2, 3);
         void outCharDump( const char * str, uint32 account_id, uint32 guid, const char * name );
         void outOpCode(uint32 op, const char * name, bool smsg = true);
 
@@ -170,6 +172,7 @@ class Log
         FILE* arenaLogFile;
         FILE* sqlLogFile;
         FILE* sqlDevLogFile;
+        FILE* wardenLogFile;
 
         // cache values for after initilization use (like gm log per account case)
         std::string m_logsDir;

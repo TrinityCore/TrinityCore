@@ -42,6 +42,8 @@
 #include "zlib.h"
 #include "ScriptMgr.h"
 #include "Transport.h"
+#include "WardenWin.h"
+#include "WardenMac.h"
 
 bool MapSessionFilter::Process(WorldPacket* packet)
 {
@@ -98,6 +100,8 @@ m_sessionDbLocaleIndex(locale),
 m_latency(0), m_TutorialsChanged(false), recruiterId(recruiter),
 isRecruiter(isARecruiter), timeLastWhoCommand(0)
 {
+    _warden = NULL;
+
     if (sock)
     {
         m_Address = sock->GetRemoteAddress();
@@ -124,6 +128,9 @@ WorldSession::~WorldSession()
         m_Socket = NULL;
     }
 
+    if (_warden)
+        delete _warden;
+
     ///- empty incoming packet queue
     WorldPacket* packet = NULL;
     while (_recvQueue.next(packet))
@@ -142,6 +149,12 @@ void WorldSession::SizeError(WorldPacket const &packet, uint32 size) const
 char const* WorldSession::GetPlayerName() const
 {
     return GetPlayer() ? GetPlayer()->GetName() : "<none>";
+}
+
+/// Get player guid if available. Use for logging purposes only
+uint32 WorldSession::GetGuidLow() const
+{
+    return GetPlayer() ? GetPlayer()->GetGUIDLow() : 0;
 }
 
 /// Send a packet to the client
@@ -349,6 +362,9 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
             delete packet;
     }
 
+    if (m_Socket && !m_Socket->IsClosed() && _warden)
+        _warden->Update();
+
     ProcessQueryCallbacks();
 
     //check if we are safe to proceed with logout
@@ -359,6 +375,9 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
         ///- If necessary, log the player out
         if (ShouldLogOut(currTime) && !m_playerLoading)
             LogoutPlayer(true);
+
+        if (m_Socket && GetPlayer() && _warden)
+            _warden->Update();
 
         ///- Cleanup socket pointer if need
         if (m_Socket && m_Socket->IsClosed())
@@ -520,8 +539,8 @@ void WorldSession::LogoutPlayer(bool Save)
         // calls to GetMap in this case may cause crashes
         _player->CleanupsBeforeDelete();
         sLog->outChar("Account: %d (IP: %s) Logout Character:[%s] (GUID: %u)", GetAccountId(), GetRemoteAddress().c_str(), _player->GetName(), _player->GetGUIDLow());
-        Map* _map = _player->GetMap();
-        _map->RemovePlayerFromMap(_player, true);
+        if (Map* _map = _player->FindMap())
+            _map->RemovePlayerFromMap(_player, true);
         SetPlayer(NULL);                                    // deleted in Remove call
 
         ///- Send the 'logout complete' packet to the client
@@ -995,5 +1014,20 @@ void WorldSession::ProcessQueryCallbacks()
         _stableSwapCallback.GetResult(result);
         HandleStableSwapPetCallback(result, param);
         _stableSwapCallback.FreeResult();
+    }
+}
+
+void WorldSession::InitWarden(BigNumber* k, std::string os)
+{
+    if (os == "Win")
+    {
+        _warden = new WardenWin();
+        _warden->Init(this, k);
+    }
+    else if (os == "OSX")
+    {
+        // Disabled as it is causing the client to crash
+        // _warden = new WardenMac();
+        // _warden->Init(this, k);
     }
 }

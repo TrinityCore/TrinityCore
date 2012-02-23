@@ -33,29 +33,29 @@
 class ResultSet
 {
     public:
-        ResultSet(MYSQL_RES *result, MYSQL_FIELD *fields, uint64 rowCount, uint32 fieldCount);
+        ResultSet(MYSQL_RES* result, MYSQL_FIELD* fields, uint64 rowCount, uint32 fieldCount);
         ~ResultSet();
 
         bool NextRow();
-        uint64 GetRowCount() const { return m_rowCount; }
-        uint32 GetFieldCount() const { return m_fieldCount; }
+        uint64 GetRowCount() const { return _rowCount; }
+        uint32 GetFieldCount() const { return _fieldCount; }
 
-        Field* Fetch() const { return m_currentRow; }
+        Field* Fetch() const { return _currentRow; }
         const Field & operator [] (uint32 index) const
         {
-            ASSERT(index < m_fieldCount);
-            return m_currentRow[index];
+            ASSERT(index < _fieldCount);
+            return _currentRow[index];
         }
 
     protected:
-        Field* m_currentRow;
-        uint64 m_rowCount;
-        uint32 m_fieldCount;
+        uint64 _rowCount;
+        Field* _currentRow;
+        uint32 _fieldCount;
 
     private:
         void CleanUp();
-        MYSQL_RES *m_result;
-        MYSQL_FIELD *m_fields;
+        MYSQL_RES* _result;
+        MYSQL_FIELD* _fields;
 };
 
 typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Null_Mutex> QueryResult;
@@ -63,7 +63,7 @@ typedef ACE_Refcounted_Auto_Ptr<ResultSet, ACE_Null_Mutex> QueryResult;
 class PreparedResultSet
 {
     public:
-        PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES *result, uint64 rowCount, uint32 fieldCount);
+        PreparedResultSet(MYSQL_STMT* stmt, MYSQL_RES* result, uint64 rowCount, uint32 fieldCount);
         ~PreparedResultSet();
 
         bool NextRow();
@@ -84,9 +84,9 @@ class PreparedResultSet
         }
 
     protected:
+        std::vector<Field*> m_rows;
         uint64 m_rowCount;
         uint64 m_rowPosition;
-        std::vector<Field*> m_rows;
         uint32 m_fieldCount;
 
     private:

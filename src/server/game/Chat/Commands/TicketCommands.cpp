@@ -257,7 +257,7 @@ bool ChatHandler::HandleGMTicketUnAssignCommand(const char* args)
     ticket->SaveToDB(trans);
     sTicketMgr->UpdateLastChange();
 
-    std::string msg = ticket->FormatMessageString(*this, NULL, ticket->GetAssignedToName().c_str(), 
+    std::string msg = ticket->FormatMessageString(*this, NULL, ticket->GetAssignedToName().c_str(),
         m_session ? m_session->GetPlayer()->GetName() : "Console", NULL);
     SendGlobalGMSysMessage(msg.c_str());
     return true;

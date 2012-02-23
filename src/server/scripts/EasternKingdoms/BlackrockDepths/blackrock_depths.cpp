@@ -1238,10 +1238,10 @@ public:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
                 break;
             case 2:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
                 break;
             case 3:
-                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                me->HandleEmoteCommand(EMOTE_ONESHOT_ATTACK_UNARMED);
                 break;
             case 4:
                 me->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
@@ -1301,7 +1301,7 @@ void AddSC_blackrock_depths()
     new npc_kharan_mighthammer();
     new npc_lokhtos_darkbargainer();
     new npc_rocknot();
-	// Fix us
+    // Fix us
     /*new npc_dughal_stormwing();
       new npc_tobias_seecher();
       new npc_marshal_windsor();

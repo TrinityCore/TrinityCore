@@ -363,9 +363,9 @@ bool Vehicle::AddPassenger(Unit* unit, int8 seatId)
 
     if (_me->IsInWorld())
     {
-        unit->SendClearTarget();                                // SMSG_BREAK_TARGET
-        unit->SetControlled(true, UNIT_STATE_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_MOVE_SPLINE_ROOT here (for creatures)
-                                                                // also adds MOVEMENTFLAG_ROOT
+        unit->SendClearTarget();                                 // SMSG_BREAK_TARGET
+        unit->SetControlled(true, UNIT_STATE_ROOT);              // SMSG_FORCE_ROOT - In some cases we send SMSG_SPLINE_MOVE_ROOT here (for creatures)
+                                                                 // also adds MOVEMENTFLAG_ROOT
         unit->SendMonsterMoveTransport(_me);                     // SMSG_MONSTER_MOVE_TRANSPORT
 
         if (_me->GetTypeId() == TYPEID_UNIT)
@@ -433,8 +433,7 @@ void Vehicle::RemovePassenger(Unit* unit)
 
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
-    Map* map = _me->GetMap();
-    ASSERT(map != NULL);
+    ASSERT(_me->GetMap());
 
     // not sure that absolute position calculation is correct, it must depend on vehicle orientation and pitch angle
     for (SeatMap::const_iterator itr = Seats.begin(); itr != Seats.end(); ++itr)

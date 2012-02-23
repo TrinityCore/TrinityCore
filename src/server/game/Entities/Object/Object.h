@@ -51,7 +51,7 @@ enum TypeMask
     TYPEMASK_OBJECT         = 0x0001,
     TYPEMASK_ITEM           = 0x0002,
     TYPEMASK_CONTAINER      = 0x0006,                       // TYPEMASK_ITEM | 0x0004
-    TYPEMASK_UNIT           = 0x0008,   //creature or player
+    TYPEMASK_UNIT           = 0x0008, // creature
     TYPEMASK_PLAYER         = 0x0010,
     TYPEMASK_GAMEOBJECT     = 0x0020,
     TYPEMASK_DYNAMICOBJECT  = 0x0040,
@@ -450,7 +450,7 @@ struct Position
     bool IsInDist(const Position* pos, float dist) const
         { return GetExactDistSq(pos) < dist * dist; }
     bool HasInArc(float arcangle, const Position* pos) const;
-    bool HasInLine(Unit const* target, float distance, float width) const;
+    bool HasInLine(WorldObject const* target, float width) const;
     std::string ToString() const;
 };
 ByteBuffer& operator>>(ByteBuffer& buf, Position::PositionXYZOStreamer const& streamer);
@@ -707,8 +707,8 @@ class WorldObject : public Object, public WorldLocation
         bool IsInRange(WorldObject const* obj, float minRange, float maxRange, bool is3D = true) const;
         bool IsInRange2d(float x, float y, float minRange, float maxRange) const;
         bool IsInRange3d(float x, float y, float z, float minRange, float maxRange) const;
-        bool isInFront(WorldObject const* target, float distance, float arc = M_PI) const;
-        bool isInBack(WorldObject const* target, float distance, float arc = M_PI) const;
+        bool isInFront(WorldObject const* target, float arc = M_PI) const;
+        bool isInBack(WorldObject const* target, float arc = M_PI) const;
 
         bool IsInBetween(const WorldObject* obj1, const WorldObject* obj2, float size = 0) const;
 

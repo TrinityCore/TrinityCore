@@ -158,6 +158,12 @@ void CasterAI::UpdateAI(const uint32 diff)
 
     events.Update(diff);
 
+    if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
+    {
+        me->InterruptNonMeleeSpells(false);
+        return;
+    }
+
     if (me->HasUnitState(UNIT_STATE_CASTING))
         return;
 
@@ -320,7 +326,7 @@ void VehicleAI::CheckConditions(const uint32 diff)
                 {
                     if (Player* player = passenger->ToPlayer())
                     {
-                        if (!sConditionMgr->IsPlayerMeetToConditions(player, conditions))
+                        if (!sConditionMgr->IsObjectMeetToConditions(player, me, conditions))
                         {
                             player->ExitVehicle();
                             return;//check other pessanger in next tick
