@@ -83,7 +83,7 @@ void LoadGameObjectModelList()
     }
 
     fclose(model_list_file);
-    sLog->outString(">> Loaded %d GameObject models in %u ms", model_list.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(">> Loaded %u GameObject models in %u ms", model_list.size(), GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
@@ -103,7 +103,7 @@ bool GameObjectModel::initialize(const GameObject& go, const GameObjectDisplayIn
     // ignore models with no bounds
     if (mdl_box == G3D::AABox::zero())
     {
-        sLog->outError("GameObject model %s has zero bounds, loading skipped", it->second.name);
+        sLog->outError("GameObject model %s has zero bounds, loading skipped", it->second.name.c_str());
         return false;
     }
 
