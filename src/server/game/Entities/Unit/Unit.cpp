@@ -9906,7 +9906,7 @@ void Unit::SetCharm(Unit* charm, bool apply)
 
         if (charm->HasUnitMovementFlag(MOVEMENTFLAG_WALKING))
         {
-            charm->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            charm->SetWalk(false);
             charm->SendMovementFlagUpdate();
         }
 
@@ -17454,4 +17454,12 @@ void Unit::SetFacingToObject(WorldObject* pObject)
 
     // TODO: figure out under what conditions creature will move towards object instead of facing it where it currently is.
     SetFacingTo(GetAngle(pObject));
+}
+
+void Unit::SetWalk(bool enable)
+{
+    if (enable)
+        AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+    else
+        RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
 }

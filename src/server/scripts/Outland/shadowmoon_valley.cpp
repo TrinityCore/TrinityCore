@@ -366,7 +366,7 @@ public:
                 float x, y, z;
                 caster->GetClosePoint(x, y, z, me->GetObjectSize());
 
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(false);
                 me->GetMotionMaster()->MovePoint(1, x, y, z);
             }
         }

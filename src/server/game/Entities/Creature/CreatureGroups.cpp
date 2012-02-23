@@ -240,7 +240,7 @@ void CreatureGroup::LeaderMoveTo(float x, float y, float z)
         if (member->IsWithinDist(m_leader, dist + MAX_DESYNC))
             member->SetUnitMovementFlags(m_leader->GetUnitMovementFlags());
         else
-            member->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            member->SetWalk(false);
 
         member->GetMotionMaster()->MovePoint(0, dx, dy, dz);
         member->SetHomePosition(dx, dy, dz, pathangle);
