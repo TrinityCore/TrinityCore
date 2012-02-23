@@ -2207,7 +2207,7 @@ void ObjectMgr::LoadItemTemplates()
         if (!sparse || !db2Data)
             continue;
 
-        ItemTemplate& itemTemplate = ItemTemplateStore[itemId];
+        ItemTemplate& itemTemplate = _itemTemplateStore[itemId];
 
         itemTemplate.ItemId = itemId;
         itemTemplate.Class = db2Data->Class;
@@ -2352,10 +2352,10 @@ void ObjectMgr::LoadItemTemplates()
         {
             Field* fields = result->Fetch();
             uint32 itemId = fields[0].GetUInt32();
-            if (ItemTemplateStore.find(itemId) != ItemTemplateStore.end())
+            if (_itemTemplateStore.find(itemId) != _itemTemplateStore.end())
                 --sparseCount;
 
-            ItemTemplate& itemTemplate = ItemTemplateStore[itemId];
+            ItemTemplate& itemTemplate = _itemTemplateStore[itemId];
 
             itemTemplate.ItemId = itemId;
             itemTemplate.Class = fields[1].GetUInt32();
@@ -2517,7 +2517,7 @@ void ObjectMgr::LoadItemTemplateAddon()
                 std::swap(minMoneyLoot, maxMoneyLoot);
             }
 
-            ItemTemplate& itemTemplate = ItemTemplateStore[itemId];
+            ItemTemplate& itemTemplate = _itemTemplateStore[itemId];
             itemTemplate.BuyCount = buyCount;
             itemTemplate.FoodType = foodType;
             itemTemplate.MinMoneyLoot = minMoneyLoot;
@@ -2549,7 +2549,7 @@ void ObjectMgr::LoadItemScriptNames()
                 continue;
             }
 
-            ItemTemplateStore[itemId].ScriptId = GetScriptId(fields[1].GetCString());
+            _itemTemplateStore[itemId].ScriptId = GetScriptId(fields[1].GetCString());
             ++count;
         } while (result->NextRow());
     }
