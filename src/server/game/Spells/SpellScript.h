@@ -389,6 +389,7 @@ enum AuraScriptHookType
     AURA_SCRIPT_HOOK_CHECK_AREA_TARGET,
     AURA_SCRIPT_HOOK_DISPEL,
     AURA_SCRIPT_HOOK_AFTER_DISPEL,
+    AURA_SCRIPT_HOOK_UPDATE,
     /*AURA_SCRIPT_HOOK_APPLY,
     AURA_SCRIPT_HOOK_REMOVE, */
 };
@@ -405,6 +406,7 @@ class AuraScript : public _SpellScript
     #define AURASCRIPT_FUNCTION_TYPE_DEFINES(CLASSNAME) \
         typedef bool(CLASSNAME::*AuraCheckAreaTargetFnType)(Unit* target); \
         typedef void(CLASSNAME::*AuraDispelFnType)(DispelInfo* dispelInfo); \
+        typedef void(CLASSNAME::*AuraUpdateFnType)(uint32 diff); \
         typedef void(CLASSNAME::*AuraEffectApplicationModeFnType)(AuraEffect const*, AuraEffectHandleModes); \
         typedef void(CLASSNAME::*AuraEffectPeriodicFnType)(AuraEffect const*); \
         typedef void(CLASSNAME::*AuraEffectUpdatePeriodicFnType)(AuraEffect*); \
@@ -430,6 +432,14 @@ class AuraScript : public _SpellScript
                 void Call(AuraScript* auraScript, DispelInfo* dispelInfo);
             private:
                 AuraDispelFnType pHandlerScript;
+        };
+        class AuraUpdateHandler
+        {
+            public:
+                AuraUpdateHandler(AuraUpdateFnType pHandlerScript);
+                void Call(AuraScript* auraScript, uint32 diff);
+            private:
+                AuraUpdateFnType pHandlerScript;
         };
         class EffectBase : public  _SpellScript::EffectAuraNameCheck, public _SpellScript::EffectHook
         {
@@ -507,6 +517,7 @@ class AuraScript : public _SpellScript
         #define AURASCRIPT_FUNCTION_CAST_DEFINES(CLASSNAME) \
         class CheckAreaTargetFunction : public AuraScript::CheckAreaTargetHandler { public: CheckAreaTargetFunction(AuraCheckAreaTargetFnType _pHandlerScript) : AuraScript::CheckAreaTargetHandler((AuraScript::AuraCheckAreaTargetFnType)_pHandlerScript) {} }; \
         class AuraDispelFunction : public AuraScript::AuraDispelHandler { public: AuraDispelFunction(AuraDispelFnType _pHandlerScript) : AuraScript::AuraDispelHandler((AuraScript::AuraDispelFnType)_pHandlerScript) {} }; \
+        class AuraUpdateFunction : public AuraScript::AuraUpdateHandler { public: AuraUpdateFunction(AuraUpdateFnType _pHandlerScript) : AuraScript::AuraUpdateHandler((AuraScript::AuraUpdateFnType)_pHandlerScript) {} }; \
         class EffectPeriodicHandlerFunction : public AuraScript::EffectPeriodicHandler { public: EffectPeriodicHandlerFunction(AuraEffectPeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectPeriodicHandler((AuraScript::AuraEffectPeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class EffectUpdatePeriodicHandlerFunction : public AuraScript::EffectUpdatePeriodicHandler { public: EffectUpdatePeriodicHandlerFunction(AuraEffectUpdatePeriodicFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectUpdatePeriodicHandler((AuraScript::AuraEffectUpdatePeriodicFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
         class EffectCalcAmountHandlerFunction : public AuraScript::EffectCalcAmountHandler { public: EffectCalcAmountHandlerFunction(AuraEffectCalcAmountFnType _pEffectHandlerScript, uint8 _effIndex, uint16 _effName) : AuraScript::EffectCalcAmountHandler((AuraScript::AuraEffectCalcAmountFnType)_pEffectHandlerScript, _effIndex, _effName) {} }; \
@@ -564,6 +575,12 @@ class AuraScript : public _SpellScript
         // where function is: void function (DispelInfo* dispelInfo);
         HookList<AuraDispelHandler> AfterDispel;
         #define AuraDispelFn(F) AuraDispelFunction(&F)
+
+        // executed everytime a aura is updated
+        // example: OnUpdate += AuraUpdateFn(class::function);
+        // where function is: void function (uint32 diff);
+        HookList<AuraUpdateHandler> OnUpdate;
+        #define AuraUpdateFn(F) AuraUpdateFunction(&F)
 
         // executed when aura effect is applied with specified mode to target
         // should be used when when effect handler preventing/replacing is needed, do not use this hook for triggering spellcasts/removing auras etc - may be unsafe

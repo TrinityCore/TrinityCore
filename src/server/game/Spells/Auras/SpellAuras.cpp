@@ -700,6 +700,8 @@ void Aura::Update(uint32 diff, Unit* caster)
                 }
             }
         }
+
+        CallScriptUpdate(diff);
     }
 }
 
@@ -2115,6 +2117,18 @@ void Aura::CallScriptAfterDispel(DispelInfo* dispelInfo)
         std::list<AuraScript::AuraDispelHandler>::iterator hookItrEnd = (*scritr)->AfterDispel.end(), hookItr = (*scritr)->AfterDispel.begin();
         for (; hookItr != hookItrEnd ; ++hookItr)
             (*hookItr).Call(*scritr, dispelInfo);
+        (*scritr)->_FinishScriptCall();
+    }
+}
+
+void Aura::CallScriptUpdate(uint32 diff)
+{
+    for (std::list<AuraScript*>::iterator scritr = m_loadedScripts.begin(); scritr != m_loadedScripts.end() ; ++scritr)
+    {
+        (*scritr)->_PrepareScriptCall(AURA_SCRIPT_HOOK_UPDATE);
+        std::list<AuraScript::AuraUpdateHandler>::iterator hookItrEnd = (*scritr)->OnUpdate.end(), hookItr = (*scritr)->OnUpdate.begin();
+        for (; hookItr != hookItrEnd ; ++hookItr)
+            (*hookItr).Call(*scritr, diff);
         (*scritr)->_FinishScriptCall();
     }
 }

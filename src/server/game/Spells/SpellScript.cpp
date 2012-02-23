@@ -555,6 +555,10 @@ bool AuraScript::_Validate(SpellInfo const* entry)
         if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
             sLog->outError("TSCR: Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `AfterDispel` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
 
+    for (std::list<AuraUpdateHandler>::iterator itr = OnUpdate.begin(); itr != OnUpdate.end();  ++itr)
+        if (!entry->HasEffect(SPELL_EFFECT_APPLY_AURA) && !entry->HasAreaAuraEffect())
+            sLog->outError("TSCR: Spell `%u` of script `%s` does not have apply aura effect - handler bound to hook `OnUpdate` of AuraScript won't be executed", entry->Id, m_scriptName->c_str());
+
     for (std::list<EffectApplyHandler>::iterator itr = OnEffectApply.begin(); itr != OnEffectApply.end();  ++itr)
         if (!(*itr).GetAffectedEffectsMask(entry))
             sLog->outError("TSCR: Spell `%u` Effect `%s` of script `%s` did not match dbc effect data - handler bound to hook `OnEffectApply` of AuraScript won't be executed", entry->Id, (*itr).ToString().c_str(), m_scriptName->c_str());
@@ -628,6 +632,16 @@ AuraScript::AuraDispelHandler::AuraDispelHandler(AuraDispelFnType _pHandlerScrip
 void AuraScript::AuraDispelHandler::Call(AuraScript* auraScript, DispelInfo* _dispelInfo)
 {
     (auraScript->*pHandlerScript)(_dispelInfo);
+}
+
+AuraScript::AuraUpdateHandler::AuraUpdateHandler(AuraUpdateFnType _pHandlerScript)
+{
+    pHandlerScript = _pHandlerScript;
+}
+
+void AuraScript::AuraUpdateHandler::Call(AuraScript* auraScript, uint32 diff)
+{
+    (auraScript->*pHandlerScript)(diff);
 }
 
 AuraScript::EffectBase::EffectBase(uint8 _effIndex, uint16 _effName)
