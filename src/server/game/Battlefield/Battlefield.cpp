@@ -30,8 +30,8 @@
 #include "GridNotifiersImpl.h"
 #include "CellImpl.h"
 #include "CreatureTextMgr.h"
-
 #include "GroupMgr.h"
+
 
 Battlefield::Battlefield()
 {
