@@ -74,9 +74,9 @@
 #include "CreatureTextMgr.h"
 #include "SmartAI.h"
 #include "Channel.h"
+#include "OutdoorPvPWG.h"
 #include "WardenCheckMgr.h"
 #include "Warden.h"
-
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
 volatile uint32 World::m_worldLoopCounter = 0;

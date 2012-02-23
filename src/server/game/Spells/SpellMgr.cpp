@@ -2954,10 +2954,6 @@ void SpellMgr::LoadSpellCustomAttr()
                 if (spellInfo->SpellFamilyFlags[0] & 0x8)
                     spellInfo->AttributesCu |= SPELL_ATTR0_CU_AURA_CC;
                 break;
-            case 51678: // WintergraspSiegeEngine Ram set damage radius to 5 yards 
-                spellInfo->EffectRadiusIndex[0] = 52;
-                spellInfo->EffectRadiusIndex[1] = 52;
-                break;
             default:
                 break;
         }
@@ -3545,6 +3541,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 40166: // Introspection
             case 40167: // Introspection
                 spellInfo->Attributes |= SPELL_ATTR0_NEGATIVE_1;
+			case 51678: // WintergraspSiegeEngine Ram set damage radius to 5 yards 
+				spellInfo->EffectRadiusIndex[0] = 52;
+				spellInfo->EffectRadiusIndex[1] = 52;
+				break;
             default:
                 break;
         }
