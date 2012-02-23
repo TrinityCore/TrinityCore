@@ -644,7 +644,7 @@ public:
 
             if (move <= diff)
             {
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(true);
                 if (phase == 1)
                     me->GetMotionMaster()->MovePoint(0, x, y, z);
                 if (phase == 1 && me->IsWithinDist3d(x, y, z, 0.1f))

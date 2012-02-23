@@ -168,8 +168,10 @@ public:
                 me->AI()->AttackStart(Summ1);
                 break;
                 }
-            case 19: me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
-            case 25: me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING); break;
+            case 19: me->SetWalk(false);
+                break;
+            case 25: me->SetWalk(true);
+                break;
             case 30:
                 if (player && player->GetTypeId() == TYPEID_PLAYER)
                     CAST_PLR(player)->GroupEventHappens(QUEST_ESCAPE_FROM_THE_CATACOMBS, me);
