@@ -13806,11 +13806,7 @@ void Unit::RemoveFromWorld()
     {
         m_duringRemoveFromWorld = true;
         if (IsVehicle())
-        {
-            GetVehicleKit()->Uninstall();
-            delete m_vehicleKit;
-            m_vehicleKit = NULL;
-        }
+            RemoveVehicleKit();
 
         RemoveCharmAuras();
         RemoveBindSightAuras();
@@ -17232,6 +17228,9 @@ void Unit::BuildMovementPacket(ByteBuffer *data) const
         *data << float (GetTransOffsetO());
         *data << uint32(GetTransTime());
         *data << uint8 (GetTransSeat());
+
+        if (GetExtraUnitMovementFlags() & MOVEMENTFLAG2_INTERPOLATED_MOVEMENT)
+            *data << uint32(m_movementInfo.t_time2);
     }
 
     // 0x02200000
