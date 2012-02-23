@@ -641,7 +641,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                     switch (id)
                     {
                         case POINT_FIRST_STEP:
-                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            me->SetWalk(false);
                             Talk(SAY_INTRO_HORDE_3);
                             _events.ScheduleEvent(EVENT_INTRO_HORDE_5, 15500, 0, PHASE_INTRO_H);
                             _events.ScheduleEvent(EVENT_INTRO_HORDE_6, 29500, 0, PHASE_INTRO_H);
@@ -687,7 +687,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_INTRO_HORDE_3:
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            me->SetWalk(true);
                             me->GetMotionMaster()->MovePoint(POINT_FIRST_STEP, firstStepPos.GetPositionX(), firstStepPos.GetPositionY(), firstStepPos.GetPositionZ());
                             break;
                         case EVENT_INTRO_HORDE_5:
@@ -718,7 +718,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                             {
                                 float x, y, z;
                                 deathbringer->GetClosePoint(x, y, z, deathbringer->GetObjectSize());
-                                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                me->SetWalk(true);
                                 me->GetMotionMaster()->MovePoint(POINT_CORPSE, x, y, z);
                             }
                             break;
@@ -841,7 +841,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             {
                 if (type == POINT_MOTION_TYPE && id == POINT_FIRST_STEP)
                 {
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(false);
                     Talk(SAY_INTRO_ALLIANCE_4);
                     _events.ScheduleEvent(EVENT_INTRO_ALLIANCE_5, 5000, 0, PHASE_INTRO_A);
                     if (Creature* deathbringer = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_DEATHBRINGER_SAURFANG)))
@@ -865,7 +865,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_INTRO_ALLIANCE_4:
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            me->SetWalk(true);
                             me->GetMotionMaster()->MovePoint(POINT_FIRST_STEP, firstStepPos.GetPositionX(), firstStepPos.GetPositionY(), firstStepPos.GetPositionZ());
                             break;
                         case EVENT_INTRO_ALLIANCE_5:

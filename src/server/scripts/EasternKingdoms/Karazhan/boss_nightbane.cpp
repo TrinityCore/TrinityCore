@@ -122,7 +122,7 @@ public:
 
             me->SetSpeed(MOVE_RUN, 2.0f);
             me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            me->SetWalk(false);
             me->setActive(true);
 
             if (instance)

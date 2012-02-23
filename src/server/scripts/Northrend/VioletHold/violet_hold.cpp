@@ -363,7 +363,7 @@ public:
                                 {
                                     if (Creature* pGuard = *itr)
                                     {
-                                        pGuard->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                                        pGuard->SetWalk(false);
                                         pGuard->GetMotionMaster()->MovePoint(0, MovePosition);
                                     }
                                 }
