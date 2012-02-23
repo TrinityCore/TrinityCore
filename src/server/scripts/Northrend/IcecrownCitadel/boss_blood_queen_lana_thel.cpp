@@ -216,7 +216,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                     _killMinchar = true;
                 else
                 {
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetLevitate(true);
                     me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                     me->SetFlying(true);
                     me->SendMovementFlagUpdate();
@@ -230,7 +230,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                 if (_killMinchar)
                 {
                     _killMinchar = false;
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetLevitate(true);
                     me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                     me->SetFlying(true);
                     me->GetMotionMaster()->MovePoint(POINT_MINCHAR, mincharPos);
@@ -244,7 +244,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
 
             void JustReachedHome()
             {
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SetLevitate(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                 me->SetFlying(false);
                 me->SetReactState(REACT_AGGRESSIVE);
@@ -295,7 +295,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                         events.ScheduleEvent(EVENT_AIR_FLY_DOWN, 10000);
                         break;
                     case POINT_GROUND:
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SetLevitate(false);
                         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                         me->SetFlying(false);
                         me->SendMovementFlagUpdate();
@@ -424,7 +424,7 @@ class boss_blood_queen_lana_thel : public CreatureScript
                             me->GetMotionMaster()->MovePoint(POINT_CENTER, centerPos);
                             break;
                         case EVENT_AIR_START_FLYING:
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->SetLevitate(true);
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
                             me->SetFlying(true);
                             me->SendMovementFlagUpdate();
