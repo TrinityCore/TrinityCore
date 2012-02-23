@@ -21,16 +21,17 @@
  * Scriptnames of files in this file should be prefixed with "spell_dk_".
  */
 
-#include "ScriptPCH.h"
-#include "Spell.h"
+#include "ScriptMgr.h"
+#include "SpellScript.h"
+#include "SpellAuraEffects.h"
 
 enum DeathKnightSpells
 {
     DK_SPELL_RUNIC_POWER_ENERGIZE               = 49088,
     DK_SPELL_ANTI_MAGIC_SHELL_TALENT            = 51052,
     DK_SPELL_CORPSE_EXPLOSION_TRIGGERED         = 43999,
+    DK_SPELL_CORPSE_EXPLOSION_VISUAL            = 51270,
     DK_SPELL_GHOUL_EXPLODE                      = 47496,
-    DISPLAY_GHOUL_CORPSE                        = 25537,
     DK_SPELL_SCOURGE_STRIKE_TRIGGERED           = 70890,
     DK_SPELL_BLOOD_BOIL_TRIGGERED               = 65658,
     DK_SPELL_WILL_OF_THE_NECROPOLIS_TALENT_R1   = 49189,
@@ -103,7 +104,9 @@ class spell_dk_anti_magic_shell_self : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                return sSpellMgr->GetSpellInfo(DK_SPELL_RUNIC_POWER_ENERGIZE);
+                if (!sSpellMgr->GetSpellInfo(DK_SPELL_RUNIC_POWER_ENERGIZE))
+                    return false;
+                return true;
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
@@ -160,17 +163,16 @@ class spell_dk_anti_magic_zone : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                return sSpellMgr->GetSpellInfo(DK_SPELL_ANTI_MAGIC_SHELL_TALENT);
+                if (!sSpellMgr->GetSpellInfo(DK_SPELL_ANTI_MAGIC_SHELL_TALENT))
+                    return false;
+                return true;
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32 & amount, bool & /*canBeRecalculated*/)
             {
                 SpellInfo const* talentSpell = sSpellMgr->GetSpellInfo(DK_SPELL_ANTI_MAGIC_SHELL_TALENT);
                 amount = talentSpell->Effects[EFFECT_0].CalcValue(GetCaster());
-                Unit* caster = GetCaster();
-                if (!caster)
-                    return;
-                if (Player* player = caster->ToPlayer())
+                if (Player* player = GetCaster()->ToPlayer())
                      amount += int32(2 * player->GetTotalAttackPowerValue(BASE_ATTACK));
             }
 
@@ -204,9 +206,9 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
 
             bool Validate(SpellInfo const* /*spellEntry*/)
             {
-                if (!sSpellMgr->GetSpellInfo(DK_SPELL_CORPSE_EXPLOSION_TRIGGERED))
+                if (!sSpellMgr->GetSpellInfo(DK_SPELL_CORPSE_EXPLOSION_TRIGGERED) || !sSpellMgr->GetSpellInfo(DK_SPELL_GHOUL_EXPLODE))
                     return false;
-                if (!sSpellMgr->GetSpellInfo(DK_SPELL_GHOUL_EXPLODE))
+                if (!sSpellMgr->GetSpellInfo(DK_SPELL_CORPSE_EXPLOSION_VISUAL))
                     return false;
                 return true;
             }
@@ -227,9 +229,9 @@ class spell_dk_corpse_explosion : public SpellScriptLoader
                         GetCaster()->CastCustomSpell(unitTarget, GetSpellInfo()->Effects[EFFECT_1].CalcValue(), &bp, NULL, NULL, true);
                         // Corpse Explosion (Suicide)
                         unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
-                        // Set corpse look
-                        unitTarget->SetDisplayId(DISPLAY_GHOUL_CORPSE + urand(0, 3));
                     }
+                    // Set corpse look
+                    GetCaster()->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_VISUAL, true);
                 }
             }
 
@@ -255,14 +257,19 @@ class spell_dk_ghoul_explode : public SpellScriptLoader
         {
             PrepareSpellScript(spell_dk_ghoul_explode_SpellScript);
 
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(DK_SPELL_CORPSE_EXPLOSION_TRIGGERED))
+                    return false;
+                return true;
+            }
+
             void Suicide(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* unitTarget = GetHitUnit())
                 {
                     // Corpse Explosion (Suicide)
                     unitTarget->CastSpell(unitTarget, DK_SPELL_CORPSE_EXPLOSION_TRIGGERED, true);
-                    // Set corpse look
-                    unitTarget->SetDisplayId(DISPLAY_GHOUL_CORPSE + urand(0, 3));
                 }
             }
 
@@ -301,9 +308,8 @@ class spell_dk_death_gate : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                if (!GetHitUnit())
-                    return;
-                GetHitUnit()->CastSpell(GetHitUnit(), GetEffectValue(), false);
+                if (Unit* target = GetHitUnit())
+                    target->CastSpell(target, GetEffectValue(), false);
             }
 
             void Register()
@@ -567,12 +573,11 @@ public:
 
     class spell_dk_improved_blood_presence_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_improved_blood_presence_AuraScript)
+        PrepareAuraScript(spell_dk_improved_blood_presence_AuraScript);
+
         bool Validate(SpellInfo const* /*entry*/)
         {
-            if (!sSpellMgr->GetSpellInfo(DK_SPELL_BLOOD_PRESENCE))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
+            if (!sSpellMgr->GetSpellInfo(DK_SPELL_BLOOD_PRESENCE) || !sSpellMgr->GetSpellInfo(DK_SPELL_IMPROVED_BLOOD_PRESENCE_TRIGGERED))
                 return false;
             return true;
         }
@@ -615,12 +620,11 @@ public:
 
     class spell_dk_improved_unholy_presence_AuraScript : public AuraScript
     {
-        PrepareAuraScript(spell_dk_improved_unholy_presence_AuraScript)
+        PrepareAuraScript(spell_dk_improved_unholy_presence_AuraScript);
+
         bool Validate(SpellInfo const* /*entry*/)
         {
-            if (!sSpellMgr->GetSpellInfo(DK_SPELL_UNHOLY_PRESENCE))
-                return false;
-            if (!sSpellMgr->GetSpellInfo(DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED))
+            if (!sSpellMgr->GetSpellInfo(DK_SPELL_UNHOLY_PRESENCE) || !sSpellMgr->GetSpellInfo(DK_SPELL_IMPROVED_UNHOLY_PRESENCE_TRIGGERED))
                 return false;
             return true;
         }
@@ -656,6 +660,141 @@ public:
     }
 };
 
+enum DeathStrike
+{
+    ICON_ID_IMPROVED_DEATH_STRIKE   = 2751,
+    SPELL_DEATH_STRIKE_HEAL         = 45470,
+};
+
+class spell_dk_death_strike : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_strike() : SpellScriptLoader("spell_dk_death_strike") { }
+
+        class spell_dk_death_strike_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_death_strike_SpellScript);
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_STRIKE_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    uint32 count = target->GetDiseasesByCaster(caster->GetGUID());
+                    int32 bp = int32(count * caster->CountPctFromMaxHealth(int32(GetSpellInfo()->Effects[EFFECT_0].DamageMultiplier)));
+                    // Improved Death Strike
+                    if (AuraEffect const* aurEff = caster->GetAuraEffect(SPELL_AURA_ADD_PCT_MODIFIER, SPELLFAMILY_DEATHKNIGHT, ICON_ID_IMPROVED_DEATH_STRIKE, 0))
+                        AddPctN(bp, caster->CalculateSpellDamage(caster, aurEff->GetSpellInfo(), 2));
+                    caster->CastCustomSpell(caster, SPELL_DEATH_STRIKE_HEAL, &bp, NULL, NULL, false);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_death_strike_SpellScript::HandleDummy, EFFECT_2, SPELL_EFFECT_DUMMY);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_death_strike_SpellScript();
+        }
+};
+
+enum DeathCoil
+{
+    SPELL_DEATH_COIL_DAMAGE     = 47632,
+    SPELL_DEATH_COIL_HEAL       = 47633,
+};
+
+class spell_dk_death_coil : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_coil() : SpellScriptLoader("spell_dk_death_coil") { }
+
+        class spell_dk_death_coil_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_death_coil_SpellScript);
+
+            bool Validate(SpellInfo const* /*SpellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_DEATH_COIL_DAMAGE) || !sSpellMgr->GetSpellInfo(SPELL_DEATH_COIL_HEAL))
+                    return false;
+                return true;
+            }
+
+            void HandleDummy(SpellEffIndex /* effIndex */)
+            {
+                int32 damage = GetEffectValue();
+                Unit* caster = GetCaster();
+                if (Unit* target = GetHitUnit())
+                {
+                    if (caster->IsFriendlyTo(target))
+                    {
+                        int32 bp = int32(damage * 1.5f);
+                        caster->CastCustomSpell(target, SPELL_DEATH_COIL_HEAL, &bp, NULL, NULL, true);
+                    }
+                    else
+                        caster->CastCustomSpell(target, SPELL_DEATH_COIL_DAMAGE, &damage, NULL, NULL, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_death_coil_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_death_coil_SpellScript();
+        }
+};
+
+class spell_dk_death_grip : public SpellScriptLoader
+{
+    public:
+        spell_dk_death_grip() : SpellScriptLoader("spell_dk_death_grip") { }
+
+        class spell_dk_death_grip_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_dk_death_grip_SpellScript);
+
+            void HandleDummy(SpellEffIndex effIndex)
+            {
+                int32 damage = GetEffectValue();
+                Position pos;
+                if (Unit* target = GetHitUnit())
+                {
+                    GetSummonPosition(effIndex, pos, 0.0f, 0);
+
+                    if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
+                        target->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), damage, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_dk_death_grip_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_dk_death_grip_SpellScript();
+        }
+};
+
 void AddSC_deathknight_spell_scripts()
 {
     new spell_dk_anti_magic_shell_raid();
@@ -671,4 +810,7 @@ void AddSC_deathknight_spell_scripts()
     new spell_dk_will_of_the_necropolis();
     new spell_dk_improved_blood_presence();
     new spell_dk_improved_unholy_presence();
+    new spell_dk_death_strike();
+    new spell_dk_death_coil();
+    new spell_dk_death_grip();
 }

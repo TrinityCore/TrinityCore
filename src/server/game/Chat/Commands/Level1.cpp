@@ -558,8 +558,8 @@ bool ChatHandler::HandleLookupTeleCommand(const char * args)
     uint32 maxResults = sWorld->getIntConfig(CONFIG_MAX_RESULTS_LOOKUP_COMMANDS);
     bool limitReached = false;
 
-    GameTeleMap const & teleMap = sObjectMgr->GetGameTeleMap();
-    for (GameTeleMap::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
+    GameTeleContainer const & teleMap = sObjectMgr->GetGameTeleMap();
+    for (GameTeleContainer::const_iterator itr = teleMap.begin(); itr != teleMap.end(); ++itr)
     {
         GameTele const* tele = &itr->second;
 

@@ -33,7 +33,6 @@ npc_guardian            100%    guardianAI used to prevent players from accessin
 npc_garments_of_quests   80%    NPC's related to all Garments of-quests 5621, 5624, 5625, 5648, 565
 npc_injured_patient     100%    patients for triage-quests (6622 and 6624)
 npc_doctor              100%    Gustaf Vanhowzen and Gregory Victor, quest 6622 and 6624 (Triage)
-npc_kingdom_of_dalaran_quests   Misc NPC's gossip option related to quests 12791, 12794 and 12796
 npc_mount_vendor        100%    Regular mount vendors all over the world. Display gossip if player doesn't meet the requirements to buy
 npc_rogue_trainer        80%    Scripted trainers, so they are able to offer item 17126 for class quest 6681
 npc_sayge               100%    Darkmoon event fortune teller, buff player based on answers given
@@ -1137,50 +1136,6 @@ public:
 };
 
 /*######
-## npc_kingdom_of_dalaran_quests
-######*/
-
-enum eKingdomDalaran
-{
-    SPELL_TELEPORT_DALARAN  = 53360,
-    ITEM_KT_SIGNET          = 39740,
-    QUEST_MAGICAL_KINGDOM_A = 12794,
-    QUEST_MAGICAL_KINGDOM_H = 12791,
-    QUEST_MAGICAL_KINGDOM_N = 12796
-};
-
-#define GOSSIP_ITEM_TELEPORT_TO "I am ready to be teleported to Dalaran."
-
-class npc_kingdom_of_dalaran_quests : public CreatureScript
-{
-public:
-    npc_kingdom_of_dalaran_quests() : CreatureScript("npc_kingdom_of_dalaran_quests") { }
-    bool OnGossipHello(Player* player, Creature* creature)
-    {
-        if (creature->isQuestGiver())
-            player->PrepareQuestMenu(creature->GetGUID());
-
-        if (player->HasItemCount(ITEM_KT_SIGNET, 1) && (!player->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_A) ||
-            !player->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_H) || !player->GetQuestRewardStatus(QUEST_MAGICAL_KINGDOM_N)))
-            player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_TELEPORT_TO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
-        return true;
-    }
-
-    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
-    {
-        player->PlayerTalkClass->ClearMenus();
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            player->CLOSE_GOSSIP_MENU();
-            player->CastSpell(player, SPELL_TELEPORT_DALARAN, false);
-        }
-        return true;
-    }
-};
-
-/*######
 ## npc_mount_vendor
 ######*/
 
@@ -1737,6 +1692,12 @@ public:
         {
             if (!UpdateVictim())
                 return;
+
+            if (me->getVictim()->HasBreakableByDamageCrowdControlAura(me))
+            {
+                me->InterruptNonMeleeSpells(false);
+                return;
+            }
 
             if (SpellTimer <= diff)
             {
@@ -3044,6 +3005,100 @@ public:
     }
 };
 
+/*#####
+# npc_spring_rabbit
+#####*/
+
+enum rabbitSpells
+{
+    SPELL_SPRING_FLING          = 61875,
+    SPELL_SPRING_RABBIT_JUMP    = 61724,
+    SPELL_SPRING_RABBIT_WANDER  = 61726,
+    SPELL_SUMMON_BABY_BUNNY     = 61727,
+    SPELL_SPRING_RABBIT_IN_LOVE = 61728,
+    NPC_SPRING_RABBIT           = 32791
+};
+
+class npc_spring_rabbit : public CreatureScript
+{
+public:
+    npc_spring_rabbit() : CreatureScript("npc_spring_rabbit") { }
+
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_spring_rabbitAI(creature);
+    }
+
+    struct npc_spring_rabbitAI : public ScriptedAI
+    {
+        npc_spring_rabbitAI(Creature* c) : ScriptedAI(c) { }
+
+        bool inLove;
+        uint32 jumpTimer;
+        uint32 bunnyTimer;
+        uint32 searchTimer;
+        uint64 rabbitGUID;
+
+        void Reset()
+        {
+            inLove = false;
+            rabbitGUID = 0;
+            jumpTimer = urand(5000, 10000);
+            bunnyTimer = urand(10000, 20000);
+            searchTimer = urand(5000, 10000);
+            if (Unit* owner = me->GetOwner())
+                me->GetMotionMaster()->MoveFollow(owner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        }
+
+        void EnterCombat(Unit * /*who*/) { }
+
+        void DoAction(const int32 /*param*/)
+        {
+            inLove = true;
+            if (Unit* owner = me->GetOwner())
+                owner->CastSpell(owner, SPELL_SPRING_FLING, true);
+        }
+
+        void UpdateAI(const uint32 diff)
+        {
+            if (inLove)
+            {
+                if (jumpTimer <= diff)
+                {
+                    if (Unit* rabbit = Unit::GetUnit(*me, rabbitGUID))
+                        DoCast(rabbit, SPELL_SPRING_RABBIT_JUMP);
+                    jumpTimer = urand(5000, 10000);
+                } else jumpTimer -= diff;
+
+                if (bunnyTimer <= diff)
+                {
+                    DoCast(SPELL_SUMMON_BABY_BUNNY);
+                    bunnyTimer = urand(20000, 40000);
+                } else bunnyTimer -= diff;
+            }
+            else
+            {
+                if (searchTimer <= diff)
+                {
+                    if (Creature* rabbit = me->FindNearestCreature(NPC_SPRING_RABBIT, 10.0f))
+                    {
+                        if (rabbit == me || rabbit->HasAura(SPELL_SPRING_RABBIT_IN_LOVE))
+                            return;
+
+                        me->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, me);
+                        DoAction(1);
+                        rabbit->AddAura(SPELL_SPRING_RABBIT_IN_LOVE, rabbit);
+                        rabbit->AI()->DoAction(1);
+                        rabbit->CastSpell(rabbit, SPELL_SPRING_RABBIT_JUMP, true);
+                        rabbitGUID = rabbit->GetGUID();
+                    }
+                    searchTimer = urand(5000, 10000);
+                } else searchTimer -= diff;
+            }
+        }
+    };
+};
+
 void AddSC_npcs_special()
 {
     new npc_air_force_bots;
@@ -3054,7 +3109,6 @@ void AddSC_npcs_special()
     new npc_injured_patient;
     new npc_garments_of_quests;
     new npc_guardian;
-    new npc_kingdom_of_dalaran_quests;
     new npc_mount_vendor;
     new npc_rogue_trainer;
     new npc_sayge;
@@ -3077,5 +3131,5 @@ void AddSC_npcs_special()
     new npc_fire_elemental;
     new npc_earth_elemental;
     new npc_firework;
+    new npc_spring_rabbit();
 }
-

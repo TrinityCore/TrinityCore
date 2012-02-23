@@ -316,7 +316,7 @@ void InstanceScript::DoSendNotifyToInstance(char const* format, ...)
         for (Map::PlayerList::const_iterator i = players.begin(); i != players.end(); ++i)
             if (Player* player = i->getSource())
                 if (WorldSession* session = player->GetSession())
-                    session->SendNotification(buff);
+                    session->SendNotification("%s", buff);
     }
 }
 

@@ -435,7 +435,7 @@ public:
                     float X = CalculateRandomLocation(target->GetPositionX(), 20);
                     float Y = CalculateRandomLocation(target->GetPositionY(), 20);
                     float Z = target->GetPositionZ();
-                    Z = me->GetMap()->GetHeight(X, Y, Z);
+                    Z = me->GetMap()->GetHeight(me->GetPhaseMask(), X, Y, Z);
                     Creature* DoomBlossom = me->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                     if (DoomBlossom)
                     {

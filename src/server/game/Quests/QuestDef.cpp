@@ -342,9 +342,14 @@ void Quest::BuildExtraQuestInfo(WorldPacket& data, Player* player) const
     data << uint32(0);                                      // 4.x Unk
 }
 
+bool Quest::IsAutoAccept() const
+{
+    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? false : (Flags & QUEST_FLAGS_AUTO_ACCEPT);
+}
+
 bool Quest::IsAutoComplete() const
 {
-    return Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE);
+    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) ? false : (Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
 }
 
 bool Quest::IsAllowedInRaid() const

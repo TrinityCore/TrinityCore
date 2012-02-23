@@ -30,6 +30,8 @@
 #include "SharedDefines.h"
 #include "GridRefManager.h"
 #include "MapRefManager.h"
+#include "DynamicTree.h"
+#include "GameObjectModel.h"
 
 #include <bitset>
 #include <list>
@@ -141,55 +143,58 @@ struct LiquidData
 
 class GridMap
 {
-    uint32  m_flags;
-    // Area data
-    uint16  m_gridArea;
-    uint16 *m_area_map;
+    uint32  _flags;
+    union{
+        float* m_V9;
+        uint16* m_uint16_V9;
+        uint8* m_uint8_V9;
+    };
+    union{
+        float* m_V8;
+        uint16* m_uint16_V8;
+        uint8* m_uint8_V8;
+    };
     // Height level data
-    float   m_gridHeight;
-    float   m_gridIntHeightMultiplier;
-    union{
-        float  *m_V9;
-        uint16 *m_uint16_V9;
-        uint8  *m_uint8_V9;
-    };
-    union{
-        float  *m_V8;
-        uint16 *m_uint16_V8;
-        uint8  *m_uint8_V8;
-    };
-    // Liquid data
-    uint16  m_liquidType;
-    uint8   m_liquid_offX;
-    uint8   m_liquid_offY;
-    uint8   m_liquid_width;
-    uint8   m_liquid_height;
-    float   m_liquidLevel;
-    uint8  *m_liquid_type;
-    float  *m_liquid_map;
+    float _gridHeight;
+    float _gridIntHeightMultiplier;
 
-    bool  loadAreaData(FILE* in, uint32 offset, uint32 size);
-    bool  loadHeihgtData(FILE* in, uint32 offset, uint32 size);
-    bool  loadLiquidData(FILE* in, uint32 offset, uint32 size);
+    // Area data
+    uint16* _areaMap;
+
+    // Liquid data
+    float _liquidLevel;
+    uint8* _liquidData;
+    float* _liquidMap;
+    uint16 _gridArea;
+    uint16 _liquidType;
+    uint8 _liquidOffX;
+    uint8 _liquidOffY;
+    uint8 _liquidWidth;
+    uint8 _liquidHeight;
+
+
+    bool loadAreaData(FILE* in, uint32 offset, uint32 size);
+    bool loadHeihgtData(FILE* in, uint32 offset, uint32 size);
+    bool loadLiquidData(FILE* in, uint32 offset, uint32 size);
 
     // Get height functions and pointers
-    typedef float (GridMap::*pGetHeightPtr) (float x, float y) const;
-    pGetHeightPtr m_gridGetHeight;
-    float  getHeightFromFloat(float x, float y) const;
-    float  getHeightFromUint16(float x, float y) const;
-    float  getHeightFromUint8(float x, float y) const;
-    float  getHeightFromFlat(float x, float y) const;
+    typedef float (GridMap::*GetHeightPtr) (float x, float y) const;
+    GetHeightPtr _gridGetHeight;
+    float getHeightFromFloat(float x, float y) const;
+    float getHeightFromUint16(float x, float y) const;
+    float getHeightFromUint8(float x, float y) const;
+    float getHeightFromFlat(float x, float y) const;
 
 public:
     GridMap();
     ~GridMap();
-    bool  loadData(char *filaname);
-    void  unloadData();
+    bool loadData(char* filaname);
+    void unloadData();
 
     uint16 getArea(float x, float y);
-    inline float getHeight(float x, float y) {return (this->*m_gridGetHeight)(x, y);}
-    float  getLiquidLevel(float x, float y);
-    uint8  getTerrainType(float x, float y);
+    inline float getHeight(float x, float y) {return (this->*_gridGetHeight)(x, y);}
+    float getLiquidLevel(float x, float y);
+    uint8 getTerrainType(float x, float y);
     ZLiquidStatus getLiquidStatus(float x, float y, float z, uint8 ReqLiquidType, LiquidData* data = 0);
 };
 
@@ -425,7 +430,13 @@ class Map : public GridRefManager<NGridType>
         InstanceMap* ToInstanceMap(){ if (IsDungeon())  return reinterpret_cast<InstanceMap*>(this); else return NULL;  }
         const InstanceMap* ToInstanceMap() const { if (IsDungeon())  return (const InstanceMap*)((InstanceMap*)this); else return NULL;  }
         float GetWaterOrGroundLevel(float x, float y, float z, float* ground = NULL, bool swim = false) const;
-
+        float GetHeight(uint32 phasemask, float x, float y, float z, bool vmap = true, float maxSearchDist = DEFAULT_HEIGHT_SEARCH) const;
+        bool isInLineOfSight(float x1, float y1, float z1, float x2, float y2, float z2, uint32 phasemask) const;
+        void Balance() { _dynamicTree.balance(); }
+        void Remove(const GameObjectModel& mdl) { _dynamicTree.remove(mdl); }
+        void Insert(const GameObjectModel& mdl) { _dynamicTree.insert(mdl); }
+        bool Contains(const GameObjectModel& mdl) const { return _dynamicTree.contains(mdl);}
+        bool getObjectHitPos(uint32 phasemask, float x1, float y1, float z1, float x2, float y2, float z2, float& rx, float &ry, float& rz, float modifyDist);
     private:
         void LoadMapAndVMap(int gx, int gy);
         void LoadVMap(int gx, int gy);
@@ -481,6 +492,7 @@ class Map : public GridRefManager<NGridType>
         uint32 i_InstanceId;
         uint32 m_unloadTimer;
         float m_VisibleDistance;
+        DynamicMapTree _dynamicTree;
 
         MapRefManager m_mapRefManager;
         MapRefManager::iterator m_mapRefIter;

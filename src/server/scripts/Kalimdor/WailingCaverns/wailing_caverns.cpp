@@ -98,7 +98,7 @@ public:
             DoScriptText(SAY_MAKE_PREPARATIONS, creature);
 
             creature->setFaction(250);
-            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
 
             CAST_AI(npc_escortAI, (creature->AI()))->Start(false, false, player->GetGUID());
             CAST_AI(npc_escortAI, (creature->AI()))->SetDespawnAtFar(false);
@@ -143,7 +143,7 @@ public:
             currentEvent = 0;
             eventProgress = 0;
             me->setActive(true);
-            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
         }
 
         uint32 eventTimer;

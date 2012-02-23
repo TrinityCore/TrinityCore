@@ -57,7 +57,7 @@ void HomeMovementGenerator<Creature>::_setTargetLocation(Creature & owner)
     owner.ClearUnitState(UNIT_STATE_ALL_STATE & ~UNIT_STATE_EVADE);
 }
 
-bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32 time_diff)
+bool HomeMovementGenerator<Creature>::Update(Creature &owner, const uint32 /*time_diff*/)
 {
     arrived = owner.movespline->Finalized();
     return !arrived;

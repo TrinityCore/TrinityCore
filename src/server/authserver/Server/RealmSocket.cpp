@@ -95,7 +95,7 @@ const std::string& RealmSocket::getRemoteAddress(void) const
     return _remoteAddress;
 }
 
-const uint16 RealmSocket::getRemotePort(void) const
+uint16 RealmSocket::getRemotePort(void) const
 {
     return _remotePort;
 }
