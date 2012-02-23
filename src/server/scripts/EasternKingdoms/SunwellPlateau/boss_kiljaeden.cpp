@@ -1196,7 +1196,7 @@ public:
 
         void Reset()
         {
-            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetLevitate(true);
             bPointReached = true;
             uiTimer = urand(500, 1000);
             uiCheckTimer = 1000;

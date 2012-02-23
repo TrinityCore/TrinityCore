@@ -605,7 +605,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                         _events.ScheduleEvent(EVENT_OUTRO_HORDE_3, 18000);   // say
                         _events.ScheduleEvent(EVENT_OUTRO_HORDE_4, 24000);   // cast
                         _events.ScheduleEvent(EVENT_OUTRO_HORDE_5, 30000);   // move
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SetLevitate(false);
                         me->SendMovementFlagUpdate();
                         me->Relocate(me->GetPositionX(), me->GetPositionY(), 539.2917f);
                         me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), 539.2917f, 0.0f);
@@ -629,7 +629,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetLevitate(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
                 }
             }
@@ -812,7 +812,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
                     {
                         me->RemoveAurasDueToSpell(SPELL_GRIP_OF_AGONY);
                         Talk(SAY_OUTRO_ALLIANCE_1);
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                        me->SetLevitate(false);
                         me->SendMovementFlagUpdate();
                         me->Relocate(me->GetPositionX(), me->GetPositionY(), 539.2917f);
                         me->MonsterMoveWithSpeed(me->GetPositionX(), me->GetPositionY(), 539.2917f, 0.0f);
@@ -832,7 +832,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetLevitate(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[0]);
                 }
             }
@@ -934,7 +934,7 @@ class npc_saurfang_event : public CreatureScript
             {
                 if (spell->Id == SPELL_GRIP_OF_AGONY)
                 {
-                    me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    me->SetLevitate(true);
                     me->GetMotionMaster()->MovePoint(POINT_CHOKE, chokePos[_index]);
                 }
             }
