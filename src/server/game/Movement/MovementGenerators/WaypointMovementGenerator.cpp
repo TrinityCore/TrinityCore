@@ -79,7 +79,7 @@ void WaypointMovementGenerator<Creature>::OnArrived(Creature& creature)
     if (i_path->at(i_currentNode)->event_id && urand(0, 99) < i_path->at(i_currentNode)->event_chance)
     {
         sLog->outDebug(LOG_FILTER_MAPSCRIPTS, "Creature movement start script %u at point %u for "UI64FMTD".", i_path->at(i_currentNode)->event_id, i_currentNode, creature.GetGUID());
-        creature.GetMap()->ScriptsStart(sWaypointScripts, i_path->at(i_currentNode)->event_id, &creature, NULL/*, false*/);
+        creature.GetMap()->ScriptsStart(sWaypointScripts, i_path->at(i_currentNode)->event_id, &creature, NULL);
     }
 
     // Inform script

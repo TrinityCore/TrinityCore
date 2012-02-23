@@ -137,8 +137,8 @@ public:
 
                 if (!spawnedTemplate)
                 {
-                    SpawnAssoc = NULL;
                     sLog->outErrorDb("TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
+                    SpawnAssoc = NULL;
                     return;
                 }
             }

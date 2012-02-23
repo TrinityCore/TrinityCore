@@ -2408,24 +2408,24 @@ bool Creature::IsDungeonBoss() const
     return cinfo && (cinfo->flags_extra & CREATURE_FLAG_EXTRA_DUNGEON_BOSS);
 }
 
-void Creature::SetWalk(bool enable)
+bool Creature::SetWalk(bool enable)
 {
-    if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+    if (!Unit::SetWalk(enable))
+        return false;
+
     WorldPacket data(enable ? SMSG_SPLINE_MOVE_SET_WALK_MODE : SMSG_SPLINE_MOVE_SET_RUN_MODE, 9);
     data.append(GetPackGUID());
     SendMessageToSet(&data, true);
+    return true;
 }
 
-void Creature::SetLevitate(bool enable)
+bool Creature::SetLevitate(bool enable)
 {
-    if (enable)
-        AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-    else
-        RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+    if (!Unit::SetLevitate(enable))
+        return false;
+
     WorldPacket data(enable ? SMSG_SPLINE_MOVE_GRAVITY_DISABLE : SMSG_SPLINE_MOVE_GRAVITY_ENABLE, 9);
     data.append(GetPackGUID());
     SendMessageToSet(&data, true);
+    return true;
 }
