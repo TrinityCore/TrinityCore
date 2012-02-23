@@ -499,7 +499,7 @@ class boss_the_lich_king : public CreatureScript
             {
                 _JustDied();
                 DoCastAOE(SPELL_PLAY_MOVIE, false);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SetLevitate(false);
                 me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x03);
                 me->GetMotionMaster()->MoveFall();
             }
@@ -1072,7 +1072,7 @@ class boss_the_lich_king : public CreatureScript
                             DoCastAOE(SPELL_SOUL_BARRAGE);
                             sCreatureTextMgr->SendSound(me, SOUND_PAIN, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
                             // set flight
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->SetLevitate(true);
                             me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x03);
                             me->GetMotionMaster()->MovePoint(POINT_LK_OUTRO_2, OutroFlying);
                             break;

@@ -867,7 +867,7 @@ public:
                 Timer[EVENT_FLIGHT_SEQUENCE] = 2000;
                 break;
             case 9: // land
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SetLevitate(false);
                 me->StopMoving();
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
                 for (uint8 i = 0; i < 2; ++i)
@@ -1869,7 +1869,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::Reset()
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
     SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
-    me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+    me->SetLevitate(false);
     me->setActive(false);
     Summons.DespawnAll();
 }
