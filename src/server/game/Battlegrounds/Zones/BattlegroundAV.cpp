@@ -1032,17 +1032,18 @@ void BattlegroundAV::EventPlayerAssaultsPoint(Player* player, uint32 object)
             std::vector<uint64> ghost_list = m_ReviveQueue[BgCreatures[node]];
             if (!ghost_list.empty())
             {
-                Player* player;
-                WorldSafeLocsEntry const* ClosestGrave = NULL;
+                Player* waitingPlayer;  // player waiting at graveyard for resurrection
+                WorldSafeLocsEntry const* closestGrave = NULL;
                 for (std::vector<uint64>::iterator itr = ghost_list.begin(); itr != ghost_list.end(); ++itr)
                 {
-                    player = ObjectAccessor::FindPlayer(*ghost_list.begin());
-                    if (!player)
+                    waitingPlayer = ObjectAccessor::FindPlayer(*ghost_list.begin());
+                    if (!waitingPlayer)
                         continue;
-                    if (!ClosestGrave)
-                        ClosestGrave = GetClosestGraveYard(player);
+
+                    if (!closestGrave)
+                        closestGrave = GetClosestGraveYard(waitingPlayer);
                     else
-                        player->TeleportTo(GetMapId(), ClosestGrave->x, ClosestGrave->y, ClosestGrave->z, player->GetOrientation());
+                        waitingPlayer->TeleportTo(GetMapId(), closestGrave->x, closestGrave->y, closestGrave->z, player->GetOrientation());
                 }
                 m_ReviveQueue[BgCreatures[node]].clear();
             }
