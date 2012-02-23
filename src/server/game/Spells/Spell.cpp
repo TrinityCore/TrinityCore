@@ -1026,7 +1026,7 @@ void Spell::SelectImplicitConeTargets(SpellEffIndex effIndex, SpellImplicitTarge
             {
                 Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
                 for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                    if ((*j)->IsAffectedOnSpell(m_spellInfo))
+                    if ((*j)->IsAffectingSpell(m_spellInfo))
                         maxTargets += (*j)->GetAmount();
 
                 Trinity::RandomResizeList(targets, maxTargets);
@@ -1319,7 +1319,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
         {
             Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
             for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                if ((*j)->IsAffectedOnSpell(m_spellInfo))
+                if ((*j)->IsAffectingSpell(m_spellInfo))
                     maxTargets += (*j)->GetAmount();
 
             if (m_spellInfo->Id == 5246) //Intimidating Shout
@@ -1339,7 +1339,7 @@ void Spell::SelectImplicitAreaTargets(SpellEffIndex effIndex, SpellImplicitTarge
         {
             Unit::AuraEffectList const& Auras = m_caster->GetAuraEffectsByType(SPELL_AURA_MOD_MAX_AFFECTED_TARGETS);
             for (Unit::AuraEffectList::const_iterator j = Auras.begin(); j != Auras.end(); ++j)
-                if ((*j)->IsAffectedOnSpell(m_spellInfo))
+                if ((*j)->IsAffectingSpell(m_spellInfo))
                     maxTargets += (*j)->GetAmount();
 
             Trinity::RandomResizeList(gObjTargets, maxTargets);
@@ -3770,9 +3770,6 @@ void Spell::SendCastResult(Player* caster, SpellInfo const* spellInfo, uint8 cas
             break;
         case SPELL_FAILED_NEED_EXOTIC_AMMO:
             data << uint32(spellInfo->EquippedItemSubClassMask); // seems correct...
-            break;
-        case SPELL_FAILED_REAGENTS:
-            data << uint32(0);                              // Item id
             break;
         case SPELL_FAILED_NEED_MORE_ITEMS:
             data << uint32(0);                              // Item id

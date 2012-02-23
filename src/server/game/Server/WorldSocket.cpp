@@ -801,15 +801,14 @@ int WorldSocket::HandleSendAuthSession()
 int WorldSocket::HandleAuthSession(WorldPacket& recvPacket)
 {
     uint8 digest[20];
+    uint32 clientSeed;
     uint16 clientBuild, security;
     uint32 id;
     uint32 m_addonSize;
-    uint32 clientSeed;
-    std::string account;
     LocaleConstant locale;
-
-    SHA1Hash sha1;
-    BigNumber v, s, g, N, K;
+    std::string account;
+    SHA1Hash sha;
+    BigNumber v, s, g, N, k;
     WorldPacket packet;
 
     recvPacket.read_skip<uint8>();

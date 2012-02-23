@@ -153,7 +153,7 @@ void AuraApplication::_InitFlags(Unit* caster, uint8 effMask)
     {
         if (((1 << i) & effMask) && GetBase()->GetSpellInfo()->Effects[i].ApplyAuraName == SPELL_AURA_MOUNTED)
         {
-            m_flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
+            _flags |= AFLAG_ANY_EFFECT_AMOUNT_SENT;
             break;
         }
     }
