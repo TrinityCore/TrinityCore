@@ -19,7 +19,7 @@
 #ifndef TRINITY_CALENDAR_H
 #define TRINITY_CALENDAR_H
 
-#include "Common.h"
+#include "Errors.h"
 #include <map>
 
 enum CalendarFlags
@@ -212,17 +212,19 @@ typedef std::map<uint64, CalendarEventIdList> CalendarPlayerEventIdMap;
 typedef std::map<uint64, CalendarInvite> CalendarInviteMap;
 typedef std::map<uint64, CalendarEvent> CalendarEventMap;
 
+class Player;
+
 struct CalendarAction
 {
-        CalendarAction(): _action(CALENDAR_ACTION_NONE), _guid(0), _inviteId(0), _data(0)
+        CalendarAction(): _action(CALENDAR_ACTION_NONE), _player(NULL), _guid(0), _inviteId(0), _data(0)
         {
         }
 
         void SetAction(CalendarActionData data) { _action = data; }
         CalendarActionData GetAction() const { return _action; }
 
-        void SetGUID(uint64 guid) { _guid = guid; }
-        uint64 GetGUID() const { return _guid; }
+        void SetPlayer(Player* player) { ASSERT(player); _player = player; }
+        Player* GetPlayer() const { return _player; }
 
         void SetInviteId(uint64 id) { _inviteId = id; }
         uint64 GetInviteId() const { return _inviteId; }
@@ -237,7 +239,7 @@ struct CalendarAction
 
     private:
         CalendarActionData _action;
-        uint64 _guid;
+        Player* _player;
         uint64 _inviteId;
         uint32 _data;
 };
