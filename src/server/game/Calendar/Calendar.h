@@ -21,7 +21,6 @@
 
 #include "Common.h"
 
-// TODO - Get correct values
 enum CalendarEventType
 {
     CALENDARTYPE_RAID = 0,
@@ -31,8 +30,21 @@ enum CalendarEventType
     CALENDARTYPE_OTHER,
 };
 
-// TODO - Get correct values
-enum CalendarInviteStatus
+enum CalendarSendEventType
+{
+    CALENDARSENDEVENTTYPE_GET = 0,
+    CALENDARSENDEVENTTYPE_ADD,
+    CALENDARSENDEVENTTYPE_COPY
+};
+
+enum CalendarModerationRank
+{
+    CALENDARMODERATIONRANK_PLAYER = 0,
+    CALENDARMODERATIONRANK_MODERATOR,
+    CALENDARMODERATIONRANK_OWNER
+};
+
+enum CalendarEventStatus
 {
     CALENDARSTATUS_INVITED = 0,
     CALENDARSTATUS_ACCEPTED,
@@ -41,6 +53,20 @@ enum CalendarInviteStatus
     CALENDARSTATUS_OUT,
     CALENDARSTATUS_STANDBY,
     CALENDARSTATUS_CONFIRMED,
+    // CALENDARSTATUS_UNK7
+    // CALENDARSTATUS_UNK8
+    // CALENDARSTATUS_UNK9
+};
+
+enum CalendarFlags
+{
+    CALENDARFLAG_NONE            = 0x000000,
+    CALENDARFLAG_NORMAL          = 0x000001,
+    CALENDARFLAG_INVITES_LOCKED  = 0x000010,
+    CALENDARFLAG_WITHOUT_INVITES = 0x000040,
+    CALENDARFLAG_GUILD_EVENT     = 0x000400
+    // CALENDARFLAG_Unk10000     = 0x010000,
+    // CALENDARFLAG_Unk400000    = 0x400000
 };
 
 struct CalendarEvent
@@ -49,12 +75,12 @@ struct CalendarEvent
     uint64 CreatorGuid;
     std::string Name;
     std::string Description;
-    uint8 Type;
+    CalendarEventType Type;
     uint8 Unk;
     uint32 DungeonId;
     uint32 UnkTime;
     uint32 Time;
-    uint32 Flags;
+    CalendarFlags Flags;
     uint32 GuildId;
 };
 
@@ -62,8 +88,8 @@ struct CalendarInvite
 {
     uint64 Id;
     uint64 Event;
-    uint8 Status;
-    uint8 Rank;
+    CalendarEventStatus Status;
+    CalendarModerationRank Rank;
     uint8 Unk1;
     uint8 Unk2;
     uint8 Unk3;
