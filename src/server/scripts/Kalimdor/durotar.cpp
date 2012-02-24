@@ -241,7 +241,7 @@ class npc_tiger_matriarch : public CreatureScript
 
             void IsSummonedBy(Unit* summoner)
             {
-                if (summoner->GetTypeId() != TYPEID_PLAYER && summoner->GetVehicle())
+                if (summoner->GetTypeId() != TYPEID_PLAYER || !summoner->GetVehicle())
                     return;
 
                 _tigerGuid = summoner->GetVehicle()->GetBase()->GetGUID();
