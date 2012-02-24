@@ -42,7 +42,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
 
     data << uint32(cur_time);                            // current time
     data << uint32(secsToTimeBitFields(cur_time));       // unknown packed time
-    
+
     InstanceSave *save = NULL;
     uint32 counter = 0;
     size_t p_counter = data.wpos();
@@ -74,7 +74,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
     for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
     {
         uint32 mapId = PAIR32_LOPART(itr->first);
-
+        Difficulty difficulty = Difficulty(PAIR32_HIPART(itr->first));
         if (sentMaps.find(mapId) != sentMaps.end())
             continue;
 
@@ -82,10 +82,14 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
         if (!mapEntry || !mapEntry->IsRaid())
             continue;
 
+        MapDifficulty const* diff = GetMapDifficultyData(mapId, difficulty);
+        if (!diff)
+            continue;
+
         sentMaps.insert(mapId);
 
         data << uint32(mapId);
-        data << uint32(itr->second - cur_time);
+        data << uint32(diff->resetTime);
         data << uint32(mapEntry->unk_time);
         ++counter;
     }
@@ -148,7 +152,7 @@ void WorldSession::HandleCalendarArenaTeam(WorldPacket& recv_data)
 void WorldSession::HandleCalendarAddEvent(WorldPacket& recv_data)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: CMSG_CALENDAR_ADD_EVENT");
-    
+
     std::string title;
     std::string description;
     uint8 type;
@@ -365,7 +369,7 @@ void WorldSession::SendCalendarEvent(uint64 eventId, bool added)
     {
         data << uint32(0);                                  // invite count
         for (uint8 i = 0; i < 0; ++i)
-        {         
+        {
             data << uint64(0);                              // invite played guid
             data << uint8(0);                               // unk
             data << uint8(0);                               // status
