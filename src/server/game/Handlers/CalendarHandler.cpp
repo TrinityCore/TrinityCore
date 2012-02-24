@@ -414,3 +414,22 @@ void WorldSession::SendCalendarEventRemovedAlert(uint64 eventId)
     data << uint32(0);                           // invite time
     SendPacket(&data);
 }
+
+void WorldSession::SendCalendarRaidLockout(InstanceSave* save, bool add)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", add ? "SMSG_CALENDAR_RAID_LOCKOUT_ADDED" : "SMSG_CALENDAR_RAID_LOCKOUT_REMOVED");
+    time_t currTime = time(NULL);
+
+    WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_REMOVED, (add ? 4 : 0) + 4 + 4 + 4 + 8);
+    if (add)
+    {
+        data.SetOpcode(SMSG_CALENDAR_RAID_LOCKOUT_ADDED);
+        data << uint32(secsToTimeBitFields(currTime));
+    }
+
+    data << uint32(save->GetMapId());
+    data << uint32(save->GetDifficulty());
+    data << uint32(save->GetResetTime() - currTime);
+    data << uint64(save->GetInstanceId());
+    SendPacket(&data);
+}
