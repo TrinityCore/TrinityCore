@@ -1236,7 +1236,7 @@ OpcodeHandler opcodeTable[NUM_MSG_TYPES] =
     /*0x4B7*/ { "SMSG_CORPSE_MAP_POSITION_QUERY_RESPONSE",      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4B8*/ { "CMSG_UNUSED5",                                 STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::Handle_NULL                     },
     /*0x4B9*/ { "CMSG_UNUSED6",                                 STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
-    /*0x4BA*/ { "CMSG_CALENDAR_EVENT_SIGNUP",                   STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_NULL                     },
+    /*0x4BA*/ { "CMSG_CALENDAR_EVENT_SIGNUP",                   STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleCalendarEventSignup       },
     /*0x4BB*/ { "SMSG_CALENDAR_CLEAR_PENDING_ACTION",           STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4BC*/ { "SMSG_EQUIPMENT_SET_LIST",                      STATUS_NEVER,    PROCESS_INPLACE,      &WorldSession::Handle_ServerSide               },
     /*0x4BD*/ { "CMSG_EQUIPMENT_SET_SAVE",                      STATUS_LOGGEDIN, PROCESS_THREADUNSAFE, &WorldSession::HandleEquipmentSetSave          },

@@ -56,6 +56,8 @@ struct LfgProposal;
 struct LfgReward;
 struct LfgRoleCheck;
 struct LfgUpdateData;
+class CalendarEvent;
+class CalendarInvite;
 
 enum AccountDataType
 {
@@ -878,9 +880,22 @@ class WorldSession
         void HandleCalendarEventModeratorStatus(WorldPacket& recv_data);
         void HandleCalendarComplain(WorldPacket& recv_data);
         void HandleCalendarGetNumPending(WorldPacket& recv_data);
-        void SendCalendarEvent(uint64 eventId, bool added = false);
-        void SendCalendarEventInviteAlert(uint64 eventId, uint64 inviteId);
-        void SendCalendarEventRemovedAlert(uint64 eventId);
+        void HandleCalendarEventSignup(WorldPacket& recv_data);
+
+        void SendCalendarEvent(CalendarEvent const& calendarEvent, uint8 sendEventType);
+        void SendCalendarEventInvite(CalendarInvite const& invite, bool pending);
+        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& calendarInvite);
+        void SendCalendarEventInviteRemove(CalendarInvite const& invite, uint32 flags);
+        void SendCalendarEventInviteRemoveAlert(CalendarEvent const& calendarEvent, uint8 status);
+        void SendCalendarEventRemovedAlert(CalendarEvent const& calendarEvent);
+        void SendCalendarEventUpdateAlert(CalendarEvent const& calendarEvent, uint8 sendEventType);
+        void SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
+        void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
+        void SendCalendarClearPendingAction();
+        void SendCalendarRaildLockoutAdded(InstanceSave const* save);
+        void SendCalendarRaildLockoutRemoved(InstanceSave const* save);
+        void SendCalendarRaildLockoutUpdated(InstanceSave const* save);
+        void SendCalendarCommandResult(uint32 value);
         void SendCalendarRaidLockout(InstanceSave* save, bool add);
 
         void HandleSpellClick(WorldPacket& recv_data);
