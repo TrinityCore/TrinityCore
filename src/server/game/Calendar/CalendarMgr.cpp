@@ -99,7 +99,7 @@ CalendarInvite* CalendarMgr::GetInvite(uint64 inviteId)
     if (it != _invites.end())
         return &(it->second);
 
-    sLog->outError("SPP: CalendarMgr::GetInvite: [" UI64FMTD "] not found!", inviteId);
+    sLog->outError("CalendarMgr::GetInvite: [" UI64FMTD "] not found!", inviteId);
     return NULL;
 }
 
@@ -109,7 +109,7 @@ CalendarEvent* CalendarMgr::GetEvent(uint64 eventId)
     if (it != _events.end())
         return &(it->second);
 
-    sLog->outError("SPP: CalendarMgr::GetEvent: [" UI64FMTD "] not found!", eventId);
+    sLog->outError("CalendarMgr::GetEvent: [" UI64FMTD "] not found!", eventId);
     return NULL;
 }
 
@@ -209,8 +209,7 @@ void CalendarMgr::AddAction(CalendarAction const& action)
         case CALENDAR_ACTION_MODIFY_EVENT:
         {
             uint64 eventId = action.Event.GetEventId();
-            CalendarEvent* calendarEvent = CheckPermisions(eventId,
-                action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_MODERATOR);
+            CalendarEvent* calendarEvent = CheckPermisions(eventId, action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_MODERATOR);
 
             if (!calendarEvent)
                 return;
@@ -235,8 +234,7 @@ void CalendarMgr::AddAction(CalendarAction const& action)
         }
         case CALENDAR_ACTION_COPY_EVENT:
         {
-            CalendarEvent* calendarEvent = CheckPermisions(action.Event.GetEventId(),
-                action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_OWNER);
+            CalendarEvent* calendarEvent = CheckPermisions(action.Event.GetEventId(), action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_OWNER);
 
             if (!calendarEvent)
                 return;
@@ -257,6 +255,7 @@ void CalendarMgr::AddAction(CalendarAction const& action)
 
             CalendarinviteIdList const invites = calendarEvent->GetInviteIdList();
             for (CalendarinviteIdList::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+            {
                 if (CalendarInvite* invite = GetInvite(*itr))
                 {
                     uint64 inviteId = GetFreeInviteId();
@@ -274,6 +273,7 @@ void CalendarMgr::AddAction(CalendarAction const& action)
                         newEvent.AddInvite(inviteId);
                     }
                 }
+            }
 
             if (AddEvent(newEvent))
                 SendCalendarEvent(newEvent, CALENDAR_SENDTYPE_COPY);
@@ -284,11 +284,9 @@ void CalendarMgr::AddAction(CalendarAction const& action)
         {
             uint64 eventId = action.Event.GetEventId();
             uint32 flags = action.Event.GetFlags();
-            sLog->outError("CalendarMgr::AddAction:: Flags %u", flags);
             // FIXME - Use of Flags here!
 
-            CalendarEvent* calendarEvent = CheckPermisions(eventId,
-                action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_OWNER);
+            CalendarEvent* calendarEvent = CheckPermisions(eventId, action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_OWNER);
 
             if (!calendarEvent)
                 return;
@@ -304,9 +302,7 @@ void CalendarMgr::AddAction(CalendarAction const& action)
         case CALENDAR_ACTION_ADD_EVENT_INVITE:
         {
             uint64 eventId = action.Invite.GetEventId();
-            CalendarEvent* calendarEvent = CheckPermisions(eventId,
-                action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_MODERATOR);
-
+            CalendarEvent* calendarEvent = CheckPermisions(eventId, action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_MODERATOR);
             if (!calendarEvent)
                 return;
 
@@ -324,8 +320,7 @@ void CalendarMgr::AddAction(CalendarAction const& action)
         {
             uint64 eventId = action.Event.GetEventId();
             CalendarEvent* calendarEvent = GetEvent(eventId);
-                CheckPermisions(eventId,
-                action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_MODERATOR);
+            CheckPermisions(eventId, action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_MODERATOR);
 
             if (!calendarEvent || !(calendarEvent->GetFlags() & CALENDAR_FLAG_GUILD_ONLY)
                 || !calendarEvent->GetGuildId() || calendarEvent->GetGuildId() != action.GetExtraData())
@@ -385,7 +380,6 @@ void CalendarMgr::AddAction(CalendarAction const& action)
             if (!calendarEvent || !invite || !calendarEvent->HasInvite(inviteId))
                 return;
 
-            sLog->outError("SPP: CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE: All OK");
             invite->SetStatus(action.Invite.GetStatus());
             SendCalendarEventModeratorStatusAlert(*invite);
             break;
@@ -394,8 +388,7 @@ void CalendarMgr::AddAction(CalendarAction const& action)
         {
             uint64 eventId = action.Invite.GetEventId();
             uint64 inviteId = action.Invite.GetInviteId();
-            CalendarEvent* calendarEvent = CheckPermisions(eventId,
-                action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_MODERATOR);
+            CalendarEvent* calendarEvent = CheckPermisions(eventId, action.GetGUID(), action.GetInviteId(), CALENDAR_RANK_MODERATOR);
 
             if (!calendarEvent)
                 return;
@@ -418,7 +411,7 @@ bool CalendarMgr::AddEvent(CalendarEvent const& newEvent)
     uint64 eventId = newEvent.GetEventId();
     if (_events.find(eventId) != _events.end())
     {
-        sLog->outError("CalendarMgr::addEvent: Event [" UI64FMTD "] exists", eventId);
+        sLog->outError("CalendarMgr::AddEvent: Event [" UI64FMTD "] exists", eventId);
         return false;
     }
 
@@ -431,7 +424,7 @@ bool CalendarMgr::RemoveEvent(uint64 eventId)
     CalendarEventMap::iterator itr = _events.find(eventId);
     if (itr == _events.end())
     {
-        sLog->outError("CalendarMgr::removeEvent: Event [" UI64FMTD "] does not exist", eventId);
+        sLog->outError("CalendarMgr::RemoveEvent: Event [" UI64FMTD "] does not exist", eventId);
         return false;
     }
 
@@ -467,13 +460,13 @@ bool CalendarMgr::AddInvite(CalendarInvite const& newInvite)
     uint64 inviteId = newInvite.GetInviteId();
     if (!inviteId)
     {
-        sLog->outError("CalendarMgr::addInvite: Cant add Invite 0");
+        sLog->outError("CalendarMgr::AddInvite: Cant add Invite 0");
         return false;
     }
 
     if (_invites.find(inviteId) != _invites.end())
     {
-        sLog->outError("CalendarMgr::addInvite: Invite [" UI64FMTD "] exists", inviteId);
+        sLog->outError("CalendarMgr::AddInvite: Invite [" UI64FMTD "] exists", inviteId);
         return false;
     }
 
@@ -489,7 +482,7 @@ uint64 CalendarMgr::RemoveInvite(uint64 inviteId)
     CalendarInviteMap::iterator itr = _invites.find(inviteId);
     if (itr == _invites.end())
     {
-        sLog->outError("CalendarMgr::removeInvite: Invite [" UI64FMTD "] does not exist", inviteId);
+        sLog->outError("CalendarMgr::RemoveInvite: Invite [" UI64FMTD "] does not exist", inviteId);
         return 0;
     }
 

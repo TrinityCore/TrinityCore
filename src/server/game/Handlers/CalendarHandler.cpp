@@ -237,6 +237,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recv_data)
                  "] differs", guid, inviteCount, invitee);
             return;
         }
+
         inviteId = sCalendarMgr->GetFreeInviteId();
     }
     else
@@ -385,6 +386,12 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recv_data)
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_EVENT_INVITE [" UI64FMTD "], EventId ["
         UI64FMTD "] InviteId [" UI64FMTD "] Name %s ([" UI64FMTD "]), status %u, "
         "Rank %u", guid, eventId, inviteId, name.c_str(), invitee, status, rank);
+
+    if (!invitee)
+    {
+        SendCalendarCommandResult(CALENDAR_ERROR_PLAYER_NOT_FOUND);
+        return;
+    }
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_ADD_EVENT_INVITE);
@@ -817,13 +824,27 @@ void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
     SendPacket(&data);
 }
 
-void WorldSession::SendCalendarCommandResult(uint32 value)
+void WorldSession::SendCalendarCommandResult(CalendarError err, char const* param /*= NULL*/)
 {
     uint64 guid = _player->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_COMMAND_RESULT [" UI64FMTD "] Value: %u", guid, value);
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_COMMAND_RESULT [" UI64FMTD "] Value: %u", guid, err);
 
     WorldPacket data(SMSG_CALENDAR_COMMAND_RESULT, 0);
-    data << uint16(0) << uint32(0) << uint32(value);
+    data << uint32(0);
+    data << uint8(0);
+    switch (err)
+    {
+        case CALENDAR_ERROR_OTHER_INVITES_EXCEEDED:
+        case CALENDAR_ERROR_ALREADY_INVITED_TO_EVENT_S:
+        case CALENDAR_ERROR_IGNORING_YOU_S:
+            data << param;
+            break;
+        default:
+            data << uint8(0);
+            break;
+    }
+
+    data << uint32(err);
 
     SendPacket(&data);
 }
