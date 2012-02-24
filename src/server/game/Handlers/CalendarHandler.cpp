@@ -155,13 +155,13 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recv_data)
 
     std::string title;
     std::string description;
-    uint8 type;
+    uint8 type; // CalendarEventType
     uint8 unkbyte;
     uint32 maxInvites;
     uint32 dungeonId;
     uint32 eventPackedTime;
     uint32 unkPackedTime;
-    uint32 flags;
+    uint32 flags; // CalendarFlags
 
     recv_data >> title;
     recv_data >> description;
@@ -177,17 +177,17 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recv_data)
     event.Id = sCalendarMgr->GetNextEventId();
     event.Name = title;
     event.Description = description;
-    event.Type = type;
+    event.Type = (CalendarEventType) type;
     event.Unk = unkbyte;
     event.DungeonId = dungeonId;
-    event.Flags = flags;
+    event.Flags = (CalendarFlags) flags;
     event.Time = eventPackedTime;
     event.UnkTime = unkPackedTime;
     event.CreatorGuid = GetPlayer()->GetGUID();
 
     sCalendarMgr->AddEvent(event);
 
-    if (((flags >> 6) & 1))
+    if (flags & CALENDARFLAG_WITHOUT_INVITES)
         return;
 
     uint32 inviteCount;
@@ -197,23 +197,26 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recv_data)
         return;
 
     uint64 guid;
-    uint8 status;
-    uint8 rank;
-    for (int32 i = 0; i < inviteCount; ++i)
+    uint8 status; // CalendarEventStatus
+    uint8 rank; // CalendarModerationRank
+    for (uint32 i = 0; i < inviteCount; ++i)
     {
         CalendarInvite invite;
         invite.Id = sCalendarMgr->GetNextInviteId();
+
         recv_data.readPackGUID(guid);
         recv_data >> status;
         recv_data >> rank;
+
         invite.Event = event.Id;
         invite.CreatorGuid = GetPlayer()->GetGUID();
         invite.TargetGuid = guid;
-        invite.Status = status;
-        invite.Rank = rank;
+        invite.Status = (CalendarEventStatus) status;
+        invite.Rank = (CalendarModerationRank) rank;
         invite.Time = event.Time;
         invite.Text = ""; // hmm...
         invite.Unk1 = invite.Unk2 = invite.Unk3 = 0;
+
         sCalendarMgr->AddInvite(invite);
     }
     //SendCalendarEvent(eventId, true);
