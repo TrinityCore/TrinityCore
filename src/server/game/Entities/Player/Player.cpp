@@ -18117,6 +18117,9 @@ void Player::UnbindInstance(BoundInstancesMap::iterator &itr, Difficulty difficu
         }
 
         itr->second.save->RemovePlayer(this);               // save can become invalid
+        if (itr->second.perm)
+            GetSession()->SendCalendarRaidLockout(itr->second.save, false);
+
         m_boundInstances[difficulty].erase(itr++);
     }
 }
@@ -18186,14 +18189,7 @@ void Player::BindToInstance()
     GetSession()->SendPacket(&data);
     BindToInstance(mapSave, true);
 
-    time_t currTime = time(NULL);
-    data.Initialize(SMSG_CALENDAR_RAID_LOCKOUT_ADDED, 4 + 4 + 4 + 4 + 8);
-    data << uint32(secsToTimeBitFields(currTime));
-    data << uint32(mapSave->GetMapId());
-    data << uint32(mapSave->GetDifficulty());
-    data << uint32(mapSave->GetResetTime() - currTime);
-    data << uint64(mapSave->GetInstanceId());
-    GetSession()->SendPacket(&data);
+    GetSession()->SendCalendarRaidLockout(mapSave, true);
 }
 
 void Player::SendRaidInfo()

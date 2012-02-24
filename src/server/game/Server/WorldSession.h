@@ -881,6 +881,7 @@ class WorldSession
         void SendCalendarEvent(uint64 eventId, bool added = false);
         void SendCalendarEventInviteAlert(uint64 eventId, uint64 inviteId);
         void SendCalendarEventRemovedAlert(uint64 eventId);
+        void SendCalendarRaidLockout(InstanceSave* save, bool add);
 
         void HandleSpellClick(WorldPacket& recv_data);
         void HandleMirrorImageDataRequest(WorldPacket& recv_data);
