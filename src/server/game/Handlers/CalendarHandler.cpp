@@ -44,6 +44,7 @@ SMSG_CALENDAR_EVENT_INVITE_STATUS_ALERT [ Structure unkown ]
 #include "CalendarMgr.h"
 #include "ObjectMgr.h"
 #include "ObjectAccessor.h"
+#include "DatabaseEnv.h"
 
 void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
 {
@@ -257,7 +258,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recv_data)
     CalendarAction action;
 
     action.SetAction(CALENDAR_ACTION_ADD_EVENT);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.Event.SetEventId(sCalendarMgr->GetFreeEventId());
     action.Event.SetCreatorGUID(guid);
     action.Event.SetType(type);
@@ -309,7 +310,7 @@ void WorldSession::HandleCalendarUpdateEvent(WorldPacket& recv_data)
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_MODIFY_EVENT);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetInviteId(inviteId);
     action.Event.SetEventId(eventId);
     action.Event.SetType(type);
@@ -338,7 +339,7 @@ void WorldSession::HandleCalendarRemoveEvent(WorldPacket& recv_data)
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_REMOVE_EVENT);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetInviteId(inviteId);
     action.Event.SetEventId(eventId);
     action.Event.SetFlags(flags);
@@ -359,7 +360,7 @@ void WorldSession::HandleCalendarCopyEvent(WorldPacket& recv_data)
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_COPY_EVENT);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetInviteId(inviteId);
     action.Event.SetEventId(eventId);
     action.Event.SetTime(time);
@@ -375,13 +376,26 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recv_data)
     std::string name;
     uint8 status;
     uint8 rank;
+    uint64 invitee = 0;
+    uint32 team = 0;
 
     recv_data >> eventId >> inviteId >> name >> status >> rank;
-    uint64 invitee = 0;
     if (Player* player = sObjectAccessor->FindPlayerByName(name.c_str()))
+    {
         invitee = player->GetGUID();
+        team = player->GetTeam();
+    }
     else
-        invitee = sObjectMgr->GetPlayerGUIDByName(name.c_str());
+    {
+        PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_GUID_RACE_ACC_BY_NAME);
+        stmt->setString(0, name);
+        if (PreparedQueryResult result = CharacterDatabase.Query(stmt))
+        {
+            Field* fields = result->Fetch();
+            invitee = MAKE_NEW_GUID(fields[0].GetUInt32(), 0, HIGHGUID_PLAYER);
+            team = Player::TeamForRace(fields[1].GetUInt8());
+        }
+    }
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_EVENT_INVITE [" UI64FMTD "], EventId ["
         UI64FMTD "] InviteId [" UI64FMTD "] Name %s ([" UI64FMTD "]), status %u, "
@@ -393,9 +407,17 @@ void WorldSession::HandleCalendarEventInvite(WorldPacket& recv_data)
         return;
     }
 
+    if (_player->GetTeam() != team)
+    {
+        SendCalendarCommandResult(CALENDAR_ERROR_NOT_ALLIED);
+        return;
+    }
+
+    // TODO: Check ignore, even if offline (db query)
+
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_ADD_EVENT_INVITE);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetInviteId(inviteId);
     action.Invite.SetEventId(eventId);
     action.Invite.SetInviteId(sCalendarMgr->GetFreeInviteId());
@@ -419,7 +441,7 @@ void WorldSession::HandleCalendarEventSignup(WorldPacket& recv_data)
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_SIGNUP_TO_EVENT);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetExtraData(GetPlayer()->GetGuildId());
     action.Event.SetEventId(eventId);
     action.Invite.SetStatus(status);
@@ -440,7 +462,7 @@ void WorldSession::HandleCalendarEventRsvp(WorldPacket& recv_data)
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_MODIFY_EVENT_INVITE);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetInviteId(inviteId);
     action.Invite.SetInviteId(inviteId);
     action.Invite.SetEventId(eventId);
@@ -467,7 +489,7 @@ void WorldSession::HandleCalendarEventRemoveInvite(WorldPacket& recv_data)
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_REMOVE_EVENT_INVITE);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetInviteId(owninviteId);
     action.Invite.SetInviteId(inviteId);
     action.Invite.SetEventId(eventId);
@@ -493,7 +515,7 @@ void WorldSession::HandleCalendarEventStatus(WorldPacket& recv_data)
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_MODIFY_EVENT_INVITE);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetInviteId(owninviteId);
     action.Invite.SetInviteId(inviteId);
     action.Invite.SetEventId(eventId);
@@ -520,7 +542,7 @@ void WorldSession::HandleCalendarEventModeratorStatus(WorldPacket& recv_data)
 
     CalendarAction action;
     action.SetAction(CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE);
-    action.SetGUID(guid);
+    action.SetPlayer(_player);
     action.SetInviteId(owninviteId);
     action.Invite.SetInviteId(inviteId);
     action.Invite.SetEventId(eventId);
