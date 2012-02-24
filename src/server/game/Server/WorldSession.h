@@ -892,11 +892,9 @@ class WorldSession
         void SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
         void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
         void SendCalendarClearPendingAction();
-        void SendCalendarRaildLockoutAdded(InstanceSave const* save);
-        void SendCalendarRaildLockoutRemoved(InstanceSave const* save);
-        void SendCalendarRaildLockoutUpdated(InstanceSave const* save);
         void SendCalendarCommandResult(uint32 value);
         void SendCalendarRaidLockout(InstanceSave* save, bool add);
+        void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
 
         void HandleSpellClick(WorldPacket& recv_data);
         void HandleMirrorImageDataRequest(WorldPacket& recv_data);
