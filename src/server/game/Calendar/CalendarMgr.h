@@ -23,7 +23,11 @@
 
 class CalendarMgr
 {
-    friend class ACE_Singleton<CalendarMgr, ACE_Null_Mutex>;
+        friend class ACE_Singleton<CalendarMgr, ACE_Null_Mutex>;
+
+        CalendarMgr();
+        ~CalendarMgr();
+
     public:
         void LoadFromDB();
 
@@ -50,27 +54,25 @@ class CalendarMgr
         void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
 
     private:
-        CalendarMgr();
-        ~CalendarMgr();
         CalendarEvent* CheckPermisions(uint64 eventId, uint64 guid, uint64 invitateId, CalendarRanks minRank);
 
-        bool addEvent(CalendarEvent const& calendarEvent);
-        bool removeEvent(uint64 eventId);
-        bool addPlayerEvent(uint64 guid, uint64 eventId);
-        bool removePlayerEvent(uint64 guid, uint64 eventId);
+        bool AddEvent(CalendarEvent const& calendarEvent);
+        bool RemoveEvent(uint64 eventId);
+        bool AddPlayerEvent(uint64 guid, uint64 eventId);
+        bool RemovePlayerEvent(uint64 guid, uint64 eventId);
 
-        bool addInvite(CalendarInvite const& invite);
-        uint64 removeInvite(uint64 inviteId);
-        bool addPlayerInvite(uint64 guid, uint64 inviteId);
-        bool removePlayerInvite(uint64 guid, uint64 inviteId);
+        bool AddInvite(CalendarInvite const& invite);
+        uint64 RemoveInvite(uint64 inviteId);
+        bool AddPlayerInvite(uint64 guid, uint64 inviteId);
+        bool RemovePlayerInvite(uint64 guid, uint64 inviteId);
 
         CalendarEventMap _events;
         CalendarInviteMap _invites;
         CalendarPlayerinviteIdMap _playerInvites;
         CalendarPlayerEventIdMap _playerEvents;
 
-        uint64 eventNum;
-        uint64 InviteNum;
+        uint64 _eventNum;
+        uint64 _inviteNum;
 };
 
 #define sCalendarMgr ACE_Singleton<CalendarMgr, ACE_Null_Mutex>::instance()
