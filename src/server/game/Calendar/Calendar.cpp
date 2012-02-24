@@ -88,7 +88,7 @@ std::string CalendarAction::GetDebugString() const
 
     data << "CalendarAction::"
         << " Action: " << GetAction()
-        << " Guid: " << GetGUID()
+        << " Guid: " << GetPlayer()->GetGUID()
         << " Invite Id: " << GetInviteId()
         << " Extra data: " << GetExtraData()
         << " Event: " << Event.GetDebugString()
