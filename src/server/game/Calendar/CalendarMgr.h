@@ -1,19 +1,18 @@
 /*
- * Copyright (C) 2008-2012 Trinity <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef TRINITY_CALENDARMGR_H
@@ -21,49 +20,57 @@
 
 #include <ace/Singleton.h>
 #include "Calendar.h"
-#include "Player.h"
 
 class CalendarMgr
 {
     friend class ACE_Singleton<CalendarMgr, ACE_Null_Mutex>;
+    public:
+        void LoadFromDB();
 
-public:
-    CalendarMgr();
-    ~CalendarMgr();
+        CalendarInvite* GetInvite(uint64 inviteId);
+        CalendarEvent* GetEvent(uint64 eventId);
 
-    CalendarInvite const* GetInvite(uint64 inviteId)
-    {
-        CalendarInviteMap::const_iterator itr = _inviteMap.find(inviteId);
-        if(itr != _inviteMap.end())
-            return &itr->second;
-        return NULL;
-    }
+        CalendarinviteIdList const& GetPlayerInvites(uint64 guid);
+        CalendarEventIdList const& GetPlayerEvents(uint64 guid);
 
-    void AddInvite(CalendarInvite invite) { _inviteMap[invite.Id] = invite; }
-    void RemoveInvite(uint64 inviteId) { _inviteMap.erase(inviteId); }
+        uint32 GetPlayerNumPending(uint64 guid);
+        uint64 GetFreeEventId();
+        uint64 GetFreeInviteId();
 
-    CalendarEvent const* GetEvent(uint64 eventId)
-    {
-        CalendarEventMap::const_iterator itr = _eventMap.find(eventId);
-        if(itr != _eventMap.end())
-            return &itr->second;
-        return NULL;
-    }
+        void AddAction(CalendarAction const& action);
 
-    void AddEvent(CalendarEvent event) { _eventMap[event.Id] = event; }
-    void RemoveEvent(uint64 eventId) { _eventMap.erase(eventId); }
+        void SendCalendarEvent(CalendarEvent const& calendarEvent, CalendarSendEventType type);
+        void SendCalendarEventInvite(CalendarInvite const& invite, bool pending);
+        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
+        void SendCalendarEventInviteRemove(uint64 guid, CalendarInvite const& invite, uint32 flags);
+        void SendCalendarEventInviteRemoveAlert(uint64 guid, CalendarEvent const& calendarEvent, uint8 status);
+        void SendCalendarEventUpdateAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarSendEventType type);
+        void SendCalendarEventStatus(uint64 guid, CalendarEvent const& calendarEvent, CalendarInvite const& invite);
+        void SendCalendarEventRemovedAlert(uint64 guid, CalendarEvent const& calendarEvent);
+        void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
 
-    void AppendInvitesToCalendarPacketForPlayer(WorldPacket& data, Player* player);
-    void AppendEventsToCalendarPacketForPlayer(WorldPacket& data, Player* player);
+    private:
+        CalendarMgr();
+        ~CalendarMgr();
+        CalendarEvent* CheckPermisions(uint64 eventId, uint64 guid, uint64 invitateId, CalendarRanks minRank);
 
-    uint64 GetNextEventId() { return ++_currentEventId; }
-    uint64 GetNextInviteId() { return ++_currentInviteId; }
+        bool addEvent(CalendarEvent const& calendarEvent);
+        bool removeEvent(uint64 eventId);
+        bool addPlayerEvent(uint64 guid, uint64 eventId);
+        bool removePlayerEvent(uint64 guid, uint64 eventId);
 
-private:
-    CalendarInviteMap _inviteMap;
-    CalendarEventMap _eventMap;
-    uint64 _currentEventId;
-    uint64 _currentInviteId;
+        bool addInvite(CalendarInvite const& invite);
+        uint64 removeInvite(uint64 inviteId);
+        bool addPlayerInvite(uint64 guid, uint64 inviteId);
+        bool removePlayerInvite(uint64 guid, uint64 inviteId);
+
+        CalendarEventMap _events;
+        CalendarInviteMap _invites;
+        CalendarPlayerinviteIdMap _playerInvites;
+        CalendarPlayerEventIdMap _playerEvents;
+
+        uint64 eventNum;
+        uint64 InviteNum;
 };
 
 #define sCalendarMgr ACE_Singleton<CalendarMgr, ACE_Null_Mutex>::instance()
