@@ -17,7 +17,7 @@
  */
 
 /*
------ Opcodes Not Used yet ----- 
+----- Opcodes Not Used yet -----
 
 SMSG_CALENDAR_CLEAR_PENDING_ACTION SendCalendarClearPendingAction()
 SMSG_CALENDAR_RAID_LOCKOUT_UPDATED SendCalendarRaildLockoutUpdated(InstanceSave const* save) <--- Structure unknown, using LOCKOUT_ADDED
@@ -130,7 +130,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
     data << uint32(counter);                               // raid reset count
 
     std::set<uint32> sentMaps;
-    
+
     ResetTimeByMapDifficultyMap const& resets = sInstanceSaveMgr->GetResetTimeMap();
     for (ResetTimeByMapDifficultyMap::const_iterator itr = resets.begin(); itr != resets.end(); ++itr)
     {
@@ -144,7 +144,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recv_data*/)
             continue;
 
         sentMaps.insert(mapId);
-        
+
         data << uint32(mapId);
         data << uint32(itr->second - cur_time);
         data << uint32(mapEntry->unk_time);
@@ -689,7 +689,7 @@ void WorldSession::SendCalendarEventRemovedAlert(CalendarEvent const& calendarEv
     uint64 guid = _player->GetGUID();
     uint64 eventId = calendarEvent.GetEventId();
     uint32 eventTime = (calendarEvent.GetTime());
-    
+
     sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_EVENT_REMOVED_ALERT [" UI64FMTD "] EventId ["
         UI64FMTD "] Time %u", guid, eventId, eventTime);
 
@@ -711,7 +711,7 @@ void WorldSession::SendCalendarEventStatus(CalendarEvent const& calendarEvent, C
     uint8 status = invite.GetStatus();
     uint8 rank = invite.GetRank();
     uint32 statusTime = secsToTimeBitFields(invite.GetStatusTime());
-    
+
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_EVENT_STATUS [" UI64FMTD "] EventId ["
         UI64FMTD "] InviteId [" UI64FMTD "] Invitee [" UI64FMTD "] Time %u "
@@ -736,7 +736,7 @@ void WorldSession::SendCalendarEventModeratorStatusAlert(CalendarInvite const& i
     uint64 eventId = invite.GetEventId();
     uint64 invitee = invite.GetInvitee();
     uint8 status = invite.GetStatus();
-    
+
 
     sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_EVENT_MODERATOR_STATUS_ALERT [" UI64FMTD
         "] Invitee [" UI64FMTD "] EventId [" UI64FMTD "] Status %u ", guid,
@@ -797,7 +797,7 @@ void WorldSession::SendCalendarClearPendingAction()
     SendPacket(&data);
 }
 
-void WorldSession::SendCalendarRaildLockoutUpdated(InstanceSave const* save)
+void WorldSession::SendCalendarRaidLockoutUpdated(InstanceSave const* save)
 {
     if (!save)
         return;
@@ -807,13 +807,13 @@ void WorldSession::SendCalendarRaildLockoutUpdated(InstanceSave const* save)
         "] Map: %u, Difficulty %u", guid, save->GetMapId(), save->GetDifficulty());
 
     time_t cur_time = time_t(time(NULL));
-    
+
     WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_UPDATED, 4 + 4 + 4 + 4 + 8);
     data << secsToTimeBitFields(cur_time);
     data << uint32(save->GetMapId());
     data << uint32(save->GetDifficulty());
     data << uint32(save->GetResetTime() - cur_time);
-    data << uint64(save->GetInstanceId()); 
+    data << uint64(save->GetInstanceId());
     SendPacket(&data);
 }
 
@@ -825,43 +825,6 @@ void WorldSession::SendCalendarCommandResult(uint32 value)
     WorldPacket data(SMSG_CALENDAR_COMMAND_RESULT, 0);
     data << uint16(0) << uint32(0) << uint32(value);
 
-    SendPacket(&data);
-}
-
-void WorldSession::SendCalendarRaildLockoutAdded(InstanceSave const* save)
-{
-    if (!save)
-        return;
-
-    uint64 guid = _player->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_RAID_LOCKOUT_ADDED [" UI64FMTD
-        "] Map: %u, Difficulty %u", guid, save->GetMapId(), save->GetDifficulty());
-
-    time_t cur_time = time_t(time(NULL));
-    
-    WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_ADDED, 4 + 4 + 4 + 4 + 8);
-    data << secsToTimeBitFields(cur_time);
-    data << uint32(save->GetMapId());
-    data << uint32(save->GetDifficulty());
-    data << uint32(save->GetResetTime() - cur_time);
-    data << uint64(save->GetInstanceId()); 
-    SendPacket(&data);
-}
-
-void WorldSession::SendCalendarRaildLockoutRemoved(InstanceSave const* save)
-{
-    if (!save)
-        return;
-
-    uint64 guid = _player->GetGUID();
-    sLog->outDebug(LOG_FILTER_NETWORKIO, "SMSG_CALENDAR_RAID_LOCKOUT_REMOVED [" UI64FMTD
-        "] Map: %u, Difficulty %u", guid, save->GetMapId(), save->GetDifficulty());
-
-    WorldPacket data(SMSG_CALENDAR_RAID_LOCKOUT_REMOVED, 4 + 4 + 4 + 8);
-    data << uint32(save->GetMapId());
-    data << uint32(save->GetDifficulty());
-    data << uint32(0);
-    data << uint64(save->GetInstanceId()); 
     SendPacket(&data);
 }
 
