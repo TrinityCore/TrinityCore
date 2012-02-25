@@ -74,7 +74,7 @@ void CalendarEvent::Init()
     _dungeonId = -1;
     _maxInvites = 0;
     _eventTime = 0;
-    _flags = (CalendarFlags) 0;
+    _flags = 0;
     _repeatable = false;
     _timezoneTime = 0;
     _title = "";
