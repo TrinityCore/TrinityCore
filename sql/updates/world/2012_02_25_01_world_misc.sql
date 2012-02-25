@@ -1,6 +1,5 @@
-DELETE FROM `spell_script_names` WHERE `spell_id` IN (57405,61698);
+DELETE FROM `spell_script_names` WHERE `spell_id` IN (61698);
 INSERT INTO `spell_script_names`(`spell_id`,`ScriptName`) VALUES
-(57405,'spell_gen_ds_flush'),
 (61698,'spell_gen_ds_flush_knockback');
 
 DELETE FROM `spell_dbc` WHERE `id`=61698;
