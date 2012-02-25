@@ -167,16 +167,16 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         data << uint32(holiday->Priority);                  // m_priority
         data << uint32(holiday->CalendarFilterType);        // m_calendarFilterType
 
-        for (uint8 j = 0; j < sizeof(holiday->Date)/sizeof(holiday->Date[0]; ++j)
+        for (uint8 j = 0; j < sizeof(holiday->Date)/sizeof(holiday->Date[0]); ++j)
             data << uint32(holiday->Date[j]);               // 26 * m_date
 
-        for (uint8 j = 0; j < sizeof(holiday->Duration)/sizeof(holiday->Duration[0]; ++j)
+        for (uint8 j = 0; j < sizeof(holiday->Duration)/sizeof(holiday->Duration[0]); ++j)
             data << uint32(holiday->Duration[j]);           // 10 * m_duration
 
-        for (uint8 j = 0; j < sizeof(holiday->CalendarFlags)/sizeof(holiday->CalendarFlags[0]; ++j)
+        for (uint8 j = 0; j < sizeof(holiday->CalendarFlags)/sizeof(holiday->CalendarFlags[0]); ++j)
             data << uint32(holiday->CalendarFlags[j]);      // 10 * m_calendarFlags
 
-        data << holiday->TextureFilename.c_str();           // m_textureFilename (holiday name)
+        data << holiday->TextureFilename;                   // m_textureFilename (holiday name)
     }
 
     SendPacket(&data);
