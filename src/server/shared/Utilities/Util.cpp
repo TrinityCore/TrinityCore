@@ -31,6 +31,11 @@
 typedef ACE_TSS<SFMTRand> SFMTRandTSS;
 static SFMTRandTSS sfmtRand;
 
+void init_sfmt()
+{
+    sfmtRand->RandomInit((int)(time(0)));
+}
+
 int32 irand(int32 min, int32 max)
 {
     return int32(sfmtRand->IRandom(min, max));
