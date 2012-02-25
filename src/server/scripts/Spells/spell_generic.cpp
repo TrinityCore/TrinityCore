@@ -2548,6 +2548,80 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
 };
 
+class spell_gen_ds_flush : public SpellScriptLoader
+{
+    public:
+        spell_gen_ds_flush() : SpellScriptLoader("spell_gen_ds_flush") { }
+
+        class spell_gen_ds_flush_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_ds_flush_SpellScript);
+
+            void FilterTargets(std::list<Unit*>& unitList)
+            {
+                if (Map* map = GetCaster()->GetMap())
+                {
+                    if (map->IsBattleArena())
+                    {
+                        unitList.clear();
+
+                        for (Map::PlayerList::const_iterator itr = map->GetPlayers().begin(); itr != map->GetPlayers().end(); ++itr)
+                            if (Player* player = itr->getSource())
+                                if (player->GetPositionZ() >= 13.0f && player->GetDistance(GetCaster()) <= 40.0f)
+                                    unitList.push_back(player);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnUnitTargetSelect += SpellUnitTargetFn(spell_gen_ds_flush_SpellScript::FilterTargets, EFFECT_ALL, TARGET_UNIT_DEST_AREA_ENTRY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_ds_flush_SpellScript();
+        }
+};
+
+class spell_gen_ds_flush_knockback : public SpellScriptLoader
+{
+    public:
+        spell_gen_ds_flush_knockback() : SpellScriptLoader("spell_gen_ds_flush_knockback") {}
+
+        class spell_gen_ds_flush_knockback_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_ds_flush_knockback_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                // Here the target is the water spout and determines the position where the player is knocked from
+                if (Unit* target = GetHitUnit())
+                {
+                    if (Player* player = GetCaster()->ToPlayer())
+                    {
+                        float horizontalSpeed = 20.0f + (40.0f - GetCaster()->GetDistance(target));
+                        float verticalSpeed = 8.0f;
+                        // This method relies on the Dalaran Sewer map disposition and Water Spout position
+                        // What we do is knock the player from a position exactly behind him and at the end of the pipe
+                        GetCaster()->KnockbackFrom(target->GetPositionX(), GetCaster()->GetPositionY(), horizontalSpeed, verticalSpeed);
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_ds_flush_knockback_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_ds_flush_knockback_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2597,4 +2671,6 @@ void AddSC_generic_spell_scripts()
     new spell_gen_on_tournament_mount();
     new spell_gen_tournament_pennant();
     new spell_gen_chaos_blast();
+    new spell_gen_ds_flush();
+    new spell_gen_ds_flush_knockback();
 }
