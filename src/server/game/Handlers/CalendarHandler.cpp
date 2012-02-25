@@ -153,26 +153,31 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
 
     data.put<uint32>(p_counter, counter);
 
-    data << uint32(0);                                      // holiday count?
-    /*
-    for (;;)
+
+    // TODO: Fix this, how we do know how many and what holidays to send?
+    uint32 holidayCount = 0;
+    data << uint32(holidayCount);
+    for (uint32 i = 0; i < holidayCount; ++i)
     {
-        uint32 unk5, unk6, unk7, unk8, unk9;
-        for (uint32 j = 0; j < 26; ++j)
-        {
-            uint32 unk10;
-        }
-        for (uint32 j = 0; j < 10; ++j)
-        {
-            uint32 unk11;
-        }
-        for (uint32 j = 0; j < 10; ++j)
-        {
-            uint32 unk12;
-        }
-        std::string holidayName;                            // 64 chars
+        HolidaysEntry const* holiday = sHolidaysStore.LookupEntry(666);
+
+        data << uint32(holiday->Id);                        // m_ID
+        data << uint32(holiday->Region);                    // m_region, might be looping
+        data << uint32(holiday->Looping);                   // m_looping, might be region
+        data << uint32(holiday->Priority);                  // m_priority
+        data << uint32(holiday->CalendarFilterType);        // m_calendarFilterType
+
+        for (uint8 j = 0; j < sizeof(holiday->Date)/sizeof(holiday->Date[0]; ++j)
+            data << uint32(holiday->Date[j]);               // 26 * m_date
+
+        for (uint8 j = 0; j < sizeof(holiday->Duration)/sizeof(holiday->Duration[0]; ++j)
+            data << uint32(holiday->Duration[j]);           // 10 * m_duration
+
+        for (uint8 j = 0; j < sizeof(holiday->CalendarFlags)/sizeof(holiday->CalendarFlags[0]; ++j)
+            data << uint32(holiday->CalendarFlags[j]);      // 10 * m_calendarFlags
+
+        data << holiday->TextureFilename.c_str();           // m_textureFilename (holiday name)
     }
-    */
 
     SendPacket(&data);
 }
