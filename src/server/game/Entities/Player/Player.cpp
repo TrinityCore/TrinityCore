@@ -955,7 +955,7 @@ bool Player::Create(uint32 guidlow, CharacterCreateInfo* createInfo)
 
     if (!IsValidGender(createInfo->Gender))
     {
-        sLog->outError("Player has invalid gender (%hu), can't be loaded.", createInfo->Gender);
+        sLog->outError("Player has invalid gender (%c), can't be loaded.", createInfo->Gender);
         return false;
     }
 
@@ -1880,7 +1880,7 @@ bool Player::BuildEnumData(PreparedQueryResult result, WorldPacket* data)
     }
     else if (!IsValidGender(gender))
     {
-        sLog->outError("Player (%u) has incorrect gender (%hu), don't build enum.", guid, gender);
+        sLog->outError("Player (%u) has incorrect gender (%c), don't build enum.", guid, gender);
         return false;
     }
 
@@ -16619,7 +16619,7 @@ bool Player::LoadFromDB(uint32 guid, SQLQueryHolder *holder)
     uint8 Gender = fields[5].GetUInt8();
     if (!IsValidGender(Gender))
     {
-        sLog->outError("Player (GUID: %u) has wrong gender (%hu), can't be loaded.", guid, Gender);
+        sLog->outError("Player (GUID: %u) has wrong gender (%c), can't be loaded.", guid, Gender);
         return false;
     }
 
