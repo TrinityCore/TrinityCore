@@ -5548,16 +5548,11 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     if (!target && m_targets.GetUnitTarget())
         target = m_targets.GetUnitTarget();
 
-    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    if (m_spellInfo->NeedsExplicitUnitTarget())
     {
-        if (m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_UNIT_TARGET
-            || m_spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_DEST_TARGET)
-        {
-            if (!target)
-                return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
-            m_targets.SetUnitTarget(target);
-            break;
-        }
+        if (!target)
+            return SPELL_FAILED_BAD_IMPLICIT_TARGETS;
+        m_targets.SetUnitTarget(target);
     }
 
     // cooldown

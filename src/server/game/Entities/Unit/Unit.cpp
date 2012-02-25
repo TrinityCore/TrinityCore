@@ -13903,12 +13903,7 @@ void CharmInfo::InitCharmCreateSpells()
                 newstate = ACT_PASSIVE;
             else
             {
-                bool autocast = false;
-                for (uint32 i = 0; i < MAX_SPELL_EFFECTS && !autocast; ++i)
-                    if (spellInfo->Effects[i].TargetA.GetType() == TARGET_TYPE_UNIT_TARGET)
-                        autocast = true;
-
-                if (autocast)
+                if (spellInfo->NeedsExplicitUnitTarget())
                 {
                     newstate = ACT_ENABLED;
                     ToggleCreatureAutocast(spellInfo, true);
