@@ -21,7 +21,6 @@
 #include "ArenaTeamMgr.h"
 #include "World.h"
 #include "WorldPacket.h"
-
 #include "ArenaTeam.h"
 #include "Battleground.h"
 #include "BattlegroundMgr.h"

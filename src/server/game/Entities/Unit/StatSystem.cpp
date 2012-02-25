@@ -84,7 +84,6 @@ bool Player::UpdateStats(Stats stat)
             UpdateAllSpellCritChances();
             UpdateArmor();                                  //SPELL_AURA_MOD_RESISTANCE_OF_INTELLECT_PERCENT, only armor currently
             break;
-
         case STAT_SPIRIT:
             break;
 
@@ -194,8 +193,8 @@ void Player::UpdateResistances(uint32 school)
         if (pet)
             pet->UpdateResistances(school);
     }
-    else
-        UpdateArmor();
+
+    UpdateArmor();
 }
 
 void Player::UpdateArmor()
@@ -220,8 +219,7 @@ void Player::UpdateArmor()
 
     SetArmor(int32(value));
 
-    Pet* pet = GetPet();
-    if (pet)
+    if (Pet* pet = GetPet())
         pet->UpdateArmor();
 
     UpdateAttackPowerAndDamage();                           // armor dependent auras update for SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR
@@ -529,8 +527,8 @@ void Player::CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bo
 
 void Player::UpdateDamagePhysical(WeaponAttackType attType)
 {
-    float mindamage;
-    float maxdamage;
+    float mindamage = 0.0f;;
+    float maxdamage = 0.0f;;
 
     CalculateMinMaxDamage(attType, false, true, mindamage, maxdamage);
 

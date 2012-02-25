@@ -150,8 +150,7 @@ bool WorldSession::SendLearnNewTaxiNode(Creature* unit)
 
         return true;
     }
-    else
-        return false;
+    return false;
 }
 
 void WorldSession::SendDiscoverNewTaxiNode(uint32 nodeid)

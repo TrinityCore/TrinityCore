@@ -19,7 +19,6 @@
 #include "Common.h"
 #include "ObjectMgr.h"
 #include "DatabaseEnv.h"
-
 #include "Bag.h"
 #include "Log.h"
 #include "UpdateData.h"

@@ -17,7 +17,6 @@
  */
 
 #include "ChannelMgr.h"
-
 #include "World.h"
 
 ChannelMgr* channelMgr(uint32 team)

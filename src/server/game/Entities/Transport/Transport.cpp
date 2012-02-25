@@ -44,7 +44,6 @@ void MapManager::LoadTransports()
 
     do
     {
-
         Field* fields = result->Fetch();
         uint32 lowguid = fields[0].GetUInt32();
         uint32 entry = fields[1].GetUInt32();
@@ -533,7 +532,8 @@ void Transport::Update(uint32 p_diff)
     {
         if (!AIM_Initialize())
             sLog->outError("Could not initialize GameObjectAI for Transport");
-    } else
+    }
+    else
         AI()->UpdateAI(p_diff);
 
     if (m_WayPoints.size() <= 1)
