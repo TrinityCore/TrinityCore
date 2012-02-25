@@ -327,11 +327,7 @@ class spell_warl_soulshatter : public SpellScriptLoader
                 if (Unit* target = GetHitUnit())
                 {
                     if (target->CanHaveThreatList() && target->getThreatManager().getThreat(caster) > 0.0f)
-                    {
-                        sLog->outString("THREATREDUCTION");
                         caster->CastSpell(target, SPELL_SOULSHATTER, true);
-                    } else
-                        sLog->outString("can have threat? %u . threat number? %f ",target->CanHaveThreatList(),target->getThreatManager().getThreat(caster));
                 }
             }
 
