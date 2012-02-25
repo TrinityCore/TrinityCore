@@ -34,7 +34,6 @@ go_tablet_of_madness
 go_tablet_of_the_seven
 go_tele_to_dalaran_crystal
 go_tele_to_violet_stand
-go_rusty_cage
 go_scourge_cage
 go_jotunheim_cage
 go_table_theka
@@ -715,33 +714,6 @@ public:
 };
 
 /*######
-## go_rusty_cage
-######*/
-
-enum eRustyCage
-{
-    NPC_GOBLIN_PRISIONER    = 29466
-};
-
-class go_rusty_cage : public GameObjectScript
-{
-public:
-    go_rusty_cage() : GameObjectScript("go_rusty_cage") { }
-
-    bool OnGossipHello(Player* player, GameObject* pGO)
-    {
-        if (Creature* pGoblinPrisoner = pGO->FindNearestCreature(NPC_GOBLIN_PRISIONER, 5.0f, true))
-        {
-            pGO->SetGoState(GO_STATE_ACTIVE);
-            player->KilledMonsterCredit(NPC_GOBLIN_PRISIONER, pGoblinPrisoner->GetGUID());
-            pGoblinPrisoner->DisappearAndDie();
-        }
-
-        return true;
-    }
-};
-
-/*######
 ## go_scourge_cage
 ######*/
 
@@ -1303,7 +1275,6 @@ void AddSC_go_scripts()
     new go_fel_crystalforge;
     new go_bashir_crystalforge;
     new go_matrix_punchograph;
-    new go_rusty_cage;
     new go_scourge_cage;
     new go_arcane_prison;
     new go_blood_filled_orb;
