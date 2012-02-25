@@ -48,7 +48,7 @@ void GossipMenu::AddMenuItem(int32 menuItemId, uint8 icon, std::string const& me
             {
                 if (int32(itr->first) > menuItemId)
                 {
-                    menuItemId = menuItemId;
+                    menuItemId = int32(itr->first);
                     break;
                 }
 
