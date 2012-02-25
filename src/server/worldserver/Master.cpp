@@ -139,7 +139,9 @@ int Master::Run()
 #ifdef USE_SFMT_FOR_RNG
     sLog->outString("\n");
     sLog->outString("SFMT has been enabled as the random number generator, if worldserver");
-    sLog->outString("freezes or crashes randomly, first, try disabling SFMT in CMAKE configuration");
+    sLog->outString("freezes or crashes randomly, first, try disabling SFMT in CMAKE configuration.");
+    sLog->outString("Initializing SFMT before first use.");
+    init_sfmt();
     sLog->outString("\n");
 #endif //USE_SFMT_FOR_RNG
 
