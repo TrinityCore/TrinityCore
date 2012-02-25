@@ -1069,11 +1069,11 @@ struct HolidayNamesEntry
 struct HolidaysEntry
 {
     uint32 Id;                                              // 0        m_ID
-    uint32 Duration[10];                                    // 1-10     m_duration
-    uint32 Date[26];                                        // 11-36    m_date (dates in unix time starting at January, 1, 2000)
+    uint32 Duration[10];                                    // 1-10     m_duration (MAX_HOLIDAY_DURATIONS)
+    uint32 Date[26];                                        // 11-36    m_date (dates in unix time starting at January, 1, 2000) (MAX_HOLIDAY_DATES)
     uint32 Region;                                          // 37       m_region (wow region)
     uint32 Looping;                                         // 38       m_looping
-    uint32 CalendarFlags[10];                               // 39-48    m_calendarFlags
+    uint32 CalendarFlags[10];                               // 39-48    m_calendarFlags (MAX_HOLIDAY_FLAGS)
     //uint32 holidayNameId;                                 // 49       m_holidayNameID (HolidayNames.dbc)
     //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
     char* TextureFilename;                                  // 51       m_textureFilename
