@@ -20,7 +20,7 @@
 ----- Opcodes Not Used yet -----
 
 SMSG_CALENDAR_CLEAR_PENDING_ACTION SendCalendarClearPendingAction()
-SMSG_CALENDAR_RAID_LOCKOUT_UPDATED SendCalendarRaildLockoutUpdated(InstanceSave const* save) <--- Structure unknown, using LOCKOUT_ADDED
+SMSG_CALENDAR_RAID_LOCKOUT_UPDATED SendCalendarRaidLockoutUpdated(InstanceSave const* save) <--- Structure unknown, using LOCKOUT_ADDED
 
 ----- Opcodes without Sniffs -----
 SMSG_CALENDAR_FILTER_GUILD              [ for (... uint32(count) { packguid(???), uint8(???) } ]
@@ -150,9 +150,7 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         data << uint32(mapEntry->unk_time);
         ++counter;
     }
-
     data.put<uint32>(p_counter, counter);
-
 
     // TODO: Fix this, how we do know how many and what holidays to send?
     uint32 holidayCount = 0;
@@ -167,13 +165,13 @@ void WorldSession::HandleCalendarGetCalendar(WorldPacket& /*recvData*/)
         data << uint32(holiday->Priority);                  // m_priority
         data << uint32(holiday->CalendarFilterType);        // m_calendarFilterType
 
-        for (uint8 j = 0; j < sizeof(holiday->Date)/sizeof(holiday->Date[0]); ++j)
+        for (uint8 j = 0; j < MAX_HOLIDAY_DATES; ++j)
             data << uint32(holiday->Date[j]);               // 26 * m_date
 
-        for (uint8 j = 0; j < sizeof(holiday->Duration)/sizeof(holiday->Duration[0]); ++j)
+        for (uint8 j = 0; j < MAX_HOLIDAY_DURATIONS; ++j)
             data << uint32(holiday->Duration[j]);           // 10 * m_duration
 
-        for (uint8 j = 0; j < sizeof(holiday->CalendarFlags)/sizeof(holiday->CalendarFlags[0]); ++j)
+        for (uint8 j = 0; j < MAX_HOLIDAY_FLAGS; ++j)
             data << uint32(holiday->CalendarFlags[j]);      // 10 * m_calendarFlags
 
         data << holiday->TextureFilename;                   // m_textureFilename (holiday name)
@@ -197,15 +195,23 @@ void WorldSession::HandleCalendarGetEvent(WorldPacket& recvData)
 void WorldSession::HandleCalendarGuildFilter(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_GUILD_FILTER [" UI64FMTD "]", _player->GetGUID());
-    recvData.read_skip<uint32>();                          // unk1
-    recvData.read_skip<uint32>();                          // unk2
-    recvData.read_skip<uint32>();                          // level
+
+    int32 unk1, unk2, unk3;
+    recvData >> unk1;
+    recvData >> unk2;
+    recvData >> unk3;
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Calendar: CMSG_CALENDAR_GUILD_FILTER - unk1: %d unk2: %d unk3: %d", unk1, unk2, unk3);
 }
 
 void WorldSession::HandleCalendarArenaTeam(WorldPacket& recvData)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "CMSG_CALENDAR_ARENA_TEAM [" UI64FMTD "]", _player->GetGUID());
-    recvData.read_skip<uint32>();                          // unk
+    
+    int32 unk1;
+    recvData >> unk1;
+
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "Calendar: CMSG_CALENDAR_ARENA_TEAM - unk1: %d", unk1);
 }
 
 void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
@@ -727,7 +733,7 @@ void WorldSession::SendCalendarEventRemovedAlert(CalendarEvent const& calendarEv
         UI64FMTD "] Time %u", guid, eventId, eventTime);
 
     WorldPacket data(SMSG_CALENDAR_EVENT_REMOVED_ALERT, 1 + 8 + 1);
-    data << uint8(0); // FIXME
+    data << uint8(1); // FIXME: If true does not SignalEvent(EVENT_CALENDAR_ACTION_PENDING)
     data << uint64(eventId);
     data << uint32(eventTime);
     SendPacket(&data);
