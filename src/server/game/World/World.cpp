@@ -1743,6 +1743,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading Warden Checks..." );
     sWardenCheckMgr->LoadWardenChecks();
 
+    sLog->outString("Loading Warden Action Overrides..." );
+    sWardenCheckMgr->LoadWardenOverrides();
+
     sLog->outString("Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");
 
