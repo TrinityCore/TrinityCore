@@ -875,7 +875,7 @@ void WorldSession::SendCalendarCommandResult(CalendarError err, char const* para
     SendPacket(&data);
 }
 
-void WorldSession::SendCalendarRaidLockout(InstanceSave* save, bool add)
+void WorldSession::SendCalendarRaidLockout(InstanceSave const* save, bool add)
 {
     sLog->outDebug(LOG_FILTER_NETWORKIO, "%s", add ? "SMSG_CALENDAR_RAID_LOCKOUT_ADDED" : "SMSG_CALENDAR_RAID_LOCKOUT_REMOVED");
     time_t currTime = time(NULL);

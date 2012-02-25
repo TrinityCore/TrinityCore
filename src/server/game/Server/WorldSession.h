@@ -31,24 +31,25 @@
 #include "WorldPacket.h"
 #include "Cryptography/BigNumber.h"
 
-struct ItemTemplate;
-struct AuctionEntry;
-struct DeclinedName;
-struct MovementInfo;
-
+class CalendarEvent;
+class CalendarInvite;
 class Creature;
+class GameObject;
+class InstanceSave;
 class Item;
+class LoginQueryHolder;
 class Object;
 class Player;
-class Unit;
-class GameObject;
 class Quest;
+class SpellCastTargets;
+class Unit;
+class Warden;
 class WorldPacket;
 class WorldSocket;
-class LoginQueryHolder;
-class SpellCastTargets;
-class Warden;
 struct AreaTableEntry;
+struct AuctionEntry;
+struct DeclinedName;
+struct ItemTemplate;
 struct LfgJoinResultData;
 struct LfgLockStatus;
 struct LfgPlayerBoot;
@@ -56,8 +57,7 @@ struct LfgProposal;
 struct LfgReward;
 struct LfgRoleCheck;
 struct LfgUpdateData;
-class CalendarEvent;
-class CalendarInvite;
+struct MovementInfo;
 
 enum AccountDataType
 {
@@ -892,7 +892,7 @@ class WorldSession
         void SendCalendarEventStatus(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
         void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
         void SendCalendarClearPendingAction();
-        void SendCalendarRaidLockout(InstanceSave* save, bool add);
+        void SendCalendarRaidLockout(InstanceSave const* save, bool add);
         void SendCalendarRaidLockoutUpdated(InstanceSave const* save);
         void SendCalendarCommandResult(CalendarError err, char const* param = NULL);
 
