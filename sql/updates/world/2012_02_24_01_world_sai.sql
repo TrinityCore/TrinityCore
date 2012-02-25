@@ -17,7 +17,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY*100,9,0,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Captive Aspirant - Script - Say random text'),
 (@ENTRY*100,9,1,0,0,0,100,0,2000,2000,2000,2000,33,@ENTRY,0,0,0,0,0,7,0,0,0,0,0,0,0,'Captive Aspirant - Script - Kill credit'),
 (@ENTRY*100,9,2,0,0,0,100,0,2000,2000,2000,2000,46,10,0,0,0,0,0,1,0,0,0,0,0,0,0,'Captive Aspirant - Script - move 10 yards'),
-(@ENTRY*100,9,3,0,0,0,100,0,4000,4000,4000,4000,72,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Captive Aspirant - Script - despawn');
+(@ENTRY*100,9,3,0,0,0,100,0,4000,4000,4000,4000,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Captive Aspirant - Script - despawn');
 -- SAI for Kul the Reckless
 SET @ENTRY=34956;
 UPDATE `creature_template` SET `AIName`='SmartAI',`ScriptName`='' WHERE `entry`=@ENTRY;
@@ -28,7 +28,7 @@ INSERT INTO `smart_scripts` (`entryorguid`,`source_type`,`id`,`link`,`event_type
 (@ENTRY*100,9,0,0,0,0,100,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Kul the Reckless - Script - Say random text'),
 (@ENTRY*100,9,1,0,0,0,100,0,2000,2000,2000,2000,33,@ENTRY,0,0,0,0,0,7,0,0,0,0,0,0,0,'Kul the Reckless - Script - Kill credit'),
 (@ENTRY*100,9,2,0,0,0,100,0,2000,2000,2000,2000,46,10,0,0,0,0,0,1,0,0,0,0,0,0,0,'Kul the Reckless - Script - move 10 yards'),
-(@ENTRY*100,9,3,0,0,0,100,0,4000,4000,4000,4000,72,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Kul the Reckless - Script - despawn');
+(@ENTRY*100,9,3,0,0,0,100,0,4000,4000,4000,4000,41,0,0,0,0,0,0,1,0,0,0,0,0,0,0,'Kul the Reckless - Script - despawn');
 -- Captive Aspirant & Kul the Reckless text from sniff
 DELETE FROM `creature_text` WHERE `entry` IN (34716,34956);
 INSERT INTO `creature_text` (`entry`,`groupid`,`id`,`text`,`type`,`language`,`probability`,`emote`,`duration`,`sound`,`comment`) VALUES
