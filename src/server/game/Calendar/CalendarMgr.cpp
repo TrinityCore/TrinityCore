@@ -67,12 +67,12 @@ uint32 CalendarMgr::GetPlayerNumPending(uint64 guid)
     if (!guid)
         return 0;
 
-    CalendarPlayerinviteIdMap::const_iterator itr = _playerInvites.find(guid);
+    CalendarPlayerInviteIdMap::const_iterator itr = _playerInvites.find(guid);
     if (itr == _playerInvites.end())
         return 0;
 
     uint32 pendingNum = 0;
-    for (CalendarinviteIdList::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+    for (CalendarInviteIdList::const_iterator it = itr->second.begin(); it != itr->second.end(); ++it)
         if (CalendarInvite* invite = GetInvite(*it))
             if (invite->GetRank() != CALENDAR_RANK_OWNER
                 && invite->GetStatus() != CALENDAR_STATUS_CONFIRMED
@@ -83,7 +83,7 @@ uint32 CalendarMgr::GetPlayerNumPending(uint64 guid)
     return pendingNum;
 }
 
-CalendarinviteIdList const& CalendarMgr::GetPlayerInvites(uint64 guid)
+CalendarInviteIdList const& CalendarMgr::GetPlayerInvites(uint64 guid)
 {
     return _playerInvites[guid];
 }
@@ -180,7 +180,7 @@ void CalendarMgr::LoadFromDB()
     */
 }
 
-CalendarEvent* CalendarMgr::CheckPermisions(uint64 eventId, Player* player, uint64 inviteId, CalendarRanks minRank)
+CalendarEvent* CalendarMgr::CheckPermisions(uint64 eventId, Player* player, uint64 inviteId, CalendarModerationRank minRank)
 {
     if (!player)
         return NULL;    // CALENDAR_ERROR_INTERNAL
@@ -251,8 +251,8 @@ void CalendarMgr::AddAction(CalendarAction const& action)
             calendarEvent->SetDescription(action.Event.GetDescription());
             calendarEvent->SetMaxInvites(action.Event.GetMaxInvites());
 
-            CalendarinviteIdList const& invites = calendarEvent->GetInviteIdList();
-            for (CalendarinviteIdList::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+            CalendarInviteIdList const& invites = calendarEvent->GetInviteIdList();
+            for (CalendarInviteIdList::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
                 if (CalendarInvite* invite = GetInvite(*itr))
                     SendCalendarEventUpdateAlert(invite->GetInvitee(), *calendarEvent, CALENDAR_SENDTYPE_ADD);
 
@@ -279,8 +279,8 @@ void CalendarMgr::AddAction(CalendarAction const& action)
             newEvent.SetCreatorGUID(calendarEvent->GetCreatorGUID());
             newEvent.SetGuildId(calendarEvent->GetGuildId());
 
-            CalendarinviteIdList const invites = calendarEvent->GetInviteIdList();
-            for (CalendarinviteIdList::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+            CalendarInviteIdList const invites = calendarEvent->GetInviteIdList();
+            for (CalendarInviteIdList::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
             {
                 if (CalendarInvite* invite = GetInvite(*itr))
                 {
@@ -316,8 +316,8 @@ void CalendarMgr::AddAction(CalendarAction const& action)
             if (!calendarEvent)
                 return;
 
-            CalendarinviteIdList const& inviteIds = calendarEvent->GetInviteIdList();
-            for (CalendarinviteIdList::const_iterator it = inviteIds.begin(); it != inviteIds.end(); ++it)
+            CalendarInviteIdList const& inviteIds = calendarEvent->GetInviteIdList();
+            for (CalendarInviteIdList::const_iterator it = inviteIds.begin(); it != inviteIds.end(); ++it)
                 if (uint64 invitee = RemoveInvite(*it))
                     SendCalendarEventRemovedAlert(invitee, *calendarEvent);
 
@@ -351,7 +351,7 @@ void CalendarMgr::AddAction(CalendarAction const& action)
                 || !calendarEvent->GetGuildId() || calendarEvent->GetGuildId() != action.GetExtraData())
                 return;
 
-            uint8 status = action.Invite.GetStatus();
+            CalendarInviteStatus status = action.Invite.GetStatus();
 
             if (status == CALENDAR_STATUS_INVITED)
                 status = CALENDAR_STATUS_CONFIRMED;
@@ -465,8 +465,8 @@ bool CalendarMgr::RemoveEvent(uint64 eventId)
 
     bool val = true;
 
-    CalendarinviteIdList const& invites = itr->second.GetInviteIdList();
-    for (CalendarinviteIdList::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
+    CalendarInviteIdList const& invites = itr->second.GetInviteIdList();
+    for (CalendarInviteIdList::const_iterator itr = invites.begin(); itr != invites.end(); ++itr)
     {
         CalendarInvite* invite = GetInvite(*itr);
         if (!invite || !RemovePlayerEvent(invite->GetInvitee(), eventId))
@@ -573,13 +573,13 @@ void CalendarMgr::SendCalendarEventRemovedAlert(uint64 guid, CalendarEvent const
         player->GetSession()->SendCalendarEventRemovedAlert(calendarEvent);
 }
 
-void CalendarMgr::SendCalendarEventInviteRemoveAlert(uint64 guid, CalendarEvent const& calendarEvent, uint8 status)
+void CalendarMgr::SendCalendarEventInviteRemoveAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarInviteStatus status)
 {
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         player->GetSession()->SendCalendarEventInviteRemoveAlert(calendarEvent, status);
 }
 
-void CalendarMgr::SendCalendarEventInviteRemove(uint64 guid, CalendarInvite const& invite, uint32 flags)
+void CalendarMgr::SendCalendarEventInviteRemove(uint64 guid, CalendarInvite const& invite, CalendarFlags flags)
 {
     if (Player* player = ObjectAccessor::FindPlayer(guid))
         player->GetSession()->SendCalendarEventInviteRemove(invite, flags);

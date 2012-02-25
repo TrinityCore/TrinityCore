@@ -34,7 +34,7 @@ class CalendarMgr
         CalendarInvite* GetInvite(uint64 inviteId);
         CalendarEvent* GetEvent(uint64 eventId);
 
-        CalendarinviteIdList const& GetPlayerInvites(uint64 guid);
+        CalendarInviteIdList const& GetPlayerInvites(uint64 guid);
         CalendarEventIdList const& GetPlayerEvents(uint64 guid);
 
         uint32 GetPlayerNumPending(uint64 guid);
@@ -46,15 +46,15 @@ class CalendarMgr
         void SendCalendarEvent(CalendarEvent const& calendarEvent, CalendarSendEventType type);
         void SendCalendarEventInvite(CalendarInvite const& invite, bool pending);
         void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
-        void SendCalendarEventInviteRemove(uint64 guid, CalendarInvite const& invite, uint32 flags);
-        void SendCalendarEventInviteRemoveAlert(uint64 guid, CalendarEvent const& calendarEvent, uint8 status);
+        void SendCalendarEventInviteRemove(uint64 guid, CalendarInvite const& invite, CalendarFlags flags);
+        void SendCalendarEventInviteRemoveAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarInviteStatus status);
         void SendCalendarEventUpdateAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarSendEventType type);
         void SendCalendarEventStatus(uint64 guid, CalendarEvent const& calendarEvent, CalendarInvite const& invite);
         void SendCalendarEventRemovedAlert(uint64 guid, CalendarEvent const& calendarEvent);
         void SendCalendarEventModeratorStatusAlert(CalendarInvite const& invite);
 
     private:
-        CalendarEvent* CheckPermisions(uint64 eventId, Player* player, uint64 inviteId, CalendarRanks minRank);
+        CalendarEvent* CheckPermisions(uint64 eventId, Player* player, uint64 inviteId, CalendarModerationRank minRank);
 
         bool AddEvent(CalendarEvent const& calendarEvent);
         bool RemoveEvent(uint64 eventId);
@@ -68,7 +68,7 @@ class CalendarMgr
 
         CalendarEventMap _events;
         CalendarInviteMap _invites;
-        CalendarPlayerinviteIdMap _playerInvites;
+        CalendarPlayerInviteIdMap _playerInvites;
         CalendarPlayerEventIdMap _playerEvents;
 
         uint64 _eventNum;

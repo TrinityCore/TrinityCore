@@ -20,66 +20,8 @@
 #define TRINITY_CALENDAR_H
 
 #include "Errors.h"
+#include "SharedDefines.h"
 #include <map>
-
-enum CalendarFlags
-{
-    CALENDAR_FLAG_ALL_ALLOWED     = 0x001,
-    CALENDAR_FLAG_INVITES_LOCKED  = 0x010,
-    CALENDAR_FLAG_WITHOUT_INVITES = 0x040,
-    CALENDAR_FLAG_GUILD_ONLY      = 0x400,
-};
-
-enum CalendarActionData
-{
-    CALENDAR_ACTION_NONE,
-    CALENDAR_ACTION_ADD_EVENT,
-    CALENDAR_ACTION_MODIFY_EVENT,
-    CALENDAR_ACTION_REMOVE_EVENT,
-    CALENDAR_ACTION_COPY_EVENT,
-    CALENDAR_ACTION_ADD_EVENT_INVITE,
-    CALENDAR_ACTION_MODIFY_EVENT_INVITE,
-    CALENDAR_ACTION_MODIFY_MODERATOR_EVENT_INVITE,
-    CALENDAR_ACTION_REMOVE_EVENT_INVITE,
-    CALENDAR_ACTION_SIGNUP_TO_EVENT,
-};
-
-enum CalendarRanks
-{
-    CALENDAR_RANK_PLAYER,
-    CALENDAR_RANK_MODERATOR,
-    CALENDAR_RANK_OWNER,
-};
-
-enum CalendarSendEventType
-{
-    CALENDAR_SENDTYPE_GET,
-    CALENDAR_SENDTYPE_ADD,
-    CALENDAR_SENDTYPE_COPY,
-};
-
-enum CalendarEventType
-{
-    CALENDAR_TYPE_RAID,
-    CALENDAR_TYPE_DUNGEON,
-    CALENDAR_TYPE_PVP,
-    CALENDAR_TYPE_MEETING,
-    CALENDAR_TYPE_OTHER,
-};
-
-enum CalendarInviteStatus
-{
-    CALENDAR_STATUS_INVITED,
-    CALENDAR_STATUS_ACCEPTED,
-    CALENDAR_STATUS_DECLINED,
-    CALENDAR_STATUS_TENTATIVE,
-    CALENDAR_STATUS_OUT,
-    CALENDAR_STATUS_STANDBY,
-    CALENDAR_STATUS_CONFIRMED,
-    CALENDAR_STATUS_NO_OWNER,
-    CALENDAR_STATUS_8,
-    CALENDAR_STATUS_9,
-};
 
 class CalendarInvite
 {
@@ -107,11 +49,11 @@ class CalendarInvite
         void SetText(std::string text) { _text = text; }
         std::string GetText() const { return _text; }
 
-        void SetStatus(uint8 status) { _status = status; }
-        uint8 GetStatus() const { return _status; }
+        void SetStatus(CalendarInviteStatus status) { _status = status; }
+        CalendarInviteStatus GetStatus() const { return _status; }
 
-        void SetRank(uint8 rank) { _rank = rank; }
-        uint8 GetRank() const { return _rank; }
+        void SetRank(CalendarModerationRank rank) { _rank = rank; }
+        CalendarModerationRank GetRank() const { return _rank; }
 
         std::string GetDebugString() const;
 
@@ -123,12 +65,12 @@ class CalendarInvite
         uint64 _invitee;
         uint64 _senderGUID;
         uint32 _statusTime;
-        uint8 _status;
-        uint8 _rank;
+        CalendarInviteStatus _status;
+        CalendarModerationRank _rank;
         std::string _text;
 };
 
-typedef std::set<uint64> CalendarinviteIdList;
+typedef std::set<uint64> CalendarInviteIdList;
 
 class CalendarEvent
 {
@@ -153,8 +95,8 @@ class CalendarEvent
         void SetDescription(std::string description) { _description = description; }
         std::string GetDescription() const { return _description; }
 
-        void SetType(uint8 type) { _type = type; }
-        uint8 GetType() const { return _type; }
+        void SetType(CalendarEventType type) { _type = type; }
+        CalendarEventType GetType() const { return _type; }
 
         void SetMaxInvites(uint32 limit) { _maxInvites = limit; }
         uint32 GetMaxInvites() const { return _maxInvites; }
@@ -165,11 +107,11 @@ class CalendarEvent
         void SetTime(uint32 eventTime) { _eventTime = eventTime; }
         uint32 GetTime() const { return _eventTime; }
 
-        void SetFlags(uint32 flags) { _flags = flags; }
-        uint32 GetFlags() const { return _flags; }
+        void SetFlags(CalendarFlags flags) { _flags = flags; }
+        CalendarFlags GetFlags() const { return _flags; }
 
         void SetRepeatable(bool repeatable) { _repeatable = repeatable; }
-        uint8 GetRepeatable() const { return _repeatable; }
+        bool GetRepeatable() const { return _repeatable; }
 
         void SetTimeZoneTime(uint32 timezoneTime) { _timezoneTime = timezoneTime; }
         uint32 GetTimeZoneTime() const { return _timezoneTime; }
@@ -182,8 +124,8 @@ class CalendarEvent
 
         void RemoveInvite(uint64 inviteId) { _invites.erase(inviteId); }
         bool HasInvite(uint64 inviteId) const { return _invites.find(inviteId) != _invites.end(); }
-        CalendarinviteIdList const& GetInviteIdList() const { return _invites; }
-        void SetInviteIdList(CalendarinviteIdList const& list) { _invites = list; }
+        CalendarInviteIdList const& GetInviteIdList() const { return _invites; }
+        void SetInviteIdList(CalendarInviteIdList const& list) { _invites = list; }
         void ClearInviteIdList() { _invites.clear(); }
 
         std::string GetDebugString() const;
@@ -194,20 +136,20 @@ class CalendarEvent
         uint64 _eventId;
         uint64 _creatorGUID;
         uint32 _guildId;
-        uint8 _type;
+        CalendarEventType _type;
         int32 _dungeonId;
         uint32 _maxInvites;
         uint32 _eventTime;
-        uint32 _flags;
-        uint8 _repeatable;
+        CalendarFlags _flags;
+        bool _repeatable;
         uint32 _timezoneTime;
         std::string _title;
         std::string _description;
-        CalendarinviteIdList _invites;
+        CalendarInviteIdList _invites;
 };
 
 typedef std::set<uint64> CalendarEventIdList;
-typedef std::map<uint64, CalendarinviteIdList> CalendarPlayerinviteIdMap;
+typedef std::map<uint64, CalendarInviteIdList> CalendarPlayerInviteIdMap;
 typedef std::map<uint64, CalendarEventIdList> CalendarPlayerEventIdMap;
 typedef std::map<uint64, CalendarInvite> CalendarInviteMap;
 typedef std::map<uint64, CalendarEvent> CalendarEventMap;
@@ -216,7 +158,7 @@ class Player;
 
 struct CalendarAction
 {
-        CalendarAction(): _action(CALENDAR_ACTION_NONE), _player(NULL), _guid(0), _inviteId(0), _data(0)
+        CalendarAction(): _action(CALENDAR_ACTION_NONE), _player(NULL), _inviteId(0), _data(0)
         {
         }
 
