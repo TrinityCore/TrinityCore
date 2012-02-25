@@ -3317,6 +3317,10 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_NEARBY_ENTRY;
                 spellInfo->EffectImplicitTargetB[2] = TARGET_UNIT_NEARBY_ENTRY;
                 break;
+            case 64745: // Item - Death Knight T8 Tank 4P Bonus
+            case 64936: // Item - Warrior T8 Protection 4P Bonus
+                spellInfo->EffectBasePoints[0] = 101; // negative proc chance (-10)
+                break;
             // ENDOF ULDUAR SPELLS
             //
             // TRIAL OF THE CRUSADER SPELLS
