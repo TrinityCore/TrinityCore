@@ -44,7 +44,6 @@ go_ethereal_teleport_pad
 go_soulwell
 go_dragonflayer_cage
 go_tadpole_cage
-go_black_cage
 go_amberpine_outhouse
 go_hive_pod
 go_gjalerbron_cage
@@ -1079,43 +1078,6 @@ public:
 };
 
 /*######
-## Quest 14096 & 14142: You've Really Done It This Time, Kul
-## go_black_cage
-######*/
-
-enum eReallyDoneItThisTime
-{
-    QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL      = 14096,
-    QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL         = 14142,
-    NPC_CAPTIVE_ASPIRANT                                    = 34716,
-    NPC_KUL                                                 = 34956
-};
-
-class go_black_cage : public GameObjectScript
-{
-public:
-    go_black_cage() : GameObjectScript("go_black_cage") { }
-
-    bool OnGossipHello(Player* player, GameObject* pGO)
-    {
-        if ((player->GetTeamId() == TEAM_ALLIANCE && player->GetQuestStatus(QUEST_ALLIANCE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE) ||
-            (player->GetTeamId() == TEAM_HORDE && player->GetQuestStatus(QUEST_HORDE_YOU_VE_REALLY_DONE_IT_THIS_TIME_KUL) == QUEST_STATUS_INCOMPLETE))
-        {
-            Creature* pPrisoner = pGO->FindNearestCreature(NPC_CAPTIVE_ASPIRANT, 1.0f);
-            if (!pPrisoner)
-                pPrisoner = pGO->FindNearestCreature(NPC_KUL, 1.0f);
-            if (pPrisoner)
-            {
-                pGO->UseDoorOrButton();
-                pPrisoner->DisappearAndDie();
-                player->KilledMonsterCredit(pPrisoner->GetEntry(), 0);
-            }
-        }
-        return true;
-    }
-};
-
-/*######
 ## go_amberpine_outhouse
 ######*/
 
@@ -1352,7 +1314,6 @@ void AddSC_go_scripts()
     new go_soulwell;
     new go_tadpole_cage;
     new go_dragonflayer_cage;
-    new go_black_cage;
     new go_amberpine_outhouse;
     new go_hive_pod;
     new go_massive_seaforium_charge;
