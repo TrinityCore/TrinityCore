@@ -20065,8 +20065,12 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
                 continue;
 
             // check if mod affected this spell
+            // first, check if the mod aura applied at least one spellmod to this spell
             Spell::UsedSpellMods::iterator iterMod = spell->m_appliedMods.find(mod->ownerAura);
             if (iterMod == spell->m_appliedMods.end())
+                continue;
+            // secondly, check if the current mod is one of the spellmods applied by the mod aura
+            if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
                 continue;
 
             // remove from list
