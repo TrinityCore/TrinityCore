@@ -20073,6 +20073,10 @@ void Player::RestoreSpellMods(Spell* spell, uint32 ownerAuraId, Aura* aura)
             if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
                 continue;
 
+            //// check if mod affected this spell (spell_mask)
+            if (!(mod->mask & spell->m_spellInfo->SpellFamilyFlags))
+                continue;
+
             // remove from list
             spell->m_appliedMods.erase(iterMod);
 
