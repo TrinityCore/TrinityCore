@@ -24,11 +24,6 @@
 #include <string>
 #include <vector>
 
-#ifdef USE_SFMT_FOR_RNG
-    // Initialize SFMT before first use, if enabled.
-    void init_sfmt();
-#endif
-
 // Searcher for map of structs
 template<typename T, class S> struct Finder
 {
