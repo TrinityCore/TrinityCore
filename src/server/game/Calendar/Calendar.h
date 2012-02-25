@@ -107,8 +107,8 @@ class CalendarEvent
         void SetTime(uint32 eventTime) { _eventTime = eventTime; }
         uint32 GetTime() const { return _eventTime; }
 
-        void SetFlags(CalendarFlags flags) { _flags = flags; }
-        CalendarFlags GetFlags() const { return _flags; }
+        void SetFlags(uint32 flags) { _flags = flags; }
+        uint32 GetFlags() const { return _flags; }
 
         void SetRepeatable(bool repeatable) { _repeatable = repeatable; }
         bool GetRepeatable() const { return _repeatable; }
@@ -140,7 +140,7 @@ class CalendarEvent
         int32 _dungeonId;
         uint32 _maxInvites;
         uint32 _eventTime;
-        CalendarFlags _flags;
+        uint32 _flags;
         bool _repeatable;
         uint32 _timezoneTime;
         std::string _title;

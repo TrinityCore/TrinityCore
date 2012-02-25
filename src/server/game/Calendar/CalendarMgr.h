@@ -46,7 +46,7 @@ class CalendarMgr
         void SendCalendarEvent(CalendarEvent const& calendarEvent, CalendarSendEventType type);
         void SendCalendarEventInvite(CalendarInvite const& invite, bool pending);
         void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
-        void SendCalendarEventInviteRemove(uint64 guid, CalendarInvite const& invite, CalendarFlags flags);
+        void SendCalendarEventInviteRemove(uint64 guid, CalendarInvite const& invite, uint32 flags);
         void SendCalendarEventInviteRemoveAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarInviteStatus status);
         void SendCalendarEventUpdateAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarSendEventType type);
         void SendCalendarEventStatus(uint64 guid, CalendarEvent const& calendarEvent, CalendarInvite const& invite);
