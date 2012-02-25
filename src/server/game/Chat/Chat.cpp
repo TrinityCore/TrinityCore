@@ -140,10 +140,10 @@ ChatCommand* ChatHandler::getCommandTable()
 
     static ChatCommand groupCommandTable[] =
     {
-        { "leader",         SEC_ADMINISTRATOR,     false,  OldHandler<&ChatHandler::HandleGroupLeaderCommand>,         "", NULL },
-        { "disband",        SEC_ADMINISTRATOR,     false,  OldHandler<&ChatHandler::HandleGroupDisbandCommand>,        "", NULL },
-        { "remove",         SEC_ADMINISTRATOR,     false,  OldHandler<&ChatHandler::HandleGroupRemoveCommand>,         "", NULL },
-        { NULL,             0,                     false, NULL,                                           "", NULL }
+        { "leader",         SEC_ADMINISTRATOR, false,  OldHandler<&ChatHandler::HandleGroupLeaderCommand>,         "", NULL },
+        { "disband",        SEC_ADMINISTRATOR, false,  OldHandler<&ChatHandler::HandleGroupDisbandCommand>,        "", NULL },
+        { "remove",         SEC_ADMINISTRATOR, false,  OldHandler<&ChatHandler::HandleGroupRemoveCommand>,         "", NULL },
+        { NULL,             0,                 false,  NULL,                                           "", NULL }
     };
 
     static ChatCommand guildCommandTable[] =
@@ -281,7 +281,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "corpses",        SEC_GAMEMASTER,     true,  OldHandler<&ChatHandler::HandleServerCorpsesCommand>,     "", NULL },
         { "exit",           SEC_CONSOLE,        true,  OldHandler<&ChatHandler::HandleServerExitCommand>,        "", NULL },
         { "idlerestart",    SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverIdleRestartCommandTable },
-        { "idleshutdown",   SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverShutdownCommandTable },
+        { "idleshutdown",   SEC_ADMINISTRATOR,  true,  NULL,                                                     "", serverIdleShutdownCommandTable },
         { "info",           SEC_PLAYER,         true,  OldHandler<&ChatHandler::HandleServerInfoCommand>,        "", NULL },
         { "motd",           SEC_PLAYER,         true,  OldHandler<&ChatHandler::HandleServerMotdCommand>,        "", NULL },
         { "plimit",         SEC_ADMINISTRATOR,  true,  OldHandler<&ChatHandler::HandleServerPLimitCommand>,      "", NULL },
@@ -336,6 +336,7 @@ ChatCommand* ChatHandler::getCommandTable()
         { "lookup",         SEC_ADMINISTRATOR,  true,  NULL,                                           "", lookupCommandTable   },
         { "pdump",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", pdumpCommandTable    },
         { "guild",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", guildCommandTable    },
+        { "group",          SEC_ADMINISTRATOR,  false, NULL,                                           "", groupCommandTable    },
         { "cast",           SEC_ADMINISTRATOR,  false, NULL,                                           "", castCommandTable     },
         { "reset",          SEC_ADMINISTRATOR,  true,  NULL,                                           "", resetCommandTable    },
         { "instance",       SEC_ADMINISTRATOR,  true,  NULL,                                           "", instanceCommandTable },
