@@ -27,6 +27,7 @@
 BattlegroundDS::BattlegroundDS()
 {
     BgObjects.resize(BG_DS_OBJECT_MAX);
+    BgCreatures.resize(BG_DS_NPC_MAX);
 
     StartDelayTimes[BG_STARTING_EVENT_FIRST]  = BG_START_DELAY_1M;
     StartDelayTimes[BG_STARTING_EVENT_SECOND] = BG_START_DELAY_30S;
@@ -48,6 +49,21 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
 {
     if (GetStatus() != STATUS_IN_PROGRESS)
         return;
+
+    if (getPipeKnockBackCount() < BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT)
+    {
+        if (getPipeKnockBackTimer() < diff)
+        {
+            for (uint32 i = BG_DS_NPC_PIPE_KNOCKBACK_1; i <= BG_DS_NPC_PIPE_KNOCKBACK_2; ++i)
+                if (Creature* waterSpout = GetBgMap()->GetCreature(BgCreatures[i]))
+                    waterSpout->CastSpell(waterSpout, BG_DS_SPELL_FLUSH, true);
+
+            setPipeKnockBackCount(getPipeKnockBackCount() + 1);
+            setPipeKnockBackTimer(BG_DS_PIPE_KNOCKBACK_DELAY);
+        }
+        else
+            setPipeKnockBackTimer(getPipeKnockBackTimer() - diff);
+    }
 
     if (getWaterFallTimer() < diff)
     {
@@ -96,6 +112,9 @@ void BattlegroundDS::StartingEventOpenDoors()
 
     setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
     setWaterFallStatus(BG_DS_WATERFALL_STATUS_OFF);
+
+    setPipeKnockBackTimer(BG_DS_PIPE_KNOCKBACK_FIRST_DELAY);
+    setPipeKnockBackCount(0);
 
     SpawnBGObject(BG_DS_OBJECT_WATER_2, RESPAWN_IMMEDIATELY);
     DoorOpen(BG_DS_OBJECT_WATER_2);
@@ -187,7 +206,11 @@ bool BattlegroundDS::SetupBattleground()
         || !AddObject(BG_DS_OBJECT_WATER_2, BG_DS_OBJECT_TYPE_WATER_2, 1291.56f, 790.837f, 7.1f, 3.14238f, 0, 0, 0.694215f, -0.719768f, 120)
     // buffs
         || !AddObject(BG_DS_OBJECT_BUFF_1, BG_DS_OBJECT_TYPE_BUFF_1, 1291.7f, 813.424f, 7.11472f, 4.64562f, 0, 0, 0.730314f, -0.683111f, 120)
-        || !AddObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, 120))
+        || !AddObject(BG_DS_OBJECT_BUFF_2, BG_DS_OBJECT_TYPE_BUFF_2, 1291.7f, 768.911f, 7.11472f, 1.55194f, 0, 0, 0.700409f, 0.713742f, 120)
+    // knockback creatures
+        || !AddCreature(BG_DS_NPC_TYPE_WATER_SPOUT, BG_DS_NPC_WATERFALL_KNOCKBACK, 0, 1292.587f, 790.2205f, 7.19796f, 3.054326f, RESPAWN_IMMEDIATELY)
+        || !AddCreature(BG_DS_NPC_TYPE_WATER_SPOUT, BG_DS_NPC_PIPE_KNOCKBACK_1, 0, 1369.977f, 817.2882f, 16.08718f, 3.106686f, RESPAWN_IMMEDIATELY)
+        || !AddCreature(BG_DS_NPC_TYPE_WATER_SPOUT, BG_DS_NPC_PIPE_KNOCKBACK_2, 0, 1212.833f, 765.3871f, 16.09484f, 0.0f, RESPAWN_IMMEDIATELY))
     {
         sLog->outErrorDb("BatteGroundDS: Failed to spawn some object!");
         return false;
