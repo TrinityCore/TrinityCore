@@ -7930,7 +7930,7 @@ GameTele const* ObjectMgr::GetGameTele(const std::string& name) const
     // explicit name case
     std::wstring wname;
     if (!Utf8toWStr(name, wname))
-        return false;
+        return NULL;
 
     // converting string that we try to find to lower case
     wstrToLower(wname);
