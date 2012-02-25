@@ -7943,10 +7943,19 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     if (CanUseAttackType(attType))
         _ApplyWeaponDamage(slot, proto, ssv, apply);
 
-   // Apply feral bonus from ScalingStatValue if set
-    if (ssv && getClass() == CLASS_DRUID)
+
+    // Druids get feral AP bonus from weapon dps (also use DPS from ScalingStatValue)
+    if (getClass() == CLASS_DRUID)
     {
-        int32 feral_bonus = ssv->getFeralBonus(proto->ScalingStatValue) + proto->getFeralBonus(ssv->getDPSMod(proto->ScalingStatValue));
+        int32 dpsMod = 0;
+        int32 feral_bonus = 0;
+        if (ssv)
+        {
+            dpsMod = ssv->getDPSMod(proto->ScalingStatValue);
+            feral_bonus += ssv->getFeralBonus(proto->ScalingStatValue);
+        }
+
+        feral_bonus += proto->getFeralBonus(dpsMod);
         if (feral_bonus)
             ApplyFeralAPBonus(feral_bonus, apply);
     }
