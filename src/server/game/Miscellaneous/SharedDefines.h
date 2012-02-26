@@ -3424,10 +3424,6 @@ enum ActivateTaxiReply
 
 // Calendar - start
 
-#define MAX_HOLIDAY_DATES 26
-#define MAX_HOLIDAY_FLAGS 10
-#define MAX_HOLIDAY_DURATIONS 10
-
 enum CalendarFlags
 {
     CALENDAR_FLAG_ALL_ALLOWED     = 0x001,
