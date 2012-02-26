@@ -102,7 +102,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_drakuru_shacklesAI(creature);
     }
@@ -184,7 +184,7 @@ public:
        }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_captured_rageclawAI(creature);
     }
@@ -527,25 +527,25 @@ public:
         }
     };
 
-    bool OnQuestAccept(Player* player, Creature* creature, Quest const* pQuest)
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest)
     {
-        switch (pQuest->GetQuestId())
+        switch (quest->GetQuestId())
         {
             case QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_KORRAK_BLOODRAGER:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_2:
             case QUEST_AMPHITHEATER_ANGUISH_YGGDRAS_1:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
             case QUEST_AMPHITHEATER_ANGUISH_FROM_BEYOND:
-                creature->AI()->SetData(1, pQuest->GetQuestId());
+                creature->AI()->SetData(1, quest->GetQuestId());
                 break;
         }
 
@@ -554,7 +554,7 @@ public:
         return false;
     }
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_gurgthockAI(creature);
     }
@@ -696,7 +696,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_orinoko_tuskbreakerAI(creature);
     }
@@ -794,7 +794,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_korrak_bloodragerAI(creature);
     }
@@ -886,7 +886,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_yggdrasAI(creature);
     }
@@ -1019,7 +1019,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_stinkbeardAI(creature);
     }
@@ -1164,7 +1164,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_elemental_lordAI(creature);
     }
@@ -1229,7 +1229,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_fiend_elementalAI(creature);
     }
@@ -1263,7 +1263,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_released_offspring_harkoaAI(creature);
     }
@@ -1351,7 +1351,7 @@ public:
         }
     };
 
-    CreatureAI *GetAI(Creature* creature) const
+    CreatureAI* GetAI(Creature* creature) const
     {
         return new npc_crusade_recruitAI(creature);
     }

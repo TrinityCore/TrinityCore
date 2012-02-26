@@ -338,9 +338,9 @@ class ChatHandler
         bool HandleFlushArenaPointsCommand(const char *args);
         // Jail by WarHead Edited by spgm
         bool HandleJailCommand(const char* args);
-		bool HandleJailInfoCommand(const char* args);
-		bool HandleUnJailCommand(const char* args);
-		bool HandleJailReloadCommand(const char* args);
+        bool HandleJailInfoCommand(const char* args);
+        bool HandleUnJailCommand(const char* args);
+        bool HandleJailReloadCommand(const char* args);
 		
         bool HandlePlayAllCommand(const char* args);
         bool HandleRepairitemsCommand(const char* args);

@@ -178,7 +178,7 @@ namespace Trinity
                         gain *= 2;
                 }
 
-            float premium_rate = player->GetSession()->IsPremium() ? sWorld->getRate(RATE_XP_KILL_PREMIUM) : 1.0f;
+                float premium_rate = player->GetSession()->IsPremium() ? sWorld->getRate(RATE_XP_KILL_PREMIUM) : 1.0f;
 
                 return uint32(gain*sWorld->getRate(RATE_XP_KILL)*premium_rate);
             }

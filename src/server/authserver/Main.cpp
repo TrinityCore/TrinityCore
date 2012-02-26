@@ -103,14 +103,15 @@ extern int main(int argc, char **argv)
     sLog->outString("<Ctrl-C> to stop.\n");
     sLog->outString("Using configuration file %s.", cfg_file);
 
-    sLog->outString("      ______   __     __   _________   ________   ________");
-    sLog->outString("     / ____/  / /    / /  / _____  /  / ____  /  / ______/");
-    sLog->outString("    / /      / /____/ /  / /    / /  / /   / /  / /_____");
-    sLog->outString("   / /      / _____  /  / /____/ /  / /   / /  /_____  /");
-    sLog->outString("  / /____  / /    / /  / _____  /  / /___/ /  ______/ /");
-    sLog->outString(" /______/ /_/    /_/  /_/    /_/  /_______/  /_______/");
-    sLog->outString("                                     C O R E         ");
-    sLog->outString("Based on TrinityCore http://www.TrinityCore.org\n");
+    sLog->outString(" ______                       __");
+    sLog->outString("/\\__  _\\       __          __/\\ \\__");
+    sLog->outString("\\/_/\\ \\/ _ __ /\\_\\    ___ /\\_\\ \\, _\\  __  __");
+    sLog->outString("   \\ \\ \\/\\`'__\\/\\ \\ /' _ `\\/\\ \\ \\ \\/ /\\ \\/\\ \\");
+    sLog->outString("    \\ \\ \\ \\ \\/ \\ \\ \\/\\ \\/\\ \\ \\ \\ \\ \\_\\ \\ \\_\\ \\");
+    sLog->outString("     \\ \\_\\ \\_\\  \\ \\_\\ \\_\\ \\_\\ \\_\\ \\__\\\\/`____ \\");
+    sLog->outString("      \\/_/\\/_/   \\/_/\\/_/\\/_/\\/_/\\/__/ `/___/> \\");
+    sLog->outString("                                 C O R E  /\\___/");
+    sLog->outString("http://TrinityCore.org                    \\/__/\n"); 
 	
     sLog->outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
 
