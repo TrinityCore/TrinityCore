@@ -27,7 +27,15 @@
 
 enum texts
 {
-    SAY_KEEPER_1 = 0,
+    SAY_EVENT_1 = 0,
+    SAY_EVENT_2 = 1,
+    SAY_EVENT_3 = 2,
+    SAY_EVENT_4 = 3,
+    SAY_EVENT_5 = 4,
+    SAY_EVENT_6 = 5,
+    SAY_EVENT_7 = 6,
+    SAY_EVENT_8 = 7,
+    SAY_BRANN   = 8,
 };
 
 class npc_lorekeeper : public CreatureScript
@@ -39,21 +47,67 @@ class npc_lorekeeper : public CreatureScript
         {
             npc_lorekeeperAI(Creature* creature) : ScriptedAI(creature)
             {
+                Step = 0;
+                event = false;
             }
 			
             void MoveInLineOfSight(Unit* who)
             {
                 if (me->IsWithinDistInMap(who, 10.0f) && who->GetTypeId() == TYPEID_PLAYER)
                 {
+                    Step=1;
+                    StepTimer = 100;
                     Event();
                 }
             }
 			
             void Event()
             {
-                Talk(SAY_KEEPER_1);
+                if(!Step)
+                    return;
+
+                if (event)
+                    return;
+					
+                switch (Step)
+                {
+                    case 1:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            Dellorah->AI()->Talk(SAY_EVENT_1);
+                        JumpNextStep(10000);
+                        break;
+                    case 2:
+                        Talk(SAY_EVENT_1);
+                        JumpNextStep(10000);
+                        break;
+                    default:
+                        break;
+                }
+				me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+				event=true;
             }
 			
+            void JumpNextStep(uint32 Time)
+            {
+                StepTimer = Time;
+                Step++;
+            }
+			
+            void UpdateAI(uint32 const diff)
+            {
+                if(StepTimer < diff)
+                   Event();
+                else
+                   StepTimer -= diff;
+				
+                return;
+            }
+			
+        private:
+            uint32 StepTimer;
+            uint32 Step;
+            bool event;
+		
         };
 
         bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
@@ -89,7 +143,7 @@ class npc_lorekeeper : public CreatureScript
                             if (Creature* Brann = creature->FindNearestCreature(NPC_BRANN_BRONZBEARD, 200.0f, true))
                             {
                                 Delorah->GetMotionMaster()->MovePoint(0, Brann->GetPositionX() - 4, Brann->GetPositionY(), Brann->GetPositionZ());
-                                // TODO DoScriptText(xxxx, Delorah, Brann); when reached brann
+                                Delorah->AI()->Talk(SAY_BRANN);
                             }
                         }
                         creature->SetVisible(false);
@@ -111,7 +165,7 @@ class npc_lorekeeper : public CreatureScript
             }
             return true;
         }
-
+	
         CreatureAI* GetAI(Creature* creature) const
         {
             return new npc_lorekeeperAI(creature);
