@@ -1066,14 +1066,18 @@ struct HolidayNamesEntry
 };
 */
 
+#define MAX_HOLIDAY_DURATIONS 10
+#define MAX_HOLIDAY_DATES 26
+#define MAX_HOLIDAY_FLAGS 10
+
 struct HolidaysEntry
 {
     uint32 Id;                                              // 0        m_ID
-    uint32 Duration[10];                                    // 1-10     m_duration (MAX_HOLIDAY_DURATIONS)
-    uint32 Date[26];                                        // 11-36    m_date (dates in unix time starting at January, 1, 2000) (MAX_HOLIDAY_DATES)
+    uint32 Duration[MAX_HOLIDAY_DURATIONS];                 // 1-10     m_duration
+    uint32 Date[MAX_HOLIDAY_DATES];                         // 11-36    m_date (dates in unix time starting at January, 1, 2000)
     uint32 Region;                                          // 37       m_region (wow region)
     uint32 Looping;                                         // 38       m_looping
-    uint32 CalendarFlags[10];                               // 39-48    m_calendarFlags (MAX_HOLIDAY_FLAGS)
+    uint32 CalendarFlags[MAX_HOLIDAY_FLAGS];                // 39-48    m_calendarFlags
     //uint32 holidayNameId;                                 // 49       m_holidayNameID (HolidayNames.dbc)
     //uint32 holidayDescriptionId;                          // 50       m_holidayDescriptionID (HolidayDescriptions.dbc)
     char* TextureFilename;                                  // 51       m_textureFilename
@@ -1086,7 +1090,7 @@ struct ItemEntry
 {
    uint32   ID;                                             // 0
    uint32   Class;                                          // 1
-   uint32   SubClass;                                       // 2 some items have strnage subclasses
+   uint32   SubClass;                                       // 2 some items have strange subclasses
    int32    Unk0;                                           // 3
    int32    Material;                                       // 4
    uint32   DisplayId;                                      // 5

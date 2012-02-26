@@ -208,10 +208,14 @@ typedef std::vector<std::string> StringVector;
   ACE_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
     if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
+//! For proper implementation of multiple-read, single-write pattern, use
+//! ACE_RW_Mutex as underlying @MUTEX
 # define TRINITY_WRITE_GUARD(MUTEX, LOCK) \
   ACE_Write_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
     if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
 
+//! For proper implementation of multiple-read, single-write pattern, use
+//! ACE_RW_Mutex as underlying @MUTEX
 # define TRINITY_READ_GUARD(MUTEX, LOCK) \
   ACE_Read_Guard< MUTEX > TRINITY_GUARD_OBJECT (LOCK); \
     if (TRINITY_GUARD_OBJECT.locked() == 0) ASSERT(false);
