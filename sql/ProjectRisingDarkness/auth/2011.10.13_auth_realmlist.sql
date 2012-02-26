@@ -1,1 +1,1 @@
-UPDATE `realmlist` SET `name`='ChaosCore' WHERE `id`=1;
+UPDATE `realmlist` SET `name`='Project Risen Darkness' WHERE `id`=1;
