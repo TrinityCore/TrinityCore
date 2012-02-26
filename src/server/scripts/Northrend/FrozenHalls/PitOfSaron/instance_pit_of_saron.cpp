@@ -41,12 +41,15 @@ class instance_pit_of_saron : public InstanceMapScript
                 _jainaOrSylvanas1GUID = 0;
                 _jainaOrSylvanas2GUID = 0;
                 _teamInInstance = 0;
+                _tyrannusEventStart = NOT_STARTED;
             }
 
             void OnPlayerEnter(Player* player)
             {
                 if (!_teamInInstance)
                     _teamInInstance = player->GetTeam();
+                if(GetData(DATA_TYRANNUS_START) != DONE)
+                SetData(DATA_TYRANNUS_START, IN_PROGRESS);
             }
 
             void OnCreatureCreate(Creature* creature)
@@ -153,6 +156,18 @@ class instance_pit_of_saron : public InstanceMapScript
                         break;
                 }
             }
+            
+            void OnGameObjectCreate(GameObject* go)
+            {
+               switch (go->GetEntry())
+               {
+                    case GO_ICE_WALL:
+                        uiIceWall = go->GetGUID();
+                        if (GetBossState(DATA_GARFROST) == DONE && GetBossState(DATA_ICK) == DONE)
+                            HandleGameObject(NULL,true,go);
+                    break;
+                }
+            }
 
             bool SetBossState(uint32 type, EncounterState state)
             {
@@ -161,6 +176,13 @@ class instance_pit_of_saron : public InstanceMapScript
 
                 switch (type)
                 {
+                    case DATA_ICK:
+                        if (state == DONE)
+                        {
+                            if(GetBossState(DATA_GARFROST)==DONE)
+                               HandleGameObject(uiIceWall,true,NULL);
+                        }
+                        break;
                     case DATA_GARFROST:
                         if (state == DONE)
                         {
@@ -171,6 +193,9 @@ class instance_pit_of_saron : public InstanceMapScript
                                 else
                                     summoner->SummonCreature(NPC_GORKUN_IRONSKULL_2, SlaveLeaderPos, TEMPSUMMON_MANUAL_DESPAWN);
                             }
+                            
+                            if(GetBossState(DATA_ICK)==DONE)
+                                     HandleGameObject(uiIceWall,true,NULL);
                         }
                         break;
                     case DATA_TYRANNUS:
@@ -198,6 +223,8 @@ class instance_pit_of_saron : public InstanceMapScript
                 {
                     case DATA_TEAM_IN_INSTANCE:
                         return _teamInInstance;
+                    case DATA_TYRANNUS_START:
+                    return _tyrannusEventStart;
                     default:
                         break;
                 }
@@ -231,7 +258,12 @@ class instance_pit_of_saron : public InstanceMapScript
 
                 return 0;
             }
-
+            
+            void SetData(uint32 type, uint32 data)
+           {
+            if(type == DATA_TYRANNUS_START)
+                _tyrannusEventStart = data;
+           }
             std::string GetSaveData()
             {
                 OUT_SAVE_INST_DATA;
@@ -286,8 +318,10 @@ class instance_pit_of_saron : public InstanceMapScript
             uint64 _tyrannusEventGUID;
             uint64 _jainaOrSylvanas1GUID;
             uint64 _jainaOrSylvanas2GUID;
+            uint64 uiIceWall;
 
             uint32 _teamInInstance;
+            uint8  _tyrannusEventStart;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const

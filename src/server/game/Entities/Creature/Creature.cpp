@@ -540,6 +540,18 @@ void Creature::Update(uint32 diff)
             if (!isAlive())
                 break;
 
+            // Wintergrasp feature: mechanical units should take damage if isInWater
+            if (GetCreatureInfo()->type == CREATURE_TYPE_MECHANICAL && GetZoneId() == 4197)
+            {
+                if (IsInWater())
+                {
+                    if (!HasAura(36444))
+                        CastSpell(this, 36444, true);
+                }
+                else
+                    RemoveAurasDueToSpell(36444);
+            }
+
             if (m_regenTimer > 0)
             {
                 if (diff >= m_regenTimer)

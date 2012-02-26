@@ -21,34 +21,25 @@
 
 #include "naxxramas.h"
 
-//Stalagg
-enum StalaggYells
+enum ScriptTexts
 {
-    SAY_STAL_AGGRO          = -1533023, //not used
-    SAY_STAL_SLAY           = -1533024, //not used
-    SAY_STAL_DEATH          = -1533025  //not used
+    SAY_AGGRO               = 0,
+    SAY_KILL                = 1,
+    SAY_DEATH               = 2,
 };
 
 enum StalagSpells
 {
-    SPELL_POWERSURGE        = 28134,
-    H_SPELL_POWERSURGE      = 54529,
+    SPELL_POWERSURGE_10     = 28134,
+    SPELL_POWERSURGE_25     = 54529,
     SPELL_MAGNETIC_PULL     = 28338,
     SPELL_STALAGG_TESLA     = 28097
 };
 
-//Feugen
-enum FeugenYells
-{
-    SAY_FEUG_AGGRO          = -1533026, //not used
-    SAY_FEUG_SLAY           = -1533027, //not used
-    SAY_FEUG_DEATH          = -1533028 //not used
-};
-
 enum FeugenSpells
 {
-    SPELL_STATICFIELD       = 28135,
-    H_SPELL_STATICFIELD     = 54528,
+    SPELL_STATICFIELD_10    = 28135,
+    SPELL_STATICFIELD_25    = 54528,
     SPELL_FEUGEN_TESLA      = 28109
 };
 
@@ -65,15 +56,15 @@ enum ThaddiusActions
 #define C_TESLA_COIL            16218           //the coils (emotes "Tesla Coil overloads!")
 
 //Thaddius
-enum ThaddiusYells
+enum ThaddiusScriptTexts
 {
-    SAY_GREET               = -1533029, //not used
-    SAY_AGGRO_1             = -1533030,
-    SAY_AGGRO_2             = -1533031,
-    SAY_AGGRO_3             = -1533032,
-    SAY_SLAY                = -1533033,
-    SAY_ELECT               = -1533034, //not used
-    SAY_DEATH               = -1533035,
+    SAY_GREET               = 0, 
+    SAY_TAGGRO              = 1,
+    SAY_TDEATH              = 2,
+    SAY_ELECT               = 3,
+    SAY_TKILL               = 4,
+    EMOTE_SHIFT             = 5,
+
     SAY_SCREAM1             = -1533036, //not used
     SAY_SCREAM2             = -1533037, //not used
     SAY_SCREAM3             = -1533038, //not used
@@ -84,8 +75,8 @@ enum ThaddiusSpells
 {
     SPELL_POLARITY_SHIFT        = 28089,
     SPELL_BALL_LIGHTNING        = 28299,
-    SPELL_CHAIN_LIGHTNING       = 28167,
-    H_SPELL_CHAIN_LIGHTNING     = 54531,
+    SPELL_CHAIN_LIGHTNING_10    = 28167,
+    SPELL_CHAIN_LIGHTNING_25    = 54531,
     SPELL_BERSERK               = 27680,
     SPELL_POSITIVE_CHARGE       = 28062,
     SPELL_POSITIVE_CHARGE_STACK = 29659,
@@ -150,18 +141,19 @@ public:
         bool checkStalaggAlive;
         bool checkFeugenAlive;
         bool polaritySwitch;
+        bool hasTaunted;
         uint32 uiAddsTimer;
 
         void KilledUnit(Unit* /*victim*/)
         {
-            if (!(rand()%5))
-                DoScriptText(SAY_SLAY, me);
+            Talk(SAY_TKILL);
         }
 
         void JustDied(Unit* /*Killer*/)
         {
             _JustDied();
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_TDEATH);
+            instance->SetBossState(BOSS_THADDIUS, DONE);
         }
 
         void DoAction(const int32 action)
@@ -198,12 +190,22 @@ public:
         void EnterCombat(Unit* /*who*/)
         {
             _EnterCombat();
-            DoScriptText(RAND(SAY_AGGRO_1, SAY_AGGRO_2, SAY_AGGRO_3), me);
+            Talk(SAY_TAGGRO);
             events.ScheduleEvent(EVENT_SHIFT, 30000);
             events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
             events.ScheduleEvent(EVENT_BERSERK, 360000);
         }
-
+		
+        void MoveInLineOfSight(Unit* who)
+        {
+            if (!hasTaunted && me->IsWithinDistInMap(who, 1000.0f) && who->GetTypeId() == TYPEID_PLAYER)
+            {
+                Talk(SAY_GREET);
+                hasTaunted = true;
+            }
+            ScriptedAI::MoveInLineOfSight(who);
+        }
+		
         void DamageTaken(Unit* /*pDoneBy*/, uint32 & /*uiDamage*/)
         {
             me->SetReactState(REACT_AGGRESSIVE);
@@ -262,10 +264,12 @@ public:
                 {
                     case EVENT_SHIFT:
                         DoCastAOE(SPELL_POLARITY_SHIFT);
+                        Talk(EMOTE_SHIFT);
+                        Talk(SAY_ELECT);
                         events.ScheduleEvent(EVENT_SHIFT, 30000);
                         return;
                     case EVENT_CHAIN:
-                        DoCast(me->getVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING, H_SPELL_CHAIN_LIGHTNING));
+                        DoCast(me->getVictim(), RAID_MODE(SPELL_CHAIN_LIGHTNING_10, SPELL_CHAIN_LIGHTNING_25));
                         events.ScheduleEvent(EVENT_CHAIN, urand(10000, 20000));
                         return;
                     case EVENT_BERSERK:
@@ -308,7 +312,7 @@ public:
         void Reset()
         {
             if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(BOSS_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_RESET);
             powerSurgeTimer = urand(20000, 25000);
@@ -317,17 +321,24 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            Talk(SAY_AGGRO);
             DoCast(SPELL_STALAGG_TESLA);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(BOSS_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_STALAGG_DIED);
+            Talk(SAY_DEATH);
         }
 
+        void KilledUnit(Unit* /*victim*/)
+        {
+                Talk(SAY_KILL);
+        }
+		
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
@@ -359,7 +370,7 @@ public:
 
             if (powerSurgeTimer <= uiDiff)
             {
-                DoCast(me, RAID_MODE(SPELL_POWERSURGE, H_SPELL_POWERSURGE));
+                DoCast(me, RAID_MODE(SPELL_POWERSURGE_10, SPELL_POWERSURGE_25));
                 powerSurgeTimer = urand(15000, 20000);
             } else powerSurgeTimer -= uiDiff;
 
@@ -393,7 +404,7 @@ public:
         void Reset()
         {
             if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(BOSS_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_RESET);
             staticFieldTimer = 5000;
@@ -401,17 +412,24 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
+            Talk(SAY_AGGRO);
             DoCast(SPELL_FEUGEN_TESLA);
         }
 
         void JustDied(Unit* /*killer*/)
         {
             if (instance)
-                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(DATA_THADDIUS)))
+                if (Creature* pThaddius = me->GetCreature(*me, instance->GetData64(BOSS_THADDIUS)))
                     if (pThaddius->AI())
                         pThaddius->AI()->DoAction(ACTION_FEUGEN_DIED);
+            Talk(SAY_DEATH);
         }
-
+		
+        void KilledUnit(Unit* /*victim*/)
+        {
+                Talk(SAY_KILL);
+        }
+		
         void UpdateAI(const uint32 uiDiff)
         {
             if (!UpdateVictim())
@@ -419,7 +437,7 @@ public:
 
             if (staticFieldTimer <= uiDiff)
             {
-                DoCast(me, RAID_MODE(SPELL_STATICFIELD, H_SPELL_STATICFIELD));
+                DoCast(me, RAID_MODE(SPELL_STATICFIELD_10, SPELL_STATICFIELD_25));
                 staticFieldTimer = 5000;
             } else staticFieldTimer -= uiDiff;
 

@@ -506,12 +506,12 @@ class boss_the_lich_king : public CreatureScript
 
             void EnterCombat(Unit* target)
             {
-                if (!instance->CheckRequiredBosses(DATA_THE_LICH_KING, target->ToPlayer()))
+                /*if (!instance->CheckRequiredBosses(DATA_THE_LICH_KING, target->ToPlayer()))
                 {
                     EnterEvadeMode();
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
-                }
+                }*/
 
                 me->setActive(true);
                 DoZoneInCombat();
@@ -587,7 +587,7 @@ class boss_the_lich_king : public CreatureScript
                         DoCastAOE(SPELL_SUMMON_BROKEN_FROSTMOURNE);
                         DoCastAOE(SPELL_SUMMON_BROKEN_FROSTMOURNE_2);
                         SetEquipmentSlots(false, EQUIP_BROKEN_FROSTMOURNE);
-                        events.ScheduleEvent(EVENT_OUTRO_TALK_6, 2500, 0, PHASE_OUTRO);
+                        events.ScheduleEvent(EVENT_OUTRO_TALK_6, 3500, 0, PHASE_OUTRO);
                         break;
                     case ACTION_FINISH_OUTRO:
                         events.ScheduleEvent(EVENT_OUTRO_TALK_7, 7000, 0, PHASE_OUTRO);
@@ -708,7 +708,7 @@ class boss_the_lich_king : public CreatureScript
                     case NPC_FROSTMOURNE_TRIGGER:
                     {
                         summons.Summon(summon);
-                        summon->CastSpell((Unit*)NULL, SPELL_BROKEN_FROSTMOURNE, true);
+                        //summon->AddAura((Unit*)NULL, SPELL_BROKEN_FROSTMOURNE, true);
 
                         SendLightOverride(LIGHT_SOULSTORM, 10000);
                         SendWeather(WEATHER_STATE_BLACKSNOW);
@@ -2000,7 +2000,8 @@ class npc_broken_frostmourne : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_OUTRO_KNOCK_BACK:
-                            DoCastAOE(SPELL_BROKEN_FROSTMOURNE_KNOCK);
+                            me->AddAura(SPELL_BROKEN_FROSTMOURNE, me);
+                            me->AddAura(SPELL_BROKEN_FROSTMOURNE_KNOCK, me);
                             break;
                         case EVENT_OUTRO_SUMMON_TERENAS:
                             DoCastAOE(SPELL_SUMMON_TERENAS);

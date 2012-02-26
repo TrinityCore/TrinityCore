@@ -78,6 +78,8 @@ public:
         uint32 uiShadowBoltTimer;
         uint32 uiStealFleshTimer;
         uint32 uiSummonGhoulsTimer;
+        uint32 uiRespawnZombiesTimer;
+        bool bTransformed;
 
         InstanceScript* instance;
 
@@ -88,6 +90,8 @@ public:
              uiShadowBoltTimer = urand(8000, 12000); // approx 10s
              uiStealFleshTimer = 12345;
              uiSummonGhoulsTimer = urand(19000, 24000); //on a video approx 24s after aggro
+             uiRespawnZombiesTimer = 200000;
+             bTransformed = false;
 
              if (instance)
                  instance->SetData(DATA_SALRAMM_EVENT, NOT_STARTED);
@@ -139,6 +143,15 @@ public:
                     DoCast(random_pTarget, SPELL_SUMMON_GHOULS);
                 uiSummonGhoulsTimer = 10000;
             } else uiSummonGhoulsTimer -= diff;
+
+            // Respawn risen zombies at town
+            if(!bTransformed)
+                if (uiRespawnZombiesTimer <= diff)
+                {
+                    instance->SetData(DATA_TRANSFORM_CITIZENS, SPECIAL);
+                    bTransformed = true;
+                }
+                else uiRespawnZombiesTimer -= diff;
 
             DoMeleeAttackIfReady();
         }

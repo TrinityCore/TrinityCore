@@ -85,9 +85,9 @@ void LFGScripts::OnRemoveMember(Group* group, uint64 guid, RemoveMethod method, 
     sLFGMgr->SetState(guid, LFG_STATE_NONE);
     if (Player* player = ObjectAccessor::FindPlayer(guid))
     {
+        if (method == GROUP_REMOVEMETHOD_LEAVE && sLFGMgr->GetState(gguid) != LFG_STATE_FINISHED_DUNGEON)
+            player->CastSpell(player, LFG_SPELL_DUNGEON_DESERTER, true);
         /*
-        if (method == GROUP_REMOVEMETHOD_LEAVE)
-            // Add deserter flag
         else if (group->isLfgKickActive())
             // Update internal kick cooldown of kicked
         */

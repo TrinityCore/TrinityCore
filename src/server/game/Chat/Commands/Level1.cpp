@@ -630,6 +630,292 @@ bool ChatHandler::HandleSaveAllCommand(const char* /*args*/)
     return true;
 }
 
+// Jail by WarHead edited by spgm
+bool ChatHandler::HandleJailCommand(const char *args)
+{
+    std::string cname, announce, ban_reason, ban_by;
+    time_t localtime;
+    localtime = time(NULL);
+
+    char *charname = strtok((char*)args, " ");
+    if (charname == NULL)
+    {
+        SendSysMessage(LANG_JAIL_NONAME);
+        return true;
+    } else cname = charname;
+
+    char *timetojail = strtok(NULL, " ");
+    if (timetojail == NULL)
+    {
+        SendSysMessage(LANG_JAIL_NOTIME);
+        return true;
+    }
+
+    uint32 jailtime = (uint32) atoi((char*)timetojail);
+    if (jailtime < 1 || jailtime > sObjectMgr->m_jailconf_max_duration)
+    {
+        PSendSysMessage(LANG_JAIL_VALUE, sObjectMgr->m_jailconf_max_duration);
+        return true;
+    }
+
+    char *reason = strtok(NULL, "\0");
+    std::string jailreason;
+    if (reason == NULL || strlen((const char*)reason) < sObjectMgr->m_jailconf_min_reason)
+    {
+        PSendSysMessage(LANG_JAIL_NOREASON, sObjectMgr->m_jailconf_min_reason);
+        return true;
+    } else jailreason = reason;
+
+    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname.c_str());
+    if (GUID == 0)
+    {
+        SendSysMessage(LANG_JAIL_WRONG_NAME);
+        return true;
+    }
+
+    Player *chr = ObjectAccessor::FindPlayer(GUID);
+    if (!chr)
+    {
+		uint32 jail_guid = GUID_LOPART(GUID);
+		std::string jail_char = cname;
+		bool jail_isjailed = true;
+		uint32 jail_release = localtime + (jailtime * 60 * 60);
+		uint32 jail_amnestietime = localtime +(60* 60 * 24 * sObjectMgr->m_jailconf_amnestie);
+		std::string jail_reason = jailreason;
+		uint32 jail_times = 0;
+
+		SQLTransaction trans = CharacterDatabase.BeginTransaction();
+		QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`='%u' LIMIT 1", jail_guid);
+		CharacterDatabase.CommitTransaction(trans);
+
+        if (!result)
+        {
+            jail_times = 1;
+        }
+        else
+        {
+            Field *fields = result->Fetch();
+            jail_times = fields[5].GetUInt32()+1;
+        }
+
+        uint32 jail_gmacc = m_session->GetAccountId();
+        std::string jail_gmchar = m_session->GetPlayerName();
+
+        SQLTransaction trans2 = CharacterDatabase.BeginTransaction();
+		if (!result) CharacterDatabase.PExecute("INSERT INTO `jail` VALUES ('%u','%s','%u','%u','%s','%u','%u','%s',CURRENT_TIMESTAMP,'%u')", jail_guid, jail_char.c_str(), jail_release, jail_amnestietime, jail_reason.c_str(), jail_times, jail_gmacc, jail_gmchar.c_str(), jailtime);
+        else CharacterDatabase.PExecute("UPDATE `jail` SET `release`='%u', `amnestietime`='%u',`reason`='%s',`times`='%u',`gmacc`='%u',`gmchar`='%s',`duration`='%u' WHERE `guid`='%u' LIMIT 1", jail_release, jail_amnestietime, jail_reason.c_str(), jail_times, jail_gmacc, jail_gmchar.c_str(), jailtime, jail_guid);
+        CharacterDatabase.CommitTransaction(trans2);
+
+        PSendSysMessage(LANG_JAIL_WAS_JAILED, cname.c_str(), jailtime);
+
+        announce = GetTrinityString(LANG_JAIL_ANNOUNCE1);
+        announce += cname;
+        announce += GetTrinityString(LANG_JAIL_ANNOUNCE2);
+        announce += timetojail;
+        announce += GetTrinityString(LANG_JAIL_ANNOUNCE3);
+        announce += m_session->GetPlayerName();
+        announce += GetTrinityString(LANG_JAIL_ANNOUNCE4);
+        announce += jail_reason;
+
+        HandleAnnounceCommand(announce.c_str());
+
+        if ((sObjectMgr->m_jailconf_max_jails == jail_times) && !sObjectMgr->m_jailconf_ban)
+        {
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `characters` WHERE `guid`='%u' LIMIT 1", GUID_LOPART(GUID));
+            CharacterDatabase.CommitTransaction(trans);
+
+            if (!result)
+            {
+                PSendSysMessage(LANG_NO_PLAYER, cname.c_str());
+                return true;
+            }
+
+            Field *fields = result->Fetch();
+
+            Player::DeleteFromDB(GUID, fields[1].GetUInt32());
+        }
+        else if ((sObjectMgr->m_jailconf_max_jails == jail_times) && sObjectMgr->m_jailconf_ban)
+        {
+            SQLTransaction trans = CharacterDatabase.BeginTransaction();
+            QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `characters` WHERE `guid`='%u' LIMIT 1", GUID_LOPART(GUID));
+            CharacterDatabase.CommitTransaction(trans);
+
+            if (!result)
+            {
+                PSendSysMessage(LANG_NO_PLAYER, cname.c_str());
+                return true;
+            }
+            Field *fields = result->Fetch();
+            uint32 acc_id = fields[1].GetUInt32();
+
+            SQLTransaction trans2 = LoginDatabase.BeginTransaction();
+            result = LoginDatabase.PQuery("SELECT * FROM `account` WHERE `id`='%u' LIMIT 1", acc_id);
+            LoginDatabase.CommitTransaction(trans2);
+
+            if (!result)
+            {
+                PSendSysMessage(LANG_NO_PLAYER, cname.c_str());
+                return true;
+            }
+            ban_reason = GetTrinityString(LANG_JAIL_BAN_REASON);
+            ban_by = GetTrinityString(LANG_JAIL_BAN_BY);
+
+            SQLTransaction trans3 = LoginDatabase.BeginTransaction();
+            LoginDatabase.PExecute("INSERT IGNORE INTO `account_banned` (`id`,`bandate`,`bannedby`,`banreason`) VALUES ('%u',UNIX_TIMESTAMP,'%s','%s')", acc_id, ban_by.c_str(), ban_reason.c_str());
+            LoginDatabase.CommitTransaction(trans3);
+
+        }
+        return true;
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+    QueryResult result = CharacterDatabase.PQuery("SELECT * FROM `characters` WHERE `guid`='%u' LIMIT 1", chr->GetGUIDLow());
+    CharacterDatabase.CommitTransaction(trans);
+
+    if (!result)
+    {
+        PSendSysMessage(LANG_NO_PLAYER, cname.c_str());
+        return true;
+    }
+
+    Field *fields = result->Fetch();
+
+    if (chr->GetName() == m_session->GetPlayerName())
+    {
+        SendSysMessage(LANG_JAIL_NO_JAIL);
+        return true;
+    }
+
+		chr->SaveToDB();
+
+		chr->m_jail_guid = fields[0].GetUInt32();
+		chr->m_jail_char = fields[3].GetString();
+		chr->m_jail_isjailed = true;
+		chr->m_jail_release = localtime + (jailtime * 60 * 60);
+		chr->m_jail_amnestietime = localtime +(60* 60 * 24 * sObjectMgr->m_jailconf_amnestie);
+		chr->m_jail_reason = jailreason;
+		chr->m_jail_times = chr->m_jail_times+1;
+		chr->m_jail_gmacc = m_session->GetAccountId();
+		chr->m_jail_gmchar = m_session->GetPlayerName();
+		chr->m_jail_duration = jailtime;
+
+		chr->_SaveJail();
+
+		PSendSysMessage(LANG_JAIL_WAS_JAILED, fields[3].GetString().c_str(), jailtime);
+		ChatHandler(chr).PSendSysMessage(LANG_JAIL_YOURE_JAILED, m_session->GetPlayerName(), jailtime);
+		ChatHandler(chr).PSendSysMessage(LANG_JAIL_REASON, m_session->GetPlayerName(), jailreason.c_str());
+
+		announce = GetTrinityString(LANG_JAIL_ANNOUNCE1);
+		announce += fields[3].GetString();
+		announce += GetTrinityString(LANG_JAIL_ANNOUNCE2);
+		announce += timetojail;
+		announce += GetTrinityString(LANG_JAIL_ANNOUNCE3);
+		announce += m_session->GetPlayerName();
+		announce += GetTrinityString(LANG_JAIL_ANNOUNCE4);
+		announce += chr->m_jail_reason;
+
+		HandleAnnounceCommand(announce.c_str());
+
+    if (sObjectMgr->m_jailconf_max_jails == chr->m_jail_times)
+    {
+        chr->GetSession()->KickPlayer();
+        chr->DeleteFromDB(fields[0].GetUInt64(), fields[1].GetUInt32());
+    }
+    else if ((sObjectMgr->m_jailconf_max_jails == chr->m_jail_times) && sObjectMgr->m_jailconf_ban)
+    {
+        uint32 acc_id = chr->GetSession()->GetAccountId();
+        ban_reason = GetTrinityString(LANG_JAIL_BAN_REASON);
+        ban_by = GetTrinityString(LANG_JAIL_BAN_BY);
+
+		SQLTransaction trans = LoginDatabase.BeginTransaction();
+        LoginDatabase.PExecute("INSERT IGNORE INTO `account_banned` (`id`,`bandate`,`bannedby`,`banreason`) VALUES ('%u',UNIX_TIMESTAMP,'%s','%s')", acc_id, ban_by.c_str(), ban_reason.c_str());
+        LoginDatabase.CommitTransaction(trans);
+
+        chr->GetSession()->LogoutPlayer(false);
+    }
+    else chr->GetSession()->LogoutPlayer(false);
+    return true;
+}
+
+bool ChatHandler::HandleUnJailCommand(const char *args)
+{
+    char *charname = strtok((char*)args, " ");
+    std::string cname;
+
+    if (charname == NULL) return false;
+    else cname = charname;
+
+    uint64 GUID = sObjectMgr->GetPlayerGUIDByName(cname.c_str());
+    Player *chr = ObjectAccessor::FindPlayer(GUID);
+
+    if (chr)
+    {
+        if (chr->GetName() == m_session->GetPlayerName())
+        {
+            SendSysMessage(LANG_JAIL_NO_UNJAIL);
+            return true;
+        }
+
+        if (chr->m_jail_isjailed)
+        {
+            chr->m_jail_isjailed = false;
+            chr->m_jail_release = 0;
+            chr->m_jail_times = chr->m_jail_times-1;
+
+            chr->_SaveJail();
+
+            if (chr->m_jail_times == 0)
+            {
+                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabase.PQuery("DELETE FROM `jail` WHERE `guid`='%u' LIMIT 1", chr->GetGUIDLow());
+                CharacterDatabase.CommitTransaction(trans);
+            }
+
+            PSendSysMessage(LANG_JAIL_WAS_UNJAILED, cname.c_str());
+            ChatHandler(chr).PSendSysMessage(LANG_JAIL_YOURE_UNJAILED, m_session->GetPlayerName());    
+            chr->CastSpell(chr,8690,false);
+            //chr->GetSession()->LogoutPlayer(false);
+        } else PSendSysMessage(LANG_JAIL_CHAR_NOTJAILED, cname.c_str());
+        return true;
+    }
+    else
+    {
+        SQLTransaction trans = CharacterDatabase.BeginTransaction();
+        QueryResult jresult = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`='%u' LIMIT 1", GUID_LOPART(GUID));
+        CharacterDatabase.CommitTransaction(trans);
+
+        if (!jresult)
+        {
+            PSendSysMessage(LANG_JAIL_CHAR_NOTJAILED, cname.c_str());
+            return true;
+        }
+        else
+        {
+            Field *fields = jresult->Fetch();
+            uint32 jail_times = fields[4].GetUInt32()-1;
+
+            if (jail_times == 0)
+            {
+                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabase.PQuery("DELETE FROM `jail` WHERE `guid`='%u' LIMIT 1", fields[0].GetUInt32());
+                CharacterDatabase.CommitTransaction(trans);
+            }
+            else
+            {
+                SQLTransaction trans = CharacterDatabase.BeginTransaction();
+                CharacterDatabase.PQuery("UPDATE `jail` SET `release`='0',`times`='%u' WHERE `guid`='%u' LIMIT 1", jail_times, fields[0].GetUInt32());
+                CharacterDatabase.CommitTransaction(trans);
+            }
+
+            PSendSysMessage(LANG_JAIL_WAS_UNJAILED, cname.c_str());
+            return true;
+        }
+
+    }
+    return true;
+}
+
 //Send mail by command
 bool ChatHandler::HandleSendMailCommand(const char* args)
 {

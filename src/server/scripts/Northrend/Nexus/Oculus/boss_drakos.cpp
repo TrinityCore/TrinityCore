@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,18 +35,14 @@ enum Yells
     SAY_KILL_2                                    = -1578007,
     SAY_KILL_3                                    = -1578008,
     SAY_DEATH                                     = -1578009,
-    SAY_PULL_1                                    = -1578010,
-    SAY_PULL_2                                    = -1578011,
-    SAY_PULL_3                                    = -1578012,
-    SAY_PULL_4                                    = -1578013,
-    SAY_STOMP_1                                   = -1578014,
-    SAY_STOMP_2                                   = -1578015,
-    SAY_STOMP_3                                   = -1578016
-};
-
-enum DrakosAchievement
-{
-    ACHIEV_TIMED_START_EVENT                      = 18153,
+    SAY_VAROS_SPAWN                               = -1578010,
+    SAY_PULL_1                                    = -1578011,
+    SAY_PULL_2                                    = -1578012,
+    SAY_PULL_3                                    = -1578013,
+    SAY_PULL_4                                    = -1578014,
+    SAY_STOMP_1                                   = -1578015,
+    SAY_STOMP_2                                   = -1578016,
+    SAY_STOMP_3                                   = -1578017
 };
 
 enum DrakosEvents
@@ -136,9 +132,8 @@ public:
             _JustDied();
 
             DoScriptText(SAY_DEATH, me);
-
-            // start achievement timer (kill Eregos within 20 min)
-            instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEV_TIMED_START_EVENT);
+            if(Creature* varos = me->GetCreature(*me, instance->GetData64(DATA_VAROS)))
+                DoScriptText(SAY_VAROS_SPAWN, varos);
         }
 
         void KilledUnit(Unit* /*victim*/)

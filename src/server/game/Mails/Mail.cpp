@@ -26,6 +26,7 @@
 #include "BattlegroundMgr.h"
 #include "Item.h"
 #include "AuctionHouseMgr.h"
+#include "AuctionHouseBot.h"
 
 MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery(stationery)
 {
@@ -178,6 +179,13 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
 
     uint32 mailId = sObjectMgr->GenerateMailID();
 
+    if (receiver.GetPlayerGUIDLow() == auctionbot.GetAHBplayerGUID())
+    {
+        if (sender.GetMailMessageType() == MAIL_AUCTION)        // auction mail with items
+            deleteIncludedItems(trans, true);
+        return;
+    }
+
     time_t deliver_time = time(NULL) + deliver_delay;
 
     //expire time if COD 3 days, if no COD 30 days, if auction sale pending 1 hour
@@ -276,4 +284,64 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
         SQLTransaction temp = SQLTransaction(NULL);
         deleteIncludedItems(temp);
     }
+}
+
+void WorldSession::SendExternalMails()
+{
+    sLog->outDetail("EXTERNAL MAIL> Sending mails in queue...");
+
+    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_EXTERNAL_MAIL);
+    PreparedQueryResult result = CharacterDatabase.Query(stmt);
+    if (!result)
+    {
+        sLog->outDetail("EXTERNAL MAIL> No mails in queue...");
+        return;
+    }
+
+    SQLTransaction trans = CharacterDatabase.BeginTransaction();
+
+    MailDraft* mail = NULL;
+
+    do
+    {
+        Field *fields = result->Fetch();
+        uint32 id = fields[0].GetUInt32();
+        uint64 receiver_guid = fields[1].GetUInt32();
+        std::string subject = fields[2].GetString();
+        std::string body = fields[3].GetString();
+        uint32 money = fields[4].GetUInt32();
+        uint32 itemId = fields[5].GetUInt32();
+        uint32 itemCount = fields[6].GetUInt32();
+
+        Player *receiver = ObjectAccessor::FindPlayer(MAKE_NEW_GUID(receiver_guid, 0, HIGHGUID_PLAYER));
+
+        mail = new MailDraft(subject, body);
+
+        if (money)
+        {
+            sLog->outDetail("EXTERNAL MAIL> Adding money");
+            mail->AddMoney(money);
+        }
+
+        if (itemId)
+        {
+            sLog->outDetail("EXTERNAL MAIL> Adding %u of item with id %u", itemCount, itemId);
+            Item* mailItem = Item::CreateItem(itemId, itemCount);
+            mailItem->SaveToDB(trans);
+            mail->AddItem(mailItem);
+        }
+
+        mail->SendMailTo(trans, receiver ? receiver : MailReceiver(receiver_guid), MailSender(MAIL_NORMAL, 0, MAIL_STATIONERY_GM), MAIL_CHECK_MASK_RETURNED);
+        delete mail;
+
+        stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_EXTERNAL_MAIL);
+        stmt->setUInt32(0, id);
+        trans->Append(stmt);
+
+        sLog->outDetail("EXTERNAL MAIL> Mail sent");
+    }
+    while (result->NextRow());
+
+    CharacterDatabase.CommitTransaction(trans);
+    sLog->outDetail("EXTERNAL MAIL> All Mails Sent...");
 }

@@ -557,11 +557,14 @@ class spell_gen_trick : public SpellScriptLoader
 };
 
 // 24751 Trick or Treat
-enum eTrickOrTreatSpells
+enum TrickOrTreatSpells
 {
     SPELL_TRICK                 = 24714,
     SPELL_TREAT                 = 24715,
-    SPELL_TRICKED_OR_TREATED    = 24755
+    SPELL_TRICKED_OR_TREATED    = 24755,
+    SPELL_TRICKY_TREAT_SPEED    = 42919,
+    SPELL_TRICKY_TREAT_TRIGGER  = 42965,
+    SPELL_UPSET_TUMMY           = 42966
 };
 
 class spell_gen_trick_or_treat : public SpellScriptLoader
@@ -599,6 +602,45 @@ class spell_gen_trick_or_treat : public SpellScriptLoader
         SpellScript* GetSpellScript() const
         {
             return new spell_gen_trick_or_treat_SpellScript();
+        }
+};
+
+class spell_gen_tricky_treat : public SpellScriptLoader
+{
+    public:
+        spell_gen_tricky_treat() : SpellScriptLoader("spell_gen_tricky_treat") {}
+
+        class spell_gen_tricky_treat_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_tricky_treat_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_SPEED))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_TRICKY_TREAT_TRIGGER))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_UPSET_TUMMY))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Unit* caster = GetCaster())
+                    if (caster->HasAura(SPELL_TRICKY_TREAT_TRIGGER) && caster->GetAuraCount(SPELL_TRICKY_TREAT_SPEED) > 3 && roll_chance_i(33))
+                        caster->CastSpell(caster, SPELL_UPSET_TUMMY, true);
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_tricky_treat_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_tricky_treat_SpellScript();
         }
 };
 
@@ -1699,6 +1741,77 @@ class spell_gen_gnomish_transporter : public SpellScriptLoader
         }
 };
 
+enum TheTurkinator
+{
+    SPELL_KILL_COUNTER_VISUAL       = 62015,
+    SPELL_KILL_COUNTER_VISUAL_MAX   = 62021
+};
+
+class spell_gen_turkey_tracker : public SpellScriptLoader
+{
+    public:
+        spell_gen_turkey_tracker() : SpellScriptLoader("spell_gen_turkey_tracker") {}
+
+        class spell_gen_turkey_tracker_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_turkey_tracker_SpellScript);
+
+            bool Validate(SpellInfo const* /*spellEntry*/)
+            {
+                if (!sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL))
+                    return false;
+                if (!sSpellMgr->GetSpellInfo(SPELL_KILL_COUNTER_VISUAL_MAX))
+                    return false;
+                return true;
+            }
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                Unit* caster = GetCaster();
+
+                if (!caster || !caster->ToPlayer())
+                    return;
+
+                if (Aura* aura = caster->GetAura(GetSpellInfo()->Id))
+                {
+                    switch (aura->GetStackAmount())
+                    {
+                        case 10:
+                            caster->MonsterTextEmote("Turkey Hunter!", caster->GetGUID(), true);
+                            caster->CastSpell(caster, SPELL_KILL_COUNTER_VISUAL, true);
+                            break;
+                        case 20:
+                            caster->MonsterTextEmote("Turkey Domination!", caster->GetGUID(), true);
+                            caster->CastSpell(caster, SPELL_KILL_COUNTER_VISUAL, true);
+                            break;
+                        case 30:
+                            caster->MonsterTextEmote("Turkey Slaughter!", caster->GetGUID(), true);
+                            caster->CastSpell(caster, SPELL_KILL_COUNTER_VISUAL, true);
+                            break;
+                        case 40:
+                            caster->MonsterTextEmote("TURKEY TRIUMPH!", caster->GetGUID(), true);
+                            caster->CastSpell(caster, SPELL_KILL_COUNTER_VISUAL, true);
+                            caster->CastSpell(caster, SPELL_KILL_COUNTER_VISUAL_MAX, true); // Achievement Credit
+                            caster->RemoveAurasDueToSpell(GetSpellInfo()->Id);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_turkey_tracker_SpellScript::HandleScript, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_turkey_tracker_SpellScript();
+        }
+};
+
 enum DalaranDisguiseSpells
 {
     SPELL_SUNREAVER_DISGUISE_TRIGGER       = 69672,
@@ -1768,29 +1881,6 @@ class spell_gen_dalaran_disguise : public SpellScriptLoader
             return new spell_gen_dalaran_disguise_SpellScript();
         }
 };
-
-/* DOCUMENTATION: Break-Shield spells
-    Break-Shield spells can be classified in three groups:
-
-        - Spells on vehicle bar used by players:
-            + EFFECT_0: SCRIPT_EFFECT
-            + EFFECT_1: NONE
-            + EFFECT_2: NONE
-        - Spells casted by players triggered by script:
-            + EFFECT_0: SCHOOL_DAMAGE
-            + EFFECT_1: SCRIPT_EFFECT
-            + EFFECT_2: FORCE_CAST
-        - Spells casted by NPCs on players:
-            + EFFECT_0: SCHOOL_DAMAGE
-            + EFFECT_1: SCRIPT_EFFECT
-            + EFFECT_2: NONE
-
-    In the following script we handle the SCRIPT_EFFECT for effIndex EFFECT_0 and EFFECT_1.
-        - When handling EFFECT_0 we're in the "Spells on vehicle bar used by players" case
-          and we'll trigger "Spells casted by players triggered by script"
-        - When handling EFFECT_1 we're in the "Spells casted by players triggered by script"
-          or "Spells casted by NPCs on players" so we'll search for the first defend layer and drop it.
-*/
 
 enum BreakShieldSpells
 {
@@ -1875,38 +1965,6 @@ class spell_gen_break_shield: public SpellScriptLoader
             return new spell_gen_break_shield_SpellScript();
         }
 };
-
-/* DOCUMENTATION: Charge spells
-    Charge spells can be classified in four groups:
-
-        - Spells on vehicle bar used by players:
-            + EFFECT_0: SCRIPT_EFFECT
-            + EFFECT_1: TRIGGER_SPELL
-            + EFFECT_2: NONE
-        - Spells casted by player's mounts triggered by script:
-            + EFFECT_0: CHARGE
-            + EFFECT_1: TRIGGER_SPELL
-            + EFFECT_2: APPLY_AURA
-        - Spells casted by players on the target triggered by script:
-            + EFFECT_0: SCHOOL_DAMAGE
-            + EFFECT_1: SCRIPT_EFFECT
-            + EFFECT_2: NONE
-        - Spells casted by NPCs on players:
-            + EFFECT_0: SCHOOL_DAMAGE
-            + EFFECT_1: CHARGE
-            + EFFECT_2: SCRIPT_EFFECT
-
-    In the following script we handle the SCRIPT_EFFECT and CHARGE
-        - When handling SCRIPT_EFFECT:
-            + EFFECT_0: Corresponds to "Spells on vehicle bar used by players" and we make player's mount cast
-              the charge effect on the current target ("Spells casted by player's mounts triggered by script").
-            + EFFECT_1 and EFFECT_2: Triggered when "Spells casted by player's mounts triggered by script" hits target,
-              corresponding to "Spells casted by players on the target triggered by script" and "Spells casted by
-              NPCs on players" and we check Defend layers and drop a charge of the first found.
-        - When handling CHARGE:
-            + Only launched for "Spells casted by player's mounts triggered by script", makes the player cast the
-              damaging spell on target with a small chance of failing it.
-*/
 
 enum ChargeSpells
 {
@@ -2121,7 +2179,7 @@ class spell_gen_defend : public SpellScriptLoader
         }
 };
 
-enum MountedDuelSpells
+enum ArgentMountsSpells
 {
     SPELL_ON_TOURNAMENT_MOUNT = 63034,
     SPELL_MOUNTED_DUEL        = 62875,
@@ -2221,7 +2279,7 @@ class spell_gen_summon_tournament_mount : public SpellScriptLoader
         }
 };
 
-enum TournamentPennantSpells
+enum ArgentPennantSpells
 {
     SPELL_PENNANT_STORMWIND_ASPIRANT      = 62595,
     SPELL_PENNANT_STORMWIND_VALIANT       = 62596,
@@ -2261,7 +2319,7 @@ enum TournamentPennantSpells
     SPELL_PENNANT_EBON_BLADE_CHAMPION     = 63609,
 };
 
-enum TournamentMounts
+enum ArgentMounts
 {
     NPC_STORMWIND_STEED             = 33217,
     NPC_IRONFORGE_RAM               = 33316,
@@ -2276,44 +2334,6 @@ enum TournamentMounts
     NPC_ARGENT_WARHORSE             = 33782,
     NPC_ARGENT_STEED_ASPIRANT       = 33845,
     NPC_ARGENT_HAWKSTRIDER_ASPIRANT = 33844,
-};
-
-enum TournamentQuestsAchievements
-{
-    ACHIEVEMENT_CHAMPION_STORMWIND     = 2781,
-    ACHIEVEMENT_CHAMPION_DARNASSUS     = 2777,
-    ACHIEVEMENT_CHAMPION_IRONFORGE     = 2780,
-    ACHIEVEMENT_CHAMPION_GNOMEREGAN    = 2779,
-    ACHIEVEMENT_CHAMPION_THE_EXODAR    = 2778,
-    ACHIEVEMENT_CHAMPION_ORGRIMMAR     = 2783,
-    ACHIEVEMENT_CHAMPION_SEN_JIN       = 2784,
-    ACHIEVEMENT_CHAMPION_THUNDER_BLUFF = 2786,
-    ACHIEVEMENT_CHAMPION_UNDERCITY     = 2787,
-    ACHIEVEMENT_CHAMPION_SILVERMOON    = 2785,
-    ACHIEVEMENT_ARGENT_VALOR           = 2758,
-    ACHIEVEMENT_CHAMPION_ALLIANCE      = 2782,
-    ACHIEVEMENT_CHAMPION_HORDE         = 2788,
-
-    QUEST_VALIANT_OF_STORMWIND         = 13593,
-    QUEST_A_VALIANT_OF_STORMWIND       = 13684,
-    QUEST_VALIANT_OF_DARNASSUS         = 13706,
-    QUEST_A_VALIANT_OF_DARNASSUS       = 13689,
-    QUEST_VALIANT_OF_IRONFORGE         = 13703,
-    QUEST_A_VALIANT_OF_IRONFORGE       = 13685,
-    QUEST_VALIANT_OF_GNOMEREGAN        = 13704,
-    QUEST_A_VALIANT_OF_GNOMEREGAN      = 13688,
-    QUEST_VALIANT_OF_THE_EXODAR        = 13705,
-    QUEST_A_VALIANT_OF_THE_EXODAR      = 13690,
-    QUEST_VALIANT_OF_ORGRIMMAR         = 13707,
-    QUEST_A_VALIANT_OF_ORGRIMMAR       = 13691,
-    QUEST_VALIANT_OF_SEN_JIN           = 13708,
-    QUEST_A_VALIANT_OF_SEN_JIN         = 13693,
-    QUEST_VALIANT_OF_THUNDER_BLUFF     = 13709,
-    QUEST_A_VALIANT_OF_THUNDER_BLUFF   = 13694,
-    QUEST_VALIANT_OF_UNDERCITY         = 13710,
-    QUEST_A_VALIANT_OF_UNDERCITY       = 13695,
-    QUEST_VALIANT_OF_SILVERMOON        = 13711,
-    QUEST_A_VALIANT_OF_SILVERMOON      = 13696,
 };
 
 class spell_gen_on_tournament_mount : public SpellScriptLoader
@@ -2358,27 +2378,27 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     case NPC_ARGENT_STEED_ASPIRANT:
                     case NPC_STORMWIND_STEED:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_STORMWIND))
+                        if (player->GetAchievementMgr().HasAchieved(2781)) // Champion of Stormwind
                             return SPELL_PENNANT_STORMWIND_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_STORMWIND) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_STORMWIND))
+                        else if (player->GetQuestRewardStatus(13593) || player->GetQuestRewardStatus(13684)) // Valiant of Stormwind
                             return SPELL_PENNANT_STORMWIND_VALIANT;
                         else
                             return SPELL_PENNANT_STORMWIND_ASPIRANT;
                     }
                     case NPC_GNOMEREGAN_MECHANOSTRIDER:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_GNOMEREGAN))
+                        if (player->GetAchievementMgr().HasAchieved(2779)) // Champion of Gnomeregan
                             return SPELL_PENNANT_GNOMEREGAN_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_GNOMEREGAN) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_GNOMEREGAN))
+                        else if (player->GetQuestRewardStatus(13704) || player->GetQuestRewardStatus(13688)) // Valiant of Gnomeregan
                             return SPELL_PENNANT_GNOMEREGAN_VALIANT;
                         else
                             return SPELL_PENNANT_GNOMEREGAN_ASPIRANT;
                     }
                     case NPC_DARK_SPEAR_RAPTOR:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_SEN_JIN))
+                        if (player->GetAchievementMgr().HasAchieved(2784)) // Champion of Sen'Jin
                             return SPELL_PENNANT_SEN_JIN_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_SEN_JIN) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_SEN_JIN))
+                        else if (player->GetQuestRewardStatus(13693) || player->GetQuestRewardStatus(13708)) // Valiant of Sen'Jin
                             return SPELL_PENNANT_SEN_JIN_VALIANT;
                         else
                             return SPELL_PENNANT_SEN_JIN_ASPIRANT;
@@ -2386,72 +2406,72 @@ class spell_gen_on_tournament_mount : public SpellScriptLoader
                     case NPC_ARGENT_HAWKSTRIDER_ASPIRANT:
                     case NPC_SILVERMOON_HAWKSTRIDER:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_SILVERMOON))
+                        if (player->GetAchievementMgr().HasAchieved(2785))  // Champion of Silvermoon
                             return SPELL_PENNANT_SILVERMOON_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_SILVERMOON) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_SILVERMOON))
+                        else if (player->GetQuestRewardStatus(13696) || player->GetQuestRewardStatus(13711)) // Valiant of Silvermoon
                             return SPELL_PENNANT_SILVERMOON_VALIANT;
                         else
                             return SPELL_PENNANT_SILVERMOON_ASPIRANT;
                     }
                     case NPC_DARNASSIAN_NIGHTSABER:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_DARNASSUS))
+                        if (player->GetAchievementMgr().HasAchieved(2777)) // Champion of Darnassus
                             return SPELL_PENNANT_DARNASSUS_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_DARNASSUS) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_DARNASSUS))
+                        else if (player->GetQuestRewardStatus(13689) || player->GetQuestRewardStatus(13706)) // Valiant of Darnassus
                             return SPELL_PENNANT_DARNASSUS_VALIANT;
                         else
                             return SPELL_PENNANT_DARNASSUS_ASPIRANT;
                     }
                     case NPC_EXODAR_ELEKK:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_THE_EXODAR))
+                        if (player->GetAchievementMgr().HasAchieved(2778)) // Champion of Exodar
                             return SPELL_PENNANT_EXODAR_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_THE_EXODAR) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_THE_EXODAR))
+                        else if (player->GetQuestRewardStatus(13690) || player->GetQuestRewardStatus(13705)) // Valiant of Exodar
                             return SPELL_PENNANT_EXODAR_VALIANT;
                         else
                             return SPELL_PENNANT_EXODAR_ASPIRANT;
                     }
                     case NPC_IRONFORGE_RAM:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_IRONFORGE))
+                        if (player->GetAchievementMgr().HasAchieved(2780)) // Champion of Ironforge
                             return SPELL_PENNANT_IRONFORGE_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_IRONFORGE) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_IRONFORGE))
+                        else if (player->GetQuestRewardStatus(13685) || player->GetQuestRewardStatus(13703)) // Valiant of Ironforge
                             return SPELL_PENNANT_IRONFORGE_VALIANT;
                         else
                             return SPELL_PENNANT_IRONFORGE_ASPIRANT;
                     }
                     case NPC_FORSAKEN_WARHORSE:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_UNDERCITY))
+                        if (player->GetAchievementMgr().HasAchieved(2787)) // Champion of Undercity
                             return SPELL_PENNANT_UNDERCITY_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_UNDERCITY) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_UNDERCITY))
+                        else if (player->GetQuestRewardStatus(13695) || player->GetQuestRewardStatus(13710)) // Valiant of Undercity
                             return SPELL_PENNANT_UNDERCITY_VALIANT;
                         else
                             return SPELL_PENNANT_UNDERCITY_ASPIRANT;
                     }
                     case NPC_ORGRIMMAR_WOLF:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_ORGRIMMAR))
+                        if (player->GetAchievementMgr().HasAchieved(2783)) // Champion of Orgrimmar
                             return SPELL_PENNANT_ORGRIMMAR_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_ORGRIMMAR) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_ORGRIMMAR))
+                        else if (player->GetQuestRewardStatus(13691) || player->GetQuestRewardStatus(13707)) // Valiant of Orgrimmar
                             return SPELL_PENNANT_ORGRIMMAR_VALIANT;
                         else
                             return SPELL_PENNANT_ORGRIMMAR_ASPIRANT;
                     }
                     case NPC_THUNDER_BLUFF_KODO:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_THUNDER_BLUFF))
+                        if (player->GetAchievementMgr().HasAchieved(2786)) // Champion of Thunder Bluff
                             return SPELL_PENNANT_THUNDER_BLUFF_CHAMPION;
-                        else if (player->GetQuestRewardStatus(QUEST_VALIANT_OF_THUNDER_BLUFF) || player->GetQuestRewardStatus(QUEST_A_VALIANT_OF_THUNDER_BLUFF))
+                        else if (player->GetQuestRewardStatus(13694) || player->GetQuestRewardStatus(13709)) // Valiant of Thunder Bluff
                             return SPELL_PENNANT_THUNDER_BLUFF_VALIANT;
                         else
                             return SPELL_PENNANT_THUNDER_BLUFF_ASPIRANT;
                     }
                     case NPC_ARGENT_WARHORSE:
                     {
-                        if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_ALLIANCE) || player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_CHAMPION_HORDE))
+                        if (player->GetAchievementMgr().HasAchieved(2782) || player->GetAchievementMgr().HasAchieved(2788)) // Champion of the Alliance || Champion of the Horde
                             return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_CHAMPION : SPELL_PENNANT_ARGENT_CRUSADE_CHAMPION;
-                        else if (player->GetAchievementMgr().HasAchieved(ACHIEVEMENT_ARGENT_VALOR))
+                        else if (player->GetAchievementMgr().HasAchieved(2758)) // Argent Valor
                             return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_VALIANT : SPELL_PENNANT_ARGENT_CRUSADE_VALIANT;
                         else
                             return player->getClass() == CLASS_DEATH_KNIGHT ? SPELL_PENNANT_EBON_BLADE_ASPIRANT : SPELL_PENNANT_ARGENT_CRUSADE_ASPIRANT;
@@ -2548,6 +2568,43 @@ class spell_gen_chaos_blast : public SpellScriptLoader
 
 };
 
+class spell_gen_toy_train_set : public SpellScriptLoader
+{
+    public:
+        spell_gen_toy_train_set() : SpellScriptLoader("spell_gen_toy_train_set") { }
+
+        class spell_gen_toy_train_set_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_gen_toy_train_set_SpellScript);
+
+            void HandleScript(SpellEffIndex /*effIndex*/)
+            {
+                if (Player* target = GetHitPlayer())
+                {
+                    target->HandleEmoteCommand(EMOTE_ONESHOT_TRAIN);
+
+                    WorldPacket data(SMSG_TEXT_EMOTE, 8 + 4 + 4 + 4 + 1);
+                    data << uint64(target->GetGUID());
+                    data << uint32(TEXT_EMOTE_TRAIN);
+                    data << uint32(0);
+                    data << uint32(1);
+                    data << uint8(0);
+                    target->SendMessageToSet(&data, true);
+                }
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_gen_toy_train_set_SpellScript::HandleScript, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_gen_toy_train_set_SpellScript();
+        }
+};
+
 void AddSC_generic_spell_scripts()
 {
     new spell_gen_absorb0_hitlimit1();
@@ -2561,6 +2618,7 @@ void AddSC_generic_spell_scripts()
     new spell_gen_remove_flight_auras();
     new spell_gen_trick();
     new spell_gen_trick_or_treat();
+    new spell_gen_tricky_treat();
     new spell_creature_permanent_feign_death();
     new spell_pvp_trinket_wotf_shared_cd();
     new spell_gen_animal_blood();
@@ -2585,16 +2643,17 @@ void AddSC_generic_spell_scripts()
     new spell_gen_spirit_healer_res();
     new spell_gen_gadgetzan_transporter_backfire();
     new spell_gen_gnomish_transporter();
+    new spell_gen_turkey_tracker();
     new spell_gen_dalaran_disguise("spell_gen_sunreaver_disguise");
     new spell_gen_dalaran_disguise("spell_gen_silver_covenant_disguise");
-    new spell_gen_elune_candle();
     new spell_gen_break_shield("spell_gen_break_shield");
     new spell_gen_break_shield("spell_gen_tournament_counterattack");
     new spell_gen_mounted_charge();
     new spell_gen_defend();
-    new spell_gen_tournament_duel();
     new spell_gen_summon_tournament_mount();
     new spell_gen_on_tournament_mount();
     new spell_gen_tournament_pennant();
     new spell_gen_chaos_blast();
+    new spell_gen_tournament_duel();
+    new spell_gen_elune_candle();
 }

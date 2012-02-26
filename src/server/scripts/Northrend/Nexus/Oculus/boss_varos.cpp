@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,10 +21,14 @@
 
 enum Says
 {
-    SAY_AGGRO           = 0,
-    SAY_AZURE           = 1,
-    SAY_AZURE_EMOTE     = 2,
-    SAY_DEATH           = 3
+    SAY_AGGRO           = -1578029,
+    SAY_AZURE_1         = -1578030,
+    SAY_AZURE_2         = -1578031,
+    SAY_AZURE_3         = -1578032,
+    SAY_KILL_1          = -1578033,
+    SAY_KILL_2          = -1578034,
+    SAY_DEATH           = -1578035,
+    SAY_AZURE_EMOTE     = -1578036,
 };
 
 enum Spells
@@ -38,6 +42,7 @@ enum Spells
     SPELL_CALL_AMPLIFY_MAGIC                      = 51054,
 
     SPELL_ICE_BEAM                                = 49549,
+    SPELL_ARCANE_BEAM_VISUAL                      = 51024,
     SPELL_ARCANE_BEAM_PERIODIC                    = 51019,
     SPELL_SUMMON_ARCANE_BEAM                      = 51017
 };
@@ -72,6 +77,8 @@ public:
         {
             _Reset();
 
+            me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_AMBER_STOP_TIME, true);
+
             events.ScheduleEvent(EVENT_AMPLIFY_MAGIC, urand(20, 25) * IN_MILLISECONDS);
             events.ScheduleEvent(EVENT_ENERGIZE_CORES_VISUAL, 5000);
             // not sure if this is handled by a timer or hp percentage
@@ -85,7 +92,7 @@ public:
         {
             _EnterCombat();
 
-            Talk(SAY_AGGRO);
+            DoScriptText(SAY_AGGRO, me);
         }
 
         float GetCoreEnergizeOrientation()
@@ -127,8 +134,8 @@ public:
                     case EVENT_CALL_AZURE:
                         // not sure how blizz handles this, i cant see any pattern between the differnt spells
                         DoCast(me, SPELL_CALL_AZURE_RING_CAPTAIN);
-                        Talk(SAY_AZURE);
-                        Talk(SAY_AZURE_EMOTE);
+                        DoScriptText(RAND(SAY_AZURE_1, SAY_AZURE_2, SAY_AZURE_3), me);
+                        DoScriptText(SAY_AZURE_EMOTE, me);
                         events.ScheduleEvent(EVENT_CALL_AZURE, urand(20, 25) * IN_MILLISECONDS);
                         break;
                     case EVENT_AMPLIFY_MAGIC:
@@ -144,9 +151,15 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            Talk(SAY_DEATH);
-            DoCast(me, SPELL_DEATH_SPELL, true); // we cast the spell as triggered or the summon effect does not occur
+
+            DoScriptText(SAY_DEATH, me);
         }
+
+        void KilledUnit(Unit* /*victim*/)
+        {
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2), me);
+        }
+
     private:
         bool firstCoreEnergize;
         float coreEnergizeOrientation;
@@ -177,10 +190,7 @@ class npc_azure_ring_captain : public CreatureScript
             void SpellHitTarget(Unit* target, SpellInfo const* spell)
             {
                 if (spell->Id == SPELL_ICE_BEAM)
-                {
-                    target->CastSpell(target, SPELL_SUMMON_ARCANE_BEAM, true);
-                    me->DespawnOrUnsummon();
-                }
+                    DoAction(ACTION_ARCANE_BEAM);
             }
 
             void UpdateAI(const uint32 /*diff*/)
@@ -216,12 +226,32 @@ class npc_azure_ring_captain : public CreatureScript
                                 {
                                     me->SetReactState(REACT_PASSIVE);
                                     me->SetWalk(false);
-                                    me->GetMotionMaster()->MovePoint(ACTION_CALL_DRAGON_EVENT, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 20.0f);
+                                    me->GetMotionMaster()->MovePoint(ACTION_CALL_DRAGON_EVENT, victim->GetPositionX(), victim->GetPositionY(), victim->GetPositionZ() + 12.0f);
                                     targetGUID = victim->GetGUID();
                                 }
                             }
                         }
                         break;
+                   case ACTION_ARCANE_BEAM:
+                       if (instance)
+                       {
+                           if (Unit* victim = me->GetPlayer(*me, targetGUID))
+                           {
+                                if(Creature* beamTrigger = me->SummonCreature(28239, victim->GetPositionX() + urand(0,5), victim->GetPositionY() + urand(0,5), victim->GetPositionZ()))
+                                {
+                                    beamTrigger->RemoveAllAuras();
+                                    beamTrigger->setFaction(me->getFaction());
+                                    beamTrigger->AddAura(SPELL_ARCANE_BEAM_PERIODIC, beamTrigger);
+                                    beamTrigger->SetSpeed(MOVE_RUN, 0.95f, true);
+                                    me->CastSpell(beamTrigger, SPELL_ARCANE_BEAM_VISUAL, true);
+                                    beamTrigger->Attack(victim, false);
+                                    beamTrigger->GetMotionMaster()->MoveChase(victim, 1.7f);
+                                    uint32 timer = urand(15000, 20000);
+                                    beamTrigger->DespawnOrUnsummon(timer);
+                                    me->DespawnOrUnsummon(timer+1000);
+                                }
+                           }
+                       }
                 }
            }
 

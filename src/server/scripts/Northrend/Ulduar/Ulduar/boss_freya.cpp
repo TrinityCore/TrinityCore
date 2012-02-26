@@ -327,6 +327,7 @@ class boss_freya : public CreatureScript
                 {
                     damage = 0;
                     JustDied(who);
+                    instance->SetBossState(BOSS_FREYA, DONE);
                 }
             }
 

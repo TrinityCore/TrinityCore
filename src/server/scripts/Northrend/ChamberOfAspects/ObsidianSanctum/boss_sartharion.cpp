@@ -1582,6 +1582,18 @@ public:
             entry = 0;
         }
 
+        void SpellHitTarget(Unit* target, const SpellInfo *spell)
+        {
+            if (spell->Id == SPELL_FLAME_TSUNAMI_DMG_AURA)
+                if (!target->isTotem())
+                    if (float orientation = target->GetOrientation())
+                    {
+                        target->SetOrientation(me->GetOrientation());
+                        target->CastSpell(0, SPELL_FLAME_TSUNAMI_LEAP);
+                        target->SetOrientation(orientation);
+                    }
+        }
+
         void UpdateAI(const uint32 diff)
         {
             if (Tsunami_Timer <= diff)

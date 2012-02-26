@@ -111,12 +111,12 @@ class boss_festergut : public CreatureScript
 
             void EnterCombat(Unit* who)
             {
-                if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
+                /*if (!instance->CheckRequiredBosses(DATA_FESTERGUT, who->ToPlayer()))
                 {
                     EnterEvadeMode();
                     instance->DoCastSpellOnPlayers(LIGHT_S_HAMMER_TELEPORT);
                     return;
-                }
+                }*/
 
                 me->setActive(true);
                 Talk(SAY_AGGRO);

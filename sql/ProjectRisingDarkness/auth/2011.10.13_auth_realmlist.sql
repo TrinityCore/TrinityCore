@@ -1,0 +1,1 @@
+UPDATE `realmlist` SET `name`='ChaosCore' WHERE `id`=1;

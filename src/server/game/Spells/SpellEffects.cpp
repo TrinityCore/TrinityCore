@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AnticheatMgr.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "WorldPacket.h"
@@ -63,6 +64,7 @@
 #include "GameObjectAI.h"
 #include "AccountMgr.h"
 #include "InstanceScript.h"
+#include "OutdoorPvPWG.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -399,6 +401,8 @@ void Spell::EffectSchoolDMG(SpellEffIndex effIndex)
                     case 20625: // Ritual of Doom Sacrifice
                     case 29142: // Eyesore Blaster
                     case 35139: // Throw Boom's Doom
+                    case 46198: // Cold Slap
+                    case 46588: // Ice Spear
                     case 42393: // Brewfest - Attack Keg
                     case 55269: // Deathly Stare
                     case 56578: // Rapid-Fire Harpoon
@@ -3779,6 +3783,23 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
         {
             switch (m_spellInfo->Id)
             {
+                //Teleport to Lake Wintergrasp
+                case 58622:
+                {
+                  if (OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197))
+                     if (unitTarget->getLevel() > 74)
+                     {
+                       if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
+                          unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
+                       else if ((pvpWG->getDefenderTeam()==TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
+                          unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_HORDE_CAMP, true);
+                       else if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == HORDE))
+                          unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_FORTRESS, true);
+                       else if ((pvpWG->getDefenderTeam()!=TEAM_ALLIANCE) && (unitTarget->ToPlayer()->GetTeam() == ALLIANCE))
+                          unitTarget->CastSpell(unitTarget, SPELL_TELEPORT_ALLIENCE_CAMP, true);
+                     }
+                    return;
+                }
                 // Glyph of Backstab
                 case 63975:
                 {
@@ -3877,6 +3898,47 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 case 26465:
                     unitTarget->RemoveAuraFromStack(26464);
                     return;
+                // Shield-Breaker - Argent Tournament
+                case 62575:
+                {
+                    if(m_caster->GetOwner())
+                        m_caster->GetOwner()->CastSpell(unitTarget,62626,true );
+                    else
+                        m_caster->CastSpell(unitTarget,62626,true );
+                        return;
+                }
+                case 62960:
+                {
+                    if (!unitTarget)
+                        return;
+                    m_caster->CastSpell(unitTarget,62563,true );
+                    m_caster->CastSpell(unitTarget,68321,true );
+                    return;
+                }
+                // Charge - Argent Tournament
+                case 68282:
+                {
+                    if (!unitTarget)
+                        return;
+                    m_caster->CastSpell(unitTarget,68284,true);
+                }
+                // Shield-Breaker - Argent Tournament
+                case 62626:
+                // Charge - Argent Tournament
+                case 68321:
+                {
+                    if(!unitTarget)
+                        return;
+                    if (unitTarget->GetAura(62719))
+                        unitTarget->RemoveAuraFromStack(62719);
+
+                    if(unitTarget->GetAura(64100))
+                        unitTarget->RemoveAuraFromStack(64100);
+
+                    if(Aura* defend = unitTarget->GetAura(66482))
+                        defend->ModStackAmount(-1);
+                    return;
+                }
                 // Shadow Flame (All script effects, not just end ones to prevent player from dodging the last triggered spell)
                 case 22539:
                 case 22972:
@@ -4950,7 +5012,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel->opponent   = target;
     duel->startTime  = 0;
     duel->startTimer = 0;
-    duel->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
+    duel->isMounted  = (GetSpellInfo()->Id == 62875);
     caster->duel     = duel;
 
     DuelInfo* duel2   = new DuelInfo;
@@ -4958,7 +5020,7 @@ void Spell::EffectDuel(SpellEffIndex effIndex)
     duel2->opponent   = caster;
     duel2->startTime  = 0;
     duel2->startTimer = 0;
-    duel2->isMounted  = (GetSpellInfo()->Id == 62875); // Mounted Duel
+    duel2->isMounted  = (GetSpellInfo()->Id == 62875);
     target->duel      = duel2;
 
     caster->SetUInt64Value(PLAYER_DUEL_ARBITER, pGameObj->GetGUID());
@@ -4978,7 +5040,20 @@ void Spell::EffectStuck(SpellEffIndex /*effIndex*/)
     if (!sWorld->getBoolConfig(CONFIG_CAST_UNSTUCK))
         return;
 
+    if (m_caster->getClass() == CLASS_DEATH_KNIGHT && m_caster->GetMapId() == 609)
+    {
+        SendCastResult(SPELL_FAILED_NOT_HERE);
+        return;
+    }
+
     Player* target = (Player*)m_caster;
+
+    // Prevent players from trying to unstuck themselves in the Jail box.
+    if (target->GetMapId() == 13 && target->GetSession()->GetSecurity() == SEC_PLAYER)
+    {
+        sLog->outError("Player %s (guid %u) tried to use unstuck in Jail box.", target->GetName(), target->GetGUIDLow());
+        return;
+    }
 
     sLog->outDebug(LOG_FILTER_SPELLS_AURAS, "Spell Effect: Stuck");
     sLog->outDetail("Player %s (guid %u) used auto-unstuck future at map %u (%f, %f, %f)", target->GetName(), target->GetGUIDLow(), m_caster->GetMapId(), m_caster->GetPositionX(), target->GetPositionY(), target->GetPositionZ());
@@ -5573,7 +5648,6 @@ void Spell::EffectChargeDest(SpellEffIndex /*effIndex*/)
         float angle = m_caster->GetRelativeAngle(pos.GetPositionX(), pos.GetPositionY());
         float dist = m_caster->GetDistance(pos);
         m_caster->GetFirstCollisionPosition(pos, dist, angle);
-
         m_caster->GetMotionMaster()->MoveCharge(pos.m_positionX, pos.m_positionY, pos.m_positionZ);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2008-2011 TrinityCore <http://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -46,7 +46,13 @@ enum Yells
     SAY_AGGRO_2                                   = -1578001,
     SAY_AGGRO_3                                   = -1578002,
     SAY_AGGRO_4                                   = -1578003,
-    SAY_TELEPORT                                  = -1578004,
+    SAY_TELEPORT_1                                = -1578004,
+    SAY_TELEPORT_2                                = -1578037,
+    SAY_KILL_1                                    = -1578019,
+    SAY_KILL_2                                    = -1578020,
+    SAY_KILL_3                                    = -1578021,
+    SAY_EREGOS_SPAWN                              = -1578022,
+    SAY_DEATH                                     = -1578018,
 };
 
 enum eCreature
@@ -119,6 +125,7 @@ public:
             canGoBack = false;
 
             me->GetMotionMaster()->MoveIdle();
+            me->ApplySpellImmune(0, IMMUNITY_ID, SPELL_AMBER_STOP_TIME, true);
 
             teleportTimer = urand(30000, 35000);
             arcaneExplosionTimer = 9000;
@@ -228,10 +235,13 @@ public:
             if (!instance || instance->GetData(DATA_UROM_PLATAFORM) < 2)
                 return;
 
+            if (me->HasUnitState(UNIT_STATE_CASTING))
+                return;
+
             if (teleportTimer <= uiDiff)
             {
                 me->InterruptNonMeleeSpells(false);
-                DoScriptText(SAY_TELEPORT, me);
+                DoScriptText(RAND(SAY_TELEPORT_1, SAY_TELEPORT_2), me);
                 me->GetMotionMaster()->MoveIdle();
                 DoCast(SPELL_TELEPORT);
                 teleportTimer = urand(30000, 35000);
@@ -272,6 +282,7 @@ public:
                 {
                     DoCastVictim(SPELL_FROSTBOMB);
                     frostBombTimer = urand(5000, 8000);
+                    return;
                 } else frostBombTimer -= uiDiff;
 
                 if (timeBombTimer <= uiDiff)
@@ -280,6 +291,7 @@ public:
                         DoCast(unit, SPELL_TIME_BOMB);
 
                     timeBombTimer = urand(20000, 25000);
+                    return;
                 } else timeBombTimer -= uiDiff;
             }
 
@@ -289,7 +301,10 @@ public:
         void JustDied(Unit* /*killer*/)
         {
             _JustDied();
-            DoCast(me, SPELL_DEATH_SPELL, true); // we cast the spell as triggered or the summon effect does not occur
+
+            DoScriptText(SAY_DEATH, me);
+            if(Creature* eregos = me->GetCreature(*me, instance->GetData64(DATA_EREGOS)))
+                DoScriptText(SAY_EREGOS_SPAWN, eregos);
         }
 
         void LeaveCombat()
@@ -323,6 +338,12 @@ public:
                     break;
             }
         }
+
+        void KilledUnit(Unit* /*victim*/)
+        {
+            DoScriptText(RAND(SAY_KILL_1, SAY_KILL_2, SAY_KILL_3), me);
+        }
+
         private:
             float x, y;
 

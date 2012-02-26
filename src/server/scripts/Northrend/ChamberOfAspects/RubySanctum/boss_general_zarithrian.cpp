@@ -1,19 +1,19 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
@@ -21,38 +21,38 @@
 
 enum Texts
 {
-    SAY_AGGRO                   = 0,    // Alexstrasza has chosen capable allies.... A pity that I must END YOU!
-    SAY_KILL                    = 1,    // You thought you stood a chance? - It's for the best.
-    SAY_ADDS                    = 2,    // Turn them to ash, minions!
-    SAY_DEATH                   = 3,    // HALION! I...
+    SAY_AGGRO = 0, // Alexstrasza has chosen capable allies.... A pity that I must END YOU!
+    SAY_KILL = 1, // You thought you stood a chance? - It's for the best.
+    SAY_ADDS = 2, // Turn them to ash, minions!
+    SAY_DEATH = 3, // HALION! I...
 };
 
 enum Spells
 {
     // General Zarithrian
-    SPELL_INTIMIDATING_ROAR     = 74384,
-    SPELL_CLEAVE_ARMOR          = 74367,
+    SPELL_INTIMIDATING_ROAR = 74384,
+    SPELL_CLEAVE_ARMOR = 74367,
     // Zarithrian Spawn Stalker
-    SPELL_SUMMON_FLAMECALLER    = 74398,
+    SPELL_SUMMON_FLAMECALLER = 74398,
     // Onyx Flamecaller
-    SPELL_BLAST_NOVA            = 74392,
-    SPELL_LAVA_GOUT             = 74394,
+    SPELL_BLAST_NOVA = 74392,
+    SPELL_LAVA_GOUT = 74394,
 };
 
 enum Events
 {
     // General Zarithrian
-    EVENT_CLEAVE                    = 1,
-    EVENT_INTIDMDATING_ROAR         = 2,
-    EVENT_SUMMON_ADDS               = 3,
+    EVENT_CLEAVE = 1,
+    EVENT_INTIMIDATING_ROAR = 2,
+    EVENT_SUMMON_ADDS = 3,
     // Onyx Flamecaller
-    EVENT_BLAST_NOVA                = 4,
-    EVENT_LAVA_GOUT                 = 5,
+    EVENT_BLAST_NOVA = 4,
+    EVENT_LAVA_GOUT = 5,
 };
 
 uint32 const MAX_PATH_FLAMECALLER_WAYPOINTS = 12;
 
-Position const FlamecallerWaypoints[MAX_PATH_FLAMECALLER_WAYPOINTS*2] =
+Position const FlamecallerWaypoints[MAX_PATH_FLAMECALLER_WAYPOINTS * 2] =
 {
     // East
     {3042.971f, 419.8809f, 86.94320f, 0.0f},
@@ -106,7 +106,7 @@ class boss_general_zarithrian : public CreatureScript
                 Talk(SAY_AGGRO);
                 events.Reset();
                 events.ScheduleEvent(EVENT_CLEAVE, 15000);
-                events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 42000);
+                events.ScheduleEvent(EVENT_INTIMIDATING_ROAR, 42000);
                 events.ScheduleEvent(EVENT_SUMMON_ADDS, 40000);
             }
 
@@ -157,17 +157,17 @@ class boss_general_zarithrian : public CreatureScript
                     {
                         case EVENT_SUMMON_ADDS:
                         {
-                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHIAN_SPAWN_STALKER_1)))
+                            if (Creature* stalker1 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_1)))
                                 stalker1->AI()->DoCast(stalker1, SPELL_SUMMON_FLAMECALLER);
-                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHIAN_SPAWN_STALKER_2)))
+                            if (Creature* stalker2 = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ZARITHRIAN_SPAWN_STALKER_2)))
                                 stalker2->AI()->DoCast(stalker2, SPELL_SUMMON_FLAMECALLER);
                             Talk(SAY_ADDS);
                             events.ScheduleEvent(EVENT_SUMMON_ADDS, 42000);
                             break;
                         }
-                        case EVENT_INTIDMDATING_ROAR:
+                        case EVENT_INTIMIDATING_ROAR:
                             DoCast(me, SPELL_INTIMIDATING_ROAR, true);
-                            events.ScheduleEvent(EVENT_INTIDMDATING_ROAR, 42000);
+                            events.ScheduleEvent(EVENT_INTIMIDATING_ROAR, 42000);
                         case EVENT_CLEAVE:
                             DoCastVictim(SPELL_CLEAVE_ARMOR);
                             events.ScheduleEvent(EVENT_CLEAVE, 15000);

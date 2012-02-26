@@ -85,7 +85,7 @@ public:
             switch (me->GetEntry())
             {
                 case 29254:
-                    if (player->GetTeam() == HORDE)              // Horde unit found in Alliance area
+                    if (player->GetTeam() == HORDE && !(player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_MALE) || player->HasAura(SPELL_SILVER_COVENANT_DISGUISE_FEMALE)))      // Horde unit found in Alliance area
                     {
                         if (GetClosestCreatureWithEntry(me, NPC_APPLEBOUGH_A, 32.0f))
                         {
@@ -97,7 +97,7 @@ public:
                     }
                     break;
                 case 29255:
-                    if (player->GetTeam() == ALLIANCE)           // Alliance unit found in Horde area
+                    if (player->GetTeam() == ALLIANCE && !(player->HasAura(SPELL_SUNREAVER_DISGUISE_MALE) || player->HasAura(SPELL_SUNREAVER_DISGUISE_FEMALE)))  // Alliance unit found in Horde area
                     {
                         if (GetClosestCreatureWithEntry(me, NPC_SWEETBERRY_H, 32.0f))
                         {
@@ -166,8 +166,162 @@ public:
     }
 };
 
+/*######
+## npc_archmage_vargoth
+######*/
+
+enum eArchmageVargoth
+{
+    ZONE_DALARAN                                = 4395,
+    ITEM_ACANE_MAGIC_MASTERY                    = 43824,
+    SPELL_CREATE_FAMILAR                        = 61457,
+    SPELL_FAMILAR_PET                           = 61472,
+    ITEM_FAMILAR_PET                            = 44738
+};
+
+#define GOSSIP_TEXT_FAMILIAR_WELCOME "I have a book that might interest you. Would you like to take a look?"
+#define GOSSIP_TEXT_FAMILIAR_THANKS  "Thank you! I will be sure to notify you if I find anything else."
+
+class npc_archmage_vargoth : public CreatureScript
+{
+    public:
+        npc_archmage_vargoth() : CreatureScript("npc_archmage_vargoth") { }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (creature->isQuestGiver() && creature->GetZoneId() != ZONE_DALARAN)
+                player->PrepareQuestMenu(creature->GetGUID());
+
+            if (player->HasItemCount(ITEM_ACANE_MAGIC_MASTERY, 1, false))
+            {
+                if (!player->HasSpell(SPELL_FAMILAR_PET) && !player->HasItemCount(ITEM_FAMILAR_PET, 1, true))
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FAMILIAR_WELCOME, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            }
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+
+            return true;
+        }
+
+        bool OnGossipSelect (Player* player, Creature* creature, uint32 /*sender*/, uint32 action)
+        {
+            switch (action)
+            {
+                case GOSSIP_ACTION_INFO_DEF + 1:
+                    player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_FAMILIAR_THANKS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                    player->SEND_GOSSIP_MENU(40006, creature->GetGUID());
+                    break;
+                case GOSSIP_ACTION_INFO_DEF + 2:
+                    creature->CastSpell(player, SPELL_CREATE_FAMILAR, false);
+                    player->CLOSE_GOSSIP_MENU();
+                    break;
+            }
+
+            return true;
+        }
+};
+
+/*######
+## npc_rhonin
+######*/
+
+enum npcRhonin
+{
+    ACHIEVEMENT_HIGHER_LEARNING             = 1956,
+    ITEM_THE_SCHOOLS_OF_ARCANE_MAGIC        = 43824,
+    SPELL_THE_SCHOOLS_OF_ARCANE_MAGIC       = 59983,
+    //QUEST_ALL_IS_WELL_THAT_ENDS_WELL        = 13631,
+    //QUEST_HEROIC_ALL_IS_WELL_THAT_ENDS_WELL = 13819
+};
+
+#define GOSSIP_TEXT_RESTORE_ITEM       "[PH] Please give me a new <The Schools of Arcane Magic - Mastery>"
+
+class npc_rhonin : public CreatureScript
+{
+    public:
+        npc_rhonin() : CreatureScript("npc_rhonin") { }
+
+        bool OnGossipHello(Player* player, Creature* creature)
+        {
+            if (creature->isQuestGiver())
+                player->PrepareQuestMenu(creature->GetGUID());
+
+            if (player->HasAchieved(ACHIEVEMENT_HIGHER_LEARNING) && !player->HasItemCount(ITEM_THE_SCHOOLS_OF_ARCANE_MAGIC, 1, true))
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_RESTORE_ITEM, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+
+            player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+            return true;
+        }
+
+        bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+        {
+            player->PlayerTalkClass->ClearMenus();
+
+            if (action == GOSSIP_ACTION_INFO_DEF + 1)
+            {
+                player->CastSpell(player, SPELL_THE_SCHOOLS_OF_ARCANE_MAGIC, false);
+                player->CLOSE_GOSSIP_MENU();
+            }
+
+            return true;
+        }
+
+        // FIXME: add Quest 13631, 13819 Event
+
+        //bool OnQuestComplete(Player* /*player*/, Creature* /*creature*/, Quest const* /*quest*/)
+        //{
+        //    return true;
+        //}
+};
+
+/*######
+
+## go_memorial_plaque_play_movie
+
+######*/
+
+enum GOSSIPS
+
+{
+        FALL_OF_THE_LICH_KING,
+};
+
+#define GOSSIP_TEXT_SEE_FALL_OF_THE_LICH_KING "See Fall of the Lich King."
+#define GOSSIP_MESSAGE_MEMORIAL 15921
+
+class go_memorial_plaque_play_movie : public GameObjectScript
+{
+public:
+        go_memorial_plaque_play_movie() : GameObjectScript("go_memorial_plaque_play_movie") { }
+        
+        bool OnGossipHello(Player *player, GameObject *go)
+        {
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_TEXT_SEE_FALL_OF_THE_LICH_KING, GOSSIP_SENDER_MAIN, FALL_OF_THE_LICH_KING);
+                player->SEND_GOSSIP_MENU(GOSSIP_MESSAGE_MEMORIAL, go->GetGUID());
+                return true;
+        }
+
+        bool OnGossipSelect(Player *player, GameObject *go, uint32 /*uiSender*/, uint32 uiAction)
+        {
+                player->PlayerTalkClass->ClearMenus();
+                switch(uiAction)
+                {
+                        case FALL_OF_THE_LICH_KING:
+                                player->SendMovieStart(16);
+                                player->CLOSE_GOSSIP_MENU();
+                                break;
+
+                }
+                return true;
+        }
+
+};
+
 void AddSC_dalaran()
 {
-    new npc_mageguard_dalaran;
-    new npc_hira_snowdawn;
+    new npc_mageguard_dalaran();
+    new npc_hira_snowdawn();
+    new npc_archmage_vargoth();
+    new npc_rhonin();
+    new go_memorial_plaque_play_movie;
 }

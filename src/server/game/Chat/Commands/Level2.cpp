@@ -33,6 +33,8 @@
 #include "PoolMgr.h"
 #include "AccountMgr.h"
 #include "WaypointManager.h"
+#include "WaypointMovementGenerator.h"
+#include "math.h"
 #include "Util.h"
 #include <cctype>
 #include <iostream>
@@ -42,10 +44,12 @@
 #include "Transport.h"
 #include "TargetedMovementGenerator.h"                      // for HandleNpcUnFollowCommand
 #include "CreatureGroups.h"
+#include "OutdoorPvPWG.h"
 
 //mute player for some times
 bool ChatHandler::HandleMuteCommand(const char* args)
 {
+    std::string announce;
     char* nameStr;
     char* delayStr;
     extractOptFirstArg((char*)args, &nameStr, &delayStr);
@@ -57,6 +61,13 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     if (mutereason != NULL)
          mutereasonstr = mutereason;
 
+    if(!mutereason)
+    {
+        PSendSysMessage("You must enter a reason of mute");
+        SetSentErrorMessage(true);
+        return false;
+    }
+	
     Player* target;
     uint64 target_guid;
     std::string target_name;
@@ -103,6 +114,16 @@ bool ChatHandler::HandleMuteCommand(const char* args)
     std::string nameLink = playerLink(target_name);
 
     PSendSysMessage(target ? LANG_YOU_DISABLE_CHAT : LANG_COMMAND_DISABLE_CHAT_DELAYED, nameLink.c_str(), notspeaktime, mutereasonstr.c_str());
+
+    announce = "The character '";
+    announce += nameStr;
+    announce += "' was muted for ";
+    announce += delayStr;
+    announce += " minutes by the character '";
+    announce += m_session->GetPlayerName();
+    announce += "'. The reason is: ";
+    announce += mutereason;
+    HandleAnnounceCommand(announce.c_str());
 
     return true;
 }
@@ -226,6 +247,7 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
 {
     Player* target = NULL;
     std::string playerName;
+    std::string announce;
     if (!extractPlayerTarget((char*)args, &target, NULL, &playerName))
         return false;
 
@@ -244,6 +266,13 @@ bool ChatHandler::HandleKickPlayerCommand(const char *args)
         sWorld->SendWorldText(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
     else
         PSendSysMessage(LANG_COMMAND_KICKMESSAGE, playerName.c_str());
+
+    announce = "The character '";
+    announce += target->GetName();
+    announce += "' was kicked by the character '";
+    announce += m_session->GetPlayerName();
+    announce += "'.";
+    HandleAnnounceCommand(announce.c_str());
 
     target->GetSession()->KickPlayer();
     return true;
@@ -278,7 +307,18 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     uint32 mapId;
     uint32 areaId;
     uint32 phase = 0;
-
+    bool p_jail_isjailed;
+    uint32 p_jail_guid;
+    std::string p_jail_char;
+    uint32 p_jail_release;
+    bool p_jail_amnestietime;
+    std::string p_jail_reason;
+    uint32 p_jail_times;
+    uint32 p_jail_gmacc;
+    std::string p_jail_gmchar;
+    std::string p_jail_lasttime;
+    uint32 p_jail_duration;
+    std::string gmname;
 
     // get additional information from Player object
     if (target)
@@ -298,6 +338,18 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         mapId = target->GetMapId();
         areaId = target->GetAreaId();
         phase = target->GetPhaseMask();
+        p_jail_isjailed = target->m_jail_isjailed;
+        p_jail_guid = target->m_jail_guid;
+        p_jail_char = target->m_jail_char;
+        p_jail_release = target->m_jail_release;
+        p_jail_amnestietime = target->m_jail_amnestietime;
+        p_jail_reason = target->m_jail_reason;
+        p_jail_times =  target->m_jail_times;
+        p_jail_gmacc =  target->m_jail_gmacc;
+        p_jail_gmchar = target->m_jail_gmchar;
+        p_jail_lasttime = target->m_jail_lasttime;
+        p_jail_duration = target->m_jail_duration;
+        gmname = target->GetName();
     }
     // get additional information from DB
     else
@@ -310,8 +362,11 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         QueryResult result = CharacterDatabase.PQuery("SELECT totaltime, level, money, account, race, class, map, zone FROM characters "
                                                       "WHERE guid = '%u'", GUID_LOPART(target_guid));
         if (!result)
-            return false;
-
+          {
+              return false;
+        }
+        else
+        {
         Field* fields = result->Fetch();
         total_player_time = fields[0].GetUInt32();
         level = fields[1].GetUInt32();
@@ -321,6 +376,31 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
         Class = fields[5].GetUInt8();
         mapId = fields[6].GetUInt16();
         areaId = fields[7].GetUInt16();
+        }
+		
+        QueryResult row = CharacterDatabase.PQuery("SELECT * FROM `jail` WHERE `guid`='%u' LIMIT 1", GUID_LOPART(target_guid));
+	    
+        if (!row)
+        {
+             p_jail_isjailed = false;
+        }
+        else
+        {
+
+            Field *data = row->Fetch();
+            p_jail_isjailed = true;
+            p_jail_guid = data[0].GetUInt32();
+            p_jail_char = data[1].GetString();
+            p_jail_release = data[2].GetUInt32();
+            p_jail_amnestietime = data[3].GetUInt32();
+            p_jail_reason = data[4].GetString();
+            p_jail_times = data[5].GetUInt32();
+            p_jail_gmacc = data[6].GetUInt32();
+            p_jail_gmchar = data[7].GetString();
+            p_jail_lasttime = data[8].GetString();
+            p_jail_duration = data[9].GetUInt32();
+            gmname = "";
+        }
     }
 
     std::string username = GetTrinityString(LANG_ERROR);
@@ -448,6 +528,39 @@ bool ChatHandler::HandlePInfoCommand(const char* args)
     else
         PSendSysMessage(LANG_PINFO_MAP_OFFLINE, map->name[locale], areaName.c_str());
 
+	if (p_jail_times > 0)
+        {
+            if (p_jail_release > 0)
+            {
+                time_t localtime;
+                localtime = time(NULL);
+                uint32 min_left = (uint32)floor(float(p_jail_release - localtime) / 60);
+
+                if (min_left <= 0)
+                {
+                    p_jail_release = 0;
+                    CharacterDatabase.PExecute("UPDATE `jail` SET `release`='%u' WHERE `guid`='%u' LIMIT 1", p_jail_release, p_jail_guid);
+                    PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, 0, p_jail_gmchar.c_str(), p_jail_reason.c_str());
+                    return true;
+                }
+                else
+                {
+                    PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, min_left, p_jail_gmchar.c_str(), p_jail_reason.c_str());
+                    return true;
+                }
+            }
+            else
+            {
+                PSendSysMessage(LANG_JAIL_GM_INFO, p_jail_char.c_str(), p_jail_times, 0, p_jail_gmchar.c_str(), p_jail_reason.c_str());
+                return true;
+            }
+        }
+        else
+        {
+            PSendSysMessage(LANG_JAIL_GM_NOINFO, gmname.c_str());
+            return true;
+        }
+        
     return true;
 }
 
@@ -1023,6 +1136,150 @@ bool ChatHandler::HandlePetUnlearnCommand(const char *args)
     else
         PSendSysMessage("Pet doesn't have that spell");
 
+    return true;
+}
+bool ChatHandler::HandleWintergraspStatusCommand(const char* /*args*/)
+{
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
+   if (!pvpWG || !sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+    {
+        SendSysMessage(LANG_BG_WG_DISABLE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    PSendSysMessage(LANG_BG_WG_STATUS, sObjectMgr->GetTrinityStringForDBCLocale(
+        pvpWG->getDefenderTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE),
+        secsToTimeString(pvpWG->GetTimer(), true).c_str(),
+        pvpWG->isWarTime() ? "Yes" : "No",
+        pvpWG->GetNumPlayersH(),
+        pvpWG->GetNumPlayersA());
+    return true;
+}
+
+bool ChatHandler::HandleWintergraspStartCommand(const char* /*args*/)
+{
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
+    if (!pvpWG || !sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+    {
+        SendSysMessage(LANG_BG_WG_DISABLE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+    pvpWG->forceStartBattle();
+    PSendSysMessage(LANG_BG_WG_BATTLE_FORCE_START);
+    return true;
+}
+
+bool ChatHandler::HandleWintergraspStopCommand(const char* /*args*/)
+{
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
+    if (!pvpWG || !sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+    {
+        SendSysMessage(LANG_BG_WG_DISABLE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+    pvpWG->forceStopBattle();
+    PSendSysMessage(LANG_BG_WG_BATTLE_FORCE_STOP);
+    return true;
+}
+
+bool ChatHandler::HandleWintergraspEnableCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
+    if (!pvpWG || !sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+    {
+        SendSysMessage(LANG_BG_WG_DISABLE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    if (!strncmp(args, "on", 3))
+    {
+        if (!sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+        {
+            pvpWG->forceStopBattle();
+            sWorld->setBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED, true);
+        }
+        PSendSysMessage(LANG_BG_WG_ENABLE);
+        return true;
+    }
+    else if (!strncmp(args, "off", 4))
+    {
+        if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+        {
+            pvpWG->forceStopBattle();
+            sWorld->setBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED, false);
+        }
+        PSendSysMessage(LANG_BG_WG_DISABLE);
+        return true;
+    }
+    else
+    {
+        SendSysMessage(LANG_USE_BOL);
+        SetSentErrorMessage(true);
+        return false;
+    }
+}
+
+bool ChatHandler::HandleWintergraspTimerCommand(const char* args)
+{
+    if(!*args)
+        return false;
+
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
+    if (!pvpWG)
+    {
+        SendSysMessage(LANG_BG_WG_DISABLE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+
+    int32 time = atoi (args);
+
+    // Min value 1 min
+    if (1 > time)
+        time = 1;
+    // Max value during wartime = 60. No wartime = 1440 (day)
+    if (pvpWG->isWarTime())
+    {
+        if (60 < time)
+            return false;
+    }
+    else
+        if (1440 < time)
+            return false;
+    time *= MINUTE * IN_MILLISECONDS;
+
+    pvpWG->setTimer((uint32)time);
+    sWorld->SendWintergraspState(); //Update WG time at bg tab
+    PSendSysMessage(LANG_BG_WG_CHANGE_TIMER, secsToTimeString(pvpWG->GetTimer(), true).c_str());
+    return true;
+}
+
+bool ChatHandler::HandleWintergraspSwitchTeamCommand(const char* /*args*/)
+{
+    OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+
+    if (!pvpWG)
+    {
+        SendSysMessage(LANG_BG_WG_DISABLE);
+        SetSentErrorMessage(true);
+        return false;
+    }
+    uint32 timer = pvpWG->GetTimer();
+    pvpWG->forceChangeTeam();
+    pvpWG->setTimer(timer);
+    PSendSysMessage(LANG_BG_WG_SWITCH_FACTION, GetTrinityString(pvpWG->getDefenderTeam() == TEAM_ALLIANCE ? LANG_BG_AB_ALLY : LANG_BG_AB_HORDE));
     return true;
 }
 

@@ -30,6 +30,8 @@
 #include "CreatureAI.h"
 #include "MapManager.h"
 #include "BattlegroundIC.h"
+#include "OutdoorPvPMgr.h"
+#include "OutdoorPvPWG.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -1126,6 +1128,26 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
                 return false;
             if (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY))
                 return false;
+            break;
+        }
+        case 58730: // No fly Zone - Wintergrasp
+        {
+             if (!player)
+                 return false;
+
+             if (sWorld->getBoolConfig(CONFIG_OUTDOORPVP_WINTERGRASP_ENABLED))
+             {
+                 OutdoorPvPWG *pvpWG = (OutdoorPvPWG*)sOutdoorPvPMgr->GetOutdoorPvPToZoneId(4197);
+                 if ((pvpWG->isWarTime()==false) || player->isDead() || player->HasAura(45472) || player->HasAura(44795) || player->GetPositionZ() > 619.2f || player->isInFlight() || (!player->HasAuraType(SPELL_AURA_MOD_INCREASE_MOUNTED_FLIGHT_SPEED) && !player->HasAuraType(SPELL_AURA_FLY)))
+                    return false;
+             }
+             break;
+        }
+        case 58045: // Essence of Wintergrasp - Wintergrasp
+        case 57940: // Essence of Wintergrasp - Northrend
+        {
+             if (!player || player->GetTeamId() != sWorld->getWorldState(WORLDSTATE_WINTERGRASP_CONTROLING_FACTION))
+             return false;
             break;
         }
         case 68719: // Oil Refinery - Isle of Conquest.
@@ -2841,6 +2863,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 23959: // Test Stab R50
             case 24825: // Test Backstab
             case 58563: // Assassinate Restless Lookout
+            case 63124: // Incapacitate Maloric
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                 break;
             case 26029: // Dark Glare
@@ -2848,6 +2871,7 @@ void SpellMgr::LoadSpellCustomAttr()
             case 43140: // Flame Breath
             case 43215: // Flame Breath
             case 70461: // Coldflame Trap
+            case 63293: // Mimiron - P3Wx2 Laser Barrage
             case 72133: // Pain and Suffering
             case 73788: // Pain and Suffering
             case 73789: // Pain and Suffering
@@ -2879,13 +2903,41 @@ void SpellMgr::LoadSpellCustomAttr()
                 // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
+            case 63025: // XT-002 Gravity Bomb
+            case 64233: // XT-002 Gravity Bomb
+            case 28836: //Mark - should not be resistet
+            case 28786: //Locust Swarm
+            case 54022: //Locust Swarm
+            case 57581: //Shadow Fissure - Sartharion Drakes
+            case 59128: //Shadow Fissure - Sartharion Drakes
+            case 57570: //Shadow Breath - Sartharion Drakes
+            case 59126: //Shadow Breath - Sartharion Drakes
+            case 56908: //Fire Breath - Sartharion
+            case 58956: //Fire Breath - Sartharion
+            case 57874: //Twilight Shift Damage - Sartharion
+            case 64590: // Shield Breaker
+            case 64342: // Shield Breaker
+            case 64686: // Shield Breaker
+            case 68321: // Charge
+            case 63010: // Charge
+            case 63003: // Charge
+            case 64588: // Trust
+            case 66479: // Trust
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_DIRECT_DAMAGE; // spellInfo->AttributesEx4 |= SPELL_ATTR4_FIXED_DAMAGE;
+                spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
+                break;
             case 18500: // Wing Buffet
             case 33086: // Wild Bite
+            case 28375: // Decimate
             case 49749: // Piercing Blow
             case 52890: // Penetrating Strike
             case 53454: // Impale
             case 59446: // Impale
             case 62383: // Shatter
+            case 68505: // Thrust
+            case 62544: // Thrust
+            case 62626: // Shield Breaker
+            case 68284: // Charge
             case 64777: // Machine Gun
             case 65239: // Machine Gun
             case 65919: // Impale
@@ -2894,24 +2946,18 @@ void SpellMgr::LoadSpellCustomAttr()
             case 67860: // Impale
             case 69293: // Wing Buffet
             case 74439: // Machine Gun
+            case 62775: // XT-002 - Tympanic Tantrum
+            case 63629: // Kologarn - Arm Dead Damage 10N
+            case 63979: // Kologarn - Arm Dead Damage 25N
+            case 64443: // Algalon - Big Bang
+            case 64584: // Algalon - Big Bang
             case 63278: // Mark of the Faceless (General Vezax)
-            case 62544: // Thrust (Argent Tournament)
-            case 64588: // Thrust (Argent Tournament)
-            case 66479: // Thrust (Argent Tournament)
-            case 68505: // Thrust (Argent Tournament)
             case 62709: // Counterattack! (Argent Tournament)
-            case 62626: // Break-Shield (Argent Tournament, Player)
-            case 64590: // Break-Shield (Argent Tournament, Player)
-            case 64342: // Break-Shield (Argent Tournament, NPC)
-            case 64686: // Break-Shield (Argent Tournament, NPC)
             case 65147: // Break-Shield (Argent Tournament, NPC)
             case 68504: // Break-Shield (Argent Tournament, NPC)
             case 62874: // Charge (Argent Tournament, Player)
             case 68498: // Charge (Argent Tournament, Player)
             case 64591: // Charge (Argent Tournament, Player)
-            case 63003: // Charge (Argent Tournament, NPC)
-            case 63010: // Charge (Argent Tournament, NPC)
-            case 68321: // Charge (Argent Tournament, NPC)
             case 72255: // Mark of the Fallen Champion (Deathbringer Saurfang)
             case 72444: // Mark of the Fallen Champion (Deathbringer Saurfang)
             case 72445: // Mark of the Fallen Champion (Deathbringer Saurfang)
@@ -2987,6 +3033,11 @@ void SpellMgr::LoadDbcDataCorrections()
             case 40246: case 40247: // Simon Game Visual
             case 42835: // Spout, remove damage effect, only anim is needed
                 spellInfo->Effect[0] = 0;
+            case 23881: // Warrior's Bloodthirst
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                break;
+            case 24259: // Felhunter's Spell Lock
+                spellInfo->speed = 80;
                 break;
             case 30657: // Quake
                 spellInfo->EffectTriggerSpell[0] = 30571;
@@ -3005,6 +3056,13 @@ void SpellMgr::LoadDbcDataCorrections()
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
                 spellInfo->EffectImplicitTargetB[0] = 0;
                 break;
+            case 50317: // Summon Disco Ball
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                break;
+            case 68282: // Charge (Trial of the champion)
+            case 62960: // Charge (Argent tournament fields)
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                break;
             case 31344: // Howl of Azgalor
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_100_YARDS; // 100yards instead of 50000?!
                 break;
@@ -3015,6 +3073,13 @@ void SpellMgr::LoadDbcDataCorrections()
             case 36350: //They Must Burn Bomb Aura (self)
                 spellInfo->EffectTriggerSpell[0] = 36325; // They Must Burn Bomb Drop (DND)
                 break;
+            case 49840: // Shock Lance
+            case 49592: // Temporal rift
+            case 50328: // Leeching poison
+            case 50341: // Touch the nightmare
+            case 50344: // Dream Funnel
+            case 50232: // Searing Wrath
+                spellInfo->TargetCreatureType = CREATURE_TYPE_DRAGONKIN;
             case 49838: // Stop Time
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_INITIAL_AGGRO;
                 break;
@@ -3031,6 +3096,10 @@ void SpellMgr::LoadDbcDataCorrections()
             case 8494: // Mana Shield (rank 2)
                 // because of bug in dbc
                 spellInfo->procChance = 0;
+                break;
+            case 39920: // Soulgrinder beam effect
+            case 39921: // Vim'Gol: Pentagram Beam
+                spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
                 break;
             case 20335: // Heart of the Crusader
             case 20336:
@@ -3082,6 +3151,11 @@ void SpellMgr::LoadDbcDataCorrections()
             case 66588: // Flaming Spear
             case 54171: // Divine Storm
                 spellInfo->MaxAffectedTargets = 3;
+                break;
+            case 68645: // Rocket Pack! Hack untill movejump will be implemented properly
+                spellInfo->Effect[0] = SPELL_EFFECT_KNOCK_BACK_DEST;
+                spellInfo->EffectMiscValue[0] = -250;
+                spellInfo->EffectBasePoints[0] = 150;
                 break;
             case 38310: // Multi-Shot
             case 53385: // Divine Storm (Damage)
@@ -3147,6 +3221,10 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             case 51852: // The Eye of Acherus (no spawn in phase 2 in db)
                 spellInfo->EffectMiscValue[0] |= 1;
+                break;
+            case 46363: // Midsummer - Beam Attack against Ahune
+                spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_TARGET_ANY;
                 break;
             case 29809: // Desecration Arm - 36 instead of 37 - typo? :/
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_7_YARDS;
@@ -3276,22 +3354,71 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             // ULDUAR SPELLS
             //
+            case 64206: // XT-002 - Consumption
+                spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_5_YARDS;
+                break;
+            case 62016: // Thorim - Charge Orb
+                spellInfo->MaxAffectedTargets = 1;
+                spellInfo->AttributesEx6 |= SPELL_ATTR6_CAN_TARGET_UNTARGETABLE;
+                break;
             case 62374: // Pursued (Flame Leviathan)
                 spellInfo->EffectRadiusIndex[0] = EFFECT_RADIUS_50000_YARDS;   // 50000yd
                 break;
+            case 62017: // Thorim - Lightning Shock
+            case 62042: // Thorim - Stormhammer
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_NOT_IN_LOS;
+                break;
+            case 62039: // Hodir - Biting Cold - Remove on Move
+                spellInfo->AuraInterruptFlags |= AURA_INTERRUPT_FLAG_MOVE;
+                break;
+            case 62488: // Ignis Activate Construct (only visually)
+            case 65301: // Sara Psychosis
+            case 63830: // Sara Malady of the Mind
+            case 64465: // Yogg Saron Shadow Beacon
             case 63342: // Focused Eyebeam Summon Trigger (Kologarn)
                 spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 63802: // Sara Brain Link
+                spellInfo->MaxAffectedTargets = 2;
                 break;
             case 62716: // Growth of Nature (Freya)
             case 65584: // Growth of Nature (Freya)
             case 64381: // Strength of the Pack (Auriaya)
+            case 62505: // Harpoon Shot
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_STACK_FOR_DIFF_CASTERS;
+                break;
+            case 62968: // Brightleaf's Essence
+            case 65761: // Brightleaf's Essence
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_CASTER;
+                spellInfo->EffectImplicitTargetB[1] = 0;
                 break;
             case 63018: // Searing Light (XT-002)
             case 65121: // Searing Light (25m) (XT-002)
             case 63024: // Gravity Bomb (XT-002)
             case 64234: // Gravity Bomb (25m) (XT-002)
                 spellInfo->MaxAffectedTargets = 1;
+                break;
+            case 62899: // Razorscale - Summon Mole Machine
+            case 64600: // Freya - Nature Bomb (GO Visual)
+                spellInfo->DurationIndex = 38; // 11 seconds
+                break;
+            case 62056: // Kologarn - some Stone Grip related Spells that have SPELL_ATTR1_IGNORE_IMMUNITY (NYI?)
+            case 63985:
+            case 64224:
+            case 64225:
+            case 62287: // Tar Passive
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+                break;
+            case 63716: // Kologarn - Stone Shout
+            case 64005:
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
+                break;
+            case 62711: // Ignis - Grab
+                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
+                spellInfo->AttributesEx |= SPELL_ATTR1_CANT_BE_REFLECTED;
+                break;
+            case 62470: // Deafening Thunder - Spell::DoSpellHitOnUnit sends EVADE if speed > 0
+                spellInfo->speed = 0;
                 break;
             case 62834: // Boom (XT-002)
             // This hack is here because we suspect our implementation of spell effect execution on targets
@@ -3312,6 +3439,27 @@ void SpellMgr::LoadDbcDataCorrections()
                 // that will be clear if we get more spells with problem like this
                 spellInfo->AttributesEx |= SPELL_ATTR1_DISPEL_AURAS_ON_IMMUNITY;
                 break;
+            case 62311: // Algalon - Cosmic Smash
+            case 64596: // Algalon - Cosmic Smash
+                spellInfo->rangeIndex = 13;
+                break;
+            case 61915: // Lightning Whirl (Brundir)
+            case 63483: // Lightning Whirl (Brundir)
+                spellInfo->InterruptFlags |= SPELL_INTERRUPT_FLAG_INTERRUPT;
+                break;
+            case 64444: // Mimiron - Magnetic Core
+                spellInfo->rangeIndex = 6; // 100yd
+                break;
+            case 63414: // Mimiron - Spinning Up
+            case 63274: // Mimiron - Laser Barrage
+                // temporary remove channeled flag due to facing issues when casting on self
+                spellInfo->AttributesEx &= ~SPELL_ATTR1_CHANNELED_1;
+                break;
+            case 63241: // Mangrove Ent 10 - Tranquility
+            case 63554: // Mangrove Ent 25 - Tranquility
+                spellInfo->EffectImplicitTargetA[0] = TARGET_SRC_CASTER;
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_SRC_AREA_ALLY;
+                break;
             case 62584: // Lifebinder's Gift
             case 64185: // Lifebinder's Gift
                 spellInfo->EffectImplicitTargetB[1] = TARGET_UNIT_NEARBY_ENTRY;
@@ -3319,6 +3467,24 @@ void SpellMgr::LoadDbcDataCorrections()
                 break;
             // ENDOF ULDUAR SPELLS
             //
+            // TRIAL OF THE CHAMPION SPELLS
+            case 68284: // ToC5 Charge
+                spellInfo->Effect[1] = SPELL_EFFECT_SCHOOL_DAMAGE;
+                spellInfo->EffectBasePoints[1] = 20000;
+                spellInfo->EffectImplicitTargetA[1] = TARGET_UNIT_TARGET_ENEMY;
+                break;
+            case 67705: // Raise Arelas Birhgtstar
+            case 67715: // Raise Jaeren Sunworn
+                spellInfo->AttributesEx2 |= SPELL_ATTR2_CAN_TARGET_DEAD;
+                break;
+            case 67782: // Desecration
+                spellInfo->rangeIndex = EFFECT_RADIUS_2_YARDS;
+                spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_SRC_AREA_ENEMY;
+                break;
+            case 66545:
+                spellInfo->EffectImplicitTargetB[0] = TARGET_UNIT_CASTER;
+                break;
+            // END OF TRIAL OF THE CHAMPION SPELLS
             // TRIAL OF THE CRUSADER SPELLS
             //
             case 66258: // Infernal Eruption (10N)

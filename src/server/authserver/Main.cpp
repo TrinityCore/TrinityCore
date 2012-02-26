@@ -103,6 +103,15 @@ extern int main(int argc, char **argv)
     sLog->outString("<Ctrl-C> to stop.\n");
     sLog->outString("Using configuration file %s.", cfg_file);
 
+    sLog->outString("      ______   __     __   _________   ________   ________");
+    sLog->outString("     / ____/  / /    / /  / _____  /  / ____  /  / ______/");
+    sLog->outString("    / /      / /____/ /  / /    / /  / /   / /  / /_____");
+    sLog->outString("   / /      / _____  /  / /____/ /  / /   / /  /_____  /");
+    sLog->outString("  / /____  / /    / /  / _____  /  / /___/ /  ______/ /");
+    sLog->outString(" /______/ /_/    /_/  /_/    /_/  /_______/  /_______/");
+    sLog->outString("                                     C O R E         ");
+    sLog->outString("Based on TrinityCore http://www.TrinityCore.org\n");
+	
     sLog->outDetail("%s (Library: %s)", OPENSSL_VERSION_TEXT, SSLeay_version(SSLEAY_VERSION));
 
 #if defined (ACE_HAS_EVENT_POLL) || defined (ACE_HAS_DEV_POLL)

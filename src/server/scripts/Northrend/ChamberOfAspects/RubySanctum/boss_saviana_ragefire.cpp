@@ -1,63 +1,63 @@
 /*
- * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
+* Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+*
+* This program is free software; you can redistribute it and/or modify it
+* under the terms of the GNU General Public License as published by the
+* Free Software Foundation; either version 2 of the License, or (at your
+* option) any later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT
+* ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+* FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+* more details.
+*
+* You should have received a copy of the GNU General Public License along
+* with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "ScriptPCH.h"
 #include "ruby_sanctum.h"
 
 enum Texts
 {
-    SAY_AGGRO                           = 0, // You will sssuffer for this intrusion! (17528)
-    SAY_CONFLAGRATION                   = 1, // Burn in the master's flame! (17532)
-    EMOTE_ENRAGED                       = 2, // %s becomes enraged!
-    SAY_KILL                            = 3, // Halion will be pleased. (17530) - As it should be.... (17529)
+    SAY_AGGRO = 0, // You will sssuffer for this intrusion! (17528)
+    SAY_CONFLAGRATION = 1, // Burn in the master's flame! (17532)
+    EMOTE_ENRAGED = 2, // %s becomes enraged!
+    SAY_KILL = 3, // Halion will be pleased. (17530) - As it should be.... (17529)
 };
 
 enum Spells
 {
-    SPELL_CONFLAGRATION         = 74452,
-    SPELL_FLAME_BEACON          = 74453,
-    SPELL_CONFLAGRATION_2       = 74454, // Unknown dummy effect
-    SPELL_ENRAGE                = 78722,
-    SPELL_FLAME_BREATH          = 74403,
+    SPELL_CONFLAGRATION = 74452,
+    SPELL_FLAME_BEACON = 74453,
+    SPELL_CONFLAGRATION_2 = 74454, // Unknown dummy effect
+    SPELL_ENRAGE = 78722,
+    SPELL_FLAME_BREATH = 74403,
 };
 
 enum Events
 {
-    EVENT_ENRAGE                    = 1,
-    EVENT_FLIGHT                    = 2,
-    EVENT_FLAME_BREATH              = 3,
-    EVENT_CONFLAGRATION             = 4,
+    EVENT_ENRAGE = 1,
+    EVENT_FLIGHT = 2,
+    EVENT_FLAME_BREATH = 3,
+    EVENT_CONFLAGRATION = 4,
 
     // Event group
-    EVENT_GROUP_LAND_PHASE          = 1,
+    EVENT_GROUP_LAND_PHASE = 1,
 };
 
 enum MovementPoints
 {
-    POINT_FLIGHT            = 1,
-    POINT_LAND              = 2,
+    POINT_FLIGHT = 1,
+    POINT_LAND = 2,
 };
 
 enum Misc
 {
-    SOUND_ID_DEATH          = 17531,
+    SOUND_ID_DEATH = 17531,
 };
 
-Position const SavianaRagefireFlyPos  = {3155.51f, 683.844f, 95.20f, 4.69f};
+Position const SavianaRagefireFlyPos = {3155.51f, 683.844f, 95.20f, 4.69f};
 Position const SavianaRagefireLandPos = {3151.07f, 636.443f, 79.54f, 4.69f};
 
 class boss_saviana_ragefire : public CreatureScript

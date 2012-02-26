@@ -28,6 +28,7 @@
 #include "SystemConfig.h"
 #include "revision.h"
 #include "Util.h"
+#include "math.h"
 
 bool ChatHandler::HandleHelpCommand(const char* args)
 {
@@ -54,6 +55,13 @@ bool ChatHandler::HandleCommandsCommand(const char* /*args*/)
 
 bool ChatHandler::HandleStartCommand(const char* /*args*/)
 {
+    // Jail mod start:
+    if (m_session->GetPlayer()->m_jail_isjailed)
+    {
+        SendSysMessage(LANG_JAIL_DENIED);
+        return true;
+    }
+    // Jail mod end.  
     Player* chr = m_session->GetPlayer();
 
     if (chr->isInFlight())
@@ -78,7 +86,7 @@ bool ChatHandler::HandleStartCommand(const char* /*args*/)
     }
 
     // cast spell Stuck
-    chr->CastSpell(chr, 7355, false);
+    chr->CastSpell(chr, 8690, false);
     return true;
 }
 
@@ -130,7 +138,14 @@ bool ChatHandler::HandleDismountCommand(const char* /*args*/)
 bool ChatHandler::HandleSaveCommand(const char* /*args*/)
 {
     Player* player = m_session->GetPlayer();
-
+    
+		// Jail by WarHead edited by LordPsyan
+    if (player->m_jail_isjailed)
+    {
+        SendSysMessage(LANG_JAIL_DENIED);
+        return true;
+    }
+  
     // save GM account without delay and output message
     if (!AccountMgr::IsPlayerAccount(m_session->GetSecurity()))
     {
@@ -155,5 +170,39 @@ bool ChatHandler::HandleServerMotdCommand(const char* /*args*/)
 {
     PSendSysMessage(LANG_MOTD_CURRENT, sWorld->GetMotd());
     return true;
+}
+	//Trinity Jail Edited by spgm
+bool ChatHandler::HandleJailInfoCommand(const char* args)
+{
+    time_t localtime;
+    localtime = time(NULL);
+    Player *chr = m_session->GetPlayer();
+
+    if (chr->m_jail_release > 0)
+    {
+        uint32 min_left = (uint32)floor(float(chr->m_jail_release - localtime) / 60);
+
+        if (min_left <= 0)
+        {
+            chr->m_jail_release = 0;
+            chr->_SaveJail();
+            SendSysMessage(LANG_JAIL_NOTJAILED_INFO);
+            return true;
+        }
+        else
+        {
+            if (min_left >= 60) PSendSysMessage(LANG_JAIL_JAILED_H_INFO, (uint32)floor(float(chr->m_jail_release - localtime) / 60 / 60));
+            else PSendSysMessage(LANG_JAIL_JAILED_M_INFO, min_left);
+            PSendSysMessage(LANG_JAIL_REASON, chr->m_jail_gmchar.c_str(), chr->m_jail_reason.c_str());
+
+            return true;
+        }
+    }
+    else
+    {
+        SendSysMessage(LANG_JAIL_NOTJAILED_INFO);
+        return true;
+    }
+    return false;
 }
 

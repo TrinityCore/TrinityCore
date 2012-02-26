@@ -65,6 +65,7 @@ public:
             { "allowmove",      SEC_ADMINISTRATOR,  false, &HandleNpcSetAllowMovementCommand,  "", NULL },
             { "entry",          SEC_ADMINISTRATOR,  false, &HandleNpcSetEntryCommand,          "", NULL },
             { "factionid",      SEC_GAMEMASTER,     false, &HandleNpcSetFactionIdCommand,      "", NULL },
+            { "emote",          SEC_ADMINISTRATOR,  false, &HandleNpcSetEmoteCommand,          "", NULL },
             { "flag",           SEC_GAMEMASTER,     false, &HandleNpcSetFlagCommand,           "", NULL },
             { "level",          SEC_GAMEMASTER,     false, &HandleNpcSetLevelCommand,          "", NULL },
             { "link",           SEC_GAMEMASTER,     false, &HandleNpcSetLinkCommand,           "", NULL },
@@ -103,7 +104,7 @@ public:
         return commandTable;
     }
 
-    //add spawn of creature
+  //add spawn of creature
     static bool HandleNpcAddCommand(ChatHandler* handler, const char* args)
     {
         if (!*args)
@@ -128,11 +129,19 @@ public:
 
         if (chr->GetTransport())
         {
-            uint32 tguid = chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
-            if (tguid > 0)
-                WorldDatabase.PExecute("INSERT INTO creature_transport (guid, npc_entry, transport_entry,  TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO) values (%u, %u, %f, %f, %f, %f, %u)", tguid, id, chr->GetTransport()->GetEntry(), chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
-
-            return true;
+            if (!map->ToInstanceMap())
+               {
+                if(chr->GetTransport()->AddNPCPassenger(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO()))
+                {
+                 WorldDatabase.PExecute("INSERT INTO creature_transport (guid, transport_entry, npc_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote) values (%u, %u, %u, %f, %f, %f, %f, 0)", 0, chr->GetTransport()->GetEntry(),id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+                 return true;
+                }            
+               }
+               else
+               {
+                chr->GetTransport()->AddNPCPassengerInInstance(0, id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+				WorldDatabase.PExecute("INSERT INTO creature_transport (guid, transport_entry, npc_entry, TransOffsetX, TransOffsetY, TransOffsetZ, TransOffsetO, emote) values (%u, %u, %u, %f, %f, %f, %f, 0)", 0, chr->GetTransport()->GetEntry(),id, chr->GetTransOffsetX(), chr->GetTransOffsetY(), chr->GetTransOffsetZ(), chr->GetTransOffsetO());
+               }
         }
 
         Creature* creature = new Creature;
@@ -156,7 +165,6 @@ public:
         sObjectMgr->AddCreatureToGrid(db_guid, sObjectMgr->GetCreatureData(db_guid));
         return true;
     }
-
     //add item in vendorlist
     static bool HandleNpcAddVendorItemCommand(ChatHandler* handler, char const* args)
     {
@@ -664,6 +672,30 @@ public:
         return true;
     }
 
+	// Set Emote
+    static bool HandleNpcSetEmoteCommand(ChatHandler* handler, const char* args)
+    {
+        uint32 emote = atoi((char*)args);
+        uint32 lowguid;
+
+        Creature* target = handler->getSelectedCreature();
+        if (!target)
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        lowguid = target->GetDBTableGUIDLow();
+
+        WorldDatabase.PExecute("DELETE FROM creature_addon WHERE guid = %u", lowguid);
+        WorldDatabase.PExecute("INSERT INTO creature_addon (guid, emote) VALUES (%u, %u)", lowguid, emote);
+
+        target->SetUInt32Value(UNIT_NPC_EMOTESTATE, emote);
+
+        return true;
+    }
+	
     //play npc emote
     static bool HandleNpcPlayEmoteCommand(ChatHandler* handler, const char* args)
     {

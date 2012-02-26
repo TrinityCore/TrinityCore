@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2006-2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +17,101 @@
 
 #include "ScriptPCH.h"
 #include "ScriptedEscortAI.h"
+
+#define GOSSIP_ITEM1 "You're free to go Orsonn, but first tell me what's wrong with the furbolg."
+#define GOSSIP_ITEM2 "What happened then?"
+#define GOSSIP_ITEM3 "Thank you, Son of Ursoc. I'll see what can be done."
+#define GOSSIP_ITEM4 "Who was this stranger?"
+#define GOSSIP_ITEM5 "Thank you, Kodian. I'll do what I can."
+
+enum eEnums
+{
+    GOSSIP_TEXTID_ORSONN1       = 12793,
+    GOSSIP_TEXTID_ORSONN2       = 12794,
+    GOSSIP_TEXTID_ORSONN3       = 12796,
+
+    GOSSIP_TEXTID_KODIAN1       = 12797,
+    GOSSIP_TEXTID_KODIAN2       = 12798,
+
+    NPC_ORSONN                  = 27274,
+    NPC_KODIAN                  = 27275,
+
+    //trigger creatures
+    NPC_ORSONN_CREDIT           = 27322,
+    NPC_KODIAN_CREDIT           = 27321,
+
+    QUEST_CHILDREN_OF_URSOC     = 12247,
+    QUEST_THE_BEAR_GODS_OFFSPRING        = 12231
+};
+
+class npc_orsonn_and_kodian : public CreatureScript
+{
+public:
+    npc_orsonn_and_kodian() : CreatureScript("npc_orsonn_and_kodian") { }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (creature->isQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
+
+        if (player->GetQuestStatus(QUEST_CHILDREN_OF_URSOC) == QUEST_STATUS_INCOMPLETE || player->GetQuestStatus(QUEST_THE_BEAR_GODS_OFFSPRING) == QUEST_STATUS_INCOMPLETE)
+        {
+            switch(creature->GetEntry())
+            {
+                case NPC_ORSONN:
+                    if (!player->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_ORSONN_CREDIT) || !player->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_ORSONN_CREDIT))
+                    {
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+                        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN1, creature->GetGUID());
+                        return true;
+                    }
+                    break;
+                case NPC_KODIAN:
+                    if (!player->GetReqKillOrCastCurrentCount(QUEST_CHILDREN_OF_URSOC, NPC_KODIAN_CREDIT) || !player->GetReqKillOrCastCurrentCount(QUEST_THE_BEAR_GODS_OFFSPRING, NPC_KODIAN_CREDIT))
+                    {
+                        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+                        player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN1, creature->GetGUID());
+                        return true;
+                    }
+                    break;
+            }
+        }
+
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        switch(uiAction)
+        {
+            case GOSSIP_ACTION_INFO_DEF+1:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN2, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_ORSONN3, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                player->CLOSE_GOSSIP_MENU();
+                player->TalkedToCreature(NPC_ORSONN_CREDIT, creature->GetGUID());
+                break;
+
+            case GOSSIP_ACTION_INFO_DEF+4:
+                player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 5);
+                player->SEND_GOSSIP_MENU(GOSSIP_TEXTID_KODIAN2, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+5:
+                player->CLOSE_GOSSIP_MENU();
+                player->TalkedToCreature(NPC_KODIAN_CREDIT, creature->GetGUID());
+                break;
+        }
+
+        return true;
+    }
+};
 
 /*######
 ## Quest 12027: Mr. Floppy's Perilous Adventure
@@ -245,7 +339,7 @@ public:
         {
             if (Creature* Emily = GetClosestCreatureWithEntry(me, NPC_EMILY, 50.0f))
             {
-                switch (Who->GetEntry())
+                switch(Who->GetEntry())
                 {
                     case NPC_HUNGRY_WORG:
                         DoScriptText(SAY_WORGHAGGRO2, Emily);
@@ -344,7 +438,8 @@ public:
 
 enum etallhornstage
 {
-    OBJECT_HAUNCH                   = 188665
+    OBJECT_HAUNCH                   = 188665,
+    SPELL_GORE                      = 32019
 };
 
 class npc_tallhorn_stag : public CreatureScript
@@ -357,13 +452,15 @@ public:
         npc_tallhorn_stagAI(Creature* creature) : ScriptedAI(creature) {}
 
         uint8 m_uiPhase;
+        uint32 m_uiTimer;
 
         void Reset()
         {
             m_uiPhase = 1;
+            m_uiTimer = 3000;
         }
 
-        void UpdateAI(const uint32 /*uiDiff*/)
+        void UpdateAI(const uint32 uiDiff)
         {
             if (m_uiPhase == 1)
             {
@@ -375,6 +472,18 @@ public:
                 }
                 m_uiPhase = 0;
             }
+
+            if (!UpdateVictim())
+                return;
+
+            if (m_uiTimer <= uiDiff)
+            {
+                DoCastVictim(SPELL_GORE);
+                m_uiTimer = 15000;
+            }
+            else
+                m_uiTimer -= uiDiff;
+
             DoMeleeAttackIfReady();
         }
     };
@@ -422,7 +531,7 @@ public:
                 {
                     if (m_uiTimer <= uiDiff)
                     {
-                        switch (m_uiPhase)
+                        switch(m_uiPhase)
                         {
                             case 1:
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_LOOT);
@@ -496,7 +605,7 @@ public:
             {
                 caster->ToPlayer()->KilledMonsterCredit(CREDIT_NPC, 0);
                 DoScriptText(RAND(RANDOM_SAY_1, RANDOM_SAY_2, RANDOM_SAY_3), caster);
-                if (me->IsStandState())
+                if(me->IsStandState())
                     me->GetMotionMaster()->MovePoint(1, me->GetPositionX()+7, me->GetPositionY()+7, me->GetPositionZ());
                 else
                 {
@@ -693,6 +802,92 @@ public:
     };
 };
 
+/*####
+## npc_grizzly_lake_frog
+####*/
+
+enum eLakeFrog
+{
+    SPELL_WARTS                 = 62581,
+    SPELL_WARTS_B_GONE          = 62574,
+    SPELL_TRANSFORM             = 62550,
+    SPELL_SUMMON_ASHWOOD_BRAND  = 62554,
+    SPELL_FROG_LOVE             = 62537,
+
+    ENTRY_NOT_MAIDEN_FROG       = 33211,
+    ENTRY_MAIDEN_FROG           = 33224,
+};
+
+#define SAY_FREED               "Can it really be? Free after all these years?"
+#define GOSSIP_TEXT_GET_WEAPON  "Glad to help, my lady. I'm told you were once the guardian of a fabled sword. Do you know where I might find it?"
+
+class npc_grizzly_lake_frog : public CreatureScript
+{
+public:
+    npc_grizzly_lake_frog() : CreatureScript("npc_grizzly_lake_frog") { }
+
+    struct npc_grizzly_lake_frogAI : public ScriptedAI
+    {
+        npc_grizzly_lake_frogAI(Creature* c) : ScriptedAI(c) { alreadykissed = false;}
+
+        bool alreadykissed;
+
+        void ReceiveEmote(Player* player, uint32 emote)
+        {
+            if (emote == TEXT_EMOTE_KISS)
+            {
+                alreadykissed = true;
+
+                if(urand(0,3) == 0)
+                {
+                    DoCast(me,SPELL_TRANSFORM,true);
+                    me->MonsterSay(SAY_FREED,LANG_UNIVERSAL,player->GetGUID());
+                    me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                }else
+                {
+                    if (!player->HasAura(SPELL_WARTS_B_GONE))
+                    {
+                        me->CastSpell(player,SPELL_WARTS);
+                    }else
+                        player->RemoveAurasDueToSpell(SPELL_WARTS_B_GONE);
+
+                        me->CastSpell(me,SPELL_FROG_LOVE,true);
+                        me->GetMotionMaster()->MoveFollow(player,1,float(rand_norm()*2*M_PI));
+                }
+
+                me->DespawnOrUnsummon(15000);
+            }
+        }
+    };
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,GOSSIP_TEXT_GET_WEAPON , GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        player->SEND_GOSSIP_MENU(player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*uiSender*/, uint32 uiAction)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        player->CLOSE_GOSSIP_MENU();
+
+        if (uiAction == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            creature->CastSpell(player,SPELL_SUMMON_ASHWOOD_BRAND,true);
+        }
+        
+        return true;
+    }
+
+
+    CreatureAI *GetAI(Creature* creature) const
+    {
+        return new npc_grizzly_lake_frogAI(creature);
+    }
+};
+
 void AddSC_grizzly_hills()
 {
     new npc_emily;
@@ -703,4 +898,5 @@ void AddSC_grizzly_hills()
     new npc_wounded_skirmisher;
     new npc_lightning_sentry();
     new npc_venture_co_straggler();
+    new npc_grizzly_lake_frog();
 }

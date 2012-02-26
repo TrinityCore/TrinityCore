@@ -163,6 +163,7 @@ set(scripts_STAT_SRCS
   EasternKingdoms/loch_modan.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.cpp
   EasternKingdoms/ShadowfangKeep/instance_shadowfang_keep.cpp
+  EasternKingdoms/ShadowfangKeep/boss_apothecary_trio.cpp
   EasternKingdoms/ShadowfangKeep/shadowfang_keep.h
   EasternKingdoms/burning_steppes.cpp
   EasternKingdoms/BlackwingLair/boss_chromaggus.cpp

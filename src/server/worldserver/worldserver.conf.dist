@@ -1325,6 +1325,20 @@ MaxRecruitAFriendBonusDistance = 100
 MailDeliveryDelay = 3600
 
 #
+#    ExternalMail
+#        Description: Enable external mail delivery from mail_external table.
+#        Default:     1 (enabled)
+
+ExternalMail = 1
+
+#
+#    ExternalMailInterval
+#        Description: Mail delivery delay time for item sending from mail_external table, in minutes.
+#        Default: 1 (minute)
+
+ExternalMailInterval = 1
+
+#
 #    SkillChance.Prospecting
 #        Description: Allow skill increase from prospecting.
 #        Default:     0 - (Disabled)
@@ -2136,14 +2150,23 @@ Rate.Drop.Item.ReferencedAmount = 1
 #    Rate.XP.Kill
 #    Rate.XP.Quest
 #    Rate.XP.Explore
+#    Rate.XP.Kill.Premium
+#    Rate.XP.Quest.Premium
+#    Rate.XP.Explore.Premium
 #        Description: Experience rates.
 #        Default:     1 - (Rate.XP.Kill)
 #                     1 - (Rate.XP.Quest)
 #                     1 - (Rate.XP.Explore)
+#                     1 - (Rate.XP.Kill.Premium)
+#                     1 - (Rate.XP.Quest.Premium)
+#                     1 - (Rate.XP.Explore.Premium)
 
 Rate.XP.Kill    = 1
 Rate.XP.Quest   = 1
 Rate.XP.Explore = 1
+Rate.XP.Kill.Premium    = 1
+Rate.XP.Quest.Premium   = 1
+Rate.XP.Explore.Premium = 1
 
 #
 #    Rate.RepairCost
@@ -2811,7 +2834,7 @@ Guild.AllowMultipleGuildMaster = 0
 #        Default:     0 - (Disabled)
 #                     1 - (Enabled)
 
-ShowKickInWorld = 0
+ShowKickInWorld = 1
 
 #
 #     RecordUpdateTimeDiffInterval
@@ -2879,4 +2902,531 @@ PlayerDump.DisallowPaths = 1
 PlayerDump.DisallowOverwrite = 1
 
 #
+#     Anticheat.Enable
+#        Description: Enables or disables the Anticheat System functionality
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)  
+
+Anticheat.Enable = 1
+
+#
+#     Anticheat.ReportsForIngameWarnings
+#        Description: How many reports the player must have to notify to GameMasters ingame when he generates a new report.
+#        Default:     70
+
+Anticheat.ReportsForIngameWarnings = 70
+ 
+# 
+#     Anticheat.DetectionsEnabled
+#        Description: It represents which detections are enabled.
+#    
+#        SPEED_HACK_DETECTION            = 1
+#        FLY_HACK_DETECTION              = 2
+#        WALK_WATER_HACK_DETECTION       = 4
+#        JUMP_HACK_DETECTION             = 8
+#        TELEPORT_PLANE_HACK_DETECTION   = 16
+#        CLIMB_HACK_DETECTION            = 32
+#
+#        Default:     31
+
+Anticheat.DetectionsEnabled = 31
+
+#
+#     Anticheat.MaxReportsForDailyReport
+#        Description: How many reports must the player have to make a report that it is in DB for a day (not only during the player's session).
+#        Default:     70
+
+Anticheat.MaxReportsForDailyReport = 70
+
+#
+#     Anticheat.Ban
+#        Description: Make anticheat active (Ban cheaters character for 1 hour.)
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+Anticheat.Ban = 1
+
+#
+#      GMIsland.PlayersNoAccess.Enable
+#        Prevent access for players to gm island
+#        Default: 1 - Enable
+#                 0 - Disable
+
+GMIsland.PlayersNoAccess.Enable = 1
+
+#
+#      GMIsland.Ban.Enable
+#        Enable to ban players that tries to access GM Island without proper Access
+#        Default: 0 - Disable
+#                 1 - Enable
+
+GMIsland.Ban.Enable = 0
+
+#
+#   OutdoorPvP.Wintergrasp.Enabled
+#       Determines whether the Wintergrasp battle is enabled or not.
+#       Default: 1 = Enable
+#                0 = Disable
+
+OutdoorPvP.Wintergrasp.Enabled = 1
+
+#
+#   OutdoorPvP.Wintergrasp.SaveState.Period
+#      Interval (in milliseconds) of Save Wintergrasp State Data to restore it after crash/shutdown/restart
+#      Default (60000 milliseconds)
+#      Warning:  Do not set it less 1 second!
+
+OutdoorPvP.Wintergrasp.SaveState.Period = 60000
+
+#
+#   OutdoorPvP.Wintergrasp.StartTime
+#       The start time of the first battle after server starts (in minutes)
+#       Default: 30
+
+OutdoorPvP.Wintergrasp.StartTime = 30
+
+#
+#   OutdoorPvP.Wintergrasp.BattleTime
+#       Time limit of a battle (in minutes)
+#       Default: 30
+
+OutdoorPvP.Wintergrasp.BattleTime = 30
+
+#
+#   OutdoorPvP.Wintergrasp.Interval
+#       Interval between battles (in minutes)
+#       Default: 150
+
+OutdoorPvP.Wintergrasp.Interval = 150
+
+#
+#   OutdoorPvP.Wintergrasp.CustomHonorRewards
+#       Defines whether custom honor rewards should be given to player
+#        for partaking in the Wintergrasp Battle.
+#        Default: 0 = Disable
+#                 1 = Enable
+
+OutdoorPvP.Wintergrasp.CustomHonorRewards = 0
+
+#
+#   OutdoorPvP.Wintergrasp.CustomHonorBattleWin
+#       Defines the amount of honor points that should be given to the
+#        team winning the Wintergrasp Battle.
+#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Default: 3000
+
+OutdoorPvP.Wintergrasp.CustomHonorBattleWin = 3000
+
+#
+#   OutdoorPvP.Wintergrasp.CustomHonorBattleLose
+#       Defines the amount of honor points that should be given to the
+#        team losing the Wintergrasp Battle.
+#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Default: 1250
+
+OutdoorPvP.Wintergrasp.CustomHonorBattleLose = 1250
+
+#   OutdoorPvP.Wintergrasp.CustomHonorDamageTower
+#       Defines the amount of honor points that should be given to the
+#        team for damaging a tower.
+#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Default: 750
+
+OutdoorPvP.Wintergrasp.CustomHonorDamageTower = 750
+
+#
+#   OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower
+#       Defines the amount of honor points that should be given to the
+#        team for destroying a tower.
+#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Default: 750
+
+OutdoorPvP.Wintergrasp.CustomHonorDestroyedTower = 750
+
+#
+#   OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding
+#       Defines the amount of honor points that should be given to the
+#        team for damaged buildings after the battle.
+#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Default: 750
+
+OutdoorPvP.Wintergrasp.CustomHonorDamagedBuilding = 750
+
+#
+#   OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding
+#      Defines the amount of honor points that should be given to the
+#        team for intact buildings after the battle.
+#       Requires OutdoorPvP.Wintergrasp.CustomHonorRewards = 1.
+#       Default: 1500
+
+OutdoorPvP.Wintergrasp.CustomHonorIntactBuilding = 1500
+
+#
+#   OutdoorPvP.Wintergrasp.Antifarm.Enable
+#		Enable or Disable antifarm system
+#       Prevents start WG battle event if there are too low players (see options bellow)
+#       Default: 0 - Disabled
+#                1 - Enabled
+
+OutdoorPvP.Wintergrasp.Antifarm.Enable = 0
+
+#
+#   OutdoorPvP.Wintergrasp.Antifarm.Atk
+#		Min count of attackers for antifarm
+#              (Default: 5)
+
+OutdoorPvP.Wintergrasp.Antifarm.Atk = 5
+
+#
+#   OutdoorPvP.Wintergrasp.Antifarm.Def
+#		Min count of defenders for antifarm
+#              (Default: 5)
+
+OutdoorPvP.Wintergrasp.Antifarm.Def = 5
+
+#
+#    AuctionHouseBot.DEBUG
+#        Enable/Disable Debugging output
+#    Default 0 (disabled)
+
+AuctionHouseBot.DEBUG = 0
+
+#
+#    AuctionHouseBot.DEBUG_FILTERS
+#        Enable/Disable Debugging output from Filters
+#    Default 0 (disabled)
+
+AuctionHouseBot.DEBUG_FILTERS = 0
+
+#
+#    AuctionHouseBot.EnableSeller
+#        Enable/Disable the part of AHBot that puts items up for auction
+#    Default 0 (disabled)
+
+AuctionHouseBot.EnableSeller = 0
+
+#
+#    AuctionHouseBot.EnableBuyer
+#        Enable/Disable the part of AHBot that buys items from players
+#    Default 0 (disabled)
+
+AuctionHouseBot.EnableBuyer = 0
+
+#
+#    AuctionHouseBot.UseBuyPriceForSeller
+#        Should the Seller use BuyPrice or SellPrice to determine Bid Prices
+#    Default 0 (use SellPrice)
+
+AuctionHouseBot.UseBuyPriceForSeller = 0
+
+#
+#    AuctionHouseBot.UseBuyPriceForBuyer
+#        Should the Buyer use BuyPrice or SellPrice to determine Bid Prices
+#    Default 0 (use SellPrice)
+
+AuctionHouseBot.UseBuyPriceForBuyer = 0
+
+#
+#    Auction House Bot character data
+#        AuctionHouseBot.Account is the account number
+#         (in realmd->account table) of the player you want to run
+#         as the auction bot.
+#        AuctionHouseBot.GUID is the GUID (in characters->characters table)
+#         of the player you want to run as the auction bot.
+#    Default: 0 (Auction House Bot disabled)
+
+AuctionHouseBot.Account = 0
+AuctionHouseBot.GUID = 0
+
+#
+#    AuctionHouseBot.ItemsPerCycle
+#        Number of Items to Add/Remove from the AH during mass operations
+#    Default 200
+
+AuctionHouseBot.ItemsPerCycle = 200
+
+#
+#    AuctionHouseBot.VendorItems
+#        Include items that can be bought from vendors.
+#    Default 0 (False)
+
+AuctionHouseBot.VendorItems = 0
+
+#
+#    AuctionHouseBot.VendorTradeGoods
+#        Include Trade Goods that can be bought from vendors.
+#    Default 0 (False)
+
+AuctionHouseBot.VendorTradeGoods = 0
+
+#
+#    AuctionHouseBot.LootItems
+#        Include items that can be looted or fished for.
+#    Default 1 (True)
+
+AuctionHouseBot.LootItems = 1
+
+#
+#    AuctionHouseBot.LootTradeGoods
+#        Include Trade Goods that can be looted or fished for.
+#    Default 1 (True)
+
+AuctionHouseBot.LootTradeGoods = 1
+
+#
+#    AuctionHouseBot.OtherItems
+#        Include misc. items.
+#    Default 0 (False)
+
+AuctionHouseBot.OtherItems = 0
+
+#
+#    AuctionHouseBot.OtherTradeGoods
+#        Include misc. Trade Goods.
+#    Default 0 (False)
+
+AuctionHouseBot.OtherTradeGoods = 0
+
+#
+#    AuctionHouseBot.Bonding_types
+#        Indicates which bonding types to allow seller to put up for auction
+#            No_Bind
+#             Default 1 (True)
+#            Bind_When_Picked_Up
+#             Default 0 (False)
+#            Bind_When_Equipped
+#             Default 1 (True)
+#            Bind_When_Use
+#             Default 1 (True)
+#            Bind_Quest_Item
+#             Default 0 (False)
+
+AuctionHouseBot.No_Bind = 1
+AuctionHouseBot.Bind_When_Picked_Up = 0
+AuctionHouseBot.Bind_When_Equipped = 1
+AuctionHouseBot.Bind_When_Use = 1
+AuctionHouseBot.Bind_Quest_Item = 0
+
+#
+#    AuctionHouseBot.DisableBeta_PTR_Unused
+#        Disable certain items that are usually unavailable to Players
+#    Default 0 (False)
+
+AuctionHouseBot.DisableBeta_PTR_Unused = 0
+
+#
+#    AuctionHouseBot.DisablePermEnchant
+#        Disable Items with a Permanent Enchantment
+#    Default 0 (False)
+
+AuctionHouseBot.DisablePermEnchant = 0
+
+#
+#    AuctionHouseBot.DisableConjured
+#        Disable Conjured Items
+#    Default 0 (False)
+
+AuctionHouseBot.DisableConjured = 0
+
+#
+#    AuctionHouseBot.DisableGems
+#        Disable Gems
+#    Default 0 (False)
+
+AuctionHouseBot.DisableGems = 0
+
+#
+#    AuctionHouseBot.DisableMoney
+#        Disable Items that are used as money
+#    Default 0 (False)
+
+AuctionHouseBot.DisableMoney = 0
+
+#
+#    AuctionHouseBot.DisableMoneyLoot
+#        Disable Items that have Money as a loot
+#    Default 0 (False)
+
+AuctionHouseBot.DisableMoneyLoot = 0
+
+#
+#    AuctionHouseBot.DisableLootable
+#        Disable Items that have other items as loot
+#    Default 0 (False)
+
+AuctionHouseBot.DisableLootable = 0
+
+#
+#    AuctionHouseBot.DisableKeys
+#        Disable Items that are keys
+#    Default 0 (False)
+
+AuctionHouseBot.DisableKeys = 0
+
+#
+#    AuctionHouseBot.DisableDuration
+#        Disable Items with a duration
+#    Default 0 (False)
+
+AuctionHouseBot.DisableDuration = 0
+
+#
+#    AuctionHouseBot.DisableBOP_Or_Quest_NoReqLevel
+#        Disable items that are BOP or Quest Item
+#        with a Required level that is less than the Item Level
+#        (This prevents a level 10 with a level 60 weapon or armor)
+#        (May need further refinement)
+#    Default 0 (False)
+
+AuctionHouseBot.DisableBOP_Or_Quest_NoReqLevel = 0
+
+#
+#     These Filters are boolean (0 or 1) and will disable items that are
+#     specifically meant for the Class named.
+#     (UnusedClass is Class 10, which was skipped for some reason)
+#     Default 0 (allowed)
+
+AuctionHouseBot.DisableWarriorItems = 0
+AuctionHouseBot.DisablePaladinItems = 0
+AuctionHouseBot.DisableHunterItems = 0
+AuctionHouseBot.DisableRogueItems = 0
+AuctionHouseBot.DisablePriestItems = 0
+AuctionHouseBot.DisableDKItems = 0
+AuctionHouseBot.DisableShamanItems = 0
+AuctionHouseBot.DisableMageItems = 0
+AuctionHouseBot.DisableWarlockItems = 0
+AuctionHouseBot.DisableUnusedClassItems = 0
+AuctionHouseBot.DisableDruidItems = 0
+
+#
+#    AuctionHouseBot.DisableItemsBelowLevel
+#        Prevent Seller from listing Items below this Level
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableItemsBelowLevel = 0
+
+#
+#    AuctionHouseBot.DisableItemsAboveLevel
+#        Prevent Seller from listing Items above this Level
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableItemsAboveLevel = 0
+
+#
+#    AuctionHouseBot.DisableTGsBelowLevel
+#        Prevent Seller from listing Trade Goods below this Level
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableTGsBelowLevel = 0
+
+#
+#    AuctionHouseBot.DisableTGsAboveLevel
+#        Prevent Seller from listing Trade Goods above this Level
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableTGsAboveLevel = 0
+
+#
+#    AuctionHouseBot.DisableItemsBelowGUID
+#        Prevent Seller from listing Items below this GUID
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableItemsBelowGUID = 0
+
+#
+#    AuctionHouseBot.DisableItemsAboveGUID
+#        Prevent Seller from listing Items above this GUID
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableItemsAboveGUID = 0
+
+#
+#    AuctionHouseBot.DisableTGsBelowGUID
+#        Prevent Seller from listing Trade Goods below this GUID
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableTGsBelowGUID = 0
+
+#
+#    AuctionHouseBot.DisableTGsAboveGUID
+#        Prevent Seller from listing Trade Goods above this GUID
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableTGsAboveGUID = 0
+
+#
+#    AuctionHouseBot.DisableItemsBelowReqLevel
+#        Prevent Seller from listing Items below this Required Level
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableItemsBelowReqLevel = 0
+
+#
+#    AuctionHouseBot.DisableItemsAboveReqLevel
+#        Prevent Seller from listing Items above this Required Level
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableItemsAboveReqLevel = 0
+
+#
+#    AuctionHouseBot.DisableTGsBelowReqLevel
+#        Prevent Seller from listing Trade Goods below this Required Level
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableTGsBelowReqLevel = 0
+
+#
+#    AuctionHouseBot.DisableTGsAboveReqLevel
+#        Prevent Seller from listing Trade Goods above this Required Level
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableTGsAboveReqLevel = 0
+
+#
+#    AuctionHouseBot.DisableItemsBelowReqSkillRank
+#        Prevent Seller from listing Items below this Required Skill Rank
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableItemsBelowReqSkillRank = 0
+
+#
+#    AuctionHouseBot.DisableItemsAboveReqSkillRank
+#        Prevent Seller from listing Items above this Required Skill Rank
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableItemsAboveReqSkillRank = 0
+
+#
+#    AuctionHouseBot.DisableTGsBelowReqSkillRank
+#        Prevent Seller from listing Trade Goods below this Required Skill Rank
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableTGsBelowReqSkillRank = 0
+
+#
+#    AuctionHouseBot.DisableTGsAboveReqSkillRank
+#        Prevent Seller from listing Trade Goods above this Required Skill Rank
+#    Default 0 (Off)
+
+AuctionHouseBot.DisableTGsAboveReqSkillRank = 0
+
+#
+# AUCTION HOUSE BOT GLYPHS PART
+#
+#    AuctionHouseBot.SellGlyphs
+#    Default 0 (Off)
+
+AuctionHouseBot.SellGlyphs = 0
+AuctionHouseBot.GlyphsCount = 0
+AuctionHouseBot.DisableGlyphBelowLevel = 0
+AuctionHouseBot.DisableGlyphAboveLevel = 0
+AuctionHouseBot.GlyphBuyOutPriceMin = 0
+AuctionHouseBot.GlyphBuyOutPriceMax = 0
+AuctionHouseBot.GlyphBidPriceMin = 0
+AuctionHouseBot.GlyphBidPriceMax = 0
+
+#
 ###################################################################################################
+# BOT CONFIGURATION
+#
+################################################################################
