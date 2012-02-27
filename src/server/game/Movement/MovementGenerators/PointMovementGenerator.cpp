@@ -107,7 +107,7 @@ void AssistanceMovementGenerator::Finalize(Unit &unit)
         unit.GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
 }
 
-bool EffectMovementGenerator::Update(Unit &unit, const uint32)
+bool EffectMovementGenerator::Update(Unit &unit, const uint32&)
 {
     return !unit.movespline->Finalized();
 }
