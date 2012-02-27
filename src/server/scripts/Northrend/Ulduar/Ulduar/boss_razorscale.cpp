@@ -177,7 +177,7 @@ class boss_razorscale_controller : public CreatureScript
         {
             boss_razorscale_controllerAI(Creature* creature) : BossAI(creature, DATA_RAZORSCALE_CONTROL)
             {
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
             }
 
             void Reset()
