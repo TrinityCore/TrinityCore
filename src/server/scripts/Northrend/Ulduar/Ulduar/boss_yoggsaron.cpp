@@ -18,22 +18,6 @@
 #include "ScriptPCH.h"
 #include "ulduar.h"
 
-/*
-LandofLegends - Entwicklungsnotizen:
-
-Allgemein:
-Loot
-
-Script ist zu 97% fertig.
-
-Phase 1 ist komplett
-Phase 2 ist fast fertig
-  Allgemein:
-    Die kleinen Geschichten (visual spells finden)
-  YoggSauron:
-Phase 3 fertig
-*/
-
 enum Sara_Yells
 {
     SAY_SARA_PREFIGHT_1                         = -1603310,
@@ -181,42 +165,34 @@ enum Entrys
     OBJECT_FLEE_TO_SURFACE                      = 194625,
 };
 
-//enum ModelIds
-//{
-//    SARA_NORMAL                                 = 29117,
-//    SARA_TRANSFORM                              = 29182,
-//    YOGGSARON_NORMAL                            = 28817,
-//    YOGGSARON_TRANSFORM                         = 28945
-//};
-
 enum MindlessSpell
 {
-    BRAIN_LINK = 0,
-    MALADY_OF_MIND = 1,
-    DEATH_RAY = 2
+    BRAIN_LINK          = 0,
+    MALADY_OF_MIND      = 1,
+    DEATH_RAY           = 2
 };
 
 enum EncounterConstants
 {
-    CONSTANT_MAX_NOVA_HITS = 8,
-    CONSTANT_MAX_LLIANE_TENTACLE_SPAWNS = 8,
-    CONSTANT_MAX_LICHKING_TENTACLE_SPAWNS = 9,
-    CONSTANT_MAX_DRAGONSOUL_TENTACLE_SPAWNS = 8
+    CONSTANT_MAX_NOVA_HITS                      = 8,
+    CONSTANT_MAX_LLIANE_TENTACLE_SPAWNS         = 8,
+    CONSTANT_MAX_LICHKING_TENTACLE_SPAWNS       = 9,
+    CONSTANT_MAX_DRAGONSOUL_TENTACLE_SPAWNS     = 8
 };
 
 enum Actions
 {
-    ACTION_NOVA_HIT = 0,
-    ACTION_ACTIVATE_CLOUDS = 1,
-    ACTION_DEACTIVATE_CLOUDS = 2,
-    ACTION_PORTAL_TO_MADNESS_STORMWIND = 3,
-    ACTION_PORTAL_TO_MADNESS_DRAGON = 4,
-    ACTION_PORTAL_TO_MADNESS_LICHKING = 5,
-    ACTION_BRAIN_UNDER_30_PERCENT = 6,
-    ACTION_YOGGSARON_KILLED = 7,
-    ACTION_DEATH_RAY_MOVE = 8,
-    ACTION_USED_MINDCONTROL = 9,
-    ACTION_MODIFY_SANITY = 10,
+    ACTION_NOVA_HIT                             = 0,
+    ACTION_ACTIVATE_CLOUDS                      = 1,
+    ACTION_DEACTIVATE_CLOUDS                    = 2,
+    ACTION_PORTAL_TO_MADNESS_STORMWIND          = 3,
+    ACTION_PORTAL_TO_MADNESS_DRAGON             = 4,
+    ACTION_PORTAL_TO_MADNESS_LICHKING           = 5,
+    ACTION_BRAIN_UNDER_30_PERCENT               = 6,
+    ACTION_YOGGSARON_KILLED                     = 7,
+    ACTION_DEATH_RAY_MOVE                       = 8,
+    ACTION_USED_MINDCONTROL                     = 9,
+    ACTION_MODIFY_SANITY                        = 10,
 };
 
 enum Spells
@@ -332,10 +308,10 @@ enum Spells
 
 enum BossPhase
 {
-    PHASE_NONE = 0,
-    PHASE_SARA = 1,
-    PHASE_BRAIN = 2,
-    PHASE_YOGG = 3
+    PHASE_NONE      = 0,
+    PHASE_SARA      = 1,
+    PHASE_BRAIN     = 2,
+    PHASE_YOGG      = 3
 };
 
 enum TentacleType
@@ -347,10 +323,10 @@ enum TentacleType
 
 enum BrainEventPhase
 {
-    PORTAL_PHASE_KING_LLIANE = 0,
-    PORTAL_PHASE_DRAGON_SOUL = 1,
-    PORTAL_PHASE_LICH_KING   = 2,
-    PORTAL_PHASE_BRAIN_NONE = 3
+    PORTAL_PHASE_KING_LLIANE    = 0,
+    PORTAL_PHASE_DRAGON_SOUL    = 1,
+    PORTAL_PHASE_LICH_KING      = 2,
+    PORTAL_PHASE_BRAIN_NONE     = 3
 };
 
 const Position InnerBrainLocation[3] =
@@ -1749,11 +1725,6 @@ public:
         {
             m_pInstance = c->GetInstanceScript();
             me->setFaction(14);
-
-            //SpellInfo *TempSpell;
-            //TempSpell = GET_SPELL(SPELL_SHADOW_NOVA);
-            //if (TempSpell)
-            //    TempSpell->Effect[1] = 0;
         }
 
         InstanceScript* m_pInstance;
@@ -2050,7 +2021,6 @@ public:
         void UpdateAI(uint32 const /*diff*/) {}
     };
 };
-
 
 class npc_brain_of_yogg_saron : public CreatureScript
 {
