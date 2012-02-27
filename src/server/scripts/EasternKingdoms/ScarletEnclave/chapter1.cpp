@@ -587,7 +587,7 @@ public:
                 return;
 
             TargetGUID = who->GetGUID();
-            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            me->SetWalk(true);
             me->SetSpeed(MOVE_RUN, 0.4f);
             me->GetMotionMaster()->MoveChase(who);
             me->SetTarget(TargetGUID);
@@ -892,7 +892,7 @@ public:
         {
             if (Creature* miner = Unit::GetCreature(*me, minerGUID))
             {
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(false);
 
                 //Not 100% correct, but movement is smooth. Sometimes miner walks faster
                 //than normal, this speed is fast enough to keep up at those times.

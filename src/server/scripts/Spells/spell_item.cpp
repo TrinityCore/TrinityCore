@@ -1513,7 +1513,7 @@ class spell_item_complete_raptor_capture : public SpellScriptLoader
 enum ImpaleLeviroth
 {
     NPC_LEVIROTH                = 26452,
-    SPELL_LEVIROTH_SELF_IMPALE  = 49882
+    SPELL_LEVIROTH_SELF_IMPALE  = 49882,
 };
 
 class spell_item_impale_leviroth : public SpellScriptLoader
@@ -1534,11 +1534,9 @@ class spell_item_impale_leviroth : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                Unit* target = GetHitCreature();
-                if (!target || target->GetEntry() != NPC_LEVIROTH || !target->HealthBelowPct(95))
-                    return;
-
-                target->CastSpell(target, SPELL_LEVIROTH_SELF_IMPALE, true);
+                if (Unit* target = GetHitCreature())
+                    if (target->GetEntry() == NPC_LEVIROTH && target->HealthBelowPct(95))
+                        target->CastSpell(target, SPELL_LEVIROTH_SELF_IMPALE, true);
             }
 
             void Register()
@@ -1994,6 +1992,34 @@ class spell_item_refocus : public SpellScriptLoader
         }
 };
 
+class spell_item_muisek_vessel : public SpellScriptLoader
+{
+    public:
+        spell_item_muisek_vessel() : SpellScriptLoader("spell_item_muisek_vessel") { }
+
+        class spell_item_muisek_vessel_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_muisek_vessel_SpellScript);
+
+            void HandleDummy(SpellEffIndex /*effIndex*/)
+            {
+                if (Creature* target = GetHitCreature())
+                    if (target->isDead())
+                        target->ForcedDespawn();
+            }
+
+            void Register()
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_item_muisek_vessel_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+
+        SpellScript* GetSpellScript() const
+        {
+            return new spell_item_muisek_vessel_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -2043,4 +2069,5 @@ void AddSC_item_spell_scripts()
     new spell_item_unusual_compass();
     new spell_item_uded();
     new spell_item_chicken_cover();
+    new spell_item_muisek_vessel();
 }

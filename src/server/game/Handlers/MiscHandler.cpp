@@ -1058,7 +1058,7 @@ void WorldSession::HandleSetActionButtonOpcode(WorldPacket& recv_data)
                 sLog->outDetail("MISC: Added Item %u into button %u", action, button);
                 break;
             default:
-                sLog->outError("MISC: Unknown action button type %u for action %u into button %u", type, action, button);
+                sLog->outError("MISC: Unknown action button type %u for action %u into button %u for player %s (GUID: %u)", type, action, button, _player->GetName(), _player->GetGUIDLow());
                 return;
         }
         GetPlayer()->addActionButton(button, action, type);

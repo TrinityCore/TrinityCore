@@ -644,7 +644,7 @@ public:
 
             if (move <= diff)
             {
-                me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(true);
                 if (phase == 1)
                     me->GetMotionMaster()->MovePoint(0, x, y, z);
                 if (phase == 1 && me->IsWithinDist3d(x, y, z, 0.1f))
@@ -779,7 +779,7 @@ public:
 
         void Reset()
         {
-            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            me->SetLevitate(true);
             me->setFaction(14);
             movement_timer = 0;
             ToxicSpore_Timer = 5000;

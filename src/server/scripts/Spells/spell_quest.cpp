@@ -1025,9 +1025,9 @@ class spell_q14112_14145_chum_the_water: public SpellScriptLoader
 // http://old01.wowhead.com/quest=9452 - Red Snapper - Very Tasty!
 enum RedSnapperVeryTasty
 {
-    SPELL_CAST_NET      = 29866,
-    ITEM_RED_SNAPPER    = 23614,
-    NPC_ANGRY_MURLOC    = 17102,
+    SPELL_CAST_NET          = 29866,
+    ITEM_RED_SNAPPER        = 23614,
+    SPELL_NEW_SUMMON_TEST   = 49214,
 };
 
 class spell_q9452_cast_net: public SpellScriptLoader
@@ -1047,16 +1047,10 @@ class spell_q9452_cast_net: public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 Player* caster = GetCaster()->ToPlayer();
-                switch (urand(0, 2))
-                {
-                    case 0: case 1:
-                        caster->AddItem(ITEM_RED_SNAPPER, 1);
-                        break;
-                    case 2:
-                        if (Creature* murloc = caster->SummonCreature(NPC_ANGRY_MURLOC, caster->GetPositionX()+5, caster->GetPositionY(), caster->GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN, 120000))
-                            murloc->AI()->AttackStart(caster);
-                        break;
-                }
+                if (roll_chance_i(66))
+                    caster->AddItem(ITEM_RED_SNAPPER, 1);
+                else
+                    caster->CastSpell(caster, SPELL_NEW_SUMMON_TEST, true);
             }
 
             void Register()
@@ -1069,6 +1063,42 @@ class spell_q9452_cast_net: public SpellScriptLoader
         {
             return new spell_q9452_cast_net_SpellScript();
         }
+};
+
+#define SAY_1 "Sons of Hodir! I humbly present to you..."
+#define SAY_2 "The Helm of Hodir!"
+#define NPC_KILLCREDIT 30210 // Hodir's Helm KC Bunny
+
+class spell_q12987_read_pronouncement : public SpellScriptLoader
+{
+public:
+    spell_q12987_read_pronouncement() : SpellScriptLoader("spell_q12987_read_pronouncement") { }
+
+    class spell_q12987_read_pronouncement_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_q12987_read_pronouncement_AuraScript);
+
+        void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+        {
+            // player must cast kill credit and do emote text, according to sniff
+            if (Player* target = GetTarget()->ToPlayer())
+            {
+                target->MonsterWhisper(SAY_1, target->GetGUID(), true);
+                target->KilledMonsterCredit(NPC_KILLCREDIT, 0);
+                target->MonsterWhisper(SAY_2, target->GetGUID(), true);
+            }
+        }
+
+        void Register()
+        {
+            AfterEffectApply += AuraEffectApplyFn(spell_q12987_read_pronouncement_AuraScript::OnApply, EFFECT_0, SPELL_AURA_NONE, AURA_EFFECT_HANDLE_REAL);
+        }
+    };
+
+    AuraScript* GetAuraScript() const
+    {
+        return new spell_q12987_read_pronouncement_AuraScript();
+    }
 };
 
 void AddSC_quest_spell_scripts()
@@ -1096,4 +1126,5 @@ void AddSC_quest_spell_scripts()
     new spell_q13280_13283_plant_battle_standard();
     new spell_q14112_14145_chum_the_water();
     new spell_q9452_cast_net();
+    new spell_q12987_read_pronouncement();
 }
