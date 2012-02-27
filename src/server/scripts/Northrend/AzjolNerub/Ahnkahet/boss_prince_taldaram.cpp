@@ -389,8 +389,10 @@ public:
     bool OnGossipHello(Player* /*player*/, GameObject* pGO)
     {
         InstanceScript* instance = pGO->GetInstanceScript();
+        if (!instance)
+            return true;
 
-        Creature* pPrinceTaldaram = Unit::GetCreature(*pGO, instance ? instance->GetData64(DATA_PRINCE_TALDARAM) : 0);
+        Creature* pPrinceTaldaram = Unit::GetCreature(*pGO, instance->GetData64(DATA_PRINCE_TALDARAM));
         if (pPrinceTaldaram && pPrinceTaldaram->isAlive())
         {
             // maybe these are hacks :(

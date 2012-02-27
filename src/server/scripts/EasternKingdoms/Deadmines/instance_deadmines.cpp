@@ -156,7 +156,7 @@ class instance_deadmines : public InstanceMapScript
 
             void MoveCreatureInside(Creature* creature)
             {
-                creature->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                creature->SetWalk(false);
                 creature->GetMotionMaster()->MovePoint(0, -102.7f, -655.9f, creature->GetPositionZ());
             }
 

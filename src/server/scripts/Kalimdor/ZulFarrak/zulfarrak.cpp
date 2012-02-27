@@ -204,7 +204,7 @@ void initBlyCrewMember(InstanceScript* instance, uint32 entry, float x, float y,
    if (Creature* crew = instance->instance->GetCreature(instance->GetData64(entry)))
    {
         crew->SetReactState(REACT_AGGRESSIVE);
-        crew->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        crew->SetWalk(true);
         crew->SetHomePosition(x, y, z, 0);
         crew->GetMotionMaster()->MovePoint(1, x, y, z);
         crew->setFaction(FACTION_FREED);

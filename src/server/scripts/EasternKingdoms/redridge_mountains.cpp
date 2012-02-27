@@ -84,7 +84,7 @@ public:
                 return;
 
             if (uiI >= 65 && me->GetUnitMovementFlags() == MOVEMENTFLAG_WALKING)
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(false);
 
             switch (uiI)
             {
@@ -94,7 +94,7 @@ public:
                     uiPhase = 1;
                     break;
                 case 65:
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(false);
                     break;
                 case 115:
                     player->AreaExploredOrEventHappens(QUEST_MISSING_IN_ACTION);

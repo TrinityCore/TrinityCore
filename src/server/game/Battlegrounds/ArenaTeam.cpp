@@ -295,8 +295,10 @@ void ArenaTeam::SetCaptain(uint64 guid)
     if (newCaptain)
     {
         newCaptain->SetArenaTeamInfoField(GetSlot(), ARENA_TEAM_MEMBER, 0);
+        char const* oldCaptainName = oldCaptain ? oldCaptain->GetName() : "";
+        uint32 oldCaptainLowGuid = oldCaptain ? oldCaptain->GetGUIDLow() : 0;
         sLog->outArena("Player: %s [GUID: %u] promoted player: %s [GUID: %u] to leader of arena team [Id: %u] [Type: %u].",
-                        oldCaptain->GetName(), oldCaptain->GetGUIDLow(), newCaptain->GetName(), newCaptain->GetGUIDLow(), GetId(), GetType());
+                        oldCaptainName, oldCaptainLowGuid, newCaptain->GetName(), newCaptain->GetGUIDLow(), GetId(), GetType());
     }
 }
 

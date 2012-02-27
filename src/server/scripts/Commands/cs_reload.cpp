@@ -38,6 +38,7 @@ EndScriptData */
 #include "SkillExtraItems.h"
 #include "Chat.h"
 #include "WaypointManager.h"
+#include "WardenCheckMgr.h"
 
 class reload_commandscript : public CommandScript
 {
@@ -152,7 +153,7 @@ public:
             { "spell_threats",                SEC_ADMINISTRATOR, true,  &HandleReloadSpellThreatsCommand,               "", NULL },
             { "spell_group_stack_rules",      SEC_ADMINISTRATOR, true,  &HandleReloadSpellGroupStackRulesCommand,       "", NULL },
             { "trinity_string",               SEC_ADMINISTRATOR, true,  &HandleReloadTrinityStringCommand,              "", NULL },
-            { "warden_checks",                SEC_ADMINISTRATOR, true,  &HandleReloadWardenChecksCommand,               "", NULL },
+            { "warden_action",                SEC_ADMINISTRATOR, true,  &HandleReloadWardenActionCommand,               "", NULL },
             { "waypoint_scripts",             SEC_ADMINISTRATOR, true,  &HandleReloadWpScriptsCommand,                  "", NULL },
             { "waypoint_data",                SEC_ADMINISTRATOR, true,  &HandleReloadWpCommand,                         "", NULL },
             { "vehicle_accessory",            SEC_ADMINISTRATOR, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
@@ -726,15 +727,18 @@ public:
         return true;
     }
 
-    static bool HandleReloadWardenChecksCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadWardenActionCommand(ChatHandler* handler, const char* /*args*/)
     {
-        /*
-        sLog->outString("Reloading warden_checks table!");
-        sWardenCheckMgr->LoadWardenChecks();
-        handler->SendGlobalGMSysMessage("DB table `warden_checks` reloaded.");
-        */
+        if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+        {
+            handler->SendSysMessage("Warden system disabled by config - reloading warden_action skipped.");
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
 
-        handler->SendGlobalGMSysMessage("Command disabled temporarily. DB table `warden_checks` NOT reloaded.");
+        sLog->outString("Re-Loading warden_action Table!");
+        sWardenCheckMgr->LoadWardenOverrides();
+        handler->SendGlobalGMSysMessage("DB table `warden_action` reloaded.");
         return true;
     }
 
