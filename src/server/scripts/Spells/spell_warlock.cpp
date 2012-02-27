@@ -623,5 +623,4 @@ void AddSC_warlock_spell_scripts()
     new spell_warl_demonic_circle_teleport();
     new spell_warl_shadow_bite();
     new spell_warl_banish();
-    new spell_warl_demonic_circle_summon();
 }

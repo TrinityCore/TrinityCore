@@ -357,8 +357,155 @@ public:
     }
 };
 
+class npc_gauntlet_generator : public CreatureScript
+{
+public:
+    npc_gauntlet_generator() : CreatureScript("npc_gauntlet_generator") { }
+
+    struct npc_gauntlet_generatorAI : public ScriptedAI
+    {
+        npc_gauntlet_generatorAI(Creature* creature) : ScriptedAI(creature)
+        {
+            Step = 0;
+        }
+
+        void MoveInLineOfSight(Unit* who)
+        {
+            if (me->IsWithinDistInMap(who, 100.0f) && who->GetTypeId() == TYPEID_PLAYER)
+            {
+                Step=1;
+                StepTimer = 100;
+                Event();
+            }
+        }
+
+        void Event()        //summon 20 dwarfs each beacon
+        {
+            if (!Step)
+                return;
+
+            switch (Step)
+            {
+                case 1:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 2:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 3:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 4:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 5:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 6:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 7:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 8:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 9:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 10:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 11:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 12:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 13:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 14:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 15:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 16:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 17:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 18:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 19:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                case 20:
+                    Spawn();
+                    JumpNextStep(1000);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        void Spawn()
+        {
+            DoCast(me, 63135);
+        }
+
+        void JumpNextStep(uint32 Time)
+        {
+            StepTimer = Time;
+            Step++;
+        }
+			
+        void UpdateAI(uint32 const diff)
+        {
+            if(StepTimer < diff)
+               Event();
+            else
+               StepTimer -= diff;
+				
+            return;
+        }
+
+    private:
+        uint32 StepTimer;
+        uint32 Step;
+
+    };
+    CreatureAI* GetAI(Creature* creature) const
+    {
+        return new npc_gauntlet_generatorAI(creature);
+    }
+};
+
 void AddSC_ulduar()
 {
+    new npc_gauntlet_generator();
     new npc_lorekeeper();
     new npc_ulduar_warmage();
 }
