@@ -640,7 +640,7 @@ public:
             case 37:
                 DoScriptText(SAY_QUEST_COMPLETE, me, player);
                 me->SetSpeed(MOVE_RUN, 1.2f, true);
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(false);
                 if (player && player->GetQuestStatus(QUEST_STINKYS_ESCAPE_H))
                     player->GroupEventHappens(QUEST_STINKYS_ESCAPE_H, me);
                 if (player && player->GetQuestStatus(QUEST_STINKYS_ESCAPE_A))

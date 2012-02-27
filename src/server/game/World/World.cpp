@@ -78,6 +78,7 @@
 #include "AnticheatMgr.h"
 #include "WardenCheckMgr.h"
 #include "Warden.h"
+#include "CalendarMgr.h"
 
 volatile bool World::m_stopEvent = false;
 uint8 World::m_ExitCode = SHUTDOWN_EXIT_CODE;
@@ -1706,6 +1707,9 @@ void World::SetInitialWorldSettings()
     sLog->outString("Loading SmartAI scripts...");
     sSmartScriptMgr->LoadSmartAIFromDB();
 
+    sLog->outString("Loading Calendar data...");
+    sCalendarMgr->LoadFromDB();
+
     ///- Initialize game time and timers
     sLog->outString("Initialize game time and timers");
     m_gameTime = time(NULL);
@@ -1785,6 +1789,9 @@ void World::SetInitialWorldSettings()
     ///- Initialize Warden
     sLog->outString("Loading Warden Checks..." );
     sWardenCheckMgr->LoadWardenChecks();
+
+    sLog->outString("Loading Warden Action Overrides..." );
+    sWardenCheckMgr->LoadWardenOverrides();
 
     sLog->outString("Deleting expired bans...");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate <= UNIX_TIMESTAMP() AND unbandate<>bandate");

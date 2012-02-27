@@ -49,16 +49,8 @@ void WardenWin::Init(WorldSession* session, BigNumber *k)
     SHA1Randx WK(k->AsByteArray(), k->GetNumBytes());
     WK.generate(_inputKey, 16);
     WK.generate(_outputKey, 16);
-    /*
-    Seed: 4D808D2C77D905C41A6380EC08586AFE (0x05 packet)
-    Hash: 568C054C781A972A6037A2290C22B52571A06F4E (0x04 packet)
-    Module MD5: 79C0768D657977D697E10BAD956CCED1
-    New Client Key: 7F 96 EE FD A5 B6 3D 20 A4 DF 8E 00 CB F4 83 04
-    New Cerver Key: C2 B7 AD ED FC CC A9 C2 BF B3 F8 56 02 BA 80 9B
-    */
-    uint8 mod_seed[16] = { 0x4D, 0x80, 0x8D, 0x2C, 0x77, 0xD9, 0x05, 0xC4, 0x1A, 0x63, 0x80, 0xEC, 0x08, 0x58, 0x6A, 0xFE };
 
-    memcpy(_seed, mod_seed, 16);
+    memcpy(_seed, Module.Seed, 16);
 
     _inputCrypto.Init(_inputKey);
     _outputCrypto.Init(_outputKey);
@@ -79,13 +71,13 @@ ClientWardenModule* WardenWin::GetModuleForClient()
 {
     ClientWardenModule *mod = new ClientWardenModule;
 
-    uint32 length = sizeof(Module_79C0768D657977D697E10BAD956CCED1_Data);
+    uint32 length = sizeof(Module.Module);
 
     // data assign
     mod->CompressedSize = length;
     mod->CompressedData = new uint8[length];
-    memcpy(mod->CompressedData, Module_79C0768D657977D697E10BAD956CCED1_Data, length);
-    memcpy(mod->Key, Module_79C0768D657977D697E10BAD956CCED1_Key, 16);
+    memcpy(mod->CompressedData, Module.Module, length);
+    memcpy(mod->Key, Module.ModuleKey, 16);
 
     // md5 hash
     MD5_CTX ctx;
@@ -104,7 +96,6 @@ void WardenWin::InitializeModule()
     WardenInitModuleRequest Request;
     Request.Command1 = WARDEN_SMSG_MODULE_INITIALIZE;
     Request.Size1 = 20;
-    Request.CheckSumm1 = BuildChecksum(&Request.Unk1, 20);
     Request.Unk1 = 1;
     Request.Unk2 = 0;
     Request.Type = 1;
@@ -113,24 +104,25 @@ void WardenWin::InitializeModule()
     Request.Function1[1] = 0x000218C0;                      // 0x00400000 + 0x000218C0 SFileGetFileSize
     Request.Function1[2] = 0x00022530;                      // 0x00400000 + 0x00022530 SFileReadFile
     Request.Function1[3] = 0x00022910;                      // 0x00400000 + 0x00022910 SFileCloseFile
+    Request.CheckSumm1 = BuildChecksum(&Request.Unk1, 20);
 
     Request.Command2 = WARDEN_SMSG_MODULE_INITIALIZE;
     Request.Size2 = 8;
-    Request.CheckSumm2 = BuildChecksum(&Request.Unk2, 8);
     Request.Unk3 = 4;
     Request.Unk4 = 0;
     Request.String_library2 = 0;
     Request.Function2 = 0x00419D40;                         // 0x00400000 + 0x00419D40 FrameScript::GetText
     Request.Function2_set = 1;
+    Request.CheckSumm2 = BuildChecksum(&Request.Unk2, 8);
 
     Request.Command3 = WARDEN_SMSG_MODULE_INITIALIZE;
     Request.Size3 = 8;
-    Request.CheckSumm3 = BuildChecksum(&Request.Unk5, 8);
     Request.Unk5 = 1;
     Request.Unk6 = 1;
     Request.String_library3 = 0;
     Request.Function3 = 0x0046AE20;                         // 0x00400000 + 0x0046AE20 PerformanceCounter
     Request.Function3_set = 1;
+    Request.CheckSumm3 = BuildChecksum(&Request.Unk5, 8);
 
     // Encrypt with warden RC4 key.
     EncryptData((uint8*)&Request, sizeof(WardenInitModuleRequest));
@@ -161,10 +153,8 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
 {
     buff.rpos(buff.wpos());
 
-    const uint8 validHash[20] = { 0x56, 0x8C, 0x05, 0x4C, 0x78, 0x1A, 0x97, 0x2A, 0x60, 0x37, 0xA2, 0x29, 0x0C, 0x22, 0xB5, 0x25, 0x71, 0xA0, 0x6F, 0x4E };
-
     // Verify key
-    if (memcmp(buff.contents() + 1, validHash, sizeof(validHash)) != 0)
+    if (memcmp(buff.contents() + 1, Module.ClientKeySeedHash, 20) != 0)
     {
         sLog->outDebug(LOG_FILTER_WARDEN, "Request hash reply: failed");
         sLog->outWarden("WARDEN: Player %s (guid: %u, account: %u) failed hash reply. Action: %s",
@@ -174,15 +164,9 @@ void WardenWin::HandleHashResult(ByteBuffer &buff)
 
     sLog->outDebug(LOG_FILTER_WARDEN, "Request hash reply: succeed");
 
-    // Client 7F96EEFDA5B63D20A4DF8E00CBF48304
-    const uint8 client_key[16] = { 0x7F, 0x96, 0xEE, 0xFD, 0xA5, 0xB6, 0x3D, 0x20, 0xA4, 0xDF, 0x8E, 0x00, 0xCB, 0xF4, 0x83, 0x04 };
-
-    // Server C2B7ADEDFCCCA9C2BFB3F85602BA809B
-    const uint8 server_key[16] = { 0xC2, 0xB7, 0xAD, 0xED, 0xFC, 0xCC, 0xA9, 0xC2, 0xBF, 0xB3, 0xF8, 0x56, 0x02, 0xBA, 0x80, 0x9B };
-
     // Change keys here
-    memcpy(_inputKey, client_key, 16);
-    memcpy(_outputKey, server_key, 16);
+    memcpy(_inputKey, Module.ClientKeySeed, 16);
+    memcpy(_outputKey, Module.ServerKeySeed, 16);
 
     _inputCrypto.Init(_inputKey);
     _outputCrypto.Init(_outputKey);

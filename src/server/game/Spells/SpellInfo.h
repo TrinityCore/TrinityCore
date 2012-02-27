@@ -133,22 +133,6 @@ enum SpellTargetDirectionTypes
     TARGET_DIR_ENTRY,
 };
 
-enum SpellSelectTargetTypes
-{
-    TARGET_TYPE_DEFAULT,
-    TARGET_TYPE_UNIT_CASTER,
-    TARGET_TYPE_UNIT_TARGET,
-    TARGET_TYPE_UNIT_NEARBY,
-    TARGET_TYPE_AREA_SRC,
-    TARGET_TYPE_AREA_DST,
-    TARGET_TYPE_AREA_CONE,
-    TARGET_TYPE_DEST_CASTER,
-    TARGET_TYPE_DEST_TARGET,
-    TARGET_TYPE_DEST_DEST,
-    TARGET_TYPE_DEST_SPECIAL,
-    TARGET_TYPE_CHANNEL,
-};
-
 enum SpellEffectImplicitTargetTypes
 {
     EFFECT_IMPLICIT_TARGET_NONE = 0,
@@ -218,7 +202,6 @@ public:
     SpellImplicitTargetInfo(uint32 target);
 
     bool IsArea() const;
-    SpellSelectTargetTypes GetType() const;
     SpellTargetSelectionCategories GetSelectionCategory() const;
     SpellTargetReferenceTypes GetReferenceType() const;
     SpellTargetObjectTypes GetObjectType() const;
@@ -229,14 +212,7 @@ public:
     Targets GetTarget() const;
     uint32 GetExplicitTargetMask(bool& srcSet, bool& dstSet) const;
 
-    // temporarily avalible to public
-    static SpellSelectTargetTypes Type[TOTAL_SPELL_TARGETS];
 private:
-    static bool InitStaticData();
-    static void InitTypeData();
-
-    static bool Init;
-
     struct StaticData
     {
         SpellTargetObjectTypes ObjectType;    // type of object returned by target type
