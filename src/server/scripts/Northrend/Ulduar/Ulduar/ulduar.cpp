@@ -49,15 +49,20 @@ class npc_lorekeeper : public CreatureScript
             {
                 Step = 0;
                 event = false;
+                greet=false;
             }
 			
             void MoveInLineOfSight(Unit* who)
             {
+                if (greet)
+                    return;
+			
                 if (me->IsWithinDistInMap(who, 10.0f) && who->GetTypeId() == TYPEID_PLAYER)
                 {
                     Step=1;
                     StepTimer = 100;
                     Event();
+                    greet=true;
                 }
             }
 			
@@ -80,11 +85,64 @@ class npc_lorekeeper : public CreatureScript
                         Talk(SAY_EVENT_1);
                         JumpNextStep(10000);
                         break;
+                    case 3:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            Dellorah->AI()->Talk(SAY_EVENT_2);
+                        JumpNextStep(10000);
+                        break;
+                    case 4:
+                        Talk(SAY_EVENT_2);
+                        JumpNextStep(10000);
+                        break;
+                    case 5:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            Dellorah->AI()->Talk(SAY_EVENT_3);
+                        JumpNextStep(10000);
+                        break;
+                    case 6:
+                        Talk(SAY_EVENT_3);
+                        JumpNextStep(10000);
+                        break;
+                    case 7:
+                        Talk(SAY_EVENT_4);
+                        JumpNextStep(10000);
+                        break;
+                    case 8:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            Dellorah->AI()->Talk(SAY_EVENT_4);
+                        JumpNextStep(10000);
+                        break;
+                    case 9:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            Dellorah->AI()->Talk(SAY_EVENT_5);
+                        JumpNextStep(10000);
+                        break;
+                    case 10:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            Dellorah->AI()->Talk(SAY_EVENT_6);
+                        JumpNextStep(10000);
+                        break;
+                    case 11:
+                        if (Creature* Rhydian = me->FindNearestCreature(NPC_RHYDIAN, 150.0f))
+                            Rhydian->AI()->Talk(SAY_EVENT_7);
+                        JumpNextStep(10000);
+                        break;
+                    case 12:
+                        Talk(SAY_EVENT_8);
+                        JumpNextStep(10000);
+                        break;
+                    case 13:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            Dellorah->AI()->Talk(SAY_EVENT_8);
+                        JumpNextStep(1000);
+                        break;
+                    case 14:
+                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        event=true;
+                        break;
                     default:
                         break;
                 }
-				me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-				event=true;
             }
 			
             void JumpNextStep(uint32 Time)
@@ -107,6 +165,7 @@ class npc_lorekeeper : public CreatureScript
             uint32 StepTimer;
             uint32 Step;
             bool event;
+            bool greet;
 		
         };
 
@@ -147,6 +206,8 @@ class npc_lorekeeper : public CreatureScript
                             }
                         }
                         creature->SetVisible(false);
+                        if (Creature* KepperUnit = creature->FindNearestCreature(NPC_KEEPER_UNIT, 150.0f))
+                            KepperUnit->SetVisible(false);
                     }
                     break;
             }

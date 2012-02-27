@@ -82,6 +82,8 @@ enum UlduarNPCs
     NPC_BRANN_BRONZBEARD         = 33579,
     NPC_DELORAH                  = 33701,
     NPC_ULDUAR_WARMAGE           = 33662,
+    NPC_RHYDIAN                  = 33696,
+    NPC_KEEPER_UNIT              = 33721,
 
     // Mimiron
     NPC_LEVIATHAN_MKII           = 33432,
