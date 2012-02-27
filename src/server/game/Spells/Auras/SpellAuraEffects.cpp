@@ -5912,15 +5912,15 @@ void AuraEffect::HandlePeriodicTriggerSpellAuraTick(Unit* target, Unit* caster) 
                         // move loot to player inventory and despawn target
                         if (caster && caster->GetTypeId() == TYPEID_PLAYER &&
                                 target->GetTypeId() == TYPEID_UNIT &&
-                                target->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_GAS_CLOUD)
+                                target->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_GAS_CLOUD)
                         {
                             Player* player = caster->ToPlayer();
                             Creature* creature = target->ToCreature();
                             // missing lootid has been reported on startup - just return
-                            if (!creature->GetCreatureInfo()->SkinLootId)
+                            if (!creature->GetCreatureTemplate()->SkinLootId)
                                 return;
 
-                            player->AutoStoreLoot(creature->GetCreatureInfo()->SkinLootId, LootTemplates_Skinning, true);
+                            player->AutoStoreLoot(creature->GetCreatureTemplate()->SkinLootId, LootTemplates_Skinning, true);
 
                             creature->DespawnOrUnsummon();
                         }

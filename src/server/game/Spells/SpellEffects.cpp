@@ -2438,8 +2438,8 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                     if (!summon || !summon->HasUnitTypeMask(UNIT_MASK_MINION))
                         return;
 
-                    summon->SelectLevel(summon->GetCreatureInfo());       // some summoned creaters have different from 1 DB data for level/hp
-                    summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureInfo()->npcflag);
+                    summon->SelectLevel(summon->GetCreatureTemplate());       // some summoned creaters have different from 1 DB data for level/hp
+                    summon->SetUInt32Value(UNIT_NPC_FLAGS, summon->GetCreatureTemplate()->npcflag);
 
                     summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC);
 
@@ -5521,7 +5521,7 @@ void Spell::EffectSkinning(SpellEffIndex /*effIndex*/)
     Creature* creature = unitTarget->ToCreature();
     int32 targetLevel = creature->getLevel();
 
-    uint32 skill = creature->GetCreatureInfo()->GetRequiredLootSkill();
+    uint32 skill = creature->GetCreatureTemplate()->GetRequiredLootSkill();
 
     m_caster->ToPlayer()->SendLoot(creature->GetGUID(), LOOT_SKINNING);
     creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_SKINNABLE);
