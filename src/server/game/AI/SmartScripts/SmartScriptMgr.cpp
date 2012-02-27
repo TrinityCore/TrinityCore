@@ -48,7 +48,6 @@ void SmartWaypointMgr::LoadFromDB()
 
     uint32 count = 0;
     uint32 total = 0;
-    WPPath* path = NULL;
     uint32 last_entry = 0;
     uint32 last_id = 1;
 

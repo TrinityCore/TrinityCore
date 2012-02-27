@@ -51,6 +51,7 @@ BattlegroundWS::BattlegroundWS()
     StartMessageIds[BG_STARTING_EVENT_SECOND] = LANG_BG_WS_START_ONE_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_THIRD]  = LANG_BG_WS_START_HALF_MINUTE;
     StartMessageIds[BG_STARTING_EVENT_FOURTH] = LANG_BG_WS_HAS_BEGUN;
+    _flagDebuffState = 0;
 }
 
 BattlegroundWS::~BattlegroundWS()

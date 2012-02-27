@@ -233,7 +233,7 @@ class boss_algalon : public CreatureScript
                 me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK, true);
                 me->ApplySpellImmune(0, IMMUNITY_ID, 49560, true); //deathgrip
 
-                const CreatureTemplate *cinfo = me->GetCreatureInfo(); //todo: remove this block once the core correctly calculates offhand damages on its own.
+                const CreatureTemplate *cinfo = me->GetCreatureTemplate(); //todo: remove this block once the core correctly calculates offhand damages on its own.
                 float mindmg = cinfo->mindmg * cinfo->dmg_multiplier /2;
                 float maxdmg = cinfo->maxdmg * cinfo->dmg_multiplier /2;
                 me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, mindmg);
@@ -1513,7 +1513,7 @@ class spell_algalon_summon_asteroid_stalkers : public SpellScriptLoader
                 if (!summon)
                     return;
 
-                summon->SetDisplayId(summon->GetCreatureInfo()->Modelid2);
+                summon->SetDisplayId(summon->GetCreatureTemplate()->Modelid2);
                 summon->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_NON_ATTACKABLE);
                 summon->SetReactState(REACT_PASSIVE);
                 if (entry == CREATURE_ALGALON_ASTEROID_2)

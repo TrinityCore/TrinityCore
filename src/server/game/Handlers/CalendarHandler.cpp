@@ -227,7 +227,7 @@ void WorldSession::HandleCalendarAddEvent(WorldPacket& recvData)
     uint32 unkPackedTime;
     uint32 flags;
     uint64 inviteId = 0;
-    uint64 invitee;
+    uint64 invitee = 0;
     uint8 status;
     uint8 rank;
 

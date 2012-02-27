@@ -162,8 +162,8 @@ namespace Trinity
 
             if (u->GetTypeId() == TYPEID_UNIT &&
                 (((Creature*)u)->isTotem() || ((Creature*)u)->isPet() ||
-                (((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ||
-                ((Creature*)u)->GetCreatureInfo()->type == CREATURE_TYPE_CRITTER))
+                (((Creature*)u)->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ||
+                ((Creature*)u)->GetCreatureTemplate()->type == CREATURE_TYPE_CRITTER))
                 gain = 0;
             else
             {

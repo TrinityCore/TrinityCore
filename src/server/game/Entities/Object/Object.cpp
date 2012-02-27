@@ -541,7 +541,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                 {
                     if (GetTypeId() == TYPEID_UNIT)
                     {
-                        CreatureTemplate const* cinfo = ToCreature()->GetCreatureInfo();
+                        CreatureTemplate const* cinfo = ToCreature()->GetCreatureTemplate();
 
                         // this also applies for transform auras
                         if (SpellInfo const* transform = sSpellMgr->GetSpellInfo(ToUnit()->getTransForm()))
