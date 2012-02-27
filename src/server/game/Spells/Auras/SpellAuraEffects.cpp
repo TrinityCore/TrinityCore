@@ -5668,27 +5668,6 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                 target->CastSpell((Unit*)NULL, m_spellInfo->Effects[m_effIndex].TriggerSpell, true);
             break;
         }
-        case SPELLFAMILY_WARLOCK:
-        {
-            switch (GetSpellInfo()->Id)
-            {
-                // Demonic Circle
-                case 48018:
-                    if (GameObject* obj = target->GetGameObject(GetSpellInfo()->Id))
-                    {
-                        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(48020);
-                        if (target->IsWithinDist(obj, spellInfo->GetMaxRange(true)))
-                        {
-                            if (!target->HasAura(62388))
-                                target->CastSpell(target, 62388, true);
-                        }
-                        else
-                            target->RemoveAura(62388);
-                    }
-                    break;
-            }
-            break;
-        }
         case SPELLFAMILY_DRUID:
         {
             switch (GetSpellInfo()->Id)
