@@ -154,18 +154,18 @@ bool ArenaTeam::AddMember(uint64 playerGuid)
     Player::RemovePetitionsAndSigns(playerGuid, GetType());
 
     // Feed data to the struct
-    ArenaTeamMember newmember;
-    newmember.Name             = playerName;
-    newmember.Guid             = playerGuid;
-    newmember.Class            = playerClass;
-    newmember.SeasonGames      = 0;
-    newmember.WeekGames        = 0;
-    newmember.SeasonWins       = 0;
-    newmember.WeekWins         = 0;
-    newmember.PersonalRating   = personalRating;
-    newmember.MatchMakerRating = matchMakerRating;
+    ArenaTeamMember newMember;
+    newMember.Name             = playerName;
+    newMember.Guid             = playerGuid;
+    newMember.Class            = playerClass;
+    newMember.SeasonGames      = 0;
+    newMember.WeekGames        = 0;
+    newMember.SeasonWins       = 0;
+    newMember.WeekWins         = 0;
+    newMember.PersonalRating   = personalRating;
+    newMember.MatchMakerRating = matchMakerRating;
 
-    Members.push_back(newmember);
+    Members.push_back(newMember);
 
     // Save player's arena team membership to db
     stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_ARENA_TEAM_MEMBER);

@@ -105,7 +105,7 @@ public:
                     else info = SelectSpell(me->getVictim(), 0, 0, SELECT_TARGET_ANY_ENEMY, 0, 0, 0, 0, SELECT_EFFECT_DONTCARE);
 
                     //50% chance if elite or higher, 20% chance if not, to replace our white hit with a spell
-                    if (info && (rand() % (me->GetCreatureInfo()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
+                    if (info && (rand() % (me->GetCreatureTemplate()->rank > 1 ? 2 : 5) == 0) && !GlobalCooldown)
                     {
                         //Cast the spell
                         if (Healing)DoCastSpell(me, info);
