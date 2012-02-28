@@ -139,7 +139,7 @@ public:
                     case 7:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         if (Player* caster = Unit::GetPlayer(*me, casterGuid))
-                            caster->KilledMonster(me->GetCreatureInfo(), me->GetGUID());
+                            caster->KilledMonster(me->GetCreatureTemplate(), me->GetGUID());
                         uiPhaseTimer = 5000;
                         Phase = 8;
                         break;

@@ -83,7 +83,7 @@ void LoadGameObjectModelList()
     }
 
     fclose(model_list_file);
-    sLog->outString(">> Loaded %u GameObject models in %u ms", model_list.size(), GetMSTimeDiffToNow(oldMSTime));
+    sLog->outString(">> Loaded %u GameObject models in %u ms", uint32(model_list.size()), GetMSTimeDiffToNow(oldMSTime));
     sLog->outString();
 }
 
