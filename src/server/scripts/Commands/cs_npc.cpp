@@ -462,7 +462,7 @@ public:
         // Faction is set in creature_template - not inside creature
 
         // Update in memory..
-        if (CreatureTemplate const* cinfo = creature->GetCreatureInfo())
+        if (CreatureTemplate const* cinfo = creature->GetCreatureTemplate())
         {
             const_cast<CreatureTemplate*>(cinfo)->faction_A = factionId;
             const_cast<CreatureTemplate*>(cinfo)->faction_H = factionId;
@@ -547,7 +547,7 @@ public:
         uint32 displayid = target->GetDisplayId();
         uint32 nativeid = target->GetNativeDisplayId();
         uint32 Entry = target->GetEntry();
-        CreatureTemplate const* cInfo = target->GetCreatureInfo();
+        CreatureTemplate const* cInfo = target->GetCreatureTemplate();
 
         int64 curRespawnDelay = target->GetRespawnTimeEx()-time(NULL);
         if (curRespawnDelay < 0)
@@ -1148,7 +1148,7 @@ public:
             return false;
         }
 
-        CreatureTemplate const* cInfo = creatureTarget->GetCreatureInfo();
+        CreatureTemplate const* cInfo = creatureTarget->GetCreatureTemplate();
 
         if (!cInfo->isTameable (player->CanTameExoticPets()))
         {
