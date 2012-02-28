@@ -170,6 +170,10 @@ void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
     {
         case 5347:
         case 5348:
+            // Someone has get back into the pipes and the knockback has already been performed,
+            // so we reset the knockback count for kicking the player again into the arena.
+            if (getPipeKnockBackCount() >= BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT)
+                setPipeKnockBackCount(0);
             break;
         default:
             sLog->outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
