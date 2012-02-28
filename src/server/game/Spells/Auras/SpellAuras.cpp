@@ -1218,19 +1218,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         break;
                 }
                 break;
-            case SPELLFAMILY_WARLOCK:
-                switch (GetId())
-                {
-                    case 48020: // Demonic Circle
-                        if (target->GetTypeId() == TYPEID_PLAYER)
-                            if (GameObject* obj = target->GetGameObject(48018))
-                            {
-                                target->ToPlayer()->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
-                                target->ToPlayer()->RemoveMovementImpairingAuras();
-                            }
-                        break;
-                }
-                break;
             case SPELLFAMILY_PRIEST:
                 if (!caster)
                     break;
@@ -1458,17 +1445,6 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                         if (spellId)
                             caster->CastSpell(target, spellId, true);
                     }
-                }
-                switch (GetId())
-                {
-                   case 48018: // Demonic Circle
-                        // Do not remove GO when aura is removed by stack
-                        // to prevent remove GO added by new spell
-                        // old one is already removed
-                        if (!onReapply)
-                            target->RemoveGameObject(GetId(), true);
-                        target->RemoveAura(62388);
-                    break;
                 }
                 break;
             case SPELLFAMILY_PRIEST:

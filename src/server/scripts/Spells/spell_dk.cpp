@@ -341,7 +341,7 @@ class spell_dk_death_pact : public SpellScriptLoader
                 {
                     if ((*itr)->GetTypeId() == TYPEID_UNIT
                         && (*itr)->GetOwnerGUID() == GetCaster()->GetGUID()
-                        && (*itr)->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_UNDEAD)
+                        && (*itr)->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_UNDEAD)
                     {
                         unit_to_add = (*itr);
                         break;

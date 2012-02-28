@@ -671,7 +671,7 @@ void Channel::Invite(uint64 p, const char *newname)
     }
 
     Player* newp = sObjectAccessor->FindPlayerByName(newname);
-    if (!newp)
+    if (!newp || !newp->isGMVisible())
     {
         WorldPacket data;
         MakePlayerNotFound(&data, newname);

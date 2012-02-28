@@ -1019,12 +1019,12 @@ void Creature::UpdateDamagePhysical(WeaponAttackType attType)
     float weapon_maxdamage = GetWeaponDamageRange(attType, MAXDAMAGE);
 
     /* difference in AP between current attack power and base value from DB */
-    float att_pwr_change = GetTotalAttackPowerValue(attType) - GetCreatureInfo()->attackpower;
+    float att_pwr_change = GetTotalAttackPowerValue(attType) - GetCreatureTemplate()->attackpower;
     float base_value  = GetModifierValue(unitMod, BASE_VALUE) + (att_pwr_change * GetAPMultiplier(attType, false) / 14.0f);
     float base_pct    = GetModifierValue(unitMod, BASE_PCT);
     float total_value = GetModifierValue(unitMod, TOTAL_VALUE);
     float total_pct   = GetModifierValue(unitMod, TOTAL_PCT);
-    float dmg_multiplier = GetCreatureInfo()->dmg_multiplier;
+    float dmg_multiplier = GetCreatureTemplate()->dmg_multiplier;
 
     if (!CanUseAttackType(attType))
     {
