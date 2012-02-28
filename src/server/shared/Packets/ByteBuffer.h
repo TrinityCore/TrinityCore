@@ -34,8 +34,8 @@ class ByteBufferException
         }
 
     protected:
-        virtual void PrintError() const = 0;
-    
+        virtual void PrintError() const = 0 {};
+
         size_t Pos;
         size_t Size;
         size_t ValueSize;
@@ -48,7 +48,7 @@ class ByteBufferPositionException : public ByteBufferException
         : ByteBufferException(pos, size, valueSize), _add(add) {}
 
     protected:
-        void PrintError() const override
+        void PrintError() const
         {
             sLog->outError("Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD") " ,
                 ValueSize, (_add ? "put" : "get"), Pos, Size);
@@ -64,8 +64,8 @@ class ByteBufferSourceException : public ByteBufferException
         ByteBufferSourceException(size_t pos, size_t size, size_t valueSize)
         : ByteBufferException(pos, size, valueSize) {}
 
-    protected: 
-        void PrintError() const override
+    protected:
+        void PrintError() const
         {
             sLog->outError("Attempted to put a %s in ByteBuffer (pos: "SIZEFMTD" size: "SIZEFMTD")",
                 (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size);
@@ -437,7 +437,7 @@ class ByteBuffer
         void put(size_t pos, const uint8 *src, size_t cnt)
         {
             if (pos + cnt > size())
-               throw ByteBufferPositionException(true, pos, cnt, size());
+                throw ByteBufferPositionException(true, pos, cnt, size());
 
             if (!src)
                 throw ByteBufferSourceException(_wpos, size(), cnt);
