@@ -7079,7 +7079,7 @@ void ObjectMgr::LoadNPCSpellClickSpells()
     uint32 oldMSTime = getMSTime();
 
     _spellClickInfoStore.clear();
-    //                                                0          1         2            3 
+    //                                                0          1         2            3
     QueryResult result = WorldDatabase.Query("SELECT npc_entry, spell_id, cast_flags, user_type FROM npc_spellclick_spells");
 
     if (!result)
