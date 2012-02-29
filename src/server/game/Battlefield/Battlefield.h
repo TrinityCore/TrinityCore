@@ -184,10 +184,6 @@ class Battlefield:public ZoneScript
     /// Generate packet which contain all worldstatedata of area
     virtual void FillInitialWorldStates(WorldPacket & /*data */ ) {}
 
-    /// Call when a GameObject/Creature is created OR destroyed (view bool add)
-    void OnGameObjectCreate(GameObject * /*go */ , bool /*add */ ) {}
-    void OnCreatureCreate(Creature * /*cre */ , bool /*add */ ) {}
-
     /// Update data of a worldstate to all players present in zone
     void SendUpdateWorldState(uint32 field, uint32 value);
 

@@ -578,7 +578,7 @@ void BattlefieldWG::OnStartGrouping()
     SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_WILL_START);
 }
 
-void BattlefieldWG::OnCreatureCreate(Creature *creature, bool add)
+void BattlefieldWG::OnCreatureCreate(Creature *creature)
 {
     if (IsWarTime())
     {
@@ -597,50 +597,70 @@ void BattlefieldWG::OnCreatureCreate(Creature *creature, bool add)
                     else
                         return;
 
-                    if (add)
+                    if (team == TEAM_HORDE)
                     {
-                        if (team == TEAM_HORDE)
+                        m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_H]++;
+                        if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) <= GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H))
                         {
-                            m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_H]++;
-                            if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_H) <= GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_H))
-                            {
-                                creature->AddAura(SPELL_HORDE_FLAG, creature);
-                                m_vehicles[team].insert(creature->GetGUID());
-                                UpdateVehicleCountWG();
-                            }
-                            else
-                            {
-                                creature->setDeathState(DEAD);
-                                creature->SetRespawnTime(RESPAWN_ONE_DAY);
-                                return;
-                            }
+                            creature->AddAura(SPELL_HORDE_FLAG, creature);
+                            m_vehicles[team].insert(creature->GetGUID());
+                            UpdateVehicleCountWG();
                         }
                         else
                         {
-                            m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_A]++;
-                            if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) <= GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
-                            {
-                                creature->AddAura(SPELL_ALLIANCE_FLAG, creature);
-                                m_vehicles[team].insert(creature->GetGUID());
-                                UpdateVehicleCountWG();
-                            }
-                            else
-                            {
-                                creature->setDeathState(DEAD);
-                                creature->SetRespawnTime(RESPAWN_ONE_DAY);
-                                return;
-                            }
+                            creature->setDeathState(DEAD);
+                            creature->SetRespawnTime(RESPAWN_ONE_DAY);
+                            return;
                         }
                     }
                     else
                     {
-                        m_vehicles[team].erase(creature->GetGUID());
-                        if (team == TEAM_HORDE)
-                            m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_H]--;
+                        m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_A]++;
+                        if (GetData(BATTLEFIELD_WG_DATA_VEHICLE_A) <= GetData(BATTLEFIELD_WG_DATA_MAX_VEHICLE_A))
+                        {
+                            creature->AddAura(SPELL_ALLIANCE_FLAG, creature);
+                            m_vehicles[team].insert(creature->GetGUID());
+                            UpdateVehicleCountWG();
+                        }
                         else
-                            m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_A]--;
-                        UpdateVehicleCountWG();
+                        {
+                            creature->setDeathState(DEAD);
+                            creature->SetRespawnTime(RESPAWN_ONE_DAY);
+                            return;
+                        }
                     }
+                    break;
+                }
+        }
+    }
+}
+
+void BattlefieldWG::OnCreatureRemove(Creature* creature)
+{
+    if (IsWarTime())
+    {
+        switch (creature->GetEntry())
+        {
+            case 28312:
+            case 32627:
+            case 27881:
+            case 28094:
+                {
+                    uint8 team;
+                    if (creature->getFaction() == WintergraspFaction[TEAM_ALLIANCE])
+                        team = TEAM_ALLIANCE;
+                    else if (creature->getFaction() == WintergraspFaction[TEAM_HORDE])
+                        team = TEAM_HORDE;
+                    else
+                        return;
+
+                    m_vehicles[team].erase(creature->GetGUID());
+                    if (team == TEAM_HORDE)
+                        m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_H]--;
+                    else
+                        m_Data32[BATTLEFIELD_WG_DATA_VEHICLE_A]--;
+                    UpdateVehicleCountWG();
+
                     break;
                 }
         }
