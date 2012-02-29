@@ -209,7 +209,7 @@ void Object::BuildCreateUpdateBlockForPlayer(UpdateData* data, Player* target) c
     if (target == this)                                      // building packet for yourself
         flags |= UPDATEFLAG_SELF;
 
-    if (flags & UPDATEFLAG_HAS_POSITION)
+    if (flags & UPDATEFLAG_STATIONARY_POSITION)
     {
         // UPDATETYPE_CREATE_OBJECT2 dynamic objects, corpses...
         if (isType(TYPEMASK_DYNAMICOBJECT) || isType(TYPEMASK_CORPSE) || isType(TYPEMASK_PLAYER))
@@ -293,19 +293,21 @@ void Object::BuildOutOfRangeUpdateBlock(UpdateData* data) const
     data->AddOutOfRangeGUID(GetGUID());
 }
 
-void Object::DestroyForPlayer(Player* target, bool anim) const
+void Object::DestroyForPlayer(Player* target, bool onDeath) const
 {
     ASSERT(target);
 
     WorldPacket data(SMSG_DESTROY_OBJECT, 8 + 1);
     data << uint64(GetGUID());
-    data << uint8(anim ? 1 : 0);                            // WotLK (bool), may be despawn animation
+    //! If the following bool is true, the client will call "void CGUnit_C::OnDeath()" for this object.
+    //! OnDeath() does for eg trigger death animation and interrupts certain spells/missiles/auras/sounds...
+    data << uint8(onDeath ? 1 : 0);
     target->GetSession()->SendPacket(&data);
 }
 
-void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
+void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
 {
-    *data << (uint16)flags;                                  // update flags
+    *data << uint16(flags);                                  // update flags
 
     // 0x20
     if (flags & UPDATEFLAG_LIVING)
@@ -330,13 +332,29 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     {
         if (flags & UPDATEFLAG_POSITION)
         {
-            *data << uint8(0);                              // unk PGUID!
+            Transport* transport = ((WorldObject*)this)->GetTransport();
+            if (transport)
+                data->append(transport->GetPackGUID());
+            else
+                *data << uint8(0);
+
             *data << ((WorldObject*)this)->GetPositionX();
             *data << ((WorldObject*)this)->GetPositionY();
             *data << ((WorldObject*)this)->GetPositionZ();
-            *data << ((WorldObject*)this)->GetPositionX();
-            *data << ((WorldObject*)this)->GetPositionY();
-            *data << ((WorldObject*)this)->GetPositionZ();
+
+            if (transport)
+            {
+                *data << ((WorldObject*)this)->GetTransOffsetX();
+                *data << ((WorldObject*)this)->GetTransOffsetY();
+                *data << ((WorldObject*)this)->GetTransOffsetZ();
+            }
+            else
+            {
+                *data << ((WorldObject*)this)->GetPositionX();
+                *data << ((WorldObject*)this)->GetPositionY();
+                *data << ((WorldObject*)this)->GetPositionZ();
+            }
+
             *data << ((WorldObject*)this)->GetOrientation();
 
             if (GetTypeId() == TYPEID_CORPSE)
@@ -347,28 +365,17 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         else
         {
             // 0x40
-            if (flags & UPDATEFLAG_HAS_POSITION)
+            if (flags & UPDATEFLAG_STATIONARY_POSITION)
             {
-                // 0x02
-                if (flags & UPDATEFLAG_TRANSPORT && ((GameObject*)this)->GetGoType() == GAMEOBJECT_TYPE_MO_TRANSPORT)
-                {
-                    *data << (float)0;
-                    *data << (float)0;
-                    *data << (float)0;
-                    *data << ((WorldObject*)this)->GetOrientation();
-                }
-                else
-                {
-                    *data << ((WorldObject*)this)->GetPositionX();
-                    *data << ((WorldObject*)this)->GetPositionY();
-                    *data << ((WorldObject*)this)->GetPositionZ();
-                    *data << ((WorldObject*)this)->GetOrientation();
-                }
+                *data << ((WorldObject*)this)->GetPositionX();
+                *data << ((WorldObject*)this)->GetPositionY();
+                *data << ((WorldObject*)this)->GetPositionZ();
+                *data << ((WorldObject*)this)->GetOrientation();
             }
         }
     }
 
-    // 0x8
+    // 0x10
     if (flags & UPDATEFLAG_LOWGUID)
     {
         switch (GetTypeId())
@@ -381,14 +388,16 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
             case TYPEID_CORPSE:
                 *data << uint32(GetGUIDLow());              // GetGUIDLow()
                 break;
+            //! Unit, Player and default here are sending wrong values.
+            //! TODO: Research the proper formula
             case TYPEID_UNIT:
-                *data << uint32(0x0000000B);                // unk, can be 0xB or 0xC
+                *data << uint32(0x0000000B);                // unk
                 break;
             case TYPEID_PLAYER:
                 if (flags & UPDATEFLAG_SELF)
-                    *data << uint32(0x0000002F);            // unk, can be 0x15 or 0x22
+                    *data << uint32(0x0000002F);            // unk
                 else
-                    *data << uint32(0x00000008);            // unk, can be 0x7 or 0x8
+                    *data << uint32(0x00000008);            // unk
                 break;
             default:
                 *data << uint32(0x00000000);                // unk
@@ -396,15 +405,14 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
         }
     }
 
-    // 0x10
-    if (flags & UPDATEFLAG_HIGHGUID)
+    // 0x8
+    if (flags & UPDATEFLAG_UNKNOWN)
     {
-        // not high guid
-        *data << uint32(GetUInt32Value(OBJECT_FIELD_GUID));                // unk
+        *data << uint32(0);
     }
 
     // 0x4
-    if (flags & UPDATEFLAG_HAS_TARGET)                       // packed guid (current target guid)
+    if (flags & UPDATEFLAG_HAS_TARGET)
     {
         if (Unit* victim = ((Unit*)this)->getVictim())
             data->append(victim->GetPackGUID());
@@ -415,14 +423,15 @@ void Object::_BuildMovementUpdate(ByteBuffer * data, uint16 flags) const
     // 0x2
     if (flags & UPDATEFLAG_TRANSPORT)
     {
-        *data << uint32(getMSTime());                       // ms time
+        *data << uint32(getMSTime());                       // Unknown - getMSTime is wrong.
     }
 
     // 0x80
-    if (flags & UPDATEFLAG_VEHICLE)                          // unused for now
+    if (flags & UPDATEFLAG_VEHICLE)
     {
-        *data << uint32(((Unit*)this)->GetVehicleKit()->GetVehicleInfo()->m_ID);  // vehicle id
-        *data << float(((Creature*)this)->GetOrientation());  // facing adjustment
+        // TODO: Allow players to aquire this updateflag.
+        *data << uint32(((Unit*)this)->GetVehicleKit()->GetVehicleInfo()->m_ID);
+        *data << float(((Creature*)this)->GetOrientation());
     }
 
     // 0x200
@@ -581,7 +590,7 @@ void Object::_BuildValuesUpdate(uint8 updatetype, ByteBuffer * data, UpdateMask*
                 {
                     uint32 dynamicFlags = m_uint32Values[index];
 
-                    if (const Creature* creature = ToCreature())
+                    if (Creature const* creature = ToCreature())
                     {
                         if (creature->hasLootRecipient())
                         {
