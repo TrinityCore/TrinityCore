@@ -366,11 +366,6 @@ class BattlefieldWG : public Battlefield
         void DoCompleteOrIncrementAchievement(uint32 achievement, Player *player, uint8 incrementNumber = 1);
 
         /**
-         * \brief called when a player is die, for add him to resurrect queue
-         */
-        void AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid);
-
-        /**
          * \brief Called when battlefield is setup, at server start
          */
         bool SetupBattlefield();
@@ -425,7 +420,6 @@ class BattlefieldWG : public Battlefield
         GameObjectSet DefenderPortalList;
         GameObjectSet m_KeepGameObject[2];
         GuidSet m_vehicles[2];
-        GuidSet m_PlayersIsSpellImu;        // Player is dead
         uint32 m_tenacityStack;
         uint32 m_saveTimer;
 };

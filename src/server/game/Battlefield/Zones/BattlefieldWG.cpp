@@ -221,23 +221,6 @@ bool BattlefieldWG::Update(uint32 diff)
     else
         m_saveTimer -= diff;
 
-    for (GuidSet::const_iterator itr = m_PlayersIsSpellImu.begin(); itr != m_PlayersIsSpellImu.end(); ++itr)
-        if (Player* player = sObjectAccessor->FindPlayer(*itr))
-        {
-            if (player->HasAura(SPELL_SPIRITUAL_IMMUNITY))
-            {
-                const WorldSafeLocsEntry *graveyard = GetClosestGraveYard(player);
-                if (graveyard)
-                {
-                    if (player->GetDistance2d(graveyard->x, graveyard->y) > 10.0f)
-                    {
-                        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
-                        m_PlayersIsSpellImu.erase(player->GetGUID());
-                    }
-                }
-            }
-        }
-
     if (m_BattlefieldActive)
     {
         for (uint8 team = 0; team < 2; ++team)
@@ -266,22 +249,6 @@ bool BattlefieldWG::Update(uint32 diff)
                 }
 
     return m_return;
-}
-
-void BattlefieldWG::AddPlayerToResurrectQueue(uint64 npc_guid, uint64 player_guid)
-{
-    Battlefield::AddPlayerToResurrectQueue(npc_guid, player_guid);
-    if (IsWarTime())
-    {
-        if (Player* player = sObjectAccessor->FindPlayer(player_guid))
-        {
-            if (!player->HasAura(SPELL_SPIRITUAL_IMMUNITY))
-            {
-                player->CastSpell(player, SPELL_SPIRITUAL_IMMUNITY, true);
-                m_PlayersIsSpellImu.insert(player->GetGUID());
-            }
-        }
-    }
 }
 
 void BattlefieldWG::OnBattleStart()
