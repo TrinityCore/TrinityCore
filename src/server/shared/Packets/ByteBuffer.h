@@ -30,11 +30,9 @@ class ByteBufferException
         ByteBufferException(size_t pos, size_t size, size_t valueSize)
             : Pos(pos), Size(size), ValueSize(valueSize)
         {
-            PrintError();
         }
 
     protected:
-        virtual void PrintError() const = 0;
 
         size_t Pos;
         size_t Size;
@@ -45,7 +43,10 @@ class ByteBufferPositionException : public ByteBufferException
 {
     public:
         ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize)
-        : ByteBufferException(pos, size, valueSize), _add(add) {}
+        : ByteBufferException(pos, size, valueSize), _add(add)
+        {
+            PrintError();
+        }
 
     protected:
         void PrintError() const
@@ -62,7 +63,10 @@ class ByteBufferSourceException : public ByteBufferException
 {
     public:
         ByteBufferSourceException(size_t pos, size_t size, size_t valueSize)
-        : ByteBufferException(pos, size, valueSize) {}
+        : ByteBufferException(pos, size, valueSize)
+        {
+            PrintError();
+        }
 
     protected:
         void PrintError() const
