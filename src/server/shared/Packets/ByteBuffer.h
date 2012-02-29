@@ -178,14 +178,17 @@ class ByteBuffer
 
         ByteBuffer &operator<<(const std::string &value)
         {
-            append((uint8 const*)value.c_str(), value.length());
+            if (size_t len = value.length())
+                append((uint8 const*)value.c_str(), len);
             append((uint8)0);
             return *this;
         }
 
         ByteBuffer &operator<<(const char *str)
         {
-            append((uint8 const*)str, str ? strlen(str) : 0);
+            size_t len = 0;
+            if (str && (len = strlen(str)))
+                append((uint8 const*)str, len);
             append((uint8)0);
             return *this;
         }
@@ -370,11 +373,6 @@ class ByteBuffer
         {
             if (ressize > size())
                 _storage.reserve(ressize);
-        }
-
-        void append(const std::string& str)
-        {
-            append((uint8 const*)str.c_str(), str.size() + 1);
         }
 
         void append(const char *src, size_t cnt)
