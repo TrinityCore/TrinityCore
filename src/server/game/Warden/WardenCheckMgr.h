@@ -64,6 +64,8 @@ class WardenCheckMgr
         void LoadWardenChecks();
         void LoadWardenOverrides();
 
+        ACE_RW_Mutex _checkStoreLock;
+
     private:
         CheckContainer CheckStore;
         CheckResultContainer CheckResultStore;
