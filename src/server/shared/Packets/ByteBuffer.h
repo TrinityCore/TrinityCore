@@ -34,7 +34,7 @@ class ByteBufferException
         }
 
     protected:
-        virtual void PrintError() const = 0 {};
+        virtual void PrintError() const = 0;
 
         size_t Pos;
         size_t Size;
