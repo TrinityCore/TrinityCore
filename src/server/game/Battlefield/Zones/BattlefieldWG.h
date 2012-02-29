@@ -338,11 +338,16 @@ class BattlefieldWG : public Battlefield
         bool Update(uint32 diff);
 
         /**
-         * \brief Called when a creature is spawn or remove from WG
+         * \brief Called when a creature is created
          * -Update vehicle count
-         * \param add : true > creature is spawn  false > creature is remove
          */
-        void OnCreatureCreate(Creature *creature, bool add);
+        void OnCreatureCreate(Creature *creature);
+
+         /**
+         * \brief Called when a creature is removed
+         * -Update vehicle count
+         */
+        void OnCreatureRemove(Creature* creature);
 
         /**
          * \brief Called when a wall/tower is broken
