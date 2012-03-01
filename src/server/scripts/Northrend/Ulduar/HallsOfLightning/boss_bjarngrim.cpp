@@ -194,7 +194,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            Talk(SAY_SLAY), me);
+            Talk(SAY_SLAY);
         }
 
         void JustDied(Unit* /*killer*/)
