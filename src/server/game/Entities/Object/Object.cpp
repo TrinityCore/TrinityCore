@@ -375,6 +375,12 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
         }
     }
 
+    // 0x8
+    if (flags & UPDATEFLAG_UNKNOWN)
+    {
+        *data << uint32(0);
+    }
+
     // 0x10
     if (flags & UPDATEFLAG_LOWGUID)
     {
@@ -403,12 +409,6 @@ void Object::_BuildMovementUpdate(ByteBuffer* data, uint16 flags) const
                 *data << uint32(0x00000000);                // unk
                 break;
         }
-    }
-
-    // 0x8
-    if (flags & UPDATEFLAG_UNKNOWN)
-    {
-        *data << uint32(0);
     }
 
     // 0x4
