@@ -862,7 +862,6 @@ void BattlefieldWG::OnPlayerLeaveWar(Player* player)
         player->RemoveAurasDueToSpell(SPELL_CORPORAL);
         player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         player->RemoveAurasDueToSpell(SPELL_TENACITY);
         player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
         player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_WINTERGRASP);
@@ -883,7 +882,6 @@ void BattlefieldWG::OnPlayerLeaveZone(Player* player)
         player->RemoveAurasDueToSpell(SPELL_CORPORAL);
         player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         player->RemoveAurasDueToSpell(SPELL_TENACITY);
         player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
@@ -903,7 +901,6 @@ void BattlefieldWG::OnPlayerEnterZone(Player* player)
         player->RemoveAurasDueToSpell(SPELL_CORPORAL);
         player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         player->RemoveAurasDueToSpell(SPELL_TENACITY);
         player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
