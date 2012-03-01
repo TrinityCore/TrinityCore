@@ -33,6 +33,7 @@
 #include "Group.h"
 #include "Vehicle.h"
 #include "ScriptedGossip.h"
+#include "CreatureTextMgr.h"
 
 class TrinityStringTextBuilder
 {
