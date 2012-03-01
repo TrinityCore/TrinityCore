@@ -435,10 +435,10 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
 
     int32 message_id = 0;
     ChatMsg type = CHAT_MSG_BG_SYSTEM_NEUTRAL;
-    bool flagHandled = false;
+
     //alliance flag picked up from base
-    if (Source->GetTeam() == HORDE && this->GetFlagState(ALLIANCE) == BG_WS_FLAG_STATE_ON_BASE
-        && this->BgObjects[BG_WS_OBJECT_A_FLAG] == target_obj->GetGUID())
+    if (Source->GetTeam() == HORDE && GetFlagState(ALLIANCE) == BG_WS_FLAG_STATE_ON_BASE
+        && BgObjects[BG_WS_OBJECT_A_FLAG] == target_obj->GetGUID())
     {
         message_id = LANG_BG_WS_PICKEDUP_AF;
         type = CHAT_MSG_BG_SYSTEM_HORDE;
@@ -453,12 +453,11 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         Source->GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_SILVERWING_FLAG_PICKED);
         if (_flagState[1] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
-        flagHandled = true;
     }
 
     //horde flag picked up from base
-    if (Source->GetTeam() == ALLIANCE && this->GetFlagState(HORDE) == BG_WS_FLAG_STATE_ON_BASE
-        && this->BgObjects[BG_WS_OBJECT_H_FLAG] == target_obj->GetGUID() && !flagHandled)
+    if (Source->GetTeam() == ALLIANCE && GetFlagState(HORDE) == BG_WS_FLAG_STATE_ON_BASE
+        && BgObjects[BG_WS_OBJECT_H_FLAG] == target_obj->GetGUID())
     {
         message_id = LANG_BG_WS_PICKEDUP_HF;
         type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
@@ -473,11 +472,10 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         Source->GetAchievementMgr().StartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_SPELL_TARGET, BG_WS_SPELL_WARSONG_FLAG_PICKED);
         if (_flagState[0] == BG_WS_FLAG_STATE_ON_PLAYER)
           _bothFlagsKept = true;
-        flagHandled = true;
     }
 
     //Alliance flag on ground(not in base) (returned or picked up again from ground!)
-    if (GetFlagState(ALLIANCE) == BG_WS_FLAG_STATE_ON_GROUND && Source->IsWithinDistInMap(target_obj, 10) && !flagHandled)
+    if (GetFlagState(ALLIANCE) == BG_WS_FLAG_STATE_ON_GROUND && Source->IsWithinDistInMap(target_obj, 10) && BgObjects[BG_WS_OBJECT_A_FLAG] == target_obj->GetGUID())
     {
         if (Source->GetTeam() == ALLIANCE)
         {
@@ -489,7 +487,6 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
             PlaySoundToAll(BG_WS_SOUND_FLAG_RETURNED);
             UpdatePlayerScore(Source, SCORE_FLAG_RETURNS, 1);
             _bothFlagsKept = false;
-            flagHandled = true;
         }
         else
         {
@@ -506,14 +503,13 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
             if (_flagDebuffState == 2)
               Source->CastSpell(Source, WS_SPELL_BRUTAL_ASSAULT, true);
             UpdateWorldState(BG_WS_FLAG_UNK_ALLIANCE, 1);
-            flagHandled = true;
         }
         //called in HandleGameObjectUseOpcode:
         //target_obj->Delete();
     }
 
     //Horde flag on ground(not in base) (returned or picked up again)
-    if (GetFlagState(HORDE) == BG_WS_FLAG_STATE_ON_GROUND && Source->IsWithinDistInMap(target_obj, 10) && !flagHandled)
+    if (GetFlagState(HORDE) == BG_WS_FLAG_STATE_ON_GROUND && Source->IsWithinDistInMap(target_obj, 10) && BgObjects[BG_WS_OBJECT_H_FLAG] == target_obj->GetGUID())
     {
         if (Source->GetTeam() == HORDE)
         {
@@ -525,7 +521,6 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
             PlaySoundToAll(BG_WS_SOUND_FLAG_RETURNED);
             UpdatePlayerScore(Source, SCORE_FLAG_RETURNS, 1);
             _bothFlagsKept = false;
-            flagHandled = true;
         }
         else
         {
@@ -542,7 +537,6 @@ void BattlegroundWS::EventPlayerClickedOnFlag(Player* Source, GameObject* target
             if (_flagDebuffState == 2)
               Source->CastSpell(Source, WS_SPELL_BRUTAL_ASSAULT, true);
             UpdateWorldState(BG_WS_FLAG_UNK_HORDE, 1);
-            flagHandled = true;
         }
         //called in HandleGameObjectUseOpcode:
         //target_obj->Delete();
