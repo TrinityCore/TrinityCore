@@ -296,7 +296,7 @@ public:
                     {
                         case EVENT_LIFTOFF:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
-                            me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->SetLevitate(true);
                             me->SendMovementFlagUpdate();
                             events.ScheduleEvent(EVENT_ICEBOLT, 1500);
                             iceboltCount = RAID_MODE(2, 3);
@@ -340,7 +340,7 @@ public:
                             return;
                         case EVENT_LAND:
                             me->HandleEmoteCommand(EMOTE_ONESHOT_LAND);
-                            me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                            me->SetLevitate(false);
                             me->SendMovementFlagUpdate();
                             events.ScheduleEvent(EVENT_GROUND, 1500);
                             return;

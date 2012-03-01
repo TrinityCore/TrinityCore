@@ -39,6 +39,7 @@
 #include <emmintrin.h>                 // Define SSE2 intrinsics
 #include "randomc.h"                   // Define integer types etc
 #include <time.h>
+#include <new>
 
 // Choose one of the possible Mersenne exponents.
 // Higher values give longer cycle length and use more memory:
@@ -149,8 +150,14 @@ __m128i const &c, __m128i const &d, __m128i const &mask) {
 
 // Class for SFMT generator
 class SFMTRand {                              // Encapsulate random number generator
+    friend class ACE_TSS<SFMTRand>;
+
 public:
-    SFMTRand() { LastInterval = 0; RandomInit((int)(time(0))); } 
+    SFMTRand()
+    {
+        LastInterval = 0;
+        RandomInit((int)(time(0)));
+    }
 
     void RandomInit(int seed)                     // Re-seed
     {
@@ -296,6 +303,46 @@ private:
             r2 = r;
         }
         ix = 0;
+    }
+
+    void* operator new(size_t size, std::nothrow_t const&)
+    {
+        return _mm_malloc(size, 16);
+    }
+
+    void operator delete(void* ptr, std::nothrow_t const&)
+    {
+        _mm_free(ptr);
+    }
+
+    void* operator new(size_t size)
+    {
+        return _mm_malloc(size, 16);
+    }
+
+    void operator delete(void* ptr)
+    {
+        _mm_free(ptr);
+    }
+
+    void* operator new[](size_t size, std::nothrow_t const&)
+    {
+        return _mm_malloc(size, 16);
+    }
+
+    void operator delete[](void* ptr, std::nothrow_t const&)
+    {
+        _mm_free(ptr);
+    }
+
+    void* operator new[](size_t size)
+    {
+        return _mm_malloc(size, 16);
+    }
+
+    void operator delete[](void* ptr)
+    {
+        _mm_free(ptr);
     }
 
     uint32_t ix;                                  // Index into state array

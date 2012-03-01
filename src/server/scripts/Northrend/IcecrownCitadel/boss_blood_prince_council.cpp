@@ -1058,7 +1058,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
             void Reset()
             {
                 _events.Reset();
-                me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                me->SetLevitate(true);
                 if (_instance->GetBossState(DATA_BLOOD_PRINCE_COUNCIL) == DONE)
                 {
                     me->SetVisible(false);

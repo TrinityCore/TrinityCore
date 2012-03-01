@@ -193,43 +193,6 @@ public:
 };
 
 /*######
-## npc_goblin_prisoner
-######*/
-
-enum eGoblinPrisoner
-{
-    GO_RUSTY_CAGE = 191544
-};
-
-class npc_goblin_prisoner : public CreatureScript
-{
-public:
-    npc_goblin_prisoner() : CreatureScript("npc_goblin_prisoner") { }
-
-    struct npc_goblin_prisonerAI : public ScriptedAI
-    {
-        npc_goblin_prisonerAI(Creature* creature) : ScriptedAI (creature){}
-
-        void Reset()
-        {
-            me->SetReactState(REACT_PASSIVE);
-
-            if (GameObject* pGO = me->FindNearestGameObject(GO_RUSTY_CAGE, 5.0f))
-            {
-                if (pGO->GetGoState() == GO_STATE_ACTIVE)
-                    pGO->SetGoState(GO_STATE_READY);
-            }
-        }
-
-    };
-
-    CreatureAI* GetAI(Creature* creature) const
-    {
-        return new npc_goblin_prisonerAI(creature);
-    }
-};
-
-/*######
 ## npc_victorious_challenger
 ######*/
 
@@ -786,7 +749,6 @@ void AddSC_storm_peaks()
     new npc_agnetta_tyrsdottar;
     new npc_frostborn_scout;
     new npc_thorim;
-    new npc_goblin_prisoner;
     new npc_victorious_challenger;
     new npc_loklira_crone;
     new npc_injured_goblin;

@@ -146,7 +146,7 @@ void Vehicle::ApplyAllImmunities()
     _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_KNOCK_BACK_DEST, true);
 
     // Mechanical units & vehicles ( which are not Bosses, they have own immunities in DB ) should be also immune on healing ( exceptions in switch below )
-    if (_me->ToCreature() && _me->ToCreature()->GetCreatureInfo()->type == CREATURE_TYPE_MECHANICAL && !_me->ToCreature()->isWorldBoss())
+    if (_me->ToCreature() && _me->ToCreature()->GetCreatureTemplate()->type == CREATURE_TYPE_MECHANICAL && !_me->ToCreature()->isWorldBoss())
     {
         // Heal & dispel ...
         _me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_HEAL, true);

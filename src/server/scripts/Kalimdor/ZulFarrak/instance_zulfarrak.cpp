@@ -301,7 +301,7 @@ public:
            {
                if (npc->isAlive())
                {
-                    npc->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    npc->SetWalk(true);
                     npc->GetMotionMaster()->MovePoint(1, x, y, z);
                     npc->SetHomePosition(x, y, z, o);
                }

@@ -139,7 +139,7 @@ public:
                     case 7:
                         DoCast(me, SPELL_EXPLODE_CART, true);
                         if (Player* caster = Unit::GetPlayer(*me, casterGuid))
-                            caster->KilledMonster(me->GetCreatureInfo(), me->GetGUID());
+                            caster->KilledMonster(me->GetCreatureTemplate(), me->GetGUID());
                         uiPhaseTimer = 5000;
                         Phase = 8;
                         break;
@@ -1030,16 +1030,16 @@ public:
                         uiArthas = pArthas->GetGUID();
                         pArthas->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                         pArthas->SetReactState(REACT_PASSIVE);
-                        pArthas->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                        pArthas->SetWalk(true);
                         pArthas->GetMotionMaster()->MovePoint(0, 3737.374756f, 3564.841309f, 477.433014f);
                     }
                     if (Creature* pTalbot = me->SummonCreature(NPC_COUNSELOR_TALBOT, 3747.23f, 3614.936f, 473.321f, 4.462012f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                     {
                         uiTalbot = pTalbot->GetGUID();
-                        pTalbot->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                        pTalbot->SetWalk(true);
                         pTalbot->GetMotionMaster()->MovePoint(0, 3738.000977f, 3568.882080f, 477.433014f);
                     }
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(false);
                     break;
 
                 case 4:
@@ -1118,13 +1118,13 @@ public:
                         if (Creature* pArlos = me->SummonCreature(NPC_GENERAL_ARLOS, 3745.527100f, 3615.655029f, 473.321533f, 4.447805f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                         {
                             uiArlos = pArlos->GetGUID();
-                            pArlos->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            pArlos->SetWalk(true);
                             pArlos->GetMotionMaster()->MovePoint(0, 3735.570068f, 3572.419922f, 477.441010f);
                         }
                         if (Creature* pLeryssa = me->SummonCreature(NPC_LERYSSA, 3749.654541f, 3614.959717f, 473.323486f, 4.524959f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 120000))
                         {
                             uiLeryssa = pLeryssa->GetGUID();
-                            pLeryssa->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                            pLeryssa->SetWalk(false);
                             pLeryssa->SetReactState(REACT_PASSIVE);
                             pLeryssa->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                             pLeryssa->GetMotionMaster()->MovePoint(0, 3741.969971f, 3571.439941f, 477.441010f);
@@ -1446,7 +1446,7 @@ public:
             pArlos->Kill(pArlos, false);
             pLeryssa->RemoveAura(SPELL_STUN);
             pLeryssa->ClearUnitState(UNIT_STATE_STUNNED);
-            pLeryssa->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            pLeryssa->SetWalk(false);
             pLeryssa->GetMotionMaster()->MovePoint(0, 3722.114502f, 3564.201660f, 477.441437f);
 
             if (killer->GetTypeId() == TYPEID_PLAYER)

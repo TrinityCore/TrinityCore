@@ -108,7 +108,7 @@ public:
             if (!me->GetEquipmentId())
                 if (const CreatureTemplate* info = sObjectMgr->GetCreatureTemplate(28406))
                     if (info->equipmentId)
-                        const_cast<CreatureTemplate*>(me->GetCreatureInfo())->equipmentId = info->equipmentId;
+                        const_cast<CreatureTemplate*>(me->GetCreatureTemplate())->equipmentId = info->equipmentId;
         }
 
         uint64 playerGUID;
@@ -587,7 +587,7 @@ public:
                 return;
 
             TargetGUID = who->GetGUID();
-            me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            me->SetWalk(true);
             me->SetSpeed(MOVE_RUN, 0.4f);
             me->GetMotionMaster()->MoveChase(who);
             me->SetTarget(TargetGUID);
@@ -878,7 +878,7 @@ public:
         npc_scarlet_miner_cartAI(Creature* c) : PassiveAI(c), minerGUID(0)
         {
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
-            me->SetDisplayId(me->GetCreatureInfo()->Modelid1); // Modelid2 is a horse.
+            me->SetDisplayId(me->GetCreatureTemplate()->Modelid1); // Modelid2 is a horse.
         }
 
         uint64 minerGUID;
@@ -892,7 +892,7 @@ public:
         {
             if (Creature* miner = Unit::GetCreature(*me, minerGUID))
             {
-                me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                me->SetWalk(false);
 
                 //Not 100% correct, but movement is smooth. Sometimes miner walks faster
                 //than normal, this speed is fast enough to keep up at those times.

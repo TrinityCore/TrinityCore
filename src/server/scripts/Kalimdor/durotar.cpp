@@ -170,7 +170,7 @@ enum Points
 class npc_tiger_matriarch_credit : public CreatureScript
 {
     public:
-        npc_tiger_matriarch_credit() : CreatureScript("npc_tiger_matriarch_credit"){}
+        npc_tiger_matriarch_credit() : CreatureScript("npc_tiger_matriarch_credit") { }
 
         struct npc_tiger_matriarch_creditAI : public Scripted_NoMovementAI
         {
@@ -179,7 +179,7 @@ class npc_tiger_matriarch_credit : public CreatureScript
                events.ScheduleEvent(EVENT_CHECK_SUMMON_AURA, 2000);
            }
 
-            void UpdateAI(const uint32 diff)
+            void UpdateAI(uint32 const diff)
             {
                 events.Update(diff);
 
@@ -223,27 +223,32 @@ class npc_tiger_matriarch_credit : public CreatureScript
 class npc_tiger_matriarch : public CreatureScript
 {
     public:
-        npc_tiger_matriarch() : CreatureScript("npc_tiger_matriarch"){}
+        npc_tiger_matriarch() : CreatureScript("npc_tiger_matriarch") {}
 
         struct npc_tiger_matriarchAI : public ScriptedAI
         {
             npc_tiger_matriarchAI(Creature* creature) : ScriptedAI(creature),
-                _tiger(NULL)
+                _tigerGuid(0)
             {
+            }
+
+            void EnterCombat(Unit* /*target*/)
+            {
+                _events.Reset();
+                _events.ScheduleEvent(EVENT_POUNCE, 100);
+                _events.ScheduleEvent(EVENT_NOSUMMON, 50000);
             }
 
             void IsSummonedBy(Unit* summoner)
             {
-                if (summoner->GetTypeId() != TYPEID_PLAYER)
+                if (summoner->GetTypeId() != TYPEID_PLAYER || !summoner->GetVehicle())
                     return;
 
-                _tiger = summoner->GetVehicle()->GetBase();
-                if (_tiger)
+                _tigerGuid = summoner->GetVehicle()->GetBase()->GetGUID();
+                if (Unit* tiger = ObjectAccessor::GetUnit(*me, _tigerGuid))
                 {
-                    me->AddThreat(_tiger, 500000.0f);
+                    me->AddThreat(tiger, 500000.0f);
                     DoCast(me, SPELL_FURIOUS_BITE);
-                    events.ScheduleEvent(EVENT_POUNCE, 100);
-                    events.ScheduleEvent(EVENT_NOSUMMON, 50000);
                 }
             }
 
@@ -291,24 +296,27 @@ class npc_tiger_matriarch : public CreatureScript
                 if (!UpdateVictim())
                     return;
 
-                if (!_tiger)
+                if (!_tigerGuid)
                     return;
 
-                events.Update(diff);
+                _events.Update(diff);
 
-                while (uint32 eventId = events.ExecuteEvent())
+                while (uint32 eventId = _events.ExecuteEvent())
                 {
                     switch (eventId)
                     {
                         case EVENT_POUNCE:
                             DoCastVictim(SPELL_POUNCE);
-                            events.ScheduleEvent(EVENT_POUNCE, 30000);
+                            _events.ScheduleEvent(EVENT_POUNCE, 30000);
                             break;
                         case EVENT_NOSUMMON: // Reapply SPELL_NO_SUMMON_AURA
-                            if (_tiger && _tiger->isSummon())
-                                if (Unit* vehSummoner = _tiger->ToTempSummon()->GetSummoner())
-                                    me->AddAura(SPELL_NO_SUMMON_AURA, vehSummoner);
-                            events.ScheduleEvent(EVENT_NOSUMMON, 50000);
+                            if (Unit* tiger = ObjectAccessor::GetUnit(*me, _tigerGuid))
+                            {
+                                if (tiger->isSummon())
+                                    if (Unit* vehSummoner = tiger->ToTempSummon()->GetSummoner())
+                                        me->AddAura(SPELL_NO_SUMMON_AURA, vehSummoner);
+                            }
+                            _events.ScheduleEvent(EVENT_NOSUMMON, 50000);
                             break;
                         default:
                             break;
@@ -319,8 +327,8 @@ class npc_tiger_matriarch : public CreatureScript
             }
 
         private:
-            EventMap events;
-            Unit* _tiger;
+            EventMap _events;
+            uint64 _tigerGuid;
         };
 
         CreatureAI* GetAI(Creature* creature) const
@@ -345,26 +353,32 @@ class npc_troll_volunteer : public CreatureScript
         {
             npc_troll_volunteerAI(Creature* creature) : ScriptedAI(creature)
             {
-                Reset();
-                Player* player = me->GetOwner()->ToPlayer();
+            }
 
-                switch (urand(1, 4))
+            void InitializeAI()
+            {
+                if (me->isDead() || !me->GetOwner())
+                    return;
+
+                Reset();
+
+                switch (urand(0, 3))
                 {
-                    case 1:
+                    case 0:
                         _mountModel = 6471;
                         break;
-                    case 2:
+                    case 1:
                         _mountModel = 6473;
                         break;
-                    case 3:
+                    case 2:
                         _mountModel = 6469;
                         break;
-                    case 4:
+                    default:
                         _mountModel = 6472;
                         break;
                 }
                 me->SetDisplayId(trollmodel[urand(0, 39)]);
-                if (player)
+                if (Player* player = me->GetOwner()->ToPlayer())
                     me->GetMotionMaster()->MoveFollow(player, 5.0f, float(rand_norm() + 1.0f) * M_PI / 3.0f * 4.0f);
             }
 
@@ -417,6 +431,8 @@ class npc_troll_volunteer : public CreatureScript
         }
 };
 
+typedef npc_troll_volunteer::npc_troll_volunteerAI VolunteerAI;
+
 class spell_mount_check : public SpellScriptLoader
 {
     public:
@@ -442,9 +458,8 @@ class spell_mount_check : public SpellScriptLoader
 
                 if (owner->IsMounted() && !target->IsMounted())
                 {
-                    if (Creature* volunteer = target->ToCreature())
-                        if (uint32 mountid = CAST_AI(npc_troll_volunteer::npc_troll_volunteerAI, volunteer->AI())->GetMountId())
-                            target->Mount(mountid);
+                    if (VolunteerAI* volunteerAI = CAST_AI(VolunteerAI, target->GetAI()))
+                        target->Mount(volunteerAI->GetMountId());
                 }
                 else if (!owner->IsMounted() && target->IsMounted())
                     target->Dismount();
@@ -493,7 +508,7 @@ class spell_voljin_war_drums : public SpellScriptLoader
                     else if (target->GetEntry() == NPC_CITIZEN_2)
                         motivate = SPELL_MOTIVATE_2;
                     if (motivate)
-                        caster->CastSpell(target, motivate, true, NULL, NULL, caster->GetGUID());
+                        caster->CastSpell(target, motivate, false);
                 }
             }
 
@@ -511,13 +526,13 @@ class spell_voljin_war_drums : public SpellScriptLoader
 
 enum VoodooSpells
 {
-    SPELL_BREW = 16712, // Special Brew
-    SPELL_GHOSTLY = 16713, // Ghostly
-    SPELL_HEX1 = 16707, // Hex
-    SPELL_HEX2 = 16708, // Hex
-    SPELL_HEX3 = 16709, // Hex
-    SPELL_GROW = 16711, // Grow
-    SPELL_LAUNCH = 16716, // Launch (Whee!)
+    SPELL_BREW      = 16712, // Special Brew
+    SPELL_GHOSTLY   = 16713, // Ghostly
+    SPELL_HEX1      = 16707, // Hex
+    SPELL_HEX2      = 16708, // Hex
+    SPELL_HEX3      = 16709, // Hex
+    SPELL_GROW      = 16711, // Grow
+    SPELL_LAUNCH    = 16716, // Launch (Whee!)
 };
 
 // 17009
@@ -542,13 +557,9 @@ class spell_voodoo : public SpellScriptLoader
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
-                Unit* caster = GetCaster();
+                uint32 spellid = RAND(SPELL_BREW, SPELL_GHOSTLY, RAND(SPELL_HEX1, SPELL_HEX2, SPELL_HEX3), SPELL_GROW, SPELL_LAUNCH);
                 if (Unit* target = GetHitUnit())
-                {
-                    caster->CastSpell(target, RAND(SPELL_BREW, SPELL_GHOSTLY,
-                            RAND(SPELL_HEX1, SPELL_HEX2, SPELL_HEX3),
-                            SPELL_GROW, SPELL_LAUNCH), false);
-                }
+                    GetCaster()->CastSpell(target, spellid, false);
             }
 
             void Register()

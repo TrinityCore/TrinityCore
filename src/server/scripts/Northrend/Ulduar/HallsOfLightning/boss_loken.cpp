@@ -30,20 +30,16 @@ enum eEnums
 {
     ACHIEV_TIMELY_DEATH_START_EVENT               = 20384,
 
-    SAY_AGGRO                                     = -1602018,
-    SAY_INTRO_1                                   = -1602019,
-    SAY_INTRO_2                                   = -1602020,
-    SAY_SLAY_1                                    = -1602021,
-    SAY_SLAY_2                                    = -1602022,
-    SAY_SLAY_3                                    = -1602023,
-    SAY_DEATH                                     = -1602024,
-    SAY_NOVA_1                                    = -1602025,
-    SAY_NOVA_2                                    = -1602026,
-    SAY_NOVA_3                                    = -1602027,
-    SAY_75HEALTH                                  = -1602028,
-    SAY_50HEALTH                                  = -1602029,
-    SAY_25HEALTH                                  = -1602030,
-    EMOTE_NOVA                                    = -1602031,
+    SAY_INTRO_1                                   = 0,
+    SAY_INTRO_2                                   = 1,
+    SAY_AGGRO                                     = 2,
+    SAY_NOVA                                      = 3,
+    SAY_SLAY                                      = 4,
+    SAY_75HEALTH                                  = 5,
+    SAY_50HEALTH                                  = 6,
+    SAY_25HEALTH                                  = 7,
+    SAY_DEATH                                     = 8,
+    EMOTE_NOVA                                    = 9,
 
     SPELL_ARC_LIGHTNING                           = 52921,
     SPELL_LIGHTNING_NOVA_N                        = 52960,
@@ -106,7 +102,7 @@ public:
 
         void EnterCombat(Unit* /*who*/)
         {
-            DoScriptText(SAY_AGGRO, me);
+            Talk(SAY_AGGRO);
 
             if (m_instance)
             {
@@ -117,7 +113,7 @@ public:
 
         void JustDied(Unit* /*killer*/)
         {
-            DoScriptText(SAY_DEATH, me);
+            Talk(SAY_DEATH);
 
             if (m_instance)
                 m_instance->SetData(TYPE_LOKEN, DONE);
@@ -125,7 +121,7 @@ public:
 
         void KilledUnit(Unit* /*victim*/)
         {
-            DoScriptText(RAND(SAY_SLAY_1, SAY_SLAY_2, SAY_SLAY_3), me);
+            Talk(SAY_SLAY);
         }
 
         void UpdateAI(const uint32 uiDiff)
@@ -190,8 +186,8 @@ public:
 
             if (m_uiLightningNova_Timer <= uiDiff)
             {
-                DoScriptText(RAND(SAY_NOVA_1, SAY_NOVA_2, SAY_NOVA_3), me);
-                DoScriptText(EMOTE_NOVA, me);
+                Talk(SAY_NOVA);
+                Talk(EMOTE_NOVA);
                 DoCast(me, SPELL_LIGHTNING_NOVA_N);
 
                 m_bIsAura = false;
@@ -206,9 +202,9 @@ public:
             {
                 switch (m_uiHealthAmountModifier)
                 {
-                    case 1: DoScriptText(SAY_75HEALTH, me); break;
-                    case 2: DoScriptText(SAY_50HEALTH, me); break;
-                    case 3: DoScriptText(SAY_25HEALTH, me); break;
+                    case 1: Talk(SAY_75HEALTH); break;
+                    case 2: Talk(SAY_50HEALTH); break;
+                    case 3: Talk(SAY_25HEALTH); break;
                 }
 
                 ++m_uiHealthAmountModifier;

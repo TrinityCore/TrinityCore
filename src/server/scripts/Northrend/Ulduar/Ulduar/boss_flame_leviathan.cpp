@@ -26,6 +26,10 @@
 #include "ScriptedCreature.h"
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
+#include "Cell.h"
+#include "CellImpl.h"
+#include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
 #include "CombatAI.h"
 #include "PassiveAI.h"
 #include "ObjectMgr.h"
@@ -573,7 +577,7 @@ class boss_flame_leviathan_seat : public CreatureScript
             {
                 ASSERT(vehicle);
                 me->SetReactState(REACT_PASSIVE);
-                me->SetDisplayId(me->GetCreatureInfo()->Modelid2);
+                me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 instance = creature->GetInstanceScript();
             }
 
@@ -1736,25 +1740,29 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                     if (Vehicle* vehicle = GetCaster()->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(damage - 1))
                         {
-                            std::list<Unit*> unitList;
                             // use 99 because it is 3d search
-                            SearchAreaTarget(unitList, 99, PUSH_DST_CENTER, SPELL_TARGETS_ENTRY, NPC_SEAT);
+                            std::list<WorldObject*> targetList;
+                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, NULL);
+                            Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
+                            GetCaster()->GetMap()->VisitAll(GetCaster()->m_positionX, GetCaster()->m_positionY, 99, searcher);
                             float minDist = 99 * 99;
                             Unit* target = NULL;
-                            for (std::list<Unit*>::iterator itr = unitList.begin(); itr != unitList.end(); ++itr)
+                            for (std::list<WorldObject*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                             {
-                                if (Vehicle* seat = (*itr)->GetVehicleKit())
-                                    if (!seat->GetPassenger(0))
-                                        if (Unit* device = seat->GetPassenger(2))
-                                            if (!device->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
-                                            {
-                                                float dist = (*itr)->GetExactDistSq(targets.GetDst());
-                                                if (dist < minDist)
-                                                {
-                                                    minDist = dist;
-                                                    target = (*itr);
-                                                }
-                                            }
+                                if (Unit* unit = (*itr)->ToUnit())
+                                    if (unit->GetEntry() == NPC_SEAT)
+                                        if (Vehicle* seat = unit->GetVehicleKit())
+                                            if (!seat->GetPassenger(0))
+                                                if (Unit* device = seat->GetPassenger(2))
+                                                    if (!device->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
+                                                    {
+                                                        float dist = unit->GetExactDistSq(targets.GetDst());
+                                                        if (dist < minDist)
+                                                        {
+                                                            minDist = dist;
+                                                            target = unit;
+                                                        }
+                                                    }
                             }
                             if (target && target->IsWithinDist2d(targets.GetDst(), GetSpellInfo()->Effects[effIndex].CalcRadius() * 2)) // now we use *2 because the location of the seat is not correct
                                 passenger->EnterVehicle(target, 0);

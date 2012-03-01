@@ -196,7 +196,7 @@ class spell_gen_cannibalize : public SpellScriptLoader
                 float max_range = GetSpellInfo()->GetMaxRange(false);
                 WorldObject* result = NULL;
                 // search for nearby enemy corpse in range
-                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_SELECT_CHECK_ENEMY);
+                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
                 Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
                 caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
                 if (!result)
@@ -1084,7 +1084,7 @@ class spell_gen_seaforium_blast : public SpellScriptLoader
                 // but in effect handling OriginalCaster can become NULL
                 if (Unit* originalCaster = GetOriginalCaster())
                     if (GameObject* go = GetHitGObj())
-                        if (GetHitGObj()->GetGOInfo()->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
+                        if (go->GetGOInfo()->type == GAMEOBJECT_TYPE_DESTRUCTIBLE_BUILDING)
                             originalCaster->CastSpell(originalCaster, SPELL_PLANT_CHARGES_CREDIT_ACHIEVEMENT, true);
             }
 
@@ -1585,19 +1585,17 @@ class spell_gen_spirit_healer_res : public SpellScriptLoader
 
             bool Load()
             {
-                return GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetOriginalCaster() && GetOriginalCaster()->GetTypeId() == TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /* effIndex */)
             {
-                if (Player* originalCaster = GetOriginalCaster()->ToPlayer())
+                Player* originalCaster = GetOriginalCaster()->ToPlayer();
+                if (Unit* target = GetHitUnit())
                 {
-                    if (Unit* target = GetHitUnit())
-                    {
-                        WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
-                        data << uint64(target->GetGUID());
-                        originalCaster->GetSession()->SendPacket(&data);
-                    }
+                    WorldPacket data(SMSG_SPIRIT_HEALER_CONFIRM, 8);
+                    data << uint64(target->GetGUID());
+                    originalCaster->GetSession()->SendPacket(&data);
                 }
             }
 
