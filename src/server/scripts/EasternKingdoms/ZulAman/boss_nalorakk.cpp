@@ -136,7 +136,7 @@ class boss_nalorakk : public CreatureScript
                     inMove = false;
                     waitTimer = 0;
                     me->SetSpeed(MOVE_RUN, 2);
-                    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                    me->SetWalk(false);
                 }else
                 {
                     (*me).GetMotionMaster()->MovePoint(0, NalorakkWay[7][0], NalorakkWay[7][1], NalorakkWay[7][2]);

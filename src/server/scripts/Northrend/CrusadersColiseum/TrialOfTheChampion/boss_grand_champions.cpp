@@ -208,7 +208,7 @@ public:
             switch (i)
             {
                 case 2:
-                    if ((instance && uiWaypointPath == 3) || uiWaypointPath == 2)
+                    if (instance && (uiWaypointPath == 3 || uiWaypointPath == 2))
                         instance->SetData(DATA_MOVEMENT_DONE, instance->GetData(DATA_MOVEMENT_DONE)+1);
                     break;
                 case 3:

@@ -145,8 +145,8 @@ class boss_nazan : public CreatureScript
                         flight = false;
                         BellowingRoar_Timer = 6000;
                         ConeOfFire_Timer = 12000;
-                        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
-                        me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+                        me->SetLevitate(false);
+                        me->SetWalk(true);
                         me->GetMotionMaster()->Clear();
                         if (Unit* victim = SelectTarget(SELECT_TARGET_NEAREST, 0))
                             me->AI()->AttackStart(victim);
@@ -374,7 +374,7 @@ class boss_vazruden_the_herald : public CreatureScript
                 if (summoned->GetEntry() == ENTRY_NAZAN)
                 {
                     CAST_AI(boss_nazan::boss_nazanAI, summoned->AI())->VazrudenGUID = VazrudenGUID;
-                    summoned->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+                    summoned->SetLevitate(true);
                     summoned->SetSpeed(MOVE_FLIGHT, 2.5f);
                     if (victim)
                         AttackStartNoMove(victim);

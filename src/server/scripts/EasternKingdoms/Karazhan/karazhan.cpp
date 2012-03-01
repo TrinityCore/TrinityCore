@@ -527,7 +527,7 @@ public:
             if (!Arcanagos)
                 return;
             ArcanagosGUID = Arcanagos->GetGUID();
-            Arcanagos->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+            Arcanagos->SetLevitate(true);
             (*Arcanagos).GetMotionMaster()->MovePoint(0, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2]);
             Arcanagos->SetOrientation(ArcanagosPos[3]);
             me->SetOrientation(MedivPos[3]);

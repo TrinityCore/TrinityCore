@@ -258,7 +258,7 @@ public:
             if (summoned->isTotem())
                 return;
 
-            summoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            summoned->SetWalk(false);
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             summoned->AI()->AttackStart(me);
 
@@ -603,7 +603,7 @@ public:
             if (summoned->isTotem())
                 return;
 
-            summoned->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            summoned->SetWalk(false);
             summoned->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
             summoned->AI()->AttackStart(me);
         }
