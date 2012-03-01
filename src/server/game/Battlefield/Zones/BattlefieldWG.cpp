@@ -88,10 +88,13 @@ bool BattlefieldWG::SetupBattlefield()
     for (uint8 i = 0; i < BATTLEFIELD_WG_GY_MAX; i++)
     {
         BfGraveYardWG *gy = new BfGraveYardWG(this);
-        if (WGGraveYard[i].startcontrol == TEAM_NEUTRAL) // When between games, the graveyard is controlled by the defending team
-            gy->Init(NPC_TAUNKA_SPIRIT_GUIDE, NPC_DWARVEN_SPIRIT_GUIDE, WGGraveYard[i].x, WGGraveYard[i].y, WGGraveYard[i].z, WGGraveYard[i].o, m_DefenderTeam, WGGraveYard[i].gyid);
+
+        // When between games, the graveyard is controlled by the defending team
+        if (WGGraveYard[i].startcontrol == TEAM_NEUTRAL)
+            gy->Initialize(m_DefenderTeam, WGGraveYard[i].gyid);
         else
-            gy->Init(NPC_TAUNKA_SPIRIT_GUIDE, NPC_DWARVEN_SPIRIT_GUIDE, WGGraveYard[i].x, WGGraveYard[i].y, WGGraveYard[i].z, WGGraveYard[i].o, WGGraveYard[i].startcontrol, WGGraveYard[i].gyid);
+            gy->Initialize(WGGraveYard[i].startcontrol, WGGraveYard[i].gyid);
+
         gy->SetTextId(WGGraveYard[i].textid);
         m_GraveYardList[i] = gy;
     }
@@ -578,8 +581,53 @@ void BattlefieldWG::OnStartGrouping()
     SendWarningToAllInZone(BATTLEFIELD_WG_TEXT_WILL_START);
 }
 
+uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId)
+{
+    uint8 graveyardId = 0;
+
+    switch (areaId)
+    {
+        case AREA_WINTERGRASP_FORTRESS:
+            return BATTLEFIELD_WG_GY_KEEP;
+        case AREA_THE_SUNKEN_RING:
+            return BATTLEFIELD_WG_GY_WORKSHOP_NE;
+        case AREA_THE_BROKEN_TEMPLATE:
+            return BATTLEFIELD_WG_GY_WORKSHOP_NW;
+        case AREA_WESTPARK_WORKSHOP:
+            return BATTLEFIELD_WG_GY_WORKSHOP_SW;
+        case AREA_EASTPARK_WORKSHOP:
+            return BATTLEFIELD_WG_GY_WORKSHOP_SE;
+        case AREA_WINTERGRASP:
+            return BATTLEFIELD_WG_GY_ALLIANCE;
+        case AREA_THE_CHILLED_QUAGMIRE:
+            return BATTLEFIELD_WG_GY_HORDE;
+        default:
+            sLog->outError("<Error - Wintergrasp>: Unexpected Area Id %u", areaId);
+            break;
+    }
+
+    return graveyardId;
+}
+
 void BattlefieldWG::OnCreatureCreate(Creature *creature)
 {
+    // Accessing to db spawned creatures
+    switch (creature->GetEntry())
+    {
+        // Alliance Spirit
+        case NPC_DWARVEN_SPIRIT_GUIDE:
+        // Horde Spirit
+        case NPC_TAUNKA_SPIRIT_GUIDE:
+            {
+                TeamId teamId = creature->GetEntry() == NPC_DWARVEN_SPIRIT_GUIDE ? TEAM_ALLIANCE : TEAM_HORDE;
+                uint8 graveyardId = GetSpiritGraveyardId(creature->GetAreaId());
+                if (m_GraveYardList[graveyardId])
+                    m_GraveYardList[graveyardId]->SetSpirit(creature, teamId);
+            }
+            break;
+    }
+
+    // untested code - not sure if it is valid.
     if (IsWarTime())
     {
         switch (creature->GetEntry())
