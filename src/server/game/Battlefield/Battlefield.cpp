@@ -717,30 +717,22 @@ BfGraveYard::BfGraveYard(Battlefield *Bf)
     m_ResurrectQueue.clear();
 }
 
-void BfGraveYard::Init(uint32 horde_entry, uint32 alliance_entry, float x, float y, float z, float o, TeamId startcontrol, uint32 gy)
+void BfGraveYard::Initialize(TeamId startcontrol, uint32 gy)
 {
     m_ControlTeam = startcontrol;
-    if (Creature* cre = m_Bf->SpawnCreature(horde_entry, x, y, z, o, TEAM_HORDE))
-    {
-        m_SpiritGuide[TEAM_HORDE] = cre;
-        m_SpiritGuide[TEAM_HORDE]->SetReactState(REACT_PASSIVE);
-        if (m_ControlTeam == TEAM_ALLIANCE)
-            m_SpiritGuide[TEAM_HORDE]->SetVisible(false);
-    }
-    else
-        sLog->outError("BfGraveYard::Init can't spawn horde spiritguide %u", horde_entry);
-
-    if (Creature* cre = m_Bf->SpawnCreature(alliance_entry, x, y, z, o, TEAM_ALLIANCE))
-    {
-        m_SpiritGuide[TEAM_ALLIANCE] = cre;
-        m_SpiritGuide[TEAM_ALLIANCE]->SetReactState(REACT_PASSIVE);
-        if (m_ControlTeam == TEAM_HORDE)
-            m_SpiritGuide[TEAM_ALLIANCE]->SetVisible(false);
-    }
-    else
-        sLog->outError("BfGraveYard::Init can't spawn alliance spiritguide %u", alliance_entry);
-
     m_GraveyardId = gy;
+}
+
+void BfGraveYard::SetSpirit(Creature* spirit, TeamId team)
+{
+    if (!spirit)
+    {
+        sLog->outError("<Error - Wintergrasp>: Invalid Spirit.");
+        return;
+    }
+
+    m_SpiritGuide[team] = spirit->GetGUID();
+    spirit->SetReactState(REACT_PASSIVE);
 }
 
 float BfGraveYard::GetDistance(Player *plr)
@@ -782,8 +774,8 @@ void BfGraveYard::Resurrect()
 
         // Check player isinworld and player is on good graveyard
         if (plr->IsInWorld())
-            if (m_SpiritGuide[m_ControlTeam])
-                m_SpiritGuide[m_ControlTeam]->CastSpell(m_SpiritGuide[m_ControlTeam], SPELL_SPIRIT_HEAL, true);
+            if (Unit* spirit = sObjectAccessor->FindUnit(m_SpiritGuide[m_ControlTeam]))
+                spirit->CastSpell(spirit, SPELL_SPIRIT_HEAL, true);
 
         // Resurect player
         plr->CastSpell(plr, SPELL_RESURRECTION_VISUAL, true);
@@ -801,10 +793,11 @@ void BfGraveYard::Resurrect()
 void BfGraveYard::ChangeControl(TeamId team)
 {
     // Guide switching
-    if (m_SpiritGuide[1 - team])
+    // Note: Visiblity changes are made by phasing
+    /*if (m_SpiritGuide[1 - team])
         m_SpiritGuide[1 - team]->SetVisible(false);
     if (m_SpiritGuide[team])
-        m_SpiritGuide[team]->SetVisible(true);
+        m_SpiritGuide[team]->SetVisible(true);*/
 
     m_ControlTeam = team;
     // Teleport to other graveyard, player witch were on this graveyard

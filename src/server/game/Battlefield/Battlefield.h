@@ -145,14 +145,26 @@ public:
 
     // use for found the nearest graveyard
     float GetDistance(Player * plr);
-    void Init(uint32 horde_entry, uint32 alliance_entry, float x, float y, float z, float o, TeamId startcontrol, uint32 gy);
+    void Initialize(TeamId startcontrol, uint32 gy);
+    void SetSpirit(Creature* spirit, TeamId team);
     void AddPlayer(uint64 player_guid);
     void RemovePlayer(uint64 player_guid);
 
     void Resurrect();
     void RelocateDeadPlayers();
 
-    bool HasNpc(uint64 guid) { return (m_SpiritGuide[0]->GetGUID() == guid || m_SpiritGuide[1]->GetGUID() == guid); }
+    bool HasNpc(uint64 guid)
+    {
+        // npcs could not be loaded in the map yet.
+        if (!m_SpiritGuide[0] || !m_SpiritGuide[1])
+            return false;
+
+        if (!sObjectAccessor->FindUnit(m_SpiritGuide[0]) ||
+            !sObjectAccessor->FindUnit(m_SpiritGuide[1]))
+            return false;
+
+        return (m_SpiritGuide[0] == guid || m_SpiritGuide[1] == guid);
+    }
     bool HasPlayer(uint64 guid) { return m_ResurrectQueue.find(guid) != m_ResurrectQueue.end(); }
     uint32 GetGraveYardId() { return m_GraveyardId; }
 
@@ -160,7 +172,7 @@ protected:
 
     TeamId m_ControlTeam;
     uint32 m_GraveyardId;
-    Creature *m_SpiritGuide[2];
+    uint64 m_SpiritGuide[2];
     GuidSet m_ResurrectQueue;
     Battlefield *m_Bf;
 };
