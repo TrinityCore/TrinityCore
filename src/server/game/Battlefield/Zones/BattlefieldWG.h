@@ -142,6 +142,18 @@ enum eWGWorldStates
     BATTLEFIELD_WG_WORLD_STATE_DEFENDER          = 3802,
     BATTLEFIELD_WG_WORLD_STATE_ATTACKER          = 3803,
 };
+
+enum WGAreaIds
+{
+    AREA_WINTERGRASP_FORTRESS       = 4575,
+    AREA_THE_SUNKEN_RING            = 4538,
+    AREA_THE_BROKEN_TEMPLATE        = 4539,
+    AREA_WESTPARK_WORKSHOP          = 4611,
+    AREA_EASTPARK_WORKSHOP          = 4612,
+    AREA_WINTERGRASP                = 4197,
+    AREA_THE_CHILLED_QUAGMIRE       = 4589,
+};
+
 /*#########################
 *####### Graveyards ######*
 #########################*/
@@ -157,7 +169,7 @@ class BfGraveYardWG : public BfGraveYard
     uint32 m_GossipTextId;
 };
 
-enum eWGGraveyardId
+enum WGGraveyardId
 {
     BATTLEFIELD_WG_GY_WORKSHOP_NE,
     BATTLEFIELD_WG_GY_WORKSHOP_NW,
@@ -414,6 +426,8 @@ class BattlefieldWG : public Battlefield
         void UpdateTenacity();
         void ProcessEvent(WorldObject *obj, uint32 eventId);
 
+        // returns the graveyardId in the specified area.
+        uint8 GetSpiritGraveyardId(uint32 areaId);
     protected:
         bool m_CanClickOnOrb;
         GameObject* m_relic;
