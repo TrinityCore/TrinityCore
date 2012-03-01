@@ -27,6 +27,7 @@
 #include "InstanceScript.h"
 #include "ScriptedCreature.h"
 #include "GameEventMgr.h"
+#include "CreatureTextMgr.h"
 
 #include "SmartScriptMgr.h"
 
