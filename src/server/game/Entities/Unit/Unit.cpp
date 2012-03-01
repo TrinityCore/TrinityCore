@@ -17171,12 +17171,16 @@ bool Unit::UpdatePosition(float x, float y, float z, float orientation, bool tel
             GetMap()->CreatureRelocation(ToCreature(), x, y, z, orientation);
     }
     else if (turn)
-        SetOrientation(orientation);
-
-    if ((relocated || turn) && IsVehicle())
-        GetVehicleKit()->RelocatePassengers(x, y, z, orientation);
+        UpdateOrientation(orientation);
 
     return (relocated || turn);
+}
+
+void Unit::UpdateOrientation(float orientation)
+{
+    SetOrientation(orientation);
+    if (IsVehicle())
+        GetVehicleKit()->RelocatePassengers(GetPositionX(), GetPositionY(), GetPositionZ(), GetOrientation());
 }
 
 void Unit::SendThreatListUpdate()
