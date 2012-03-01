@@ -223,6 +223,7 @@ public:
         sWaypointMgr->ReloadPath(id);
         return true;
     }
+
     static bool HandleWpUnLoadCommand(ChatHandler* handler, const char* /*args*/)
     {
 
@@ -605,7 +606,7 @@ public:
             return false;
         }
 
-        if (show == "del" && target)
+        if (show == "del")
         {
             handler->PSendSysMessage("|cff00ff00DEBUG: wp modify del, PathID: |r|cff00ffff%u|r", pathid);
 
@@ -615,9 +616,12 @@ public:
             if (wpGuid != 0)
             {
                 wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT));
-                wpCreature->CombatStop();
-                wpCreature->DeleteFromDB();
-                wpCreature->AddObjectToRemoveList();
+                if (wpCreature)
+                {
+                    wpCreature->CombatStop();
+                    wpCreature->DeleteFromDB();
+                    wpCreature->AddObjectToRemoveList();
+                }
             }
 
             PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_DEL_WAYPOINT_DATA);
@@ -638,7 +642,7 @@ public:
             return true;
         }                                                       // del
 
-        if (show == "move" && target)
+        if (show == "move")
         {
             handler->PSendSysMessage("|cff00ff00DEBUG: wp move, PathID: |r|cff00ffff%u|r", pathid);
 
@@ -652,16 +656,20 @@ public:
                 // Respawn the owner of the waypoints
                 if (wpGuid != 0)
                 {
-                    wpCreature = handler->GetSession()->GetPlayer()->GetMap()->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT));
-                    wpCreature->CombatStop();
-                    wpCreature->DeleteFromDB();
-                    wpCreature->AddObjectToRemoveList();
+                    wpCreature = map->GetCreature(MAKE_NEW_GUID(wpGuid, VISUAL_WAYPOINT, HIGHGUID_UNIT));
+                    if (wpCreature)
+                    {
+                        wpCreature->CombatStop();
+                        wpCreature->DeleteFromDB();
+                        wpCreature->AddObjectToRemoveList();
+                    }
                     // re-create
                     Creature* wpCreature2 = new Creature;
                     if (!wpCreature2->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMaskForSpawn(), VISUAL_WAYPOINT, 0, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                         delete wpCreature2;
+                        wpCreature2 = NULL;
                         return false;
                     }
 
@@ -672,6 +680,7 @@ public:
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                         delete wpCreature2;
+                        wpCreature2 = NULL;
                         return false;
                     }
                     //sMapMgr->GetMap(npcCreature->GetMapId())->Add(wpCreature2);
