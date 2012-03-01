@@ -117,7 +117,7 @@ public:
                         // Interrupt any spell casting
                         me->InterruptNonMeleeSpells(false);
                         // Gyth model
-                        me->SetDisplayId(me->GetCreatureInfo()->Modelid1);
+                        me->SetDisplayId(me->GetCreatureTemplate()->Modelid1);
                         me->SummonCreature(NPC_WARCHIEF_REND_BLACKHAND, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 900 * IN_MILLISECONDS);
                         events.ScheduleEvent(EVENT_CORROSIVE_ACID, 8 * IN_MILLISECONDS);
                         events.ScheduleEvent(EVENT_FREEZE, 11 * IN_MILLISECONDS);

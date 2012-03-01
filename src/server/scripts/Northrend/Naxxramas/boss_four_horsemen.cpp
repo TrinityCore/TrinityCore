@@ -194,7 +194,7 @@ public:
         {
             movementStarted = true;
             me->SetReactState(REACT_PASSIVE);
-            me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+            me->SetWalk(false);
             me->SetSpeed(MOVE_RUN, me->GetSpeedRate(MOVE_RUN), true);
 
             switch (id)

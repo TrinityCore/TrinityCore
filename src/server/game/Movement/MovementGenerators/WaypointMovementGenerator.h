@@ -123,7 +123,7 @@ public PathMovementBase<Player, TaxiPathNodeList const*>
         void Initialize(Player &);
         void Reset(Player &);
         void Finalize(Player &);
-        bool Update(Player &, const uint32);
+        bool Update(Player &, const uint32&);
         MovementGeneratorType GetMovementGeneratorType() { return FLIGHT_MOTION_TYPE; }
 
         TaxiPathNodeList const& GetPath() { return *i_path; }

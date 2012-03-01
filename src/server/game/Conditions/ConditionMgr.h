@@ -48,7 +48,7 @@ enum ConditionTypes
     CONDITION_CLASS                 = 15,                   // class            0              0                  true if player's class is equal to class
     CONDITION_RACE                  = 16,                   // race             0              0                  true if player's race is equal to race
     CONDITION_ACHIEVEMENT           = 17,                   // achievement_id   0              0                  true if achievement is complete
-    CONDITION_SPELL_SCRIPT_TARGET   = 18,                   // SpellScriptTargetType, TargetEntry,            0
+    CONDITION_UNUSED_18             = 18,                   //
     CONDITION_UNUSED_19             = 19,                   //
     CONDITION_UNUSED_20             = 20,                   //
     CONDITION_UNUSED_21             = 21,                   //
@@ -72,6 +72,33 @@ enum ConditionTypes
     CONDITION_MAX                   = 39                    // MAX
 };
 
+/*! Documentation on implementing a new ConditionSourceType:
+    Step 1: Check for the lowest free ID. Look for CONDITION_SOURCE_TYPE_UNUSED_XX in the enum.
+            Then define the new source type.
+
+    Step 2: Determine and map the parameters for the new condition type.
+
+    Step 3: Add a case block to ConditionMgr::isSourceTypeValid with the new condition type
+            and validate the parameters.
+
+    Step 4: If your condition can be grouped (determined in step 2), add a rule for it in
+            ConditionMgr::CanHaveSourceGroupSet, following the example of the existing types.
+
+    Step 5: Define the maximum available condition targets in ConditionMgr::GetMaxAvailableConditionTargets.
+
+    The following steps only apply if your condition can be grouped:
+
+    Step 6: Determine how you are going to store your conditions. You need to add a new storage container
+            for it in ConditionMgr class, along with a function like: 
+            ConditionList GetConditionsForXXXYourNewSourceTypeXXX(parameters...)
+
+            The above function should be placed in upper level (practical) code that actually 
+            checks the conditions.
+
+    Step 7: Implement loading for your source type in ConditionMgr::LoadConditions.
+
+    Step 8: Implement memory cleaning for your source type in ConditionMgr::Clean.
+*/
 enum ConditionSourceType
 {
     CONDITION_SOURCE_TYPE_NONE                           = 0,
@@ -87,7 +114,7 @@ enum ConditionSourceType
     CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE        = 10,
     CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE         = 11,
     CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE            = 12,
-    CONDITION_SOURCE_TYPE_SPELL_SCRIPT_TARGET            = 13,
+    CONDITION_SOURCE_TYPE_SPELL_IMPLICIT_TARGET          = 13,
     CONDITION_SOURCE_TYPE_GOSSIP_MENU                    = 14,
     CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION             = 15,
     CONDITION_SOURCE_TYPE_CREATURE_TEMPLATE_VEHICLE      = 16,
@@ -173,6 +200,7 @@ struct Condition
     }
 
     bool Meets(ConditionSourceInfo& sourceInfo);
+    uint32 GetSearcherTypeMaskForCondition();
     bool isLoaded() const { return ConditionType > CONDITION_NONE || ReferenceId; }
     uint32 GetMaxAvailableConditionTargets();
 };
@@ -198,9 +226,12 @@ class ConditionMgr
         bool isConditionTypeValid(Condition* cond);
         ConditionList GetConditionReferences(uint32 refId);
 
+        uint32 GetSearcherTypeMaskForConditionList(ConditionList const& conditions);
         bool IsObjectMeetToConditions(WorldObject* object, ConditionList const& conditions);
         bool IsObjectMeetToConditions(WorldObject* object1, WorldObject* object2, ConditionList const& conditions);
         bool IsObjectMeetToConditions(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
+        bool CanHaveSourceGroupSet(ConditionSourceType sourceType) const;
+        bool CanHaveSourceIdSet(ConditionSourceType sourceType) const;
         ConditionList GetConditionsForNotGroupedEntry(ConditionSourceType sourceType, uint32 entry);
         ConditionList GetConditionsForSpellClickEvent(uint32 creatureId, uint32 spellId);
         ConditionList GetConditionsForSmartEvent(int32 entryOrGuid, uint32 eventId, uint32 sourceType);
@@ -211,28 +242,8 @@ class ConditionMgr
         bool addToLootTemplate(Condition* cond, LootTemplate* loot);
         bool addToGossipMenus(Condition* cond);
         bool addToGossipMenuItems(Condition* cond);
+        bool addToSpellImplicitTargetConditions(Condition* cond);
         bool IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, ConditionList const& conditions);
-
-        bool isGroupable(ConditionSourceType sourceType) const
-        {
-            return (sourceType == CONDITION_SOURCE_TYPE_CREATURE_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_DISENCHANT_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_FISHING_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_GAMEOBJECT_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_ITEM_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_MAIL_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_MILLING_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_PICKPOCKETING_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_PROSPECTING_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_REFERENCE_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_SKINNING_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_SPELL_LOOT_TEMPLATE ||
-                    sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU ||
-                    sourceType == CONDITION_SOURCE_TYPE_GOSSIP_MENU_OPTION ||
-                    sourceType == CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT ||
-                    sourceType == CONDITION_SOURCE_TYPE_VEHICLE_SPELL ||
-                    sourceType == CONDITION_SOURCE_TYPE_SMART_EVENT);
-        }
 
         void Clean(); // free up resources
         std::list<Condition*> AllocatedMemoryStore; // some garbage collection :)

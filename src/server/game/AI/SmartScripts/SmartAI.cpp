@@ -45,7 +45,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mCanRepeatPath = false;
 
     // spawn in run mode
-    me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+    me->SetWalk(false);
     mRun = false;
 
     me->GetPosition(&mLastOOCPos);
@@ -524,7 +524,7 @@ bool SmartAI::AssistPlayerInCombat(Unit* who)
         return false;
 
     //experimental (unknown) flag not present
-    if (!(me->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
+    if (!(me->GetCreatureTemplate()->type_flags & CREATURE_TYPEFLAGS_AID_PLAYERS))
         return false;
 
     //not a player
@@ -561,7 +561,7 @@ void SmartAI::JustRespawned()
     mDespawnState = 0;
     mEscortState = SMART_ESCORT_NONE;
     me->SetVisible(true);
-    if (me->getFaction() != me->GetCreatureInfo()->faction_A)
+    if (me->getFaction() != me->GetCreatureTemplate()->faction_A)
         me->RestoreFaction();
     GetScript()->ProcessEventsFor(SMART_EVENT_RESPAWN);
     Reset();
@@ -720,9 +720,9 @@ uint64 SmartAI::GetGUID(int32 /*id*/)
 void SmartAI::SetRun(bool run)
 {
     if (run)
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        me->SetWalk(false);
     else
-        me->AddUnitMovementFlag(MOVEMENTFLAG_WALKING);
+        me->SetWalk(true);
 
     mRun = run;
 }
@@ -731,12 +731,12 @@ void SmartAI::SetFly(bool fly)
 {
     if (fly)
     {
-        me->AddUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+        me->SetLevitate(true);
         me->SetByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
     }
     else
     {
-        me->RemoveUnitMovementFlag(MOVEMENTFLAG_LEVITATING);
+        me->SetLevitate(false);
         me->RemoveByteFlag(UNIT_FIELD_BYTES_1, 3, 0x01);
     }
     me->SetFlying(fly);
