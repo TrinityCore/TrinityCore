@@ -23,7 +23,6 @@
 #include "CreatureAI.h"
 #include "Unit.h"
 #include "ConditionMgr.h"
-#include "CreatureTextMgr.h"
 #include "Spell.h"
 #include "GridNotifiers.h"
 
