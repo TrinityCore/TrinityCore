@@ -32,6 +32,7 @@
 #include "Group.h"
 #include "LFGMgr.h"
 #include "DynamicTree.h"
+#include "Vehicle.h"
 
 union u_map_magic
 {
@@ -702,6 +703,8 @@ void Map::PlayerRelocation(Player* player, float x, float y, float z, float orie
     Cell new_cell(x, y);
 
     player->Relocate(x, y, z, orientation);
+    if (player->IsVehicle())
+        player->GetVehicleKit()->RelocatePassengers(x, y, z, orientation);
 
     if (old_cell.DiffGrid(new_cell) || old_cell.DiffCell(new_cell))
     {
@@ -740,6 +743,8 @@ void Map::CreatureRelocation(Creature* creature, float x, float y, float z, floa
     else
     {
         creature->Relocate(x, y, z, ang);
+        if (creature->IsVehicle())
+            creature->GetVehicleKit()->RelocatePassengers(x, y, z, ang);
         creature->UpdateObjectVisibility(false);
         RemoveCreatureFromMoveList(creature);
     }
