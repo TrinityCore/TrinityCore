@@ -27,15 +27,18 @@
 
 enum texts
 {
-    SAY_EVENT_1 = 0,
-    SAY_EVENT_2 = 1,
-    SAY_EVENT_3 = 2,
-    SAY_EVENT_4 = 3,
-    SAY_EVENT_5 = 4,
-    SAY_EVENT_6 = 5,
-    SAY_EVENT_7 = 6,
-    SAY_EVENT_8 = 7,
-    SAY_BRANN   = 8,
+    SAY_EVENT_1     = 0,
+    SAY_EVENT_2     = 1,
+    SAY_EVENT_3     = 2,
+    SAY_EVENT_4     = 3,
+    SAY_EVENT_5     = 4,
+    SAY_EVENT_6     = 5,
+    SAY_EVENT_7     = 6,
+    SAY_EVENT_8     = 7,
+    SAY_BRANN       = 8,
+    SAY_BRANN2      = 9,
+    SAY_DEACTIVATE  = 10,
+	SAY_WHISPER     = 11,
 };
 
 class npc_lorekeeper : public CreatureScript
@@ -47,9 +50,9 @@ class npc_lorekeeper : public CreatureScript
         {
             npc_lorekeeperAI(Creature* creature) : ScriptedAI(creature)
             {
-                Step = 0;
+                IntroStep = 0;
                 event = false;
-                greet=false;
+                greet = false;
             }
 			
             void MoveInLineOfSight(Unit* who)
@@ -59,113 +62,194 @@ class npc_lorekeeper : public CreatureScript
 			
                 if (me->IsWithinDistInMap(who, 10.0f) && who->GetTypeId() == TYPEID_PLAYER)
                 {
-                    Step=1;
-                    StepTimer = 100;
-                    Event();
+                    IntroStep=1;
+                    IntroTimer = 100;
+                    Intro();
                     greet=true;
                 }
             }
 			
-            void Event()
+            void Intro()
             {
-                if(!Step)
+                if(!IntroStep)
                     return;
 
                 if (event)
                     return;
 					
-                switch (Step)
+                switch (IntroStep)
                 {
                     case 1:
                         if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
                             Dellorah->AI()->Talk(SAY_EVENT_1);
-                        JumpNextStep(10000);
+                        JumpIntro(10000);
                         break;
                     case 2:
                         Talk(SAY_EVENT_1);
-                        JumpNextStep(10000);
+                        JumpIntro(10000);
                         break;
                     case 3:
                         if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
                             Dellorah->AI()->Talk(SAY_EVENT_2);
-                        JumpNextStep(10000);
+                        JumpIntro(10000);
                         break;
                     case 4:
                         Talk(SAY_EVENT_2);
-                        JumpNextStep(10000);
+                        JumpIntro(10000);
                         break;
                     case 5:
                         if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
                             Dellorah->AI()->Talk(SAY_EVENT_3);
-                        JumpNextStep(10000);
+                        JumpIntro(10000);
                         break;
                     case 6:
                         Talk(SAY_EVENT_3);
-                        JumpNextStep(10000);
+                        JumpIntro(10000);
                         break;
                     case 7:
                         Talk(SAY_EVENT_4);
-                        JumpNextStep(10000);
+                        JumpIntro(10000);
                         break;
                     case 8:
                         if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
                             Dellorah->AI()->Talk(SAY_EVENT_4);
-                        JumpNextStep(10000);
+                        JumpIntro(10000);
                         break;
                     case 9:
-                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
-                            Dellorah->AI()->Talk(SAY_EVENT_5);
-                        JumpNextStep(10000);
+                        if (Creature* Rhydian = me->FindNearestCreature(NPC_RHYDIAN, 150.0f))
+                        {
+                            if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            {
+                                Dellorah->SetTarget(Rhydian->GetGUID());
+                                Dellorah->AI()->Talk(SAY_EVENT_5);
+                            }
+                        }
+                        JumpIntro(6000);
                         break;
                     case 10:
-                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
-                            Dellorah->AI()->Talk(SAY_EVENT_6);
-                        JumpNextStep(10000);
+                        if (Creature* Rhydian = me->FindNearestCreature(NPC_RHYDIAN, 150.0f))
+                        {
+                            if (Creature* Brann = me->FindNearestCreature(NPC_BRANN_BRONZBEARD, 200.0f, true))
+                            {
+                                Rhydian->AI()->Talk(SAY_EVENT_7);
+                                Rhydian->GetMotionMaster()->MovePoint(0, Brann->GetPositionX() - 4, Brann->GetPositionY(), Brann->GetPositionZ());
+                            }
+                        }
+                        JumpIntro(500);
                         break;
                     case 11:
-                        if (Creature* Rhydian = me->FindNearestCreature(NPC_RHYDIAN, 150.0f))
-                            Rhydian->AI()->Talk(SAY_EVENT_7);
-                        JumpNextStep(10000);
+                        if (Creature* Nognnanon = me->FindNearestCreature(NPC_NORGANNON, 150.0f))
+                        {
+                            if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            {
+                                Dellorah->SetTarget(Nognnanon->GetGUID());
+                                Dellorah->AI()->Talk(SAY_EVENT_6);
+                            }
+                        }
+                        JumpIntro(10000);
                         break;
                     case 12:
                         Talk(SAY_EVENT_8);
-                        JumpNextStep(10000);
+                        if (Creature* Rhydian = me->FindNearestCreature(NPC_RHYDIAN, 200.0f))
+                        {
+                            if (Creature* Brann = me->FindNearestCreature(NPC_BRANN_BRONZBEARD, 200.0f, true))
+                            {
+                                Rhydian->SetTarget(Brann->GetGUID());
+                                Rhydian->AI()->Talk(SAY_WHISPER);
+                            }
+                        }
+                        JumpIntro(10000);
                         break;
                     case 13:
-                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
-                            Dellorah->AI()->Talk(SAY_EVENT_8);
-                        JumpNextStep(1000);
-                        break;
-                    case 14:
-                        me->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
+                        if (Creature* Rhydian = me->FindNearestCreature(NPC_RHYDIAN, 200.0f))
+                        {
+                            if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 200.0f))
+                            {
+                                Rhydian->GetMotionMaster()->MovePoint(0, Dellorah->GetPositionX() - 2, Dellorah->GetPositionY(), Dellorah->GetPositionZ());
+                                Dellorah->AI()->Talk(SAY_EVENT_8);
+                            }
+                        }
                         event=true;
                         break;
                     default:
                         break;
                 }
             }
-			
-            void JumpNextStep(uint32 Time)
+
+            void HardMode()
             {
-                StepTimer = Time;
-                Step++;
+                if(!HardStep)
+                    return;
+					
+                event=true;
+					
+                switch (HardStep)
+                {
+                    case 1:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 150.0f))
+                            Dellorah->AI()->Talk(SAY_BRANN);
+                        JumpHard(4000);
+                        break;
+                    case 2:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 200.0f, true))
+                        {
+                            if (Creature* Brann = me->FindNearestCreature(NPC_BRANN_BRONZBEARD, 200.0f, true))
+                                Dellorah->GetMotionMaster()->MovePoint(0, Brann->GetPositionX() - 4, Brann->GetPositionY(), Brann->GetPositionZ());
+                        }
+                        JumpHard(5000);
+                        break;
+                    case 3:
+                        if (Creature* Dellorah = me->FindNearestCreature(NPC_DELORAH, 200.0f, true))
+                        {
+                            if (Creature* Brann = me->FindNearestCreature(NPC_BRANN_BRONZBEARD, 200.0f, true))
+                            {
+                                Dellorah->SetTarget(Brann->GetGUID());
+                                Dellorah->AI()->Talk(SAY_BRANN2);
+                            }
+                        }
+                        JumpHard(5000);
+                        break;
+                    default:
+                        break;
+                }
+            }
+			
+            void JumpIntro(uint32 TimeIntro)
+            {
+                IntroTimer = TimeIntro;
+                IntroStep++;
+            }
+
+            void JumpHard(uint32 TimeHard)
+            {
+                HardTimer = TimeHard;
+                HardStep++;
             }
 			
             void UpdateAI(uint32 const diff)
             {
-                if(StepTimer < diff)
-                   Event();
+                if(IntroTimer < diff)
+                   Intro();
                 else
-                   StepTimer -= diff;
+                   IntroTimer -= diff;
+				   
+                if(HardTimer < diff)
+                   HardMode();
+                else
+                   HardTimer -= diff;
 				
                 return;
             }
 			
         private:
-            uint32 StepTimer;
-            uint32 Step;
+            uint32 IntroTimer;
+            uint32 IntroStep;
             bool event;
             bool greet;
+            InstanceScript* instance;
+        public:
+            uint32 HardTimer;
+            uint32 HardStep;
 		
         };
 
@@ -194,21 +278,11 @@ class npc_lorekeeper : public CreatureScript
                         player->SEND_GOSSIP_MENU(32001, creature->GetGUID());
 
                     if (Creature* leviathan = instance->instance->GetCreature(instance->GetData64(BOSS_LEVIATHAN)))
-                    {
                         leviathan->AI()->DoAction(ACTION_ACTIVATE_HARD_MODE);
-
-                        if (Creature* Delorah = creature->FindNearestCreature(NPC_DELORAH, 200.0f, true))
-                        {
-                            if (Creature* Brann = creature->FindNearestCreature(NPC_BRANN_BRONZBEARD, 200.0f, true))
-                            {
-                                Delorah->GetMotionMaster()->MovePoint(0, Brann->GetPositionX() - 4, Brann->GetPositionY(), Brann->GetPositionZ());
-                                Delorah->AI()->Talk(SAY_BRANN);
-                            }
-                        }
-                        creature->SetVisible(false);
-                        if (Creature* KepperUnit = creature->FindNearestCreature(NPC_KEEPER_UNIT, 150.0f))
-                            KepperUnit->SetVisible(false);
-                    }
+         
+                    CAST_AI(npc_lorekeeperAI, creature->AI())->HardStep=1;
+                    CAST_AI(npc_lorekeeperAI, creature->AI())->HardTimer = 100;
+                    CAST_AI(npc_lorekeeperAI, creature->AI())->HardMode();
                     break;
             }
 
@@ -388,83 +462,83 @@ public:
             {
                 case 1:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 2:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 3:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 4:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 5:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 6:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 7:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 8:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 9:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 10:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 11:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 12:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 13:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 14:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 15:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 16:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 17:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 18:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 19:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 case 20:
                     Spawn();
-                    JumpNextStep(1000);
+                    JumpIntro(1000);
                     break;
                 default:
                     break;
@@ -476,7 +550,7 @@ public:
             DoCast(me, 63135);
         }
 
-        void JumpNextStep(uint32 Time)
+        void JumpIntro(uint32 Time)
         {
             StepTimer = Time;
             Step++;
