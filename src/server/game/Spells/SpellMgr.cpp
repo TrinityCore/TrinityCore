@@ -30,6 +30,8 @@
 #include "CreatureAI.h"
 #include "MapManager.h"
 #include "BattlegroundIC.h"
+#include "BattlefieldWG.h"
+#include "BattlefieldMgr.h"
 
 bool IsPrimaryProfessionSkill(uint32 skill)
 {
@@ -1145,6 +1147,26 @@ bool SpellArea::IsFitToRequirements(Player const* player, uint32 newZone, uint32
 
             return false;
         }
+        case 56618: // Horde Controls Factory Phase Shift
+        case 56617: // Alliance Controls Factory Phase Shift
+            {
+                if (!player)
+                    return false;
+
+                Battlefield* bf = sBattlefieldMgr.GetBattlefieldToZoneId(player->GetZoneId());
+
+                if (!bf || bf->GetTypeId() != BATTLEFIELD_WG)
+                    return false;
+
+                // team that controls the workshop in the specified area
+                uint32 team = bf->GetData(newArea);
+                
+                if (team == TEAM_HORDE)
+                    return spellId == 56618;
+                else if (team == TEAM_ALLIANCE)
+                    return spellId == 56617;
+            }
+            break;
     }
 
     return true;
