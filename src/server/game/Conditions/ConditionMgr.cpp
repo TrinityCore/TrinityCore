@@ -515,7 +515,9 @@ bool ConditionMgr::IsObjectMeetToConditionList(ConditionSourceInfo& sourceInfo, 
         sLog->outDebug(LOG_FILTER_CONDITIONSYS, "ConditionMgr::IsPlayerMeetToConditionList condType: %u val1: %u", (*i)->ConditionType, (*i)->ConditionValue1);
         if ((*i)->isLoaded())
         {
+            //! Find ElseGroup in ElseGroupStore
             std::map<uint32, bool>::const_iterator itr = ElseGroupStore.find((*i)->ElseGroup);
+            //! If not found, add an entry in the store and set to true (placeholder)
             if (itr == ElseGroupStore.end())
                 ElseGroupStore[(*i)->ElseGroup] = true;
             else if (!(*itr).second)
@@ -854,18 +856,6 @@ void ConditionMgr::LoadConditions(bool isReload)
                     break;
                 case CONDITION_SOURCE_TYPE_SPELL_CLICK_EVENT:
                 {
-                    //if no list for npc create one
-                    if (SpellClickEventConditionStore.find(cond->SourceGroup) == SpellClickEventConditionStore.end())
-                    {
-                        ConditionTypeContainer cmap;
-                        SpellClickEventConditionStore[cond->SourceGroup] = cmap;
-                    }
-                    //if no list for spellclick spell create one
-                    if (SpellClickEventConditionStore[cond->SourceGroup].find(cond->SourceEntry) == SpellClickEventConditionStore[cond->SourceGroup].end())
-                    {
-                        ConditionList clist;
-                        SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry] = clist;
-                    }
                     SpellClickEventConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
@@ -877,18 +867,6 @@ void ConditionMgr::LoadConditions(bool isReload)
                     break;
                 case CONDITION_SOURCE_TYPE_VEHICLE_SPELL:
                 {
-                    //if no list for vehicle create one
-                    if (VehicleSpellConditionStore.find(cond->SourceGroup) == VehicleSpellConditionStore.end())
-                    {
-                        ConditionTypeContainer cmap;
-                        VehicleSpellConditionStore[cond->SourceGroup] = cmap;
-                    }
-                    //if no list for vehicle's spell create one
-                    if (VehicleSpellConditionStore[cond->SourceGroup].find(cond->SourceEntry) == VehicleSpellConditionStore[cond->SourceGroup].end())
-                    {
-                        ConditionList clist;
-                        VehicleSpellConditionStore[cond->SourceGroup][cond->SourceEntry] = clist;
-                    }
                     VehicleSpellConditionStore[cond->SourceGroup][cond->SourceEntry].push_back(cond);
                     valid = true;
                     ++count;
@@ -896,18 +874,8 @@ void ConditionMgr::LoadConditions(bool isReload)
                 }
                 case CONDITION_SOURCE_TYPE_SMART_EVENT:
                 {
-                    // If the entry does not exist, create a new list
+                    //! TODO: PAIR_32 ?
                     std::pair<int32, uint32> key = std::make_pair(cond->SourceEntry, cond->SourceId);
-                    if (SmartEventConditionStore.find(key) == SmartEventConditionStore.end())
-                    {
-                        ConditionTypeContainer cmap;
-                        SmartEventConditionStore[key] = cmap;
-                    }
-                    if (SmartEventConditionStore[key].find(cond->SourceGroup) == SmartEventConditionStore[key].end())
-                    {
-                        ConditionList clist;
-                        SmartEventConditionStore[key][cond->SourceGroup] = clist;
-                    }
                     SmartEventConditionStore[key][cond->SourceGroup].push_back(cond);
                     valid = true;
                     ++count;
@@ -1928,6 +1896,19 @@ void ConditionMgr::Clean()
     }
 
     SmartEventConditionStore.clear();
+
+    for (CreatureSpellConditionContainer::iterator itr = SpellClickEventConditionStore.begin(); itr != SpellClickEventConditionStore.end(); ++itr)
+    {
+        for (ConditionTypeContainer::iterator it = itr->second.begin(); it != itr->second.end(); ++it)
+        {
+            for (ConditionList::const_iterator i = it->second.begin(); i != it->second.end(); ++i)
+                delete *i;
+            it->second.clear();
+        }
+        itr->second.clear();
+    }
+
+    SpellClickEventConditionStore.clear();
 
     // this is a BIG hack, feel free to fix it if you can figure out the ConditionMgr ;)
     for (std::list<Condition*>::const_iterator itr = AllocatedMemoryStore.begin(); itr != AllocatedMemoryStore.end(); ++itr)
