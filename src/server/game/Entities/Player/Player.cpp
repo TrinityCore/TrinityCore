@@ -7421,6 +7421,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
         }
     }
 
+    sScriptMgr->OnPlayerUpdateZone(this, newZone, newArea);
+
     // in PvP, any not controlled zone (except zone->team == 6, default case)
     // in PvE, only opposition team capital
     switch (zone->team)
