@@ -431,6 +431,7 @@ void Vehicle::RemovePassenger(Unit* unit)
         sScriptMgr->OnRemovePassenger(this, unit);
 }
 
+//! Must be called after m_base::Relocate
 void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
 {
     ASSERT(_me->GetMap());
@@ -440,8 +441,6 @@ void Vehicle::RelocatePassengers(float x, float y, float z, float ang)
         if (Unit* passenger = ObjectAccessor::GetUnit(*GetBase(), itr->second.Passenger))
         {
             ASSERT(passenger->IsInWorld());
-            ASSERT(passenger->IsOnVehicle(GetBase()));
-            ASSERT(GetSeatForPassenger(passenger));
 
             float px = x + passenger->m_movementInfo.t_pos.m_positionX;
             float py = y + passenger->m_movementInfo.t_pos.m_positionY;
