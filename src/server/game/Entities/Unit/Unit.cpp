@@ -784,20 +784,9 @@ uint32 Unit::DealDamage(Unit* victim, uint32 damage, CleanDamage const* cleanDam
         // last damage from duel opponent
         if (duel_hasEnded)
         {
-            Player* he;
+            Player* he = duel_wasMounted ? victim->GetCharmer()->ToPlayer() : victim->ToPlayer();
 
-            if (duel_wasMounted)
-            {
-                ASSERT(victim->GetCharmer()->GetTypeId() == TYPEID_PLAYER);
-                he = victim->GetCharmer()->ToPlayer();
-            }
-            else
-            {
-                ASSERT(victim->GetTypeId() == TYPEID_PLAYER);
-                he = victim->ToPlayer();
-            }
-
-            ASSERT(he->duel);
+            ASSERT(he && he->duel);
 
             if (duel_wasMounted) // In this case victim==mount
                 victim->SetHealth(1);
