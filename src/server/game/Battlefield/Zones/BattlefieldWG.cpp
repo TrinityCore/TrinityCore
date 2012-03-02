@@ -238,19 +238,6 @@ bool BattlefieldWG::Update(uint32 diff)
 
     }
 
-    for (uint8 team = 0; team < 2; ++team)
-        for (GuidSet::const_iterator itr = m_players[team].begin(); itr != m_players[team].end(); ++itr)
-            if (Player* player = sObjectAccessor->FindPlayer(*itr))
-                for (BfCapturePointMap::iterator cp_itr = m_capturePoints.begin(); cp_itr != m_capturePoints.end(); ++cp_itr)
-                {
-                    if ((*cp_itr).second->GetCapturePointGo()->GetExactDist2dSq(player) < 22500.0f) // 150*150
-                    {
-                        player->AddAura((*cp_itr).second->GetTeamId() == TEAM_HORDE ? SPELL_HORDE_CONTROLS_FACTORY_PHASE_SHIFT : SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT, player);
-                        player->RemoveAurasDueToSpell((*cp_itr).second->GetTeamId() == TEAM_ALLIANCE ? SPELL_HORDE_CONTROLS_FACTORY_PHASE_SHIFT : SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
-                        break;
-                    }
-                }
-
     return m_return;
 }
 
@@ -862,6 +849,7 @@ void BattlefieldWG::OnPlayerLeaveWar(Player* player)
         player->RemoveAurasDueToSpell(SPELL_CORPORAL);
         player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         player->RemoveAurasDueToSpell(SPELL_TENACITY);
         player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
         player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_WINTERGRASP);
@@ -882,6 +870,7 @@ void BattlefieldWG::OnPlayerLeaveZone(Player* player)
         player->RemoveAurasDueToSpell(SPELL_CORPORAL);
         player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         player->RemoveAurasDueToSpell(SPELL_TENACITY);
         player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
@@ -901,6 +890,7 @@ void BattlefieldWG::OnPlayerEnterZone(Player* player)
         player->RemoveAurasDueToSpell(SPELL_CORPORAL);
         player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
         player->RemoveAurasDueToSpell(SPELL_TENACITY);
         player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
         player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
@@ -911,6 +901,24 @@ void BattlefieldWG::OnPlayerEnterZone(Player* player)
     player->AddAura(m_DefenderTeam == TEAM_HORDE ? SPELL_HORDE_CONTROL_PHASE_SHIFT : SPELL_ALLIANCE_CONTROL_PHASE_SHIFT, player);
     // Send worldstate to player
     SendInitWorldStatesTo(player);
+}
+
+uint32 BattlefieldWG::GetData(uint32 data)
+{
+    switch (data)
+    {
+        // Used to determine when the phasing spells must be casted
+        // See: SpellArea::IsFitToRequirements
+        case AREA_THE_SUNKEN_RING:
+        case AREA_THE_BROKEN_TEMPLATE:
+        case AREA_WESTPARK_WORKSHOP:
+        case AREA_EASTPARK_WORKSHOP:
+            // Graveyards and Workshops are controlled by the same team.
+            if (m_GraveYardList[GetSpiritGraveyardId(data)])
+                return m_GraveYardList[GetSpiritGraveyardId(data)]->GetControlTeamId();
+    }
+
+    return 0;
 }
 
 // Method sending worldsate to player

@@ -428,6 +428,8 @@ class BattlefieldWG : public Battlefield
 
         // returns the graveyardId in the specified area.
         uint8 GetSpiritGraveyardId(uint32 areaId);
+
+        uint32 GetData(uint32 data);
     protected:
         bool m_CanClickOnOrb;
         GameObject* m_relic;
