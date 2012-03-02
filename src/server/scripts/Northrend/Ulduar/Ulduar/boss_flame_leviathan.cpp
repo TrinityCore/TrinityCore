@@ -1756,7 +1756,7 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                                                 if (Unit* device = seat->GetPassenger(2))
                                                     if (!device->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
                                                     {
-                                                        float dist = unit->GetExactDistSq(targets.GetDst());
+                                                        float dist = unit->GetExactDistSq(targets.GetDstPos());
                                                         if (dist < minDist)
                                                         {
                                                             minDist = dist;
@@ -1764,13 +1764,13 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                                                         }
                                                     }
                             }
-                            if (target && target->IsWithinDist2d(targets.GetDst(), GetSpellInfo()->Effects[effIndex].CalcRadius() * 2)) // now we use *2 because the location of the seat is not correct
+                            if (target && target->IsWithinDist2d(targets.GetDstPos(), GetSpellInfo()->Effects[effIndex].CalcRadius() * 2)) // now we use *2 because the location of the seat is not correct
                                 passenger->EnterVehicle(target, 0);
                             else
                             {
                                 passenger->ExitVehicle();
                                 float x, y, z;
-                                targets.GetDst()->GetPosition(x, y, z);
+                                targets.GetDstPos()->GetPosition(x, y, z);
                                 passenger->GetMotionMaster()->MoveJump(x, y, z, targets.GetSpeedXY(), targets.GetSpeedZ());
                             }
                         }
