@@ -44,6 +44,7 @@ enum Yells
     SAY_YS_HELP                                 = -1603259
 };
 
+#define SAY_TIME_1                              "Warning, this zone will be destroyed in 10 minutes!"
 #define SAY_ALARM_HARD_MODE                     "Self destruction frequence initalized!"
 #define EMOTE_LEVIATHAN                         "Leviathan MK II begins to cast Plasma Blast!"
 
@@ -436,7 +437,7 @@ class boss_mimiron : public CreatureScript
                             case 2:
                                 me->SetName("Mimiron");
                                 DoScriptText(_mimironHardMode ? SAY_HARDMODE_ON : SAY_AGGRO, me);
-                                JumpToNextStep(10000);
+                                JumpToNextStep(15000);
                                 break;
                             case 3:
                                 if (instance)
@@ -444,13 +445,25 @@ class boss_mimiron : public CreatureScript
                                     if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
                                         me->EnterVehicle(Leviathan, 4);
                                 }
+                                me->SetName("Computer");
                                 JumpToNextStep(2000);
                                 break;
                             case 4:
-                                me->ChangeSeat(2);
-                                JumpToNextStep(2000);
+                                if(_mimironHardMode)
+                                {
+                                    me->PlayDirectSound(15415);
+                                    me->MonsterYell(SAY_TIME_1, LANG_UNIVERSAL, 0);
+                                    me->ChangeSeat(2);
+                                    JumpToNextStep(3000);
+                                }
+                                else
+                                {
+                                    me->ChangeSeat(2);
+                                    JumpToNextStep(2000);
+                                }
                                 break;
                             case 5:
+                                me->SetName("Mimiron");
                                 me->ChangeSeat(5);
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                 JumpToNextStep(2500);
