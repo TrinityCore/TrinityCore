@@ -71,6 +71,8 @@ class instance_ulduar : public InstanceMapScript
             uint64 VezaxGUID;
             uint64 YoggSaronGUID;
             uint64 SaraGUID;
+            uint64 NognnanonGUID;
+            uint64 RhydianGUID;
             uint64 YoggSaronDoorGUID;
             uint64 YoggSaronBrainDoor1GUID;
             uint64 YoggSaronBrainDoor2GUID;
@@ -139,6 +141,8 @@ class instance_ulduar : public InstanceMapScript
                 YoggSaronBrainDoor2GUID          = 0;
                 YoggSaronBrainDoor3GUID          = 0;
                 SaraGUID                         = 0;
+                NognnanonGUID                    = 0;
+                RhydianGUID                      = 0;
                 SupportKeeperFlag                = 0;
                 PlayerDeathFlag                  = 0;
                 AlgalonGUID                      = 0;
@@ -337,6 +341,12 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case NPC_LEVIATHAN:
                         LeviathanGUID = creature->GetGUID();
+                        break;
+                    case NPC_NORGANNON:
+                        NognnanonGUID = creature->GetGUID();
+                        break;
+                    case NPC_RHYDIAN:
+                        RhydianGUID = creature->GetGUID();
                         break;
                     case NPC_IGNIS:
                         IgnisGUID = creature->GetGUID();
@@ -911,6 +921,10 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case BOSS_LEVIATHAN:
                         return LeviathanGUID;
+                    case TYPE_NOGNNANON:
+                        return NognnanonGUID;
+                    case TYPE_RHYDIAN:
+                        return RhydianGUID;
                     case BOSS_IGNIS:
                         return IgnisGUID;
                     case BOSS_RAZORSCALE:

@@ -45,6 +45,8 @@ enum UlduarBosses
     BOSS_VEZAX               = 17,
     BOSS_YOGGSARON           = 18,
     BOSS_ALGALON             = 19,
+    TYPE_NOGNNANON           = 30,
+    TYPE_RHYDIAN             = 31,
 };
 
 enum UlduarNPCs
@@ -84,7 +86,8 @@ enum UlduarNPCs
     NPC_ULDUAR_WARMAGE           = 33662,
     NPC_RHYDIAN                  = 33696,
     NPC_KEEPER_UNIT              = 33721,
-
+    NPC_NORGANNON                = 33686,
+	
     // Mimiron
     NPC_LEVIATHAN_MKII           = 33432,
     NPC_VX_001                   = 33651,
@@ -341,7 +344,7 @@ enum UlduarBossDeadFlags
 
 enum UlduarActions
 {
-    ACTION_ACTIVATE_HARD_MODE        = 12
+    ACTION_ACTIVATE_HARD_MODE        = 12,
 };
 
 enum UlduarAchievementData
