@@ -44,6 +44,7 @@ enum Yells
     SAY_YS_HELP                                 = -1603259
 };
 
+#define SAY_ALARM_HARD_MODE                     "Self destruction frequence initalized!"
 #define EMOTE_LEVIATHAN                         "Leviathan MK II begins to cast Plasma Blast!"
 
 enum Spells
@@ -424,10 +425,20 @@ class boss_mimiron : public CreatureScript
                         switch (_step)
                         {
                             case 1:
+                                if (_mimironHardMode)
+                                {
+                                    me->SetName("Computer");
+                                    me->MonsterYell(SAY_ALARM_HARD_MODE, LANG_UNIVERSAL, 0);
+                                    me->PlayDirectSound(15413);
+                                }
+                                JumpToNextStep(2000);
+                                break;
+                            case 2:
+                                me->SetName("Mimiron");
                                 DoScriptText(_mimironHardMode ? SAY_HARDMODE_ON : SAY_AGGRO, me);
                                 JumpToNextStep(10000);
                                 break;
-                            case 2:
+                            case 3:
                                 if (instance)
                                 {
                                     if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
@@ -435,25 +446,25 @@ class boss_mimiron : public CreatureScript
                                 }
                                 JumpToNextStep(2000);
                                 break;
-                            case 3:
+                            case 4:
                                 me->ChangeSeat(2);
                                 JumpToNextStep(2000);
                                 break;
-                            case 4:
+                            case 5:
                                 me->ChangeSeat(5);
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_STAND);
                                 JumpToNextStep(2500);
                                 break;
-                            case 5:
+                            case 6:
                                 DoScriptText(SAY_MKII_ACTIVATE, me);
                                 me->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_TALK);
                                 JumpToNextStep(6000);
                                 break;
-                            case 6:
+                            case 7:
                                 me->ChangeSeat(6);
                                 JumpToNextStep(2000);
                                 break;
-                            case 7:
+                            case 8:
                                 if (instance)
                                 {
                                     if (Creature* Leviathan = me->GetCreature(*me, instance->GetData64(DATA_LEVIATHAN_MK_II)))
