@@ -371,7 +371,8 @@ void Unit::MonsterMoveWithSpeed(float x, float y, float z, float speed)
 
 void Unit::UpdateSplineMovement(uint32 t_diff)
 {
-    enum{
+    enum
+    {
         POSITION_UPDATE_DELAY = 400,
     };
 
@@ -391,15 +392,15 @@ void Unit::UpdateSplineMovement(uint32 t_diff)
         Movement::Location loc = movespline->ComputePosition();
 
         if (GetTypeId() == TYPEID_PLAYER)
-            ((Player*)this)->UpdatePosition(loc.x,loc.y,loc.z,loc.orientation);
+            ((Player*)this)->UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
         else
-            GetMap()->CreatureRelocation((Creature*)this,loc.x,loc.y,loc.z,loc.orientation);
+            ((Creature*)this)->UpdatePosition(loc.x, loc.y, loc.z, loc.orientation);
     }
 }
 
 void Unit::DisableSpline()
 {
-    m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEMENTFLAG_SPLINE_ENABLED|MOVEMENTFLAG_FORWARD));
+    m_movementInfo.RemoveMovementFlag(MovementFlags(MOVEMENTFLAG_SPLINE_ENABLED | MOVEMENTFLAG_FORWARD));
     movespline->_Interrupt();
 }
 

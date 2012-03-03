@@ -3402,13 +3402,6 @@ void SpellMgr::LoadDbcDataCorrections()
             case 64600: // Freya - Nature Bomb (GO Visual)
                 spellInfo->DurationIndex = 38; // 11 seconds
                 break;
-            case 62056: // Kologarn - some Stone Grip related Spells that have SPELL_ATTR1_IGNORE_IMMUNITY (NYI?)
-            case 63985:
-            case 64224:
-            case 64225:
-            case 62287: // Tar Passive
-                spellInfo->Attributes |= SPELL_ATTR0_UNAFFECTED_BY_INVULNERABILITY;
-                break;
             case 63716: // Kologarn - Stone Shout
             case 64005:
                 spellInfo->EffectImplicitTargetA[0] = TARGET_UNIT_CASTER;
