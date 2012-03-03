@@ -494,7 +494,7 @@ void Battlefield::SendUpdateWorldState(uint32 field, uint32 value)
 
 void Battlefield::RegisterZone(uint32 zoneId)
 {
-    sBattlefieldMgr.AddZone(zoneId, this);
+    sBattlefieldMgr->AddZone(zoneId, this);
 }
 
 void Battlefield::HideNpc(Creature *p_Creature)
