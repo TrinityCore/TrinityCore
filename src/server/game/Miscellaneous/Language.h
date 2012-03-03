@@ -811,7 +811,9 @@ enum TrinityStrings
     LANG_MOVEGENS_FOLLOW_CREATURE       = 1140,
     LANG_MOVEGENS_FOLLOW_NULL           = 1141,
     LANG_MOVEGENS_EFFECT                = 1142,
-    // Room for more level 3              1143-1199 not used
+    LANG_MOVEFLAGS_GET                  = 1143,
+    LANG_MOVEFLAGS_SET                  = 1144,
+    // Room for more level 3              1144-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
