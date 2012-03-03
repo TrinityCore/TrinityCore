@@ -102,7 +102,7 @@ void WorldSession::HandleBfQueueInviteResponse(WorldPacket & recv_data)
 
     recv_data >> BattleId >> Accepted;
     sLog->outError("HandleQueueInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
-    Battlefield* Bf = sBattlefieldMgr.GetBattlefieldByBattleId(BattleId);
+    Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;
 
@@ -120,7 +120,7 @@ void WorldSession::HandleBfEntryInviteResponse(WorldPacket & recv_data)
 
     recv_data >> BattleId >> Accepted;
     sLog->outError("HandleBattlefieldInviteResponse: BattleID:%u Accepted:%u", BattleId, Accepted);
-    Battlefield* Bf = sBattlefieldMgr.GetBattlefieldByBattleId(BattleId);
+    Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;
 
@@ -142,7 +142,7 @@ void WorldSession::HandleBfExitRequest(WorldPacket & recv_data)
 
     recv_data >> BattleId;
     sLog->outError("HandleBfExitRequest: BattleID:%u ", BattleId);
-    Battlefield* Bf = sBattlefieldMgr.GetBattlefieldByBattleId(BattleId);
+    Battlefield* Bf = sBattlefieldMgr->GetBattlefieldByBattleId(BattleId);
     if (!Bf)
         return;
 
