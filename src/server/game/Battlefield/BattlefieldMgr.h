@@ -74,6 +74,6 @@ class BattlefieldMgr
     uint32 m_UpdateTimer;
 };
 
-#define sBattlefieldMgr (*ACE_Singleton<BattlefieldMgr, ACE_Null_Mutex>::instance())
+#define sBattlefieldMgr ACE_Singleton<BattlefieldMgr, ACE_Null_Mutex>::instance()
 
 #endif

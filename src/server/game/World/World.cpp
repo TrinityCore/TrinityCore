@@ -1745,7 +1745,7 @@ void World::SetInitialWorldSettings()
 
     ///- Initialize Battlefield
     sLog->outString("Starting Battlefield System");
-    sBattlefieldMgr.InitBattlefield();
+    sBattlefieldMgr->InitBattlefield();
 
     sLog->outString("Loading Transports...");
     sMapMgr->LoadTransports();
@@ -2021,7 +2021,7 @@ void World::Update(uint32 diff)
     sOutdoorPvPMgr->Update(diff);
     RecordTimeDiff("UpdateOutdoorPvPMgr");
 
-    sBattlefieldMgr.Update(diff);
+    sBattlefieldMgr->Update(diff);
     RecordTimeDiff("BattlefieldMgr");
 
     ///- Delete all characters which have been deleted X days before
