@@ -431,13 +431,26 @@ class boss_mimiron : public CreatureScript
                                     me->SetName("Computer");
                                     me->MonsterYell(SAY_ALARM_HARD_MODE, LANG_UNIVERSAL, 0);
                                     me->PlayDirectSound(15413);
+                                    JumpToNextStep(2000);
                                 }
-                                JumpToNextStep(2000);
+                                else
+                                {
+                                    JumpToNextStep(1);
+                                }
                                 break;
                             case 2:
-                                me->SetName("Mimiron");
-                                DoScriptText(_mimironHardMode ? SAY_HARDMODE_ON : SAY_AGGRO, me);
-                                JumpToNextStep(15000);
+                                if(_mimironHardMode)
+                                {
+                                    me->SetName("Mimiron");
+                                    DoScriptText(SAY_HARDMODE_ON, me);
+                                    JumpToNextStep(15000);
+                                }
+                                else
+                                {
+                                    me->SetName("Mimiron");
+                                    DoScriptText(SAY_AGGRO, me);
+                                    JumpToNextStep(10000);
+                                }
                                 break;
                             case 3:
                                 if (instance)
