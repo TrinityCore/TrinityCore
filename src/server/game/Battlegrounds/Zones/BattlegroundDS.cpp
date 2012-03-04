@@ -139,6 +139,12 @@ void BattlegroundDS::StartingEventOpenDoors()
     // Turn off collision
     if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
         gob->SetGoState(GO_STATE_ACTIVE);
+
+    // Remove effects of Demonic Circle Summon
+    for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+        if (Player* player = ObjectAccessor::FindPlayer(itr->first))
+            if (itr->HasAura(48018))
+                itr->RemoveAurasDueToSpell(48018);
 }
 
 void BattlegroundDS::AddPlayer(Player* player)
@@ -187,6 +193,10 @@ void BattlegroundDS::HandleAreaTrigger(Player* Source, uint32 Trigger)
     {
         case 5347:
         case 5348:
+            // Remove effects of Demonic Circle Summon
+            if (Source->HasAura(48018))
+                Source->RemoveAurasDueToSpell(48018);
+
             // Someone has get back into the pipes and the knockback has already been performed,
             // so we reset the knockback count for kicking the player again into the arena.
             if (getPipeKnockBackCount() >= BG_DS_PIPE_KNOCKBACK_TOTAL_COUNT)
