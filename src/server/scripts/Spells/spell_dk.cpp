@@ -772,13 +772,11 @@ class spell_dk_death_grip : public SpellScriptLoader
             void HandleDummy(SpellEffIndex effIndex)
             {
                 int32 damage = GetEffectValue();
-                Position pos;
+                Position const* pos = GetTargetDest();
                 if (Unit* target = GetHitUnit())
                 {
-                    GetSummonPosition(effIndex, pos, 0.0f, 0);
-
                     if (!target->HasAuraType(SPELL_AURA_DEFLECT_SPELLS)) // Deterrence
-                        target->CastSpell(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), damage, true);
+                        target->CastSpell(pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), damage, true);
                 }
             }
 

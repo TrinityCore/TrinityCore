@@ -89,6 +89,7 @@ public:
             { "itemexpire",     SEC_ADMINISTRATOR,  false, &HandleDebugItemExpireCommand,      "", NULL },
             { "areatriggers",   SEC_ADMINISTRATOR,  false, &HandleDebugAreaTriggersCommand,    "", NULL },
             { "los",            SEC_MODERATOR,      false, &HandleDebugLoSCommand,             "", NULL },
+            { "moveflags",      SEC_ADMINISTRATOR,  false, &HandleDebugMoveflagsCommand,       "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
         static ChatCommand commandTable[] =
@@ -1281,6 +1282,41 @@ public:
         target->SetUInt32Value(opcode,  value);
 
         handler->PSendSysMessage(LANG_SET_32BIT_FIELD, opcode, value);
+        return true;
+    }
+
+    static bool HandleDebugMoveflagsCommand(ChatHandler* handler, char const* args)
+    {
+        Unit* target = handler->getSelectedUnit();
+        if (!target)
+            target = handler->GetSession()->GetPlayer();
+
+        if (!*args)
+        {
+            //! Display case
+            handler->PSendSysMessage(LANG_MOVEFLAGS_GET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
+        }
+        else
+        {
+            char* mask1 = strtok((char*)args, " ");
+            if (!mask1)
+                return false;
+
+            char* mask2 = strtok(NULL, " \n");
+            
+            uint32 moveFlags = (uint32)atoi(mask1);
+            target->SetUnitMovementFlags(moveFlags);
+            
+            if (mask2)
+            {
+                uint32 moveFlagsExtra = uint32(atoi(mask2));
+                target->SetExtraUnitMovementFlags(moveFlagsExtra);
+            }
+
+            target->SendMovementFlagUpdate();
+            handler->PSendSysMessage(LANG_MOVEFLAGS_SET, target->GetUnitMovementFlags(), target->GetExtraUnitMovementFlags());
+        }
+        
         return true;
     }
 };

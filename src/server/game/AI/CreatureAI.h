@@ -19,9 +19,9 @@
 #ifndef TRINITY_CREATUREAI_H
 #define TRINITY_CREATUREAI_H
 
+#include "Creature.h"
 #include "UnitAI.h"
 #include "Common.h"
-#include "CreatureTextMgr.h"
 
 class WorldObject;
 class Unit;

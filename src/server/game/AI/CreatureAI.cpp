@@ -25,6 +25,7 @@
 #include "Log.h"
 #include "MapReference.h"
 #include "Player.h"
+#include "CreatureTextMgr.h"
 #include "Group.h"
 
 //Disable CreatureAI when charmed

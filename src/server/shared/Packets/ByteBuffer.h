@@ -27,22 +27,53 @@
 class ByteBufferException
 {
     public:
-        ByteBufferException(bool _add, size_t _pos, size_t _esize, size_t _size)
-            : add(_add), pos(_pos), esize(_esize), size(_size)
+        ByteBufferException(size_t pos, size_t size, size_t valueSize)
+            : Pos(pos), Size(size), ValueSize(valueSize)
         {
-            PrintPosError();
         }
 
-        void PrintPosError() const
+    protected:
+
+        size_t Pos;
+        size_t Size;
+        size_t ValueSize;
+};
+
+class ByteBufferPositionException : public ByteBufferException
+{
+    public:
+        ByteBufferPositionException(bool add, size_t pos, size_t size, size_t valueSize)
+        : ByteBufferException(pos, size, valueSize), _add(add)
         {
-            sLog->outError("Attempted to %s in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD") value with size: " SIZEFMTD,
-                (add ? "put" : "get"), pos, size, esize);
+            PrintError();
         }
+
+    protected:
+        void PrintError() const
+        {
+            sLog->outError("Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD") " ,
+                ValueSize, (_add ? "put" : "get"), Pos, Size);
+        }
+
     private:
-        bool add;
-        size_t pos;
-        size_t esize;
-        size_t size;
+        bool _add;
+};
+
+class ByteBufferSourceException : public ByteBufferException
+{
+    public:
+        ByteBufferSourceException(size_t pos, size_t size, size_t valueSize)
+        : ByteBufferException(pos, size, valueSize)
+        {
+            PrintError();
+        }
+
+    protected:
+        void PrintError() const
+        {
+            sLog->outError("Attempted to put a %s in ByteBuffer (pos: "SIZEFMTD" size: "SIZEFMTD")",
+                (ValueSize > 0 ? "NULL-pointer" : "zero-sized value"), Pos, Size);
+        }
 };
 
 class ByteBuffer
@@ -147,14 +178,17 @@ class ByteBuffer
 
         ByteBuffer &operator<<(const std::string &value)
         {
-            append((uint8 const*)value.c_str(), value.length());
+            if (size_t len = value.length())
+                append((uint8 const*)value.c_str(), len);
             append((uint8)0);
             return *this;
         }
 
         ByteBuffer &operator<<(const char *str)
         {
-            append((uint8 const*)str, str ? strlen(str) : 0);
+            size_t len = 0;
+            if (str && (len = strlen(str)))
+                append((uint8 const*)str, len);
             append((uint8)0);
             return *this;
         }
@@ -271,7 +305,7 @@ class ByteBuffer
         void read_skip(size_t skip)
         {
             if (_rpos + skip > size())
-                throw ByteBufferException(false, _rpos, skip, size());
+                throw ByteBufferPositionException(false, _rpos, skip, size());
             _rpos += skip;
         }
 
@@ -285,7 +319,7 @@ class ByteBuffer
         template <typename T> T read(size_t pos) const
         {
             if (pos + sizeof(T) > size())
-                throw ByteBufferException(false, pos, sizeof(T), size());
+                throw ByteBufferPositionException(false, pos, sizeof(T), size());
             T val = *((T const*)&_storage[pos]);
             EndianConvert(val);
             return val;
@@ -294,7 +328,7 @@ class ByteBuffer
         void read(uint8 *dest, size_t len)
         {
             if (_rpos  + len > size())
-               throw ByteBufferException(false, _rpos, len, size());
+               throw ByteBufferPositionException(false, _rpos, len, size());
             memcpy(dest, &_storage[_rpos], len);
             _rpos += len;
         }
@@ -302,7 +336,7 @@ class ByteBuffer
         void readPackGUID(uint64& guid)
         {
             if (rpos() + 1 > size())
-                throw ByteBufferException(false, _rpos, 1, size());
+                throw ByteBufferPositionException(false, _rpos, 1, size());
 
             guid = 0;
 
@@ -314,7 +348,7 @@ class ByteBuffer
                 if (guidmark & (uint8(1) << i))
                 {
                     if (rpos() + 1 > size())
-                        throw ByteBufferException(false, _rpos, 1, size());
+                        throw ByteBufferPositionException(false, _rpos, 1, size());
 
                     uint8 bit;
                     (*this) >> bit;
@@ -341,11 +375,6 @@ class ByteBuffer
                 _storage.reserve(ressize);
         }
 
-        void append(const std::string& str)
-        {
-            append((uint8 const*)str.c_str(), str.size() + 1);
-        }
-
         void append(const char *src, size_t cnt)
         {
             return append((const uint8 *)src, cnt);
@@ -359,7 +388,10 @@ class ByteBuffer
         void append(const uint8 *src, size_t cnt)
         {
             if (!cnt)
-                return;
+                throw ByteBufferSourceException(_wpos, size(), cnt);
+
+            if (!src)
+                throw ByteBufferSourceException(_wpos, size(), cnt);
 
             ASSERT(size() < 10000000);
 
@@ -407,7 +439,11 @@ class ByteBuffer
         void put(size_t pos, const uint8 *src, size_t cnt)
         {
             if (pos + cnt > size())
-               throw ByteBufferException(true, pos, cnt, size());
+                throw ByteBufferPositionException(true, pos, cnt, size());
+
+            if (!src)
+                throw ByteBufferSourceException(_wpos, size(), cnt);
+
             memcpy(&_storage[pos], src, cnt);
         }
 
