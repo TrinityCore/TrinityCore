@@ -421,9 +421,6 @@ namespace VMAP
 
     bool WorldModel::IntersectRay(const G3D::Ray &ray, float &distance, bool stopAtFirstHit) const
     {
-        // M2 models are not taken into account for LoS calculation
-        if (Flags & MOD_M2)
-            return false;
         // small M2 workaround, maybe better make separate class with virtual intersection funcs
         // in any case, there's no need to use a bound tree if we only have one submodel
         if (groupModels.size() == 1)
