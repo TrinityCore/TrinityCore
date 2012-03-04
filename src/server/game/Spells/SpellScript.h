@@ -324,6 +324,8 @@ class SpellScript : public _SpellScript
         Item* GetHitItem();
         // returns: target of current effect if it was GameObject otherwise NULL
         GameObject* GetHitGObj();
+        // returns: destination of current effect
+        WorldLocation const* GetHitDest();
         // setter/getter for for damage done by spell to target of spell hit
         // returns damage calculated before hit, and real dmg done after hit
         int32 GetHitDamage();
@@ -335,7 +337,6 @@ class SpellScript : public _SpellScript
         void SetHitHeal(int32 heal);
         void PreventHitHeal() { SetHitHeal(0); }
         Spell* GetSpell() { return m_spell; }
-        void GetSummonPosition(uint32 i, Position &pos, float radius, uint32 count);
         // returns current spell hit target aura
         Aura* GetHitAura();
         // prevents applying aura on current spell hit target

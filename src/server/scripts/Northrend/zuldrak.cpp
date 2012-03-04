@@ -617,9 +617,9 @@ public:
                 pWhisker->RemoveFromWorld();
         }
 
-        void MovementInform(uint32 uiType, uint32 /*uiId*/)
+        void MovementInform(uint32 type, uint32 /*pointId*/)
         {
-            if (uiType != POINT_MOTION_TYPE)
+            if (type != EFFECT_MOTION_TYPE)
                 return;
 
             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);

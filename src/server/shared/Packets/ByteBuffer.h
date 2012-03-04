@@ -33,7 +33,6 @@ class ByteBufferException
         }
 
     protected:
-
         size_t Pos;
         size_t Size;
         size_t ValueSize;
@@ -52,7 +51,7 @@ class ByteBufferPositionException : public ByteBufferException
         void PrintError() const
         {
             sLog->outError("Attempted to %s value with size: "SIZEFMTD" in ByteBuffer (pos: " SIZEFMTD " size: "SIZEFMTD") " ,
-                ValueSize, (_add ? "put" : "get"), Pos, Size);
+                (_add ? "put" : "get"), ValueSize, Pos, Size);
         }
 
     private:
