@@ -210,6 +210,10 @@ enum ScoreType
     //SOTA
     SCORE_DESTROYED_DEMOLISHER  = 18,
     SCORE_DESTROYED_WALL        = 19,
+    /** World of Warcraft Armory **/
+    SCORE_DAMAGE_TAKEN          = 20,
+    SCORE_HEALING_TAKEN         = 21
+    /** World of Warcraft Armory **/
 };
 
 enum ArenaType
@@ -292,6 +296,10 @@ class BattlegroundScore
         uint32 BonusHonor;
         uint32 DamageDone;
         uint32 HealingDone;
+        /** World of Warcraft Armory **/
+        uint32 DamageTaken;
+        uint32 HealingTaken;
+        /** World of Warcraft Armory **/
 };
 
 enum BGHonorMode
