@@ -882,6 +882,11 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBonusDamage(int32(m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FROST) * 0.33f));
                     break;
                 }
+				case 37994: // mage Eternal (Glyphed) Water Elemental
+				{
+					SetBonusDamage(int32(m_owner->SpellBaseDamageBonus(SPELL_SCHOOL_MASK_FROST) * 0.33f));                    
+					break;
+				}
                 case 1964: //force of nature
                 {
                     if (!pInfo)
