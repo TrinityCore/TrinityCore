@@ -32,6 +32,7 @@ at_sholazar_waygate             q12548
 at_nats_landing                 q11209
 at_bring_your_orphan_to         q910 q910 q1800 q1479 q1687 q1558 q10951 q10952
 at_brewfest
+at_area_52_entrance
 EndContentData */
 
 #include "ScriptPCH.h"
@@ -420,6 +421,47 @@ class AreaTrigger_at_brewfest : public AreaTriggerScript
         std::map<uint32, time_t> _triggerTimes;
 };
 
+/*######
+## at_area_52_entrance
+######*/
+
+enum Area52Entrance
+{
+    NPC_SPOTLIGHT       = 19913,
+    SUMMON_COOLDOWN     = 5,
+
+    AT_AREA_52_SOUTH    = 4472,
+    AT_AREA_52_NORTH    = 4466,
+    AT_AREA_52_WEST     = 4471,
+    AT_AREA_52_EAST     = 4422,
+};
+
+class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
+{
+    public:
+        AreaTrigger_at_area_52_entrance() : AreaTriggerScript("at_area_52_entrance")
+        {
+            _triggerTimes[AT_AREA_52_SOUTH] = _triggerTimes[AT_AREA_52_NORTH] = _triggerTimes[AT_AREA_52_WEST] = _triggerTimes[AT_AREA_52_EAST] = 0;
+        }
+
+        bool OnTrigger(Player* player, AreaTriggerEntry const* trigger)
+        {
+            if (!player->isAlive())
+                return false;
+
+            if (sWorld->GetGameTime() - _triggerTimes[trigger->id] < SUMMON_COOLDOWN)
+                return false;
+
+            player->SummonCreature(NPC_SPOTLIGHT, trigger->x, trigger->y, trigger->z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+
+            _triggerTimes[trigger->id] = sWorld->GetGameTime();
+            return false;
+        }
+
+    private:
+        std::map<uint32, time_t> _triggerTimes;
+};
+
 void AddSC_areatrigger_scripts()
 {
     new AreaTrigger_at_coilfang_waterfall();
@@ -431,4 +473,5 @@ void AddSC_areatrigger_scripts()
     new AreaTrigger_at_nats_landing();
     new AreaTrigger_at_bring_your_orphan_to();
     new AreaTrigger_at_brewfest();
+    new AreaTrigger_at_area_52_entrance();
 }
