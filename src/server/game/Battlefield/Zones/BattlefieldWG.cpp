@@ -452,18 +452,10 @@ void BattlefieldWG::OnBattleEnd(bool endbytimer)
     for (uint8 team = 0; team < 2; ++team)
     {
         for (GuidSet::const_iterator itr = m_PlayersInWar[team].begin(); itr != m_PlayersInWar[team].end(); ++itr)
-        {
             if (Player* player = sObjectAccessor->FindPlayer(*itr))
-            {
-                player->RemoveAura(SPELL_TOWER_CONTROL);
-                player->RemoveAurasDueToSpell(SPELL_RECRUIT);
-                player->RemoveAurasDueToSpell(SPELL_CORPORAL);
-                player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
-                player->RemoveAurasDueToSpell(SPELL_TENACITY);
-                player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
-            }
-        }
-        m_PlayersInWar[team].clear();
+                RemoveAurasFromPlayer(player);
+
+                m_PlayersInWar[team].clear();
 
         for (GuidSet::const_iterator itr = m_vehicles[team].begin(); itr != m_vehicles[team].end(); ++itr)
         {
@@ -826,7 +818,7 @@ void BattlefieldWG::PromotePlayer(Player* killer)
     }
 }
 
-void BattlefieldWG::OnPlayerJoinWar(Player* player)
+void BattlefieldWG::RemoveAurasFromPlayer(Player* player)
 {
     player->RemoveAurasDueToSpell(SPELL_RECRUIT);
     player->RemoveAurasDueToSpell(SPELL_CORPORAL);
@@ -835,6 +827,12 @@ void BattlefieldWG::OnPlayerJoinWar(Player* player)
     player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
     player->RemoveAurasDueToSpell(SPELL_TENACITY);
     player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_WINTERGRASP);
+    player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
+}
+
+void BattlefieldWG::OnPlayerJoinWar(Player* player)
+{
+    RemoveAurasFromPlayer(player);
 
     player->CastSpell(player, SPELL_RECRUIT, true);
 
@@ -875,15 +873,7 @@ void BattlefieldWG::OnPlayerLeaveWar(Player* player)
     {
         if (player->GetVehicle())                              // Remove vehicle of player if he go out.
             player->GetVehicle()->Dismiss();
-        player->RemoveAurasDueToSpell(SPELL_RECRUIT);
-        player->RemoveAurasDueToSpell(SPELL_CORPORAL);
-        player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
-        player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
-        player->RemoveAurasDueToSpell(SPELL_TENACITY);
-        player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
-        player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_WINTERGRASP);
-        player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
+        RemoveAurasFromPlayer(player);
     }
     player->RemoveAurasDueToSpell(SPELL_HORDE_CONTROLS_FACTORY_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
@@ -893,18 +883,9 @@ void BattlefieldWG::OnPlayerLeaveWar(Player* player)
 
 void BattlefieldWG::OnPlayerLeaveZone(Player* player)
 {
-    player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_WINTERGRASP);
     if (!m_BattlefieldActive)
-    {
-        player->RemoveAurasDueToSpell(SPELL_RECRUIT);
-        player->RemoveAurasDueToSpell(SPELL_CORPORAL);
-        player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
-        player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
-        player->RemoveAurasDueToSpell(SPELL_TENACITY);
-        player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
-        player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-    }
+        RemoveAurasFromPlayer(player);
+       
     player->RemoveAurasDueToSpell(SPELL_HORDE_CONTROLS_FACTORY_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_ALLIANCE_CONTROLS_FACTORY_PHASE_SHIFT);
     player->RemoveAurasDueToSpell(SPELL_HORDE_CONTROL_PHASE_SHIFT);
@@ -913,20 +894,8 @@ void BattlefieldWG::OnPlayerLeaveZone(Player* player)
 
 void BattlefieldWG::OnPlayerEnterZone(Player* player)
 {
-    player->RemoveAurasDueToSpell(SPELL_ESSENCE_OF_WINTERGRASP);
     if (!m_BattlefieldActive)
-    {
-        player->RemoveAurasDueToSpell(SPELL_RECRUIT);
-        player->RemoveAurasDueToSpell(SPELL_CORPORAL);
-        player->RemoveAurasDueToSpell(SPELL_LIEUTENANT);
-        player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        player->RemoveAurasDueToSpell(SPELL_SPIRITUAL_IMMUNITY);
-        player->RemoveAurasDueToSpell(SPELL_TENACITY);
-        player->RemoveAurasDueToSpell(SPELL_WINTERGRASP_RESTRICTED_FLIGHT_AREA);
-        player->RemoveAurasDueToSpell(SPELL_TOWER_CONTROL);
-        if (player->GetTeamId() == GetDefenderTeam())
-            player->AddAura(SPELL_ESSENCE_OF_WINTERGRASP, player);
-    }
+        RemoveAurasFromPlayer(player);
 
     player->AddAura(m_DefenderTeam == TEAM_HORDE ? SPELL_HORDE_CONTROL_PHASE_SHIFT : SPELL_ALLIANCE_CONTROL_PHASE_SHIFT, player);
     // Send worldstate to player

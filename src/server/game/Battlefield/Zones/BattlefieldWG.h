@@ -383,6 +383,8 @@ class BattlefieldWG : public Battlefield
         void AddBrokenTower(TeamId team);
 
         void DoCompleteOrIncrementAchievement(uint32 achievement, Player *player, uint8 incrementNumber = 1);
+        
+        void RemoveAurasFromPlayer(Player* player);
 
         /**
          * \brief Called when battlefield is setup, at server start
@@ -390,13 +392,13 @@ class BattlefieldWG : public Battlefield
         bool SetupBattlefield();
 
         /// Return pointer to relic object
-        GameObject *GetRelic()
+        GameObject* GetRelic()
         {
             return m_relic;
         }
 
         /// Define relic object
-        void SetRelic(GameObject * relic)
+        void SetRelic(GameObject* relic)
         {
             m_relic = relic;
         }
